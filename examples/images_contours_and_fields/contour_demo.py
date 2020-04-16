@@ -31,7 +31,7 @@ Z = (Z1 - Z2) * 2
 
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z)
-ax.clabel(CS, inline=1, fontsize=10)
+ax.clabel(CS, inline=True, fontsize=10)
 ax.set_title('Simplest default with labels')
 
 ###############################################################################
@@ -43,7 +43,7 @@ fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z)
 manual_locations = [
     (-1, -1.4), (-0.62, -0.7), (-2, 0.5), (1.7, 1.2), (2.0, 1.4), (2.4, 1.7)]
-ax.clabel(CS, inline=1, fontsize=10, manual=manual_locations)
+ax.clabel(CS, inline=True, fontsize=10, manual=manual_locations)
 ax.set_title('labels at selected locations')
 
 ###############################################################################
@@ -51,7 +51,7 @@ ax.set_title('labels at selected locations')
 
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z, 6, colors='k')  # Negative contours default to dashed.
-ax.clabel(CS, fontsize=9, inline=1)
+ax.clabel(CS, fontsize=9, inline=True)
 ax.set_title('Single color - negative contours dashed')
 
 ###############################################################################
@@ -60,7 +60,7 @@ ax.set_title('Single color - negative contours dashed')
 matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z, 6, colors='k')  # Negative contours default to dashed.
-ax.clabel(CS, fontsize=9, inline=1)
+ax.clabel(CS, fontsize=9, inline=True)
 ax.set_title('Single color - negative contours solid')
 
 ###############################################################################
@@ -71,7 +71,7 @@ CS = ax.contour(X, Y, Z, 6,
                 linewidths=np.arange(.5, 4, .5),
                 colors=('r', 'green', 'blue', (1, 1, 0), '#afeeee', '0.5'),
                 )
-ax.clabel(CS, fontsize=9, inline=1)
+ax.clabel(CS, fontsize=9, inline=True)
 ax.set_title('Crazy lines')
 
 ###############################################################################
@@ -90,7 +90,7 @@ zc = CS.collections[6]
 plt.setp(zc, linewidth=4)
 
 ax.clabel(CS, levels[1::2],  # label every second level
-          inline=1, fmt='%1.1f', fontsize=14)
+          inline=True, fmt='%1.1f', fontsize=14)
 
 # make a colorbar for the contour lines
 CB = fig.colorbar(CS, shrink=0.8)

@@ -150,11 +150,12 @@ def get_cmap(name=None, lut=None):
 
 class ScalarMappable:
     """
-    This is a mixin class to support scalar data to RGBA mapping.
-    The ScalarMappable makes use of data normalization before returning
-    RGBA colors from the given colormap.
+    A mixin class to map scalar data to RGBA.
 
+    The ScalarMappable applies data normalization before returning RGBA colors
+    from the given colormap.
     """
+
     def __init__(self, norm=None, cmap=None):
         """
 
@@ -270,7 +271,8 @@ class ScalarMappable:
         return rgba
 
     def set_array(self, A):
-        """Set the image array from numpy array *A*.
+        """
+        Set the image array from numpy array *A*.
 
         Parameters
         ----------

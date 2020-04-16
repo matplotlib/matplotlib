@@ -92,7 +92,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     sty_cycle : Cycler or operable of dict
         Style to apply to each set
 
-    bottoms : array, optional, default: 0
+    bottoms : array, default: 0
         The initial positions of the bottoms.
 
     hist_func : callable, optional

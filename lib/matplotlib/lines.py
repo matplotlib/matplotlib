@@ -1,6 +1,6 @@
 """
-This module contains all the 2D line class which can draw with a
-variety of line styles, markers and colors.
+The 2D line class which can draw with a variety of line styles, markers and
+colors.
 """
 
 # TODO: expose cap and join style attrs
@@ -31,8 +31,7 @@ _log = logging.getLogger(__name__)
 
 
 def _get_dash_pattern(style):
-    """Convert linestyle -> dash pattern
-    """
+    """Convert linestyle to dash pattern."""
     # go from short hand -> full strings
     if isinstance(style, str):
         style = ls_mapper.get(style, style)
@@ -495,7 +494,8 @@ class Line2D(Artist):
         return self._pickradius
 
     def set_pickradius(self, d):
-        """Set the pick radius used for containment tests.
+        """
+        Set the pick radius used for containment tests.
 
         See `.contains` for more details.
 

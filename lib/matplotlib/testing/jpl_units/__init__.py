@@ -1,6 +1,6 @@
 """
-This is a sample set of units for use with testing unit conversion
-of matplotlib routines.  These are used because they use very strict
+A sample set of units for use with testing unit conversion
+of Matplotlib routines.  These are used because they use very strict
 enforcement of unitized data which will test the entire spectrum of how
 unitized data might be used (it is not always meaningful to convert to
 a float without specific units given).

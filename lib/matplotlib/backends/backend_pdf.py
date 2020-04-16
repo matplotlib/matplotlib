@@ -226,7 +226,9 @@ def pdfRepr(obj):
 
 
 class Reference:
-    """PDF reference object.
+    """
+    PDF reference object.
+
     Use PdfFile.reserveObject() to create References.
     """
 
@@ -1223,7 +1225,8 @@ end"""
         return name
 
     def _soft_mask_state(self, smask):
-        """Return an ExtGState that sets the soft mask to the given shading.
+        """
+        Return an ExtGState that sets the soft mask to the given shading.
 
         Parameters
         ----------
@@ -1345,7 +1348,8 @@ end"""
         self.writeObject(self.hatchObject, hatchDict)
 
     def addGouraudTriangles(self, points, colors):
-        """Add a Gouraud triangle shading
+        """
+        Add a Gouraud triangle shading.
 
         Parameters
         ----------
@@ -1603,11 +1607,12 @@ end"""
         self.output(*cmds)
 
     def reserveObject(self, name=''):
-        """Reserve an ID for an indirect object.
+        """
+        Reserve an ID for an indirect object.
+
         The name is used for debugging in case we forget to print out
         the object with writeObject.
         """
-
         id = next(self._object_seq)
         self.xrefTable.append([None, 0, name])
         return Reference(id)
@@ -1720,7 +1725,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
     @cbook.deprecated("3.3")
     def track_characters(self, *args, **kwargs):
-        """Keeps track of which characters are required from each font."""
+        """Keep track of which characters are required from each font."""
         self.file._character_tracker.track(*args, **kwargs)
 
     @cbook.deprecated("3.3")
@@ -2455,7 +2460,7 @@ class PdfPages:
 
     def savefig(self, figure=None, **kwargs):
         """
-        Saves a `.Figure` to this file as a new page.
+        Save a `.Figure` to this file as a new page.
 
         Any other keyword arguments are passed to `~.Figure.savefig`.
 

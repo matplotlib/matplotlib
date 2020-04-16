@@ -118,7 +118,8 @@ class RGBAxes:
         self._config_axes()
 
     def _config_axes(self, line_color='w', marker_edge_color='w'):
-        """Set the line color and ticks for the axes
+        """
+        Set the line color and ticks for the axes.
 
         Parameters
         ----------
@@ -131,14 +132,14 @@ class RGBAxes:
 
     @cbook.deprecated("3.3")
     def add_RGB_to_figure(self):
-        """Add the red, green and blue axes to the RGB composite's axes figure
-        """
+        """Add red, green and blue axes to the RGB composite's axes figure."""
         self.RGB.get_figure().add_axes(self.R)
         self.RGB.get_figure().add_axes(self.G)
         self.RGB.get_figure().add_axes(self.B)
 
     def imshow_rgb(self, r, g, b, **kwargs):
-        """Create the four images {rgb, r, g, b}
+        """
+        Create the four images {rgb, r, g, b}.
 
         Parameters
         ----------

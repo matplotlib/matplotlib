@@ -447,8 +447,8 @@ Adding Artists
    Axes.add_table
 
 
-Twinning
-========
+Twinning and sharing
+====================
 
 .. autosummary::
    :toctree: _as_gen
@@ -457,6 +457,9 @@ Twinning
 
    Axes.twinx
    Axes.twiny
+
+   Axes.sharex
+   Axes.sharey
 
    Axes.get_shared_x_axes
    Axes.get_shared_y_axes

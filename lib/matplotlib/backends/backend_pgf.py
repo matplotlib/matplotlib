@@ -395,7 +395,7 @@ class RendererPgf(RendererBase):
     @cbook._delete_parameter("3.3", "dummy")
     def __init__(self, figure, fh, dummy=False):
         """
-        Creates a new PGF renderer that translates any drawing instruction
+        Create a new PGF renderer that translates any drawing instruction
         into text commands to be interpreted in a latex pgfpicture environment.
 
         Attributes
@@ -1004,7 +1004,7 @@ class PdfPages:
         filename : str or path-like
             Plots using `PdfPages.savefig` will be written to a file at this
             location. Any older file with the same name is overwritten.
-        keep_empty : bool, optional
+        keep_empty : bool, default: True
             If set to False, then empty pdf files will be deleted automatically
             when closed.
         metadata : dict, optional
@@ -1111,7 +1111,7 @@ class PdfPages:
 
     def savefig(self, figure=None, **kwargs):
         """
-        Saves a `.Figure` to this file as a new page.
+        Save a `.Figure` to this file as a new page.
 
         Any other keyword arguments are passed to `~.Figure.savefig`.
 

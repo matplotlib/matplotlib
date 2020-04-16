@@ -1,5 +1,5 @@
 """
-This module defines default legend handlers.
+Default legend handlers.
 
 It is strongly encouraged to have read the :doc:`legend guide
 </tutorials/intermediate/legend_guide>` before this documentation.
@@ -21,7 +21,6 @@ This module includes definition of several legend handler classes
 derived from the base class (HandlerBase) with the following method::
 
     def legend_artist(self, legend, orig_handle, fontsize, handlebox)
-
 """
 
 from itertools import cycle
@@ -628,8 +627,8 @@ class HandlerStem(HandlerNpointsYoffsets):
 
     def _copy_collection_props(self, legend_handle, orig_handle):
         """
-        Method to copy properties from a LineCollection (orig_handle) to a
-        Line2D (legend_handle).
+        Copy properties from the `.LineCollection` *orig_handle* to the
+        `.Line2D` *legend_handle*.
         """
         legend_handle.set_color(orig_handle.get_color()[0])
         legend_handle.set_linestyle(orig_handle.get_linestyle()[0])

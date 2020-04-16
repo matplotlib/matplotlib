@@ -818,7 +818,7 @@ _prop_aliases = {
 
 def cycler(*args, **kwargs):
     """
-    Creates a `~cycler.Cycler` object much like :func:`cycler.cycler`,
+    Create a `~cycler.Cycler` object much like :func:`cycler.cycler`,
     but includes input validation.
 
     Call signatures::
@@ -1219,7 +1219,8 @@ defaultParams = {
     'axes.titlelocation':    ['center', ['left', 'center', 'right']],  # alignment of axes title
     'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
     'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
-    'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
+    'axes.titley':           [None, validate_float_or_None],  # title location, axes units, None means auto
+    'axes.titlepad':         [6.0, validate_float],  # pad from axes top decoration to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', ['minor', 'both', 'major']],  # set whether the grid is drawn on
                                                                      # 'major' 'minor' or 'both' ticks

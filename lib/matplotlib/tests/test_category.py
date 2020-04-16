@@ -59,7 +59,8 @@ class FakeAxis:
 
 
 class TestStrCategoryConverter:
-    """Based on the pandas conversion and factorization tests:
+    """
+    Based on the pandas conversion and factorization tests:
 
     ref: /pandas/tseries/tests/test_converter.py
          /pandas/tests/test_algos.py:TestFactorize

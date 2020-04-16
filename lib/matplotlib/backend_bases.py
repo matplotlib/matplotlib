@@ -29,7 +29,7 @@ graphics contexts must implement to serve as a Matplotlib backend.
 """
 
 from contextlib import contextmanager
-from enum import IntEnum
+from enum import Enum, IntEnum
 import functools
 import importlib
 import io
@@ -41,10 +41,12 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.backend_managers import ToolManager
 from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
@@ -116,7 +118,8 @@ def get_registered_canvas_class(format):
 
 
 class RendererBase:
-    """An abstract base class to handle drawing/rendering operations.
+    """
+    An abstract base class to handle drawing/rendering operations.
 
     The following methods must be implemented in the backend for full
     functionality (though just implementing :meth:`draw_path` alone would
@@ -235,9 +238,8 @@ class RendererBase:
                        coordinates, offsets, offsetTrans, facecolors,
                        antialiased, edgecolors):
         """
-        This provides a fallback implementation of
-        :meth:`draw_quad_mesh` that generates paths and then calls
-        :meth:`draw_path_collection`.
+        Fallback implementation of :meth:`draw_quad_mesh` that generates paths
+        and then calls :meth:`draw_path_collection`.
         """
 
         from matplotlib.collections import QuadMesh
@@ -296,9 +298,8 @@ class RendererBase:
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):
         """
-        This is a helper method (along with :meth:`_iter_collection`) to make
-        it easier to write a space-efficient :meth:`draw_path_collection`
-        implementation in a backend.
+        Helper method (along with :meth:`_iter_collection`) to implement
+        :meth:`draw_path_collection` in a space-efficient manner.
 
         This method yields all of the base path/transform
         combinations, given a master transform, a list of paths and
@@ -346,10 +347,8 @@ class RendererBase:
                          edgecolors, linewidths, linestyles,
                          antialiaseds, urls, offset_position):
         """
-        This is a helper method (along with
-        :meth:`_iter_collection_raw_paths`) to make it easier to write
-        a space-efficient :meth:`draw_path_collection` implementation in a
-        backend.
+        Helper method (along with :meth:`_iter_collection_raw_paths`) to
+        implement :meth:`draw_path_collection` in a space-efficient manner.
 
         This method yields all of the path, offset and graphics
         context combinations to draw the path collection.  The caller
@@ -2306,7 +2305,7 @@ class FigureCanvasBase:
         self._looping = False
 
 
-def key_press_handler(event, canvas, toolbar=None):
+def key_press_handler(event, canvas=None, toolbar=None):
     """
     Implement the default Matplotlib key bindings for the canvas and toolbar
     described at :ref:`key-event-handling`.
@@ -2314,16 +2313,24 @@ def key_press_handler(event, canvas, toolbar=None):
     Parameters
     ----------
     event : `KeyEvent`
-        a key press/release event
-    canvas : `FigureCanvasBase`
-        the backend-specific canvas instance
-    toolbar : `NavigationToolbar2`
-        the navigation cursor toolbar
+        A key press/release event.
+    canvas : `FigureCanvasBase`, default: ``event.canvas``
+        The backend-specific canvas instance.  This parameter is kept for
+        back-compatibility, but, if set, should always be equal to
+        ``event.canvas``.
+    toolbar : `NavigationToolbar2`, default: ``event.canvas.toolbar``
+        The navigation cursor toolbar.  This parameter is kept for
+        back-compatibility, but, if set, should always be equal to
+        ``event.canvas.toolbar``.
     """
     # these bindings happen whether you are over an axes or not
 
     if event.key is None:
         return
+    if canvas is None:
+        canvas = event.canvas
+    if toolbar is None:
+        toolbar = canvas.toolbar
 
     # Load key-mappings from rcParams.
     fullscreen_keys = rcParams['keymap.fullscreen']
@@ -2483,10 +2490,17 @@ def key_press_handler(event, canvas, toolbar=None):
                     a.set_navigate(i == n)
 
 
-def button_press_handler(event, canvas, toolbar=None):
+def button_press_handler(event, canvas=None, toolbar=None):
     """
     The default Matplotlib button actions for extra mouse buttons.
+
+    Parameters are as for `key_press_handler`, except that *event* is a
+    `MouseEvent`.
     """
+    if canvas is None:
+        canvas = event.canvas
+    if toolbar is None:
+        toolbar = canvas.toolbar
     if toolbar is not None:
         button_name = str(MouseButton(event.button))
         if button_name in rcParams['keymap.back']:
@@ -2573,7 +2587,9 @@ class FigureManagerBase:
                 'button_press_event',
                 self.button_press)
 
-        self.toolmanager = None
+        self.toolmanager = (ToolManager(canvas.figure)
+                            if mpl.rcParams['toolbar'] == 'toolmanager'
+                            else None)
         self.toolbar = None
 
         @self.canvas.figure.add_axobserver
@@ -2610,12 +2626,12 @@ class FigureManagerBase:
         :ref:`key-event-handling`.
         """
         if rcParams['toolbar'] != 'toolmanager':
-            key_press_handler(event, self.canvas, self.canvas.toolbar)
+            key_press_handler(event)
 
     def button_press(self, event):
         """The default Matplotlib button actions for extra mouse buttons."""
         if rcParams['toolbar'] != 'toolmanager':
-            button_press_handler(event, self.canvas, self.canvas.toolbar)
+            button_press_handler(event)
 
     def get_window_title(self):
         """
@@ -2633,6 +2649,15 @@ class FigureManagerBase:
 
 
 cursors = tools.cursors
+
+
+class _Mode(str, Enum):
+    NONE = ""
+    PAN = "pan/zoom"
+    ZOOM = "zoom rect"
+
+    def __str__(self):
+        return self.value
 
 
 class NavigationToolbar2:
@@ -2699,19 +2724,20 @@ class NavigationToolbar2:
         canvas.toolbar = self
         self._nav_stack = cbook.Stack()
         self._xypress = None  # location and axis info at the time of the press
-        self._idPress = None
-        self._idRelease = None
-        self._active = None
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
         self._init_toolbar()
+        self._id_press = self.canvas.mpl_connect(
+            'button_press_event', self._zoom_pan_handler)
+        self._id_release = self.canvas.mpl_connect(
+            'button_release_event', self._zoom_pan_handler)
         self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
-        self._id_zoom = None
+        self._zoom_info = None
 
         self._button_pressed = None  # determined by button pressed at start
 
-        self.mode = ''  # a mode string for the status bar
+        self.mode = _Mode.NONE  # a mode string for the status bar
         self.set_history_buttons()
 
     def set_message(self, s):
@@ -2789,17 +2815,17 @@ class NavigationToolbar2:
         """
         Update the cursor after a mouse move event or a tool (de)activation.
         """
-        if not event.inaxes or not self._active:
+        if not event.inaxes or not self.mode:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
                 self._lastCursor = cursors.POINTER
         else:
-            if (self._active == 'ZOOM'
+            if (self.mode == _Mode.ZOOM
                     and self._lastCursor != cursors.SELECT_REGION):
                 self.set_cursor(cursors.SELECT_REGION)
                 self._lastCursor = cursors.SELECT_REGION
-            elif (self._active == 'PAN' and
-                  self._lastCursor != cursors.MOVE):
+            elif (self.mode == _Mode.PAN
+                  and self._lastCursor != cursors.MOVE):
                 self.set_cursor(cursors.MOVE)
                 self._lastCursor = cursors.MOVE
 
@@ -2854,40 +2880,32 @@ class NavigationToolbar2:
         else:
             self.set_message(self.mode)
 
+    def _zoom_pan_handler(self, event):
+        if self.mode == _Mode.PAN:
+            if event.name == "button_press_event":
+                self.press_pan(event)
+            elif event.name == "button_release_event":
+                self.release_pan(event)
+        if self.mode == _Mode.ZOOM:
+            if event.name == "button_press_event":
+                self.press_zoom(event)
+            elif event.name == "button_release_event":
+                self.release_zoom(event)
+
     def pan(self, *args):
         """
-        Activate the pan/zoom tool.
+        Toggle the pan/zoom tool.
 
         Pan with left button, zoom with right.
         """
-        # set the pointer icon and button press funcs to the
-        # appropriate callbacks
-
-        if self._active == 'PAN':
-            self._active = None
-        else:
-            self._active = 'PAN'
-        if self._idPress is not None:
-            self._idPress = self.canvas.mpl_disconnect(self._idPress)
-            self.mode = ''
-
-        if self._idRelease is not None:
-            self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
-            self.mode = ''
-
-        if self._active:
-            self._idPress = self.canvas.mpl_connect(
-                'button_press_event', self.press_pan)
-            self._idRelease = self.canvas.mpl_connect(
-                'button_release_event', self.release_pan)
-            self.mode = 'pan/zoom'
-            self.canvas.widgetlock(self)
-        else:
+        if self.mode == _Mode.PAN:
+            self.mode = _Mode.NONE
             self.canvas.widgetlock.release(self)
-
+        else:
+            self.mode = _Mode.PAN
+            self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._active)
-
+            a.set_navigate_mode(self.mode)
         self.set_message(self.mode)
 
     def press(self, event):
@@ -2917,37 +2935,24 @@ class NavigationToolbar2:
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
-        # If we're already in the middle of a zoom, pressing another
-        # button works to "cancel"
-        if self._id_zoom is not None:
-            self.canvas.mpl_disconnect(self._id_zoom)
-            self.release(event)
-            self.draw()
-            self._xypress = None
-            self._button_pressed = None
-            self._id_zoom = None
+        if event.button not in [1, 3]:
             return
-
-        if event.button in [1, 3]:
-            self._button_pressed = event.button
-        else:
-            self._button_pressed = None
+        if event.x is None or event.y is None:
             return
-
+        axes = [a for a in self.canvas.figure.get_axes()
+                if a.in_axes(event) and a.get_navigate() and a.can_zoom()]
+        if not axes:
+            return
         if self._nav_stack() is None:
-            # set the home button to this view
-            self.push_current()
-
-        x, y = event.x, event.y
-        self._xypress = []
-        for a in self.canvas.figure.get_axes():
-            if (x is not None and y is not None and a.in_axes(event) and
-                    a.get_navigate() and a.can_zoom()):
-                self._xypress.append((x, y, a))
-
-        self._id_zoom = self.canvas.mpl_connect(
-            'motion_notify_event', self.drag_zoom)
-
+            self.push_current()  # set the home button to this view
+        id_zoom = self.canvas.mpl_connect(
+            "motion_notify_event", self.drag_zoom)
+        self._zoom_info = {
+            "direction": "in" if event.button == 1 else "out",
+            "start_xy": (event.x, event.y),
+            "axes": axes,
+            "cid": id_zoom,
+        }
         self.press(event)
 
     def push_current(self):
@@ -2980,7 +2985,7 @@ class NavigationToolbar2:
         self._button_pressed = None
         self.push_current()
         self.release(event)
-        self.draw()
+        self._draw()
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
@@ -2992,71 +2997,65 @@ class NavigationToolbar2:
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
-        if self._xypress:
-            x, y = event.x, event.y
-            lastx, lasty, a = self._xypress[0]
-            (x1, y1), (x2, y2) = np.clip(
-                [[lastx, lasty], [x, y]], a.bbox.min, a.bbox.max)
-            if event.key == "x":
-                y1, y2 = a.bbox.intervaly
-            elif event.key == "y":
-                x1, x2 = a.bbox.intervalx
-            self.draw_rubberband(event, x1, y1, x2, y2)
+        start_xy = self._zoom_info["start_xy"]
+        ax = self._zoom_info["axes"][0]
+        (x1, y1), (x2, y2) = np.clip(
+            [start_xy, [event.x, event.y]], ax.bbox.min, ax.bbox.max)
+        if event.key == "x":
+            y1, y2 = ax.bbox.intervaly
+        elif event.key == "y":
+            x1, x2 = ax.bbox.intervalx
+        self.draw_rubberband(event, x1, y1, x2, y2)
 
     def release_zoom(self, event):
         """Callback for mouse button release in zoom to rect mode."""
-        if self._id_zoom is not None:
-            self.canvas.mpl_disconnect(self._id_zoom)
-        self._id_zoom = None
-
-        self.remove_rubberband()
-
-        if not self._xypress:
+        if self._zoom_info is None:
             return
 
-        last_a = []
+        # We don't check the event button here, so that zooms can be cancelled
+        # by (pressing and) releasing another mouse button.
+        self.canvas.mpl_disconnect(self._zoom_info["cid"])
+        self.remove_rubberband()
 
-        for lastx, lasty, a in self._xypress:
+        start_x, start_y = self._zoom_info["start_xy"]
+
+        for i, ax in enumerate(self._zoom_info["axes"]):
             x, y = event.x, event.y
             # ignore singular clicks - 5 pixels is a threshold
             # allows the user to "cancel" a zoom action
             # by zooming by less than 5 pixels
-            if ((abs(x - lastx) < 5 and event.key != "y") or
-                    (abs(y - lasty) < 5 and event.key != "x")):
+            if ((abs(x - start_x) < 5 and event.key != "y") or
+                    (abs(y - start_y) < 5 and event.key != "x")):
                 self._xypress = None
                 self.release(event)
-                self.draw()
+                self._draw()
                 return
 
-            # detect twinx, twiny axes and avoid double zooming
-            twinx, twiny = False, False
-            if last_a:
-                for la in last_a:
-                    if a.get_shared_x_axes().joined(a, la):
-                        twinx = True
-                    if a.get_shared_y_axes().joined(a, la):
-                        twiny = True
-            last_a.append(a)
+            # Detect whether this axes is twinned with an earlier axes in the
+            # list of zoomed axes, to avoid double zooming.
+            twinx = any(ax.get_shared_x_axes().joined(ax, prev)
+                        for prev in self._zoom_info["axes"][:i])
+            twiny = any(ax.get_shared_y_axes().joined(ax, prev)
+                        for prev in self._zoom_info["axes"][:i])
 
-            if self._button_pressed == 1:
-                direction = 'in'
-            elif self._button_pressed == 3:
-                direction = 'out'
-            else:
-                continue
+            ax._set_view_from_bbox(
+                (start_x, start_y, x, y), self._zoom_info["direction"],
+                event.key, twinx, twiny)
 
-            a._set_view_from_bbox((lastx, lasty, x, y), direction,
-                                  event.key, twinx, twiny)
-
-        self.draw()
-        self._xypress = None
-        self._button_pressed = None
+        self._draw()
+        self._zoom_info = None
 
         self.push_current()
         self.release(event)
 
+    @cbook.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
     def draw(self):
         """Redraw the canvases, update the locators."""
+        self._draw()
+
+    # Can be removed once Locator.refresh() is removed, and replaced by an
+    # inline call to self.canvas.draw_idle().
+    def _draw(self):
         for a in self.canvas.figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
@@ -3069,7 +3068,7 @@ class NavigationToolbar2:
                 locators.append(yaxis.get_minor_locator())
 
             for loc in locators:
-                loc.refresh()
+                mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
         self.canvas.draw_idle()
 
     def _update_view(self):
@@ -3110,33 +3109,15 @@ class NavigationToolbar2:
         self.set_history_buttons()
 
     def zoom(self, *args):
-        """Activate zoom to rect mode."""
-        if self._active == 'ZOOM':
-            self._active = None
-        else:
-            self._active = 'ZOOM'
-
-        if self._idPress is not None:
-            self._idPress = self.canvas.mpl_disconnect(self._idPress)
-            self.mode = ''
-
-        if self._idRelease is not None:
-            self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
-            self.mode = ''
-
-        if self._active:
-            self._idPress = self.canvas.mpl_connect('button_press_event',
-                                                    self.press_zoom)
-            self._idRelease = self.canvas.mpl_connect('button_release_event',
-                                                      self.release_zoom)
-            self.mode = 'zoom rect'
-            self.canvas.widgetlock(self)
-        else:
+        """Toggle zoom to rect mode."""
+        if self.mode == _Mode.ZOOM:
+            self.mode = _Mode.NONE
             self.canvas.widgetlock.release(self)
-
+        else:
+            self.mode = _Mode.ZOOM
+            self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._active)
-
+            a.set_navigate_mode(self.mode)
         self.set_message(self.mode)
 
     def set_history_buttons(self):

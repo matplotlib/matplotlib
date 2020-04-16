@@ -1204,7 +1204,7 @@ default: 'top'
             fig.add_axes(ax)
         """
 
-        if not len(args):
+        if not len(args) and 'rect' not in kwargs:
             cbook.warn_deprecated(
                 "3.3",
                 message="Calling add_axes() without argument is "

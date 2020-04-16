@@ -114,7 +114,8 @@ class Axes(_AxesBase):
         title = cbook._check_getitem(titles, loc=loc.lower())
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc=None, pad=None, **kwargs):
+    def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None,
+                  **kwargs):
         """
         Set a title for the axes.
 
@@ -140,6 +141,11 @@ class Axes(_AxesBase):
         loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
             Which title to set.
 
+        y : float, default: :rc:`axes.titley`
+            Vertical axes loation for the title (1.0 is the top).  If
+            None (the default), y is determined automatically to avoid
+            decorators on the axes.
+
         pad : float, default: :rc:`axes.titlepad`
             The offset of the title from the top of the axes, in points.
 
@@ -156,6 +162,14 @@ class Axes(_AxesBase):
         """
         if loc is None:
             loc = rcParams['axes.titlelocation']
+
+        if y is None:
+            y = rcParams['axes.titley']
+        if y is None:
+            y = 1.0
+        else:
+            self._autotitlepos = False
+        kwargs['y'] = y
 
         titles = {'left': self._left_title,
                   'center': self.title,
@@ -2787,7 +2801,7 @@ class Axes(_AxesBase):
         -----
         .. seealso::
             The MATLAB function
-            `stem <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
+            `stem <https://www.mathworks.com/help/matlab/ref/stem.html>`_
             which inspired this method.
         """
         if not 1 <= len(args) <= 5:
@@ -5390,7 +5404,7 @@ default: :rc:`scatter.edgecolors`
 
             If *interpolation* is 'none', then no interpolation is performed
             on the Agg, ps, pdf and svg backends. Other backends will fall back
-            to 'nearest'. Note that most SVG renders perform interpolation at
+            to 'nearest'. Note that most SVG renderers perform interpolation at
             rendering and that the default interpolation method they implement
             may differ.
 
@@ -6833,12 +6847,12 @@ default: :rc:`scatter.edgecolors`
         weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
 
-        cmin : scalar, optional, default: None
+        cmin : scalar, default: None
             All bins that has count less than cmin will not be displayed (set
             to NaN before passing to imshow) and these count values in the
             return value count histogram will also be set to nan upon return.
 
-        cmax : scalar, optional, default: None
+        cmax : scalar, default: None
             All bins that has count more than cmax will not be displayed (set
             to NaN before passing to imshow) and these count values in the
             return value count histogram will also be set to nan upon return.
@@ -7834,7 +7848,8 @@ default: :rc:`scatter.edgecolors`
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
-        """Drawing function for violin plots.
+        """
+        Drawing function for violin plots.
 
         Draw a violin plot for each column of *vpstats*. Each filled area
         extends to represent the entire data range, with optional lines at the

@@ -636,8 +636,14 @@ class ToolViewsPositions(ToolBase):
             if a not in self.home_views[figure]:
                 self.home_views[figure][a] = a._get_view()
 
+    @cbook.deprecated("3.3", alternative="self.figure.canvas.draw_idle()")
     def refresh_locators(self):
         """Redraw the canvases, update the locators."""
+        self._refresh_locators()
+
+    # Can be removed once Locator.refresh() is removed, and replaced by an
+    # inline call to self.figure.canvas.draw_idle().
+    def _refresh_locators(self):
         for a in self.figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
@@ -654,7 +660,7 @@ class ToolViewsPositions(ToolBase):
                 locators.append(zaxis.get_minor_locator())
 
             for loc in locators:
-                loc.refresh()
+                mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
         self.figure.canvas.draw_idle()
 
     def home(self):
@@ -808,7 +814,7 @@ class ToolZoom(ZoomPanBase):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.toolmanager.trigger_tool('rubberband', self)
-        self.toolmanager.get_tool(_views_positions).refresh_locators()
+        self.toolmanager.get_tool(_views_positions)._refresh_locators()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -935,7 +941,7 @@ class ToolPan(ZoomPanBase):
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._id_drag)
         self.toolmanager.messagelock.release(self)
-        self.toolmanager.get_tool(_views_positions).refresh_locators()
+        self.toolmanager.get_tool(_views_positions)._refresh_locators()
 
     def _press(self, event):
         if event.button == 1:
@@ -986,7 +992,7 @@ class ToolPan(ZoomPanBase):
 class ToolHelpBase(ToolBase):
     description = 'Print tool list, shortcuts and description'
     default_keymap = mpl.rcParams['keymap.help']
-    image = 'help.png'
+    image = 'help'
 
     @staticmethod
     def format_shortcut(key_sequence):

@@ -669,7 +669,8 @@ class Artist:
         self.stale = True
 
     def set_path_effects(self, path_effects):
-        """Set the path effects.
+        """
+        Set the path effects.
 
         Parameters
         ----------
@@ -883,7 +884,8 @@ class Artist:
         return self._agg_filter
 
     def set_agg_filter(self, filter_func):
-        """Set the agg filter.
+        """
+        Set the agg filter.
 
         Parameters
         ----------
@@ -980,7 +982,12 @@ class Artist:
         ret = []
         with cbook._setattr_cm(self, eventson=False):
             for k, v in props.items():
-                k = k.lower()
+                if k != k.lower():
+                    cbook.warn_deprecated(
+                        "3.3", message="Case-insensitive properties were "
+                        "deprecated in %(since)s and support will be removed "
+                        "%(removal)s")
+                    k = k.lower()
                 # White list attributes we want to be able to update through
                 # art.update, art.set, setp.
                 if k == "axes":

@@ -1,7 +1,19 @@
 [flake8]
 max-line-length = 79
+select =
+    # flake8 default
+    C90, E, F, W,
+    # docstring-convention=numpy
+    D100, D101, D102, D103, D104, D105, D106,
+    D200, D201, D202, D204, D205, D206, D207, D208,
+    D209, D210, D211, D214, D215,
+    D300, D301, D302,
+    D400, D401, D403, D404, D405, D406, D407, D408,
+    D409, D410, D411, D412, D414,
+    # matplotlib-specific extra pydocstyle errors
+    D213,
 ignore =
-    # Normal default
+    # flake8 default
     E121,E123,E126,E226,E24,E704,W503,W504,
     # Additional ignores:
     E122, E127, E131,
@@ -13,9 +25,9 @@ ignore =
     N801, N802, N803, N806, N812,
     # pydocstyle
     D100, D101, D102, D103, D104, D105, D106, D107,
-    D200, D202, D203, D204, D205, D207, D212, D213,
-    D301
-    D400, D401, D402, D403, D413,
+    D200, D202, D203, D204, D205, D207, D212,
+    D301,
+    D400, D401, D402, D403, D404, D413,
 
 exclude =
     .git

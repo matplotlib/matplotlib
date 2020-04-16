@@ -935,7 +935,8 @@ class FigureFrameWx(wx.Frame):
         # By adding toolbar in sizer, we are able to put it at the bottom
         # of the frame - so appearance is closer to GTK version
 
-        self.toolmanager = self._get_toolmanager()
+        self.figmgr = FigureManagerWx(self.canvas, num, self)
+
         statusbar = (StatusbarWx(self, self.toolmanager)
                      if self.toolmanager else StatusBarWx(self))
         self.SetStatusBar(statusbar)
@@ -961,14 +962,16 @@ class FigureFrameWx(wx.Frame):
 
         self.canvas.SetMinSize((2, 2))
 
-        self.figmgr = FigureManagerWx(self.canvas, num, self)
-
         self.Bind(wx.EVT_CLOSE, self._onClose)
 
     @cbook.deprecated("3.2", alternative="self.GetStatusBar()")
     @property
     def statusbar(self):
         return self.GetStatusBar()
+
+    @property
+    def toolmanager(self):
+        return self.figmgr.toolmanager
 
     def _get_toolbar(self):
         if mpl.rcParams['toolbar'] == 'toolbar2':
@@ -978,13 +981,6 @@ class FigureFrameWx(wx.Frame):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        if mpl.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
@@ -1026,9 +1022,9 @@ class FigureFrameWx(wx.Frame):
 
 class FigureManagerWx(FigureManagerBase):
     """
-    This class contains the FigureCanvas and GUI frame
+    Container/controller for the FigureCanvas and GUI frame.
 
-    It is instantiated by GcfWx whenever a new figure is created. GcfWx is
+    It is instantiated by Gcf whenever a new figure is created.  Gcf is
     responsible for managing multiple instances of FigureManagerWx.
 
     Attributes
@@ -1045,8 +1041,16 @@ class FigureManagerWx(FigureManagerBase):
         self.frame = frame
         self.window = frame
 
-        self.toolmanager = getattr(frame, "toolmanager", None)
-        self.toolbar = frame.GetToolBar()
+    @property
+    def toolbar(self):
+        return self.frame.GetToolBar()
+
+    @toolbar.setter
+    def toolbar(self, value):
+        # Never allow this, except that base class inits this to None before
+        # the frame is set up.
+        if value is not None or hasattr(self, "frame"):
+            raise AttributeError("can't set attribute")
 
     def show(self):
         # docstring inherited
@@ -1058,7 +1062,9 @@ class FigureManagerWx(FigureManagerBase):
     def destroy(self, *args):
         # docstring inherited
         _log.debug("%s - destroy()", type(self))
-        self.frame.Close()
+        frame = self.frame
+        if frame:  # Else, may have been already deleted, e.g. when closing.
+            frame.Close()
         wxapp = wx.GetApp()
         if wxapp:
             wxapp.Yield()
@@ -1079,25 +1085,16 @@ class FigureManagerWx(FigureManagerBase):
 
 def _load_bitmap(filename):
     """
-    Load a bitmap file from the backends/images subdirectory in which the
-    matplotlib library is installed. The filename parameter should not
-    contain any path information as this is determined automatically.
-
-    Returns a wx.Bitmap object.
+    Load a wx.Bitmap from a file in the "images" directory of the Matplotlib
+    data.
     """
-    path = cbook._get_data_path('images', filename)
-    if not path.exists():
-        raise IOError(f"Could not find bitmap file '{path}'; dying")
-    return wx.Bitmap(str(path))
+    return wx.Bitmap(str(cbook._get_data_path('images', filename)))
 
 
 def _set_frame_icon(frame):
     bundle = wx.IconBundle()
     for image in ('matplotlib.png', 'matplotlib_large.png'):
-        try:
-            icon = wx.Icon(_load_bitmap(image))
-        except IOError:
-            continue
+        icon = wx.Icon(_load_bitmap(image))
         if not icon.IsOk():
             return
         bundle.AddIcon(icon)
@@ -1117,7 +1114,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
         NavigationToolbar2.__init__(self, canvas)
-        self.canvas = canvas
         self._idle = True
         self.prevZoomRect = None
         # for now, use alternate zoom-rectangle drawing on all
@@ -1142,7 +1138,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.wx_ids[text] = (
                 self.AddTool(
                     -1,
-                    bitmap=_load_bitmap(image_file + ".png"),
+                    bitmap=_load_bitmap(f"{image_file}.png"),
                     bmpDisabled=wx.NullBitmap,
                     label=text, shortHelp=text, longHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
@@ -1216,7 +1212,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas.Update()
 
     def press(self, event):
-        if self._active == 'ZOOM':
+        if self.mode.name == 'ZOOM':
             if not self.retinaFix:
                 self.wxoverlay = wx.Overlay()
             else:
@@ -1228,7 +1224,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     self.zoomAxes = event.inaxes
 
     def release(self, event):
-        if self._active == 'ZOOM':
+        if self.mode.name == 'ZOOM':
             # When the mouse is released we reset the overlay and it
             # restores the former content to the window.
             if not self.retinaFix:
@@ -1323,8 +1319,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 class StatusBarWx(wx.StatusBar):
     """
     A status bar is added to _FigureFrame to allow measurements and the
-    previously selected scroll function to be displayed as a user
-    convenience.
+    previously selected scroll function to be displayed as a user convenience.
     """
 
     def __init__(self, parent, *args, **kwargs):
@@ -1354,7 +1349,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             tool = self.InsertTool(idx, -1, name, bmp, wx.NullBitmap, kind,
                                    description or "")
         else:
-            size = (self.GetTextExtent(name)[0]+10, -1)
+            size = (self.GetTextExtent(name)[0] + 10, -1)
             if toggle:
                 control = wx.ToggleButton(self, -1, name, size=size)
             else:

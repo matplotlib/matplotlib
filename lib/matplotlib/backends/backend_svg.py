@@ -129,7 +129,7 @@ class XMLWriter:
 
     def start(self, tag, attrib={}, **extra):
         """
-        Opens a new element.  Attributes can be given as keyword
+        Open a new element.  Attributes can be given as keyword
         arguments, or as a string/string dictionary. The method returns
         an opaque identifier that can be passed to the :meth:`close`
         method, to close all open elements up to and including this one.
@@ -162,7 +162,7 @@ class XMLWriter:
 
     def comment(self, comment):
         """
-        Adds a comment to the output stream.
+        Add a comment to the output stream.
 
         Parameters
         ----------
@@ -175,7 +175,7 @@ class XMLWriter:
 
     def data(self, text):
         """
-        Adds character data to the output stream.
+        Add character data to the output stream.
 
         Parameters
         ----------
@@ -186,7 +186,7 @@ class XMLWriter:
 
     def end(self, tag=None, indent=True):
         """
-        Closes the current element (opened by the most recent call to
+        Close the current element (opened by the most recent call to
         :meth:`start`).
 
         Parameters
@@ -214,7 +214,7 @@ class XMLWriter:
 
     def close(self, id):
         """
-        Closes open elements, up to (and including) the element identified
+        Close open elements, up to (and including) the element identified
         by the given identifier.
 
         Parameters
@@ -227,7 +227,7 @@ class XMLWriter:
 
     def element(self, tag, text=None, attrib={}, **extra):
         """
-        Adds an entire element.  This is the same as calling :meth:`start`,
+        Add an entire element.  This is the same as calling :meth:`start`,
         :meth:`data`, and :meth:`end` in sequence. The *text* argument can be
         omitted.
         """
@@ -237,7 +237,7 @@ class XMLWriter:
         self.end(indent=False)
 
     def flush(self):
-        """Flushes the output stream."""
+        """Flush the output stream."""
         pass  # replaced by the constructor
 
 

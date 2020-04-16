@@ -366,11 +366,12 @@ The ``Fil``, ``Fill``, ``Filll``, ``NegFil``, ``NegFill``, ``NegFilll``, and
 ``SsGlue`` classes in the :mod:`matplotlib.mathtext` module are deprecated.
 As an alternative, directly construct glue instances with ``Glue("fil")``, etc.
 
-NavigationToolbar2QT.parent
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This attribute is deprecated.  In order to access the parent window, use
+NavigationToolbar2QT.parent and .basedir
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes are deprecated.  In order to access the parent window, use
 ``toolbar.canvas.parent()``.  Once the deprecation period is elapsed, it will
-also be accessible as ``toolbar.parent()``.
+also be accessible as ``toolbar.parent()``.  The base directory to the icons
+is ``os.path.join(mpl.get_data_path(), "images")``.
 
 Path helpers in :mod:`.bezier`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -423,6 +424,33 @@ or None is deprecated; set it to "horizontal" instead.  Moreover, the two
 orientations ("horizontal" and "vertical") will become case-sensitive in the
 future.
 
+`pyplot.plotting()` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`pyplot.plotting()` is no-op function. It is now removed.
+
 *minor* kwarg to `.Axis.get_ticklocs` will become keyword-only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Passing this argument positionally is deprecated.
+
+Case-insensitive properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Normalization of upper or mixed-case property names to lowercase in
+`.Artist.set` and `.Artist.update` is deprecated.  In the future, property
+names will be passed as is, allowing one to pass names such as *patchA* or
+*UVC*.
+
+``ContourSet.ax``, ``Quiver.ax``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes are deprecated in favor of ``ContourSet.axes`` and
+``Quiver.axes``, for consistency with other artists.
+
+``Locator.refresh()`` and associated methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``Locator.refresh()`` is deprecated.  This method was called at certain places
+to let locators update their internal state, typically based on the axis
+limits.  Locators should now always consult the axis limits when called, if
+needed.
+
+The associated helper methods ``NavigationToolbar2.draw()`` and
+``ToolViewsPositions.refresh_locators()`` are deprecated, and should be
+replaced by calls to ``draw_idle()`` on the corresponding canvas.

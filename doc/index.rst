@@ -187,7 +187,7 @@ Open source
 
 .. raw:: html
 
-   <a href="https://www.numfocus.org/">
+   <a href="https://numfocus.org/">
    <img src="_static/numfocus_badge.png"
     alt="A Fiscally Sponsored Project of NUMFocus"
     style="float:right; margin-left:20px" />
@@ -210,7 +210,7 @@ the NumFOCUS organization or to the `John Hunter Technology Fellowship
 <jdh-fellowship_>`_.
 
 .. _donating: https://numfocus.org/donate-to-matplotlib
-.. _jdh-fellowship: https://www.numfocus.org/programs/john-hunter-technology-fellowship/
+.. _jdh-fellowship: https://numfocus.org/programs/john-hunter-technology-fellowship/
 .. _nf: https://numfocus.org
 
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software

@@ -33,10 +33,10 @@ rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, N)))
 
 fig, ax = plt.subplots()
 lines = ax.plot(data)
-ax.legend(lines)
+ax.legend()
 
 ##############################################################################
-# Note that one legend item per line was created.
+# Note that no legend entries were created.
 # In this case, we can compose a legend using Matplotlib objects that aren't
 # explicitly tied to the data that was plotted. For example:
 

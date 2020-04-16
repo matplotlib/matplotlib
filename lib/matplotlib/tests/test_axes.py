@@ -3791,8 +3791,7 @@ def test_eventplot_defaults():
     ('red', (0, 1, 0), None, (1, 0, 1, 0.5)),  # a tricky case mixing types
 ])
 def test_eventplot_colors(colors):
-    """Test the *colors* parameter of eventplot. Inspired by the issue #8193.
-    """
+    """Test the *colors* parameter of eventplot. Inspired by issue #8193."""
     data = [[i] for i in range(4)]  # 4 successive events of different nature
 
     # Build the list of the expected colors
@@ -5522,6 +5521,7 @@ def test_titlesetpos():
 
 def test_title_xticks_top():
     # Test that title moves if xticks on top of axes.
+    mpl.rcParams['axes.titley'] = None
     fig, ax = plt.subplots()
     ax.xaxis.set_ticks_position('top')
     ax.set_title('xlabel top')
@@ -5531,6 +5531,7 @@ def test_title_xticks_top():
 
 def test_title_xticks_top_both():
     # Test that title moves if xticks on top of axes.
+    mpl.rcParams['axes.titley'] = None
     fig, ax = plt.subplots()
     ax.tick_params(axis="x",
                    bottom=True, top=True, labelbottom=True, labeltop=True)

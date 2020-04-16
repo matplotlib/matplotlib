@@ -93,9 +93,9 @@ def adjusted_figsize(w, h, dpi, n):
     return correct_roundoff(wnew, dpi, n), correct_roundoff(hnew, dpi, n)
 
 
-# A registry for available MovieWriter classes
 class MovieWriterRegistry:
     """Registry of available writer classes by human readable name."""
+
     def __init__(self):
         self._registered = dict()
 
@@ -104,7 +104,8 @@ class MovieWriterRegistry:
         """Sets a flag to re-setup the writers."""
 
     def register(self, name):
-        """Decorator for registering a class under a name.
+        """
+        Decorator for registering a class under a name.
 
         Example use::
 
@@ -200,7 +201,7 @@ class AbstractMovieWriter(abc.ABC):
     @abc.abstractmethod
     def setup(self, fig, outfile, dpi=None):
         """
-        Perform setup for writing the movie file.
+        Setup for writing the movie file.
 
         Parameters
         ----------
@@ -208,7 +209,7 @@ class AbstractMovieWriter(abc.ABC):
             The figure object that contains the information for frames.
         outfile : str
             The filename of the resulting movie file.
-        dpi : float, optional, default: ``fig.dpi``
+        dpi : float, default: ``fig.dpi``
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         """
@@ -424,7 +425,7 @@ class FileMovieWriter(MovieWriter):
     def setup(self, fig, outfile, dpi=None, frame_prefix=None,
               clear_temp=True):
         """
-        Perform setup for writing the movie file.
+        Setup for writing the movie file.
 
         Parameters
         ----------
@@ -564,7 +565,8 @@ class PillowWriter(AbstractMovieWriter):
 # Base class of ffmpeg information. Has the config keys and the common set
 # of arguments that controls the *output* side of things.
 class FFMpegBase:
-    """Mixin class for FFMpeg output.
+    """
+    Mixin class for FFMpeg output.
 
     To be useful this must be multiply-inherited from with a
     `MovieWriterBase` sub-class.
@@ -606,7 +608,8 @@ class FFMpegBase:
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
 class FFMpegWriter(FFMpegBase, MovieWriter):
-    """Pipe-based ffmpeg writer.
+    """
+    Pipe-based ffmpeg writer.
 
     Frames are streamed directly to ffmpeg via a pipe and written in a single
     pass.
@@ -887,12 +890,10 @@ class HTMLWriter(FileMovieWriter):
 
 class Animation:
     """
-    This class wraps the creation of an animation using matplotlib.
+    A base class for Animations.
 
-    It is only a base class which should be subclassed to provide
-    needed behavior.
-
-    This class is not typically used directly.
+    This class is not usable as is, and should be subclassed to provide needed
+    behavior.
 
     Parameters
     ----------
@@ -989,7 +990,7 @@ class Animation:
             Controls the dots per inch for the movie frames.  Together with
             the figure's size in inches, this controls the size of the movie.
 
-        codec : str, optional, default: :rc:`animation.codec`.
+        codec : str, default: :rc:`animation.codec`.
             The video codec to use.  Not all codecs are supported by a given
             `MovieWriter`.
 

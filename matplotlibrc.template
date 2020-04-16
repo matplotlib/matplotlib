@@ -92,7 +92,7 @@
 #backend_fallback: True
 
 #interactive: False
-#toolbar:     toolbar2  # {None, toolbar2}
+#toolbar:     toolbar2  # {None, toolbar2, toolmanager}
 #timezone:    UTC       # a pytz timezone string, e.g., US/Central or Europe/Paris
 
 
@@ -326,7 +326,7 @@
 #mathtext.sf:  sans
 #mathtext.tt:  monospace
 #mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
-                        # 'stixsans'] when a symbol can not be found in one of the 
+                        # 'stixsans'] when a symbol can not be found in one of the
                         # custom math fonts. Select 'None' to not perform fallback
                         # and replace the missing character by a dummy symbol.
 #mathtext.default: it  # The default font to use for math.
@@ -352,6 +352,7 @@
 #axes.titleweight:   normal  # font weight of title
 #axes.titlecolor:    auto    # color of the axes title, auto falls back to
                              # text.color as default value
+#axes.titley:        None    # position title (axes relative units).  None implies auto 
 #axes.titlepad:      6.0     # pad between axes and title in points
 #axes.labelsize:     medium  # fontsize of the x any y labels
 #axes.labelpad:      4.0     # space between label and axis

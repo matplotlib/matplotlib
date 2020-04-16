@@ -470,7 +470,8 @@ class Patch(artist.Artist):
         return self._capstyle
 
     def set_joinstyle(self, s):
-        """Set the joinstyle.
+        """
+        Set the joinstyle.
 
         Parameters
         ----------
@@ -705,8 +706,21 @@ class Shadow(Patch):
 
 class Rectangle(Patch):
     """
-    A rectangle with lower left at *xy* = (*x*, *y*) with
-    specified *width*, *height* and rotation *angle*.
+    A rectangle defined via an anchor point *xy* and its *width* and *height*.
+
+    The rectangle extends from ``xy[0]`` to ``xy[0] + width`` in x-direction
+    and from ``xy[1]`` to ``xy[1] + height`` in y-direction. ::
+
+      :                +------------------+
+      :                |                  |
+      :              height               |
+      :                |                  |
+      :               (xy)---- width -----+
+
+    One may picture *xy* as the bottom left corner, but which corner *xy* is
+    actually depends on the the direction of the axis and the sign of *width*
+    and *height*; e.g. *xy* would be the bottom right corner if the x-axis
+    was inverted or if *width* was negative.
     """
 
     def __str__(self):
@@ -720,22 +734,18 @@ class Rectangle(Patch):
         Parameters
         ----------
         xy : (float, float)
-            The rectangle extends from xy[0] to xy[0] + width in
-            x-direction and from xy[1] to xy[1] + height in y-direction.
+            The anchor point.
         width : float
-            Rectangle width
+            Rectangle width.
         height : float
-            Rectangle height
+            Rectangle height.
         angle : float, default: 0
             Rotation in degrees anti-clockwise about *xy*.
-        fill : bool, default: True
-            Whether to fill the rectangle.
 
-        Notes
-        -----
-        Valid keyword arguments are:
-
-        %(Patch)s
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties
+            %(Patch)s
         """
 
         Patch.__init__(self, **kwargs)
@@ -1377,7 +1387,7 @@ class Ellipse(Patch):
             Total length (diameter) of horizontal axis.
         height : float
             Total length (diameter) of vertical axis.
-        angle : scalar, optional
+        angle : float, default: 0
             Rotation in degrees anti-clockwise.
 
         Notes
@@ -1570,7 +1580,7 @@ class Arc(Ellipse):
         angle : float
             Rotation of the ellipse in degrees (counterclockwise).
 
-        theta1, theta2 : float, optional
+        theta1, theta2 : float, default: 0, 360
             Starting and ending angles of the arc in degrees. These values
             are relative to *angle*, e.g. if *angle* = 45 and *theta1* = 90
             the absolute starting angle is 135.
@@ -1612,7 +1622,7 @@ class Arc(Ellipse):
           Lancaster, Don.  *Approximating a Circle or an Ellipse Using
           Four Bezier Cubic Splines.*
 
-          http://www.tinaja.com/glib/ellipse4.pdf
+          https://www.tinaja.com/glib/ellipse4.pdf
 
         There is a use case where very large ellipses must be drawn
         with very high accuracy, and it is too expensive to render the
@@ -1741,7 +1751,7 @@ class Arc(Ellipse):
 
 def bbox_artist(artist, renderer, props=None, fill=True):
     """
-    This is a debug function to draw a rectangle around the bounding
+    A debug function to draw a rectangle around the bounding
     box returned by an artist's `.Artist.get_window_extent`
     to test whether the artist is returning the correct bbox.
 
@@ -1772,7 +1782,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
 
 def draw_bbox(bbox, renderer, color='k', trans=None):
     """
-    This is a debug function to draw a rectangle around the bounding
+    A debug function to draw a rectangle around the bounding
     box returned by an artist's `.Artist.get_window_extent`
     to test whether the artist is returning the correct bbox.
     """
@@ -2454,15 +2464,12 @@ class ConnectionStyle(_Style):
         def __call__(self, posA, posB,
                      shrinkA=2., shrinkB=2., patchA=None, patchB=None):
             """
-            Calls the *connect* method to create a path between *posA*
-             and *posB*. The path is clipped and shrunken.
+            Call the *connect* method to create a path between *posA* and
+            *posB*; then clip and shrink the path.
             """
-
             path = self.connect(posA, posB)
-
             clipped_path = self._clip(path, patchA, patchB)
             shrunk_path = self._shrink(clipped_path, shrinkA, shrinkB)
-
             return shrunk_path
 
     @_register_style(_style_list)
@@ -4198,7 +4205,8 @@ class ConnectionPatch(FancyArrowPatch):
                  clip_on=False,
                  dpi_cor=1.,
                  **kwargs):
-        """Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
+        """
+        Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*.
 
         Valid keys are
 

@@ -1172,14 +1172,14 @@ class Axis(martist.Artist):
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
-        return cbook.silent_list('Text major ticklabel', labels1 + labels2)
+        return labels1 + labels2
 
     def get_minorticklabels(self):
         """Return this Axis' minor tick labels, as a list of `~.text.Text`."""
         ticks = self.get_minor_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
-        return cbook.silent_list('Text minor ticklabel', labels1 + labels2)
+        return labels1 + labels2
 
     def get_ticklabels(self, minor=False, which=None):
         """
@@ -1885,8 +1885,7 @@ class XAxis(Axis):
         self.offset_text_position = 'bottom'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the x axis.
-        """
+        """Test whether the mouse event occurred in the x axis."""
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info

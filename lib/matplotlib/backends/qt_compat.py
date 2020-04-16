@@ -67,7 +67,7 @@ else:
 
 def _setup_pyqt5():
     global QtCore, QtGui, QtWidgets, __version__, is_pyqt5, \
-        _isdeleted, _getSaveFileName
+        _isdeleted, _devicePixelRatio, _setDevicePixelRatio, _getSaveFileName
 
     if QT_API == QT_API_PYQT5:
         from PyQt5 import QtCore, QtGui, QtWidgets
@@ -88,10 +88,14 @@ def _setup_pyqt5():
     def is_pyqt5():
         return True
 
+    # self.devicePixelRatio() returns 0 in rare cases
+    def _devicePixelRatio(obj): return obj.devicePixelRatio() or 1
+    def _setDevicePixelRatio(obj, factor): obj.setDevicePixelRatio(factor)
+
 
 def _setup_pyqt4():
     global QtCore, QtGui, QtWidgets, __version__, is_pyqt5, \
-        _isdeleted, _getSaveFileName
+        _isdeleted, _devicePixelRatio, _setDevicePixelRatio, _getSaveFileName
 
     def _setup_pyqt4_internal(api):
         global QtCore, QtGui, QtWidgets, \
@@ -142,6 +146,9 @@ def _setup_pyqt4():
 
     def is_pyqt5():
         return False
+
+    def _devicePixelRatio(obj): return 1
+    def _setDevicePixelRatio(obj, factor): pass
 
 
 if QT_API in [QT_API_PYQT5, QT_API_PYSIDE2]:

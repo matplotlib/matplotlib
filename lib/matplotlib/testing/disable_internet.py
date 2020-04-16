@@ -30,7 +30,7 @@ _orig_opener = None
 
 def check_internet_off(original_function):
     """
-    Wraps ``original_function``, which in most cases is assumed
+    Wrap ``original_function``, which in most cases is assumed
     to be a `socket.socket` method, to raise an `IOError` for any operations
     on non-local AF_INET sockets.
     """
@@ -135,8 +135,10 @@ def turn_on_internet(verbose=False):
 
 @contextlib.contextmanager
 def no_internet(verbose=False):
-    """Context manager to temporarily disable internet access (if not already
-    disabled).  If it was already disabled before entering the context manager
+    """
+    Temporarily disables internet access (if not already disabled).
+
+    If it was already disabled before entering the context manager
     (i.e. `turn_off_internet` was called previously) then this is a no-op and
     leaves internet access disabled until a manual call to `turn_on_internet`.
     """

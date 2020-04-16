@@ -7,7 +7,7 @@
 #    Copyright The Matplotlib development team
 
 """
-This module provides functionality to add a table to a plot.
+Tables drawing.
 
 Use the factory function `~matplotlib.table.table` to create a ready-made
 table from texts. If you need more control, use the `.Table` class and its
@@ -39,12 +39,21 @@ class Cell(Rectangle):
     PAD = 0.1
     """Padding between text and rectangle."""
 
+    _edges = 'BRTL'
+    _edge_aliases = {'open':         '',
+                     'closed':       _edges,  # default
+                     'horizontal':   'BT',
+                     'vertical':     'RL'
+                     }
+
     def __init__(self, xy, width, height,
                  edgecolor='k', facecolor='w',
                  fill=True,
                  text='',
                  loc=None,
-                 fontproperties=None
+                 fontproperties=None,
+                 *,
+                 visible_edges='closed',
                  ):
         """
         Parameters
@@ -68,20 +77,26 @@ class Cell(Rectangle):
         fontproperties : dict
             A dict defining the font properties of the text. Supported keys and
             values are the keyword arguments accepted by `.FontProperties`.
+        visible_edges : str, default: 'closed'
+            The cell edges to be drawn with a line: a substring of 'BRTL'
+            (bottom, right, top, left), or one of 'open' (no edges drawn),
+            'closed' (all edges drawn), 'horizontal' (bottom and top),
+            'vertical' (right and left).
         """
 
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height, fill=fill,
                            edgecolor=edgecolor, facecolor=facecolor)
         self.set_clip_on(False)
+        self.visible_edges = visible_edges
 
         # Create text object
         if loc is None:
             loc = 'right'
         self._loc = loc
-        self._text = Text(x=xy[0], y=xy[1], text=text,
-                          fontproperties=fontproperties)
-        self._text.set_clip_on(False)
+        self._text = Text(x=xy[0], y=xy[1], clip_on=False,
+                          text=text, fontproperties=fontproperties,
+                          horizontalalignment=loc, verticalalignment='center')
 
     def set_transform(self, trans):
         Rectangle.set_transform(self, trans)
@@ -122,35 +137,24 @@ class Cell(Rectangle):
             return
         # draw the rectangle
         Rectangle.draw(self, renderer)
-
         # position the text
         self._set_text_position(renderer)
         self._text.draw(renderer)
         self.stale = False
 
     def _set_text_position(self, renderer):
-        """Set text up so it draws in the right place.
-
-        Currently support 'left', 'center' and 'right'
-        """
+        """Set text up so it is drawn in the right place."""
         bbox = self.get_window_extent(renderer)
-        l, b, w, h = bbox.bounds
-
-        # draw in center vertically
-        self._text.set_verticalalignment('center')
-        y = b + (h / 2.0)
-
-        # now position horizontally
-        if self._loc == 'center':
-            self._text.set_horizontalalignment('center')
-            x = l + (w / 2.0)
-        elif self._loc == 'left':
-            self._text.set_horizontalalignment('left')
-            x = l + (w * self.PAD)
-        else:
-            self._text.set_horizontalalignment('right')
-            x = l + (w * (1.0 - self.PAD))
-
+        # center vertically
+        y = bbox.y0 + bbox.height / 2
+        # position horizontally
+        loc = self._text.get_horizontalalignment()
+        if loc == 'center':
+            x = bbox.x0 + bbox.width / 2
+        elif loc == 'left':
+            x = bbox.x0 + bbox.width * self.PAD
+        else:  # right.
+            x = bbox.x0 + bbox.width * (1 - self.PAD)
         self._text.set_position((x, y))
 
     def get_text_bounds(self, renderer):
@@ -177,23 +181,6 @@ class Cell(Rectangle):
         """
         self._text.update(kwargs)
         self.stale = True
-
-
-class CustomCell(Cell):
-    """
-    A `.Cell` subclass with configurable edge visibility.
-    """
-
-    _edges = 'BRTL'
-    _edge_aliases = {'open':         '',
-                     'closed':       _edges,  # default
-                     'horizontal':   'BT',
-                     'vertical':     'RL'
-                     }
-
-    def __init__(self, *args, visible_edges, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.visible_edges = visible_edges
 
     @property
     def visible_edges(self):
@@ -237,6 +224,9 @@ class CustomCell(Cell):
             codes,
             readonly=True
             )
+
+
+CustomCell = Cell  # Backcompat. alias.
 
 
 class Table(Artist):
@@ -342,12 +332,12 @@ class Table(Artist):
 
         Returns
         -------
-        `.CustomCell`
+        `.Cell`
             The created cell.
 
         """
         xy = (0, 0)
-        cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
+        cell = Cell(xy, visible_edges=self.edges, *args, **kwargs)
         self[row, col] = cell
         return cell
 
@@ -355,7 +345,7 @@ class Table(Artist):
         """
         Set a custom cell in a given position.
         """
-        cbook._check_isinstance(CustomCell, cell=cell)
+        cbook._check_isinstance(Cell, cell=cell)
         try:
             row, col = position[0], position[1]
         except Exception as err:
@@ -374,7 +364,7 @@ class Table(Artist):
     @property
     def edges(self):
         """
-        The default value of `~.CustomCell.visible_edges` for newly added
+        The default value of `~.Cell.visible_edges` for newly added
         cells using `.add_cell`.
 
         Notes
@@ -724,7 +714,7 @@ def table(ax,
 
     edges : substring of 'BRTL' or {'open', 'closed', 'horizontal', 'vertical'}
         The cell edges to be drawn with a line. See also
-        `~.CustomCell.visible_edges`.
+        `~.Cell.visible_edges`.
 
     Returns
     -------

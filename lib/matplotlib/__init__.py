@@ -1,5 +1,5 @@
 """
-This is an object-oriented plotting library.
+An object-oriented plotting library.
 
 A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g.::
@@ -192,7 +192,7 @@ def _ensure_handler():
 
 def set_loglevel(level):
     """
-    Sets the Matplotlib's root logger and root logger handler level, creating
+    Set Matplotlib's root logger and root logger handler level, creating
     the handler if it does not exist yet.
 
     Typically, one should call ``set_loglevel("info")`` or
@@ -443,18 +443,19 @@ def _create_tmp_config_or_cache_dir():
 
 def _get_xdg_config_dir():
     """
-    Return the XDG configuration directory, according to the `XDG
-    base directory spec
-    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    Return the XDG configuration directory, according to the XDG base
+    directory spec:
+
+    https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
     """
     return os.environ.get('XDG_CONFIG_HOME') or str(Path.home() / ".config")
 
 
 def _get_xdg_cache_dir():
     """
-    Return the XDG cache directory, according to the `XDG
-    base directory spec
-    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    Return the XDG cache directory, according to the XDG base directory spec:
+
+    https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
     """
     return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
 

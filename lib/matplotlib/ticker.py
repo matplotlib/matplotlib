@@ -168,6 +168,7 @@ import itertools
 import logging
 import locale
 import math
+from numbers import Integral
 
 import numpy as np
 
@@ -584,11 +585,42 @@ class ScalarFormatter(Formatter):
 
     def format_data_short(self, value):
         # docstring inherited
+        if isinstance(value, np.ma.MaskedArray) and value.mask:
+            return ""
+        if isinstance(value, Integral):
+            fmt = "%d"
+        else:
+            if self.axis.__name__ in ["xaxis", "yaxis"]:
+                if self.axis.__name__ == "xaxis":
+                    axis_trf = self.axis.axes.get_xaxis_transform()
+                    axis_inv_trf = axis_trf.inverted()
+                    screen_xy = axis_trf.transform((value, 0))
+                    neighbor_values = axis_inv_trf.transform(
+                        screen_xy + [[-1, 0], [+1, 0]])[:, 0]
+                else:  # yaxis:
+                    axis_trf = self.axis.axes.get_yaxis_transform()
+                    axis_inv_trf = axis_trf.inverted()
+                    screen_xy = axis_trf.transform((0, value))
+                    neighbor_values = axis_inv_trf.transform(
+                        screen_xy + [[0, -1], [0, +1]])[:, 1]
+                delta = abs(neighbor_values - value).max()
+            else:
+                # Rough approximation: no more than 1e4 pixels.
+                delta = self.axis.get_view_interval() / 1e4
+            # If e.g. value = 45.67 and delta = 0.02, then we want to round to
+            # 2 digits after the decimal point (floor(log10(0.02)) = -2);
+            # 45.67 contributes 2 digits before the decimal point
+            # (floor(log10(45.67)) + 1 = 2): the total is 4 significant digits.
+            # A value of 0 contributes 1 "digit" before the decimal point.
+            sig_digits = max(
+                0,
+                (math.floor(math.log10(abs(value))) + 1 if value else 1)
+                - math.floor(math.log10(delta)))
+            fmt = f"%-#.{sig_digits}g"
         return (
-            "" if isinstance(value, np.ma.MaskedArray) and value.mask else
             self.fix_minus(
-                locale.format_string("%-12g", (value,)) if self._useLocale else
-                "%-12g" % value))
+                locale.format_string(fmt, (value,)) if self._useLocale else
+                fmt % value))
 
     def format_data(self, value):
         # docstring inherited
@@ -1267,7 +1299,7 @@ class LogitFormatter(Formatter):
 
 class EngFormatter(Formatter):
     """
-    Formats axis values using engineering prefixes to represent powers
+    Format axis values using engineering prefixes to represent powers
     of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
     """
 
@@ -1365,7 +1397,7 @@ class EngFormatter(Formatter):
 
     def format_eng(self, num):
         """
-        Formats a number in engineering notation, appending a letter
+        Format a number in engineering notation, appending a letter
         representing the power of 1000 of the original number.
         Some examples:
 
@@ -1449,17 +1481,14 @@ class PercentFormatter(Formatter):
         self._is_latex = is_latex
 
     def __call__(self, x, pos=None):
-        """
-        Formats the tick as a percentage with the appropriate scaling.
-        """
+        """Format the tick as a percentage with the appropriate scaling."""
         ax_min, ax_max = self.axis.get_view_interval()
         display_range = abs(ax_max - ax_min)
-
         return self.fix_minus(self.format_pct(x, display_range))
 
     def format_pct(self, x, display_range):
         """
-        Formats the number as a percentage number with the correct
+        Format the number as a percentage number with the correct
         number of decimals and adds the percent symbol, if any.
 
         If ``self.decimals`` is `None`, the number of digits after the
@@ -1530,6 +1559,18 @@ class PercentFormatter(Formatter):
     @symbol.setter
     def symbol(self, symbol):
         self._symbol = symbol
+
+
+def _if_refresh_overridden_call_and_emit_deprec(locator):
+    if not locator.refresh.__func__.__module__.startswith("matplotlib."):
+        cbook.warn_external(
+            "3.3", message="Automatic calls to Locator.refresh by the draw "
+            "machinery are deprecated since %(since)s and will be removed in "
+            "%(removal)s.  You are using a third-party locator that overrides "
+            "the refresh() method; this locator should instead perform any "
+            "required processing in __call__().")
+    with cbook._suppress_matplotlib_deprecation_warning():
+        locator.refresh()
 
 
 class Locator(TickHelper):
@@ -1654,9 +1695,9 @@ class Locator(TickHelper):
         step = 0.1 * interval * direction
         self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
 
+    @cbook.deprecated("3.3")
     def refresh(self):
         """Refresh internal information based on current limits."""
-        pass
 
 
 class IndexLocator(Locator):

@@ -1,7 +1,6 @@
 r"""
-This module contains functions to handle markers.  Used by both the
-marker functionality of `~matplotlib.axes.Axes.plot` and
-`~matplotlib.axes.Axes.scatter`.
+Functions to handle markers; used by the marker functionality of
+`~matplotlib.axes.Axes.plot` and `~matplotlib.axes.Axes.scatter`.
 
 All possible markers are defined here:
 
@@ -213,11 +212,11 @@ class MarkerStyle:
 
         Parameters
         ----------
-        marker : str or array-like, optional, default: None
+        marker : str or array-like, default: None
             See the descriptions of possible markers in the module docstring.
 
-        fillstyle : str, optional, default: 'full'
-            'full', 'left", 'right', 'bottom', 'top', 'none'
+        fillstyle : str, default: 'full'
+            One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
         """
         self._marker_function = None
         self.set_fillstyle(fillstyle)

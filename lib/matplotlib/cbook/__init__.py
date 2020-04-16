@@ -165,8 +165,7 @@ class CallbackRegistry:
         return {**vars(self), "callbacks": {}, "_func_cid_map": {}}
 
     def connect(self, s, func):
-        """Register *func* to be called when signal *s* is generated.
-        """
+        """Register *func* to be called when signal *s* is generated."""
         self._func_cid_map.setdefault(s, {})
         try:
             proxy = weakref.WeakMethod(func, self._remove_proxy)
@@ -197,8 +196,7 @@ class CallbackRegistry:
                 del self._func_cid_map[signal]
 
     def disconnect(self, cid):
-        """Disconnect the callback registered with callback id *cid*.
-        """
+        """Disconnect the callback registered with callback id *cid*."""
         for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]
@@ -760,9 +758,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
 class Grouper:
     """
-    This class provides a lightweight way to group arbitrary objects
-    together into disjoint sets when a full-blown graph data structure
-    would be overkill.
+    A disjoint-set data structure.
 
     Objects can be joined using :meth:`join`, tested for connectedness
     using :meth:`joined`, and all disjoint sets can be retrieved by
@@ -770,30 +766,30 @@ class Grouper:
 
     The objects being joined must be hashable and weak-referenceable.
 
-    For example:
-
-        >>> from matplotlib.cbook import Grouper
-        >>> class Foo:
-        ...     def __init__(self, s):
-        ...         self.s = s
-        ...     def __repr__(self):
-        ...         return self.s
-        ...
-        >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
-        >>> grp = Grouper()
-        >>> grp.join(a, b)
-        >>> grp.join(b, c)
-        >>> grp.join(d, e)
-        >>> sorted(map(tuple, grp))
-        [(a, b, c), (d, e)]
-        >>> grp.joined(a, b)
-        True
-        >>> grp.joined(a, c)
-        True
-        >>> grp.joined(a, d)
-        False
-
+    Examples
+    --------
+    >>> from matplotlib.cbook import Grouper
+    >>> class Foo:
+    ...     def __init__(self, s):
+    ...         self.s = s
+    ...     def __repr__(self):
+    ...         return self.s
+    ...
+    >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
+    >>> grp = Grouper()
+    >>> grp.join(a, b)
+    >>> grp.join(b, c)
+    >>> grp.join(d, e)
+    >>> sorted(map(tuple, grp))
+    [(a, b, c), (d, e)]
+    >>> grp.joined(a, b)
+    True
+    >>> grp.joined(a, c)
+    True
+    >>> grp.joined(a, d)
+    False
     """
+
     def __init__(self, init=()):
         self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 
@@ -1284,10 +1280,7 @@ def _to_unmasked_float_array(x):
 
 
 def _check_1d(x):
-    """
-    Converts a sequence of less than 1 dimension, to an array of 1
-    dimension; leaves everything else untouched.
-    """
+    """Convert scalars to 1d arrays; pass-through arrays as is."""
     if not hasattr(x, 'shape') or len(x.shape) < 1:
         return np.atleast_1d(x)
     else:

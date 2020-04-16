@@ -15,7 +15,6 @@ from matplotlib import backend_tools, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
-from matplotlib.backend_managers import ToolManager
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
@@ -260,7 +259,9 @@ class FigureCanvasTk(FigureCanvasBase):
         self._idle_callback = self._tkcanvas.after_idle(idle_draw)
 
     def get_tk_widget(self):
-        """Return the Tk widget used to implement FigureCanvasTkAgg.
+        """
+        Return the Tk widget used to implement FigureCanvasTkAgg.
+
         Although the initial implementation uses a Tk canvas,  this routine
         is intended to hide that fact.
         """
@@ -403,17 +404,13 @@ class FigureManagerTk(FigureManagerBase):
         The tk.Toolbar
     window : tk.Window
         The tk.Window
-
     """
+
     def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
         self.window = window
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
-        self.canvas = canvas
-        # If using toolmanager it has to be present when initializing the
-        # toolbar
-        self.toolmanager = self._get_toolmanager()
         # packing toolbar first, because if space is getting low, last packed
         # widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
@@ -437,13 +434,6 @@ class FigureManagerTk(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        if mpl.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def resize(self, width, height):
         self.canvas._tkcanvas.configure(width=width, height=height)
@@ -500,7 +490,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         ``pack_toolbar=False``.
     """
     def __init__(self, canvas, window, *, pack_toolbar=True):
-        self.canvas = canvas
         # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
         # so that Tool implementations can reuse the methods.
         self.window = window
@@ -621,11 +610,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas.figure.savefig(fname)
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
-
-    def update(self):
-        self._axes = self.canvas.figure.axes
-        with _restore_foreground_window_at_end():
-            NavigationToolbar2.update(self)
 
 
 class ToolTip:

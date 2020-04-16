@@ -24,8 +24,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_agg.FigureCanvasAgg.draw(self)
 
     def on_draw_event(self, widget, ctx):
-        """GtkDrawable draw event, like expose_event in GTK 2.X.
-        """
+        """GtkDrawable draw event, like expose_event in GTK 2.X."""
         allocation = self.get_allocation()
         w, h = allocation.width, allocation.height
 

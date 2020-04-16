@@ -10,7 +10,6 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
-from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -343,7 +342,6 @@ class FigureManagerGTK3(FigureManagerBase):
         w = int(self.canvas.figure.bbox.width)
         h = int(self.canvas.figure.bbox.height)
 
-        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar()
         self.statusbar = None
 
@@ -419,14 +417,6 @@ class FigureManagerGTK3(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        # must be initialised after toolbar has been set
-        if mpl.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def get_window_title(self):
         return self.window.get_title()
@@ -528,7 +518,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             button = self._gtk_ids.get(name)
             if button:
                 with button.handler_block(button._signal_handler):
-                    button.set_active(self._active == active)
+                    button.set_active(self.mode.name == active)
 
     def pan(self, *args):
         super().pan(*args)

@@ -8,8 +8,8 @@ __all__ = ['StrConverter']
 
 
 class StrConverter(units.ConversionInterface):
-    """: A matplotlib converter class.  Provides matplotlib conversion
-          functionality for string data values.
+    """
+    A Matplotlib converter class for string data values.
 
     Valid units for string are:
     - 'indexed' : Values are indexed as they are specified for plotting.
@@ -20,33 +20,12 @@ class StrConverter(units.ConversionInterface):
 
     @staticmethod
     def axisinfo(unit, axis):
-        """: Returns information on how to handle an axis that has string data.
-
-        = INPUT VARIABLES
-        - axis     The axis using this converter.
-        - unit     The units to use for a axis with string data.
-
-        = RETURN VALUE
-        - Returns a matplotlib AxisInfo data structure that contains
-          minor/major formatters, major/minor locators, and default
-          label information.
-        """
-
+        # docstring inherited
         return None
 
     @staticmethod
     def convert(value, unit, axis):
-        """: Convert value using unit to a float.  If value is a sequence, return
-        the converted sequence.
-
-        = INPUT VARIABLES
-        - axis     The axis using this converter.
-        - value    The value or list of values that need to be converted.
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns the value parameter converted to floats.
-        """
+        # docstring inherited
 
         if units.ConversionInterface.is_numlike(value):
             return value
@@ -116,16 +95,6 @@ class StrConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(value, axis):
-        """: Return the default unit for value, or None.
-
-        = INPUT VARIABLES
-        - axis     The axis using this converter.
-        - value    The value or list of values that need units.
-
-        = RETURN VALUE
-        - Returns the default units to use for value.
-        Return the default unit for value, or None.
-        """
-
+        # docstring inherited
         # The default behavior for string indexing.
         return "indexed"

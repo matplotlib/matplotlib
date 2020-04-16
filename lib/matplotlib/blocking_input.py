@@ -1,6 +1,5 @@
 """
-This provides several classes used for blocking interaction with figure
-windows:
+Classes used for blocking interaction with figure windows:
 
 `BlockingInput`
     Creates a callable object to retrieve events in a blocking way for
@@ -235,7 +234,7 @@ class BlockingMouseInput(BlockingInput):
 
     def pop(self, event, index=-1):
         """
-        Removes a click and the associated event from the list of clicks.
+        Remove a click and the associated event from the list of clicks.
 
         Defaults to the last click.
         """

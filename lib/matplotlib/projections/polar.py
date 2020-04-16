@@ -443,6 +443,7 @@ class RadialLocator(mticker.Locator):
     def zoom(self, direction):
         return self.base.zoom(direction)
 
+    @cbook.deprecated("3.3")
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
@@ -1063,13 +1064,15 @@ class PolarAxes(Axes):
 
     def set_theta_zero_location(self, loc, offset=0.0):
         """
-        Sets the location of theta's zero.  (Calls set_theta_offset
-        with the correct value in radians under the hood.)
+        Set the location of theta's zero.
 
+        This simply calls `set_theta_offset` with the correct value in radians.
+
+        Parameters
+        ----------
         loc : str
             May be one of "N", "NW", "W", "SW", "S", "SE", "E", or "NE".
-
-        offset : float, optional
+        offset : float, default: 0
             An offset in degrees to apply from the specified *loc*. **Note:**
             this offset is *always* applied counter-clockwise regardless of
             the direction setting.
@@ -1258,7 +1261,8 @@ class PolarAxes(Axes):
         return np.rad2deg(self._r_label_position.get_matrix()[0, 2])
 
     def set_rlabel_position(self, value):
-        """Updates the theta position of the radius labels.
+        """
+        Update the theta position of the radius labels.
 
         Parameters
         ----------

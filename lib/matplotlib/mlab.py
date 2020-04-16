@@ -406,9 +406,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
                      window=None, noverlap=None, pad_to=None,
                      sides=None, scale_by_freq=None, mode=None):
     """
-    This is a helper function that implements the commonality between the
-    psd, csd, spectrogram and complex, magnitude, angle, and phase spectrums.
-    It is *NOT* meant to be used outside of mlab and may change at any time.
+    Private helper implementing the common parts between the psd, csd,
+    spectrogram and complex, magnitude, angle, and phase spectrums.
     """
     if y is None:
         # if y is None use x for y
@@ -564,9 +563,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 def _single_spectrum_helper(
         mode, x, Fs=None, window=None, pad_to=None, sides=None):
     """
-    This is a helper function that implements the commonality between the
-    complex, magnitude, angle, and phase spectrums.
-    It is *NOT* meant to be used outside of mlab and may change at any time.
+    Private helper implementing the commonality between the complex, magnitude,
+    angle, and phase spectrums.
     """
     cbook._check_in_list(['complex', 'magnitude', 'angle', 'phase'], mode=mode)
 
@@ -640,7 +638,7 @@ detrend : {'none', 'mean', 'linear'} or callable, default 'none'
     choose one of the functions: 'none' calls `.detrend_none`. 'mean' calls
     `.detrend_mean`. 'linear' calls `.detrend_linear`.
 
-scale_by_freq : bool, optional, default: True
+scale_by_freq : bool, default: True
     Whether the resulting density values should be scaled by the scaling
     frequency, which gives density in units of Hz^-1.  This allows for
     integration over the returned frequency values.  The default is True for
@@ -850,7 +848,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     noverlap : int, optional
         The number of points of overlap between blocks.  The default
         value is 128.
-    mode : str, optional, default: 'psd'
+    mode : str, default: 'psd'
         What sort of spectrum to use:
             'psd'
                 Returns the power spectral density.
@@ -1065,7 +1063,8 @@ class GaussianKDE:
     covariance_factor = scotts_factor
 
     def evaluate(self, points):
-        """Evaluate the estimated pdf on a set of points.
+        """
+        Evaluate the estimated pdf on a set of points.
 
         Parameters
         ----------

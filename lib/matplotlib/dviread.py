@@ -274,6 +274,12 @@ class Dvi:
             maxx = max(maxx, x + w)
             maxy = max(maxy, y + e)
             maxy_pure = max(maxy_pure, y)
+        if self._baseline_v is not None:
+            maxy_pure = self._baseline_v  # This should normally be the case.
+            self._baseline_v = None
+
+        if not self.text and not self.boxes:  # Avoid infs/nans from inf+/-inf.
+            return Page(text=[], boxes=[], width=0, height=0, descent=0)
 
         if self.dpi is None:
             # special case for ease of debugging: output raw dvi coordinates
@@ -301,9 +307,24 @@ class Dvi:
         Read one page from the file. Return True if successful,
         False if there were no more pages.
         """
+        # Pages appear to start with the sequence
+        #   bop (begin of page)
+        #   xxx comment
+        #   down
+        #   push
+        #     down, down
+        #     push
+        #       down (possibly multiple)
+        #       push  <=  here, v is the baseline position.
+        #         etc.
+        # (dviasm is useful to explore this structure.)
+        self._baseline_v = None
         while True:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
+            if (self._baseline_v is None
+                    and len(getattr(self, "stack", [])) == 3):
+                self._baseline_v = self.v
             if byte == 140:                         # end of page
                 return True
             if self.state is _dvistate.post_post:   # end of file
@@ -933,9 +954,9 @@ class PsfontsMap:
 @cbook.deprecated("3.3")
 class Encoding:
     r"""
-    Parses a \*.enc file referenced from a psfonts.map style file.
-    The format this class understands is a very limited subset of
-    PostScript.
+    Parse a \*.enc file referenced from a psfonts.map style file.
+
+    The format this class understands is a very limited subset of PostScript.
 
     Usage (subject to change)::
 

@@ -60,9 +60,9 @@ class Axes3D(Axes):
             The parent figure.
         rect : (float, float, float, float)
             The ``(left, bottom, width, height)`` axes position.
-        azim : float, optional, default: -60
+        azim : float, default: -60
             Azimuthal viewing angle.
-        elev : float, optional, default: 30
+        elev : float, default: 30
             Elevation viewing angle.
         sharez : Axes3D, optional
             Other axes to share z-limits with.
@@ -839,10 +839,7 @@ class Axes3D(Axes):
         """)
 
     def clabel(self, *args, **kwargs):
-        """
-        This function is currently not implemented for 3D axes.
-        Returns *None*.
-        """
+        """Currently not implemented for 3D axes, and returns *None*."""
         return None
 
     def view_init(self, elev=None, azim=None):
@@ -1061,10 +1058,11 @@ class Axes3D(Axes):
         return 'x=%s, y=%s, z=%s' % (xs, ys, zs)
 
     def _on_move(self, event):
-        """Mouse moving
+        """
+        Mouse moving.
 
-        button-1 rotates by default.  Can be set explicitly in mouse_init().
-        button-3 zooms by default.  Can be set explicitly in mouse_init().
+        By default, button-1 rotates and button-3 zooms; these buttons can be
+        modified via `mouse_init`.
         """
 
         if not self.button_pressed:
@@ -1532,7 +1530,7 @@ class Axes3D(Axes):
 
     def _generate_normals(self, polygons):
         """
-        Takes a list of polygons and return an array of their normals.
+        Compute the normals of a list of polygons.
 
         Normals point towards the viewer for a face with its vertices in
         counterclockwise order, following the right hand rule.
@@ -1766,7 +1764,7 @@ class Axes3D(Axes):
             A colormap for the surface patches.
         norm : Normalize
             An instance of Normalize to map values to colors.
-        vmin, vmax : scalar, optional, default: None
+        vmin, vmax : scalar, default: None
             Minimum and maximum value to map.
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
@@ -2121,17 +2119,17 @@ class Axes3D(Axes):
         ----------
         xs, ys : array-like
              The data positions.
-        zs : float or array-like, optional, default: 0
+        zs : float or array-like, default: 0
             The z-positions. Either an array of the same length as *xs* and
             *ys* or a single value to place all points in the same plane.
-        zdir : {'x', 'y', 'z', '-x', '-y', '-z'}, optional, default: 'z'
+        zdir : {'x', 'y', 'z', '-x', '-y', '-z'}, default: 'z'
             The axis direction for the *zs*. This is useful when plotting 2D
             data on a 3D Axes. The data must be passed as *xs*, *ys*. Setting
             *zdir* to 'y' then plots the data to the x-z-plane.
 
             See also :doc:`/gallery/mplot3d/2dcollections3d`.
 
-        s : scalar or array-like, optional, default: 20
+        s : scalar or array-like, default: 20
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
@@ -2145,7 +2143,7 @@ class Axes3D(Axes):
             - A 2-D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, optional, default: True
+        depthshade : bool, default: True
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
@@ -2236,7 +2234,8 @@ class Axes3D(Axes):
 
     def bar3d(self, x, y, z, dx, dy, dz, color=None,
               zsort='average', shade=True, lightsource=None, *args, **kwargs):
-        """Generate a 3D barplot.
+        """
+        Generate a 3D barplot.
 
         This method creates three dimensional barplot where the width,
         depth, height, and color of the bars can all be uniquely set.
@@ -2274,7 +2273,7 @@ class Axes3D(Axes):
         zsort : str, optional
             The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
 
-        shade : bool, optional, default: True
+        shade : bool, default: True
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
@@ -2685,7 +2684,7 @@ pivot='tail', normalize=False, **kwargs)
         voxel_faces = defaultdict(list)
 
         def permutation_matrices(n):
-            """Generator of cyclic permutation matrices."""
+            """Generate cyclic permutation matrices."""
             mat = np.eye(n, dtype=np.intp)
             for i in range(n):
                 yield mat

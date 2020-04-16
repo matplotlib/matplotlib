@@ -563,7 +563,7 @@ class IndexDateFormatter(ticker.Formatter):
 
 class ConciseDateFormatter(ticker.Formatter):
     """
-    This class attempts to figure out the best format to use for the
+    A `.Formatter` which attempts to figure out the best format to use for the
     date, and to make it as compact as possible, but still be complete. This is
     most useful when used with the `AutoDateLocator`::
 
@@ -761,8 +761,8 @@ class ConciseDateFormatter(ticker.Formatter):
 
 class AutoDateFormatter(ticker.Formatter):
     """
-    This class attempts to figure out the best format to use.  This is
-    most useful when used with the `AutoDateLocator`.
+    A `.Formatter` which attempts to figure out the best format to use.  This
+    is most useful when used with the `AutoDateLocator`.
 
     The AutoDateFormatter has a scale dictionary that maps the scale
     of the tick (the distance in days between one major tick) and a
@@ -991,9 +991,7 @@ class DateLocator(ticker.Locator):
         self.tz = tz
 
     def datalim_to_dt(self):
-        """
-        Convert axis data interval to datetime objects.
-        """
+        """Convert axis data interval to datetime objects."""
         dmin, dmax = self.axis.get_data_interval()
         if dmin > dmax:
             dmin, dmax = dmax, dmin
@@ -1006,9 +1004,7 @@ class DateLocator(ticker.Locator):
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
-        """
-        Converts the view interval to datetime objects.
-        """
+        """Convert the view interval to datetime objects."""
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin, vmax = vmax, vmin

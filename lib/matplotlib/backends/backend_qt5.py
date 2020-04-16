@@ -15,11 +15,9 @@ from matplotlib.backend_bases import (
     TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
-from matplotlib.backend_managers import ToolManager
-
+from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, _isdeleted, _getSaveFileName,
-    is_pyqt5, __version__, QT_API)
+    QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
 
 backend_version = __version__
 
@@ -255,12 +253,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     @property
     def _dpi_ratio(self):
-        # Not available on Qt4 or some older Qt5.
-        try:
-            # self.devicePixelRatio() returns 0 in rare cases
-            return self.devicePixelRatio() or 1
-        except AttributeError:
-            return 1
+        return qt_compat._devicePixelRatio(self)
 
     def _update_dpi(self):
         # As described in __init__ above, we need to be careful in cases with
@@ -299,14 +292,14 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
     def mouseEventCoords(self, pos):
-        """Calculate mouse coordinates in physical pixels
+        """
+        Calculate mouse coordinates in physical pixels.
 
         Qt5 use logical pixels, but the figure is scaled to physical
-        pixels for rendering.   Transform to physical pixels so that
+        pixels for rendering.  Transform to physical pixels so that
         all of the down-stream transforms work as expected.
 
         Also, the origin is different and needs to be corrected.
-
         """
         dpi_ratio = self._dpi_ratio
         x = pos.x()
@@ -448,8 +441,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             self._event_loop.quit()
 
     def draw(self):
-        """Render the figure, and queue a request for a Qt draw.
-        """
+        """Render the figure, and queue a request for a Qt draw."""
         # The renderer draw is done here; delaying causes problems with code
         # that uses the result of the draw() to update plot elements.
         if self._is_drawing:
@@ -459,9 +451,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.update()
 
     def draw_idle(self):
-        """Queue redraw of the Agg buffer and request Qt paintEvent.
-        """
-        # The Agg draw needs to be handled by the same thread matplotlib
+        """Queue redraw of the Agg buffer and request Qt paintEvent."""
+        # The Agg draw needs to be handled by the same thread Matplotlib
         # modifies the scene graph from. Post Agg draw request to the
         # current event loop in order to ensure thread affinity and to
         # accumulate multiple draw requests from event handling.
@@ -520,12 +511,10 @@ class FigureManagerQT(FigureManagerBase):
         The qt.QToolBar
     window : qt.QMainWindow
         The qt.QMainWindow
-
     """
 
     def __init__(self, canvas, num):
         FigureManagerBase.__init__(self, canvas, num)
-        self.canvas = canvas
         self.window = MainWindow()
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
@@ -534,19 +523,15 @@ class FigureManagerQT(FigureManagerBase):
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 
-        # Give the keyboard focus to the figure instead of the
-        # manager; StrongFocus accepts both tab and click to focus and
-        # will enable the canvas to process event w/o clicking.
-        # ClickFocus only takes the focus is the window has been
-        # clicked
-        # on. http://qt-project.org/doc/qt-4.8/qt.html#FocusPolicy-enum or
-        # http://doc.qt.digia.com/qt/qt.html#FocusPolicy-enum
+        # Give the keyboard focus to the figure instead of the manager:
+        # StrongFocus accepts both tab and click to focus and will enable the
+        # canvas to process event without clicking.
+        # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
         self.window._destroying = False
 
-        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar(self.canvas, self.window)
         self.statusbar = None
 
@@ -611,13 +596,6 @@ class FigureManagerQT(FigureManagerBase):
             toolbar = None
         return toolbar
 
-    def _get_toolmanager(self):
-        if matplotlib.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
-
     def resize(self, width, height):
         # these are Qt methods so they return sizes in 'virtual' pixels
         # so we do not need to worry about dpi scaling here.
@@ -662,12 +640,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
-        self.canvas = canvas
         self._parent = parent
         self.coordinates = coordinates
-        self._actions = {}
-        """A mapping of toolitem method names to their QActions"""
-
+        self._actions = {}  # mapping of toolitem method names to QActions.
         QtWidgets.QToolBar.__init__(self, parent)
         NavigationToolbar2.__init__(self, canvas)
 
@@ -676,12 +651,17 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def parent(self):
         return self._parent
 
+    @cbook.deprecated(
+        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
+    @property
+    def basedir(self):
+        return str(cbook._get_data_path('images'))
+
     def _icon(self, name, color=None):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
-        pm = QtGui.QPixmap(os.path.join(self.basedir, name))
-        if hasattr(pm, 'setDevicePixelRatio'):
-            pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
+        qt_compat._setDevicePixelRatio(pm, self.canvas._dpi_ratio)
         if color is not None:
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
                                           QtCore.Qt.MaskOutColor)
@@ -690,8 +670,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
-        self.basedir = str(cbook._get_data_path('images'))
-
         background_color = self.palette().color(self.backgroundRole())
         foreground_color = self.palette().color(self.foregroundRole())
         icon_color = (foreground_color
@@ -753,9 +731,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
         if 'pan' in self._actions:
-            self._actions['pan'].setChecked(self._active == 'PAN')
+            self._actions['pan'].setChecked(self.mode.name == 'PAN')
         if 'zoom' in self._actions:
-            self._actions['zoom'].setChecked(self._active == 'ZOOM')
+            self._actions['zoom'].setChecked(self.mode.name == 'ZOOM')
 
     def pan(self, *args):
         super().pan(*args)
@@ -807,9 +785,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             filters.append(filter)
         filters = ';;'.join(filters)
 
-        fname, filter = _getSaveFileName(self.canvas.parent(),
-                                         "Choose a filename to save to",
-                                         start, filters, selectedFilter)
+        fname, filter = qt_compat._getSaveFileName(
+            self.canvas.parent(), "Choose a filename to save to", start,
+            filters, selectedFilter)
         if fname:
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
@@ -945,8 +923,7 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
 
     def _icon(self, name):
         pm = QtGui.QPixmap(name)
-        if hasattr(pm, 'setDevicePixelRatio'):
-            pm.setDevicePixelRatio(self.toolmanager.canvas._dpi_ratio)
+        qt_compat._setDevicePixelRatio(pm, self.toolmanager.canvas._dpi_ratio)
         return QtGui.QIcon(pm)
 
     def toggle_toolitem(self, name, toggled):

@@ -1,8 +1,7 @@
 r"""
-This module supports embedded TeX expressions in matplotlib via dvipng
-and dvips for the raster and postscript backends.  The tex and
-dvipng/dvips information is cached in ~/.matplotlib/tex.cache for reuse between
-sessions
+Support for embedded TeX expressions in Matplotlib via dvipng and dvips for the
+raster and PostScript backends.  The tex and dvipng/dvips information is cached
+in ~/.matplotlib/tex.cache for reuse between sessions.
 
 Requirements:
 
@@ -186,6 +185,9 @@ class TexManager:
             self._font_preamble,
             r"\usepackage[utf8]{inputenc}",
             r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+            # Needs to come early so that the custom preamble can change the
+            # geometry, e.g. in convert_psfrags.
+            r"\usepackage[papersize=72in,body=70in,margin=1in]{geometry}",
             self.get_custom_preamble(),
         ])
 
@@ -204,10 +206,10 @@ class TexManager:
         Path(texfile).write_text(
             r"""
 %s
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 \pagestyle{empty}
 \begin{document}
-\fontsize{%f}{%f}%s
+%% The empty hbox ensures that a page is printed even for empty inputs.
+\fontsize{%f}{%f}\hbox{}%s
 \end{document}
 """ % (self._get_preamble(), fontsize, fontsize * 1.25, fontcmd % tex),
             encoding='utf-8')
@@ -239,7 +241,6 @@ class TexManager:
             r"""
 %s
 \usepackage[active,showbox,tightpage]{preview}
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 
 %% we override the default showbox as it is treated as an error and makes
 %% the exit status not zero
@@ -350,9 +351,16 @@ class TexManager:
         # see get_rgba for a discussion of the background
         if not os.path.exists(pngfile):
             dvifile = self.make_dvi(tex, fontsize)
-            self._run_checked_subprocess(
-                ["dvipng", "-bg", "Transparent", "-D", str(dpi),
-                 "-T", "tight", "-o", pngfile, dvifile], tex)
+            cmd = ["dvipng", "-bg", "Transparent", "-D", str(dpi),
+                   "-T", "tight", "-o", pngfile, dvifile]
+            # When testing, disable FreeType rendering for reproducibility; but
+            # dvipng 1.16 has a bug (fixed in f3ff241) that breaks --freetype0
+            # mode, so for it we keep FreeType enabled; the image will be
+            # slightly off.
+            if (getattr(mpl, "_called_from_pytest", False)
+                    and mpl._get_executable_info("dvipng").version != "1.16"):
+                cmd.insert(1, "--freetype0")
+            self._run_checked_subprocess(cmd, tex)
         return pngfile
 
     def get_grey(self, tex, fontsize=None, dpi=None):
@@ -403,7 +411,7 @@ class TexManager:
             return width, height + depth, depth
 
         else:
-            # use dviread. It sometimes returns a wrong descent.
+            # use dviread.
             dvifile = self.make_dvi(tex, fontsize)
             with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
                 page, = dvi

@@ -222,7 +222,7 @@ class Padded(_Base):
 
 def from_any(size, fraction_ref=None):
     """
-    Creates Fixed unit when the first argument is a float, or a
+    Create a Fixed unit when the first argument is a float, or a
     Fraction unit if that is a string that ends with %. The second
     argument is only meaningful when Fraction unit is created.
 

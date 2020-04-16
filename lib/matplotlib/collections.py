@@ -917,8 +917,10 @@ class PathCollection(_CollectionWithSizes):
     def legend_elements(self, prop="colors", num="auto",
                         fmt=None, func=lambda x: x, **kwargs):
         """
-        Creates legend handles and labels for a PathCollection. This is useful
-        for obtaining a legend for a `~.Axes.scatter` plot. E.g.::
+        Create legend handles and labels for a PathCollection.
+
+        This is useful for obtaining a legend for a `~.Axes.scatter` plot;
+        e.g.::
 
             scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3])
             plt.legend(*scatter.legend_elements())
@@ -1118,7 +1120,7 @@ class PolyCollection(_CollectionWithSizes):
     set_paths = set_verts
 
     def set_verts_and_codes(self, verts, codes):
-        """This allows one to initialize vertices with path codes."""
+        """Initialize vertices with path codes."""
         if len(verts) != len(codes):
             raise ValueError("'codes' must be a 1D list or array "
                              "with the same length of 'verts'")
@@ -1299,7 +1301,7 @@ class LineCollection(Collection):
         antialiaseds : sequence, optional
             A sequence of ones or zeros.
 
-        linestyles : str or tuple, optional
+        linestyles : str or tuple, default: 'solid'
             Either one of {'solid', 'dashed', 'dashdot', 'dotted'}, or
             a dash tuple. The dash tuple is::
 
@@ -1849,7 +1851,7 @@ class TriMesh(Collection):
     @staticmethod
     def convert_mesh_to_paths(tri):
         """
-        Converts a given mesh into a sequence of `~.Path` objects.
+        Convert a given mesh into a sequence of `~.Path` objects.
 
         This function is primarily of use to implementers of backends that do
         not directly support meshes.
@@ -1942,7 +1944,7 @@ class QuadMesh(Collection):
     @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         """
-        Converts a given mesh into a sequence of `~.Path` objects.
+        Convert a given mesh into a sequence of `~.Path` objects.
 
         This function is primarily of use to implementers of backends that do
         not directly support quadmeshes.
@@ -1963,7 +1965,7 @@ class QuadMesh(Collection):
 
     def convert_mesh_to_triangles(self, meshWidth, meshHeight, coordinates):
         """
-        Converts a given mesh into a sequence of triangles, each point
+        Convert a given mesh into a sequence of triangles, each point
         with its own color.  This is useful for experiments using
         `~.RendererBase.draw_gouraud_triangle`.
         """
