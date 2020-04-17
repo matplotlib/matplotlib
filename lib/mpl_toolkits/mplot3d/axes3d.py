@@ -12,7 +12,6 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 from functools import reduce
-import logging
 import math
 import textwrap
 
@@ -33,8 +32,6 @@ from matplotlib.tri.triangulation import Triangulation
 from . import art3d
 from . import proj3d
 from . import axis3d
-
-_log = logging.getLogger(__name__)
 
 
 @cbook.deprecated("3.2", alternative="Bbox.unit()")
@@ -2779,97 +2776,95 @@ pivot='tail', normalize=False, **kwargs)
                  ylolims=False, yuplims=False, zlolims=False, zuplims=False,
                  **kwargs):
         """
-        Draws error bars on an Axis3D instance.
+        Plot lines and/or markers with errorbars around them.
+
+        *x*/*y*/*z* define the data locations, and *xerr*/*yerr*/*zerr* define
+        the errorbar sizes. By default, this draws the data markers/lines as
+        well the errorbars. Use fmt='none' to draw errorbars only.
 
         Parameters
         ----------
-        x : scalar
-        y : scalar
-        z : scalar
+        x, y, z : scalar or array-like
+            The data positions.
 
-        xerr/yerr/zerr : scalar or array-like, shape(n,1) or shape(2,n).
-            If a scalar number, len(N) array-like object, or an Nx1
-            array-like object, errorbars are drawn at +/-value relative
-            to the data. Default is None.
+        xerr, yerr, zerr : scalar or array-like, optional
+            The errorbar sizes:
+            - scalar: Symmetric +/- values for all data points.
+            - shape(N,): Symmetric +/-values for each data point.
+            - shape(2, N): Separate - and + values for each bar. First row
+              contains the lower errors, the second row contains the upper
+              errors.
+            - *None*: No errorbar.
 
-            If a sequence of shape 2xN, errorbars are drawn at -row1
-            and +row2 relative to the data.
+        fmt : str, default: ''
+            The format for the data points / data lines. See `.plot` for
+            details.
 
-        fmt : plot format string, optional, default: None
-            The plot format symbol. If fmt is 'none' (case-insensitive),
-            only the errorbars are plotted.  This is used for adding
-            errorbars to a bar plot, for example.  Default is '',
-            an empty plot format string; properties are
-            then identical to the defaults for :meth:`plot`.
+            Use 'none' (case insensitive) to plot errorbars without any data
+            markers.
 
-        ecolor : mpl color, optional, default: None
-            A matplotlib color arg which gives the color the errorbar lines;
-            if None, use the color of the line connecting the markers.
+        ecolor : color, default: None
+            The color of the errorbar lines.  If None, use the color of the
+            line connecting the markers.
 
-        elinewidth : scalar, optional, default: None
-            The linewidth of the errorbar lines. If None, use the linewidth.
+        elinewidth : scalar, default: None
+            The linewidth of the errorbar lines. If None, the linewidth of
+            the current style is used.
 
-        capsize : scalar, optional, default: None
-            The length of the error bar caps in points; if None, it will
-            take the value from ``errorbar.capsize``
-            :data:`rcParam<matplotlib.rcParams>`.
+        capsize : scalar, default: :rc:`errorbar.capsize`
+            The length of the error bar caps in points.
 
-        capthick : scalar, optional, default: None
-            An alias kwarg to markeredgewidth (a.k.a. - mew). This
-            setting is a more sensible name for the property that
+        capthick : scalar, default: None
+            An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
+            This setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
-            backwards compatibility, if mew or markeredgewidth are given,
-            then they will over-ride capthick. This may change in future
+            backwards compatibility, if *mew* or *markeredgewidth* are given,
+            then they will over-ride *capthick*. This may change in future
             releases.
 
-        barsabove : bool, optional, default: False
-            if True , will plot the errorbars above the plot
+        barsabove : bool, default: False
+            If True, will plot the errorbars above the plot
             symbols. Default is below.
 
-        xlolims / ylolims / zlolims : bool, optional, default:None
+        xlolims, ylolims, zlolims : bool, default: False
             These arguments can be used to indicate that a value gives
             only lower limits. In that case a caret symbol is being
             drawn to indicate this. lims-arguments may be of the same
             type as *xerr* and *yerr*.
 
-        xuplims / yuplims / zuplims : bool, optional, default:None
+        xuplims, yuplims, zuplims : bool, default: False
             Same as above, but for controlling the upper limits.
 
-        errorevery: positive integer or tuple of integers
-            draws error bars on a subset of the data. errorevery=skip draws
-            error bars on the [::skip] intervals. If a tuple of integers,
-            errorevery=(skip,shift) draws error bars on the points
-            selected as [skip%%shift::skip]. e.g. errorevery=(6,3)
-            adds error bars to the data at (x[3], x[9], x[15], x[21], ...).
+        errorevery : int or (int, int), default: 1
+            draws error bars on a subset of the data. *errorevery* =N draws
+            error bars on the points (x[::N], y[::N]).
+            *errorevery* =(start, N) draws error bars on the points
+            (x[start::N], y[start::N]). e.g. errorevery=(6, 3)
+            adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
+            Used to avoid overlapping error bars when two series share x-axis
+            values.
 
         Additional keyword arguments for styling errorbar lines are passed to
-        :func:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
+        `~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         """
         had_data = self.has_data()
-
-        if not np.iterable(x):
-            x = [x]
-        if not np.iterable(y):
-            y = [y]
-        if not np.iterable(z):
-            z = [z]
-
-        if fmt is None:
-            fmt = 'none'
-            msg = ('Use of None object as fmt keyword argument to ' +
-                   'suppress plotting of data values is deprecated ' +
-                   'since 1.4; use the string "none" instead.')
-            _log.warning(msg)
 
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
 
-        fmt_style_kwargs = {k: v for k, v in
-                            zip(('linestyle', 'marker', 'color'),
-                                _process_plot_format(fmt)) if v is not None}
+        if fmt == '':
+            fmt_style_kwargs = {}
+        else:
+            fmt_style_kwargs = {k: v for k, v in
+                                zip(('linestyle', 'marker', 'color'),
+                                    _process_plot_format(fmt))
+                                if v is not None}
 
-        if ('color' in kwargs or 'color' in fmt_style_kwargs or
-                ecolor is not None):
+        if fmt == 'none':
+            # Remove alpha=0 color that _process_plot_format returns
+            fmt_style_kwargs.pop('color')
+
+        if ('color' in kwargs or 'color' in fmt_style_kwargs):
             base_style = {}
             if 'color' in kwargs:
                 base_style['color'] = kwargs.pop('color')
@@ -2882,9 +2877,28 @@ pivot='tail', normalize=False, **kwargs)
         if ecolor is None:
             ecolor = base_style['color']
 
+        # make sure all the args are iterable; use lists not arrays to
+        # preserve units
+        x = x if np.iterable(x) else [x]
+        y = y if np.iterable(y) else [y]
+        z = z if np.iterable(z) else [z]
+
+        # make the style dict for the 'normal' plot line
+        if 'zorder' not in kwargs:
+            kwargs['zorder'] = 2
+        plot_line_style = {
+            **base_style,
+            **kwargs,
+            'zorder': (kwargs['zorder'] - .1 if barsabove else
+                       kwargs['zorder'] + .1),
+        }
+
         # make the style dict for the line collections (the bars)
         eb_lines_style = dict(base_style)
         eb_lines_style.pop('marker', None)
+        eb_lines_style.pop('markerfacecolor', None)
+        eb_lines_style.pop('markeredgewidth', None)
+        eb_lines_style.pop('markeredgecolor', None)
         eb_lines_style.pop('linestyle', None)
         eb_lines_style['color'] = ecolor
 
@@ -2897,29 +2911,7 @@ pivot='tail', normalize=False, **kwargs)
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
-        try:
-            errorevery, offset = errorevery
-        except TypeError:
-            offset = 0
-
-        int_msg = 'errorevery must be positive integer or tuple of integers'
-        if errorevery < 1 or int(errorevery) != errorevery:
-            raise ValueError(int_msg)
-        if int(offset) != offset:
-            raise ValueError(int_msg)
-
-        everymask = (np.arange(len(x)) - offset) % errorevery == 0
-
-        plot_line_style = dict(base_style)
-        plot_line_style.update(**kwargs)
-        if 'zorder' not in kwargs.keys():
-            kwargs['zorder'] = 2
-        if barsabove:
-            plot_line_style['zorder'] = kwargs['zorder'] - .1
-        else:
-            plot_line_style['zorder'] = kwargs['zorder'] + .1
-
-        # set up cap style dictionary
+        # make the style dict for cap collections (the "hats")
         eb_cap_style = dict(base_style)
         # eject any marker information from format string
         eb_cap_style.pop('marker', None)
@@ -2931,16 +2923,25 @@ pivot='tail', normalize=False, **kwargs)
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
             eb_cap_style['markeredgewidth'] = capthick
+        eb_cap_style['color'] = ecolor
 
         if plot_line:
             data_line = art3d.Line3D(x, y, z, **plot_line_style)
             self.add_line(data_line)
 
-        def _bool_asarray_helper(d, expected):
-            if not np.iterable(d):
-                return np.asarray([d] * expected, bool)
+        try:
+            offset, errorevery = errorevery
+        except TypeError:
+            offset = 0
 
-            return np.asarray(d, bool)
+        if errorevery < 1 or int(errorevery) != errorevery:
+            raise ValueError(
+                'errorevery must be positive integer or tuple of integers')
+        if int(offset) != offset:
+            raise ValueError("errorevery's starting index must be an integer")
+
+        everymask = np.zeros(len(x), bool)
+        everymask[offset::errorevery] = True
 
         def _mask_lists(xs, ys, zs, mask=None):
             """ Applies a mask to three lists. """
@@ -2949,8 +2950,8 @@ pivot='tail', normalize=False, **kwargs)
             zs = [l for l, m in zip(zs, mask) if m]
             return xs, ys, zs
 
-        # TODO: currently, only a scalar number or len(N) objects are ok...
-        def _unpack_errs(data, err, lomask, himask):
+        # TODO: errors can be only a scalar number or len(N) array-like
+        def _unpack_errs(err, data, lomask, himask):
             lows = [d - e if m else d for d, e, m in zip(data, err, lomask)]
             highs = [d + e if m else d for d, e, m in zip(data, err, himask)]
             return lows, highs
@@ -2959,6 +2960,17 @@ pivot='tail', normalize=False, **kwargs)
         # List of endpoint coordinates, used for auto-scaling
         coorderrs = []
 
+        # define the markers used for errorbar caps and limits below
+        # the dictionary key is the current ticking value of `i_xyz`
+        capmarker = {0: '|', 1: '|', 2: '_'}
+        limmarker = {0: {'lower': art3d.lines.CARETRIGHT,
+                         'upper': art3d.lines.CARETLEFT},
+                     1: {'lower': art3d.lines.CARETRIGHT,
+                         'upper': art3d.lines.CARETLEFT},
+                     2: {'lower': art3d.lines.CARETUP,
+                         'upper': art3d.lines.CARETDOWN}}
+
+        # i_xyz determines which coordinate is currently being looped over
         for data, err, i_xyz, lolims, uplims in zip(
                 [x, y, z], [xerr, yerr, zerr], range(3),
                 [xlolims, ylolims, zlolims], [xuplims, yuplims, zuplims]):
@@ -2968,8 +2980,13 @@ pivot='tail', normalize=False, **kwargs)
 
             if not np.iterable(err):
                 err = [err] * len(data)
-            lolims = _bool_asarray_helper(lolims, len(x))
-            uplims = _bool_asarray_helper(uplims, len(x))
+
+            # FIXME: err data is not supposed to be transformed into arrays!
+            err = np.atleast_1d(err)
+
+            # arrays fine here, they are booleans and hence not units
+            lolims = np.broadcast_to(lolims, len(data)).astype(bool)
+            uplims = np.broadcast_to(uplims, len(data)).astype(bool)
 
             nolims = ~(lolims | uplims)
 
@@ -2977,29 +2994,16 @@ pivot='tail', normalize=False, **kwargs)
             #       as long as the actual data plotted stays as lists.
             #       This is due to unit preservation issues
             #       (c.f. the 2d errorbar case).
-            rolling_mask = np.roll([1., 0., 0.], i_xyz)
-            # TODO: why is this here?
-            if err is not None:
-                err = np.atleast_1d(err)
+            rolling_mask = np.roll([1, 0, 0], i_xyz)
 
             # a nested list structure that expands to (xl,xh),(yl,yh),(zl,zh),
             # where x/y/z and l/h correspond to dimensions and low/high
             # positions of errorbars in a dimension we're looping over
             coorderr = [
-                _unpack_errs(coord, err * rolling_mask[i],
+                _unpack_errs(err * rolling_mask[i], coord,
                              ~lolims & everymask, ~uplims & everymask)
                 for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
-
-            # define the markers used for errorbar caps and limits below
-            # the dicitonary key is the current ticking value of `i_xyz`
-            capmarker = {0: '|', 1: '|', 2: '_'}
-            limmarker = {0: {'lower': art3d.lines.CARETRIGHT,
-                             'upper': art3d.lines.CARETLEFT},
-                         1: {'lower': art3d.lines.CARETRIGHT,
-                             'upper': art3d.lines.CARETLEFT},
-                         2: {'lower': art3d.lines.CARETUP,
-                             'upper': art3d.lines.CARETDOWN}}
 
             if nolims.any():
                 if capsize > 0:
@@ -3029,7 +3033,7 @@ pivot='tail', normalize=False, **kwargs)
                 #        the markers around... However, this solution is
                 #        spiritually close to that of 2d errorbar function
                 limits = [
-                    _unpack_errs(coord, err*rolling_mask[i], uplims, lolims)
+                    _unpack_errs(err*rolling_mask[i], coord, uplims, lolims)
                     for i, coord in enumerate([x, y, z])]
                 (xlo, xup), (ylo, yup), (zlo, zup) = limits
 
@@ -3056,6 +3060,7 @@ pivot='tail', normalize=False, **kwargs)
 
         coorderrs = np.array(coorderrs)
 
+        # TODO: errors can be only a scalar number or len(N) array-like
         def _digout_minmax(err_arr, coord_label):
             key = {'x': 0, 'y': 1, 'z': 2}
             return (np.nanmin(err_arr[:, key[coord_label], :, :]),
