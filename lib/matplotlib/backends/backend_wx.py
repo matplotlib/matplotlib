@@ -1173,7 +1173,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def pan(self, *args):
         self.ToggleTool(self.wx_ids['Zoom'], False)
         NavigationToolbar2.pan(self, *args)
-    
+
     def _init_toolfig(self, title, size):
         global FigureManager  # placates pyflakes: created by @_Backend.export
         frame = wx.Frame(None, -1, title)

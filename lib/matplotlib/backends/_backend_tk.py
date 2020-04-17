@@ -580,7 +580,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, textvariable=self.message)
-        self._message_label.pack(side=tk.RIGHT)    
+        self._message_label.pack(side=tk.RIGHT)
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))
