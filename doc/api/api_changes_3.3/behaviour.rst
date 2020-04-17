@@ -176,3 +176,8 @@ explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All the functionality of ``CustomCell`` has been moved to its base class
 `~.table.Cell`.
+
+wx Timer interval
+~~~~~~~~~~~~~~~~~
+Setting the timer interval on a not-yet-started ``TimerWx`` won't start it
+anymore.

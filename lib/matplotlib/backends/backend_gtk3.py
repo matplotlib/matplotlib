@@ -52,6 +52,10 @@ except TypeError as exc:
 class TimerGTK3(TimerBase):
     """Subclass of `.TimerBase` using GTK3 timer events."""
 
+    def __init__(self, *args, **kwargs):
+        self._timer = None
+        TimerBase.__init__(self, *args, **kwargs)
+
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.

@@ -489,6 +489,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
 
 class TimerTornado(backend_bases.TimerBase):
+    def __init__(self, *args, **kwargs):
+        self._timer = None
+        super().__init__(*args, **kwargs)
+
     def _timer_start(self):
         self._timer_stop()
         if self._single:
@@ -510,7 +514,6 @@ class TimerTornado(backend_bases.TimerBase):
             ioloop.remove_timeout(self._timer)
         else:
             self._timer.stop()
-
         self._timer = None
 
     def _timer_set_interval(self):

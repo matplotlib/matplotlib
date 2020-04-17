@@ -114,7 +114,7 @@ assert_equal(
 
 ax.plot([0, 1], [2, 3])
 
-timer = fig.canvas.new_timer(1)
+timer = fig.canvas.new_timer(1.)  # Test that floats are cast to int as needed.
 timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
 # Trigger quitting upon draw.
 fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
