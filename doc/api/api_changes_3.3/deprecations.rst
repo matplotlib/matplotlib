@@ -515,3 +515,8 @@ experimental and may change in the future.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These are unused and can be easily reproduced by other date tools.
 `.get_epoch` will return Matplotlib's epoch.
+
+``axes_grid1.CbarAxes`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``cbid`` and ``locator`` attribute are deprecated.  Use
+``mappable.colorbar_cid`` and ``colorbar.locator``, as for standard colorbars.
