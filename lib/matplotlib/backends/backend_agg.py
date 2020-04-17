@@ -439,7 +439,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         Parameters
         ----------
-        filename_or_obj : str or PathLike or file-like object
+        filename_or_obj : str or path-like or file-like
             The file to write to.
 
         metadata : dict, optional
@@ -526,7 +526,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         Parameters
         ----------
-        filename_or_obj : str or PathLike or file-like object
+        filename_or_obj : str or path-like or file-like
             The file to write to.
 
         Other Parameters

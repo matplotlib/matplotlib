@@ -842,7 +842,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
     Parameters
     ----------
     fname : str or path-like
-        Name of file parsed for Matplotlib settings.
+        A file with Matplotlib rc settings.
     fail_on_error : bool
         If True, raise an error when the parser fails to convert a parameter.
     use_default_template : bool
@@ -1019,8 +1019,8 @@ def rc_file(fname, *, use_default_template=True):
 
     Parameters
     ----------
-    fname : str
-        Name of file parsed for matplotlib settings.
+    fname : str or path-like
+        A file with Matplotlib rc settings.
 
     use_default_template : bool
         If True, initialize with default parameters before updating with those
@@ -1040,29 +1040,35 @@ def rc_file(fname, *, use_default_template=True):
 @contextlib.contextmanager
 def rc_context(rc=None, fname=None):
     """
-    Return a context manager for managing rc settings.
+    Return a context manager for temporarily changing rcParams.
 
-    This allows one to do::
+    Parameters
+    ----------
+    rc : dict
+        The rcParams to temporarily set.
+    fname : str or path-like
+        A file with Matplotlib rc settings. If both *fname* and *rc* are given,
+        settings from *rc* take precedence.
 
-        with mpl.rc_context(fname='screen.rc'):
-            plt.plot(x, a)  # uses 'screen.rc'
-            with mpl.rc_context(fname='print.rc'):
-                plt.plot(x, b)  # uses 'print.rc'
-            plt.plot(x, c)  # uses 'screen.rc'
+    See Also
+    --------
+    :ref:`customizing-with-matplotlibrc-files`
 
-    A dictionary can also be passed to the context manager::
-
-        with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
-            plt.plot(x, a)
-
-    The *rc* dictionary takes precedence over the settings loaded from *fname*.
-    Passing a dictionary only is also valid.  For example, a common usage is::
+    Examples
+    --------
+    Passing explicit values via a dict::
 
         with mpl.rc_context({'interactive': False}):
             fig, ax = plt.subplots()
             ax.plot(range(3), range(3))
-            fig.savefig('A.png', format='png')
+            fig.savefig('example.png')
             plt.close(fig)
+
+    Loading settings from a file::
+
+         with mpl.rc_context(fname='print.rc'):
+             plt.plot(x, y)  # uses 'print.rc'
+
     """
     orig = rcParams.copy()
     try:
