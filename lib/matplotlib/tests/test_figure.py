@@ -150,7 +150,11 @@ def test_gca():
         # empty call to add_axes() will throw deprecation warning
         assert fig.add_axes() is None
 
-    ax1 = fig.add_axes([0, 0, 1, 1])
+    ax0 = fig.add_axes([0, 0, 1, 1])
+    assert fig.gca(projection='rectilinear') is ax0
+    assert fig.gca() is ax0
+
+    ax1 = fig.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
@@ -386,6 +390,9 @@ def test_invalid_figure_add_axes():
     fig = plt.figure()
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
+
+    with pytest.raises(TypeError, match="multiple values for argument 'rect'"):
+        fig.add_axes([0, 0, 1, 1], rect=[0, 0, 1, 1])
 
 
 def test_subplots_shareax_loglabels():
