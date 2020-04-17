@@ -1211,6 +1211,11 @@ default: 'top'
                 "deprecated. You may want to use add_subplot() "
                 "instead.")
             return
+        elif 'rect' in kwargs:
+            if len(args):
+                raise TypeError(
+                    "add_axes() got multiple values for argument 'rect'")
+            args = (kwargs.pop('rect'), )
 
         # shortcut the projection "key" modifications later on, if an axes
         # with the exact args/kwargs exists, return it immediately.
