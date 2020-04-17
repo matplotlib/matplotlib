@@ -1161,7 +1161,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)
             levels_in = self.levels[inside]
             if len(levels_in) == 0:
-                self.levels = [self.zmin]
+                self.levels = [np.nan]
                 cbook._warn_external(
                     "No contour levels were found within the data range.")
 
