@@ -768,7 +768,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_alpha(self, alpha):
         # docstring inherited
         super().set_alpha(alpha)
-        self.update_dict['array'] = True
+        self._update_dict['array'] = True
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
 
@@ -784,7 +784,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             return
         if self._A.ndim > 1:
             raise ValueError('Collections can only map rank 1 arrays')
-        if not self.check_update("array"):
+        if not self._check_update("array"):
             return
         if self._is_filled:
             self._facecolors = self.to_rgba(self._A, self._alpha)
@@ -815,7 +815,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._A = other._A
         self.norm = other.norm
         self.cmap = other.cmap
-        # self.update_dict = other.update_dict # do we need to copy this? -JJL
+        # do we need to copy self._update_dict? -JJL
         self.stale = True
 
 
