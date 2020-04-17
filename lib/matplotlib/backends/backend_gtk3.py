@@ -437,13 +437,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    # toolitems = [*NavigationToolbar2.toolitems]
-    # toolitems.insert(
-    #     # Add 'customize' action after 'subplots'
-    #     [name for name, *_ in toolitems].index("Subplots") + 1,
-    #     ("Customize", "Edit axis, curve and image parameters",
-    #      "qt4_editor_options", "edit_parameters"))
-
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
