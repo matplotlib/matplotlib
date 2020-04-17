@@ -6,7 +6,6 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-import matplotlib
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
@@ -15,7 +14,7 @@ from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 needs_usetex = pytest.mark.skipif(
-    not matplotlib.checkdep_usetex(True),
+    not mpl.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
@@ -24,7 +23,7 @@ def test_font_styles():
 
     def find_matplotlib_font(**kw):
         prop = FontProperties(**kw)
-        path = findfont(prop, directory=matplotlib.get_data_path())
+        path = findfont(prop, directory=mpl.get_data_path())
         return FontProperties(fname=path)
 
     from matplotlib.font_manager import FontProperties, findfont
@@ -182,7 +181,7 @@ def test_multiline2():
 
 @image_comparison(['antialiased.png'])
 def test_antialiasing():
-    matplotlib.rcParams['text.antialiased'] = True
+    mpl.rcParams['text.antialiased'] = True
 
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.75, "antialiased", horizontalalignment='center',
@@ -477,17 +476,17 @@ def test_agg_text_clip():
 
 
 def test_text_size_binding():
-    matplotlib.rcParams['font.size'] = 10
+    mpl.rcParams['font.size'] = 10
     fp = mpl.font_manager.FontProperties(size='large')
     sz1 = fp.get_size_in_points()
-    matplotlib.rcParams['font.size'] = 100
+    mpl.rcParams['font.size'] = 100
 
     assert sz1 == fp.get_size_in_points()
 
 
 @image_comparison(['font_scaling.pdf'])
 def test_font_scaling():
-    matplotlib.rcParams['pdf.fonttype'] = 42
+    mpl.rcParams['pdf.fonttype'] = 42
     fig, ax = plt.subplots(figsize=(6.4, 12.4))
     ax.xaxis.set_major_locator(plt.NullLocator())
     ax.yaxis.set_major_locator(plt.NullLocator())
@@ -575,7 +574,7 @@ def test_text_as_path_opacity():
 
 @image_comparison(['text_as_text_opacity.svg'])
 def test_text_as_text_opacity():
-    matplotlib.rcParams['svg.fonttype'] = 'none'
+    mpl.rcParams['svg.fonttype'] = 'none'
     plt.figure()
     plt.gca().set_axis_off()
     plt.text(0.25, 0.25, '50% using `color`', color=(0, 0, 0, 0.5))

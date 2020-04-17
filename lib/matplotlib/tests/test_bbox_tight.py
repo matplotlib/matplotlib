@@ -1,5 +1,6 @@
-import numpy as np
 from io import BytesIO
+
+import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt

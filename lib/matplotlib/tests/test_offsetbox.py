@@ -1,6 +1,8 @@
 from collections import namedtuple
-import numpy.testing as nptest
+
+from numpy.testing import assert_allclose
 import pytest
+
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -143,7 +145,7 @@ _Params = namedtuple('_params', 'wd_list, total, sep, expected')
 def test_get_packed_offsets_fixed(wd_list, total, sep, expected):
     result = _get_packed_offsets(wd_list, total, sep, mode='fixed')
     assert result[0] == expected[0]
-    nptest.assert_allclose(result[1], expected[1])
+    assert_allclose(result[1], expected[1])
 
 
 @pytest.mark.parametrize('wd_list, total, sep, expected', [
@@ -157,7 +159,7 @@ def test_get_packed_offsets_fixed(wd_list, total, sep, expected):
 def test_get_packed_offsets_expand(wd_list, total, sep, expected):
     result = _get_packed_offsets(wd_list, total, sep, mode='expand')
     assert result[0] == expected[0]
-    nptest.assert_allclose(result[1], expected[1])
+    assert_allclose(result[1], expected[1])
 
 
 @pytest.mark.parametrize('wd_list, total, sep, expected', [
@@ -174,7 +176,7 @@ def test_get_packed_offsets_expand(wd_list, total, sep, expected):
 def test_get_packed_offsets_equal(wd_list, total, sep, expected):
     result = _get_packed_offsets(wd_list, total, sep, mode='equal')
     assert result[0] == expected[0]
-    nptest.assert_allclose(result[1], expected[1])
+    assert_allclose(result[1], expected[1])
 
 
 def test_get_packed_offsets_equal_total_none_sep_none():
