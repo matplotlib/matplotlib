@@ -177,7 +177,7 @@ class ScalarMappable:
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.callbacksSM = cbook.CallbackRegistry()
-        self.update_dict = {'array': False}
+        self._update_dict = {'array': False}
 
     def _scale_norm(self, norm, vmin, vmax):
         """
@@ -279,7 +279,7 @@ class ScalarMappable:
         A : ndarray
         """
         self._A = A
-        self.update_dict['array'] = True
+        self._update_dict['array'] = True
 
     def get_array(self):
         """Return the data array."""
@@ -386,30 +386,39 @@ class ScalarMappable:
         self.norm.autoscale_None(self._A)
         self.changed()
 
-    def add_checker(self, checker):
+    def _add_checker(self, checker):
         """
         Add an entry to a dictionary of boolean flags
         that are set to True when the mappable is changed.
         """
-        self.update_dict[checker] = False
+        self._update_dict[checker] = False
 
-    def check_update(self, checker):
-        """
-        If mappable has changed since the last check,
-        return True; else return False
-        """
-        if self.update_dict[checker]:
-            self.update_dict[checker] = False
+    def _check_update(self, checker):
+        """Return whether mappable has changed since the last check."""
+        if self._update_dict[checker]:
+            self._update_dict[checker] = False
             return True
         return False
 
     def changed(self):
         """
         Call this whenever the mappable is changed to notify all the
-        callbackSM listeners to the 'changed' signal
+        callbackSM listeners to the 'changed' signal.
         """
         self.callbacksSM.process('changed', self)
-
-        for key in self.update_dict:
-            self.update_dict[key] = True
+        for key in self._update_dict:
+            self._update_dict[key] = True
         self.stale = True
+
+    @cbook.deprecated("3.3")
+    @property
+    def update_dict(self):
+        return self._update_dict
+
+    @cbook.deprecated("3.3")
+    def add_checker(self, checker):
+        return self._add_checker(checker)
+
+    @cbook.deprecated("3.3")
+    def check_update(self, checker):
+        return self.check_update(checker)

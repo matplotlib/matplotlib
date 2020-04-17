@@ -450,3 +450,8 @@ needed.
 The associated helper methods ``NavigationToolbar2.draw()`` and
 ``ToolViewsPositions.refresh_locators()`` are deprecated, and should be
 replaced by calls to ``draw_idle()`` on the corresponding canvas.
+
+`.ScalarMappable` checkers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``add_checker`` and ``check_update`` methods and ``update_dict`` attribute
+of `.ScalarMappable` are deprecated.
