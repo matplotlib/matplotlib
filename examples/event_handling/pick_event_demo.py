@@ -70,6 +70,10 @@ import numpy as np
 from numpy.random import rand
 
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 def pick_simple():
     # simple picking, lines, rectangles and text
     fig, (ax1, ax2) = plt.subplots(2, 1)

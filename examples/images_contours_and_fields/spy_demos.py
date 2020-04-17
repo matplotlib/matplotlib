@@ -9,6 +9,10 @@ Plot the sparsity pattern of arrays.
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 fig, axs = plt.subplots(2, 2)
 ax1 = axs[0, 0]
 ax2 = axs[0, 1]

@@ -9,6 +9,10 @@ import numpy as np
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDirectionArrows
 import matplotlib.font_manager as fm
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 fig, ax = plt.subplots()
 ax.imshow(np.random.random((10, 10)))
 

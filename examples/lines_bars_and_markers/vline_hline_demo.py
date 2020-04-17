@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 t = np.arange(0.0, 5.0, 0.1)
 s = np.exp(-t) + np.sin(2 * np.pi * t) + 1
 nse = np.random.normal(0.0, 0.3, t.shape) * s

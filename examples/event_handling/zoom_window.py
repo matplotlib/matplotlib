@@ -17,6 +17,10 @@ their size is independent of the zoom.
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 figsrc, axsrc = plt.subplots()
 figzoom, axzoom = plt.subplots()
 axsrc.set(xlim=(0, 1), ylim=(0, 1), autoscale_on=False,

@@ -11,6 +11,10 @@ The simplest case is just attaching a colorbar to each axes:
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 fig, axs = plt.subplots(2, 2)
 cm = ['RdBu_r', 'viridis']
 for col in range(2):
