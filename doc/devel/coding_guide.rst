@@ -188,14 +188,14 @@ Automated tests
 Whenever a pull request is created or updated, various automated test tools
 will run on all supported platforms and versions of Python.
 
-* Make sure the Travis, Appveyor, CircleCI, and Azure pipelines are passing
-  before merging (All checks are listed at the bottom of the GitHub page of
-  your pull request). Here are some tips for finding the cause of the test
-  failure:
+* Make sure the Linting, Travis, AppVeyor, CircleCI, and Azure pipelines are
+  passing before merging (All checks are listed at the bottom of the GitHub
+  page of your pull request). Here are some tips for finding the cause of the
+  test failure:
 
-  - If *Travis flake8* fails, you have a code style issue, which will be listed
-    near the bottom of the *Travis flake8* log.
-  - If any other Travis run fails, search the log for ``FAILURES``. The
+  - If *Linting* fails, you have a code style issue, which will be listed
+    as annotations on the pull request's diff.
+  - If a Travis or AppVeyor run fails, search the log for ``FAILURES``. The
     subsequent section will contain information on the failed tests.
   - If CircleCI fails, likely you have some reStructuredText style issue in
     the docs. Search the CircleCI log for ``WARNING``.

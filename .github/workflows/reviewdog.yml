@@ -1,0 +1,28 @@
+name: Linting
+on: [pull_request]
+
+jobs:
+  flake8:
+    name: flake8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install flake8
+        run: pip3 install -r requirements/testing/flake8.txt
+
+      - name: Set up reviewdog
+        run: |
+          mkdir -p $HOME/bin && curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b $HOME/bin
+          echo ::add-path::$HOME/bin
+
+      - name: Run flake8
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          flake8 --docstring-convention=all | reviewdog -f=pep8 -name=flake8 -reporter=github-check
