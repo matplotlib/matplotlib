@@ -176,7 +176,7 @@ class HandlerNpoints(HandlerBase):
 class HandlerNpointsYoffsets(HandlerNpoints):
     """
     A legend handler that shows *numpoints* in the legend, and allows them to
-    be individually offest in the y-direction.
+    be individually offset in the y-direction.
     """
     def __init__(self, numpoints=None, yoffsets=None, **kw):
         """

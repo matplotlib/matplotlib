@@ -256,7 +256,7 @@ Pull Requests (918):
 * :ghpull:`13989`: FIX: update not replace hist_kwargs when density is passed
 * :ghpull:`13975`: Backport PR #13966 on branch v3.1.x (Fix colorbar setting without artist)
 * :ghpull:`13976`: Backport PR #13973 on branch v3.1.x (BUG: Ensure docstrings are not accessed with -OO)
-* :ghpull:`13856`: Whats new page for 3.1
+* :ghpull:`13856`: What's new page for 3.1
 * :ghpull:`13966`: Fix colorbar setting without artist
 * :ghpull:`13973`: BUG: Ensure docstrings are not accessed with -OO
 * :ghpull:`13969`: Backport PR #13950 on branch v3.1.x (confidence_ellipse_markup)
@@ -411,10 +411,10 @@ Pull Requests (918):
 * :ghpull:`13612`: Improve Demo Text Rotation Mode
 * :ghpull:`13636`: Backport PR #13621 on branch v3.1.x (Remove ``asfileobj=False`` from a bunch of examples loading sample_data.)
 * :ghpull:`13635`: Backport PR #13632 on branch v3.1.x (Clarify tick collision API change doc.)
-* :ghpull:`13634`: Backport PR #13631 on branch v3.1.x (Swicth deprecation of Tick.label to pending.)
+* :ghpull:`13634`: Backport PR #13631 on branch v3.1.x (Switch deprecation of Tick.label to pending.)
 * :ghpull:`13621`: Remove ``asfileobj=False`` from a bunch of examples loading sample_data.
 * :ghpull:`13632`: Clarify tick collision API change doc.
-* :ghpull:`13631`: Swicth deprecation of Tick.label to pending.
+* :ghpull:`13631`: Switch deprecation of Tick.label to pending.
 * :ghpull:`13628`: Backport PR #13603 on branch v3.1.x
 * :ghpull:`13603`: FIX: continue to bail tight layout if rect supplied
 * :ghpull:`13627`: Backport PR #13622 on branch v3.1.x (Change title of named colors example)
@@ -922,7 +922,7 @@ Pull Requests (918):
 * :ghpull:`12466`: np.fromstring -> np.frombuffer.
 * :ghpull:`12369`: Improved exception handling on animation failure
 * :ghpull:`12460`: Deprecate RendererBase.strip_math.
-* :ghpull:`12453`: Rollback erronous commit to whats_new.rst from #10746
+* :ghpull:`12453`: Rollback erroneous commit to whats_new.rst from #10746
 * :ghpull:`12452`: Minor updates to the FAQ.
 * :ghpull:`10746`: Adjusted matplotlib.widgets.Slider to have optional vertical orientatation
 * :ghpull:`12441`: Get rid of a signed-compare warning.
@@ -930,7 +930,7 @@ Pull Requests (918):
 * :ghpull:`12435`: Fix numpydoc parameter formatting
 * :ghpull:`12434`: Clarify documentation for textprops keyword parameter of TextArea
 * :ghpull:`12427`: Document Artist.get_cursor_data
-* :ghpull:`10322`: Use np.hypot whereever possible.
+* :ghpull:`10322`: Use np.hypot wherever possible.
 * :ghpull:`10809`: Fix for scatter not showing points with valid x/y but invalid color
 * :ghpull:`12423`: Minor simplifications to backend_svg.
 * :ghpull:`10356`: fix detecting which artist(s) the mouse is over
@@ -996,7 +996,7 @@ Pull Requests (918):
 * :ghpull:`12139`: Unbreak build re: mplot3d style.
 * :ghpull:`11367`: Raise TypeError on unsupported kwargs of spy()
 * :ghpull:`9990`: Fix and document lightsource argument in mplot3d
-* :ghpull:`12124`: Correctly infer units from emtpy arrays
+* :ghpull:`12124`: Correctly infer units from empty arrays
 * :ghpull:`11994`: Cleanup unused variables and imports
 * :ghpull:`12122`: MNT: re-add cbook import art3d
 * :ghpull:`12086`: FIX: make MaxNLocator only follow visible ticks for order of magnitude
@@ -1044,7 +1044,7 @@ Pull Requests (918):
 * :ghpull:`11980`: Remove __version__numpy__; simplify dependencies check.
 * :ghpull:`11982`: Remove and old keyword documentation.
 * :ghpull:`11981`: Some extra typos
-* :ghpull:`11979`: Fix a couple of typoes.
+* :ghpull:`11979`: Fix a couple of typos.
 * :ghpull:`11959`: cbook.iterable -> np.iterable.
 * :ghpull:`11965`: Move the removal of the -Wstrict-prototypes flag to setup.py.
 * :ghpull:`11958`: Remove unused code

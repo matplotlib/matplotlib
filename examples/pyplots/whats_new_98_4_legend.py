@@ -1,7 +1,7 @@
 """
-=======================
-Whats New 0.98.4 Legend
-=======================
+========================
+What's New 0.98.4 Legend
+========================
 
 Create a legend and tweak it with a shadow and a box.
 """

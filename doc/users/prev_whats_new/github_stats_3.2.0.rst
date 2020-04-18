@@ -338,7 +338,7 @@ Pull Requests (839):
 * :ghpull:`15759`: Backport PR #15751 on branch v3.2.x (Modernize FAQ entry for plt.show().)
 * :ghpull:`15762`: Backport PR #15752 on branch v3.2.x (Update boxplot/violinplot faq.)
 * :ghpull:`15755`: Backport PR #15661 on branch v3.2.x (Document scope of 3D scatter depthshading.)
-* :ghpull:`15742`: Backport PR #15729 on branch v3.2.x (Catch correct parse errror type for dateutil >= 2.8.1)
+* :ghpull:`15742`: Backport PR #15729 on branch v3.2.x (Catch correct parse error type for dateutil >= 2.8.1)
 * :ghpull:`15738`: Backport PR #15737 on branch v3.2.x (Fix env override in WebAgg backend test.)
 * :ghpull:`15724`: Backport PR #15718 on branch v3.2.x (Update donation link)
 * :ghpull:`15716`: Backport PR #15683 on branch v3.2.x (Cleanup dates.py docstrings.)
@@ -668,7 +668,7 @@ Pull Requests (839):
 * :ghpull:`14713`: Unite masked and NaN plot examples
 * :ghpull:`14576`: Let Axes3D share have_units, _on_units_changed with 2d axes.
 * :ghpull:`14575`: Make ticklabel_format work both for 2D and 3D axes.
-* :ghpull:`14834`: DOC: Webpage not formated correctly on gallery docs
+* :ghpull:`14834`: DOC: Webpage not formatted correctly on gallery docs
 * :ghpull:`14730`: Factor out common parts of wx event handlers.
 * :ghpull:`14727`: Fix axes aspect for non-linear, non-log, possibly mixed-scale axes.
 * :ghpull:`14835`: Only allow set_adjustable("datalim") for axes with standard data ratios.
@@ -702,7 +702,7 @@ Pull Requests (839):
 * :ghpull:`14799`: Deprecate dates.mx2num.
 * :ghpull:`14793`: Remove sudo tag in travis
 * :ghpull:`14795`: Autodetect whether a canvas class supports blitting.
-* :ghpull:`14794`: DOC: Update the documetation of homepage of website
+* :ghpull:`14794`: DOC: Update the documentation of homepage of website
 * :ghpull:`14629`: Delete HTML build sources to save on artefact upload time
 * :ghpull:`14792`: Fix spelling typos
 * :ghpull:`14789`: Prefer Affine2D.translate to offset_transform in examples.
@@ -1101,7 +1101,7 @@ Issues (125):
 * :ghissue:`13033`: 'NoneType' has no attribute '_alive' when using plt in a context manager
 * :ghissue:`13891`: Blurry app icon on macOS
 * :ghissue:`14656`: Axes title default color
-* :ghissue:`14831`: DOC: Webpage not formated correctly on gallery docs
+* :ghissue:`14831`: DOC: Webpage not formatted correctly on gallery docs
 * :ghissue:`13819`: Aspect ratio for not so common scales
 * :ghissue:`8878`: Setting aspect ratio for semi-log plots
 * :ghissue:`4900`: UnboundLocalError: local variable 'aspect_scale_mode' referenced before assignment

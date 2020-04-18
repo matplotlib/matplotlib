@@ -1604,7 +1604,7 @@ default: 'top'
         def _reset_locators_and_formatters(axis):
             # Set the formatters and locators to be associated with axis
             # (where previously they may have been associated with another
-            # Axis isntance)
+            # Axis instance)
             #
             # Because set_major_formatter() etc. force isDefault_* to be False,
             # we have to manually check if the original formatter was a

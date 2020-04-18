@@ -882,7 +882,7 @@ class Axes(_AxesBase):
         --------
         vlines : Add vertical lines in data coordinates.
         axvspan : Add a vertical span (rectangle) across the axis.
-        axline : Add a line with an abritrary slope.
+        axline : Add a line with an arbitrary slope.
 
         Examples
         --------
@@ -5106,7 +5106,7 @@ default: :rc:`scatter.edgecolors`
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
         # Common implementation between fill_between (*ind_dir*="x") and
-        # fill_betweenx (*ind_dir*="y").  *ind* is the indepedent variable,
+        # fill_betweenx (*ind_dir*="y").  *ind* is the independent variable,
         # *dep* the dependent variable.  The docstring below is interpolated
         # to generate both methods' docstrings.
         """

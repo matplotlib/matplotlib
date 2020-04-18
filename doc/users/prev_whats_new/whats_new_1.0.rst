@@ -97,7 +97,7 @@ argument to add_axes or add_subplot.  Thanks Ben Root.
    :align: center
    :scale: 50
 
-   Whats New 1 Subplot3d
+   What's New 1 Subplot3d
 
 tick_params
 ------------

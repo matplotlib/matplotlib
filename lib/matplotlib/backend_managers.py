@@ -237,7 +237,7 @@ class ToolManager:
         Add *tool* to `ToolManager`.
 
         If successful, adds a new event ``tool_trigger_{name}`` where
-        ``{name}`` is the *name* of the tool; the event is fired everytime the
+        ``{name}`` is the *name* of the tool; the event is fired every time the
         tool is triggered.
 
         Parameters

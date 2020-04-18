@@ -35,19 +35,18 @@ See also the :ref:`list-of-dependency-min-versions`.
 Python Dependencies
 ===================
 
-For python dependencies we should support at least:
+For Python dependencies we should support at least:
 
 with compiled extensions
-  minor versions initially released in the 24 months prior to our
-  planned release date or the oldest that support our minimum python +
-  numpy
+  minor versions initially released in the 24 months prior to our planned
+  release date or the oldest that support our minimum Python + NumPy
 
 without complied extensions
-  minor versions initially released in the 12 months prior to our
-  planed release date or the oldest that supports our minimum python.
+  minor versions initially released in the 12 months prior to our planned
+  release date or the oldest that supports our minimum Python.
 
-We will only bump these dependencies as we need new features or the
-old versions no longer support our minimum numpy or python.
+We will only bump these dependencies as we need new features or the old
+versions no longer support our minimum NumPy or Python.
 
 Test and Documentation Dependencies
 ===================================

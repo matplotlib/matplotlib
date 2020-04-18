@@ -10,7 +10,7 @@ either:
 3) did more than needed and it was easier to write afresh rather than
    figure out how to get just what was needed.
 
-It is pretty easy to use, and has no external depedencies:
+It is pretty easy to use, and has no external dependencies:
 
 >>> import matplotlib as mpl
 >>> from pathlib import Path

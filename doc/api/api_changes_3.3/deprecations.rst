@@ -151,7 +151,7 @@ and containment checks) via `.Line2D.set_picker` is deprecated.  Use
 
 ``Artist.set_contains``, ``Artist.get_contains``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Setting a custom method overridding `.Artist.contains` is deprecated.
+Setting a custom method overriding `.Artist.contains` is deprecated.
 There is no replacement, but you may still customize pick events using
 `.Artist.set_picker`.
 
