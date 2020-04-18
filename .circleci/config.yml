@@ -35,18 +35,18 @@ commands:
 
   fonts-install:
     steps:
+      - restore_cache:
+          key: fonts-2
       - run:
           name: Install custom fonts
           command: |
             mkdir -p ~/.local/share/fonts
             wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
             fc-cache -f -v
-          save_cache:
-            key: fonts-2
-            paths:
-              - ~/.local/share/fonts/
-          restore_cache:
-            key: fonts-2
+      - save_cache:
+          key: fonts-2
+          paths:
+            - ~/.local/share/fonts/
 
   pip-install:
     description: Upgrade pip and setuptools and wheel to get as clean an install as possible
