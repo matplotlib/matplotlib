@@ -180,7 +180,7 @@ Pull Requests (224):
 * :ghpull:`12369`: Improved exception handling on animation failure
 * :ghpull:`12460`: Deprecate RendererBase.strip_math.
 * :ghpull:`12457`: Fix tutorial typos.
-* :ghpull:`12453`: Rollback erronous commit to whats_new.rst from #10746
+* :ghpull:`12453`: Rollback erroneous commit to whats_new.rst from #10746
 * :ghpull:`12452`: Minor updates to the FAQ.
 * :ghpull:`10746`: Adjusted matplotlib.widgets.Slider to have optional vertical orientatation
 * :ghpull:`12441`: Get rid of a signed-compare warning.
@@ -189,7 +189,7 @@ Pull Requests (224):
 * :ghpull:`12434`: Clarify documentation for textprops keyword parameter of TextArea
 * :ghpull:`12427`: Document Artist.get_cursor_data
 * :ghpull:`12277`: FIX: datetime64 now recognized if in a list
-* :ghpull:`10322`: Use np.hypot whereever possible.
+* :ghpull:`10322`: Use np.hypot wherever possible.
 * :ghpull:`12423`: Minor simplifications to backend_svg.
 * :ghpull:`12293`: Make pyplot more tolerant wrt. 3rd-party subclasses.
 * :ghpull:`12360`: Replace axes_grid by axes_grid1 in test
@@ -216,7 +216,7 @@ Pull Requests (224):
 * :ghpull:`12351`: dviread: find_tex_file: Ensure the encoding on windows
 * :ghpull:`12244`: Merge barchart examples.
 * :ghpull:`12372`: Remove two examples.
-* :ghpull:`12214`: Improve docstring of Annoation
+* :ghpull:`12214`: Improve docstring of Annotation
 * :ghpull:`12347`: DOC: add_child_axes to axes_api.rst
 * :ghpull:`12304`: TST: Merge Qt tests into one file.
 * :ghpull:`12321`: maint: setupext.py for freetype had a Catch case for missing ft2build.h
@@ -259,7 +259,7 @@ Pull Requests (224):
 * :ghpull:`12236`: Make boilerplate-generated pyplot.py flake8 compliant
 * :ghpull:`12231`: CI: Speed up Appveyor repository cloning
 * :ghpull:`12228`: Fix trivial typo in docs.
-* :ghpull:`12227`: Use (float, float) as paramter type for 2D positions
+* :ghpull:`12227`: Use (float, float) as parameter type for 2D positions
 * :ghpull:`12199`: Allow disabling specific mouse actions in blocking_input
 * :ghpull:`12213`: Change win32InstalledFonts return value
 * :ghpull:`12207`: FIX: dont' check for interactive framework if none required
@@ -277,7 +277,7 @@ Pull Requests (224):
 * :ghpull:`12164`: Fix Annotation.contains.
 * :ghpull:`12177`: FIX: remove cwd from mac font path search
 * :ghpull:`12182`: Fix Flash of Unstyled Content by removing remaining Flipcause integration
-* :ghpull:`12184`: DOC: update "Previous Whats New" for 2.2 with reference to cividis paper
+* :ghpull:`12184`: DOC: update "Previous What's New" for 2.2 with reference to cividis paper
 * :ghpull:`12183`: Doc: Don't use Sphinx 1.8
 * :ghpull:`12171`: Remove internal warning due to zsort deprecation
 * :ghpull:`12166`: Document preference order for backend auto selection
@@ -380,7 +380,7 @@ Issues (170):
 * :ghissue:`12505`: ImageGrid in 3.0
 * :ghissue:`12502`: How can I put the ticks of logarithmic coordinate in the axes?
 * :ghissue:`12496`: Maplotlib Can't Plot a Dataset
-* :ghissue:`12486`: rotate lable of legend ?
+* :ghissue:`12486`: rotate label of legend ?
 * :ghissue:`12291`: Importing pyplot crashes on macOS due to missing fontlist-v300.json and then Permission denied: '/opt/local/share/fonts'
 * :ghissue:`12480`: "close_event" for nbagg/notebook backend
 * :ghissue:`12467`: Documentation of AnchoredText's prop keyword argument is misleading

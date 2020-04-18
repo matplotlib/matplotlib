@@ -1,8 +1,8 @@
 .. _whats-new:
 
-=========
-Whats New
-=========
+==========
+What's New
+==========
 
 .. ifconfig:: releaselevel == 'dev'
 

@@ -1,7 +1,7 @@
 """
-=====================
-Whats New 1 Subplot3d
-=====================
+======================
+What's New 1 Subplot3d
+======================
 
 Create two three-dimensional plots in the same figure.
 """

@@ -106,7 +106,7 @@ plt.show()
 
 ###########################################################################
 # A final example translates np.datetime64 to yearday on the x axis and
-# from Celsius to Farenheit on the y axis:
+# from Celsius to Fahrenheit on the y axis:
 
 
 dates = [datetime.datetime(2018, 1, 1) + datetime.timedelta(hours=k * 6)

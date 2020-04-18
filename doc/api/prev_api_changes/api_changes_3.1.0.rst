@@ -494,7 +494,7 @@ Classes and methods
   ``backend_bases.FigureManagerBase.show_popup`` (this never did anything)
 - ``backend_wx.SubplotToolWx`` (no replacement)
 - ``backend_wx.Toolbar`` (use ``backend_wx.NavigationToolbar2Wx`` instead)
-- ``cbook.align_iterators`` (no replacment)
+- ``cbook.align_iterators`` (no replacement)
 - ``contour.ContourLabeler.get_real_label_width`` (no replacement)
 - ``legend.Legend.draggable`` (use `legend.Legend.set_draggable()` instead)
 - ``texmanager.TexManager.postscriptd``, ``texmanager.TexManager.pscnt``,

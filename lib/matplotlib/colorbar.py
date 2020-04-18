@@ -1108,7 +1108,7 @@ class ColorbarBase:
         # copy the norm and change the vmin and vmax to the vmin and
         # vmax of the colorbar, not the norm.  This allows the situation
         # where the colormap has a narrower range than the colorbar, to
-        # accomodate extra contours:
+        # accommodate extra contours:
         norm = copy.copy(self.norm)
         norm.vmin = self.vmin
         norm.vmax = self.vmax

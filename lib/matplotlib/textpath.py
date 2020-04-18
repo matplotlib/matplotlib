@@ -103,7 +103,7 @@ class TextToPath:
             The text to be converted.
 
         ismath : {False, True, "TeX"}
-            If True, use mathtext parser.  If "TeX", use tex for renderering.
+            If True, use mathtext parser.  If "TeX", use tex for rendering.
 
         Returns
         -------

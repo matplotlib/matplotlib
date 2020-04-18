@@ -622,7 +622,7 @@ backends include a `ToolContainer` called `toolbar`
     be treated as experimental until further notice as API changes will occur.
     For the moment the `.ToolManager` works only with the GTK3 and Tk backends.
     Make sure you use one of those.
-    Port for the rest of the backends is comming soon.
+    Port for the rest of the backends is coming soon.
 
     To activate the `.ToolManager` include the following at the top of your file ::
 

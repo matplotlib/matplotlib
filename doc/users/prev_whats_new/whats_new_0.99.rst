@@ -34,7 +34,7 @@ installs).  See :ref:`mplot3d-examples-index` and
    :align: center
    :scale: 50
 
-   Whats New 99 Mplot3d
+   What's New 99 Mplot3d
 
 .. _whats-new-axes-grid:
 
@@ -53,7 +53,7 @@ new mpl installs.   See :ref:`axes_grid1-examples-index`,
    :align: center
    :scale: 50
 
-   Whats New 99 Axes Grid
+   What's New 99 Axes Grid
 
 .. _whats-new-spine:
 
@@ -73,4 +73,4 @@ well as "detach" the spine to offset it away from the data.  See
    :align: center
    :scale: 50
 
-   Whats New 99 Spines
+   What's New 99 Spines

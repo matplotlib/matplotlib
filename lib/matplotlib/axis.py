@@ -1135,7 +1135,7 @@ class Axis(martist.Artist):
 
         # scale up the axis label box to also find the neighbors, not
         # just the tick labels that actually overlap note we need a
-        # *copy* of the axis label box because we don't wan't to scale
+        # *copy* of the axis label box because we don't want to scale
         # the actual bbox
 
         self._update_label_position(renderer)

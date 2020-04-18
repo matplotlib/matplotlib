@@ -584,7 +584,8 @@ class PaddedBox(OffsetBox):
             The contained `.Artist`.
         pad : float
             The padding in points. This will be scaled with the renderer dpi.
-            In contrast *width* and *hight* are in *pixel* and thus not scaled.
+            In contrast *width* and *height* are in *pixels* and thus not
+            scaled.
         draw_frame : bool
             Whether to draw the contained `.FancyBboxPatch`.
         patch_attrs : dict or None
@@ -923,7 +924,7 @@ class AuxTransformBox(OffsetBox):
     """
     Offset Box with the aux_transform. Its children will be
     transformed with the aux_transform first then will be
-    offseted. The absolute coordinate of the aux_transform is meaning
+    offsetted. The absolute coordinate of the aux_transform is meaning
     as it will be automatically adjust so that the left-lower corner
     of the bounding box of children will be set to (0, 0) before the
     offset transform.

@@ -2059,7 +2059,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _press(self, event):
         """on button press event"""
-        # make the drawed box/line visible get the click-coordinates,
+        # make the drawn box/line visible get the click-coordinates,
         # button, ...
         if self.interactive and self.to_draw.get_visible():
             self._set_active_handle(event)

@@ -1430,7 +1430,7 @@ class _AxesBase(martist.Artist):
     def get_box_aspect(self):
         """
         Get the axes box aspect.
-        Will be ``None`` if not explicitely specified.
+        Will be ``None`` if not explicitly specified.
 
         See Also
         --------
@@ -2533,7 +2533,7 @@ class _AxesBase(martist.Artist):
             # ignore non-finite data limits if good limits exist
             finite_dl = [d for d in dl if np.isfinite(d).all()]
             if len(finite_dl):
-                # if finite limits exist for atleast one axis (and the
+                # if finite limits exist for at least one axis (and the
                 # other is infinite), restore the finite limits
                 x_finite = [d for d in dl
                             if (np.isfinite(d.intervalx).all() and

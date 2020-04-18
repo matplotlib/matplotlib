@@ -1712,7 +1712,7 @@ class QuadContourSet(ContourSet):
 
             .. note::
 
-                An exising `.QuadContourSet` does not get notified if
+                An existing `.QuadContourSet` does not get notified if
                 properties of its colormap are changed. Therefore, an explicit
                 call `.QuadContourSet.changed()` is needed after modifying the
                 colormap. The explicit call can be left out, if a colorbar is

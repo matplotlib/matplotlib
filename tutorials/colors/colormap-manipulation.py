@@ -234,7 +234,7 @@ plot_linearmap(cdict)
 # Directly creating a segmented colormap from a list
 # --------------------------------------------------
 #
-# The above described is a very versatile approach, but admitedly a bit
+# The above described is a very versatile approach, but admittedly a bit
 # cumbersome to implement. For some basic cases, the use of
 # `.LinearSegmentedColormap.from_list` may be easier. This creates a segmented
 # colormap with equal spacings from a supplied list of colors.

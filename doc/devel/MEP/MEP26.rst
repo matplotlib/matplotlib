@@ -175,7 +175,7 @@ python cookbook gives a nice tokenizing recipe on page 66), applying
 the syntax rules and constructing a ``Tree``. This requires defining the
 grammar of the stylesheet (again, we can borrow from CSS) and writing
 a parser. Happily, there is a recipe for this in the python cookbook
-aswell.
+as well.
 
 
 Visitor pattern for matplotlib figure

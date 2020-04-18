@@ -121,7 +121,7 @@ diagrams.
 mpl-probscale
 =============
 `mpl-probscale <https://matplotlib.org/mpl-probscale/>`_ is a small extension
-that allows Matplotlib users to specify probabilty scales. Simply importing the
+that allows Matplotlib users to specify probability scales. Simply importing the
 ``probscale`` module registers the scale with Matplotlib, making it accessible
 via e.g., ``ax.set_xscale('prob')`` or ``plt.yscale('prob')``.
 
@@ -311,8 +311,8 @@ sviewgui
 `sviewgui <https://pypi.org/project/sviewgui/>`_ is a PyQt-based GUI for
 visualisation of data from csv files or `pandas.DataFrame`\s. Main features:
 
-- Scatter, line, density, histgram, and box plot types
-- Settings for the marker size, line width, number of bins of histgram,
+- Scatter, line, density, histogram, and box plot types
+- Settings for the marker size, line width, number of bins of histogram,
   color map (from cmocean)
 - Save figure as editable PDF
 - Code of the plotted graph is available so that it can be reused and modified

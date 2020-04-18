@@ -93,7 +93,7 @@ plt.show()
 # Square joint/marginal plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# It may be desireable to show marginal distributions next to a plot of joint
+# It may be desirable to show marginal distributions next to a plot of joint
 # data. The following creates a square plot with the box aspect of the
 # marginal axes being equal to the width- and height-ratios of the gridspec.
 # This ensures that all axes align perfectly, independent on the size of the

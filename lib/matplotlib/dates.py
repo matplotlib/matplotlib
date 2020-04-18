@@ -655,7 +655,7 @@ class ConciseDateFormatter(ticker.Formatter):
                             ]
         # fmt for zeros ticks at this level.  These are
         # ticks that should be labeled w/ info the level above.
-        # like 1 Jan can just be labled "Jan".  02:02:00 can
+        # like 1 Jan can just be labelled "Jan".  02:02:00 can
         # just be labeled 02:02.
         if zero_formats:
             if len(zero_formats) != 6:
