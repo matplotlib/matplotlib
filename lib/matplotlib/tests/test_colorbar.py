@@ -226,7 +226,7 @@ def test_remove_from_figure(use_gridspec):
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    ColorbarBase(ax, plt.cm.bone)
+    ColorbarBase(ax, cmap=plt.cm.bone)
 
 
 @image_comparison(['colorbar_closed_patch'], remove_text=True)
