@@ -336,3 +336,16 @@ def test_colorbar_shift(tmp_path):
     norm = mcolors.BoundaryNorm([-1, -0.5, 0.5, 1], cmap.N)
     plt.scatter([0, 1], [1, 1], c=[0, 1], cmap=cmap, norm=norm)
     plt.colorbar()
+
+
+@image_comparison(["colorbar_raster.eps"], savefig_kwarg={"dpi": 20},
+                  style="mpl20")
+def test_colorbar_rasterized(tmp_path):
+    """
+    The rasterized dpi of the figure shouldn't change the location of the pcolormesh
+    or colorbar pcolormesh.
+    """
+    fig, ax = plt.subplots()
+    np.random.seed(19680801)
+    pc = ax.pcolormesh(np.random.randn(30, 30), rasterized=True)
+    fig.colorbar(pc)
