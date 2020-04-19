@@ -173,3 +173,26 @@ def test_dont_mutate_kwargs():
                            gridspec_kw=gridspec_kw)
     assert subplot_kw == {'sharex': 'all'}
     assert gridspec_kw == {'width_ratios': [1, 2]}
+
+
+def test_subplot_theta_min_max_raise():
+    with pytest.raises(ValueError, match='The angle range ' +
+                                         'must be<= 360 degrees'):
+        ax = plt.subplot(111, projection='polar')
+        ax.set_thetalim(thetamin=800, thetamax=400)
+
+
+def test_subplot_theta_min_max_non_raise():
+    ax = plt.subplot(111, projection='polar')
+    ax.set_thetalim(thetamin=800, thetamax=440)
+
+
+def test_subplot_theta_range_raise():
+    with pytest.raises(ValueError, match='The angle range must be <= 2 pi'):
+        ax = plt.subplot(111, projection='polar')
+        ax.set_thetalim(0, 3 * numpy.pi)
+
+
+def test_subplot_theta_range_normal_non_raise():
+    ax = plt.subplot(111, projection='polar')
+    ax.set_thetalim(0, 2 * numpy.pi)
