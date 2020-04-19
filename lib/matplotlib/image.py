@@ -572,21 +572,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         raise NotImplementedError('The make_image method must be overridden')
 
-    def _draw_unsampled_image(self, renderer, gc):
-        """
-        Draw unsampled image. The renderer should support a draw_image method
-        with scale parameter.
-        """
-        im, l, b, trans = self.make_image(renderer, unsampled=True)
-
-        if im is None:
-            return
-
-        trans = Affine2D().scale(im.shape[1], im.shape[0]) + trans
-
-        renderer.draw_image(gc, l, b, im, trans)
-
-    def _check_unsampled_image(self, renderer):
+    def _check_unsampled_image(self):
         """
         Return whether the image is better to be drawn unsampled.
 
@@ -600,22 +586,23 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not self.get_visible():
             self.stale = False
             return
-
         # for empty images, there is nothing to draw!
         if self.get_array().size == 0:
             self.stale = False
             return
-
         # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self._get_scalar_alpha())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
-
-        if (self._check_unsampled_image(renderer) and
-                self.get_transform().is_affine):
-            self._draw_unsampled_image(renderer, gc)
+        if (renderer.option_scale_image()  # Renderer supports transform kwarg.
+                and self._check_unsampled_image()
+                and self.get_transform().is_affine):
+            im, l, b, trans = self.make_image(renderer, unsampled=True)
+            if im is not None:
+                trans = Affine2D().scale(im.shape[1], im.shape[0]) + trans
+                renderer.draw_image(gc, l, b, im, trans)
         else:
             im, l, b, trans = self.make_image(
                 renderer, renderer.get_image_magnification())
@@ -905,10 +892,9 @@ class AxesImage(_ImageBase):
             self.get_clip_box() or self.axes.bbox,
             magnification, unsampled=unsampled)
 
-    def _check_unsampled_image(self, renderer):
+    def _check_unsampled_image(self):
         """Return whether the image would be better drawn unsampled."""
-        return (self.get_interpolation() == "none"
-                and renderer.option_scale_image())
+        return self.get_interpolation() == "none"
 
     def set_extent(self, extent):
         """
@@ -1000,7 +986,7 @@ class NonUniformImage(AxesImage):
         super().__init__(ax, **kwargs)
         self.set_interpolation(interpolation)
 
-    def _check_unsampled_image(self, renderer):
+    def _check_unsampled_image(self):
         """Return False. Do not use unsampled image."""
         return False
 
@@ -1192,7 +1178,7 @@ class PcolorImage(AxesImage):
                             bg)
         return im, l, b, IdentityTransform()
 
-    def _check_unsampled_image(self, renderer):
+    def _check_unsampled_image(self):
         return False
 
     def set_data(self, x, y, A):
