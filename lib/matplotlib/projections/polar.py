@@ -1061,7 +1061,7 @@ class PolarAxes(Axes):
 
         if thetamin is not None and thetamax is not None:
             if abs(thetamax - thetamin) > 2 * np.pi:
-                raise ValueError('The angle range must be<= 360 degrees')
+                raise ValueError('The angle range must be <= 360 degrees')
         return tuple(np.rad2deg(self.set_xlim(left=left, right=right,
                                               xmin=thetamin, xmax=thetamax)))
 
