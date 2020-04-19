@@ -130,11 +130,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     # This can break down if the decoration size for the right hand axis (the
     # margins) is very large.  There must be a math way to check for this case.
 
-    print("IN HERE")
     invTransFig = fig.transFigure.inverted().transform_bbox
-
-    conh = None
-    conw = None
 
     # list of unique gridspecs that contain child axes:
     gss = set()
@@ -168,7 +164,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             else:
                 bbox = None
             bboxes[ax] = bbox
-        print(bboxes)
 
         # do layout for suptitle.
         suptitle = fig._suptitle
@@ -208,59 +203,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             for gs in gss:
                 _align_spines(fig, gs)
 
-        # prob with autoscaling: no redraw to see how big the new
-        # layout should be...
-        if not reset:
-            for gs in gss:
-                axs = [ax for ax in fig.axes
-                       if (hasattr(ax, 'get_subplotspec')
-                           and ax._layoutbox is not None
-                           and ax.get_subplotspec().get_gridspec() == gs)]
-                nrows, ncols = gs.get_geometry()
-                # get widths:
-                dxs = np.zeros(ncols)
-                for i in range(ncols):
-                    print('checking i', i)
-                    for ax in axs:
-                        ss = ax.get_subplotspec()
-                        if i in ss.colspan:
-                            dn = ss.rowspan[-1] - ss.rowspan[0] + 1
-                            dx = (bboxes[ax].bounds[2] + 2 * w_pad)/ dn
-                            dxs[i] = max(dxs[i], dx)
-                dx = np.sum(dxs)
-
-                dys = np.zeros(nrows)
-                for i in range(nrows):
-                    print('checking i', i)
-                    for ax in axs:
-                        ss = ax.get_subplotspec()
-                        if i in ss.rowspan:
-                            dn = ss.colspan[-1] - ss.colspan[0] + 1
-                            dy = (bboxes[ax].bounds[3] + 2 * h_pad)/ dn
-                            dys[i] = max(dys[i], dy)
-                dy = np.sum(dys)
-
-                print('dx dy', dx, dy)
-                parent = gs._layoutbox.parent
-                if dy < dx:
-                    if conh is not None:
-                        gs._layoutbox.solver.removeConstraint(conh)
-                    gs._layoutbox.edit_height(dy)
-                    conw = gs._layoutbox.constrain_width(parent.width)
-                #gs._layoutbox.edit_bottom_margin_min((parent.height-dy)/2)
-                else:
-                    if conw is not None:
-                        gs._layoutbox.solver.removeConstraint(conw)
-                    conw = gs._layoutbox.constrain_width(dx)
-                    conh = gs._layoutbox.constrain_height(parent.height)
-                #gs._layoutbox.edit_bottom_margin((parent.width-dx)/2)
-        else: # reset!
-            for gs in gss:
-                parent = gs._layoutbox.parent
-                conh = gs._layoutbox.constrain_height(parent.height)
-                conw = gs._layoutbox.constrain_height(parent.width)
-
-
         fig._layoutbox.constrained_layout_called += 1
         # call the kiwi solver:
         fig._layoutbox.update_variables()
@@ -285,13 +227,11 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         else:
             cbook._warn_external('constrained_layout not applied.  At least '
                                  'one axes collapsed to zero width or height.')
+        _squish(fig)
 
-        ## clean up temporary constraints:
-        for gs in gss:
-            if conh is not None:
-                gs._layoutbox.solver.removeConstraint(conh)
-            if conw is not None:
-                gs._layoutbox.solver.removeConstraint(conw)
+
+
+
 
 
 
@@ -307,7 +247,6 @@ def _make_ghost_gridspec_slots(fig, gs):
     hassubplotspec = np.zeros(nrows * ncols, dtype=bool)
     axs = []
     for ax in fig.axes:
-        print(ax, ax._layoutbox)
         if (hasattr(ax, 'get_subplotspec')
                 and ax._layoutbox is not None
                 and ax.get_subplotspec().get_gridspec() == gs):
@@ -315,12 +254,10 @@ def _make_ghost_gridspec_slots(fig, gs):
     for ax in axs:
         ss0 = ax.get_subplotspec()
         hassubplotspec[ss0.num1:(ss0.num2 + 1)] = True
-    print(hassubplotspec, axs)
     for nn, hss in enumerate(hassubplotspec):
         if not hss:
             # this gridspec slot doesn't have an axis so we
             # make a "ghost".
-            print('ghosty!',  nn)
             ax = fig.add_subplot(gs[nn])
             ax.set_visible(False)
 
@@ -387,11 +324,9 @@ def _align_spines(fig, gs):
        as they should be.
     """
     # for each gridspec...
-    print('Aligning Spines!')
     nrows, ncols = gs.get_geometry()
     width_ratios = gs.get_width_ratios()
     height_ratios = gs.get_height_ratios()
-    print('hieght_ratios', height_ratios)
     if width_ratios is None:
         width_ratios = np.ones(ncols)
     if height_ratios is None:
@@ -473,7 +408,6 @@ def _align_spines(fig, gs):
 
             # For heights, do it if the subplots share a column.
             if not alignheight and len(rowspan0) == len(rowspan1):
-                print('heights', height0, height1)
                 ax0._poslayoutbox.constrain_height(
                     ax1._poslayoutbox.height * height0 / height1)
                 alignheight = True
@@ -749,3 +683,73 @@ def layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
                                strength='medium')
 
     return lb, lbpos
+
+def _squish(fig, w_pad=0.0, h_pad=0.0):
+    gss = set()
+    bboxes = {}  # need these for packing the layout later...
+    invTransFig = fig.transFigure.inverted().transform_bbox
+
+    for ax in fig.axes:
+        if hasattr(ax, 'get_subplotspec'):
+            gs = ax.get_subplotspec().get_gridspec()
+            gss.add(gs)
+            bbox = ax.get_tightbbox(fig.canvas.get_renderer())
+            bbox = invTransFig(bbox)
+            bboxes[ax] = bbox
+
+    # we placed everything, but what if there are huge gaps...
+    for gs in gss:
+        axs = [ax for ax in fig.axes
+               if (hasattr(ax, 'get_subplotspec')
+                   and ax.get_subplotspec().get_gridspec() == gs)]
+        nrows, ncols = gs.get_geometry()
+        # get widths:
+        dxs = np.zeros((nrows, ncols))
+        dys = np.zeros((nrows, ncols))
+        margxs = np.zeros((nrows, ncols))
+
+        for i in range(nrows):
+            for j in range(ncols):
+                for ax in axs:
+                    ss = ax.get_subplotspec()
+                    if (i in ss.rowspan) and (j in ss.colspan):
+                        di = ss.colspan[-1] - ss.colspan[0] + 1
+                        dj = ss.rowspan[-1] - ss.rowspan[0] + 1
+                        dxs[i, j] = bboxes[ax].bounds[2] / di
+                        if ss.colspan[-1] < ncols - 1:
+                            dxs[i, j] = dxs[i, j] + w_pad / di
+                        dys[i, j] = bboxes[ax].bounds[3] / dj
+                        if ss.rowspan[-1] < nrows - 1:
+                            dys[i, j] = dys[i, j] + h_pad / dj
+                        orpos = ax.get_position(original=True)
+                        margxs[i, j] = bboxes[ax].x0 - orpos.x0
+
+        dx = np.max(np.sum(dxs, axis=0))
+        dy = np.max(np.sum(dys, axis=1))
+        print('dxs', dxs)
+        print('margxs', margxs)
+        ddxs = np.max(dxs, axis=0)
+        dx = np.sum(ddxs)
+        margx = np.min(margxs, axis=0)
+        print(ddxs, margx, np.cumsum(ddxs))
+        if (dx < dy) and (dx < 0.98):
+            extra = (1 - dx) / 2
+            print('Squish X', extra)
+            for ax in axs:
+                # newpos = ax._poslayoutbox.get_rect()
+                ss = ax.get_subplotspec()
+                orpos = ax.get_position(original=True)
+                # acpos = ax.get_position(original=False)
+                # margx = bboxes[ax].x0 - orpos.x0
+                x = extra
+                for j in range(0, ss.colspan[0]):
+                    x += ddxs[j]
+                # x = 0.5
+                print('x', x, margx[ss.colspan[0]])
+                orpos.x1 = x - margx[ss.colspan[0]] + orpos.bounds[2]
+                orpos.x0 = x - margx[ss.colspan[0]]
+                # Now set the new position.
+                # ax.set_position will zero out the layout for
+                # this axis, allowing users to hard-code the position,
+                # so this does the same w/o zeroing layout.
+                ax._set_position(orpos, which='original')
