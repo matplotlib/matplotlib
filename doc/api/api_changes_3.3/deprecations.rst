@@ -455,3 +455,8 @@ replaced by calls to ``draw_idle()`` on the corresponding canvas.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``add_checker`` and ``check_update`` methods and ``update_dict`` attribute
 of `.ScalarMappable` are deprecated.
+
+``ColorbarBase`` parameters will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All parameters of ``ColorbarBase``, except for the first (*ax*), will become
+keyword-only, consistently with ``Colorbar``.
