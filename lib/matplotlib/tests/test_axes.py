@@ -492,95 +492,6 @@ def test_annotate_default_arrow():
     assert ann.arrow_patch is not None
 
 
-@image_comparison(['polar_axes'], style='default')
-def test_polar_annotations():
-    # you can specify the xypoint and the xytext in different
-    # positions and coordinate systems, and optionally turn on a
-    # connecting line and mark the point with a marker.  Annotations
-    # work on polar axes too.  In the example below, the xy point is
-    # in native coordinates (xycoords defaults to 'data').  For a
-    # polar axes, this is in (theta, radius) space.  The text in this
-    # example is placed in the fractional figure coordinate system.
-    # Text keyword args like horizontal and vertical alignment are
-    # respected
-
-    # Setup some data
-    r = np.arange(0.0, 1.0, 0.001)
-    theta = 2.0 * 2.0 * np.pi * r
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, polar=True)
-    line, = ax.plot(theta, r, color='#ee8d18', lw=3)
-    line, = ax.plot((0, 0), (0, 1), color="#0000ff", lw=1)
-
-    ind = 800
-    thisr, thistheta = r[ind], theta[ind]
-    ax.plot([thistheta], [thisr], 'o')
-    ax.annotate('a polar annotation',
-                xy=(thistheta, thisr),  # theta, radius
-                xytext=(0.05, 0.05),    # fraction, fraction
-                textcoords='figure fraction',
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                horizontalalignment='left',
-                verticalalignment='baseline',
-                )
-
-    ax.tick_params(axis='x', tick1On=True, tick2On=True, direction='out')
-
-
-@image_comparison(['polar_coords'], style='default', remove_text=True)
-def test_polar_coord_annotations():
-    # You can also use polar notation on a cartesian axes.  Here the
-    # native coordinate system ('data') is cartesian, so you need to
-    # specify the xycoords and textcoords as 'polar' if you want to
-    # use (theta, radius)
-    el = mpatches.Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, aspect='equal')
-
-    ax.add_artist(el)
-    el.set_clip_box(ax.bbox)
-
-    ax.annotate('the top',
-                xy=(np.pi/2., 10.),      # theta, radius
-                xytext=(np.pi/3, 20.),   # theta, radius
-                xycoords='polar',
-                textcoords='polar',
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                horizontalalignment='left',
-                verticalalignment='baseline',
-                clip_on=True,  # clip to the axes bounding box
-                )
-
-    ax.set_xlim(-20, 20)
-    ax.set_ylim(-20, 20)
-
-
-@image_comparison(['polar_alignment.png'])
-def test_polar_alignment():
-    """
-    Test that changing the vertical/horizontal alignment of a polar graph
-    works as expected.
-    """
-    angles = np.arange(0, 360, 90)
-    grid_values = [0, 0.2, 0.4, 0.6, 0.8, 1]
-
-    fig = plt.figure()
-    rect = [0.1, 0.1, 0.8, 0.8]
-
-    horizontal = fig.add_axes(rect, polar=True, label='horizontal')
-    horizontal.set_thetagrids(angles)
-
-    vertical = fig.add_axes(rect, polar=True, label='vertical')
-    vertical.patch.set_visible(False)
-
-    for i in range(2):
-        fig.axes[i].set_rgrids(
-            grid_values, angle=angles[i],
-            horizontalalignment='left', verticalalignment='top')
-
-
 @image_comparison(['fill_units.png'], savefig_kwarg={'dpi': 60})
 def test_fill_units():
     import matplotlib.testing.jpl_units as units
@@ -684,189 +595,6 @@ def test_structured_data():
     axs = plt.figure().subplots(2)
     axs[0].plot("ones", "twos", data=pts)
     axs[1].plot("ones", "twos", "r", data=pts)
-
-
-def test_polar_twice():
-    fig = plt.figure()
-    plt.polar([1, 2], [.1, .2])
-    plt.polar([3, 4], [.3, .4])
-    assert len(fig.axes) == 1, 'More than one polar axes created.'
-
-
-@check_figures_equal()
-def test_polar_wrap(fig_test, fig_ref):
-    ax = fig_test.add_subplot(projection="polar")
-    ax.plot(np.deg2rad([179, -179]), [0.2, 0.1])
-    ax.plot(np.deg2rad([2, -2]), [0.2, 0.1])
-    ax = fig_ref.add_subplot(projection="polar")
-    ax.plot(np.deg2rad([179, 181]), [0.2, 0.1])
-    ax.plot(np.deg2rad([2, 358]), [0.2, 0.1])
-
-
-@check_figures_equal()
-def test_polar_units_1(fig_test, fig_ref):
-    import matplotlib.testing.jpl_units as units
-    units.register()
-    xs = [30.0, 45.0, 60.0, 90.0]
-    ys = [1.0, 2.0, 3.0, 4.0]
-
-    plt.figure(fig_test.number)
-    plt.polar([x * units.deg for x in xs], ys)
-
-    ax = fig_ref.add_subplot(projection="polar")
-    ax.plot(np.deg2rad(xs), ys)
-    ax.set(xlabel="deg")
-
-
-@check_figures_equal()
-def test_polar_units_2(fig_test, fig_ref):
-    import matplotlib.testing.jpl_units as units
-    units.register()
-    xs = [30.0, 45.0, 60.0, 90.0]
-    xs_deg = [x * units.deg for x in xs]
-    ys = [1.0, 2.0, 3.0, 4.0]
-    ys_km = [y * units.km for y in ys]
-
-    plt.figure(fig_test.number)
-    # test {theta,r}units.
-    plt.polar(xs_deg, ys_km, thetaunits="rad", runits="km")
-    assert isinstance(plt.gca().get_xaxis().get_major_formatter(),
-                      units.UnitDblFormatter)
-
-    ax = fig_ref.add_subplot(projection="polar")
-    ax.plot(np.deg2rad(xs), ys)
-    ax.xaxis.set_major_formatter(mticker.FuncFormatter("{:.12}".format))
-    ax.set(xlabel="rad", ylabel="km")
-
-
-@image_comparison(['polar_rmin'], style='default')
-def test_polar_rmin():
-    r = np.arange(0, 3.0, 0.01)
-    theta = 2*np.pi*r
-
-    fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-    ax.plot(theta, r)
-    ax.set_rmax(2.0)
-    ax.set_rmin(0.5)
-
-
-@image_comparison(['polar_negative_rmin'], style='default')
-def test_polar_negative_rmin():
-    r = np.arange(-3.0, 0.0, 0.01)
-    theta = 2*np.pi*r
-
-    fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-    ax.plot(theta, r)
-    ax.set_rmax(0.0)
-    ax.set_rmin(-3.0)
-
-
-@image_comparison(['polar_rorigin'], style='default')
-def test_polar_rorigin():
-    r = np.arange(0, 3.0, 0.01)
-    theta = 2*np.pi*r
-
-    fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-    ax.plot(theta, r)
-    ax.set_rmax(2.0)
-    ax.set_rmin(0.5)
-    ax.set_rorigin(0.0)
-
-
-@image_comparison(['polar_invertedylim.png'], style='default')
-def test_polar_invertedylim():
-    fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-    ax.set_ylim(2, 0)
-
-
-@image_comparison(['polar_invertedylim_rorigin.png'], style='default')
-def test_polar_invertedylim_rorigin():
-    fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-    ax.set_ylim(2, 0)
-    ax.set_rorigin(3)
-
-
-@image_comparison(['polar_theta_position'], style='default')
-def test_polar_theta_position():
-    r = np.arange(0, 3.0, 0.01)
-    theta = 2*np.pi*r
-
-    fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-    ax.plot(theta, r)
-    ax.set_theta_zero_location("NW", 30)
-    ax.set_theta_direction('clockwise')
-
-
-@image_comparison(['polar_rlabel_position'], style='default')
-def test_polar_rlabel_position():
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='polar')
-    ax.set_rlabel_position(315)
-    ax.tick_params(rotation='auto')
-
-
-@image_comparison(['polar_theta_wedge'], style='default')
-def test_polar_theta_limits():
-    r = np.arange(0, 3.0, 0.01)
-    theta = 2*np.pi*r
-
-    theta_mins = np.arange(15.0, 361.0, 90.0)
-    theta_maxs = np.arange(50.0, 361.0, 90.0)
-    DIRECTIONS = ('out', 'in', 'inout')
-
-    fig, axs = plt.subplots(len(theta_mins), len(theta_maxs),
-                            subplot_kw={'polar': True},
-                            figsize=(8, 6))
-
-    for i, start in enumerate(theta_mins):
-        for j, end in enumerate(theta_maxs):
-            ax = axs[i, j]
-            ax.plot(theta, r)
-            if start < end:
-                ax.set_thetamin(start)
-                ax.set_thetamax(end)
-            else:
-                # Plot with clockwise orientation instead.
-                ax.set_thetamin(end)
-                ax.set_thetamax(start)
-                ax.set_theta_direction('clockwise')
-            ax.tick_params(tick1On=True, tick2On=True,
-                           direction=DIRECTIONS[i % len(DIRECTIONS)],
-                           rotation='auto')
-            ax.yaxis.set_tick_params(label2On=True, rotation='auto')
-
-
-@check_figures_equal(extensions=["png"])
-def test_polar_rlim(fig_test, fig_ref):
-    ax = fig_test.subplots(subplot_kw={'polar': True})
-    ax.set_rlim(top=10)
-    ax.set_rlim(bottom=.5)
-
-    ax = fig_ref.subplots(subplot_kw={'polar': True})
-    ax.set_rmax(10.)
-    ax.set_rmin(.5)
-
-
-@check_figures_equal(extensions=["png"])
-def test_polar_rlim_bottom(fig_test, fig_ref):
-    ax = fig_test.subplots(subplot_kw={'polar': True})
-    ax.set_rlim(bottom=[.5, 10])
-
-    ax = fig_ref.subplots(subplot_kw={'polar': True})
-    ax.set_rmax(10.)
-    ax.set_rmin(.5)
-
-
-def test_polar_rlim_zero():
-    ax = plt.figure().add_subplot(projection='polar')
-    ax.plot(np.arange(10), np.arange(10) + .01)
-    assert ax.get_ylim()[0] == 0
 
 
 @image_comparison(['aitoff_proj'], extensions=["png"],
@@ -2325,17 +2053,6 @@ def test_log_scales_invalid():
     ax.set_yscale('log')
     with pytest.warns(UserWarning, match='Attempted to set non-positive'):
         ax.set_ylim(-1, 10)
-
-
-def test_polar_no_data():
-    plt.subplot(projection="polar")
-    ax = plt.gca()
-    assert ax.get_rmin() == 0 and ax.get_rmax() == 1
-    plt.close("all")
-    # Used to behave differently (by triggering an autoscale with no data).
-    plt.polar()
-    ax = plt.gca()
-    assert ax.get_rmin() == 0 and ax.get_rmax() == 1
 
 
 @image_comparison(['stackplot_test_image', 'stackplot_test_image'])
@@ -4481,12 +4198,6 @@ def test_shared_with_aspect_3():
             assert round(expected, 4) == round(ax.get_aspect(), 4)
 
 
-def test_polar_not_datalim_adjustable():
-    ax = plt.figure().add_subplot(projection="polar")
-    with pytest.raises(ValueError):
-        ax.set_adjustable("datalim")
-
-
 @pytest.mark.parametrize('twin', ('x', 'y'))
 def test_twin_with_aspect(twin):
     fig, ax = plt.subplots()
@@ -5723,22 +5434,6 @@ def test_zero_linewidth():
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
 
 
-def test_polar_gridlines():
-    fig = plt.figure()
-    ax = fig.add_subplot(111, polar=True)
-
-    # make all major grid lines lighter, only x grid lines set in 2.1.0
-    ax.grid(alpha=0.2)
-
-    # hide y tick labels, no effect in 2.1.0
-    plt.setp(ax.yaxis.get_ticklabels(), visible=False)
-
-    fig.canvas.draw()
-
-    assert ax.xaxis.majorTicks[0].gridline.get_alpha() == .2
-    assert ax.yaxis.majorTicks[0].gridline.get_alpha() == .2
-
-
 def test_empty_errorbar_legend():
     fig, ax = plt.subplots()
     ax.errorbar([], [], xerr=[], label='empty y')
@@ -6227,14 +5922,6 @@ def test_minor_accountedfor():
                 bbspines[n * 2].bounds, targetbb.bounds, atol=1e-2)
 
 
-def test_get_tightbbox_polar():
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-    fig.canvas.draw()
-    bb = ax.get_tightbbox(fig.canvas.get_renderer())
-    assert_allclose(
-        bb.extents, [107.7778,  29.2778, 539.7847, 450.7222], rtol=1e-03)
-
-
 @check_figures_equal(extensions=["png"])
 def test_axis_bool_arguments(fig_test, fig_ref):
     # Test if False and "off" give the same
@@ -6430,27 +6117,3 @@ def test_invisible_axes():
     assert fig.canvas.inaxes((200, 200)) is not None
     ax.set_visible(False)
     assert fig.canvas.inaxes((200, 200)) is None
-
-
-@check_figures_equal(extensions=["png"])
-def test_polar_interpolation_steps_constant_r(fig_test, fig_ref):
-    # Check that an extra half-turn doesn't make any difference -- modulo
-    # antialiasing, which we disable here.
-    p1 = (fig_test.add_subplot(121, projection="polar")
-          .bar([0], [1], 3*np.pi, edgecolor="none"))
-    p2 = (fig_test.add_subplot(122, projection="polar")
-          .bar([0], [1], -3*np.pi, edgecolor="none"))
-    p3 = (fig_ref.add_subplot(121, projection="polar")
-          .bar([0], [1], 2*np.pi, edgecolor="none"))
-    p4 = (fig_ref.add_subplot(122, projection="polar")
-          .bar([0], [1], -2*np.pi, edgecolor="none"))
-    for p in [p1, p2, p3, p4]:
-        plt.setp(p, antialiased=False)
-
-
-@check_figures_equal(extensions=["png"])
-def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
-    l, = fig_test.add_subplot(projection="polar").plot([0, np.pi/2], [1, 2])
-    l.get_path()._interpolation_steps = 100
-    fig_ref.add_subplot(projection="polar").plot(
-        np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
