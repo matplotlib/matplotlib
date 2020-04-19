@@ -407,6 +407,22 @@ The basic docstring conventions are covered in the `numpydoc docstring guide`_
 and the Sphinx_ documentation.  Some Matplotlib-specific formatting conventions
 to keep in mind:
 
+Quote positions
+~~~~~~~~~~~~~~~
+The quotes for single line docstrings are on the same line (pydocstyle D200)::
+
+    def get_linewidth(self):
+        """Return the line width in points."""
+
+The quotes for multi-line docstrings are on separate lines (pydocstyle D213)::
+
+        def set_linestyle(self, ls):
+        """
+        Set the linestyle of the line.
+
+        [...]
+        """
+
 Function arguments
 ~~~~~~~~~~~~~~~~~~
 Function arguments and keywords within docstrings should be referred to
