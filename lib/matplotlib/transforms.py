@@ -847,8 +847,8 @@ class Bbox(BboxBase):
 
     def update_from_path(self, path, ignore=None, updatex=True, updatey=True):
         """
-        Update the bounds of the `Bbox` based on the passed in
-        data.  After updating, the bounds will have positive *width*
+        Update the bounds of the `Bbox` to contain the vertices of the
+        provided path. After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
         Parameters
