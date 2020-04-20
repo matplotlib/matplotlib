@@ -230,11 +230,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         _squish(fig)
 
 
-
-
-
-
-
 def _make_ghost_gridspec_slots(fig, gs):
     """
     Check for unoccupied gridspec slots and make ghost axes for these
@@ -440,7 +435,6 @@ def _align_spines(fig, gs):
                         ax0._poslayoutbox.width * width1 / width0)
                     ax0._poslayoutbox.constrain_width_min(
                         ax1._poslayoutbox.width * width0 / (width1*1.8))
-
 
 
 def _arrange_subplotspecs(gs, hspace=0, wspace=0):
@@ -690,6 +684,7 @@ def _squish(fig, w_pad=0.0, h_pad=0.0):
     invTransFig = fig.transFigure.inverted().transform_bbox
 
     for ax in fig.axes:
+        print(ax, hasattr(ax, 'get_subplotspec'))
         if hasattr(ax, 'get_subplotspec'):
             gs = ax.get_subplotspec().get_gridspec()
             gss.add(gs)

@@ -567,6 +567,7 @@ class _AxesBase(martist.Artist):
 
         self._layoutbox = None
         self._poslayoutbox = None
+        self._colorbars = []  # a list of colorbars attached to this axes.
 
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
