@@ -1,7 +1,7 @@
 import copy
+from collections import namedtuple
 
 import numpy as np
-
 from numpy.testing import assert_array_equal
 import pytest
 
@@ -47,6 +47,72 @@ def test_contains_points_negative_radius():
     points = [(0.0, 0.0), (1.25, 0.0), (0.9, 0.9)]
     result = path.contains_points(points, radius=-0.5)
     np.testing.assert_equal(result, [True, False, False])
+
+
+_ExampleCurve = namedtuple('ExampleCurve',
+                           ['path', 'extents', 'area', 'length'])
+_test_curves = [
+    # interior extrema determine extents and degenerate derivative
+    _ExampleCurve(Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+                       [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]),
+                  extents=(0., 0., 0.75, 1.), area=0.6, length=2.0),
+    # a quadratic curve, clockwise
+    _ExampleCurve(Path([[0, 0], [0, 1], [1, 0]], [Path.MOVETO, Path.CURVE3,
+                  Path.CURVE3]), extents=(0., 0., 1., 0.5), area=-1/3,
+                  length=(1/25)*(10 + 15*np.sqrt(2) + np.sqrt(5) \
+                  * (np.arcsinh(2) + np.arcsinh(3)))),
+    # a linear curve, degenerate vertically
+    _ExampleCurve(Path([[0, 1], [1, 1]], [Path.MOVETO, Path.LINETO]),
+                  extents=(0., 1., 1., 1.), area=0., length=1.0),
+    # a point
+    _ExampleCurve(Path([[1, 2]], [Path.MOVETO]), extents=(1., 2., 1., 2.),
+                  area=0., length=0.0),
+]
+
+
+@pytest.mark.parametrize('precomputed_curve', _test_curves)
+def test_exact_extents(precomputed_curve):
+    # notice that if we just looked at the control points to get the bounding
+    # box of each curve, we would get the wrong answers. For example, for
+    # hard_curve = Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+    #                   [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    # we would get that the extents area (0, 0, 1, 1). This code takes into
+    # account the curved part of the path, which does not typically extend all
+    # the way out to the control points.
+    # Note that counterintuitively, path.get_extents() returns a Bbox, so we
+    # have to get that Bbox's `.extents`.
+    path, extents = precomputed_curve.path, precomputed_curve.extents
+    assert np.all(path.get_extents().extents == extents)
+
+
+@pytest.mark.parametrize('precomputed_curve', _test_curves)
+def test_signed_area(precomputed_curve):
+    path, area = precomputed_curve.path, precomputed_curve.area
+    assert np.isclose(path.signed_area, area)
+    # now flip direction, sign of *signed_area* should flip
+    rverts = path.vertices[:0:-1]
+    rverts = np.append(rverts, np.atleast_2d(path.vertices[0]), axis=0)
+    rcurve = Path(rverts, path.codes)
+    assert np.isclose(rcurve.signed_area, -area)
+
+
+def test_signed_area_unit_rectangle():
+    rect = Path.unit_rectangle()
+    assert np.isclose(rect.signed_area, 1)
+
+
+def test_signed_area_unit_circle():
+    circ = Path.unit_circle()
+    # not quite pi, since it's not a "real" circle, just an approximation of a
+    # circle made out of bezier curves
+    assert np.isclose(circ.signed_area, 3.1415935732517166)
+
+
+@pytest.mark.parametrize('precomputed_curve', _test_curves)
+def test_length_curve(precomputed_curve):
+    path, length = precomputed_curve.path, precomputed_curve.length
+    assert np.isclose(path.length(rtol=1e-5, atol=1e-8), length, rtol=1e-5,
+                      atol=1e-8)
 
 
 def test_point_in_path_nan():
