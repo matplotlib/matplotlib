@@ -14,7 +14,7 @@ import pytest
 def test_uses_per_path():
     id = transforms.Affine2D()
     paths = [path.Path.unit_regular_polygon(i) for i in range(3, 7)]
-    tforms = [id.rotate(i) for i in range(1, 5)]
+    tforms_matrices = [id.rotate(i).get_matrix().copy() for i in range(1, 5)]
     offsets = np.arange(20).reshape((10, 2))
     facecolors = ['red', 'green']
     edgecolors = ['red', 'green']
@@ -37,17 +37,18 @@ def test_uses_per_path():
             seen = np.bincount(ids, minlength=len(raw_paths))
             assert set(seen).issubset([uses - 1, uses])
 
-    check(id, paths, tforms, offsets, facecolors, edgecolors)
-    check(id, paths[0:1], tforms, offsets, facecolors, edgecolors)
-    check(id, [], tforms, offsets, facecolors, edgecolors)
-    check(id, paths, tforms[0:1], offsets, facecolors, edgecolors)
+    check(id, paths, tforms_matrices, offsets, facecolors, edgecolors)
+    check(id, paths[0:1], tforms_matrices, offsets, facecolors, edgecolors)
+    check(id, [], tforms_matrices, offsets, facecolors, edgecolors)
+    check(id, paths, tforms_matrices[0:1], offsets, facecolors, edgecolors)
     check(id, paths, [], offsets, facecolors, edgecolors)
     for n in range(0, offsets.shape[0]):
-        check(id, paths, tforms, offsets[0:n, :], facecolors, edgecolors)
-    check(id, paths, tforms, offsets, [], edgecolors)
-    check(id, paths, tforms, offsets, facecolors, [])
-    check(id, paths, tforms, offsets, [], [])
-    check(id, paths, tforms, offsets, facecolors[0:1], edgecolors)
+        check(id, paths, tforms_matrices, offsets[0:n, :],
+              facecolors, edgecolors)
+    check(id, paths, tforms_matrices, offsets, [], edgecolors)
+    check(id, paths, tforms_matrices, offsets, facecolors, [])
+    check(id, paths, tforms_matrices, offsets, [], [])
+    check(id, paths, tforms_matrices, offsets, facecolors[0:1], edgecolors)
 
 
 def test_get_default_filename(tmpdir):
