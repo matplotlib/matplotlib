@@ -1128,7 +1128,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._parent = self.canvas.GetParent()
 
         self.wx_ids = {}
-        self.bitmaps = {}
+        self._bitmaps = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.AddSeparator()
@@ -1136,7 +1136,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
             bitmap = _load_bitmap(f"{image_file}.png")
             if text in ["Pan", "Zoom"]:
-                self.bitmaps[text] = {"Normal": bitmap,
+                self._bitmaps[text] = {"Normal": bitmap,
                     "Toggled": self._make_toggled_bitmap(bitmap)}
 
             self.wx_ids[text] = (
@@ -1169,33 +1169,32 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         return bmp
 
+    def _fake_toggle_group(self, elements, active):
+        for name in elements:
+            self.SetToolNormalBitmap(self.wx_ids[name],
+                self._bitmaps[name]["Toggled" if name == active else "Normal"])
+
     def zoom(self, *args):
         evt = args[0]
         self.ToggleTool(self.wx_ids['Pan'], False)
         NavigationToolbar2.zoom(self, *args)
         if 'wxMac' in wx.PlatformInfo:
-            self.SetToolNormalBitmap(self.wx_ids["Pan"],
-                self.bitmaps["Pan"]["Normal"])
             if evt.IsChecked():
-                self.SetToolNormalBitmap(self.wx_ids["Zoom"],
-                    self.bitmaps["Zoom"]["Toggled"])
+                active = "Zoom"
             else:
-                self.SetToolNormalBitmap(self.wx_ids["Zoom"],
-                    self.bitmaps["Zoom"]["Normal"])
+                active = None
+            self._fake_toggle_group(["Zoom", "Pan"], active)
 
     def pan(self, *args):
         evt = args[0]
         self.ToggleTool(self.wx_ids['Zoom'], False)
         NavigationToolbar2.pan(self, *args)
         if 'wxMac' in wx.PlatformInfo:
-            self.SetToolNormalBitmap(self.wx_ids["Zoom"],
-                self.bitmaps["Zoom"]["Normal"])
             if evt.IsChecked():
-                self.SetToolNormalBitmap(self.wx_ids["Pan"],
-                    self.bitmaps["Pan"]["Toggled"])
+                active = "Pan"
             else:
-                self.SetToolNormalBitmap(self.wx_ids["Pan"],
-                    self.bitmaps["Pan"]["Normal"])
+                active = None
+            self._fake_toggle_group(["Zoom", "Pan"], active)
 
     def configure_subplots(self, *args):
         global FigureManager  # placates pyflakes: created by @_Backend.export
