@@ -460,3 +460,8 @@ of `.ScalarMappable` are deprecated.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All parameters of ``ColorbarBase``, except for the first (*ax*), will become
 keyword-only, consistently with ``Colorbar``.
+
+`.Axes.pie` radius and startangle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing ``None`` as either the ``radius`` or ``startangle`` of an `.Axes.pie`
+is deprecated; use the explicit defaults of 1 and 0, respectively, instead.
