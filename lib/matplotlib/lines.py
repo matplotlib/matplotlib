@@ -605,15 +605,46 @@ class Line2D(Artist):
         self._picker = p
 
     def get_window_extent(self, renderer):
-        bbox = Bbox([[0, 0], [0, 0]])
-        trans_data_to_xy = self.get_transform().transform
-        bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),
-                                 ignore=True)
-        # correct for marker size, if any
+        """
+        Get bbox of Line2D in pixel space.
+
+        Notes
+        -----
+        Both the (stroked) line itself or any markers that have been placed
+        every ``markevery`` vertices along the line could be responsible for a
+        `Line2D`'s extents.
+        """
+        # marker contribution
         if self._marker:
-            ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
-            bbox = bbox.padded(ms)
-        return bbox
+            pts_box = self._marker.get_drawn_bbox(
+                self._markersize, self._markeredgewidth)
+            pix_box = pts_box.transformed(
+                Affine2D().scale(self.figure.dpi / 72.0))
+        else:
+            pix_box = Bbox([[0, 0], [0, 0]])
+        marker_bbox = Bbox.null()
+        trans_data_to_xy = self.get_transform().transform
+        xy = trans_data_to_xy(self.get_xydata())
+        if self._markevery:
+            xy = xy[::self._markevery]
+        bottom_left = xy + np.array([pix_box.x0, pix_box.y0])
+        marker_bbox.update_from_data_xy(bottom_left, ignore=True)
+        top_right = xy + np.array([pix_box.x1, pix_box.y1])
+        marker_bbox.update_from_data_xy(top_right, ignore=False)
+
+        # line's contribution
+        if self.is_dashed():
+            cap = self._dashcapstyle
+            join = self._dashjoinstyle
+        else:
+            cap = self._solidcapstyle
+            join = self._solidjoinstyle
+        line_bbox = Bbox.null()
+        path, affine = (self._get_transformed_path()
+                        .get_transformed_path_and_affine())
+        lw = self.get_linewidth() / 72.0 * self.figure.dpi
+        path_bbox = path.get_stroked_extents(lw, affine, join, cap)
+        return Bbox.union([path_bbox, marker_bbox])
 
     @Artist.axes.setter
     def axes(self, ax):
