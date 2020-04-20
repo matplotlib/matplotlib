@@ -235,6 +235,20 @@ class BezierSegment:
         return self._N - 1
 
     @property
+    def tan_in(self):
+        if self._N < 2:
+            raise ValueError("Need at least two control points to get tangent "
+                             "vector!")
+        return self.control_points[1] - self.control_points[0]
+
+    @property
+    def tan_out(self):
+        if self._N < 2:
+            raise ValueError("Need at least two control points to get tangent "
+                             "vector!")
+        return self.control_points[-1] - self.control_points[-2]
+
+    @property
     def polynomial_coefficients(self):
         r"""
         The polynomial coefficients of the Bezier curve.
