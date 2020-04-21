@@ -181,3 +181,8 @@ wx Timer interval
 ~~~~~~~~~~~~~~~~~
 Setting the timer interval on a not-yet-started ``TimerWx`` won't start it
 anymore.
+
+"step"-type histograms default to the zorder of `.Line2D`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This ensures that they go above gridlines by default.  The old ``zorder`` can
+be kept by passing it as a keyword argument to `.Axes.hist`.
