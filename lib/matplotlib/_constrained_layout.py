@@ -50,6 +50,7 @@ import logging
 import numpy as np
 
 import matplotlib.cbook as cbook
+import matplotlib.transforms as mtransforms
 import matplotlib._layoutbox as layoutbox
 
 _log = logging.getLogger(__name__)
@@ -689,6 +690,12 @@ def _squish(fig, w_pad=0.0, h_pad=0.0):
             gs = ax.get_subplotspec().get_gridspec()
             gss.add(gs)
             bbox = ax.get_tightbbox(fig.canvas.get_renderer())
+            print('before', bbox)
+            for cba in ax._colorbars:
+                print('colorbar!!!', cba)
+                bboxcb = cba.get_tightbbox(fig.canvas.get_renderer())
+                bbox = mtransforms.BboxBase.union([bbox, bboxcb])
+                print('after', bbox)
             bbox = invTransFig(bbox)
             bboxes[ax] = bbox
 
@@ -748,3 +755,16 @@ def _squish(fig, w_pad=0.0, h_pad=0.0):
                 # this axis, allowing users to hard-code the position,
                 # so this does the same w/o zeroing layout.
                 ax._set_position(orpos, which='original')
+                # place any colorbars:
+                for cba in ax._colorbars:
+                    bbox = cba.get_tightbbox(fig.canvas.get_renderer())
+                    bbox = invTransFig(bbox)
+                    print('thebbox', bbox.extents)
+                    pos = cba.get_position(original=True)
+                    margin = pos.x0 - bbox.x0
+                    print('margin', margin)
+                    w = pos.width
+                    pos.x0 = x + bboxes[ax].width - bbox.width + margin
+                    pos.x1 = pos.x0 + w
+                    print('the pos', cba, pos.extents)
+                    cba._set_position(pos, which='original')
