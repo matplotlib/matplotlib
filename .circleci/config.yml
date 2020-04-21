@@ -78,6 +78,10 @@ commands:
 
   doc-build:
     steps:
+      - restore_cache:
+          keys:
+            - sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+            - sphinx-env-v1-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}-{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Build documentation
           command: |
@@ -86,6 +90,10 @@ commands:
             make html O=-T
             rm -r build/html/_sources
           working_directory: doc
+      - save_cache:
+          key: sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+          paths:
+            - doc/build/doctrees
 
   doc-bundle:
     steps:
