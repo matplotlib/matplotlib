@@ -308,6 +308,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             figure_label = "Figure {0}".format(self.manager.num)
         self.send_event('figure_label', label=figure_label)
         self._force_full = True
+        if self.toolbar:
+            # Normal toolbar init would refresh this, but it happens before the
+            # browser canvas is set up.
+            self.toolbar.set_history_buttons()
         self.draw_idle()
 
     def handle_resize(self, event):
@@ -393,6 +397,12 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
     def save_figure(self, *args):
         """Save the current figure"""
         self.canvas.send_event('save')
+
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self.canvas.send_event('history_buttons',
+                               Back=can_backward, Forward=can_forward)
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):

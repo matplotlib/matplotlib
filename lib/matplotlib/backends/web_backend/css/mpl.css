@@ -21,6 +21,19 @@
   vertical-align: middle;
 }
 
+.mpl-widget:disabled,
+.mpl-widget[disabled] {
+  background-color: #ddd;
+  border-color: #ddd !important;
+  cursor: not-allowed;
+}
+
+.mpl-widget:disabled img,
+.mpl-widget[disabled] img {
+  /* Convert black to grey */
+  filter: contrast(0%);
+}
+
 button.mpl-widget:focus,
 button.mpl-widget:hover {
   background-color: #ddd;
