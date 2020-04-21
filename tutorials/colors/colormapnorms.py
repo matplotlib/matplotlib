@@ -77,7 +77,7 @@ plt.show()
 # and negative, but we would still like a logarithmic scaling applied to
 # both.  In this case, the negative numbers are also scaled
 # logarithmically, and mapped to smaller numbers; e.g., if ``vmin=-vmax``,
-# then they the negative numbers are mapped from 0 to 0.5 and the
+# then the negative numbers are mapped from 0 to 0.5 and the
 # positive from 0.5 to 1.
 #
 # Since the logarithm of values close to zero tends toward infinity, a
