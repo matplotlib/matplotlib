@@ -24,7 +24,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
 
     Parameters
     ----------
-    tool : a matplotlib.widgets.RectangleSelector instance
+    tool : matplotlib.widgets.RectangleSelector
     etype
         the event to trigger
     xdata : int
