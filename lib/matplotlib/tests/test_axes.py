@@ -6129,3 +6129,19 @@ def test_invisible_axes():
     assert fig.canvas.inaxes((200, 200)) is not None
     ax.set_visible(False)
     assert fig.canvas.inaxes((200, 200)) is None
+
+
+def test_xtickcolor_is_not_markercolor():
+    plt.rcParams['lines.markeredgecolor'] = 'white'
+    ax = plt.axes()
+    ticks = ax.xaxis.get_major_ticks()
+    for tick in ticks:
+        assert not tick.tick1line.get_markeredgecolor() == 'white'
+
+
+def test_ytickcolor_is_not_markercolor():
+    plt.rcParams['lines.markeredgecolor'] = 'white'
+    ax = plt.axes()
+    ticks = ax.yaxis.get_major_ticks()
+    for tick in ticks:
+        assert not tick.tick1line.get_markeredgecolor() == 'white'
