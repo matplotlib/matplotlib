@@ -398,6 +398,14 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         """Save the current figure"""
         self.canvas.send_event('save')
 
+    def pan(self):
+        super().pan()
+        self.canvas.send_event('navigate_mode', mode=self.mode.name)
+
+    def zoom(self):
+        super().zoom()
+        self.canvas.send_event('navigate_mode', mode=self.mode.name)
+
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
         can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
