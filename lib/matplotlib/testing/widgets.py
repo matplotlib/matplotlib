@@ -44,7 +44,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     event.button = button
     ax = tool.ax
     event.x, event.y = ax.transData.transform([(xdata, ydata),
-                                               (xdata, ydata)])[00]
+                                               (xdata, ydata)])[0]
     event.xdata, event.ydata = xdata, ydata
     event.inaxes = ax
     event.canvas = ax.figure.canvas
