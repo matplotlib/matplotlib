@@ -93,6 +93,8 @@ commands:
           name: Bundle sphinx-gallery documentation artifacts
           command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
           when: always
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
 
 
 ##########################################
@@ -116,8 +118,6 @@ jobs:
       - doc-build
 
       - doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
 
       - store_artifacts:
           path: doc/build/html
@@ -138,8 +138,6 @@ jobs:
       - doc-build
 
       - doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
 
       - store_artifacts:
           path: doc/build/html
@@ -160,8 +158,6 @@ jobs:
       - doc-build
 
       - doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
 
       - store_artifacts:
           path: doc/build/html
