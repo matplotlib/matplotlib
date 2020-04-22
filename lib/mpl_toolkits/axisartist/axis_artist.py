@@ -245,32 +245,25 @@ class Ticks(AttributeCopier, Line2D):
         if not self.get_visible():
             return
 
-        size = self._ticksize
-        path_trans = self.get_transform()
-
         gc = renderer.new_gc()
         gc.set_foreground(self.get_markeredgecolor())
         gc.set_linewidth(self.get_markeredgewidth())
         gc.set_alpha(self._alpha)
 
-        offset = renderer.points_to_pixels(size)
-        marker_scale = Affine2D().scale(offset)
-
+        path_trans = self.get_transform()
+        marker_transform = (Affine2D()
+                            .scale(renderer.points_to_pixels(self._ticksize)))
         if self.get_tick_out():
-            add_angle = 180
-        else:
-            add_angle = 0
-
-        marker_rotation = Affine2D()
-        marker_transform = marker_scale + marker_rotation
+            marker_transform.rotate_deg(180)
 
         for loc, angle in self.locs_angles:
-            marker_rotation.clear().rotate_deg(angle + add_angle)
             locs = path_trans.transform_non_affine(np.array([loc]))
             if self.axes and not self.axes.viewLim.contains(*locs[0]):
                 continue
-            renderer.draw_markers(gc, self._tickvert_path, marker_transform,
-                                  Path(locs), path_trans.get_affine())
+            renderer.draw_markers(
+                gc, self._tickvert_path,
+                marker_transform + Affine2D().rotate_deg(angle),
+                Path(locs), path_trans.get_affine())
 
         gc.restore()
 
@@ -325,21 +318,15 @@ class LabelBase(mtext.Text):
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
-
-        offset_tr = Affine2D()
-        self.set_transform(tr+offset_tr)
-
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
-
         theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
-        offset_tr.translate(dx, dy)
+
+        self.set_transform(tr + Affine2D().translate(dx, dy))
         self.set_rotation(text_ref_angle+angle_orig)
         super().draw(renderer)
-        offset_tr.clear()
-
         # restore original properties
         self.set_transform(tr)
         self.set_rotation(angle_orig)
@@ -348,23 +335,15 @@ class LabelBase(mtext.Text):
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
-
-        offset_tr = Affine2D()
-        self.set_transform(tr+offset_tr)
-
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
-
         theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
-        offset_tr.translate(dx, dy)
+
+        self.set_transform(tr + Affine2D().translate(dx, dy))
         self.set_rotation(text_ref_angle+angle_orig)
-
         bbox = super().get_window_extent(renderer).frozen()
-
-        offset_tr.clear()
-
         # restore original properties
         self.set_transform(tr)
         self.set_rotation(angle_orig)
