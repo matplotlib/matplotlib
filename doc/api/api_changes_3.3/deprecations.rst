@@ -373,6 +373,10 @@ These attributes are deprecated.  In order to access the parent window, use
 also be accessible as ``toolbar.parent()``.  The base directory to the icons
 is ``os.path.join(mpl.get_data_path(), "images")``.
 
+NavigationToolbar2QT.ctx
+~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute is deprecated.
+
 Path helpers in :mod:`.bezier`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
