@@ -743,9 +743,10 @@ class AxisArtist(martist.Artist):
 
         if offset is None:
             offset = (0, 0)
-        self.dpi_transform = Affine2D()
-        self.offset_transform = ScaledTranslation(offset[0], offset[1],
-                                                  self.dpi_transform)
+        self.offset_transform = ScaledTranslation(
+            *offset,
+            Affine2D().scale(1 / 72)  # points to inches.
+            + self.axes.figure.dpi_scale_trans)
 
         if axis_direction in ["left", "right"]:
             axis_name = "ytick"
@@ -771,6 +772,11 @@ class AxisArtist(martist.Artist):
         self._ticklabel_add_angle = 0.
         self._axislabel_add_angle = 0.
         self.set_axis_direction(axis_direction)
+
+    @cbook.deprecated("3.3")
+    @property
+    def dpi_transform(self):
+        return Affine2D().scale(1 / 72) + self.axes.figure.dpi_scale_trans
 
     # axis direction
 
@@ -1181,12 +1187,7 @@ class AxisArtist(martist.Artist):
     def get_tightbbox(self, renderer):
         if not self.get_visible():
             return
-
         self._axis_artist_helper.update_lim(self.axes)
-
-        dpi_cor = renderer.points_to_pixels(1.)
-        self.dpi_transform.clear().scale(dpi_cor)
-
         self._update_ticks(renderer)
         self._update_label(renderer)
         bb = [
@@ -1205,21 +1206,13 @@ class AxisArtist(martist.Artist):
     @martist.allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-
         if not self.get_visible():
             return
-
         renderer.open_group(__name__, gid=self.get_gid())
-
         self._axis_artist_helper.update_lim(self.axes)
-
-        dpi_cor = renderer.points_to_pixels(1.)
-        self.dpi_transform.clear().scale(dpi_cor)
-
         self._draw_ticks(renderer)
         self._draw_line(renderer)
         self._draw_label(renderer)
-
         renderer.close_group(__name__)
 
     def toggle(self, all=None, ticks=None, ticklabels=None, label=None):

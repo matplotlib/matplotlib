@@ -469,3 +469,8 @@ keyword-only, consistently with ``Colorbar``.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Passing ``None`` as either the ``radius`` or ``startangle`` of an `.Axes.pie`
 is deprecated; use the explicit defaults of 1 and 0, respectively, instead.
+
+``AxisArtist.dpi_transform``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  Scale ``Figure.dpi_scale_trans`` by 1/72 to achieve the
+same effect.
