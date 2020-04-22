@@ -572,7 +572,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             pil_kwargs = {}
         for k in ["quality", "optimize", "progressive"]:
             if k in kwargs:
-                pil_kwargs.setdefault(k, kwargs[k])
+                pil_kwargs.setdefault(k, kwargs.pop(k))
         if "quality" not in pil_kwargs:
             quality = pil_kwargs["quality"] = \
                 dict.__getitem__(mpl.rcParams, "savefig.jpeg_quality")
