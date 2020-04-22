@@ -630,3 +630,10 @@ def test_blended_collection_autolim():
     ax.add_collection(LineCollection(line_segs, transform=trans))
     ax.autoscale_view(scalex=True, scaley=False)
     np.testing.assert_allclose(ax.get_xlim(), [1., 4.])
+
+
+def test_singleton_autolim():
+    fig, ax = plt.subplots()
+    ax.scatter(0, 0)
+    np.testing.assert_allclose(ax.get_ylim(), [-0.06, 0.06])
+    np.testing.assert_allclose(ax.get_xlim(), [-0.06, 0.06])
