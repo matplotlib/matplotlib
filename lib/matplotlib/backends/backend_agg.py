@@ -385,7 +385,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             super().draw()
 
     def get_renderer(self, cleared=False):
-        l, b, w, h = self.figure.bbox.bounds
+        w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
         reuse_renderer = (hasattr(self, "renderer")
                           and getattr(self, "_lastKey", None) == key)

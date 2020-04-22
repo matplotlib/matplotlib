@@ -96,15 +96,14 @@ class AnchoredSizeLocator(AnchoredLocatorBase):
         self.y_size = Size.from_any(y_size)
 
     def get_extent(self, renderer):
-        x, y, w, h = self.get_bbox_to_anchor().bounds
-
+        bbox = self.get_bbox_to_anchor()
         dpi = renderer.points_to_pixels(72.)
 
         r, a = self.x_size.get_size(renderer)
-        width = w * r + a * dpi
-
+        width = bbox.width * r + a * dpi
         r, a = self.y_size.get_size(renderer)
-        height = h * r + a * dpi
+        height = bbox.height * r + a * dpi
+
         xd, yd = 0, 0
 
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
@@ -120,21 +119,18 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
                  bbox_transform=None):
         self.parent_axes = parent_axes
         self.zoom = zoom
-
         if bbox_to_anchor is None:
             bbox_to_anchor = parent_axes.bbox
-
         super().__init__(
             bbox_to_anchor, None, loc, borderpad=borderpad,
             bbox_transform=bbox_transform)
 
     def get_extent(self, renderer):
-        bb = TransformedBbox(self.axes.viewLim,
-                             self.parent_axes.transData)
-        x, y, w, h = bb.bounds
+        bb = TransformedBbox(self.axes.viewLim, self.parent_axes.transData)
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
-        return (abs(w * self.zoom) + 2 * pad, abs(h * self.zoom) + 2 * pad,
+        return (abs(bb.width * self.zoom) + 2 * pad,
+                abs(bb.height * self.zoom) + 2 * pad,
                 pad, pad)
 
 

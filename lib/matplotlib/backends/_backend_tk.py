@@ -178,8 +178,7 @@ class FigureCanvasTk(FigureCanvasBase):
         super(FigureCanvasTk, self).__init__(figure)
         self._idle = True
         self._idle_callback = None
-        t1, t2, w, h = self.figure.bbox.bounds
-        w, h = int(w), int(h)
+        w, h = self.figure.bbox.size.astype(int)
         self._tkcanvas = tk.Canvas(
             master=master, background="white",
             width=w, height=h, borderwidth=0, highlightthickness=0)

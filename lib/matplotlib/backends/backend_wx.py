@@ -519,14 +519,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """
 
         FigureCanvasBase.__init__(self, figure)
-        # Set preferred window size hint - helps the sizer (if one is
-        # connected)
-        l, b, w, h = figure.bbox.bounds
-        w = math.ceil(w)
-        h = math.ceil(h)
-
+        w, h = map(math.ceil, figure.bbox.size)
+        # Set preferred window size hint - helps the sizer, if one is connected
         wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
-
         # Create the drawing bitmap
         self.bitmap = wx.Bitmap(w, h)
         _log.debug("%s - __init__() - bitmap w:%d h:%d", type(self), w, h)
@@ -864,16 +859,11 @@ class FigureCanvasWx(_FigureCanvasWxBase):
     def _print_image(self, filename, filetype, *args, **kwargs):
         origBitmap = self.bitmap
 
-        l, b, width, height = self.figure.bbox.bounds
-        width = math.ceil(width)
-        height = math.ceil(height)
-
-        self.bitmap = wx.Bitmap(width, height)
-
+        self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
+                                math.ceil(self.figure.bbox.height))
         renderer = RendererWx(self.bitmap, self.figure.dpi)
 
         gc = renderer.new_gc()
-
         self.figure.draw(renderer)
 
         # image is the object that we call SaveFile on.

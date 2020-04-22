@@ -206,11 +206,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             return buf.getvalue()
 
     def get_renderer(self, cleared=None):
-        # Mirrors super.get_renderer, but caches the old one
-        # so that we can do things such as produce a diff image
-        # in get_diff_image
-        _, _, w, h = self.figure.bbox.bounds
-        w, h = int(w), int(h)
+        # Mirrors super.get_renderer, but caches the old one so that we can do
+        # things such as produce a diff image in get_diff_image.
+        w, h = self.figure.bbox.size.astype(int)
         key = w, h, self.figure.dpi
         try:
             self._lastKey, self._renderer
@@ -316,13 +314,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         fig = self.figure
         # An attempt at approximating the figure size in pixels.
         fig.set_size_inches(x / fig.dpi, y / fig.dpi, forward=False)
-
-        _, _, w, h = self.figure.bbox.bounds
         # Acknowledge the resize, and force the viewer to update the
         # canvas size to the figure's new size (which is hopefully
         # identical or within a pixel or so).
         self._png_is_old = True
-        self.manager.resize(w, h)
+        self.manager.resize(*fig.bbox.size)
         self.resize_event()
 
     def handle_send_image_mode(self, event):
@@ -424,11 +420,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     def add_web_socket(self, web_socket):
         assert hasattr(web_socket, 'send_binary')
         assert hasattr(web_socket, 'send_json')
-
         self.web_sockets.add(web_socket)
-
-        _, _, w, h = self.canvas.figure.bbox.bounds
-        self.resize(w, h)
+        self.resize(*self.canvas.figure.bbox.size)
         self._send_event('refresh')
 
     def remove_web_socket(self, web_socket):

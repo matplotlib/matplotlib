@@ -39,12 +39,6 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
             self.gui_repaint()
             return
 
-        l, b, w, h = bbox.bounds
-        r = l + w
-        t = b + h
-        x = int(l)
-        y = int(self.bitmap.GetHeight() - t)
-
         srcBmp = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
         srcDC = wx.MemoryDC()
         srcDC.SelectObject(srcBmp)
@@ -52,7 +46,9 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         destDC = wx.MemoryDC()
         destDC.SelectObject(self.bitmap)
 
-        destDC.Blit(x, y, int(w), int(h), srcDC, x, y)
+        x = int(bbox.x0)
+        y = int(self.bitmap.GetHeight() - bbox.y1)
+        destDC.Blit(x, y, int(bbox.width), int(bbox.height), srcDC, x, y)
 
         destDC.SelectObject(wx.NullBitmap)
         srcDC.SelectObject(wx.NullBitmap)
@@ -71,22 +67,18 @@ def _convert_agg_to_wx_bitmap(agg, bbox):
                                         agg.buffer_rgba())
     else:
         # agg => rgba buffer -> bitmap => clipped bitmap
-        l, b, width, height = bbox.bounds
-        r = l + width
-        t = b + height
-
         srcBmp = wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
                                           agg.buffer_rgba())
         srcDC = wx.MemoryDC()
         srcDC.SelectObject(srcBmp)
 
-        destBmp = wx.Bitmap(int(width), int(height))
+        destBmp = wx.Bitmap(int(bbox.width), int(bbox.height))
         destDC = wx.MemoryDC()
         destDC.SelectObject(destBmp)
 
-        x = int(l)
-        y = int(int(agg.height) - t)
-        destDC.Blit(0, 0, int(width), int(height), srcDC, x, y)
+        x = int(bbox.x0)
+        y = int(int(agg.height) - bbox.y1)
+        destDC.Blit(0, 0, int(bbox.width), int(bbox.height), srcDC, x, y)
 
         srcDC.SelectObject(wx.NullBitmap)
         destDC.SelectObject(wx.NullBitmap)
