@@ -3239,7 +3239,6 @@ class Axes(_AxesBase):
         # anything that comes in as 'None', drop so the default thing
         # happens down stream
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        kwargs.setdefault('zorder', 2)
 
         try:
             offset, errorevery = errorevery
@@ -3301,8 +3300,6 @@ class Axes(_AxesBase):
         plot_line_style = {
             **base_style,
             **kwargs,
-            'zorder': (kwargs['zorder'] - .1 if barsabove else
-                       kwargs['zorder'] + .1),
         }
 
         # make the style dict for the line collections (the bars)
@@ -3347,7 +3344,6 @@ class Axes(_AxesBase):
         data_line = None
         if plot_line:
             data_line = mlines.Line2D(x, y, **plot_line_style)
-            self.add_line(data_line)
 
         barcols = []
         caplines = []
@@ -3505,8 +3501,16 @@ class Axes(_AxesBase):
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.append(mlines.Line2D(xup, yup, marker='_',
                                                   **eb_cap_style))
-        for l in caplines:
-            self.add_line(l)
+        if barsabove:
+            if data_line is not None:
+                self.add_line(data_line)
+            for l in caplines:
+                self.add_line(l)
+        else:
+            for l in caplines:
+                self.add_line(l)
+            if data_line is not None:
+                self.add_line(data_line)
 
         self._request_autoscale_view()
         errorbar_container = ErrorbarContainer((data_line, tuple(caplines),

@@ -3296,10 +3296,51 @@ def test_errorbar_offsets(fig_test, fig_ref):
                          capsize=4, c=color)
 
         # Using manual errorbars
-        # n.b. errorbar draws the main plot at z=2.1 by default
-        ax_ref.plot(x, y, c=color, zorder=2.1)
+        ax_ref.plot(x, y, c=color)
         ax_ref.errorbar(x[shift::4], y[shift::4], yerr[shift::4],
                         capsize=4, c=color, fmt='none')
+
+
+@check_figures_equal()
+def test_errorbar_default_order(fig_test, fig_ref):
+    # Now test default order of errorbars and plots.
+    x = list(range(5))
+    y1 = np.full(5, -5)
+    y2 = np.full(5, 0)
+    y3 = np.full(5, 5)
+ 
+    yerr = list(range(5))
+
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot(x, y1, 'ro', markersize=60, zorder=2.12)
+    ax_ref.errorbar(x, y1, yerr=yerr, fmt='none', ecolor='k', zorder=2.13)
+    ax_ref.plot(x, y1, 'b.', markersize=20, zorder=2.15)
+
+    ax_ref.plot(x, y2, 'ro', markersize=60, zorder=2.22)
+    ax_ref.errorbar(x, y2, yerr=yerr, fmt='none', ecolor='k', zorder=2.23)
+    ax_ref.plot(x, y2, 'gs', markersize=40, zorder=2.24)
+    ax_ref.plot(x, y2, 'b.', markersize=20, zorder=2.25)
+
+    ax_ref.plot(x, y3, 'ro', markersize=60, zorder=2.32)
+    ax_ref.plot(x, y3, 'gs', markersize=40, zorder=2.33)
+    ax_ref.errorbar(x, y3, yerr=yerr, fmt='none', ecolor='k', zorder=2.34)
+    ax_ref.plot(x, y3, 'b.', markersize=20, zorder=2.35)
+
+    ax_test = fig_test.subplots()
+ 
+    ax_test.plot(x, y1, 'ro', markersize=60)
+    ax_test.errorbar(x, y1, yerr=yerr, fmt='none', ecolor='k')
+    ax_test.plot(x, y1, 'b.', markersize=20)
+
+    ax_test.plot(x, y2, 'ro', markersize=60)
+    ax_test.errorbar(x, y2, yerr=yerr, fmt='gs', ecolor='k', markersize=40)
+    ax_test.plot(x, y2, 'b.', markersize=20)
+
+    ax_test.plot(x, y3, 'ro', markersize=60)
+    ax_test.errorbar(x, y3, yerr=yerr, fmt='gs', ecolor='k', markersize=40, barsabove=True)
+    ax_test.plot(x, y3, 'b.', markersize=20)
+
+    ax_ref.set_title("errorbar default order test")
 
 
 @image_comparison(['hist_stacked_stepfilled', 'hist_stacked_stepfilled'])
