@@ -3522,9 +3522,9 @@ class Axes(_AxesBase):
             for l in caplines:
                 self.add_line(l)
         else:
-            for l in caplines:
-                self.add_line(l)
             for l in barcols:
+                self.add_line(l)
+            for l in caplines:
                 self.add_line(l)
             if data_line is not None:
                 self.add_line(data_line)
