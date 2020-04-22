@@ -205,13 +205,11 @@ class Text(Artist):
         # Explicitly use Text.get_window_extent(self) and not
         # self.get_window_extent() so that Annotation.contains does not
         # accidentally cover the entire annotation bounding box.
-        l, b, w, h = Text.get_window_extent(self).bounds
-        r, t = l + w, b + h
+        bbox = Text.get_window_extent(self)
+        inside = (bbox.x0 <= mouseevent.x <= bbox.x1
+                  and bbox.y0 <= mouseevent.y <= bbox.y1)
 
-        x, y = mouseevent.x, mouseevent.y
-        inside = (l <= x <= r and b <= y <= t)
         cattr = {}
-
         # if the text has a surrounding patch, also check containment for it,
         # and merge the results with the results for the text.
         if self._bbox_patch:
@@ -1312,13 +1310,14 @@ class OffsetFrom:
         """
         if isinstance(self._artist, Artist):
             bbox = self._artist.get_window_extent(renderer)
-            l, b, w, h = bbox.bounds
             xf, yf = self._ref_coord
-            x, y = l + w * xf, b + h * yf
+            x = bbox.x0 + bbox.width * xf
+            y = bbox.y0 + bbox.height * yf
         elif isinstance(self._artist, BboxBase):
-            l, b, w, h = self._artist.bounds
+            bbox = self._artist
             xf, yf = self._ref_coord
-            x, y = l + w * xf, b + h * yf
+            x = bbox.x0 + bbox.width * xf
+            y = bbox.y0 + bbox.height * yf
         elif isinstance(self._artist, Transform):
             x, y = self._artist.transform(self._ref_coord)
         else:
@@ -1407,7 +1406,7 @@ class _AnnotationBase:
         #     bbox0 = self._get_bbox(renderer, bbox)
 
         if bbox0 is not None:
-            xy0 = bbox0.bounds[:2]
+            xy0 = bbox0.p0
         elif bbox_name == "offset":
             xy0 = self._get_ref_xy(renderer)
 
@@ -1426,7 +1425,7 @@ class _AnnotationBase:
                 dpp = fontsize * self.figure.get_dpi() / 72.
                 tr = Affine2D().scale(dpp)
             elif unit == "fraction":
-                w, h = bbox0.bounds[2:]
+                w, h = bbox0.size
                 tr = Affine2D().scale(w, h)
             else:
                 raise ValueError("%s is not a recognized coordinate" % s)
@@ -1823,99 +1822,73 @@ class Annotation(Text, _AnnotationBase):
         # generate transformation,
         self.set_transform(self._get_xy_transform(renderer, self.anncoords))
 
-        ox0, oy0 = self._get_xy_display()
-        ox1, oy1 = xy_pixel
+        if self.arrowprops is None:
+            return
 
-        if self.arrowprops is not None:
-            x0, y0 = xy_pixel
-            l, b, w, h = Text.get_window_extent(self, renderer).bounds
-            r = l + w
-            t = b + h
-            xc = 0.5 * (l + r)
-            yc = 0.5 * (b + t)
+        x1, y1 = xy_pixel  # Annotated position.
+        bbox = Text.get_window_extent(self, renderer)
 
-            d = self.arrowprops.copy()
-            ms = d.pop("mutation_scale", self.get_size())
-            self.arrow_patch.set_mutation_scale(ms)
+        d = self.arrowprops.copy()
+        ms = d.pop("mutation_scale", self.get_size())
+        self.arrow_patch.set_mutation_scale(ms)
 
-            if "arrowstyle" not in d:
-                # Approximately simulate the YAArrow.
-                # Pop its kwargs:
-                shrink = d.pop('shrink', 0.0)
-                width = d.pop('width', 4)
-                headwidth = d.pop('headwidth', 12)
-                # Ignore frac--it is useless.
-                frac = d.pop('frac', None)
-                if frac is not None:
-                    cbook._warn_external(
-                        "'frac' option in 'arrowprops' is no longer supported;"
-                        " use 'headlength' to set the head length in points.")
-                headlength = d.pop('headlength', 12)
+        if "arrowstyle" not in d:
+            # Approximately simulate the YAArrow.
+            # Pop its kwargs:
+            shrink = d.pop('shrink', 0.0)
+            width = d.pop('width', 4)
+            headwidth = d.pop('headwidth', 12)
+            # Ignore frac--it is useless.
+            frac = d.pop('frac', None)
+            if frac is not None:
+                cbook._warn_external(
+                    "'frac' option in 'arrowprops' is no longer supported;"
+                    " use 'headlength' to set the head length in points.")
+            headlength = d.pop('headlength', 12)
 
-                # NB: ms is in pts
-                stylekw = dict(head_length=headlength / ms,
-                               head_width=headwidth / ms,
-                               tail_width=width / ms)
+            # NB: ms is in pts
+            stylekw = dict(head_length=headlength / ms,
+                           head_width=headwidth / ms,
+                           tail_width=width / ms)
 
-                self.arrow_patch.set_arrowstyle('simple', **stylekw)
+            self.arrow_patch.set_arrowstyle('simple', **stylekw)
 
-                # using YAArrow style:
-                # pick the (x, y) corner of the text bbox closest to point
-                # annotated
-                xpos = ((l, 0), (xc, 0.5), (r, 1))
-                ypos = ((b, 0), (yc, 0.5), (t, 1))
+            # using YAArrow style:
+            # pick the corner of the text bbox closest to annotated point.
+            xpos = [(bbox.x0, 0), ((bbox.x0 + bbox.x1) / 2, 0.5), (bbox.x1, 1)]
+            ypos = [(bbox.y0, 0), ((bbox.y0 + bbox.y1) / 2, 0.5), (bbox.y1, 1)]
+            x, relposx = min(xpos, key=lambda v: abs(v[0] - x1))
+            y, relposy = min(ypos, key=lambda v: abs(v[0] - y1))
+            self._arrow_relpos = (relposx, relposy)
+            r = np.hypot(y - y1, x - x1)
+            shrink_pts = shrink * r / renderer.points_to_pixels(1)
+            self.arrow_patch.shrinkA = self.arrow_patch.shrinkB = shrink_pts
 
-                _, (x, relposx) = min((abs(val[0] - x0), val) for val in xpos)
-                _, (y, relposy) = min((abs(val[0] - y0), val) for val in ypos)
+        # adjust the starting point of the arrow relative to the textbox.
+        # TODO : Rotation needs to be accounted.
+        relposx, relposy = self._arrow_relpos
+        x0 = bbox.x0 + bbox.width * relposx
+        y0 = bbox.y0 + bbox.height * relposy
 
-                self._arrow_relpos = (relposx, relposy)
+        # The arrow will be drawn from (x0, y0) to (x1, y1). It will be first
+        # clipped by patchA and patchB.  Then it will be shrunk by shrinkA and
+        # shrinkB (in points).  If patch A is not set, self.bbox_patch is used.
+        self.arrow_patch.set_positions((x0, y0), (x1, y1))
 
-                r = np.hypot((y - y0), (x - x0))
-                shrink_pts = shrink * r / renderer.points_to_pixels(1)
-                self.arrow_patch.shrinkA = shrink_pts
-                self.arrow_patch.shrinkB = shrink_pts
-
-            # adjust the starting point of the arrow relative to
-            # the textbox.
-            # TODO : Rotation needs to be accounted.
-            relpos = self._arrow_relpos
-            bbox = Text.get_window_extent(self, renderer)
-            ox0 = bbox.x0 + bbox.width * relpos[0]
-            oy0 = bbox.y0 + bbox.height * relpos[1]
-
-            # The arrow will be drawn from (ox0, oy0) to (ox1,
-            # oy1). It will be first clipped by patchA and patchB.
-            # Then it will be shrunk by shrinkA and shrinkB
-            # (in points). If patch A is not set, self.bbox_patch
-            # is used.
-
-            self.arrow_patch.set_positions((ox0, oy0), (ox1, oy1))
-
-            if "patchA" in d:
-                self.arrow_patch.set_patchA(d.pop("patchA"))
+        if "patchA" in d:
+            self.arrow_patch.set_patchA(d.pop("patchA"))
+        else:
+            if self._bbox_patch:
+                self.arrow_patch.set_patchA(self._bbox_patch)
             else:
-                if self._bbox_patch:
-                    self.arrow_patch.set_patchA(self._bbox_patch)
-                else:
-                    pad = renderer.points_to_pixels(4)
-                    if self.get_text() == "":
-                        self.arrow_patch.set_patchA(None)
-                        return
-
-                    bbox = Text.get_window_extent(self, renderer)
-                    l, b, w, h = bbox.bounds
-                    l -= pad / 2.
-                    b -= pad / 2.
-                    w += pad
-                    h += pad
-                    r = Rectangle(xy=(l, b),
-                                  width=w,
-                                  height=h,
-                                  )
-                    r.set_transform(IdentityTransform())
-                    r.set_clip_on(False)
-
-                    self.arrow_patch.set_patchA(r)
+                if self.get_text() == "":
+                    self.arrow_patch.set_patchA(None)
+                    return
+                pad = renderer.points_to_pixels(4)
+                r = Rectangle(xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
+                              width=bbox.width + pad, height=bbox.height + pad,
+                              transform=IdentityTransform(), clip_on=False)
+                self.arrow_patch.set_patchA(r)
 
     @artist.allow_rasterization
     def draw(self, renderer):
