@@ -2944,7 +2944,7 @@ pivot='tail', normalize=False, **kwargs)
         everymask[offset::errorevery] = True
 
         def _mask_lists(xs, ys, zs, mask=None):
-            """ Applies a mask to three lists. """
+            """Applies a mask to three lists."""
             xs = [l for l, m in zip(xs, mask) if m]
             ys = [l for l, m in zip(ys, mask) if m]
             zs = [l for l, m in zip(zs, mask) if m]

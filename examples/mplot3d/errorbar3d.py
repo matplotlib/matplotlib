@@ -1,8 +1,11 @@
-'''
-An example of using errorbars in mplot3d
-'''
+"""
+============
+3D errorbars
+============
 
-from mpl_toolkits.mplot3d import Axes3D
+An example of using errorbars with upper and lower limits in mplot3d.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
