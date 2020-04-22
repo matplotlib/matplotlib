@@ -234,9 +234,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # (i.e. like scatter). We can't uniquely set limits based on
                 # those shapes, so we just set the limits based on their
                 # location.
-                # Finish the transform:
-                offsets = (transOffset.get_affine() +
-                           transData.inverted()).transform(offsets)
+                if not (transOffset.is_affine and (transOffset == transData)):
+                    # Finish the transform started above, but only
+                    # if we have to (to save floating point precision)
+                    offsets = (transOffset.get_affine() +
+                               transData.inverted()).transform(offsets)
                 offsets = np.ma.masked_invalid(offsets)
                 if not offsets.mask.all():
                     points = np.row_stack((offsets.min(axis=0),
