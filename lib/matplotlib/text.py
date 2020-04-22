@@ -502,10 +502,10 @@ class Text(Artist):
 
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
-            theta = np.deg2rad(self.get_rotation())
-            tr = Affine2D().rotate(theta)
-            tr = tr.translate(posx + x_box, posy + y_box)
-            self._bbox_patch.set_transform(tr)
+            self._bbox_patch.set_transform(
+                Affine2D()
+                .rotate_deg(self.get_rotation())
+                .translate(posx + x_box, posy + y_box))
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
@@ -1481,11 +1481,12 @@ class _AnnotationBase:
         x, y = self.xy
         return self._get_xy(renderer, x, y, self.xycoords)
 
-    def _check_xy(self, renderer, xy_pixel):
+    def _check_xy(self, renderer):
         """Check whether the annotation at *xy_pixel* should be drawn."""
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the axes.
+            xy_pixel = self._get_position_xy(renderer)
             return self.axes.contains_point(xy_pixel)
         return True
 
@@ -1811,21 +1812,16 @@ class Annotation(Text, _AnnotationBase):
         Artist.set_figure(self, fig)
 
     def update_positions(self, renderer):
-        """Update the pixel positions of the annotated point and the text."""
-        xy_pixel = self._get_position_xy(renderer)
-        self._update_position_xytext(renderer, xy_pixel)
-
-    def _update_position_xytext(self, renderer, xy_pixel):
         """
         Update the pixel positions of the annotation text and the arrow patch.
         """
+        x1, y1 = self._get_position_xy(renderer)  # Annotated position.
         # generate transformation,
         self.set_transform(self._get_xy_transform(renderer, self.anncoords))
 
         if self.arrowprops is None:
             return
 
-        x1, y1 = xy_pixel  # Annotated position.
         bbox = Text.get_window_extent(self, renderer)
 
         d = self.arrowprops.copy()
@@ -1893,24 +1889,16 @@ class Annotation(Text, _AnnotationBase):
     @artist.allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.get_visible() or not self._check_xy(renderer):
             return
-
-        xy_pixel = self._get_position_xy(renderer)
-        if not self._check_xy(renderer, xy_pixel):
-            return
-
-        self._update_position_xytext(renderer, xy_pixel)
+        self.update_positions(renderer)
         self.update_bbox_position_size(renderer)
-
         if self.arrow_patch is not None:   # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
-
         # Draw text, including FancyBboxPatch, after FancyArrowPatch.
         # Otherwise, a wedge arrowstyle can land partly on top of the Bbox.
         Text.draw(self, renderer)

@@ -1507,19 +1507,13 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
-
-        xy_pixel = self._get_position_xy(None)
-        if not self._check_xy(None, xy_pixel):
+        if not self._check_xy(None):
             return False, {}
-
-        t, tinfo = self.offsetbox.contains(mouseevent)
+        return self.offsetbox.contains(mouseevent)
         #if self.arrow_patch is not None:
         #    a, ainfo=self.arrow_patch.contains(event)
         #    t = t or a
-
         # self.arrow_patch is currently not checked as this can be a line - JJ
-
-        return t, tinfo
 
     def get_children(self):
         children = [self.offsetbox, self.patch]
@@ -1528,7 +1522,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         return children
 
     def set_figure(self, fig):
-
         if self.arrow_patch is not None:
             self.arrow_patch.set_figure(fig)
         self.offsetbox.set_figure(fig)
@@ -1623,23 +1616,15 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
 
     def draw(self, renderer):
         # docstring inherited
-
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.get_visible() or not self._check_xy(renderer):
             return
-
-        xy_pixel = self._get_position_xy(renderer)
-        if not self._check_xy(renderer, xy_pixel):
-            return
-
         self.update_positions(renderer)
-
         if self.arrow_patch is not None:
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
-
         self.patch.draw(renderer)
         self.offsetbox.draw(renderer)
         self.stale = False
