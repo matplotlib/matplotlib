@@ -211,9 +211,9 @@ class _SVGConverter(_Converter):
             # Inkscape's output is not localized but gtk's is, so the output
             # stream probably has a mixed encoding.  Using the filesystem
             # encoding should at least get the filenames right...
-            self._stderr.seek(0)
+            self._proc.stderr.seek(0)
             raise ImageComparisonFailure(
-                self._stderr.read().decode(
+                self._proc.stderr.read().decode(
                     sys.getfilesystemencoding(), "replace"))
 
 
