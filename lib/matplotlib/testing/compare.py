@@ -1,6 +1,5 @@
 """
-Provides a collection of utilities for comparing (image) results.
-
+Utilities for comparing image results.
 """
 
 import atexit
@@ -17,6 +16,7 @@ import numpy as np
 import PIL
 
 import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
 __all__ = ['compare_images', 'comparable_formats']
@@ -55,6 +55,7 @@ def get_file_hash(path, block_size=2 ** 20):
     return md5.hexdigest()
 
 
+@cbook.deprecated("3.3")
 def make_external_conversion_command(cmd):
     def convert(old, new):
         cmdline = cmd(old, new)
@@ -194,6 +195,10 @@ class _SVGConverter(_Converter):
             # our encoding is even ASCII compatible...  Just fall back on the
             # slow solution (Inkscape uses `fgets` so it will always stop at a
             # newline).
+            cbook.warn_deprecated(
+                "3.3", message="Support for converting files from paths "
+                "containing a newline is deprecated since %(since)s and "
+                "support will be removed %(removal)s")
             return make_external_conversion_command(lambda old, new: [
                 'inkscape', '-z', old, '--export-png', new])(orig, dest)
         self._proc.stdin.write(orig_b + b" --export-png=" + dest_b + b"\n")
