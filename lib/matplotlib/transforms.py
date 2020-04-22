@@ -1266,6 +1266,9 @@ class Transform(TransformNode):
     def __add__(self, other):
         """
         Compose two transforms together so that *self* is followed by *other*.
+
+        ``A + B`` returns a transform ``C`` so that
+        ``C.transform(x) == B.transform(A.transform(x))``.
         """
         return (composite_transform_factory(self, other)
                 if isinstance(other, Transform) else
@@ -1340,24 +1343,32 @@ class Transform(TransformNode):
 
     def __sub__(self, other):
         """
-        Return a transform stack which goes all the way down self's transform
-        stack, and then ascends back up other's stack. If it can, this is
-        optimised::
+        Compose *self* with the inverse of *other*, cancelling identical terms
+        if any::
 
-            # normally
-            A - B == a + b.inverted()
+            # In general:
+            A - B == A + B.inverted()
+            # (but see note regarding frozen transforms below).
 
-            # sometimes, when A contains the tree B there is no need to
-            # descend all the way down to the base of A (via B), instead we
-            # can just stop at B.
+            # If A "ends with" B (i.e. A == A' + B for some A') we can cancel
+            # out B:
+            (A' + B) - B == A'
 
-            (A + B) - (B)^-1 == A
+            # Likewise, if B "starts with" A (B = A + B'), we can cancel out A:
+            A - (A + B') == B'.inverted() == B'^-1
 
-            # similarly, when B contains tree A, we can avoid descending A at
-            # all, basically:
-            A - (A + B) == ((B + A) - A).inverted() or B^-1
+        Cancellation (rather than naively returning ``A + B.inverted()``) is
+        important for multiple reasons:
 
-        For clarity, the result of ``(A + B) - B + B == (A + B)``.
+        - It avoids floating-point inaccuracies when computing the inverse of
+          B: ``B - B`` is guaranteed to cancel out exactly (resulting in the
+          identity transform), whereas ``B + B.inverted()`` may differ by a
+          small epsilon.
+        - ``B.inverted()`` always returns a frozen transform: if one computes
+          ``A + B + B.inverted()`` and later mutates ``B``, then
+          ``B.inverted()`` won't be updated and the last two terms won't cancel
+          out anymore; on the other hand, ``A + B - B`` will always be equal to
+          ``A`` even if ``B`` is mutated.
         """
         # we only know how to do this operation if other is a Transform.
         if not isinstance(other, Transform):
