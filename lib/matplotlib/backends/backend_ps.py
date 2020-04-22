@@ -446,14 +446,12 @@ newpath
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
-        write = self._pswriter.write
-
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
             name = 'p%x_%x' % (self._path_collection_id, i)
             path_bytes = self._convert_path(path, transform, simplify=False)
-            write(f"""\
+            self._pswriter.write(f"""\
 /{name} {{
 newpath
 translate
@@ -510,10 +508,8 @@ grestore
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
 
-        # local to avoid repeated attribute lookups
-        write = self._pswriter.write
         if debugPS:
-            write("% text\n")
+            self._pswriter.write("% text\n")
 
         if _is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
@@ -941,10 +937,7 @@ class FigureCanvasPS(FigureCanvasBase):
                   file=fh)
 
             # write the figure
-            content = self._pswriter.getvalue()
-            if not isinstance(content, str):
-                content = content.decode('ascii')
-            print(content, file=fh)
+            print(self._pswriter.getvalue(), file=fh)
 
             # write the trailer
             print("end", file=fh)
