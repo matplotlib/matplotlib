@@ -3307,7 +3307,6 @@ class Axes(_AxesBase):
         eb_lines_style.pop('marker', None)
         eb_lines_style.pop('linestyle', None)
         eb_lines_style['color'] = ecolor
-        eb_lines_style.setdefault('zorder', 2.0)
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
