@@ -3307,6 +3307,7 @@ class Axes(_AxesBase):
         eb_lines_style.pop('marker', None)
         eb_lines_style.pop('linestyle', None)
         eb_lines_style['color'] = ecolor
+        eb_lines_style.setdefault('zorder', 2.0)
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
@@ -3412,7 +3413,9 @@ class Axes(_AxesBase):
             if noxlims.any() or len(noxlims) == 0:
                 yo, _ = xywhere(y, right, noxlims & everymask)
                 lo, ro = xywhere(left, right, noxlims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+                for yoo, loo, roo in zip(yo, lo, ro):
+                    barcols.append(mlines.Line2D([loo, roo], [yoo, yoo],
+                                                 **eb_lines_style))
                 if capsize > 0:
                     caplines.append(mlines.Line2D(lo, yo, marker='|',
                                                   **eb_cap_style))
@@ -3422,7 +3425,9 @@ class Axes(_AxesBase):
             if xlolims.any():
                 yo, _ = xywhere(y, right, xlolims & everymask)
                 lo, ro = xywhere(x, right, xlolims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+                for yoo, loo, roo in zip(yo, lo, ro):
+                    barcols.append(mlines.Line2D([loo, roo], [yoo, yoo],
+                                                 **eb_lines_style))
                 rightup, yup = xywhere(right, y, xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
@@ -3439,7 +3444,9 @@ class Axes(_AxesBase):
             if xuplims.any():
                 yo, _ = xywhere(y, right, xuplims & everymask)
                 lo, ro = xywhere(left, x, xuplims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+                for yoo, loo, roo in zip(yo, lo, ro):
+                    barcols.append(mlines.Line2D([loo, roo], [yoo, yoo],
+                                                 **eb_lines_style))
                 leftlo, ylo = xywhere(left, y, xuplims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETRIGHTBASE
@@ -3461,7 +3468,9 @@ class Axes(_AxesBase):
             if noylims.any() or len(noylims) == 0:
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+                for xoo, loo, uoo in zip(xo, lo, uo):
+                    barcols.append(mlines.Line2D([xoo, xoo], [loo, uoo],
+                                                 **eb_lines_style))
                 if capsize > 0:
                     caplines.append(mlines.Line2D(xo, lo, marker='_',
                                                   **eb_cap_style))
@@ -3471,7 +3480,9 @@ class Axes(_AxesBase):
             if lolims.any():
                 xo, _ = xywhere(x, lower, lolims & everymask)
                 lo, uo = xywhere(y, upper, lolims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+                for xoo, loo, uoo in zip(xo, lo, uo):
+                    barcols.append(mlines.Line2D([xoo, xoo], [loo, uoo],
+                                                 **eb_lines_style))
                 xup, upperup = xywhere(x, upper, lolims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETDOWNBASE
@@ -3488,7 +3499,9 @@ class Axes(_AxesBase):
             if uplims.any():
                 xo, _ = xywhere(x, lower, uplims & everymask)
                 lo, uo = xywhere(lower, y, uplims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+                for xoo, loo, uoo in zip(xo, lo, uo):
+                    barcols.append(mlines.Line2D([xoo, xoo], [loo, uoo],
+                                                 **eb_lines_style))
                 xlo, lowerlo = xywhere(x, lower, uplims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETUPBASE
@@ -3504,10 +3517,14 @@ class Axes(_AxesBase):
         if barsabove:
             if data_line is not None:
                 self.add_line(data_line)
+            for l in barcols:
+                self.add_line(l)
             for l in caplines:
                 self.add_line(l)
         else:
             for l in caplines:
+                self.add_line(l)
+            for l in barcols:
                 self.add_line(l)
             if data_line is not None:
                 self.add_line(data_line)

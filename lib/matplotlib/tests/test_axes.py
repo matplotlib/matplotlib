@@ -3308,7 +3308,7 @@ def test_errorbar_default_order(fig_test, fig_ref):
     y1 = np.full(5, -5)
     y2 = np.full(5, 0)
     y3 = np.full(5, 5)
- 
+
     yerr = list(range(5))
 
     ax_ref = fig_ref.subplots()
@@ -3327,7 +3327,7 @@ def test_errorbar_default_order(fig_test, fig_ref):
     ax_ref.plot(x, y3, 'b.', markersize=20, zorder=2.35)
 
     ax_test = fig_test.subplots()
- 
+
     ax_test.plot(x, y1, 'ro', markersize=60)
     ax_test.errorbar(x, y1, yerr=yerr, fmt='none', ecolor='k')
     ax_test.plot(x, y1, 'b.', markersize=20)
@@ -3339,8 +3339,6 @@ def test_errorbar_default_order(fig_test, fig_ref):
     ax_test.plot(x, y3, 'ro', markersize=60)
     ax_test.errorbar(x, y3, yerr=yerr, fmt='gs', ecolor='k', markersize=40, barsabove=True)
     ax_test.plot(x, y3, 'b.', markersize=20)
-
-    ax_ref.set_title("errorbar default order test")
 
 
 @image_comparison(['hist_stacked_stepfilled', 'hist_stacked_stepfilled'])
