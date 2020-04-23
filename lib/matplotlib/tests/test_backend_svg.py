@@ -1,5 +1,7 @@
+import datetime
 from io import BytesIO
 import re
+import sys
 import tempfile
 import xml.parsers.expat
 
@@ -236,7 +238,9 @@ def test_url():
         assert b'http://example.com/' + v in b
 
 
-def test_url_tick():
+def test_url_tick(monkeypatch):
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '19680801')
+
     fig1, ax = plt.subplots()
     ax.scatter([1, 2, 3], [4, 5, 6])
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
@@ -259,3 +263,58 @@ def test_url_tick():
     for i in range(len(ax.yaxis.get_major_ticks())):
         assert f'http://example.com/{i}'.encode('ascii') in b1
     assert b1 == b2
+
+
+def test_svg_default_metadata(monkeypatch):
+    # Values have been predefined for 'Creator', 'Date', 'Format', and 'Type'.
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '19680801')
+
+    fig, ax = plt.subplots()
+    fd = BytesIO()
+    fig.savefig(fd, format='svg')
+    fd.seek(0)
+    buf = fd.read().decode()
+    fd.close()
+
+    # Creator
+    assert mpl.__version__ in buf
+    # Date
+    assert '1970-08-16' in buf
+    # Format
+    assert 'image/svg+xml' in buf
+    # Type
+    assert 'StillImage' in buf
+
+
+def test_svg_metadata():
+    single_value = ['Coverage', 'Identifier', 'Language', 'Relation', 'Source',
+                    'Title', 'Type']
+    multi_value = ['Contributor', 'Creator', 'Keywords', 'Publisher', 'Rights']
+    metadata = {
+        'Date': [datetime.date(1968, 8, 1),
+                 datetime.datetime(1968, 8, 2, 1, 2, 3)],
+        'Description': 'description\ntext',
+        **{k: f'{k} foo' for k in single_value},
+        **{k: [f'{k} bar', f'{k} baz'] for k in multi_value},
+    }
+
+    fig, ax = plt.subplots()
+    fd = BytesIO()
+    fig.savefig(fd, format='svg', metadata=metadata)
+    fd.seek(0)
+    buf = fd.read().decode()
+    fd.close()
+
+    # Check things that are easy, single or multi-value entries.
+    for k in ['Description', *single_value]:
+        if sys.platform == 'win32':
+            assert metadata[k].replace('\n', '\r\n') in buf
+        else:
+            assert metadata[k] in buf
+    for k in multi_value:
+        for v in metadata[k]:
+            assert v in buf
+
+    # Check special things.
+    assert '1968-08-01' in buf  # Start date
+    assert '1968-08-02T01:02:03' in buf  # End date
