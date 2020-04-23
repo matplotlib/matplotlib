@@ -188,6 +188,7 @@ def boilerplate_gen():
         'gca',
         'gci:_gci',
         'ginput',
+        'subplots_adjust',
         'suptitle',
         'waitforbuttonpress',
     )

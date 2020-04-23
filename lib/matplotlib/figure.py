@@ -2217,8 +2217,31 @@ default: 'top'
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
         """
-        Update the `SubplotParams` with *kwargs* (defaulting to rc when
-        *None*), and update the subplot locations.
+        Adjust the subplot layout parameters.
+
+        Unset parameters are left unmodified; initial values are given by
+        :rc:`figure.subplot.[name]`.
+
+        Parameters
+        ----------
+        left : float, optional
+            The position of the left edge of the subplots,
+            as a fraction of the figure width.
+        right : float, optional
+            The position of the right edge of the subplots,
+            as a fraction of the figure width.
+        bottom : float, optional
+            The position of the bottom edge of the subplots,
+            as a fraction of the figure height.
+        top : float, optional
+            The position of the top edge of the subplots,
+            as a fraction of the figure height.
+        wspace : float, optional
+            The width of the padding between subplots,
+            as a fraction of the average axes width.
+        hspace : float, optional
+            The height of the padding between subplots,
+            as a fraction of the average axes height.
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
