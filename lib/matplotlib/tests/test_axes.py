@@ -3266,8 +3266,6 @@ def test_errobar_nonefmt():
     plotline, _, barlines = plt.errorbar(x, y, xerr=1, yerr=1, fmt='none')
     assert plotline is None
     for errbar in barlines:
-        # TODO: not sure why this test fails, or how it passed before
-        #       is it okay to leave it like that?
         assert np.all(errbar.get_color() == 'b')
 
 
