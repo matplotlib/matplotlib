@@ -3213,8 +3213,8 @@ class Axes(_AxesBase):
 
             - plotline: `.Line2D` instance of x, y plot markers and/or line.
             - caplines: A tuple of `.Line2D` instances of the error bar caps.
-            - barlinecols: A tuple of `.LineCollection` with the horizontal and
-              vertical error ranges.
+            - barlinecols: A tuple of `.Line2D` instances with the horizontal
+              and vertical error ranges.
 
         Other Parameters
         ----------------
