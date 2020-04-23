@@ -54,8 +54,8 @@ def survey(results, category_names):
     for i, (colname, color) in enumerate(zip(category_names, category_colors)):
         widths = data[:, i]
         starts = data_cum[:, i] - widths
-        ax.barh(labels, widths, left=starts, height=0.5,
-                label=colname, color=color)
+        ax.barh(range(len(labels)), widths, left=starts, height=0.5,
+                tick_label=labels, label=colname, color=color)
         xcenters = starts + widths / 2
 
         r, g, b, _ = color
