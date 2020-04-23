@@ -592,23 +592,18 @@ class PaddedBox(OffsetBox):
             Additional parameters passed to the contained `.FancyBboxPatch`.
         """
         super().__init__()
-
         self.pad = pad
         self._children = [child]
-
         self.patch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor='w', edgecolor='k',
             mutation_scale=1,  # self.prop.get_size_in_points(),
-            snap=True
-            )
-
-        self.patch.set_boxstyle("square", pad=0)
-
+            snap=True,
+            visible=draw_frame,
+            boxstyle="square,pad=0",
+        )
         if patch_attrs is not None:
             self.patch.update(patch_attrs)
-
-        self._drawFrame = draw_frame
 
     def get_extent_offsets(self, renderer):
         # docstring inherited.
@@ -637,20 +632,15 @@ class PaddedBox(OffsetBox):
         self.stale = False
 
     def update_frame(self, bbox, fontsize=None):
-        self.patch.set_bounds(bbox.x0, bbox.y0,
-                              bbox.width, bbox.height)
-
+        self.patch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         if fontsize:
             self.patch.set_mutation_scale(fontsize)
         self.stale = True
 
     def draw_frame(self, renderer):
         # update the location and size of the legend
-        bbox = self.get_window_extent(renderer)
-        self.update_frame(bbox)
-
-        if self._drawFrame:
-            self.patch.draw(renderer)
+        self.update_frame(self.get_window_extent(renderer))
+        self.patch.draw(renderer)
 
 
 class DrawingArea(OffsetBox):
@@ -1110,10 +1100,10 @@ class AnchoredOffsetbox(OffsetBox):
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor='w', edgecolor='k',
             mutation_scale=self.prop.get_size_in_points(),
-            snap=True
-            )
-        self.patch.set_boxstyle("square", pad=0)
-        self._drawFrame = frameon
+            snap=True,
+            visible=frameon,
+            boxstyle="square,pad=0",
+        )
 
     def set_child(self, child):
         """Set the child to be anchored."""
@@ -1210,26 +1200,22 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_offset(_offset)
 
     def update_frame(self, bbox, fontsize=None):
-        self.patch.set_bounds(bbox.x0, bbox.y0,
-                              bbox.width, bbox.height)
-
+        self.patch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         if fontsize:
             self.patch.set_mutation_scale(fontsize)
 
     def draw(self, renderer):
         # docstring inherited
-
         if not self.get_visible():
             return
 
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         self._update_offset_func(renderer, fontsize)
 
-        if self._drawFrame:
-            # update the location and size of the legend
-            bbox = self.get_window_extent(renderer)
-            self.update_frame(bbox, fontsize)
-            self.patch.draw(renderer)
+        # update the location and size of the legend
+        bbox = self.get_window_extent(renderer)
+        self.update_frame(bbox, fontsize)
+        self.patch.draw(renderer)
 
         width, height, xdescent, ydescent = self.get_extent(renderer)
 
@@ -1512,12 +1498,12 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor='w', edgecolor='k',
             mutation_scale=self.prop.get_size_in_points(),
-            snap=True
-            )
+            snap=True,
+            visible=frameon,
+        )
         self.patch.set_boxstyle("square", pad=pad)
         if bboxprops:
             self.patch.set(**bboxprops)
-        self._drawFrame = frameon
 
     @property
     def xyann(self):
@@ -1670,9 +1656,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
 
-        if self._drawFrame:
-            self.patch.draw(renderer)
-
+        self.patch.draw(renderer)
         self.offsetbox.draw(renderer)
         self.stale = False
 
