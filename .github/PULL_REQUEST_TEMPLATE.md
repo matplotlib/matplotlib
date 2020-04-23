@@ -1,47 +1,41 @@
 ## PR Summary
 
 <!--
-Thank you so much for your PR! To help us review your contribution, please
-summarize the purpose of this PR here.
-
-- The summary should provide at least 1-2 sentences describing the pull request
-  in detail (Why is this change required? What problem does it solve?) and
-  link to any relevant issues.
+Please provide at least a 1-2 sentence summary of the purpose of the PR.
 -->
 
 
 ## PR Checklists
 
-<!-- Feel free to delete any checklists that do not apply to this PR -->
+<!-- Feel free to delete any checkboxes that do not apply to this PR. -->
 
-For new code:
+New code:
 
 - [ ] Has Pytest style unit tests (and `pytest lib/matplotlib/tests` passes)
 - [ ] Code is [Flake 8](http://flake8.pycqa.org/en/latest/) compliant (run `flake8` on changed files to check)
-- [ ] New code is documented, with examples if plot related
+- [ ] Code is documented, with examples if plot related
 
-For new documentation:
+New documentation:
 
 - [ ] Documentation is sphinx and numpydoc compliant (the docs should [build](https://matplotlib.org/devel/documenting_mpl.html#building-the-docs) without error)
-- [ ] New documentation conforms to matplotlib style conventions. (If you have `flake8-docstrings` and `pydocstyle<4` installed, run `flake8 --docstring-convention=all` on changed files to check).
+- [ ] Documentation conforms to matplotlib style conventions. (If you have `flake8-docstrings` and `pydocstyle<4` installed, run `flake8 --docstring-convention=all` on changed files to check).
 
-For new features:
+New features:
 
-- [ ] Added an entry to `doc/users/next_whats_new/` if major new feature (follow instructions in `README.rst` there)
+- [ ] Added an entry to `doc/users/next_whats_new/` if major new feature (follow instructions in `doc/users/next_whats_new/README.rst`)
 
-For API changes:
+API changes:
 
-- [ ] Documented in `doc/api/api_changes_[VERSION]` if API changed in a backward-incompatible way (follow instructions in `README.rst` there)
+- [ ] Documented in `doc/api/api_changes_[NEXT_VERSION]` if API changed in a backward-incompatible way (follow instructions in `doc/api/api_changes_[NEXT_VERSION]/README.rst`)
+
+Meta:
+
+- [ ] PR title summarizes the changes. (For example, prefer "Raise `ValueError` on non-numeric input to `set_xlim`" instead of "Addresses issue #8576").
+- [ ] PR has at least 1-2 sentence summary.
+- [ ] PR is not out of master, but out of a separate branch (e.g. `your-user-name:non-numeric-xlim -> matplotlib:master`)
+- [ ] Optional: PR cross-links related issues.
 
 <!--
-A few other common gotchas:
-
-- Do not create the PR out of master, but out of a separate branch.
-
-- The PR title should summarize the changes, for example "Raise ValueError on
-  non-numeric input to set_xlim". Avoid non-descriptive titles such as
-  "Addresses issue #8576".
-
 - If you are contributing fixes to docstrings, please pay attention to
   http://matplotlib.org/devel/documenting_mpl.html#formatting. In particular,
   note the difference between using single backquotes, double backquotes, and
