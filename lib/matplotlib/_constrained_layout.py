@@ -680,6 +680,7 @@ def layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
     return lb, lbpos
 
 def _squish(fig, w_pad=0.0, h_pad=0.0):
+
     gss = set()
     bboxes = {}  # need these for packing the layout later...
     invTransFig = fig.transFigure.inverted().transform_bbox
@@ -749,6 +750,7 @@ def _squish(fig, w_pad=0.0, h_pad=0.0):
                 # x = 0.5
                 print('x', x, margx[ss.colspan[0]])
                 orpos.x1 = x - margx[ss.colspan[0]] + orpos.bounds[2]
+                deltax = -orpos.x0 + x - margx[ss.colspan[0]]
                 orpos.x0 = x - margx[ss.colspan[0]]
                 # Now set the new position.
                 # ax.set_position will zero out the layout for
@@ -757,14 +759,9 @@ def _squish(fig, w_pad=0.0, h_pad=0.0):
                 ax._set_position(orpos, which='original')
                 # place any colorbars:
                 for cba in ax._colorbars:
-                    bbox = cba.get_tightbbox(fig.canvas.get_renderer())
-                    bbox = invTransFig(bbox)
-                    print('thebbox', bbox.extents)
+                    #bbox = cba.get_tightbbox(fig.canvas.get_renderer())
+                    #bbox = invTransFig(bbox)
                     pos = cba.get_position(original=True)
-                    margin = pos.x0 - bbox.x0
-                    print('margin', margin)
-                    w = pos.width
-                    pos.x0 = x + bboxes[ax].width - bbox.width + margin
-                    pos.x1 = pos.x0 + w
-                    print('the pos', cba, pos.extents)
+                    pos.x0 = pos.x0 + deltax
+                    pos.x1 = pos.x1 + deltax
                     cba._set_position(pos, which='original')
