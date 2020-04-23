@@ -2414,7 +2414,7 @@ default: 'top'
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
                      rect=None):
         """
-        Automatically adjust subplot parameters to give specified padding.
+        Adjust the padding between and around subplots.
 
         To exclude an artist on the axes from the bounding box calculation
         that determines the subplot parameters (i.e. legend, or annotation),
@@ -2424,16 +2424,15 @@ default: 'top'
         ----------
         renderer : subclass of `~.backend_bases.RendererBase`, optional
             Defaults to the renderer for the figure.  Deprecated.
-        pad : float, optional
+        pad : float, default: 1.08
             Padding between the figure edge and the edges of subplots,
             as a fraction of the font size.
-        h_pad, w_pad : float, optional
+        h_pad, w_pad : float, default: *pad*
             Padding (height/width) between edges of adjacent subplots,
-            as a fraction of the font size.  Defaults to *pad*.
-        rect : tuple (left, bottom, right, top), optional
-            A rectangle (left, bottom, right, top) in the normalized
-            figure coordinate that the whole subplots area (including
-            labels) will fit into. Default is (0, 0, 1, 1).
+            as a fraction of the font size.
+        rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1)
+            A rectangle in normalized figure coordinates into which the whole
+            subplots area (including labels) will fit.
 
         See Also
         --------
