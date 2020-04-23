@@ -1079,10 +1079,15 @@ class Axis(martist.Artist):
                 [tick.label2.get_window_extent(renderer)
                  for tick in ticks if tick.label2.get_visible()])
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer, *, ignore_label=None):
         """
         Return a bounding box that encloses the axis. It only accounts
         tick labels, axis label, and offsetText.
+
+        If ``ignore_label`` is 'x', then the width of the label is collapsed
+        to near zero.  If 'y', then the height is collapsed to near zero. This
+        is for tight/constrained_layout to be able to ignore too-long labels
+        when doing their layout.
         """
         if not self.get_visible():
             return
@@ -1100,11 +1105,24 @@ class Axis(martist.Artist):
 
         bboxes = [
             *(a.get_window_extent(renderer)
-              for a in [self.label, self.offsetText]
+              for a in [self.offsetText]
               if a.get_visible()),
             *ticklabelBoxes,
             *ticklabelBoxes2,
         ]
+        # take care of label
+        if self.label.get_visible():
+            bb = self.label.get_window_extent(renderer)
+            # for constrained/tight_layout, we want to ignore the label's
+            # width because the adjustments they make can't be improved.
+            # this code collapses the relevant direction
+            if ignore_label == 'x' and bb.width > 0:
+                bb.x0 = (bb.x0 + bb.x1) / 2 - 0.5
+                bb.x1 = bb.x0 + 1.0
+            elif ignore_label == 'y' and bb.height > 0:
+                bb.y0 = (bb.y0 + bb.y1) / 2 - 0.5
+                bb.y1 = bb.y0 + 1.0
+            bboxes.append(bb)
         bboxes = [b for b in bboxes
                   if 0 < b.width < np.inf and 0 < b.height < np.inf]
         if bboxes:

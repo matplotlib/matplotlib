@@ -258,7 +258,11 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     fig = ax.figure
     invTransFig = fig.transFigure.inverted().transform_bbox
     pos = ax.get_position(original=True)
-    tightbbox = ax.get_tightbbox(renderer=renderer)
+    try:
+        tightbbox = ax.get_tightbbox(renderer=renderer, for_layout_only=True)
+    except TypeError:
+        tightbbox = ax.get_tightbbox(renderer=renderer)
+
     if tightbbox is None:
         bbox = pos
     else:
