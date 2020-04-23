@@ -1631,6 +1631,18 @@ def test_hist_with_empty_input(data, expected_number_of_hists):
         assert hists.shape[0] == expected_number_of_hists
 
 
+@pytest.mark.parametrize("histtype, zorder",
+                         [("bar", mpl.patches.Patch.zorder),
+                          ("step", mpl.lines.Line2D.zorder),
+                          ("stepfilled", mpl.patches.Patch.zorder)])
+def test_hist_zorder(histtype, zorder):
+    ax = plt.figure().add_subplot()
+    ax.hist([1, 2], histtype=histtype)
+    assert ax.patches
+    for patch in ax.patches:
+        assert patch.get_zorder() == zorder
+
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)

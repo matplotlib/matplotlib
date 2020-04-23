@@ -6769,7 +6769,8 @@ default: :rc:`scatter.edgecolors`
                     closed=True if fill else None,
                     facecolor=c,
                     edgecolor=None if fill else c,
-                    fill=fill if fill else None))
+                    fill=fill if fill else None,
+                    zorder=None if fill else mlines.Line2D.zorder))
             for patch_list in patches:
                 for patch in patch_list:
                     if orientation == 'vertical':
