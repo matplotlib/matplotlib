@@ -2789,6 +2789,7 @@ pivot='tail', normalize=False, **kwargs)
 
         xerr, yerr, zerr : scalar or array-like, optional
             The errorbar sizes:
+
             - scalar: Symmetric +/- values for all data points.
             - shape(N,): Symmetric +/-values for each data point.
             - shape(2, N): Separate - and + values for each bar. First row
@@ -2844,8 +2845,27 @@ pivot='tail', normalize=False, **kwargs)
             Used to avoid overlapping error bars when two series share x-axis
             values.
 
-        Additional keyword arguments for styling errorbar lines are passed to
-        `~mpl_toolkits.mplot3d.art3d.Line3DCollection`
+        Returns
+        -------
+        errlines : list
+            List of `~mpl_toolkits.mplot3d.art3d.Line3DCollection` instances
+            each containing an errorbar line.
+        caplines : list
+            List of `~mpl_toolkits.mplot3d.art3d.Line3D` instances each
+            containing a capline object.
+        limmarks : list
+            List of `~mpl_toolkits.mplot3d.art3d.Line3D` instances each
+            containing a marker with an upper or lower limit.
+
+        Other Parameters
+        ----------------
+        **kwargs
+            All other keyword arguments for styling errorbar lines are passed
+            `~mpl_toolkits.mplot3d.art3d.Line3DCollection`.
+
+        Examples
+        --------
+        .. plot:: gallery/mplot3d/errorbar3d.py
         """
         had_data = self.has_data()
 
