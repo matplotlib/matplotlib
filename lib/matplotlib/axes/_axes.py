@@ -3307,6 +3307,7 @@ class Axes(_AxesBase):
         eb_lines_style.pop('marker', None)
         eb_lines_style.pop('linestyle', None)
         eb_lines_style['color'] = ecolor
+        eb_lines_style.setdefault("solid_capstyle", 'butt')
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
@@ -3513,6 +3514,7 @@ class Axes(_AxesBase):
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.append(mlines.Line2D(xup, yup, marker='_',
                                                   **eb_cap_style))
+
         if barsabove:
             if data_line is not None:
                 self.add_line(data_line)
@@ -3527,6 +3529,11 @@ class Axes(_AxesBase):
                 self.add_line(l)
             if data_line is not None:
                 self.add_line(data_line)
+
+        if not barcols:
+            line = mlines.Line2D([], [], **eb_lines_style)
+            barcols.append(line)
+            self.add_line(line)
 
         self._request_autoscale_view()
         errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
