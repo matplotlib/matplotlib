@@ -916,3 +916,21 @@ def test_minor_ticks():
     ax.set_yticklabels(["third"], minor=True)
     ax.set_zticks([0.50], minor=True)
     ax.set_zticklabels(["half"], minor=True)
+
+
+@mpl3d_image_comparison(['errorbar3d.png'], tol=0.03)
+def test_errorbar3d():
+    t = np.arange(0, 2*np.pi+.1, 0.01)
+    x, y, z = np.sin(t), np.cos(3*t), np.sin(5*t)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    estep = 15
+    zuplims = [True if (not i % estep and i // estep % 3 == 0)
+               else False for i in range(t.size)]
+    zlolims = [True if (not i % estep and i // estep % 3 == 2)
+               else False for i in range(t.size)]
+
+    ax.errorbar(x, y, z, 0.2, zuplims=zuplims, zlolims=zlolims,
+                errorevery=estep)
