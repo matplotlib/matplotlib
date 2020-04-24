@@ -13,6 +13,8 @@ Classes, methods and attributes
 
 - ``axis.Axis.iter_ticks`` (no replacement)
 
+- Support for custom backends that do not provide a
+  ``backend_bases.GraphicsContextBase.set_hatch_color`` method
 - ``backend_bases.RendererBase.strip_math()``
   (use ``cbook.strip_math()`` instead)
 
