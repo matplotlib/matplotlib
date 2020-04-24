@@ -1195,6 +1195,7 @@ defaultParams = {
     # contour props
     'contour.negative_linestyle': ['dashed', _validate_linestyle],
     'contour.corner_mask':        [True, validate_bool],
+    'contour.linewidths':        [None, validate_float_or_None],
 
     # errorbar props
     'errorbar.capsize':      [0, validate_float],

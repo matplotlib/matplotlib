@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing import assert_array_almost_equal
 import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, rc_context
 from matplotlib.colors import LogNorm
 import pytest
 
@@ -375,3 +375,17 @@ def test_contour_uneven():
     ax = axs[1]
     cs = ax.contourf(z, levels=[2, 4, 6, 10, 20])
     fig.colorbar(cs, ax=ax, spacing='uniform')
+
+
+@pytest.mark.parametrize("rcll, rccl, fcl, expected", [
+    (1.23, None, None, 1.23),
+    (1.23, 4.24, None, 4.24),
+    (1.23, 4.24, 5.02, 5.02)
+])
+def test_contour_linewidths(rcll, rccl, fcl, expected):
+
+    with rc_context(rc={"lines.linewidth": rcll, "contour.linewidths": rccl}):
+        fig, ax = plt.subplots()
+        X = np.arange(4*3).reshape(4, 3)
+        cs = ax.contour(X, linewidths=fcl)
+        assert cs.tlinewidths[0][0] == expected
