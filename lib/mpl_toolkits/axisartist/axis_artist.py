@@ -691,7 +691,7 @@ class AxisArtist(martist.Artist):
     is constant) line, ticks, ticklabels, and axis label.
     """
 
-    ZORDER = 2.5
+    zorder = ZORDER = 2.5  # ZORDER is a backcompat alias.
 
     @property
     def LABELPAD(self):
@@ -740,12 +740,7 @@ class AxisArtist(martist.Artist):
         self._init_offsetText(axis_direction)
         self._init_label()
 
-        self.set_zorder(self.ZORDER)
-
-        self._rotate_label_along_line = False
-
         # axis direction
-        self._tick_add_angle = 180.
         self._ticklabel_add_angle = 0.
         self._axislabel_add_angle = 0.
         self.set_axis_direction(axis_direction)

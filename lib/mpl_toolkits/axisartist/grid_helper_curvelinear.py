@@ -361,9 +361,6 @@ class GridHelperCurveLinear(GridHelperBase):
         # axisline.major_ticklabels.set_visible(True)
         # axisline.minor_ticklabels.set_visible(False)
 
-        # axisline.major_ticklabels.set_rotate_along_line(True)
-        # axisline.set_rotate_label_along_line(True)
-
         return axisline
 
     def _update_grid(self, x1, y1, x2, y2):
