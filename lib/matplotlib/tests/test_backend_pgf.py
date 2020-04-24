@@ -1,3 +1,4 @@
+from datetime import datetime
 from io import BytesIO
 import os
 from pathlib import Path
@@ -255,7 +256,14 @@ def test_pdf_pages_metadata():
     ax.plot(range(5))
     fig.tight_layout()
 
-    md = {'Author': 'me', 'Title': 'Multipage PDF with pgf'}
+    md = {
+        'Author': 'me',
+        'Title': 'Multipage PDF with pgf',
+        'Subject': 'Test page',
+        'Keywords': 'test,pdf,multipage',
+        'ModDate': datetime(1968, 8, 1),
+    }
+
     path = os.path.join(result_dir, 'pdfpages_meta.pdf')
 
     with PdfPages(path, metadata=md) as pdf:
