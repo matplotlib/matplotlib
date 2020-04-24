@@ -3825,9 +3825,7 @@ class FancyArrowPatch(Patch):
     def __init__(self, posA=None, posB=None,
                  path=None,
                  arrowstyle="simple",
-                 arrow_transmuter=None,
                  connectionstyle="arc3",
-                 connector=None,
                  patchA=None,
                  patchB=None,
                  shrinkA=2,
@@ -3866,9 +3864,6 @@ class FancyArrowPatch(Patch):
 
             %(AvailableArrowstyles)s
 
-        arrow_transmuter
-            Ignored.
-
         connectionstyle : str or `.ConnectionStyle` or None, optional, \
 default: 'arc3'
             The `.ConnectionStyle` with which *posA* and *posB* are connected.
@@ -3877,9 +3872,6 @@ default: 'arc3'
             connection styles are available:
 
             %(AvailableConnectorstyles)s
-
-        connector
-            Ignored.
 
         patchA, patchB : `.Patch`, default: None
             Head and tail patches, respectively.
@@ -3910,20 +3902,6 @@ default: 'arc3'
             In contrast to other patches, the default ``capstyle`` and
             ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
-        if arrow_transmuter is not None:
-            cbook.warn_deprecated(
-                3.0,
-                message=('The "arrow_transmuter" keyword argument is not used,'
-                         ' and will be removed in Matplotlib 3.1'),
-                name='arrow_transmuter',
-                obj_type='keyword argument')
-        if connector is not None:
-            cbook.warn_deprecated(
-                3.0,
-                message=('The "connector" keyword argument is not used,'
-                         ' and will be removed in Matplotlib 3.1'),
-                name='connector',
-                obj_type='keyword argument')
         # Traditionally, the cap- and joinstyle for FancyArrowPatch are round
         kwargs.setdefault("joinstyle", "round")
         kwargs.setdefault("capstyle", "round")
@@ -4193,9 +4171,7 @@ class ConnectionPatch(FancyArrowPatch):
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
-                 arrow_transmuter=None,
                  connectionstyle="arc3",
-                 connector=None,
                  patchA=None,
                  patchB=None,
                  shrinkA=0.,
@@ -4278,9 +4254,7 @@ class ConnectionPatch(FancyArrowPatch):
         FancyArrowPatch.__init__(self,
                                  posA=(0, 0), posB=(1, 1),
                                  arrowstyle=arrowstyle,
-                                 arrow_transmuter=arrow_transmuter,
                                  connectionstyle=connectionstyle,
-                                 connector=connector,
                                  patchA=patchA,
                                  patchB=patchB,
                                  shrinkA=shrinkA,

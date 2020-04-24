@@ -195,6 +195,10 @@ Arguments
   other than ``ticklabels``.
 - ``mpl_toolkits.mplot3d.art3d.Poly3DCollection.set_zsort`` does not accept
   the value ``True`` anymore. Pass the equivalent value 'average' instead.
+- `~.ConnectionPatch` no longer accepts the ``arrow_transmuter`` and
+  ``connector`` keyword arguments, which did nothing since 3.0.
+- `~.FancyArrowPatch` no longer accepts the ``arrow_transmuter`` and
+  ``connector`` keyword arguments, which did nothing since 3.0.
 
 rcParams
 ~~~~~~~~
