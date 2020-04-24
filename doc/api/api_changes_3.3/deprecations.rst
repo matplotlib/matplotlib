@@ -184,6 +184,11 @@ variables is deprecated.  Additional fonts may be registered using
 ~~~~~~~~~~~~~~~~~~~~~
 This module is deprecated.
 
+``matplotlib.backends.qt_editor.formsubplottool``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This module is deprecated.  Use ``matplotlib.backends.backend_qt5.SubplotToolQt``
+instead.
+
 AVConv animation writer deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``AVConvBase``, ``AVConvWriter`` and ``AVConvFileWriter`` classes, and the
