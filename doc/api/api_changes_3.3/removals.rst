@@ -176,7 +176,8 @@ Arguments
 - The unused parameter ``interp_at_native`` of `.BboxImage` has been removed.
 - The parameter ``usetex`` of `.TextToPath.get_text_path` has been removed.
   Use ``ismath='TeX'`` instead.
-- The parameter ``block`` of ``show()`` is now keyword-only.
+- The parameter ``block`` of ``show()`` is now keyword-only, and arbitrary
+  arguments or keyword arguments are no longer accepted.
 - The parameter ``frameon`` of `.Figure.savefig` has been removed.  Use
   ``facecolor="none"`` to get a transparent background.
 - Passing a ``wx.EvtHandler`` as the first argument to ``backend_wx.TimerWx``
@@ -195,10 +196,14 @@ Arguments
   other than ``ticklabels``.
 - ``mpl_toolkits.mplot3d.art3d.Poly3DCollection.set_zsort`` does not accept
   the value ``True`` anymore. Pass the equivalent value 'average' instead.
-- `~.ConnectionPatch` no longer accepts the ``arrow_transmuter`` and
+- `.AnchoredText` no longer accepts ``horizontalalignment`` or
+  ``verticalalignment`` keyword arguments.
+- `.ConnectionPatch` no longer accepts the ``arrow_transmuter`` and
   ``connector`` keyword arguments, which did nothing since 3.0.
-- `~.FancyArrowPatch` no longer accepts the ``arrow_transmuter`` and
+- `.FancyArrowPatch` no longer accepts the ``arrow_transmuter`` and
   ``connector`` keyword arguments, which did nothing since 3.0.
+- `.TextPath` no longer accepts arbitrary positional or keyword arguments.
+- `.MaxNLocator.set_params()` no longer accepts arbitrary keyword arguments.
 
 rcParams
 ~~~~~~~~

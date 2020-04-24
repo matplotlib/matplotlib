@@ -349,8 +349,7 @@ class TextPath(Path):
     """
 
     def __init__(self, xy, s, size=None, prop=None,
-                 _interpolation_steps=1, usetex=False,
-                 *args, **kwargs):
+                 _interpolation_steps=1, usetex=False):
         r"""
         Create a path from the text. Note that it simply is a path,
         not an artist. You need to use the `~.PathPatch` (or other artists)
@@ -395,11 +394,6 @@ class TextPath(Path):
         """
         # Circular import.
         from matplotlib.text import Text
-
-        if args or kwargs:
-            cbook.warn_deprecated(
-                "3.1", message="Additional arguments to TextPath used to be "
-                "ignored, but will trigger a TypeError %(removal)s.")
 
         if prop is None:
             prop = FontProperties()
