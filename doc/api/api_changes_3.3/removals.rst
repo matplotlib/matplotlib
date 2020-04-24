@@ -9,6 +9,10 @@ Modules
 
 Classes, methods and attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- ``artist.Artist.aname`` property (no replacement)
+
+- ``axis.Axis.iter_ticks`` (no replacement)
+
 - ``backend_bases.RendererBase.strip_math()``
   (use ``cbook.strip_math()`` instead)
 
@@ -39,6 +43,8 @@ Classes, methods and attributes
 - ``backend_qt5.NavigationToolbar2QT.buttons`` property (no replacement)
 - ``backend_qt5.NavigationToolbar2QT.adj_window`` property (no replacement)
 
+- ``bezier.find_r_to_boundary_of_closedpath()`` (no replacement)
+
 - ``cbook.dedent()`` (use `inspect.cleandoc` instead)
 - ``cbook.get_label()`` (no replacement)
 - ``cbook.is_hashable()`` (use ``isinstance(..., collections.abc.Hashable)``
@@ -46,10 +52,29 @@ Classes, methods and attributes
 - ``cbook.iterable()`` (use ``numpy.iterable()`` instead)
 - ``cbook.safezip()`` (no replacement)
 
+- ``colorbar.ColorbarBase.get_cmap`` (use ``ScalarMappable.get_cmap`` instead)
+- ``colorbar.ColorbarBase.set_cmap`` (use ``ScalarMappable.set_cmap`` instead)
+- ``colorbar.ColorbarBase.get_clim`` (use ``ScalarMappable.get_clim`` instead)
+- ``colorbar.ColorbarBase.set_clim`` (use ``ScalarMappable.set_clim`` instead)
+- ``colorbar.ColorbarBase.set_norm`` (use ``ScalarMappable.set_norm`` instead)
+
+- ``dates.seconds()`` (no replacement)
+- ``dates.minutes()`` (no replacement)
+- ``dates.hours()`` (no replacement)
+- ``dates.weeks()`` (no replacement)
+- ``dates.strpdate2num`` and ``dates.bytespdate2num`` (use `time.strptime` or
+  `dateutil.parser.parse` or `.dates.datestr2num` instead)
+
 - ``docstring.Appender`` (no replacement)
 - ``docstring.dedent()`` (use `inspect.getdoc` instead)
 - ``docstring.copy_dedent()``
   (use ``docstring.copy()`` and `inspect.getdoc` instead)
+
+- ``font_manager.OSXInstalledFonts()`` (no replacement)
+
+- ``image.BboxImage.interp_at_native`` property (no replacement)
+
+- ``lines.Line2D.verticalOffset`` property (no replacement)
 
 - ``matplotlib.checkdep_dvipng`` (no replacement)
 - ``matplotlib.checkdep_ghostscript`` (no replacement)
@@ -58,18 +83,25 @@ Classes, methods and attributes
 - ``matplotlib.get_py2exe_datafiles`` (no replacement)
 - ``matplotlib.tk_window_focus`` (use ``rcParams['tk.window_focus']`` instead)
 
+- ``mlab.demean()`` (use ``mlab.detrend_mean()`` instead)
+
+- ``path.get_paths_extents()``
+  (use ``path.get_path_collection_extents()`` instead)
+
+- ``projections.process_projection_requirements()`` (no replacement)
+
 - ``pyplot.plotfile()`` (Instead, load the data using
   `pandas.read_csv` or `numpy.loadtxt` or similar and use regular pyplot
   functions to plot the loaded data.)
+
+- ``quiver.Quiver.color()`` (use ``Quiver.get_facecolor()`` instead)
+- ``quiver.Quiver.keyvec`` property (no replacement)
+- ``quiver.Quiver.keytext`` property (no replacement)
+
 - ``rcsetup.validate_qt4()`` (no replacement)
 - ``rcsetup.validate_qt5()`` (no replacement)
 - ``rcsetup.validate_verbose()`` (no replacement)
 - ``rcsetup.ValidateInterval`` (no replacement)
-
-- ``sphinxext.plot_directive.plot_directive()``
-  (use the class ``PlotDirective`` instead)
-- ``sphinxext.mathmpl.math_directive()``
-  (use the class ``MathDirective`` instead)
 
 - ``scale.LogTransformBase`` (use ``scale.LogTransform`` instead)
 - ``scale.InvertedLogTransformBase`` (use ``scale.InvertedLogTransform`` instead)
@@ -79,6 +111,11 @@ Classes, methods and attributes
 - ``scale.InvertedLog2Transform`` (use ``scale.InvertedLogTransform`` instead)
 - ``scale.NaturalLogTransform`` (use ``scale.LogTransform`` instead)
 - ``scale.InvertedNaturalLogTransform`` (use ``scale.InvertedLogTransform`` instead)
+
+- ``sphinxext.plot_directive.plot_directive()``
+  (use the class ``PlotDirective`` instead)
+- ``sphinxext.mathmpl.math_directive()``
+  (use the class ``MathDirective`` instead)
 
 - ``spines.Spine.is_frame_like()`` (no replacement)
 
@@ -98,38 +135,7 @@ Classes, methods and attributes
   ``Tick.tick1line``, ``Tick.tick2line``, ``Tick.label1``,  ``Tick.label2``
   instead)
 
-- ``Artist.aname`` property (no replacement)
-- ``Axis.iter_ticks`` (no replacement)
-
-- ``image.BboxImage.interp_at_native`` property (no replacement)
-- ``lines.Line2D.verticalOffset`` property (no replacement)
-- ``bezier.find_r_to_boundary_of_closedpath()`` (no replacement)
-
-- ``quiver.Quiver.color()`` (use ``Quiver.get_facecolor()`` instead)
-- ``quiver.Quiver.keyvec`` property (no replacement)
-- ``quiver.Quiver.keytext`` property (no replacement)
-
-- ``colorbar.ColorbarBase.get_cmap`` (use ``ScalarMappable.get_cmap`` instead)
-- ``colorbar.ColorbarBase.set_cmap`` (use ``ScalarMappable.set_cmap`` instead)
-- ``colorbar.ColorbarBase.get_clim`` (use ``ScalarMappable.get_clim`` instead)
-- ``colorbar.ColorbarBase.set_clim`` (use ``ScalarMappable.set_clim`` instead)
-- ``colorbar.ColorbarBase.set_norm`` (use ``ScalarMappable.set_norm`` instead)
-
-- ``dates.seconds()`` (no replacement)
-- ``dates.minutes()`` (no replacement)
-- ``dates.hours()`` (no replacement)
-- ``dates.weeks()`` (no replacement)
-- ``dates.strpdate2num`` and ``dates.bytespdate2num`` (use `time.strptime` or
-  `dateutil.parser.parse` or `.dates.datestr2num` instead)
-
-- ``font_manager.OSXInstalledFonts()`` (no replacement)
-
-- ``mlab.demean()`` (use ``mlab.detrend_mean()`` instead)
-
-- ``projections.process_projection_requirements()`` (no replacement)
-
-- ``path.get_paths_extents()``
-  (use ``path.get_path_collection_extents()`` instead)
+- ``widgets.SpanSelector.buttonDown`` property (no replacement)
 
 - ``mplot3d.proj3d.line2d()`` (no replacement)
 - ``mplot3d.proj3d.line2d_dist()`` (no replacement)
@@ -158,8 +164,6 @@ Classes, methods and attributes
   (use ``axis_grid1.mpl_axes.SimpleChainedObjects`` instead)
 - ``axisartist.axislines.Axes.AxisDict``
   (use ``axis_grid1.mpl_axes.Axes.AxisDict`` instead)
-
-- ``widgets.SpanSelector.buttonDown`` property (no replacement)
 
 Arguments
 ~~~~~~~~~
