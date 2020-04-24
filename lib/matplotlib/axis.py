@@ -148,12 +148,12 @@ class Tick(martist.Artist):
         self.tick1line = mlines.Line2D(
             [], [],
             color=color, linestyle="none", zorder=zorder, visible=tick1On,
-            markersize=size, markeredgewidth=width,
+            markeredgecolor=color, markersize=size, markeredgewidth=width,
         )
         self.tick2line = mlines.Line2D(
             [], [],
             color=color, linestyle="none", zorder=zorder, visible=tick2On,
-            markersize=size, markeredgewidth=width,
+            markeredgecolor=color, markersize=size, markeredgewidth=width,
         )
         self.gridline = mlines.Line2D(
             [], [],
@@ -352,6 +352,8 @@ class Tick(martist.Artist):
             trans = self._get_text2_transform()[0]
             self.label2.set_transform(trans)
         tick_kw = {k: v for k, v in kw.items() if k in ['color', 'zorder']}
+        if 'color' in kw:
+            tick_kw['markeredgecolor'] = kw['color']
         self.tick1line.set(**tick_kw)
         self.tick2line.set(**tick_kw)
         for k, v in tick_kw.items():
