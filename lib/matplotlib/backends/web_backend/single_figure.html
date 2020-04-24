@@ -21,9 +21,9 @@
         function () {
           var websocket_type = mpl.get_websocket_type();
           var websocket = new websocket_type(
-              "{{ ws_uri }}" + {{ repr(str(fig_id)) }} + "/ws");
+              "{{ ws_uri }}" + {{ str(fig_id) }} + "/ws");
           var fig = new mpl.figure(
-              {{repr(str(fig_id))}}, websocket, mpl_ondownload,
+              {{ str(fig_id) }}, websocket, mpl_ondownload,
               document.getElementById("figure"));
         }
       );

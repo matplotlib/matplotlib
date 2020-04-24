@@ -35,7 +35,7 @@
       };
 
       {% for (fig_id, fig_manager) in figures %}
-        ready(figure_ready({{ repr(str(fig_id)) }}));
+        ready(figure_ready({{ str(fig_id) }}));
       {% end %}
     </script>
 
