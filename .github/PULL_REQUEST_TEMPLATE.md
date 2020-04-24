@@ -28,7 +28,7 @@ New documentation:
 
 New features:
 
-- [ ] Added an entry to `doc/users/next_whats_new/` if major new feature (follow instructions in `doc/users/next_whats_new/README.rst`)
+- [ ] Have an entry in `doc/users/next_whats_new/` (follow instructions in `doc/users/next_whats_new/README.rst`)
 
 API changes:
 
