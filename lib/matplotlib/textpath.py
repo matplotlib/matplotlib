@@ -51,16 +51,6 @@ class TextToPath:
         char_id = urllib.parse.quote('%s-%d' % (ps_name, ccode))
         return char_id
 
-    @cbook.deprecated(
-        "3.1",
-        alternative="font.get_path() and manual translation of the vertices")
-    def glyph_to_path(self, font, currx=0.):
-        """Convert the *font*'s current glyph to a (vertices, codes) pair."""
-        verts, codes = font.get_path()
-        if currx != 0.0:
-            verts[:, 0] += currx
-        return verts, codes
-
     def get_text_width_height_descent(self, s, prop, ismath):
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()

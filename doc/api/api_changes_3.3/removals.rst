@@ -87,6 +87,8 @@ Classes, methods and attributes
 
 - ``path.get_paths_extents()``
   (use ``path.get_path_collection_extents()`` instead)
+- ``path.Path.has_nonfinite()`` (use ``not np.isfinite(self.vertices).all()``
+  instead)
 
 - ``projections.process_projection_requirements()`` (no replacement)
 
@@ -111,6 +113,7 @@ Classes, methods and attributes
 - ``scale.InvertedLog2Transform`` (use ``scale.InvertedLogTransform`` instead)
 - ``scale.NaturalLogTransform`` (use ``scale.LogTransform`` instead)
 - ``scale.InvertedNaturalLogTransform`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.get_scale_docs()`` (no replacement)
 
 - ``sphinxext.plot_directive.plot_directive()``
   (use the class ``PlotDirective`` instead)
@@ -119,11 +122,17 @@ Classes, methods and attributes
 
 - ``spines.Spine.is_frame_like()`` (no replacement)
 
+- ``testing.decorators.switch_backend()`` (use ``@pytest.mark.backend``
+  decorator instead)
+
 - ``text.Text.is_math_text()`` (use ``cbook.is_math_text()`` instead)
 - ``text.TextWithDash()`` (use ``text.Annotation`` instead)
 - ``textpath.TextPath.is_math_text()`` (use ``cbook.is_math_text()`` instead)
 - ``textpath.TextPath.text_get_vertices_codes()``
   (use ``textpath.text_to_path.get_text_path()`` instead)
+
+- ``textpath.TextToPath.glyph_to_path()`` (use ``font.get_path()`` and manual
+  translation of the vertices instead)
 
 - ``ticker.OldScalarFormatter.pprint_val()`` (no replacement)
 - ``ticker.ScalarFormatter.pprint_val()`` (no replacement)
