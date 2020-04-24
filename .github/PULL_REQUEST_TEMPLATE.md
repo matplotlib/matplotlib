@@ -37,8 +37,8 @@ API changes:
 <!--
 Meta:
 
-- PR title summarizes the changes. (For example, prefer "Raise `ValueError` on non-numeric input to `set_xlim`" instead of "Addresses issue #8576").
-- PR has at least 1-2 sentence summary.
+- PR title descriptively summarizes the changes. (For example, prefer "Raise `ValueError` on non-numeric input to `set_xlim`" to "Addresses issue #8576").
+- PR has at least a 1-2 sentence summary.
 - PR is not out of master, but out of a separate branch (e.g. `your-user-name:non-numeric-xlim -> matplotlib:master`)
 - Optional: PR cross-links related issues.
 -->
@@ -53,8 +53,8 @@ If you have further questions:
   https://matplotlib.org/devel/gitwash/development_workflow.html.
 
 We understand that PRs can sometimes be overwhelming, especially as the
-reviews start coming in. Please let us know if the reviews are unclear or
-the recommended next step seems overly demanding, if you would like help in
-addressing a reviewer's comments, or if you have been waiting too long to hear
+reviews start coming in. Please let us know if the reviews are unclear,  
+the recommended next step seems overly demanding, you would like help in
+addressing a reviewer's comments, or you have been waiting too long to hear
 back on your PR.
 -->
