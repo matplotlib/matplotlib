@@ -186,3 +186,9 @@ anymore.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This ensures that they go above gridlines by default.  The old ``zorder`` can
 be kept by passing it as a keyword argument to `.Axes.hist`.
+
+`.Legend` and `.OffsetBox` visibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.Legend` and `.OffsetBox` subclasses (`.PaddedBox`, `.AnchoredOffsetbox`, and
+`.AnnotationBbox`) no longer directly keep track of the visibility of their
+underlying `.Patch` artist, but instead pass that flag down to the `.Patch`.

@@ -499,11 +499,10 @@ class Legend(Artist):
                       else "square,pad=0"),
             mutation_scale=self._fontsize,
             snap=True,
+            visible=(frameon if frameon is not None
+                     else mpl.rcParams["legend.frameon"])
         )
         self._set_artist_props(self.legendPatch)
-
-        self._drawFrame = (frameon if frameon is not None
-                           else mpl.rcParams["legend.frameon"])
 
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
@@ -580,17 +579,13 @@ class Legend(Artist):
         # update the location and size of the legend. This needs to
         # be done in any case to clip the figure right.
         bbox = self._legend_box.get_window_extent(renderer)
-        self.legendPatch.set_bounds(bbox.x0, bbox.y0,
-                                    bbox.width, bbox.height)
+        self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         self.legendPatch.set_mutation_scale(fontsize)
 
-        if self._drawFrame:
-            if self.shadow:
-                shadow = Shadow(self.legendPatch, 2, -2)
-                shadow.draw(renderer)
+        if self.shadow:
+            Shadow(self.legendPatch, 2, -2).draw(renderer)
 
-            self.legendPatch.draw(renderer)
-
+        self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)
 
         renderer.close_group('legend')
@@ -895,7 +890,7 @@ class Legend(Artist):
 
     def get_frame_on(self):
         """Get whether the legend box patch is drawn."""
-        return self._drawFrame
+        return self.legendPatch.get_visible()
 
     def set_frame_on(self, b):
         """
@@ -905,7 +900,7 @@ class Legend(Artist):
         ----------
         b : bool
         """
-        self._drawFrame = b
+        self.legendPatch.set_visible(b)
         self.stale = True
 
     draw_frame = set_frame_on  # Backcompat alias.
