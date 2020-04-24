@@ -1017,7 +1017,20 @@ class PdfPages:
         self._outputfile = filename
         self._n_figures = 0
         self.keep_empty = keep_empty
-        self.metadata = metadata or {}
+        self.metadata = (metadata or {}).copy()
+        if metadata:
+            for key in metadata:
+                canonical = {
+                    'creationdate': 'CreationDate',
+                    'moddate': 'ModDate',
+                }.get(key.lower(), key.lower().title())
+                if canonical != key:
+                    cbook.warn_deprecated(
+                        '3.3', message='Support for setting PDF metadata keys '
+                        'case-insensitively is deprecated since %(since)s and '
+                        'will be removed %(removal)s; '
+                        f'set {canonical} instead of {key}.')
+                    self.metadata[canonical] = self.metadata.pop(key)
 
         # create temporary directory for compiling the figure
         self._tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_pdfpages_")
@@ -1028,27 +1041,28 @@ class PdfPages:
 
     def _write_header(self, width_inches, height_inches):
         supported_keys = {
-            'title', 'author', 'subject', 'keywords', 'creator',
-            'producer', 'trapped'
+            'Title', 'Author', 'Subject', 'Keywords', 'Creator',
+            'Producer', 'Trapped'
         }
         infoDict = {
-            'creator': f'matplotlib {mpl.__version__}, https://matplotlib.org',
-            'producer': f'matplotlib pgf backend {mpl.__version__}',
+            'Creator': f'matplotlib {mpl.__version__}, https://matplotlib.org',
+            'Producer': f'matplotlib pgf backend {mpl.__version__}',
+            **self.metadata
         }
-        metadata = {k.lower(): v for k, v in self.metadata.items()}
-        infoDict.update(metadata)
         hyperref_options = ''
         for k, v in infoDict.items():
             if k not in supported_keys:
                 raise ValueError(
                     'Not a supported pdf metadata field: "{}"'.format(k)
                 )
-            hyperref_options += 'pdf' + k + '={' + str(v) + '},'
+            hyperref_options += k + '={' + str(v) + '},'
 
         latex_preamble = get_preamble()
         latex_fontspec = get_fontspec()
         latex_header = r"""\PassOptionsToPackage{{
-  {metadata}
+  pdfinfo={{
+    {metadata}
+  }}
 }}{{hyperref}}
 \RequirePackage{{hyperref}}
 \documentclass[12pt]{{minimal}}

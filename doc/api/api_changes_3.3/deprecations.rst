@@ -593,3 +593,11 @@ APIs which support the values True, False, and "TeX" for ``ismath``.
 ``matplotlib.ttconv``
 ~~~~~~~~~~~~~~~~~~~~~
 This module is deprecated.
+
+Stricter PDF metadata keys in PGF
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Saving metadata in PDF with the PGF backend currently normalizes all keys to
+lowercase, unlike the PDF backend, which only accepts the canonical case.  This
+is deprecated; in a future version, only the canonically cased keys listed in
+the PDF specification (and the `~.backend_pgf.PdfPages` documentation) will be
+accepted.
