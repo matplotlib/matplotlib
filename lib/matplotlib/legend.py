@@ -444,28 +444,15 @@ class Legend(Artist):
                 loc = 'upper right'
         if isinstance(loc, str):
             if loc not in self.codes:
-                if self.isaxes:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'best'; valid locations are\n\t{}\n"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 0
-                else:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'upper right'; valid locations are\n\t{}\n'"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 1
+                raise ValueError(
+                    "Unrecognized location {!r}. Valid locations are\n\t{}\n"
+                    .format(loc, '\n\t'.join(self.codes)))
             else:
                 loc = self.codes[loc]
         if not self.isaxes and loc == 0:
-            cbook.warn_deprecated(
-                "3.1", message="Automatic legend placement (loc='best') not "
-                "implemented for figure legend. Falling back on 'upper "
-                "right'. This will raise an exception %(removal)s.")
-            loc = 1
+            raise ValueError(
+                "Automatic legend placement (loc='best') not implemented for "
+                "figure legend.")
 
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
