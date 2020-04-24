@@ -262,6 +262,7 @@ def test_pdf_pages_metadata():
         'Subject': 'Test page',
         'Keywords': 'test,pdf,multipage',
         'ModDate': datetime(1968, 8, 1),
+        'Trapped': 'Unknown'
     }
 
     path = os.path.join(result_dir, 'pdfpages_meta.pdf')

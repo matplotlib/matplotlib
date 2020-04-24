@@ -187,8 +187,11 @@ def _create_pdf_info_dict(backend, metadata):
     def is_date(x):
         return isinstance(x, datetime)
 
-    check_trapped = (lambda x: isinstance(x, Name) and
-                     x.name in (b'True', b'False', b'Unknown'))
+    def check_trapped(x):
+        if isinstance(x, Name):
+            return x.name in (b'True', b'False', b'Unknown')
+        else:
+            return x in ('True', 'False', 'Unknown')
 
     keywords = {
         'Title': is_string_like,
@@ -206,6 +209,8 @@ def _create_pdf_info_dict(backend, metadata):
             cbook._warn_external(f'Unknown infodict keyword: {k}')
         elif not keywords[k](info[k]):
             cbook._warn_external(f'Bad value for infodict keyword {k}')
+    if 'Trapped' in info:
+        info['Trapped'] = Name(info['Trapped'])
 
     return info
 
