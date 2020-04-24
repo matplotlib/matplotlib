@@ -362,10 +362,10 @@ class AxisLabel(AttributeCopier, LabelBase):
 
     def __init__(self, *args, axis_direction="bottom", axis=None, **kwargs):
         self._axis = axis
-        LabelBase.__init__(self, *args, **kwargs)
-        self.set_axis_direction(axis_direction)
         self._pad = 5
         self._extra_pad = 0
+        LabelBase.__init__(self, *args, **kwargs)
+        self.set_axis_direction(axis_direction)
 
     def set_pad(self, pad):
         """
@@ -728,17 +728,15 @@ class AxisArtist(martist.Artist):
             + self.axes.figure.dpi_scale_trans)
 
         if axis_direction in ["left", "right"]:
-            axis_name = "ytick"
             self.axis = axes.yaxis
         else:
-            axis_name = "xtick"
             self.axis = axes.xaxis
 
         self._axisline_style = None
         self._axis_direction = axis_direction
 
         self._init_line()
-        self._init_ticks(axis_name, **kwargs)
+        self._init_ticks(**kwargs)
         self._init_offsetText(axis_direction)
         self._init_label()
 
@@ -899,46 +897,40 @@ class AxisArtist(martist.Artist):
             self.line.set_line_mutation_scale(self.major_ticklabels.get_size())
         self.line.draw(renderer)
 
-    def _init_ticks(self, axis_name, **kwargs):
+    def _init_ticks(self, **kwargs):
+        axis_name = self.axis.axis_name
 
         trans = (self._axis_artist_helper.get_tick_transform(self.axes)
                  + self.offset_transform)
 
-        major_tick_size = kwargs.get("major_tick_size",
-                                     rcParams[f'{axis_name}.major.size'])
-        major_tick_pad = kwargs.get("major_tick_pad",
-                                    rcParams[f'{axis_name}.major.pad'])
-        minor_tick_size = kwargs.get("minor_tick_size",
-                                     rcParams[f'{axis_name}.minor.size'])
-        minor_tick_pad = kwargs.get("minor_tick_pad",
-                                    rcParams[f'{axis_name}.minor.pad'])
+        self.major_ticks = Ticks(
+            kwargs.get(
+                "major_tick_size", rcParams[f"{axis_name}tick.major.size"]),
+            axis=self.axis, transform=trans)
+        self.minor_ticks = Ticks(
+            kwargs.get(
+                "minor_tick_size", rcParams[f"{axis_name}tick.minor.size"]),
+            axis=self.axis, transform=trans)
 
-        self.major_ticks = Ticks(major_tick_size,
-                                 axis=self.axis,
-                                 transform=trans)
-        self.minor_ticks = Ticks(minor_tick_size,
-                                 axis=self.axis,
-                                 transform=trans)
-
-        if axis_name == "xaxis":
-            size = rcParams['xtick.labelsize']
-        else:
-            size = rcParams['ytick.labelsize']
-
-        self.major_ticklabels = TickLabels(size=size, axis=self.axis,
-                                           axis_direction=self._axis_direction)
-        self.minor_ticklabels = TickLabels(size=size, axis=self.axis,
-                                           axis_direction=self._axis_direction)
-
-        self.major_ticklabels.set(figure=self.axes.figure,
-                                  transform=trans,
-                                  fontsize=size)
-        self.major_ticklabels.set_pad(major_tick_pad)
-
-        self.minor_ticklabels.set(figure=self.axes.figure,
-                                  transform=trans,
-                                  fontsize=size)
-        self.minor_ticklabels.set_pad(minor_tick_pad)
+        size = rcParams[f"{axis_name}tick.labelsize"]
+        self.major_ticklabels = TickLabels(
+            axis=self.axis,
+            axis_direction=self._axis_direction,
+            figure=self.axes.figure,
+            transform=trans,
+            fontsize=size,
+            pad=kwargs.get(
+                "major_tick_pad", rcParams[f"{axis_name}tick.major.pad"]),
+        )
+        self.minor_ticklabels = TickLabels(
+            axis=self.axis,
+            axis_direction=self._axis_direction,
+            figure=self.axes.figure,
+            transform=trans,
+            fontsize=size,
+            pad=kwargs.get(
+                "minor_tick_pad", rcParams[f"{axis_name}tick.minor.pad"]),
+        )
 
     def _get_tick_info(self, tick_iter):
         """
