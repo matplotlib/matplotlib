@@ -200,3 +200,11 @@ and on a Figure (`.Figure.legend` and `.pyplot.figlegend`).  Figure legends also
 no longer accept the unsupported ``'best'`` location.  Previously, invalid Axes
 locations would use ``'best'`` and invalid Figure locations would used ``'upper
 right'``.
+
+
+Passing Line2D's *drawstyle* together with *linestyle* is removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of ``plt.plot(..., linestyle="steps--")``, use ``plt.plot(...,
+linestyle="--", drawstyle="steps")``. ``ds`` is also an alias for
+``drawstyle``.
