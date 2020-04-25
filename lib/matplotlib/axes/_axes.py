@@ -4303,13 +4303,16 @@ class Axes(_AxesBase):
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
             except (TypeError, ValueError) as err:
-                if not valid_shape:
-                    raise invalid_shape_exception(c.size, xsize) from err
-                # Both the mapping *and* the RGBA conversion failed: pretty
-                # severe failure => one may appreciate a verbose feedback.
-                raise ValueError(
-                    f"'c' argument must be a color, a sequence of colors, or "
-                    f"a sequence of numbers, not {c}") from err
+                if "RGBA values should be within 0-1 range" in str(err):
+                    raise
+                else:
+                    if not valid_shape:
+                        raise invalid_shape_exception(c.size, xsize) from err
+                    # Both the mapping *and* the RGBA conversion failed: pretty
+                    # severe failure => one may appreciate a verbose feedback.
+                    raise ValueError(
+                        f"'c' argument must be a color, a sequence of colors, "
+                        f"or a sequence of numbers, not {c}") from err
             else:
                 if len(colors) not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
