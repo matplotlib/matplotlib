@@ -35,6 +35,7 @@ addons:
       - libffi-dev
       - libgeos-dev
       - libgirepository1.0-dev
+      - libsdl2-2.0-0
       - lmodern
       - fonts-freefont-otf
       - texlive-pictures
@@ -147,7 +148,7 @@ install:
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
     python -mpip install --upgrade \
-      -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
+      -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04 \
       wxPython &&
       python -c 'import wx' &&
       echo 'wxPython is available' ||
