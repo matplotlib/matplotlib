@@ -5650,14 +5650,6 @@ def test_annotate_across_transforms():
                 arrowprops=dict(arrowstyle="->"))
 
 
-def test_deprecated_uppercase_colors():
-    # Remove after end of deprecation period.
-    fig, ax = plt.subplots()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.plot([1, 2], color="B")
-        fig.canvas.draw()
-
-
 @image_comparison(['secondary_xy.png'], style='mpl20')
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)

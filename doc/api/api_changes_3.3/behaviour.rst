@@ -208,3 +208,9 @@ Passing Line2D's *drawstyle* together with *linestyle* is removed
 Instead of ``plt.plot(..., linestyle="steps--")``, use ``plt.plot(...,
 linestyle="--", drawstyle="steps")``. ``ds`` is also an alias for
 ``drawstyle``.
+
+Upper case color strings
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for passing single-letter colors (one of "rgbcmykw") as UPPERCASE
+characters is removed; these colors are now case-sensitive (lowercase).

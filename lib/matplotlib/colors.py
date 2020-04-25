@@ -198,17 +198,11 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             # This may turn c into a non-string, so we check again below.
             c = _colors_full_map[c]
         except KeyError:
-            try:
-                c = _colors_full_map[c.lower()]
-            except KeyError:
-                pass
-            else:
-                if len(orig_c) == 1:
-                    cbook.warn_deprecated(
-                        "3.1", message="Support for uppercase "
-                        "single-letter colors is deprecated since Matplotlib "
-                        "%(since)s and will be removed %(removal)s; please "
-                        "use lowercase instead.")
+            if len(orig_c) != 1:
+                try:
+                    c = _colors_full_map[c.lower()]
+                except KeyError:
+                    pass
     if isinstance(c, str):
         # hex color in #rrggbb format.
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
