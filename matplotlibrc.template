@@ -352,7 +352,7 @@
 #axes.titleweight:   normal  # font weight of title
 #axes.titlecolor:    auto    # color of the axes title, auto falls back to
                              # text.color as default value
-#axes.titley:        None    # position title (axes relative units).  None implies auto 
+#axes.titley:        None    # position title (axes relative units).  None implies auto
 #axes.titlepad:      6.0     # pad between axes and title in points
 #axes.labelsize:     medium  # fontsize of the x any y labels
 #axes.labelpad:      4.0     # space between label and axis
@@ -574,6 +574,9 @@
 ## ***************************************************************************
 #contour.negative_linestyle: dashed  # string or on-off ink sequence
 #contour.corner_mask:        True    # {True, False, legacy}
+#contour.linewidths :        None    # {float, None} Size of the contour
+                                     # linewidths. If set to None,
+                                     # it falls back to `line.linewidth`.
 
 
 ## ***************************************************************************
