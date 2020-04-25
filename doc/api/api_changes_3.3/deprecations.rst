@@ -460,10 +460,11 @@ replaced by calls to ``draw_idle()`` on the corresponding canvas.
 The ``add_checker`` and ``check_update`` methods and ``update_dict`` attribute
 of `.ScalarMappable` are deprecated.
 
-``ColorbarBase`` parameters will become keyword-only
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-All parameters of ``ColorbarBase``, except for the first (*ax*), will become
-keyword-only, consistently with ``Colorbar``.
+`.pyplot.tight_layout` and ``ColorbarBase`` parameters will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All parameters of `.pyplot.tight_layout` and all parameters of ``ColorbarBase``
+except for the first (*ax*) will become keyword-only, consistently with
+`.Figure.tight_layout` and ``Colorbar``, respectively.
 
 `.Axes.pie` radius and startangle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
