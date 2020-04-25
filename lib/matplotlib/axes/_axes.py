@@ -3402,7 +3402,7 @@ class Axes(_AxesBase):
             return low, high
 
         def eb_hlines(y, xmin, xmax, colors='k', linestyles='solid',
-                   label='', **kwargs):
+                      label='', **kwargs):
             """Private function like hlines, but not adding lines to Axes"""
             self._process_unit_info([xmin, xmax], y, kwargs=kwargs)
             y = self.convert_yunits(y)
@@ -3443,9 +3443,8 @@ class Axes(_AxesBase):
             lines.update(kwargs)
             return lines
 
-
         def eb_vlines(x, ymin, ymax, colors='k', linestyles='solid',
-                   label='', **kwargs):
+                      label='', **kwargs):
             """Private function like vlines, but not adding lines to Axes"""
             self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
 

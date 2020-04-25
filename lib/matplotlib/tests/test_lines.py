@@ -218,6 +218,7 @@ def test_marker_as_markerstyle():
     assert_array_equal(line2.get_marker().vertices, triangle1.vertices)
     assert_array_equal(line3.get_marker().vertices, triangle1.vertices)
 
+
 def test_lines_with_errorbars():
     x = list(range(5))
     y = np.zeros(5)

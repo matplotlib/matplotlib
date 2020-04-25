@@ -3337,7 +3337,8 @@ def test_errorbar_default_order(fig_test, fig_ref):
     ax_test.plot(x, y2, 'b.', markersize=20)
 
     ax_test.plot(x, y3, 'ro', markersize=60)
-    ax_test.errorbar(x, y3, yerr=yerr, fmt='gs', ecolor='k', markersize=40, barsabove=True)
+    ax_test.errorbar(x, y3, yerr=yerr, fmt='gs', ecolor='k', markersize=40,
+                     barsabove=True)
     ax_test.plot(x, y3, 'b.', markersize=20)
 
 
