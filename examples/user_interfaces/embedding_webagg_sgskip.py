@@ -71,7 +71,15 @@ html_content = """
         window.open('download.' + format, '_blank');
       };
 
-      $(document).ready(
+      function ready(fn) {
+        if (document.readyState != "loading") {
+          fn();
+        } else {
+          document.addEventListener("DOMContentLoaded", fn);
+        }
+      }
+
+      ready(
         function() {
           /* It is up to the application to provide a websocket that the figure
              will use to communicate to the server.  This websocket object can
@@ -89,7 +97,7 @@ html_content = """
               // A function called when a file type is selected for download
               ondownload,
               // The HTML element in which to place the figure
-              $('div#figure'));
+              document.getElementById("figure"));
         }
       );
     </script>
