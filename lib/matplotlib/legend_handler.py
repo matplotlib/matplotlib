@@ -495,10 +495,11 @@ class HandlerErrorbar(HandlerLine2D):
         handle_caplines = []
 
         if orig_handle.has_xerr:
-            for x, y in zip(xdata_marker, ydata_marker):
-                line = Line2D([x - xerr_size, x + xerr_size], [y, y])
-                self.update_prop(line, barlinecols[0], legend)
-                handle_barlinecols.append(line)
+            verts = [((x - xerr_size, y), (x + xerr_size, y))
+                     for x, y in zip(xdata_marker, ydata_marker)]
+            coll = mcoll.LineCollection(verts)
+            self.update_prop(coll, barlinecols[0], legend)
+            handle_barlinecols.append(coll)
 
             if caplines:
                 capline_left = Line2D(xdata_marker - xerr_size, ydata_marker)
@@ -512,10 +513,11 @@ class HandlerErrorbar(HandlerLine2D):
                 handle_caplines.append(capline_right)
 
         if orig_handle.has_yerr:
-            for x, y in zip(xdata_marker, ydata_marker):
-                line = Line2D([x, x], [y - yerr_size, y + yerr_size])
-                self.update_prop(line, barlinecols[0], legend)
-                handle_barlinecols.append(line)
+            verts = [((x, y - yerr_size), (x, y + yerr_size))
+                     for x, y in zip(xdata_marker, ydata_marker)]
+            coll = mcoll.LineCollection(verts)
+            self.update_prop(coll, barlinecols[0], legend)
+            handle_barlinecols.append(coll)
 
             if caplines:
                 capline_left = Line2D(xdata_marker, ydata_marker - yerr_size)

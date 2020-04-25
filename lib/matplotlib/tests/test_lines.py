@@ -217,3 +217,35 @@ def test_marker_as_markerstyle():
 
     assert_array_equal(line2.get_marker().vertices, triangle1.vertices)
     assert_array_equal(line3.get_marker().vertices, triangle1.vertices)
+
+def test_lines_with_errorbars():
+    x = list(range(5))
+    y = np.zeros(5)
+    err = list(range(5))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    line, caplines, barcols = ax.errorbar(x, y, yerr=err, xerr=err)
+
+    # check consistent data structure
+    assert len(caplines) == 4
+    assert len(barcols) == 2
+    ax_lines = ax.get_lines()
+    assert len(ax_lines) == 1
+    assert line == ax_lines[0]
+
+    # make sure line is still present
+    line.remove()
+    ax_lines = ax.get_lines()
+    assert len(ax_lines) == 1
+    assert line == ax_lines[0]
+
+    # remove elements
+    for cl in caplines:
+        cl.remove()
+    for bc in barcols:
+        bc.remove()
+
+    # now the line should be gone too
+    ax_lines = ax.get_lines()
+    assert len(ax_lines) == 0

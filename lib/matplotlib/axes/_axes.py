@@ -3213,8 +3213,8 @@ class Axes(_AxesBase):
 
             - plotline: `.Line2D` instance of x, y plot markers and/or line.
             - caplines: A tuple of `.Line2D` instances of the error bar caps.
-            - barlinecols: A tuple of `.Line2D` instances with the horizontal
-              and vertical error ranges.
+            - barlinecols: A tuple of `.LineCollection` with the horizontal and
+              vertical error ranges.
 
         Other Parameters
         ----------------
@@ -3307,7 +3307,6 @@ class Axes(_AxesBase):
         eb_lines_style.pop('marker', None)
         eb_lines_style.pop('linestyle', None)
         eb_lines_style['color'] = ecolor
-        eb_lines_style.setdefault("solid_capstyle", 'butt')
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
@@ -3342,12 +3341,9 @@ class Axes(_AxesBase):
                 eb_cap_style[key] = kwargs[key]
         eb_cap_style['color'] = ecolor
 
-        data_line = None
-        if plot_line:
-            data_line = mlines.Line2D(x, y, **plot_line_style)
-
-        barcols = []
-        caplines = []
+        eb_line = mlines.Line2DWithErrorbars(
+            x, y, barsabove=barsabove, plot_line=plot_line, **plot_line_style)
+        self.add_line(eb_line)
 
         # arrays fine here, they are booleans and hence not units
         lolims = np.broadcast_to(lolims, len(x)).astype(bool)
@@ -3405,6 +3401,93 @@ class Axes(_AxesBase):
             high = [v + e for v, e in zip(data, b)]
             return low, high
 
+        def eb_hlines(y, xmin, xmax, colors='k', linestyles='solid',
+                   label='', **kwargs):
+            """Private function like hlines, but not adding lines to Axes"""
+            self._process_unit_info([xmin, xmax], y, kwargs=kwargs)
+            y = self.convert_yunits(y)
+            xmin = self.convert_xunits(xmin)
+            xmax = self.convert_xunits(xmax)
+
+            if not np.iterable(y):
+                y = [y]
+            if not np.iterable(xmin):
+                xmin = [xmin]
+            if not np.iterable(xmax):
+                xmax = [xmax]
+
+            # Create and combine masked_arrays from input
+            y, xmin, xmax = cbook._combine_masks(y, xmin, xmax)
+            y = np.ravel(y)
+            xmin = np.ravel(xmin)
+            xmax = np.ravel(xmax)
+
+            masked_verts = np.ma.empty((len(y), 2, 2))
+            masked_verts[:, 0, 0] = xmin
+            masked_verts[:, 0, 1] = y
+            masked_verts[:, 1, 0] = xmax
+            masked_verts[:, 1, 1] = y
+
+            if len(y) > 0:
+                minx = min(xmin.min(), xmax.min())
+                maxx = max(xmin.max(), xmax.max())
+                miny = y.min()
+                maxy = y.max()
+
+                corners = (minx, miny), (maxx, maxy)
+                self.update_datalim(corners)
+                self._request_autoscale_view()
+
+            lines = mcoll.LineCollection(masked_verts, colors=colors,
+                                         linestyles=linestyles, label=label)
+            lines.update(kwargs)
+            return lines
+
+
+        def eb_vlines(x, ymin, ymax, colors='k', linestyles='solid',
+                   label='', **kwargs):
+            """Private function like vlines, but not adding lines to Axes"""
+            self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
+
+            # We do the conversion first since not all unitized data is uniform
+            x = self.convert_xunits(x)
+            ymin = self.convert_yunits(ymin)
+            ymax = self.convert_yunits(ymax)
+
+            if not np.iterable(x):
+                x = [x]
+            if not np.iterable(ymin):
+                ymin = [ymin]
+            if not np.iterable(ymax):
+                ymax = [ymax]
+
+            # Create and combine masked_arrays from input
+            x, ymin, ymax = cbook._combine_masks(x, ymin, ymax)
+            x = np.ravel(x)
+            ymin = np.ravel(ymin)
+            ymax = np.ravel(ymax)
+
+            masked_verts = np.ma.empty((len(x), 2, 2))
+            masked_verts[:, 0, 0] = x
+            masked_verts[:, 0, 1] = ymin
+            masked_verts[:, 1, 0] = x
+            masked_verts[:, 1, 1] = ymax
+
+            if len(x) > 0:
+                minx = x.min()
+                maxx = x.max()
+                miny = min(ymin.min(), ymax.min())
+                maxy = max(ymin.max(), ymax.max())
+
+                corners = (minx, miny), (maxx, maxy)
+                self.update_datalim(corners)
+                self._request_autoscale_view()
+
+            lines = mcoll.LineCollection(masked_verts, colors=colors,
+                                         linestyles=linestyles, label=label)
+            lines.update(kwargs)
+            return lines
+
         if xerr is not None:
             left, right = extract_err(xerr, x)
             # select points without upper/lower limits in x and
@@ -3413,52 +3496,46 @@ class Axes(_AxesBase):
             if noxlims.any() or len(noxlims) == 0:
                 yo, _ = xywhere(y, right, noxlims & everymask)
                 lo, ro = xywhere(left, right, noxlims & everymask)
-                for yoo, loo, roo in zip(yo, lo, ro):
-                    barcols.append(mlines.Line2D([loo, roo], [yoo, yoo],
-                                                 **eb_lines_style))
+                eb_line.add_barcols(eb_hlines(yo, lo, ro, **eb_lines_style))
                 if capsize > 0:
-                    caplines.append(mlines.Line2D(lo, yo, marker='|',
-                                                  **eb_cap_style))
-                    caplines.append(mlines.Line2D(ro, yo, marker='|',
-                                                  **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(lo, yo, marker='|',
+                                                       **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(ro, yo, marker='|',
+                                                       **eb_cap_style))
 
             if xlolims.any():
                 yo, _ = xywhere(y, right, xlolims & everymask)
                 lo, ro = xywhere(x, right, xlolims & everymask)
-                for yoo, loo, roo in zip(yo, lo, ro):
-                    barcols.append(mlines.Line2D([loo, roo], [yoo, yoo],
-                                                 **eb_lines_style))
+                eb_line.add_barcols(eb_hlines(yo, lo, ro, **eb_lines_style))
                 rightup, yup = xywhere(right, y, xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
                 else:
                     marker = mlines.CARETRIGHTBASE
-                caplines.append(
+                eb_line.add_caplines(
                     mlines.Line2D(rightup, yup, ls='None', marker=marker,
                                   **eb_cap_style))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, xlolims & everymask)
-                    caplines.append(mlines.Line2D(xlo, ylo, marker='|',
-                                                  **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(xlo, ylo, marker='|',
+                                                       **eb_cap_style))
 
             if xuplims.any():
                 yo, _ = xywhere(y, right, xuplims & everymask)
                 lo, ro = xywhere(left, x, xuplims & everymask)
-                for yoo, loo, roo in zip(yo, lo, ro):
-                    barcols.append(mlines.Line2D([loo, roo], [yoo, yoo],
-                                                 **eb_lines_style))
+                eb_line.add_barcols(eb_hlines(yo, lo, ro, **eb_lines_style))
                 leftlo, ylo = xywhere(left, y, xuplims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETRIGHTBASE
                 else:
                     marker = mlines.CARETLEFTBASE
-                caplines.append(
+                eb_line.add_caplines(
                     mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
                                   **eb_cap_style))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, xuplims & everymask)
-                    caplines.append(mlines.Line2D(xup, yup, marker='|',
-                                                  **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(xup, yup, marker='|',
+                                                       **eb_cap_style))
 
         if yerr is not None:
             lower, upper = extract_err(yerr, y)
@@ -3468,76 +3545,64 @@ class Axes(_AxesBase):
             if noylims.any() or len(noylims) == 0:
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
-                for xoo, loo, uoo in zip(xo, lo, uo):
-                    barcols.append(mlines.Line2D([xoo, xoo], [loo, uoo],
-                                                 **eb_lines_style))
+                eb_line.add_barcols(eb_vlines(xo, lo, uo, **eb_lines_style))
                 if capsize > 0:
-                    caplines.append(mlines.Line2D(xo, lo, marker='_',
-                                                  **eb_cap_style))
-                    caplines.append(mlines.Line2D(xo, uo, marker='_',
-                                                  **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(xo, lo, marker='_',
+                                                       **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(xo, uo, marker='_',
+                                                       **eb_cap_style))
 
             if lolims.any():
                 xo, _ = xywhere(x, lower, lolims & everymask)
                 lo, uo = xywhere(y, upper, lolims & everymask)
-                for xoo, loo, uoo in zip(xo, lo, uo):
-                    barcols.append(mlines.Line2D([xoo, xoo], [loo, uoo],
-                                                 **eb_lines_style))
+                eb_line.add_barcols(eb_vlines(xo, lo, uo, **eb_lines_style))
                 xup, upperup = xywhere(x, upper, lolims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETDOWNBASE
                 else:
                     marker = mlines.CARETUPBASE
-                caplines.append(
+                eb_line.add_caplines(
                     mlines.Line2D(xup, upperup, ls='None', marker=marker,
                                   **eb_cap_style))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, lolims & everymask)
-                    caplines.append(mlines.Line2D(xlo, ylo, marker='_',
-                                                  **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(xlo, ylo, marker='_',
+                                                       **eb_cap_style))
 
             if uplims.any():
                 xo, _ = xywhere(x, lower, uplims & everymask)
                 lo, uo = xywhere(lower, y, uplims & everymask)
-                for xoo, loo, uoo in zip(xo, lo, uo):
-                    barcols.append(mlines.Line2D([xoo, xoo], [loo, uoo],
-                                                 **eb_lines_style))
+                eb_line.add_barcols(eb_vlines(xo, lo, uo, **eb_lines_style))
                 xlo, lowerlo = xywhere(x, lower, uplims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETUPBASE
                 else:
                     marker = mlines.CARETDOWNBASE
-                caplines.append(
+                eb_line.add_caplines(
                     mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
                                   **eb_cap_style))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, uplims & everymask)
-                    caplines.append(mlines.Line2D(xup, yup, marker='_',
-                                                  **eb_cap_style))
+                    eb_line.add_caplines(mlines.Line2D(xup, yup, marker='_',
+                                                       **eb_cap_style))
 
-        if barsabove:
-            if data_line is not None:
-                self.add_line(data_line)
-            for l in barcols:
-                self.add_line(l)
-            for l in caplines:
-                self.add_line(l)
-        else:
-            for l in barcols:
-                self.add_line(l)
-            for l in caplines:
-                self.add_line(l)
-            if data_line is not None:
-                self.add_line(data_line)
-
-        if not barcols:
-            line = mlines.Line2D([], [], **eb_lines_style)
-            barcols.append(line)
-            self.add_line(line)
+        for cl in eb_line._caplines:
+            self._update_line_limits(cl)
+            if cl.get_clip_path() is None:
+                cl.set_clip_path(self.patch)
+            if cl.mouseover:
+                self._mouseover_set.add(cl)
+        for bc in eb_line._barcols:
+            if bc.get_clip_path() is None:
+                bc.set_clip_path(self.patch)
+            if bc.mouseover:
+                self._mouseover_set.add(bc)
+        self.stale = True
 
         self._request_autoscale_view()
-        errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
-                                                tuple(barcols)),
+        errorbar_container = ErrorbarContainer((eb_line if plot_line else None,
+                                                tuple(eb_line._caplines),
+                                                tuple(eb_line._barcols)),
                                                has_xerr=(xerr is not None),
                                                has_yerr=(yerr is not None),
                                                label=label)

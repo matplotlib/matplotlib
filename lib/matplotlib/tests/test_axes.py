@@ -3266,7 +3266,7 @@ def test_errobar_nonefmt():
     plotline, _, barlines = plt.errorbar(x, y, xerr=1, yerr=1, fmt='none')
     assert plotline is None
     for errbar in barlines:
-        assert np.all(errbar.get_color() == 'b')
+        assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
 @image_comparison(['errorbar_with_prop_cycle.png'],

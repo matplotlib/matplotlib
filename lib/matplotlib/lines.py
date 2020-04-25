@@ -1562,3 +1562,79 @@ docstring.interpd.update(_Line2D_docstr=artist.kwdoc(Line2D))
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
 docstring.dedent_interpd(Line2D.__init__)
+
+
+class Line2DWithErrorbars(Line2D):
+    """
+    A helper class disguised as a `.Line2D` holding the errorbar elements.
+    """
+    def __init__(self, *args, barsabove=True, plot_line=True, **kwargs):
+        """
+        Create a `.Line2DWithErrorbars` instance.
+
+        Almost identical to `.Line2D` , but Takes one additional keyword,
+        *barsabove*, specifying what order errorbars are plot with respect to
+        the line markers.
+        """
+        super().__init__(*args, **kwargs)
+        self._barcols = []
+        self._caplines = []
+        self._barsabove = barsabove
+        self._plot_line = plot_line
+
+    def _set_artist_props(self, a):
+        """Set the boilerplate props for child artists."""
+        a.set_figure(self.figure)
+        if not a.is_transform_set():
+            a.set_transform(self.get_transform())
+        a.axes = self.axes
+
+    def _remove_caplines(self, caplines):
+        """Helper function to remove caplines, just for internal use."""
+        self._caplines.remove(caplines)
+        if (not self._caplines and not self._barcols and
+                not self._plot_line):
+            self.remove()
+
+    def _remove_barcols(self, barcols):
+        """Helper function to remove barcols, just for internal use."""
+        self._barcols.remove(barcols)
+        if (not self._caplines and not self._barcols and
+                not self._plot_line):
+            self.remove()
+
+    def add_caplines(self, caplines):
+        """Add a `.LineCollection` holding caplines information."""
+        caplines._remove_method = self._remove_caplines
+        self._caplines.append(caplines)
+
+    def add_barcols(self, barcols):
+        """Add a `.Line2D` holding barcols information."""
+        barcols._remove_method = self._remove_barcols
+        self._barcols.append(barcols)
+
+    @allow_rasterization
+    def draw(self, renderer):
+        # docstring inherited
+        if self._barsabove:
+            if self._plot_line:
+                super().draw(renderer)
+            for c in self.get_children():
+                self._set_artist_props(c)
+                c.draw(renderer)
+        else:
+            for c in self.get_children():
+                self._set_artist_props(c)
+                c.draw(renderer)
+            if self._plot_line:
+                super().draw(renderer)
+
+    def get_children(self):
+        # docstring inherited
+        return [*self._barcols, *self._caplines]
+
+    def remove(self):
+        # docstring inherited
+        self._plot_line = False
+        if (not self._caplines and not self._barcols):
+            super().remove()
