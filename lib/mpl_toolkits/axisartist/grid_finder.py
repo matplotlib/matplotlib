@@ -10,8 +10,8 @@ def _deprecate_factor_none(factor):
     # removed.
     if factor is None:
         cbook.warn_deprecated(
-            "3.2",
-            message="factor=None is deprecated; use/return factor=1 instead")
+            "3.2", message="factor=None is deprecated since %(since)s and "
+            "support will be removed %(removal)s; use/return factor=1 instead")
         factor = 1
     return factor
 

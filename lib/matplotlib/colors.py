@@ -321,9 +321,10 @@ def to_rgba_array(c, alpha=None):
                 "consisting of single character color specifiers such as "
                 "'rgb'. Note also that the latter is deprecated." % c) from err
         else:
-            cbook.warn_deprecated("3.2", message="Using a string of single "
-                                  "character colors as a color sequence is "
-                                  "deprecated. Use an explicit list instead.")
+            cbook.warn_deprecated(
+                "3.2", message="Using a string of single character colors as "
+                "a color sequence is deprecated since %(since)s and will be "
+                "removed %(removal)s. Use an explicit list instead.")
             return result
 
     if len(c) == 0:
@@ -1255,8 +1256,9 @@ class SymLogNorm(Normalize):
         if base is None:
             self._base = np.e
             cbook.warn_deprecated(
-                "3.3", message="default base will change from np.e to 10.  To "
-                "suppress this warning specify the base kwarg.")
+                "3.2", removal="3.3", message="default base will change from "
+                "np.e to 10 in %(removal)s.  To suppress this warning specify "
+                "the base keyword argument.")
         else:
             self._base = base
         self._log_base = np.log(self._base)

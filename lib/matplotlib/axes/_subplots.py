@@ -188,7 +188,8 @@ def subplot_class_factory(axes_class=None):
     if axes_class is None:
         cbook.warn_deprecated(
             "3.3", message="Support for passing None to subplot_class_factory "
-            "is deprecated; explicitly pass the default Axes class instead.")
+            "is deprecated since %(since)s; explicitly pass the default Axes "
+            "class instead. This will become an error %(removal)s.")
         axes_class = Axes
     try:
         # Avoid creating two different instances of GeoAxesSubplot...

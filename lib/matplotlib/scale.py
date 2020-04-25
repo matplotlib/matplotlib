@@ -56,11 +56,11 @@ class ScaleBase:
         """
         if kwargs:
             warn_deprecated(
-                '3.2.0',
+                '3.2', removal='3.4',
                 message=(
-                    f"ScaleBase got an unexpected keyword "
-                    f"argument {next(iter(kwargs))!r}. "
-                    'In the future this will raise TypeError')
+                    f"ScaleBase got an unexpected keyword argument "
+                    f"{next(iter(kwargs))!r}. This will become an error "
+                    "%(removal)s.")
             )
 
     def get_transform(self):
@@ -483,11 +483,11 @@ class SymmetricalLogScale(ScaleBase):
         def __init__(*, base=10, linthresh=2, subs=None, linscale=1, **kwargs):
             if kwargs:
                 warn_deprecated(
-                    "3.2.0",
+                    '3.2', removal='3.4',
                     message=(
                         f"SymmetricalLogScale got an unexpected keyword "
-                        f"argument {next(iter(kwargs))!r}; in the future, "
-                        f"this will raise a TypeError")
+                        f"argument {next(iter(kwargs))!r}. This will become "
+                        "an error %(removal)s.")
                 )
             return base, linthresh, subs, linscale
 
