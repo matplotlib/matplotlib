@@ -221,6 +221,8 @@ Arguments
 - `.MaxNLocator.set_params()` no longer accepts arbitrary keyword arguments.
 - `~.Axes.pie` no longer accepts and squeezes non-1D inputs; pass 1D input to
   the ``x`` argument.
+- Passing (n, 1)-shaped error arrays to `.Axes.errorbar()` is no longer
+  supported; pass a 1D array instead.
 
 rcParams
 ~~~~~~~~

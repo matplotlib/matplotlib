@@ -3368,7 +3368,7 @@ class Axes(_AxesBase):
             ys = [thisy for thisy, b in zip(ys, mask) if b]
             return xs, ys
 
-        def extract_err(err, data):
+        def extract_err(name, err, data):
             """
             Private function to parse *err* and subtract/add it to *data*.
 
@@ -3380,20 +3380,9 @@ class Axes(_AxesBase):
                 iter(b)
             except (TypeError, ValueError):
                 a = b = err  # Symmetric error: 1D iterable.
-            # This could just be `np.ndim(a) > 1 and np.ndim(b) > 1`, except
-            # for the (undocumented, but tested) support for (n, 1) arrays.
-            a_sh = np.shape(a)
-            b_sh = np.shape(b)
-            if (len(a_sh) > 2 or (len(a_sh) == 2 and a_sh[1] != 1)
-                    or len(b_sh) > 2 or (len(b_sh) == 2 and b_sh[1] != 1)):
+            if np.ndim(a) > 1 or np.ndim(b) > 1:
                 raise ValueError(
-                    "err must be a scalar or a 1D or (2, n) array-like")
-            if len(a_sh) == 2 or len(b_sh) == 2:
-                cbook.warn_deprecated(
-                    "3.1", message="Support for passing a (n, 1)-shaped error "
-                    "array to errorbar() is deprecated since Matplotlib "
-                    "%(since)s and will be removed %(removal)s; pass a 1D "
-                    "array instead.")
+                    f"{name}err must be a scalar or a 1D or (2, n) array-like")
             # Using list comprehensions rather than arrays to preserve units.
             for e in [a, b]:
                 if len(data) != len(e):
@@ -3405,7 +3394,7 @@ class Axes(_AxesBase):
             return low, high
 
         if xerr is not None:
-            left, right = extract_err(xerr, x)
+            left, right = extract_err('x', xerr, x)
             # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
@@ -3454,7 +3443,7 @@ class Axes(_AxesBase):
                                                   **eb_cap_style))
 
         if yerr is not None:
-            lower, upper = extract_err(yerr, y)
+            lower, upper = extract_err('y', yerr, y)
             # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
