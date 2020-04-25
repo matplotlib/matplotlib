@@ -2915,7 +2915,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : array-like
+        x : 1D array-like
             The wedge sizes.
 
         explode : array-like, default: None
@@ -2999,12 +2999,8 @@ class Axes(_AxesBase):
         # The use of float32 is "historical", but can't be changed without
         # regenerating the test baselines.
         x = np.asarray(x, np.float32)
-        if x.ndim != 1 and x.squeeze().ndim <= 1:
-            cbook.warn_deprecated(
-                "3.1", message="Non-1D inputs to pie() are currently "
-                "squeeze()d, but this behavior is deprecated since %(since)s "
-                "and will be removed %(removal)s; pass a 1D array instead.")
-            x = np.atleast_1d(x.squeeze())
+        if x.ndim > 1:
+            raise ValueError("x must be 1D")
 
         if np.any(x < 0):
             raise ValueError("Wedge sizes 'x' must be non negative values")

@@ -219,6 +219,8 @@ Arguments
   ``connector`` keyword arguments, which did nothing since 3.0.
 - `.TextPath` no longer accepts arbitrary positional or keyword arguments.
 - `.MaxNLocator.set_params()` no longer accepts arbitrary keyword arguments.
+- `~.Axes.pie` no longer accepts and squeezes non-1D inputs; pass 1D input to
+  the ``x`` argument.
 
 rcParams
 ~~~~~~~~
