@@ -23,17 +23,17 @@ To help us review your pull request, make sure:
 
 New code:
 
-- [ ] has Pytest style unit tests (and `pytest lib/matplotlib/tests` passes)
-- [ ] is [Flake 8](http://flake8.pycqa.org/en/latest/) compliant (run `flake8` on changed files to check)
+- [ ] has pytest style unit tests (and `pytest` passes)
+- [ ] is [Flake 8](https://flake8.pycqa.org/en/latest/) compliant (run `flake8` on changed files to check)
 - [ ] is documented, with examples if plot related
 
 New documentation:
 
-- [ ] is sphinx and numpydoc compliant (the docs should [build](https://matplotlib.org/devel/documenting_mpl.html#building-the-docs) without error)
-- [ ] conforms to matplotlib style conventions (if you have `flake8-docstrings` and `pydocstyle<4` installed, run `flake8 --docstring-convention=all` on changed files to check).
+- [ ] is Sphinx and numpydoc compliant (the docs should [build](https://matplotlib.org/devel/documenting_mpl.html#building-the-docs) without error)
+- [ ] conforms to Matplotlib style conventions (if you have `flake8-docstrings` and `pydocstyle<4` installed, run `flake8 --docstring-convention=all` on changed files to check).
 <!--
 - If you are contributing fixes to docstrings, please pay attention to
-  http://matplotlib.org/devel/documenting_mpl.html#formatting. In particular,
+  https://matplotlib.org/devel/documenting_mpl.html#formatting. In particular,
   note the difference between using single backquotes, double backquotes, and
   asterisks in the markup.
 -->
@@ -52,7 +52,7 @@ If you have further questions:
 - A more complete development guide is available at
   https://matplotlib.org/devdocs/devel/index.html.
 
-- Help with git and github is available at
+- Help with Git and GitHub is available at
   https://matplotlib.org/devel/gitwash/development_workflow.html.
 
 We understand that PRs can sometimes be overwhelming, especially as the
