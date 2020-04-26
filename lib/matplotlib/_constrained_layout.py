@@ -72,7 +72,7 @@ def _axes_all_finite_sized(fig):
 
 ######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
-                          hspace=None, wspace=None, reset=True):
+                          hspace=None, wspace=None, squish=False):
     """
     Do the constrained_layout.  Called at draw time in
      ``figure.constrained_layout()``
@@ -92,6 +92,8 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
      hspace, wspace : float
         are in fractions of the subplot sizes.
 
+     squish : bool, default False
+        try to compress fixed-aspect axes.
     """
 
     # Steps:
@@ -228,7 +230,8 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         else:
             cbook._warn_external('constrained_layout not applied.  At least '
                                  'one axes collapsed to zero width or height.')
-    _squish(fig, bboxes)
+    if squish:
+        _squish(fig, bboxes)
 
 
 def _make_ghost_gridspec_slots(fig, gs):

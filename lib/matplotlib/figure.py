@@ -506,7 +506,7 @@ class Figure(Artist):
         self._constrained_layout_pads['hspace'] = None
         if constrained is None:
             constrained = mpl.rcParams['figure.constrained_layout.use']
-        self._constrained = bool(constrained)
+        self._constrained = constrained
         if isinstance(constrained, dict):
             self.set_constrained_layout_pads(**constrained)
         else:
@@ -1725,12 +1725,10 @@ default: 'top'
         try:
             renderer.open_group('figure', gid=self.get_gid())
             if self.get_constrained_layout() and self.axes:
-                self.execute_constrained_layout(renderer, reset=True)
-                # yay extra draw!
-                self.patch.draw(renderer)
-                mimage._draw_list_compositing_images(
-                    renderer, self, artists, self.suppressComposite)
-                self.execute_constrained_layout(renderer, reset=False)
+                squish = False
+                if self.get_constrained_layout() == "squish":
+                    squish = True
+                self.execute_constrained_layout(renderer, squish=squish)
 
 
             if self.get_tight_layout() and self.axes:
@@ -2413,7 +2411,7 @@ default: 'top'
                 parent=None, name='figlb', artist=self)
             self._layoutbox.constrain_geometry(0., 0., 1., 1.)
 
-    def execute_constrained_layout(self, renderer=None, reset=True):
+    def execute_constrained_layout(self, renderer=None, squish=False):
         """
         Use ``layoutbox`` to determine pos positions within axes.
 
@@ -2439,7 +2437,8 @@ default: 'top'
         h_pad = h_pad / height
         if renderer is None:
             renderer = layoutbox.get_renderer(fig)
-        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace, reset=reset)
+        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace,
+            squish=squish)
 
     @cbook._delete_parameter("3.2", "renderer")
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
