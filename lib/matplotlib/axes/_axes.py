@@ -2943,15 +2943,15 @@ class Axes(_AxesBase):
             Draw a shadow beneath the pie.
 
         normalize: None or bool, default: None
-            ``pie()`` used to draw a partial pie if ``sum(x) < 1``. This
-            behavior is deprecated and will change to always normalizing the
-            values to a full pie by default. If you want to draw a partial pie,
-            please pass ``normalize=False`` explicitly.
             When *True*, always make a full pie by normalizing x so that
             ``sum(x) == 1``. When *False*, make a partial pie.
             When *None*, gives the current behavior and warns if
             ``sum(x) < 1``. Please note that passing None to this parameter is
             deprecated.
+            ``pie()`` used to draw a partial pie if ``sum(x) < 1``. This
+            behavior is deprecated and will change to always normalizing the
+            values to a full pie by default. If you want to draw a partial pie,
+            please pass ``normalize=False`` explicitly.
 
         labeldistance : float or None, default: 1.1
             The radial distance at which the pie labels are drawn.
@@ -3025,11 +3025,11 @@ class Axes(_AxesBase):
         if normalize is None:
             if sx < 1:
                 cbook.warn_deprecated(
-                    "3.1", message="normalize=None does not normalize if "
-                    "the sum is less than 1 "
-                    "but this behavior is deprecated "
-                    "since %(since)s. After the deprecation period "
-                    "the default value will be normalize=True. "
+                    "3.3", message="normalize=None does not normalize "
+                    "if the sum is less than 1 but this behavior"
+                    "is deprecated since %(since)s until %(removal)s. "
+                    "After the deprecation "
+                    "period the default value will be normalize=True. "
                     "To prevent normalization pass normalize=False ")
             else:
                 normalize = True
