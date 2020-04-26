@@ -231,7 +231,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             cbook._warn_external('constrained_layout not applied.  At least '
                                  'one axes collapsed to zero width or height.')
     if squish:
-        _squish(fig, bboxes)
+        _squish(fig, bboxes, w_pad=w_pad, h_pad=h_pad)
 
 
 def _make_ghost_gridspec_slots(fig, gs):

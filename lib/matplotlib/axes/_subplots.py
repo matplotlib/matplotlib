@@ -92,7 +92,7 @@ class SubplotBase:
     def update_params(self):
         """Update the subplot position from ``self.figure.subplotpars``."""
         self.figbox, _, _, self.numRows, self.numCols = \
-                self.get_subplotspec().get_position(self.figure,
+            self.get_subplotspec().get_position(self.figure,
                                                 return_all=True)
 
     @cbook.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
