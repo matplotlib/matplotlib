@@ -860,3 +860,13 @@ def _squish(fig, bboxes, w_pad=0.00, h_pad=0.0):
                     marg = bbox.y1 - pos.y1
                     pos.y1 = y1 - marg
                 cb._set_position(pos, which='original')
+            # need to do suptitles:
+            suptitle = fig._suptitle
+            do_suptitle = (suptitle is not None and
+                           suptitle._layoutbox is not None and
+                           suptitle.get_in_layout())
+            if do_suptitle:
+                x, y = suptitle.get_position()
+                bbox = invTransFig(suptitle.get_window_extent(renderer))
+                marg = y - bbox.y0
+                suptitle.set_y(y1 + marg)
