@@ -2944,10 +2944,13 @@ class Axes(_AxesBase):
 
         normalize: None or bool, default: None
             When *True*, always make a full pie by normalizing x so that
-            ``sum(x) == 1``. When *False*, make a partial pie.
-            When *None*, gives the current behavior and warns if
-            ``sum(x) < 1``. Please note that passing None to this parameter is
-            deprecated.
+            ``sum(x) == 1``. When *False*, make a partial (or overfull) pie.
+
+            When *None*, gives the normalize if ``sum(x) > 0`` and warn if
+            ``sum(x) < 1``.
+
+            Please note that passing None to this parameter is deprecated.
+
             ``pie()`` used to draw a partial pie if ``sum(x) < 1``. This
             behavior is deprecated and will change to always normalizing the
             values to a full pie by default. If you want to draw a partial pie,
