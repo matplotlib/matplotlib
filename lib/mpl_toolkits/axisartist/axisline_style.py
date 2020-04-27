@@ -21,7 +21,6 @@ class _FancyAxislineStyle:
             FancyArrowPatch.__init__(self,
                                      path=self._line_path,
                                      arrowstyle=self._ARROW_STYLE,
-                                     arrow_transmuter=None,
                                      patchA=None,
                                      patchB=None,
                                      shrinkA=0.,

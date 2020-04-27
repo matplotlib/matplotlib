@@ -239,13 +239,7 @@ class _BackendNbAgg(_Backend):
         manager.show()
 
     @staticmethod
-    def show(*args, block=None, **kwargs):
-        if args or kwargs:
-            cbook.warn_deprecated(
-                "3.1", message="Passing arguments to show(), other than "
-                "passing 'block' by keyword, is deprecated %(since)s, and "
-                "support for it will be removed %(removal)s.")
-
+    def show(block=None):
         ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf
 

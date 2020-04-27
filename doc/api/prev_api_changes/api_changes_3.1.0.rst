@@ -849,8 +849,8 @@ Use the standard library's docstring manipulation tools instead, such as
 
 
 
-- `matplotlib.scale.get_scale_docs()`
-- `matplotlib.pyplot.get_scale_docs()`
+- ``matplotlib.scale.get_scale_docs()``
+- ``matplotlib.pyplot.get_scale_docs()``
 
 These are considered internal and will be removed from the public API in a
 future version.
@@ -905,7 +905,8 @@ Font Handling
 - ``backend_pdf.RendererPdf.afm_font_cache``
 - ``backend_ps.RendererPS.afmfontd``
 - ``font_manager.OSXInstalledFonts``
-- `.TextToPath.glyph_to_path` (Instead call ``font.get_path()`` and manually transform the path.)
+- ``.TextToPath.glyph_to_path`` (Instead call ``font.get_path()`` and manually
+  transform the path.)
 
 
 Date related functions
@@ -1011,7 +1012,7 @@ Path tools
 
 Use `~.path.get_path_collection_extents` instead.
 
-- `.Path.has_nonfinite` attribute
+- ``.Path.has_nonfinite`` attribute
 
 Use ``not np.isfinite(path.vertices).all()`` instead.
 

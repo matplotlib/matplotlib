@@ -293,12 +293,9 @@ class Table(Artist):
 
         if isinstance(loc, str):
             if loc not in self.codes:
-                cbook.warn_deprecated(
-                    "3.1", message="Unrecognized location {!r}. Falling back "
-                    "on 'bottom'; valid locations are\n\t{}\n"
-                    "This will raise an exception %(removal)s."
+                raise ValueError(
+                    "Unrecognized location {!r}. Valid locations are\n\t{}"
                     .format(loc, '\n\t'.join(self.codes)))
-                loc = 'bottom'
             loc = self.codes[loc]
         self.set_figure(ax.figure)
         self._axes = ax

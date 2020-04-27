@@ -2095,9 +2095,8 @@ class MaxNLocator(Locator):
             self._integer = kwargs.pop('integer')
         if kwargs:
             key, _ = kwargs.popitem()
-            cbook.warn_deprecated("3.1",
-                                  message="MaxNLocator.set_params got an "
-                                          f"unexpected parameter: {key}")
+            raise TypeError(
+                f"set_params() got an unexpected keyword argument '{key}'")
 
     def _raw_ticks(self, vmin, vmax):
         """

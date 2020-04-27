@@ -667,16 +667,6 @@ def register_scale(scale_class):
     _scale_mapping[scale_class.name] = scale_class
 
 
-@cbook.deprecated(
-    '3.1', message='get_scale_docs() is considered private API since '
-                   '3.1 and will be removed from the public API in 3.3.')
-def get_scale_docs():
-    """
-    Helper function for generating docstrings related to scales.
-    """
-    return _get_scale_docs()
-
-
 def _get_scale_docs():
     """
     Helper function for generating docstrings related to scales.

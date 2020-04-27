@@ -459,23 +459,3 @@ def _image_directories(func):
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
     return baseline_dir, result_dir
-
-
-@cbook.deprecated("3.1", alternative="pytest.mark.backend")
-def switch_backend(backend):
-
-    def switch_backend_decorator(func):
-
-        @functools.wraps(func)
-        def backend_switcher(*args, **kwargs):
-            try:
-                prev_backend = mpl.get_backend()
-                matplotlib.testing.setup()
-                plt.switch_backend(backend)
-                return func(*args, **kwargs)
-            finally:
-                plt.switch_backend(prev_backend)
-
-        return backend_switcher
-
-    return switch_backend_decorator

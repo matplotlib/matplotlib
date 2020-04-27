@@ -1369,9 +1369,6 @@
     "matplotlib.patches.Patch.__init__": [
       "doc/devel/documenting_mpl.rst:696"
     ],
-    "matplotlib.pyplot.get_scale_docs()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:853"
-    ],
     "matplotlib.sphinxext.mathmpl": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:225"
     ],

@@ -192,3 +192,25 @@ be kept by passing it as a keyword argument to `.Axes.hist`.
 `.Legend` and `.OffsetBox` subclasses (`.PaddedBox`, `.AnchoredOffsetbox`, and
 `.AnnotationBbox`) no longer directly keep track of the visibility of their
 underlying `.Patch` artist, but instead pass that flag down to the `.Patch`.
+
+`.Legend` and `.Table` no longer allow invalid locations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This affects legends produced on an Axes (`.Axes.legend` and `.pyplot.legend`)
+and on a Figure (`.Figure.legend` and `.pyplot.figlegend`).  Figure legends also
+no longer accept the unsupported ``'best'`` location.  Previously, invalid Axes
+locations would use ``'best'`` and invalid Figure locations would used ``'upper
+right'``.
+
+
+Passing Line2D's *drawstyle* together with *linestyle* is removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of ``plt.plot(..., linestyle="steps--")``, use ``plt.plot(...,
+linestyle="--", drawstyle="steps")``. ``ds`` is also an alias for
+``drawstyle``.
+
+Upper case color strings
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for passing single-letter colors (one of "rgbcmykw") as UPPERCASE
+characters is removed; these colors are now case-sensitive (lowercase).
