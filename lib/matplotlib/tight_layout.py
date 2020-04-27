@@ -107,9 +107,15 @@ def auto_adjust_subplotpars(
     if not margin_top:
         margin_top = (max(vspaces[0, :].max(), 0)
                       + pad_inches / fig_height_inch)
+        suptitle = fig._suptitle
+        if suptitle and suptitle.get_in_layout():
+            rel_suptitle_height = fig.transFigure.inverted().transform_bbox(
+                suptitle.get_window_extent(renderer)).height
+            margin_top += rel_suptitle_height + pad_inches / fig_height_inch
     if not margin_bottom:
         margin_bottom = (max(vspaces[-1, :].max(), 0)
                          + pad_inches / fig_height_inch)
+
     if margin_left + margin_right >= 1:
         cbook._warn_external('Tight layout not applied. The left and right '
                              'margins cannot be made large enough to '
