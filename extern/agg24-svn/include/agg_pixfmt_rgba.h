@@ -1555,22 +1555,22 @@ namespace agg
 
             pixel_type* next()
             {
-                return (pixel_type*)(c + pix_step);
+                return reinterpret_cast<pixel_type*>(c) + 1;
             }
 
             const pixel_type* next() const
             {
-                return (const pixel_type*)(c + pix_step);
+                return reinterpret_cast<const pixel_type*>(c) + 1;
             }
 
             pixel_type* advance(int n)
             {
-                return (pixel_type*)(c + n * pix_step);
+                return reinterpret_cast<pixel_type*>(c) + n;
             }
 
             const pixel_type* advance(int n) const
             {
-                return (const pixel_type*)(c + n * pix_step);
+                return reinterpret_cast<const pixel_type*>(c) + n;
             }
         };
 
@@ -2233,22 +2233,22 @@ namespace agg
 
             pixel_type* next()
             {
-                return (pixel_type*)(c + pix_step);
+                return reinterpret_cast<pixel_type*>(c) + 1;
             }
 
             const pixel_type* next() const
             {
-                return (const pixel_type*)(c + pix_step);
+                return reinterpret_cast<const pixel_type*>(c) + 1;
             }
 
             pixel_type* advance(int n)
             {
-                return (pixel_type*)(c + n * pix_step);
+                return reinterpret_cast<pixel_type*>(c) + n;
             }
 
             const pixel_type* advance(int n) const
             {
-                return (const pixel_type*)(c + n * pix_step);
+                return reinterpret_cast<const pixel_type*>(c) + n;
             }
         };
 
