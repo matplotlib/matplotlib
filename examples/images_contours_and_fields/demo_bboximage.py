@@ -38,7 +38,7 @@ a = np.linspace(0, 1, 256).reshape(1, -1)
 a = np.vstack((a, a))
 
 # List of all colormaps; skip reversed colormaps.
-maps = sorted(m for m in plt.cm.cmap_d if not m.endswith("_r"))
+maps = sorted(m for m in plt.colormaps() if not m.endswith("_r"))
 
 ncol = 2
 nrow = len(maps)//ncol + 1

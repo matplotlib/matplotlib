@@ -140,11 +140,11 @@ def figure_edit(axes, parent=None):
         mappabledict[label] = mappable
     mappablelabels = sorted(mappabledict, key=cmp_key)
     mappables = []
-    cmaps = [(cmap, name) for name, cmap in sorted(cm.cmap_d.items())]
+    cmaps = [(cmap, name) for name, cmap in sorted(cm._cmap_registry.items())]
     for label in mappablelabels:
         mappable = mappabledict[label]
         cmap = mappable.get_cmap()
-        if cmap not in cm.cmap_d.values():
+        if cmap not in cm._cmap_registry.values():
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [

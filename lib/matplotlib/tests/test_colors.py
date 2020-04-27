@@ -70,6 +70,41 @@ def test_register_cmap():
         cm.register_cmap()
 
 
+def test_colormap_global_set_warn():
+    new_cm = plt.get_cmap('viridis')
+    # Store the old value so we don't override the state later on.
+    orig_cmap = copy.copy(new_cm)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="You are modifying the state of a globally"):
+        # This should warn now because we've modified the global state
+        new_cm.set_under('k')
+
+    # This shouldn't warn because it is a copy
+    copy.copy(new_cm).set_under('b')
+
+    # Test that registering and then modifying warns
+    plt.register_cmap(name='test_cm', cmap=copy.copy(orig_cmap))
+    new_cm = plt.get_cmap('test_cm')
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="You are modifying the state of a globally"):
+        # This should warn now because we've modified the global state
+        new_cm.set_under('k')
+
+    # Re-register the original
+    plt.register_cmap(cmap=orig_cmap)
+
+
+def test_colormap_dict_deprecate():
+    # Make sure we warn on get and set access into cmap_d
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="The global colormaps dictionary is no longer"):
+        cm = plt.cm.cmap_d['viridis']
+
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="The global colormaps dictionary is no longer"):
+        plt.cm.cmap_d['test'] = cm
+
+
 def test_colormap_copy():
     cm = plt.cm.Reds
     cm_copy = copy.copy(cm)
@@ -818,7 +853,7 @@ def test_pandas_iterable(pd):
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-@pytest.mark.parametrize('name', sorted(cm.cmap_d))
+@pytest.mark.parametrize('name', sorted(plt.colormaps()))
 def test_colormap_reversing(name):
     """
     Check the generated _lut data of a colormap and corresponding reversed

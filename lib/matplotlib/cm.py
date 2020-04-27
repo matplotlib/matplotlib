@@ -15,6 +15,7 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
   normalization.
 """
 
+from collections.abc import MutableMapping
 import functools
 
 import numpy as np
@@ -49,7 +50,7 @@ def revcmap(data):
 LUTSIZE = mpl.rcParams['image.lut']
 
 
-def _gen_cmap_d():
+def _gen_cmap_registry():
     """
     Generate a dict mapping standard colormap names to standard colormaps, as
     well as the reversed colormaps.
@@ -65,12 +66,56 @@ def _gen_cmap_d():
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
+        cmap._global = True
+        rmap._global = True
         cmap_d[rmap.name] = rmap
     return cmap_d
 
 
-cmap_d = _gen_cmap_d()
-locals().update(cmap_d)
+class _DeprecatedCmapDictWrapper(MutableMapping):
+    """Dictionary mapping for deprecated _cmap_d access."""
+
+    def __init__(self, cmap_registry):
+        self._cmap_registry = cmap_registry
+
+    def __delitem__(self, key):
+        self._warn_deprecated()
+        self._cmap_registry.__delitem__(key)
+
+    def __getitem__(self, key):
+        self._warn_deprecated()
+        return self._cmap_registry.__getitem__(key)
+
+    def __iter__(self):
+        self._warn_deprecated()
+        return self._cmap_registry.__iter__()
+
+    def __len__(self):
+        self._warn_deprecated()
+        return self._cmap_registry.__len__()
+
+    def __setitem__(self, key, val):
+        self._warn_deprecated()
+        self._cmap_registry.__setitem__(key, val)
+
+    def get(self, key, default=None):
+        self._warn_deprecated()
+        return self._cmap_registry.get(key, default)
+
+    def _warn_deprecated(self):
+        cbook.warn_deprecated(
+            "3.3",
+            message="The global colormaps dictionary is no longer "
+                    "considered public API.",
+            alternative="Please use register_cmap() and get_cmap() to "
+                        "access the contents of the dictionary."
+        )
+
+
+_cmap_registry = _gen_cmap_registry()
+locals().update(_cmap_registry)
+# This is no longer considered public API
+cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
 
 
 # Continue with definitions ...
@@ -95,6 +140,13 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     and the resulting colormap is registered. Instead of this implicit
     colormap creation, create a `.LinearSegmentedColormap` and use the first
     case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
+
+    Notes
+    -----
+    Registering a colormap stores a reference to the colormap object
+    which can currently be modified and inadvertantly change the global
+    colormap state. This behavior is deprecated and in Matplotlib 3.5
+    the registered colormap will be immutable.
     """
     cbook._check_isinstance((str, None), name=name)
     if name is None:
@@ -104,7 +156,8 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
             raise ValueError("Arguments must include a name or a "
                              "Colormap") from err
     if isinstance(cmap, colors.Colormap):
-        cmap_d[name] = cmap
+        cmap._global = True
+        _cmap_registry[name] = cmap
         return
     if lut is not None or data is not None:
         cbook.warn_deprecated(
@@ -117,7 +170,8 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     if lut is None:
         lut = mpl.rcParams['image.lut']
     cmap = colors.LinearSegmentedColormap(name, data, lut)
-    cmap_d[name] = cmap
+    cmap._global = True
+    _cmap_registry[name] = cmap
 
 
 def get_cmap(name=None, lut=None):
@@ -127,11 +181,17 @@ def get_cmap(name=None, lut=None):
     Colormaps added with :func:`register_cmap` take precedence over
     built-in colormaps.
 
+    Notes
+    -----
+    Currently, this returns the global colormap object, which is deprecated.
+    In Matplotlib 3.5, you will no longer be able to modify the global
+    colormaps in-place.
+
     Parameters
     ----------
     name : `matplotlib.colors.Colormap` or str or None, default: None
-        If a `.Colormap` instance, it will be returned.  Otherwise, the name of
-        a colormap known to Matplotlib, which will be resampled by *lut*.  The
+        If a `.Colormap` instance, it will be returned. Otherwise, the name of
+        a colormap known to Matplotlib, which will be resampled by *lut*. The
         default, None, means :rc:`image.cmap`.
     lut : int or None, default: None
         If *name* is not already a Colormap instance and *lut* is not None, the
@@ -141,11 +201,11 @@ def get_cmap(name=None, lut=None):
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
         return name
-    cbook._check_in_list(sorted(cmap_d), name=name)
+    cbook._check_in_list(sorted(_cmap_registry), name=name)
     if lut is None:
-        return cmap_d[name]
+        return _cmap_registry[name]
     else:
-        return cmap_d[name]._resample(lut)
+        return _cmap_registry[name]._resample(lut)
 
 
 class ScalarMappable:

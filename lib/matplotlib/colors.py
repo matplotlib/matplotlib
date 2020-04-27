@@ -484,6 +484,18 @@ def makeMappingArray(N, data, gamma=1.0):
     return _create_lookup_table(N, data, gamma)
 
 
+def _warn_if_global_cmap_modified(cmap):
+    if getattr(cmap, '_global', False):
+        cbook.warn_deprecated(
+            "3.3",
+            message="You are modifying the state of a globally registered "
+                    "colormap. In future versions, you will not be able to "
+                    "modify a registered colormap in-place. To remove this "
+                    "warning, you can make a copy of the colormap first. "
+                    f"cmap = mpl.cm.get_cmap({cmap.name}).copy()"
+        )
+
+
 class Colormap:
     """
     Baseclass for all scalar to RGBA mappings.
@@ -599,10 +611,12 @@ class Colormap:
         cmapobject.__dict__.update(self.__dict__)
         if self._isinit:
             cmapobject._lut = np.copy(self._lut)
+        cmapobject._global = False
         return cmapobject
 
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
+        _warn_if_global_cmap_modified(self)
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -611,6 +625,7 @@ class Colormap:
         """
         Set the color for low out-of-range values when ``norm.clip = False``.
         """
+        _warn_if_global_cmap_modified(self)
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -619,6 +634,7 @@ class Colormap:
         """
         Set the color for high out-of-range values when ``norm.clip = False``.
         """
+        _warn_if_global_cmap_modified(self)
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
