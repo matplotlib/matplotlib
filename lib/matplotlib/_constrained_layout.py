@@ -167,7 +167,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         if do_suptitle:
             bbox = invTransFig(
                 suptitle.get_window_extent(renderer=renderer))
-            height = bbox.y1 - bbox.y0
+            height = bbox.height
             if np.isfinite(height):
                 # reserve at top of figure include an h_pad above and below
                 suptitle._layoutbox.edit_height(height + h_pad * 2)

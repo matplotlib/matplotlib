@@ -1642,8 +1642,7 @@ class _AxesBase(martist.Artist):
         xsize = max(abs(xmax - xmin), 1e-30)
         ysize = max(abs(ymax - ymin), 1e-30)
 
-        l, b, w, h = position.bounds
-        box_aspect = fig_aspect * (h / w)
+        box_aspect = fig_aspect * (position.height / position.width)
         data_ratio = box_aspect / aspect
 
         y_expander = data_ratio * xsize / ysize - 1

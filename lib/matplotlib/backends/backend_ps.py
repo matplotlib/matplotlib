@@ -312,9 +312,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
         clip = []
         if bbox is not None:
-            clipx, clipy, clipw, cliph = bbox.bounds
-            clip.append(
-                '%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy))
+            clip.append('%s clipbox' % _nums_to_str(*bbox.size, *bbox.p0))
         if clippath is not None:
             id = self._get_clip_path(clippath, clippath_trans)
             clip.append('%s' % id)
@@ -686,8 +684,8 @@ grestore
 
         cliprect = gc.get_clip_rectangle()
         if cliprect:
-            x, y, w, h = cliprect.bounds
-            write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (w, h, x, y))
+            write('%1.4g %1.4g %1.4g %1.4g clipbox\n'
+                  % (*cliprect.size, *cliprect.p0))
         clippath, clippath_trans = gc.get_clip_path()
         if clippath:
             id = self._get_clip_path(clippath, clippath_trans)
@@ -842,11 +840,10 @@ class FigureCanvasPS(FigureCanvasBase):
         xo = 72 * 0.5 * (paper_width - width)
         yo = 72 * 0.5 * (paper_height - height)
 
-        l, b, w, h = self.figure.bbox.bounds
         llx = xo
         lly = yo
-        urx = llx + w
-        ury = lly + h
+        urx = llx + self.figure.bbox.width
+        ury = lly + self.figure.bbox.height
         rotation = 0
         if orientation is _Orientation.landscape:
             llx, lly, urx, ury = lly, llx, ury, urx
@@ -997,11 +994,10 @@ class FigureCanvasPS(FigureCanvasBase):
         xo = 0
         yo = 0
 
-        l, b, w, h = self.figure.bbox.bounds
         llx = xo
         lly = yo
-        urx = llx + w
-        ury = lly + h
+        urx = llx + self.figure.bbox.width
+        ury = lly + self.figure.bbox.height
         bbox = (llx, lly, urx, ury)
 
         if dryrun:

@@ -1033,7 +1033,7 @@ class NonUniformImage(AxesImage):
                 B[:, :, 3] = 255
                 A = B
             self._is_grayscale = False
-        x0, y0, v_width, v_height = self.axes.viewLim.bounds
+        vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
@@ -1041,7 +1041,7 @@ class NonUniformImage(AxesImage):
         height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, A,
                            int(height), int(width),
-                           (x0, x0+v_width, y0, y0+v_height),
+                           (vl.x0, vl.x1, vl.y0, vl.y1),
                            _interpd_[self._interpolation])
         return im, l, b, IdentityTransform()
 
