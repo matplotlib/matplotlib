@@ -50,16 +50,14 @@ def _make_inset_locator(bounds, trans, parent):
     location for the axes in the transform given by *trans* on the
     *parent*.
     """
-    _bounds = mtransforms.Bbox.from_bounds(*bounds)
-    _trans = trans
-    _parent = parent
+    bbox = mtransforms.Bbox.from_bounds(*bounds)
 
     def inset_locator(ax, renderer):
-        bbox = _bounds
-        bb = mtransforms.TransformedBbox(bbox, _trans)
-        tr = _parent.figure.transFigure.inverted()
-        bb = mtransforms.TransformedBbox(bb, tr)
-        return bb
+        # Subtracting transFigure will typically rely on inverted(), freezing
+        # the transform; thus, this needs to be delayed until draw time as
+        # transFigure may otherwise change after this is evaluated.
+        return mtransforms.TransformedBbox(
+            bbox, trans - parent.figure.transFigure)
 
     return inset_locator
 
