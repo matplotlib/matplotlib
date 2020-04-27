@@ -475,3 +475,15 @@ is deprecated; use the explicit defaults of 1 and 0, respectively, instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... is deprecated.  Scale ``Figure.dpi_scale_trans`` by 1/72 to achieve the
 same effect.
+
+``offset_position`` property of `.Collection`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``offset_position`` property of `.Collection` is deprecated.  In the
+future, `.Collection`\s will always behave as if ``offset_position`` is set to
+"screen" (the default).
+
+Support for passing ``offset_position="data"`` to the ``draw_path_collection``
+of all renderer classes is deprecated.
+
+`.transforms.AffineDeltaTransform` can be used as a replacement.  This API is
+experimental and may change in the future.

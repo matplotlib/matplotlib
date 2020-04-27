@@ -49,7 +49,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     - *antialiaseds*: None
     - *offsets*: None
     - *transOffset*: transforms.IdentityTransform()
-    - *offset_position*: 'screen' (default) or 'data'
+    - *offset_position* (deprecated): 'screen' (default) or 'data' (deprecated)
     - *norm*: None (optional for `matplotlib.cm.ScalarMappable`)
     - *cmap*: None (optional for `matplotlib.cm.ScalarMappable`)
     - *hatch*: None
@@ -59,8 +59,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
     rendering (default no offsets).  If offset_position is 'screen'
     (default) the offset is applied after the master transform has
     been applied, that is, the offsets are in screen coordinates.  If
-    offset_position is 'data', the offset is applied before the master
-    transform, i.e., the offsets are in data coordinates.
+    offset_position is 'data' (deprecated), the offset is applied before the
+    master transform, i.e., the offsets are in data coordinates.
 
     If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
     None, they default to their `.rcParams` patch setting, in sequence form.
@@ -85,6 +85,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # subclass-by-subclass basis.
     _edge_default = False
 
+    @cbook._delete_parameter("3.3", "offset_position")
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -130,7 +131,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_pickradius(pickradius)
         self.set_urls(urls)
         self.set_hatch(hatch)
-        self.set_offset_position(offset_position)
+        self._offset_position = "screen"
+        if offset_position != "screen":
+            self.set_offset_position(offset_position)  # emit deprecation.
         self.set_zorder(zorder)
 
         if capstyle:
@@ -404,7 +407,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
 
-        if self.axes and self.get_offset_position() == "data":
+        if self.axes:
             self.axes._unstale_viewLim()
 
         transform, transOffset, offsets, paths = self._prepare_points()
@@ -413,7 +416,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, pickradius <= 0,
-            self.get_offset_position())
+            self._offset_position)
 
         return len(ind) > 0, dict(ind=ind)
 
@@ -494,6 +497,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._uniform_offsets
 
+    @cbook.deprecated("3.3")
     def set_offset_position(self, offset_position):
         """
         Set how offsets are applied.  If *offset_position* is 'screen'
@@ -511,6 +515,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._offset_position = offset_position
         self.stale = True
 
+    @cbook.deprecated("3.3")
     def get_offset_position(self):
         """
         Return how offsets are applied for the collection.  If

@@ -26,11 +26,12 @@ def test_uses_per_path():
             master_transform, paths, all_transforms))
         gc = rb.new_gc()
         ids = [path_id for xo, yo, path_id, gc0, rgbFace in
-               rb._iter_collection(gc, master_transform, all_transforms,
-                                   range(len(raw_paths)), offsets,
-                                   transforms.IdentityTransform(),
-                                   facecolors, edgecolors, [], [], [False],
-                                   [], 'data')]
+               rb._iter_collection(
+                   gc, master_transform, all_transforms,
+                   range(len(raw_paths)), offsets,
+                   transforms.AffineDeltaTransform(master_transform),
+                   facecolors, edgecolors, [], [], [False],
+                   [], 'screen')]
         uses = rb._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
         if raw_paths:

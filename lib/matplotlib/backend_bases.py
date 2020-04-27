@@ -205,8 +205,10 @@ class RendererBase:
         *linestyles* and *antialiaseds*. *offsets* is a list of
         offsets to apply to each of the paths.  The offsets in
         *offsets* are first transformed by *offsetTrans* before being
-        applied.  *offset_position* may be either "screen" or "data"
-        depending on the space that the offsets are in.
+        applied.
+
+        *offset_position* may be either "screen" or "data" depending on the
+        space that the offsets are in; "data" is deprecated.
 
         This provides a fallback implementation of
         :meth:`draw_path_collection` that makes multiple calls to
@@ -379,6 +381,11 @@ class RendererBase:
         Nlinestyles = len(linestyles)
         Naa = len(antialiaseds)
         Nurls = len(urls)
+
+        if offset_position == "data":
+            cbook.warn_deprecated(
+                "3.3", message="Support for offset_position='data' is "
+                "deprecated since %(since)s and will be removed %(removal)s.")
 
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
