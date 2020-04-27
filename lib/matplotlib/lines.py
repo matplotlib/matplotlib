@@ -1570,11 +1570,15 @@ class Line2DWithErrorbars(Line2D):
     """
     def __init__(self, *args, barsabove=True, plot_line=True, **kwargs):
         """
-        Create a `.Line2DWithErrorbars` instance.
+        Create a `.Line2D`-like object holding all the `.Artists` required
+        to draw errorbars.
 
-        Almost identical to `.Line2D` , but Takes one additional keyword,
-        *barsabove*, specifying what order errorbars are plot with respect to
-        the line markers.
+        All `.Line2D` parameters are accepted. Additional parameters are:
+
+        barsabove: bool, optional
+            Specify the order errorbars are plot with respect to line markers.
+        plot_line:  bool, optional
+            Configure if line (and the respective markers) will be displayed.
         """
         super().__init__(*args, **kwargs)
         self._barcols = []

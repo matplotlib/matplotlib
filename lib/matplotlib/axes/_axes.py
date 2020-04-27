@@ -3211,7 +3211,8 @@ class Axes(_AxesBase):
         `.ErrorbarContainer`
             The container contains:
 
-            - plotline: `.Line2D` instance of x, y plot markers and/or line.
+            - plotline: `.Line2DWithErrorbars` instance of x, y plot markers
+              and/or line.
             - caplines: A tuple of `.Line2D` instances of the error bar caps.
             - barlinecols: A tuple of `.LineCollection` with the horizontal and
               vertical error ranges.

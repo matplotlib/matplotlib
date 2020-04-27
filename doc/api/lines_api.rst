@@ -17,6 +17,7 @@ Classes
 
    Line2D
    VertexSelector
+   Line2DWithErrorbars
 
 Functions
 ---------
@@ -26,4 +27,3 @@ Functions
    :template: autosummary.rst
 
    segment_hits
-   
