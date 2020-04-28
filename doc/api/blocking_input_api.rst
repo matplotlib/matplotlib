@@ -3,6 +3,17 @@
 *****************************
 
 .. automodule:: matplotlib.blocking_input
-   :members:
-   :undoc-members:
+   :no-members:
+   :no-undoc-members:
    :show-inheritance:
+
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   BlockingInput
+   BlockingMouseInput
+   BlockingContourLabeler
+   BlockingKeyMouseInput
