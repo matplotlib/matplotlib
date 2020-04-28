@@ -228,8 +228,11 @@ class TexManager:
 %s
 \pagestyle{empty}
 \begin{document}
-%% The empty hbox ensures that a page is printed even for empty inputs.
-\fontsize{%f}{%f}\hbox{}%s
+%% The empty hbox ensures that a page is printed even for empty inputs, except
+%% when using psfrag which gets confused by it.
+\fontsize{%f}{%f}%%
+\ifdefined\psfrag\else\hbox{}\fi%%
+%s
 \end{document}
 """ % (self._get_preamble(), fontsize, fontsize * 1.25, tex)
         with open(texfile, 'wb') as fh:
