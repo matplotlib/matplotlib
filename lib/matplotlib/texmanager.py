@@ -131,8 +131,7 @@ class TexManager:
                                font_family, font, self.font_info[font.lower()])
                     break
                 else:
-                    _log.debug('%s font is not compatible with usetex.',
-                               font_family)
+                    _log.debug('%s font is not compatible with usetex.', font)
             else:
                 _log.info('No LaTeX-compatible font found for the %s font '
                           'family in rcParams. Using default.', font_family)
