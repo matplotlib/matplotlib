@@ -138,7 +138,6 @@ static int wait_for_stdin(void)
         }
 
         NSEvent* event;
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         while (true) {
             while (true) {
                 event = [NSApp nextEventMatchingMask: NSAnyEventMask
@@ -151,7 +150,6 @@ static int wait_for_stdin(void)
             CFRunLoopRun();
             if (interrupted || CFReadStreamHasBytesAvailable(stream)) break;
         }
-        [pool release];
 
         if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
         CFReadStreamUnscheduleFromRunLoop(stream,
@@ -280,7 +278,6 @@ static void lazy_init(void) {
     PyOS_InputHook = wait_for_stdin;
 #endif
 
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
     NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
     NSNotificationCenter* notificationCenter = [workspace notificationCenter];
@@ -288,7 +285,6 @@ static void lazy_init(void) {
                            selector: @selector(launch:)
                                name: NSWorkspaceDidLaunchApplicationNotification
                              object: nil];
-    [pool release];
 }
 
 static PyObject*
@@ -366,11 +362,7 @@ FigureCanvas_draw(FigureCanvas* self)
 
     if(view) /* The figure may have been closed already */
     {
-        /* Whereas drawRect creates its own autorelease pool, apparently
-         * [view display] also needs one. Create and release it here. */
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         [view display];
-        [pool release];
     }
 
     Py_RETURN_NONE;
@@ -506,7 +498,6 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
             close(channel[0]);
     }
 
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSDate* date =
         (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
                         : [NSDate distantFuture];
@@ -518,7 +509,6 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
        if (!event || [event type]==NSApplicationDefined) break;
        [NSApp sendEvent: event];
     }
-    [pool release];
 
     if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
 
@@ -691,7 +681,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     rect.size.height = height;
     rect.size.width = width;
 
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSTitledWindowMask
                                                   | NSClosableWindowMask
@@ -709,7 +698,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
 
-    [pool release];
     return 0;
 }
 
@@ -726,9 +714,7 @@ FigureManager_dealloc(FigureManager* self)
     Window* window = self->window;
     if(window)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         [window close];
-        [pool release];
     }
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -739,10 +725,8 @@ FigureManager_show(FigureManager* self)
     Window* window = self->window;
     if(window)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         [window makeKeyAndOrderFront: nil];
         [window orderFrontRegardless];
-        [pool release];
     }
     Py_RETURN_NONE;
 }
@@ -770,12 +754,10 @@ FigureManager_set_window_title(FigureManager* self,
     Window* window = self->window;
     if(window)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         NSString* ns_title = [[[NSString alloc]
                                initWithCString: title
                                encoding: NSUTF8StringEncoding] autorelease];
         [window setTitle: ns_title];
-        [pool release];
     }
     Py_RETURN_NONE;
 }
@@ -787,13 +769,11 @@ FigureManager_get_window_title(FigureManager* self)
     PyObject* result = NULL;
     if(window)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         NSString* title = [window title];
         if (title) {
             const char* cTitle = [title UTF8String];
             result = PyUnicode_FromString(cTitle);
         }
-        [pool release];
     }
     if (result) {
         return result;
@@ -1098,9 +1078,9 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     const float gap = 2;
     const int height = 36;
     const int imagesize = 24;
-    
+
     self->height = height;
-    
+
     const char* basedir;
 
     obj = PyObject_GetAttrString((PyObject*)self, "canvas");
@@ -1125,7 +1105,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     if(!PyArg_ParseTuple(args, "s", &basedir)) return -1;
 
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSRect bounds = [view bounds];
     NSWindow* window = [view window];
 
@@ -1228,8 +1207,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     [messagebox release];
     [[window contentView] display];
 
-    [pool release];
-
     self->messagebox = messagebox;
     return 0;
 }
@@ -1260,24 +1237,22 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     NSTextView* messagebox = self->messagebox;
 
     if (messagebox)
-    {   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    {
         NSString* text = [NSString stringWithUTF8String: message];
         [messagebox setString: text];
-        
+
         // Adjust width with the window size
         NSRect rectWindow = [messagebox.superview frame];
         NSRect rect = [messagebox frame];
         rect.size.width = rectWindow.size.width - rect.origin.x;
         [messagebox setFrame: rect];
-        
+
         // Adjust height with the content size
         [messagebox.layoutManager ensureLayoutForTextContainer: messagebox.textContainer];
         NSRect contentSize = [messagebox.layoutManager usedRectForTextContainer: messagebox.textContainer];
         rect = [messagebox frame];
         rect.origin.y = 0.5 * (self->height - contentSize.size.height);
         [messagebox setFrame: rect];
-        
-        [pool release];
     }
 
     Py_RETURN_NONE;
@@ -2315,14 +2290,12 @@ static PyObject*
 show(PyObject* self)
 {
     [NSApp activateIgnoringOtherApps: YES];
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSArray *windowsArray = [NSApp windows];
     NSEnumerator *enumerator = [windowsArray objectEnumerator];
     NSWindow *window;
     while ((window = [enumerator nextObject])) {
         [window orderFront:nil];
     }
-    [pool release];
     Py_BEGIN_ALLOW_THREADS
     [NSApp run];
     Py_END_ALLOW_THREADS
