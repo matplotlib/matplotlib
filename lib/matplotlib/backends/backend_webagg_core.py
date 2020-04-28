@@ -306,6 +306,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             figure_label = "Figure {0}".format(self.manager.num)
         self.send_event('figure_label', label=figure_label)
         self._force_full = True
+        if self.toolbar:
+            # Normal toolbar init would refresh this, but it happens before the
+            # browser canvas is set up.
+            self.toolbar.set_history_buttons()
         self.draw_idle()
 
     def handle_resize(self, event):
@@ -341,26 +345,27 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.manager._send_event(event_type, **kwargs)
 
 
-_JQUERY_ICON_CLASSES = {
-    'home': 'ui-icon ui-icon-home',
-    'back': 'ui-icon ui-icon-circle-arrow-w',
-    'forward': 'ui-icon ui-icon-circle-arrow-e',
-    'zoom_to_rect': 'ui-icon ui-icon-search',
-    'move': 'ui-icon ui-icon-arrow-4',
-    'download': 'ui-icon ui-icon-disk',
-    None: None,
+_ALLOWED_TOOL_ITEMS = {
+    'home',
+    'back',
+    'forward',
+    'pan',
+    'zoom',
+    'download',
+    None,
 }
 
 
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     # Use the standard toolbar items + download button
-    toolitems = [(text, tooltip_text, _JQUERY_ICON_CLASSES[image_file],
-                  name_of_method)
-                 for text, tooltip_text, image_file, name_of_method
-                 in (backend_bases.NavigationToolbar2.toolitems +
-                     (('Download', 'Download plot', 'download', 'download'),))
-                 if image_file in _JQUERY_ICON_CLASSES]
+    toolitems = [
+        (text, tooltip_text, image_file, name_of_method)
+        for text, tooltip_text, image_file, name_of_method
+        in (*backend_bases.NavigationToolbar2.toolitems,
+            ('Download', 'Download plot', 'filesave', 'download'))
+        if name_of_method in _ALLOWED_TOOL_ITEMS
+    ]
 
     def _init_toolbar(self):
         self.message = ''
@@ -388,6 +393,20 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
     def save_figure(self, *args):
         """Save the current figure"""
         self.canvas.send_event('save')
+
+    def pan(self):
+        super().pan()
+        self.canvas.send_event('navigate_mode', mode=self.mode.name)
+
+    def zoom(self):
+        super().zoom()
+        self.canvas.send_event('navigate_mode', mode=self.mode.name)
+
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self.canvas.send_event('history_buttons',
+                               Back=can_backward, Forward=can_forward)
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
