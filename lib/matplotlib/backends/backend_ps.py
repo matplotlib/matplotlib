@@ -469,6 +469,14 @@ translate
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # docstring inherited
+        if not hasattr(self, "psfrag"):
+            _log.warning(
+                "The PS backend determines usetex status solely based on "
+                "rcParams['text.usetex'] and does not support having "
+                "usetex=True only for some elements; this element will thus "
+                "be rendered as if usetex=False.")
+            self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
+            return
 
         w, h, bl = self.get_text_width_height_descent(s, prop, ismath)
         fontsize = prop.get_size_in_points()
