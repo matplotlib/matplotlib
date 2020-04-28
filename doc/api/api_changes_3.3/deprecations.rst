@@ -487,3 +487,7 @@ of all renderer classes is deprecated.
 
 `.transforms.AffineDeltaTransform` can be used as a replacement.  This API is
 experimental and may change in the future.
+
+``testing.compare.make_external_conversion_command``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.
