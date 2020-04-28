@@ -192,6 +192,25 @@ class TexManager:
         """Return a string containing user additions to the tex preamble."""
         return rcParams['text.latex.preamble']
 
+    def _get_preamble(self):
+        unicode_preamble = "\n".join([
+            r"\usepackage[utf8]{inputenc}",
+            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+        ]) if rcParams["text.latex.unicode"] else ""
+        return "\n".join([
+            r"\documentclass{article}",
+            # Pass-through \mathdefault, which is used in non-usetex mode to
+            # use the default text font but was historically suppressed in
+            # usetex mode.
+            r"\newcommand{\mathdefault}[1]{#1}",
+            self._font_preamble,
+            unicode_preamble,
+            # Needs to come early so that the custom preamble can change the
+            # geometry, e.g. in convert_psfrags.
+            r"\usepackage[papersize=72in,body=70in,margin=1in]{geometry}",
+            self.get_custom_preamble(),
+        ])
+
     def make_tex(self, tex, fontsize):
         """
         Generate a tex file to render the tex string at a specific font size.
@@ -200,29 +219,22 @@ class TexManager:
         """
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex' % basefile
-        custom_preamble = self.get_custom_preamble()
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(self.font_family,
                                                        r'{\rmfamily %s}')
         tex = fontcmd % tex
 
-        unicode_preamble = "\n".join([
-            r"\usepackage[utf8]{inputenc}",
-            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
-        ]) if rcParams["text.latex.unicode"] else ""
-
         s = r"""
-\documentclass{article}
 %s
-%s
-%s
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 \pagestyle{empty}
 \begin{document}
-\fontsize{%f}{%f}%s
+%% The empty hbox ensures that a page is printed even for empty inputs, except
+%% when using psfrag which gets confused by it.
+\fontsize{%f}{%f}%%
+\ifdefined\psfrag\else\hbox{}\fi%%
+%s
 \end{document}
-""" % (self._font_preamble, unicode_preamble, custom_preamble,
-       fontsize, fontsize * 1.25, tex)
+""" % (self._get_preamble(), fontsize, fontsize * 1.25, tex)
         with open(texfile, 'wb') as fh:
             if rcParams['text.latex.unicode']:
                 fh.write(s.encode('utf8'))
@@ -250,27 +262,17 @@ class TexManager:
         """
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex' % basefile
-        custom_preamble = self.get_custom_preamble()
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(self.font_family,
                                                        r'{\rmfamily %s}')
         tex = fontcmd % tex
 
-        unicode_preamble = "\n".join([
-            r"\usepackage[utf8]{inputenc}",
-            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
-        ]) if rcParams["text.latex.unicode"] else ""
-
         # newbox, setbox, immediate, etc. are used to find the box
         # extent of the rendered text.
 
         s = r"""
-\documentclass{article}
-%s
-%s
 %s
 \usepackage[active,showbox,tightpage]{preview}
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 
 %% we override the default showbox as it is treated as an error and makes
 %% the exit status not zero
@@ -282,8 +284,7 @@ class TexManager:
 {\fontsize{%f}{%f}%s}
 \end{preview}
 \end{document}
-""" % (self._font_preamble, unicode_preamble, custom_preamble,
-       fontsize, fontsize * 1.25, tex)
+""" % (self._get_preamble(), fontsize, fontsize * 1.25, tex)
         with open(texfile, 'wb') as fh:
             if rcParams['text.latex.unicode']:
                 fh.write(s.encode('utf8'))
@@ -391,9 +392,16 @@ class TexManager:
         # see get_rgba for a discussion of the background
         if not os.path.exists(pngfile):
             dvifile = self.make_dvi(tex, fontsize)
-            self._run_checked_subprocess(
-                ["dvipng", "-bg", "Transparent", "-D", str(dpi),
-                 "-T", "tight", "-o", pngfile, dvifile], tex)
+            cmd = ["dvipng", "-bg", "Transparent", "-D", str(dpi),
+                   "-T", "tight", "-o", pngfile, dvifile]
+            # When testing, disable FreeType rendering for reproducibility; but
+            # dvipng 1.16 has a bug (fixed in f3ff241) that breaks --freetype0
+            # mode, so for it we keep FreeType enabled; the image will be
+            # slightly off.
+            if (getattr(mpl, "_called_from_pytest", False)
+                    and mpl._get_executable_info("dvipng").version != "1.16"):
+                cmd.insert(1, "--freetype0")
+            self._run_checked_subprocess(cmd, tex)
         return pngfile
 
     def get_grey(self, tex, fontsize=None, dpi=None):
@@ -446,7 +454,7 @@ class TexManager:
             return width, height + depth, depth
 
         else:
-            # use dviread. It sometimes returns a wrong descent.
+            # use dviread.
             dvifile = self.make_dvi(tex, fontsize)
             with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
                 page, = dvi
