@@ -43,14 +43,14 @@ STYLE_BLACKLIST = {
 
 def _remove_blacklisted_style_params(d, warn=True):
     o = {}
-    for key, val in d.items():
+    for key in d:  # prevent triggering RcParams.__getitem__('backend')
         if key in STYLE_BLACKLIST:
             if warn:
                 cbook._warn_external(
                     "Style includes a parameter, '{0}', that is not related "
                     "to style.  Ignoring".format(key))
         else:
-            o[key] = val
+            o[key] = d[key]
     return o
 
 
