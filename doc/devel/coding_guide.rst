@@ -110,8 +110,9 @@ Documentation
   :file:`doc/users/whats_new.rst`.
 
 * If you change the API in a backward-incompatible way, please
-  document it in the relevant file in most recent
-  :file:`doc/api/api_changes_X.Y`.
+  document it by adding a file in the relevant subdirectory of
+  :file:`doc/api/next_api_changes/`, probably in the ``behavior/``
+  subdirectory.
 
 .. _pr-labels:
 
@@ -163,9 +164,9 @@ Merging
   approve the review and if you think no more review is needed, merge
   the PR.
 
-  Ensure that all API changes are documented in the relevant file in
-  the most recent :file:`doc/api/api_changes_X.Y` and significant new features
-  have an entry in :file:`doc/user/whats_new`.
+  Ensure that all API changes are documented in a file in one of the
+  subdirectories of :file:`doc/api/next_api_changes`, and significant new
+  features have an entry in :file:`doc/user/whats_new`.
 
   - If a PR already has a positive review, a core developer (e.g. the first
     reviewer, but not necessarily) may champion that PR for merging.  In order

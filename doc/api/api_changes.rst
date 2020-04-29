@@ -33,6 +33,9 @@ added to Matplotlib, see :ref:`whats-new`.
       :glob:
       :maxdepth: 1
 
-      api_changes_3.4/*
+      next_api_changes/behavior/*
+      next_api_changes/deprecations/*
+      next_api_changes/development/*
+      next_api_changes/removals/*
 
 .. include:: prev_api_changes/api_changes_3.3.0.rst

@@ -7,7 +7,7 @@
 - [ ] New features are documented, with examples if plot related
 - [ ] Documentation is sphinx and numpydoc compliant
 - [ ] Added an entry to doc/users/next_whats_new/ if major new feature (follow instructions in README.rst there)
-- [ ] Documented in doc/api/api_changes.rst if API changed in a backward-incompatible way
+- [ ] Documented in doc/api/next_api_changes/* if API changed in a backward-incompatible way
 
 <!--
 Thank you so much for your PR!  To help us review your contribution, please
