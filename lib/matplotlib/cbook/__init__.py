@@ -2133,15 +2133,23 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     proc = subprocess.run(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
     if proc.returncode:
+        stdout = proc.stdout
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode()
+        stderr = proc.stderr
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode()
         raise RuntimeError(
             f"The command\n"
             f"    {_pformat_subprocess(command)}\n"
             f"failed and generated the following output:\n"
-            f"{proc.stdout.decode('utf-8')}\n"
+            f"{stdout}\n"
             f"and the following error:\n"
-            f"{proc.stderr.decode('utf-8')}")
-    logger.debug("stdout:\n%s", proc.stdout)
-    logger.debug("stderr:\n%s", proc.stderr)
+            f"{stderr}")
+    if proc.stdout:
+        logger.debug("stdout:\n%s", proc.stdout)
+    if proc.stderr:
+        logger.debug("stderr:\n%s", proc.stderr)
     return proc.stdout
 
 
