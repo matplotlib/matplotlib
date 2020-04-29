@@ -1639,8 +1639,11 @@ class Axis(martist.Artist):
         else:
             self.set_major_formatter(formatter)
             ticks = self.get_major_ticks()
+
+        self._update_ticks()
         ret = []
-        for tick_label, tick in zip(ticklabels, ticks):
+        for pos, tick in enumerate(ticks):
+            tick_label = formatter(tick._loc, pos)
             # deal with label1
             tick.label1.set_text(tick_label)
             tick.label1.update(kwargs)
