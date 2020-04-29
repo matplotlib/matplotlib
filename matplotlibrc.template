@@ -352,7 +352,7 @@
 #axes.titleweight:   normal  # font weight of title
 #axes.titlecolor:    auto    # color of the axes title, auto falls back to
                              # text.color as default value
-#axes.titley:        None    # position title (axes relative units).  None implies auto 
+#axes.titley:        None    # position title (axes relative units).  None implies auto
 #axes.titlepad:      6.0     # pad between axes and title in points
 #axes.labelsize:     medium  # fontsize of the x any y labels
 #axes.labelpad:      4.0     # space between label and axis
@@ -433,6 +433,9 @@
 #date.autoformatter.second:      %H:%M:%S
 #date.autoformatter.microsecond: %M:%S.%f
 
+## The reference date for Matplotlib's internal date representation
+## See https://matplotlib.org/examples/ticks_and_spines/date_precision_and_epochs.py
+#date.epoch: 1970-01-01T00:00:00
 
 ## ***************************************************************************
 ## * TICKS                                                                   *

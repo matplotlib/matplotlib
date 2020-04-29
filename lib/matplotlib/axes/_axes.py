@@ -1809,7 +1809,6 @@ class Axes(_AxesBase):
             self.xaxis_date(tz)
         if ydate:
             self.yaxis_date(tz)
-
         ret = self.plot(x, y, fmt, **kwargs)
 
         self._request_autoscale_view()
