@@ -363,11 +363,6 @@ def pause(interval):
 
     This can be used for crude animation.  For more complex animation, see
     :mod:`matplotlib.animation`.
-
-    Notes
-    -----
-    This function is experimental; its behavior may be changed or extended in a
-    future release.
     """
     manager = _pylab_helpers.Gcf.get_active()
     if manager is not None:
