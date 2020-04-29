@@ -307,22 +307,31 @@ def draw_if_interactive(*args, **kwargs):
 # This function's signature is rewritten upon backend-load by switch_backend.
 def show(*args, **kwargs):
     """
-    Display all figures.
+    Display all open figures.
 
-    When running in ipython with its pylab mode, display all
-    figures and return to the ipython prompt.
+    In non-interactive mode, **block** defaults to True.  All figures
+    will display and show will not return until all widows are closed.
+    If there are no figures, return immediately.
 
-    In non-interactive mode, display all figures and block until
-    the figures have been closed; in interactive mode it has no
-    effect unless figures were created prior to a change from
-    non-interactive to interactive mode (not recommended).  In
-    that case it displays the figures but does not block.
+    In interactive mode **block** defaults to False.  This will ensure
+    that all of the figures are shown and immediately return.
 
     Parameters
     ----------
     block : bool, optional
-        This is experimental, and may be set to ``True`` or ``False`` to
-        override the blocking behavior described above.
+
+        If `True` block and run the GUI main loop until all windows
+        are closed.
+
+        If `False` ensure that all windows are displayed and return
+        immediately.  In this case, you are responsible for ensuring
+        that the event loop is running to have responsive figures.
+
+    See Also
+    --------
+    ion : enable interactive mode
+    ioff : disable interactive mode
+
     """
     _warn_if_gui_out_of_main_thread()
     return _backend_mod.show(*args, **kwargs)
