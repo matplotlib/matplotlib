@@ -174,13 +174,13 @@ class Tick(martist.Artist):
                            ("_get_gridline", "gridline"),
                            ("_get_text1", "label1"),
                            ("_get_text2", "label2")]:
-            if getattr(self, meth) != getattr(Tick, meth).__get__(self):
-                cbook.warn_deprecated(
-                    "3.3", message=f"Relying on {meth} to initialize "
-                    f"Tick.{attr} is deprecated since %(since)s and will not "
-                    f"work %(removal)s; please directly set the attribute in "
-                    "the subclass' __init__ instead.")
-                setattr(self, attr, getattr(self, meth)())
+            overridden_method = cbook._deprecate_method_override(
+                getattr(__class__, meth), self, since="3.3", message="Relying "
+                f"on {meth} to initialize Tick.{attr} is deprecated since "
+                f"%(since)s and will not work %(removal)s; please directly "
+                f"set the attribute in the subclass' __init__ instead.")
+            if overridden_method:
+                setattr(self, attr, overridden_method())
         for artist in [self.tick1line, self.tick2line, self.gridline,
                        self.label1, self.label2]:
             self._set_artist_props(artist)
