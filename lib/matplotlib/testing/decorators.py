@@ -398,13 +398,11 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
                              f"function has the signature {old_sig}")
 
         @pytest.mark.parametrize("ext", extensions)
-        def wrapper(*args, **kwargs):
-            ext = kwargs['ext']
-            if 'ext' not in old_sig.parameters:
-                kwargs.pop('ext')
-            request = kwargs['request']
-            if 'request' not in old_sig.parameters:
-                kwargs.pop('request')
+        def wrapper(*args, ext, request, **kwargs):
+            if 'ext' in old_sig.parameters:
+                kwargs['ext'] = ext
+            if 'request' in old_sig.parameters:
+                kwargs['request'] = request
 
             file_name = "".join(c for c in request.node.name
                                 if c in ALLOWED_CHARS)
