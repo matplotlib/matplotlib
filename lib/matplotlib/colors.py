@@ -1256,8 +1256,8 @@ class SymLogNorm(Normalize):
         if base is None:
             self._base = np.e
             cbook.warn_deprecated(
-                "3.2", removal="3.3", message="default base will change from "
-                "np.e to 10 in %(removal)s.  To suppress this warning specify "
+                "3.2", removal="3.4", message="default base will change from "
+                "np.e to 10 %(removal)s.  To suppress this warning specify "
                 "the base keyword argument.")
         else:
             self._base = base
