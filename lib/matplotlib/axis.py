@@ -1629,8 +1629,8 @@ class Axis(martist.Artist):
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
-            formatter = mticker.FuncFormatter(
-                lambda x, pos: ticklabels[[*locator.locs].index(x)])
+            tickd = {loc:lab for loc, lab in zip(locator.locs, ticklabels)}
+            formatter = mticker.FuncFormatter(lambda x, pos: tickd.get(x, ""))
         else:
             formatter = mticker.FixedFormatter(ticklabels)
         if minor:
