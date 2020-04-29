@@ -1626,11 +1626,18 @@ class Axis(martist.Artist):
         """
         ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
                       for t in ticklabels]
+        locator = (self.get_minor_locator() if minor
+                   else self.get_major_locator())
+        if isinstance(locator, mticker.FixedLocator):
+            formatter = mticker.FuncFormatter(
+                lambda x, pos: ticklabels[[*locator.locs].index(x)])
+        else:
+            formatter = mticker.FixedFormatter(ticklabels)
         if minor:
-            self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
+            self.set_minor_formatter(formatter)
             ticks = self.get_minor_ticks()
         else:
-            self.set_major_formatter(mticker.FixedFormatter(ticklabels))
+            self.set_major_formatter(formatter)
             ticks = self.get_major_ticks()
         ret = []
         for tick_label, tick in zip(ticklabels, ticks):
