@@ -1629,7 +1629,7 @@ class Axis(martist.Artist):
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
-            tickd = {loc:lab for loc, lab in zip(locator.locs, ticklabels)}
+            tickd = {loc: lab for loc, lab in zip(locator.locs, ticklabels)}
             formatter = mticker.FuncFormatter(lambda x, pos: tickd.get(x, ""))
         else:
             formatter = mticker.FixedFormatter(ticklabels)
