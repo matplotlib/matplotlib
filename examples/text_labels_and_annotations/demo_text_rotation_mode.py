@@ -13,9 +13,9 @@ The actual positioning depends on the additional parameters
 ``horizontalalignment``, ``verticalalignment`` and ``rotation_mode``.
 ``rotation_mode`` determines the order of rotation and alignment:
 
-- ``roation_mode='default'`` (or None) first rotates the text and then aligns
+- ``rotation_mode='default'`` (or None) first rotates the text and then aligns
   the bounding box of the rotated text.
-- ``roation_mode='anchor'`` aligns the unrotated text and then rotates the
+- ``rotation_mode='anchor'`` aligns the unrotated text and then rotates the
   text around the point of alignment.
 
 """
