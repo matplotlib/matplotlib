@@ -227,43 +227,59 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     Decorate function with image comparison for pytest.
 
     This function creates a decorator that wraps a figure-generating function
-    with image comparison code. Pytest can become confused if we change the
-    signature of the function, so we indirectly pass anything we need via the
-    `mpl_image_comparison_parameters` fixture and extra markers.
+    with image comparison code.
     """
     import pytest
 
     extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
+    KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
 
     def decorator(func):
+        old_sig = inspect.signature(func)
+
         @functools.wraps(func)
-        # Parameter indirection; see docstring above and comment below.
-        @pytest.mark.usefixtures('mpl_image_comparison_parameters')
         @pytest.mark.parametrize('extension', extensions)
-        @pytest.mark.baseline_images(baseline_images)
-        # END Parameter indirection.
         @pytest.mark.style(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, extension, request, **kwargs):
             __tracebackhide__ = True
+            if 'extension' in old_sig.parameters:
+                kwargs['extension'] = extension
+            if 'request' in old_sig.parameters:
+                kwargs['request'] = request
+
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
             matplotlib.testing.set_font_settings_for_testing()
             func(*args, **kwargs)
 
-            # Parameter indirection:
-            # This is hacked on via the mpl_image_comparison_parameters fixture
-            # so that we don't need to modify the function's real signature for
-            # any parametrization. Modifying the signature is very very tricky
-            # and likely to confuse pytest.
-            baseline_images, extension = func.parameters
+            if baseline_images is not None:
+                our_baseline_images = baseline_images
+            else:
+                # Allow baseline image list to be produced on the fly based on
+                # current parametrization.
+                our_baseline_images = request.getfixturevalue(
+                    'baseline_images')
 
-            assert len(plt.get_fignums()) == len(baseline_images), (
+            assert len(plt.get_fignums()) == len(our_baseline_images), (
                 "Test generated {} images but there are {} baseline images"
-                .format(len(plt.get_fignums()), len(baseline_images)))
-            for idx, baseline in enumerate(baseline_images):
+                .format(len(plt.get_fignums()), len(our_baseline_images)))
+            for idx, baseline in enumerate(our_baseline_images):
                 img.compare(idx, baseline, extension)
+
+        parameters = list(old_sig.parameters.values())
+        if 'extension' not in old_sig.parameters:
+            parameters += [inspect.Parameter('extension', KEYWORD_ONLY)]
+        if 'request' not in old_sig.parameters:
+            parameters += [inspect.Parameter("request", KEYWORD_ONLY)]
+        new_sig = old_sig.replace(parameters=parameters)
+        wrapper.__signature__ = new_sig
+
+        # Reach a bit into pytest internals to hoist the marks from our wrapped
+        # function.
+        new_marks = getattr(func, 'pytestmark', []) + wrapper.pytestmark
+        wrapper.pytestmark = new_marks
 
         return wrapper
 
