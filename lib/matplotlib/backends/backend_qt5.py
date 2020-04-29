@@ -14,7 +14,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
-from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
+from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
