@@ -836,7 +836,7 @@ class Artist:
         """
         Set whether the artist uses clipping.
 
-        When False artists will be visible out side of the axes which
+        When False artists will be visible outside of the axes which
         can lead to unexpected results.
 
         Parameters
