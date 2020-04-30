@@ -12,16 +12,10 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 # The original version of this test relied on mpl_toolkits's slightly different
 # colorbar implementation; moving to matplotlib's own colorbar implementation
 # caused the small image comparison error.
-@image_comparison(['imagegrid_cbar_mode.png', 'imagegrid_cbar_mode.png'],
+@pytest.mark.parametrize("legacy_colorbar", [False, True])
+@image_comparison(['imagegrid_cbar_mode.png'],
                   remove_text=True, style='mpl20', tol=0.3)
-def test_imagegrid_cbar_mode_edge():
-    # Note, we don't use @pytest.mark.parametrize, because in parallel this
-    # might cause one process result to overwrite another's.
-    for legacy_colorbar in [False, True]:
-        _test_imagegrid_cbar_mode_edge(legacy_colorbar)
-
-
-def _test_imagegrid_cbar_mode_edge(legacy_colorbar):
+def test_imagegrid_cbar_mode_edge(legacy_colorbar):
     mpl.rcParams["mpl_toolkits.legacy_colorbar"] = legacy_colorbar
 
     X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
