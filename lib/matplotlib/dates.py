@@ -777,7 +777,7 @@ class ConciseDateFormatter(ticker.Formatter):
                 break
             elif level == 0:
                 # all tickdate are the same, so only micros might be different
-                # set to the most precise available (level=6: microseconds doesn't exist...)
+                # set to the most precise (6: microseconds doesn't exist...)
                 level = 5
 
         # level is the basic level we will label at.
