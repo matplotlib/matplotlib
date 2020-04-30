@@ -215,7 +215,7 @@ class Dvi:
         self.baseline = self._get_baseline(filename)
 
     def _get_baseline(self, filename):
-        if rcParams['text.latex.preview']:
+        if dict.__getitem__(rcParams, 'text.latex.preview'):
             baseline = Path(filename).with_suffix(".baseline")
             if baseline.exists():
                 height, depth, width = baseline.read_bytes().split()
