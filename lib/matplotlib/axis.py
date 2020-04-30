@@ -1653,7 +1653,7 @@ class Axis(martist.Artist):
         ret = []
         for pos, (loc, tick) in enumerate(zip(locs, ticks)):
             tick.update_position(loc)
-            tick_label = formatter(tick._loc, pos)
+            tick_label = formatter(loc, pos)
             # deal with label1
             tick.label1.set_text(tick_label)
             tick.label1.update(kwargs)
