@@ -2972,12 +2972,20 @@ pivot='tail', normalize=False, **kwargs)
 
         # TODO: errors can be only a scalar number or len(N) array-like
         def _unpack_errs(err, data, lomask, himask):
-            lows = [d - e if m else d for d, e, m in zip(data, err, lomask)]
-            highs = [d + e if m else d for d, e, m in zip(data, err, himask)]
+            # for compatibility with the 2d errorbar function, when both upper
+            # and lower limits specified, we need to draw the markers / line -
+            # whether or not using both limits makes any sense (it doesn't)
+            _lomask = lomask | (lomask == himask)
+            _himask = himask | (lomask == himask)
+
+            lows = [d - e if m else d for d, e, m in zip(data, err, _lomask)]
+            highs = [d + e if m else d for d, e, m in zip(data, err, _himask)]
             return lows, highs
 
+        # collect drawn items while looping over the three coordinates
         errlines, caplines, limmarks = [], [], []
-        # List of endpoint coordinates, used for auto-scaling
+
+        # list of endpoint coordinates, used for auto-scaling
         coorderrs = []
 
         # define the markers used for errorbar caps and limits below
@@ -3025,27 +3033,23 @@ pivot='tail', normalize=False, **kwargs)
                 for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
 
-            if nolims.any():
-                if capsize > 0:
-                    lo_caps_xyz = _mask_lists(xl, yl, zl, nolims & everymask)
-                    hi_caps_xyz = _mask_lists(xh, yh, zh, nolims & everymask)
+            # draws capmarkers - flat caps othogonal to the error bars
+            if nolims.any() and capsize > 0:
+                lo_caps_xyz = _mask_lists(xl, yl, zl, nolims & everymask)
+                hi_caps_xyz = _mask_lists(xh, yh, zh, nolims & everymask)
 
-                    # NOTE on the caps in 3D plots:
-                    # Using markers in interactive 3D plots is confusing to
-                    # say the least, as the cap lines don't stay aligned with
-                    # the coordinate axes!
-                    # Nevertheless, let's stick to it for now for consistency.
-                    # Setting '_' for z-caps and '|' for x- and y-caps:
-                    cap_lo = art3d.Line3D(*lo_caps_xyz, ls='',
-                                          marker=capmarker[i_xyz],
-                                          **eb_cap_style)
-                    cap_hi = art3d.Line3D(*hi_caps_xyz, ls='',
-                                          marker=capmarker[i_xyz],
-                                          **eb_cap_style)
-                    self.add_line(cap_lo)
-                    self.add_line(cap_hi)
-                    caplines.append(cap_lo)
-                    caplines.append(cap_hi)
+                # setting '_' for z-caps and '|' for x- and y-caps;
+                # these markers will rotate as the viewing angle changes
+                cap_lo = art3d.Line3D(*lo_caps_xyz, ls='',
+                                      marker=capmarker[i_xyz],
+                                      **eb_cap_style)
+                cap_hi = art3d.Line3D(*hi_caps_xyz, ls='',
+                                      marker=capmarker[i_xyz],
+                                      **eb_cap_style)
+                self.add_line(cap_lo)
+                self.add_line(cap_hi)
+                caplines.append(cap_lo)
+                caplines.append(cap_hi)
 
             if (lolims | uplims).any():
                 # FIXME: using markers for limits isn't the best idea: for
