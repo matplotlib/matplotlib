@@ -163,8 +163,8 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         cbook.warn_deprecated(
             "3.3",
             message="Passing raw data via parameters data and lut to "
-                    "register_cmap() is deprecated. Instead use: "
-                    "register_cmap("
+                    "register_cmap() is deprecated since %(since)s and will "
+                    "become an error %(removal)s. Instead use: register_cmap("
                     "cmap=LinearSegmentedColormap(name, data, lut))")
     # For the remainder, let exceptions propagate.
     if lut is None:
@@ -255,7 +255,8 @@ class ScalarMappable:
                 cbook.warn_deprecated(
                     "3.3",
                     message="Passing parameters norm and vmin/vmax "
-                            "simultaneously is deprecated. Please pass "
+                            "simultaneously is deprecated since %(since)s and "
+                            "will become an error %(removal)s. Please pass "
                             "vmin/vmax directly to the norm when creating it.")
         else:
             self.autoscale_None()

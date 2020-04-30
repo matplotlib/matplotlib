@@ -515,8 +515,8 @@ def get_data_path(*, _from_rc=None):
         cbook.warn_deprecated(
             "3.2",
             message=("Setting the datapath via matplotlibrc is deprecated "
-                     "%(since)s and will be removed in %(removal)s."),
-            removal='3.3')
+                     "%(since)s and will be removed %(removal)s."),
+            removal='3.4')
         path = Path(_from_rc)
         if path.is_dir():
             defaultParams['datapath'][0] = str(path)

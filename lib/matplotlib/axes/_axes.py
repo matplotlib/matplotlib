@@ -5206,9 +5206,9 @@ default: :rc:`scatter.edgecolors`
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
                 cbook.warn_deprecated(
-                    "3.2", message=f"The parameter where must have the same "
-                    f"size as {ind} in {func_name}(). This will become an "
-                    "error in future versions of Matplotlib.")
+                    "3.2", message=f"Since %(since)s, the parameter *where* "
+                    f"must have the same size as {ind} in {func_name}(). This "
+                    "will become an error %(removal)s.")
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
 
@@ -5592,7 +5592,8 @@ default: :rc:`scatter.edgecolors`
                     "dimensions as C is deprecated since %(since)s.  Either "
                     "specify the corners of the quadrilaterals with X and Y, "
                     "or pass shading='auto', 'nearest' or 'gouraud', or set "
-                    "rcParams['pcolor.shading']")
+                    "rcParams['pcolor.shading'].  This will become an error "
+                    "%(removal)s.")
             C = C[:Ny - 1, :Nx - 1]
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):

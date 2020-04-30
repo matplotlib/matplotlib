@@ -1208,8 +1208,8 @@ default: 'top'
             cbook.warn_deprecated(
                 "3.3",
                 message="Calling add_axes() without argument is "
-                "deprecated. You may want to use add_subplot() "
-                "instead.")
+                "deprecated since %(since)s and will be removed %(removal)s. "
+                "You may want to use add_subplot() instead.")
             return
         elif 'rect' in kwargs:
             if len(args):
@@ -1382,7 +1382,8 @@ default: 'top'
                     cbook.warn_deprecated(
                         "3.3",
                         message="Passing non-integers as three-element "
-                                "position specification is deprecated.")
+                                "position specification is deprecated since "
+                                "%(since)s and will be removed %(removal)s.")
             args = tuple(map(int, args))
         else:
             raise TypeError(f'add_subplot() takes 1 or 3 positional arguments '
