@@ -256,11 +256,6 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 @lru_cache()
 def _call_fc_list():
     """Cache and list the font filenames known to `fc-list`."""
-    # Delay the warning by 5s.
-    timer = Timer(5, lambda: _log.warning(
-        'Matplotlib is building the font cache using fc-list. '
-        'This may take a moment.'))
-    timer.start()
     try:
         if b'--format' not in subprocess.check_output(['fc-list', '--help']):
             _log.warning(  # fontconfig 2.7 implemented --format.
@@ -269,8 +264,6 @@ def _call_fc_list():
         out = subprocess.check_output(['fc-list', '--format=%{file}\\n'])
     except (OSError, subprocess.CalledProcessError):
         return []
-    finally:
-        timer.cancel()
     return [os.fsdecode(fname) for fname in out.split(b'\n')]
 
 
@@ -983,16 +976,24 @@ class FontManager:
 
         self.afmlist = []
         self.ttflist = []
-        for fontext in ["afm", "ttf"]:
-            for path in [*findSystemFonts(paths, fontext=fontext),
-                         *findSystemFonts(fontext=fontext)]:
-                try:
-                    self.addfont(path)
-                except OSError as exc:
-                    _log.info("Failed to open font file %s: %s", path, exc)
-                except Exception as exc:
-                    _log.info("Failed to extract font properties from %s: %s",
-                              path, exc)
+
+        # Delay the warning by 5s.
+        timer = Timer(5, lambda: _log.warning(
+            'Matplotlib is building the font cache; this may take a moment.'))
+        timer.start()
+        try:
+            for fontext in ["afm", "ttf"]:
+                for path in [*findSystemFonts(paths, fontext=fontext),
+                             *findSystemFonts(fontext=fontext)]:
+                    try:
+                        self.addfont(path)
+                    except OSError as exc:
+                        _log.info("Failed to open font file %s: %s", path, exc)
+                    except Exception as exc:
+                        _log.info("Failed to extract font properties from %s: "
+                                  "%s", path, exc)
+        finally:
+            timer.cancel()
 
     def addfont(self, path):
         """
