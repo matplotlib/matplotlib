@@ -1915,6 +1915,9 @@ def colormaps():
                     originally from the Neuroimaging in Python project
       terrain       mapmaker's colors, blue-green-yellow-brown-white,
                     originally from IGOR Pro
+      turbo         Spectral map (purple-blue-green-yellow-orange-red) with
+                    a bright center and darker endpoints. A smoother
+                    alternative to jet.
       ============= =======================================================
 
     The following colormaps are redundant and may be removed in future
