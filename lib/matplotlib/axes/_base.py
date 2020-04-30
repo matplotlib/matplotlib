@@ -621,13 +621,7 @@ class _AxesBase(martist.Artist):
         self._update_transScale()
 
     def set_figure(self, fig):
-        """
-        Set the `.Figure` for this `.Axes`.
-
-        Parameters
-        ----------
-        fig : `.Figure`
-        """
+        # docstring inherited
         martist.Artist.set_figure(self, fig)
 
         self.bbox = mtransforms.TransformedBbox(self._position,
@@ -2889,7 +2883,7 @@ class _AxesBase(martist.Artist):
         grid is determined by the zorder of each axis, not by the zorder of the
         `.Line2D` objects comprising the grid.  Therefore, to set grid zorder,
         use `.set_axisbelow` or, for more control, call the
-        `~matplotlib.axis.Axis.set_zorder` method of each axis.
+        `~.Artist.set_zorder` method of each axis.
         """
         if len(kwargs):
             b = True

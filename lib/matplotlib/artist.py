@@ -397,7 +397,7 @@ class Artist:
             # subclass-specific implementation follows
 
         The *figure* kwarg is provided for the implementation of
-        `Figure.contains`.
+        `.Figure.contains`.
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -1304,24 +1304,6 @@ class ArtistInspector:
 
         return 'unknown'
 
-    def _get_setters_and_targets(self):
-        """
-        Get the attribute strings and a full path to where the setter
-        is defined for all setters in an object.
-        """
-        setters = []
-        for name in dir(self.o):
-            if not name.startswith('set_'):
-                continue
-            func = getattr(self.o, name)
-            if (not callable(func)
-                    or len(inspect.signature(func).parameters) < 2
-                    or self.is_alias(func)):
-                continue
-            setters.append(
-                (name[4:], f"{func.__module__}.{func.__qualname__}"))
-        return setters
-
     def _replace_path(self, source_class):
         """
         Changes the full path to the public API path that is used
@@ -1335,10 +1317,22 @@ class ArtistInspector:
 
     def get_setters(self):
         """
-        Get the attribute strings with setters for object.  e.g., for a line,
-        return ``['markerfacecolor', 'linewidth', ....]``.
+        Get the attribute strings with setters for object.
+
+        For example, for a line, return ``['markerfacecolor', 'linewidth',
+        ....]``.
         """
-        return [prop for prop, target in self._get_setters_and_targets()]
+        setters = []
+        for name in dir(self.o):
+            if not name.startswith('set_'):
+                continue
+            func = getattr(self.o, name)
+            if (not callable(func)
+                    or len(inspect.signature(func).parameters) < 2
+                    or self.is_alias(func)):
+                continue
+            setters.append(name[4:])
+        return setters
 
     def is_alias(self, o):
         """Return whether method object *o* is an alias for another method."""
@@ -1361,7 +1355,7 @@ class ArtistInspector:
     def aliased_name_rest(self, s, target):
         """
         Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME',
-        formatted for ReST.
+        formatted for reST.
 
         e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
@@ -1387,24 +1381,20 @@ class ArtistInspector:
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' % (pad, prop, accepts)
 
-        attrs = self._get_setters_and_targets()
-        attrs.sort()
         lines = []
-
-        for prop, path in attrs:
+        for prop in sorted(self.get_setters()):
             accepts = self.get_valid_values(prop)
             name = self.aliased_name(prop)
-
             lines.append('%s%s: %s' % (pad, name, accepts))
         return lines
 
     def pprint_setters_rest(self, prop=None, leadingspace=4):
         """
-        If *prop* is *None*, return a list of strings of all settable
-        properties and their valid values.  Format the output for ReST
+        If *prop* is *None*, return a list of reST-formatted strings of all
+        settable properties and their valid values.
 
         If *prop* is not *None*, it is a valid property name and that
-        property will be returned as a string of property : valid
+        property will be returned as a string of "property : valid"
         values.
         """
         if leadingspace:
@@ -1415,13 +1405,24 @@ class ArtistInspector:
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' % (pad, prop, accepts)
 
-        attrs = sorted(self._get_setters_and_targets())
+        prop_and_qualnames = []
+        for prop in sorted(self.get_setters()):
+            # Find the parent method which actually provides the docstring.
+            for cls in self.o.__mro__:
+                method = getattr(cls, f"set_{prop}", None)
+                if method and method.__doc__ is not None:
+                    break
+            else:  # No docstring available.
+                method = getattr(self.o, f"set_{prop}")
+            prop_and_qualnames.append(
+                (prop, f"{method.__module__}.{method.__qualname__}"))
 
-        names = [self.aliased_name_rest(prop, target).replace(
-            '_base._AxesBase', 'Axes').replace(
-            '_axes.Axes', 'Axes')
-                 for prop, target in attrs]
-        accepts = [self.get_valid_values(prop) for prop, target in attrs]
+        names = [self.aliased_name_rest(prop, target)
+                 .replace('_base._AxesBase', 'Axes')
+                 .replace('_axes.Axes', 'Axes')
+                 for prop, target in prop_and_qualnames]
+        accepts = [self.get_valid_values(prop)
+                   for prop, _ in prop_and_qualnames]
 
         col0_len = max(len(n) for n in names)
         col1_len = max(len(a) for a in accepts)

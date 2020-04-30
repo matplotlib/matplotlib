@@ -157,8 +157,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 
 ###############################################################################
 # Next, we'll add labels to the plot. To do this with the OO interface,
-# we can use the :meth:`axes.Axes.set` method to set properties of this
-# Axes object.
+# we can use the `.Artist.set` method to set properties of this Axes object.
 
 fig, ax = plt.subplots()
 ax.barh(group_names, group_data)

@@ -509,12 +509,12 @@ which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 
-`.Axes.remove()` works as expected
-``````````````````````````````````
+``Axes.remove()`` works as expected
+```````````````````````````````````
 
 As with artists added to an :class:`~matplotlib.axes.Axes`,
 `~.axes.Axes` objects can be removed from their figure via
-:meth:`~matplotlib.axes.Axes.remove()`.
+`~.Artist.remove()`.
 
 
 API Consistency fix within Locators set_params() function
