@@ -338,31 +338,70 @@ def show(*args, **kwargs):
 
 
 def isinteractive():
-    """Return whether to redraw after every plotting command."""
+    """
+    Return if pyplot is in "interactive mode" or not.
+
+    If in interactive mode then:
+
+      - newly created figures will be shown immediately
+      - figures will automatically redraw on change
+      - pyplot.show will not block by default
+
+    If not in interactive mode then:
+
+      - newly created figures and changes to figures will
+        not be reflected until explicitly asked to be
+      - pyplot.show will block by default
+
+    See Also
+    --------
+    ion : enable interactive mode
+    ioff : disable interactive mode
+    """
     return matplotlib.is_interactive()
 
 
 def ioff():
-    """Turn the interactive mode off."""
+    """
+    Turn the interactive mode off.
+
+    See Also
+    --------
+    ion : enable interactive mode
+    isinteractive : query current state
+
+    """
     matplotlib.interactive(False)
     uninstall_repl_displayhook()
 
 
 def ion():
-    """Turn the interactive mode on."""
+    """
+    Turn the interactive mode on.
+
+    See Also
+    --------
+    ioff : disable interactive mode
+    isinteractive : query current state
+    """
     matplotlib.interactive(True)
     install_repl_displayhook()
 
 
 def pause(interval):
     """
-    Pause for *interval* seconds.
+    Run the GUI event loop or sleep for *interval* seconds and .
 
     If there is an active figure, it will be updated and displayed before the
     pause, and the GUI event loop (if any) will run during the pause.
 
-    This can be used for crude animation.  For more complex animation, see
+    This can be used for crude animation.  For more complex animation use
     :mod:`matplotlib.animation`.
+
+    See Also
+    --------
+    matplotlib.animation : Complex animation
+    show : show figures and optional block forever
     """
     manager = _pylab_helpers.Gcf.get_active()
     if manager is not None:
