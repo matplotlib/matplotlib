@@ -1815,7 +1815,8 @@ def date_ticker_factory(span, tz=None, numticks=5):
         locator = SecondLocator(interval=math.ceil(secs / numticks), tz=tz)
         fmt = '%S.%f'
     else:
-        locator = MicrosecondLocator(interval=math.ceil(span * MUSECONDS_PER_DAY / numticks), tz=tz)
+        us = span * MUSECONDS_PER_DAY
+        locator = MicrosecondLocator(interval=math.ceil(us / numticks), tz=tz)
         fmt = '%S.%f'
 
     formatter = DateFormatter(fmt, tz=tz)
