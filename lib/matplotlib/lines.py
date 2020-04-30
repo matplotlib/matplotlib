@@ -537,7 +537,7 @@ class Line2D(Artist):
         Parameters
         ----------
         every : None or int or (int, int) or slice or List[int] or float or \
-(float, float)
+(float, float) or List[bool]
             Which markers to plot.
 
             - every=None, every point will be plotted.
@@ -549,6 +549,8 @@ class Line2D(Artist):
               point start, up to but not including point end, will be plotted.
             - every=[i, j, m, n], only markers at points i, j, m, and n
               will be plotted.
+            - every=[True, False, True], positions that are True will be
+              plotted.
             - every=0.1, (i.e. a float) then markers will be spaced at
               approximately equal distances along the line; the distance
               along the line between markers is determined by multiplying the
@@ -580,9 +582,8 @@ class Line2D(Artist):
         axes-bounding-box-diagonal regardless of the actual axes data limits.
 
         """
-        if self._markevery != every:
-            self.stale = True
         self._markevery = every
+        self.stale = True
 
     def get_markevery(self):
         """
