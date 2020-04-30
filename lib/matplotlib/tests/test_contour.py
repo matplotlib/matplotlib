@@ -377,15 +377,18 @@ def test_contour_uneven():
     fig.colorbar(cs, ax=ax, spacing='uniform')
 
 
-@pytest.mark.parametrize("rcll, rccl, fcl, expected", [
-    (1.23, None, None, 1.23),
-    (1.23, 4.24, None, 4.24),
-    (1.23, 4.24, 5.02, 5.02)
-])
-def test_contour_linewidths(rcll, rccl, fcl, expected):
+@pytest.mark.parametrize(
+    "rc_lines_linewidth, rc_contour_linewidths, call_linewidths, expected", [
+        (1.23, None, None, 1.23),
+        (1.23, 4.24, None, 4.24),
+        (1.23, 4.24, 5.02, 5.02)
+        ])
+def test_contour_linewidths(
+        rc_lines_linewidth, rc_contour_linewidths, call_linewidths, expected):
 
-    with rc_context(rc={"lines.linewidth": rcll, "contour.linewidths": rccl}):
+    with rc_context(rc={"lines.linewidth": rc_lines_linewidth,
+                        "contour.linewidths": rc_contour_linewidths}):
         fig, ax = plt.subplots()
         X = np.arange(4*3).reshape(4, 3)
-        cs = ax.contour(X, linewidths=fcl)
+        cs = ax.contour(X, linewidths=call_linewidths)
         assert cs.tlinewidths[0][0] == expected

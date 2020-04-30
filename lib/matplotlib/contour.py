@@ -1752,7 +1752,7 @@ class QuadContourSet(ContourSet):
             however introduce rendering artifacts at chunk boundaries depending
             on the backend, the *antialiased* flag and value of *alpha*.
 
-        linewidths : float or sequence of float
+        linewidths : float or sequence of float, default: :rc:`contour.linewidths`
             *Only applies to* `.contour`.
 
             The line width of the contour lines.
@@ -1762,8 +1762,7 @@ class QuadContourSet(ContourSet):
             If a sequence, the levels in ascending order will be plotted with
             the linewidths in the order specified.
 
-            Defaults to :rc:`contour.linewidths`. If this value is None,
-            it falls back to :rc:`lines.linewidth`.
+            If None, this falls back to :rc:`lines.linewidth`.
 
         linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
             *Only applies to* `.contour`.
