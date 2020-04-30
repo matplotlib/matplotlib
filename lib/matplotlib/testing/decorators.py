@@ -9,6 +9,10 @@ import string
 import sys
 import unittest
 import warnings
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py3.6.
 
 import matplotlib as mpl
 import matplotlib.style
@@ -200,7 +204,7 @@ class _ImageComparisonBase:
                 f"{orig_expected_path}") from err
         return expected_fname
 
-    def compare(self, idx, baseline, extension):
+    def compare(self, idx, baseline, extension, *, _lock=False):
         __tracebackhide__ = True
         fignum = plt.get_fignums()[idx]
         fig = plt.figure(fignum)
@@ -214,10 +218,12 @@ class _ImageComparisonBase:
             kwargs.setdefault('metadata',
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
-        fig.savefig(actual_path, **kwargs)
 
-        expected_path = self.copy_baseline(baseline, extension)
-        _raise_on_image_difference(expected_path, actual_path, self.tol)
+        lock = cbook._lock_path(actual_path) if _lock else nullcontext()
+        with lock:
+            fig.savefig(actual_path, **kwargs)
+            expected_path = self.copy_baseline(baseline, extension)
+            _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -254,6 +260,13 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             matplotlib.testing.set_font_settings_for_testing()
             func(*args, **kwargs)
 
+            # If the test is parametrized in any way other than applied via
+            # this decorator, then we need to use a lock to prevent two
+            # processes from touching the same output file.
+            needs_lock = any(
+                marker.args[0] != 'extension'
+                for marker in request.node.iter_markers('parametrize'))
+
             if baseline_images is not None:
                 our_baseline_images = baseline_images
             else:
@@ -266,7 +279,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 "Test generated {} images but there are {} baseline images"
                 .format(len(plt.get_fignums()), len(our_baseline_images)))
             for idx, baseline in enumerate(our_baseline_images):
-                img.compare(idx, baseline, extension)
+                img.compare(idx, baseline, extension, _lock=needs_lock)
 
         parameters = list(old_sig.parameters.values())
         if 'extension' not in old_sig.parameters:
