@@ -639,36 +639,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
+        QtWidgets.QToolBar.__init__(self, parent)
+
         self._parent = parent
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
-        QtWidgets.QToolBar.__init__(self, parent)
-        NavigationToolbar2.__init__(self, canvas)
 
-    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
-    @property
-    def parent(self):
-        return self._parent
-
-    @cbook.deprecated(
-        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
-    @property
-    def basedir(self):
-        return str(cbook._get_data_path('images'))
-
-    def _icon(self, name, color=None):
-        if is_pyqt5():
-            name = name.replace('.png', '_large.png')
-        pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
-        qt_compat._setDevicePixelRatio(pm, self.canvas._dpi_ratio)
-        if color is not None:
-            mask = pm.createMaskFromColor(QtGui.QColor('black'),
-                                          QtCore.Qt.MaskOutColor)
-            pm.fill(color)
-            pm.setMask(mask)
-        return QtGui.QIcon(pm)
-
-    def _init_toolbar(self):
         background_color = self.palette().color(self.backgroundRole())
         foreground_color = self.palette().color(self.foregroundRole())
         icon_color = (foreground_color
@@ -698,6 +674,31 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                                       QtWidgets.QSizePolicy.Ignored))
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
+
+        NavigationToolbar2.__init__(self, canvas)
+
+    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
+    @property
+    def parent(self):
+        return self._parent
+
+    @cbook.deprecated(
+        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
+    @property
+    def basedir(self):
+        return str(cbook._get_data_path('images'))
+
+    def _icon(self, name, color=None):
+        if is_pyqt5():
+            name = name.replace('.png', '_large.png')
+        pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
+        qt_compat._setDevicePixelRatio(pm, qt_compat._devicePixelRatio(self))
+        if color is not None:
+            mask = pm.createMaskFromColor(QtGui.QColor('black'),
+                                          QtCore.Qt.MaskOutColor)
+            pm.fill(color)
+            pm.setMask(mask)
+        return QtGui.QIcon(pm)
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()

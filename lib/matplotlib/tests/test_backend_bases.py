@@ -108,10 +108,7 @@ def test_interactive_zoom():
     fig, ax = plt.subplots()
     ax.set(xscale="logit")
 
-    class NT2(NavigationToolbar2):
-        def _init_toolbar(self): pass
-
-    tb = NT2(fig.canvas)
+    tb = NavigationToolbar2(fig.canvas)
     tb.zoom()
 
     xlim0 = ax.get_xlim()

@@ -2674,11 +2674,11 @@ class _Mode(str, Enum):
 
 class NavigationToolbar2:
     """
-    Base class for the navigation cursor, version 2
+    Base class for the navigation cursor, version 2.
 
-    backends must implement a canvas that handles connections for
+    Backends must implement a canvas that handles connections for
     'button_press_event' and 'button_release_event'.  See
-    :meth:`FigureCanvasBase.mpl_connect` for more information
+    :meth:`FigureCanvasBase.mpl_connect` for more information.
 
     They must also define
 
@@ -2687,9 +2687,6 @@ class NavigationToolbar2:
 
       :meth:`set_cursor`
          if you want the pointer icon to change
-
-      :meth:`_init_toolbar`
-         create your toolbar widget
 
       :meth:`draw_rubberband` (optional)
          draw the zoom to rect "rubberband" rectangle
@@ -2700,6 +2697,12 @@ class NavigationToolbar2:
       :meth:`set_history_buttons` (optional)
          you can change the history back / forward buttons to
          indicate disabled / enabled state.
+
+    and override ``__init__`` to set up the toolbar -- without forgetting to
+    call the base-class init.  Typically, ``__init__`` needs to set up toolbar
+    buttons connected to the `home`, `back`, `forward`, `pan`, `zoom`, and
+    `save_figure` methods and using standard icons in the "images" subdirectory
+    of the data path.
 
     That's it, we'll do the rest!
     """
@@ -2730,7 +2733,15 @@ class NavigationToolbar2:
         self._xypress = None  # location and axis info at the time of the press
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
-        self._init_toolbar()
+
+        init = cbook._deprecate_method_override(
+            __class__._init_toolbar, self, allow_empty=True, since="3.3",
+            addendum="Please fully initialize the toolbar in your subclass' "
+            "__init__; a fully empty _init_toolbar implementation may be kept "
+            "for compatibility with earlier versions of Matplotlib.")
+        if init:
+            init()
+
         self._id_press = self.canvas.mpl_connect(
             'button_press_event', self._zoom_pan_handler)
         self._id_release = self.canvas.mpl_connect(
@@ -2793,6 +2804,7 @@ class NavigationToolbar2:
         self.set_history_buttons()
         self._update_view()
 
+    @cbook.deprecated("3.3", alternative="__init__")
     def _init_toolbar(self):
         """
         This is where you actually build the GUI widgets (called by

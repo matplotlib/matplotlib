@@ -491,6 +491,29 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
         # so that Tool implementations can reuse the methods.
         self.window = window
+
+        tk.Frame.__init__(self, master=window, borderwidth=2,
+                          width=int(canvas.figure.bbox.width), height=50)
+
+        self._buttons = {}
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                # Add a spacer; return value is unused.
+                self._Spacer()
+            else:
+                self._buttons[text] = button = self._Button(
+                    text,
+                    str(cbook._get_data_path(f"images/{image_file}.gif")),
+                    toggle=callback in ["zoom", "pan"],
+                    command=getattr(self, callback),
+                )
+                if tooltip_text is not None:
+                    ToolTip.createToolTip(button, tooltip_text)
+
+        self.message = tk.StringVar(master=self)
+        self._message_label = tk.Label(master=self, textvariable=self.message)
+        self._message_label.pack(side=tk.RIGHT)
+
         NavigationToolbar2.__init__(self, canvas)
         if pack_toolbar:
             self.pack(side=tk.BOTTOM, fill=tk.X)
@@ -546,51 +569,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             master=self, height=26, relief=tk.RIDGE, pady=2, bg="DarkGray")
         s.pack(side=tk.LEFT, padx=5)
         return s
-
-    def _init_toolbar(self):
-        xmin, xmax = self.canvas.figure.bbox.intervalx
-        height, width = 50, xmax-xmin
-        tk.Frame.__init__(self, master=self.window,
-                          width=int(width), height=int(height),
-                          borderwidth=2)
-
-        self.update()  # Make axes menu
-
-        self._buttons = {}
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                # Add a spacer; return value is unused.
-                self._Spacer()
-            else:
-                self._buttons[text] = button = self._Button(
-                    text,
-                    str(cbook._get_data_path(f"images/{image_file}.gif")),
-                    toggle=callback in ["zoom", "pan"],
-                    command=getattr(self, callback),
-                )
-                if tooltip_text is not None:
-                    ToolTip.createToolTip(button, tooltip_text)
-
-        self.message = tk.StringVar(master=self)
-        self._message_label = tk.Label(master=self, textvariable=self.message)
-        self._message_label.pack(side=tk.RIGHT)
-
-    def _update_buttons_checked(self):
-        for name, mode in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
-            button = self._buttons.get(name)
-            if button:
-                if self.mode.name == mode and not button.var.get():
-                    button.select()
-                elif self.mode.name != mode and button.var.get():
-                    button.deselect()
-
-    def pan(self, *args):
-        super().pan(*args)
-        self._update_buttons_checked()
-
-    def zoom(self, *args):
-        super().zoom(*args)
-        self._update_buttons_checked()
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))

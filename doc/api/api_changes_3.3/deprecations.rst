@@ -371,6 +371,16 @@ The ``Fil``, ``Fill``, ``Filll``, ``NegFil``, ``NegFill``, ``NegFilll``, and
 ``SsGlue`` classes in the :mod:`matplotlib.mathtext` module are deprecated.
 As an alternative, directly construct glue instances with ``Glue("fil")``, etc.
 
+NavigationToolbar2._init_toolbar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Overriding this method to initialize third-party toolbars is deprecated.
+Instead, the toolbar should be initialized in the ``__init__`` method of the
+subclass (which should call the base-class' ``__init__`` as appropriate).  To
+keep back-compatibility with earlier versions of Matplotlib (which *required*
+``_init_toolbar`` to be overridden), a fully empty implementation (``def
+_init_toolbar(self): pass``) may be kept and will not trigger the deprecation
+warning.
+
 NavigationToolbar2QT.parent and .basedir
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These attributes are deprecated.  In order to access the parent window, use

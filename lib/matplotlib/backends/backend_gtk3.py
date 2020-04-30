@@ -451,43 +451,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
-        NavigationToolbar2.__init__(self, canvas)
 
-    @cbook.deprecated("3.3")
-    @property
-    def ctx(self):
-        return self.canvas.get_property("window").cairo_create()
-
-    def set_message(self, s):
-        self.message.set_label(s)
-
-    def set_cursor(self, cursor):
-        self.canvas.get_property("window").set_cursor(cursord[cursor])
-        Gtk.main_iteration()
-
-    def draw_rubberband(self, event, x0, y0, x1, y1):
-        # adapted from
-        # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
-        ctx = self.canvas.get_property("window").cairo_create()
-
-        # todo: instead of redrawing the entire figure, copy the part of
-        # the figure that was covered by the previous rubberband rectangle
-        self.canvas.draw()
-
-        height = self.canvas.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
-
-        ctx.new_path()
-        ctx.set_line_width(0.5)
-        ctx.rectangle(*rect)
-        ctx.set_source_rgb(0, 0, 0)
-        ctx.stroke()
-
-    def _init_toolbar(self):
         self.set_style(Gtk.ToolbarStyle.ICONS)
 
         self._gtk_ids = {}
@@ -520,6 +484,42 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         toolitem.add(self.message)
 
         self.show_all()
+
+        NavigationToolbar2.__init__(self, canvas)
+
+    @cbook.deprecated("3.3")
+    @property
+    def ctx(self):
+        return self.canvas.get_property("window").cairo_create()
+
+    def set_message(self, s):
+        self.message.set_label(s)
+
+    def set_cursor(self, cursor):
+        self.canvas.get_property("window").set_cursor(cursord[cursor])
+        Gtk.main_iteration()
+
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        # adapted from
+        # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
+        self.ctx = self.canvas.get_property("window").cairo_create()
+
+        # todo: instead of redrawing the entire figure, copy the part of
+        # the figure that was covered by the previous rubberband rectangle
+        self.canvas.draw()
+
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        w = abs(x1 - x0)
+        h = abs(y1 - y0)
+        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
+
+        self.ctx.new_path()
+        self.ctx.set_line_width(0.5)
+        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
+        self.ctx.set_source_rgb(0, 0, 0)
+        self.ctx.stroke()
 
     def _update_buttons_checked(self):
         for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:

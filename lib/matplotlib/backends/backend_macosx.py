@@ -110,11 +110,10 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
     def __init__(self, canvas):
-        NavigationToolbar2.__init__(self, canvas)
-
-    def _init_toolbar(self):
+        self.canvas = canvas  # Needed by the _macosx __init__.
         _macosx.NavigationToolbar2.__init__(
             self, str(cbook._get_data_path('images')))
+        NavigationToolbar2.__init__(self, canvas)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.set_rubberband(int(x0), int(y0), int(x1), int(y1))
