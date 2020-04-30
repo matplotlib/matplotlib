@@ -57,7 +57,7 @@ f = BytesIO()
 plt.savefig(f, format="svg")
 
 
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 
 # filter definition for a gaussian blur
 filter_def = """
