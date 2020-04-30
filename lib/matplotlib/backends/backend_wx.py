@@ -776,13 +776,13 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 # no change in size
                 return
         self._width, self._height = size
-        # Create a new, correctly sized bitmap
-        self.bitmap = wx.Bitmap(self._width, self._height)
-
         self._isDrawn = False
 
         if self._width <= 1 or self._height <= 1:
             return  # Empty figure
+
+        # Create a new, correctly sized bitmap
+        self.bitmap = wx.Bitmap(self._width, self._height)
 
         dpival = self.figure.dpi
         winch = self._width / dpival
