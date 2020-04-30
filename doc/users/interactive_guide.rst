@@ -412,7 +412,7 @@ method.  The source for the prompt_toolkit input hooks lives at
 
 
 
-.. rubric:: Fotenotes
+.. rubric:: Footnotes
 
 .. [#f1] A limitation of this design is that you can only wait for one
 	 input, if there is a need to multiplex between multiple sources
