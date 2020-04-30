@@ -229,11 +229,9 @@ x direction, making the axes smaller in the x-direction doesn't help.  The
 behavior of both has been changed to ignore the width of the title and
 xlabel and the height of the ylabel in the layout logic.
 
-This also means there is a new keyword argument for `.axes.Axes.get_tightbbox`:
-``for_layout_only``, which defaults to *False*, but if *True* returns a
-bounding box using the rules above.  `.axis.Axis.get_tightbbox` gets an
-``ignore_label`` keyword argument, which is *None* by default, but which can
-also be 'x' or 'y'. 
+This also means there is a new keyword argument for `.axes.Axes.get_tightbbox`
+and `.axis.Axis.get_tightbbox`: ``for_layout_only``, which defaults to *False*,
+but if *True* returns a bounding box using the rules above.
 
 :rc:`savefig.facecolor` and :rc:`savefig.edgecolor` now default to "auto"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
