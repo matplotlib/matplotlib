@@ -52,7 +52,7 @@ IPython integration
 ===================
 
 We recommend using IPython for an interactive shell.  In addition to
-all of it's features (improved tab-completion, magics,
+all of its features (improved tab-completion, magics,
 multiline-editing, etc), it also ensures that the GUI toolkit event
 loop is properly integrated with the command line (see
 :ref:`cp_integration`).  To configure the integration and enable
@@ -302,5 +302,5 @@ way to access your figure.
 PyCharm, Spydter, and VSCode
 ----------------------------
 
-Many IDEs have built-in integration with Matplotlib, please consult it's
+Many IDEs have built-in integration with Matplotlib, please consult its
 documentation for configuration details.
