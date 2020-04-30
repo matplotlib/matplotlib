@@ -141,6 +141,10 @@ sphinx_gallery_conf = {
     'within_subsection_order': gallery_order.subsectionorder,
     'remove_config_comments': True,
     'min_reported_time': 1,
+    # Default thumbnail size (400, 280)
+    # Default CSS rescales (160, 112)
+    # Size is decreased to reduce webpage loading time
+    'thumbnail_size': (280, 196),
 }
 
 plot_gallery = 'True'
