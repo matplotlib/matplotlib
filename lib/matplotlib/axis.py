@@ -3,6 +3,7 @@ Classes for the ticks and x and y axis.
 """
 
 import datetime
+import functools
 import logging
 
 import numpy as np
@@ -1601,7 +1602,7 @@ class Axis(martist.Artist):
 
     # Helper for set_ticklabels. Defining it here makes it pickleable.
     @staticmethod
-    def _format_with_dict(x, pos, tickd):
+    def _format_with_dict(tickd, x, pos):
         return tickd.get(x, "")
 
     def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
@@ -1635,7 +1636,8 @@ class Axis(martist.Artist):
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
             tickd = {loc: lab for loc, lab in zip(locator.locs, ticklabels)}
-            formatter = mticker.FuncFormatter(self._format_with_dict, tickd)
+            func = functools.partial(self._format_with_dict, tickd)
+            formatter = mticker.FuncFormatter(func)
         else:
             formatter = mticker.FixedFormatter(ticklabels)
         if minor:
