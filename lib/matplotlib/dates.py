@@ -1785,6 +1785,7 @@ def date_ticker_factory(span, tz=None, numticks=5):
     if span == 0:
         span = 1 / HOURS_PER_DAY
 
+    secs = span * SEC_PER_DAY
     mins = span * MINUTES_PER_DAY
     hrs = span * HOURS_PER_DAY
     days = span
@@ -1810,9 +1811,12 @@ def date_ticker_factory(span, tz=None, numticks=5):
     elif mins > numticks:
         locator = MinuteLocator(interval=math.ceil(mins / numticks), tz=tz)
         fmt = '%H:%M:%S'
+    elif secs > numticks:
+        locator = SecondLocator(interval=math.ceil(secs / numticks), tz=tz)
+        fmt = '%S.%f'
     else:
-        locator = MinuteLocator(tz=tz)
-        fmt = '%H:%M:%S'
+        locator = MicrosecondLocator(interval=math.ceil(span * MUSECONDS_PER_DAY / numticks), tz=tz)
+        fmt = '%S.%f'
 
     formatter = DateFormatter(fmt, tz=tz)
     return locator, formatter
