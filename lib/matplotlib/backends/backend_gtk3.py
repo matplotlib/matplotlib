@@ -570,7 +570,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         ff = dialog.get_filter()  # Doesn't autoadjust to filename :/
         fmt = self.canvas.get_supported_filetypes_grouped()[ff.get_name()][0]
         dialog.destroy()
-        if response == Gtk.ResponseType.CANCEL:
+        if response != Gtk.ResponseType.OK:
             return
         # Save dir for next time, unless empty str (which means use cwd).
         if mpl.rcParams['savefig.directory']:
