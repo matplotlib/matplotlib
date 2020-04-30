@@ -379,11 +379,13 @@ class FuncFormatter(Formatter):
 
     The function should take in two inputs (a tick value ``x`` and a
     position ``pos``), and return a string containing the corresponding
-    tick label.
+    tick label.  The function may take additional arguments that are
+    supplied upon instantiation.
     """
 
-    def __init__(self, func):
+    def __init__(self, func, *args):
         self.func = func
+        self.args = args
         self.offset_string = ""
 
     def __call__(self, x, pos=None):
@@ -392,7 +394,7 @@ class FuncFormatter(Formatter):
 
         *x* and *pos* are passed through as-is.
         """
-        return self.func(x, pos)
+        return self.func(x, pos, *self.args)
 
     def get_offset(self):
         return self.offset_string

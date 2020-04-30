@@ -1599,6 +1599,11 @@ class Axis(martist.Artist):
         """
         self.pickradius = pickradius
 
+    # Helper for set_ticklabels. Defining it here makes it pickleable.
+    @staticmethod
+    def _format_with_dict(x, pos, tickd):
+        return tickd.get(x, "")
+
     def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         r"""
         Set the text values of the tick labels.
@@ -1630,7 +1635,7 @@ class Axis(martist.Artist):
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
             tickd = {loc: lab for loc, lab in zip(locator.locs, ticklabels)}
-            formatter = mticker.FuncFormatter(lambda x, pos: tickd.get(x, ""))
+            formatter = mticker.FuncFormatter(self._format_with_dict, tickd)
         else:
             formatter = mticker.FixedFormatter(ticklabels)
         if minor:
