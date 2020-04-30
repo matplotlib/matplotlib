@@ -36,6 +36,7 @@ themselves.
 import functools
 import textwrap
 import weakref
+import math
 
 import numpy as np
 from numpy.linalg import inv
@@ -1842,7 +1843,7 @@ class Affine2D(Affine2DBase):
         if matrix is None:
             # A bit faster than np.identity(3).
             matrix = IdentityTransform._mtx.copy()
-        self._mtx = matrix
+        self._mtx = matrix.copy()
         self._invalid = 0
 
     __str__ = _make_str_method("_mtx")
@@ -1925,8 +1926,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        a = np.cos(theta)
-        b = np.sin(theta)
+        a = math.cos(theta)
+        b = math.sin(theta)
         rotate_mtx = np.array([[a, -b, 0.0], [b, a, 0.0], [0.0, 0.0, 1.0]],
                               float)
         self._mtx = np.dot(rotate_mtx, self._mtx)
@@ -1941,7 +1942,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.rotate(np.deg2rad(degrees))
+        return self.rotate(math.radians(degrees))
 
     def rotate_around(self, x, y, theta):
         """
@@ -1973,9 +1974,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        translate_mtx = np.array(
-            [[1.0, 0.0, tx], [0.0, 1.0, ty], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(translate_mtx, self._mtx)
+        self._mtx[0, 2] += tx
+        self._mtx[1, 2] += ty
         self.invalidate()
         return self
 
@@ -1992,9 +1992,13 @@ class Affine2D(Affine2DBase):
         """
         if sy is None:
             sy = sx
-        scale_mtx = np.array(
-            [[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(scale_mtx, self._mtx)
+        # explicit element-wise scaling is fastest
+        self._mtx[0, 0] *= sx
+        self._mtx[0, 1] *= sx
+        self._mtx[0, 2] *= sx
+        self._mtx[1, 0] *= sy
+        self._mtx[1, 1] *= sy
+        self._mtx[1, 2] *= sy
         self.invalidate()
         return self
 
@@ -2009,8 +2013,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        rotX = np.tan(xShear)
-        rotY = np.tan(yShear)
+        rotX = math.tan(xShear)
+        rotY = math.tan(yShear)
         skew_mtx = np.array(
             [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]], float)
         self._mtx = np.dot(skew_mtx, self._mtx)
@@ -2028,7 +2032,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
+        return self.skew(math.radians(xShear), math.radians(yShear))
 
 
 class IdentityTransform(Affine2DBase):

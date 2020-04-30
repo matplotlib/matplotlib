@@ -43,8 +43,8 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
-    widgets, get_backend, is_interactive, rcParams)
+    backend_tools as tools, cbook, colors, textpath, tight_bbox,
+    transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.transforms import Affine2D
@@ -222,18 +222,22 @@ class RendererBase:
         recommended to use those generators, so that changes to the
         behavior of :meth:`draw_path_collection` can be made globally.
         """
-        path_ids = [
-            (path, transforms.Affine2D(transform))
-            for path, transform in self._iter_collection_raw_paths(
-                    master_transform, paths, all_transforms)]
+        path_ids = self._iter_collection_raw_paths(master_transform,
+                                                   paths, all_transforms)
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, path_ids, offsets,
+                gc, master_transform, all_transforms, list(path_ids), offsets,
                 offsetTrans, facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             path, transform = path_id
-            transform = transforms.Affine2D(
-                            transform.get_matrix()).translate(xo, yo)
+            # Only apply another translation if we have an offset, else we
+            # resuse the inital transform.
+            if xo != 0 or yo != 0:
+                # The transformation can be used by multiple paths. Since
+                # translate is a inplace operation, we need to copy the
+                # transformation by .frozen() before applying the translation.
+                transform = transform.frozen()
+                transform.translate(xo, yo)
             self.draw_path(gc0, path, transform, rgbFace)
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
