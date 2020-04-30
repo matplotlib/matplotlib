@@ -221,7 +221,7 @@ docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 def _set_ticks_on_axis_warn(*args, **kw):
     # a top level function which gets put in at the axes'
-    # set_xticks set_yticks by _patch_ax
+    # set_xticks and set_yticks by ColorbarBase.__init__.
     cbook._warn_external("Use the colorbar set_ticks() method instead.")
 
 
@@ -420,8 +420,12 @@ class ColorbarBase:
             ticklocation=ticklocation)
         cbook._check_in_list(
             ['uniform', 'proportional'], spacing=spacing)
+
         self.ax = ax
-        self._patch_ax()
+        # Bind some methods to the axes to warn users against using them.
+        ax.set_xticks = ax.set_yticks = _set_ticks_on_axis_warn
+        ax.set(frame_on=False, navigate=False)
+
         if cmap is None:
             cmap = cm.get_cmap()
         if norm is None:
@@ -488,12 +492,6 @@ class ColorbarBase:
         """Return whether the upper limit is open ended."""
         return self.extend in ('both', 'max')
 
-    def _patch_ax(self):
-        # bind some methods to the axes to warn users
-        # against using those methods.
-        self.ax.set_xticks = _set_ticks_on_axis_warn
-        self.ax.set_yticks = _set_ticks_on_axis_warn
-
     def draw_all(self):
         """
         Calculate any free parameters based on the current cmap and norm,
@@ -502,17 +500,23 @@ class ColorbarBase:
         # sets self._boundaries and self._values in real data units.
         # takes into account extend values:
         self._process_values()
-        # sets self.vmin and vmax in data units, but just for
-        # the part of the colorbar that is not part of the extend
-        # patch:
+        # sets self.vmin and vmax in data units, but just for the part of the
+        # colorbar that is not part of the extend patch:
         self._find_range()
-        # returns the X and Y mesh, *but* this was/is in normalized
-        # units:
+        # returns the X and Y mesh, *but* this was/is in normalized units:
         X, Y = self._mesh()
         C = self._values[:, np.newaxis]
-        # decide minor/major axis
-        self._config_axis()
-        self._config_axes(X, Y)
+
+        self._config_axis()  # Inline it after deprecation elapses.
+        # Configure axes limits, patch, and outline.
+        xy = self._outline(X, Y)
+        xmin, ymin = xy.min(axis=0)
+        xmax, ymax = xy.max(axis=0)
+        self.ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
+        self.outline.set_xy(xy)
+        self.patch.set_xy(xy)
+        self.update_ticks()
+
         if self.filled:
             self._add_solids(X, Y, C)
 
@@ -521,9 +525,8 @@ class ColorbarBase:
         self._config_axis()
 
     def _config_axis(self):
-        """Configure the ticks, ticklabels and label of the underlying Axes."""
+        """Set up long and short axis."""
         ax = self.ax
-
         if self.orientation == 'vertical':
             long_axis, short_axis = ax.yaxis, ax.xaxis
             if mpl.rcParams['ytick.minor.visible']:
@@ -532,9 +535,8 @@ class ColorbarBase:
             long_axis, short_axis = ax.xaxis, ax.yaxis
             if mpl.rcParams['xtick.minor.visible']:
                 self.minorticks_on()
-
-        long_axis.set_label_position(self.ticklocation)
-        long_axis.set_ticks_position(self.ticklocation)
+        long_axis.set(label_position=self.ticklocation,
+                      ticks_position=self.ticklocation)
         short_axis.set_ticks([])
         short_axis.set_ticks([], minor=True)
         self._set_label()
@@ -717,20 +719,6 @@ class ColorbarBase:
         long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
 
         long_axis.set_minor_locator(ticker.NullLocator())
-
-    def _config_axes(self, X, Y):
-        """Create an axes patch and outline."""
-        ax = self.ax
-        ax.set_frame_on(False)
-        ax.set_navigate(False)
-        xy = self._outline(X, Y)
-        ax.ignore_existing_data_limits = True
-        ax.update_datalim(xy)
-        ax.set_xlim(*ax.dataLim.intervalx)
-        ax.set_ylim(*ax.dataLim.intervaly)
-        self.outline.set_xy(xy)
-        self.patch.set_xy(xy)
-        self.update_ticks()
 
     def _set_label(self):
         if self.orientation == 'vertical':
