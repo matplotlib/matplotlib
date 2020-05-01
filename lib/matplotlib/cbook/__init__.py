@@ -256,16 +256,6 @@ class silent_list(list):
     def __repr__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
-    __str__ = __repr__
-
-    def __getstate__(self):
-        # store a dictionary of this SilentList's state
-        return {'type': self.type, 'seq': self[:]}
-
-    def __setstate__(self, state):
-        self.type = state['type']
-        self.extend(state['seq'])
-
 
 @deprecated("3.3")
 class IgnoredKeywordWarning(UserWarning):
