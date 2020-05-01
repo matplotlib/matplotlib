@@ -2944,7 +2944,8 @@ class Axes(_AxesBase):
 
         normalize: None or bool, default: None
             When *True*, always make a full pie by normalizing x so that
-            ``sum(x) == 1``. When *False*, make a partial (or overfull) pie.
+            ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
+            and raises a `ValueError` for ``sum(x) > 1``.
 
             When *None*, defaults to *True* if ``sum(x) > 0`` and *False* if
             ``sum(x) < 1``.
@@ -3036,6 +3037,8 @@ class Axes(_AxesBase):
                 normalize = True
         if normalize:
             x = x / sx
+        elif sx > 1:
+            raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
         if labels is None:
             labels = [''] * len(x)
         if explode is None:
