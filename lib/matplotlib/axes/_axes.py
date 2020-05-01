@@ -3778,7 +3778,7 @@ class Axes(_AxesBase):
                         stats['med'] = med
 
         if conf_intervals is not None:
-            if np.shape(conf_intervals)[0] != len(bxpstats):
+            if len(conf_intervals) != len(bxpstats):
                 raise ValueError(
                     "'conf_intervals' and 'x' have different lengths")
             else:
@@ -6555,11 +6555,11 @@ such objects
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
-        # basic input validation
-        input_empty = np.size(x) == 0
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
+        # basic input validation
+        input_empty = np.size(x) == 0
 
         # Process unit information
         # Unit conversion is done individually on each dataset
