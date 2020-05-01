@@ -2989,7 +2989,7 @@ pivot='tail', normalize=False, **kwargs)
         coorderrs = []
 
         # define the markers used for errorbar caps and limits below
-        # the dictionary key is the current ticking value of `i_xyz`
+        # the dictionary key is mapped by the `i_xyz` helper dictionary
         capmarker = {0: '|', 1: '|', 2: '_'}
         limmarker = {0: {'lower': art3d.lines.CARETRIGHT,
                          'upper': art3d.lines.CARETLEFT},
@@ -2997,11 +2997,15 @@ pivot='tail', normalize=False, **kwargs)
                          'upper': art3d.lines.CARETLEFT},
                      2: {'lower': art3d.lines.CARETUP,
                          'upper': art3d.lines.CARETDOWN}}
+        i_xyz = {'x': 0, 'y': 1, 'z': 2}
 
-        # i_xyz determines which coordinate is currently being looped over
-        for data, err, i_xyz, lolims, uplims in zip(
-                [x, y, z], [xerr, yerr, zerr], range(3),
+        # loop over x-, y-, and z-direction and draw relevant elements
+        for zdir, data, err, lolims, uplims in zip(
+                ['x', 'y', 'z'], [x, y, z], [xerr, yerr, zerr],
                 [xlolims, ylolims, zlolims], [xuplims, yuplims, zuplims]):
+
+            dir_vector = art3d.get_dir_vector(zdir)
+            i_zdir = i_xyz[zdir]
 
             if err is None:
                 continue
@@ -3018,17 +3022,11 @@ pivot='tail', normalize=False, **kwargs)
 
             nolims = ~(lolims | uplims)
 
-            # NOTE: care needs to be taken here - using numpy is fine,
-            #       as long as the actual data plotted stays as lists.
-            #       This is due to unit preservation issues
-            #       (c.f. the 2d errorbar case).
-            rolling_mask = np.roll([1, 0, 0], i_xyz)
-
             # a nested list structure that expands to (xl,xh),(yl,yh),(zl,zh),
             # where x/y/z and l/h correspond to dimensions and low/high
             # positions of errorbars in a dimension we're looping over
             coorderr = [
-                _unpack_errs(err * rolling_mask[i], coord,
+                _unpack_errs(err * dir_vector[i], coord,
                              ~lolims & everymask, ~uplims & everymask)
                 for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
@@ -3041,10 +3039,10 @@ pivot='tail', normalize=False, **kwargs)
                 # setting '_' for z-caps and '|' for x- and y-caps;
                 # these markers will rotate as the viewing angle changes
                 cap_lo = art3d.Line3D(*lo_caps_xyz, ls='',
-                                      marker=capmarker[i_xyz],
+                                      marker=capmarker[i_zdir],
                                       **eb_cap_style)
                 cap_hi = art3d.Line3D(*hi_caps_xyz, ls='',
-                                      marker=capmarker[i_xyz],
+                                      marker=capmarker[i_zdir],
                                       **eb_cap_style)
                 self.add_line(cap_lo)
                 self.add_line(cap_hi)
@@ -3057,7 +3055,7 @@ pivot='tail', normalize=False, **kwargs)
                 #        the markers around... However, this solution is
                 #        spiritually close to that of 2d errorbar function
                 limits = [
-                    _unpack_errs(err*rolling_mask[i], coord, uplims, lolims)
+                    _unpack_errs(err*dir_vector[i], coord, uplims, lolims)
                     for i, coord in enumerate([x, y, z])]
                 (xlo, xup), (ylo, yup), (zlo, zup) = limits
 
@@ -3065,10 +3063,10 @@ pivot='tail', normalize=False, **kwargs)
                 uplims_xyz = _mask_lists(xlo, ylo, zlo, uplims & everymask)
 
                 lims_lo = art3d.Line3D(*lolims_xyz, ls='',
-                                       marker=limmarker[i_xyz]['lower'],
+                                       marker=limmarker[i_zdir]['lower'],
                                        **eb_cap_style)
                 lims_up = art3d.Line3D(*uplims_xyz, ls='',
-                                       marker=limmarker[i_xyz]['upper'],
+                                       marker=limmarker[i_zdir]['upper'],
                                        **eb_cap_style)
                 self.add_line(lims_lo)
                 self.add_line(lims_up)
@@ -3086,9 +3084,8 @@ pivot='tail', normalize=False, **kwargs)
 
         # TODO: errors can be only a scalar number or len(N) array-like
         def _digout_minmax(err_arr, coord_label):
-            key = {'x': 0, 'y': 1, 'z': 2}
-            return (np.nanmin(err_arr[:, key[coord_label], :, :]),
-                    np.nanmax(err_arr[:, key[coord_label], :, :]))
+            return (np.nanmin(err_arr[:, i_xyz[coord_label], :, :]),
+                    np.nanmax(err_arr[:, i_xyz[coord_label], :, :]))
 
         minx, maxx = _digout_minmax(coorderrs, 'x')
         miny, maxy = _digout_minmax(coorderrs, 'y')
