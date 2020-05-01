@@ -2946,7 +2946,7 @@ class Axes(_AxesBase):
             When *True*, always make a full pie by normalizing x so that
             ``sum(x) == 1``. When *False*, make a partial (or overfull) pie.
 
-            When *None*, gives the normalize if ``sum(x) > 0`` and warn if
+            When *None*, defaults to *True* if ``sum(x) > 0`` and *False* if
             ``sum(x) < 1``.
 
             Please note that passing None to this parameter is deprecated.
