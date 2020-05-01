@@ -620,6 +620,16 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 
+    def set_history_buttons(self):
+        if self._nav_stack._pos > 0:
+            self._buttons['Back']['state'] = tk.NORMAL
+        else:
+            self._buttons['Back']['state'] = tk.DISABLED
+        if self._nav_stack._pos < len(self._nav_stack._elements) - 1:
+            self._buttons['Forward']['state'] = tk.NORMAL
+        else:
+            self._buttons['Forward']['state'] = tk.DISABLED
+
 
 class ToolTip:
     """
