@@ -312,17 +312,7 @@ class GridSpec(GridSpecBase):
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
 
     def __getstate__(self):
-        state = self.__dict__
-        try:
-            state.pop('_layoutbox')
-        except KeyError:
-            pass
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        # layoutboxes don't survive pickling...
-        self._layoutbox = None
+        return {**self.__dict__, "_layoutbox": None}
 
     def update(self, **kwargs):
         """
@@ -580,17 +570,7 @@ class SubplotSpec:
         self._num2 = value
 
     def __getstate__(self):
-        state = self.__dict__
-        try:
-            state.pop('_layoutbox')
-        except KeyError:
-            pass
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        # layoutboxes don't survive pickling...
-        self._layoutbox = None
+        return {**self.__dict__, "_layoutbox": None}
 
     def get_gridspec(self):
         return self._gridspec
