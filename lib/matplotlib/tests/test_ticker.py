@@ -1042,28 +1042,30 @@ class TestFormatStrFormatter:
 
 
 class TestFuncFormatter:
-    def test_input_x_pos(self):
-        def func(x, pos):
-            return f"{x}+{pos}"
-        funcform = mticker.FuncFormatter(func)
-        assert "1+2" == funcform(1, 2)
+    tests = [("function, 1 input",
+                (lambda x: f"{x}!", [2], "2!")),
+             ("function 2 inputs",
+                (lambda x, pos: f"{x}+{pos}!", [2, 3], "2+3!")),
+             ("format, 1 input",
+                ("{}!".format, [2], "2!")),
+             ("format 2 inputs",
+                ("{}+{}!".format, [2, 3], "2+3!"))]
+    ids, data = zip(*tests)
 
-    def text_input_x(self):
-        def func(x):
-            f"hello {x}"
-        funcform = mticker.FuncFormatter(func)
-        assert "hello 0" == funcform(0)
+    @pytest.mark.parametrize("func, args, expected", data, ids=ids)
+    def test_arguments(self, func, args, expected):
+        assert expected == mticker.FuncFormatter(func)(*args)
 
-    def test_error(self):
-        with pytest.raises(TypeError, match=r"FuncFormatter*"):
-            def func(x, y, z):
-                " ".join([x, y, z])
-            funcform = mticker.FuncFormatter(func)
-            funcform(1, 2, 3)
+    @pytest.mark.parametrize("func", [(lambda x, y, z: ""),
+                                      ("{}+{}+{}".format)],
+                                ids=["function", "format"])
+    def test_typerror(self, func):
+        with pytest.raises(TypeError, match=r'function: 3'):
+            mticker.FuncFormatter(func)
 
-    def test_built_in(self):
-        funcform = mticker.FuncFormatter("{} hi!".format)
-        assert "42 hi!" == funcform(42)
+    def test_other_builtins(self):
+        with pytest.raises(UserWarning, match=r'max is not'):
+            mticker.FuncFormatter(max)
 
 
 class TestStrMethodFormatter:

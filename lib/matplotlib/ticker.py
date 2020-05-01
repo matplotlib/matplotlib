@@ -165,10 +165,13 @@ module for more information and examples of using date locators and formatters.
 """
 
 import itertools
+import inspect
 import logging
 import locale
 import math
-import inspect
+import string
+import types
+import warnings
 from numbers import Integral
 
 import numpy as np
@@ -378,26 +381,33 @@ class FuncFormatter(Formatter):
     """
     Use a user-defined function for formatting.
 
-    The function can take in at most two inputs (a required tick value ``x`` and 
-    an optional position ``pos``), and must return a string containing the 
-    corresponding tick label.
+    The function can take in at most two inputs (a required tick value ``x``
+     and an optional position ``pos``), and must return a string containing
+     the corresponding tick label.
     """
     def __init__(self, func):
-        try:
-            self.nargs = len(inspect.signature(func).parameters)
-            if self.nargs == 2:
-                self.func = func 
-            elif self.nargs == 1:
-                def func_pos(x, pos):
-                    return func(x)
-                self.func = func_pos
-            else:
-                raise TypeError("""FuncFormatter functions take at most 
-                                2 parameters: x (required), pos (optional)""")
-        except ValueError as e:
-            #built ins like str.format don't have signatures
+        if not isinstance(func, types.BuiltinFunctionType):
+            nargs = len(inspect.signature(func).parameters)
+        elif (func.__name__ == 'format'):
+            #check if there's a format spec
+            nargs = len([(_, _, fs, _) for (_, _, fs, _)
+                         in string.Formatter().parse(func.__self__)
+                         if fs is not None])
+        else:
+            #finding argcount for other builtins is a mess
+            nargs = 2
+            raise warnings.warn(f"""{func.__name__} is not supported
+                                 and may not work as expected""")
+        if nargs == 2:
             self.func = func
-
+        elif nargs == 1:
+            def func_pos(x, pos):
+                return func(x)
+            self.func = func_pos
+        else:
+            raise TypeError(f"""Number of parameters in function: {nargs}.
+                             FuncFormatter functions take at most 2:
+                             x (required), pos (optional).""")
 
     def __call__(self, x, pos=None):
         """
@@ -405,7 +415,6 @@ class FuncFormatter(Formatter):
 
         *x* and *pos* are passed through as-is.
         """
-    
         return self.func(x, pos)
 
 
