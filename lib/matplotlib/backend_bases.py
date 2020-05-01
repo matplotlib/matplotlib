@@ -3086,7 +3086,7 @@ class NavigationToolbar2:
 
         self.push_current()
         release = cbook._deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
+            __class__.release, self, since="3.3", message="Calling an "
             "overridden release() at zoom stop is deprecated since %(since)s "
             "and will be removed %(removal)s; override release_zoom() "
             "instead.")
