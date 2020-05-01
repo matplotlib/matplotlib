@@ -168,6 +168,7 @@ import itertools
 import logging
 import locale
 import math
+import inspect
 from numbers import Integral
 
 import numpy as np
@@ -377,12 +378,26 @@ class FuncFormatter(Formatter):
     """
     Use a user-defined function for formatting.
 
-    The function should take in two inputs (a tick value ``x`` and a
-    position ``pos``), and return a string containing the corresponding
-    tick label.
+    The function can take in at most two inputs (a required tick value ``x`` and 
+    an optional position ``pos``), and must return a string containing the 
+    corresponding tick label.
     """
     def __init__(self, func):
-        self.func = func
+        try:
+            self.nargs = len(inspect.signature(func).parameters)
+            if self.nargs == 2:
+                self.func = func 
+            elif self.nargs == 1:
+                def func_pos(x, pos):
+                    return func(x)
+                self.func = func_pos
+            else:
+                raise TypeError("""FuncFormatter functions take at most 
+                                2 parameters: x (required), pos (optional)""")
+        except ValueError as e:
+            #built ins like str.format don't have signatures
+            self.func = func
+
 
     def __call__(self, x, pos=None):
         """
@@ -390,6 +405,7 @@ class FuncFormatter(Formatter):
 
         *x* and *pos* are passed through as-is.
         """
+    
         return self.func(x, pos)
 
 

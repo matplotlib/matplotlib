@@ -1041,6 +1041,27 @@ class TestFormatStrFormatter:
         assert '00002' == tmp_form(2)
 
 
+class TestFuncFormatter:
+    def test_input_x_pos(self):
+        func = lambda x, pos : f"{x}+{pos}"
+        funcform = mticker.FuncFormatter(func)
+        assert "1+2" == funcform(1,2)
+
+    def text_input_x(self):
+        func = lambda x: f"hello {x}"
+        funcform = mticker.FuncFormatter(func)
+        assert "hello 0" == funcform(0)
+
+    def test_error(self):
+        with pytest.raises(TypeError, match=r"FuncFormatter*"):
+            func = lambda x, y, z: " ".join([x, y, z])
+            funcform = mticker.FuncFormatter(func)
+            funcform(1,2,3)
+
+    def test_built_in(self):
+        funcform = mticker.FuncFormatter("{} hi!".format)
+        assert "42 hi!" == funcform(42)
+
 class TestStrMethodFormatter:
     test_data = [
         ('{x:05d}', (2,), '00002'),
