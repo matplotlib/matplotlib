@@ -650,10 +650,7 @@ class Shadow(Patch):
         self._shadow_transform = transforms.Affine2D()
         self._update()
 
-    @cbook.deprecated("3.3")
-    @property
-    def props(self):
-        return self._props
+    props = cbook._deprecate_privatize_attribute("3.3")
 
     def _update(self):
         self.update_from(self.patch)

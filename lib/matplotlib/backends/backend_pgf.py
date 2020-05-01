@@ -420,10 +420,7 @@ class RendererPgf(RendererBase):
                 if m.startswith("draw_"):
                     self.__dict__[m] = lambda *args, **kwargs: None
 
-    @cbook.deprecated("3.2")
-    @property
-    def latexManager(self):
-        return self._latexManager
+    latexManager = cbook._deprecate_privatize_attribute("3.2")
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):

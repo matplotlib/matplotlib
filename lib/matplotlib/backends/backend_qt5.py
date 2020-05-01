@@ -689,10 +689,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
-    @property
-    def parent(self):
-        return self._parent
+    parent = cbook._deprecate_privatize_attribute(
+        "3.3", alternative="self.canvas.parent()")
 
     @cbook.deprecated(
         "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")

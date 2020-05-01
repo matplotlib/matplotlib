@@ -58,15 +58,10 @@ class CbarAxesBase:
         self._config_axes()
         return cb
 
-    @cbook.deprecated("3.3", alternative="mappable.colorbar_cid")
-    @property
-    def cbid(self):
-        return self._cbid
-
-    @cbook.deprecated("3.3", alternative=".colorbar().locator")
-    @property
-    def locator(self):
-        return self._locator
+    cbid = cbook._deprecate_privatize_attribute(
+        "3.3", alternative="mappable.colorbar_cid")
+    locator = cbook._deprecate_privatize_attribute(
+        "3.3", alternative=".colorbar().locator")
 
     def _config_axes(self):
         """Make an axes patch and outline."""
