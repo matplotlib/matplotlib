@@ -1060,7 +1060,7 @@ class TestFuncFormatter:
                                       ("{}+{}+{}".format)],
                                 ids=["function", "format"])
     def test_typerror(self, func):
-        with pytest.raises(TypeError, match=r'function: 3'):
+        with pytest.raises(TypeError, match=r'3 arguments'):
             mticker.FuncFormatter(func)
 
     def test_other_builtins(self):

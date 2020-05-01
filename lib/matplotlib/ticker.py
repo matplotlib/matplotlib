@@ -396,18 +396,17 @@ class FuncFormatter(Formatter):
         else:
             #finding argcount for other builtins is a mess
             nargs = 2
-            raise warnings.warn(f"""{func.__name__} is not supported
-                                 and may not work as expected""")
-        if nargs == 2:
+            raise warnings.warn(f"{func.__name__} is not supported "
+                                 "and may not work as expected")
+
+        if nargs == 1:
+            self.func = lambda x, pos: func(x)
+        elif nargs == 2:
             self.func = func
-        elif nargs == 1:
-            def func_pos(x, pos):
-                return func(x)
-            self.func = func_pos
         else:
-            raise TypeError(f"""Number of parameters in function: {nargs}.
-                             FuncFormatter functions take at most 2:
-                             x (required), pos (optional).""")
+            raise TypeError(f"{func.__name__} takes {nargs} arguments. "
+                             "FuncFormatter functions take at most 2: "
+                             "x (required), pos (optional).")
 
     def __call__(self, x, pos=None):
         """
