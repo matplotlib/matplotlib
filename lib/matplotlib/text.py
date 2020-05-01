@@ -1593,7 +1593,7 @@ class Annotation(Text, _AnnotationBase):
               'polar'             *(theta, r)* if not native 'data' coordinates
               =================   =============================================
 
-            - An `.Artist`: *xy* is interpreted as a fraction of the artists
+            - An `.Artist`: *xy* is interpreted as a fraction of the artist's
               `~matplotlib.transforms.Bbox`. E.g. *(0, 0)* would be the lower
               left corner of the bounding box and *(0.5, 1)* would be the
               center top of the bounding box.
