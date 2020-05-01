@@ -2949,12 +2949,10 @@ class Axes(_AxesBase):
             When *None*, defaults to *True* if ``sum(x) > 0`` and *False* if
             ``sum(x) < 1``.
 
-            Please note that passing None to this parameter is deprecated.
-
-            ``pie()`` used to draw a partial pie if ``sum(x) < 1``. This
-            behavior is deprecated and will change to always normalizing the
-            values to a full pie by default. If you want to draw a partial pie,
-            please pass ``normalize=False`` explicitly.
+            Please note that the previous default value of *None* is now
+            deprecated, and the default will change to *True* in the next
+            release. Please pass ``normalize=False`` explicitly if you want to
+            draw a partial pie.
 
         labeldistance : float or None, default: 1.1
             The radial distance at which the pie labels are drawn.
