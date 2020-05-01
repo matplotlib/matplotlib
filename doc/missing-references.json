@@ -1,4 +1,10 @@
 {
+  "c:var": {
+    "PyOS_InputHook": [
+      "doc/users/interactive_guide.rst:401",
+      "doc/users/interactive_guide.rst:411"
+    ]
+  },
   "py:attr": {
     "ax": [
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.ColorbarBase:23"
@@ -453,6 +459,9 @@
     "FigureCanvasQTAgg.print_figure": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:199"
     ],
+    "IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook": [
+      "doc/users/interactive_guide.rst:428"
+    ],
     "_find_tails": [
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:9"
     ],
@@ -521,6 +530,9 @@
     ]
   },
   "py:mod": {
+    "IPython.terminal.pt_inputhooks": [
+      "doc/users/interactive_guide.rst:428"
+    ],
     "dateutil": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:1"
     ],
@@ -561,6 +573,9 @@
   "py:obj": {
     "./gallery/index.html": [
       "doc/devel/contributing.rst:562"
+    ],
+    "Artist.stale_callback": [
+      "doc/users/interactive_guide.rst:326"
     ],
     "Artist.sticky_edges": [
       "doc/api/axes_api.rst:362:<autosummary>:1",
@@ -639,6 +654,9 @@
     "FT2Font": [
       "doc/gallery/misc/ftface_props.rst:16",
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.ttfFontProperty:8"
+    ],
+    "Figure.stale_callback": [
+      "doc/users/interactive_guide.rst:336"
     ],
     "FigureCanvas": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolBase:25"
@@ -965,6 +983,9 @@
     ],
     "invert_yaxis": [
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_ylim3d:24"
+    ],
+    "ipykernel.pylab.backend_inline": [
+      "doc/users/interactive.rst:249"
     ],
     "kde.covariance_factor": [
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:41"
