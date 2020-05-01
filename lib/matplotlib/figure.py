@@ -10,6 +10,7 @@
 
 import logging
 from numbers import Integral
+import warnings
 
 import numpy as np
 
@@ -23,7 +24,9 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, NonGuiException, MouseButton)
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
+from matplotlib.font_manager import FontProperties
 import matplotlib.image as mimage
+
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
@@ -256,6 +259,7 @@ class Figure(Artist):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
+                 compress_axes=None,
                  ):
         """
         Parameters
@@ -297,6 +301,11 @@ class Figure(Artist):
             :doc:`/tutorials/intermediate/constrainedlayout_guide`
             for examples.  (Note: does not work with `add_subplot` or
             `~.pyplot.subplot2grid`.)
+
+        compress_axes : bool, default: :rc:`figure.compress_axes.use`
+            If ``True`` attempt to pack axes as close to one another
+            as possible.  Useful when axes have fixed aspect ratio and the
+            default layouts leave excess space between axes.
         """
         super().__init__()
         # remove the non-figure artist _axes property
@@ -348,6 +357,9 @@ class Figure(Artist):
         self._layoutbox = None
         # set in set_constrained_layout_pads()
         self.set_constrained_layout(constrained_layout)
+
+        self._compress_axes = compress_axes
+        self._axpos_cache = None
 
         self.set_tight_layout(tight_layout)
 
@@ -1724,19 +1736,38 @@ default: 'top'
 
         try:
             renderer.open_group('figure', gid=self.get_gid())
-            if self.get_constrained_layout() and self.axes:
-                squish = False
-                if self.get_constrained_layout() == "squish":
-                    squish = True
-                self.execute_constrained_layout(renderer, squish=squish)
+            bboxes = None
+            if self.axes:
+                adjusted = False
+                if self.get_tight_layout():
+                    try:
+                        w_pad, h_pad = self.tight_layout(
+                                **self._tight_parameters)
+                        # convert pads to inches...
+                        fs = FontProperties(size=mpl.rcParams["font.size"])
+                        fs = fs.get_size_in_points() / 72
+                        w, h = self.get_size_inches()
+                        w_pad = w_pad * fs
+                        h_pad = h_pad * fs
 
+                        w_pad = w_pad / 2
+                        h_pad = h_pad / 2
+                        adjusted = True
+                    except ValueError:
+                        pass
+                elif self.get_constrained_layout():
+                    bboxes = self.execute_constrained_layout(renderer)
+                    adjusted = True
+                    w_pad, h_pad, _, _ = self.get_constrained_layout_pads()
 
-            if self.get_tight_layout() and self.axes:
-                try:
-                    self.tight_layout(**self._tight_parameters)
-                except ValueError:
-                    pass
-                    # ValueError can occur when resizing a window.
+                if self.get_compress_axes():
+                    if not adjusted:
+                        h_pad = 0.05
+                        w_pad = 0.05
+                        self.subplots_adjust()
+
+                    self.execute_compress_axes(bboxes=bboxes, w_pad=w_pad,
+                                               h_pad=h_pad)
 
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
@@ -2411,7 +2442,7 @@ default: 'top'
                 parent=None, name='figlb', artist=self)
             self._layoutbox.constrain_geometry(0., 0., 1., 1.)
 
-    def execute_constrained_layout(self, renderer=None, squish=False):
+    def execute_constrained_layout(self, renderer=None):
         """
         Use ``layoutbox`` to determine pos positions within axes.
 
@@ -2431,14 +2462,32 @@ default: 'top'
             return
         w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
-        fig = self
-        width, height = fig.get_size_inches()
+        width, height = self.get_size_inches()
+        print('before', w_pad, h_pad)
         w_pad = w_pad / width
         h_pad = h_pad / height
+        print('after', w_pad, h_pad)
         if renderer is None:
-            renderer = layoutbox.get_renderer(fig)
-        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace,
-            squish=squish)
+            renderer = layoutbox.get_renderer(self)
+        bboxes = do_constrained_layout(self, renderer, h_pad, w_pad, hspace,
+                                       wspace)
+        return bboxes
+
+    def execute_compress_axes(self, *, bboxes=None, h_pad=0.05, w_pad=0.05):
+        """
+        Execute the axes compression for the figure.
+
+        TODO:
+
+        Parameters
+        ----------
+
+        bboxes : list of bboxes | optional
+            tight bboxes of the axes in the figure; saves recalculating them.
+
+        """
+        from matplotlib._compress_axes import compress_axes
+        compress_axes(self, bboxes=bboxes, w_pad=w_pad, h_pad=h_pad)
 
     @cbook._delete_parameter("3.2", "renderer")
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
@@ -2485,8 +2534,16 @@ default: 'top'
         kwargs = get_tight_layout_figure(
             self, self.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+
         if kwargs:
             self.subplots_adjust(**kwargs)
+
+        if w_pad is None:
+            w_pad = pad
+        if h_pad is None:
+            h_pad = pad
+
+        return w_pad, h_pad
 
     def align_xlabels(self, axs=None):
         """
@@ -2676,6 +2733,9 @@ default: 'top'
         gs = GridSpec(nrows=nrows, ncols=ncols, figure=self, **kwargs)
         self._gridspecs.append(gs)
         return gs
+
+    def get_compress_axes(self):
+        return self._compress_axes
 
 
 def figaspect(arg):
