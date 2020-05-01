@@ -50,7 +50,8 @@ def test_tight_layout3():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout4'], freetype_version=('2.5.5', '2.6.1'))
+@image_comparison(['tight_layout4'], freetype_version=('2.5.5', '2.6.1'),
+                  tol=0.015)
 def test_tight_layout4():
     """Test tight_layout for subplot2grid."""
     ax1 = plt.subplot2grid((3, 3), (0, 0))

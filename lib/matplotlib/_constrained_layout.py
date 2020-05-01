@@ -314,10 +314,6 @@ def _align_spines(fig, gs):
     nrows, ncols = gs.get_geometry()
     width_ratios = gs.get_width_ratios()
     height_ratios = gs.get_height_ratios()
-    if width_ratios is None:
-        width_ratios = np.ones(ncols)
-    if height_ratios is None:
-        height_ratios = np.ones(nrows)
 
     # get axes in this gridspec....
     axs = [ax for ax in fig.axes
