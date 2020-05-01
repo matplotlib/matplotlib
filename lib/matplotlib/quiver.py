@@ -35,8 +35,8 @@ Call signature::
 
   quiver([X, Y], U, V, [C], **kw)
 
-Where *X*, *Y* define the arrow locations, *U*, *V* define the arrow
-directions, and *C* optionally sets the color.
+*X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
+*C* optionally sets the color.
 
 **Arrow size**
 
