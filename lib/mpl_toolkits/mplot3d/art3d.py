@@ -501,7 +501,7 @@ class Path3DCollection(PathCollection):
         z_markers_idx = np.argsort(vzs)[::-1]
 
         # Re-order items
-        zzs = vzs[z_markers_idx]
+        vzs = vzs[z_markers_idx]
         vxs = vxs[z_markers_idx]
         vys = vys[z_markers_idx]
         fcs = fcs[z_markers_idx]
@@ -674,14 +674,14 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # # sort by depth (furthest drawn first)
+        # sort by depth (furthest drawn first)
         z_segments_2d = sorted(
             ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
              for idx, ((xs, ys, zs), fc, ec)
              in enumerate(zip(xyzlist, cface, cedge))),
             key=lambda x: x[0], reverse=True)
 
-        [zzs, segments_2d, self._facecolors2d, self._edgecolors2d, idxs] = \
+        zzs, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
             zip(*z_segments_2d)
 
         if self._codes3d is not None:
