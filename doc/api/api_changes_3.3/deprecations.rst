@@ -392,6 +392,11 @@ NavigationToolbar2QT.ctx
 ~~~~~~~~~~~~~~~~~~~~~~~~
 This attribute is deprecated.
 
+NavigationToolbar2Wx attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``prevZoomRect``, ``retinaFix``, ``savedRetinaImage``, ``wxoverlay``,
+``zoomAxes``, ``zoomStartX``, and ``zoomStartY`` attributes are deprecated.
+
 NavigationToolbar2.press and .release
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These methods were called when pressing or releasing a mouse button,
