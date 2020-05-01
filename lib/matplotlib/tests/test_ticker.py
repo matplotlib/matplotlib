@@ -1042,7 +1042,6 @@ class TestFormatStrFormatter:
 
 
 class TestFuncFormatter:
-<<<<<<< HEAD
     tests = [("function, 1 input",
                 (lambda x: f"{x}!", [2], "2!")),
              ("function 2 inputs",
@@ -1066,31 +1065,6 @@ class TestFuncFormatter:
     def test_other_builtins(self):
         with pytest.raises(UserWarning, match=r'max is not'):
             mticker.FuncFormatter(max)
-
-=======
-    def test_input_x_pos(self):
-        def func(x, pos):
-            return f"{x}+{pos}"
-        funcform = mticker.FuncFormatter(func)
-        assert "1+2" == funcform(1, 2)
-
-    def text_input_x(self):
-        def func(x):
-            f"hello {x}"
-        funcform = mticker.FuncFormatter(func)
-        assert "hello 0" == funcform(0)
-
-    def test_error(self):
-        with pytest.raises(TypeError, match=r"FuncFormatter*"):
-            def func(x, y, z):
-                " ".join([x, y, z])
-            funcform = mticker.FuncFormatter(func)
-            funcform(1, 2, 3)
-
-    def test_built_in(self):
-        funcform = mticker.FuncFormatter("{} hi!".format)
-        assert "42 hi!" == funcform(42)
->>>>>>> 103314bfb... flake errors
 
 
 class TestStrMethodFormatter:
