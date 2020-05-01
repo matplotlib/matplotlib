@@ -8,8 +8,8 @@
 ==================================================
 
 Matplotlib supports rich interactive figures by embedding figures into
-a GUI window.  The basic interactions of panning and zooming in as
-Axis to inspect your data is 'baked in' to Matplotlib.  This is
+a GUI window.  The basic interactions of panning and zooming in an
+Axes to inspect your data is 'baked in' to Matplotlib.  This is
 supported by a full mouse and keyboard event handling system that
 you can use to build sophisticated interactive graphs.
 
@@ -50,7 +50,7 @@ than directly implement the I/O loop [#f2]_.  For example "when the
 user clicks on this button, please run this function" or "when the
 user hits the 'z' key, please run this other function".  This allows
 users to write reactive, event-driven, programs without having to
-delve into the nity-gritty [#f3]_ details of I/O.  The core event loop
+delve into the nitty-gritty [#f3]_ details of I/O.  The core event loop
 is sometimes referred to as "the main loop" and is typically started,
 depending on the library, by methods with names like ``_exec``,
 ``run``, or ``start``.
@@ -75,13 +75,13 @@ interfaces.
 Command Prompt Integration
 ==========================
 
-So far, so good.  We have the REPL (like the IPthon terminal) that
+So far, so good.  We have the REPL (like the IPython terminal) that
 lets us interactively send things code to the interpreter and get
 results back.  We also have the GUI toolkit that run an event loop
 waiting for user input and let up register functions to be run when
 that happens.  However, if we want to do both we have a problem: the
 prompt and the GUI event loop are both infinite loops that each think
-*they* are in charge!  In order for both the prompt and the GUI widows
+*they* are in charge!  In order for both the prompt and the GUI windows
 to be responsive we need a method to allow the loops to 'timeshare' :
 
 1. let the GUI main loop block the python process when you want
@@ -110,17 +110,21 @@ Blocking the Prompt
 The simplest "integration" is to start the GUI event loop in
 'blocking' mode and take over the CLI.  While the GUI event loop is
 running you can not enter new commands into the prompt (your terminal
-may echo the charters typed into standard in, but they will not be
+may echo the characters typed into the terminal, but they will not be
 sent to the Python interpreter because it is busy running the GUI
 event loop), but the figure windows will be responsive.  Once the
 event loop is stopped (leaving any still open figure windows
 non-responsive) you will be able to use the prompt again.  Re-starting
 the event loop will make any open figure responsive again (and will
-process and queued up user interaction).
+process any queued up user interaction).
 
 To start the event loop until all open figures are closed use
-`.pyplot.show` as ``pyplot.show(block=True)``.  To start the event
-loop for a fixed amount of time (in seconds) use `.pyplot.pause`.
+`.pyplot.show` as ::
+
+  pyplot.show(block=True)
+
+To start the event loop for a fixed amount of time (in seconds) use
+`.pyplot.pause`.
 
 If you are not using `.pyplot` you can start and stop the event loops
 via `.FigureCanvasBase.start_event_loop` and
@@ -130,25 +134,9 @@ large GUI application and the GUI event loop should already be running
 for the application.
 
 Away from the prompt, this technique can be very useful if you want to
-write a script that pauses for user interaction, see
-:ref:`interactive_scripts`.
-
-.. _spin_event_loop:
-
-Explicitly spinning the Event Loop
-----------------------------------
-
-.. autosummary::
-   :template: autosummary.rst
-   :nosignatures:
-
-   backend_bases.FigureCanvasBase.flush_events
-   backend_bases.FigureCanvasBase.draw_idle
-
-
-
-This is particularly useful if you want to provide updates to a plot
-during a long computation.
+write a script that pauses for user interaction, or displays a figure
+between polling for additional data.  See :ref:`interactive_scripts`
+for more details.
 
 
 Input Hook integration
@@ -197,8 +185,8 @@ more details.
 
 .. _interactive_scripts :
 
-Scripts
-=======
+Scripts and functions
+=====================
 
 
 .. autosummary::
@@ -211,21 +199,58 @@ Scripts
    figure.Figure.ginput
    pyplot.ginput
 
+   pyplot.show
+   pyplot.pause
+
 There are several use-cases for using interactive figures in scripts:
 
-- progress updates as a long running script progresses
 - capture user input to steer the script
+- progress updates as a long running script progresses
 - streaming updates from a data source
 
+Blocking functions
+------------------
 
-In the first if you only need to collect points in an Axes you can use
+If you only need to collect points in an Axes you can use
 `.figure.Figure.ginput` or more generally the tools from
 `.blocking_input` the tools will take care of starting and stopping
 the event loop for you.  However if you have written some custom event
 handling or are using `.widgets` you will need to manually run the GUI
 event loop using the methods described :ref:`above <cp_block_the_prompt>`.
 
-In the second caes, if you have open windows that have pending UI
+You can also use the methods described in :ref:`cp_block_the_prompt`
+to suspend run the GUI event loop.  Once the loop exits your code will
+resume.  In general, anyplace you would use `time.sleep` you can use
+`.pyplot.pause` instead with the added benefit of interactive figures.
+
+For example, if you want to poll for data you could use something like ::
+
+  fig, ax = plt.subplots()
+  ln, = ax.plot([], [])
+
+  while True:
+      x, y = get_new_data()
+      ln.set_data(x, y)
+      fig.canvas.draw_idle()
+      plt.pause(1)
+
+which would poll for new data and update the figure at 1Hz.
+
+.. _spin_event_loop:
+
+Explicitly spinning the Event Loop
+----------------------------------
+
+.. autosummary::
+   :template: autosummary.rst
+   :nosignatures:
+
+   backend_bases.FigureCanvasBase.flush_events
+   backend_bases.FigureCanvasBase.draw_idle
+
+
+
+If you have open windows that have pending UI
 events (mouse clicks, button presses, or draws) you can explicitly
 process those events by calling `.FigureCanvasBase.flush_events`.
 This will run the GUI event loop until all UI events currently waiting
@@ -243,7 +268,7 @@ For example ::
    fig, ax = plt.subplots()
    fig.canvas.show()
    th = np.linspace(0, 2*np.pi, 512)
-   ax.set_Lima(-1.5, 1.5)
+   ax.set_ylim(-1.5, 1.5)
 
    ln, = ax.plot(th, np.sin(th))
 
@@ -281,9 +306,6 @@ The more frequently you call `.FigureCanvasBase.flush_events` the more
 responsive your figure will feel but at the cost of spending more
 resource on the visualization and less on your computation.
 
-The third case you will have to integrate updating the ``Aritist``
-instances, calling ``draw_idle``, and flushing the GUI event loop with your
-data I/O.
 
 .. _stale_artists:
 
@@ -312,7 +334,7 @@ the artists parent.   If you wish to suppress a given artist from propagating
 set this attribute to None.
 
 `.figure.Figure` instances do not have a containing artist and their
-default callback is `None`.  If you call ``.pyplot.ion` and are not in
+default callback is `None`.  If you call `.pyplot.ion` and are not in
 ``IPython`` we will install callback to invoke
 `~.backend_bases.FigureCanvasBase.draw_idle` when ever the
 `.figure.Figure` becomes stale.  In ``IPython`` we use the
@@ -405,7 +427,7 @@ IPython / prompt toolkit
 
 With IPython >= 5.0 IPython has changed from using cpython's readline
 based prompt to a ``prompt_toolkit`` based prompt.  ``prompt_toolkit``
-has the same conceptual input hook, which is feed into pt via the
+has the same conceptual input hook, which is feed into prompt_toolkit via the
 :meth:`IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook`
 method.  The source for the prompt_toolkit input hooks lives at
 :mod:`IPython.terminal.pt_inputhooks`

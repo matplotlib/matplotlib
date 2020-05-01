@@ -9,11 +9,10 @@
 .. toctree::
 
 
-When working with data it is often invaluable to be able to
-interact with your plots  In many cases the built in pan/zoom
-and mouse-location tools are sufficient, but if they are not
-you can make use of the Matplotlib event system to build a customized
-data exploration tool.
+When working with data it is often invaluable to be able to interact
+with your plots In many cases the built in pan/zoom and mouse-location
+tools are sufficient, but you can also use the Matplotlib event system
+to build a customized data exploration tools.
 
 Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to
 several GUI toolkits (Qt, Tk, Wx, Gtk, OSX, js) and third party
@@ -59,7 +58,9 @@ loop is properly integrated with the command line (see
 :ref:`interactive mode <controlling-interactive>` use the
 ``%matplotlib`` magic
 
-.. sourcecode:: ipython
+.. highlight:: ipython
+
+::
 
    user@machine:~ $ ipython
    Python 3.8.2 (default, Apr  8 2020, 14:31:25)
@@ -75,33 +76,33 @@ loop is properly integrated with the command line (see
 
 Calling
 
-.. sourcecode:: ipython
+::
 
    In [3]: fig, ax = plt.subplots()
 
 will pop open a window for you and
 
-.. sourcecode:: ipython
+::
 
    In [4]: ln, = ax.plot(range(5))
 
-will show your data in the window.  If you
-want to change anything about the line, ex the color
+will show your data in the window.  If you change something about the
+line, for example the color
 
-.. sourcecode:: ipython
+::
 
    In [5]: ln.set_color('orange')
 
-will be reflected immediately. If you wish to disable this behavior
-you can use
+it will be reflected immediately. If you wish to disable this behavior
+use
 
-.. sourcecode:: ipython
+::
 
    In [6]: plt.ioff()
 
 and
 
-.. sourcecode:: ipython
+::
 
    In [7]: plt.ion()
 
@@ -112,7 +113,7 @@ sufficient to import `matplotlib.pyplot` and call `.pyplot.ion`, but
 using the magic is guaranteed to work regardless of versions.
 
 
-
+.. highlight:: python
 
 .. _controlling-interactive:
 
@@ -228,7 +229,7 @@ If you can not or do not want to use IPython, interactive mode works
 in the vanilla python prompt
 
 
-.. sourcecode:: python
+.. sourcecode:: pycon
 
    >>> import matplotlib.pyplot as plt
    >>> plt.ion()
@@ -252,14 +253,6 @@ Jupyter Notebooks / Lab
    notebook when the cell is executed.  The images are static and can
    not be panned / zoomed, take user input, or be updated from other
    cells.
-
-Jupyter uses a different architecture than a traditional interactive
-terminal.  Rather than the user interface running in the same process
-as your interpreter, the user interacts with a javascript front end
-running in a browser which communicates with a server which in turn
-communicates with a kernel that executes your Python.  This means
-for interactive figures our UI needs to also be written in javascript
-and run inside of the jupyter front end.
 
 To get interactive figures in the 'classic' notebook or jupyter lab
 use the `ipympl <https://github.com/matplotlib/ipympl>`__ backend
