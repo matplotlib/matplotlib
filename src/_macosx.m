@@ -1606,24 +1606,25 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 
 static void _buffer_release(void* info, const void* data, size_t size) {
     PyBuffer_Release((Py_buffer *)info);
+    free(info);
 }
 
 static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 {
-    Py_buffer buffer;
+    Py_buffer *buffer = malloc(sizeof(Py_buffer));
 
-    if (PyObject_GetBuffer(renderer, &buffer, PyBUF_CONTIG_RO) == -1) {
+    if (PyObject_GetBuffer(renderer, buffer, PyBUF_CONTIG_RO) == -1) {
         PyErr_Print();
         return 1;
     }
 
-    if (buffer.ndim != 3 || buffer.shape[2] != 4) {
-        PyBuffer_Release(&buffer);
+    if (buffer->ndim != 3 || buffer->shape[2] != 4) {
+        _buffer_release(buffer, NULL, 0);
         return 1;
     }
 
-    const Py_ssize_t nrows = buffer.shape[0];
-    const Py_ssize_t ncols = buffer.shape[1];
+    const Py_ssize_t nrows = buffer->shape[0];
+    const Py_ssize_t ncols = buffer->shape[1];
     const size_t bytesPerComponent = 1;
     const size_t bitsPerComponent = 8 * bytesPerComponent;
     const size_t nComponents = 4; /* red, green, blue, alpha */
@@ -1632,16 +1633,16 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     if (!colorspace) {
-        PyBuffer_Release(&buffer);
+        _buffer_release(buffer, NULL, 0);
         return 1;
     }
 
-    CGDataProviderRef provider = CGDataProviderCreateWithData(&buffer,
-                                                              buffer.buf,
-                                                              buffer.len,
+    CGDataProviderRef provider = CGDataProviderCreateWithData(buffer,
+                                                              buffer->buf,
+                                                              buffer->len,
                                                               _buffer_release);
     if (!provider) {
-        PyBuffer_Release(&buffer);
+        _buffer_release(buffer, NULL, 0);
         CGColorSpaceRelease(colorspace);
         return 1;
     }
@@ -1662,7 +1663,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     CGDataProviderRelease(provider);
 
     if (!bitmap) {
-        PyBuffer_Release(&buffer);
         return 1;
     }
 
