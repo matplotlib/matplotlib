@@ -2047,19 +2047,15 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
-            self.offsetText.set_position(
-                (x, bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72)
-            )
+            y = bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72
         else:
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 top = bbox.y1
-            self.offsetText.set_va('top')
-            self.offsetText.set_position(
-                (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72)
-            )
+            y = top + self.OFFSETTEXTPAD * self.figure.dpi / 72
+        self.offsetText.set_position((x, y))
 
     def get_text_heights(self, renderer):
         """
@@ -2102,10 +2098,12 @@ class XAxis(Axis):
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
             self._tick_position = 'top'
+            self.offsetText.set_verticalalignment('bottom')
         elif position == 'bottom':
             self.set_tick_params(which='both', top=False, labeltop=False,
                                  bottom=True, labelbottom=True)
             self._tick_position = 'bottom'
+            self.offsetText.set_verticalalignment('top')
         elif position == 'both':
             self.set_tick_params(which='both', top=True,
                                  bottom=True)
@@ -2116,6 +2114,7 @@ class XAxis(Axis):
             self.set_tick_params(which='both', top=True, labeltop=False,
                                  bottom=True, labelbottom=True)
             self._tick_position = 'bottom'
+            self.offsetText.set_verticalalignment('top')
         else:
             assert False, "unhandled parameter not caught by _check_in_list"
         self.stale = True
