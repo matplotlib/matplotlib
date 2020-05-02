@@ -2900,7 +2900,7 @@ class Axes(_AxesBase):
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=0, radius=1, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False):
+            frame=False, rotatelabels=False, *, normalize=None):
         """
         Plot a pie chart.
 
@@ -2940,6 +2940,19 @@ class Axes(_AxesBase):
 
         shadow : bool, default: False
             Draw a shadow beneath the pie.
+
+        normalize: None or bool, default: None
+            When *True*, always make a full pie by normalizing x so that
+            ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
+            and raises a `ValueError` for ``sum(x) > 1``.
+
+            When *None*, defaults to *True* if ``sum(x) > 0`` and *False* if
+            ``sum(x) < 1``.
+
+            Please note that the previous default value of *None* is now
+            deprecated, and the default will change to *True* in the next
+            release. Please pass ``normalize=False`` explicitly if you want to
+            draw a partial pie.
 
         labeldistance : float or None, default: 1.1
             The radial distance at which the pie labels are drawn.
@@ -3005,9 +3018,22 @@ class Axes(_AxesBase):
             raise ValueError("Wedge sizes 'x' must be non negative values")
 
         sx = x.sum()
-        if sx > 1:
-            x = x / sx
 
+        if normalize is None:
+            if sx < 1:
+                cbook.warn_deprecated(
+                    "3.3", message="normalize=None does not normalize "
+                    "if the sum is less than 1 but this behavior"
+                    "is deprecated since %(since)s until %(removal)s. "
+                    "After the deprecation "
+                    "period the default value will be normalize=True. "
+                    "To prevent normalization pass normalize=False ")
+            else:
+                normalize = True
+        if normalize:
+            x = x / sx
+        elif sx > 1:
+            raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
         if labels is None:
             labels = [''] * len(x)
         if explode is None:

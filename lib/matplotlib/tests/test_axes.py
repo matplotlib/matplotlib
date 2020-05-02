@@ -6141,3 +6141,26 @@ def test_ytickcolor_is_not_markercolor():
     ticks = ax.yaxis.get_major_ticks()
     for tick in ticks:
         assert tick.tick1line.get_markeredgecolor() != 'white'
+
+
+@check_figures_equal(extensions=["png"])
+def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
+    l, = fig_test.add_subplot(projection="polar").plot([0, np.pi/2], [1, 2])
+    l.get_path()._interpolation_steps = 100
+    fig_ref.add_subplot(projection="polar").plot(
+        np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
+
+
+def test_normalize_kwarg_warn_pie():
+    fig, ax = plt.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.pie(x=[0], normalize=None)
+
+
+def test_normalize_kwarg_pie():
+    fig, ax = plt.subplots()
+    x = [0.3, 0.3, 0.1]
+    t1 = ax.pie(x=x, normalize=True)
+    assert abs(t1[0][-1].theta2 - 360.) < 1e-3
+    t2 = ax.pie(x=x, normalize=False)
+    assert abs(t2[0][-1].theta2 - 360.) > 1e-3

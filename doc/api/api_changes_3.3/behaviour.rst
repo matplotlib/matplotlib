@@ -172,6 +172,12 @@ values are displayed with an appropriate number of significant digits even if
 they are much smaller or much bigger than 1.  To restore the old behavior,
 explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
 
+Add *normalize*  keyword argument to ``Axes.pie``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``pie()`` used to draw a partial pie if the sum of the values was < 1. This behavior 
+is deprecated and will change to always normalizing the values to a full pie by default. 
+If you want to draw a partial pie, please pass ``normalize=False`` explicitly.
+
 ``table.CustomCell`` is now an alias for `.table.Cell`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All the functionality of ``CustomCell`` has been moved to its base class
