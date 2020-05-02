@@ -399,15 +399,9 @@ def _align_spines(fig, gs):
                 if height0 > height1:
                     ax0._poslayoutbox.constrain_height_min(
                         ax1._poslayoutbox.height * height0 / height1)
-                    # these constraints stop the smaller axes from
-                    # being allowed to go to zero height...
-                    ax1._poslayoutbox.constrain_height_min(
-                        ax0._poslayoutbox.height * height1 / (height0*1.8))
                 elif height0 < height1:
                     ax1._poslayoutbox.constrain_height_min(
                         ax0._poslayoutbox.height * height1 / height0)
-                    ax0._poslayoutbox.constrain_height_min(
-                        ax0._poslayoutbox.height * height0 / (height1*1.8))
             # For widths, do it if the subplots share a row.
             if not alignwidth and len(colspan0) == len(colspan1):
                 ax0._poslayoutbox.constrain_width(
@@ -417,13 +411,9 @@ def _align_spines(fig, gs):
                 if width0 > width1:
                     ax0._poslayoutbox.constrain_width_min(
                         ax1._poslayoutbox.width * width0 / width1)
-                    ax1._poslayoutbox.constrain_width_min(
-                        ax0._poslayoutbox.width * width1 / (width0*1.8))
                 elif width0 < width1:
                     ax1._poslayoutbox.constrain_width_min(
                         ax0._poslayoutbox.width * width1 / width0)
-                    ax0._poslayoutbox.constrain_width_min(
-                        ax1._poslayoutbox.width * width0 / (width1*1.8))
 
 
 def _arrange_subplotspecs(gs, hspace=0, wspace=0):
