@@ -1126,12 +1126,20 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
         self._idle = True
-        self.prevZoomRect = None
+        self._prevZoomRect = None
         # for now, use alternate zoom-rectangle drawing on all
         # Macs. N.B. In future versions of wx it may be possible to
         # detect Retina displays with window.GetContentScaleFactor()
         # and/or dc.GetContentScaleFactor()
-        self.retinaFix = 'wxMac' in wx.PlatformInfo
+        self._retinaFix = 'wxMac' in wx.PlatformInfo
+
+    prevZoomRect = cbook._deprecate_privatize_attribute("3.3")
+    retinaFix = cbook._deprecate_privatize_attribute("3.3")
+    savedRetinaImage = cbook._deprecate_privatize_attribute("3.3")
+    wxoverlay = cbook._deprecate_privatize_attribute("3.3")
+    zoomAxes = cbook._deprecate_privatize_attribute("3.3")
+    zoomStartX = cbook._deprecate_privatize_attribute("3.3")
+    zoomStartY = cbook._deprecate_privatize_attribute("3.3")
 
     def get_canvas(self, frame, fig):
         return type(self.canvas)(frame, -1, fig)
@@ -1201,53 +1209,53 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def press_zoom(self, event):
         super().press_zoom(event)
         if self.mode.name == 'ZOOM':
-            if not self.retinaFix:
-                self.wxoverlay = wx.Overlay()
+            if not self._retinaFix:
+                self._wxoverlay = wx.Overlay()
             else:
                 if event.inaxes is not None:
-                    self.savedRetinaImage = self.canvas.copy_from_bbox(
+                    self._savedRetinaImage = self.canvas.copy_from_bbox(
                         event.inaxes.bbox)
-                    self.zoomStartX = event.xdata
-                    self.zoomStartY = event.ydata
-                    self.zoomAxes = event.inaxes
+                    self._zoomStartX = event.xdata
+                    self._zoomStartY = event.ydata
+                    self._zoomAxes = event.inaxes
 
     def release_zoom(self, event):
         super().release_zoom(event)
         if self.mode.name == 'ZOOM':
             # When the mouse is released we reset the overlay and it
             # restores the former content to the window.
-            if not self.retinaFix:
-                self.wxoverlay.Reset()
-                del self.wxoverlay
+            if not self._retinaFix:
+                self._wxoverlay.Reset()
+                del self._wxoverlay
             else:
-                del self.savedRetinaImage
-                if self.prevZoomRect:
-                    self.prevZoomRect.pop(0).remove()
-                    self.prevZoomRect = None
-                if self.zoomAxes:
-                    self.zoomAxes = None
+                del self._savedRetinaImage
+                if self._prevZoomRect:
+                    self._prevZoomRect.pop(0).remove()
+                    self._prevZoomRect = None
+                if self._zoomAxes:
+                    self._zoomAxes = None
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        if self.retinaFix:  # On Macs, use the following code
+        if self._retinaFix:  # On Macs, use the following code
             # wx.DCOverlay does not work properly on Retina displays.
             rubberBandColor = '#C0C0FF'
-            if self.prevZoomRect:
-                self.prevZoomRect.pop(0).remove()
-            self.canvas.restore_region(self.savedRetinaImage)
-            X0, X1 = self.zoomStartX, event.xdata
-            Y0, Y1 = self.zoomStartY, event.ydata
+            if self._prevZoomRect:
+                self._prevZoomRect.pop(0).remove()
+            self.canvas.restore_region(self._savedRetinaImage)
+            X0, X1 = self._zoomStartX, event.xdata
+            Y0, Y1 = self._zoomStartY, event.ydata
             lineX = (X0, X0, X1, X1, X0)
             lineY = (Y0, Y1, Y1, Y0, Y0)
-            self.prevZoomRect = self.zoomAxes.plot(
+            self._prevZoomRect = self._zoomAxes.plot(
                 lineX, lineY, '-', color=rubberBandColor)
-            self.zoomAxes.draw_artist(self.prevZoomRect[0])
-            self.canvas.blit(self.zoomAxes.bbox)
+            self._zoomAxes.draw_artist(self._prevZoomRect[0])
+            self.canvas.blit(self._zoomAxes.bbox)
             return
 
         # Use an Overlay to draw a rubberband-like bounding box.
 
         dc = wx.ClientDC(self.canvas)
-        odc = wx.DCOverlay(self.wxoverlay, dc)
+        odc = wx.DCOverlay(self._wxoverlay, dc)
         odc.Clear()
 
         # Mac's DC is already the same as a GCDC, and it causes
@@ -1439,14 +1447,14 @@ if 'wxMac' not in wx.PlatformInfo:
     class RubberbandWx(backend_tools.RubberbandBase):
         def __init__(self, *args, **kwargs):
             backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-            self.wxoverlay = None
+            self._wxoverlay = None
 
         def draw_rubberband(self, x0, y0, x1, y1):
             # Use an Overlay to draw a rubberband-like bounding box.
-            if self.wxoverlay is None:
-                self.wxoverlay = wx.Overlay()
+            if self._wxoverlay is None:
+                self._wxoverlay = wx.Overlay()
             dc = wx.ClientDC(self.canvas)
-            odc = wx.DCOverlay(self.wxoverlay, dc)
+            odc = wx.DCOverlay(self._wxoverlay, dc)
             odc.Clear()
 
             dc = wx.GCDC(dc)
@@ -1477,10 +1485,10 @@ if 'wxMac' not in wx.PlatformInfo:
             dc.DrawRectangle(rect)
 
         def remove_rubberband(self):
-            if self.wxoverlay is None:
+            if self._wxoverlay is None:
                 return
-            self.wxoverlay.Reset()
-            self.wxoverlay = None
+            self._wxoverlay.Reset()
+            self._wxoverlay = None
 
 else:
     # on Mac OS retina displays DCOverlay does not work
