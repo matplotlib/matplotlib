@@ -387,33 +387,42 @@ class FuncFormatter(Formatter):
     def __init__(self, func):
         self.func = func
 
-        if not isinstance(func, types.BuiltinFunctionType):
-            self.nargs = len(inspect.signature(func).parameters)
-        elif (isinstance(getattr(func, "__self__"), str) and
-                (getattr(func, "__name__", "") == "format")):
-            #check if there's a format spec
-            self.nargs = len([(_, _, fs, _) for (_, _, fs, _)
-                              in string.Formatter().parse(func.__self__)
-                              if fs is not None])
-        else:
-            #finding argcount for other builtins is a mess
-            self.nargs = 2
-            cbook._warn_external(f"{func.__name__} is not supported "
-                                  "and may not work as expected")
-        if self.nargs not in [1, 2]:
-            raise TypeError(f"{func.__name__} takes {self.nargs} arguments. "
-                             "FuncFormatter functions take at most 2: "
-                             "x (required), pos (optional).")
-
     def __call__(self, x, pos=None):
         """
         Return the value of the user defined function.
 
         *x* and *pos* are passed through as-is.
         """
-        if self.nargs == 1:
-            return self.func(x)
-        return self.func(x, pos)
+        if self._nargs == 1:
+            return self._func(x)
+        return self._func(x, pos)
+
+    @property
+    def func(self):
+        return self._func
+
+    @func.setter
+    def func(self, func):
+        self._func = func
+        if not isinstance(func, types.BuiltinFunctionType):
+            self._nargs = len(inspect.signature(func).parameters)
+        elif (isinstance(getattr(func, "__self__"), str) and
+                (getattr(func, "__name__", "") == "format")):
+            #check if there's a format spec
+            self._nargs = len([(_, _, fs, _) for (_, _, fs, _)
+                              in string.Formatter().parse(func.__self__)
+                              if fs is not None])
+        else:
+            #finding argcount for other builtins is a mess
+            self._nargs = 2
+            cbook._warn_external(f"{func.__name__} is not supported "
+                                  "and may not work as expected")
+        if self._nargs not in [1, 2]:
+            raise TypeError(f"{func.__name__} takes {self._nargs} arguments. "
+                             "FuncFormatter functions take at most 2: "
+                             "x (required), pos (optional).")
+        
+
 
 
 class FormatStrFormatter(Formatter):
