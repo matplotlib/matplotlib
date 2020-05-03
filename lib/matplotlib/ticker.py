@@ -420,9 +420,7 @@ class FuncFormatter(Formatter):
         if self._nargs not in [1, 2]:
             raise TypeError(f"{func.__name__} takes {self._nargs} arguments. "
                              "FuncFormatter functions take at most 2: "
-                             "x (required), pos (optional).")
-        
-
+                             "x (required), pos (optional).
 
 
 class FormatStrFormatter(Formatter):

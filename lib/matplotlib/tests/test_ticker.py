@@ -1068,9 +1068,10 @@ class TestFuncFormatter:
 
     def test_update(self):
         formatter = mticker.FuncFormatter(lambda x, pos: f"{x}+{pos}")
-        assert "1+2" == formatter(1,2)
+        assert "1+2" == formatter(1, 2)
         with pytest.raises(TypeError, match='3 arguments'):
-           formatter.func = lambda x, pos, error: "!"
+            formatter.func = lambda x, pos, error: "!"
+
 
 class TestStrMethodFormatter:
     test_data = [
