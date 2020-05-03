@@ -708,7 +708,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : scalars
+        x, y : float
             The position to place the text. By default, this is in data
             coordinates. The coordinate system can be changed using the
             *transform* parameter.
@@ -1123,14 +1123,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        y : scalar or sequence of scalar
+        y : float or array-like
             y-indexes where to plot the lines.
 
-        xmin, xmax : scalar or 1D array-like
+        xmin, xmax : float or array-like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array-like of colors, default: 'k'
+        colors : list of colors, default: 'k'
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1205,14 +1205,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : scalar or 1D array-like
+        x : float or array-like
             x-indexes where to plot the lines.
 
-        ymin, ymax : scalar or 1D array-like
+        ymin, ymax : float or array-like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array-like of colors, default: 'k'
+        colors : list of colors, default: 'k'
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1312,28 +1312,28 @@ class Axes(_AxesBase):
             - 'vertical': the lines are arranged vertically in columns,
               and are horizontal.
 
-        lineoffsets : scalar or sequence of scalars, default: 1
+        lineoffsets : float or array-like, default: 1
             The offset of the center of the lines from the origin, in the
             direction orthogonal to *orientation*.
 
             A sequence must match the dimension of *positions*
             in the direction of *orientation*.
 
-        linelengths : scalar or sequence of scalars, default: 1
+        linelengths : float or array-like, default: 1
             The total height of the lines (i.e. the lines stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
             If a sequence, then *positions* must be 2D and the length
             must match the first dimension of *positions*.
 
-        linewidths : scalar, scalar sequence or None, default: None
+        linewidths : float or array-like or None, default: None
             The line width(s) of the event lines, in points. If it is None,
             defaults to its rcParams setting.
 
             If a sequence, then *positions* must be 2D and the length
             must match the first dimension of *positions*.
 
-        colors : color, sequence of colors or None, default: None
+        colors : color or list of colors or None, default: None
             The color(s) of the event lines. If it is None, defaults to its
             rcParams setting.
 
@@ -3163,10 +3163,10 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : scalar or array-like
+        x, y : float or array-like
             The data positions.
 
-        xerr, yerr : scalar or array-like, shape(N,) or shape(2, N), optional
+        xerr, yerr : float or array-like, shape(N,) or shape(2, N), optional
             The errorbar sizes:
 
             - scalar: Symmetric +/- values for all data points.
@@ -3192,14 +3192,14 @@ class Axes(_AxesBase):
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
-        elinewidth : scalar, default: None
+        elinewidth : float, default: None
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        capsize : scalar, default: :rc:`errorbar.capsize`
+        capsize : float, default: :rc:`errorbar.capsize`
             The length of the error bar caps in points.
 
-        capthick : scalar, default: None
+        capthick : float, default: None
             An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
             This setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
@@ -3625,7 +3625,7 @@ class Axes(_AxesBase):
             automatically set to match the positions. Defaults to
             ``range(1, N+1)`` where N is the number of boxes to be drawn.
 
-        widths : scalar or array-like
+        widths : float or array-like
             Sets the width of each box either with a scalar or a
             sequence. The default is 0.5, or ``0.15*(distance between
             extreme positions)``, if that is smaller.
@@ -3652,7 +3652,7 @@ class Axes(_AxesBase):
             *meanprops* (see below).  Not recommended if *shownotches* is also
             True.  Otherwise, means will be shown as points.
 
-        zorder : scalar, default: None
+        zorder : float, default: ``Line2D.zorder = 2``
             Sets the zorder of the boxplot.
 
         Returns
@@ -3928,7 +3928,7 @@ class Axes(_AxesBase):
           If True, the tick locations and labels will be adjusted to match the
           boxplot positions.
 
-        zorder : scalar, default: None
+        zorder : float, default: ``Line2D.zorder = 2``
           The zorder of the resulting boxplot.
 
         Returns
@@ -4346,14 +4346,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : scalar or array-like, shape (n, )
+        x, y : float or array-like, shape (n, )
             The data positions.
 
-        s : scalar or array-like, shape (n, ), optional
+        s : float or array-like, shape (n, ), optional
             The marker size in points**2.
             Default is ``rcParams['lines.markersize'] ** 2``.
 
-        c : color, sequence, or sequence of colors, optional
+        c : color or list of colors or array-like, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -4391,16 +4391,16 @@ class Axes(_AxesBase):
             *cmap*.
             If *None*, use the default `.colors.Normalize`.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             *vmin* and *vmax* are used in conjunction with the default norm to
             map the color array *c* to the colormap *cmap*. If None, the
             respective min and max of the color array is used.
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        linewidths : scalar or array-like, default: :rc:`lines.linewidth`
+        linewidths : float or array-like, default: :rc:`lines.linewidth`
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
 
@@ -5433,12 +5433,12 @@ default: :rc:`scatter.edgecolors`
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        alpha : scalar or array-like, optional
+        alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
             If *alpha* is an array, the alpha blending values are applied pixel
             by pixel, and *alpha* must have the same shape as *X*.
 
-        vmin, vmax : scalar, optional
+        vmin, vmax : float, optional
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
@@ -5455,7 +5455,7 @@ default: :rc:`scatter.edgecolors`
             See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
             examples and a more detailed description.
 
-        extent : scalars (left, right, bottom, top), optional
+        extent : floats (left, right, bottom, top), optional
             The bounding box in data coordinates that the image will fill.
             The image is stretched individually along x and y to fill the box.
 
@@ -5736,7 +5736,7 @@ default: :rc:`scatter.edgecolors`
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
@@ -5754,7 +5754,7 @@ default: :rc:`scatter.edgecolors`
 
             The singular form *edgecolor* works as an alias.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value of the face color, between 0 (transparent)
             and 1 (opaque). Note: The edgecolor is currently not affected by
             this.
@@ -5967,7 +5967,7 @@ default: :rc:`scatter.edgecolors`
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
@@ -5985,7 +5985,7 @@ default: :rc:`scatter.edgecolors`
 
             The singular form *edgecolor* works as an alias.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
@@ -6215,14 +6215,14 @@ default: :rc:`scatter.edgecolors`
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         snap : bool, default: False
@@ -6486,7 +6486,7 @@ default: :rc:`scatter.edgecolors`
             If 'horizontal', `~.Axes.barh` will be used for bar-type histograms
             and the *bottom* kwarg will be the left edges.
 
-        rwidth : scalar or None, default: None
+        rwidth : float or None, default: None
             The relative width of the bars as a fraction of the bin width.  If
             ``None``, automatically compute the width.
 
@@ -6856,15 +6856,11 @@ default: :rc:`scatter.edgecolors`
         weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
 
-        cmin : scalar, default: None
-            All bins that has count less than cmin will not be displayed (set
-            to NaN before passing to imshow) and these count values in the
-            return value count histogram will also be set to nan upon return.
-
-        cmax : scalar, default: None
-            All bins that has count more than cmax will not be displayed (set
-            to NaN before passing to imshow) and these count values in the
-            return value count histogram will also be set to nan upon return.
+        cmin, cmax : float, default: None
+            All bins that has count less than *cmin* or more than *cmax* will
+            not be displayed (set to NaN before passing to imshow) and these
+            count values in the return value count histogram will also be set
+            to nan upon return.
 
         Returns
         -------
@@ -7798,7 +7794,7 @@ default: :rc:`scatter.edgecolors`
           which stands for the quantiles that will be rendered for that
           violin.
 
-        points : scalar, default: 100
+        points : int, default: 100
           Defines the number of points to evaluate each of the
           gaussian kernel density estimations at.
 

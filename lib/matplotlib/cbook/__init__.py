@@ -1567,7 +1567,7 @@ def index_of(y):
 
     Parameters
     ----------
-    y : scalar or array-like
+    y : float or array-like
 
     Returns
     -------

@@ -35,7 +35,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     values : array
         A length n array of bin counts or values
 
-    bottoms : scalar or array, optional
+    bottoms : float or array, optional
         A length n array of the bottom of the bars.  If None, zero is used.
 
     orientation : {'v', 'h'}

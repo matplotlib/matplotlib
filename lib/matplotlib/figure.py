@@ -523,19 +523,19 @@ class Figure(Artist):
 
         Parameters
         ----------
-        w_pad : scalar
+        w_pad : float
             Width padding in inches.  This is the pad around axes
             and is meant to make sure there is enough room for fonts to
             look good.  Defaults to 3 pts = 0.04167 inches
 
-        h_pad : scalar
+        h_pad : float
             Height padding in inches. Defaults to 3 pts.
 
-        wspace : scalar
+        wspace : float
             Width padding between subplots, expressed as a fraction of the
             subplot width.  The total padding ends up being w_pad + wspace.
 
-        hspace : scalar
+        hspace : float
             Height padding between subplots, expressed as a fraction of the
             subplot width. The total padding ends up being h_pad + hspace.
 
@@ -588,11 +588,11 @@ class Figure(Artist):
 
         Parameters
         ----------
-        bottom : scalar
+        bottom : float, default: 0.2
             The bottom of the subplots for `subplots_adjust`.
-        rotation : angle in degrees
-            The rotation of the xtick labels.
-        ha : str
+        rotation : float, default: 30 degrees
+            The rotation angle of the xtick labels in degrees.
+        ha : {'left', 'center', 'right'}, default: 'right'
             The horizontal alignment of the xticklabels.
         which : {'major', 'minor', 'both'}, default: 'major'
             Selects which ticklabels to rotate.
@@ -787,7 +787,7 @@ default: 'top'
         cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The colormap to use.
 
-        vmin, vmax : scalar
+        vmin, vmax : float
             If *norm* is not given, these values set the data limits for the
             colormap.
 
@@ -2128,9 +2128,8 @@ default: 'top'
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : scalar, optional
-            Amount of padding around the figure when bbox_inches is
-            'tight'. If None, use savefig.pad_inches
+        pad_inches : float, default: :rc:`savefig.pad_inches`
+            Amount of padding around the figure when bbox_inches is 'tight'.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
@@ -2290,7 +2289,7 @@ default: 'top'
         n : int, default: 1
             Number of mouse clicks to accumulate. If negative, accumulate
             clicks until the input is terminated manually.
-        timeout : scalar, default: 30 seconds
+        timeout : float, default: 30 seconds
             Number of seconds to wait before timing out. If zero or negative
             will never timeout.
         show_clicks : bool, default: True
@@ -2683,8 +2682,8 @@ def figaspect(arg):
 
     Parameters
     ----------
-    arg : scalar or 2d array
-        If a scalar, this defines the aspect ratio (i.e. the ratio height /
+    arg : float or 2d array
+        If a float, this defines the aspect ratio (i.e. the ratio height /
         width).
         In case of an array the aspect ratio is number of rows / number of
         columns, so that the array could be fitted in the figure undistorted.

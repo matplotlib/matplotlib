@@ -173,8 +173,8 @@ class Line3D(lines.Line2D):
 
         Returns
         -------
-        verts3d : length-3 tuple or array-likes
-            The current data as a tuple or array-likes.
+        verts3d : length-3 tuple or array-like
+            The current data as a tuple or array-like.
         """
         return self._verts3d
 

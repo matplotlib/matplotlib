@@ -3509,7 +3509,7 @@ class _AxesBase(martist.Artist):
             Whether to turn on autoscaling of the y-axis. *True* turns on,
             *False* turns off, *None* leaves unchanged.
 
-        ymin, ymax : scalar, optional
+        ymin, ymax : float, optional
             They are equivalent to bottom and top respectively,
             and it is an error to pass both *ymin* and *bottom* or
             *ymax* and *top*.
