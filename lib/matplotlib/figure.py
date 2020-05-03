@@ -18,7 +18,8 @@ from matplotlib import docstring, projections
 from matplotlib import __version__ as _mpl_version
 
 import matplotlib.artist as martist
-from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.artist import (
+    Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
     FigureCanvasBase, NonGuiException, MouseButton)
 import matplotlib.cbook as cbook
@@ -1689,6 +1690,7 @@ default: 'top'
         """Clear the figure -- synonym for `clf`."""
         self.clf(keep_observers=keep_observers)
 
+    @_finalize_rasterization
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited

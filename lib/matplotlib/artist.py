@@ -34,7 +34,17 @@ def allow_rasterization(draw):
     def draw_wrapper(artist, renderer, *args, **kwargs):
         try:
             if artist.get_rasterized():
-                renderer.start_rasterizing()
+                if renderer._raster_depth == 0 and not renderer._rasterizing:
+                    renderer.start_rasterizing()
+                    renderer._rasterizing = True
+                renderer._raster_depth += 1
+            else:
+                if renderer._raster_depth == 0 and renderer._rasterizing:
+                    # Only stop when we are not in a rasterized parent
+                    # and something has be rasterized since last stop
+                    renderer.stop_rasterizing()
+                    renderer._rasterizing = False
+
             if artist.get_agg_filter() is not None:
                 renderer.start_filter()
 
@@ -43,9 +53,29 @@ def allow_rasterization(draw):
             if artist.get_agg_filter() is not None:
                 renderer.stop_filter(artist.get_agg_filter())
             if artist.get_rasterized():
+                renderer._raster_depth -= 1
+            if (renderer._rasterizing and artist.figure and
+                    artist.figure.suppressComposite):
+                # restart rasterizing to prevent merging
                 renderer.stop_rasterizing()
+                renderer.start_rasterizing()
 
     draw_wrapper._supports_rasterization = True
+    return draw_wrapper
+
+
+def _finalize_rasterization(draw):
+    """
+    Decorator for Artist.draw method. Needed on the outermost artist, i.e.
+    Figure, to finish up if the render is still in rasterized mode.
+    """
+    @wraps(draw)
+    def draw_wrapper(artist, renderer, *args, **kwargs):
+        result = draw(artist, renderer, *args, **kwargs)
+        if renderer._rasterizing:
+            renderer.stop_rasterizing()
+            renderer._rasterizing = False
+        return result
     return draw_wrapper
 
 
