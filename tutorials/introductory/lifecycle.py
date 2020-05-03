@@ -207,7 +207,7 @@ def currency(x, pos):
 
 ###############################################################################
 # We can then apply this function to the labels on our plot. To do this,
-# we use the ``xaxis`` attribute of our axis. This lets you perform
+# we use the ``xaxis`` attribute of our axes. This lets you perform
 # actions on a specific axis on our plot.
 
 fig, ax = plt.subplots(figsize=(6, 8))
