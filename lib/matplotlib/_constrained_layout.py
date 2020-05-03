@@ -48,8 +48,6 @@ import logging
 import numpy as np
 
 import matplotlib.cbook as cbook
-import matplotlib.colorbar as mcolorbar
-import matplotlib.transforms as mtransforms
 import matplotlib._layoutbox as layoutbox
 
 
