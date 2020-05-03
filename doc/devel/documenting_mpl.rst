@@ -307,7 +307,7 @@ Image files can directly included in pages with the ``image::`` directive.
 e.g., :file:`thirdpartypackages/index.rst` displays the images for the third-party
 packages as static images::
 
-    .. image:: ../_static/toolbar.png
+    .. image:: /_static/toolbar.png
 
 as rendered on the page: :ref:`thirdparty-index`.
 

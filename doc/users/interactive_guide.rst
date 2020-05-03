@@ -13,9 +13,9 @@ Axes to inspect your data is 'baked in' to Matplotlib.  This is
 supported by a full mouse and keyboard event handling system that
 you can use to build sophisticated interactive graphs.
 
-This is meant to be an introduction to the low-level details of how
-integrating the Matplotlib with a GUI event loop works.  For a more
-practical introduction the Matplotlib event API see :ref:`event
+This guide is meant to be an introduction to the low-level details of
+how Matplotlib integration with a GUI event loop works.  For a more
+practical introduction to the Matplotlib event API see :ref:`event
 handling system <event-handling-tutorial>`, `Interactive Tutorial
 <https://github.com/matplotlib/interactive_tutorial>`__, and
 `Interactive Applications using Matplotlib
@@ -45,7 +45,7 @@ while the *Evaluate* and *Print* are responsible for interpreting the
 input and then **doing** something about it.
 
 In practice we interact with a framework that provides a mechanism to
-register callbacks to be called in response to specific event rather
+register callbacks to be run in response to specific events rather
 than directly implement the I/O loop [#f2]_.  For example "when the
 user clicks on this button, please run this function" or "when the
 user hits the 'z' key, please run this other function".  This allows
@@ -60,10 +60,9 @@ All GUI frameworks (Qt, Wx, Gtk, tk, OSX, or web) have some method of
 capturing user interactions and passing them back to the application
 (for example ``Signal`` / ``Slot`` framework in Qt) but the exact
 details depend on the toolkit.  Matplotlib has a :ref:`backend
-<what-is-a-backend>` for each GUI toolkit we support which use the
-toolkit API to bridge the toolkit UI events into Matplotlib events
-into Matplotlib's :ref:`event handling system
-<event-handling-tutorial>`.  You can then use
+<what-is-a-backend>` for each GUI toolkit we support which uses the
+toolkit API to bridge the toolkit UI events into Matplotlib's :ref:`event
+handling system <event-handling-tutorial>`.  You can then use
 `.FigureCanvasBase.mpl_connect` to connect your function to
 Matplotlib's event handling system.  This allows you to directly
 interact with your data and write GUI toolkit agnostic user
@@ -77,8 +76,8 @@ Command Prompt Integration
 
 So far, so good.  We have the REPL (like the IPython terminal) that
 lets us interactively send things code to the interpreter and get
-results back.  We also have the GUI toolkit that run an event loop
-waiting for user input and let up register functions to be run when
+results back.  We also have the GUI toolkit that runs an event loop
+waiting for user input and lets us register functions to be run when
 that happens.  However, if we want to do both we have a problem: the
 prompt and the GUI event loop are both infinite loops that each think
 *they* are in charge!  In order for both the prompt and the GUI windows
@@ -148,7 +147,7 @@ able to have a usable prompt **and** interactive figure windows.
 
 We can do this using the 'input hook' feature of the interactive
 prompt.  This hook is called by the prompt as it waits for the user
-type (even for a fast typist the prompt is mostly waiting for the
+to type (even for a fast typist the prompt is mostly waiting for the
 human to think and move their fingers).  Although the details vary
 between prompts the logic is roughly
 
@@ -157,7 +156,7 @@ between prompts the logic is roughly
 3. as soon as the user hits a key, exit the GUI event loop and handle the key
 4. repeat
 
-This gives us the illusion of simultaneously having an interactive GUI
+This gives us the illusion of simultaneously having interactive GUI
 windows and an interactive prompt.  Most of the time the GUI event
 loop is running, but as soon as the user starts typing the prompt
 takes over again.
@@ -167,7 +166,7 @@ python is otherwise idle and waiting for user input.  If you want the
 GUI to be responsive during long running code it is necessary to
 periodically flush the GUI event queue as described :ref:`above
 <spin_event_loop>`.  In this case it is your code, not the REPL, which
-is blocking process so you need to handle the "time-share" manually.
+is blocking the process so you need to handle the "time-share" manually.
 Conversely, a very slow figure draw will block the prompt until it
 finishes drawing.
 
@@ -220,7 +219,7 @@ event loop using the methods described :ref:`above <cp_block_the_prompt>`.
 
 You can also use the methods described in :ref:`cp_block_the_prompt`
 to suspend run the GUI event loop.  Once the loop exits your code will
-resume.  In general, anyplace you would use `time.sleep` you can use
+resume.  In general, any place you would use `time.sleep` you can use
 `.pyplot.pause` instead with the added benefit of interactive figures.
 
 For example, if you want to poll for data you could use something like ::
@@ -280,7 +279,7 @@ For example ::
    slow_loop(100, ln)
 
 While this will feel a bit laggy (as we are only processing user input
-every 100ms where as 20-30ms is what feels "responsive") it will
+every 100ms whereas 20-30ms is what feels "responsive") it will
 respond.
 
 If you make changes to the plot and want it re-rendered you will need
@@ -304,7 +303,7 @@ We can add this our example above as ::
 
 The more frequently you call `.FigureCanvasBase.flush_events` the more
 responsive your figure will feel but at the cost of spending more
-resource on the visualization and less on your computation.
+resources on the visualization and less on your computation.
 
 
 .. _stale_artists:
@@ -315,10 +314,10 @@ Stale Artists
 Artists (as of Matplotlib 1.5) have a **stale** attribute which is
 `True` if the internal state of the artist has changed since the last
 time it was rendered. By default the stale state is propagated up to
-the Artists parents in the draw tree, thus if the color of a `.Line2D`
-instance is changed, the `.axes.Axes` and `.figure.Figure` it is
-contained in will also be marked as "stale".  Thus, ``fig.stale`` will
-report of any artist in the figure has been modified and out of sync
+the Artists parents in the draw tree, e.g., if the color of a `.Line2D`
+instance is changed, the `.axes.Axes` and `.figure.Figure` that
+contain it will also be marked as "stale".  Thus, ``fig.stale`` will
+report if any artist in the figure has been modified and is out of sync
 with what is displayed on the screen.  This is intended to be used to
 determine if ``draw_idle`` should be called to schedule a re-rendering
 of the figure.
@@ -330,17 +329,17 @@ with the signature ::
      ...
 
 which by default is set to a function that forwards the stale state to
-the artists parent.   If you wish to suppress a given artist from propagating
+the artist's parent.   If you wish to suppress a given artist from propagating
 set this attribute to None.
 
 `.figure.Figure` instances do not have a containing artist and their
 default callback is `None`.  If you call `.pyplot.ion` and are not in
-``IPython`` we will install callback to invoke
-`~.backend_bases.FigureCanvasBase.draw_idle` when ever the
+``IPython`` we will install a callback to invoke
+`~.backend_bases.FigureCanvasBase.draw_idle` whenever the
 `.figure.Figure` becomes stale.  In ``IPython`` we use the
 ``'post_execute'`` hook to invoke
 `~.backend_bases.FigureCanvasBase.draw_idle` on any stale figures
-after having executed the users input, but before returning the prompt
+after having executed the user's input, but before returning the prompt
 to the user.  If you are not using `.pyplot` you can use the callback
 `Figure.stale_callback` attribute to be notified when a figure has
 become stale.
@@ -363,7 +362,7 @@ Draw Idle
 In almost all cases, we recommend using
 `backend_bases.FigureCanvasBase.draw_idle` over
 `backend_bases.FigureCanvasBase.draw`.  ``draw`` forces a rendering of
-the figure where as ``draw_idle`` schedules a rendering the next time
+the figure whereas ``draw_idle`` schedules a rendering the next time
 the GUI window is going to re-paint the screen.  This improves
 performance by only rendering pixels that will be shown on the screen.  If
 you want to be sure that the screen is updated as soon as possible do ::
@@ -448,7 +447,7 @@ method.  The source for the prompt_toolkit input hooks lives at
 .. [#f2] Or you can `write your own
          <https://www.youtube.com/watch?v=ZzfHjytDceU>`__ if you must.
 
-.. [#f3] These examples are agressively dropping many of the
+.. [#f3] These examples are aggressively dropping many of the
 	 complexities that must be dealt with in the real world such as
-	 keyboard interupts, timeouts, bad input, resource
+	 keyboard interrupts, timeouts, bad input, resource
 	 allocation and cleanup, etc.

@@ -10,16 +10,16 @@
 
 
 When working with data it is often invaluable to be able to interact
-with your plots In many cases the built in pan/zoom and mouse-location
+with your plots. In many cases the built in pan/zoom and mouse-location
 tools are sufficient, but you can also use the Matplotlib event system
-to build a customized data exploration tools.
+to build customized data exploration tools.
 
 Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to
 several GUI toolkits (Qt, Tk, Wx, Gtk, OSX, js) and third party
 packages provide bindings to `kivy
 <https://github.com/kivy-garden/garden.matplotlib>`__ and `Jupyter Lab
 <https://github.com/matplotlib/ipympl>`__.  For the figures to be
-"live" the GUI event loop will need to be integrated with your prompt, the
+"live" the GUI event loop will need to be integrated with your prompt. The
 simplest way is to use IPython (see :ref:`below <ipython-pylab>`).
 
 The `.pyplot` module provides two functions for creating Figures that,
@@ -33,7 +33,7 @@ embedded in GUI windows, and ready for interactive use out of the box
     Creates a new `.figure.Figure` and fills it with a grid of `.axes.Axes`
 
 Matplotlib keeps a reference to all of the open figures created this
-way so they will not be garbage collected.  You can close all off your
+way so they will not be garbage collected.  You can close all of your
 open figures via ``plt.close('all')``.
 
 For discussion of how this works under the hood see:
@@ -52,7 +52,7 @@ IPython integration
 
 We recommend using IPython for an interactive shell.  In addition to
 all of its features (improved tab-completion, magics,
-multiline-editing, etc), it also ensures that the GUI toolkit event
+multiline editing, etc), it also ensures that the GUI toolkit event
 loop is properly integrated with the command line (see
 :ref:`cp_integration`).  To configure the integration and enable
 :ref:`interactive mode <controlling-interactive>` use the
@@ -140,12 +140,12 @@ Interactive mode
 
 Interactive mode controls:
 
-- if created figures are automatically shown
-- if changes to artists automatically trigger re-drawing existing figures
-- if `.pyplot.show` blocks or not
+- whether created figures are automatically shown
+- whether changes to artists automatically trigger re-drawing existing figures
+- whether `.pyplot.show` blocks or not
 
 
-if in interactive mode then:
+If in interactive mode, then:
 
 - newly created figures will be shown immediately
 - figures will automatically redraw on change
@@ -166,7 +166,7 @@ GUI event loop for a fixed amount of time you can use `.pyplot.pause`.
 Being in interactive mode is orthogonal to the GUI event loop being
 integrated with your command prompt.  If you have the GUI event loop
 integrated with your prompt, then shown figures will be "live" while
-the prompt is waiting for input, if it is not integrated than your
+the prompt is waiting for input, if it is not integrated then your
 figures will only be "live" when the GUI event loop is running (via
 `.pyplot.show`, `.pyplot.pause`, or explicitly starting the GUI main
 loop).
