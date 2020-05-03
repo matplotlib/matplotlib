@@ -10,7 +10,6 @@ below shows how to use an 'index formatter' to achieve the desired plot
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
 
 # Load a numpy record array from yahoo csv data with fields date, open, close,
 # volume, adj_close from the mpl-data/example directory. The record array
@@ -36,8 +35,26 @@ def format_date(x, pos=None):
 
 
 ax2.plot(ind, r.adj_close, 'o-')
-ax2.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
+# Use automatic FuncFormatter creation
+ax2.xaxis.set_major_formatter(format_date)
 ax2.set_title("Custom tick formatter")
 fig.autofmt_xdate()
 
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplots
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.cbook.get_sample_data
+matplotlib.ticker.FuncFormatter

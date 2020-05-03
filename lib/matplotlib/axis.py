@@ -1541,37 +1541,65 @@ class Axis(martist.Artist):
         """
         Set the formatter of the major ticker.
 
+        In addition to a `~matplotlib.ticker.Formatter` instance,
+        this also accepts a ``str`` or function.
+
+        For a ``str`` a `~matplotlib.ticker.StrMethodFormatter` is used.
+        The field used for the value must be labeled ``'x'`` and the field used
+        for the position must be labeled ``'pos'``.
+        See the  `~matplotlib.ticker.StrMethodFormatter` documentation for
+        more information.
+
+        For a function, a `~matplotlib.ticker.FuncFormatter` is used.
+        The function must take two inputs (a tick value ``x`` and a
+        position ``pos``), and return a string containing the corresponding
+        tick label.
+        See the  `~matplotlib.ticker.FuncFormatter` documentation for
+        more information.
+
         Parameters
         ----------
-        formatter : `~matplotlib.ticker.Formatter`
+        formatter : `~matplotlib.ticker.Formatter`, ``str``, or function
         """
-        cbook._check_isinstance(mticker.Formatter, formatter=formatter)
-        if (isinstance(formatter, mticker.FixedFormatter)
-                and len(formatter.seq) > 0
-                and not isinstance(self.major.locator, mticker.FixedLocator)):
-            cbook._warn_external('FixedFormatter should only be used together '
-                                 'with FixedLocator')
-        self.isDefault_majfmt = False
-        self.major.formatter = formatter
-        formatter.set_axis(self)
-        self.stale = True
+        self._set_formatter(formatter, self.major)
 
     def set_minor_formatter(self, formatter):
         """
         Set the formatter of the minor ticker.
 
+        In addition to a `~matplotlib.ticker.Formatter` instance,
+        this also accepts a ``str`` or function.
+        See `.Axis.set_major_formatter` for more information.
+
         Parameters
         ----------
-        formatter : `~matplotlib.ticker.Formatter`
+        formatter : `~matplotlib.ticker.Formatter`, ``str``, or function
         """
-        cbook._check_isinstance(mticker.Formatter, formatter=formatter)
+        self._set_formatter(formatter, self.minor)
+
+    def _set_formatter(self, formatter, level):
+        if isinstance(formatter, str):
+            formatter = mticker.StrMethodFormatter(formatter)
+        # Don't allow any other TickHelper to avoid easy-to-make errors,
+        # like using a Locator instead of a Formatter.
+        elif (callable(formatter) and
+              not isinstance(formatter, mticker.TickHelper)):
+            formatter = mticker.FuncFormatter(formatter)
+        else:
+            cbook._check_isinstance(mticker.Formatter, formatter=formatter)
+
         if (isinstance(formatter, mticker.FixedFormatter)
                 and len(formatter.seq) > 0
-                and not isinstance(self.minor.locator, mticker.FixedLocator)):
+                and not isinstance(level.locator, mticker.FixedLocator)):
             cbook._warn_external('FixedFormatter should only be used together '
                                  'with FixedLocator')
-        self.isDefault_minfmt = False
-        self.minor.formatter = formatter
+
+        if level == self.major:
+            self.isDefault_majfmt = False
+        else:
+            self.isDefault_minfmt = False
+
+        level.formatter = formatter
         formatter.set_axis(self)
         self.stale = True
 

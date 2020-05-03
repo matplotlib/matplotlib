@@ -14,8 +14,12 @@ Minor ticks can be turned on without labels by setting the minor locator.
 Minor tick labels can be turned on by setting the minor formatter.
 
 `.MultipleLocator` places ticks on multiples of some base.
-`.FormatStrFormatter` uses a format string (e.g., ``'%d'`` or ``'%1.2f'`` or
-``'%1.1f cm'``) to format the tick labels.
+`.StrMethodFormatter` uses a format string (e.g., ``'{x:d}'`` or ``'{x:1.2f}'``
+or ``'{x:1.1f} cm'``) to format the tick labels (the variable in the format
+string must be ``'x'``).  For a `.StrMethodFormatter`, the string can be passed
+directly to `.Axis.set_major_formatter` or
+`.Axis.set_minor_formatter`.  An appropriate `.StrMethodFormatter` will
+be created and used automatically.
 
 `.pyplot.grid` changes the grid settings of the major ticks of the y and y axis
 together.  If you want to control the grid of the minor ticks for a given axis,
@@ -29,8 +33,7 @@ axis (because the locator stores references to the axis data and view limits).
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
-                               AutoMinorLocator)
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 
 t = np.arange(0.0, 100.0, 0.1)
@@ -40,10 +43,11 @@ fig, ax = plt.subplots()
 ax.plot(t, s)
 
 # Make a plot with major ticks that are multiples of 20 and minor ticks that
-# are multiples of 5.  Label major ticks with '%d' formatting but don't label
-# minor ticks.
+# are multiples of 5.  Label major ticks with '.0f' formatting but don't label
+# minor ticks.  The string is used directly, the `StrMethodFormatter` is
+# created automatically.
 ax.xaxis.set_major_locator(MultipleLocator(20))
-ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+ax.xaxis.set_major_formatter('{x:.0f}')
 
 # For the minor ticks, use no labels; default NullFormatter.
 ax.xaxis.set_minor_locator(MultipleLocator(5))
@@ -74,3 +78,23 @@ ax.tick_params(which='major', length=7)
 ax.tick_params(which='minor', length=4, color='r')
 
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplots
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.axis.Axis.set_major_locator
+matplotlib.axis.Axis.set_minor_locator
+matplotlib.ticker.AutoMinorLocator
+matplotlib.ticker.MultipleLocator
+matplotlib.ticker.StrMethodFormatter
