@@ -1349,8 +1349,7 @@ class PolarAxes(Axes):
             t.update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
-    def set_rgrids(self, radii, labels=None, angle=None, fmt=None,
-                   **kwargs):
+    def set_rgrids(self, radii, labels=None, angle=None, fmt=None, **kwargs):
         """
         Set the radial gridlines on a polar plot.
 

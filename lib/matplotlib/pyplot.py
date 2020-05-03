@@ -1544,7 +1544,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     return locs, labels
 
 
-def rgrids(*args, **kwargs):
+def rgrids(radii=None, labels=None, angle=None, fmt=None, **kwargs):
     """
     Get or set the radial gridlines on the current polar plot.
 
@@ -1606,15 +1606,16 @@ def rgrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
-    if not args and not kwargs:
+    if all(p is None for p in [radii, labels, angle, fmt]) and not kwargs:
         lines = ax.yaxis.get_gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
-        lines, labels = ax.set_rgrids(*args, **kwargs)
+        lines, labels = ax.set_rgrids(
+            radii, labels=labels, angle=angle, fmt=fmt, **kwargs)
     return lines, labels
 
 
-def thetagrids(*args, **kwargs):
+def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     """
     Get or set the theta gridlines on the current polar plot.
 
@@ -1673,11 +1674,12 @@ def thetagrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('thetagrids only defined for polar axes')
-    if not args and not kwargs:
+    if all(param is None for param in [angles, labels, fmt]) and not kwargs:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
     else:
-        lines, labels = ax.set_thetagrids(*args, **kwargs)
+        lines, labels = ax.set_thetagrids(angles,
+                                          labels=labels, fmt=fmt, **kwargs)
     return lines, labels
 
 
