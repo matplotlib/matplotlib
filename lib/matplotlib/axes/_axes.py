@@ -2272,26 +2272,25 @@ class Axes(_AxesBase):
         Make a bar plot.
 
         The bars are positioned at *x* with the given *align*\ment. Their
-        dimensions are given by *width* and *height*. The vertical baseline
+        dimensions are given by *height* and *width*. The vertical baseline
         is *bottom* (default 0).
 
-        Each of *x*, *height*, *width*, and *bottom* may either be a scalar
-        applying to all bars, or it may be a sequence of length N providing a
-        separate value for each bar.
+        Many parameters can take either a single value applying to all bars
+        or a sequence of values, one for each bar.
 
         Parameters
         ----------
-        x : sequence of scalars
+        x : float or array-like
             The x coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
 
-        height : scalar or sequence of scalars
+        height : float or array-like
             The height(s) of the bars.
 
-        width : scalar or array-like, default: 0.8
+        width : float or array-like, default: 0.8
             The width(s) of the bars.
 
-        bottom : scalar or array-like, default: 0
+        bottom : float or array-like, default: 0
             The y coordinate(s) of the bars bases.
 
         align : {'center', 'edge'}, default: 'center'
@@ -2310,20 +2309,20 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : scalar or array-like, optional
+        color : color or list of color, optional
             The colors of the bar faces.
 
-        edgecolor : scalar or array-like, optional
+        edgecolor : color or list of color, optional
             The colors of the bar edges.
 
-        linewidth : scalar or array-like, optional
+        linewidth : float or array-like, optional
             Width of the bar edge(s). If 0, don't draw edges.
 
-        tick_label : str or array-like, optional
+        tick_label : str or list of str, optional
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
-        xerr, yerr : scalar or array-like of shape(N,) or shape(2, N), optional
+        xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
             The values are +/- sizes relative to the data:
 
@@ -2337,13 +2336,11 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        ecolor : scalar or array-like, default: 'black'
+        ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
 
-        capsize : scalar, optional
+        capsize : float, default: :rc:`errorbar.capsize`
            The length of the error bar caps in points.
-           Default: None, which will take the value from
-           :rc:`errorbar.capsize`.
 
         error_kw : dict, optional
             Dictionary of kwargs to be passed to the `~.Axes.errorbar`
@@ -2357,23 +2354,18 @@ class Axes(_AxesBase):
             *This is for internal use only.* Please use `barh` for
             horizontal bar plots. Default: 'vertical'.
 
+        **kwargs : `.Rectangle` properties
+
+        %(Rectangle)s
+
         See Also
         --------
         barh: Plot a horizontal bar plot.
 
         Notes
         -----
-        The optional arguments *color*, *edgecolor*, *linewidth*,
-        *xerr*, and *yerr* can be either scalars or sequences of
-        length equal to the number of bars.  This enables you to use
-        bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
-        independent specification of lower and upper errors.
-
-        Other optional kwargs:
-
-        %(Rectangle)s
+        Stacked bars can be achieved by passing individual *bottom* values per
+        bar. See :doc:`/gallery/lines_bars_and_markers/bar_stacked`.
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
         color = kwargs.pop('color', None)
@@ -2547,23 +2539,22 @@ class Axes(_AxesBase):
         dimensions are given by *width* and *height*. The horizontal baseline
         is *left* (default 0).
 
-        Each of *y*, *width*, *height*, and *left* may either be a scalar
-        applying to all bars, or it may be a sequence of length N providing a
-        separate value for each bar.
+        Many parameters can take either a single value applying to all bars
+        or a sequence of values, one for each bar.
 
         Parameters
         ----------
-        y : scalar or array-like
+        y : float or array-like
             The y coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
 
-        width : scalar or array-like
+        width : float or array-like
             The width(s) of the bars.
 
-        height : sequence of scalars, default: 0.8
+        height : float or array-like, default: 0.8
             The heights of the bars.
 
-        left : sequence of scalars, default: 0
+        left : float or array-like, default: 0
             The x coordinates of the left sides of the bars.
 
         align : {'center', 'edge'}, default: 'center'
@@ -2583,20 +2574,20 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : scalar or array-like, optional
+        color : color or list of color, optional
             The colors of the bar faces.
 
-        edgecolor : scalar or array-like, optional
+        edgecolor : color or list of color, optional
             The colors of the bar edges.
 
-        linewidth : scalar or array-like, optional
+        linewidth : float or array-like, optional
             Width of the bar edge(s). If 0, don't draw edges.
 
-        tick_label : str or array-like, optional
+        tick_label : str or list of str, optional
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
-        xerr, yerr : scalar or array-like of shape(N,) or shape(2, N), optional
+        xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not ``None``, add horizontal / vertical errorbars to the
             bar tips. The values are +/- sizes relative to the data:
 
@@ -2610,13 +2601,11 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        ecolor : scalar or array-like, default: 'black'
+        ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
 
-        capsize : scalar, optional
+        capsize : float, default: :rc:`errorbar.capsize`
            The length of the error bar caps in points.
-           Default: None, which will take the value from
-           :rc:`errorbar.capsize`.
 
         error_kw : dict, optional
             Dictionary of kwargs to be passed to the `~.Axes.errorbar`
@@ -2626,23 +2615,20 @@ class Axes(_AxesBase):
         log : bool, default: False
             If ``True``, set the x-axis to be log scale.
 
+        **kwargs : `.Rectangle` properties
+
+        %(Rectangle)s
+
         See Also
         --------
         bar: Plot a vertical bar plot.
 
         Notes
         -----
-        The optional arguments *color*, *edgecolor*, *linewidth*,
-        *xerr*, and *yerr* can be either scalars or sequences of
-        length equal to the number of bars.  This enables you to use
-        bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
-        independent specification of lower and upper errors.
-
-        Other optional kwargs:
-
-        %(Rectangle)s
+        Stacked bars can be achieved by passing individual *left* values per
+        bar. See
+        :doc:`/gallery/lines_bars_and_markers/horizontal_barchart_distribution`
+        .
         """
         kwargs.setdefault('orientation', 'horizontal')
         patches = self.bar(x=left, height=height, width=width, bottom=y,
