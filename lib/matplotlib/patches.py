@@ -4243,10 +4243,20 @@ class ConnectionPatch(FancyArrowPatch):
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
 
-    def _get_xy(self, x, y, s, axes=None):
+    def _get_xy(self, xy, s, axes=None):
         """Calculate the pixel position of given point."""
+        s0 = s  # For the error message, if needed.
         if axes is None:
             axes = self.axes
+        xy = np.array(xy)
+        if s in ["figure points", "axes points"]:
+            xy *= self.figure.dpi / 72
+            s = s.replace("points", "pixels")
+        elif s == "figure fraction":
+            s = self.figure.transFigure
+        elif s == "axes fraction":
+            s = axes.transAxes
+        x, y = xy
 
         if s == 'data':
             trans = axes.transData
@@ -4254,97 +4264,33 @@ class ConnectionPatch(FancyArrowPatch):
             y = float(self.convert_yunits(y))
             return trans.transform((x, y))
         elif s == 'offset points':
-            # convert the data point
-            dx, dy = self.xy
-
-            # prevent recursion
-            if self.xycoords == 'offset points':
-                return self._get_xy(dx, dy, 'data')
-
-            dx, dy = self._get_xy(dx, dy, self.xycoords)
-
-            # convert the offset
-            dpi = self.figure.get_dpi()
-            x *= dpi / 72.
-            y *= dpi / 72.
-
-            # add the offset to the data point
-            x += dx
-            y += dy
-
-            return x, y
+            if self.xycoords == 'offset points':  # prevent recursion
+                return self._get_xy(self.xy, 'data')
+            return (
+                self._get_xy(self.xy, self.xycoords)  # converted data point
+                + xy * self.figure.dpi / 72)  # converted offset
         elif s == 'polar':
             theta, r = x, y
             x = r * np.cos(theta)
             y = r * np.sin(theta)
             trans = axes.transData
             return trans.transform((x, y))
-        elif s == 'figure points':
-            # points from the lower left corner of the figure
-            dpi = self.figure.dpi
-            l, b, w, h = self.figure.bbox.bounds
-            r = l + w
-            t = b + h
-
-            x *= dpi / 72.
-            y *= dpi / 72.
-            if x < 0:
-                x = r + x
-            if y < 0:
-                y = t + y
-            return x, y
         elif s == 'figure pixels':
             # pixels from the lower left corner of the figure
-            l, b, w, h = self.figure.bbox.bounds
-            r = l + w
-            t = b + h
-            if x < 0:
-                x = r + x
-            if y < 0:
-                y = t + y
-            return x, y
-        elif s == 'figure fraction':
-            # (0, 0) is lower left, (1, 1) is upper right of figure
-            trans = self.figure.transFigure
-            return trans.transform((x, y))
-        elif s == 'axes points':
-            # points from the lower left corner of the axes
-            dpi = self.figure.dpi
-            l, b, w, h = axes.bbox.bounds
-            r = l + w
-            t = b + h
-            if x < 0:
-                x = r + x * dpi / 72.
-            else:
-                x = l + x * dpi / 72.
-            if y < 0:
-                y = t + y * dpi / 72.
-            else:
-                y = b + y * dpi / 72.
+            bb = self.figure.bbox
+            x = bb.x0 + x if x >= 0 else bb.x1 + x
+            y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y
         elif s == 'axes pixels':
             # pixels from the lower left corner of the axes
-            l, b, w, h = axes.bbox.bounds
-            r = l + w
-            t = b + h
-            if x < 0:
-                x = r + x
-            else:
-                x = l + x
-            if y < 0:
-                y = t + y
-            else:
-                y = b + y
+            bb = axes.bbox
+            x = bb.x0 + x if x >= 0 else bb.x1 + x
+            y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y
-        elif s == 'axes fraction':
-            # (0, 0) is lower left, (1, 1) is upper right of axes
-            trans = axes.transAxes
-            return trans.transform((x, y))
         elif isinstance(s, transforms.Transform):
-            return s.transform((x, y))
+            return s.transform(xy)
         else:
-            raise ValueError("{} is not a valid coordinate "
-                             "transformation.".format(s))
+            raise ValueError(f"{s0} is not a valid coordinate transformation")
 
     def set_annotation_clip(self, b):
         """
@@ -4374,30 +4320,21 @@ class ConnectionPatch(FancyArrowPatch):
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-
         dpi_cor = self.get_dpi_cor()
-
-        x, y = self.xy1
-        posA = self._get_xy(x, y, self.coords1, self.axesA)
-
-        x, y = self.xy2
-        posB = self._get_xy(x, y, self.coords2, self.axesB)
-
-        _path = self.get_connectionstyle()(posA, posB,
-                                           patchA=self.patchA,
-                                           patchB=self.patchB,
-                                           shrinkA=self.shrinkA * dpi_cor,
-                                           shrinkB=self.shrinkB * dpi_cor
-                                           )
-
-        _path, fillable = self.get_arrowstyle()(
-                                        _path,
-                                        self.get_mutation_scale() * dpi_cor,
-                                        self.get_linewidth() * dpi_cor,
-                                        self.get_mutation_aspect()
-                                        )
-
-        return _path, fillable
+        posA = self._get_xy(self.xy1, self.coords1, self.axesA)
+        posB = self._get_xy(self.xy2, self.coords2, self.axesB)
+        path = self.get_connectionstyle()(
+            posA, posB,
+            patchA=self.patchA, patchB=self.patchB,
+            shrinkA=self.shrinkA * dpi_cor, shrinkB=self.shrinkB * dpi_cor,
+        )
+        path, fillable = self.get_arrowstyle()(
+            path,
+            self.get_mutation_scale() * dpi_cor,
+            self.get_linewidth() * dpi_cor,
+            self.get_mutation_aspect()
+        )
+        return path, fillable
 
     def _check_xy(self, renderer):
         """Check whether the annotation needs to be drawn."""
@@ -4405,8 +4342,7 @@ class ConnectionPatch(FancyArrowPatch):
         b = self.get_annotation_clip()
 
         if b or (b is None and self.coords1 == "data"):
-            x, y = self.xy1
-            xy_pixel = self._get_xy(x, y, self.coords1, self.axesA)
+            xy_pixel = self._get_xy(self.xy1, self.coords1, self.axesA)
             if self.axesA is None:
                 axes = self.axes
             else:
@@ -4415,8 +4351,7 @@ class ConnectionPatch(FancyArrowPatch):
                 return False
 
         if b or (b is None and self.coords2 == "data"):
-            x, y = self.xy2
-            xy_pixel = self._get_xy(x, y, self.coords2, self.axesB)
+            xy_pixel = self._get_xy(self.xy2, self.coords2, self.axesB)
             if self.axesB is None:
                 axes = self.axes
             else:
