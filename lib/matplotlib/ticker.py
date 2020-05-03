@@ -1311,27 +1311,27 @@ class EngFormatter(Formatter):
 
     # The SI engineering prefixes
     ENG_PREFIXES = {
-        -24: "y",
-        -21: "z",
-        -18: "a",
-        -15: "f",
-        -12: "p",
-         -9: "n",
-         -6: "\N{MICRO SIGN}",
-         -3: "m",
-          0: "",
-          3: "k",
-          6: "M",
-          9: "G",
-         12: "T",
-         15: "P",
-         18: "E",
-         21: "Z",
-         24: "Y"
+        -8: "y",
+        -7: "z",
+        -6: "a",
+        -5: "f",
+        -4: "p",
+        -3: "n",
+        -2: "\N{MICRO SIGN}",
+        -1: "m",
+         0: "",
+         1: "k",
+         2: "M",
+         3: "G",
+         4: "T",
+         5: "P",
+         6: "E",
+         7: "Z",
+         8: "Y"
     }
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
-                 useMathText=None):
+                 useMathText=None, binary=False):
         r"""
         Parameters
         ----------
@@ -1365,12 +1365,17 @@ class EngFormatter(Formatter):
         useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
+
+        binary : bool, default: False
+            Use binary units instead of decimal ones. It means that 'k' will
+            become 1024 instead of 1000.
         """
         self.unit = unit
         self.places = places
         self.sep = sep
         self.set_usetex(usetex)
         self.set_useMathText(useMathText)
+        self.binary = binary
 
     def get_usetex(self):
         return self._usetex
@@ -1419,31 +1424,39 @@ class EngFormatter(Formatter):
         sign = 1
         fmt = "g" if self.places is None else ".{:d}f".format(self.places)
 
+        base = 10.0
+        base_pow = 3
+        if self.binary:
+            base = 2.0
+            base_pow = 10
+
         if num < 0:
             sign = -1
             num = -num
 
         if num != 0:
-            pow10 = int(math.floor(math.log10(num) / 3) * 3)
+            pow = int(math.floor(math.log(num, base) / base_pow) * base_pow)
         else:
-            pow10 = 0
+            pow = 0
             # Force num to zero, to avoid inconsistencies like
             # format_eng(-0) = "0" and format_eng(0.0) = "0"
             # but format_eng(-0.0) = "-0.0"
             num = 0.0
 
-        pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
+        pow = np.clip(pow,
+                      min(self.ENG_PREFIXES) * base_pow,
+                      max(self.ENG_PREFIXES) * base_pow)
 
-        mant = sign * num / (10.0 ** pow10)
+        mant = sign * num / (base ** pow)
         # Taking care of the cases like 999.9..., which may be rounded to 1000
         # instead of 1 k.  Beware of the corner case of values that are beyond
         # the range of SI prefixes (i.e. > 'Y').
         if (abs(float(format(mant, fmt))) >= 1000
-                and pow10 < max(self.ENG_PREFIXES)):
-            mant /= 1000
-            pow10 += 3
+                and pow < max(self.ENG_PREFIXES)):
+            mant /= base ** base_pow
+            pow += base_pow
 
-        prefix = self.ENG_PREFIXES[int(pow10)]
+        prefix = self.ENG_PREFIXES[int(pow / base_pow)]
         if self._usetex or self._useMathText:
             formatted = "${mant:{fmt}}${sep}{prefix}".format(
                 mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)

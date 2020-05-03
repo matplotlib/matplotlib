@@ -1178,6 +1178,13 @@ def test_engformatter_usetex_useMathText():
         assert x_tick_label_text == ['$0$', '$500$', '$1$ k']
 
 
+def test_engformatter_binary():
+    formatter = mticker.EngFormatter(binary=True)
+    assert formatter(1024) == "1 k"
+    assert formatter(1024 ** 2) == "1 M"
+    assert formatter(1024 ** 3) == "1 G"
+
+
 class TestPercentFormatter:
     percent_data = [
         # Check explicitly set decimals over different intervals and values
