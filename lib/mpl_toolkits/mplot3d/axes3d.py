@@ -1304,7 +1304,7 @@ class Axes3D(Axes):
             x coordinates of vertices.
         ys : 1D array-like
             y coordinates of vertices.
-        zs : scalar or 1D array-like
+        zs : float or 1D array-like
             z coordinates of vertices; either one for all points or one for
             each point.
         zdir : {'x', 'y', 'z'}, default: 'z'
@@ -1764,7 +1764,7 @@ class Axes3D(Axes):
             A colormap for the surface patches.
         norm : Normalize
             An instance of Normalize to map values to colors.
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             Minimum and maximum value to map.
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
@@ -1908,7 +1908,7 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y, Z : array-likes
+        X, Y, Z : array-like
             Input data.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
@@ -1916,9 +1916,9 @@ class Axes3D(Axes):
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
-        offset : scalar
+        offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir
+            position in a plane normal to zdir.
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.contour`.
 
@@ -1951,7 +1951,7 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y, Z : array-likes
+        X, Y, Z : array-like
             Input data.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
@@ -1959,9 +1959,9 @@ class Axes3D(Axes):
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
-        offset : scalar
+        offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir
+            position in a plane normal to zdir.
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.tricontour`.
 
@@ -1996,13 +1996,13 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y, Z : array-likes
+        X, Y, Z : array-like
             Input data.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
-        offset : scalar
+        offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir
+            position in a plane normal to zdir.
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.contourf`.
 
@@ -2036,13 +2036,13 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y, Z : array-likes
+        X, Y, Z : array-like
             Input data.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
-        offset : scalar
+        offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir
+            position in a plane normal to zdir.
         *args, **kwargs
             Other arguments are forwarded to
             `matplotlib.axes.Axes.tricontourf`.
@@ -2129,7 +2129,7 @@ class Axes3D(Axes):
 
             See also :doc:`/gallery/mplot3d/2dcollections3d`.
 
-        s : scalar or array-like, default: 20
+        s : float or array-like, default: 20
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
@@ -2191,7 +2191,7 @@ class Axes3D(Axes):
             The x coordinates of the left sides of the bars.
         height : 1D array-like
             The height of the bars.
-        zs : scalar or 1D array-like
+        zs : float or 1D array-like
             Z coordinate of bars; if a single value is specified, it will be
             used for all bars.
         zdir : {'x', 'y', 'z'}, default: 'z'
@@ -2245,7 +2245,7 @@ class Axes3D(Axes):
         x, y, z : array-like
             The coordinates of the anchor point of the bars.
 
-        dx, dy, dz : scalar or array-like
+        dx, dy, dz : float or array-like
             The width, depth, and height of the bars, respectively.
 
         color : sequence of colors, optional

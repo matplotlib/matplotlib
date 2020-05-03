@@ -2825,9 +2825,9 @@ def interval_contains(interval, val):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
 
     Returns
@@ -2848,13 +2848,15 @@ def _interval_contains_close(interval, val, rtol=1e-10):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
-    rtol : scalar
-        Tolerance slippage allowed outside of this interval.  Default
-        1e-10 * (b - a).
+    rtol : float, default: 1e-10
+        Relative tolerance slippage allowed outside of the interval.
+        For an interval ``[a, b]``, values
+        ``a - rtol * (b - a) <= val <= b + rtol * (b - a)`` are considered
+        inside the interval.
 
     Returns
     -------
@@ -2874,9 +2876,9 @@ def interval_contains_open(interval, val):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
 
     Returns

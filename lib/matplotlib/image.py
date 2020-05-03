@@ -1034,7 +1034,7 @@ class NonUniformImage(AxesImage):
 
         Parameters
         ----------
-        x, y : 1D array-likes
+        x, y : 1D array-like
             Monotonic arrays of shapes (N,) and (M,), respectively, specifying
             pixel centers.
         A : array-like
@@ -1463,7 +1463,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     arr : array-like
         The image data. The shape can be one of
         MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA).
-    vmin, vmax : scalar, optional
+    vmin, vmax : float, optional
         *vmin* and *vmax* set the color scaling for the image by fixing the
         values that map to the colormap color limits. If either *vmin*
         or *vmax* is None, that limit is determined from the *arr*

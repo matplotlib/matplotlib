@@ -1223,14 +1223,14 @@ class PolarAxes(Axes):
 
         Parameters
         ----------
-        bottom : scalar, optional
+        bottom : float, optional
             The bottom limit (default: None, which leaves the bottom
             limit unchanged).
             The bottom and top ylims may be passed as the tuple
             (*bottom*, *top*) as the first positional argument (or as
             the *bottom* keyword argument).
 
-        top : scalar, optional
+        top : float, optional
             The top limit (default: None, which leaves the top limit
             unchanged).
 
@@ -1241,7 +1241,7 @@ class PolarAxes(Axes):
             Whether to turn on autoscaling of the y-axis. True turns on,
             False turns off, None leaves unchanged.
 
-        ymin, ymax : scalar, optional
+        ymin, ymax : float, optional
             These arguments are deprecated and will be removed in a future
             version.  They are equivalent to *bottom* and *top* respectively,
             and it is an error to pass both *ymin* and *bottom* or

@@ -3479,10 +3479,10 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
         Where to write the image data.
     prop : `.FontProperties`, optional
         The size and style of the text.
-    dpi : scalar, optional
+    dpi : float, optional
         The output dpi.  If not set, the dpi is determined as for
         `.Figure.savefig`.
-    format : str
+    format : str, optional
         The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not set, the
         format is determined as for `.Figure.savefig`.
     """

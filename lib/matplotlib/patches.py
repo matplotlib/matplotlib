@@ -1187,15 +1187,15 @@ class Arrow(Patch):
 
         Parameters
         ----------
-        x : scalar
-            x coordinate of the arrow tail
-        y : scalar
-            y coordinate of the arrow tail
-        dx : scalar
-            Arrow length in the x direction
-        dy : scalar
-            Arrow length in the y direction
-        width : scalar, default: 1
+        x : float
+            x coordinate of the arrow tail.
+        y : float
+            y coordinate of the arrow tail.
+        dx : float
+            Arrow length in the x direction.
+        dy : float
+            Arrow length in the y direction.
+        width : float, default: 1
             Scale factor for the width of the arrow. With a default value of 1,
             the tail width is 0.2 and head width is 0.6.
         **kwargs
@@ -3916,7 +3916,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        dpi_cor : scalar
+        dpi_cor : float
         """
         self._dpi_cor = dpi_cor
         self.stale = True
@@ -4043,7 +4043,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        scale : scalar
+        scale : float
         """
         self._mutation_scale = scale
         self.stale = True
@@ -4064,7 +4064,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        aspect : scalar
+        aspect : float
         """
         self._mutation_aspect = aspect
         self.stale = True

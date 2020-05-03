@@ -1474,15 +1474,15 @@ class EventCollection(LineCollection):
             The orientation of the **collection** (the event bars are along
             the orthogonal direction).
 
-        lineoffset : scalar, default: 0
+        lineoffset : float, default: 0
             The offset of the center of the markers from the origin, in the
             direction orthogonal to *orientation*.
 
-        linelength : scalar, default: 1
+        linelength : float, default: 1
             The total height of the marker (i.e. the marker stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-        linewidth : scalar or None, default: None
+        linewidth : float or None, default: None
             If it is None, defaults to its rcParams setting, in sequence form.
 
         color : color, sequence of colors or None, default: None

@@ -1827,11 +1827,11 @@ class LightSource:
             ``func(rgb, illum, **kwargs)``) Additional kwargs supplied
             to this function will be passed on to the *blend_mode*
             function.
-        vmin : scalar or None, optional
+        vmin : float or None, optional
             The minimum value used in colormapping *data*. If *None* the
             minimum value in *data* is used. If *norm* is specified, then this
             argument will be ignored.
-        vmax : scalar or None, optional
+        vmax : float or None, optional
             The maximum value used in colormapping *data*. If *None* the
             maximum value in *data* is used. If *norm* is specified, then this
             argument will be ignored.
