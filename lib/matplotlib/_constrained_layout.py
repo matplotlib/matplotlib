@@ -268,7 +268,6 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
 
     Returns the bbox for some width/heigth calcs outside this loop.
     """
-    print('w_pad CL', w_pad, h_pad)
     fig = ax.figure
     invTransFig = fig.transFigure.inverted().transform_bbox
     pos = ax.get_position(original=True)

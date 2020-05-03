@@ -259,7 +259,7 @@ class Figure(Artist):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
-                 compress_axes=None,
+                 compress_layout=None,
                  ):
         """
         Parameters
@@ -302,7 +302,7 @@ class Figure(Artist):
             for examples.  (Note: does not work with `add_subplot` or
             `~.pyplot.subplot2grid`.)
 
-        compress_axes : bool, default: :rc:`figure.compress_axes.use`
+        compress_layout : bool, default: False
             If ``True`` attempt to pack axes as close to one another
             as possible.  Useful when axes have fixed aspect ratio and the
             default layouts leave excess space between axes.
@@ -358,7 +358,7 @@ class Figure(Artist):
         # set in set_constrained_layout_pads()
         self.set_constrained_layout(constrained_layout)
 
-        self._compress_axes = compress_axes
+        self._compress_layout = compress_layout
         self._axpos_cache = None
 
         self.set_tight_layout(tight_layout)
@@ -1736,39 +1736,7 @@ default: 'top'
 
         try:
             renderer.open_group('figure', gid=self.get_gid())
-            bboxes = None
-            if self.axes:
-                adjusted = False
-                if self.get_tight_layout():
-                    try:
-                        w_pad, h_pad = self.tight_layout(
-                                **self._tight_parameters)
-                        # convert pads to inches...
-                        fs = FontProperties(size=mpl.rcParams["font.size"])
-                        fs = fs.get_size_in_points() / 72
-                        w, h = self.get_size_inches()
-                        w_pad = w_pad * fs
-                        h_pad = h_pad * fs
-
-                        w_pad = w_pad / 2
-                        h_pad = h_pad / 2
-                        adjusted = True
-                    except ValueError:
-                        pass
-                elif self.get_constrained_layout():
-                    bboxes = self.execute_constrained_layout(renderer)
-                    adjusted = True
-                    w_pad, h_pad, _, _ = self.get_constrained_layout_pads()
-
-                if self.get_compress_axes():
-                    if not adjusted:
-                        h_pad = 0.05
-                        w_pad = 0.05
-                        self.subplots_adjust()
-
-                    self.execute_compress_axes(bboxes=bboxes, w_pad=w_pad,
-                                               h_pad=h_pad)
-
+            self._execute_layouts(renderer)
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
                 renderer, self, artists, self.suppressComposite)
@@ -2442,6 +2410,47 @@ default: 'top'
                 parent=None, name='figlb', artist=self)
             self._layoutbox.constrain_geometry(0., 0., 1., 1.)
 
+    def _execute_layouts(self, renderer):
+        """
+        Called by figure.draw.  Is the place where all the
+        layout logic gets carried out...
+        """
+        bboxes = None
+        if self.axes:
+            adjusted = False
+            if self.get_tight_layout():
+                try:
+                    w_pad, h_pad = self.tight_layout(
+                            **self._tight_parameters)
+                    # convert pads to inches...
+                    fs = FontProperties(size=mpl.rcParams["font.size"])
+                    fs = fs.get_size_in_points() / 72
+                    w, h = self.get_size_inches()
+                    w_pad = w_pad * fs / 2
+                    h_pad = h_pad * fs / 2
+                    wspace = 0
+                    hspace = 0
+                    adjusted = True
+                except ValueError:
+                    pass
+            elif self.get_constrained_layout():
+                bboxes = self.execute_constrained_layout(renderer)
+                adjusted = True
+                w_pad, h_pad, wspace, hspace = \
+                    self.get_constrained_layout_pads()
+
+            if self.get_compress_layout():
+                if not adjusted:
+                    h_pad = 0.02
+                    w_pad = 0.02
+                    wspace = self.subplotpars.wspace
+                    hspace = self.subplotpars.hspace
+                    self.subplots_adjust()
+
+                self.execute_compress_layout(bboxes=bboxes, w_pad=w_pad,
+                                           h_pad=h_pad, wspace=wspace,
+                                           hspace=hspace)
+
     def execute_constrained_layout(self, renderer=None):
         """
         Use ``layoutbox`` to determine pos positions within axes.
@@ -2463,17 +2472,16 @@ default: 'top'
         w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
         width, height = self.get_size_inches()
-        print('before', w_pad, h_pad)
         w_pad = w_pad / width
         h_pad = h_pad / height
-        print('after', w_pad, h_pad)
         if renderer is None:
             renderer = layoutbox.get_renderer(self)
         bboxes = do_constrained_layout(self, renderer, h_pad, w_pad, hspace,
                                        wspace)
         return bboxes
 
-    def execute_compress_axes(self, *, bboxes=None, h_pad=0.05, w_pad=0.05):
+    def execute_compress_layout(self, *, bboxes=None, w_pad=0.05, h_pad=0.05,
+                                wspace=0, hspace=0):
         """
         Execute the axes compression for the figure.
 
@@ -2486,8 +2494,9 @@ default: 'top'
             tight bboxes of the axes in the figure; saves recalculating them.
 
         """
-        from matplotlib._compress_axes import compress_axes
-        compress_axes(self, bboxes=bboxes, w_pad=w_pad, h_pad=h_pad)
+        from matplotlib._compress_layout import compress_layout
+        compress_layout(self, bboxes=bboxes, w_pad=w_pad, h_pad=h_pad,
+                        wspace=wspace, hspace=hspace)
 
     @cbook._delete_parameter("3.2", "renderer")
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
@@ -2734,8 +2743,8 @@ default: 'top'
         self._gridspecs.append(gs)
         return gs
 
-    def get_compress_axes(self):
-        return self._compress_axes
+    def get_compress_layout(self):
+        return self._compress_layout
 
 
 def figaspect(arg):

@@ -7,7 +7,8 @@ This code attemprs to compress axes if they have excessive space between
 axes, usually because the axes have fixed aspect ratios.
 """
 
-def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
+def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
+                    wspace=0, hspace=0):
     """
     Utility that will attempt to compress axes on a figure together.
 
@@ -18,7 +19,6 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
     w, h = fig.get_size_inches()
     w_pad = w_pad / w * 2
     h_pad = h_pad / h * 2
-    print('compress', w_pad, h_pad)
 
     renderer = fig.canvas.get_renderer()
     gss = set()
@@ -49,6 +49,7 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
 
     # we placed everything, but what if there are huge gaps...
     for gs in gss:
+        print('gs', gs)
         axs = [ax for ax in fig.axes
                if (hasattr(ax, 'get_subplotspec')
                    and ax.get_subplotspec().get_gridspec() == gs)]
@@ -64,17 +65,19 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
                 for ax in axs:
                     ss = ax.get_subplotspec()
                     if (i in ss.rowspan) and (j in ss.colspan):
+                        orpos = ax.get_position(original=True)
                         di = ss.colspan[-1] - ss.colspan[0] + 1
                         dj = ss.rowspan[-1] - ss.rowspan[0] + 1
                         dxs[i, j] = bboxes[ax].bounds[2] / di
+                        pad = np.max([w_pad, wspace * bboxes[ax].bounds[2]])
                         if ss.colspan[-1] < ncols - 1:
-                            dxs[i, j] = dxs[i, j] + w_pad / di
+                            dxs[i, j] = dxs[i, j] + pad / di
                         dys[i, j] = bboxes[ax].bounds[3] / dj
+                        pad = np.max([h_pad, hspace * bboxes[ax].bounds[3]])
                         if ss.rowspan[0] > 0 :
-                            dys[i, j] = dys[i, j] + h_pad / dj
-                        orpos = ax.get_position(original=True)
-                        margxs[i, j] = bboxes[ax].x0 - orpos.x0
-                        margys[i, j] = bboxes[ax].y0 - orpos.y0
+                            dys[i, j] = dys[i, j] + pad / dj
+                        margxs[i, j] = orpos.x0 - bboxes[ax].x0
+                        margys[i, j] = orpos.y0 - bboxes[ax].y0
 
         margxs = np.flipud(margxs)
         margys = np.flipud(margys)
@@ -89,8 +92,7 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
         x0 = y0 = np.Inf
 
         if (dx < dy) and (dx < 0.9):
-            print('compress x')
-            margx = np.min(margxs, axis=0)
+            margx = np.max(margxs, axis=0)
             # Squish x!
             extra = (1 - dx) / 2
             for ax in axs:
@@ -99,7 +101,7 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
                 x = extra
                 for j in range(0, ss.colspan[0]):
                     x += ddxs[j]
-                deltax = -orpos.x0 + x - margx[ss.colspan[0]]
+                deltax = -orpos.x0 + x + margx[ss.colspan[0]]
                 orpos.x1 = orpos.x1 + deltax
                 orpos.x0 = orpos.x0 + deltax
                 # keep track of new bbox edges for placing colorbars
@@ -143,24 +145,26 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
                     pos.x1 = x - marg
                     pos.x0 = x - marg - _dx
                 else:
+                    ddx = (x1 - x0) * (1  - cb._colorbar_info['shrink']) / 2
                     marg = bbox.x0 - pos.x0
-                    pos.x0 = x0 - marg
+                    pos.x0 = x0 - marg + ddx
                     marg = bbox.x1 - pos.x1
-                    pos.x1 = x1 - marg
+                    pos.x1 = x1 - marg - ddx
                 cb._set_position(pos, which='original')
 
         if (dx > dy) and (dy < 0.9):
-            print('compress y')
             margy = np.min(margys, axis=1)
             # Squish y!
+            print('squish y')
             extra = (1 - dy) / 2
-            for ax in axs:
+            for nn, ax in enumerate(axs):
+                print(f'Axes {nn}')
                 ss = ax.get_subplotspec()
                 orpos = ax.get_position(original=True)
                 y = extra
                 for j in range(0, nrows - ss.rowspan[-1] - 1):
                     y += ddys[j]
-                deltay = -orpos.y0 + y - margy[nrows - ss.rowspan[-1] - 1]
+                deltay = -orpos.y0 + y + margy[nrows - ss.rowspan[-1] - 1]
                 orpos.y1 = orpos.y1 + deltay
                 orpos.y0 = orpos.y0 + deltay
                 ax._set_position(orpos, which='original')
@@ -173,20 +177,24 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
                 bboxes[ax].y1 = bboxes[ax].y1 + deltay
                 # shift any colorbars belongig to this axis
                 for cba in ax._colorbars:
+                    print('ax', ax, 'cba', cba)
                     pos = cba.get_position(original=True)
                     if cba._colorbar_info['location'] in ['right', 'left']:
                         # shrink to make same size as active...
                         posac = ax.get_position(original=False)
-                        dy = (1 - cba._colorbar_info['shrink']) * (posac.y1 -
+                        ddy_ = (1 - cba._colorbar_info['shrink']) * (posac.y1 -
                                 posac.y0) / 2
-                        pos.y0 = posac.y0 + dy
-                        pos.y1 = posac.y1 - dy
+                        pos.y0 = posac.y0 + ddy_
+                        pos.y1 = posac.y1 - ddy_
                     else:
                         pos.y0 = pos.y0 + deltay
                         pos.y1 = pos.y1 + deltay
+                    print('pos', pos)
                     cba._set_position(pos, which='original')
                     colorbars.remove(cba)
+            # print(colorbars)
             for cb in colorbars:
+                print('In here?')
                 # shift any colorbars belonging to the gridspec.
                 pos = cb.get_position(original=True)
                 bbox = bboxes[cb]
@@ -203,10 +211,12 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
                     pos.y1 = y - marg
                     pos.y0 = y - marg - _dy
                 else:
+                    ddy = (y1 - y0) * (1  - cb._colorbar_info['shrink']) / 2
                     marg = bbox.y0 - pos.y0
-                    pos.y0 = y0 - marg
+                    pos.y0 = y0 - marg + ddy
                     marg = bbox.y1 - pos.y1
-                    pos.y1 = y1 - marg
+                    pos.y1 = y1 - marg - ddy
+
                 cb._set_position(pos, which='original')
             # need to do suptitles:
             suptitle = fig._suptitle
@@ -217,4 +227,4 @@ def compress_axes(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05):
                 x, y = suptitle.get_position()
                 bbox = invTransFig(suptitle.get_window_extent(renderer))
                 marg = y - bbox.y0
-                suptitle.set_y(y1 + marg)
+                suptitle.set_y(y1 + marg + h_pad)
