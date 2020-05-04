@@ -1752,7 +1752,7 @@ class QuadContourSet(ContourSet):
             however introduce rendering artifacts at chunk boundaries depending
             on the backend, the *antialiased* flag and value of *alpha*.
 
-        linewidths : float or sequence of float, default: :rc:`contour.linewidths`
+        linewidths : float or array-like, default: :rc:`contour.linewidths`
             *Only applies to* `.contour`.
 
             The line width of the contour lines.
