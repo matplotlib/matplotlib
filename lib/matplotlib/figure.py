@@ -2097,11 +2097,13 @@ default: 'top'
 
             This parameter is deprecated.
 
-        facecolor : color, default: :rc:`savefig.facecolor`
-            The facecolor of the figure.
+        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+            The facecolor of the figure.  If 'auto', use the current figure
+            facecolor.
 
-        edgecolor : color, default: :rc:`savefig.edgecolor`
-            The edgecolor of the figure.
+        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.  If 'auto', use the current figure
+            edgecolor.
 
         orientation : {'landscape', 'portrait'}
             Currently only supported by the postscript backend.
@@ -2172,9 +2174,6 @@ default: 'top'
                                              patch.get_edgecolor()))
                 patch.set_facecolor('none')
                 patch.set_edgecolor('none')
-        else:
-            kwargs.setdefault('facecolor', mpl.rcParams['savefig.facecolor'])
-            kwargs.setdefault('edgecolor', mpl.rcParams['savefig.edgecolor'])
 
         self.canvas.print_figure(fname, **kwargs)
 

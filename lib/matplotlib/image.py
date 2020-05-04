@@ -1529,9 +1529,10 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             pil_kwargs["pnginfo"] = pnginfo
         if format in ["jpg", "jpeg"]:
             format = "jpeg"  # Pillow doesn't recognize "jpg".
-            color = tuple(
-                int(x * 255)
-                for x in mcolors.to_rgb(mpl.rcParams["savefig.facecolor"]))
+            facecolor = mpl.rcParams["savefig.facecolor"]
+            if cbook._str_equal(facecolor, "auto"):
+                facecolor = mpl.rcParams["figure.facecolor"]
+            color = tuple(int(x * 255) for x in mcolors.to_rgb(facecolor))
             background = PIL.Image.new("RGB", pil_shape, color)
             background.paste(image, image)
             image = background
