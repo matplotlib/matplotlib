@@ -1105,6 +1105,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
 
+        if 'wxMac' in wx.PlatformInfo:
+            self.SetToolBitmapSize((24, 24))
         self.wx_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
