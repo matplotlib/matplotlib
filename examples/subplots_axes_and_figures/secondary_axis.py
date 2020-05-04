@@ -157,7 +157,7 @@ def anomaly_to_celsius(x):
     return (x + np.mean(temperature))
 
 
-# document use of a float for the position:
+# use of a float for the position:
 secax_y2 = ax.secondary_yaxis(
     1.2, functions=(celsius_to_anomaly, anomaly_to_celsius))
 secax_y2.set_ylabel(r'$T - \overline{T}\ [^oC]$')
