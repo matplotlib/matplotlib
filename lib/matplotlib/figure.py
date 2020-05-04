@@ -1534,68 +1534,11 @@ default: 'top'
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
         """
-
-        if isinstance(sharex, bool):
-            sharex = "all" if sharex else "none"
-        if isinstance(sharey, bool):
-            sharey = "all" if sharey else "none"
-        # This check was added because it is very easy to type
-        # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
-        # In most cases, no error will ever occur, but mysterious behavior
-        # will result because what was intended to be the subplot index is
-        # instead treated as a bool for sharex.
-        if isinstance(sharex, Integral):
-            cbook._warn_external(
-                "sharex argument to subplots() was an integer.  Did you "
-                "intend to use subplot() (without 's')?")
-        cbook._check_in_list(["all", "row", "col", "none"],
-                             sharex=sharex, sharey=sharey)
-        if subplot_kw is None:
-            subplot_kw = {}
         if gridspec_kw is None:
             gridspec_kw = {}
-        # don't mutate kwargs passed by user...
-        subplot_kw = subplot_kw.copy()
-        gridspec_kw = gridspec_kw.copy()
-
-        if self.get_constrained_layout():
-            gs = GridSpec(nrows, ncols, figure=self, **gridspec_kw)
-        else:
-            # this should turn constrained_layout off if we don't want it
-            gs = GridSpec(nrows, ncols, figure=None, **gridspec_kw)
-        self._gridspecs.append(gs)
-
-        # Create array to hold all axes.
-        axarr = np.empty((nrows, ncols), dtype=object)
-        for row in range(nrows):
-            for col in range(ncols):
-                shared_with = {"none": None, "all": axarr[0, 0],
-                               "row": axarr[row, 0], "col": axarr[0, col]}
-                subplot_kw["sharex"] = shared_with[sharex]
-                subplot_kw["sharey"] = shared_with[sharey]
-                axarr[row, col] = self.add_subplot(gs[row, col], **subplot_kw)
-
-        # turn off redundant tick labeling
-        if sharex in ["col", "all"]:
-            # turn off all but the bottom row
-            for ax in axarr[:-1, :].flat:
-                ax.xaxis.set_tick_params(which='both',
-                                         labelbottom=False, labeltop=False)
-                ax.xaxis.offsetText.set_visible(False)
-        if sharey in ["row", "all"]:
-            # turn off all but the first column
-            for ax in axarr[:, 1:].flat:
-                ax.yaxis.set_tick_params(which='both',
-                                         labelleft=False, labelright=False)
-                ax.yaxis.offsetText.set_visible(False)
-
-        if squeeze:
-            # Discarding unneeded dimensions that equal 1.  If we only have one
-            # subplot, just return it instead of a 1-element array.
-            return axarr.item() if axarr.size == 1 else axarr.squeeze()
-        else:
-            # Returned axis array will be always 2-d, even if nrows=ncols=1.
-            return axarr
+        return (self.add_gridspec(nrows, ncols, figure=self, **gridspec_kw)
+                .subplots(sharex=sharex, sharey=sharey, squeeze=squeeze,
+                          subplot_kw=subplot_kw))
 
     def delaxes(self, ax):
         """
@@ -2625,17 +2568,17 @@ default: 'top'
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
 
-    def add_gridspec(self, nrows, ncols, **kwargs):
+    def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
         Return a `.GridSpec` that has this figure as a parent.  This allows
         complex layout of axes in the figure.
 
         Parameters
         ----------
-        nrows : int
+        nrows : int, default: 1
             Number of rows in grid.
 
-        ncols : int
+        ncols : int, default: 1
             Number or columns in grid.
 
         Returns
