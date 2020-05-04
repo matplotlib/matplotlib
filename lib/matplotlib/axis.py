@@ -1638,7 +1638,8 @@ class Axis(martist.Artist):
             if len(locator.locs) != len(ticklabels):
                 raise ValueError(
                     "The number of FixedLocator locations"
-                    f" ({len(locator.locs)}) does not match"
+                    f" ({len(locator.locs)}), usually from a call to"
+                    " set_ticks, does not match"
                     f" the number of ticklabels ({len(ticklabels)}).")
             tickd = {loc: lab for loc, lab in zip(locator.locs, ticklabels)}
             func = functools.partial(self._format_with_dict, tickd)

@@ -289,7 +289,7 @@ annotate_heatmap(im, valfmt=fmt, size=9, fontweight="bold", threshold=-1,
 # `matplotlib.ticker.FuncFormatter`.
 
 corr_matrix = np.corrcoef(np.random.rand(6, 5))
-im, _ = heatmap(corr_matrix, vegetables, vegetables, ax=ax4,
+im, _ = heatmap(corr_matrix, vegetables, farmers, ax=ax4,
                 cmap="PuOr", vmin=-1, vmax=1,
                 cbarlabel="correlation coeff.")
 
