@@ -288,8 +288,8 @@ annotate_heatmap(im, valfmt=fmt, size=9, fontweight="bold", threshold=-1,
 # the diagonal elements (which are all 1) by using a
 # `matplotlib.ticker.FuncFormatter`.
 
-corr_matrix = np.corrcoef(np.random.rand(6, 5))
-im, _ = heatmap(corr_matrix, vegetables, farmers, ax=ax4,
+corr_matrix = np.corrcoef(harvest)
+im, _ = heatmap(corr_matrix, vegetables, vegetables, ax=ax4,
                 cmap="PuOr", vmin=-1, vmax=1,
                 cbarlabel="correlation coeff.")
 
