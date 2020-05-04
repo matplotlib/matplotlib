@@ -531,6 +531,11 @@ experimental and may change in the future.
 These are unused and can be easily reproduced by other date tools.
 `.get_epoch` will return Matplotlib's epoch.
 
+Passing ``orientation`` to ``bar()`` and ``barh()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This parameter is considered internal. Please use ``bar()`` for vertical bars
+and ``barh()`` for horizontal bars.
+
 ``axes_grid1.CbarAxes`` attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``cbid`` and ``locator`` attribute are deprecated.  Use

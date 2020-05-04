@@ -2392,7 +2392,14 @@ class Axes(_AxesBase):
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
 
-        orientation = kwargs.pop('orientation', 'vertical')
+        if 'orientation' in kwargs:
+            orientation = kwargs['orientation']
+            cbook.warn_deprecated(
+                "3.3", message="passing 'orientation' to bar() is for "
+                               "internal use only. Please use barh() or bar() "
+                               "explicitly to define the orientation.")
+        else:
+            orientation = kwargs.pop('_orientation', 'vertical')
         cbook._check_in_list(['vertical', 'horizontal'],
                              orientation=orientation)
         log = kwargs.pop('log', False)
@@ -2630,9 +2637,17 @@ class Axes(_AxesBase):
         :doc:`/gallery/lines_bars_and_markers/horizontal_barchart_distribution`
         .
         """
-        kwargs.setdefault('orientation', 'horizontal')
+
+        if 'orientation' in kwargs:
+            orientation = kwargs['orientation']
+            cbook.warn_deprecated(
+                "3.3", message="passing 'orientation' to barh() is for "
+                               "internal use only. Please use bar() or barh() "
+                               "explicitly to define the orientation.")
+        else:
+            orientation = 'horizontal'
         patches = self.bar(x=left, height=height, width=width, bottom=y,
-                           align=align, **kwargs)
+                           align=align, _orientation=orientation, **kwargs)
         return patches
 
     @_preprocess_data()
