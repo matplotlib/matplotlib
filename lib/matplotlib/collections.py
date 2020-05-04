@@ -1448,7 +1448,7 @@ class EventCollection(LineCollection):
 
     The events are given by a 1-dimensional array, usually the position of
     something along an axis, such as time or length.  They do not have an
-    amplitude and are displayed as vertical or horizontal parallel bars.
+    amplitude and are displayed as parallel lines.
     """
 
     _edge_default = True
@@ -1471,8 +1471,9 @@ class EventCollection(LineCollection):
             Each value is an event.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
-            The orientation of the **collection** (the event bars are along
-            the orthogonal direction).
+            The sequence of events is plotted along this direction.
+            The marker lines of the single events are along the orthogonal
+            direction.
 
         lineoffset : float, default: 0
             The offset of the center of the markers from the origin, in the
@@ -1482,11 +1483,11 @@ class EventCollection(LineCollection):
             The total height of the marker (i.e. the marker stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-        linewidth : float or None, default: None
-            If it is None, defaults to its rcParams setting, in sequence form.
+        linewidth : float, default: :rc:`lines.linewidth`
+            The line width of the event lines, in points.
 
-        color : color, sequence of colors or None, default: None
-            If it is None, defaults to its rcParams setting, in sequence form.
+        color : color or list of colors, default: :rc:`lines.color`
+            The color of the event lines.
 
         linestyle : str or tuple, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
@@ -1497,10 +1498,10 @@ class EventCollection(LineCollection):
             where *onoffseq* is an even length tuple of on and off ink
             in points.
 
-        antialiased : {None, 1, 2}, optional
-            If it is None, defaults to its rcParams setting, in sequence form.
+        antialiased : bool, default: :rc:`lines.antialiased`
+            Whether to use antialiasing for drawing the lines.
 
-        **kwargs : optional
+        **kwargs
             Other keyword arguments are line collection properties.  See
             :class:`~matplotlib.collections.LineCollection` for a list of
             the valid properties.
