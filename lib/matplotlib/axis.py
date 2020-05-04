@@ -1635,6 +1635,11 @@ class Axis(martist.Artist):
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
+            if len(locator.locs) != len(ticklabels):
+                raise ValueError(
+                    "The number of FixedLocator locations"
+                    f" ({len(locator.locs)}) does not match"
+                    f" the number of ticklabels ({len(ticklabels)}).")
             tickd = {loc: lab for loc, lab in zip(locator.locs, ticklabels)}
             func = functools.partial(self._format_with_dict, tickd)
             formatter = mticker.FuncFormatter(func)
