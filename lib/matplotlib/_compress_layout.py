@@ -118,7 +118,7 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                         # shrink to make same size as active...
                         posac = ax.get_position(original=False)
                         dx = ((1 - cba._colorbar_info['shrink']) *
-                              (posac.x1 posac.x0) / 2)
+                              (posac.x1 - posac.x0) / 2)
                         pos.x0 = posac.x0 + dx
                         pos.x1 = posac.x1 - dx
                     else:

@@ -413,7 +413,7 @@ def test_compressed():
     fig.canvas.draw()
     extents = np.copy(axs[0, 0].get_position().extents)
     np.testing.assert_allclose(extents,
-        [0.243692, 0.571899, 0.479719, 0.965277], rtol=1e-5)
+            [0.243692, 0.571899, 0.479719, 0.965277], rtol=1e-5)
 
 
 def test_compressed_cbars():
@@ -430,7 +430,7 @@ def test_compressed_cbars():
     fig.canvas.draw()
     extents = np.copy(axs[0, 0].get_position().extents)
     np.testing.assert_allclose(extents,
-        [0.119849, 0.571899, 0.355875, 0.965277], rtol=1e-5)
+            [0.119849, 0.571899, 0.355875, 0.965277], rtol=1e-5)
 
 
 def test_compressed_onecbar():
@@ -447,4 +447,4 @@ def test_compressed_onecbar():
     fig.canvas.draw()
     extents = np.copy(axs[0, 0].get_position().extents)
     np.testing.assert_allclose(extents,
-        [0.255883, 0.571899, 0.491909, 0.965277], rtol=1e-5)
+            [0.255883, 0.571899, 0.491909, 0.965277], rtol=1e-5)
