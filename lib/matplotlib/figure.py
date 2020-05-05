@@ -1271,9 +1271,10 @@ default: 'top'
               take the *index* position on a grid with *nrows* rows and
               *ncols* columns. *index* starts at 1 in the upper left corner
               and increases to the right.
-            - A 3-digit integer. The digits are interpreted as if given
-              separately as three single-digit integers, i.e.
-              ``fig.add_subplot($1, $2, $3)`` is the same as
+            - For backcompatibility, a 3-digit integer. The digits are
+              interpreted as if given separately as three
+              single-digit integers, i.e.
+              ``fig.add_subplot(235)`` is the same as
               ``fig.add_subplot(2, 3, 5)``. Note that this can only be used
               if there are no more than 9 subplots.
             - A `.SubplotSpec`.
@@ -1345,13 +1346,13 @@ default: 'top'
 
             fig = plt.figure()
 
-            fig.add_subplot($1, $2, $3)
+            fig.add_subplot(2, 3, 1)
             ax1 = fig.add_subplot(2, 3, 1)  # equivalent but more general
 
-            fig.add_subplot(232, frameon=False)  # subplot with no frame
-            fig.add_subplot(233, projection='polar')  # polar subplot
-            fig.add_subplot(234, sharex=ax1)  # subplot sharing x-axis with ax1
-            fig.add_subplot(235, facecolor="red")  # red subplot
+            fig.add_subplot($1, $2, $3, frameon=False)  # subplot with no frame
+            fig.add_subplot($1, $2, $3, projection='polar')  # polar subplot
+            fig.add_subplot($1, $2, $3, sharex=ax1)  # subplot sharing x-axis with ax1
+            fig.add_subplot($1, $2, $3, facecolor="red")  # red subplot
 
             ax1.remove()  # delete ax1 from the figure
             fig.add_subplot(ax1)  # add ax1 back to the figure
@@ -1411,7 +1412,7 @@ default: 'top'
                     return ax
                 else:
                     # Undocumented convenience behavior:
-                    # subplot($1, $2, $3); subplot(111, projection='polar')
+                    # subplot(1, 1, 1); subplot(1, 1, 1, projection='polar')
                     # will replace the first with the second.
                     # Without this, add_subplot would be simpler and
                     # more similar to add_axes.

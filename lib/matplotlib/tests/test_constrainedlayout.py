@@ -36,7 +36,7 @@ def example_pcolor(ax, fontsize=12):
 def test_constrained_layout1():
     """Test constrained_layout for a single subplot"""
     fig = plt.figure(constrained_layout=True)
-    ax = fig.add_subplot($1, $2, $3)
+    ax = fig.add_subplot(1, 1, 1)
     example_plot(ax, fontsize=24)
 
 

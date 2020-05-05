@@ -111,7 +111,7 @@ def test_clipping():
     col.set_clip_path(clip_path, ax1.transData)
     ax1.add_collection(col)
 
-    ax2 = plt.subplot(122, sharex=ax1, sharey=ax1)
+    ax2 = plt.subplot(1, 2, 2, sharex=ax1, sharey=ax1)
     patch = mpatches.PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
                                alpha=0.7, hatch='*')
     patch.set_clip_path(clip_path, ax2.transData)

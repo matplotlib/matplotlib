@@ -97,10 +97,10 @@ boxes and connectors in annotations.  See
         ax.yaxis.set_visible(False)
 
 
-    ax1 = fig.add_subplot(121, frameon=False, xticks=[], yticks=[])
+    ax1 = fig.add_subplot(1, 2, 1, frameon=False, xticks=[], yticks=[])
     make_boxstyles(ax1)
 
-    ax2 = fig.add_subplot(122, frameon=False, xticks=[], yticks=[])
+    ax2 = fig.add_subplot(1, 2, 2, frameon=False, xticks=[], yticks=[])
     make_arrowstyles(ax2)
 
 

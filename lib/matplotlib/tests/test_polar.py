@@ -22,7 +22,7 @@ def test_polar_annotations():
     theta = 2.0 * 2.0 * np.pi * r
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, polar=True)
+    ax = fig.add_subplot(1, 1, 1, polar=True)
     line, = ax.plot(theta, r, color='#ee8d18', lw=3)
     line, = ax.plot((0, 0), (0, 1), color="#0000ff", lw=1)
 
@@ -49,7 +49,7 @@ def test_polar_coord_annotations():
     el = mpl.patches.Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, aspect='equal')
+    ax = fig.add_subplot(1, 1, 1, aspect='equal')
 
     ax.add_artist(el)
     el.set_clip_box(ax.bbox)
@@ -210,7 +210,7 @@ def test_polar_theta_position():
 @image_comparison(['polar_rlabel_position'], style='default')
 def test_polar_rlabel_position():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='polar')
+    ax = fig.add_subplot(1, 1, 1, projection='polar')
     ax.set_rlabel_position(315)
     ax.tick_params(rotation='auto')
 
@@ -292,7 +292,7 @@ def test_polar_not_datalim_adjustable():
 
 def test_polar_gridlines():
     fig = plt.figure()
-    ax = fig.add_subplot(111, polar=True)
+    ax = fig.add_subplot(1, 1, 1, polar=True)
     # make all major grid lines lighter, only x grid lines set in 2.1.0
     ax.grid(alpha=0.2)
     # hide y tick labels, no effect in 2.1.0
@@ -314,13 +314,13 @@ def test_get_tightbbox_polar():
 def test_polar_interpolation_steps_constant_r(fig_test, fig_ref):
     # Check that an extra half-turn doesn't make any difference -- modulo
     # antialiasing, which we disable here.
-    p1 = (fig_test.add_subplot(121, projection="polar")
+    p1 = (fig_test.add_subplot(1, 2, 1, projection="polar")
           .bar([0], [1], 3*np.pi, edgecolor="none"))
-    p2 = (fig_test.add_subplot(122, projection="polar")
+    p2 = (fig_test.add_subplot(1, 2, 2, projection="polar")
           .bar([0], [1], -3*np.pi, edgecolor="none"))
-    p3 = (fig_ref.add_subplot(121, projection="polar")
+    p3 = (fig_ref.add_subplot(1, 2, 1, projection="polar")
           .bar([0], [1], 2*np.pi, edgecolor="none"))
-    p4 = (fig_ref.add_subplot(122, projection="polar")
+    p4 = (fig_ref.add_subplot(1, 2, 2, projection="polar")
           .bar([0], [1], -2*np.pi, edgecolor="none"))
     for p in [p1, p2, p3, p4]:
         plt.setp(p, antialiased=False)

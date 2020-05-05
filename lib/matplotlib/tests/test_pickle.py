@@ -26,7 +26,7 @@ def test_simple():
 
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
-#    ax = plt.subplot(121, projection='hammer')
+#    ax = plt.subplot(1, 2, 1, projection='hammer')
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     plt.figure()
@@ -136,7 +136,7 @@ def test_image():
 
 
 def test_polar():
-    plt.subplot(111, polar=True)
+    plt.subplot(1, 1, 1, polar=True)
     fig = plt.gcf()
     pf = pickle.dumps(fig)
     pickle.loads(pf)

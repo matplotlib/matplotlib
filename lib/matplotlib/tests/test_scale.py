@@ -13,12 +13,12 @@ import pytest
 
 @check_figures_equal()
 def test_log_scales(fig_test, fig_ref):
-    ax_test = fig_test.add_subplot(122, yscale='log', xscale='symlog')
+    ax_test = fig_test.add_subplot(1, 2, 2, yscale='log', xscale='symlog')
     ax_test.axvline(24.1)
     ax_test.axhline(24.1)
     xlim = ax_test.get_xlim()
     ylim = ax_test.get_ylim()
-    ax_ref = fig_ref.add_subplot(122, yscale='log', xscale='symlog')
+    ax_ref = fig_ref.add_subplot(1, 2, 2, yscale='log', xscale='symlog')
     ax_ref.set(xlim=xlim, ylim=ylim)
     ax_ref.plot([24.1, 24.1], ylim, 'b')
     ax_ref.plot(xlim, [24.1, 24.1], 'b')

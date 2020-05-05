@@ -69,7 +69,7 @@ class SkewSpine(mspines.Spine):
 # spines and axes instances as appropriate.
 class SkewXAxes(Axes):
     # The projection must specify a name.  This will be used be the
-    # user to select the projection, i.e. ``subplot(111,
+    # user to select the projection, i.e. ``subplot(1, 1, 1,
     # projection='skewx')``.
     name = 'skewx'
 

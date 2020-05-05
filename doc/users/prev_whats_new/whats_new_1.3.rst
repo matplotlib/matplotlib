@@ -176,7 +176,7 @@ oddly distributed data sets.
 Calling subplot() without arguments
 ```````````````````````````````````
 A call to :func:`~matplotlib.pyplot.subplot` without any arguments now
-acts the same as ``subplot(1, 1, 1)`` or ``subplot(1, 1, 1)`` -- it creates one
+acts the same as ``subplot(111)`` or ``subplot(1, 1, 1)`` -- it creates one
 axes for the whole figure. This was already the behavior for both
 :func:`~matplotlib.pyplot.axes` and
 :func:`~matplotlib.pyplot.subplots`, and now this consistency is

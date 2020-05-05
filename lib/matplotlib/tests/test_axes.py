@@ -321,7 +321,7 @@ def test_inverted_cla():
     # axes; clearing the master axis should bring axes in shared
     # axes back to normal.
     ax0 = plt.subplot(2, 1, 1)
-    ax1 = plt.subplot(212, sharey=ax0)
+    ax1 = plt.subplot(2, 1, 2, sharey=ax0)
     ax0.yaxis.set_inverted(True)
     assert ax1.yaxis_inverted()
     ax1.plot(x, np.cos(x))
@@ -412,11 +412,11 @@ def test_sticky_shared_axes(fig_test, fig_ref):
     Z = np.arange(15).reshape(3, 5)
 
     ax0 = fig_test.add_subplot(2, 1, 1)
-    ax1 = fig_test.add_subplot(212, sharex=ax0)
+    ax1 = fig_test.add_subplot(2, 1, 2, sharex=ax0)
     ax1.pcolormesh(Z)
 
     ax0 = fig_ref.add_subplot(2, 1, 2)
-    ax1 = fig_ref.add_subplot(211, sharex=ax0)
+    ax1 = fig_ref.add_subplot(2, 1, 1, sharex=ax0)
     ax0.pcolormesh(Z)
 
 
@@ -429,7 +429,7 @@ def test_basic_annotate():
     # Offset Points
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1, 5), ylim=(-3, 5))
+    ax = fig.add_subplot(1, 1, 1, autoscale_on=False, xlim=(-1, 5), ylim=(-3, 5))
     line, = ax.plot(t, s, lw=3, color='purple')
 
     ax.annotate('local max', xy=(3, 1), xycoords='data',
@@ -1161,7 +1161,7 @@ def test_arc_ellipse():
     y += ycenter
 
     fig = plt.figure()
-    ax = fig.add_subplot(211, aspect='auto')
+    ax = fig.add_subplot(2, 1, 1, aspect='auto')
     ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow',
             linewidth=1, zorder=1)
 
@@ -1170,7 +1170,7 @@ def test_arc_ellipse():
 
     ax.add_patch(e1)
 
-    ax = fig.add_subplot(212, aspect='equal')
+    ax = fig.add_subplot(2, 1, 2, aspect='equal')
     ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
     e2 = mpatches.Arc((xcenter, ycenter), width, height,
                       angle=angle, linewidth=2, fill=False, zorder=2)
@@ -2033,7 +2033,7 @@ def test_as_mpl_axes_api():
     plt.close()
 
     # testing axes creation with subplot
-    ax = plt.subplot(121, projection=prj)
+    ax = plt.subplot(1, 2, 1, projection=prj)
     assert type(ax) == mpl.axes._subplots.subplot_class_factory(PolarAxes)
     plt.close()
 
@@ -3383,7 +3383,7 @@ def test_mollweide_grid():
     # test that both horizontal and vertical gridlines appear on the Mollweide
     # projection
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='mollweide')
+    ax = fig.add_subplot(1, 1, 1, projection='mollweide')
     ax.grid()
 
 
@@ -3391,7 +3391,7 @@ def test_mollweide_forward_inverse_closure():
     # test that the round-trip Mollweide forward->inverse transformation is an
     # approximate identity
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='mollweide')
+    ax = fig.add_subplot(1, 1, 1, projection='mollweide')
 
     # set up 1-degree grid in longitude, latitude
     lon = np.linspace(-np.pi, np.pi, 360)
@@ -3413,7 +3413,7 @@ def test_mollweide_inverse_forward_closure():
     # test that the round-trip Mollweide inverse->forward transformation is an
     # approximate identity
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='mollweide')
+    ax = fig.add_subplot(1, 1, 1, projection='mollweide')
 
     # set up grid in x, y
     x = np.linspace(0, 1, 500)
@@ -4965,7 +4965,7 @@ def test_shared_axes_autoscale():
     ax1.set_ylim(-1000, 1000)
     ax1.contour(l, l, t)
 
-    ax2 = plt.subplot(212, sharex=ax1, sharey=ax1)
+    ax2 = plt.subplot(2, 1, 2, sharex=ax1, sharey=ax1)
     ax2.contour(l, l, t)
     assert not ax1.get_autoscalex_on() and not ax2.get_autoscalex_on()
     assert not ax1.get_autoscaley_on() and not ax2.get_autoscaley_on()

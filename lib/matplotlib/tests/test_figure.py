@@ -158,7 +158,7 @@ def test_gca():
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
-    ax2 = fig.add_subplot(121, projection='polar')
+    ax2 = fig.add_subplot(1, 2, 1, projection='polar')
     assert fig.gca() is ax2
     assert fig.gca(polar=True) is ax2
 

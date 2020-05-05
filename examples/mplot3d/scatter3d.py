@@ -21,7 +21,7 @@ def randrange(n, vmin, vmax):
     return (vmax - vmin)*np.random.rand(n) + vmin
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(1, 1, 1, projection='3d')
 
 n = 100
 

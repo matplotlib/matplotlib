@@ -158,7 +158,7 @@ def test_colorbar_positioning():
 
     # -------------------
     plt.figure()
-    ax1 = plt.subplot(211, anchor='NE', aspect='equal')
+    ax1 = plt.subplot(2, 1, 1, anchor='NE', aspect='equal')
     plt.contourf(data, levels=levels)
     ax2 = plt.subplot(2, 2, 3)
     plt.contourf(data, levels=levels)

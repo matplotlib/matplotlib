@@ -11,7 +11,7 @@ import numpy as np
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(1, 1, 1, projection='3d')
 
 # Make data
 u = np.linspace(0, 2 * np.pi, 100)

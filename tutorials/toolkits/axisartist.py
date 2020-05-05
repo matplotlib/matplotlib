@@ -99,7 +99,7 @@ to create a host subplot with axisartist.Axes, ::
   import mpl_toolkits.axisartist as AA
   from mpl_toolkits.axes_grid1 import host_subplot
 
-  host = host_subplot(111, axes_class=AA.Axes)
+  host = host_subplot(1, 1, 1, axes_class=AA.Axes)
 
 Here is an example that uses ParasiteAxes.
 

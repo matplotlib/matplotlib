@@ -26,7 +26,7 @@ from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits import axisartist
 import matplotlib.pyplot as plt
 
-host = host_subplot(111, axes_class=axisartist.Axes)
+host = host_subplot(1, 1, 1, axes_class=axisartist.Axes)
 plt.subplots_adjust(right=0.75)
 
 par1 = host.twinx()

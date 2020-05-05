@@ -368,7 +368,7 @@ The Axes property :meth:`~matplotlib.axes.Axes.set_aspect` controls the
 aspect ratio of the axes.  You can set it to be 'auto', 'equal', or
 some ratio which controls the ratio::
 
-  ax = fig.add_subplot(111, aspect='equal')
+  ax = fig.add_subplot(1, 1, 1, aspect='equal')
 
 .. only:: html
 

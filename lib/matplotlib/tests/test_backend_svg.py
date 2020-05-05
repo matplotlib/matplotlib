@@ -160,10 +160,10 @@ def test_gid():
     ax1a = ax1.twinx()
     ax1a.bar([1, 2, 3], [1, 2, 3])
 
-    ax2 = fig.add_subplot(132, projection="polar")
+    ax2 = fig.add_subplot(1, 3, 2, projection="polar")
     ax2.plot([0, 1.5, 3], [1, 2, 3])
 
-    ax3 = fig.add_subplot(133, projection="3d")
+    ax3 = fig.add_subplot(1, 3, 3, projection="3d")
     ax3.plot([1, 2], [1, 2], [1, 2])
 
     fig.canvas.draw()
