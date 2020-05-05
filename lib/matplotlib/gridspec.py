@@ -235,7 +235,7 @@ class GridSpecBase:
 
         return SubplotSpec(self, num1, num2)
 
-    def subplots(self, sharex=False, sharey=False, squeeze=True,
+    def subplots(self, *, sharex=False, sharey=False, squeeze=True,
                  subplot_kw=None):
         """
         Add all subplots specified by this `GridSpec` to its parent figure.
