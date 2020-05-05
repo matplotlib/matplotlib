@@ -117,10 +117,19 @@ def test_transparency():
 
 
 @needs_usetex
-def test_failing_latex(tmpdir):
+def test_failing_latex():
     """Test failing latex subprocess call"""
     mpl.rcParams['text.usetex'] = True
     # This fails with "Double subscript"
     plt.xlabel("$22_2_2$")
     with pytest.raises(RuntimeError):
-        plt.savefig(Path(tmpdir, "tmpoutput.ps"))
+        plt.savefig(io.BytesIO(), format="ps")
+
+
+@needs_usetex
+def test_partial_usetex(caplog):
+    caplog.set_level("WARNING")
+    plt.figtext(.5, .5, "foo", usetex=True)
+    plt.savefig(io.BytesIO(), format="ps")
+    assert caplog.records and all("as if usetex=False" in record.getMessage()
+                                  for record in caplog.records)

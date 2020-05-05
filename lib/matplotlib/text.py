@@ -726,7 +726,7 @@ class Text(Artist):
                 if textobj.get_usetex():
                     textrenderer.draw_tex(gc, x, y, clean_line,
                                           textobj._fontproperties, angle,
-                                          mtext=mtext)
+                                          ismath=ismath, mtext=mtext)
                 else:
                     textrenderer.draw_text(gc, x, y, clean_line,
                                            textobj._fontproperties, angle,
