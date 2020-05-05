@@ -533,6 +533,25 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
+    tight_layout : bool or dict, default: :rc:`figure.autolayout`
+        If ``False`` use *subplotpars*. If ``True`` adjust subplot
+        parameters using `.tight_layout` with default padding.
+        When providing a dict containing the keys ``pad``, ``w_pad``,
+        ``h_pad``, and ``rect``, the default `.tight_layout` paddings
+        will be overridden.
+
+    constrained_layout : bool, default: :rc:`figure.constrained_layout.use`
+        If ``True`` use constrained layout to adjust positioning of plot
+        elements.  Like ``tight_layout``, but designed to be more
+        flexible.  See
+        :doc:`/tutorials/intermediate/constrainedlayout_guide`
+        for examples.  (Note: does not work with `add_subplot` or
+        `~.pyplot.subplot2grid`.)
+
+
+    **kwargs : optional
+        See `~.matplotlib.figure.Figure` for other possible arguments.
+
     Returns
     -------
     `~matplotlib.figure.Figure`
