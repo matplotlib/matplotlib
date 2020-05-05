@@ -305,7 +305,8 @@ class Figure(Artist):
         compress_layout : bool, default: False
             If ``True`` attempt to pack axes as close to one another
             as possible.  Useful when axes have fixed aspect ratio and the
-            default layouts leave excess space between axes.
+            default layouts leave excess space between axes.  See
+            :doc:`/gallery/subplots_axes_and_figures/compress_axes`
         """
         super().__init__()
         # remove the non-figure artist _axes property

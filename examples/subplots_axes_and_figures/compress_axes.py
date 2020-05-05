@@ -42,7 +42,7 @@ plt.show()
 #
 # Currently this works with ``constrained_layout=True`` for simple layouts
 # that do not have nested gridspec layouts
-# (:doc:`gallery/subplots_axes_and_figures/gridspec_nested.html`).  This
+# (:doc:`/gallery/subplots_axes_and_figures/gridspec_nested`).  This
 # includes simple colorbar layouts with ``constrained_layout``:
 
 fig, axs = plt.subplots(2, 2, figsize=(5, 3), facecolor='0.75',
@@ -79,7 +79,7 @@ for tl in [True, False]:
 plt.show()
 
 #############################################################################
-# However, both work with simple layouts that do not have colorbars. 
+# However, both work with simple layouts that do not have colorbars.
 
 for tl in [True, False]:
     fig, axs = plt.subplots(2, 2, figsize=(5, 3), facecolor='0.75',
