@@ -1285,9 +1285,6 @@ class Axes(_AxesBase):
         """
         Plot identical parallel lines at the given positions.
 
-        *positions* should be a 1D or 2D array-like object, with each row
-        corresponding to a row or column of lines.
-
         This type of plot is commonly used in neuroscience for representing
         neural events, where it is usually called a spike raster, dot raster,
         or raster plot.
@@ -1299,48 +1296,53 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        positions : 1D or 2D array-like object
-            Each value is an event. If *positions* is a 2D array-like, each
-            row corresponds to a row or a column of lines (depending on the
-            *orientation* parameter).
+        positions : array-like or list of array-like
+            A 1D array-like defines the positions of one sequence of events.
+
+            Multiple groups of events may be passed as a list of array-likes.
+            Each group can be styled independently by passing lists of values
+            to *lineoffsets*, *linelengths*, *linewidths*, *colors* and
+            *linestyles*.
+
+            Note that *positions* can be a 2D array, but in practice different
+            event groups usually have different counts so that one will use a
+            list of different-length arrays rather than a 2D array.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
-            The direction of the event collections:
+            The direction of the event sequence:
 
-            - 'horizontal': the lines are arranged horizontally in rows,
-              and are vertical.
-            - 'vertical': the lines are arranged vertically in columns,
-              and are horizontal.
+            - 'horizontal': the events are arranged horizontally.
+              The indicator lines are vertical.
+            - 'vertical': the events are arranged vertically.
+              The indicator lines are horizontal.
 
         lineoffsets : float or array-like, default: 1
             The offset of the center of the lines from the origin, in the
             direction orthogonal to *orientation*.
 
-            A sequence must match the dimension of *positions*
-            in the direction of *orientation*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
         linelengths : float or array-like, default: 1
             The total height of the lines (i.e. the lines stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-        linewidths : float or array-like or None, default: None
-            The line width(s) of the event lines, in points. If it is None,
-            defaults to its rcParams setting.
+        linewidths : float or array-like, default: :rc:`lines.linewidth`
+            The line width(s) of the event lines, in points.
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-        colors : color or list of colors or None, default: None
-            The color(s) of the event lines. If it is None, defaults to its
-            rcParams setting.
+        colors : color or list of colors, default: :rc:`lines.color`
+            The color(s) of the event lines.
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-        linestyles : str or tuple or a sequence of such values, optional
+        linestyles : str or tuple or list of such values, default: 'solid'
             Default is 'solid'. Valid strings are ['solid', 'dashed',
             'dashdot', 'dotted', '-', '--', '-.', ':']. Dash tuples
             should be of the form::
@@ -1350,11 +1352,10 @@ class Axes(_AxesBase):
             where *onoffseq* is an even length tuple of on and off ink
             in points.
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-
-        **kwargs : optional
+        **kwargs
             Other keyword arguments are line collection properties.  See
             `.LineCollection` for a list of the valid properties.
 
