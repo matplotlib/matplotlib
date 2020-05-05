@@ -130,7 +130,7 @@ example code for GTK+ 3::
     win.add(vbox)
 
     fig = Figure(figsize=(5,4), dpi=100)
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.plot([1,2,3])
 
     canvas = FigureCanvas(fig)  # a Gtk.DrawingArea

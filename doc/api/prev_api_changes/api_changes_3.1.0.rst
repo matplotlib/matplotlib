@@ -55,7 +55,7 @@ back on the linear `.AutoLocator` to pick reasonable tick positions.
 `.Figure.add_subplot` with no arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Calling `.Figure.add_subplot()` with no positional arguments used to do
-nothing; this now is equivalent to calling ``add_subplot(1, 1, 1)`` instead.
+nothing; this now is equivalent to calling ``add_subplot()`` instead.
 
 `~.Axes.bxp` and rcparams
 ~~~~~~~~~~~~~~~~~~~~~~~~~

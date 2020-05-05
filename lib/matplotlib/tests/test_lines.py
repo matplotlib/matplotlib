@@ -66,7 +66,7 @@ def test_invisible_Line_rendering():
 
 def test_set_line_coll_dash():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     np.random.seed(0)
     # Testing setting linestyles for line collections.
     # This should not produce an error.
@@ -76,14 +76,14 @@ def test_set_line_coll_dash():
 @image_comparison(['line_dashes'], remove_text=True)
 def test_line_dashes():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
 
     ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
 
 
 def test_line_colors():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.plot(range(10), color='none')
     ax.plot(range(10), color='r')
     ax.plot(range(10), color='.3')
@@ -94,7 +94,7 @@ def test_line_colors():
 
 def test_linestyle_variants():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     for ls in ["-", "solid", "--", "dashed",
                "-.", "dashdot", ":", "dotted"]:
         ax.plot(range(10), linestyle=ls)
@@ -142,7 +142,7 @@ def test_set_drawstyle():
 @image_comparison(['line_collection_dashes'], remove_text=True, style='mpl20')
 def test_set_line_coll_dash_image():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     np.random.seed(0)
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 

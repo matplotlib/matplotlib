@@ -2289,7 +2289,7 @@ the `API changes <../../api/api_changes.html>`_.
                   fig1 = figure()
                   fig2 = figure()
 
-                   ax1 = fig1.add_subplot(1, 1, 1)
+                   ax1 = fig1.add_subplot()
                    ax2 = fig2.add_subplot(1, 1, 1, sharex=ax1, sharey=ax1)
 
            - linestyles now include steps-pre, steps-post and

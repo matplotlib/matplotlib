@@ -139,7 +139,7 @@ is created every time a mouse is pressed::
             self.line.figure.canvas.draw()
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.set_title('click to build line segments')
     line, = ax.plot([0], [0])  # empty line
     linebuilder = LineBuilder(line)
@@ -230,7 +230,7 @@ Here is the solution::
             self.rect.figure.canvas.mpl_disconnect(self.cidmotion)
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     rects = ax.bar(range(10), 20*np.random.rand(10))
     drs = []
     for rect in rects:
@@ -334,7 +334,7 @@ Extra credit solution::
             self.rect.figure.canvas.mpl_disconnect(self.cidmotion)
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     rects = ax.bar(range(10), 20*np.random.rand(10))
     drs = []
     for rect in rects:
@@ -493,7 +493,7 @@ properties of the line.  Here is the code::
     import matplotlib.pyplot as plt
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.set_title('click on points')
 
     line, = ax.plot(np.random.rand(100), 'o', picker=5)  # 5 points tolerance
@@ -538,7 +538,7 @@ Exercise solution::
     ys = np.std(X, axis=1)
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.set_title('click on point to plot time series')
     line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
 

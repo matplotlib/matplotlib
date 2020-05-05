@@ -480,7 +480,7 @@ def test_SymLogNorm_colorbar():
     """
     norm = mcolors.SymLogNorm(0.1, vmin=-1, vmax=1, linscale=1, base=np.e)
     fig = plt.figure()
-    mcolorbar.ColorbarBase(fig.add_subplot(1, 1, 1), norm=norm)
+    mcolorbar.ColorbarBase(fig.add_subplot(), norm=norm)
     plt.close(fig)
 
 
@@ -490,7 +490,7 @@ def test_SymLogNorm_single_zero():
     """
     fig = plt.figure()
     norm = mcolors.SymLogNorm(1e-5, vmin=-1, vmax=1, base=np.e)
-    cbar = mcolorbar.ColorbarBase(fig.add_subplot(1, 1, 1), norm=norm)
+    cbar = mcolorbar.ColorbarBase(fig.add_subplot(), norm=norm)
     ticks = cbar.get_ticks()
     assert sum(ticks == 0) == 1
     plt.close(fig)

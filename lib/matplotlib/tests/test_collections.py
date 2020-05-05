@@ -38,7 +38,7 @@ def generate_EventCollection_plot():
                            )
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.add_collection(coll)
     ax.set_title('EventCollection: default')
     props = {'positions': positions,
@@ -522,7 +522,7 @@ def test_joinstyle():
 @image_comparison(['cap_and_joinstyle.png'])
 def test_cap_and_joinstyle_image():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.set_xlim([-0.5, 1.5])
     ax.set_ylim([-0.5, 2.5])
 

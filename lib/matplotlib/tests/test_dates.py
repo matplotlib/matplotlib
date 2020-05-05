@@ -20,12 +20,12 @@ def test_date_numpyx():
     timenp = np.array(time, dtype='datetime64[ns]')
     data = np.array([0., 2., 1.])
     fig = plt.figure(figsize=(10, 2))
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     h, = ax.plot(time, data)
     hnp, = ax.plot(timenp, data)
     np.testing.assert_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
     fig = plt.figure(figsize=(10, 2))
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     h, = ax.plot(data, time)
     hnp, = ax.plot(data, timenp)
     np.testing.assert_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
@@ -75,7 +75,7 @@ def test_date_empty():
     # if no date data has been presented, cf
     # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.xaxis_date()
 
 
@@ -85,7 +85,7 @@ def test_date_axhspan():
     t0 = datetime.datetime(2009, 1, 20)
     tf = datetime.datetime(2009, 1, 21)
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.axhspan(t0, tf, facecolor="blue", alpha=0.25)
     ax.set_ylim(t0 - datetime.timedelta(days=5),
                 tf + datetime.timedelta(days=5))
@@ -98,7 +98,7 @@ def test_date_axvspan():
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2010, 1, 21)
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.axvspan(t0, tf, facecolor="blue", alpha=0.25)
     ax.set_xlim(t0 - datetime.timedelta(days=720),
                 tf + datetime.timedelta(days=720))
@@ -111,7 +111,7 @@ def test_date_axhline():
     t0 = datetime.datetime(2009, 1, 20)
     tf = datetime.datetime(2009, 1, 31)
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.axhline(t0, color="blue", lw=3)
     ax.set_ylim(t0 - datetime.timedelta(days=5),
                 tf + datetime.timedelta(days=5))
@@ -124,7 +124,7 @@ def test_date_axvline():
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 21)
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.axvline(t0, color="red", lw=3)
     ax.set_xlim(t0 - datetime.timedelta(days=5),
                 tf + datetime.timedelta(days=5))
@@ -141,7 +141,7 @@ def test_too_many_date_ticks(caplog):
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     with pytest.warns(UserWarning) as rec:
         ax.set_xlim((t0, tf), auto=True)
         assert len(rec) == 1
@@ -723,7 +723,7 @@ def test_date_inverted_limit():
     t0 = datetime.datetime(2009, 1, 20)
     tf = datetime.datetime(2009, 1, 31)
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.axhline(t0, color="blue", lw=3)
     ax.set_ylim(t0 - datetime.timedelta(days=5),
                 tf + datetime.timedelta(days=5))

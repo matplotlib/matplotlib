@@ -45,7 +45,7 @@ class CanvasFrame(wx.Frame):
                           'CanvasFrame', size=(550, 350))
 
         self.figure = Figure(figsize=(5, 4), dpi=100)
-        self.axes = self.figure.add_subplot(1, 1, 1)
+        self.axes = self.figure.add_subplot()
         t = np.arange(0.0, 3.0, 0.01)
         s = np.sin(2 * np.pi * t)
 

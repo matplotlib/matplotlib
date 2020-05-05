@@ -820,7 +820,7 @@ example is generated from
     s = 1 + np.sin(2 * np.pi * t)
 
     # Note that using plt.subplots below is equivalent to using
-    # fig = plt.figure and then ax = fig.add_subplot(1, 1, 1)
+    # fig = plt.figure and then ax = fig.add_subplot()
     fig, ax = plt.subplots()
     ax.plot(t, s)
 

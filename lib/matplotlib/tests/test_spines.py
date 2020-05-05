@@ -10,7 +10,7 @@ def test_spines_axes_positions():
     fig = plt.figure()
     x = np.linspace(0, 2*np.pi, 100)
     y = 2*np.sin(x)
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.set_title('centered spines')
     ax.plot(x, y)
     ax.spines['right'].set_position(('axes', 0.1))
@@ -24,7 +24,7 @@ def test_spines_axes_positions():
 @image_comparison(['spines_data_positions'])
 def test_spines_data_positions():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.spines['left'].set_position(('data', -1.5))
     ax.spines['top'].set_position(('data', 0.5))
     ax.spines['right'].set_position(('data', -0.5))
@@ -59,14 +59,14 @@ def test_spines_capstyle():
     # issue 2542
     plt.rc('axes', linewidth=20)
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.set_xticks([])
     ax.set_yticks([])
 
 
 def test_label_without_ticks():
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     plt.subplots_adjust(left=0.3, bottom=0.3)
     ax.plot(np.arange(10))
     ax.yaxis.set_ticks_position('left')

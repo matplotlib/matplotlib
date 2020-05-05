@@ -225,12 +225,12 @@ def test_pdf_pages():
     mpl.rcParams.update(rc_pdflatex)
 
     fig1 = plt.figure()
-    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1 = fig1.add_subplot()
     ax1.plot(range(5))
     fig1.tight_layout()
 
     fig2 = plt.figure(figsize=(3, 2))
-    ax2 = fig2.add_subplot(1, 1, 1)
+    ax2 = fig2.add_subplot()
     ax2.plot(range(5))
     fig2.tight_layout()
 
@@ -251,7 +251,7 @@ def test_pdf_pages_metadata():
     mpl.rcParams.update(rc_pdflatex)
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.plot(range(5))
     fig.tight_layout()
 
@@ -278,7 +278,7 @@ def test_pdf_pages_lualatex():
     mpl.rcParams.update(rc_pdflatex)
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.plot(range(5))
     fig.tight_layout()
 

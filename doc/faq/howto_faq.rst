@@ -118,7 +118,7 @@ any property on them directly (*facecolor*, *edgecolor*, *linewidth*,
 
     fig = plt.figure()
     fig.patch.set_alpha(0.5)
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.patch.set_alpha(0.5)
 
 If you need *all* the figure elements to be transparent, there is
@@ -177,7 +177,7 @@ labels::
 
     fig = plt.figure()
     fig.subplots_adjust(bottom=0.2)
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
 
 You can control the defaults for these parameters in your
 :file:`matplotlibrc` file; see :doc:`/tutorials/introductory/customizing`.  For
@@ -400,7 +400,7 @@ locators as desired because the two axes are independent.
     import matplotlib.pyplot as plt
 
     fig = plt.figure()
-    ax1 = fig.add_subplot(1, 1, 1)
+    ax1 = fig.add_subplot()
     t = np.arange(0.01, 10.0, 0.01)
     s1 = np.exp(t)
     ax1.plot(t, s1, 'b-')

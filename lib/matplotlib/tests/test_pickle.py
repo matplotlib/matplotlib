@@ -112,7 +112,7 @@ def test_no_pyplot():
     from matplotlib.backends.backend_pdf import FigureCanvasPdf
     fig = mfigure.Figure()
     _ = FigureCanvasPdf(fig)
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.plot([1, 2, 3], [1, 2, 3])
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
@@ -129,7 +129,7 @@ def test_image():
     from matplotlib.backends.backend_agg import new_figure_manager
     manager = new_figure_manager(1000)
     fig = manager.canvas.figure
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot()
     ax.imshow(np.arange(12).reshape(3, 4))
     manager.canvas.draw()
     pickle.dump(fig, BytesIO())

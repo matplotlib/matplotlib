@@ -31,7 +31,7 @@ ydata2 = 1 - xdata2 ** 3
 
 # plot the data
 fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
+ax = fig.add_subplot()
 ax.plot(xdata1, ydata1, color='tab:blue')
 ax.plot(xdata2, ydata2, color='tab:orange')
 
