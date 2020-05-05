@@ -105,7 +105,7 @@ def _create_qApp():
         app = QtWidgets.QApplication.instance()
         if app is None:
             # check for DISPLAY env variable on X11 build of Qt
-            if is_pyqt5():
+            if QtCore.QT_VERSION_STR >= "5.":
                 try:
                     importlib.import_module(
                         # i.e. PyQt5.QtX11Extras or PySide2.QtX11Extras.
@@ -130,11 +130,10 @@ def _create_qApp():
         else:
             qApp = app
 
-    if is_pyqt5():
-        try:
-            qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-        except AttributeError:
-            pass
+    try:
+        qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+    except AttributeError:
+        pass
 
 
 def _allow_super_init(__init__):
@@ -332,7 +331,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.button_release_event(self, x, y, button,
                                                   guiEvent=event)
 
-    if is_pyqt5():
+    if QtCore.QT_VERSION_STR >= "5.":
         def wheelEvent(self, event):
             x, y = self.mouseEventCoords(event)
             # from QWheelEvent::delta doc
@@ -699,7 +698,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         return str(cbook._get_data_path('images'))
 
     def _icon(self, name, color=None):
-        if is_pyqt5():
+        if QtCore.QT_VERSION_STR >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
         qt_compat._setDevicePixelRatio(pm, qt_compat._devicePixelRatio(self))
@@ -896,9 +895,7 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
 
     @property
     def _icon_extension(self):
-        if is_pyqt5():
-            return '_large.png'
-        return '.png'
+        return '_large.png' if QtCore.QT_VERSION_STR >= '5.' else '.png'
 
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):

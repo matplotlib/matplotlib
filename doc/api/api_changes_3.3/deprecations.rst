@@ -540,3 +540,8 @@ These are unused and can be easily reproduced by other date tools.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``cbid`` and ``locator`` attribute are deprecated.  Use
 ``mappable.colorbar_cid`` and ``colorbar.locator``, as for standard colorbars.
+
+``qt_compat.is_pyqt5``
+~~~~~~~~~~~~~~~~~~~~~~
+This function is deprecated in prevision of the future release of PyQt6.  The
+Qt version can be checked using ``QtCore.QT_VERSION_STR``.
