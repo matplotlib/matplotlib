@@ -399,3 +399,50 @@ def test_hidden_axes():
 
     np.testing.assert_allclose(
         extents1, [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
+
+def test_compressed():
+    # Test that the compressed layout option works:
+    fig, axs = plt.subplots(2, 2, constrained_layout=True,
+                            compress_layout=True,
+                            sharex=True, sharey=True,
+                            figsize=(5, 3))
+
+    for ax in axs.flat:
+        ax.set_aspect(1.)
+    fig.canvas.draw()
+    extents = np.copy(axs[0, 0].get_position().extents)
+    np.testing.assert_allclose(extents,
+        [0.243692, 0.571899, 0.479719, 0.965277], rtol=1e-5)
+
+
+def test_compressed_cbars():
+    # Test that the compressed layout option works:
+    fig, axs = plt.subplots(2, 2, constrained_layout=True,
+                            compress_layout=True,
+                            sharex=True, sharey=True,
+                            figsize=(5, 3))
+
+    for ax in axs.flat:
+        ax.set_aspect(1.)
+        pc = ax.pcolormesh(np.random.randn(20, 20))
+        fig.colorbar(pc, ax=ax)
+    fig.canvas.draw()
+    extents = np.copy(axs[0, 0].get_position().extents)
+    np.testing.assert_allclose(extents,
+        [0.119849, 0.571899, 0.355875, 0.965277], rtol=1e-5)
+
+def test_compressed_onecbar():
+    # Test that the compressed layout option works:
+    fig, axs = plt.subplots(2, 2, constrained_layout=True,
+                            compress_layout=True,
+                            sharex=True, sharey=True,
+                            figsize=(5, 3))
+
+    for ax in axs.flat:
+        ax.set_aspect(1.)
+        pc = ax.pcolormesh(np.random.randn(20, 20))
+    fig.colorbar(pc, ax=axs)
+    fig.canvas.draw()
+    extents = np.copy(axs[0, 0].get_position().extents)
+    np.testing.assert_allclose(extents,
+        [0.255883, 0.571899, 0.491909, 0.965277], rtol=1e-5)
