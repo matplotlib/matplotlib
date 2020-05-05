@@ -241,3 +241,36 @@ also be 'x' or 'y'.
 This newly allowed value for :rc:`savefig.facecolor` and :rc:`savefig.edgecolor`,
 as well as the *facecolor* and *edgecolor* parameters to `.Figure.savefig`, means
 "use whatever facecolor and edgecolor the figure current has".
+
+When using a single dataset, `.Axes.hist` no longer wraps the added artist in a `.silent_list`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When `.Axes.hist` is called with a single dataset, it adds to the axes either
+a `.BarContainer` object (when ``histtype="bar"`` or ``"barstacked"``), or a
+`.Polygon` object (when ``histype="step"`` or ``"stepfilled"``) -- the latter
+being wrapped in a list-of-one-element.  Previously, either artist would be
+wrapped in a `.silent_list`.  This is no longer the case: the `.BarContainer` is
+now returned as is (this is an API breaking change if you were directly relying
+on the concrete `list` API; however, `.BarContainer` inherits from `tuple` so
+most common operations remain available), and the list-of-one `.Polygon` is
+returned as is.  This makes the `repr` of the returned artist more accurate: it
+is now ::
+
+    <BarContainer object of of 10 artists>  # "bar", "barstacked"
+    [<matplotlib.patches.Polygon object at 0xdeadbeef>]  # "step", "stepfilled"
+
+instead of ::
+
+    <a list of 10 Patch objects>  # "bar", "barstacked"
+    <a list of 1 Patch objects>  # "step", "stepfilled"
+
+When `.Axes.hist` is called with multiple artists, it still wraps its return
+value in a `.silent_list`, but uses more accurate type information ::
+
+    <a list of 3 BarContainer objects>  # "bar", "barstacked"
+    <a list of 3 List[Polygon] objects>  # "step", "stepfilled"
+
+instead of ::
+
+    <a list of 3 Lists of Patches objects>  # "bar", "barstacked"
+    <a list of 3 Lists of Patches objects>  # "step", "stepfilled"

@@ -6514,9 +6514,10 @@ default: :rc:`scatter.edgecolors`
             edge of last bin).  Always a single array even when multiple data
             sets are passed in.
 
-        patches : list or list of lists
-            Silent list of individual patches used to create the histogram
-            or list of such list if multiple input datasets.
+        patches : `.BarContainer` or list of a single `.Polygon` or list of \
+such objects
+            Container of individual artists used to create the histogram
+            or list of such containers if there are multiple input datasets.
 
         Other Parameters
         ----------------
@@ -6798,9 +6799,11 @@ default: :rc:`scatter.edgecolors`
                     p.set_label('_nolegend_')
 
         if nx == 1:
-            return tops[0], bins, cbook.silent_list('Patch', patches[0])
+            return tops[0], bins, patches[0]
         else:
-            return tops, bins, cbook.silent_list('Lists of Patches', patches)
+            patch_type = ("BarContainer" if histtype.startswith("bar")
+                          else "List[Polygon]")
+            return tops, bins, cbook.silent_list(patch_type, patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @docstring.dedent_interpd
