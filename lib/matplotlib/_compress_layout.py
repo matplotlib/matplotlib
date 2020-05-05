@@ -49,7 +49,6 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
 
     # we placed everything, but what if there are huge gaps...
     for gs in gss:
-        print('gs', gs)
         axs = [ax for ax in fig.axes
                if (hasattr(ax, 'get_subplotspec')
                    and ax.get_subplotspec().get_gridspec() == gs)]
@@ -155,10 +154,8 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
         if (dx > dy) and (dy < 0.9):
             margy = np.min(margys, axis=1)
             # Squish y!
-            print('squish y')
             extra = (1 - dy) / 2
             for nn, ax in enumerate(axs):
-                print(f'Axes {nn}')
                 ss = ax.get_subplotspec()
                 orpos = ax.get_position(original=True)
                 y = extra
@@ -177,7 +174,6 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                 bboxes[ax].y1 = bboxes[ax].y1 + deltay
                 # shift any colorbars belongig to this axis
                 for cba in ax._colorbars:
-                    print('ax', ax, 'cba', cba)
                     pos = cba.get_position(original=True)
                     if cba._colorbar_info['location'] in ['right', 'left']:
                         # shrink to make same size as active...
@@ -189,12 +185,10 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                     else:
                         pos.y0 = pos.y0 + deltay
                         pos.y1 = pos.y1 + deltay
-                    print('pos', pos)
                     cba._set_position(pos, which='original')
                     colorbars.remove(cba)
             # print(colorbars)
             for cb in colorbars:
-                print('In here?')
                 # shift any colorbars belonging to the gridspec.
                 pos = cb.get_position(original=True)
                 bbox = bboxes[cb]

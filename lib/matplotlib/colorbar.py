@@ -1496,8 +1496,6 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     if len(parents) == 1:
         # tell the parent it has a colorbar
         ax._colorbars += [cax]
-    else:
-        print('Not addings!')
 
     # OK, now make a layoutbox for the cb axis.  Later, we will use this
     # to make the colorbar fit nicely.
