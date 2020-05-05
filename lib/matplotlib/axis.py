@@ -1617,8 +1617,9 @@ class Axis(martist.Artist):
         Parameters
         ----------
         ticklabels : sequence of str or of `.Text`\s
-            List of texts for tick labels; must include values for non-visible
-            labels.
+            Texts for labeling each tick location in the sequence set by
+            `.Axis.set_ticks`; the number of labels must match the number of
+            locations.
         minor : bool
             If True, set minor ticks instead of major ticks.
         **kwargs
