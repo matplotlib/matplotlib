@@ -1264,24 +1264,24 @@ default: 'top'
 
         Parameters
         ----------
-        *args, int or (int, int, int) or `SubplotSpec`, default: (1, 1, 1)
+        *args, (int, int, int) or `SubplotSpec`, default: (1, 1, 1)
             The position of the subplot described by one of
 
             - Three integers (*nrows*, *ncols*, *index*). The subplot will
               take the *index* position on a grid with *nrows* rows and
               *ncols* columns. *index* starts at 1 in the upper left corner
               and increases to the right.
+            - A `.SubplotSpec`.
             - For backcompatibility, a 3-digit integer. The digits are
               interpreted as if given separately as three
               single-digit integers, i.e.
               ``fig.add_subplot(235)`` is the same as
               ``fig.add_subplot(2, 3, 5)``. Note that this can only be used
               if there are no more than 9 subplots.
-            - A `.SubplotSpec`.
 
             In rare circumstances, `.add_subplot` may be called with a single
             argument, a subplot axes instance already created in the
-            present figure but not in the figure's list of axes.
+            present figure, but not in the figure's list of axes.
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
@@ -1351,7 +1351,7 @@ default: 'top'
 
             fig.add_subplot(2, 3, 2, frameon=False)  # subplot with no frame
             fig.add_subplot(2, 3, 3, projection='polar')  # polar subplot
-            fig.add_subplot(2, 3, 4, sharex=ax1)  # subplot sharing x-axis with ax1
+            fig.add_subplot(2, 3, 4, sharex=ax1)  # sharing x-axis with ax1
             fig.add_subplot(2, 3, 5, facecolor="red")  # red subplot
 
             ax1.remove()  # delete ax1 from the figure
