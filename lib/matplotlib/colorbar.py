@@ -1613,7 +1613,7 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     cax = fig.add_subplot(gs2[1], label="<colorbar>")
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     cax._colorbar_info = {}
-    location = 'right' if orientation=='vertical' else 'bottom'
+    location = 'right' if orientation == 'vertical' else 'bottom'
     cax._colorbar_info['location'] = location
     cax._colorbar_info['parents'] = [parent]
     cax._colorbar_info['shrink'] = shrink

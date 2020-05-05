@@ -1,11 +1,10 @@
-import logging
-
 import numpy as np
 
 """
 This code attemprs to compress axes if they have excessive space between
 axes, usually because the axes have fixed aspect ratios.
 """
+
 
 def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                     wspace=0, hspace=0):
