@@ -72,7 +72,7 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                             dxs[i, j] = dxs[i, j] + pad / di
                         dys[i, j] = bboxes[ax].bounds[3] / dj
                         pad = np.max([h_pad, hspace * bboxes[ax].bounds[3]])
-                        if ss.rowspan[0] > 0 :
+                        if ss.rowspan[0] > 0:
                             dys[i, j] = dys[i, j] + pad / dj
                         margxs[i, j] = orpos.x0 - bboxes[ax].x0
                         margys[i, j] = orpos.y0 - bboxes[ax].y0
@@ -117,8 +117,8 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                     if cba._colorbar_info['location'] in ['bottom', 'top']:
                         # shrink to make same size as active...
                         posac = ax.get_position(original=False)
-                        dx = (1 - cba._colorbar_info['shrink']) * (posac.x1 -
-                                posac.x0) / 2
+                        dx = ((1 - cba._colorbar_info['shrink']) *
+                              (posac.x1 posac.x0) / 2)
                         pos.x0 = posac.x0 + dx
                         pos.x1 = posac.x1 - dx
                     else:
@@ -143,7 +143,7 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                     pos.x1 = x - marg
                     pos.x0 = x - marg - _dx
                 else:
-                    ddx = (x1 - x0) * (1  - cb._colorbar_info['shrink']) / 2
+                    ddx = (x1 - x0) * (1 - cb._colorbar_info['shrink']) / 2
                     marg = bbox.x0 - pos.x0
                     pos.x0 = x0 - marg + ddx
                     marg = bbox.x1 - pos.x1
@@ -177,10 +177,10 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                     if cba._colorbar_info['location'] in ['right', 'left']:
                         # shrink to make same size as active...
                         posac = ax.get_position(original=False)
-                        ddy_ = (1 - cba._colorbar_info['shrink']) * (posac.y1 -
-                                posac.y0) / 2
-                        pos.y0 = posac.y0 + ddy_
-                        pos.y1 = posac.y1 - ddy_
+                        ddy = ((1 - cba._colorbar_info['shrink']) *
+                                (posac.y1 - posac.y0) / 2)
+                        pos.y0 = posac.y0 + ddy
+                        pos.y1 = posac.y1 - ddy
                     else:
                         pos.y0 = pos.y0 + deltay
                         pos.y1 = pos.y1 + deltay
@@ -204,7 +204,7 @@ def compress_layout(fig, *, bboxes=None, w_pad=0.05, h_pad=0.05,
                     pos.y1 = y - marg
                     pos.y0 = y - marg - _dy
                 else:
-                    ddy = (y1 - y0) * (1  - cb._colorbar_info['shrink']) / 2
+                    ddy = (y1 - y0) * (1 - cb._colorbar_info['shrink']) / 2
                     marg = bbox.y0 - pos.y0
                     pos.y0 = y0 - marg + ddy
                     marg = bbox.y1 - pos.y1

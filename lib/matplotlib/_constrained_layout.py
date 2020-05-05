@@ -264,7 +264,7 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     *axes* layoutbox be a minimum size that can accommodate the
     decorations on the axis.
 
-    Returns the bbox for some width/heigth calcs outside this loop.
+    Returns the bbox for some width/height calcs outside this loop.
     """
     fig = ax.figure
     invTransFig = fig.transFigure.inverted().transform_bbox

@@ -50,7 +50,7 @@ fig, axs = plt.subplots(2, 2, figsize=(5, 3), facecolor='0.75',
                         compress_layout=True)
 for ax in axs.flat:
     ax.set_aspect(1.0)
-    pc = ax.pcolormesh(np.random.randn(20,20))
+    pc = ax.pcolormesh(np.random.randn(20, 20))
     fig.colorbar(pc, ax=ax)
 plt.show()
 

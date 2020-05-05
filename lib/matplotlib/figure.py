@@ -10,7 +10,6 @@
 
 import logging
 from numbers import Integral
-import warnings
 
 import numpy as np
 
