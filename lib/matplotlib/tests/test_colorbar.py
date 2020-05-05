@@ -160,9 +160,9 @@ def test_colorbar_positioning():
     plt.figure()
     ax1 = plt.subplot(211, anchor='NE', aspect='equal')
     plt.contourf(data, levels=levels)
-    ax2 = plt.subplot(223)
+    ax2 = plt.subplot(2, 2, 3)
     plt.contourf(data, levels=levels)
-    ax3 = plt.subplot(224)
+    ax3 = plt.subplot(2, 2, 4)
     plt.contourf(data, levels=levels)
 
     plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5,
@@ -180,11 +180,11 @@ def test_gridspec_make_colorbar():
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
-    plt.subplot(121)
+    plt.subplot(1, 2, 1)
     plt.contourf(data, levels=levels)
     plt.colorbar(use_gridspec=True, orientation='vertical')
 
-    plt.subplot(122)
+    plt.subplot(1, 2, 2)
     plt.contourf(data, levels=levels)
     plt.colorbar(use_gridspec=True, orientation='horizontal')
 

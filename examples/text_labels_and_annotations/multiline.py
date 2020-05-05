@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 plt.figure(figsize=(7, 4))
-ax = plt.subplot(121)
+ax = plt.subplot(1, 2, 1)
 ax.set_aspect(1)
 plt.plot(np.arange(10))
 plt.xlabel('this is a xlabel\n(with newlines!)')
@@ -21,7 +21,7 @@ plt.text(2, 7, 'this is\nyet another test',
 
 plt.grid(True)
 
-plt.subplot(122)
+plt.subplot(1, 2, 2)
 
 plt.text(0.29, 0.4, "Mat\nTTp\n123", size=18,
          va="baseline", ha="right", multialignment="left",

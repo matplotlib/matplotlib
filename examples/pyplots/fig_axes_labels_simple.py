@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 fig = plt.figure()
 fig.subplots_adjust(top=0.8)
-ax1 = fig.add_subplot(211)
+ax1 = fig.add_subplot(2, 1, 1)
 ax1.set_ylabel('volts')
 ax1.set_title('a sine wave')
 

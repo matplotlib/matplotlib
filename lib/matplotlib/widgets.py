@@ -2395,7 +2395,7 @@ class LassoSelector(_SelectorWidget):
 
     Example usage::
 
-        ax = subplot(111)
+        ax = subplot(1, 1, 1)
         ax.plot(x, y)
 
         def onselect(verts):

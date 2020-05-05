@@ -52,7 +52,7 @@ plt.show()
 #
 
 fig = plt.figure(figsize=[5.5, 2.8])
-ax = fig.add_subplot(121)
+ax = fig.add_subplot(1, 2, 1)
 
 # We use the axes transform as bbox_transform. Therefore the bounding box
 # needs to be specified in axes coordinates ((0, 0) is the lower left corner
@@ -80,10 +80,10 @@ ax.set(xlim=(0, 10), ylim=(0, 10))
 # Note how the two following insets are created at the same positions, one by
 # use of the default parent axes' bbox and the other via a bbox in axes
 # coordinates and the respective transform.
-ax2 = fig.add_subplot(222)
+ax2 = fig.add_subplot(2, 2, 2)
 axins2 = inset_axes(ax2, width="30%", height="50%")
 
-ax3 = fig.add_subplot(224)
+ax3 = fig.add_subplot(2, 2, 4)
 axins3 = inset_axes(ax3, width="100%", height="100%",
                     bbox_to_anchor=(.7, .5, .3, .5),
                     bbox_transform=ax3.transAxes)
@@ -108,7 +108,7 @@ plt.show()
 #
 
 fig = plt.figure(figsize=[5.5, 2.8])
-ax = fig.add_subplot(131)
+ax = fig.add_subplot(1, 3, 1)
 
 # Create an inset outside the axes
 axins = inset_axes(ax, width="100%", height="100%",
@@ -124,7 +124,7 @@ axins2 = inset_axes(ax, width=0.5, height=0.4,
                     bbox_transform=ax.transAxes, loc=3, borderpad=0)
 
 
-ax2 = fig.add_subplot(133)
+ax2 = fig.add_subplot(1, 3, 3)
 ax2.set_xscale("log")
 ax2.set(xlim=(1e-6, 1e6), ylim=(-2, 6))
 

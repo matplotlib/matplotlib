@@ -16,8 +16,8 @@ import numpy as np
 
 # make figure and assign axis objects
 fig = plt.figure(figsize=(9, 5))
-ax1 = fig.add_subplot(121)
-ax2 = fig.add_subplot(122)
+ax1 = fig.add_subplot(1, 2, 1)
+ax2 = fig.add_subplot(1, 2, 2)
 fig.subplots_adjust(wspace=0)
 
 # pie chart parameters

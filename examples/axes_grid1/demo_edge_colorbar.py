@@ -27,7 +27,7 @@ def demo_bottom_cbar(fig):
     """
     A grid of 2x2 images with a colorbar for each column.
     """
-    grid = AxesGrid(fig, 121,  # similar to subplot(121)
+    grid = AxesGrid(fig, 121,  # similar to subplot(1, 2, 1)
                     nrows_ncols=(2, 2),
                     axes_pad=0.10,
                     share_all=True,
@@ -59,7 +59,7 @@ def demo_right_cbar(fig):
     """
     A grid of 2x2 images. Each row has its own colorbar.
     """
-    grid = AxesGrid(fig, 122,  # similar to subplot(122)
+    grid = AxesGrid(fig, 122,  # similar to subplot(1, 2, 2)
                     nrows_ncols=(2, 2),
                     axes_pad=0.10,
                     label_mode="1",

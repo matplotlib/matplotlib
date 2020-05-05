@@ -162,7 +162,7 @@ def test_gca():
     assert fig.gca() is ax2
     assert fig.gca(polar=True) is ax2
 
-    ax3 = fig.add_subplot(122)
+    ax3 = fig.add_subplot(1, 2, 2)
     assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one

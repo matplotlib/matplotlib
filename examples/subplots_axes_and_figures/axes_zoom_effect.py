@@ -112,14 +112,14 @@ def zoom_effect02(ax1, ax2, **kwargs):
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(5, 5))
-ax1 = plt.subplot(221)
-ax2 = plt.subplot(212)
+ax1 = plt.subplot(2, 2, 1)
+ax2 = plt.subplot(2, 1, 2)
 ax2.set_xlim(0, 1)
 ax2.set_xlim(0, 5)
 zoom_effect01(ax1, ax2, 0.2, 0.8)
 
 
-ax1 = plt.subplot(222)
+ax1 = plt.subplot(2, 2, 2)
 ax1.set_xlim(2, 3)
 ax2.set_xlim(0, 5)
 zoom_effect02(ax1, ax2)

@@ -86,7 +86,7 @@ def test_bbox_inches_tight_clipping():
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot([1.0, 2.0], rasterized=True)
 
 

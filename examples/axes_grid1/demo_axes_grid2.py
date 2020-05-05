@@ -44,7 +44,7 @@ ZS = [Z[i::3, :] for i in range(3)]
 extent = extent[0], extent[1]/3., extent[2], extent[3]
 
 # *** Demo 1: colorbar at each axes ***
-grid = ImageGrid(fig, 211,  # similar to subplot(211)
+grid = ImageGrid(fig, 211,  # similar to subplot(2, 1, 1)
                  nrows_ncols=(1, 3),
                  axes_pad=0.05,
                  label_mode="1",

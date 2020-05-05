@@ -92,7 +92,7 @@ Axes creation
     use::
 
       f = Figure(figsize=(5,4), dpi=100)
-      a = f.add_subplot(111)
+      a = f.add_subplot(1, 1, 1)
 
     That is, add_axis no longer exists and is replaced by::
 

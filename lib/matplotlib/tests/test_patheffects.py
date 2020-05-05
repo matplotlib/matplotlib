@@ -7,7 +7,7 @@ import matplotlib.patheffects as path_effects
 
 @image_comparison(['patheffect1'], remove_text=True)
 def test_patheffect1():
-    ax1 = plt.subplot(111)
+    ax1 = plt.subplot(1, 1, 1)
     ax1.imshow([[1, 2], [2, 3]])
     txt = ax1.annotate("test", (1., 1.), (0., 0),
                        arrowprops=dict(arrowstyle="->",
@@ -26,7 +26,7 @@ def test_patheffect1():
 @image_comparison(['patheffect2'], remove_text=True, style='mpl20')
 def test_patheffect2():
 
-    ax2 = plt.subplot(111)
+    ax2 = plt.subplot(1, 1, 1)
     arr = np.arange(25).reshape((5, 5))
     ax2.imshow(arr, interpolation='nearest')
     cntr = ax2.contour(arr, colors="k")

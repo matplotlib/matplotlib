@@ -544,9 +544,9 @@ def test_usetex_is_copied():
     # properties) copies usetex state.
     fig = plt.figure()
     plt.rcParams["text.usetex"] = False
-    ax1 = fig.add_subplot(121)
+    ax1 = fig.add_subplot(1, 2, 1)
     plt.rcParams["text.usetex"] = True
-    ax2 = fig.add_subplot(122)
+    ax2 = fig.add_subplot(1, 2, 2)
     fig.canvas.draw()
     for ax, usetex in [(ax1, False), (ax2, True)]:
         for t in ax.xaxis.majorTicks:

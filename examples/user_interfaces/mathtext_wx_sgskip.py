@@ -43,7 +43,7 @@ class CanvasFrame(wx.Frame):
         wx.Frame.__init__(self, parent, -1, title, size=(550, 350))
 
         self.figure = Figure()
-        self.axes = self.figure.add_subplot(111)
+        self.axes = self.figure.add_subplot(1, 1, 1)
 
         self.canvas = FigureCanvas(self, -1, self.figure)
 

@@ -92,18 +92,18 @@ class MemleakTest:
             y2 = np.random.rand(len(t1))
             X = np.random.rand(50, 50)
 
-            ax = fig.add_subplot(221)
+            ax = fig.add_subplot(2, 2, 1)
             ax.plot(t1, y1, '-')
             ax.plot(t1, y2, 's')
 
-            ax = fig.add_subplot(222)
+            ax = fig.add_subplot(2, 2, 2)
             ax.imshow(X)
 
-            ax = fig.add_subplot(223)
+            ax = fig.add_subplot(2, 2, 3)
             ax.scatter(np.random.rand(50), np.random.rand(50),
                        s=100 * np.random.rand(50), c=np.random.rand(50))
 
-            ax = fig.add_subplot(224)
+            ax = fig.add_subplot(2, 2, 4)
             ax.pcolor(10 * np.random.rand(50, 50))
 
         fig.savefig(BytesIO(), dpi=75)

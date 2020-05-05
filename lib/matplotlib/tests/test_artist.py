@@ -105,7 +105,7 @@ def test_clipping():
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
 
-    ax1 = plt.subplot(121)
+    ax1 = plt.subplot(1, 2, 1)
     col = mcollections.PathCollection([star], lw=5, edgecolor='blue',
                                       facecolor='red', alpha=0.7, hatch='*')
     col.set_clip_path(clip_path, ax1.transData)

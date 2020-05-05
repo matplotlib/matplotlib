@@ -26,9 +26,9 @@ cnse = np.convolve(nse, r) * dt
 cnse = cnse[:len(t)]
 s = 0.1 * np.sin(2 * np.pi * t) + cnse
 
-plt.subplot(211)
+plt.subplot(2, 1, 1)
 plt.plot(t, s)
-plt.subplot(212)
+plt.subplot(2, 1, 2)
 plt.psd(s, 512, 1 / dt)
 
 plt.show()
@@ -44,9 +44,9 @@ plt.show()
 #     cnse = cnse(1:length(t));
 #     s = 0.1*sin(2*pi*t) + cnse;
 #
-#     subplot(211)
+#     subplot(2, 1, 1)
 #     plot(t, s)
-#     subplot(212)
+#     subplot(2, 1, 2)
 #     psd(s, 512, 1/dt)
 #
 # Below we'll show a slightly more complex example that demonstrates

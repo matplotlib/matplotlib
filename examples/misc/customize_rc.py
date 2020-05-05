@@ -21,7 +21,7 @@ functions in a custom module that set the defaults, e.g.,::
 Then as you are working interactively, you just need to do::
 
     >>> set_pub()
-    >>> subplot(111)
+    >>> subplot(1, 1, 1)
     >>> plot([1, 2, 3])
     >>> savefig('myfig')
     >>> rcdefaults()  # restore the defaults
@@ -29,7 +29,7 @@ Then as you are working interactively, you just need to do::
 
 import matplotlib.pyplot as plt
 
-plt.subplot(311)
+plt.subplot(3, 1, 1)
 plt.plot([1, 2, 3])
 
 # the axes attributes need to be set before the call to subplot
@@ -40,13 +40,13 @@ plt.rc('xtick', labelsize=15)
 # using aliases for color, linestyle and linewidth; gray, solid, thick
 plt.rc('grid', c='0.5', ls='-', lw=5)
 plt.rc('lines', lw=2, color='g')
-plt.subplot(312)
+plt.subplot(3, 1, 2)
 
 plt.plot([1, 2, 3])
 plt.grid(True)
 
 plt.rcdefaults()
-plt.subplot(313)
+plt.subplot(3, 1, 3)
 plt.plot([1, 2, 3])
 plt.grid(True)
 plt.show()

@@ -7,7 +7,7 @@ Simple Legend01
 import matplotlib.pyplot as plt
 
 
-plt.subplot(211)
+plt.subplot(2, 1, 1)
 plt.plot([1, 2, 3], label="test1")
 plt.plot([3, 2, 1], label="test2")
 # Place a legend above this subplot, expanding itself to
@@ -15,7 +15,7 @@ plt.plot([3, 2, 1], label="test2")
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
            ncol=2, mode="expand", borderaxespad=0.)
 
-plt.subplot(223)
+plt.subplot(2, 2, 3)
 plt.plot([1, 2, 3], label="test1")
 plt.plot([3, 2, 1], label="test2")
 # Place a legend to the right of this smaller subplot.

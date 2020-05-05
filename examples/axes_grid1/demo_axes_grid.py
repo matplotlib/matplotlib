@@ -27,7 +27,7 @@ def demo_simple_grid(fig):
     A grid of 2x2 images with 0.05 inch pad between images and only
     the lower-left axes is labeled.
     """
-    grid = ImageGrid(fig, 141,  # similar to subplot(141)
+    grid = ImageGrid(fig, 141,  # similar to subplot(1, 4, 1)
                      nrows_ncols=(2, 2),
                      axes_pad=0.05,
                      label_mode="1",
@@ -44,7 +44,7 @@ def demo_grid_with_single_cbar(fig):
     """
     A grid of 2x2 images with a single colorbar
     """
-    grid = ImageGrid(fig, 142,  # similar to subplot(142)
+    grid = ImageGrid(fig, 142,  # similar to subplot(1, 4, 2)
                      nrows_ncols=(2, 2),
                      axes_pad=0.0,
                      share_all=True,
@@ -70,7 +70,7 @@ def demo_grid_with_each_cbar(fig):
     """
     A grid of 2x2 images. Each image has its own colorbar.
     """
-    grid = ImageGrid(fig, 143,  # similar to subplot(143)
+    grid = ImageGrid(fig, 143,  # similar to subplot(1, 4, 3)
                      nrows_ncols=(2, 2),
                      axes_pad=0.1,
                      label_mode="1",
@@ -95,7 +95,7 @@ def demo_grid_with_each_cbar_labelled(fig):
     """
     A grid of 2x2 images. Each image has its own colorbar.
     """
-    grid = ImageGrid(fig, 144,  # similar to subplot(144)
+    grid = ImageGrid(fig, 144,  # similar to subplot(1, 4, 4)
                      nrows_ncols=(2, 2),
                      axes_pad=(0.45, 0.15),
                      label_mode="1",

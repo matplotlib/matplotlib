@@ -152,7 +152,7 @@ def test_gid():
 
     fig = plt.figure()
 
-    ax1 = fig.add_subplot(131)
+    ax1 = fig.add_subplot(1, 3, 1)
     ax1.imshow([[1., 2.], [2., 3.]], aspect="auto")
     ax1.scatter([1, 2, 3], [1, 2, 3], label="myscatter")
     ax1.plot([2, 3, 1], label="myplot")

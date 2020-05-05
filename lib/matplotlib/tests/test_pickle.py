@@ -17,7 +17,7 @@ def test_simple():
     fig = plt.figure()
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
-    ax = plt.subplot(121)
+    ax = plt.subplot(1, 2, 1)
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.axes(projection='polar')

@@ -19,7 +19,7 @@ x = np.random.randn(50)
 
 # old style
 fig = plt.figure()
-ax1 = fig.add_subplot(221)
+ax1 = fig.add_subplot(2, 2, 1)
 ax2 = fig.add_subplot(222, sharex=ax1, sharey=ax1)
 ax3 = fig.add_subplot(223, sharex=ax1, sharey=ax1)
 ax3 = fig.add_subplot(224, sharex=ax1, sharey=ax1)

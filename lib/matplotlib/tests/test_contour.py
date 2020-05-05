@@ -172,15 +172,15 @@ def test_contour_datetime_axis():
     y = np.arange(20)
     z1, z2 = np.meshgrid(np.arange(20), np.arange(20))
     z = z1 * z2
-    plt.subplot(221)
+    plt.subplot(2, 2, 1)
     plt.contour(x, y, z)
-    plt.subplot(222)
+    plt.subplot(2, 2, 2)
     plt.contourf(x, y, z)
     x = np.repeat(x[np.newaxis], 20, axis=0)
     y = np.repeat(y[:, np.newaxis], 20, axis=1)
-    plt.subplot(223)
+    plt.subplot(2, 2, 3)
     plt.contour(x, y, z)
-    plt.subplot(224)
+    plt.subplot(2, 2, 4)
     plt.contourf(x, y, z)
     for ax in fig.get_axes():
         for label in ax.get_xticklabels():
@@ -317,9 +317,9 @@ def test_contourf_log_extension():
     # Test that contourf with lognorm is extended correctly
     fig = plt.figure(figsize=(10, 5))
     fig.subplots_adjust(left=0.05, right=0.95)
-    ax1 = fig.add_subplot(131)
-    ax2 = fig.add_subplot(132)
-    ax3 = fig.add_subplot(133)
+    ax1 = fig.add_subplot(1, 3, 1)
+    ax2 = fig.add_subplot(1, 3, 2)
+    ax3 = fig.add_subplot(1, 3, 3)
 
     # make data set with large range e.g. between 1e-8 and 1e10
     data_exp = np.linspace(-7.5, 9.5, 1200)

@@ -125,7 +125,7 @@ import matplotlib.pyplot as plt
 
 fig = plt.figure()
 fig.subplots_adjust(top=0.8)
-ax1 = fig.add_subplot(211)
+ax1 = fig.add_subplot(2, 1, 1)
 ax1.set_ylabel('volts')
 ax1.set_title('a sine wave')
 
@@ -279,7 +279,7 @@ plt.show()
 #
 #     In [156]: fig = plt.figure()
 #
-#     In [157]: ax1 = fig.add_subplot(211)
+#     In [157]: ax1 = fig.add_subplot(2, 1, 1)
 #
 #     In [158]: ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.3])
 #
@@ -366,7 +366,7 @@ plt.show()
 # :class:`~matplotlib.patches.Circle` for polar coordinates; this patch
 # determines the shape, background and border of the plotting region::
 #
-#     ax = fig.add_subplot(111)
+#     ax = fig.add_subplot(1, 1, 1)
 #     rect = ax.patch  # a Rectangle instance
 #     rect.set_facecolor('green')
 #

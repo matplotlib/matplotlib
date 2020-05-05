@@ -87,7 +87,7 @@ def test_negative_rect():
 def test_clip_to_bbox():
     fig = plt.figure()
 
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.set_xlim([-18, 20])
     ax.set_ylim([-150, 100])
 

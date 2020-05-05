@@ -37,7 +37,7 @@ def test_legend_ordereddict():
 def test_legend_auto1():
     """Test automatic legend placement"""
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     x = np.arange(100)
     ax.plot(x, 50 - x, 'o', label='y=1')
     ax.plot(x, x - 50, 'o', label='y=-1')
@@ -48,7 +48,7 @@ def test_legend_auto1():
 def test_legend_auto2():
     """Test automatic legend placement"""
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     x = np.arange(100)
     b1 = ax.bar(x, x, align='edge', color='m')
     b2 = ax.bar(x, x[::-1], align='edge', color='g')
@@ -59,7 +59,7 @@ def test_legend_auto2():
 def test_legend_auto3():
     """Test automatic legend placement"""
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
     y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
     ax.plot(x, y, 'o-', label='line')
@@ -72,7 +72,7 @@ def test_legend_auto3():
 def test_various_labels():
     # tests all sorts of label types
     fig = plt.figure()
-    ax = fig.add_subplot(121)
+    ax = fig.add_subplot(1, 2, 1)
     ax.plot(np.arange(4), 'o', label=1)
     ax.plot(np.linspace(4, 4.1), 'o', label='Développés')
     ax.plot(np.arange(4, 1, -1), 'o', label='__nolegend__')
@@ -83,7 +83,7 @@ def test_various_labels():
 def test_labels_first():
     # test labels to left of markers
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(np.arange(10), '-o', label=1)
     ax.plot(np.ones(10)*5, ':x', label="x")
     ax.plot(np.arange(20, 10, -1), 'd', label="diamond")
@@ -94,7 +94,7 @@ def test_labels_first():
 def test_multiple_keys():
     # test legend entries with multiple keys
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     p1, = ax.plot([1, 2, 3], '-o')
     p2, = ax.plot([2, 3, 4], '-x')
     p3, = ax.plot([3, 4, 5], '-d')
@@ -130,7 +130,7 @@ def test_alpha_rcparam():
 @image_comparison(['fancy'], remove_text=True)
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
-    plt.subplot(121)
+    plt.subplot(1, 2, 1)
     plt.scatter(np.arange(10), np.arange(10, 0, -1), label='XX\nXX')
     plt.plot([5] * 10, 'o--', label='XX')
     plt.errorbar(np.arange(10), np.arange(10), xerr=0.5,
@@ -152,14 +152,14 @@ def test_framealpha():
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.figure()
-    ax = plt.subplot(121)
+    ax = plt.subplot(1, 2, 1)
     ax.scatter(np.arange(10), np.arange(10, 0, -1), label='three')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
 
     mpl.rcParams['legend.scatterpoints'] = 1
     plt.figure()
-    ax = plt.subplot(121)
+    ax = plt.subplot(1, 2, 1)
     ax.scatter(np.arange(10), np.arange(10, 0, -1), label='one')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
@@ -291,7 +291,7 @@ class TestLegendFunction:
     def test_parasite(self):
         from mpl_toolkits.axes_grid1 import host_subplot
 
-        host = host_subplot(111)
+        host = host_subplot(1, 1, 1)
         par = host.twinx()
 
         p1, = host.plot([0, 1, 2], [0, 1, 2], label="Density")
@@ -366,7 +366,7 @@ def test_legend_stackplot():
     """Test legend for PolyCollection using stackplot."""
     # related to #1341, #1943, and PR #3303
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     x = np.linspace(0, 10, 10)
     y1 = 1.0 * x
     y2 = 2.0 * x + 1

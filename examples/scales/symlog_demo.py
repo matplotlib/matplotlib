@@ -12,19 +12,19 @@ dt = 0.01
 x = np.arange(-50.0, 50.0, dt)
 y = np.arange(0, 100.0, dt)
 
-plt.subplot(311)
+plt.subplot(3, 1, 1)
 plt.plot(x, y)
 plt.xscale('symlog')
 plt.ylabel('symlogx')
 plt.grid(True)
 plt.gca().xaxis.grid(True, which='minor')  # minor grid on too
 
-plt.subplot(312)
+plt.subplot(3, 1, 2)
 plt.plot(y, x)
 plt.yscale('symlog')
 plt.ylabel('symlogy')
 
-plt.subplot(313)
+plt.subplot(3, 1, 3)
 plt.plot(x, np.sin(x / 3.0))
 plt.xscale('symlog')
 plt.yscale('symlog', linthresh=0.015)

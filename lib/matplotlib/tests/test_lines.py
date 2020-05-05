@@ -39,7 +39,7 @@ def test_invisible_Line_rendering():
 
     # Create a plot figure:
     fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.subplot(1, 1, 1)
 
     # Create a "big" Line instance:
     l = mlines.Line2D(x, y)

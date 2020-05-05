@@ -320,7 +320,7 @@ def test_inverted_cla():
     # 5. two shared axes. Inverting the master axis should invert the shared
     # axes; clearing the master axis should bring axes in shared
     # axes back to normal.
-    ax0 = plt.subplot(211)
+    ax0 = plt.subplot(2, 1, 1)
     ax1 = plt.subplot(212, sharey=ax0)
     ax0.yaxis.set_inverted(True)
     assert ax1.yaxis_inverted()
@@ -411,11 +411,11 @@ def test_sticky_shared_axes(fig_test, fig_ref):
     # "master" in a share, or an axes that is a "follower".
     Z = np.arange(15).reshape(3, 5)
 
-    ax0 = fig_test.add_subplot(211)
+    ax0 = fig_test.add_subplot(2, 1, 1)
     ax1 = fig_test.add_subplot(212, sharex=ax0)
     ax1.pcolormesh(Z)
 
-    ax0 = fig_ref.add_subplot(212)
+    ax0 = fig_ref.add_subplot(2, 1, 2)
     ax1 = fig_ref.add_subplot(211, sharex=ax0)
     ax0.pcolormesh(Z)
 
@@ -508,23 +508,23 @@ def test_fill_units():
     fig = plt.figure()
 
     # Top-Left
-    ax1 = fig.add_subplot(221)
+    ax1 = fig.add_subplot(2, 2, 1)
     ax1.plot([t], [value], yunits='deg', color='red')
     ind = [0, 0, 1, 1]
     ax1.fill(dtn[ind], [0.0, 0.0, 90.0, 0.0], 'b')
     # Top-Right
-    ax2 = fig.add_subplot(222)
+    ax2 = fig.add_subplot(2, 2, 2)
     ax2.plot([t], [value], yunits='deg', color='red')
     ax2.fill([t, t, t + day, t + day],
              [0.0, 0.0, 90.0, 0.0], 'b')
     # Bottom-Left
-    ax3 = fig.add_subplot(223)
+    ax3 = fig.add_subplot(2, 2, 3)
     ax3.plot([t], [value], yunits='deg', color='red')
     ax3.fill(dtn[ind],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
              'b')
     # Bottom-Right
-    ax4 = fig.add_subplot(224)
+    ax4 = fig.add_subplot(2, 2, 4)
     ax4.plot([t], [value], yunits='deg', color='red')
     ax4.fill([t, t, t + day, t + day],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
@@ -539,20 +539,20 @@ def test_single_point():
     matplotlib.rcParams['axes.grid'] = True
 
     plt.figure()
-    plt.subplot(211)
+    plt.subplot(2, 1, 1)
     plt.plot([0], [0], 'o')
 
-    plt.subplot(212)
+    plt.subplot(2, 1, 2)
     plt.plot([1], [1], 'o')
 
     # Reuse testcase from above for a labeled data test
     data = {'a': [0], 'b': [1]}
 
     plt.figure()
-    plt.subplot(211)
+    plt.subplot(2, 1, 1)
     plt.plot('a', 'a', 'o', data=data)
 
-    plt.subplot(212)
+    plt.subplot(2, 1, 2)
     plt.plot('b', 'b', 'o', data=data)
 
 
@@ -745,7 +745,7 @@ def test_imshow():
     # Reuse testcase from above for a labeled data test
     data = {"r": r}
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.imshow("r", data=data)
 
 
@@ -984,15 +984,15 @@ def test_pcolormesh_datetime_axis():
     y = np.arange(21)
     z1, z2 = np.meshgrid(np.arange(20), np.arange(20))
     z = z1 * z2
-    plt.subplot(221)
+    plt.subplot(2, 2, 1)
     plt.pcolormesh(x[:-1], y[:-1], z[:-1, :-1])
-    plt.subplot(222)
+    plt.subplot(2, 2, 2)
     plt.pcolormesh(x, y, z)
     x = np.repeat(x[np.newaxis], 21, axis=0)
     y = np.repeat(y[:, np.newaxis], 21, axis=1)
-    plt.subplot(223)
+    plt.subplot(2, 2, 3)
     plt.pcolormesh(x[:-1, :-1], y[:-1, :-1], z[:-1, :-1])
-    plt.subplot(224)
+    plt.subplot(2, 2, 4)
     plt.pcolormesh(x, y, z)
     for ax in fig.get_axes():
         for label in ax.get_xticklabels():
@@ -1010,15 +1010,15 @@ def test_pcolor_datetime_axis():
     y = np.arange(21)
     z1, z2 = np.meshgrid(np.arange(20), np.arange(20))
     z = z1 * z2
-    plt.subplot(221)
+    plt.subplot(2, 2, 1)
     plt.pcolor(x[:-1], y[:-1], z[:-1, :-1])
-    plt.subplot(222)
+    plt.subplot(2, 2, 2)
     plt.pcolor(x, y, z)
     x = np.repeat(x[np.newaxis], 21, axis=0)
     y = np.repeat(y[:, np.newaxis], 21, axis=1)
-    plt.subplot(223)
+    plt.subplot(2, 2, 3)
     plt.pcolor(x[:-1, :-1], y[:-1, :-1], z[:-1, :-1])
-    plt.subplot(224)
+    plt.subplot(2, 2, 4)
     plt.pcolor(x, y, z)
     for ax in fig.get_axes():
         for label in ax.get_xticklabels():
@@ -1185,7 +1185,7 @@ def test_markevery():
 
     # check marker only plot
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(x, y, 'o', label='default')
     ax.plot(x, y, 'd', markevery=None, label='mark all')
     ax.plot(x, y, 's', markevery=10, label='mark every 10')
@@ -1200,7 +1200,7 @@ def test_markevery_line():
 
     # check line/marker combos
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(x, y, '-o', label='default')
     ax.plot(x, y, '-d', markevery=None, label='mark all')
     ax.plot(x, y, '-s', markevery=10, label='mark every 10')
@@ -1315,7 +1315,7 @@ def test_markevery_polar():
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
     ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
     ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
@@ -1330,7 +1330,7 @@ def test_bar_tick_label_single():
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax = plt.gca()
     ax.bar("a", "b", align='edge', tick_label='0', data=data)
 
@@ -1513,7 +1513,7 @@ def test_hist_log():
     data0 = np.linspace(0, 1, 200)**3
     data = np.concatenate([1 - data0, 1 + data0])
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist(data, fill=False, log=True)
 
 
@@ -1653,7 +1653,7 @@ def contour_dat():
 def test_contour_hatching():
     x, y, z = contour_dat()
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
                 cmap=plt.get_cmap('gray'),
                 extend='both', alpha=0.5)
@@ -1664,7 +1664,7 @@ def test_contour_colorbar():
     x, y, z = contour_dat()
 
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     cs = ax.contourf(x, y, z, levels=np.arange(-1.8, 1.801, 0.2),
                      cmap=plt.get_cmap('RdBu'),
                      vmin=-0.6,
@@ -1689,13 +1689,13 @@ def test_hist2d():
     x = np.random.randn(100)*2+5
     y = np.random.randn(100)-2
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist2d(x, y, bins=10, rasterized=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": x, "y": y}
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist2d("x", "y", bins=10, data=data, rasterized=True)
 
 
@@ -1707,7 +1707,7 @@ def test_hist2d_transpose():
     x = np.array([5]*100)
     y = np.random.randn(100)-2
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist2d(x, y, bins=10, rasterized=True)
 
 
@@ -2507,7 +2507,7 @@ def test_boxplot_with_CIarray():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     CIs = np.array([[-1.5, 3.], [-1., 3.5]])
 
     # show a boxplot with Matplotlib medians and confidence intervals, and
@@ -3045,13 +3045,13 @@ def test_hist_stacked_stepfilled():
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist((d1, d2), histtype="stepfilled", stacked=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": (d1, d2)}
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist("x", histtype="stepfilled", stacked=True, data=data)
 
 
@@ -3061,7 +3061,7 @@ def test_hist_offset():
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist(d1, bottom=5)
     ax.hist(d2, bottom=15)
 
@@ -3071,7 +3071,7 @@ def test_hist_step():
     # make some data
     d1 = np.linspace(1, 3, 20)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist(d1, histtype="step")
     ax.set_ylim(0, 10)
     ax.set_xlim(-1, 5)
@@ -3083,7 +3083,7 @@ def test_hist_step_horiz():
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist((d1, d2), histtype="step", orientation="horizontal")
 
 
@@ -3095,7 +3095,7 @@ def test_hist_stacked_weighted():
     w1 = np.linspace(0.01, 3.5, 50)
     w2 = np.linspace(0.05, 2., 20)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist((d1, d2), weights=(w1, w2), histtype="stepfilled", stacked=True)
 
 
@@ -3149,7 +3149,7 @@ def test_hist_stacked_stepfilled_alpha():
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist((d1, d2), histtype="stepfilled", stacked=True, alpha=0.5)
 
 
@@ -3159,7 +3159,7 @@ def test_hist_stacked_step():
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist((d1, d2), histtype="step", stacked=True)
 
 
@@ -3177,7 +3177,7 @@ def test_hist_step_bottom():
     # make some data
     d1 = np.linspace(1, 3, 20)
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist(d1, bottom=np.arange(10), histtype="stepfilled")
 
 
@@ -3324,7 +3324,7 @@ def test_hist_stacked_bar():
               (0.28302699607823545, 0.0, 1.0), (0.6849123462299822, 0.0, 1.0)]
     labels = ['green', 'orange', ' yellow', 'magenta', 'black']
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors,
             label=labels)
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1)
@@ -3332,7 +3332,7 @@ def test_hist_stacked_bar():
 
 def test_hist_emptydata():
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.hist([[], range(10), range(10)], histtype="step")
 
 
@@ -3357,7 +3357,7 @@ def test_transparent_markers():
     data = np.random.random(50)
 
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
 
@@ -3436,7 +3436,7 @@ def test_alpha():
     data = np.random.random(50)
 
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
 
     # alpha=.5 markers, solid line
     ax.plot(data, '-D', color=[1, 0, 0], mfc=[1, 0, 0, .5],
@@ -3488,7 +3488,7 @@ def test_eventplot():
     linelengths = linelengths1 + linelengths2
 
     fig = plt.figure()
-    axobj = fig.add_subplot(111)
+    axobj = fig.add_subplot(1, 1, 1)
     colls = axobj.eventplot(data, colors=colors, lineoffsets=lineoffsets,
                             linelengths=linelengths)
 
@@ -3498,7 +3498,7 @@ def test_eventplot():
     # Reuse testcase from above for a labeled data test
     data = {"pos": data, "c": colors, "lo": lineoffsets, "ll": linelengths}
     fig = plt.figure()
-    axobj = fig.add_subplot(111)
+    axobj = fig.add_subplot(1, 1, 1)
     colls = axobj.eventplot("pos", colors="c", lineoffsets="lo",
                             linelengths="ll", data=data)
     num_collections = len(colls)
@@ -3518,7 +3518,7 @@ def test_eventplot_defaults():
     data = data1 + data2
 
     fig = plt.figure()
-    axobj = fig.add_subplot(111)
+    axobj = fig.add_subplot(1, 1, 1)
     axobj.eventplot(data)
 
 
@@ -3562,7 +3562,7 @@ def test_eventplot_problem_kwargs(recwarn):
     data = [data1, data2]
 
     fig = plt.figure()
-    axobj = fig.add_subplot(111)
+    axobj = fig.add_subplot(1, 1, 1)
 
     axobj.eventplot(data,
                     colors=['r', 'b'],
@@ -3600,7 +3600,7 @@ def test_eventplot_orientation(data, orientation):
 @image_comparison(['marker_styles.png'], remove_text=True)
 def test_marker_styles():
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     for y, marker in enumerate(sorted(matplotlib.markers.MarkerStyle.markers,
                                       key=lambda x: str(type(x))+str(x))):
         ax.plot((y % 2)*5 + np.arange(10)*10, np.ones(10)*10*y, linestyle='',
@@ -3623,7 +3623,7 @@ def test_vertex_markers():
     marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
     marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(data, linestyle='', marker=marker_as_tuple, mfc='k')
     ax.plot(data[::-1], linestyle='', marker=marker_as_list, mfc='b')
     ax.set_xlim([-1, 10])
@@ -4066,7 +4066,7 @@ def test_twin_spines():
     fig = plt.figure(figsize=(4, 3))
     fig.subplots_adjust(right=0.75)
 
-    host = fig.add_subplot(111)
+    host = fig.add_subplot(1, 1, 1)
     par1 = host.twinx()
     par2 = host.twinx()
 
@@ -4236,7 +4236,7 @@ def test_relim_visible_only():
     y2 = (-10., 30.)
 
     fig = matplotlib.figure.Figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(x1, y1)
     assert ax.get_xlim() == x1
     assert ax.get_ylim() == y1
@@ -4960,7 +4960,7 @@ def test_shared_axes_autoscale():
     l = np.arange(-80, 90, 40)
     t = np.random.random_sample((l.size, l.size))
 
-    ax1 = plt.subplot(211)
+    ax1 = plt.subplot(2, 1, 1)
     ax1.set_xlim(-1000, 1000)
     ax1.set_ylim(-1000, 1000)
     ax1.contour(l, l, t)
@@ -5423,7 +5423,7 @@ def test_invalid_axis_limits():
 @pytest.mark.parametrize('xscale', ['symlog', 'log'])
 @pytest.mark.parametrize('yscale', ['symlog', 'log'])
 def test_minorticks_on(xscale, yscale):
-    ax = plt.subplot(111)
+    ax = plt.subplot(1, 1, 1)
     ax.plot([1, 2, 3, 4])
     ax.set_xscale(xscale)
     ax.set_yscale(yscale)
@@ -5933,13 +5933,13 @@ def test_minor_accountedfor():
 @check_figures_equal(extensions=["png"])
 def test_axis_bool_arguments(fig_test, fig_ref):
     # Test if False and "off" give the same
-    fig_test.add_subplot(211).axis(False)
-    fig_ref.add_subplot(211).axis("off")
+    fig_test.add_subplot(2, 1, 1).axis(False)
+    fig_ref.add_subplot(2, 1, 1).axis("off")
     # Test if True after False gives the same as "on"
-    ax = fig_test.add_subplot(212)
+    ax = fig_test.add_subplot(2, 1, 2)
     ax.axis(False)
     ax.axis(True)
-    fig_ref.add_subplot(212).axis("on")
+    fig_ref.add_subplot(2, 1, 2).axis("on")
 
 
 def test_axis_extent_arg():

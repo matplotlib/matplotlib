@@ -7,7 +7,7 @@ Parasite Simple
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
 
-host = host_subplot(111)
+host = host_subplot(1, 1, 1)
 
 par = host.twinx()
 

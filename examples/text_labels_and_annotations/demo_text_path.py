@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     # EXAMPLE 1
 
-    ax = plt.subplot(211)
+    ax = plt.subplot(2, 1, 1)
 
     arr = plt.imread(get_sample_data("grace_hopper.png"))
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     # EXAMPLE 2
 
-    ax = plt.subplot(212)
+    ax = plt.subplot(2, 1, 2)
 
     arr = np.arange(256).reshape(1, 256) / 256
 

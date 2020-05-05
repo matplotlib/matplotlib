@@ -41,9 +41,9 @@ def test_tight_layout2():
 @image_comparison(['tight_layout3'])
 def test_tight_layout3():
     """Test tight_layout for multiple subplots."""
-    ax1 = plt.subplot(221)
-    ax2 = plt.subplot(223)
-    ax3 = plt.subplot(122)
+    ax1 = plt.subplot(2, 2, 1)
+    ax2 = plt.subplot(2, 2, 3)
+    ax3 = plt.subplot(1, 2, 2)
     example_plot(ax1)
     example_plot(ax2)
     example_plot(ax3)
@@ -67,7 +67,7 @@ def test_tight_layout4():
 @image_comparison(['tight_layout5'])
 def test_tight_layout5():
     """Test tight_layout for image."""
-    ax = plt.subplot(111)
+    ax = plt.subplot(1, 1, 1)
     arr = np.arange(100).reshape((10, 10))
     ax.imshow(arr, interpolation="none")
     plt.tight_layout()
@@ -134,7 +134,7 @@ def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
     fig.set_tight_layout({'pad': .1})
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
     example_plot(ax, fontsize=24)
 
 
@@ -150,7 +150,7 @@ def test_tight_layout9():
 def test_outward_ticks():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
-    ax = fig.add_subplot(221)
+    ax = fig.add_subplot(2, 2, 1)
     ax.xaxis.set_tick_params(tickdir='out', length=16, width=3)
     ax.yaxis.set_tick_params(tickdir='out', length=16, width=3)
     ax.xaxis.set_tick_params(
@@ -159,13 +159,13 @@ def test_outward_ticks():
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
     ax.xaxis.set_ticks([0], minor=True)
     ax.yaxis.set_ticks([0], minor=True)
-    ax = fig.add_subplot(222)
+    ax = fig.add_subplot(2, 2, 2)
     ax.xaxis.set_tick_params(tickdir='in', length=32, width=3)
     ax.yaxis.set_tick_params(tickdir='in', length=32, width=3)
-    ax = fig.add_subplot(223)
+    ax = fig.add_subplot(2, 2, 3)
     ax.xaxis.set_tick_params(tickdir='inout', length=32, width=3)
     ax.yaxis.set_tick_params(tickdir='inout', length=32, width=3)
-    ax = fig.add_subplot(224)
+    ax = fig.add_subplot(2, 2, 4)
     ax.xaxis.set_tick_params(tickdir='out', length=32, width=3)
     ax.yaxis.set_tick_params(tickdir='out', length=32, width=3)
     plt.tight_layout()

@@ -21,7 +21,7 @@ because you may want to make the tick labels smaller on the upper
 axes, e.g., in the example below.
 
 If you want to turn off the ticklabels for a given axes (e.g., on
-subplot(211) or subplot(212), you cannot do the standard trick::
+subplot(2, 1, 1) or subplot(2, 1, 2), you cannot do the standard trick::
 
    setp(ax2, xticklabels=[])
 
@@ -40,7 +40,7 @@ s1 = np.sin(2 * np.pi * t)
 s2 = np.exp(-t)
 s3 = np.sin(4 * np.pi * t)
 
-ax1 = plt.subplot(311)
+ax1 = plt.subplot(3, 1, 1)
 plt.plot(t, s1)
 plt.setp(ax1.get_xticklabels(), fontsize=6)
 

@@ -436,7 +436,7 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     if "gca" in rectangles_on_axes:
         axes["gca"] = plt.gca()
     if "host" in rectangles_on_axes or "parasite" in rectangles_on_axes:
-        axes["host"] = host_subplot(111)
+        axes["host"] = host_subplot(1, 1, 1)
         axes["parasite"] = axes["host"].twin()
     # Add rectangles to axes
     axes[big_on_axes].add_patch(big)

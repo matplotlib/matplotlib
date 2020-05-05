@@ -290,7 +290,7 @@ the `API changes <../../api/api_changes.html>`_.
            Uses a default range(n) when the first arg not provided.
            Damon McDougall
 
-2012-11-09 Make plt.subplot() without arguments act as subplot(111) - PI
+2012-11-09 Make plt.subplot() without arguments act as subplot(1, 1, 1) - PI
 
 2012-11-08 Replaced plt.figure and plt.subplot calls by the newer, more
            convenient single call to plt.subplots() in the documentation
@@ -2289,7 +2289,7 @@ the `API changes <../../api/api_changes.html>`_.
                   fig1 = figure()
                   fig2 = figure()
 
-                   ax1 = fig1.add_subplot(111)
+                   ax1 = fig1.add_subplot(1, 1, 1)
                    ax2 = fig2.add_subplot(111, sharex=ax1, sharey=ax1)
 
            - linestyles now include steps-pre, steps-post and

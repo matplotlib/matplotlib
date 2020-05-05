@@ -202,9 +202,9 @@ def test_bbox_inches():
 
     Y, X = np.ogrid[-1:1:40j, -1:1:40j]
     fig = plt.figure()
-    ax1 = fig.add_subplot(121)
+    ax1 = fig.add_subplot(1, 2, 1)
     ax1.plot(range(5))
-    ax2 = fig.add_subplot(122)
+    ax2 = fig.add_subplot(1, 2, 2)
     ax2.plot(range(5))
     plt.tight_layout()
 

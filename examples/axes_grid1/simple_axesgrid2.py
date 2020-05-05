@@ -20,7 +20,7 @@ def get_demo_image():
 
 
 fig = plt.figure(figsize=(5.5, 3.5))
-grid = ImageGrid(fig, 111,  # similar to subplot(111)
+grid = ImageGrid(fig, 111,  # similar to subplot(1, 1, 1)
                  nrows_ncols=(1, 3),
                  axes_pad=0.1,
                  label_mode="L",

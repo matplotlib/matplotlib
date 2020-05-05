@@ -499,9 +499,9 @@ ax2 = fig.add_axes(bb_ax2)
 
 fig = plt.figure()
 
-ax1 = plt.subplot(221)
-ax2 = plt.subplot(223)
-ax3 = plt.subplot(122)
+ax1 = plt.subplot(2, 2, 1)
+ax2 = plt.subplot(2, 2, 3)
+ax3 = plt.subplot(1, 2, 2)
 
 example_plot(ax1)
 example_plot(ax2)

@@ -1273,7 +1273,7 @@ default: 'top'
               and increases to the right.
             - A 3-digit integer. The digits are interpreted as if given
               separately as three single-digit integers, i.e.
-              ``fig.add_subplot(235)`` is the same as
+              ``fig.add_subplot($1, $2, $3)`` is the same as
               ``fig.add_subplot(2, 3, 5)``. Note that this can only be used
               if there are no more than 9 subplots.
             - A `.SubplotSpec`.
@@ -1345,7 +1345,7 @@ default: 'top'
 
             fig = plt.figure()
 
-            fig.add_subplot(231)
+            fig.add_subplot($1, $2, $3)
             ax1 = fig.add_subplot(2, 3, 1)  # equivalent but more general
 
             fig.add_subplot(232, frameon=False)  # subplot with no frame
@@ -1411,7 +1411,7 @@ default: 'top'
                     return ax
                 else:
                     # Undocumented convenience behavior:
-                    # subplot(111); subplot(111, projection='polar')
+                    # subplot($1, $2, $3); subplot(111, projection='polar')
                     # will replace the first with the second.
                     # Without this, add_subplot would be simpler and
                     # more similar to add_axes.
