@@ -438,6 +438,11 @@ The qt4agg and qt4cairo backends are deprecated.
 *fontdict* and *minor* parameters of `.Axes.set_xticklabels` and `.Axes.set_yticklabels` will become keyword-only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+All parameters of `.Figure.subplots` except *nrows* and *ncols* will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This avoids typing e.g. ``subplots(1, 1, 1)`` when meaning ``subplot(1, 1, 1)``,
+but actually getting ``subplots(1, 1, sharex=1)``.
+
 ``RendererWx.get_gc``
 ~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Access the ``gc`` attribute directly instead.
