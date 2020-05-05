@@ -1349,10 +1349,10 @@ default: 'top'
             fig.add_subplot(2, 3, 1)
             ax1 = fig.add_subplot(2, 3, 1)  # equivalent but more general
 
-            fig.add_subplot($1, $2, $3, frameon=False)  # subplot with no frame
-            fig.add_subplot($1, $2, $3, projection='polar')  # polar subplot
-            fig.add_subplot($1, $2, $3, sharex=ax1)  # subplot sharing x-axis with ax1
-            fig.add_subplot($1, $2, $3, facecolor="red")  # red subplot
+            fig.add_subplot(2, 3, 2, frameon=False)  # subplot with no frame
+            fig.add_subplot(2, 3, 3, projection='polar')  # polar subplot
+            fig.add_subplot(2, 3, 4, sharex=ax1)  # subplot sharing x-axis with ax1
+            fig.add_subplot(2, 3, 5, facecolor="red")  # red subplot
 
             ax1.remove()  # delete ax1 from the figure
             fig.add_subplot(ax1)  # add ax1 back to the figure
