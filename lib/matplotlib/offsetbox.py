@@ -1344,24 +1344,6 @@ class OffsetImage(OffsetBox):
     def get_zoom(self):
         return self._zoom
 
-#     def set_axes(self, axes):
-#         self.image.set_axes(axes)
-#         martist.Artist.set_axes(self, axes)
-
-#     def set_offset(self, xy):
-#         """
-#         Set the offset of the container.
-#
-#         Parameters
-#         ----------
-#         xy : (float, float)
-#             The (x, y) coordinates of the offset in display units.
-#         """
-#         self._offset = xy
-
-#         self.offset_transform.clear()
-#         self.offset_transform.translate(xy[0], xy[1])
-
     def get_offset(self):
         """Return offset of the container."""
         return self._offset
@@ -1432,7 +1414,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
 
         xybox : (float, float), default: *xy*
             The position *(x, y)* to place the text at. The coordinate system
-            is determined by *textcoords*.
+            is determined by *boxcoords*.
 
         xycoords : str or `.Artist` or `.Transform` or callable or \
 (float, float), default: 'data'
@@ -1525,6 +1507,11 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
+
+        xy_pixel = self._get_position_xy(None)
+        if not self._check_xy(None, xy_pixel):
+            return False, {}
+
         t, tinfo = self.offsetbox.contains(mouseevent)
         #if self.arrow_patch is not None:
         #    a, ainfo=self.arrow_patch.contains(event)
@@ -1643,7 +1630,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             return
 
         xy_pixel = self._get_position_xy(renderer)
-
         if not self._check_xy(renderer, xy_pixel):
             return
 
