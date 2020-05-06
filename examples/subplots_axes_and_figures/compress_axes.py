@@ -5,8 +5,8 @@ Compress axes layout option
 
 If a grid of subplot axes have fixed aspect ratios, the axes will usually
 be too far apart in one of the dimensions.  For simple layouts
-the ``compress_layout=True`` option to `.Figure.figure` or `.subplots` can
-try to compress that dimension so the axes are a similar distance apart in
+the ``compress_layout=True`` option to `.Figure` or `.Figure.subplots`
+can try to compress that dimension so the axes are a similar distance apart in
 both dimensions.
 """
 
