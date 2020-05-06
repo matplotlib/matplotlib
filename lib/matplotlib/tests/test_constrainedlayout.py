@@ -432,7 +432,7 @@ def test_compressed_cbars():
     extents = np.copy(axs[0, 0].get_position().extents)
     np.testing.assert_allclose(extents,
                                [0.119849, 0.571899, 0.355875, 0.965277],
-                               rtol=1e-5)
+                               rtol=1e-5, atol=1e-3)
 
 
 def test_compressed_onecbar():
