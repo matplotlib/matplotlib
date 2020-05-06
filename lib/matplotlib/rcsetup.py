@@ -1345,7 +1345,7 @@ defaultParams = {
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', validate_string],            # direction of xticks
     'xtick.alignment':   ['center',
-                          ['center', 'top', 'bottom', 'baseline', 'center_baseline']],
+                          ['center', 'right', 'left']],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
