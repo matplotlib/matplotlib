@@ -1257,7 +1257,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         linewidths = self.linewidths
         Nlev = len(self.levels)
         if linewidths is None:
-            default_linewidth = mpl.rcParams['contour.linewidths']
+            default_linewidth = mpl.rcParams['contour.linewidth']
             if default_linewidth is None:
                 default_linewidth = mpl.rcParams['lines.linewidth']
             tlinewidths = [(default_linewidth,)] * Nlev
@@ -1752,7 +1752,7 @@ class QuadContourSet(ContourSet):
             however introduce rendering artifacts at chunk boundaries depending
             on the backend, the *antialiased* flag and value of *alpha*.
 
-        linewidths : float or array-like, default: :rc:`contour.linewidths`
+        linewidths : float or array-like, default: :rc:`contour.linewidth`
             *Only applies to* `.contour`.
 
             The line width of the contour lines.
