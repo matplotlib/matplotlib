@@ -24,8 +24,8 @@ speed = np.sqrt(U**2 + V**2)
 
 
 gs = {'height_ratios': [1, 1, 2]}
-fig, ((ax0, ax1), (ax2, ax3), (ax4, ax5)) = plt.subplots(nrows=3, ncols=2, gridspec_kw=gs, figsize=(7, 9))
-
+fig, axes = plt.subplots(nrows=3, ncols=2, gridspec_kw=gs, figsize=(7, 9))
+((ax0, ax1), (ax2, ax3), (ax4, ax5)) = axes
 
 #  Varying density along a streamline
 ax0.streamplot(X, Y, U, V, density=[0.5, 1])
