@@ -989,7 +989,12 @@ def _combine_masks(*args):
         else:
             if isinstance(x, np.ma.MaskedArray) and x.ndim > 1:
                 raise ValueError("Masked arrays must be 1-D")
-            x = np.asanyarray(x)
+            try:
+                x = np.asanyarray(x)
+            except (np.VisibleDeprecationWarning, ValueError):
+                # NumPy 1.19 raises a warning about ragged arrays, but we want
+                # to accept basically anything here.
+                x = np.asanyarray(x, dtype=object)
             if x.ndim == 1:
                 x = safe_masked_invalid(x)
                 seqlist[i] = True
