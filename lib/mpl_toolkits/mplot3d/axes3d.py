@@ -24,6 +24,7 @@ import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
+import matplotlib.container as mcontainer
 from matplotlib.axes import Axes, rcParams
 from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
 from matplotlib.transforms import Bbox
@@ -2891,6 +2892,7 @@ pivot='tail', normalize=False, **kwargs)
         else:
             base_style = next(self._get_lines.prop_cycler)
 
+        base_style['label'] = '_nolegend_'
         base_style.update(fmt_style_kwargs)
         if 'color' not in base_style:
             base_style['color'] = 'C0'
@@ -3074,7 +3076,6 @@ pivot='tail', normalize=False, **kwargs)
                 limmarks.append(lims_up)
 
             errline = art3d.Line3DCollection(np.array(coorderr).T,
-                                             label=label,
                                              **eb_lines_style)
             self.add_collection(errline)
             errlines.append(errline)
@@ -3091,6 +3092,14 @@ pivot='tail', normalize=False, **kwargs)
         miny, maxy = _digout_minmax(coorderrs, 'y')
         minz, maxz = _digout_minmax(coorderrs, 'z')
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
+
+        # Adapting errorbar containers for 3d case - assuming z-axis points "up"
+        errorbar_container = mcontainer.ErrorbarContainer(
+            (data_line, tuple(caplines), tuple(errlines)),
+            has_xerr=(xerr is not None or yerr is not None),
+            has_yerr=(zerr is not None),
+            label=label)
+        self.containers.append(errorbar_container)
 
         return errlines, caplines, limmarks
 
