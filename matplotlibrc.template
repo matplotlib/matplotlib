@@ -576,6 +576,9 @@
 ## ***************************************************************************
 #contour.negative_linestyle: dashed  # string or on-off ink sequence
 #contour.corner_mask:        True    # {True, False, legacy}
+#contour.linewidth:          None    # {float, None} Size of the contour
+                                     # linewidths. If set to None,
+                                     # it falls back to `line.linewidth`.
 
 
 ## ***************************************************************************
