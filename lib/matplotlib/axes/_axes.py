@@ -6558,8 +6558,6 @@ such objects
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
-        # basic input validation
-        input_empty = np.size(x) == 0
 
         # Process unit information
         # Unit conversion is done individually on each dataset
@@ -6581,9 +6579,13 @@ such objects
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
 
+        input_empty = True
         for xi, wi in zip(x, w):
-            if wi is not None and len(wi) != len(xi):
+            len_xi = len(xi)
+            if wi is not None and len(wi) != len_xi:
                 raise ValueError('weights should have the same shape as x')
+            if len_xi:
+                input_empty = False
 
         if color is None:
             color = [self._get_lines.get_next_color() for i in range(nx)]
