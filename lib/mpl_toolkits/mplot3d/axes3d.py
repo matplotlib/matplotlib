@@ -2977,8 +2977,8 @@ pivot='tail', normalize=False, **kwargs)
             # for compatibility with the 2d errorbar function, when both upper
             # and lower limits specified, we need to draw the markers / line -
             # whether or not using both limits makes any sense (it doesn't)
-            _lomask = lomask | (lomask == himask)
-            _himask = himask | (lomask == himask)
+            _lomask = lomask | ((lomask == himask) & everymask)
+            _himask = himask | ((lomask == himask) & everymask)
 
             lows = [d - e if m else d for d, e, m in zip(data, err, _lomask)]
             highs = [d + e if m else d for d, e, m in zip(data, err, _himask)]
@@ -3093,7 +3093,7 @@ pivot='tail', normalize=False, **kwargs)
         minz, maxz = _digout_minmax(coorderrs, 'z')
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
-        # Adapting errorbar containers for 3d case - assuming z-axis points "up"
+        # Adapting errorbar containers for 3d case, assuming z-axis points "up"
         errorbar_container = mcontainer.ErrorbarContainer(
             (data_line, tuple(caplines), tuple(errlines)),
             has_xerr=(xerr is not None or yerr is not None),
