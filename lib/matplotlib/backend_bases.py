@@ -239,7 +239,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, edgecolors):
+                       antialiased, edgecolors, urls=None):
         """
         Fallback implementation of :meth:`draw_quad_mesh` that generates paths
         and then calls :meth:`draw_path_collection`.
@@ -252,10 +252,14 @@ class RendererBase:
         if edgecolors is None:
             edgecolors = facecolors
         linewidths = np.array([gc.get_linewidth()], float)
+        if urls is None:
+            urls = [None]
+        else:
+            urls = list(cbook.flatten(urls))
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None], 'screen')
+            edgecolors, linewidths, [], [antialiased], urls, 'screen')
 
     def draw_gouraud_triangle(self, gc, points, colors, transform):
         """

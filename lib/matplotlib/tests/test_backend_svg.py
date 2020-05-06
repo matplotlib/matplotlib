@@ -229,10 +229,25 @@ def test_url():
     p, = plt.plot([1, 3], [6, 5])
     p.set_url('http://example.com/baz')
 
+    # QuadMesh
+    data = np.array([
+        [np.nan, 4, np.nan],
+        [2, 7, 5],
+        [np.nan, 8, np.nan]
+    ])
+    links = np.array([
+        [np.nan, 'http://example.com/qux', np.nan],
+        ['http://example.com/quux', 'http://example.com/quuz',
+            'http://example.com/corge'],
+        [np.nan, 'http://example.com/grault', np.nan]
+    ])
+    ax.pcolormesh(data, urls=links)
+
     b = BytesIO()
     fig.savefig(b, format='svg')
     b = b.getvalue()
-    for v in [b'foo', b'bar', b'baz']:
+    for v in [b'foo', b'bar', b'baz', b'qux', b'quux', b'quuz', b'corge',
+              b'grault']:
         assert b'http://example.com/' + v in b
 
 

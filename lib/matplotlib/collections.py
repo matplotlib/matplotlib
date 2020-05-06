@@ -2048,7 +2048,8 @@ class QuadMesh(Collection):
                 coordinates, offsets, transOffset,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+                self._antialiased, self.get_edgecolors().reshape((-1, 4)),
+                urls=self.get_urls())
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
