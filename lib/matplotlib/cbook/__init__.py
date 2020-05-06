@@ -1671,43 +1671,19 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
           or isinstance(alias_mapping, Artist)):
         alias_mapping = getattr(alias_mapping, "_alias_map", {})
 
-    # make a local so we can pop
-    kw = dict(kw)
-    # output dictionary
-    ret = dict()
+    to_canonical = {alias: canonical
+                    for canonical, alias_list in alias_mapping.items()
+                    for alias in alias_list}
+    canonical_to_seen = {}
+    ret = {}  # output dictionary
 
-    # hit all alias mappings
-    for canonical, alias_list in alias_mapping.items():
-
-        # the alias lists are ordered from lowest to highest priority
-        # so we know to use the last value in this list
-        tmp = []
-        seen = []
-        for a in alias_list:
-            try:
-                tmp.append(kw.pop(a))
-                seen.append(a)
-            except KeyError:
-                pass
-        # if canonical is not in the alias_list assume highest priority
-        if canonical not in alias_list:
-            try:
-                tmp.append(kw.pop(canonical))
-                seen.append(canonical)
-            except KeyError:
-                pass
-        # if we found anything in this set of aliases put it in the return
-        # dict
-        if tmp:
-            ret[canonical] = tmp[-1]
-            if len(tmp) > 1:
-                raise TypeError("Got the following keyword arguments which "
-                                "are aliases of one another: {}"
-                                .format(", ".join(map(repr, seen))))
-
-    # at this point we know that all keys which are aliased are removed, update
-    # the return dictionary from the cleaned local copy of the input
-    ret.update(kw)
+    for k, v in kw.items():
+        canonical = to_canonical.get(k, k)
+        if canonical in canonical_to_seen:
+            raise TypeError(f"Got both {canonical_to_seen[canonical]!r} and "
+                            f"{k!r}, which are aliases of one another")
+        canonical_to_seen[canonical] = k
+        ret[canonical] = v
 
     fail_keys = [k for k in required if k not in ret]
     if fail_keys:

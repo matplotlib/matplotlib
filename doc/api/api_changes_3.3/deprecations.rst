@@ -545,3 +545,12 @@ The ``cbid`` and ``locator`` attribute are deprecated.  Use
 ~~~~~~~~~~~~~~~~~~~~~~
 This function is deprecated in prevision of the future release of PyQt6.  The
 Qt version can be checked using ``QtCore.QT_VERSION_STR``.
+
+Reordering of parameters by `.Artist.set`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In a future version, ``Artist.set`` will apply artist properties in the order
+in which they are given.  This only affects the interaction between the
+*color*, *edgecolor*, *facecolor*, and, for `.Collection`\s, *alpha*
+properties: the *color* property now needs to be passed first in order not to
+override the other properties.  This is consistent with e.g. `.Artist.update`,
+which did not reorder the properties passed to it.
