@@ -447,4 +447,4 @@ def test_compressed_onecbar():
     fig.canvas.draw()
     extents = np.copy(axs[0, 0].get_position().extents)
     np.testing.assert_allclose(extents,
-            [0.255883, 0.571899, 0.491909, 0.965277], rtol=1e-5)
+            [0.2558, 0.5719, 0.4920, 0.9653], rtol=1e-5, atol=1e-3)
