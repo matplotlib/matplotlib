@@ -387,15 +387,12 @@ In general Matplotlib is not thread safe.  If you are going to update
 sure that you are locking in the critical sections.
 
 
-The Weeds
-=========
-
 
 Eventloop integration mechanism
--------------------------------
+===============================
 
 CPython / readline
-~~~~~~~~~~~~~~~~~~
+------------------
 
 The python capi provides a hook, :c:var:`PyOS_InputHook`, to register a
 function to be run "The function will be called when Python's
@@ -422,7 +419,7 @@ is the recommended method of integrating Matplotlib and a prompt.
 
 
 IPython / prompt toolkit
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 With IPython >= 5.0 IPython has changed from using cpython's readline
 based prompt to a ``prompt_toolkit`` based prompt.  ``prompt_toolkit``
