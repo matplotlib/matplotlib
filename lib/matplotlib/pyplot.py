@@ -390,13 +390,15 @@ def ion():
 
 def pause(interval):
     """
-    Run the GUI event loop or sleep for *interval* seconds and .
+    Run the GUI event loop for *interval* seconds.
 
     If there is an active figure, it will be updated and displayed before the
     pause, and the GUI event loop (if any) will run during the pause.
 
     This can be used for crude animation.  For more complex animation use
     :mod:`matplotlib.animation`.
+
+    If there is no active figure, sleep for *interval* seconds instead.
 
     See Also
     --------

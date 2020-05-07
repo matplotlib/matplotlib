@@ -230,7 +230,6 @@ For example, if you want to poll for data you could use something like ::
   while True:
       x, y = get_new_data()
       ln.set_data(x, y)
-      fig.canvas.draw_idle()
       plt.pause(1)
 
 which would poll for new data and update the figure at 1Hz.

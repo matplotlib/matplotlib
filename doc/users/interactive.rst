@@ -22,9 +22,9 @@ packages provide bindings to `kivy
 "live" the GUI event loop will need to be integrated with your prompt. The
 simplest way is to use IPython (see :ref:`below <ipython-pylab>`).
 
-The `.pyplot` module provides two functions for creating Figures that,
-when an interactive backend is used, that are managed by Matplotlib,
-embedded in GUI windows, and ready for interactive use out of the box
+The `.pyplot` module provides functions for explicitly creating
+Figures that include a interactive tools, a toolbar, a tool-tip, and
+:ref:`key bindings <key-event-handling>` ready to go:
 
 `.pyplot.figure`
     Creates a new empty `.figure.Figure` or selects an existing figure
@@ -32,11 +32,17 @@ embedded in GUI windows, and ready for interactive use out of the box
 `.pyplot.subplots`
     Creates a new `.figure.Figure` and fills it with a grid of `.axes.Axes`
 
-Matplotlib keeps a reference to all of the open figures created this
-way so they will not be garbage collected.  You can close all of your
-open figures via ``plt.close('all')``.
+`.pyplot` has a notion of "The Current Figure" which can be accessed
+through `.pyplot.gcf` and a notion of "The Current Axes" accessed
+through `.pyplot.gca`.  Almost all of the function is `.pyplot` as pass
+through to the current `.Figure` / `.axes.Axes` (or create one) as
+appropriate.  Matplotlib keeps a reference to all of the open figures
+created this way so they will not be garbage collected.  You can close
+and deregister `.Figure`\s from from `.pyplot` individually via
+`.pyplot.close` or close all open figures via ``plt.close('all')``.
 
-For discussion of how this works under the hood see:
+For discussion of how the integration of the event loops and Matplotlib's event
+system work under the hood see:
 
 .. toctree::
     :maxdepth: 1
@@ -172,7 +178,7 @@ figures will only be "live" when the GUI event loop is running (via
 loop).
 
 
-.. warning
+.. warning::
 
    Using `.figure.Figure.show` it is possible to display a figure on
    the screen without starting the event loop and without being in
@@ -196,28 +202,29 @@ Navigation Keyboard Shortcuts
 -----------------------------
 
 The following table holds all the default keys, which can be
-overwritten by use of your matplotlibrc (#keymap.\*).
+overwritten by use of your :ref:`matplotlibrc
+<sphx_glr_tutorials_introductory_customizing.py>`.
 
-================================== =================================================
-Command                            Keyboard Shortcut(s)
-================================== =================================================
-Home/Reset                         **h** or **r** or **home**
-Back                               **c** or **left arrow** or **backspace**
-Forward                            **v** or **right arrow**
-Pan/Zoom                           **p**
-Zoom-to-rect                       **o**
-Save                               **ctrl** + **s**
-Toggle fullscreen                  **f** or **ctrl** + **f**
-Close plot                         **ctrl** + **w**
-Close all plots                    **shift** + **w**
+================================== ===============================
+Command                            Default key binding and rcParam
+================================== ===============================
+Home/Reset                         :rc:`keymap.home`
+Back                               :rc:`keymap.back`
+Forward                            :rc:`keymap.forward`
+Pan/Zoom                           :rc:`keymap.pan`
+Zoom-to-rect                       :rc:`keymap.zoom`
+Save                               :rc:`keymap.save`
+Toggle fullscreen                  :rc:`keymap.fullscreen`
+Toggle major grids                 :rc:`keymap.grid`
+Toggle minor grids                 :rc:`keymap.grid_minor`
+Toggle x axis scale (log/linear)   :rc:`keymap.xscale`
+Toggle y axis scale (log/linear)   :rc:`keymap.yscale`
+Toggle y axis scale (log/linear)   :rc:`keymap.yscale`
+Close Figure                       :rc:`keymap.quit`
 Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse
 Constrain pan/zoom to y axis       hold **y** when panning/zooming with mouse
 Preserve aspect ratio              hold **CONTROL** when panning/zooming with mouse
-Toggle major grids                 **g** when mouse is over an axes
-Toggle minor grids                 **G** when mouse is over an axes
-Toggle x axis scale (log/linear)   **L** or **k**  when mouse is over an axes
-Toggle y axis scale (log/linear)   **l** when mouse is over an axes
-================================== =================================================
+================================== ===============================
 
 
 .. _other-shells:
@@ -278,17 +285,13 @@ end.
 GUIs + jupyter
 ~~~~~~~~~~~~~~
 
-If you are running your jupyter server locally you can use one of the
-GUI backends.  However if you ever move that notebook to a remote
-server it will cease to work correctly because the GUI windows will be
-created on the server, not your machine. When you create a figure the
-process running your kernel creates and shows a GUI window.  If that
-process is on the same computer as your client, then you will be able
-to see and interact with the window.  However if it is running on a
-remote computer it will try to open the GUI window on _that_ computer.
-This will either fail by raising an exception (as many servers
-do not have an XServer running) or run, but leave you with no
-way to access your figure.
+If you are running your jupyter kernel locally you can use one of the
+GUI backends.  Process running your kernel will and shows a GUI window
+on your desktop adjacent to your web browser.  However if you move
+that notebook to a remote server the kernel will try to open the GUI
+window on _that_ computer.  Unless you have arrange to forward the
+xserver back to your desktop, you not be able to see or interact with
+the figure (if it does not raise an exception outright).
 
 
 
