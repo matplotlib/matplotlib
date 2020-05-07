@@ -23,7 +23,7 @@ packages provide bindings to `kivy
 simplest way is to use IPython (see :ref:`below <ipython-pylab>`).
 
 The `.pyplot` module provides functions for explicitly creating
-Figures that include a interactive tools, a toolbar, a tool-tip, and
+Figures that include interactive tools, a toolbar, a tool-tip, and
 :ref:`key bindings <key-event-handling>` ready to go:
 
 `.pyplot.figure`
@@ -34,11 +34,11 @@ Figures that include a interactive tools, a toolbar, a tool-tip, and
 
 `.pyplot` has a notion of "The Current Figure" which can be accessed
 through `.pyplot.gcf` and a notion of "The Current Axes" accessed
-through `.pyplot.gca`.  Almost all of the function is `.pyplot` as pass
-through to the current `.Figure` / `.axes.Axes` (or create one) as
+through `.pyplot.gca`.  Almost all of the functions in `.pyplot` pass
+through the current `.Figure` / `.axes.Axes` (or create one) as
 appropriate.  Matplotlib keeps a reference to all of the open figures
 created this way so they will not be garbage collected.  You can close
-and deregister `.Figure`\s from from `.pyplot` individually via
+and deregister `.Figure`\s from `.pyplot` individually via
 `.pyplot.close` or close all open figures via ``plt.close('all')``.
 
 For discussion of how the integration of the event loops and Matplotlib's event
