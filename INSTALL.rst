@@ -25,10 +25,13 @@ precompiled wheel for your OS and Python.
 
 .. note::
 
-   The following backends work out of the box: Agg, ps, pdf, svg and TkAgg.
+   The following backends work out of the box: Agg, ps, pdf, svg
+
+   Python is typically shipped with tk bindings which are used by
+   TkAgg.
 
    For support of other GUI frameworks, LaTeX rendering, saving
-   animations and a larger selection of file formats, you may need to
+   animations and a larger selection of file formats, you need to
    install :ref:`additional dependencies <install_requirements>`.
 
 Although not required, we suggest also installing ``IPython`` for
