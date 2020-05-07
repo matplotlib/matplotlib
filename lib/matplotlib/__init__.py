@@ -330,7 +330,8 @@ def _get_executable_info(name):
         message = "Failed to find a Ghostscript installation"
         raise ExecutableNotFoundError(message)
     elif name == "inkscape":
-        info = impl(["inkscape", "-V"], "^Inkscape ([^ ]*)")
+        # use "no-gui" option for inkscape version detection:
+        info = impl(["inkscape", "-z", "-V"], "^Inkscape ([^ ]*)")
         if info and info.version >= "1.0":
             raise ExecutableNotFoundError(
                 f"You have Inkscape version {info.version} but Matplotlib "
