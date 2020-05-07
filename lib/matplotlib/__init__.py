@@ -331,18 +331,14 @@ def _get_executable_info(name):
         raise ExecutableNotFoundError(message)
     elif name == "inkscape":
         try:
-            # use headless option first (works with inkscape version < 1.0):
-            info = impl(["inkscape", "--without-gui", "-V"],
+            # Try headless option first (needed for Inkscape version < 1.0):
+            return impl(["inkscape", "--without-gui", "-V"],
                         "Inkscape ([^ ]*)")
         except ExecutableNotFoundError:
-            # if --without-gui is not accepted, we're using Inkscape v > 1.0
-            # so try without the headless option:
-            info = impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
-        if info and info.version >= "1.0":
-            raise ExecutableNotFoundError(
-                f"You have Inkscape version {info.version} but Matplotlib "
-                f"only supports Inkscape<1.0")
-        return info
+            pass  # Suppress exception chaining.
+        # If --without-gui is not accepted, we may be using Inkscape >= 1.0 so
+        # try without it:
+        return impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
     elif name == "magick":
         path = None
         if sys.platform == "win32":

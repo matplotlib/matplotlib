@@ -10,7 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
-from tempfile import TemporaryFile
+from tempfile import TemporaryDirectory, TemporaryFile
 
 import numpy as np
 import PIL
@@ -158,53 +158,56 @@ class _GSConverter(_Converter):
 
 class _SVGConverter(_Converter):
     def __call__(self, orig, dest):
+        old_inkscape = mpl._get_executable_info("inkscape").version < "1"
+        terminator = b"\n>" if old_inkscape else b"> "
+        if not hasattr(self, "_tmpdir"):
+            self._tmpdir = TemporaryDirectory()
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
-            env = os.environ.copy()
-            # If one passes e.g. a png file to Inkscape, it will try to
-            # query the user for conversion options via a GUI (even with
-            # `--without-gui`).  Unsetting `DISPLAY` prevents this (and causes
-            # GTK to crash and Inkscape to terminate, but that'll just be
-            # reported as a regular exception below).
-            env.pop("DISPLAY", None)  # May already be unset.
-            # Do not load any user options.
-            env["INKSCAPE_PROFILE_DIR"] = os.devnull
-            # Old versions of Inkscape (0.48.3.1, used on Travis as of now)
-            # seem to sometimes deadlock when stderr is redirected to a pipe,
-            # so we redirect it to a temporary file instead.  This is not
-            # necessary anymore as of Inkscape 0.92.1.
+            env = {
+                **os.environ,
+                # If one passes e.g. a png file to Inkscape, it will try to
+                # query the user for conversion options via a GUI (even with
+                # `--without-gui`).  Unsetting `DISPLAY` prevents this (and
+                # causes GTK to crash and Inkscape to terminate, but that'll
+                # just be reported as a regular exception below).
+                "DISPLAY": "",
+                # Do not load any user options.
+                "INKSCAPE_PROFILE_DIR": os.devnull,
+            }
+            # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
+            # deadlock when stderr is redirected to a pipe, so we redirect it
+            # to a temporary file instead.  This is not necessary anymore as of
+            # Inkscape 0.92.1.
             stderr = TemporaryFile()
             self._proc = subprocess.Popen(
-                ["inkscape", "--without-gui", "--shell"],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=stderr, env=env)
+                ["inkscape", "--without-gui", "--shell"] if old_inkscape else
+                ["inkscape", "--shell"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr,
+                env=env, cwd=self._tmpdir.name)
             # Slight abuse, but makes shutdown handling easier.
             self._proc.stderr = stderr
             try:
-                self._read_until(b"\n>")
+                self._read_until(terminator)
             except _ConverterError as err:
                 raise OSError("Failed to start Inkscape in interactive "
                               "mode") from err
 
-        # Inkscape uses glib's `g_shell_parse_argv`, which has a consistent
-        # behavior across platforms, so we can just use `shlex.quote`.
-        orig_b, dest_b = map(_shlex_quote_bytes,
-                             map(os.fsencode, [orig, dest]))
-        if b"\n" in orig_b or b"\n" in dest_b:
-            # Who knows whether the current folder name has a newline, or if
-            # our encoding is even ASCII compatible...  Just fall back on the
-            # slow solution (Inkscape uses `fgets` so it will always stop at a
-            # newline).
-            cbook.warn_deprecated(
-                "3.3", message="Support for converting files from paths "
-                "containing a newline is deprecated since %(since)s and "
-                "support will be removed %(removal)s")
-            return make_external_conversion_command(lambda old, new: [
-                'inkscape', '-z', old, '--export-png', new])(orig, dest)
-        self._proc.stdin.write(orig_b + b" --export-png=" + dest_b + b"\n")
+        # Inkscape's shell mode does not support escaping metacharacters in the
+        # filename ("\n", and ":;" for inkscape>=1).  Avoid any problems by
+        # running from a temporary directory and using fixed filenames.
+        inkscape_orig = Path(self._tmpdir.name, os.fsdecode(b"f.svg"))
+        inkscape_dest = Path(self._tmpdir.name, os.fsdecode(b"f.png"))
+        try:
+            inkscape_orig.symlink_to(Path(orig).resolve())
+        except OSError:
+            shutil.copyfile(orig, inkscape_orig)
+        self._proc.stdin.write(
+            b"f.svg --export-png=f.png\n" if old_inkscape else
+            b"file-open:f.svg;export-filename:f.png;export-do;file-close\n")
         self._proc.stdin.flush()
         try:
-            self._read_until(b"\n>")
+            self._read_until(terminator)
         except _ConverterError as err:
             # Inkscape's output is not localized but gtk's is, so the output
             # stream probably has a mixed encoding.  Using the filesystem
@@ -213,6 +216,13 @@ class _SVGConverter(_Converter):
             raise ImageComparisonFailure(
                 self._proc.stderr.read().decode(
                     sys.getfilesystemencoding(), "replace")) from err
+        os.remove(inkscape_orig)
+        shutil.move(inkscape_dest, dest)
+
+    def __del__(self):
+        super().__del__()
+        if hasattr(self, "_tmpdir"):
+            self._tmpdir.cleanup()
 
 
 def _update_converter():
