@@ -294,8 +294,8 @@ the figure (if it does not raise an exception outright).
 
 
 
-PyCharm, Spydter, and VSCode
-----------------------------
+PyCharm, Spyder, and VSCode
+---------------------------
 
 Many IDEs have built-in integration with Matplotlib, please consult its
 documentation for configuration details.
