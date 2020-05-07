@@ -219,7 +219,6 @@ Toggle major grids                 :rc:`keymap.grid`
 Toggle minor grids                 :rc:`keymap.grid_minor`
 Toggle x axis scale (log/linear)   :rc:`keymap.xscale`
 Toggle y axis scale (log/linear)   :rc:`keymap.yscale`
-Toggle y axis scale (log/linear)   :rc:`keymap.yscale`
 Close Figure                       :rc:`keymap.quit`
 Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse
 Constrain pan/zoom to y axis       hold **y** when panning/zooming with mouse

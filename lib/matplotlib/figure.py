@@ -384,6 +384,7 @@ class Figure(Artist):
         AttributeError.
 
         .. warning::
+
             This does not manage an GUI event loop. Consequently, the figure
             may only be shown briefly or not shown at all if you or your
             environment are not managing an event loop.
@@ -394,11 +395,6 @@ class Figure(Artist):
             If you're running a pure python shell or executing a non-GUI
             python script, you should use `matplotlib.pyplot.show` instead,
             which takes care of managing the event loop for you.
-
-        .. warning
-
-           If the GUI event loop is not running the figure will be shown,
-           but will not be responsive and may not draw.
 
         Parameters
         ----------
