@@ -1264,13 +1264,16 @@ default: 'top'
 
         Parameters
         ----------
-        *args, int or (int, int, int) or `SubplotSpec`, default: (1, 1, 1)
+        *args : int, (int, int, *index*), or `.SubplotSpec`, default: (1, 1, 1)
             The position of the subplot described by one of
 
             - Three integers (*nrows*, *ncols*, *index*). The subplot will
               take the *index* position on a grid with *nrows* rows and
               *ncols* columns. *index* starts at 1 in the upper left corner
-              and increases to the right.
+              and increases to the right.  *index* can also be a two-tuple
+              specifying the (*first*, *last*) indices (1-based, and including
+              *last*) of the subplot, e.g., ``fig.add_subplot(3, 1, (1, 2))``
+              makes a subplot that spans the upper 2/3 of the figure.
             - A 3-digit integer. The digits are interpreted as if given
               separately as three single-digit integers, i.e.
               ``fig.add_subplot(235)`` is the same as
@@ -1362,34 +1365,7 @@ default: 'top'
             raise TypeError(
                 "add_subplot() got an unexpected keyword argument 'figure'")
 
-        nargs = len(args)
-        if nargs == 0:
-            args = (1, 1, 1)
-        elif nargs == 1:
-            if isinstance(args[0], Integral):
-                if not 100 <= args[0] <= 999:
-                    raise ValueError(f"Integer subplot specification must be "
-                                     f"a three-digit number, not {args[0]}")
-                args = tuple(map(int, str(args[0])))
-            elif isinstance(args[0], (SubplotBase, SubplotSpec)):
-                pass  # no further validation or normalization needed
-            else:
-                raise TypeError('Positional arguments are not a valid '
-                                'position specification.')
-        elif nargs == 3:
-            for arg in args:
-                if not isinstance(arg, Integral):
-                    cbook.warn_deprecated(
-                        "3.3",
-                        message="Passing non-integers as three-element "
-                                "position specification is deprecated since "
-                                "%(since)s and will be removed %(removal)s.")
-            args = tuple(map(int, args))
-        else:
-            raise TypeError(f'add_subplot() takes 1 or 3 positional arguments '
-                            f'but {nargs} were given')
-
-        if isinstance(args[0], SubplotBase):
+        if len(args) == 1 and isinstance(args[0], SubplotBase):
             ax = args[0]
             if ax.get_figure() is not self:
                 raise ValueError("The Subplot must have been created in "
@@ -1397,13 +1373,19 @@ default: 'top'
             # make a key for the subplot (which includes the axes object id
             # in the hash)
             key = self._make_key(*args, **kwargs)
+
         else:
+            if not args:
+                args = (1, 1, 1)
+            # Normalize correct ijk values to (i, j, k) here so that
+            # add_subplot(111) == add_subplot(1, 1, 1).  Invalid values will
+            # trigger errors later (via SubplotSpec._from_subplot_args).
+            if (len(args) == 1 and isinstance(args[0], Integral)
+                    and 100 <= args[0] <= 999):
+                args = tuple(map(int, str(args[0])))
             projection_class, kwargs, key = \
                 self._process_projection_requirements(*args, **kwargs)
-
-            # try to find the axes with this key in the stack
-            ax = self._axstack.get(key)
-
+            ax = self._axstack.get(key)  # search axes with this key in stack
             if ax is not None:
                 if isinstance(ax, projection_class):
                     # the axes already existed, so set it as active & return
@@ -1416,7 +1398,6 @@ default: 'top'
                     # Without this, add_subplot would be simpler and
                     # more similar to add_axes.
                     self._axstack.remove(ax)
-
             ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
 
         return self._add_axes_internal(key, ax)
