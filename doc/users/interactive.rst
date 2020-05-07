@@ -286,10 +286,10 @@ GUIs + jupyter
 ~~~~~~~~~~~~~~
 
 If you are running your jupyter kernel locally you can use one of the
-GUI backends.  Process running your kernel will and shows a GUI window
+GUI backends.  The process running your kernel will show a GUI window
 on your desktop adjacent to your web browser.  However if you move
 that notebook to a remote server the kernel will try to open the GUI
-window on _that_ computer.  Unless you have arrange to forward the
+window on _that_ computer.  Unless you have arranged to forward the
 xserver back to your desktop, you not be able to see or interact with
 the figure (if it does not raise an exception outright).
 
