@@ -11,6 +11,7 @@ comprehensive usage guide.
 
 import copy
 import logging
+from numbers import Integral
 
 import numpy as np
 
@@ -517,6 +518,60 @@ class SubplotSpec:
                 f"{self.colspan.start}:{self.colspan.stop}]")
 
     @staticmethod
+    def _check_subplots_args(args):
+        print('args', args, type(args))
+        nargs = len(args)
+        if nargs == 0:
+            args = (1, 1, 1)
+        elif nargs == 1:
+            if isinstance(args[0], Integral):
+                if not 100 <= args[0] <= 999:
+                    raise ValueError(f"Integer subplot specification must be "
+                                     f"a three-digit number, not {args[0]}")
+                args = tuple(map(int, str(args[0])))
+            elif isinstance(args[0], (mpl.axes.SubplotBase, SubplotSpec)):
+                return args
+            else:
+                raise ValueError("Single argument to subplot must be a "
+                                 "3-digit integer or a SubplotSpec")
+        elif nargs == 3:
+            message = ("Passing non-integers as three-element "
+                       "position specification is deprecated since "
+                       "%(since)s and will be removed %(removal)s.")
+            rows, cols, nums = args
+            if not isinstance(rows, Integral):
+                cbook.warn_deprecated("3.3", message=message)
+            rows = int(rows)
+            if rows <= 0:
+                raise ValueError(f"Number of rows must be > 0, not {rows}")
+
+            if not isinstance(cols, Integral):
+                cbook.warn_deprecated("3.3", message=message)
+            cols = int(cols)
+            if cols <= 0:
+                raise ValueError(f"Number of columns must be > 0, not {cols}")
+
+            if isinstance(nums, tuple) and len(nums) == 2:
+                # start/stop two-tuple is allowed...
+                for arg in nums:
+                    if not isinstance(arg, Integral):
+                        cbook.warn_deprecated("3.3", message=message)
+                nums = (int(nums[0]), int(nums[1]))
+            else:
+                if not isinstance(nums, Integral):
+                    cbook.warn_deprecated("3.3", message=message)
+                nums = int(nums)
+                if nums < 1 or nums > rows*cols:
+                    raise ValueError(
+                        f"num must be 1 <= num <= {rows*cols}, not {nums}")
+            args = (rows, cols, nums)
+        else:
+            raise TypeError(f'subplot() takes 1 or 3 positional arguments '
+                            f'but {nargs} were given')
+
+        return args
+
+    @staticmethod
     def _from_subplot_args(figure, args):
         """
         Construct a `.SubplotSpec` from a parent `.Figure` and either
@@ -524,39 +579,20 @@ class SubplotSpec:
         - a `.SubplotSpec` -- returned as is;
         - one or three numbers -- a MATLAB-style subplot specifier.
         """
+        args = SubplotSpec._check_subplots_args(args)
         if len(args) == 1:
-            arg, = args
-            if isinstance(arg, SubplotSpec):
-                return arg
-            else:
-                try:
-                    s = str(int(arg))
-                    rows, cols, num = map(int, s)
-                except ValueError as err:
-                    raise ValueError("Single argument to subplot must be a "
-                                     "3-digit integer") from err
-                # num - 1 for converting from MATLAB to python indexing
-                return GridSpec(rows, cols, figure=figure)[num - 1]
+            # args is a subplotspec
+            return args[0]
         elif len(args) == 3:
             rows, cols, num = args
-            rows = int(rows)
-            cols = int(cols)
-            if rows <= 0:
-                raise ValueError(f"Number of rows must be > 0, not {rows}")
-            if cols <= 0:
-                raise ValueError(f"Number of columns must be > 0, not {cols}")
             if isinstance(num, tuple) and len(num) == 2:
-                i, j = map(int, num)
-                return GridSpec(rows, cols, figure=figure)[i-1:j]
+                start, stop = num
             else:
-                if num < 1 or num > rows*cols:
-                    raise ValueError(
-                        f"num must be 1 <= num <= {rows*cols}, not {num}")
                 # num - 1 for converting from MATLAB to python indexing
-                return GridSpec(rows, cols, figure=figure)[int(num) - 1]
-        else:
-            raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
-                            f"{len(args)} were given")
+                start = num
+                stop = num
+        # start - 1 for converting from MATLAB to python indexing
+        return GridSpec(rows, cols, figure=figure)[start - 1:stop]
 
     # num2 is a property only to handle the case where it is None and someone
     # mutates num1.

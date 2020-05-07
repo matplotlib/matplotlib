@@ -1271,7 +1271,7 @@ default: 'top'
               take the *index* position on a grid with *nrows* rows and
               *ncols* columns. *index* starts at 1 in the upper left corner
               and increases to the right. *index* can also be  a two-tuple
-              specifying the (*start*, *stop*) indices of the subplot, i.e.,
+              specifying the (*start*, *stop*) indices of the subplot, e.g.,
               ``fig.add_subplot(3, 1, (1, 2))`` makes a subplot that spans the
               upper 2/3 of the figure.
             - A 3-digit integer. The digits are interpreted as if given
@@ -1365,44 +1365,7 @@ default: 'top'
             raise TypeError(
                 "add_subplot() got an unexpected keyword argument 'figure'")
 
-        nargs = len(args)
-        if nargs == 0:
-            args = (1, 1, 1)
-        elif nargs == 1:
-            if isinstance(args[0], Integral):
-                if not 100 <= args[0] <= 999:
-                    raise ValueError(f"Integer subplot specification must be "
-                                     f"a three-digit number, not {args[0]}")
-                args = tuple(map(int, str(args[0])))
-            elif isinstance(args[0], (SubplotBase, SubplotSpec)):
-                pass  # no further validation or normalization needed
-            else:
-                raise TypeError('Positional arguments are not a valid '
-                                'position specification.')
-        elif nargs == 3:
-            newarg = [None] * 3
-            message = ("Passing non-integers as three-element "
-                       "position specification is deprecated since "
-                       "%(since)s and will be removed %(removal)s.")
-            for nn, arg in enumerate(args[:2]):
-                if not isinstance(arg, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
-                newarg[nn] = int(arg)
-            args2 = args[2]
-            if isinstance(args2, tuple) and len(args2) == 2:
-                # start/stop two-tuple is allowed...
-                for arg in args2:
-                    if not isinstance(arg, Integral):
-                        cbook.warn_deprecated("3.3", message=message)
-                newarg[2] = (int(args2[0]), int(args2[1]))
-            else:
-                if not isinstance(args2, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
-                newarg[2] = int(args2)
-            args = tuple(newarg)
-        else:
-            raise TypeError(f'add_subplot() takes 1 or 3 positional arguments '
-                            f'but {nargs} were given')
+        args = SubplotSpec._check_subplots_args(args)
 
         if isinstance(args[0], SubplotBase):
             ax = args[0]
