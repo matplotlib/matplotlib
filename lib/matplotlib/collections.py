@@ -9,6 +9,7 @@ they are meant to be fast for common use cases (e.g., a large set of solid
 line segments).
 """
 
+import inspect
 import math
 from numbers import Number
 import numpy as np
@@ -2043,13 +2044,37 @@ class QuadMesh(Collection):
             renderer.draw_gouraud_triangles(
                 gc, triangles, colors, transform.frozen())
         else:
-            renderer.draw_quad_mesh(
-                gc, transform.frozen(), self._meshWidth, self._meshHeight,
-                coordinates, offsets, transOffset,
-                # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
-                self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)),
-                urls=self.get_urls())
+            try:
+                sig = inspect.signature(renderer.draw_quad_mesh)
+            except ValueError:
+                # Compiled backends like Agg don't have a signature, but also
+                # don't support urls anyway.
+                use_urls = False
+            else:
+                use_urls = 'urls' in sig.parameters
+            if use_urls:
+                renderer.draw_quad_mesh(
+                    gc, transform.frozen(), self._meshWidth, self._meshHeight,
+                    coordinates, offsets, transOffset, self.get_facecolor(),
+                    self._antialiased, self.get_edgecolors(),
+                    urls=self.get_urls())
+                renderer.draw_quad_mesh(
+                    gc, transform.frozen(), self._meshWidth, self._meshHeight,
+                    coordinates, offsets, transOffset,
+                    # Backends expect flattened rgba arrays (n*m, 4) for fc
+                    # and ec
+                    self.get_facecolor().reshape((-1, 4)),
+                    self._antialiased, self.get_edgecolors().reshape((-1, 4)),
+                    urls=self.get_urls())
+            else:
+                # This backend does not support storing urls in the QuadMesh.
+                renderer.draw_quad_mesh(
+                    gc, transform.frozen(), self._meshWidth, self._meshHeight,
+                    coordinates, offsets, transOffset,
+                    # Backends expect flattened rgba arrays (n*m, 4) for fc
+                    # and ec
+                    self.get_facecolor().reshape((-1, 4)),
+                    self._antialiased, self.get_edgecolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
