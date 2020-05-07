@@ -43,7 +43,8 @@ axs[1, 0].set_title('Varying Line Width')
 # Controlling the starting points of the streamlines
 seed_points = np.array([[-2, -1, 0, 1, 2, -1], [-2, -1,  0, 1, 2, 2]])
 
-strm = axs[1, 1].streamplot(X, Y, U, V, color=U, linewidth=2, cmap='autumn', start_points=seed_points.T)
+strm = axs[1, 1].streamplot(X, Y, U, V, color=U, linewidth=2,
+                            cmap='autumn', start_points=seed_points.T)
 fig.colorbar(strm.lines, ax=axs[1, 1])
 axs[1, 1].set_title('Controlling Starting Points')
 
