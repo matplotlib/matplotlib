@@ -649,6 +649,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
         QtWidgets.QToolBar.__init__(self, parent)
+        self.setAllowedAreas(
+            QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea)
 
         self._parent = parent
         self.coordinates = coordinates
@@ -888,6 +890,8 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
     def __init__(self, toolmanager, parent):
         ToolContainerBase.__init__(self, toolmanager)
         QtWidgets.QToolBar.__init__(self, parent)
+        self.setAllowedAreas(
+            QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea)
         self._toolitems = {}
         self._groups = {}
 
