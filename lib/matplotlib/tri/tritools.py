@@ -220,14 +220,17 @@ class TriAnalyzer:
         tri_mask = self._triangulation.mask
         compressed_triangles = self._triangulation.get_masked_triangles()
         ntri = self._triangulation.triangles.shape[0]
-        tri_renum = self._total_to_compress_renum(tri_mask, ntri)
+        if tri_mask is not None:
+            tri_renum = self._total_to_compress_renum(~tri_mask)
+        else:
+            tri_renum = np.arange(ntri, dtype=np.int32)
 
         # Valid nodes and renumbering
-        node_mask = (np.bincount(np.ravel(compressed_triangles),
-                                 minlength=self._triangulation.x.size) == 0)
-        compressed_x = self._triangulation.x[~node_mask]
-        compressed_y = self._triangulation.y[~node_mask]
-        node_renum = self._total_to_compress_renum(node_mask)
+        valid_node = (np.bincount(np.ravel(compressed_triangles),
+                                  minlength=self._triangulation.x.size) != 0)
+        compressed_x = self._triangulation.x[valid_node]
+        compressed_y = self._triangulation.y[valid_node]
+        node_renum = self._total_to_compress_renum(valid_node)
 
         # Now renumbering the valid triangles nodes
         compressed_triangles = node_renum[compressed_triangles]
@@ -236,32 +239,25 @@ class TriAnalyzer:
                 node_renum)
 
     @staticmethod
-    def _total_to_compress_renum(mask, n=None):
+    def _total_to_compress_renum(valid):
         """
         Parameters
         ----------
-        mask : 1d bool array or None
-            mask
-        n : int
-            length of the mask. Useful only id mask can be None
+        valid : 1d bool array
+            Validity mask.
 
         Returns
         -------
         int array
-            array so that (`valid_array` being a compressed array
-            based on a `masked_array` with mask *mask*):
+            Array so that (`valid_array` being a compressed array
+            based on a `masked_array` with mask ~*valid*):
 
-            - For all i such as mask[i] = False:
+            - For all i with valid[i] = True:
               valid_array[renum[i]] = masked_array[i]
-            - For all i such as mask[i] = True:
+            - For all i with valid[i] = False:
               renum[i] = -1 (invalid value)
         """
-        if n is None:
-            n = np.size(mask)
-        if mask is not None:
-            renum = np.full(n, -1, dtype=np.int32)  # Default num is -1
-            valid = np.arange(n, dtype=np.int32)[~mask]
-            renum[valid] = np.arange(np.size(valid, 0), dtype=np.int32)
-            return renum
-        else:
-            return np.arange(n, dtype=np.int32)
+        renum = np.full(np.size(valid), -1, dtype=np.int32)
+        n_valid = np.sum(valid)
+        renum[valid] = np.arange(n_valid, dtype=np.int32)
+        return renum
