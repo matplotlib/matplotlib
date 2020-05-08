@@ -331,10 +331,12 @@ def _get_executable_info(name):
         raise ExecutableNotFoundError(message)
     elif name == "inkscape":
         try:
-            # use "without-gui" option (only works with inkscape version < 1.0):
-            info = impl(["inkscape", "--without-gui", "-V"], "Inkscape ([^ ]*)")
-        except subprocess.CalledProcessError as _cpe:
-            # for inkscape v > 1.0, --without-gui is not needed:
+            # use headless option first (works with inkscape version < 1.0):
+            info = impl(["inkscape", "--without-gui", "-V"], 
+                        "Inkscape ([^ ]*)")
+        except ExecutableNotFoundError as _e:
+            # if --without-gui is not accepted, we're using Inkscape v > 1.0
+            # so try without the headless option:
             info = impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
         if info and info.version >= "1.0":
             raise ExecutableNotFoundError(
