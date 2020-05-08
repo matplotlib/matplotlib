@@ -656,16 +656,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
 
-        background_color = self.palette().color(self.backgroundRole())
-        foreground_color = self.palette().color(self.foregroundRole())
-        icon_color = (foreground_color
-                      if background_color.value() < 128 else None)
-
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.addSeparator()
             else:
-                a = self.addAction(self._icon(image_file + '.png', icon_color),
+                a = self.addAction(self._icon(image_file + '.png'),
                                    text, getattr(self, callback))
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
@@ -697,15 +692,16 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def basedir(self):
         return str(cbook._get_data_path('images'))
 
-    def _icon(self, name, color=None):
+    def _icon(self, name):
         if QtCore.QT_VERSION_STR >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
         qt_compat._setDevicePixelRatio(pm, qt_compat._devicePixelRatio(self))
-        if color is not None:
+        if self.palette().color(self.backgroundRole()).value() < 128:
+            icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
                                           QtCore.Qt.MaskOutColor)
-            pm.fill(color)
+            pm.fill(icon_color)
             pm.setMask(mask)
         return QtGui.QIcon(pm)
 
@@ -895,15 +891,11 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         self._toolitems = {}
         self._groups = {}
 
-    @property
-    def _icon_extension(self):
-        return '_large.png' if QtCore.QT_VERSION_STR >= '5.' else '.png'
-
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):
 
         button = QtWidgets.QToolButton(self)
-        button.setIcon(self._icon(image_file))
+        button.setIcon(NavigationToolbar2QT._icon(self, image_file))
         button.setText(name)
         if description:
             button.setToolTip(description)
@@ -929,11 +921,6 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         widget = self.insertWidget(before, button)
         gr.insert(position, widget)
         self._groups[group] = gr
-
-    def _icon(self, name):
-        pm = QtGui.QPixmap(name)
-        qt_compat._setDevicePixelRatio(pm, self.toolmanager.canvas._dpi_ratio)
-        return QtGui.QIcon(pm)
 
     def toggle_toolitem(self, name, toggled):
         if name not in self._toolitems:
