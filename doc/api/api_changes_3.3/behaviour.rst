@@ -274,3 +274,9 @@ instead of ::
 
     <a list of 3 Lists of Patches objects>  # "bar", "barstacked"
     <a list of 3 Lists of Patches objects>  # "step", "stepfilled"
+
+Qt and wx backends no longer create a status bar by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The coordinates information is now displayed in the toolbar, consistently with
+the other backends.  This is intended to simplify embedding of Matplotlib in
+larger GUIs, where Matplotlib may control the toolbar but not the status bar.
