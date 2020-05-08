@@ -4143,23 +4143,24 @@ class _AxesBase(martist.Artist):
             self.apply_aspect()
 
         if self.axison:
-            igl = 'x' if for_layout_only else None
-            try:
-                bb_xaxis = self.xaxis.get_tightbbox(renderer, ignore_label=igl)
-            except TypeError:
-                # in case downstream library has redefined axis:
-                bb_xaxis = self.xaxis.get_tightbbox(renderer)
-            if bb_xaxis:
-                bb.append(bb_xaxis)
-
-            igl = 'y' if for_layout_only else None
-            try:
-                bb_yaxis = self.yaxis.get_tightbbox(renderer, ignore_label=igl)
-            except TypeError:
-                # in case downstream library has redefined axis:
-                bb_xaxis = self.yaxis.get_tightbbox(renderer)
-            if bb_yaxis:
-                bb.append(bb_yaxis)
+            if self.xaxis.get_visible():
+                try:
+                    bb_xaxis = self.xaxis.get_tightbbox(
+                        renderer, for_layout_only=for_layout_only)
+                except TypeError:
+                    # in case downstream library has redefined axis:
+                    bb_xaxis = self.xaxis.get_tightbbox(renderer)
+                if bb_xaxis:
+                    bb.append(bb_xaxis)
+            if self.yaxis.get_visible():
+                try:
+                    bb_yaxis = self.yaxis.get_tightbbox(
+                        renderer, for_layout_only=for_layout_only)
+                except TypeError:
+                    # in case downstream library has redefined axis:
+                    bb_yaxis = self.yaxis.get_tightbbox(renderer)
+                if bb_yaxis:
+                    bb.append(bb_yaxis)
         self._update_title_position(renderer)
         axbbox = self.get_window_extent(renderer)
         bb.append(axbbox)
