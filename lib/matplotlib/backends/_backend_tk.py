@@ -414,13 +414,10 @@ class FigureManagerTk(FigureManagerBase):
         self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        self.statusbar = None
-
         if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarTk(self.window, self.toolmanager)
 
         self._shown = False
 
@@ -714,6 +711,9 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
                           borderwidth=2)
+        self._message = tk.StringVar(master=self)
+        self._message_label = tk.Label(master=self, textvariable=self._message)
+        self._message_label.pack(side=tk.RIGHT)
         self._toolitems = {}
         self.pack(side=tk.TOP, fill=tk.X)
         self._groups = {}
@@ -758,7 +758,11 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
             toolitem.pack_forget()
         del self._toolitems[name]
 
+    def set_message(self, s):
+        self._message.set(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarTk(StatusbarBase, tk.Frame):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)

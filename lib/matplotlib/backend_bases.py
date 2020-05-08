@@ -23,9 +23,6 @@ graphics contexts must implement to serve as a Matplotlib backend.
 
 `ToolContainerBase`
     The base class for the Toolbar class of each interactive backend.
-
-`StatusbarBase`
-    The base class for the messaging area.
 """
 
 from contextlib import contextmanager
@@ -2614,6 +2611,11 @@ class FigureManagerBase:
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
 
+    @cbook.deprecated("3.3")
+    @property
+    def statusbar(self):
+        return None
+
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
@@ -3188,8 +3190,12 @@ class ToolContainerBase:
 
     def __init__(self, toolmanager):
         self.toolmanager = toolmanager
-        self.toolmanager.toolmanager_connect('tool_removed_event',
-                                             self._remove_tool_cbk)
+        toolmanager.toolmanager_connect(
+            'tool_message_event',
+            lambda event: self.set_message(event.message))
+        toolmanager.toolmanager_connect(
+            'tool_removed_event',
+            lambda event: self.remove_toolitem(event.tool.name))
 
     def _tool_toggled_cbk(self, event):
         """
@@ -3223,10 +3229,6 @@ class ToolContainerBase:
             # If initially toggled
             if tool.toggled:
                 self.toggle_toolitem(tool.name, True)
-
-    def _remove_tool_cbk(self, event):
-        """Capture the 'tool_removed_event' signal and removes the tool."""
-        self.remove_toolitem(event.tool.name)
 
     def _get_image_filename(self, image):
         """Find the image based on its name."""
@@ -3312,7 +3314,19 @@ class ToolContainerBase:
         """
         raise NotImplementedError
 
+    def set_message(self, s):
+        """
+        Display a message on the toolbar.
 
+        Parameters
+        ----------
+        s : str
+            Message text.
+        """
+        raise NotImplementedError
+
+
+@cbook.deprecated("3.3")
 class StatusbarBase:
     """Base class for the statusbar."""
     def __init__(self, toolmanager):
@@ -3333,7 +3347,6 @@ class StatusbarBase:
         s : str
             Message text.
         """
-        pass
 
 
 class _Backend:

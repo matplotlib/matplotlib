@@ -347,7 +347,6 @@ class FigureManagerGTK3(FigureManagerBase):
         h = int(self.canvas.figure.bbox.height)
 
         self.toolbar = self._get_toolbar()
-        self.statusbar = None
 
         def add_widget(child):
             child.show()
@@ -359,9 +358,6 @@ class FigureManagerGTK3(FigureManagerBase):
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarGTK3(self.toolmanager)
-                h += add_widget(self.statusbar)
-                h += add_widget(Gtk.HSeparator())
 
         if self.toolbar is not None:
             self.toolbar.show()
@@ -433,9 +429,6 @@ class FigureManagerGTK3(FigureManagerBase):
         if self.toolbar:
             toolbar_size = self.toolbar.size_request()
             height += toolbar_size.height
-        if self.statusbar:
-            statusbar_size = self.statusbar.size_request()
-            height += statusbar_size.height
         canvas_size = self.canvas.get_allocation()
         if canvas_size.width == canvas_size.height == 1:
             # A canvas size of (1, 1) cannot exist in most cases, because
@@ -623,12 +616,10 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
-        self.set_property("orientation", Gtk.Orientation.VERTICAL)
-
-        self._toolarea = Gtk.Box()
-        self._toolarea.set_property('orientation', Gtk.Orientation.HORIZONTAL)
-        self.pack_start(self._toolarea, False, False, 0)
-        self._toolarea.show_all()
+        self.set_property('orientation', Gtk.Orientation.HORIZONTAL)
+        self._message = Gtk.Label()
+        self.pack_end(self._message, False, False, 0)
+        self.show_all()
         self._groups = {}
         self._toolitems = {}
 
@@ -661,7 +652,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
                 self._add_separator()
             toolbar = Gtk.Toolbar()
             toolbar.set_style(Gtk.ToolbarStyle.ICONS)
-            self._toolarea.pack_start(toolbar, False, False, 0)
+            self.pack_start(toolbar, False, False, 0)
             toolbar.show_all()
             self._groups[group] = toolbar
         self._groups[group].insert(button, position)
@@ -691,10 +682,14 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def _add_separator(self):
         sep = Gtk.Separator()
         sep.set_property("orientation", Gtk.Orientation.VERTICAL)
-        self._toolarea.pack_start(sep, False, True, 0)
+        self.pack_start(sep, False, True, 0)
         sep.show_all()
 
+    def set_message(self, s):
+        self._message.set_label(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
     def __init__(self, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
