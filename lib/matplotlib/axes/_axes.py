@@ -4471,6 +4471,8 @@ default: :rc:`scatter.edgecolors`
             linewidths = rcParams['lines.linewidth']
 
         offsets = np.ma.column_stack([x, y])
+        # "pixel" markers should be drawn at their "true" size
+        ignore_scale = marker_obj.get_marker() == ','
 
         collection = mcoll.PathCollection(
                 (path,), scales,
@@ -4479,7 +4481,8 @@ default: :rc:`scatter.edgecolors`
                 linewidths=linewidths,
                 offsets=offsets,
                 transOffset=kwargs.pop('transform', self.transData),
-                alpha=alpha
+                alpha=alpha,
+                ignore_scale=ignore_scale
                 )
         collection.set_transform(mtransforms.IdentityTransform())
         collection.update(kwargs)
