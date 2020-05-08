@@ -30,3 +30,16 @@ jobs:
         run: |
           flake8 --docstring-convention=all | \
             reviewdog -f=pep8 -name=flake8 -reporter=github-check
+
+  eslint:
+    name: eslint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: eslint
+        uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-check
+          workdir: 'lib/matplotlib/backends/web_backend/'
