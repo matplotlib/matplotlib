@@ -334,7 +334,7 @@ def _get_executable_info(name):
             # use headless option first (works with inkscape version < 1.0):
             info = impl(["inkscape", "--without-gui", "-V"],
                         "Inkscape ([^ ]*)")
-        except ExecutableNotFoundError as _e:
+        except ExecutableNotFoundError:
             # if --without-gui is not accepted, we're using Inkscape v > 1.0
             # so try without the headless option:
             info = impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
