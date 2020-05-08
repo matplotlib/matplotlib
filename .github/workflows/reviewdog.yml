@@ -18,11 +18,15 @@ jobs:
 
       - name: Set up reviewdog
         run: |
-          mkdir -p $HOME/bin && curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b $HOME/bin
+          mkdir -p $HOME/bin
+          curl -sfL \
+            https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
+              sh -s -- -b $HOME/bin
           echo ::add-path::$HOME/bin
 
       - name: Run flake8
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          flake8 --docstring-convention=all | reviewdog -f=pep8 -name=flake8 -reporter=github-check
+          flake8 --docstring-convention=all | \
+            reviewdog -f=pep8 -name=flake8 -reporter=github-check
