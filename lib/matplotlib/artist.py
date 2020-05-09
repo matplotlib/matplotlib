@@ -85,7 +85,9 @@ class Artist:
         self._contains = None
         self._rasterized = None
         self._agg_filter = None
-        self._mouseover = False
+        # Normally, artist classes need to be queried for mouseover info if and
+        # only if they override get_cursor_data.
+        self._mouseover = type(self).get_cursor_data != Artist.get_cursor_data
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
