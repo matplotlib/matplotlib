@@ -26,5 +26,4 @@ boxplot.boxprops.color: white
 boxplot.capprops.color: white
 boxplot.flierprops.color: white
 boxplot.flierprops.markeredgecolor: white
-boxplot.meanprops.markeredgecolor: white
 boxplot.whiskerprops.color: white
