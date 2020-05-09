@@ -78,8 +78,6 @@ loop is properly integrated with the command line (see
 
    In [2]: import matplotlib.pyplot as plt
 
-   In [3]:
-
 Calling
 
 ::

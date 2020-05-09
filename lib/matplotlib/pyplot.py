@@ -345,18 +345,21 @@ def isinteractive():
 
       - newly created figures will be shown immediately
       - figures will automatically redraw on change
-      - pyplot.show will not block by default
+      - `.pyplot.show` will not block by default
 
     If not in interactive mode then:
 
       - newly created figures and changes to figures will
         not be reflected until explicitly asked to be
-      - pyplot.show will block by default
+      - `.pyplot.show` will block by default
 
     See Also
     --------
     ion : enable interactive mode
     ioff : disable interactive mode
+
+    show : show windows (and maybe block)
+    pause : show widows, run GUI event loop, and block for a time
     """
     return matplotlib.is_interactive()
 
@@ -370,6 +373,8 @@ def ioff():
     ion : enable interactive mode
     isinteractive : query current state
 
+    show : show windows (and maybe block)
+    pause : show widows, run GUI event loop, and block for a time
     """
     matplotlib.interactive(False)
     uninstall_repl_displayhook()
@@ -383,6 +388,9 @@ def ion():
     --------
     ioff : disable interactive mode
     isinteractive : query current state
+
+    show : show windows (and maybe block)
+    pause : show widows, run GUI event loop, and block for a time
     """
     matplotlib.interactive(True)
     install_repl_displayhook()
