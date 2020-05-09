@@ -309,11 +309,11 @@ def show(*args, **kwargs):
     """
     Display all open figures.
 
-    In non-interactive mode, **block** defaults to True.  All figures
+    In non-interactive mode, *block* defaults to True.  All figures
     will display and show will not return until all windows are closed.
     If there are no figures, return immediately.
 
-    In interactive mode **block** defaults to False.  This will ensure
+    In interactive mode *block* defaults to False.  This will ensure
     that all of the figures are shown and this function immediately returns.
 
     Parameters

@@ -15,7 +15,7 @@ tools are sufficient, but you can also use the Matplotlib event system
 to build customized data exploration tools.
 
 Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to
-several GUI toolkits (Qt, Tk, Wx, Gtk, OSX, js) and third party
+several GUI toolkits (Qt, Tk, Wx, GTK, macOS, JavaScript) and third party
 packages provide bindings to `kivy
 <https://github.com/kivy-garden/garden.matplotlib>`__ and `Jupyter Lab
 <https://github.com/matplotlib/ipympl>`__.  For the figures to be
@@ -288,7 +288,7 @@ If you are running your jupyter kernel locally you can use one of the
 GUI backends.  The process running your kernel will show a GUI window
 on your desktop adjacent to your web browser.  However if you move
 that notebook to a remote server the kernel will try to open the GUI
-window on _that_ computer.  Unless you have arranged to forward the
+window on *that* computer.  Unless you have arranged to forward the
 xserver back to your desktop, you not be able to see or interact with
 the figure (if it does not raise an exception outright).
 

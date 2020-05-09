@@ -393,7 +393,7 @@ Eventloop integration mechanism
 CPython / readline
 ------------------
 
-The python capi provides a hook, :c:var:`PyOS_InputHook`, to register a
+The Python C API provides a hook, :c:var:`PyOS_InputHook`, to register a
 function to be run "The function will be called when Python's
 interpreter prompt is about to become idle and wait for user input
 from the terminal.".  This hook can be used to integrate a second
@@ -404,7 +404,7 @@ run the event loop until a key is pressed on stdin.
 
 
 Matplotlib does not currently do any management of
-:c:var:`PyOS_InputHook` due to the wide range of ways that matplotlib
+:c:var:`PyOS_InputHook` due to the wide range of ways that Matplotlib
 is used.  This management is left to downstream libraries -- either
 user code or the shell.  Interactive figures, even with matplotlib in
 'interactive mode', may not work in the vanilla python repl if an
@@ -422,9 +422,9 @@ IPython / prompt toolkit
 
 With IPython >= 5.0 IPython has changed from using cpython's readline
 based prompt to a ``prompt_toolkit`` based prompt.  ``prompt_toolkit``
-has the same conceptual input hook, which is feed into prompt_toolkit via the
+has the same conceptual input hook, which is fed into ``prompt_toolkit`` via the
 :meth:`IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook`
-method.  The source for the prompt_toolkit input hooks lives at
+method.  The source for the ``prompt_toolkit`` input hooks lives at
 :mod:`IPython.terminal.pt_inputhooks`
 
 
