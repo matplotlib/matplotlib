@@ -364,9 +364,41 @@ def isinteractive():
     return matplotlib.is_interactive()
 
 
+class _ioff():
+    def __call__(self):
+        matplotlib.interactive(False)
+        uninstall_repl_displayhook()
+
+    def __enter__(self):
+        self.wasinteractive = isinteractive()
+        self.__call__()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.wasinteractive:
+            matplotlib.interactive(True)
+            install_repl_displayhook()
+        del self.wasinteractive
+
+
+class _ion():
+    def __call__(self):
+        matplotlib.interactive(True)
+        install_repl_displayhook()
+
+    def __enter__(self):
+        self.wasinteractive = isinteractive()
+        self.__call__()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if not self.wasinteractive:
+            matplotlib.interactive(False)
+            uninstall_repl_displayhook()
+        del self.wasinteractive
+
+
 def ioff():
     """
-    Turn the interactive mode off.
+    Turn interactive mode off.
 
     See Also
     --------
@@ -375,25 +407,54 @@ def ioff():
 
     show : show windows (and maybe block)
     pause : show windows, run GUI event loop, and block for a time
+
+    Notes
+    -----
+    If you want the effects of this function to be temporary, it can
+    be used as a context manager, for example::
+
+        with plt.ioff():
+            # interactive mode will be off
+            # figures will not automatically be shown
+            fig1 = plt.figure()
+            # ...
+
+        # This figure will be shown immediately
+        fig2 = plt.figure()
     """
-    matplotlib.interactive(False)
-    uninstall_repl_displayhook()
+    return _ioff()
 
 
 def ion():
     """
-    Turn the interactive mode on.
+    Turn interactive mode on.
 
     See Also
     --------
-    ioff : disable interactive mode
+    ion : enable interactive mode
     isinteractive : query current state
 
     show : show windows (and maybe block)
     pause : show windows, run GUI event loop, and block for a time
+
+    Notes
+    -----
+    If you want the effects of this function to be temporary, it can
+    be used as a context manager, for example::
+
+        # if interactive mode is off
+        # then figures will not be shown on creation
+        plt.ioff()
+        # This figure will not be shown immediately
+        fig2 = plt.figure()
+
+        with plt.ion():
+            # interactive mode will be on
+            # figures will automatically be shown
+            fig1 = plt.figure()
+            # ...
     """
-    matplotlib.interactive(True)
-    install_repl_displayhook()
+    return _ion()
 
 
 def pause(interval):
