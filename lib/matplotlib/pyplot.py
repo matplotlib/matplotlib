@@ -359,7 +359,7 @@ def isinteractive():
     ioff : disable interactive mode
 
     show : show windows (and maybe block)
-    pause : show widows, run GUI event loop, and block for a time
+    pause : show windows, run GUI event loop, and block for a time
     """
     return matplotlib.is_interactive()
 
@@ -374,7 +374,7 @@ def ioff():
     isinteractive : query current state
 
     show : show windows (and maybe block)
-    pause : show widows, run GUI event loop, and block for a time
+    pause : show windows, run GUI event loop, and block for a time
     """
     matplotlib.interactive(False)
     uninstall_repl_displayhook()
@@ -390,7 +390,7 @@ def ion():
     isinteractive : query current state
 
     show : show windows (and maybe block)
-    pause : show widows, run GUI event loop, and block for a time
+    pause : show windows, run GUI event loop, and block for a time
     """
     matplotlib.interactive(True)
     install_repl_displayhook()
