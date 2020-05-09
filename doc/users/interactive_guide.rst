@@ -264,7 +264,6 @@ For example ::
    plt.ion()
 
    fig, ax = plt.subplots()
-   fig.canvas.show()
    th = np.linspace(0, 2*np.pi, 512)
    ax.set_ylim(-1.5, 1.5)
 
