@@ -691,9 +691,11 @@ def _validate_hinting(s):
             "True or False is deprecated since %(since)s and will be removed "
             "%(removal)s; set it to its synonyms 'auto' or 'none' instead.")
         return s
-    if s.lower() in ('auto', 'native', 'either', 'none'):
-        return s.lower()
-    raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
+    return ValidateInStrings(
+        'text.hinting',
+        ['default', 'no_autohint', 'force_autohint', 'no_hinting',
+         'auto', 'native', 'either', 'none'],
+        ignorecase=True)(s)
 
 
 validate_pgf_texsystem = ValidateInStrings(

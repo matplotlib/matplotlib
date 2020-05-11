@@ -278,3 +278,11 @@ Qt and wx backends no longer create a status bar by default
 The coordinates information is now displayed in the toolbar, consistently with
 the other backends.  This is intended to simplify embedding of Matplotlib in
 larger GUIs, where Matplotlib may control the toolbar but not the status bar.
+
+:rc:`text.hinting` now supports names mapping to FreeType flags
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:rc:`text.hinting` now supports the values "default", "no_autohint",
+"force_autohint", and "no_hinting", which directly map to the FreeType flags
+FT_LOAD_DEFAULT, etc.  The old synonyms (respectively "either", "native",
+"auto", and "none") are still supported.  To get normalized values, use
+`.backend_agg.get_hinting_flag`, which returns integer flag values.
