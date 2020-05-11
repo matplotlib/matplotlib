@@ -3010,6 +3010,7 @@ class _AxesBase(martist.Artist):
             self.yaxis.get_major_locator().set_params(**kwargs)
         self._request_autoscale_view(tight=tight,
                                      scalex=update_x, scaley=update_y)
+        self.stale = True
 
     def tick_params(self, axis='both', **kwargs):
         """

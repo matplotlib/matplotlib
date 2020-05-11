@@ -3,6 +3,7 @@ Classes for the ticks and x and y axis.
 """
 
 import datetime
+import functools
 import logging
 
 import numpy as np
@@ -1646,6 +1647,11 @@ class Axis(martist.Artist):
         """
         self.pickradius = pickradius
 
+    # Helper for set_ticklabels. Defining it here makes it pickleable.
+    @staticmethod
+    def _format_with_dict(tickd, x, pos):
+        return tickd.get(x, "")
+
     def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         r"""
         Set the text values of the tick labels.
@@ -1658,8 +1664,9 @@ class Axis(martist.Artist):
         Parameters
         ----------
         ticklabels : sequence of str or of `.Text`\s
-            List of texts for tick labels; must include values for non-visible
-            labels.
+            Texts for labeling each tick location in the sequence set by
+            `.Axis.set_ticks`; the number of labels must match the number of
+            locations.
         minor : bool
             If True, set minor ticks instead of major ticks.
         **kwargs
@@ -1673,14 +1680,34 @@ class Axis(martist.Artist):
         """
         ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
                       for t in ticklabels]
-        if minor:
-            self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
-            ticks = self.get_minor_ticks()
+        locator = (self.get_minor_locator() if minor
+                   else self.get_major_locator())
+        if isinstance(locator, mticker.FixedLocator):
+            if len(locator.locs) != len(ticklabels):
+                raise ValueError(
+                    "The number of FixedLocator locations"
+                    f" ({len(locator.locs)}), usually from a call to"
+                    " set_ticks, does not match"
+                    f" the number of ticklabels ({len(ticklabels)}).")
+            tickd = {loc: lab for loc, lab in zip(locator.locs, ticklabels)}
+            func = functools.partial(self._format_with_dict, tickd)
+            formatter = mticker.FuncFormatter(func)
         else:
-            self.set_major_formatter(mticker.FixedFormatter(ticklabels))
-            ticks = self.get_major_ticks()
+            formatter = mticker.FixedFormatter(ticklabels)
+
+        if minor:
+            self.set_minor_formatter(formatter)
+            locs = self.get_minorticklocs()
+            ticks = self.get_minor_ticks(len(locs))
+        else:
+            self.set_major_formatter(formatter)
+            locs = self.get_majorticklocs()
+            ticks = self.get_major_ticks(len(locs))
+
         ret = []
-        for tick_label, tick in zip(ticklabels, ticks):
+        for pos, (loc, tick) in enumerate(zip(locs, ticks)):
+            tick.update_position(loc)
+            tick_label = formatter(loc, pos)
             # deal with label1
             tick.label1.set_text(tick_label)
             tick.label1.update(kwargs)

@@ -387,8 +387,10 @@ class FuncFormatter(Formatter):
     position ``pos``), and return a string containing the corresponding
     tick label.
     """
+
     def __init__(self, func):
         self.func = func
+        self.offset_string = ""
 
     def __call__(self, x, pos=None):
         """
@@ -397,6 +399,12 @@ class FuncFormatter(Formatter):
         *x* and *pos* are passed through as-is.
         """
         return self.func(x, pos)
+
+    def get_offset(self):
+        return self.offset_string
+
+    def set_offset_string(self, ofs):
+        self.offset_string = ofs
 
 
 class FormatStrFormatter(Formatter):

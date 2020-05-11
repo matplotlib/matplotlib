@@ -37,6 +37,13 @@ did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 `.pyplot.tick_params`) used to accept any value for ``which`` and silently
 did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 
+``Axis.set_ticklabels()`` must match ``FixedLocator.locs``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If an axis is using a `.ticker.FixedLocator`, typically set by a call to
+`.Axis.set_ticks`, then the number of ticklabels supplied must match the
+number of locations available (``FixedFormattor.locs``).  If not, a
+``ValueError`` is raised.
+
 ``backend_pgf.LatexManager.latex``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``backend_pgf.LatexManager.latex`` is now created with ``encoding="utf-8"``, so

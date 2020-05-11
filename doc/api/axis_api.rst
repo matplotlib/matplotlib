@@ -228,17 +228,20 @@ Other
 Discouraged
 -----------
 
-These methods implicitly use `~matplotlib.ticker.FixedLocator` and
-`~matplotlib.ticker.FixedFormatter`.  They can be convenient, but if
-not used together may de-couple your tick labels from your data.
+These methods should be used together with care, calling ``set_ticks``
+to specify the desired tick locations **before** calling ``set_ticklabels`` to
+specify a matching series of labels.  Calling ``set_ticks`` makes a
+`~matplotlib.ticker.FixedLocator`; it's list of locations is then used by
+``set_ticklabels`` to make an appropriate
+`~matplotlib.ticker.FuncFormatter`.
 
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
 
-   Axis.set_ticklabels
    Axis.set_ticks
+   Axis.set_ticklabels
 
 
 

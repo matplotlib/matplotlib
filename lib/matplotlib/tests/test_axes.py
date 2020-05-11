@@ -4497,8 +4497,8 @@ def test_set_get_ticklabels():
     # set ticklabel to 1 plot in normal way
     ax[0].set_xticks(range(10))
     ax[0].set_yticks(range(10))
-    ax[0].set_xticklabels(['a', 'b', 'c', 'd'])
-    ax[0].set_yticklabels(['11', '12', '13', '14'])
+    ax[0].set_xticklabels(['a', 'b', 'c', 'd'] + 6 * [''])
+    ax[0].set_yticklabels(['11', '12', '13', '14'] + 6 * [''])
 
     # set ticklabel to the other plot, expect the 2 plots have same label
     # setting pass get_ticklabels return value as ticklabels argument
@@ -4506,6 +4506,26 @@ def test_set_get_ticklabels():
     ax[1].set_yticks(ax[0].get_yticks())
     ax[1].set_xticklabels(ax[0].get_xticklabels())
     ax[1].set_yticklabels(ax[0].get_yticklabels())
+
+
+def test_subsampled_ticklabels():
+    # test issue 11937
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10))
+    ax.xaxis.set_ticks(np.arange(10) + 0.1)
+    ax.locator_params(nbins=5)
+    ax.xaxis.set_ticklabels([c for c in "bcdefghijk"])
+    plt.draw()
+    labels = [t.get_text() for t in ax.xaxis.get_ticklabels()]
+    assert labels == ['b', 'd', 'f', 'h', 'j']
+
+
+def test_mismatched_ticklabels():
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10))
+    ax.xaxis.set_ticks([1.5, 2.5])
+    with pytest.raises(ValueError):
+        ax.xaxis.set_ticklabels(['a', 'b', 'c'])
 
 
 @image_comparison(['retain_tick_visibility.png'])
