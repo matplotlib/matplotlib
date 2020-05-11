@@ -414,51 +414,6 @@ exit:
     }
 }
 
-static int convert_open_args(PyFT2Font *self, PyObject *py_file_arg, FT_Open_Args *open_args)
-{
-    PyObject *open = NULL;
-    PyObject *data = NULL;
-
-    int result = 0;
-    bool close_file = false;
-
-    memset((void *)open_args, 0, sizeof(FT_Open_Args));
-
-    if (PyBytes_Check(py_file_arg) || PyUnicode_Check(py_file_arg)) {
-        if (!(open = PyDict_GetItemString(PyEval_GetBuiltins(), "open"))  // Borrowed reference.
-            || !(self->py_file = PyObject_CallFunction(open, "Os", py_file_arg, "rb"))) {
-            goto exit;
-        }
-        close_file = true;
-    } else if (!PyObject_HasAttrString(py_file_arg, "read")
-               || !(data = PyObject_CallMethod(py_file_arg, "read", "i", 0))
-               || !PyBytes_Check(data)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "First argument must be a path or binary-mode file object");
-        goto exit;
-    } else {
-        self->py_file = py_file_arg;
-        Py_INCREF(py_file_arg);
-    }
-
-    self->stream.base = NULL;
-    self->stream.size = 0x7fffffff;  // Unknown size.
-    self->stream.pos = 0;
-    self->stream.descriptor.pointer = self;
-    self->stream.read = &read_from_file_callback;
-    self->stream.close = close_file ? &close_file_callback : NULL;
-    open_args->flags = FT_OPEN_STREAM;
-    open_args->stream = &self->stream;
-
-    result = 1;
-
-exit:
-
-    Py_XDECREF(data);
-
-    return result;
-}
-
 static PyTypeObject PyFT2FontType;
 
 static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -501,20 +456,43 @@ const char *PyFT2Font_init__doc__ =
 
 static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *fname;
+    PyObject *filename = NULL, *open = NULL, *data = NULL;
     FT_Open_Args open_args;
     long hinting_factor = 8;
     int kerning_factor = 0;
     const char *names[] = { "filename", "hinting_factor", "_kerning_factor", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "O|l$i:FT2Font", (char **)names, &fname,
+             args, kwds, "O|l$i:FT2Font", (char **)names, &filename,
              &hinting_factor, &kerning_factor)) {
         return -1;
     }
 
-    if (!convert_open_args(self, fname, &open_args)) {
-        return -1;
+    self->stream.base = NULL;
+    self->stream.size = 0x7fffffff;  // Unknown size.
+    self->stream.pos = 0;
+    self->stream.descriptor.pointer = self;
+    self->stream.read = &read_from_file_callback;
+    memset((void *)&open_args, 0, sizeof(FT_Open_Args));
+    open_args.flags = FT_OPEN_STREAM;
+    open_args.stream = &self->stream;
+
+    if (PyBytes_Check(filename) || PyUnicode_Check(filename)) {
+        if (!(open = PyDict_GetItemString(PyEval_GetBuiltins(), "open"))  // Borrowed reference.
+            || !(self->py_file = PyObject_CallFunction(open, "Os", filename, "rb"))) {
+            goto exit;
+        }
+        self->stream.close = &close_file_callback;
+    } else if (!PyObject_HasAttrString(filename, "read")
+               || !(data = PyObject_CallMethod(filename, "read", "i", 0))
+               || !PyBytes_Check(data)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "First argument must be a path or binary-mode file object");
+        goto exit;
+    } else {
+        self->py_file = filename;
+        self->stream.close = NULL;
+        Py_INCREF(filename);
     }
 
     CALL_CPP_FULL(
@@ -523,8 +501,11 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 
     CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
 
-    Py_INCREF(fname);
-    self->fname = fname;
+    Py_INCREF(filename);
+    self->fname = filename;
+
+exit:
+    Py_XDECREF(data);
 
     return 0;
 }
