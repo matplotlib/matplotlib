@@ -214,7 +214,7 @@ to a figure. E.g. ::
    fig.add_artist(circ)
 
 In case the added artist has no transform set previously, it will be set to
-the figure transform (``fig.transFigure``).
+the figure transform (``fig.transPanel``).
 This new method may be useful for adding artists to figures without axes or to
 easily position static elements in figure coordinates.
 

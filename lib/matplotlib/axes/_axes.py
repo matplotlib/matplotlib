@@ -57,7 +57,7 @@ def _make_inset_locator(bounds, trans, parent):
     def inset_locator(ax, renderer):
         bbox = _bounds
         bb = mtransforms.TransformedBbox(bbox, _trans)
-        tr = _parent.figure.transFigure.inverted()
+        tr = _parent.figure.transPanel.inverted()
         bb = mtransforms.TransformedBbox(bb, tr)
         return bb
 
@@ -577,7 +577,7 @@ class Axes(_AxesBase):
 
             # decide which two of the lines to keep visible....
             pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.figure.transFigure)
+            bboxins = pos.transformed(self.figure.transPanel)
             rectbbox = mtransforms.Bbox.from_bounds(
                 *bounds
             ).transformed(transform)

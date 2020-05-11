@@ -625,7 +625,7 @@ class _AxesBase(martist.Artist):
         martist.Artist.set_figure(self, fig)
 
         self.bbox = mtransforms.TransformedBbox(self._position,
-                                                fig.transFigure)
+                                                fig.transPanel)
         # these will be updated later as data is added
         self.dataLim = mtransforms.Bbox.null()
         self._viewLim = mtransforms.Bbox.unit()

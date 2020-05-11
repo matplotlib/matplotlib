@@ -47,8 +47,10 @@ import logging
 
 import numpy as np
 
+import matplotlib.figure as mfigure
 import matplotlib.cbook as cbook
 import matplotlib._layoutbox as layoutbox
+from matplotlib.transforms import Bbox, TransformedBbox
 
 _log = logging.getLogger(__name__)
 
@@ -128,7 +130,10 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     # This can break down if the decoration size for the right hand axis (the
     # margins) is very large.  There must be a math way to check for this case.
 
-    invTransFig = fig.transFigure.inverted().transform_bbox
+    invTransFig = fig.transPanel.inverted().transform_bbox
+
+
+
 
     # list of unique gridspecs that contain child axes:
     gss = set()
@@ -160,17 +165,20 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 _make_layout_margins(ax, renderer, h_pad, w_pad)
 
         # do layout for suptitle.
-        suptitle = fig._suptitle
-        do_suptitle = (suptitle is not None and
-                       suptitle._layoutbox is not None and
-                       suptitle.get_in_layout())
-        if do_suptitle:
-            bbox = invTransFig(
-                suptitle.get_window_extent(renderer=renderer))
-            height = bbox.height
-            if np.isfinite(height):
-                # reserve at top of figure include an h_pad above and below
-                suptitle._layoutbox.edit_height(height + h_pad * 2)
+        do_suptitle = False
+        suptitle = None
+        if 0:
+            suptitle = fig._suptitle
+            do_suptitle = (suptitle is not None and
+                           suptitle._layoutbox is not None and
+                           suptitle.get_in_layout())
+            if do_suptitle:
+                bbox = invTransFig(
+                    suptitle.get_window_extent(renderer=renderer))
+                height = bbox.height
+                if np.isfinite(height):
+                    # reserve at top of figure include an h_pad above and below
+                    suptitle._layoutbox.edit_height(height + h_pad * 2)
 
         # OK, the above lines up ax._poslayoutbox with ax._layoutbox
         # now we need to
@@ -199,18 +207,23 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
         fig._layoutbox.constrained_layout_called += 1
         fig._layoutbox.update_variables()
+        print('updated')
+        layoutbox.print_children(fig._layoutbox)
+
 
         # check if any axes collapsed to zero.  If not, don't change positions:
         if _axes_all_finite_sized(fig):
             # Now set the position of the axes...
             for ax in fig.axes:
                 if ax._layoutbox is not None:
-                    newpos = ax._poslayoutbox.get_rect()
+                    bbox = Bbox.from_bounds(*ax._poslayoutbox.get_rect())
+                    bbox = bbox.transformed(ax.figure.transFigure)
+                    bbox = bbox.transformed(ax.figure.transPanel.inverted())
                     # Now set the new position.
                     # ax.set_position will zero out the layout for
                     # this axis, allowing users to hard-code the position,
                     # so this does the same w/o zeroing layout.
-                    ax._set_position(newpos, which='original')
+                    ax._set_position(bbox.bounds, which='original')
             if do_suptitle:
                 newpos = suptitle._layoutbox.get_rect()
                 suptitle.set_y(1.0 - h_pad)
@@ -256,7 +269,7 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     decorations on the axis.
     """
     fig = ax.figure
-    invTransFig = fig.transFigure.inverted().transform_bbox
+    invTransFig = fig.transPanel.inverted().transform_bbox
     pos = ax.get_position(original=True)
     try:
         tightbbox = ax.get_tightbbox(renderer=renderer, for_layout_only=True)
@@ -293,7 +306,8 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     # rather than expand axes, so they all have zero height
     # or width.  This stops that...  It *should* have been
     # taken into account w/ pref_width...
-    if fig._layoutbox.constrained_layout_called < 1:
+    if True:
+        ## FIXME
         ax._poslayoutbox.constrain_height_min(20, strength='weak')
         ax._poslayoutbox.constrain_width_min(20, strength='weak')
         ax._layoutbox.constrain_height_min(20, strength='weak')
@@ -424,10 +438,18 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
     """Recursively arrange the subplotspec children of the given gridspec."""
     sschildren = []
     for child in gs.children:
+        print('child', child, gs)
         if child._is_subplotspec_layoutbox():
             for child2 in child.children:
                 # check for gridspec children...
+                if child2._is_subpanel_layoutbox():
+                    for child3 in child2.children:
+                        if child3._is_gridspec_layoutbox():
+                            print('  arranging', child3)
+                            _arrange_subplotspecs(child3, hspace=hspace, wspace=wspace)
+                    print('Its a subpanel!', child2)
                 if child2._is_gridspec_layoutbox():
+                    print('arranging:', child2)
                     _arrange_subplotspecs(child2, hspace=hspace, wspace=wspace)
             sschildren += [child]
     # now arrange the subplots...

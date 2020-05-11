@@ -4254,6 +4254,8 @@ class ConnectionPatch(FancyArrowPatch):
             s = s.replace("points", "pixels")
         elif s == "figure fraction":
             s = self.figure.transFigure
+        elif s == "panel fraction":
+            s = self.figure.transPanel
         elif s == "axes fraction":
             s = axes.transAxes
         x, y = xy

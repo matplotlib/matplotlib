@@ -111,7 +111,7 @@ plt.show()
 # the corner's location and the coordinate system of that location::
 #
 #     plt.legend(bbox_to_anchor=(1, 1),
-#                bbox_transform=plt.gcf().transFigure)
+#                bbox_transform=plt.gcf().transPanel)
 #
 # More examples of custom legend placement:
 

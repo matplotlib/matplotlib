@@ -26,7 +26,7 @@ def on_draw(event):
         bbox = label.get_window_extent()
         # the figure transform goes from relative coords->pixels and we
         # want the inverse of that
-        bboxi = bbox.transformed(fig.transFigure.inverted())
+        bboxi = bbox.transformed(fig.transPanel.inverted())
         bboxes.append(bboxi)
     # the bbox that bounds all the bboxes, again in relative figure coords
     bbox = mtransforms.Bbox.union(bboxes)

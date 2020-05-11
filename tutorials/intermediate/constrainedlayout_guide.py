@@ -466,7 +466,7 @@ fig.execute_constrained_layout()
 # put into data-space:
 bb_data_ax2 = Bbox.from_bounds(0.5, 1., 0.2, 0.4)
 disp_coords = axs[0].transData.transform(bb_data_ax2)
-fig_coords_ax2 = fig.transFigure.inverted().transform(disp_coords)
+fig_coords_ax2 = fig.transPanel.inverted().transform(disp_coords)
 bb_ax2 = Bbox(fig_coords_ax2)
 ax2 = fig.add_axes(bb_ax2)
 

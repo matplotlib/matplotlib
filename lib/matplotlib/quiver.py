@@ -355,6 +355,7 @@ class QuiverKey(martist.Artist):
         self.set_transform(cbook._check_getitem({
             "data": self.Q.axes.transData,
             "axes": self.Q.axes.transAxes,
+            "panel": self.Q.axes.figure.transPanel,
             "figure": self.Q.axes.figure.transFigure,
             "inches": self.Q.axes.figure.dpi_scale_trans,
         }, coordinates=self.coord))

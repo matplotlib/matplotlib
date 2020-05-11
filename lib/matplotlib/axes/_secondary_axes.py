@@ -27,7 +27,7 @@ def _make_secondary_locator(rect, parent):
         # delay evaluating transform until draw time because the
         # parent transform may have changed (i.e. if window reesized)
         bb = mtransforms.TransformedBbox(_rect, parent.transAxes)
-        tr = parent.figure.transFigure.inverted()
+        tr = parent.figure.transPanel.inverted()
         bb = mtransforms.TransformedBbox(bb, tr)
         return bb
 

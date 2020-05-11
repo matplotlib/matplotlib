@@ -87,7 +87,7 @@ def auto_adjust_subplotpars(
 
         tight_bbox_raw = Bbox.union(bb)
         tight_bbox = TransformedBbox(tight_bbox_raw,
-                                     fig.transFigure.inverted())
+                                     fig.transPanel.inverted())
 
         row1, col1 = divmod(num1, cols)
         if num2 is None:
@@ -116,7 +116,7 @@ def auto_adjust_subplotpars(
                       + pad_inches / fig_height_inch)
         suptitle = fig._suptitle
         if suptitle and suptitle.get_in_layout():
-            rel_suptitle_height = fig.transFigure.inverted().transform_bbox(
+            rel_suptitle_height = fig.transPanel.inverted().transform_bbox(
                 suptitle.get_window_extent(renderer)).height
             margin_top += rel_suptitle_height + pad_inches / fig_height_inch
     if not margin_bottom:

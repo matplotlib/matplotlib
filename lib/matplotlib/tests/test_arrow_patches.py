@@ -44,7 +44,7 @@ def test_boxarrow():
         fig.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
                  ha="center",
                  size=fontsize,
-                 transform=fig.transFigure,
+                 transform=fig.transPanel,
                  bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
