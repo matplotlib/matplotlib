@@ -101,10 +101,7 @@ os.environ.pop("DISPLAY", None)
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-if sphinx.version_info < (1, 8):
-    autodoc_default_flags = ['members', 'undoc-members']
-else:
-    autodoc_default_options = {'members': None, 'undoc-members': None}
+autodoc_default_options = {'members': None, 'undoc-members': None}
 
 # missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
 # for older sphinxes.
@@ -345,10 +342,7 @@ latex_appendices = []
 # If false, no module index is generated.
 latex_use_modindex = True
 
-if hasattr(sphinx, 'version_info') and sphinx.version_info[:2] >= (1, 4):
-    latex_toplevel_sectioning = 'part'
-else:
-    latex_use_parts = True
+latex_toplevel_sectioning = 'part'
 
 # Show both class-level docstring and __init__ docstring in class
 # documentation
