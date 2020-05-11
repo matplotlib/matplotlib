@@ -555,6 +555,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         self._wspace = wspace
         self._hspace = hspace
         self._subplot_spec = subplot_spec
+        self.figure = self._subplot_spec.get_gridspec().figure
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
