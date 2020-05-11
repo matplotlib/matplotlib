@@ -22,35 +22,38 @@ U = -1 - X**2 + Y
 V = 1 + X - Y**2
 speed = np.sqrt(U**2 + V**2)
 
-
-gs = {'height_ratios': [1, 1, 2]}
-fig, axs = plt.subplots(nrows=3, ncols=2, gridspec_kw=gs, figsize=(7, 9))
+fig = plt.figure(figsize=(7, 9))
+gs = gridspec.GridSpec(nrows=3, ncols=2, height_ratios=[1, 1, 2])
 
 #  Varying density along a streamline
-axs[0, 0].streamplot(X, Y, U, V, density=[0.5, 1])
-axs[0, 0].set_title('Varying Density')
+ax0 = fig.add_subplot(gs[0, 0])
+ax0.streamplot(X, Y, U, V, density=[0.5, 1])
+ax0.set_title('Varying Density')
 
 # Varying color along a streamline
-strm = axs[0, 1].streamplot(X, Y, U, V, color=U, linewidth=2, cmap='autumn')
-fig.colorbar(strm.lines, ax=axs[0, 1])
-axs[0, 1].set_title('Varying Color')
+ax1 = fig.add_subplot(gs[0, 1])
+strm = ax1.streamplot(X, Y, U, V, color=U, linewidth=2, cmap='autumn')
+fig.colorbar(strm.lines)
+ax1.set_title('Varying Color')
 
 #  Varying line width along a streamline
+ax2 = fig.add_subplot(gs[1, 0])
 lw = 5*speed / speed.max()
-axs[1, 0].streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw)
-axs[1, 0].set_title('Varying Line Width')
+ax2.streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw)
+ax2.set_title('Varying Line Width')
 
 # Controlling the starting points of the streamlines
 seed_points = np.array([[-2, -1, 0, 1, 2, -1], [-2, -1,  0, 1, 2, 2]])
 
-strm = axs[1, 1].streamplot(X, Y, U, V, color=U, linewidth=2,
-                            cmap='autumn', start_points=seed_points.T)
-fig.colorbar(strm.lines, ax=axs[1, 1])
-axs[1, 1].set_title('Controlling Starting Points')
+ax3 = fig.add_subplot(gs[1, 1])
+strm = ax3.streamplot(X, Y, U, V, color=U, linewidth=2,
+                      cmap='autumn', start_points=seed_points.T)
+fig.colorbar(strm.lines)
+ax3.set_title('Controlling Starting Points')
 
 # Displaying the starting points with blue symbols.
-axs[1, 1].plot(seed_points[0], seed_points[1], 'bo')
-axs[1, 1].set(xlim=(-w, w), ylim=(-w, w))
+ax3.plot(seed_points[0], seed_points[1], 'bo')
+ax3.set(xlim=(-w, w), ylim=(-w, w))
 
 # Create a mask
 mask = np.zeros(U.shape, dtype=bool)
@@ -58,9 +61,6 @@ mask[40:60, 40:60] = True
 U[:20, :20] = np.nan
 U = np.ma.array(U, mask=mask)
 
-gs = axs[0, 0].get_subplotspec().get_gridspec()
-axs[2, 0].remove()
-axs[2, 1].remove()
 ax4 = fig.add_subplot(gs[2:, :])
 ax4.streamplot(X, Y, U, V, color='r')
 ax4.set_title('Streamplot with Masking')
