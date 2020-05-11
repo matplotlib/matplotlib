@@ -293,7 +293,7 @@ class GridSpecBase:
         .pyplot.subplot
         """
 
-        figure = self[0, 0].get_topmost_subplotspec().get_gridspec().figure
+        figure = self.figure
 
         if figure is None:
             raise ValueError("GridSpec.subplots() only works for GridSpecs "
