@@ -575,8 +575,8 @@ class ColorbarBase:
                     else:
                         locator = _ColorbarAutoLocator(self)
             else:
-                b = self._boundaries[self._inside]
-                locator = ticker.FixedLocator(b, nbins=10)
+                b = self.boundaries[self._inside]
+                locator = ticker.FixedLocator(b)
 
         if formatter is None:
             if isinstance(self.norm, colors.LogNorm):
@@ -892,7 +892,37 @@ class ColorbarBase:
             b = self.boundaries
         if b is not None:
             self._boundaries = np.asarray(b, dtype=float)
-            if self.values is None:
+            if self.values is None and self.boundaries is not None:
+                # define the outside additions
+                if self.extend == 'min':
+                    to_add = self._boundaries[0]
+                elif self.extend == 'max':
+                    to_add = self._boundaries[-1]
+                elif self.extend == 'both':
+                    to_add = self._boundaries[[0, -1]]
+                elif self.extend == 'neither':
+                    to_add = []
+                # add values to the colorbar insides
+                boundaries_inside = self._boundaries[self._inside]
+                n_between = max((self.cmap.N-len(to_add)) //
+                                (len(boundaries_inside)-1), 1)
+                self._values = np.linspace(boundaries_inside[:-1],
+                                           boundaries_inside[1:],
+                                           n_between, endpoint=False,
+                                           axis=-1).flatten()
+                self._values = np.append(self._values, boundaries_inside[-1])
+                # add back in the boundaries for the extensions
+                self._boundaries = np.sort(np.concatenate([to_add,
+                                                           self._values]))
+                # calculate values at which to plot colors
+                self._values = 0.5 * (self._values[:-1] + self._values[1:])
+                # add back in the boundaries for the extensions, display
+                # colors of extensions at boundary values
+                self._values = np.sort(np.concatenate([to_add,
+                                                       self._values]))
+                if isinstance(self.norm, colors.NoNorm):
+                    self._values = (self._values + 0.00001).astype(np.int16)
+            elif self.values is None and self.boundaries is None:
                 self._values = 0.5 * (self._boundaries[:-1]
                                       + self._boundaries[1:])
                 if isinstance(self.norm, colors.NoNorm):
