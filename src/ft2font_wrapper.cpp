@@ -364,7 +364,6 @@ typedef struct
     FT2Font *x;
     PyObject *fname;
     PyObject *py_file;
-    int close_file;
     FT_StreamRec stream;
     Py_ssize_t shape[2];
     Py_ssize_t strides[2];
@@ -402,16 +401,16 @@ exit:
 
 static void close_file_callback(FT_Stream stream)
 {
-    PyObject *py_file = ((PyFT2Font *)stream->descriptor.pointer)->py_file;
+    PyFT2Font *self = (PyFT2Font *)stream->descriptor.pointer;
     PyObject *close_result = NULL;
-    if (!(close_result = PyObject_CallMethod(py_file, "close", ""))) {
+    if (!(close_result = PyObject_CallMethod(self->py_file, "close", ""))) {
         goto exit;
     }
 exit:
     Py_XDECREF(close_result);
-    Py_DECREF(py_file);
+    Py_CLEAR(self->py_file);
     if (PyErr_Occurred()) {
-        PyErr_WriteUnraisable(py_file);
+        PyErr_WriteUnraisable((PyObject*)self);
     }
 }
 
@@ -421,6 +420,7 @@ static int convert_open_args(PyFT2Font *self, PyObject *py_file_arg, FT_Open_Arg
     PyObject *data = NULL;
 
     int result = 0;
+    bool close_file = false;
 
     memset((void *)open_args, 0, sizeof(FT_Open_Args));
 
@@ -429,7 +429,7 @@ static int convert_open_args(PyFT2Font *self, PyObject *py_file_arg, FT_Open_Arg
             || !(self->py_file = PyObject_CallFunction(open, "Os", py_file_arg, "rb"))) {
             goto exit;
         }
-        self->close_file = 1;
+        close_file = true;
     } else if (!PyObject_HasAttrString(py_file_arg, "read")
                || !(data = PyObject_CallMethod(py_file_arg, "read", "i", 0))
                || !PyBytes_Check(data)) {
@@ -446,7 +446,7 @@ static int convert_open_args(PyFT2Font *self, PyObject *py_file_arg, FT_Open_Arg
     self->stream.pos = 0;
     self->stream.descriptor.pointer = self;
     self->stream.read = &read_from_file_callback;
-    self->stream.close = &close_file_callback;
+    self->stream.close = close_file ? &close_file_callback : NULL;
     open_args->flags = FT_OPEN_STREAM;
     open_args->stream = &self->stream;
 
@@ -468,7 +468,6 @@ static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwd
     self->x = NULL;
     self->fname = NULL;
     self->py_file = NULL;
-    self->close_file = 0;
     memset(&self->stream, 0, sizeof(FT_StreamRec));
     return (PyObject *)self;
 }
@@ -500,12 +499,6 @@ const char *PyFT2Font_init__doc__ =
     "  underline_thickness    vertical thickness of the underline\n"
     "  postscript_name        PostScript name of the font\n";
 
-static void PyFT2Font_fail(PyFT2Font *self)
-{
-    Py_XDECREF(self->py_file);
-    self->py_file = NULL;
-}
-
 static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     PyObject *fname;
@@ -525,7 +518,8 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     }
 
     CALL_CPP_FULL(
-        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)), PyFT2Font_fail(self), -1);
+        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)),
+        Py_CLEAR(self->py_file), -1);
 
     CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
 
