@@ -165,20 +165,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 _make_layout_margins(ax, renderer, h_pad, w_pad)
 
         # do layout for suptitle.
-        do_suptitle = False
-        suptitle = None
-        if 0:
-            suptitle = fig._suptitle
-            do_suptitle = (suptitle is not None and
-                           suptitle._layoutbox is not None and
-                           suptitle.get_in_layout())
-            if do_suptitle:
-                bbox = invTransFig(
-                    suptitle.get_window_extent(renderer=renderer))
-                height = bbox.height
-                if np.isfinite(height):
-                    # reserve at top of figure include an h_pad above and below
-                    suptitle._layoutbox.edit_height(height + h_pad * 2)
+        _resize_suptitles(fig, renderer, h_pad, w_pad)
 
         # OK, the above lines up ax._poslayoutbox with ax._layoutbox
         # now we need to
@@ -224,16 +211,34 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                     # this axis, allowing users to hard-code the position,
                     # so this does the same w/o zeroing layout.
                     ax._set_position(bbox.bounds, which='original')
-            if do_suptitle:
-                newpos = suptitle._layoutbox.get_rect()
-                suptitle.set_y(1.0 - h_pad)
-            else:
-                if suptitle is not None and suptitle._layoutbox is not None:
-                    suptitle._layoutbox.edit_height(0)
         else:
             cbook._warn_external('constrained_layout not applied.  At least '
                                  'one axes collapsed to zero width or height.')
 
+
+def _resize_suptitles(fig, renderer, h_pad, w_pad):
+
+    for childf in fig.panels:
+        _resize_suptitles(childf, renderer, h_pad, w_pad)
+
+    invTransFig = fig.transFigure.inverted().transform_bbox
+
+    suptitle = fig._suptitle
+
+    do_suptitle = (suptitle is not None and
+                   suptitle._layoutbox is not None and
+                   suptitle.get_in_layout())
+    if do_suptitle:
+        bbox = invTransFig(
+            suptitle.get_window_extent(renderer=renderer))
+        height = bbox.height
+        if np.isfinite(height):
+            # reserve at top of figure include an h_pad above and below
+            suptitle._layoutbox.edit_height(height + h_pad * 2)
+        suptitle.set_y(1.0 - h_pad)
+    else:
+        if suptitle is not None and suptitle._layoutbox is not None:
+            suptitle._layoutbox.edit_height(0)
 
 def _make_ghost_gridspec_slots(fig, gs):
     """
@@ -254,6 +259,11 @@ def _make_ghost_gridspec_slots(fig, gs):
     for ax in axs:
         ss0 = ax.get_subplotspec()
         hassubplotspec[ss0.num1:(ss0.num2 + 1)] = True
+    # now check for subpanels:
+    for sp in fig.panels:
+        ss0 = sp._subplotspec
+        hassubplotspec[ss0.num1:(ss0.num2 + 1)] = True
+
     for nn, hss in enumerate(hassubplotspec):
         if not hss:
             # this gridspec slot doesn't have an axis so we
@@ -269,8 +279,12 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     decorations on the axis.
     """
     fig = ax.figure
-    invTransFig = fig.transPanel.inverted().transform_bbox
+    invTransFig = fig.transFigure.inverted().transform_bbox
+
     pos = ax.get_position(original=True)
+    # pos is in panel co-ords, but we need in figure for the layout
+    pos = invTransFig(pos.transformed(fig.transPanel))
+
     try:
         tightbbox = ax.get_tightbbox(renderer=renderer, for_layout_only=True)
     except TypeError:
@@ -361,6 +375,7 @@ def _align_spines(fig, gs):
         colspan0 = colspans[idx0]
         height0 = heights[idx0]
         width0 = widths[idx0]
+        print('0', width0, height0)
         alignleft = False
         alignright = False
         alignbot = False
@@ -373,6 +388,7 @@ def _align_spines(fig, gs):
             colspan1 = colspans[idx1]
             width1 = widths[idx1]
             height1 = heights[idx1]
+
             # Horizontally align axes spines if they have the same min or max:
             if not alignleft and colspan0.start == colspan1.start:
                 _log.debug('same start columns; line up layoutbox lefts')
@@ -417,39 +433,54 @@ def _align_spines(fig, gs):
                 if height0 > height1:
                     ax0._poslayoutbox.constrain_height_min(
                         ax1._poslayoutbox.height * height0 / height1)
+                    # weak constraint tries to make these boxes
+                    # same relative size, but allows them to be different
+                    # if other constraints trump.  eg
+                    # "A B"
+                    # "C C"
+                    # the A and B boxes should be smaller because they
+                    # have decorations.
+                    ax0._poslayoutbox.constrain_height(
+                        ax1._poslayoutbox.height * height0 / height1,
+                        strength='weak')
                 elif height0 < height1:
                     ax1._poslayoutbox.constrain_height_min(
                         ax0._poslayoutbox.height * height1 / height0)
+                    ax1._poslayoutbox.constrain_height(
+                        ax0._poslayoutbox.height * height1 / height0,
+                        strength='weak')
             # For widths, do it if the subplots share a row.
             if not alignwidth and len(colspan0) == len(colspan1):
                 ax0._poslayoutbox.constrain_width(
                     ax1._poslayoutbox.width * width0 / width1)
                 alignwidth = True
             elif _spans_overlap(rowspan0, rowspan1):
+                print(ax0, width0, ax1, width1)
                 if width0 > width1:
                     ax0._poslayoutbox.constrain_width_min(
                         ax1._poslayoutbox.width * width0 / width1)
-                elif width0 < width1:
+                    ax0._poslayoutbox.constrain_width(
+                        ax1._poslayoutbox.width * width0 / width1,
+                        strength='weak')
+                elif width0 <= width1:
                     ax1._poslayoutbox.constrain_width_min(
                         ax0._poslayoutbox.width * width1 / width0)
-
+                    ax1._poslayoutbox.constrain_width(
+                        ax0._poslayoutbox.width * width1 / width0,
+                        strength='weak')
 
 def _arrange_subplotspecs(gs, hspace=0, wspace=0):
     """Recursively arrange the subplotspec children of the given gridspec."""
     sschildren = []
     for child in gs.children:
-        print('child', child, gs)
         if child._is_subplotspec_layoutbox():
             for child2 in child.children:
                 # check for gridspec children...
                 if child2._is_subpanel_layoutbox():
                     for child3 in child2.children:
                         if child3._is_gridspec_layoutbox():
-                            print('  arranging', child3)
                             _arrange_subplotspecs(child3, hspace=hspace, wspace=wspace)
-                    print('Its a subpanel!', child2)
                 if child2._is_gridspec_layoutbox():
-                    print('arranging:', child2)
                     _arrange_subplotspecs(child2, hspace=hspace, wspace=wspace)
             sschildren += [child]
     # now arrange the subplots...

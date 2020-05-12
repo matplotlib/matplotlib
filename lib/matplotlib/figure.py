@@ -477,8 +477,9 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
-            self._suptitle._layoutbox = None
-            if self._layoutbox is not None and not manual_position:
+            if self._layoutbox is None or manual_position:
+                self._suptitle._layoutbox = None
+            else:
                 w_pad, h_pad, wspace, hspace =  \
                         self.get_constrained_layout_pads(relative=True)
                 figlb = self._layoutbox
@@ -988,14 +989,8 @@ default: 'top'
         if gridspec_kw is None:
             gridspec_kw = {}
         gs = self.add_gridspec(nrows, ncols, figure=self, **gridspec_kw)
-        print('pre child', gs._layoutbox.children)
         axs = gs.subplots(sharex=sharex, sharey=sharey, squeeze=squeeze,
                           subplot_kw=subplot_kw)
-        print('post child', gs._layoutbox.children)
-
-        print('axs', axs)
-        gs = axs[0].get_gridspec()
-        print(gs._layoutbox.children)
         return axs
 
     def delaxes(self, ax):
@@ -1460,13 +1455,11 @@ default: 'top'
     def subpanels(self, nrows=1, ncols=1, **kwargs):
         _ = kwargs.pop('figure', None)  # pop in case user has added this...
         gs = GridSpec(nrows=nrows, ncols=ncols, figure=self, **kwargs)
-        print('childrin of gs', gs, gs._layoutbox.children)
 
         sfarr = np.empty((nrows, ncols), dtype=object)
         for i in range(ncols):
             for j in range(nrows):
                 sfarr[j, i] = self.add_subpanel(gs[j, i], **kwargs)
-        print('childrin of gs', gs, gs._layoutbox.children)
 
         return sfarr
 
@@ -1716,8 +1709,12 @@ class SubPanel(PanelBase):
         nrows, ncols = gs.get_geometry()
         if wr is None:
             wr = np.ones(ncols)
+        else:
+            wr = np.array(wr)
         if hr is None:
             hr = np.ones(nrows)
+        else:
+            hr = np.array(hr)
         widthf = np.sum(wr[self._subplotspec.colspan]) / np.sum(wr)
         heightf = np.sum(hr[self._subplotspec.rowspan]) / np.sum(hr)
 
@@ -1746,14 +1743,16 @@ class SubPanel(PanelBase):
     def get_constrained_layout(self):
         return self._parent.get_constrained_layout()
 
+    def get_constrained_layout_pads(self, relative=False):
+        return self._parent.get_constrained_layout_pads(relative=relative)
+
     def init_layoutbox(self):
         """Initialize the layoutbox for use in constrained_layout."""
         if self._layoutbox is None:
             self._layoutbox = layoutbox.LayoutBox(
                 parent=self._subplotspec._layoutbox,
                 name='panellb' + layoutbox.seq_id() , artist=self)
-            self._layoutbox.constrain_geometry(*self.bbox_relative.bounds)
-            print('init', self.bbox_relative.bounds)
+            self._layoutbox.constrain_geometry(*self.bbox_relative.extents)
 
     def get_axes(self):
         """
@@ -2260,7 +2259,7 @@ class Figure(PanelBase):
             layoutbox.nonetree(self._layoutbox)
 
         super().clf()
-        for ax in tuple(self.axes):  # Iterate over the copy.
+        for ax in tuple(self._localaxes):  # Iterate over the copy.
             ax.cla()
             self.delaxes(ax)         # removes ax from self._axstack
 
