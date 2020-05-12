@@ -399,3 +399,20 @@ def test_hidden_axes():
 
     np.testing.assert_allclose(
         extents1, [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
+
+
+def test_two_under_one():
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(2, 2)
+    ax0 = fig.add_subplot(gs[0, :])
+    ax10 = fig.add_subplot(gs[1, 0])
+    ax11 = fig.add_subplot(gs[1, 1])
+    fig.canvas.draw()
+    extents0 = np.copy(ax0.get_position().extents)
+    extents10 = np.copy(ax10.get_position().extents)
+    extents11 = np.copy(ax11.get_position().extents)
+
+    np.testing.assert_allclose(extents0[0], extents10[0])
+    np.testing.assert_allclose(extents0[2], extents11[2])
+    np.testing.assert_allclose(extents11[0] - extents10[2],
+                               0.077362, atol=1e-6)

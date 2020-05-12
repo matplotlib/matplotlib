@@ -403,9 +403,25 @@ def _align_spines(fig, gs):
                 if height0 > height1:
                     ax0._poslayoutbox.constrain_height_min(
                         ax1._poslayoutbox.height * height0 / height1)
+                    # the precise constraint must be weak because
+                    # we may have one col with two axes, and the other
+                    # column with just one, and we want the top and
+                    # bottom of the short axes to align with the large one,
+                    # so the height of the long one is greater than
+                    # twice the height of the small ones. OTOH, if the
+                    # axes are not so constrained, we would like the pos
+                    # boxes to be the proper relative widths.
+                    # See test_constrained_layout17 fo
+                    ax0._poslayoutbox.constrain_height(
+                        ax1._poslayoutbox.height * height0 / height1,
+                        strength='weak')
                 elif height0 < height1:
                     ax1._poslayoutbox.constrain_height_min(
                         ax0._poslayoutbox.height * height1 / height0)
+                    # see above
+                    ax1._poslayoutbox.constrain_height(
+                        ax0._poslayoutbox.height * height1 / height0,
+                        strength='weak')
             # For widths, do it if the subplots share a row.
             if not alignwidth and len(colspan0) == len(colspan1):
                 ax0._poslayoutbox.constrain_width(
@@ -415,9 +431,17 @@ def _align_spines(fig, gs):
                 if width0 > width1:
                     ax0._poslayoutbox.constrain_width_min(
                         ax1._poslayoutbox.width * width0 / width1)
+                    # see comment above
+                    ax0._poslayoutbox.constrain_width(
+                        ax1._poslayoutbox.width * width0 / width1,
+                        strength='weak')
                 elif width0 < width1:
                     ax1._poslayoutbox.constrain_width_min(
                         ax0._poslayoutbox.width * width1 / width0)
+                    # see comment above
+                    ax1._poslayoutbox.constrain_width_min(
+                        ax0._poslayoutbox.width * width1 / width0,
+                        strength='weak')
 
 
 def _arrange_subplotspecs(gs, hspace=0, wspace=0):
