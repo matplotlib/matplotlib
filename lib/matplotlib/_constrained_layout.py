@@ -433,19 +433,22 @@ def _align_spines(fig, gs):
                 if height0 > height1:
                     ax0._poslayoutbox.constrain_height_min(
                         ax1._poslayoutbox.height * height0 / height1)
-                    # weak constraint tries to make these boxes
-                    # same relative size, but allows them to be different
-                    # if other constraints trump.  eg
-                    # "A B"
-                    # "C C"
-                    # the A and B boxes should be smaller because they
-                    # have decorations.
+                    # the precise constraint must be weak because
+                    # we may have one col with two axes, and the other
+                    # column with just one, and we want the top and
+                    # bottom of the short axes to align with the large one,
+                    # so the height of the long one is greater than
+                    # twice the height of the small ones. OTOH, if the
+                    # axes are not so constrained, we would like the pos
+                    # boxes to be the proper relative widths.
+                    # See test_constrained_layout17 fo
                     ax0._poslayoutbox.constrain_height(
                         ax1._poslayoutbox.height * height0 / height1,
                         strength='weak')
                 elif height0 < height1:
                     ax1._poslayoutbox.constrain_height_min(
                         ax0._poslayoutbox.height * height1 / height0)
+                    # see above
                     ax1._poslayoutbox.constrain_height(
                         ax0._poslayoutbox.height * height1 / height0,
                         strength='weak')
@@ -455,17 +458,18 @@ def _align_spines(fig, gs):
                     ax1._poslayoutbox.width * width0 / width1)
                 alignwidth = True
             elif _spans_overlap(rowspan0, rowspan1):
-                print(ax0, width0, ax1, width1)
                 if width0 > width1:
                     ax0._poslayoutbox.constrain_width_min(
                         ax1._poslayoutbox.width * width0 / width1)
+                    # see comment above
                     ax0._poslayoutbox.constrain_width(
                         ax1._poslayoutbox.width * width0 / width1,
                         strength='weak')
-                elif width0 <= width1:
+                elif width0 < width1:
                     ax1._poslayoutbox.constrain_width_min(
                         ax0._poslayoutbox.width * width1 / width0)
-                    ax1._poslayoutbox.constrain_width(
+                    # see comment above
+                    ax1._poslayoutbox.constrain_width_min(
                         ax0._poslayoutbox.width * width1 / width0,
                         strength='weak')
 
