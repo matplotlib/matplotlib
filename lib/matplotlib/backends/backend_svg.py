@@ -874,7 +874,8 @@ class RendererSVG(RendererBase):
 
             attrib['transform'] = generate_transform(
                 [('matrix', flipped.frozen())])
-            attrib['style'] = ('image-rendering:crisp-edges;'
+            attrib['style'] = (
+                'image-rendering:crisp-edges;'
                 'image-rendering:pixelated')
             self.writer.element(
                 'image',
