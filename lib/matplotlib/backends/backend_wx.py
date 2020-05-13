@@ -623,7 +623,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         The 'WXAgg' backend sets origin accordingly.
         """
         _log.debug("%s - gui_repaint()", type(self))
-        if self.IsShownOnScreen():
+        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
+        # RuntimeError if doing things after window is closed.
+        if self and self.IsShownOnScreen():
             if not drawDC:
                 # not called from OnPaint use a ClientDC
                 drawDC = wx.ClientDC(self)
@@ -900,7 +902,10 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         # otherwise.
         if self._isDrawn:
             self.draw()
-        self.Refresh()
+        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
+        # RuntimeError if doing things after window is closed.
+        if self:
+            self.Refresh()
 
 
 class FigureFrameWx(wx.Frame):
