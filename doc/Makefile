@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    = -W --keep-going
-SPHINXBUILD   = python -msphinx
+SPHINXBUILD   = python3 -msphinx
 SPHINXPROJ    = matplotlib
 SOURCEDIR     = .
 BUILDDIR      = build
