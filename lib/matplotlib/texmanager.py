@@ -53,7 +53,6 @@ class TexManager:
 
     # Caches.
     texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
-    rgba_arrayd = {}
     grey_arrayd = {}
 
     font_family = 'serif'
@@ -84,6 +83,11 @@ class TexManager:
     @property
     def cachedir(self):
         return mpl.get_cachedir()
+
+    @cbook.deprecated("3.3")
+    @property
+    def rgba_arrayd(self):
+        return {}
 
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
@@ -369,30 +373,25 @@ class TexManager:
 
     def get_grey(self, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
-        key = tex, self.get_font_config(), fontsize, dpi
-        alpha = self.grey_arrayd.get(key)
-        if alpha is None:
-            pngfile = self.make_png(tex, fontsize, dpi)
-            X = mpl.image.imread(os.path.join(self.texcache, pngfile))
-            self.grey_arrayd[key] = alpha = X[:, :, -1]
-        return alpha
-
-    def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
-        """Return latex's rendering of the tex string as an rgba array."""
         if not fontsize:
             fontsize = rcParams['font.size']
         if not dpi:
             dpi = rcParams['savefig.dpi']
-        r, g, b = rgb
-        key = tex, self.get_font_config(), fontsize, dpi, tuple(rgb)
-        Z = self.rgba_arrayd.get(key)
+        key = tex, self.get_font_config(), fontsize, dpi
+        alpha = self.grey_arrayd.get(key)
+        if alpha is None:
+            pngfile = self.make_png(tex, fontsize, dpi)
+            rgba = mpl.image.imread(os.path.join(self.texcache, pngfile))
+            self.grey_arrayd[key] = alpha = rgba[:, :, -1]
+        return alpha
 
-        if Z is None:
-            alpha = self.get_grey(tex, fontsize, dpi)
-            Z = np.dstack([r, g, b, alpha])
-            self.rgba_arrayd[key] = Z
-
-        return Z
+    def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
+        """Return latex's rendering of the tex string as an rgba array."""
+        alpha = self.get_grey(tex, fontsize, dpi)
+        rgba = np.empty((*alpha.shape, 4))
+        rgba[..., :3] = mpl.colors.to_rgb(rgb)
+        rgba[..., -1] = alpha
+        return rgba
 
     def get_text_width_height_descent(self, tex, fontsize, renderer=None):
         """Return width, height and descent of the text."""

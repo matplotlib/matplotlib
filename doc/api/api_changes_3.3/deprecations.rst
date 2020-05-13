@@ -137,9 +137,10 @@ This method is deprecated.  Use
 ``SymmetricalScale.InvertedSymmetricalTransform`` are deprecated.  Directly
 access the transform classes from the :mod:`.scale` module.
 
-``TexManager.cachedir``
-~~~~~~~~~~~~~~~~~~~~~~~
-Use `matplotlib.get_cachedir()` instead.
+``TexManager.cachedir``, ``TexManager.rgba_arrayd``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use `matplotlib.get_cachedir()` instead for the former; there is no replacement
+for the latter.
 
 Setting `.Line2D`\'s pickradius via `.Line2D.set_picker`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
