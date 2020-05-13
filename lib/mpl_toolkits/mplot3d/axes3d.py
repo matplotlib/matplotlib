@@ -2984,8 +2984,9 @@ pivot='tail', normalize=False, **kwargs)
             _lomask = lomask | ((lomask == himask) & everymask)
             _himask = himask | ((lomask == himask) & everymask)
 
-            lows = [d - e if m else d for d, e, m in zip(data, err, _lomask)]
-            highs = [d + e if m else d for d, e, m in zip(data, err, _himask)]
+            lows = np.where(_lomask, data - err, data)
+            highs = np.where(_himask, data + err, data)
+
             return lows, highs
 
         # collect drawn items while looping over the three coordinates
@@ -3061,10 +3062,11 @@ pivot='tail', normalize=False, **kwargs)
                 lo_xyz = _mask_lists(x, y, z, upmask)
                 up_xyz = _mask_lists(x, y, z, lomask)
 
-                x0, y0, z0 = np.vstack([np.c_[lo_xyz],
-                                        np.c_[up_xyz]]).T
-                dx, dy, dz = np.vstack([np.c_[lolims_xyz] - np.c_[lo_xyz],
-                                        np.c_[uplims_xyz] - np.c_[up_xyz]]).T
+                x0, y0, z0 = x0, y0, z0 = np.concatenate([lo_xyz, up_xyz],
+                                                         axis=-1)
+                dx, dy, dz = np.concatenate([
+                    np.array(lolims_xyz) - np.array(lo_xyz),
+                    np.array(uplims_xyz) - np.array(up_xyz)], axis=-1)
                 self.quiver(x0, y0, z0, dx, dy, dz,
                             arrow_length_ratio=arrow_length_ratio,
                             **eb_lines_style)
