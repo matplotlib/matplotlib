@@ -570,7 +570,9 @@ class FFMpegBase:
 
     @property
     def output_args(self):
-        args = ['-vcodec', self.codec]
+        args = []
+        if not self.outfile.endswith('.gif'):
+            args.extend(['-vcodec', self.codec])
         extra_args = (self.extra_args if self.extra_args is not None
                       else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible
