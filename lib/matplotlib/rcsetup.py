@@ -170,19 +170,21 @@ def validate_bool_maybe_none(b):
 
 
 def _validate_tex_preamble(s):
-    message = (
-        f"Support for setting the 'text.latex.preamble' and 'pgf.preamble' "
-        f"rcParams to {s!r} is deprecated since %(since)s and will be "
-        f"removed %(removal)s; please set them to plain (possibly empty) "
-        f"strings instead.")
     if s is None or s == 'None':
-        cbook.warn_deprecated("3.3", message=message)
+        cbook.warn_deprecated(
+            "3.3", message="Support for setting the 'text.latex.preamble' or "
+            "'pgf.preamble' rcParam to None is deprecated since %(since)s and "
+            "will be removed %(removal)s; set it to an empty string instead.")
         return ""
     try:
         if isinstance(s, str):
             return s
         elif np.iterable(s):
-            cbook.warn_deprecated("3.3", message=message)
+            cbook.warn_deprecated(
+                "3.3", message="Support for setting the 'text.latex.preamble' "
+                "or 'pgf.preamble' rcParam to a list of strings is deprecated "
+                "since %(since)s and will be removed %(removal)s; set it to a "
+                "single string instead.")
             return '\n'.join(s)
         else:
             raise TypeError
