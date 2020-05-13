@@ -2976,16 +2976,21 @@ pivot='tail', normalize=False, **kwargs)
             zs = [l for l, m in zip(zs, mask) if m]
             return xs, ys, zs
 
-        # TODO: errors can be only a scalar number or len(N) array-like
         def _unpack_errs(err, data, lomask, himask):
+            # For separate +/- error values we need to unpack err
+            if len(err.shape) == 2:
+                low_err, high_err = err
+            else:
+                low_err, high_err = err, err
+
             # for compatibility with the 2d errorbar function, when both upper
             # and lower limits specified, we need to draw the markers / line -
             # whether or not using both limits makes any sense (it doesn't)
             _lomask = lomask | ((lomask == himask) & everymask)
             _himask = himask | ((lomask == himask) & everymask)
 
-            lows = np.where(_lomask, data - err, data)
-            highs = np.where(_himask, data + err, data)
+            lows = np.where(_lomask, data - low_err, data)
+            highs = np.where(_himask, data + high_err, data)
 
             return lows, highs
 
@@ -3057,16 +3062,13 @@ pivot='tail', normalize=False, **kwargs)
                 (xlo, xup), (ylo, yup), (zlo, zup) = limits
                 lomask = lolims & everymask
                 upmask = uplims & everymask
-                lolims_xyz = _mask_lists(xlo, ylo, zlo, upmask)
-                uplims_xyz = _mask_lists(xup, yup, zup, lomask)
-                lo_xyz = _mask_lists(x, y, z, upmask)
-                up_xyz = _mask_lists(x, y, z, lomask)
-
-                x0, y0, z0 = x0, y0, z0 = np.concatenate([lo_xyz, up_xyz],
-                                                         axis=-1)
-                dx, dy, dz = np.concatenate([
-                    np.array(lolims_xyz) - np.array(lo_xyz),
-                    np.array(uplims_xyz) - np.array(up_xyz)], axis=-1)
+                lolims_xyz = np.array(_mask_lists(xlo, ylo, zlo, upmask))
+                uplims_xyz = np.array(_mask_lists(xup, yup, zup, lomask))
+                lo_xyz = np.array(_mask_lists(x, y, z, upmask))
+                up_xyz = np.array(_mask_lists(x, y, z, lomask))
+                x0, y0, z0 = np.concatenate([lo_xyz, up_xyz], axis=-1)
+                dx, dy, dz = np.concatenate([lolims_xyz - lo_xyz,
+                                             uplims_xyz - up_xyz], axis=-1)
                 self.quiver(x0, y0, z0, dx, dy, dz,
                             arrow_length_ratio=arrow_length_ratio,
                             **eb_lines_style)
@@ -3079,7 +3081,6 @@ pivot='tail', normalize=False, **kwargs)
 
         coorderrs = np.array(coorderrs)
 
-        # TODO: errors can be only a scalar number or len(N) array-like
         def _digout_minmax(err_arr, coord_label):
             return (np.nanmin(err_arr[:, i_xyz[coord_label], :, :]),
                     np.nanmax(err_arr[:, i_xyz[coord_label], :, :]))
