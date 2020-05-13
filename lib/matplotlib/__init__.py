@@ -792,9 +792,6 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
     fail_on_error : bool, default: False
         Whether invalid entries should result in an exception or a warning.
     """
-
-    _error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
-
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
@@ -805,15 +802,15 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                     continue
                 tup = strippedline.split(':', 1)
                 if len(tup) != 2:
-                    error_details = _error_details_fmt % (line_no, line, fname)
-                    _log.warning('Illegal %s', error_details)
+                    _log.warning('Missing colon in file %r, line %d (%r)',
+                                 fname, line_no, line.rstrip('\n'))
                     continue
                 key, val = tup
                 key = key.strip()
                 val = val.strip()
                 if key in rc_temp:
-                    _log.warning('Duplicate key in file %r line #%d.',
-                                 fname, line_no)
+                    _log.warning('Duplicate key in file %r, line %d (%r)',
+                                 fname, line_no, line.rstrip('\n'))
                 rc_temp[key] = (val, line, line_no)
         except UnicodeDecodeError:
             _log.warning('Cannot decode configuration file %s with encoding '
@@ -833,9 +830,8 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 try:
                     config[key] = val  # try to convert to proper type or skip
                 except Exception as msg:
-                    error_details = _error_details_fmt % (line_no, line, fname)
-                    _log.warning('Bad val %r on %s\n\t%s',
-                                 val, error_details, msg)
+                    _log.warning('Bad value in file %r, line %d (%r): %s',
+                                 fname, line_no, line.rstrip('\n'), msg)
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
@@ -843,12 +839,13 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 addendum="Please update your matplotlibrc.")
         else:
             version = 'master' if '.post' in __version__ else f'v{__version__}'
-            print(f"""
-Bad key "{key}" on line {line_no} in
-{fname}.
+            _log.warning("""
+Bad key %(key)s in file %(fname)s, line %(line_no)s (%(line)r)
 You probably need to get an updated matplotlibrc file from
-https://github.com/matplotlib/matplotlib/blob/{version}/matplotlibrc.template
-or from the matplotlib source distribution""", file=sys.stderr)
+https://github.com/matplotlib/matplotlib/blob/%(version)s/matplotlibrc.template
+or from the matplotlib source distribution""",
+                         dict(key=key, fname=fname, line_no=line_no,
+                              line=line.rstrip('\n'), version=version))
     return config
 
 
