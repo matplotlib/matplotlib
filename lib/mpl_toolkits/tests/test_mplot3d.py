@@ -230,6 +230,51 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first
+@check_figures_equal(extensions=['png'])
+def test_marker_draw_order_data_reversed(fig_test, fig_ref, azim):
+    """
+    Test that the draw order does not depend on the data point order.
+
+    For the given viewing angle at azim=-50, the yellow marker should be in
+    front. For azim=130, the blue marker should be in front.
+    """
+    x = [-1, 1]
+    y = [1, -1]
+    z = [0, 0]
+    color = ['b', 'y']
+    ax = fig_test.add_subplot(projection='3d')
+    ax.scatter(x, y, z, s=3500, c=color)
+    ax.view_init(elev=0, azim=azim)
+    ax = fig_ref.add_subplot(projection='3d')
+    ax.scatter(x[::-1], y[::-1], z[::-1], s=3500, c=color[::-1])
+    ax.view_init(elev=0, azim=azim)
+
+
+@check_figures_equal(extensions=['png'])
+def test_marker_draw_order_view_rotated(fig_test, fig_ref):
+    """
+    Test that the draw order changes with the direction.
+
+    If we rotate *azim* by 180 degrees and exchange the colors, the plot
+    plot should look the same again.
+    """
+    azim = 130
+    x = [-1, 1]
+    y = [1, -1]
+    z = [0, 0]
+    color = ['b', 'y']
+    ax = fig_test.add_subplot(projection='3d')
+    # axis are not exactly invariant under 180 degree rotation -> deactivate
+    ax.set_axis_off()
+    ax.scatter(x, y, z, s=3500, c=color)
+    ax.view_init(elev=0, azim=azim)
+    ax = fig_ref.add_subplot(projection='3d')
+    ax.set_axis_off()
+    ax.scatter(x, y, z, s=3500, c=color[::-1])  # color reversed
+    ax.view_init(elev=0, azim=azim - 180)  # view rotated by 180 degrees
+
+
 @mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.01)
 def test_plot_3d_from_2d():
     fig = plt.figure()

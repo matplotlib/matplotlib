@@ -494,9 +494,27 @@ class Path3DCollection(PathCollection):
 
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
+
+        # Sort the points based on z coordinates
+        # Performance optimization: Create a sorted index array and reorder
+        # points and point properties according to the index array
+        z_markers_idx = np.argsort(vzs)[::-1]
+
+        # Re-order items
+        vzs = vzs[z_markers_idx]
+        vxs = vxs[z_markers_idx]
+        vys = vys[z_markers_idx]
+        fcs = fcs[z_markers_idx]
+        ecs = ecs[z_markers_idx]
+        vps = np.column_stack((vxs, vys))
+
+        fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
+
         self.set_edgecolors(ecs)
-        PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
+        self.set_facecolors(fcs)
+
+        PathCollection.set_offsets(self, vps)
 
         return np.min(vzs) if vzs.size else np.nan
 
@@ -663,17 +681,16 @@ class Poly3DCollection(PolyCollection):
              in enumerate(zip(xyzlist, cface, cedge))),
             key=lambda x: x[0], reverse=True)
 
-        segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
+        zzs, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
+            zip(*z_segments_2d)
+
         if self._codes3d is not None:
-            codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
+            codes = [self._codes3d[idx] for idx in idxs]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
             PolyCollection.set_verts(self, segments_2d, self._closed)
 
-        self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
-        if len(self._edgecolors3d) == len(cface):
-            self._edgecolors2d = [ec for z, s, fc, ec, idx in z_segments_2d]
-        else:
+        if len(self._edgecolors3d) != len(cface):
             self._edgecolors2d = self._edgecolors3d
 
         # Return zorder value
