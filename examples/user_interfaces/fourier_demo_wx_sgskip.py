@@ -231,5 +231,7 @@ class App(wx.App):
         self.frame1.Show()
         return True
 
-app = App()
-app.MainLoop()
+
+if __name__ == "__main__":
+    app = App()
+    app.MainLoop()

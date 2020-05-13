@@ -59,5 +59,7 @@ class App(WIT.InspectableApp):
 
         return True
 
-app = App(0)
-app.MainLoop()
+
+if __name__ == "__main__":
+    app = App()
+    app.MainLoop()
