@@ -2182,14 +2182,14 @@ def _check_shape(_shape, **kwargs):
     For each *key, value* pair in *kwargs*, check that *value* has the shape
     *_shape*, if not, raise an appropriate ValueError.
 
-    None in the shape is treated as a "free" sizes that can have any length.
+    *None* in the shape is treated as a "free" size that can have any length.
     e.g. (None, 2) -> (N, 2)
 
     The values checked must be numpy arrays.
 
     Examples
     --------
-    To check from (N, 2) shaped arrays
+    To check for (N, 2) shaped arrays
 
     >>> cbook._check_in_list((None, 2), arg=arg, other_arg=other_arg)
     """
@@ -2204,8 +2204,9 @@ def _check_shape(_shape, **kwargs):
             dim_labels = iter(itertools.chain(
                 'MNLIJKLH',
                 (f"D{i}" for i in itertools.count())))
-            text_shape = ", ".join(str(_) for _ in
-                                   (n if n is not None else next(dim_labels)
+            text_shape = ", ".join((str(n)
+                                    if n is not None
+                                    else next(dim_labels)
                                     for n in target_shape))
 
             raise ValueError(
