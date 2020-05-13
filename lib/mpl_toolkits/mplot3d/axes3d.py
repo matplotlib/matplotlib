@@ -2775,7 +2775,7 @@ pivot='tail', normalize=False, **kwargs)
                  barsabove=False, errorevery=1, ecolor=None, elinewidth=None,
                  capsize=None, capthick=None, xlolims=False, xuplims=False,
                  ylolims=False, yuplims=False, zlolims=False, zuplims=False,
-                 **kwargs):
+                 arrow_length_ratio=.4, **kwargs):
         """
         Plot lines and/or markers with errorbars around them.
 
@@ -2845,6 +2845,10 @@ pivot='tail', normalize=False, **kwargs)
             adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
             Used to avoid overlapping error bars when two series share x-axis
             values.
+
+        arrow_length_ratio : float, default: 0.4
+            Passed to :meth:`quiver`, the ratio of the arrow head with respect
+            to the quiver.
 
         Returns
         -------
@@ -2993,12 +2997,6 @@ pivot='tail', normalize=False, **kwargs)
         # define the markers used for errorbar caps and limits below
         # the dictionary key is mapped by the `i_xyz` helper dictionary
         capmarker = {0: '|', 1: '|', 2: '_'}
-        limmarker = {0: {'lower': art3d.lines.CARETRIGHT,
-                         'upper': art3d.lines.CARETLEFT},
-                     1: {'lower': art3d.lines.CARETRIGHT,
-                         'upper': art3d.lines.CARETLEFT},
-                     2: {'lower': art3d.lines.CARETUP,
-                         'upper': art3d.lines.CARETDOWN}}
         i_xyz = {'x': 0, 'y': 1, 'z': 2}
 
         # loop over x-, y-, and z-direction and draw relevant elements
@@ -3015,7 +3013,6 @@ pivot='tail', normalize=False, **kwargs)
             if not np.iterable(err):
                 err = [err] * len(data)
 
-            # FIXME: err data is not supposed to be transformed into arrays!
             err = np.atleast_1d(err)
 
             # arrays fine here, they are booleans and hence not units
@@ -3052,28 +3049,25 @@ pivot='tail', normalize=False, **kwargs)
                 caplines.append(cap_hi)
 
             if (lolims | uplims).any():
-                # FIXME: using markers for limits isn't the best idea: for
-                #        example, 180 deg rotation around z-axis would flip
-                #        the markers around... However, this solution is
-                #        spiritually close to that of 2d errorbar function
                 limits = [
                     _unpack_errs(err*dir_vector[i], coord, uplims, lolims)
                     for i, coord in enumerate([x, y, z])]
+
                 (xlo, xup), (ylo, yup), (zlo, zup) = limits
+                lomask = lolims & everymask
+                upmask = uplims & everymask
+                lolims_xyz = _mask_lists(xlo, ylo, zlo, upmask)
+                uplims_xyz = _mask_lists(xup, yup, zup, lomask)
+                lo_xyz = _mask_lists(x, y, z, upmask)
+                up_xyz = _mask_lists(x, y, z, lomask)
 
-                lolims_xyz = _mask_lists(xup, yup, zup, lolims & everymask)
-                uplims_xyz = _mask_lists(xlo, ylo, zlo, uplims & everymask)
-
-                lims_lo = art3d.Line3D(*lolims_xyz, ls='',
-                                       marker=limmarker[i_zdir]['lower'],
-                                       **eb_cap_style)
-                lims_up = art3d.Line3D(*uplims_xyz, ls='',
-                                       marker=limmarker[i_zdir]['upper'],
-                                       **eb_cap_style)
-                self.add_line(lims_lo)
-                self.add_line(lims_up)
-                limmarks.append(lims_lo)
-                limmarks.append(lims_up)
+                x0, y0, z0 = np.vstack([np.c_[lo_xyz],
+                                        np.c_[up_xyz]]).T
+                dx, dy, dz = np.vstack([np.c_[lolims_xyz] - np.c_[lo_xyz],
+                                        np.c_[uplims_xyz] - np.c_[up_xyz]]).T
+                self.quiver(x0, y0, z0, dx, dy, dz,
+                            arrow_length_ratio=arrow_length_ratio,
+                            **eb_lines_style)
 
             errline = art3d.Line3DCollection(np.array(coorderr).T,
                                              **eb_lines_style)
