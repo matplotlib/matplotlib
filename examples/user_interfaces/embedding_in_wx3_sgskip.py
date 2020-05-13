@@ -127,7 +127,7 @@ class MyApp(wx.App):
         bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
 
         # final setup ------------------
-        self.frame.Show(1)
+        self.frame.Show()
 
         self.SetTopWindow(self.frame)
 
@@ -139,6 +139,7 @@ class MyApp(wx.App):
         bangs = int(bangs) + 1
         bang_count.SetValue(str(bangs))
 
+
 if __name__ == '__main__':
-    app = MyApp(0)
+    app = MyApp()
     app.MainLoop()
