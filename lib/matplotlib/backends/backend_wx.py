@@ -883,14 +883,11 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
         # Now that we have rendered into the bitmap, save it to the appropriate
         # file type and clean up.
-        if isinstance(filename, str):
-            if not image.SaveFile(filename, filetype):
-                raise RuntimeError(f'Could not save figure to {filename}')
-        elif cbook.is_writable_file_like(filename):
-            if not isinstance(image, wx.Image):
-                image = image.ConvertToImage()
-            if not image.SaveStream(filename, filetype):
-                raise RuntimeError(f'Could not save figure to {filename}')
+        if (cbook.is_writable_file_like(filename) and
+                not isinstance(image, wx.Image)):
+            image = image.ConvertToImage()
+        if not image.SaveFile(filename, filetype):
+            raise RuntimeError(f'Could not save figure to {filename}')
 
         # Restore everything to normal
         self.bitmap = origBitmap
