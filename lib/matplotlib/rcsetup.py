@@ -122,7 +122,7 @@ def validate_any(s):
 validate_anylist = _listify_validator(validate_any)
 
 
-def validate_date(s):
+def _validate_date(s):
     try:
         np.datetime64(s)
         return s
@@ -1277,7 +1277,7 @@ defaultParams = {
     'scatter.marker': ['o', validate_string],
     'scatter.edgecolors': ['face', validate_string],
 
-    'date.epoch': ['1970-01-01T00:00', validate_date],
+    'date.epoch': ['1970-01-01T00:00', _validate_date],
     # TODO validate that these are valid datetime format strings
     'date.autoformatter.year': ['%Y', validate_string],
     'date.autoformatter.month': ['%Y-%m', validate_string],
