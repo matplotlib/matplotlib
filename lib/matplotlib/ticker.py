@@ -406,7 +406,7 @@ class FuncFormatter(Formatter):
         except ValueError:
             self._nargs = 2
             cbook._warn_external("FuncFormatter may not support "
-                                  f"{func.__name__}. Please look the "
+                                  f"{func.__name__}. Please look at the "
                                   "other formatters in `matplotlib.ticker`.")
         else:
             try:
