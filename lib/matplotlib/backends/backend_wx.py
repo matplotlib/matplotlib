@@ -1501,7 +1501,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def set_message(self, s):
         status_bar = self.GetTopLevelParent().GetStatusBar()
-        if status_bar is not None:
+        if status_bar is not None and hasattr(status_bar, 'set_function'):
             status_bar.set_function(s)
 
     def set_history_buttons(self):
