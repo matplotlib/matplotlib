@@ -5,8 +5,6 @@ from matplotlib import cbook, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
-import matplotlib._layoutbox as layoutbox
-
 
 class SubplotBase:
     """
@@ -37,23 +35,6 @@ class SubplotBase:
         self.update_params()
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
-        # add a layout box to this, for both the full axis, and the poss
-        # of the axis.  We need both because the axes may become smaller
-        # due to parasitic axes and hence no longer fill the subplotspec.
-        if self._subplotspec._layoutbox is None:
-            self._layoutbox = None
-            self._poslayoutbox = None
-        else:
-            name = self._subplotspec._layoutbox.name + '.ax'
-            name = name + layoutbox.seq_id()
-            self._layoutbox = layoutbox.LayoutBox(
-                    parent=self._subplotspec._layoutbox,
-                    name=name,
-                    artist=self)
-            self._poslayoutbox = layoutbox.LayoutBox(
-                    parent=self._layoutbox,
-                    name=self._layoutbox.name+'.pos',
-                    pos=True, subplot=True, artist=self)
 
     def __reduce__(self):
         # get the first axes class which does not inherit from a subplotbase
@@ -156,10 +137,6 @@ class SubplotBase:
             twin.set_label(real_label)
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
-        if self._layoutbox is not None and twin._layoutbox is not None:
-            # make the layout boxes be explicitly the same
-            twin._layoutbox.constrain_same(self._layoutbox)
-            twin._poslayoutbox.constrain_same(self._poslayoutbox)
         self._twinned_axes.join(self, twin)
         return twin
 

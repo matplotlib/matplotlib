@@ -19,6 +19,7 @@ import itertools
 import kiwisolver as kiwi
 import logging
 import numpy as np
+from matplotlib.transforms import Bbox
 
 
 _log = logging.getLogger(__name__)
@@ -195,7 +196,9 @@ class LayoutBox:
               self.h_center == (self.left + self.right) * 0.5,
               self.v_center == (self.top + self.bottom) * 0.5,
               self.width >= self.min_width,
-              self.height >= self.min_height]
+              self.height >= self.min_height,
+              self.right >= self.left,
+              self.top >= self.bottom]
         for c in hc:
             self.solver.addConstraint(c | 'required')
 
@@ -234,6 +237,18 @@ class LayoutBox:
         for c in hc:
             self.solver.addConstraint(c | strength)
         # self.solver.updateVariables()
+
+    def relative_geometry(self, parent, extents, strength='strong'):
+        left, bottom, width, height = extents
+
+        hc = [self.left == parent.left + parent.width * left,
+              self.right == parent.left + parent.width * width,
+              self.bottom == parent.bottom + parent.height * bottom,
+              self.top == parent.bottom + parent.height * height
+        ]
+        for c in hc:
+            print(c)
+            self.solver.addConstraint(c | strength)
 
     def constrain_same(self, other, strength='strong'):
         """
@@ -276,6 +291,10 @@ class LayoutBox:
 
     def get_rect(self):
         return (self.left.value(), self.bottom.value(),
+                self.width.value(), self.height.value())
+
+    def get_bbox(self):
+        return Bbox.from_bounds(self.left.value(), self.bottom.value(),
                 self.width.value(), self.height.value())
 
     def update_variables(self):
@@ -490,6 +509,7 @@ def hpack(boxes, padding=0, strength='strong'):
         boxes[i].solver.addConstraint(c | strength)
 
 
+
 def vstack(boxes, padding=0, strength='strong'):
     """Stack LayoutBox instances from top to bottom."""
 
@@ -526,6 +546,22 @@ def match_widths(boxes, width_ratios=None, strength='medium'):
         c = (boxes[i-1].width ==
              boxes[i].width*width_ratios[i-1]/width_ratios[i])
         boxes[i].solver.addConstraint(c | strength)
+
+def make_fill_width(boxes, parent, strength='strong', pad=0):
+    w = boxes[0].width
+    for b in boxes[1:]:
+        w = w + b.width + pad
+    print('w', w)
+    c = (w == parent.width)
+    parent.solver.addConstraint(c | strength)
+
+def make_fill_height(boxes, parent, strength='strong', pad=0):
+    h = boxes[0].height
+    for b in boxes[1:]:
+        h = h + b.height + pad
+    c = (h == parent.height)
+    print('filling height', c)
+    parent.solver.addConstraint(c | strength)
 
 
 def vstackeq(boxes, padding=0, height_ratios=None):
@@ -674,6 +710,7 @@ def plot_children(fig, box, level=0, printit=True):
 
     import matplotlib.patches as patches
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    colors += colors
     if printit:
         print("Level:", level)
     for child in box.children:

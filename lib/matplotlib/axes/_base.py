@@ -564,9 +564,7 @@ class _AxesBase(martist.Artist):
             labelright=(rcParams['ytick.labelright'] and
                         rcParams['ytick.major.right']),
             which='major')
-
-        self._layoutbox = None
-        self._poslayoutbox = None
+        self._colorbars = []
 
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at

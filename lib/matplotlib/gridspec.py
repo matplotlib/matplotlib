@@ -18,7 +18,8 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _pylab_helpers, cbook, tight_layout, rcParams
 from matplotlib.transforms import Bbox
-import matplotlib._layoutbox as layoutbox
+import matplotlib._layoutgrid as layoutgrid
+
 
 _log = logging.getLogger(__name__)
 
@@ -419,24 +420,21 @@ class GridSpec(GridSpecBase):
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
 
-        self._layoutbox = None
+        self._layoutgrid = None
         if self.figure is None or not self.figure.get_constrained_layout():
-            self._layoutbox = None
+            self._layoutgrid = None
         else:
-            self.figure.init_layoutbox()
-            self._layoutbox = layoutbox.LayoutBox(
-                parent=self.figure._layoutbox,
-                name='gridspec' + layoutbox.seq_id(),
-                artist=self)
-
-        # by default the layoutbox for a gridspec will fill a figure.
-        # but this can change below if the gridspec is created from a
-        # subplotspec. (GridSpecFromSubplotSpec)
+            self._toplayoutbox = self.figure._layoutgrid
+            self._layoutgrid = layoutgrid.LayoutGrid(
+                parent=self.figure._layoutgrid,
+                name=self.figure._layoutgrid.name + '.gridspec' + layoutgrid.seq_id(),
+                ncols=ncols, nrows=nrows, width_ratios=width_ratios, height_ratios=height_ratios)
+            print('added gridspec', nrows, ncols)
 
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
 
     def __getstate__(self):
-        return {**self.__dict__, "_layoutbox": None}
+        return {**self.__dict__, "_layoutgrid": None}
 
     def update(self, **kwargs):
         """
@@ -566,15 +564,21 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
         # do the layoutboxes
-        subspeclb = subplot_spec._layoutbox
+        subspeclb = subplot_spec.get_gridspec()._layoutgrid
         if subspeclb is None:
-            self._layoutbox = None
+            self._layoutgrid = None
         else:
-            # OK, this is needed to divide the figure.
-            self._layoutbox = subspeclb.layout_from_subplotspec(
-                    subplot_spec,
-                    name=subspeclb.name + '.gridspec' + layoutbox.seq_id(),
-                    artist=self)
+            print(subplot_spec.rowspan, subplot_spec.colspan)
+            self._toplayoutbox =  layoutgrid.LayoutGrid(
+                parent=subspeclb,
+                name=subspeclb.name + '.top' + layoutgrid.seq_id(),
+                nrows=1, ncols=1,
+                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
+            self._layoutgrid = layoutgrid.LayoutGrid(
+                    parent = self._toplayoutbox,
+                    name=self._toplayoutbox.name + '.gridspec' + layoutgrid.seq_id(),
+                    nrows=nrows, ncols=ncols,
+                    width_ratios=width_ratios, height_ratios=height_ratios)
 
     def get_subplot_params(self, figure=None):
         """Return a dictionary of subplot layout parameters."""
@@ -623,19 +627,6 @@ class SubplotSpec:
         self._gridspec = gridspec
         self.num1 = num1
         self.num2 = num2
-        if gridspec._layoutbox is not None:
-            glb = gridspec._layoutbox
-            # So note that here we don't assign any layout yet,
-            # just make the layoutbox that will contain all items
-            # associated w/ this axis.  This can include other axes like
-            # a colorbar or a legend.
-            self._layoutbox = layoutbox.LayoutBox(
-                    parent=glb,
-                    name=glb.name + '.ss' + layoutbox.seq_id(),
-                    artist=self)
-
-        else:
-            self._layoutbox = None
 
     def __repr__(self):
         return (f"{self.get_gridspec()}["
@@ -706,7 +697,7 @@ class SubplotSpec:
         self._num2 = value
 
     def __getstate__(self):
-        return {**self.__dict__, "_layoutbox": None}
+        return {**self.__dict__}
 
     def get_gridspec(self):
         return self._gridspec

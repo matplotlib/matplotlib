@@ -33,7 +33,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
-import matplotlib._layoutbox as layoutbox
+import matplotlib._layoutgrid as layoutgrid
 
 _log = logging.getLogger(__name__)
 
@@ -270,7 +270,7 @@ class PanelBase(Artist):
         self._suptitle = None
 
         # constrained_layout:
-        self._layoutbox = None
+        self._layoutgrid = None
 
         # groupers to keep track of x and y labels we want to align.
         # see self.align_xlabels and self.align_ylabels and
@@ -477,23 +477,8 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
-            if self._layoutbox is None or manual_position:
-                self._suptitle._layoutbox = None
-            else:
-                w_pad, h_pad, wspace, hspace =  \
-                        self.get_constrained_layout_pads(relative=True)
-                figlb = self._layoutbox
-                self._suptitle._layoutbox = layoutbox.LayoutBox(
-                        parent=figlb, artist=self._suptitle,
-                        name=figlb.name+'.suptitle')
-                # stack the suptitle on top of all the children.
-                # Some day this should be on top of all the children in the
-                # gridspec only.
-                for child in figlb.children:
-                    if child is not self._suptitle._layoutbox:
-                        layoutbox.vstack([self._suptitle._layoutbox,
-                                          child],
-                                         padding=h_pad*2., strength='required')
+            # will need something to do with layoutgrid in here
+
         self.stale = True
         return self._suptitle
 
@@ -1691,7 +1676,6 @@ class SubPanel(PanelBase):
         super().__init__(**kwargs)
         self.clf()
         self._subplotspec = subplotspec
-        print(subplotspec)
         self._parent = parent
         self.figure = parent.figure
         # subpanels use the parent axstack
@@ -1731,11 +1715,12 @@ class SubPanel(PanelBase):
         self.bbox = self._parent.bbox
         self.bbox_relative = Bbox.from_bounds(x0, y0, widthf, heightf)
         self.bbox = TransformedBbox(self.bbox_relative,
-                                    self._parent.transFigure)
+                                    self._parent.transPanel)
         self.transPanel = BboxTransformTo(self.bbox)
         self.transFigure = self._parent.transFigure
-        if parent._layoutbox is not None:
-            self.init_layoutbox()
+        #self.transPanel = self.transFigure
+        if parent._layoutgrid is not None:
+            self.init_layoutgrid()
 
     def get_size_inches(self):
         return self._parent.get_size_inches()
@@ -1746,13 +1731,18 @@ class SubPanel(PanelBase):
     def get_constrained_layout_pads(self, relative=False):
         return self._parent.get_constrained_layout_pads(relative=relative)
 
-    def init_layoutbox(self):
-        """Initialize the layoutbox for use in constrained_layout."""
-        if self._layoutbox is None:
-            self._layoutbox = layoutbox.LayoutBox(
-                parent=self._subplotspec._layoutbox,
-                name='panellb' + layoutbox.seq_id() , artist=self)
-            self._layoutbox.constrain_geometry(*self.bbox_relative.extents)
+    def init_layoutgrid(self):
+        """Initialize the layoutgrid for use in constrained_layout."""
+        if self._layoutgrid is None:
+            gs = self._subplotspec.get_gridspec()
+            parent = gs._layoutgrid
+            self._layoutgrid = layoutgrid.LayoutGrid(
+                parent=parent,
+                name=(parent.name + '.' + 'panellb' +
+                      layoutgrid.seq_id()),
+                nrows=1, ncols=1,
+                parent_pos=(self._subplotspec.rowspan,
+                            self._subplotspec.colspan))
 
     def get_axes(self):
         """
@@ -1929,7 +1919,7 @@ class Figure(PanelBase):
         self.panels = []
 
         self.figure = self
-
+        self.init_layoutgrid()
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
@@ -2256,7 +2246,7 @@ class Figure(PanelBase):
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
         if self.get_constrained_layout():
-            layoutbox.nonetree(self._layoutbox)
+            layoutgrid.nonetree(self._layoutgrid)
 
         super().clf()
         for ax in tuple(self._localaxes):  # Iterate over the copy.
@@ -2337,12 +2327,9 @@ class Figure(PanelBase):
                 in _pylab_helpers.Gcf.figs.values():
             state['_restore_to_pylab'] = True
 
-        # set all the layoutbox information to None.  kiwisolver objects can't
+        # set all the layoutgrid information to None.  kiwisolver objects can't
         # be pickled, so we lose the layout options at this point.
-        state.pop('_layoutbox', None)
-        # suptitle:
-        if self._suptitle is not None:
-            self._suptitle._layoutbox = None
+        state.pop('_layoutgrid', None)
 
         return state
 
@@ -2359,7 +2346,7 @@ class Figure(PanelBase):
 
         # re-initialise some of the unstored state information
         FigureCanvasBase(self)  # Set self.canvas.
-        self._layoutbox = None
+        self._layoutgrid = None
 
         if restore_to_pylab:
             # lazy import to avoid circularity
@@ -2708,7 +2695,7 @@ class Figure(PanelBase):
         hspace = self._constrained_layout_pads['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer0 = layoutbox.get_renderer(self)
+            renderer0 = layoutgrid.get_renderer(self)
             dpi = renderer0.dpi
             w_pad = w_pad * dpi / renderer0.width
             h_pad = h_pad * dpi / renderer0.height
@@ -2717,7 +2704,7 @@ class Figure(PanelBase):
 
     def execute_constrained_layout(self, renderer=None):
         """
-        Use ``layoutbox`` to determine pos positions within axes.
+        Use ``layoutgrid`` to determine pos positions within axes.
 
         See also `.set_constrained_layout_pads`.
         """
@@ -2726,7 +2713,7 @@ class Figure(PanelBase):
 
         print('execute', self)
         _log.debug('Executing constrainedlayout')
-        if self._layoutbox is None:
+        if self._layoutgrid is None:
             cbook._warn_external("Calling figure.constrained_layout, but "
                                  "figure not setup to do constrained layout. "
                                  " You either called GridSpec without the "
@@ -2741,7 +2728,7 @@ class Figure(PanelBase):
         w_pad = w_pad / width
         h_pad = h_pad / height
         if renderer is None:
-            renderer = layoutbox.get_renderer(fig)
+            renderer = layoutgrid.get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
 
@@ -2793,12 +2780,11 @@ class Figure(PanelBase):
         if kwargs:
             self.subplots_adjust(**kwargs)
 
-    def init_layoutbox(self):
-        """Initialize the layoutbox for use in constrained_layout."""
-        if self._layoutbox is None:
-            self._layoutbox = layoutbox.LayoutBox(
-                parent=None, name='figlb', artist=self)
-            self._layoutbox.constrain_geometry(0., 0., 1., 1.)
+    def init_layoutgrid(self):
+        """Initialize the layoutgrid for use in constrained_layout."""
+        if self._layoutgrid is None:
+            self._layoutgrid = layoutgrid.LayoutGrid(
+                parent=None, name='figlb')
 
 def figaspect(arg):
     """
