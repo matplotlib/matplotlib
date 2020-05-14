@@ -555,3 +555,7 @@ in which they are given.  This only affects the interaction between the
 properties: the *color* property now needs to be passed first in order not to
 override the other properties.  This is consistent with e.g. `.Artist.update`,
 which did not reorder the properties passed to it.
+
+Passing multiple keys as a single comma-separated string or multiple arguments to `.ToolManager.update_keymap`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is deprecated; pass keys as a list of strings instead.
