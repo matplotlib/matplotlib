@@ -169,8 +169,6 @@ import inspect
 import logging
 import locale
 import math
-import string
-import types
 from numbers import Integral
 
 import numpy as np
@@ -403,24 +401,26 @@ class FuncFormatter(Formatter):
 
     @func.setter
     def func(self, func):
-        self._func = func
-        if not isinstance(func, types.BuiltinFunctionType):
-            self._nargs = len(inspect.signature(func).parameters)
-        elif (isinstance(getattr(func, "__self__"), str) and
-                (getattr(func, "__name__", "") == "format")):
-            #check if there's a format spec
-            self._nargs = len([(_, _, fs, _) for (_, _, fs, _)
-                              in string.Formatter().parse(func.__self__)
-                              if fs is not None])
-        else:
-            #finding argcount for other builtins is a mess
+        try:
+            sig = inspect.signature(func)
+        except ValueError:
             self._nargs = 2
-            cbook._warn_external(f"{func.__name__} is not supported "
-                                  "and may not work as expected")
-        if self._nargs not in [1, 2]:
-            raise TypeError(f"{func.__name__} takes {self._nargs} arguments. "
-                             "FuncFormatter functions take at most 2: "
-                             "x (required), pos (optional).")
+            cbook._warn_external("FuncFormatter may not support "
+                                  f"{func.__name__}. Please look the "
+                                  "other formatters in `matplotlib.ticker`.")
+        else:
+            try:
+                sig.bind(None, None)
+                self._nargs = 2
+            except TypeError:
+                try:
+                    sig.bind(None)
+                    self._nargs = 1
+                except TypeError:
+                    raise TypeError(f"{func.__name__} must take "
+                                     "at most 2 arguments: "
+                                     "x (required), pos (optional).")
+        self._func = func
 
 
 class FormatStrFormatter(Formatter):

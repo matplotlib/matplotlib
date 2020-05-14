@@ -1042,34 +1042,27 @@ class TestFormatStrFormatter:
 
 
 class TestFuncFormatter:
-    tests = [("function, 1 input",
-                (lambda x: f"{x}!", [2], "2!")),
-             ("function 2 inputs",
-                (lambda x, pos: f"{x}+{pos}!", [2, 3], "2+3!")),
-             ("format, 1 input",
-                ("{}!".format, [2], "2!")),
-             ("format 2 inputs",
-                ("{}+{}!".format, [2, 3], "2+3!"))]
-    ids, data = zip(*tests)
-    @pytest.mark.parametrize("func, args, expected", data, ids=ids)
+    @pytest.mark.parametrize("func, args, expected",
+                             [(lambda x: f"{x}!", [2], "2!"),
+                              (lambda x, pos: f"{x}+{pos}!", [2, 3], "2+3!")])
     def test_arguments(self, func, args, expected):
         assert expected == mticker.FuncFormatter(func)(*args)
 
-    @pytest.mark.parametrize("func", [(lambda x, y, z: ""),
-                                      ("{}+{}+{}".format)],
-                                ids=["function", "format"])
-    def test_typerror(self, func):
-        with pytest.raises(TypeError, match=r'3 arguments'):
-            mticker.FuncFormatter(func)
+    @pytest.mark.parametrize("func, args, expected",
+                             [("{}!".format, [2], "2!"),
+                              ("{}+{}!".format, [2, 3], "2+3!")])
+    def test_builtins(self, func, args, expected):
+        with pytest.raises(UserWarning, match=r'not support format'):
+            assert expected == mticker.FuncFormatter(func)(*args)
 
-    def test_other_builtins(self):
-        with pytest.raises(UserWarning, match=r'max is not'):
-            mticker.FuncFormatter(max)
+    def test_typerror(self):
+        with pytest.raises(TypeError, match=r'must take at most'):
+            mticker.FuncFormatter((lambda x, y, z: " "))
 
     def test_update(self):
         formatter = mticker.FuncFormatter(lambda x, pos: f"{x}+{pos}")
         assert "1+2" == formatter(1, 2)
-        with pytest.raises(TypeError, match='3 arguments'):
+        with pytest.raises(TypeError, match=r'must take at most'):
             formatter.func = lambda x, pos, error: "!"
 
 
