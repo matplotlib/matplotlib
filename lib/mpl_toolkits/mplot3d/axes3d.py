@@ -2986,8 +2986,9 @@ pivot='tail', normalize=False, **kwargs)
             # for compatibility with the 2d errorbar function, when both upper
             # and lower limits specified, we need to draw the markers / line -
             # whether or not using both limits makes any sense (it doesn't)
-            _lomask = lomask | ((lomask == himask) & everymask)
-            _himask = himask | ((lomask == himask) & everymask)
+            common_mask = (lomask == himask) & everymask
+            _lomask = lomask | common_mask
+            _himask = himask | common_mask
 
             lows = np.where(_lomask, data - low_err, data)
             highs = np.where(_himask, data + high_err, data)
