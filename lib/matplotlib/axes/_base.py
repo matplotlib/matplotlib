@@ -3332,6 +3332,9 @@ class _AxesBase(martist.Artist):
         left, right = sorted([left, right], reverse=bool(reverse))
 
         self._viewLim.intervalx = (left, right)
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_x_axes.get_siblings(self):
+            ax._stale_viewlim_x = False
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
@@ -3601,6 +3604,9 @@ class _AxesBase(martist.Artist):
         bottom, top = sorted([bottom, top], reverse=bool(reverse))
 
         self._viewLim.intervaly = (bottom, top)
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_y_axes.get_siblings(self):
+            ax._stale_viewlim_y = False
         if auto is not None:
             self._autoscaleYon = bool(auto)
 
