@@ -2754,7 +2754,7 @@ class Axes(_AxesBase):
             Note: While it is technically possible to specify valid formats
             other than color or color and linestyle (e.g. 'rx' or '-.'), this
             is beyond the intention of the method and will most likely not
-            result in a reasonable reasonable plot.
+            result in a reasonable plot.
 
         markerfmt : str, optional
             A string defining the properties of the markers at the stem heads.
