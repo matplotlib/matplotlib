@@ -11,6 +11,20 @@
 #include <Python.h>
 
 #ifdef _WIN32
+#define WIN32_DLL
+#endif
+#ifdef __CYGWIN__
+/*
+ * Unfortunately cygwin's libdl inherits restrictions from the underlying
+ * Windows OS, at least currently. Therefore, a symbol may be loaded from a
+ * module by dlsym() only if it is really located in the given modile,
+ * dependencies are not included. So we have to use native WinAPI on Cygwin
+ * also.
+ */
+#define WIN32_DLL
+#endif
+
+#ifdef WIN32_DLL
 #include <windows.h>
 #define PSAPI_VERSION 1
 #include <psapi.h>  // Must be linked with 'psapi' library
@@ -122,7 +136,7 @@ int load_tk(T lib)
             (Tk_PhotoPutBlock_NoComposite_t)dlsym(lib, "Tk_PhotoPutBlock_NoComposite"));
 }
 
-#ifdef _WIN32
+#ifdef WIN32_DLL
 
 /*
  * On Windows, we can't load the tkinter module to get the Tk symbols, because
