@@ -3,3 +3,15 @@ New `~.axes.Axes.axline` method
 
 A new `~.axes.Axes.axline` method has been added to draw infinitely long lines
 that pass through two points.
+
+
+
+.. plot::
+   :include-source: True
+
+   fig, ax = plt.subplots()
+
+   ax.axline((.1, .1), slope=5, color='C0', label='by slope')
+   ax.axline((.1, .2), (.8, .7), color='C3', label='by points')
+
+   ax.legend()
