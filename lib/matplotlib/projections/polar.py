@@ -949,6 +949,7 @@ class PolarAxes(Axes):
     @cbook._delete_parameter("3.3", "args")
     @cbook._delete_parameter("3.3", "kwargs")
     def draw(self, renderer, *args, **kwargs):
+        self._unstale_viewLim()
         thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
