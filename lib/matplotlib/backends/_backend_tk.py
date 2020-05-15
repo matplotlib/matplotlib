@@ -215,8 +215,11 @@ class FigureCanvasTk(FigureCanvasBase):
         # to the window and filter.
         def filter_destroy(event):
             if event.widget is self._tkcanvas:
+                self._destroying = True
                 self._master.update_idletasks()
                 self.close_event()
+
+        self._destroying = False
         root.bind("<Destroy>", filter_destroy, "+")
 
         self._master = master
@@ -250,7 +253,8 @@ class FigureCanvasTk(FigureCanvasBase):
 
         def idle_draw(*args):
             try:
-                self.draw()
+                if not self._destroying:
+                    self.draw()
             finally:
                 self._idle = True
 
