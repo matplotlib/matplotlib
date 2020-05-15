@@ -427,6 +427,7 @@ class GridSpec(GridSpecBase):
             self._toplayoutbox = self.figure._layoutgrid
             self._layoutgrid = layoutgrid.LayoutGrid(
                 parent=self.figure._layoutgrid,
+                parent_inner=True,
                 name=self.figure._layoutgrid.name + '.gridspec' + layoutgrid.seq_id(),
                 ncols=ncols, nrows=nrows, width_ratios=width_ratios, height_ratios=height_ratios)
             print('added gridspec', nrows, ncols)

@@ -903,10 +903,6 @@ class _AxesBase(martist.Artist):
 
         """
         self._set_position(pos, which=which)
-        # because this is being called externally to the library we
-        # zero the constrained layout parts.
-        self._layoutbox = None
-        self._poslayoutbox = None
 
     def _set_position(self, pos, which='both'):
         """

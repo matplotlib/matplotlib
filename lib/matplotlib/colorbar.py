@@ -1432,17 +1432,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     # pass to `colorbar`.
     parents = np.atleast_1d(parents).ravel()
 
-    # check if using constrained_layout:
-    try:
-        gs = parents[0].get_subplotspec().get_gridspec()
-        using_constrained_layout = (gs._layoutgrid is not None)
-    except AttributeError:
-        using_constrained_layout = False
-
     # defaults are not appropriate for constrained_layout:
     pad0 = loc_settings['pad']
-    if using_constrained_layout:
-        pad0 = 0.02
     pad = kw.pop('pad', pad0)
 
     fig = parents[0].get_figure()
@@ -1484,19 +1475,19 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
             ax.set_anchor(parent_anchor)
 
     cax = fig.add_axes(pbcb, label="<colorbar>")
+    for a in parents:
+        # tell the parent it has a colorbar
+        a._colorbars += [cax]
     cax._colorbar_info = {}
     cax._colorbar_info['location'] = location
     cax._colorbar_info['parents'] = parents
     cax._colorbar_info['shrink'] = shrink
-    if len(parents) == 1:
-        # tell the parent it has a colorbar
-        ax._colorbars += [cax]
+    cax._colorbar_info['anchor'] = anchor
+    cax._colorbar_info['panchor'] = parent_anchor
+    cax._colorbar_info['fraction'] = fraction
+    cax._colorbar_info['aspect'] = aspect
+    cax._colorbar_info['pad'] = pad
 
-    # OK, now make a layoutbox for the cb axis.  Later, we will use this
-    # to make the colorbar fit nicely.
-    # no layout boxes:
-    lb = None
-    lbpos = None
     # and we need to set the aspect ratio by hand...
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
 
