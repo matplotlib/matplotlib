@@ -1,5 +1,5 @@
 GridSpec.subplots()
-```````````````````
+-------------------
 
 The `.GridSpec` class gained a `~.GridSpecBase.subplots` method, so that one
 can write ::

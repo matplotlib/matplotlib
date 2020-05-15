@@ -1,7 +1,5 @@
-:orphan:
-
 `matplotlib.rc_context` is now a `contextlib.contextmanager`
-````````````````````````````````````````````````````````````
+------------------------------------------------------------
 
 `matplotlib.rc_context` can now be used as a decorator (technically, it is now
 implemented as a `contextlib.contextmanager`), e.g. ::

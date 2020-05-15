@@ -1,4 +1,3 @@
-:orphan:
 
 Setting axes box aspect
 -----------------------
