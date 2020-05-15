@@ -25,4 +25,4 @@ What's New
 
       next_whats_new/*
 
-.. include:: prev_whats_new/whats_new_3.2.0.rst
+.. include:: prev_whats_new/whats_new_3.3.0.rst
