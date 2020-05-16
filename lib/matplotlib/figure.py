@@ -477,7 +477,11 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
+            print(sup, sup.get_transform())
             # will need something to do with layoutgrid in here
+
+        if manual_position:
+            self._suptitle.set_in_layout(False)
 
         self.stale = True
         return self._suptitle
@@ -1685,6 +1689,24 @@ class SubPanel(PanelBase):
         self._axobservers = parent._axobservers
         self.dpi = parent.dpi
         self.canvas = parent.canvas
+        self.transFigure = self._parent.transFigure
+        self.bbox_relative = None
+        self._redo_transform_rel_fig()
+        self.bbox = TransformedBbox(self.bbox_relative,
+                                    self._parent.transPanel)
+        self.transPanel = BboxTransformTo(self.bbox)
+
+        if parent._layoutgrid is not None:
+            self.init_layoutgrid()
+
+
+    def _redo_transform_rel_fig(self, margins=(0, 0, 0, 0)):
+        """
+        make the transPanel bbox relative to Figure transform
+        :param: margins
+        """
+
+        left, bottom, right, top = margins
 
         gs = self._subplotspec.get_gridspec()
         # need to figure out *where* this subplotspec is.
@@ -1701,26 +1723,23 @@ class SubPanel(PanelBase):
             hr = np.array(hr)
         widthf = np.sum(wr[self._subplotspec.colspan]) / np.sum(wr)
         heightf = np.sum(hr[self._subplotspec.rowspan]) / np.sum(hr)
+        widthf *= 1-(left + right)
+        heightf *= 1-(bottom + top)
 
-        if subplotspec.colspan[0] > 0:
-            x0 = np.sum(wr[self._subplotspec.colspan[0] - 1]) / np.sum(wr)
+        x0 = left
+        if self._subplotspec.colspan[0] > 0:
+            x0 += np.sum(wr[self._subplotspec.colspan[0] - 1]) / np.sum(wr)
+
+        y0 = bottom
+        if self._subplotspec.rowspan[-1] < nrows - 1:
+            y0 += 1 - np.sum(hr[self._subplotspec.rowspan[-1]-1]) / np.sum(hr)
+
+        if self.bbox_relative is None:
+            self.bbox_relative = Bbox.from_bounds(x0, y0, widthf, heightf)
         else:
-            x0 = 0
+            self.bbox_relative.p0 = (x0, y0)
+            self.bbox_relative.p1 = (x0 + widthf, y0 + heightf)
 
-        if subplotspec.rowspan[-1] < nrows - 1:
-            y0 = 1 - np.sum(hr[self._subplotspec.rowspan[-1]-1]) / np.sum(hr)
-        else:
-            y0 = 0
-
-        self.bbox = self._parent.bbox
-        self.bbox_relative = Bbox.from_bounds(x0, y0, widthf, heightf)
-        self.bbox = TransformedBbox(self.bbox_relative,
-                                    self._parent.transPanel)
-        self.transPanel = BboxTransformTo(self.bbox)
-        self.transFigure = self._parent.transFigure
-        #self.transPanel = self.transFigure
-        if parent._layoutgrid is not None:
-            self.init_layoutgrid()
 
     def get_size_inches(self):
         return self._parent.get_size_inches()
@@ -1919,7 +1938,9 @@ class Figure(PanelBase):
         self.panels = []
 
         self.figure = self
-        self.init_layoutgrid()
+        self._layoutgrid = None
+        if self.get_constrained_layout():
+            self.init_layoutgrid()
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't

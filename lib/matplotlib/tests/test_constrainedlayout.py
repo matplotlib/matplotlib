@@ -61,7 +61,7 @@ def test_constrained_layout3():
         fig.colorbar(pcm, ax=ax, pad=pad)
 
 
-@image_comparison(['constrained_layout4'])
+@image_comparison(['constrained_layout4.png'])
 def test_constrained_layout4():
     """Test constrained_layout for a single colorbar with subplots"""
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
@@ -106,21 +106,6 @@ def test_constrained_layout6():
     fig.colorbar(pcm, ax=axsr,
                  pad=0.01, shrink=0.99, location='bottom',
                  ticks=ticker.MaxNLocator(nbins=5))
-
-
-def test_constrained_layout7():
-    """Test for proper warning if fig not set in GridSpec"""
-    with pytest.warns(
-        UserWarning, match=('Calling figure.constrained_layout, but figure '
-                            'not setup to do constrained layout')):
-        fig = plt.figure(constrained_layout=True)
-        gs = gridspec.GridSpec(1, 2)
-        gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])
-        gsr = gridspec.GridSpecFromSubplotSpec(1, 2, gs[1])
-        for gs in gsl:
-            fig.add_subplot(gs)
-        # need to trigger a draw to get warning
-        fig.draw(fig.canvas.get_renderer())
 
 
 @image_comparison(['constrained_layout8.png'])
@@ -179,9 +164,10 @@ def test_constrained_layout11():
     fig = plt.figure(constrained_layout=True, figsize=(13, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig)
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
-    gsl0 = gridspec.GridSpecFromSubplotSpec(2, 2, gsl[1])
     ax = fig.add_subplot(gs0[1])
     example_plot(ax, fontsize=9)
+
+    gsl0 = gridspec.GridSpecFromSubplotSpec(2, 2, gsl[1])
     axs = []
     for gs in gsl0:
         ax = fig.add_subplot(gs)
@@ -190,6 +176,29 @@ def test_constrained_layout11():
     fig.colorbar(pcm, ax=axs, shrink=0.6, aspect=70.)
     ax = fig.add_subplot(gsl[0])
     example_plot(ax, fontsize=9)
+
+@image_comparison(['constrained_layout11subpanel.png'])
+def test_constrained_layout11subpanel():
+    """Test for nested mixed layout with subpanels"""
+    fig = plt.figure(constrained_layout=True, figsize=(13, 3))
+    gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1.75, 1])
+
+    spl = fig.add_subpanel(gs0[0])
+    ax = fig.add_subplot(gs0[1])
+    example_plot(ax, fontsize=9)
+
+
+    # split left side in two:
+    gsl = spl.add_gridspec(1, 2)
+
+    ax = fig.add_subplot(gsl[0])
+    example_plot(ax, fontsize=9)
+    #split right side of left side into 2x2
+    spl0 = spl.add_subpanel(gsl[1])
+    axs = spl0.subplots(2, 2)
+    for ax in axs.flat:
+       pcm = example_pcolor(ax, fontsize=9)
+    spl0.colorbar(pcm, ax=axs, shrink=0.6, aspect=20.)
 
 
 @image_comparison(['constrained_layout11rat.png'])
@@ -356,7 +365,6 @@ def test_constrained_layout23():
     Comment in #11035: suptitle used to cause an exception when
     reusing a figure w/ CL with ``clear=True``.
     """
-
     for i in range(2):
         fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)
         fig.suptitle("Suptitle{}".format(i))
@@ -398,4 +406,4 @@ def test_hidden_axes():
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
     np.testing.assert_allclose(
-        extents1, [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
+        extents1, [0.045552, 0.543288, 0.46819 , 0.972638], rtol=1e-5)

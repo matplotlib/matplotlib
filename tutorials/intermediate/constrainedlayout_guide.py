@@ -661,11 +661,11 @@ example_plot(ax4)
 #     ax._poslayoutbox.edit_left_margin_min(-bbox.x0 + pos.x0 + w_padt)
 #
 
-from matplotlib._layoutbox import plot_children
+from matplotlib._layoutgrid import plot_children
 
 fig, ax = plt.subplots(constrained_layout=True)
 example_plot(ax, fontsize=24)
-plot_children(fig, fig._layoutbox, printit=False)
+plot_children(fig, fig._layoutgrid, printit=False)
 
 #######################################################################
 # Simple case: two Axes
@@ -697,7 +697,7 @@ plot_children(fig, fig._layoutbox, printit=False)
 fig, ax = plt.subplots(1, 2, constrained_layout=True)
 example_plot(ax[0], fontsize=32)
 example_plot(ax[1], fontsize=8)
-plot_children(fig, fig._layoutbox, printit=False)
+plot_children(fig, fig._layoutgrid, printit=False)
 
 #######################################################################
 # Two Axes and colorbar
@@ -722,7 +722,7 @@ fig, ax = plt.subplots(1, 2, constrained_layout=True)
 im = ax[0].pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax[0], shrink=0.6)
 im = ax[1].pcolormesh(arr, **pc_kwargs)
-plot_children(fig, fig._layoutbox, printit=False)
+plot_children(fig, fig._layoutgrid, printit=False)
 
 #######################################################################
 # Colorbar associated with a Gridspec
@@ -738,7 +738,7 @@ fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
     im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
-plot_children(fig, fig._layoutbox, printit=False)
+plot_children(fig, fig._layoutgrid, printit=False)
 
 #######################################################################
 # Uneven sized Axes
@@ -768,7 +768,7 @@ ax = fig.add_subplot(gs[0, 1])
 im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[1, 1])
 im = ax.pcolormesh(arr, **pc_kwargs)
-plot_children(fig, fig._layoutbox, printit=False)
+plot_children(fig, fig._layoutgrid, printit=False)
 
 #######################################################################
 # Height and width ratios are accommodated with the same part of
@@ -786,7 +786,7 @@ ax = fig.add_subplot(gs[0, 1])
 im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[1:, 1])
 im = ax.pcolormesh(arr, **pc_kwargs)
-plot_children(fig, fig._layoutbox, printit=False)
+plot_children(fig, fig._layoutgrid, printit=False)
 
 ########################################################################
 # Empty gridspec slots
@@ -806,7 +806,7 @@ ax = fig.add_subplot(gs[0])
 im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[-1])
 im = ax.pcolormesh(arr, **pc_kwargs)
-plot_children(fig, fig._layoutbox, printit=False)
+plot_children(fig, fig._layoutgrid, printit=False)
 plt.show()
 
 ########################################################################

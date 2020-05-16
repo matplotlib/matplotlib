@@ -152,12 +152,11 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         _make_margin_suptitles(fig, renderer, h_pad=h_pad, w_pad=w_pad)
 
         fig._layoutgrid.update_variables()
-        if not _check_ok(fig):
-            _reset_margins(fig)
-            return
 
-        for ax in fig.axes:
-            _reposition_axes(ax, renderer, h_pad=h_pad, w_pad=w_pad)
+        if _check_ok(fig):
+            _reposition_axes(fig, renderer, h_pad=h_pad, w_pad=w_pad,
+                             hspace=hspace, wspace=wspace)
+
         _reset_margins(fig)
 
 def _check_ok(fig):
@@ -187,10 +186,16 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
     for panel in fig.panels:
         _make_margin_suptitles(panel, renderer, w_pad=w_pad, h_pad=h_pad)
     invTransFig = fig.transPanel.inverted().transform_bbox
+    pan2fig = fig.transPanel + fig.transFigure.inverted()
+    print('pads', w_pad, h_pad, fig)
+    w_pad, h_pad = pan2fig.transform((w_pad, h_pad))
+    print('pads after', w_pad, h_pad)
 
-    if fig._suptitle is not None:
+    if fig._suptitle is not None and fig._suptitle.get_in_layout():
         bbox = invTransFig(fig._suptitle.get_tightbbox(renderer))
-        fig._layoutgrid.edit_margin_min('top', bbox.height + 2 * h_pad)
+        p = fig._suptitle.get_position()
+        fig._suptitle.set_position((p[0], 1-h_pad))
+        fig._layoutgrid.edit_margin_min('top', bbox.height +  2 * h_pad)
     if 0:
         if fig._supxlabel is not None:
             bbox = invTransFig(fig._supxlabel.get_tightbbox(renderer))
@@ -238,10 +243,10 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
 
         # remember that rows are ordered from top:
         margin['bottom'] = pos.y0 - bbox.y0 + h_pad
-        if ss.rowspan.start > 0:
+        if ss.rowspan.stop < nrows:
             margin['bottom'] += hspace / nrows
         margin['top'] = -pos.y1 + bbox.y1 + h_pad
-        if ss.rowspan.stop < nrows:
+        if ss.rowspan.start > 0:
             margin['top'] += hspace / nrows
 
         # increase margin for colorbars...
@@ -252,7 +257,6 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                 if cbp_cspan.stop == ss.colspan.stop:
                     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
                     margin[loc] += cbbbox.width + w_pad * 2
-                    print(cbbbox.width )
             elif loc == 'left':
                 if cbp_cspan.start == ss.colspan.start:
                     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
@@ -266,11 +270,15 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
                     margin[loc] += cbbbox.height + h_pad * 2
 
-        gs._layoutgrid.edit_margin_min('left', margin['left'], ss.colspan[0])
-        gs._layoutgrid.edit_margin_min('right', margin['right'], ss.colspan[-1])
+        gs._layoutgrid.edit_margin_min('left', margin['left'],
+                                       ss.colspan[0])
+        gs._layoutgrid.edit_margin_min('right', margin['right'],
+                                       ss.colspan[-1])
 
-        gs._layoutgrid.edit_margin_min('top', margin['top'], ss.rowspan[0])
-        gs._layoutgrid.edit_margin_min('bottom', margin['bottom'], ss.rowspan[-1])
+        gs._layoutgrid.edit_margin_min('top', margin['top'],
+                                       ss.rowspan[0])
+        gs._layoutgrid.edit_margin_min('bottom', margin['bottom'],
+                                       ss.rowspan[-1])
 
 def _get_cb_parent_spans(cbax):
     """
@@ -280,7 +288,6 @@ def _get_cb_parent_spans(cbax):
     colspan = range(100, -100, -100)
     for parent in cbax._colorbar_info['parents']:
         ss = parent.get_subplotspec()
-        print(ss.rowspan, rowspan)
 
         mn = min([ss.rowspan.start, rowspan.start])
         mx = max([ss.rowspan.stop, rowspan.stop])
@@ -310,60 +317,76 @@ def _get_pos_and_bbox(ax, renderer):
         bbox = invTransFig.transform_bbox(tightbbox)
     return pos, bbox
 
-def _reposition_axes(ax, renderer, *, w_pad=0, h_pad=0):
+def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
     """
     For each axes, make a margin between the *pos* layoutbox and the
     *axes* layoutbox be a minimum size that can accommodate the
     decorations on the axis.
     """
-    if not hasattr(ax, 'get_subplotspec'):
-        return
-
-    fig = ax.figure
-    # grid bbox is in Figure co-ordinates, but we specify in panel
-    # co-ordinates...
     trans = fig.transFigure + fig.transPanel.inverted()
 
-    ss = ax.get_subplotspec()
-    gs = ss.get_gridspec()
-    if gs._layoutgrid is None:
-        return
+    for panel in fig.panels:
+        inner = panel._parent._layoutgrid.get_inner_bbox()
+        inner = trans.transform_bbox(inner)
+        outer = panel._parent._layoutgrid.get_outer_bbox()
+        outer = trans.transform_bbox(outer)
+        print('innout', inner, outer)
+        left = inner.x0 - outer.x0
+        right = outer.x1 - inner.x1
+        bottom = inner.y0 - outer.y0
+        top = outer.y1 - inner.y1
 
-    bbox = gs._layoutgrid.get_inner_bbox(rows=ss.rowspan, cols=ss.colspan)
+        panel._redo_transform_rel_fig(margins=(left, bottom, right, top))
+#       print('bbox after', panel.bbox, panel.bbox_relative)
 
-    bboxouter = gs._layoutgrid.get_outer_bbox(rows=ss.rowspan,
-                                              cols=ss.colspan)
-
-    pos = ax.get_position(original=True)
-    # transform from figure to panel for set_position:
-    newbbox = trans.transform_bbox(bbox)
-    ax._set_position(newbbox)
-
-    # move the colorbars:
-
-    # we need to keep track of some stuff if there is more than
-    # one colorbar.
-    oldw ={'right': 0, 'left': 0}
-    oldh = {'bottom': 0, 'top': 0}
-    for nn, cbax in enumerate(ax._colorbars):
-        if ax == cbax._colorbar_info['parents'][0]:
-            oldw, oldh = _reposition_colorbar(cbax, renderer,
-                                            w_pad, h_pad,
-                                            oldw, oldh)
+        _reposition_axes(panel, renderer,
+                         w_pad=w_pad, h_pad=h_pad,
+                         wspace=wspace, hspace=hspace)
 
 
-def _reposition_colorbar(cbax, renderer, w_pad, h_pad, oldw, oldh):
+    for ax in [a for a in fig._localaxes if hasattr(a, 'get_subplotspec')]:
+
+        # grid bbox is in Figure co-ordinates, but we specify in panel
+        # co-ordinates...
+        ss = ax.get_subplotspec()
+        gs = ss.get_gridspec()
+        if gs._layoutgrid is None:
+            return
+
+        bbox = gs._layoutgrid.get_inner_bbox(rows=ss.rowspan, cols=ss.colspan)
+
+        bboxouter = gs._layoutgrid.get_outer_bbox(rows=ss.rowspan,
+                                                  cols=ss.colspan)
+
+        # transform from figure to panel for set_position:
+        newbbox = trans.transform_bbox(bbox)
+        ax._set_position(newbbox)
+
+        # move the colorbars:
+
+        # we need to keep track of some stuff if there is more than
+        # one colorbar.
+        oldw ={'right': 0, 'left': 0}
+        oldh = {'bottom': 0, 'top': 0}
+        for nn, cbax in enumerate(ax._colorbars):
+            if ax == cbax._colorbar_info['parents'][0]:
+                oldw, oldh = _reposition_colorbar(cbax, renderer,
+                        w_pad=w_pad, h_pad=h_pad,
+                        wspace=wspace, hspace=hspace, oldw=oldw, oldh=oldh)
+
+
+def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
+                         wspace=0, oldw=0, oldh=0):
+
     parents = cbax._colorbar_info['parents']
     gs = parents[0].get_gridspec()
+    ncols, nrows = gs.ncols, gs.nrows
     fig = cbax.figure
     trans = fig.transFigure + fig.transPanel.inverted()
 
-
     cb_rspans, cb_cspans = _get_cb_parent_spans(cbax)
-    bboxouter = gs._layoutgrid.get_outer_bbox(rows=cb_rspans,
-                                              cols=cb_cspans)
-    pb = gs._layoutgrid.get_inner_bbox(rows=cb_rspans,
-                                         cols=cb_cspans)
+    bboxouter = gs._layoutgrid.get_outer_bbox(rows=cb_rspans, cols=cb_cspans)
+    pb = gs._layoutgrid.get_inner_bbox(rows=cb_rspans, cols=cb_cspans)
     location = cbax._colorbar_info['location']
     anchor = cbax._colorbar_info['anchor']
     fraction = cbax._colorbar_info['fraction']
@@ -374,24 +397,31 @@ def _reposition_colorbar(cbax, renderer, w_pad, h_pad, oldw, oldh):
 
     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
 
+    if cb_cspans.stop == ncols:
+        wspace = 0
+    if cb_rspans.start == 0:
+        hspace = 0
+
     # Colorbar gets put at extreme edge of outer bbox of the subplotspec
     # It needs to be moved in by: 1) a pad 2) its "margin" 3) by
     # any colorbars already added at this location:
     if location in ('left', 'right'):
         pbcb = pb.shrunk(fraction, shrink).anchored(anchor, pb)
-        if location is 'right':
+        if location == 'right':
             margin = cbbbox.x1 - cbpos.x1  # decorators on CB
-            dx = bboxouter.x1 - pbcb.x1 - w_pad - oldw['right'] - margin
+            dx = bboxouter.x1 - pbcb.x1
+            dx = dx - w_pad - oldw['right'] - margin - wspace / ncols
             oldw['right'] += cbbbox.width + 2 * w_pad
             pbcb = pbcb.translated(dx, 0)
         else:
             margin = cbpos.x0 - cbbbox.x0
-            dx = bboxouter.x0 - pbcb.x0 + w_pad + oldw['left'] + margin
+            dx = bboxouter.x0 - pbcb.x0
+            dx = dx + w_pad + oldw['left'] + margin + wspace / ncols
             oldw['left'] += cbbbox.width + 2 * w_pad
             pbcb = pbcb.translated(dx, 0)
     else:
         pbcb = pb.shrunk(shrink, fraction).anchored(anchor, pb)
-        if location is 'top':
+        if location == 'top':
             margin = cbbbox.y1 - cbpos.y1
             dy = bboxouter.y1 - pbcb.y1 - h_pad - oldh['top'] - margin
             oldh['top'] += cbbbox.height + 2 * h_pad
@@ -401,6 +431,7 @@ def _reposition_colorbar(cbax, renderer, w_pad, h_pad, oldw, oldh):
             dy = bboxouter.y0 - pbcb.y0 + h_pad + oldh['bottom'] + margin
             oldh['bottom'] += cbbbox.height + 2 * h_pad
             pbcb = pbcb.translated(0, dy)
+
     pbcb = trans.transform_bbox(pbcb)
     cbax._set_position(pbcb)
     cbax.set_aspect(aspect, anchor=anchor, adjustable='box')
@@ -419,4 +450,3 @@ def _reset_margins(fig):
             gs = ss.get_gridspec()
             gs._layoutgrid.reset_margins()
     fig._layoutgrid.reset_margins()
-
