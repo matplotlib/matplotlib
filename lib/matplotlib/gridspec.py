@@ -430,7 +430,6 @@ class GridSpec(GridSpecBase):
                 parent_inner=True,
                 name=self.figure._layoutgrid.name + '.gridspec' + layoutgrid.seq_id(),
                 ncols=ncols, nrows=nrows, width_ratios=width_ratios, height_ratios=height_ratios)
-            print('added gridspec', nrows, ncols)
 
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
 
@@ -569,7 +568,6 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         if subspeclb is None:
             self._layoutgrid = None
         else:
-            print(subplot_spec.rowspan, subplot_spec.colspan)
             self._toplayoutbox =  layoutgrid.LayoutGrid(
                 parent=subspeclb,
                 name=subspeclb.name + '.top' + layoutgrid.seq_id(),

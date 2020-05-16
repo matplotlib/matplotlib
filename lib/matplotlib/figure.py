@@ -477,7 +477,6 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
-            print(sup, sup.get_transform())
             # will need something to do with layoutgrid in here
 
         if manual_position:
@@ -2282,7 +2281,6 @@ class Figure(PanelBase):
 
     @allow_rasterization
     def draw(self, renderer):
-        print('draw', self)
         # docstring inherited
         self._cachedRenderer = renderer
 
@@ -2732,7 +2730,6 @@ class Figure(PanelBase):
 
         from matplotlib._constrained_layout import do_constrained_layout
 
-        print('execute', self)
         _log.debug('Executing constrainedlayout')
         if self._layoutgrid is None:
             cbook._warn_external("Calling figure.constrained_layout, but "
