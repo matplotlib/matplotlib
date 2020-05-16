@@ -58,4 +58,4 @@ def test_draw_after_destroy():
     th.daemon = True  # in order to pass through input() blocking
     th.start()
     time.sleep(3)
-    assert sys.last_type == None
+    assert sys.last_type is None
