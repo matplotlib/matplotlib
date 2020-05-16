@@ -543,18 +543,13 @@ class FigureManagerQT(FigureManagerBase):
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
-        self.statusbar = None
 
         if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarQt(self.window, self.toolmanager)
-                sbs_height = self.statusbar.sizeHint().height()
-        else:
-            sbs_height = 0
 
-        if self.toolbar is not None:
+        if self.toolbar:
             self.window.addToolBar(self.toolbar)
             tbs_height = self.toolbar.sizeHint().height()
         else:
@@ -564,7 +559,7 @@ class FigureManagerQT(FigureManagerBase):
         # requested size:
         cs = canvas.sizeHint()
         cs_height = cs.height()
-        height = cs_height + tbs_height + sbs_height
+        height = cs_height + tbs_height
         self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
@@ -888,6 +883,13 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         QtWidgets.QToolBar.__init__(self, parent)
         self.setAllowedAreas(
             QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea)
+        message_label = QtWidgets.QLabel("")
+        message_label.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        message_label.setSizePolicy(
+            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                  QtWidgets.QSizePolicy.Ignored))
+        self._message_action = self.addWidget(message_label)
         self._toolitems = {}
         self._groups = {}
 
@@ -915,7 +917,7 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
     def _add_to_group(self, group, name, button, position):
         gr = self._groups.get(group, [])
         if not gr:
-            sep = self.addSeparator()
+            sep = self.insertSeparator(self._message_action)
             gr.append(sep)
         before = gr[position]
         widget = self.insertWidget(before, button)
@@ -935,7 +937,11 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
             button.setParent(None)
         del self._toolitems[name]
 
+    def set_message(self, s):
+        self.widgetForAction(self._message_action).setText(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)

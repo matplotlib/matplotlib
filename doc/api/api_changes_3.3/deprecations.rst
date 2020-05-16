@@ -559,3 +559,9 @@ which did not reorder the properties passed to it.
 Passing multiple keys as a single comma-separated string or multiple arguments to `.ToolManager.update_keymap`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is deprecated; pass keys as a list of strings instead.
+
+Statusbar classes and attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``statusbar`` attribute of `.FigureManagerBase`, `.StatusbarBase` and all
+its subclasses, and ``StatusBarWx``, are deprecated, as messages are now
+displayed in the toolbar instead.

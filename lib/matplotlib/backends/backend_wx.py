@@ -931,7 +931,6 @@ class FigureFrameWx(wx.Frame):
         self.toolbar = self._get_toolbar()
 
         if self.figmgr.toolmanager:
-            self.SetStatusBar(StatusbarWx(self, self.figmgr.toolmanager))
             backend_tools.add_tools_to_manager(self.figmgr.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
@@ -1315,6 +1314,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.EnableTool(self.wx_ids['Forward'], can_forward)
 
 
+@cbook.deprecated("3.3")
 class StatusBarWx(wx.StatusBar):
     """
     A status bar is added to _FigureFrame to allow measurements and the
@@ -1335,6 +1335,9 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
     def __init__(self, toolmanager, parent, style=wx.TB_HORIZONTAL):
         ToolContainerBase.__init__(self, toolmanager)
         wx.ToolBar.__init__(self, parent, -1, style=style)
+        self._space = self.AddStretchableSpace()
+        self._label_text = wx.StaticText(self)
+        self.AddControl(self._label_text)
         self._toolitems = {}
         self._groups = {}
 
@@ -1371,7 +1374,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
     def _add_to_group(self, group, name, position):
         gr = self._groups.get(group, [])
         if not gr:
-            sep = self.AddSeparator()
+            sep = self.InsertSeparator(self.GetToolPos(self._space.Id))
             gr.append(sep)
         before = gr[position]
         self._groups[group] = gr
@@ -1392,7 +1395,11 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             self.DeleteTool(tool.Id)
         del self._toolitems[name]
 
+    def set_message(self, s):
+        self._label_text.SetLabel(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarWx(StatusbarBase, wx.StatusBar):
     """For use with ToolManager."""
     def __init__(self, parent, *args, **kwargs):
