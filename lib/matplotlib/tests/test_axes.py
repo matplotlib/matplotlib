@@ -750,7 +750,11 @@ def test_polar_invertedylim():
 def test_polar_invertedylim_rorigin():
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-    ax.set_ylim(2, 0)
+    ax.yaxis.set_inverted(True)
+    # Set the rlims to inverted (2, 0) without calling set_rlim, to check that
+    # viewlims are correctly unstaled before draw()ing.
+    ax.plot([0, 0], [0, 2], c="none")
+    ax.margins(0)
     ax.set_rorigin(3)
 
 
