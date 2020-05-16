@@ -1606,8 +1606,15 @@ def index_of(y):
     try:
         return y.index.values, y.values
     except AttributeError:
+        pass
+    try:
         y = _check_1d(y)
+    except (np.VisibleDeprecationWarning, ValueError):
+        # NumPy 1.19 will warn on ragged input, and we can't actually use it.
+        pass
+    else:
         return np.arange(y.shape[0], dtype=float), y
+    raise ValueError('Input could not be cast to an at-least-1D NumPy array')
 
 
 def safe_first_element(obj):
