@@ -1428,10 +1428,10 @@ def violin_stats(X, method, points=100, quantiles=None):
         quantiles = _reshape_2D(quantiles, "quantiles")
     # Else, mock quantiles if is none or empty
     else:
-        quantiles = [[]] * np.shape(X)[0]
+        quantiles = [[]] * len(X)
 
     # quantiles should has the same size as dataset
-    if np.shape(X)[:1] != np.shape(quantiles)[:1]:
+    if len(X) != len(quantiles):
         raise ValueError("List of violinplot statistics and quantiles values"
                          " must have the same length")
 
