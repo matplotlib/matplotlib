@@ -32,7 +32,7 @@ def test_blit():
                       bad_boxes)
 
 
-@pytest.mark.backend('TkAgg')
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 def test_draw_after_destroy():
     """
     Idle callbacks should not trigger exceptions after canvas been destroyed.
