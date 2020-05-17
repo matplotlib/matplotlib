@@ -456,12 +456,13 @@ class _process_plot_var_args:
                                  f" must have same length, but have lengths "
                                  f"{len(kwargs['label'])} and "
                                  f"{max(ncx, ncy)}")
+        elif 'label' in kwargs:
+            kwargs['label'] = [kwargs['label']] * max(ncx, ncy)
+        else:
+            kwargs['label'] = [None] * max(ncx, ncy)
 
-            result = (func(x[:, j % ncx], y[:, j % ncy], kw,
-                {**kwargs, 'label':kwargs['label'][j]})
-                     for j in range(max(ncx, ncy)))
-
-        result = (func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
+        result = (func(x[:, j % ncx], y[:, j % ncy], kw,
+                     {**kwargs, 'label': kwargs['label'][j]})
                 for j in range(max(ncx, ncy)))
 
         if return_kwargs:
