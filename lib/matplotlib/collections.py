@@ -28,53 +28,38 @@ import warnings
 })
 class Collection(artist.Artist, cm.ScalarMappable):
     """
-    Base class for Collections.  Must be subclassed to be usable.
+    Base class for Collections. Must be subclassed to be usable.
 
-    All properties in a collection must be sequences or scalars;
-    if scalars, they will be converted to sequences.  The
-    property of the ith element of the collection is::
+    A Collection represents a sequence of `~.patches.Patch` objects that the
+    library believes would be more efficient to draw together than
+    individually. For example, when a single path is being drawn repeatedly at
+    different offsets, the renderer can typically execute a `draw_marker` call
+    much more efficiently than a series of repeated calls to `draw_path` with
+    the offsets put in one-by-one.
+
+    All properties in a collection can be either sequences or scalars; if
+    scalars, they will be converted to sequences. The property of the ith
+    element of the collection is::
 
       prop[i % len(props)]
 
-    Exceptions are *capstyle* and *joinstyle* properties, these can
-    only be set globally for the whole collection.
+    Because of this, Collections have "plural" versions of many of the
+    properties of a `~.patches.Patch` (e.g. `Collection.get_paths` instead of
+    `~.patches.Patch.get_path`). Exceptions are the *hatch*, *pickradius*,
+    *capstyle* and *joinstyle* properties, these can only be set globally for
+    the whole collection.
 
-    Keyword arguments and default values:
-
-    - *edgecolors*: None
-    - *facecolors*: None
-    - *linewidths*: None
-    - *capstyle*:   None
-    - *joinstyle*:  None
-    - *antialiaseds*: None
-    - *offsets*: None
-    - *transOffset*: transforms.IdentityTransform()
-    - *offset_position* (deprecated): 'screen' (default) or 'data' (deprecated)
-    - *norm*: None (optional for `matplotlib.cm.ScalarMappable`)
-    - *cmap*: None (optional for `matplotlib.cm.ScalarMappable`)
-    - *hatch*: None
-    - *zorder*: 1
-
-    *offsets* and *transOffset* are used to translate the patch after
-    rendering (default no offsets).  If offset_position is 'screen'
-    (default) the offset is applied after the master transform has
-    been applied, that is, the offsets are in screen coordinates.  If
-    offset_position is 'data' (deprecated), the offset is applied before the
-    master transform, i.e., the offsets are in data coordinates.
-
-    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
-    None, they default to their `.rcParams` patch setting, in sequence form.
-
-    The use of `~matplotlib.cm.ScalarMappable` functionality is optional.  If
-    the `~matplotlib.cm.ScalarMappable` matrix ``_A`` has been set (via a call
-    to `~.ScalarMappable.set_array`), at draw time a call to scalar mappable
-    will be made to set the face colors.
+    Each Collection can optionally be used as its own `~.cm.ScalarMappable` by
+    passing the *norm* and *cmap* parameters to its constructor. If the
+    Collection's `~.cm.ScalarMappable` matrix ``_A`` has been set (via a call
+    to `Collection.set_array`), then at draw time this internal scalar mappable
+    will be used to set the ``facecolors`` and ``edgecolors``, ignoring those
+    that were manually passed in.
     """
-
     _offsets = np.zeros((0, 2))
     _transOffset = transforms.IdentityTransform()
-    #: Either a list of 3x3 arrays or an Nx3x3 array of transforms, suitable
-    #: for the `all_transforms` argument to
+    #: Either a list of 3x3 arrays or an Nx3x3 array (representing N
+    #: transforms), suitable for the `all_transforms` argument to
     #: `~matplotlib.backend_bases.RendererBase.draw_path_collection`;
     #: each 3x3 array is used to initialize an
     #: `~matplotlib.transforms.Affine2D` object.
@@ -106,9 +91,65 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  **kwargs
                  ):
         """
-        Create a Collection
+        Parameters
+        ----------
+        edgecolors : default: :rc:`patch.edgecolor`
+            Edge color for each patch making up the collection.
+        facecolors : default: :rc:`patch.facecolor`
+            Face color for each patch making up the collection.
+        linewidths : default: :rc:`patch.linewidth`
+            Line width for each patch making up the collection.
+        linestyles : str or tuple, default: 'solid'
+            Valid strings are ['solid', 'dashed', 'dashdot', 'dotted', '-',
+            '--', '-.', ':']. Dash tuples should be of the form::
 
-        %(Collection)s
+                (offset, onoffseq),
+
+            where *onoffseq* is an even length tuple of on and off ink lengths
+            in points. For examples, see
+            :doc:`/gallery/lines_bars_and_markers/linestyles`.
+        capstyle : default: :rc:`patch.capstyle`
+            Style to use for capping lines for all paths in the collection.
+        joinstyle : default: :rc:`patch.joinstyle`
+            Style to use for joining lines for all paths in the collection.
+        antialiaseds : default: :rc:`patch.antialiased`
+            Whether each pach in the collection should be drawn with
+            antialiasing.
+        offsets : Tuple[float, float], default: (0, 0)
+            A vector by which to translate each patch after rendering (default
+            is no translation). The translation is performed in screen (pixel)
+            coordinates (i.e. after the Artist's transform is applied).
+        transOffset : `.transforms.Transform`, default: IdentityTransform
+            A single transform which will be applied to each *offsets* vector
+            before it is used.
+        offset_position : {'screen' (default), 'data' (deprecated)}
+            If set to 'data' (deprecated), *offsets* will be treated as if it
+            is in data coordinates instead of in screen coordinates.
+        norm : `~.colors.Normalize`, optional, default: None
+            Forwarded to `~.cm.ScalarMappable.__init__`. The default of
+            ``None`` means that the first draw call will set ``vmin`` and
+            ``vmax`` using the minimum and maximum values of the data.
+        cmap : `~.colors.Colormap`, optional, default: None
+            Forwarded to `~.cm.ScalarMappable.__init__`. The default of
+            ``None`` will result in :rc:`image.cmap` being used.
+        hatch : Optional[str], default: None
+            Hatching pattern to use in filled paths, if any.  Valid strings are
+            ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']. See
+            :doc:`/gallery/shapes_and_collections/hatch_demo` for the meaning
+            of each hatch type.
+        pickradius : float, default: 5
+            If ``pickradius <= 0``, then `Collection.contains` will return
+            ``True`` whenever the test point is inside of one of the polygons
+            formed by the control points of a Path in the Collection. On the
+            other hand, if it is greater than 0, then we instead check if the
+            test point is contained in a stroke of width ``2*pickradius``
+            following any of the Paths in the Collection.
+        urls : str or Sequence[str], default: None
+            A URL for each patch to link to once drawn. Currently only works
+            for the SVG backend. See :doc:`/gallery/misc/hyperlinks_sgskip` for
+            examples.
+        zorder : float, default: 1
+            See :doc:`/gallery/misc/zorder_demo` for all defaults and examples.
         """
         artist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
@@ -182,20 +223,24 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return t
 
     def get_datalim(self, transData):
+        """
+        Get the automatic datalim of the collection.
 
-        # Get the automatic datalim of the collection.
-        #
-        # This operation depends on the transforms for the data in the
-        # collection and whether the collection has offsets.
-        #
-        # 1) offsets = None, transform child of transData: use the paths for
-        # the automatic limits (i.e. for LineCollection in streamline).
-        # 2) offsets != None: offset_transform is child of transData:
-        #    a) transform is child of transData: use the path + offset for
-        #       limits (i.e for bar).
-        #    b) transform is not a child of transData: just use the offsets
-        #       for the limits (i.e. for scatter)
-        # 3) otherwise return a null Bbox.
+        This operation depends on the transforms for the data in the
+        collection and whether the collection has offsets.
+
+        1. offsets = None, transform child of transData: use the paths for
+        the automatic limits (i.e. for LineCollection in streamline).
+        2. offsets != None: offset_transform is child of transData:
+
+           a. transform is child of transData: use the path + offset for
+              limits (i.e for bar).
+           b. transform is not a child of transData: just use the offsets
+              for the limits (i.e. for scatter)
+
+        3. otherwise return a null Bbox.
+
+        """
 
         transform = self.get_transform()
         transOffset = self.get_offset_transform()
@@ -394,17 +439,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not self.get_visible():
             return False, {}
 
-        pickradius = (
-            float(self._picker)
-            if isinstance(self._picker, Number) and
-               self._picker is not True  # the bool, not just nonzero or 1
-            else self._pickradius)
+        if isinstance(self._picker, Number) and self._picker is not True:
+            pickradius = float(self._picker)  # Artist._picker not just a bool
+        else:
+            pickradius = self._pickradius
 
         if self.axes:
             self.axes._unstale_viewLim()
 
         transform, transOffset, offsets, paths = self._prepare_points()
 
+        # Tests if the point is contained on one of the polygons formed
+        # by the control points of each of the paths. A point is considered
+        # "on" a path if it would lie within a stroke of width 2*pickradius
+        # following the path. If pickradius <= 0, then we instead simply check
+        # if the point is *inside* of the path instead.
         ind = _path.point_in_path_collection(
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
@@ -418,11 +467,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         urls : List[str] or None
+
+        Notes
+        -----
+        Currently only works for the SVG backend.
         """
         self._urls = urls if urls is not None else [None]
         self.stale = True
 
     def get_urls(self):
+        """
+        Returns
+        -------
+        The URL that each patch should link to once drawn. See
+        :doc:`/gallery/misc/hyperlinks_sgskip` for a examples.
+        """
         return self._urls
 
     def set_hatch(self, hatch):
@@ -817,29 +876,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.stale = True
 
 
-# these are not available for the object inspector until after the
-# class is built so we define an initial set here for the init
-# function and they will be overridden after object defn
-docstring.interpd.update(Collection="""\
-    Valid Collection keyword arguments:
-
-    - *edgecolors*: None
-    - *facecolors*: None
-    - *linewidths*: None
-    - *antialiaseds*: None
-    - *offsets*: None
-    - *transOffset*: transforms.IdentityTransform()
-    - *norm*: None (optional for `matplotlib.cm.ScalarMappable`)
-    - *cmap*: None (optional for `matplotlib.cm.ScalarMappable`)
-
-    *offsets* and *transOffset* are used to translate the patch after
-    rendering (default no offsets)
-
-    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
-    None, they default to their `.rcParams` patch setting, in sequence form.
-""")
-
-
 class _CollectionWithSizes(Collection):
     """
     Base class for collections that have an array of sizes.
@@ -892,15 +928,21 @@ class PathCollection(_CollectionWithSizes):
     The most basic `Collection` subclass, created e.g. by `~.Axes.scatter`.
     """
 
-    @docstring.dedent_interpd
     def __init__(self, paths, sizes=None, **kwargs):
         """
-        *paths* is a sequence of `matplotlib.path.Path` instances.
-
-        %(Collection)s
+        Parameters
+        ----------
+        paths : Sequence[matplotlib.path.Path]
+            The paths that will make up the `Collection`.
+        sizes : Sequence[float]
+            Scalar by which to scale each drawn `~.path.Path`. One unit squared
+            in the Path's data space is scaled to be ``sizes**2`` points when
+            rendered.
+        **kwargs
+            Forwarded to `Collection`.
         """
 
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.set_paths(paths)
         self.set_sizes(sizes)
         self.stale = True
@@ -917,11 +959,17 @@ class PathCollection(_CollectionWithSizes):
         """
         Create legend handles and labels for a PathCollection.
 
+        Each legend handle is just a `.Line2D` representing the Path that was
+        drawn, and each label is just a string what each Path represents.
+
         This is useful for obtaining a legend for a `~.Axes.scatter` plot;
         e.g.::
 
             scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3])
             plt.legend(*scatter.legend_elements())
+
+        would create three legend elements, one for each color with the
+        numerical values passed to *c* as the labels.
 
         Also see the :ref:`automatedlegendcreation` example.
 
@@ -930,7 +978,8 @@ class PathCollection(_CollectionWithSizes):
         prop : {"colors", "sizes"}, default: "colors"
             If "colors", the legend handles will show the different colors of
             the collection. If "sizes", the legend will show the different
-            sizes.
+            sizes. To set both, use *kwargs* to directly edit the `.Line2D`
+            properties.
         num : int, None, "auto" (default), array-like, or `~.ticker.Locator`,
             Target number of elements to create.
             If None, use all unique elements of the mappable array. If an
@@ -953,7 +1002,7 @@ class PathCollection(_CollectionWithSizes):
             function here allows that pre-processing to be inverted, so that
             the legend labels have the correct values; e.g. ``func = lambda
             x: 10**x``.
-        kwargs : further parameters
+        **kwargs
             Allowed keyword arguments are *color* and *size*. E.g. it may be
             useful to set the color of the markers if *prop="sizes"* is used;
             similarly to set the size of the markers if *prop="colors"* is
@@ -1042,7 +1091,6 @@ class PathCollection(_CollectionWithSizes):
 
 
 class PolyCollection(_CollectionWithSizes):
-    @docstring.dedent_interpd
     def __init__(self, verts, sizes=None, closed=True, **kwargs):
         """
         Parameters
@@ -1056,13 +1104,12 @@ class PolyCollection(_CollectionWithSizes):
             polygon *verts_i* are multiplied by the square-root of the
             corresponding entry in *sizes* (i.e., *sizes* specify the scaling
             of areas). The scaling is applied before the Artist master
-            transform. If *sizes* is shorter than *verts*, the additional
-            values will be taken cyclically from the *sizes*.
+            transform.
         closed : bool, default: True
             Whether the polygon should be closed by adding a CLOSEPOLY
             connection at the end.
         **kwargs
-            %(Collection)s
+            Forwarded to `Collection`.
         """
         Collection.__init__(self, **kwargs)
         self.set_sizes(sizes)
@@ -1136,7 +1183,6 @@ class BrokenBarHCollection(PolyCollection):
     A collection of horizontal bars spanning *yrange* with a sequence of
     *xranges*.
     """
-    @docstring.dedent_interpd
     def __init__(self, xranges, yrange, **kwargs):
         """
         Parameters
@@ -1146,7 +1192,7 @@ class BrokenBarHCollection(PolyCollection):
         yrange : (float, float)
             The (lower-edge, height) common to all bars.
         **kwargs
-            %(Collection)s
+            Forwarded to `Collection`.
         """
         ymin, ywidth = yrange
         ymax = ymin + ywidth
@@ -1181,7 +1227,6 @@ class RegularPolyCollection(_CollectionWithSizes):
     _path_generator = mpath.Path.unit_regular_polygon
     _factor = np.pi ** (-1/2)
 
-    @docstring.dedent_interpd
     def __init__(self,
                  numsides,
                  rotation=0,
@@ -1196,12 +1241,8 @@ class RegularPolyCollection(_CollectionWithSizes):
             The rotation of the polygon in radians.
         sizes : tuple of float
             The area of the circle circumscribing the polygon in points^2.
-
-        Other Parameters
-        ----------------
         **kwargs
-            Other keyword arguments.
-            %(Collection)s
+            Forwarded to `Collection`.
 
         Examples
         --------
@@ -1255,14 +1296,10 @@ class AsteriskPolygonCollection(RegularPolyCollection):
 
 class LineCollection(Collection):
     """
-    All parameters must be sequences or scalars; if scalars, they will
-    be converted to sequences.  The property of the ith line
-    segment is::
+    A collection of 2D lines, where each line can be many segments long.
 
-       prop[i % len(props)]
-
-    i.e., the properties cycle if the ``len`` of props is less than the
-    number of segments.
+    Relevant parameters default to their ``'lines'`` values in
+    `~.matplotlib.rcParams` instead of their ``'patch'`` values.
     """
 
     _edge_default = True
@@ -1290,64 +1327,26 @@ class LineCollection(Collection):
                 linen = (x0, y0), (x1, y1), ... (xm, ym)
 
             or the equivalent numpy array with two columns. Each line
-            can be a different length.
-
-        colors : sequence, optional
-            A sequence of RGBA tuples (e.g., arbitrary color
-            strings, etc, not allowed).
-
-        antialiaseds : sequence, optional
-            A sequence of ones or zeros.
-
-        linestyles : str or tuple, default: 'solid'
-            Either one of {'solid', 'dashed', 'dashdot', 'dotted'}, or
-            a dash tuple. The dash tuple is::
-
-                (offset, onoffseq)
-
-            where ``onoffseq`` is an even length tuple of on and off ink
-            in points.
-
-        norm : Normalize, optional
-            `~.colors.Normalize` instance.
-
-        cmap : str or Colormap, optional
-            Colormap name or `~.colors.Colormap` instance.
-
-        pickradius : float, default: 5pt
-            The tolerance in points for mouse clicks picking a line.
-
+            can have a different number of segments.
+        linewidths : default: :rc:`lines.linewidth`
+            The width of each line in points.
+        colors : default: :rc:`lines.color`
+            A sequence of RGBA tuples (e.g., arbitrary color strings, etc, not
+            allowed).
+        antialiaseds : default: :rc:`lines.antialiased`
+            Whether to use antialiasing for each line.
         zorder : int, default: 2
-           zorder of the LineCollection.
-
+           zorder of the lines once drawn.
         facecolors : default: 'none'
            The facecolors of the LineCollection.
-           Setting to a value other than 'none' will lead to a filled
-           polygon being drawn between points on each line.
-
-        Notes
-        -----
-        If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
-        None, they default to their `.rcParams` patch setting, in sequence
-        form.
-
-        If *offsets* and *transOffset* are not None, then
-        *offsets* are transformed by *transOffset* and applied after
-        the segments have been transformed to display coordinates.
-
-        If *offsets* is not None but *transOffset* is None, then the
-        *offsets* are added to the segments before any transformation.
-        In this case, a single offset can be specified as::
-
-            offsets=(xo, yo)
-
-        and this value will be added cumulatively to each successive
-        segment, so as to produce a set of successively offset curves.
-
-        The use of `~matplotlib.cm.ScalarMappable` functionality is optional.
-        If the `~matplotlib.cm.ScalarMappable` matrix ``_A`` has been set (via
-        a call to `~.ScalarMappable.set_array`), at draw time a call to scalar
-        mappable will be made to set the face colors.
+           Setting to a value other than 'none' will lead to each line being
+           "filled in" as if there was an implicit line segment joining the
+           last and first points of that line back around to each other. In
+           order to manually specify what should count as the "interior" of
+           each line, please use `PathCollection` instead, where the "interior"
+           can be specified by appropriate usage of `~.path.Path.CLOSEPOLY`.
+        **kwargs
+            Forwareded to `Collection`.
         """
         if colors is None:
             colors = mpl.rcParams['lines.color']
@@ -1368,7 +1367,6 @@ class LineCollection(Collection):
             transOffset=transOffset,
             norm=norm,
             cmap=cmap,
-            pickradius=pickradius,
             zorder=zorder,
             **kwargs)
 
@@ -1445,10 +1443,9 @@ class LineCollection(Collection):
 
 class EventCollection(LineCollection):
     """
-    A collection of discrete events.
+    A collection of locations along a single axis at which an "event" occured.
 
-    The events are given by a 1-dimensional array, usually the position of
-    something along an axis, such as time or length.  They do not have an
+    The events are given by a 1-dimensional array. They do not have an
     amplitude and are displayed as parallel lines.
     """
 
@@ -1470,26 +1467,20 @@ class EventCollection(LineCollection):
         ----------
         positions : 1D array-like
             Each value is an event.
-
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The sequence of events is plotted along this direction.
             The marker lines of the single events are along the orthogonal
             direction.
-
         lineoffset : float, default: 0
             The offset of the center of the markers from the origin, in the
             direction orthogonal to *orientation*.
-
         linelength : float, default: 1
             The total height of the marker (i.e. the marker stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
-
         linewidth : float, default: :rc:`lines.linewidth`
             The line width of the event lines, in points.
-
         color : color or list of colors, default: :rc:`lines.color`
             The color of the event lines.
-
         linestyle : str or tuple, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
             '-', '--', '-.', ':']. Dash tuples should be of the form::
@@ -1498,14 +1489,10 @@ class EventCollection(LineCollection):
 
             where *onoffseq* is an even length tuple of on and off ink
             in points.
-
         antialiased : bool, default: :rc:`lines.antialiased`
             Whether to use antialiasing for drawing the lines.
-
         **kwargs
-            Other keyword arguments are line collection properties.  See
-            :class:`~matplotlib.collections.LineCollection` for a list of
-            the valid properties.
+            Forwarded to :class:`~matplotlib.collections.LineCollection`.
 
         Examples
         --------
@@ -1659,13 +1646,14 @@ class CircleCollection(_CollectionWithSizes):
 
     _factor = np.pi ** (-1/2)
 
-    @docstring.dedent_interpd
     def __init__(self, sizes, **kwargs):
         """
-        *sizes*
-            Gives the area of the circle in points^2
-
-        %(Collection)s
+        Parameters
+        ----------
+        sizes : float or Sequence[float]
+            Gives the area of each circle in points^2.
+        **kwargs
+            Forwarded to `Collection`.
         """
         Collection.__init__(self, **kwargs)
         self.set_sizes(sizes)
@@ -1676,7 +1664,6 @@ class CircleCollection(_CollectionWithSizes):
 class EllipseCollection(Collection):
     """A collection of ellipses, drawn using splines."""
 
-    @docstring.dedent_interpd
     def __init__(self, widths, heights, angles, units='points', **kwargs):
         """
         Parameters
@@ -1699,13 +1686,8 @@ class EllipseCollection(Collection):
             the specified angle only when the aspect ratio is unity.  Hence
             it behaves the same as the `~matplotlib.patches.Ellipse` with
             ``axes.transData`` as its transform.
-
-        Other Parameters
-        ----------------
         **kwargs
-            Additional kwargs inherited from the base :class:`Collection`.
-
-        %(Collection)s
+            Forwarded to :class:`Collection`.
         """
         Collection.__init__(self, **kwargs)
         self._widths = 0.5 * np.asarray(widths).ravel()
