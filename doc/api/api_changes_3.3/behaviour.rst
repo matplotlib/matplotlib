@@ -291,5 +291,6 @@ larger GUIs, where Matplotlib may control the toolbar but not the status bar.
 :rc:`text.hinting` now supports the values "default", "no_autohint",
 "force_autohint", and "no_hinting", which directly map to the FreeType flags
 FT_LOAD_DEFAULT, etc.  The old synonyms (respectively "either", "native",
-"auto", and "none") are still supported.  To get normalized values, use
-`.backend_agg.get_hinting_flag`, which returns integer flag values.
+"auto", and "none") are still supported, but their use is discouraged.  To get
+normalized values, use `.backend_agg.get_hinting_flag`, which returns integer
+flag values.

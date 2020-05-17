@@ -293,7 +293,9 @@
                         # Adobe Postscript (PSSNFS) font packages may also be
                         # loaded, depending on your font settings.
 
-## FreeType hinting flag ("foo" corresponds to FT_LOAD_FOO); may be one of the following:
+## FreeType hinting flag ("foo" corresponds to FT_LOAD_FOO); may be one of the
+## following (Proprietary Matplotlib-specific synonyms are given in parentheses,
+## but their use is discouraged):
 ## - default: Use the font's native hinter if possible, else FreeType's auto-hinter.
 ##            ("either" is a synonym).
 ## - no_autohint: Use the font's native hinter if possible, else don't hint.
