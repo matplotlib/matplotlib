@@ -8,6 +8,7 @@ Simple demo with multiple subplots.
 import numpy as np
 import matplotlib.pyplot as plt
 
+###############################################################################
 
 x1 = np.linspace(0.0, 5.0)
 x2 = np.linspace(0.0, 2.0)
@@ -35,9 +36,6 @@ plt.show()
 #
 # Subplots can also be generated using `subplot()` as in the following example:
 #
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 x1 = np.linspace(0.0, 5.0)
