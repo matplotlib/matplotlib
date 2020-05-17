@@ -156,6 +156,7 @@ class LayoutGrid:
         for todo in ['left', 'right', 'bottom', 'top']:
             self.edit_margins(todo, 0.0)
 
+
     def add_constraints(self):
         # define relation ships between things thing width and right and left
         self.hard_constraints()
