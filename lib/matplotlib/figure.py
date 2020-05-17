@@ -1758,6 +1758,7 @@ class SubPanel(PanelBase):
                 parent=parent,
                 name=(parent.name + '.' + 'panellb' +
                       layoutgrid.seq_id()),
+                fixed_margins=True,
                 nrows=1, ncols=1,
                 parent_pos=(self._subplotspec.rowspan,
                             self._subplotspec.colspan))
@@ -2802,7 +2803,7 @@ class Figure(PanelBase):
         """Initialize the layoutgrid for use in constrained_layout."""
         if self._layoutgrid is None:
             self._layoutgrid = layoutgrid.LayoutGrid(
-                parent=None, name='figlb')
+                parent=None, name='figlb', fixed_margins=True)
 
 def figaspect(arg):
     """

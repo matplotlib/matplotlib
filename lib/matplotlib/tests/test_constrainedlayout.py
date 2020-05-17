@@ -223,7 +223,7 @@ def test_constrained_layout11rat():
 @image_comparison(['constrained_layout12.png'])
 def test_constrained_layout12():
     """Test that very unbalanced labeling still works."""
-    fig = plt.figure(constrained_layout=True)
+    fig = plt.figure(constrained_layout=True, figsize=(5, 7))
 
     gs0 = gridspec.GridSpec(6, 2, figure=fig)
 
@@ -370,11 +370,6 @@ def test_constrained_layout23():
         fig.suptitle("Suptitle{}".format(i))
 
 
-# This test occasionally fails the image comparison tests, so we mark as
-# flaky.  Apparently the constraint solver occasionally doesn't fully
-# optimize.  Would be nice if this were more deterministic...
-@pytest.mark.timeout(30)
-@pytest.mark.flaky(reruns=3)
 @image_comparison(['test_colorbar_location.png'],
                   remove_text=True, style='mpl20')
 def test_colorbar_location():
@@ -406,4 +401,40 @@ def test_hidden_axes():
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
     np.testing.assert_allclose(
-        extents1, [0.045552, 0.543288, 0.46819 , 0.972638], rtol=1e-5)
+        extents1, [0.045552, 0.548288, 0.47319 , 0.982638], rtol=1e-5)
+
+
+@image_comparison(['test_overlapping_gridspecs2.png'])
+def test_overlapping_gridspecs2():
+    # This type of layout is challenging because the inner
+    # margins are not constrained.  Tested above in 12 for vertical
+    # here we do horizontally...
+    fig = plt.figure(constrained_layout=True, figsize=(8, 5))
+    gs0 = gridspec.GridSpec(2, 6, figure=fig)
+
+    ax1 = fig.add_subplot(gs0[1, :3])
+    ax2 = fig.add_subplot(gs0[1, 3:])
+
+    example_plot(ax1, fontsize=24)
+    example_plot(ax2, fontsize=24)
+
+    ax = fig.add_subplot(gs0[0, 0:2])
+    example_plot(ax)
+    ax = fig.add_subplot(gs0[0, 2:4])
+    example_plot(ax)
+    ax = fig.add_subplot(gs0[0, 4:])
+    example_plot(ax)
+    ax.set_xlabel('x-label')
+
+@image_comparison(['test_overlapping_gridspecs3.png'])
+def test_overlapping_gridspecs3():
+    # this is like grid_strategy.
+    fig = plt.figure(constrained_layout=True, figsize=(5, 5))
+    gs = fig.add_gridspec(2, 4)
+    for i in range(2):
+        aa = fig.add_subplot(gs[0, i * 2:(i + 1) * 2])
+        aa.set_ylabel('YY', fontsize=22 * (i + 1))
+    for i in range(1):
+        a3 = fig.add_subplot(gs[1, (i * 2 + 1):((i + 1) * 2 + 1)])
+        a3.set_ylabel('YY', fontsize=28)
+

@@ -389,7 +389,7 @@ ax.set_xlabel("x-label", fontsize=12)
 # extent.  If we want the top and bottom of the two grids to line up then
 # they need to be in the same gridspec:
 
-fig = plt.figure()
+fig = plt.figure(figsize=(4, 6))
 
 gs0 = fig.add_gridspec(6, 2)
 
@@ -400,11 +400,12 @@ example_plot(ax1)
 example_plot(ax2)
 
 ax = fig.add_subplot(gs0[0:2, 1])
-example_plot(ax)
+example_plot(ax, hide_labels=True)
 ax = fig.add_subplot(gs0[2:4, 1])
-example_plot(ax)
+example_plot(ax, hide_labels=True)
 ax = fig.add_subplot(gs0[4:, 1])
-example_plot(ax)
+example_plot(ax, hide_labels=True)
+fig.suptitle('Overlapping Gridspecs')
 
 ############################################################################
 # This example uses two gridspecs to have the colorbar only pertain to

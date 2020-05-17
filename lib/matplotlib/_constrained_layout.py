@@ -80,12 +80,19 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
         _make_margin_suptitles(fig, renderer, h_pad=h_pad, w_pad=w_pad)
 
+        # goofy thing
+        _match_submerged_margins(fig)
+
         # update all the variables in the layout.
         fig._layoutgrid.update_variables()
 
         if _check_ok(fig):  # check nothing collapsed to zero
             _reposition_axes(fig, renderer, h_pad=h_pad, w_pad=w_pad,
                              hspace=hspace, wspace=wspace)
+        else:
+            cbook._warn_external('constrained_layout not applied because '
+                                 'axes sizes collapsed to zero.  Try making '
+                                 'figure larger or axes decorations smaller.')
 
         _reset_margins(fig)
 
@@ -138,7 +145,7 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
         # and its position.  Then we add the fixed padding (w_pad) and
         # the interior padding (wspace)
         margin = {}
-        margin['left'] = -bbox.x0 + pos.x0
+        margin['left'] = -bbox.x0 + pos.x0 + w_pad
         if ss.colspan.start > 0:
             margin['left'] += wspace / ncols / 2  # interior padding
         margin['right'] = bbox.x1 - pos.x1 + w_pad
@@ -216,6 +223,70 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
             fig._layoutgrid.edit_margin_min('left', bbox.width + 2 * w_pad)
 
 
+def _match_submerged_margins(fig):
+    for panel in fig.panels:
+        _match_submerged_margins(panel)
+    axs = [a for a in fig._localaxes if hasattr(a, 'get_subplotspec')]
+    for ax1 in axs:
+        ss1 = ax1.get_subplotspec()
+        gs1 = ss1.get_gridspec()
+        lg1 = gs1._layoutgrid
+        if lg1 is not None:
+            # interior columns:
+            nc = len(ss1.colspan)
+            if  nc > 1:
+                maxsubl = np.max(
+                    lg1.margin_vals['left'][ss1.colspan[1:]])
+                maxsubr = np.max(
+                    lg1.margin_vals['right'][ss1.colspan[:-1]])
+
+                for ax2 in axs:
+                    ss2 = ax2.get_subplotspec()
+                    gs2 = ss2.get_gridspec()
+                    lg2 = gs2._layoutgrid
+                    if lg2 is not None:
+                        nc = len(ss2.colspan)
+                        if nc > 1:
+                            maxsubl2 = np.max(
+                                lg2.margin_vals['left'][ss2.colspan[1:]])
+                            if maxsubl2 > maxsubl:
+                                maxsubl = maxsubl2
+                            maxsubr2 = np.max(
+                                lg2.margin_vals['right'][ss2.colspan[:-1]])
+                            if maxsubr2 > maxsubr:
+                                maxsubr = maxsubr2
+                for i in ss1.colspan[1:]:
+                    lg1.edit_margin_min('left', maxsubl, col=i)
+                for i in ss1.colspan[:-1]:
+                    lg1.edit_margin_min('right', maxsubr, col=i)
+
+            # interior rows:
+            nc = len(ss1.rowspan)
+            if  nc > 1:
+                maxsubt = np.max(
+                    lg1.margin_vals['top'][ss1.rowspan[1:]])
+                maxsubb = np.max(
+                    lg1.margin_vals['bottom'][ss1.rowspan[:-1]])
+
+                for ax2 in axs:
+                    ss2 = ax2.get_subplotspec()
+                    gs2 = ss2.get_gridspec()
+                    lg2 = gs2._layoutgrid
+                    if lg2 is not None:
+                        nc = len(ss2.rowspan)
+                        if nc > 1:
+                            maxsubt2 = np.max(
+                                lg2.margin_vals['top'][ss2.rowspan[1:]])
+                            if maxsubt2 > maxsubt:
+                                maxsubt = maxsubt2
+                            maxsubb2 = np.max(
+                                lg2.margin_vals['bottom'][ss2.rowspan[:-1]])
+                            if maxsubb2 > maxsubb:
+                                maxsubb = maxsubb2
+                for i in ss1.rowspan[1:]:
+                    lg1.edit_margin_min('top', maxsubt, col=i)
+                for i in ss1.rowspan[:-1]:
+                    lg1.edit_margin_min('bottom', maxsubb, col=i)
 
 def _get_cb_parent_spans(cbax):
     """
