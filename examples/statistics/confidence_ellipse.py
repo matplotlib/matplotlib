@@ -217,7 +217,7 @@ confidence_ellipse(x, y, ax_kwargs,
 
 ax_kwargs.scatter(x, y, s=0.5)
 ax_kwargs.scatter(mu[0], mu[1], c='red', s=3)
-ax_kwargs.set_title(f'Using kwargs')
+ax_kwargs.set_title('Using kwargs')
 
 fig.subplots_adjust(hspace=0.25)
 plt.show()
