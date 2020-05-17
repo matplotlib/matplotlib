@@ -107,7 +107,7 @@ import warnings
 from . import cbook, rcsetup
 from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
-from matplotlib.rcsetup import defaultParams, validate_backend, cycler
+from matplotlib.rcsetup import validate_backend, cycler
 
 import numpy
 
@@ -524,7 +524,6 @@ def get_data_path(*, _from_rc=None):
             removal='3.4')
         path = Path(_from_rc)
         if path.is_dir():
-            defaultParams['datapath'][0] = str(path)
             return str(path)
         else:
             warnings.warn(f"You passed datapath: {_from_rc!r} in your "
@@ -539,7 +538,6 @@ def get_data_path(*, _from_rc=None):
 def _get_data_path():
     path = Path(__file__).with_name("mpl-data")
     if path.is_dir():
-        defaultParams['datapath'][0] = str(path)
         return str(path)
 
     cbook.warn_deprecated(
@@ -648,9 +646,7 @@ class RcParams(MutableMapping, dict):
     :ref:`customizing-with-matplotlibrc-files`
     """
 
-    validate = {key: converter
-                for key, (default, converter) in defaultParams.items()
-                if key not in _all_deprecated}
+    validate = rcsetup._validators
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
@@ -705,6 +701,9 @@ class RcParams(MutableMapping, dict):
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
+
+        elif key == "datapath":
+            return get_data_path()
 
         return dict.__getitem__(self, key)
 
@@ -776,19 +775,31 @@ def _open_file_or_url(fname):
             yield f
 
 
-def _rc_params_in_file(fname, fail_on_error=False):
+def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
     """
     Construct a `RcParams` instance from file *fname*.
 
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
+
+    Parameters
+    ----------
+    fname : path-like
+        The loaded file.
+    transform : callable, default: the identity function
+        A function called on each individual line of the file to transform it,
+        before further parsing.
+    fail_on_error : bool, default: False
+        Whether invalid entries should result in an exception or a warning.
     """
+
     _error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
 
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
             for line_no, line in enumerate(fd, 1):
+                line = transform(line)
                 strippedline = line.split('#', 1)[0].strip()
                 if not strippedline:
                     continue
@@ -815,7 +826,7 @@ def _rc_params_in_file(fname, fail_on_error=False):
     config = RcParams()
 
     for key, (val, line, line_no) in rc_temp.items():
-        if key in defaultParams:
+        if key in rcsetup._validators:
             if fail_on_error:
                 config[key] = val  # try to convert to proper type or raise
             else:
@@ -856,16 +867,13 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         in the given file. If False, the configuration class only contains the
         parameters specified in the file. (Useful for updating dicts.)
     """
-    config_from_file = _rc_params_in_file(fname, fail_on_error)
+    config_from_file = _rc_params_in_file(fname, fail_on_error=fail_on_error)
 
     if not use_default_template:
         return config_from_file
 
-    iter_params = defaultParams.items()
     with cbook._suppress_matplotlib_deprecation_warning():
-        config = RcParams([(key, default) for key, (default, _) in iter_params
-                           if key not in _all_deprecated])
-    config.update(config_from_file)
+        config = RcParams({**rcParamsDefault, **config_from_file})
 
     with cbook._suppress_matplotlib_deprecation_warning():
         if config['datapath'] is None:
@@ -886,16 +894,28 @@ Please do not ask for support with these customizations active.
     return config
 
 
-# this is the instance used by the matplotlib classes
-rcParams = rc_params()
-
-
+# When constructing the global instances, we need to perform certain updates
+# by explicitly calling the superclass (dict.update, dict.items) to avoid
+# triggering resolution of _auto_backend_sentinel.
+rcParamsDefault = _rc_params_in_file(
+    cbook._get_data_path("matplotlibrc"),
+    # Strip leading comment.
+    transform=lambda line: line[1:] if line.startswith("#") else line,
+    fail_on_error=True)
+dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
+rcParams = RcParams()  # The global instance.
+dict.update(rcParams, dict.items(rcParamsDefault))
+dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
 with cbook._suppress_matplotlib_deprecation_warning():
     rcParamsOrig = RcParams(rcParams.copy())
-    rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                                defaultParams.items()
-                                if key not in _all_deprecated])
-
+    # This also checks that all rcParams are indeed listed in the template.
+    # Assiging to rcsetup.defaultParams is left only for backcompat.
+    defaultParams = rcsetup.defaultParams = {
+        # We want to resolve deprecated rcParams, but not backend...
+        key: [(rcsetup._auto_backend_sentinel if key == "backend" else
+               rcParamsDefault[key]),
+              validator]
+        for key, validator in rcsetup._validators.items()}
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
 

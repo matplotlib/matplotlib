@@ -1,17 +1,16 @@
 """
-The rcsetup module contains the default values and the validation code for
-customization using matplotlib's rc settings.
+The rcsetup module contains the validation code for customization using
+Matplotlib's rc settings.
 
-Each rc setting is assigned a default value and a function used to validate
-any attempted changes to that setting. The default values and validation
-functions are defined in the rcsetup module, and are used to construct the
-rcParams global object which stores the settings and is referenced throughout
-matplotlib.
+Each rc setting is assigned a function used to validate any attempted changes
+to that setting.  The validation functions are defined in the rcsetup module,
+and are used to construct the rcParams global object which stores the settings
+and is referenced throughout Matplotlib.
 
-These default values should be consistent with the default matplotlibrc file
-that actually reflects the values given here. Any additions or deletions to the
-parameter set listed here should also be visited to the
-:file:`matplotlibrc.template` in matplotlib's root source directory.
+The default values of the rc settings are set in the default matplotlibrc file.
+Any additions or deletions to the parameter set listed here should also be
+propagated to the :file:`matplotlibrc.template` in Matplotlib's root source
+directory.
 """
 
 import ast
@@ -233,7 +232,8 @@ def _make_type_validator(cls, *, allow_none=False):
         try:
             return cls(s)
         except ValueError as e:
-            raise ValueError(f'Could not convert {s!r} to {cls.__name__}') from e
+            raise ValueError(
+                f'Could not convert {s!r} to {cls.__name__}') from e
 
     validator.__name__ = f"validate_{cls.__name__}"
     if allow_none:
@@ -268,8 +268,8 @@ def validate_fonttype(s):
         try:
             return fonttypes[s.lower()]
         except KeyError as e:
-            raise ValueError(
-                'Supported Postscript/PDF font types are %s' % list(fonttypes)) from e
+            raise ValueError('Supported Postscript/PDF font types are %s'
+                             % list(fonttypes)) from e
     else:
         if fonttype not in fonttypes.values():
             raise ValueError(
@@ -437,8 +437,8 @@ def _validate_mathtext_fallback_to_cm(b):
         return None
     else:
         cbook.warn_deprecated(
-            "3.3", message="Support for setting the 'mathtext.fallback_to_cm' rcParam "
-            "is deprecated since %(since)s and will be removed "
+            "3.3", message="Support for setting the 'mathtext.fallback_to_cm' "
+            "rcParam is deprecated since %(since)s and will be removed "
             "%(removal)s; use 'mathtext.fallback : 'cm' instead.")
         return validate_bool_maybe_none(b)
 
@@ -452,9 +452,10 @@ def _validate_mathtext_fallback(s):
     elif s.lower() in _fallback_fonts:
         return s
     else:
-        raise ValueError(f"{s} is not a valid fallback font name. Valid fallback "
-                         f"font names are {','.join(_fallback_fonts)}. Passing "
-                         f"'None' will turn fallback off.")
+        raise ValueError(
+            f"{s} is not a valid fallback font name. Valid fallback font "
+            f"names are {','.join(_fallback_fonts)}. Passing 'None' will turn "
+            "fallback off.")
 
 
 validate_fontset = ValidateInStrings(
@@ -916,21 +917,18 @@ def cycler(*args, **kwargs):
 def validate_cycler(s):
     """Return a Cycler object from a string repr or the object itself."""
     if isinstance(s, str):
+        # TODO: We might want to rethink this...
+        # While I think I have it quite locked down, it is execution of
+        # arbitrary code without sanitation.
+        # Combine this with the possibility that rcparams might come from the
+        # internet (future plans), this could be downright dangerous.
+        # I locked it down by only having the 'cycler()' function available.
+        # UPDATE: Partly plugging a security hole.
+        # I really should have read this:
+        # http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
+        # We should replace this eval with a combo of PyParsing and
+        # ast.literal_eval()
         try:
-            # TODO: We might want to rethink this...
-            # While I think I have it quite locked down,
-            # it is execution of arbitrary code without
-            # sanitation.
-            # Combine this with the possibility that rcparams
-            # might come from the internet (future plans), this
-            # could be downright dangerous.
-            # I locked it down by only having the 'cycler()' function
-            # available.
-            # UPDATE: Partly plugging a security hole.
-            # I really should have read this:
-            # http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
-            # We should replace this eval with a combo of PyParsing and
-            # ast.literal_eval()
             if '.__' in s.replace(' ', ''):
                 raise ValueError("'%s' seems to have dunder methods. Raising"
                                  " an exception for your safety")
@@ -1017,7 +1015,8 @@ def validate_webagg_address(s):
         try:
             socket.inet_aton(s)
         except socket.error as e:
-            raise ValueError("'webagg.address' is not a valid IP address") from e
+            raise ValueError(
+                "'webagg.address' is not a valid IP address") from e
         return s
     raise ValueError("'webagg.address' is not a valid IP address")
 
@@ -1038,492 +1037,459 @@ def _convert_validator_spec(key, conv):
         return conv
 
 
-# A map of key -> [value, converter].
+# Mapping of rcParams to validators.
 # Converters given as lists or _ignorecase are converted to ValidateInStrings
 # immediately below.
-defaultParams = {
-    'backend':           [_auto_backend_sentinel, validate_backend],
-    'backend_fallback':  [True, validate_bool],
-    'webagg.port':       [8988, validate_int],
-    'webagg.address':    ['127.0.0.1', validate_string],
-    'webagg.open_in_browser': [True, validate_bool],
-    'webagg.port_retries': [50, validate_int],
-    'toolbar':           ['toolbar2', _ignorecase(['none', 'toolbar2', 'toolmanager'])],
-    'datapath':          [None, validate_any],  # see _get_data_path_cached
-    'interactive':       [False, validate_bool],
-    'timezone':          ['UTC', validate_string],
+# The rcParams defaults are defined in matplotlibrc.template, which gets copied
+# to matplotlib/mpl-data/matplotlibrc by the setup script.
+_validators = {
+    "backend":           validate_backend,
+    "backend_fallback":  validate_bool,
+    "toolbar":           _ignorecase(["none", "toolbar2", "toolmanager"]),
+    "datapath":          validate_any,  # see _get_data_path_cached
+    "interactive":       validate_bool,
+    "timezone":          validate_string,
+
+    "webagg.port":            validate_int,
+    "webagg.address":         validate_string,
+    "webagg.open_in_browser": validate_bool,
+    "webagg.port_retries":    validate_int,
 
     # line props
-    'lines.linewidth':       [1.5, validate_float],  # line width in points
-    'lines.linestyle':       ['-', _validate_linestyle],  # solid line
-    'lines.color':           ['C0', validate_color],  # first color in color cycle
-    'lines.marker':          ['None', validate_string],  # marker name
-    'lines.markerfacecolor': ['auto', validate_color_or_auto],  # default color
-    'lines.markeredgecolor': ['auto', validate_color_or_auto],  # default color
-    'lines.markeredgewidth': [1.0, validate_float],
-    'lines.markersize':      [6, validate_float],    # markersize, in points
-    'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
-    'lines.dash_joinstyle':  ['round', validate_joinstyle],
-    'lines.solid_joinstyle': ['round', validate_joinstyle],
-    'lines.dash_capstyle':   ['butt', validate_capstyle],
-    'lines.solid_capstyle':  ['projecting', validate_capstyle],
-    'lines.dashed_pattern':  [[3.7, 1.6], validate_nseq_float(allow_none=True)],
-    'lines.dashdot_pattern': [[6.4, 1.6, 1, 1.6],
-                              validate_nseq_float(allow_none=True)],
-    'lines.dotted_pattern':  [[1, 1.65], validate_nseq_float(allow_none=True)],
-    'lines.scale_dashes':  [True, validate_bool],
+    "lines.linewidth":       validate_float,  # line width in points
+    "lines.linestyle":       _validate_linestyle,  # solid line
+    "lines.color":           validate_color,  # first color in color cycle
+    "lines.marker":          validate_string,  # marker name
+    "lines.markerfacecolor": validate_color_or_auto,  # default color
+    "lines.markeredgecolor": validate_color_or_auto,  # default color
+    "lines.markeredgewidth": validate_float,
+    "lines.markersize":      validate_float,  # markersize, in points
+    "lines.antialiased":     validate_bool,  # antialiased (no jaggies)
+    "lines.dash_joinstyle":  validate_joinstyle,
+    "lines.solid_joinstyle": validate_joinstyle,
+    "lines.dash_capstyle":   validate_capstyle,
+    "lines.solid_capstyle":  validate_capstyle,
+    "lines.dashed_pattern":  validate_nseq_float(allow_none=True),
+    "lines.dashdot_pattern": validate_nseq_float(allow_none=True),
+    "lines.dotted_pattern":  validate_nseq_float(allow_none=True),
+    "lines.scale_dashes":    validate_bool,
 
     # marker props
-    'markers.fillstyle': ['full', validate_fillstyle],
+    "markers.fillstyle": validate_fillstyle,
 
     ## pcolor(mesh) props:
-    'pcolor.shading': ['flat', validate_string],  # auto,flat,nearest,gouraud
+    "pcolor.shading": ["auto", "flat", "nearest", "gouraud"],
 
     ## patch props
-    'patch.linewidth':   [1.0, validate_float],     # line width in points
-    'patch.edgecolor':   ['black', validate_color],
-    'patch.force_edgecolor': [False, validate_bool],
-    'patch.facecolor':   ['C0', validate_color],    # first color in cycle
-    'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
+    "patch.linewidth":       validate_float,  # line width in points
+    "patch.edgecolor":       validate_color,
+    "patch.force_edgecolor": validate_bool,
+    "patch.facecolor":       validate_color,  # first color in cycle
+    "patch.antialiased":     validate_bool,  # antialiased (no jaggies)
 
     ## hatch props
-    'hatch.color': ['black', validate_color],
-    'hatch.linewidth': [1.0, validate_float],
+    "hatch.color":     validate_color,
+    "hatch.linewidth": validate_float,
 
     ## Histogram properties
-    'hist.bins': [10, validate_hist_bins],
+    "hist.bins": validate_hist_bins,
 
     ## Boxplot properties
-    'boxplot.notch': [False, validate_bool],
-    'boxplot.vertical': [True, validate_bool],
-    'boxplot.whiskers': [1.5, validate_whiskers],
-    'boxplot.bootstrap': [None, validate_int_or_None],
-    'boxplot.patchartist': [False, validate_bool],
-    'boxplot.showmeans': [False, validate_bool],
-    'boxplot.showcaps': [True, validate_bool],
-    'boxplot.showbox': [True, validate_bool],
-    'boxplot.showfliers': [True, validate_bool],
-    'boxplot.meanline': [False, validate_bool],
+    "boxplot.notch":       validate_bool,
+    "boxplot.vertical":    validate_bool,
+    "boxplot.whiskers":    validate_whiskers,
+    "boxplot.bootstrap":   validate_int_or_None,
+    "boxplot.patchartist": validate_bool,
+    "boxplot.showmeans":   validate_bool,
+    "boxplot.showcaps":    validate_bool,
+    "boxplot.showbox":     validate_bool,
+    "boxplot.showfliers":  validate_bool,
+    "boxplot.meanline":    validate_bool,
 
-    'boxplot.flierprops.color': ['black', validate_color],
-    'boxplot.flierprops.marker': ['o', validate_string],
-    'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
-    'boxplot.flierprops.markeredgecolor': ['black', validate_color],
-    'boxplot.flierprops.markeredgewidth': [1.0, validate_float],
-    'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
-    'boxplot.flierprops.linewidth': [1.0, validate_float],
+    "boxplot.flierprops.color":           validate_color,
+    "boxplot.flierprops.marker":          validate_string,
+    "boxplot.flierprops.markerfacecolor": validate_color_or_auto,
+    "boxplot.flierprops.markeredgecolor": validate_color,
+    "boxplot.flierprops.markeredgewidth": validate_float,
+    "boxplot.flierprops.markersize":      validate_float,
+    "boxplot.flierprops.linestyle":       _validate_linestyle,
+    "boxplot.flierprops.linewidth":       validate_float,
 
-    'boxplot.boxprops.color': ['black', validate_color],
-    'boxplot.boxprops.linewidth': [1.0, validate_float],
-    'boxplot.boxprops.linestyle': ['-', _validate_linestyle],
+    "boxplot.boxprops.color":     validate_color,
+    "boxplot.boxprops.linewidth": validate_float,
+    "boxplot.boxprops.linestyle": _validate_linestyle,
 
-    'boxplot.whiskerprops.color': ['black', validate_color],
-    'boxplot.whiskerprops.linewidth': [1.0, validate_float],
-    'boxplot.whiskerprops.linestyle': ['-', _validate_linestyle],
+    "boxplot.whiskerprops.color":     validate_color,
+    "boxplot.whiskerprops.linewidth": validate_float,
+    "boxplot.whiskerprops.linestyle": _validate_linestyle,
 
-    'boxplot.capprops.color': ['black', validate_color],
-    'boxplot.capprops.linewidth': [1.0, validate_float],
-    'boxplot.capprops.linestyle': ['-', _validate_linestyle],
+    "boxplot.capprops.color":     validate_color,
+    "boxplot.capprops.linewidth": validate_float,
+    "boxplot.capprops.linestyle": _validate_linestyle,
 
-    'boxplot.medianprops.color': ['C1', validate_color],
-    'boxplot.medianprops.linewidth': [1.0, validate_float],
-    'boxplot.medianprops.linestyle': ['-', _validate_linestyle],
+    "boxplot.medianprops.color":     validate_color,
+    "boxplot.medianprops.linewidth": validate_float,
+    "boxplot.medianprops.linestyle": _validate_linestyle,
 
-    'boxplot.meanprops.color': ['C2', validate_color],
-    'boxplot.meanprops.marker': ['^', validate_string],
-    'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
-    'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
-    'boxplot.meanprops.markersize': [6, validate_float],
-    'boxplot.meanprops.linestyle': ['--', _validate_linestyle],
-    'boxplot.meanprops.linewidth': [1.0, validate_float],
+    "boxplot.meanprops.color":           validate_color,
+    "boxplot.meanprops.marker":          validate_string,
+    "boxplot.meanprops.markerfacecolor": validate_color,
+    "boxplot.meanprops.markeredgecolor": validate_color,
+    "boxplot.meanprops.markersize":      validate_float,
+    "boxplot.meanprops.linestyle":       _validate_linestyle,
+    "boxplot.meanprops.linewidth":       validate_float,
 
     ## font props
-    'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
-    'font.style':      ['normal', validate_string],
-    'font.variant':    ['normal', validate_string],
-    'font.stretch':    ['normal', validate_string],
-    'font.weight':     ['normal', validate_fontweight],
-    'font.size':       [10, validate_float],      # Base font size in points
-    'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
-                         'Computer Modern Roman',
-                         'New Century Schoolbook', 'Century Schoolbook L',
-                         'Utopia', 'ITC Bookman', 'Bookman',
-                         'Nimbus Roman No9 L', 'Times New Roman',
-                         'Times', 'Palatino', 'Charter', 'serif'],
-                        validate_stringlist],
-    'font.sans-serif': [['DejaVu Sans', 'Bitstream Vera Sans',
-                         'Computer Modern Sans Serif',
-                         'Lucida Grande', 'Verdana', 'Geneva', 'Lucid',
-                         'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
-                        validate_stringlist],
-    'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
-                         'Sand', 'Script MT', 'Felipa', 'cursive'],
-                        validate_stringlist],
-    'font.fantasy':    [['Comic Neue', 'Comic Sans MS', 'Chicago', 'Charcoal',
-                         'Impact', 'Western', 'Humor Sans', 'xkcd', 'fantasy'],
-                        validate_stringlist],
-    'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
-                         'Computer Modern Typewriter',
-                         'Andale Mono', 'Nimbus Mono L', 'Courier New',
-                         'Courier', 'Fixed', 'Terminal', 'monospace'],
-                        validate_stringlist],
+    "font.family":     validate_stringlist,  # used by text object
+    "font.style":      validate_string,
+    "font.variant":    validate_string,
+    "font.stretch":    validate_string,
+    "font.weight":     validate_fontweight,
+    "font.size":       validate_float,  # Base font size in points
+    "font.serif":      validate_stringlist,
+    "font.sans-serif": validate_stringlist,
+    "font.cursive":    validate_stringlist,
+    "font.fantasy":    validate_stringlist,
+    "font.monospace":  validate_stringlist,
 
     # text props
-    'text.color':          ['black', validate_color],
-    'text.usetex':         [False, validate_bool],
-    'text.latex.preamble': ['', _validate_tex_preamble],
-    'text.latex.preview':  [False, validate_bool],
-    'text.hinting':        ['auto', _validate_hinting],
-    'text.hinting_factor': [8, validate_int],
-    'text.kerning_factor': [0, validate_int],
-    'text.antialiased':    [True, validate_bool],
+    "text.color":          validate_color,
+    "text.usetex":         validate_bool,
+    "text.latex.preamble": _validate_tex_preamble,
+    "text.latex.preview":  validate_bool,
+    "text.hinting":        _validate_hinting,
+    "text.hinting_factor": validate_int,
+    "text.kerning_factor": validate_int,
+    "text.antialiased":    validate_bool,
 
-    'mathtext.cal':            ['cursive', validate_font_properties],
-    'mathtext.rm':             ['sans', validate_font_properties],
-    'mathtext.tt':             ['monospace', validate_font_properties],
-    'mathtext.it':             ['sans:italic', validate_font_properties],
-    'mathtext.bf':             ['sans:bold', validate_font_properties],
-    'mathtext.sf':             ['sans', validate_font_properties],
-    'mathtext.fontset':        [
-        'dejavusans',
-        ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom']],
-    'mathtext.default':        [
-        'it',
-        ['rm', 'cal', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'frak', 'scr', 'regular']],
-    'mathtext.fallback_to_cm': [None, _validate_mathtext_fallback_to_cm],
-    'mathtext.fallback':       ['cm', _validate_mathtext_fallback],
+    "mathtext.cal":            validate_font_properties,
+    "mathtext.rm":             validate_font_properties,
+    "mathtext.tt":             validate_font_properties,
+    "mathtext.it":             validate_font_properties,
+    "mathtext.bf":             validate_font_properties,
+    "mathtext.sf":             validate_font_properties,
+    "mathtext.fontset":        ["dejavusans", "dejavuserif", "cm", "stix",
+                                "stixsans", "custom"],
+    "mathtext.default":        ["rm", "cal", "it", "tt", "sf", "bf", "default",
+                                "bb", "frak", "scr", "regular"],
+    "mathtext.fallback_to_cm": _validate_mathtext_fallback_to_cm,
+    "mathtext.fallback":       _validate_mathtext_fallback,
 
-    'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['antialiased', validate_string],
-    'image.cmap':          ['viridis', validate_string],  # gray, jet, etc.
-    'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper', ['upper', 'lower']],
-    'image.resample':      [True, validate_bool],
+    "image.aspect":          validate_aspect,  # equal, auto, a number
+    "image.interpolation":   validate_string,
+    "image.cmap":            validate_string,  # gray, jet, etc.
+    "image.lut":             validate_int,  # lookup table
+    "image.origin":          ["upper", "lower"],
+    "image.resample":        validate_bool,
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
-    'image.composite_image': [True, validate_bool],
+    "image.composite_image": validate_bool,
 
     # contour props
-    'contour.negative_linestyle': ['dashed', _validate_linestyle],
-    'contour.corner_mask':        [True, validate_bool],
-    'contour.linewidth':          [None, validate_float_or_None],
+    "contour.negative_linestyle": _validate_linestyle,
+    "contour.corner_mask":        validate_bool,
+    "contour.linewidth":          validate_float_or_None,
 
     # errorbar props
-    'errorbar.capsize':      [0, validate_float],
+    "errorbar.capsize": validate_float,
 
     # axis props
-    'xaxis.labellocation':    ['center', ['left', 'center', 'right']],  # alignment of x axis title
-    'yaxis.labellocation':    ['center', ['bottom', 'center', 'top']],  # alignment of y axis title
+    # alignment of x/y axis title
+    "xaxis.labellocation": ["left", "center", "right"],
+    "yaxis.labellocation": ["bottom", "center", "top"],
 
     # axes props
-    'axes.axisbelow':        ['line', validate_axisbelow],
-    'axes.facecolor':        ['white', validate_color],  # background color
-    'axes.edgecolor':        ['black', validate_color],  # edge color
-    'axes.linewidth':        [0.8, validate_float],  # edge linewidth
+    "axes.axisbelow":        validate_axisbelow,
+    "axes.facecolor":        validate_color,  # background color
+    "axes.edgecolor":        validate_color,  # edge color
+    "axes.linewidth":        validate_float,  # edge linewidth
 
-    'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
-    'axes.spines.right':     [True, validate_bool],  # 'spines', the lines
-    'axes.spines.bottom':    [True, validate_bool],  # around the chart
-    'axes.spines.top':       [True, validate_bool],  # denoting data boundary
+    "axes.spines.left":      validate_bool,  # Set visibility of axes spines,
+    "axes.spines.right":     validate_bool,  # i.e., the lines around the chart
+    "axes.spines.bottom":    validate_bool,  # denoting data boundary.
+    "axes.spines.top":       validate_bool,
 
-    'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
-                                                            # axes title
-    'axes.titlelocation':    ['center', ['left', 'center', 'right']],  # alignment of axes title
-    'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
-    'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
-    'axes.titley':           [None, validate_float_or_None],  # title location, axes units, None means auto
-    'axes.titlepad':         [6.0, validate_float],  # pad from axes top decoration to title in points
-    'axes.grid':             [False, validate_bool],   # display grid or not
-    'axes.grid.which':       ['major', ['minor', 'both', 'major']],  # set whether the grid is drawn on
-                                                                     # 'major' 'minor' or 'both' ticks
-    'axes.grid.axis':        ['both', ['x', 'y', 'both']],  # grid type:
-                                                            # 'x', 'y', or 'both'
-    'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
-                                                             # x any y labels
-    'axes.labelpad':         [4.0, validate_float],  # space between label and axis
-    'axes.labelweight':      ['normal', validate_fontweight],  # fontsize of the x any y labels
-    'axes.labelcolor':       ['black', validate_color],    # color of axis label
-    'axes.formatter.limits': [[-5, 6], validate_nseq_int(2)],
-                               # use scientific notation if log10
-                               # of the axis range is smaller than the
-                               # first or larger than the second
-    'axes.formatter.use_locale': [False, validate_bool],
-                               # Use the current locale to format ticks
-    'axes.formatter.use_mathtext': [False, validate_bool],
-    'axes.formatter.min_exponent': [0, validate_int],  # minimum exponent to format in scientific notation
-    'axes.formatter.useoffset': [True, validate_bool],
-    'axes.formatter.offset_threshold': [4, validate_int],
-    'axes.unicode_minus': [True, validate_bool],
-    # This entry can be either a cycler object or a
-    # string repr of a cycler-object, which gets eval()'ed
-    # to create the object.
-    'axes.prop_cycle': [
-        ccycler('color',
-                ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-                 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
-                 '#bcbd22', '#17becf']),
-        validate_cycler],
-    # If 'data', axes limits are set close to the data.
-    # If 'round_numbers' axes limits are set to the nearest round numbers.
-    'axes.autolimit_mode': ['data', ['data', 'round_numbers']],
-    'axes.xmargin': [0.05, _range_validators["0 <= x <= 1"]],
-    'axes.ymargin': [0.05, _range_validators["0 <= x <= 1"]],
+    "axes.titlesize":     validate_fontsize,  # axes title fontsize
+    "axes.titlelocation": ["left", "center", "right"],  # axes title alignment
+    "axes.titleweight":   validate_fontweight,  # axes title font weight
+    "axes.titlecolor":    validate_color_or_auto,  # axes title font color
+    # title location, axes units, None means auto
+    "axes.titley":        validate_float_or_None,
+    # pad from axes top decoration to title in points
+    "axes.titlepad":      validate_float,
+    "axes.grid":          validate_bool,  # display grid or not
+    "axes.grid.which":    ["minor", "both", "major"],  # which grids are drawn
+    "axes.grid.axis":     ["x", "y", "both"],  # grid type
+    "axes.labelsize":     validate_fontsize,  # fontsize of x & y labels
+    "axes.labelpad":      validate_float,  # space between label and axis
+    "axes.labelweight":   validate_fontweight,  # fontsize of x & y labels
+    "axes.labelcolor":    validate_color,  # color of axis label
+    # use scientific notation if log10 of the axis range is smaller than the
+    # first or larger than the second
+    "axes.formatter.limits": validate_nseq_int(2),
+    # use current locale to format ticks
+    "axes.formatter.use_locale": validate_bool,
+    "axes.formatter.use_mathtext": validate_bool,
+    # minimum exponent to format in scientific notation
+    "axes.formatter.min_exponent": validate_int,
+    "axes.formatter.useoffset": validate_bool,
+    "axes.formatter.offset_threshold": validate_int,
+    "axes.unicode_minus": validate_bool,
+    # This entry can be either a cycler object or a string repr of a
+    # cycler-object, which gets eval()'ed to create the object.
+    "axes.prop_cycle": validate_cycler,
+    # If "data", axes limits are set close to the data.
+    # If "round_numbers" axes limits are set to the nearest round numbers.
+    "axes.autolimit_mode": ["data", "round_numbers"],
+    "axes.xmargin": _range_validators["0 <= x <= 1"],  # margin added to xaxis
+    "axes.ymargin": _range_validators["0 <= x <= 1"],  # margin added to yaxis
 
-    'polaraxes.grid': [True, validate_bool],  # display polar grid or not
-    'axes3d.grid': [True, validate_bool],  # display 3d grid
+    "polaraxes.grid": validate_bool,  # display polar grid or not
+    "axes3d.grid":    validate_bool,  # display 3d grid
 
     # scatter props
-    'scatter.marker': ['o', validate_string],
-    'scatter.edgecolors': ['face', validate_string],
+    "scatter.marker":     validate_string,
+    "scatter.edgecolors": validate_string,
 
-    'date.epoch': ['1970-01-01T00:00', _validate_date],
+    "date.epoch": _validate_date,
     # TODO validate that these are valid datetime format strings
-    'date.autoformatter.year': ['%Y', validate_string],
-    'date.autoformatter.month': ['%Y-%m', validate_string],
-    'date.autoformatter.day': ['%Y-%m-%d', validate_string],
-    'date.autoformatter.hour': ['%m-%d %H', validate_string],
-    'date.autoformatter.minute': ['%d %H:%M', validate_string],
-    'date.autoformatter.second': ['%H:%M:%S', validate_string],
-    'date.autoformatter.microsecond': ['%M:%S.%f', validate_string],
+    "date.autoformatter.year":        validate_string,
+    "date.autoformatter.month":       validate_string,
+    "date.autoformatter.day":         validate_string,
+    "date.autoformatter.hour":        validate_string,
+    "date.autoformatter.minute":      validate_string,
+    "date.autoformatter.second":      validate_string,
+    "date.autoformatter.microsecond": validate_string,
 
-    #legend properties
-    'legend.fancybox': [True, validate_bool],
-    'legend.loc': ['best',
-                   _ignorecase(['best',
-                                'upper right', 'upper left',
-                                'lower left', 'lower right', 'right',
-                                'center left', 'center right',
-                                'lower center', 'upper center',
-                                'center'])],
+    # legend properties
+    "legend.fancybox": validate_bool,
+    "legend.loc": _ignorecase([
+        "best",
+        "upper right", "upper left", "lower left", "lower right", "right",
+        "center left", "center right", "lower center", "upper center",
+        "center"]),
     # the number of points in the legend line
-    'legend.numpoints': [1, validate_int],
+    "legend.numpoints":      validate_int,
     # the number of points in the legend line for scatter
-    'legend.scatterpoints': [1, validate_int],
-    'legend.fontsize': ['medium', validate_fontsize],
-    'legend.title_fontsize': [None, validate_fontsize_None],
+    "legend.scatterpoints":  validate_int,
+    "legend.fontsize":       validate_fontsize,
+    "legend.title_fontsize": validate_fontsize_None,
      # the relative size of legend markers vs. original
-    'legend.markerscale': [1.0, validate_float],
-    'legend.shadow': [False, validate_bool],
+    "legend.markerscale":    validate_float,
+    "legend.shadow":         validate_bool,
      # whether or not to draw a frame around legend
-    'legend.frameon': [True, validate_bool],
+    "legend.frameon":        validate_bool,
      # alpha value of the legend frame
-    'legend.framealpha': [0.8, validate_float_or_None],
+    "legend.framealpha":     validate_float_or_None,
 
     ## the following dimensions are in fraction of the font size
-    'legend.borderpad': [0.4, validate_float],  # units are fontsize
+    "legend.borderpad":      validate_float,  # units are fontsize
     # the vertical space between the legend entries
-    'legend.labelspacing': [0.5, validate_float],
+    "legend.labelspacing":   validate_float,
     # the length of the legend lines
-    'legend.handlelength': [2., validate_float],
+    "legend.handlelength":   validate_float,
     # the length of the legend lines
-    'legend.handleheight': [0.7, validate_float],
+    "legend.handleheight":   validate_float,
     # the space between the legend line and legend text
-    'legend.handletextpad': [.8, validate_float],
+    "legend.handletextpad":  validate_float,
     # the border between the axes and legend edge
-    'legend.borderaxespad': [0.5, validate_float],
+    "legend.borderaxespad":  validate_float,
     # the border between the axes and legend edge
-    'legend.columnspacing': [2., validate_float],
-    'legend.facecolor': ['inherit', validate_color_or_inherit],
-    'legend.edgecolor': ['0.8', validate_color_or_inherit],
+    "legend.columnspacing":  validate_float,
+    "legend.facecolor":      validate_color_or_inherit,
+    "legend.edgecolor":      validate_color_or_inherit,
 
     # tick properties
-    'xtick.top':         [False, validate_bool],   # draw ticks on the top side
-    'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
-    'xtick.labeltop':    [False, validate_bool],  # draw label on the top
-    'xtick.labelbottom': [True, validate_bool],  # draw label on the bottom
-    'xtick.major.size':  [3.5, validate_float],    # major xtick size in points
-    'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
-    'xtick.major.width': [0.8, validate_float],  # major xtick width in points
-    'xtick.minor.width': [0.6, validate_float],  # minor xtick width in points
-    'xtick.major.pad':   [3.5, validate_float],    # distance to label in points
-    'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
-    'xtick.color':       ['black', validate_color],  # color of the xtick labels
-    'xtick.minor.visible':   [False, validate_bool],    # visibility of the x axis minor ticks
-    'xtick.minor.top':   [True, validate_bool],  # draw x axis top minor ticks
-    'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
-    'xtick.major.top':   [True, validate_bool],  # draw x axis top major ticks
-    'xtick.major.bottom':    [True, validate_bool],    # draw x axis bottom major ticks
+    "xtick.top":           validate_bool,      # draw ticks on top side
+    "xtick.bottom":        validate_bool,      # draw ticks on bottom side
+    "xtick.labeltop":      validate_bool,      # draw label on top
+    "xtick.labelbottom":   validate_bool,      # draw label on bottom
+    "xtick.major.size":    validate_float,     # major xtick size in points
+    "xtick.minor.size":    validate_float,     # minor xtick size in points
+    "xtick.major.width":   validate_float,     # major xtick width in points
+    "xtick.minor.width":   validate_float,     # minor xtick width in points
+    "xtick.major.pad":     validate_float,     # distance to label in points
+    "xtick.minor.pad":     validate_float,     # distance to label in points
+    "xtick.color":         validate_color,     # color of xtick labels
+    "xtick.minor.visible": validate_bool,      # visibility of minor xticks
+    "xtick.minor.top":     validate_bool,      # draw top minor xticks
+    "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
+    "xtick.major.top":     validate_bool,      # draw top major xticks
+    "xtick.major.bottom":  validate_bool,      # draw bottom major xticks
+    "xtick.labelsize":     validate_fontsize,  # fontsize of xtick labels
+    "xtick.direction":     validate_string,    # direction of xticks
+    "xtick.alignment":     ["center", "right", "left"],
 
-    # fontsize of the xtick labels
-    'xtick.labelsize':   ['medium', validate_fontsize],
-    'xtick.direction':   ['out', validate_string],            # direction of xticks
-    'xtick.alignment':   ['center',
-                          ['center', 'right', 'left']],
+    "ytick.left":          validate_bool,      # draw ticks on left side
+    "ytick.right":         validate_bool,      # draw ticks on right side
+    "ytick.labelleft":     validate_bool,      # draw tick labels on left side
+    "ytick.labelright":    validate_bool,      # draw tick labels on right side
+    "ytick.major.size":    validate_float,     # major ytick size in points
+    "ytick.minor.size":    validate_float,     # minor ytick size in points
+    "ytick.major.width":   validate_float,     # major ytick width in points
+    "ytick.minor.width":   validate_float,     # minor ytick width in points
+    "ytick.major.pad":     validate_float,     # distance to label in points
+    "ytick.minor.pad":     validate_float,     # distance to label in points
+    "ytick.color":         validate_color,     # color of ytick labels
+    "ytick.minor.visible": validate_bool,      # visibility of minor yticks
+    "ytick.minor.left":    validate_bool,      # draw left minor yticks
+    "ytick.minor.right":   validate_bool,      # draw right minor yticks
+    "ytick.major.left":    validate_bool,      # draw left major yticks
+    "ytick.major.right":   validate_bool,      # draw right major yticks
+    "ytick.labelsize":     validate_fontsize,  # fontsize of ytick labels
+    "ytick.direction":     validate_string,    # direction of yticks
+    "ytick.alignment":     [
+        "center", "top", "bottom", "baseline", "center_baseline"],
 
-    'ytick.left':        [True, validate_bool],  # draw ticks on the left side
-    'ytick.right':       [False, validate_bool],  # draw ticks on the right side
-    'ytick.labelleft':   [True, validate_bool],  # draw tick labels on the left side
-    'ytick.labelright':  [False, validate_bool],  # draw tick labels on the right side
-    'ytick.major.size':  [3.5, validate_float],     # major ytick size in points
-    'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
-    'ytick.major.width': [0.8, validate_float],   # major ytick width in points
-    'ytick.minor.width': [0.6, validate_float],   # minor ytick width in points
-    'ytick.major.pad':   [3.5, validate_float],     # distance to label in points
-    'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
-    'ytick.color':       ['black', validate_color],   # color of the ytick labels
-    'ytick.minor.visible':   [False, validate_bool],    # visibility of the y axis minor ticks
-    'ytick.minor.left':   [True, validate_bool],  # draw y axis left minor ticks
-    'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
-    'ytick.major.left':   [True, validate_bool],  # draw y axis left major ticks
-    'ytick.major.right':    [True, validate_bool],    # draw y axis right major ticks
-
-    # fontsize of the ytick labels
-    'ytick.labelsize':   ['medium', validate_fontsize],
-    'ytick.direction':   ['out', validate_string],            # direction of yticks
-    'ytick.alignment':   ['center_baseline',
-                          ['center', 'top', 'bottom', 'baseline', 'center_baseline']],
-
-    'grid.color':        ['#b0b0b0', validate_color],  # grid color
-    'grid.linestyle':    ['-', _validate_linestyle],  # solid
-    'grid.linewidth':    [0.8, validate_float],     # in points
-    'grid.alpha':        [1.0, validate_float],
+    "grid.color":        validate_color,  # grid color
+    "grid.linestyle":    _validate_linestyle,  # solid
+    "grid.linewidth":    validate_float,     # in points
+    "grid.alpha":        validate_float,
 
     ## figure props
     # figure title
-    'figure.titlesize':   ['large', validate_fontsize],
-    'figure.titleweight': ['normal', validate_fontweight],
+    "figure.titlesize":   validate_fontsize,
+    "figure.titleweight": validate_fontweight,
 
     # figure size in inches: width by height
-    'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
-    'figure.dpi':        [100, validate_float],  # DPI
-    'figure.facecolor':  ['white', validate_color],
-    'figure.edgecolor':  ['white', validate_color],
-    'figure.frameon':    [True, validate_bool],
-    'figure.autolayout': [False, validate_bool],
-    'figure.max_open_warning': [20, validate_int],
-    'figure.raise_window': [True, validate_bool],
+    "figure.figsize":          validate_nseq_float(2),
+    "figure.dpi":              validate_float,
+    "figure.facecolor":        validate_color,
+    "figure.edgecolor":        validate_color,
+    "figure.frameon":          validate_bool,
+    "figure.autolayout":       validate_bool,
+    "figure.max_open_warning": validate_int,
+    "figure.raise_window":     validate_bool,
 
-    'figure.subplot.left': [0.125, _range_validators["0 <= x <= 1"]],
-    'figure.subplot.right': [0.9, _range_validators["0 <= x <= 1"]],
-    'figure.subplot.bottom': [0.11, _range_validators["0 <= x <= 1"]],
-    'figure.subplot.top': [0.88, _range_validators["0 <= x <= 1"]],
-    'figure.subplot.wspace': [0.2, _range_validators["0 <= x < 1"]],
-    'figure.subplot.hspace': [0.2, _range_validators["0 <= x < 1"]],
+    "figure.subplot.left":   _range_validators["0 <= x <= 1"],
+    "figure.subplot.right":  _range_validators["0 <= x <= 1"],
+    "figure.subplot.bottom": _range_validators["0 <= x <= 1"],
+    "figure.subplot.top":    _range_validators["0 <= x <= 1"],
+    "figure.subplot.wspace": _range_validators["0 <= x < 1"],
+    "figure.subplot.hspace": _range_validators["0 <= x < 1"],
 
-    # do constrained_layout.
-    'figure.constrained_layout.use': [False, validate_bool],
-    # wspace and hspace are fraction of adjacent subplots to use
-    # for space.  Much smaller than above because we don't need
-    # room for the text.
-    'figure.constrained_layout.hspace':
-        [0.02, _range_validators["0 <= x < 1"]],
-    'figure.constrained_layout.wspace':
-        [0.02, _range_validators["0 <= x < 1"]],
-    # This is a buffer around the axes in inches.  This is 3pts.
-    'figure.constrained_layout.h_pad': [0.04167, validate_float],
-    'figure.constrained_layout.w_pad': [0.04167, validate_float],
+    "figure.constrained_layout.use": validate_bool,  # run constrained_layout?
+    # wspace and hspace are fraction of adjacent subplots to use for space.
+    # Much smaller than above because we don't need room for the text.
+    "figure.constrained_layout.hspace": _range_validators["0 <= x < 1"],
+    "figure.constrained_layout.wspace": _range_validators["0 <= x < 1"],
+    # buffer around the axes, in inches.
+    'figure.constrained_layout.h_pad': validate_float,
+    'figure.constrained_layout.w_pad': validate_float,
 
     ## Saving figure's properties
-    'savefig.dpi':         ['figure', validate_dpi],  # DPI
-    'savefig.facecolor':   ['auto', validate_color_or_auto],
-    'savefig.edgecolor':   ['auto', validate_color_or_auto],
-    'savefig.orientation': ['portrait', ['landscape', 'portrait']],
-    'savefig.jpeg_quality': [95, validate_int],
-    # value checked by backend at runtime
-    'savefig.format':     ['png', _update_savefig_format],
-    # options are 'tight', or 'standard'. 'standard' validates to None.
-    'savefig.bbox':       ['standard', validate_bbox],
-    'savefig.pad_inches': [0.1, validate_float],
+    'savefig.dpi':          validate_dpi,
+    'savefig.facecolor':    validate_color_or_auto,
+    'savefig.edgecolor':    validate_color_or_auto,
+    'savefig.orientation':  ['landscape', 'portrait'],
+    'savefig.jpeg_quality': validate_int,
+    "savefig.format":       _update_savefig_format,
+    "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
+    "savefig.pad_inches":   validate_float,
     # default directory in savefig dialog box
-    'savefig.directory': ['~', validate_string],
-    'savefig.transparent': [False, validate_bool],
+    "savefig.directory":    validate_string,
+    "savefig.transparent":  validate_bool,
 
-    # Maintain shell focus for TkAgg
-    'tk.window_focus':  [False, validate_bool],
+    "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 
     # Set the papersize/type
-    'ps.papersize':     ['letter',
-                         _ignorecase(['auto', 'letter', 'legal', 'ledger',
-                                      *[f'{ab}{i}' for ab in 'ab' for i in range(11)]])],
-    'ps.useafm':        [False, validate_bool],
+    "ps.papersize":       _ignorecase(["auto", "letter", "legal", "ledger",
+                                      *[f"{ab}{i}"
+                                        for ab in "ab" for i in range(11)]]),
+    "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
-    'ps.usedistiller':  [False, validate_ps_distiller],
-    'ps.distiller.res': [6000, validate_int],     # dpi
-    'ps.fonttype':      [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
-    # compression level from 0 to 9; 0 to disable
-    'pdf.compression':  [6, validate_int],
-    # ignore any color-setting commands from the frontend
-    'pdf.inheritcolor': [False, validate_bool],
+    "ps.usedistiller":    validate_ps_distiller,
+    "ps.distiller.res":   validate_int,  # dpi
+    "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
+    "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable
+    "pdf.inheritcolor":   validate_bool,  # skip color setting commands
     # use only the 14 PDF core fonts embedded in every PDF viewing application
-    'pdf.use14corefonts': [False, validate_bool],
-    'pdf.fonttype':     [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
+    "pdf.use14corefonts": validate_bool,
+    "pdf.fonttype":       validate_fonttype,  # 3 (Type3) or 42 (Truetype)
 
-    # choose latex application for creating pdf files (xelatex/lualatex)
-    'pgf.texsystem': ['xelatex', ['xelatex', 'lualatex', 'pdflatex']],
-    # use matplotlib rc settings for font configuration
-    'pgf.rcfonts':   [True, validate_bool],
-    # provide a custom preamble for the latex process
-    'pgf.preamble':  ['', _validate_tex_preamble],
+    "pgf.texsystem": ["xelatex", "lualatex", "pdflatex"],  # latex variant used
+    "pgf.rcfonts":   validate_bool,  # use mpl's rc settings for font config
+    "pgf.preamble":  _validate_tex_preamble,  # custom LaTeX preamble
 
-    # write raster image data directly into the svg file
-    'svg.image_inline':     [True, validate_bool],
-    # True to save all characters as paths in the SVG
-    'svg.fonttype':         ['path', ['none', 'path']],
-    'svg.hashsalt':         [None, validate_string_or_None],
+    # write raster image data into the svg file
+    "svg.image_inline": validate_bool,
+    "svg.fonttype": ["none", "path"],  # save text as text ("none") or "paths"
+    "svg.hashsalt": validate_string_or_None,
 
     # set this when you want to generate hardcopy docstring
-    'docstring.hardcopy': [False, validate_bool],
+    "docstring.hardcopy": validate_bool,
 
-    'path.simplify': [True, validate_bool],
-    'path.simplify_threshold': [1 / 9, _range_validators["0 <= x <= 1"]],
-    'path.snap': [True, validate_bool],
-    'path.sketch': [None, validate_sketch],
-    'path.effects': [[], validate_any],
-    'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
+    "path.simplify":           validate_bool,
+    "path.simplify_threshold": _range_validators["0 <= x <= 1"],
+    "path.snap":               validate_bool,
+    "path.sketch":             validate_sketch,
+    "path.effects":            validate_anylist,
+    "agg.path.chunksize":      validate_int,  # 0 to disable chunking
 
     # key-mappings (multi-character mappings should be a list/tuple)
-    'keymap.fullscreen':   [['f', 'ctrl+f'], validate_stringlist],
-    'keymap.home':         [['h', 'r', 'home'], validate_stringlist],
-    'keymap.back':         [['left', 'c', 'backspace', 'MouseButton.BACK'],
-                            validate_stringlist],
-    'keymap.forward':      [['right', 'v', 'MouseButton.FORWARD'],
-                            validate_stringlist],
-    'keymap.pan':          [['p'], validate_stringlist],
-    'keymap.zoom':         [['o'], validate_stringlist],
-    'keymap.save':         [['s', 'ctrl+s'], validate_stringlist],
-    'keymap.quit':         [['ctrl+w', 'cmd+w', 'q'], validate_stringlist],
-    'keymap.quit_all':     [[], validate_stringlist],  # proposed values: 'W', 'cmd+W', 'Q'
-    'keymap.grid':         [['g'], validate_stringlist],
-    'keymap.grid_minor':   [['G'], validate_stringlist],
-    'keymap.yscale':       [['l'], validate_stringlist],
-    'keymap.xscale':       [['k', 'L'], validate_stringlist],
-    'keymap.all_axes':     [['a'], validate_stringlist],
-    'keymap.help':         [['f1'], validate_stringlist],
-    'keymap.copy':         [['ctrl+c', 'cmd+c'], validate_stringlist],
+    "keymap.fullscreen": validate_stringlist,
+    "keymap.home":       validate_stringlist,
+    "keymap.back":       validate_stringlist,
+    "keymap.forward":    validate_stringlist,
+    "keymap.pan":        validate_stringlist,
+    "keymap.zoom":       validate_stringlist,
+    "keymap.save":       validate_stringlist,
+    "keymap.quit":       validate_stringlist,
+    "keymap.quit_all":   validate_stringlist,  # e.g.: "W", "cmd+W", "Q"
+    "keymap.grid":       validate_stringlist,
+    "keymap.grid_minor": validate_stringlist,
+    "keymap.yscale":     validate_stringlist,
+    "keymap.xscale":     validate_stringlist,
+    "keymap.all_axes":   validate_stringlist,
+    "keymap.help":       validate_stringlist,
+    "keymap.copy":       validate_stringlist,
 
     # Animation settings
-    'animation.html':         ['none', ['html5', 'jshtml', 'none']],
+    "animation.html":         ["html5", "jshtml", "none"],
     # Limit, in MB, of size of base64 encoded animation in HTML
     # (i.e. IPython notebook)
-    'animation.embed_limit':  [20, validate_float],
-    'animation.writer':       ['ffmpeg', validate_string],
-    'animation.codec':        ['h264', validate_string],
-    'animation.bitrate':      [-1, validate_int],
+    "animation.embed_limit":  validate_float,
+    "animation.writer":       validate_string,
+    "animation.codec":        validate_string,
+    "animation.bitrate":      validate_int,
     # Controls image format when frames are written to disk
-    'animation.frame_format': ['png', ['png', 'jpeg', 'tiff', 'raw', 'rgba']],
+    "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba"],
     # Additional arguments for HTML writer
-    'animation.html_args':    [[], validate_stringlist],
+    "animation.html_args":    validate_stringlist,
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
-    'animation.ffmpeg_path':  ['ffmpeg', validate_string],
+    "animation.ffmpeg_path":  validate_string,
     # Additional arguments for ffmpeg movie writer (using pipes)
-    'animation.ffmpeg_args':   [[], validate_stringlist],
+    "animation.ffmpeg_args":  validate_stringlist,
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    'animation.avconv_path':   ['avconv', validate_string],
+    "animation.avconv_path":  validate_string,
     # Additional arguments for avconv movie writer (using pipes)
-    'animation.avconv_args':   [[], validate_stringlist],
+    "animation.avconv_args":  validate_stringlist,
      # Path to convert binary. If just binary name, subprocess uses $PATH.
-    'animation.convert_path':  ['convert', validate_string],
+    "animation.convert_path": validate_string,
      # Additional arguments for convert movie writer (using pipes)
-    'animation.convert_args':  [[], validate_stringlist],
+    "animation.convert_args": validate_stringlist,
 
-    'mpl_toolkits.legacy_colorbar': [True, validate_bool],
+    "mpl_toolkits.legacy_colorbar": validate_bool,
 
     # Classic (pre 2.0) compatibility mode
     # This is used for things that are hard to make backward compatible
     # with a sane rcParam alone.  This does *not* turn on classic mode
-    # altogether.  For that use `matplotlib.style.use('classic')`.
-    '_internal.classic_mode': [False, validate_bool]
+    # altogether.  For that use `matplotlib.style.use("classic")`.
+    "_internal.classic_mode": validate_bool
 }
-defaultParams = {k: [default, _convert_validator_spec(k, conv)]
-                 for k, (default, conv) in defaultParams.items()}
+_hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
+    # ... because it can"t be:
+    "backend": _auto_backend_sentinel,
+    # ... because they are private:
+    "_internal.classic_mode": False,
+    # ... because they are deprecated:
+    "animation.avconv_path": "avconv",
+    "animation.avconv_args": [],
+    "animation.html_args": [],
+    "mathtext.fallback_to_cm": None,
+    "keymap.all_axes": ["a"],
+    "savefig.jpeg_quality": 95,
+    "text.latex.preview": False,
+}
+_validators = {k: _convert_validator_spec(k, conv)
+               for k, conv in _validators.items()}
