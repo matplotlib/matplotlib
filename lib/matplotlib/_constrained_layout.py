@@ -224,8 +224,24 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
 
 
 def _match_submerged_margins(fig):
+    """
+    Make the margins that are submerged inside an axes the same
+    size.
+
+    This allows axes that span two columns (or rows) that are offset
+    from one another to have the same size.
+
+    i.e. if in row 0, the axes is at columns 0, 1 and for row 1,
+    the axes is at columns 1 and 2, then the right margin at row 0
+    needs to be the same size as the right margin at row 1 and
+    the left margin for rows 1 and 2 should be the same.
+
+    See test_constrained_layout::test_constrained_layout12 for an example.
+    """
+
     for panel in fig.panels:
         _match_submerged_margins(panel)
+
     axs = [a for a in fig._localaxes if hasattr(a, 'get_subplotspec')]
     for ax1 in axs:
         ss1 = ax1.get_subplotspec()
