@@ -1339,12 +1339,39 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         self._label_text = wx.StaticText(self)
         self.AddControl(self._label_text)
         self._toolitems = {}
-        self._groups = {}
+        self._groups = {}  # Mapping of groups to the separator after them.
+
+    def _get_tool_pos(self, tool):
+        """
+        Find the position (index) of a wx.ToolBarToolBase in a ToolBar.
+
+        ``ToolBar.GetToolPos`` is not useful because wx assigns the same Id to
+        all Separators and StretchableSpaces.
+        """
+        pos, = [pos for pos in range(self.ToolsCount)
+                if self.GetToolByPos(pos) == tool]
+        return pos
 
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
-        before, group = self._add_to_group(group, name, position)
-        idx = self.GetToolPos(before.Id)
+        # Find or create the separator that follows this group.
+        if group not in self._groups:
+            self._groups[group] = self.InsertSeparator(
+                self._get_tool_pos(self._space))
+        sep = self._groups[group]
+        # List all separators.
+        seps = [t for t in map(self.GetToolByPos, range(self.ToolsCount))
+                if t.IsSeparator() and not t.IsStretchableSpace()]
+        # Find where to insert the tool.
+        if position >= 0:
+            # Find the start of the group by looking for the separator
+            # preceding this one; then move forward from it.
+            start = (0 if sep == seps[0]
+                     else self._get_tool_pos(seps[seps.index(sep) - 1]) + 1)
+        else:
+            # Move backwards from this separator.
+            start = self._get_tool_pos(sep) + 1
+        idx = start + position
         if image_file:
             bmp = _load_bitmap(image_file)
             kind = wx.ITEM_NORMAL if not toggle else wx.ITEM_CHECK
@@ -1368,17 +1395,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             control.Bind(wx.EVT_LEFT_DOWN, handler)
 
         self._toolitems.setdefault(name, [])
-        group.insert(position, tool)
         self._toolitems[name].append((tool, handler))
-
-    def _add_to_group(self, group, name, position):
-        gr = self._groups.get(group, [])
-        if not gr:
-            sep = self.InsertSeparator(self.GetToolPos(self._space.Id))
-            gr.append(sep)
-        before = gr[position]
-        self._groups[group] = gr
-        return before, gr
 
     def toggle_toolitem(self, name, toggled):
         if name not in self._toolitems:
