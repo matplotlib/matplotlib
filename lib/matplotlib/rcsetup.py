@@ -1252,7 +1252,6 @@ _validators = {
     "scatter.edgecolors": validate_string,
 
     "date.epoch": _validate_date,
-    # TODO validate that these are valid datetime format strings
     "date.autoformatter.year":        validate_string,
     "date.autoformatter.month":       validate_string,
     "date.autoformatter.day":         validate_string,
