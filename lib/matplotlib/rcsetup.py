@@ -793,7 +793,7 @@ def validate_hatch(s):
 
 
 validate_hatchlist = _listify_validator(validate_hatch)
-validate_dashlist = _listify_validator(validate_nseq_float(allow_none=True))
+validate_dashlist = _listify_validator(validate_floatlist)
 
 
 _prop_validators = {
@@ -1069,9 +1069,9 @@ _validators = {
     "lines.solid_joinstyle": validate_joinstyle,
     "lines.dash_capstyle":   validate_capstyle,
     "lines.solid_capstyle":  validate_capstyle,
-    "lines.dashed_pattern":  validate_nseq_float(allow_none=True),
-    "lines.dashdot_pattern": validate_nseq_float(allow_none=True),
-    "lines.dotted_pattern":  validate_nseq_float(allow_none=True),
+    "lines.dashed_pattern":  validate_floatlist,
+    "lines.dashdot_pattern": validate_floatlist,
+    "lines.dotted_pattern":  validate_floatlist,
     "lines.scale_dashes":    validate_bool,
 
     # marker props
