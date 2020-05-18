@@ -1201,21 +1201,22 @@ def _init_tests():
             "Freetype build type is {}local".format(
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
-    try:
-        import pytest
-    except ImportError:
-        print("matplotlib.test requires pytest to run.")
-        raise
-
 
 @cbook._delete_parameter("3.2", "switch_backend_warn")
 @cbook._delete_parameter("3.3", "recursionlimit")
 def test(verbosity=None, coverage=False, switch_backend_warn=True,
          recursionlimit=0, **kwargs):
     """Run the matplotlib test suite."""
-    _init_tests()
+
+    try:
+        import pytest
+    except ImportError:
+        print("matplotlib.test requires pytest to run.")
+        return -1
+
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        raise ImportError("Matplotlib test data is not installed")
+        print("Matplotlib test data is not installed")
+        return -1
 
     old_backend = get_backend()
     old_recursionlimit = sys.getrecursionlimit()
@@ -1223,7 +1224,6 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
         use('agg')
         if recursionlimit:
             sys.setrecursionlimit(recursionlimit)
-        import pytest
 
         args = kwargs.pop('argv', [])
         provide_default_modules = True

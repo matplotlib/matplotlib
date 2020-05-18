@@ -134,11 +134,11 @@ def _raise_on_image_difference(expected, actual, tol):
 
     err = compare_images(expected, actual, tol, in_decorator=True)
     if err:
-        for key in ["actual", "expected"]:
+        for key in ["actual", "expected", "diff"]:
             err[key] = os.path.relpath(err[key])
         raise ImageComparisonFailure(
-            'images not close (RMS %(rms).3f):\n\t%(actual)s\n\t%(expected)s '
-             % err)
+            ('images not close (RMS %(rms).3f):'
+                '\n\t%(actual)s\n\t%(expected)s\n\t%(diff)s') % err)
 
 
 def _skip_if_format_is_uncomparable(extension):
