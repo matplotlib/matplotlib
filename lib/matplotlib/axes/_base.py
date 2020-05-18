@@ -2294,6 +2294,7 @@ class _AxesBase(martist.Artist):
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
         self._xmargin = m
+        self._request_autoscale_view(scalex=True, scaley=False)
         self.stale = True
 
     def set_ymargin(self, m):
@@ -2316,6 +2317,7 @@ class _AxesBase(martist.Artist):
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
         self._ymargin = m
+        self._request_autoscale_view(scalex=False, scaley=True)
         self.stale = True
 
     def margins(self, *margins, x=None, y=None, tight=True):
@@ -2386,14 +2388,12 @@ class _AxesBase(martist.Artist):
                 cbook._warn_external(f'ignoring tight={tight!r} in get mode')
             return self._xmargin, self._ymargin
 
+        if tight is not None:
+            self._tight = tight
         if x is not None:
             self.set_xmargin(x)
         if y is not None:
             self.set_ymargin(y)
-
-        self._request_autoscale_view(
-            tight=tight, scalex=(x is not None), scaley=(y is not None)
-        )
 
     def set_rasterization_zorder(self, z):
         """
