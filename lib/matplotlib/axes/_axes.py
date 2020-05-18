@@ -246,8 +246,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        text : :class:`~matplotlib.text.Text`
-            The matplotlib text instance representing the panel label
+        text : :class:`~matplotlib.text.Annotation`
+            The matplotlib annotation instance representing the panel label
 
         Other Parameters
         ----------------
@@ -267,12 +267,7 @@ class Axes(_AxesBase):
             self.panellabel.update(fontdict)
         self.panellabel.update(kwargs)
         self._panellabel_align = (h_align, v_align)
-        if isinstance(pad, Number):
-            pad = (pad, pad)
-        t = mtransforms.ScaledTranslation(
-            pad[0] / 72, pad[1] / 72, self.figure.dpi_scale_trans)
-        self.panellabel.set_transform(self.transAxes + t)
-        self.panellabel.set_clip_box(None)
+        self.panellabel.xyann = (pad,)*2 if isinstance(pad, Number) else pad
         return self.panellabel
 
     def get_xlabel(self):

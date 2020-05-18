@@ -1148,12 +1148,11 @@ class _AxesBase(martist.Artist):
         for _title in (self.title, self._left_title, self._right_title):
             self._set_artist_props(_title)
 
-        self.panellabel = mtext.Text(
-            x=0.0, y=1.0, text='',
-            transform=self.transAxes,
+        self.panellabel = mtext.Annotation(
+            '', (0.0, 1.0), (0.0, 0.0), xycoords=self._get_panellabel_bbox,
+            textcoords='offset points'
             )
         self._panellabel_align = ('axislabel', 'title')
-        self._autopanellabelpos = None
         self._set_artist_props(self.panellabel)
 
         # The patch draws the background of the axes.  We want this to be below
@@ -2669,56 +2668,37 @@ class _AxesBase(martist.Artist):
             x, _ = title.get_position()
             title.set_position((x, ymax))
 
-    def _update_panellabel_position(self, renderer):
+    def _get_panellabel_bbox(self, renderer):
         """
-        Update the panel label position based title and axis label positions.
+        Update bounding box for panel label based title and axis label pos.
         """
-        if self._autopanellabelpos is not None and not self._autopanellabelpos:
-            _log.debug(
-                'panel label position was updated manually, not adjusting')
-            return
+        bbox = self.get_window_extent(renderer).frozen()
+        include_xy = []
 
-        if self._autopanellabelpos is None:
-            pp = self.panellabel.get_position()
-            if not np.allclose(pp, (0.0, 1.0)):
-                self._autotitlepos = False
-                _log.debug('not adjusting title pos because a title was'
-                           ' already placed manually: (%f, %f)', *pp)
-                return
-            self._autopanellabelpos = True
-
-        panel_x = math.inf
         for axx in self.figure._align_panellabel_x_grp.get_siblings(self):
             if self._panellabel_align[0] == 'frame':
-                other_x = axx.get_window_extent(renderer).xmin
+                xmin = axx.get_window_extent(renderer).xmin
             else:
-                try:
-                    other_x = axx.yaxis.get_tightbbox(renderer).xmin
-                except AttributeError:
-                    # axx.yaxis.get_tightbbox() returned None
-                    other_x = axx.get_window_extent(renderer).xmin
-            panel_x = min(panel_x, other_x)
-        panel_y = -math.inf
+                xmin = (axx.yaxis.get_tightbbox(renderer) or
+                        axx.get_window_extent(renderer)).xmin
+            include_xy.append([xmin, bbox.ymin])
+
         for axy in self.figure._align_panellabel_y_grp.get_siblings(self):
             if self._panellabel_align[1] == 'frame':
-                other_y = axy.get_window_extent(renderer).ymax
+                ymax = axy.get_window_extent(renderer).ymax
             elif self._panellabel_align[1] == 'axislabel':
-                try:
-                    other_y = axy.xaxis.get_tightbbox(renderer).ymax
-                except AttributeError:
-                    # axy.xaxis.get_tightbbox() returned None
-                    other_y = axy.get_window_extent(renderer).ymax
+                ymax = (axy.xaxis.get_tightbbox(renderer) or
+                        axy.get_window_extent(renderer)).ymax
             elif self._panellabel_align[1] == 'top':
-                other_y = axy.title.get_tightbbox(renderer).ymax
+                ymax = axy.title.get_tightbbox(renderer).ymax
             else:
                 t = axy.title
                 tpos = t.get_position()
-                other_y = t.get_transform().transform(tpos)[1]
-            panel_y = max(panel_y, other_y)
+                ymax = t.get_transform().transform(tpos)[1]
+            include_xy.append([bbox.xmin, ymax])
 
-        inv_panel_trafo = self.transAxes.inverted()
-        self.panellabel.set_position(
-            inv_panel_trafo.transform((panel_x, panel_y)))
+        bbox.update_from_data_xy(include_xy, ignore=False)
+        return bbox
 
     # Drawing
     @martist.allow_rasterization
@@ -2764,7 +2744,6 @@ class _AxesBase(martist.Artist):
                 artists.remove(spine)
 
         self._update_title_position(renderer)
-        self._update_panellabel_position(renderer)
 
         if not self.axison or inframe:
             for _axis in self._get_axis_list():
@@ -4226,7 +4205,6 @@ class _AxesBase(martist.Artist):
                 if bb_yaxis:
                     bb.append(bb_yaxis)
         self._update_title_position(renderer)
-        self._update_panellabel_position(renderer)
         axbbox = self.get_window_extent(renderer)
         bb.append(axbbox)
 
