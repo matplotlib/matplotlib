@@ -217,3 +217,9 @@ def test_marker_as_markerstyle():
 
     assert_array_equal(line2.get_marker().vertices, triangle1.vertices)
     assert_array_equal(line3.get_marker().vertices, triangle1.vertices)
+
+
+@check_figures_equal()
+def test_odd_dashes(fig_test, fig_ref):
+    fig_test.add_subplot().plot([1, 2], dashes=[1, 2, 3])
+    fig_ref.add_subplot().plot([1, 2], dashes=[1, 2, 3, 1, 2, 3])
