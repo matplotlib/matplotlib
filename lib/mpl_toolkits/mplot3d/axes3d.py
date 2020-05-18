@@ -1092,6 +1092,16 @@ class Axes3D(Axes):
             self.get_proj()
             self.stale = True
             self.figure.canvas.draw_idle()
+            # Call all of the other z-axes that are shared with this one
+            for other in self._shared_z_axes.get_siblings(self):
+                if other is not self:
+                    # respect initial values to enable (e.g. stereoscopic) offsets 
+                    other.elev = self.elev - self.initial_elev + other.initial_elev
+                    other.azim = self.azim - self.initial_azim + other.initial_azim
+                    if (other.figure != self.figure and
+                        other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+            self.figure.canvas.draw_idle()
 
 #        elif self.button_pressed == 2:
             # pan view
