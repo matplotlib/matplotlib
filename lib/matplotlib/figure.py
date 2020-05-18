@@ -2611,21 +2611,19 @@ default: 'top'
         axs = np.asarray(axs).ravel()
         for ax in axs:
             ss = ax.get_subplotspec()
-            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
+            row0 = ss.rowspan.start
+            col0 = ss.colspan.start
             # loop through other axes and search ones that share the
             # appropriate column or row number.
             # Add to a list associated with each axes of siblings.
-            # This list is inspected in `Axes.draw` by
-            # `axis._update_panellabel_position`.
+            # This list used in `Axes._get_panellabel_bbox`.
             for axc in axs:
                 if axc is ax:
                     continue
-                ss = axc.get_subplotspec()
-                nrows, ncols, rowc0, rowc1, colc0, colc1 = \
-                        ss.get_rows_columns()
-                if colc0 == col0:
+                ssc = axc.get_subplotspec()
+                if ssc.colspan.start == col0:
                     self._align_panellabel_x_grp.join(ax, axc)
-                if row0 == rowc0:
+                if ssc.rowspan.start == row0:
                     self._align_panellabel_y_grp.join(ax, axc)
 
     def add_gridspec(self, nrows=1, ncols=1, **kwargs):
