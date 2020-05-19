@@ -177,7 +177,8 @@ def test_constrained_layout11():
     ax = fig.add_subplot(gsl[0])
     example_plot(ax, fontsize=9)
 
-@image_comparison(['constrained_layout11subpanel.png'])
+@image_comparison(['constrained_layout11subpanel.png'],
+                  style='default')
 def test_constrained_layout11subpanel():
     """Test for nested mixed layout with subpanels"""
     fig = plt.figure(constrained_layout=True, figsize=(13, 3))
@@ -187,11 +188,10 @@ def test_constrained_layout11subpanel():
     ax = fig.add_subplot(gs0[1])
     example_plot(ax, fontsize=9)
 
-
     # split left side in two:
     gsl = spl.add_gridspec(1, 2)
 
-    ax = fig.add_subplot(gsl[0])
+    ax = spl.add_subplot(gsl[0])
     example_plot(ax, fontsize=9)
     #split right side of left side into 2x2
     spl0 = spl.add_subpanel(gsl[1])

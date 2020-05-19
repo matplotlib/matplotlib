@@ -275,7 +275,7 @@ class PanelBase(Artist):
         """ also runs apply_aspect"""
         artists = self.get_children()
 
-        if 0:
+        if 1:
             for sfig in self.panels:
                 artists.remove(sfig)
                 childa = sfig.get_children()
@@ -287,7 +287,6 @@ class PanelBase(Artist):
         artists = sorted(
             (artist for artist in artists if not artist.get_animated()),
             key=lambda artist: artist.get_zorder())
-
         for ax in self._localaxes:
             locator = ax.get_axes_locator()
             if locator:
@@ -1710,12 +1709,16 @@ class SubPanel(PanelBase):
         if parent._layoutgrid is not None:
             self.init_layoutgrid()
 
-
-    def _redo_transform_rel_fig(self, margins=(0, 0, 0, 0)):
+    def _redo_transform_rel_fig(self, margins=(0, 0, 0, 0), bbox=None):
         """
         make the transPanel bbox relative to Figure transform
         :param: margins
         """
+
+        if bbox is not None:
+            self.bbox_relative.p0 = bbox.p0
+            self.bbox_relative.p1 = bbox.p1
+            return
 
         left, bottom, right, top = margins
 
@@ -1811,13 +1814,8 @@ class SubPanel(PanelBase):
         artists = self._get_draw_artists(renderer)
 
         try:
-            renderer.open_group('subpanel', gid=self.get_gid())
             self.patch.draw(renderer)
-            for a in artists:
-                print(a, a.get_zorder())
             mimage._draw_list_compositing_images(renderer, self, artists)
-            renderer.close_group('subpanel')
-
             for sfig in self.panels:
                 sfig.draw(renderer)
 

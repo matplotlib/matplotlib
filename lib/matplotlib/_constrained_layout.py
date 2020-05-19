@@ -68,7 +68,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                              ' "figure" keyword')
 
     for _ in range(2):
-        print('Doing algo...')
         # do the algorithm twice.  This has to be done because decorations
         # change size after the first re-position (i.e. x/yticklabels get
         # larger/smaller).  This second reposition tends to be much milder,
@@ -350,17 +349,8 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
     trans = fig.transFigure + fig.transPanel.inverted()
 
     for panel in fig.panels:
-        inner = panel._parent._layoutgrid.get_inner_bbox()
-        inner = trans.transform_bbox(inner)
-        outer = panel._parent._layoutgrid.get_outer_bbox()
-        outer = trans.transform_bbox(outer)
-        left = inner.x0 - outer.x0
-        right = outer.x1 - inner.x1
-        bottom = inner.y0 - outer.y0
-        top = outer.y1 - inner.y1
-
-        panel._redo_transform_rel_fig(margins=(left, bottom, right, top))
-
+        bbox = panel._layoutgrid.get_outer_bbox()
+        panel._redo_transform_rel_fig(bbox=bbox.transformed(trans))
         _reposition_axes(panel, renderer,
                          w_pad=w_pad, h_pad=h_pad,
                          wspace=wspace, hspace=hspace)
