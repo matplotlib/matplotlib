@@ -126,8 +126,8 @@ def _validate_date(s):
         np.datetime64(s)
         return s
     except ValueError:
-        raise RuntimeError('"%s" should be a string that can be parsed by ',
-                           'numpy.datetime64.' % s)
+        raise ValueError(
+            f'{s!r} should be a string that can be parsed by numpy.datetime64')
 
 
 @cbook.deprecated("3.2", alternative="os.path.exists")
