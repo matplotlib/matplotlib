@@ -68,6 +68,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                              ' "figure" keyword')
 
     for _ in range(2):
+        print('Doing algo...')
         # do the algorithm twice.  This has to be done because decorations
         # change size after the first re-position (i.e. x/yticklabels get
         # larger/smaller).  This second reposition tends to be much milder,
@@ -456,6 +457,7 @@ def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
             pbcb = pbcb.translated(0, dy)
 
     pbcb = trans.transform_bbox(pbcb)
+    cbax.set_transform(fig.transPanel)
     cbax._set_position(pbcb)
     cbax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return oldw, oldh

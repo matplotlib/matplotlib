@@ -244,29 +244,6 @@ class PanelBase(Artist):
         # this is used by the property methods in the artist base class
         # which are over-ridden in this class
 
-        if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
-        if edgecolor is None:
-            edgecolor = mpl.rcParams['figure.edgecolor']
-        if frameon is None:
-            frameon = mpl.rcParams['figure.frameon']
-
-        #self.dpi_scale_trans = Affine2D().scale(dpi)
-        # do not use property as it will trigger
-        #self._dpi = dpi
-
-        #self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
-
-        # self.transFigure = BboxTransformTo(self.bbox)
-
-        self.patch = Rectangle(
-            xy=(0, 0), width=1, height=1, visible=frameon,
-            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
-            # Don't let the figure patch influence bbox calculation.
-            in_layout=False)
-        #self._set_artist_props(self.patch)
-        self.patch.set_antialiased(False)
-
         self._suptitle = None
 
         # constrained_layout:
@@ -298,8 +275,13 @@ class PanelBase(Artist):
         """ also runs apply_aspect"""
         artists = self.get_children()
 
-        for sfig in self.panels:
-            sfig.draw(renderer)
+        if 0:
+            for sfig in self.panels:
+                artists.remove(sfig)
+                childa = sfig.get_children()
+                for child in childa:
+                    if child in artists:
+                        artists.remove(child)
 
         artists.remove(self.patch)
         artists = sorted(
@@ -500,6 +482,16 @@ default: 'top'
         ``Figure.patch.get_visible()``.
         """
         return self.patch.get_visible()
+
+    def set_linewidth(self, linewidth):
+        """
+        Set the edge color of the Figure rectangle.
+
+        Parameters
+        ----------
+        linewidth : number
+        """
+        self.patch.set_linewidth(linewidth)
 
     def set_edgecolor(self, color):
         """
@@ -1675,8 +1667,21 @@ default: 'top'
 
 class SubPanel(PanelBase):
 
-    def __init__(self, subplotspec, parent, **kwargs):
+    def __init__(self, subplotspec, parent, *,
+                 facecolor=None,
+                 edgecolor=None,
+                 linewidth=0.0,
+                 frameon=None,
+                 **kwargs):
+
         super().__init__(**kwargs)
+        if facecolor is None:
+            facecolor = mpl.rcParams['figure.facecolor']
+        if edgecolor is None:
+            edgecolor = mpl.rcParams['figure.edgecolor']
+        if frameon is None:
+            frameon = mpl.rcParams['figure.frameon']
+
         self.clf()
         self._subplotspec = subplotspec
         self._parent = parent
@@ -1694,6 +1699,13 @@ class SubPanel(PanelBase):
         self.bbox = TransformedBbox(self.bbox_relative,
                                     self._parent.transPanel)
         self.transPanel = BboxTransformTo(self.bbox)
+
+        self.patch = Rectangle(
+            xy=(0, 0), width=1, height=1, visible=frameon,
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
+            # Don't let the figure patch influence bbox calculation.
+            in_layout=False, transform=self.transPanel)
+        self.patch.set_antialiased(False)
 
         if parent._layoutgrid is not None:
             self.init_layoutgrid()
@@ -1795,18 +1807,22 @@ class SubPanel(PanelBase):
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
+
         artists = self._get_draw_artists(renderer)
-        # super().draw(renderer)
 
         try:
             renderer.open_group('subpanel', gid=self.get_gid())
             self.patch.draw(renderer)
+            for a in artists:
+                print(a, a.get_zorder())
             mimage._draw_list_compositing_images(renderer, self, artists)
             renderer.close_group('subpanel')
+
+            for sfig in self.panels:
+                sfig.draw(renderer)
+
         finally:
             self.stale = False
-
-        self.canvas.draw_event(renderer)
 
 
 class Figure(PanelBase):
@@ -1891,8 +1907,14 @@ class Figure(PanelBase):
             for examples.  (Note: does not work with `add_subplot` or
             `~.pyplot.subplot2grid`.)
         """
-        super().__init__(facecolor=facecolor, linewidth=linewidth,
-                         edgecolor=edgecolor, frameon=frameon)
+        super().__init__()
+        if facecolor is None:
+            facecolor = mpl.rcParams['figure.facecolor']
+        if edgecolor is None:
+            edgecolor = mpl.rcParams['figure.edgecolor']
+        if frameon is None:
+            frameon = mpl.rcParams['figure.frameon']
+
         # remove the non-figure artist _axes property
         # as it makes no sense for a figure to be _in_ an axes
         # this is used by the property methods in the artist base class
@@ -1936,6 +1958,13 @@ class Figure(PanelBase):
         self._cachedRenderer = None
         self.subplotpars = SubplotParams()
         self.panels = []
+
+        self.patch = Rectangle(
+            xy=(0, 0), width=1, height=1, visible=frameon,
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
+            # Don't let the figure patch influence bbox calculation.
+            in_layout=False, transform=self.transPanel)
+        self.patch.set_antialiased(False)
 
         self.figure = self
         self._layoutgrid = None
@@ -2293,7 +2322,7 @@ class Figure(PanelBase):
 
         try:
             renderer.open_group('figure', gid=self.get_gid())
-            if self.get_constrained_layout() and self.axes:
+            if self.get_constrained_layout():
                 self.execute_constrained_layout(renderer)
             if self.get_tight_layout() and self.axes:
                 try:
@@ -2305,6 +2334,9 @@ class Figure(PanelBase):
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
                 renderer, self, artists, self.suppressComposite)
+
+            for sfig in self.panels:
+                sfig.draw(renderer)
 
             renderer.close_group('figure')
         finally:
