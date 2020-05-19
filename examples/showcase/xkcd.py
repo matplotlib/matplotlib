@@ -14,8 +14,8 @@ with plt.xkcd():
     # Based on "Stove Ownership" from XKCD by Randall Munroe
     # https://xkcd.com/418/
 
-    fig, ax = plt.subplots()
-    ax.set_position((0.1, 0.2, 0.8, 0.7))
+    fig = plt.figure()
+    ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
     ax.spines['right'].set_color('none')
     ax.spines['top'].set_color('none')
     ax.set_xticks([])
@@ -44,8 +44,8 @@ with plt.xkcd():
     # Based on "The Data So Far" from XKCD by Randall Munroe
     # https://xkcd.com/373/
 
-    fig, ax = plt.subplots()
-    ax.set_position((0.1, 0.2, 0.8, 0.7))
+    fig = plt.figure()
+    ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
     ax.bar([0, 1], [0, 100], 0.25)
     ax.spines['right'].set_color('none')
     ax.spines['top'].set_color('none')
