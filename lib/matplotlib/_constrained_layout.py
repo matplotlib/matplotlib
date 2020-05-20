@@ -22,9 +22,6 @@ import logging
 import numpy as np
 
 import matplotlib.cbook as cbook
-# import matplotlib._layoutgrid as layoutgrid
-#from matplotlib.transforms import (Bbox, TransformedBbox, ScaledTranslation,
-#                                   IdentityTransform)
 
 _log = logging.getLogger(__name__)
 
@@ -73,13 +70,15 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         # so doing twice makes things work OK.
 
         # make margins for all the axes and subpanels in the
-        # figure.
+        # figure.  Add margins for colorbars...
         _make_layout_margins(fig, renderer, h_pad=h_pad, w_pad=w_pad,
                              hspace=hspace, wspace=wspace)
 
         _make_margin_suptitles(fig, renderer, h_pad=h_pad, w_pad=w_pad)
 
-        # goofy thing
+        # if a layout is such that a columns (or rows) margin has no
+        # constraints, we need to make all such instances in the grid
+        # match in margin size.
         _match_submerged_margins(fig)
 
         # update all the variables in the layout.
@@ -125,6 +124,8 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
     For each axes, make a margin between the *pos* layoutbox and the
     *axes* layoutbox be a minimum size that can accommodate the
     decorations on the axis.
+
+    Then make room for colorbars.
     """
     for panel in fig.panels:  # recursively make child panel margins
         _make_layout_margins(panel, renderer, w_pad=w_pad, h_pad=h_pad,
@@ -171,20 +172,20 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                 if cbp_cspan.stop == ss.colspan.stop:
                     # only increase if the colorbar is on the right edge
                     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
-                    margin[loc] += cbbbox.width + w_pad * 2
+                    margin['right'] += cbbbox.width + w_pad * 2
             elif loc == 'left':
                 if cbp_cspan.start == ss.colspan.start:
                     # only increase if the colorbar is on the left edge
                     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
-                    margin[loc] += cbbbox.width + w_pad * 2
+                    margin['left'] += cbbbox.width + w_pad * 2
             elif loc == 'top':
                 if cbp_rspan.start == ss.rowspan.start:
                     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
-                    margin[loc] += cbbbox.height + h_pad * 2
+                    margin['top'] += cbbbox.height + h_pad * 2
             else:
                 if cbp_rspan.stop == ss.rowspan.stop:
                     cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
-                    margin[loc] += cbbbox.height + h_pad * 2
+                    margin['bottom'] += cbbbox.height + h_pad * 2
 
         # pass the new margins down to the layout grid for the solution...
         gs._layoutgrid.edit_margin_min('left', margin['left'],
@@ -205,6 +206,7 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
         _make_margin_suptitles(panel, renderer, w_pad=w_pad, h_pad=h_pad)
     invTransFig = fig.transPanel.inverted().transform_bbox
     pan2fig = fig.transPanel + fig.transFigure.inverted()
+
     w_pad, h_pad = pan2fig.transform((w_pad, h_pad))
 
     if fig._suptitle is not None and fig._suptitle.get_in_layout():
@@ -323,7 +325,22 @@ def _get_cb_parent_spans(cbax):
 
 
 def _get_pos_and_bbox(ax, renderer):
+    """
+    Get the position and the bbox for the axes.
 
+    Parameters
+    ----------
+    ax
+    renderer
+
+    Returns
+    -------
+    pos : Bbox
+        position in figure co-oridnates
+    bbox : Bbox
+        tight bounding box in figure co-ordinates.
+
+    """
     fig = ax.figure
     invTransFig = fig.transFigure.inverted()
 
@@ -390,6 +407,23 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
 
 def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
                          wspace=0, oldw=0, oldh=0):
+
+    """
+    Place the colorbar in its new place.
+
+    Parameters
+    ----------
+    cbax : Axes for the colorbar
+
+    renderer :
+    w_pad, h_pad : float
+        width and height padding (in fraction of figure)
+    hspace, wspace : float
+        width and height padding as fraction of figure size divided by
+        number of  columns or rows
+    oldw, oldh : float
+        offset the colorbar needs to be pushed to.
+    """
 
     parents = cbax._colorbar_info['parents']
     gs = parents[0].get_gridspec()
