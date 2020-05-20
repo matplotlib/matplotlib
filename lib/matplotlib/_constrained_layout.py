@@ -21,7 +21,6 @@ import logging
 
 import numpy as np
 
-import matplotlib.figure as mfigure
 import matplotlib.cbook as cbook
 import matplotlib._layoutgrid as layoutgrid
 from matplotlib.transforms import (Bbox, TransformedBbox, ScaledTranslation,
