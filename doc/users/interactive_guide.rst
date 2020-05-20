@@ -75,13 +75,13 @@ Command Prompt Integration
 ==========================
 
 So far, so good.  We have the REPL (like the IPython terminal) that
-lets us interactively send things code to the interpreter and get
-results back.  We also have the GUI toolkit that runs an event loop
-waiting for user input and lets us register functions to be run when
-that happens.  However, if we want to do both we have a problem: the
-prompt and the GUI event loop are both infinite loops that each think
-*they* are in charge!  In order for both the prompt and the GUI windows
-to be responsive we need a method to allow the loops to 'timeshare' :
+lets us interactively send code to the interpreter and get results
+back.  We also have the GUI toolkit that runs an event loop waiting
+for user input and lets us register functions to be run when that
+happens.  However, if we want to do both we have a problem: the prompt
+and the GUI event loop are both infinite loops that each think *they*
+are in charge!  In order for both the prompt and the GUI windows to be
+responsive we need a method to allow the loops to 'timeshare' :
 
 1. let the GUI main loop block the python process when you want
    interactive windows

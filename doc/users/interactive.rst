@@ -146,34 +146,45 @@ Interactive mode controls:
 
 - whether created figures are automatically shown
 - whether changes to artists automatically trigger re-drawing existing figures
-- whether `.pyplot.show` blocks or not
+- whether `.pyplot.show` returns immediately or after all of the
+  figures have been closed when given no arguments
 
 
 If in interactive mode, then:
 
 - newly created figures will be shown immediately
 - figures will automatically redraw on change
-- pyplot.show will not block by default
+- pyplot.show will return immediately by default
 
 If not in interactive mode then:
 
 - newly created figures and changes to figures will
   not be reflected until explicitly asked to be
-- pyplot.show will block by default
+- pyplot.show runs the GUI event loop and does not return until all of
+  the plot windows are closed
 
 
 If you are in non-interactive mode (or created figures while in
 non-interactive mode) you may need to explicitly call `.pyplot.show`
 to bring the windows onto your screen.  If you only want to run the
 GUI event loop for a fixed amount of time you can use `.pyplot.pause`.
+This will both block the progress of your code (as if you had called
+`time.sleep`), raise ensure the current window is shown and if needed
+re-drawn, and run the GUI event loop (so the windows are "live" for
+intrection) for the specified period of time.
 
-Being in interactive mode is orthogonal to the GUI event loop being
-integrated with your command prompt.  If you have the GUI event loop
-integrated with your prompt, then shown figures will be "live" while
-the prompt is waiting for input, if it is not integrated then your
-figures will only be "live" when the GUI event loop is running (via
-`.pyplot.show`, `.pyplot.pause`, or explicitly starting the GUI main
-loop).
+Being in "interactive mode" is orthogonal to the GUI event loop being
+integrated with your command prompt.  If you use `pyplot.ion`, but
+have not arrange for the event loop integration your figures will
+appear but will not be "live" while the prompt is waiting for input.
+You will not be able to pan/zoom and the figure may not even render
+(the window might appear black, transparent, or as a snapshot the
+desktop under it).  Conversely, if you configure the event loop
+integration displayed figures will be "live" while waiting for input
+at the prompt independent of pyplot's "interactive mode".  In either
+case, the figures will be "live" if you use
+``pyplot.show(block=True)``, `.pyplot.pause`, or run the the GUI main
+loop in some other way.
 
 
 .. warning::
@@ -276,8 +287,7 @@ If you only need to use the classic notebook you can use
   %matplotlib notebook
 
 which uses the `.backend_nbagg` backend which ships with Matplotlib.
-However nbagg does not work in Jupyter Lab due to changes in the front
-end.
+However nbagg does not work in Jupyter Lab.
 
 GUIs + jupyter
 ~~~~~~~~~~~~~~
@@ -295,5 +305,5 @@ the figure (if it does not raise an exception outright).
 PyCharm, Spyder, and VSCode
 ---------------------------
 
-Many IDEs have built-in integration with Matplotlib, please consult its
+Many IDEs have built-in integration with Matplotlib, please consult their
 documentation for configuration details.
