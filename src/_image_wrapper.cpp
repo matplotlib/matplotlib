@@ -105,6 +105,19 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
 }
 
 
+template<class T>
+static void
+resample(PyArrayObject* input, PyArrayObject* output, resample_params_t params)
+{
+    Py_BEGIN_ALLOW_THREADS
+    resample(
+        (T*)PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
+        (T*)PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
+        params);
+    Py_END_ALLOW_THREADS
+}
+
+
 static PyObject *
 image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 {
@@ -216,56 +229,20 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         }
 
         if (PyArray_DIM(input_array, 2) == 4) {
-            switch(PyArray_TYPE(input_array)) {
-            case NPY_BYTE:
+            switch (PyArray_TYPE(input_array)) {
             case NPY_UINT8:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba8 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba8 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+            case NPY_INT8:
+                resample<agg::rgba8>(input_array, output_array, params);
                 break;
             case NPY_UINT16:
             case NPY_INT16:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba16 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba16 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba16>(input_array, output_array, params);
                 break;
             case NPY_FLOAT32:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba32 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba32 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba32>(input_array, output_array, params);
                 break;
             case NPY_FLOAT64:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba64 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba64 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba64>(input_array, output_array, params);
                 break;
             default:
                 PyErr_SetString(
@@ -284,54 +261,18 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     } else { // NDIM == 2
         switch (PyArray_TYPE(input_array)) {
         case NPY_DOUBLE:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (double *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (double *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<double>(input_array, output_array, params);
             break;
         case NPY_FLOAT:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (float *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (float *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<float>(input_array, output_array, params);
             break;
         case NPY_UINT8:
-        case NPY_BYTE:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (unsigned char *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (unsigned char *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+        case NPY_INT8:
+            resample<unsigned char>(input_array, output_array, params);
             break;
         case NPY_UINT16:
         case NPY_INT16:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (unsigned short *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (unsigned short *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<unsigned short>(input_array, output_array, params);
             break;
         default:
             PyErr_SetString(PyExc_ValueError, "Unsupported dtype");
