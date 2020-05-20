@@ -54,9 +54,9 @@ int convert_from_method(PyObject *obj, const char *name, converter func, void *p
 {
     PyObject *value;
 
-    value = PyObject_CallMethod(obj, (char *)name, NULL);
+    value = PyObject_CallMethod(obj, name, NULL);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }
@@ -76,9 +76,9 @@ int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
 {
     PyObject *value;
 
-    value = PyObject_GetAttrString(obj, (char *)name);
+    value = PyObject_GetAttrString(obj, name);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }

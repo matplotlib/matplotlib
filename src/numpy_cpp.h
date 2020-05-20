@@ -406,7 +406,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         Py_XINCREF(arr);
         m_shape = PyArray_DIMS(m_arr);
         m_strides = PyArray_STRIDES(m_arr);
-        m_data = (char *)PyArray_BYTES(m_arr);
+        m_data = PyArray_BYTES(m_arr);
     }
 
     array_view(npy_intp shape[ND]) : m_arr(NULL), m_shape(NULL), m_strides(NULL), m_data(NULL)
@@ -486,7 +486,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             m_arr = tmp;
             m_shape = PyArray_DIMS(m_arr);
             m_strides = PyArray_STRIDES(m_arr);
-            m_data = (char *)PyArray_BYTES(tmp);
+            m_data = PyArray_BYTES(tmp);
         }
 
         return true;

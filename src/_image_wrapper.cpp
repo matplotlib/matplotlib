@@ -67,8 +67,7 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
     out_dims[0] = dims[0] * dims[1];
     out_dims[1] = 2;
 
-    py_inverse = PyObject_CallMethod(
-        py_affine, (char *)"inverted", (char *)"", NULL);
+    py_inverse = PyObject_CallMethod(py_affine, "inverted", NULL);
     if (py_inverse == NULL) {
         return NULL;
     }
@@ -83,10 +82,8 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
         }
     }
 
-    PyObject *output_mesh =
-        PyObject_CallMethod(
-            py_inverse, (char *)"transform", (char *)"O",
-            (char *)input_mesh.pyobj_steal(), NULL);
+    PyObject *output_mesh = PyObject_CallMethod(
+        py_inverse, "transform", "O", input_mesh.pyobj_steal());
 
     Py_DECREF(py_inverse);
 

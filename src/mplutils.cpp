@@ -10,7 +10,7 @@ int add_dict_int(PyObject *dict, const char *key, long val)
         return 1;
     }
 
-    if (PyDict_SetItemString(dict, (char *)key, valobj)) {
+    if (PyDict_SetItemString(dict, key, valobj)) {
         Py_DECREF(valobj);
         return 1;
     }
