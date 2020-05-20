@@ -273,7 +273,7 @@ class PanelBase(Artist):
         self.stale = True
 
     def _get_draw_artists(self, renderer):
-        """ also runs apply_aspect"""
+        """Also runs apply_aspect"""
         artists = self.get_children()
 
         for sfig in self.panels:

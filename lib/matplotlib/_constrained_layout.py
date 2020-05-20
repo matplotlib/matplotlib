@@ -28,7 +28,7 @@ General idea:
 First, a figure has a gridspec that divides the figure into nrows and ncols,
 with heights and widths set by ``height_ratios`` and ``width_ratios``,
 often just set to 1 for an equal grid.
- 
+
 Subplotspecs that are derived from this gridspec can contain either a
 ``SubPanel``, a ``GridSpecFromSubplotSpec``, or an axes.  The ``SubPanel`` and
 ``GridSpecFromSubplotSpec`` are dealt with recursively and each contain an
@@ -47,7 +47,7 @@ max width of the decorators on each axes that has decorators in that margin.
 For instance, a normal axes would have a left margin that includes the
 left ticklabels, and the ylabel if it exists.  The right margin may include a
 colorbar, the bottom margin the xaxis decorations, and the top margin the
-title.  
+title.
 
 With these constraints, the solver then finds appropriate bounds for the
 columns and rows.  Its possible that the margins take up the whole figure,

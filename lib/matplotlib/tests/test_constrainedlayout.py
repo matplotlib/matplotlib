@@ -176,6 +176,7 @@ def test_constrained_layout11():
     ax = fig.add_subplot(gsl[0])
     example_plot(ax, fontsize=9)
 
+
 @image_comparison(['constrained_layout11subpanel.png'],
                   style='default')
 def test_constrained_layout11subpanel():
