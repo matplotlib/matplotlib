@@ -441,7 +441,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return *this;
     }
 
-    int set(PyObject *arr, bool contiguous = false)
+    bool set(PyObject *arr, bool contiguous = false)
     {
         PyArrayObject *tmp;
 
@@ -458,7 +458,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                 tmp = (PyArrayObject *)PyArray_FromObject(arr, type_num_of<T>::value, 0, ND);
             }
             if (tmp == NULL) {
-                return 0;
+                return false;
             }
 
             if (PyArray_NDIM(tmp) == 0 || PyArray_DIM(tmp, 0) == 0) {
@@ -469,7 +469,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                 m_strides = zeros;
                 if (PyArray_NDIM(tmp) == 0 && ND == 0) {
                     m_arr = tmp;
-                    return 1;
+                    return true;
                 }
             }
             if (PyArray_NDIM(tmp) != ND) {
@@ -478,7 +478,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                              ND,
                              PyArray_NDIM(tmp));
                 Py_DECREF(tmp);
-                return 0;
+                return false;
             }
 
             /* Copy some of the data to the view object for faster access */
@@ -489,7 +489,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             m_data = (char *)PyArray_BYTES(tmp);
         }
 
-        return 1;
+        return true;
     }
 
     npy_intp dim(size_t i) const
