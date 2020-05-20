@@ -266,16 +266,19 @@ class LayoutGrid:
         """
         Change the size of the margin for one cell.
 
-        Parameters:
-        -----------
-        todo: string (one of 'left', 'right', 'bottom', 'top')
+        Parameters
+        ----------
+        todo : string (one of 'left', 'right', 'bottom', 'top')
             margin to alter.
-        width: float
+
+        width : float
             Size of the margin.  If it is larger than the existing minimum it
             updates the margin size. Fraction of figure size.
-        col: int
+
+        col : int
             Cell column or row to edit.
         """
+
         self.solver.suggestValue(self.margins[todo][col], width)
         self.margin_vals[todo][col] = width
 
@@ -283,17 +286,20 @@ class LayoutGrid:
         """
         Change the minimum size of the margin for one cell.
 
-        Parameters:
-        -----------
-        todo: string (one of 'left', 'right', 'bottom', 'top')
+        Parameters
+        ----------
+        todo : string (one of 'left', 'right', 'bottom', 'top')
             margin to alter.
-        width: float
+
+        width : float
             Minimum size of the margin .  If it is larger than the
             existig minimum it updates the margin size. Fraction of
             figure size.
+
         col: int
             Cell column or row to edit.
         """
+
         if width > self.margin_vals[todo][col]:
             self.edit_margin(todo, width, col)
 
@@ -301,13 +307,15 @@ class LayoutGrid:
         """
         Change the size of all the margin of all the cells in the layout grid.
 
-        Parameters:
-        -----------
-        todo: string (one of 'left', 'right', 'bottom', 'top')
+        Parameters
+        ----------
+        todo : string (one of 'left', 'right', 'bottom', 'top')
             margin to alter.
-        width: float
+
+        width : float
             Size to set the margins.  Fraction of figure size.
         """
+
         for i in range(len(self.margin_vals[todo])):
             self.edit_margin(todo, width, i)
 
@@ -316,15 +324,17 @@ class LayoutGrid:
         Change the minimum size of all the margin of all
         the cells in the layout grid.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         todo: string (one of 'left', 'right', 'bottom', 'top')
             margin to alter.
+
         width: float
             Minimum size of the margin .  If it is larger than the
             existig minimum it updates the margin size. Fraction of
             figure size.
         """
+        
         for i in range(len(self.margin_vals[todo])):
             self.edit_margin_min(todo, width, i)
 
