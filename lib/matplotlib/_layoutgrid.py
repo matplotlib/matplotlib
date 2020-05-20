@@ -84,12 +84,10 @@ class LayoutGrid:
 
         self.fixed_margins = fixed_margins
         self.margins = {}
-        self.margins_min = {}
         self.margin_vals = {}
         # all the layout boxes in each row share the same top/bottom margins
         for todo in ['left', 'right']:
             self.margins[todo] = np.empty((ncols), dtype=object)
-            self.margins_min[todo] = np.empty((ncols), dtype=object)
             self.margin_vals[todo] = np.zeros(ncols)
 
         # these are actually all slaves to the parent and the
@@ -101,9 +99,8 @@ class LayoutGrid:
 
         for i in range(self.ncols):
             for todo in ['left', 'right']:
-                self.margins_min[todo][i] = Variable(f'{sn}margins_min[{todo}][{i}]')
-                sol.addEditVariable(self.margins_min[todo][i], 'strong')
                 self.margins[todo][i] = Variable(f'{sn}margins[{todo}][{i}]')
+                sol.addEditVariable(self.margins[todo][i], 'strong')
             self.rights[i] = Variable(f'{sn}rights[{i}]')
             self.lefts[i] = Variable(f'{sn}lefts[{i}]')
             self.widths[i] = Variable(f'{sn}widths[{i}]')
@@ -111,7 +108,6 @@ class LayoutGrid:
 
         for todo in ['bottom', 'top']:
             self.margins[todo] = np.empty((nrows), dtype=object)
-            self.margins_min[todo] = np.empty((nrows), dtype=object)
             self.margin_vals[todo] = np.zeros(nrows)
 
         self.heights = np.empty((nrows), dtype=object)
@@ -121,9 +117,8 @@ class LayoutGrid:
 
         for i in range(self.nrows):
             for todo in ['bottom', 'top']:
-                self.margins_min[todo][i] = Variable(f'{sn}margins_min[{todo}][{i}]')
                 self.margins[todo][i] = Variable(f'{sn}margins[{todo}][{i}]')
-                sol.addEditVariable(self.margins_min[todo][i], 'strong')
+                sol.addEditVariable(self.margins[todo][i], 'strong')
             self.bottoms[i] = Variable(f'{sn}bottoms[{i}]')
             self.tops[i] = Variable(f'{sn}tops[{i}]')
             self.inner_heights[i] = Variable(f'{sn}inner_heights[{i}]')
@@ -149,9 +144,7 @@ class LayoutGrid:
                        f'innerW{self.inner_widths[j].value():1.3f}, ' \
                        f'innerH{self.inner_heights[i].value():1.3f}, ' \
                        f'ML{self.margins["left"][j].value():1.3f}, ' \
-                       f'MR{self.margins["right"][j].value():1.3f}, ' \
-                       f'MML{self.margins_min["left"][j].value():1.3f}, ' \
-                       f'MMR{self.margins_min["right"][j].value():1.3f}\n'
+                       f'MR{self.margins["right"][j].value():1.3f}, \n'
         return str
 
     def reset_margins(self):
@@ -195,16 +188,6 @@ class LayoutGrid:
                         self.lefts[i] - self.margins['left'][i])]
             for c in hc:
                 self.solver.addConstraint(c | 'required')
-            if True or self.fixed_margins:
-                hc = [self.margins['left'][i] == self.margins_min['left'][i],
-                      self.margins['right'][i] == self.margins_min['right'][i],
-                     ]
-            else:
-                hc = [self.margins['left'][i] >= self.margins_min['left'][i],
-                      self.margins['right'][i] >= self.margins_min['right'][i],
-                    ]
-            for c in hc:
-                self.solver.addConstraint(c | 'required')
 
         for i in range(self.nrows):
             hc = [self.heights[i] == self.tops[i] - self.bottoms[i],
@@ -213,20 +196,7 @@ class LayoutGrid:
                   self.inner_heights[i] == (
                         self.tops[i] - self.margins['top'][i] -
                         self.bottoms[i] - self.margins['bottom'][i]),
-                  self.margins['top'][i] >= self.margins_min['top'][i],
-                  self.margins['bottom'][i] >= self.margins_min['bottom'][i]
                   ]
-            for c in hc:
-                self.solver.addConstraint(c | 'required')
-
-            if True or self.fixed_margins:
-                hc = [self.margins['bottom'][i] == self.margins_min['bottom'][i],
-                      self.margins['top'][i] == self.margins_min['top'][i],
-                     ]
-            else:
-                hc = [self.margins['bottom'][i] >= self.margins_min['bottom'][i],
-                      self.margins['top'][i] >= self.margins_min['top'][i],
-                    ]
             for c in hc:
                 self.solver.addConstraint(c | 'required')
 
@@ -268,7 +238,7 @@ class LayoutGrid:
     # contain things of a fixes size.
     def edit_margin(self, todo, width, col):
         "update the margin at col by width"
-        self.solver.suggestValue(self.margins_min[todo][col], width)
+        self.solver.suggestValue(self.margins[todo][col], width)
         self.margin_vals[todo][col] = width
 
     def edit_margin_min(self, todo, width, col=0):
