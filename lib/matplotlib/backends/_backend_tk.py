@@ -538,8 +538,12 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     def set_cursor(self, cursor):
         window = self.canvas.get_tk_widget().master
-        window.configure(cursor=cursord[cursor])
-        window.update_idletasks()
+        try:
+            window.configure(cursor=cursord[cursor])
+        except tkinter.TclError:
+            pass
+        else:
+            window.update_idletasks()
 
     def _Button(self, text, file, command, extension='.gif'):
         img_file = str(cbook._get_data_path('images', file + extension))
