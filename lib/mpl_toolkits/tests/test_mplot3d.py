@@ -928,10 +928,9 @@ def test_errorbar3d_errorevery():
     ax = fig.gca(projection='3d')
 
     estep = 15
-    zuplims = [True if (not i % estep and i // estep % 3 == 0)
-               else False for i in range(t.size)]
-    zlolims = [True if (not i % estep and i // estep % 3 == 2)
-               else False for i in range(t.size)]
+    i = np.arange(t.size)
+    zuplims = (i % estep == 0) & (i // estep % 3 == 0)
+    zlolims = (i % estep == 0) & (i // estep % 3 == 2)
 
     ax.errorbar(x, y, z, 0.2, zuplims=zuplims, zlolims=zlolims,
                 errorevery=estep)
