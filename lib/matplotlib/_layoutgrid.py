@@ -1,18 +1,17 @@
 """
+A layoutgrid is a nrows by ncols set of boxes, meant to be used by
+`._constrained_layout`, each box is aalagous to a subplotspec element of
+a gridspec.
 
-Conventions:
+Each box is defined by left[ncols], right[ncols], bottom[nrow] and top[nrows],
+and by an editable margin for each side that gets its value set by
+the size of ticklabels, titles, etc on each axes that is in the figure.  The
+"inner" widths and heights of these boxes are then constrained to
+be the same (relative the values of `width_ratios[ncols]` and
+`height_ratios[nrows]`).
 
-"constrain_x" means to constrain the variable with either
-another kiwisolver variable, or a float.  i.e. `constrain_width(0.2)`
-will set a constraint that the width has to be 0.2 and this constraint is
-permanent - i.e. it will not be removed if it becomes obsolete.
-
-"edit_x" means to set x to a value (just a float), and that this value can
-change.  So `edit_width(0.2)` will set width to be 0.2, but `edit_width(0.3)`
-will allow it to change to 0.3 later.  Note that these values are still just
-"suggestions" in `kiwisolver` parlance, and could be over-ridden by
-other constrains.
-
+The layoutgrid is then constrained to be contained within a parent
+layoutgrid, its column(s) and row(s) specified when it is created.
 """
 
 import itertools
@@ -43,9 +42,10 @@ def get_renderer(fig):
 
     return renderer
 
+
 class LayoutGrid:
     """
-    Basic rectangle representation using kiwi solver variables
+    Analagous to a gridspec, and contained in another LayoutGrid.
     """
 
     def __init__(self, parent=None, parent_pos=(0, 0),
@@ -74,9 +74,6 @@ class LayoutGrid:
             self.parent = parent
             parent.add_child(self, *parent_pos)
             self.solver = self.parent.solver
-            # parent wants to know about this child!
-
-        sol = self.solver
 
         # keep track of artist associated w/ this layout.  Can be none
         self.artists = np.empty((nrows, ncols), dtype=object)
@@ -85,18 +82,23 @@ class LayoutGrid:
         self.fixed_margins = fixed_margins
         self.margins = {}
         self.margin_vals = {}
-        # all the layout boxes in each row share the same top/bottom margins
+        # all the boxes in each column share the same left/right margins:
         for todo in ['left', 'right']:
             self.margins[todo] = np.empty((ncols), dtype=object)
+            # track the value so we can change only if a margin is larger
+            # than the current value
             self.margin_vals[todo] = np.zeros(ncols)
 
-        # these are actually all slaves to the parent and the
-        # margins, but its useful to define them all
+        # These are redundant, but make life easier if
+        # we define them all.  All that is really
+        # needed is left/right, margin['left'], and margin['right']
         self.widths = np.empty((ncols), dtype=object)
         self.lefts = np.empty((ncols), dtype=object)
         self.rights = np.empty((ncols), dtype=object)
         self.inner_widths = np.empty((ncols), dtype=object)
 
+        # make the variables:
+        sol = self.solver
         for i in range(self.ncols):
             for todo in ['left', 'right']:
                 self.margins[todo][i] = Variable(f'{sn}margins[{todo}][{i}]')
@@ -148,63 +150,51 @@ class LayoutGrid:
         return str
 
     def reset_margins(self):
+        """
+        Reset all the margins to zero.  Must do this after changing
+        figure size, for sinatnce, because the relative size of the
+        axes labels etc changes.
+        """
         for todo in ['left', 'right', 'bottom', 'top']:
             self.edit_margins(todo, 0.0)
 
     def add_constraints(self):
-        # define relation ships between things thing width and right and left
+        # define self-consistent constraints
         self.hard_constraints()
-        # self.soft_constraints()
+        # define relationship with parent layoutgrid:
         self.parent_constrain()
-        #        self.solver.dump()
+        # define relative widths of the grid cells to each other
+        # and stack horizontally and vertically.
         self.grid_constraints()
-        # sol.updateVariables()
-
-    def grid_constraints(self):
-        w0 = self.inner_widths[0] / self.width_ratios[0]
-        # from left to right
-        for i in range(1, self.ncols):
-            w = self.inner_widths[i]
-            c = (w == w0 * self.width_ratios[i])
-            self.solver.addConstraint(c | 'weak')
-            c = (self.rights[i-1] == self.lefts[i])
-            self.solver.addConstraint(c | 'weak')
-        h0 = self.inner_heights[0] / self.height_ratios[0]
-        # from top to bottom:
-        for i in range(1, self.nrows):
-            h = self.inner_heights[i]
-            c = (h == h0 * self.height_ratios[i])
-            self.solver.addConstraint(c | 'weak')
-            c = (self.bottoms[i-1] == self.tops[i])
-            self.solver.addConstraint(c | 'weak')
 
     def hard_constraints(self):
+        """
+        These are the redundant constraints, plus ones that make the
+        rest of the code easier.
+        """
         for i in range(self.ncols):
-            hc = [self.widths[i] == self.rights[i] - self.lefts[i],
-                  self.widths[i] >= 0,
-                  self.inner_widths[i] >= 0,
-                  self.inner_widths[i] == (
-                          self.rights[i] - self.margins['right'][i] -
-                        self.lefts[i] - self.margins['left'][i])]
+            hc = [self.rights[i] >= self.lefts[i],
+                  (self.rights[i] - self.margins['right'][i] >=
+                    self.lefts[i] - self.margins['left'][i])]
             for c in hc:
                 self.solver.addConstraint(c | 'required')
 
         for i in range(self.nrows):
             hc = [self.heights[i] == self.tops[i] - self.bottoms[i],
-                  self.heights[i] >= 0,
-                  self.inner_heights[i] >= 0,
-                  self.inner_heights[i] == (
-                        self.tops[i] - self.margins['top'][i] -
-                        self.bottoms[i] - self.margins['bottom'][i]),
-                  ]
+                  self.tops[i] >= self.bottoms[i],
+                  (self.tops[i] - self.margins['top'][i] >=
+                    self.bottoms[i] - self.margins['bottom'][i])]
             for c in hc:
                 self.solver.addConstraint(c | 'required')
-
 
     def add_child(self, child, i=0, j=0):
         self.children[i, j] = child
 
     def parent_constrain(self):
+        # constraints that are due to the parent...
+        # i.e. the first column's left is equal to the
+        # parent's left, the last column right equal to the
+        # parent's right...
         parent = self.parent
         if self.parent is None:
             hc = [self.lefts[0] == 0,
@@ -222,6 +212,8 @@ class LayoutGrid:
             top = parent.tops[rows[0]]
             bottom = parent.bottoms[rows[-1]]
             if self.parent_inner:
+                # the layout grid is contained inside the inner
+                # grid of the parent.
                 left += parent.margins['left'][cols[0]]
                 right -= parent.margins['right'][cols[-1]]
                 top -= parent.margins['top'][rows[0]]
@@ -234,23 +226,105 @@ class LayoutGrid:
         for c in hc:
             self.solver.addConstraint(c | 'required')
 
+    def grid_constraints(self):
+        # constrain the ratio of the inner part of the grids
+        # to be the same (relative to width_ratios)
+
+        # constrain widths:
+        iw = self.rights[0] - self.margins['right'][0]
+        iw = iw - self.lefts[0] - self.margins['left'][0]
+        w0 = iw / self.width_ratios[0]
+        # from left to right
+        for i in range(1, self.ncols):
+            iw = self.rights[i] - self.margins['right'][i]
+            iw = iw - self.lefts[i] - self.margins['left'][i]
+            w = iw
+            c = (w == w0 * self.width_ratios[i])
+            self.solver.addConstraint(c | 'strong')
+            # constrain the grid cells to be directly next to each other.
+            c = (self.rights[i - 1] == self.lefts[i])
+            self.solver.addConstraint(c | 'strong')
+
+        # constrain heights:
+        ih = self.tops[0] - self.margins['top'][0]
+        ih = ih - self.bottoms[0] - self.margins['bottom'][0]
+        h0 = ih / self.height_ratios[0]
+        # from top to bottom:
+        for i in range(1, self.nrows):
+            ih = self.tops[i] - self.margins['top'][i]
+            h = ih - self.bottoms[i] - self.margins['bottom'][i]
+            c = (h == h0 * self.height_ratios[i])
+            self.solver.addConstraint(c | 'strong')
+            # constrain the grid cells to be directly above each other.
+            c = (self.bottoms[i - 1] == self.tops[i])
+            self.solver.addConstraint(c | 'strong')
+
     # Margin editing:  The margins are variable and meant to
-    # contain things of a fixes size.
+    # contain things of a fixes size like axes labels, tick labels, titles
+    # etc
     def edit_margin(self, todo, width, col):
-        "update the margin at col by width"
+        """
+        Change the size of the margin for one cell.
+
+        Parameters:
+        -----------
+        todo: string (one of 'left', 'right', 'bottom', 'top')
+            margin to alter.
+        width: float
+            Size of the margin.  If it is larger than the existing minimum it
+            updates the margin size. Fraction of figure size.
+        col: int
+            Cell column or row to edit.
+        """
         self.solver.suggestValue(self.margins[todo][col], width)
         self.margin_vals[todo][col] = width
 
     def edit_margin_min(self, todo, width, col=0):
-        "update the margin at col by width is width is greater than margin"
+        """
+        Change the minimum size of the margin for one cell.
+
+        Parameters:
+        -----------
+        todo: string (one of 'left', 'right', 'bottom', 'top')
+            margin to alter.
+        width: float
+            Minimum size of the margin .  If it is larger than the
+            existig minimum it updates the margin size. Fraction of
+            figure size.
+        col: int
+            Cell column or row to edit.
+        """
         if width > self.margin_vals[todo][col]:
             self.edit_margin(todo, width, col)
 
     def edit_margins(self, todo, width):
+        """
+        Change the size of all the margin of all the cells in the layout grid.
+
+        Parameters:
+        -----------
+        todo: string (one of 'left', 'right', 'bottom', 'top')
+            margin to alter.
+        width: float
+            Size to set the margins.  Fraction of figure size.
+        """
         for i in range(len(self.margin_vals[todo])):
             self.edit_margin(todo, width, i)
 
     def edit_margins_min(self, todo, width):
+        """
+        Change the minimum size of all the margin of all
+        the cells in the layout grid.
+
+        Parameters:
+        -----------
+        todo: string (one of 'left', 'right', 'bottom', 'top')
+            margin to alter.
+        width: float
+            Minimum size of the margin .  If it is larger than the
+            existig minimum it updates the margin size. Fraction of
+            figure size.
+        """
         for i in range(len(self.margin_vals[todo])):
             self.edit_margin_min(todo, width, i)
 
@@ -258,19 +332,11 @@ class LayoutGrid:
         "Return the margin at this position"
         return self.margin_vals[todo][col]
 
-    def match_width(self, col1, col2):
-        # right-left
-        w1 = (self.rights[col1.stop-1] - self.margins['right'][col1.stop-1] -
-              (self.lefts[col1.start] + self.margins['left'][col1.start]))
-        w2 = (self.rights[col2.stop-1] - self.margins['right'][col2.stop-1] -
-              (self.lefts[col2.start] + self.margins['left'][col2.start]))
-
-        # TODO: fix width rations
-        c = (w1 == w2)
-        # self.solver.addConstraint(c | 'strong')
-
-
     def get_outer_bbox(self, rows=[0], cols=[0]):
+        """
+        Return the outer bounding box of the subplot specs
+        given by rows and cols.  rows and cols can be spans.
+        """
         rows = np.atleast_1d(rows)
         cols = np.atleast_1d(cols)
 
@@ -282,6 +348,10 @@ class LayoutGrid:
         return bbox
 
     def get_inner_bbox(self, rows=[0], cols=[0]):
+        """
+        Return the inner bounding box of the subplot specs
+        given by rows and cols.  rows and cols can be spans.
+        """
         rows = np.atleast_1d(rows)
         cols = np.atleast_1d(cols)
 
@@ -297,6 +367,9 @@ class LayoutGrid:
         return bbox
 
     def update_variables(self):
+        """
+        Update the variables for the solver attached to this layoutgrid.
+        """
         self.solver.updateVariables()
 
 _layoutboxobjnum = itertools.count()
@@ -333,17 +406,6 @@ def nonechildren(lb):
         nonechildren(child)
     lb = None
 
-
-def print_tree(lb):
-    """Print the tree of layoutboxes."""
-
-    if lb.parent is None:
-        print('LayoutBox Tree\n')
-        print('==============\n')
-        print_children(lb)
-        print('\n')
-    else:
-        print_tree(lb.parent)
 
 def plot_children(fig, lg, level=0, printit=False):
     """Simple plotting to show where boxes are."""
