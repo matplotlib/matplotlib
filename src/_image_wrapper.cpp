@@ -120,7 +120,12 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     PyArrayObject *output_array = NULL;
     PyArrayObject *transform_mesh_array = NULL;
 
+    params.interpolation = NEAREST;
     params.transform_mesh = NULL;
+    params.resample = false;
+    params.norm = false;
+    params.radius = 1.0;
+    params.alpha = 1.0;
 
     const char *kwlist[] = {
         "input_array", "output_array", "transform", "interpolation",
