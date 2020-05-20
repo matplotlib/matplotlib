@@ -702,7 +702,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         The 'WXAgg' backend sets origin accordingly.
         """
         DEBUG_MSG("gui_repaint()", 1, self)
-        if self.IsShownOnScreen():
+        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
+        # RuntimeError if doing things after window is closed.
+        if self and self.IsShownOnScreen():
             if not drawDC:
                 # not called from OnPaint use a ClientDC
                 drawDC = wx.ClientDC(self)
@@ -978,14 +980,11 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
         # Now that we have rendered into the bitmap, save it to the appropriate
         # file type and clean up.
-        if isinstance(filename, str):
-            if not image.SaveFile(filename, filetype):
-                raise RuntimeError(f'Could not save figure to {filename}')
-        elif cbook.is_writable_file_like(filename):
-            if not isinstance(image, wx.Image):
-                image = image.ConvertToImage()
-            if not image.SaveStream(filename, filetype):
-                raise RuntimeError(f'Could not save figure to {filename}')
+        if (cbook.is_writable_file_like(filename) and
+                not isinstance(image, wx.Image)):
+            image = image.ConvertToImage()
+        if not image.SaveFile(filename, filetype):
+            raise RuntimeError(f'Could not save figure to {filename}')
 
         # Restore everything to normal
         self.bitmap = origBitmap
@@ -997,7 +996,10 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         # otherwise.
         if self._isDrawn:
             self.draw()
-        self.Refresh()
+        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
+        # RuntimeError if doing things after window is closed.
+        if self:
+            self.Refresh()
 
 
 ########################################################################
