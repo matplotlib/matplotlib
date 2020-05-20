@@ -151,9 +151,18 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         goto error;
     }
 
-    output_array = (PyArrayObject *)PyArray_FromAny(
-        py_output_array, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);
-    if (output_array == NULL) {
+    if (!PyArray_Check(py_output_array)) {
+        PyErr_SetString(PyExc_ValueError, "output array must be a NumPy array");
+        goto error;
+    }
+    output_array = (PyArrayObject *)py_output_array;
+    if (!PyArray_IS_C_CONTIGUOUS(output_array)) {
+        PyErr_SetString(PyExc_ValueError, "output array must be C-contiguous");
+        goto error;
+    }
+    if (PyArray_NDIM(output_array) < 2 || PyArray_NDIM(output_array) > 3) {
+        PyErr_SetString(PyExc_ValueError,
+                        "output array must be 2- or 3-dimensional");
         goto error;
     }
 
@@ -335,11 +344,10 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 
     Py_DECREF(input_array);
     Py_XDECREF(transform_mesh_array);
-    return (PyObject *)output_array;
+    Py_RETURN_NONE;
 
  error:
     Py_XDECREF(input_array);
-    Py_XDECREF(output_array);
     Py_XDECREF(transform_mesh_array);
     return NULL;
 }
