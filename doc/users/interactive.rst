@@ -169,19 +169,19 @@ non-interactive mode) you may need to explicitly call `.pyplot.show`
 to bring the windows onto your screen.  If you only want to run the
 GUI event loop for a fixed amount of time you can use `.pyplot.pause`.
 This will both block the progress of your code (as if you had called
-`time.sleep`), raise ensure the current window is shown and if needed
+`time.sleep`), ensure the current window is shown and if needed
 re-drawn, and run the GUI event loop (so the windows are "live" for
-intrection) for the specified period of time.
+interaction) for the specified period of time.
 
 Being in "interactive mode" is orthogonal to the GUI event loop being
 integrated with your command prompt.  If you use `pyplot.ion`, but
-have not arrange for the event loop integration your figures will
+have not arranged for the event loop integration, your figures will
 appear but will not be "live" while the prompt is waiting for input.
 You will not be able to pan/zoom and the figure may not even render
-(the window might appear black, transparent, or as a snapshot the
+(the window might appear black, transparent, or as a snapshot of the
 desktop under it).  Conversely, if you configure the event loop
-integration displayed figures will be "live" while waiting for input
-at the prompt independent of pyplot's "interactive mode".  In either
+integration, displayed figures will be "live" while waiting for input
+at the prompt, regardless of pyplot's "interactive mode".  In either
 case, the figures will be "live" if you use
 ``pyplot.show(block=True)``, `.pyplot.pause`, or run the the GUI main
 loop in some other way.
