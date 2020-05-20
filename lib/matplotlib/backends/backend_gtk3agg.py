@@ -17,9 +17,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
         self._bbox_queue = []
 
-    def _renderer_init(self):
-        pass
-
     def _render_figure(self, width, height):
         backend_agg.FigureCanvasAgg.draw(self)
 
