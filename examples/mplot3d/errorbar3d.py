@@ -17,10 +17,9 @@ t = np.arange(0, 2*np.pi+.1, 0.01)
 x, y, z = np.sin(t), np.cos(3*t), np.sin(5*t)
 
 estep = 15
-zuplims = [True if (not i % estep and i // estep % 3 == 0)
-           else False for i in range(t.size)]
-zlolims = [True if (not i % estep and i // estep % 3 == 2)
-           else False for i in range(t.size)]
+i = np.arange(t.size)
+zuplims = (i % estep == 0) & (i // estep % 3 == 0)
+zlolims = (i % estep == 0) & (i // estep % 3 == 2)
 
 ax.errorbar(x, y, z, 0.2, zuplims=zuplims, zlolims=zlolims, errorevery=estep)
 
