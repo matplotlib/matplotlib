@@ -14,7 +14,7 @@ directory.
 """
 
 import ast
-from functools import partial, reduce
+from functools import lru_cache, reduce
 import logging
 from numbers import Number
 import operator
@@ -81,18 +81,19 @@ class ValidateInStrings:
         raise ValueError(msg)
 
 
-def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
+@lru_cache()
+def _listify_validator(scalar_validator, allow_stringlist=False, *,
+                       n=None, doc=None):
     def f(s):
         if isinstance(s, str):
             try:
-                return [scalar_validator(v.strip()) for v in s.split(',')
-                        if v.strip()]
+                val = [scalar_validator(v.strip()) for v in s.split(',')
+                       if v.strip()]
             except Exception:
                 if allow_stringlist:
                     # Sometimes, a list of colors might be a single string
                     # of single-letter colornames. So give that a shot.
-                    return [scalar_validator(v.strip())
-                            for v in s if v.strip()]
+                    val = [scalar_validator(v.strip()) for v in s if v.strip()]
                 else:
                     raise
         # Allow any ordered sequence type -- generators, np.ndarray, pd.Series
@@ -102,11 +103,16 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
             # behavior of filtering out any empty strings (behavior was
             # from the original validate_stringlist()), while allowing
             # any non-string/text scalar values such as numbers and arrays.
-            return [scalar_validator(v) for v in s
-                    if not isinstance(v, str) or v]
+            val = [scalar_validator(v) for v in s
+                   if not isinstance(v, str) or v]
         else:
-            raise ValueError("{!r} must be of type: str or non-dictionary "
-                             "iterable".format(s))
+            raise ValueError(
+                f"Expected str or other non-set iterable, but got {s}")
+        if n is not None and len(val) != n:
+            raise ValueError(
+                f"Expected {n} values, but there are {len(val)} values in {s}")
+        return val
+
     try:
         f.__name__ = "{}list".format(scalar_validator.__name__)
     except AttributeError:  # class instance.
@@ -295,6 +301,7 @@ validate_toolbar = ValidateInStrings(
     _deprecated_since="3.3")
 
 
+@cbook.deprecated("3.3")
 def _make_nseq_validator(cls, n=None, allow_none=False):
 
     def validator(s):
@@ -320,8 +327,14 @@ def _make_nseq_validator(cls, n=None, allow_none=False):
     return validator
 
 
-validate_nseq_float = partial(_make_nseq_validator, float)
-validate_nseq_int = partial(_make_nseq_validator, int)
+@cbook.deprecated("3.3")
+def validate_nseq_float(n):
+    return _make_nseq_validator(float, n)
+
+
+@cbook.deprecated("3.3")
+def validate_nseq_int(n):
+    return _make_nseq_validator(int, n)
 
 
 def validate_color_or_inherit(s):
@@ -480,12 +493,10 @@ def validate_whiskers(s):
         return 'range'
     else:
         try:
-            v = validate_nseq_float(2)(s)
-            return v
+            return _listify_validator(validate_float, n=2)(s)
         except (TypeError, ValueError):
             try:
-                v = float(s)
-                return v
+                return float(s)
             except ValueError as e:
                 raise ValueError("Not a valid whisker value ['range', float, "
                                  "(float, float)]") from e
@@ -746,7 +757,7 @@ def validate_sketch(s):
     if s == 'none' or s is None:
         return None
     try:
-        return tuple(validate_nseq_float(3)(s))
+        return tuple(_listify_validator(validate_float, n=3)(s))
     except ValueError:
         raise ValueError("Expected a (scale, length, randomness) triplet")
 
@@ -1226,7 +1237,7 @@ _validators = {
     "axes.labelcolor":    validate_color,  # color of axis label
     # use scientific notation if log10 of the axis range is smaller than the
     # first or larger than the second
-    "axes.formatter.limits": validate_nseq_int(2),
+    "axes.formatter.limits": _listify_validator(validate_int, n=2),
     # use current locale to format ticks
     "axes.formatter.use_locale": validate_bool,
     "axes.formatter.use_mathtext": validate_bool,
@@ -1351,7 +1362,7 @@ _validators = {
     "figure.titleweight": validate_fontweight,
 
     # figure size in inches: width by height
-    "figure.figsize":          validate_nseq_float(2),
+    "figure.figsize":          _listify_validator(validate_float, n=2),
     "figure.dpi":              validate_float,
     "figure.facecolor":        validate_color,
     "figure.edgecolor":        validate_color,
