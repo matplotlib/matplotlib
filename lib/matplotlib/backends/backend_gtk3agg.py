@@ -17,9 +17,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
         self._bbox_queue = []
 
-    def _render_figure(self, width, height):
-        backend_agg.FigureCanvasAgg.draw(self)
-
     def on_draw_event(self, widget, ctx):
         """GtkDrawable draw event, like expose_event in GTK 2.X."""
         allocation = self.get_allocation()
@@ -71,8 +68,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
 
     def draw(self):
         if self.get_visible() and self.get_mapped():
-            allocation = self.get_allocation()
-            self._render_figure(allocation.width, allocation.height)
+            backend_agg.FigureCanvasAgg.draw(self)
         super().draw()
 
     def print_png(self, filename, *args, **kwargs):
