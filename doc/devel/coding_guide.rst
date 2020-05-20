@@ -139,6 +139,9 @@ Milestones
 
   If multiple rules apply, choose the first matching from the above list.
 
+  Setting a milestone does not imply or guarantee that a PR will be merged for that
+  release, but if it were to be merged what release it would be in.
+
   All of these PRs should target the master branch. The milestone tag triggers
   an :ref:`automatic backport <automated-backports>` for milestones which have
   a corresponding branch.
