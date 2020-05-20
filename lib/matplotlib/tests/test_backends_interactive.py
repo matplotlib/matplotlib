@@ -61,6 +61,7 @@ def _get_testable_interactive_backends():
 _test_script = """\
 import importlib
 import importlib.util
+import io
 import json
 import sys
 from unittest import TestCase
@@ -120,7 +121,23 @@ timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
 fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
 fig.canvas.mpl_connect("close_event", print)
 
+result = io.BytesIO()
+fig.savefig(result, format='png')
+
 plt.show()
+
+# Ensure that the window is really closed.
+plt.pause(0.5)
+
+# Test that saving works after interactive window is closed, but the figure is
+# not deleted.
+result_after = io.BytesIO()
+fig.savefig(result_after, format='png')
+
+if not backend.startswith('qt5') and sys.platform == 'darwin':
+    # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS to
+    # not resize incorrectly.
+    assert_equal(result.getvalue(), result_after.getvalue())
 """
 _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 
@@ -134,7 +151,8 @@ def test_interactive_backend(backend, toolbar):
     proc = subprocess.run(
         [sys.executable, "-c", _test_script,
          json.dumps({"toolbar": toolbar})],
-        env={**os.environ, "MPLBACKEND": backend}, timeout=_test_timeout,
+        env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout,
         stdout=subprocess.PIPE, universal_newlines=True)
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
@@ -148,7 +166,8 @@ def test_interactive_backend(backend, toolbar):
 def test_webagg():
     pytest.importorskip("tornado")
     proc = subprocess.Popen([sys.executable, "-c", _test_script],
-                            env={**os.environ, "MPLBACKEND": "webagg"})
+                            env={**os.environ, "MPLBACKEND": "webagg",
+                                 "SOURCE_DATE_EPOCH": "0"})
     url = "http://{}:{}".format(
         mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
     timeout = time.perf_counter() + _test_timeout
