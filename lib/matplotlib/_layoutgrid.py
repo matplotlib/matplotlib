@@ -409,7 +409,6 @@ def nonechildren(lb):
 
 def plot_children(fig, lg, level=0, printit=False):
     """Simple plotting to show where boxes are."""
-    import matplotlib
     import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches
 
@@ -422,14 +421,15 @@ def plot_children(fig, lg, level=0, printit=False):
             bb = lg.get_outer_bbox(rows=i, cols=j)
             fig.add_artist(
                 mpatches.Rectangle(bb.p0, bb.width, bb.height, linewidth=1,
-                      edgecolor='0.7', facecolor='0.7', alpha=0.2,
-                      transform=fig.transFigure, zorder=-3))
+                                   edgecolor='0.7', facecolor='0.7',
+                                   alpha=0.2, transform=fig.transFigure,
+                                   zorder=-3))
 
             bb = lg.get_inner_bbox(rows=i, cols=j)
             fig.add_artist(
                 mpatches.Rectangle(bb.p0, bb.width, bb.height, linewidth=2,
-                          edgecolor=col, facecolor='none',
-                          transform=fig.transFigure, zorder=-2))
+                                   edgecolor=col, facecolor='none',
+                                   transform=fig.transFigure, zorder=-2))
     for ch in lg.children.flat:
         if ch is not None:
             plot_children(fig, ch, level=level+1)

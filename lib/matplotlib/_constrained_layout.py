@@ -22,9 +22,9 @@ import logging
 import numpy as np
 
 import matplotlib.cbook as cbook
-import matplotlib._layoutgrid as layoutgrid
-from matplotlib.transforms import (Bbox, TransformedBbox, ScaledTranslation,
-                                   IdentityTransform)
+# import matplotlib._layoutgrid as layoutgrid
+#from matplotlib.transforms import (Bbox, TransformedBbox, ScaledTranslation,
+#                                   IdentityTransform)
 
 _log = logging.getLogger(__name__)
 
@@ -94,6 +94,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                                  'figure larger or axes decorations smaller.')
 
         _reset_margins(fig)
+
 
 def _check_ok(fig):
     """
@@ -210,7 +211,7 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
         bbox = invTransFig(fig._suptitle.get_tightbbox(renderer))
         p = fig._suptitle.get_position()
         fig._suptitle.set_position((p[0], 1-h_pad))
-        fig._layoutgrid.edit_margin_min('top', bbox.height +  2 * h_pad)
+        fig._layoutgrid.edit_margin_min('top', bbox.height + 2 * h_pad)
 
     if 0:
         if fig._supxlabel is not None:
@@ -249,7 +250,7 @@ def _match_submerged_margins(fig):
         if lg1 is not None:
             # interior columns:
             nc = len(ss1.colspan)
-            if  nc > 1:
+            if nc > 1:
                 maxsubl = np.max(
                     lg1.margin_vals['left'][ss1.colspan[1:]])
                 maxsubr = np.max(
@@ -277,7 +278,7 @@ def _match_submerged_margins(fig):
 
             # interior rows:
             nc = len(ss1.rowspan)
-            if  nc > 1:
+            if nc > 1:
                 maxsubt = np.max(
                     lg1.margin_vals['top'][ss1.rowspan[1:]])
                 maxsubb = np.max(
@@ -302,6 +303,7 @@ def _match_submerged_margins(fig):
                     lg1.edit_margin_min('top', maxsubt, col=i)
                 for i in ss1.rowspan[:-1]:
                     lg1.edit_margin_min('bottom', maxsubb, col=i)
+
 
 def _get_cb_parent_spans(cbax):
     """
@@ -339,6 +341,7 @@ def _get_pos_and_bbox(ax, renderer):
         bbox = tightbbox.transformed(invTransFig)
     return pos, bbox
 
+
 def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
     """
     For each axes, make a margin between the *pos* layoutbox and the
@@ -353,7 +356,6 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
         _reposition_axes(panel, renderer,
                          w_pad=w_pad, h_pad=h_pad,
                          wspace=wspace, hspace=hspace)
-
 
     for ax in [a for a in fig._localaxes if hasattr(a, 'get_subplotspec')]:
 
@@ -374,16 +376,16 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
         ax._set_position(newbbox)
 
         # move the colorbars:
-
         # we need to keep track of some stuff if there is more than
         # one colorbar.
-        oldw ={'right': 0, 'left': 0}
+        oldw = {'right': 0, 'left': 0}
         oldh = {'bottom': 0, 'top': 0}
         for nn, cbax in enumerate(ax._colorbars):
             if ax == cbax._colorbar_info['parents'][0]:
-                oldw, oldh = _reposition_colorbar(cbax, renderer,
-                        w_pad=w_pad, h_pad=h_pad,
-                        wspace=wspace, hspace=hspace, oldw=oldw, oldh=oldh)
+                oldw, oldh = _reposition_colorbar(
+                    cbax, renderer,
+                    w_pad=w_pad, h_pad=h_pad,
+                    wspace=wspace, hspace=hspace, oldw=oldw, oldh=oldh)
 
 
 def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
@@ -450,6 +452,7 @@ def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
     cbax._set_position(pbcb)
     cbax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return oldw, oldh
+
 
 def _reset_margins(fig):
     """

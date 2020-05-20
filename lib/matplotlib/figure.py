@@ -215,6 +215,7 @@ class SubplotParams:
         if hspace is not None:
             self.hspace = hspace
 
+
 class PanelBase(Artist):
     def __init__(self,
                  facecolor=None,
@@ -275,13 +276,12 @@ class PanelBase(Artist):
         """ also runs apply_aspect"""
         artists = self.get_children()
 
-        if 1:
-            for sfig in self.panels:
-                artists.remove(sfig)
-                childa = sfig.get_children()
-                for child in childa:
-                    if child in artists:
-                        artists.remove(child)
+        for sfig in self.panels:
+            artists.remove(sfig)
+            childa = sfig.get_children()
+            for child in childa:
+                if child in artists:
+                    artists.remove(child)
 
         artists.remove(self.patch)
         artists = sorted(
@@ -1533,7 +1533,6 @@ default: 'top'
                 return im
         return None
 
-
     def _process_projection_requirements(
             self, *args, polar=False, projection=None, **kwargs):
         """
@@ -1663,7 +1662,6 @@ default: 'top'
         return bbox_inches
 
 
-
 class SubPanel(PanelBase):
 
     def __init__(self, subplotspec, parent, *,
@@ -1754,7 +1752,6 @@ class SubPanel(PanelBase):
             self.bbox_relative.p0 = (x0, y0)
             self.bbox_relative.p1 = (x0 + widthf, y0 + heightf)
 
-
     def get_size_inches(self):
         return self._parent.get_size_inches()
 
@@ -1796,12 +1793,13 @@ class SubPanel(PanelBase):
         return ax
 
     axes = property(get_axes, doc="""
-            List of axes in the Figure.  You can access and modify the axes in the
-            Figure through this list.
+        List of axes in the Figure.  You can access and modify the axes
+        in the Figure through this list.
 
-            Do not modify the list itself. Instead, use "`~Figure.add_axes`,
-            `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an axes.
-            """)
+        Do not modify the list itself. Instead, use "`~Figure.add_axes`,
+        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an
+        axes.
+        """)
 
     def draw(self, renderer):
         # docstring inherited
@@ -2057,8 +2055,6 @@ class Figure(PanelBase):
         self.callbacks.process('dpi_changed', self)
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
-
-
 
     def set_canvas(self, canvas):
         """
@@ -2629,6 +2625,7 @@ class Figure(PanelBase):
         """
         blocking_input = BlockingKeyMouseInput(self)
         return blocking_input(timeout=timeout)
+
     def get_tight_layout(self):
         """Return whether `.tight_layout` is called when drawing."""
         return self._tight
@@ -2780,7 +2777,6 @@ class Figure(PanelBase):
             renderer = layoutgrid.get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
-
     @cbook._delete_parameter("3.2", "renderer")
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
                      rect=None):
@@ -2834,6 +2830,7 @@ class Figure(PanelBase):
         if self._layoutgrid is None:
             self._layoutgrid = layoutgrid.LayoutGrid(
                 parent=None, name='figlb', fixed_margins=True)
+
 
 def figaspect(arg):
     """
