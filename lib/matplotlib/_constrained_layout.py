@@ -13,10 +13,6 @@ layout.  Axes manually placed via ``figure.add_axes()`` will not.
 See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
 """
 
-#
-#   Todo:    AnchoredOffsetbox connected to gridspecs or axes.  This would
-#        be more general way to add extra-axes annotations.
-
 import logging
 
 import numpy as np
@@ -24,6 +20,42 @@ import numpy as np
 import matplotlib.cbook as cbook
 
 _log = logging.getLogger(__name__)
+
+"""
+General idea:
+-------------
+
+First, a figure has a gridspec that divides the figure into nrows and ncols, 
+with heights and widths set by ``height_ratios`` and ``width_ratios``, 
+often just set to 1 for an equal grid.  
+ 
+Subplotspecs that are derived from this gridspec can contain either a 
+``SubPanel``, a ``GridSpecFromSubplotSpec``, or an axes.  The ``SubPanel`` and 
+``GridSpecFromSubplotSpec`` are dealt with recursively and each contain an 
+analagous layout.  
+
+Each ``GridSpec`` has a ``_layoutgrid`` attached to it.  The ``_layoutgrid`` 
+has the same logical layout as the ``GridSpec``.   Each row of the grid spec
+has a top and bottom "margin" and each column has a left and right "margin".
+The "inner" height of each row is constrained to be the same (or as modified 
+by ``height_ratio``), and the "inner" width of each column is 
+constrained to be the same (as modified by ``width_ratio``), where "inner" 
+is the width or height of each column/row minus the size of the margins.  
+
+Then the size of the margins for each row and column are determined as the 
+max width of the decorators on each axes that has decorators in that margin.  
+For instance, a normal axes would have a left margin that includes the 
+left ticklabels, and the ylabel if it exists.  The right margin may include a 
+colorbar, the bottom margin the xaxis decorations, and the top margin the 
+title.  
+
+With these constraints, the solver then finds appropriate bounds for the 
+columns and rows.  Its possible that the margins take up the whole figure, 
+in which case the algorithm is not applied and a warning is raised.
+
+See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide` 
+for more discussion of the algorithm with examples.
+"""
 
 
 ######################################################
@@ -47,7 +79,9 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
      hspace, wspace : float
         are fraction of the figure to dedicate to space between the
-        axes.
+        axes.  These are evenly spread between the gaps between the axes.
+        A value of 0.2 for a three-column layout would have a space
+        of 0.1 of the figure width between each column.
     """
 
     # list of unique gridspecs that contain child axes:
@@ -84,7 +118,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         # update all the variables in the layout.
         fig._layoutgrid.update_variables()
 
-        if _check_ok(fig):  # check nothing collapsed to zero
+        if _check_ok(fig):
             _reposition_axes(fig, renderer, h_pad=h_pad, w_pad=w_pad,
                              hspace=hspace, wspace=wspace)
         else:
@@ -97,8 +131,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
 def _check_ok(fig):
     """
-    check that no axes have collapsed to zero size.  If they have
-    stops....
+    Check that no axes have collapsed to zero size.
     """
     for panel in fig.panels:
         ok = _check_ok(panel)
@@ -192,7 +225,7 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                                        ss.colspan[0])
         gs._layoutgrid.edit_margin_min('right', margin['right'],
                                        ss.colspan[-1])
-
+        # rows are from the top down:
         gs._layoutgrid.edit_margin_min('top', margin['top'],
                                        ss.rowspan[0])
         gs._layoutgrid.edit_margin_min('bottom', margin['bottom'],
@@ -216,6 +249,7 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
         fig._layoutgrid.edit_margin_min('top', bbox.height + 2 * h_pad)
 
     if 0:
+        # Not implimented yet!
         if fig._supxlabel is not None:
             bbox = invTransFig(fig._supxlabel.get_tightbbox(renderer))
             fig._layoutgrid.edit_margin_min('bottom', bbox.height + 2 * h_pad)
@@ -245,66 +279,66 @@ def _match_submerged_margins(fig):
         _match_submerged_margins(panel)
 
     axs = [a for a in fig._localaxes if hasattr(a, 'get_subplotspec')]
+
     for ax1 in axs:
         ss1 = ax1.get_subplotspec()
-        gs1 = ss1.get_gridspec()
-        lg1 = gs1._layoutgrid
-        if lg1 is not None:
-            # interior columns:
-            nc = len(ss1.colspan)
-            if nc > 1:
-                maxsubl = np.max(
-                    lg1.margin_vals['left'][ss1.colspan[1:]])
-                maxsubr = np.max(
-                    lg1.margin_vals['right'][ss1.colspan[:-1]])
+        lg1 = ss1.get_gridspec()._layoutgrid
+        if lg1 is None:
+            axs.remove(ax1)
+            continue
 
-                for ax2 in axs:
-                    ss2 = ax2.get_subplotspec()
-                    gs2 = ss2.get_gridspec()
-                    lg2 = gs2._layoutgrid
-                    if lg2 is not None:
-                        nc = len(ss2.colspan)
-                        if nc > 1:
-                            maxsubl2 = np.max(
-                                lg2.margin_vals['left'][ss2.colspan[1:]])
-                            if maxsubl2 > maxsubl:
-                                maxsubl = maxsubl2
-                            maxsubr2 = np.max(
-                                lg2.margin_vals['right'][ss2.colspan[:-1]])
-                            if maxsubr2 > maxsubr:
-                                maxsubr = maxsubr2
-                for i in ss1.colspan[1:]:
-                    lg1.edit_margin_min('left', maxsubl, col=i)
-                for i in ss1.colspan[:-1]:
-                    lg1.edit_margin_min('right', maxsubr, col=i)
+        # interior columns:
+        nc = len(ss1.colspan)
+        if nc > 1:
+            maxsubl = np.max(
+                lg1.margin_vals['left'][ss1.colspan[1:]])
+            maxsubr = np.max(
+                lg1.margin_vals['right'][ss1.colspan[:-1]])
+            for ax2 in axs:
+                ss2 = ax2.get_subplotspec()
+                lg2 = ss2.get_gridspec()._layoutgrid
+                if lg2 is not None:
+                    nc = len(ss2.colspan)
+                    if nc > 1:
+                        maxsubl2 = np.max(
+                            lg2.margin_vals['left'][ss2.colspan[1:]])
+                        if maxsubl2 > maxsubl:
+                            maxsubl = maxsubl2
+                        maxsubr2 = np.max(
+                            lg2.margin_vals['right'][ss2.colspan[:-1]])
+                        if maxsubr2 > maxsubr:
+                            maxsubr = maxsubr2
+            for i in ss1.colspan[1:]:
+                lg1.edit_margin_min('left', maxsubl, col=i)
+            for i in ss1.colspan[:-1]:
+                lg1.edit_margin_min('right', maxsubr, col=i)
 
-            # interior rows:
-            nc = len(ss1.rowspan)
-            if nc > 1:
-                maxsubt = np.max(
-                    lg1.margin_vals['top'][ss1.rowspan[1:]])
-                maxsubb = np.max(
-                    lg1.margin_vals['bottom'][ss1.rowspan[:-1]])
+        # interior rows:
+        nc = len(ss1.rowspan)
+        if nc > 1:
+            maxsubt = np.max(
+                lg1.margin_vals['top'][ss1.rowspan[1:]])
+            maxsubb = np.max(
+                lg1.margin_vals['bottom'][ss1.rowspan[:-1]])
 
-                for ax2 in axs:
-                    ss2 = ax2.get_subplotspec()
-                    gs2 = ss2.get_gridspec()
-                    lg2 = gs2._layoutgrid
-                    if lg2 is not None:
-                        nc = len(ss2.rowspan)
-                        if nc > 1:
-                            maxsubt2 = np.max(
-                                lg2.margin_vals['top'][ss2.rowspan[1:]])
-                            if maxsubt2 > maxsubt:
-                                maxsubt = maxsubt2
-                            maxsubb2 = np.max(
-                                lg2.margin_vals['bottom'][ss2.rowspan[:-1]])
-                            if maxsubb2 > maxsubb:
-                                maxsubb = maxsubb2
-                for i in ss1.rowspan[1:]:
-                    lg1.edit_margin_min('top', maxsubt, col=i)
-                for i in ss1.rowspan[:-1]:
-                    lg1.edit_margin_min('bottom', maxsubb, col=i)
+            for ax2 in axs:
+                ss2 = ax2.get_subplotspec()
+                lg2 = ss2.get_gridspec()._layoutgrid
+                if lg2 is not None:
+                    nc = len(ss2.rowspan)
+                    if nc > 1:
+                        maxsubt2 = np.max(
+                            lg2.margin_vals['top'][ss2.rowspan[1:]])
+                        if maxsubt2 > maxsubt:
+                            maxsubt = maxsubt2
+                        maxsubb2 = np.max(
+                            lg2.margin_vals['bottom'][ss2.rowspan[:-1]])
+                        if maxsubb2 > maxsubb:
+                            maxsubb = maxsubb2
+            for i in ss1.rowspan[1:]:
+                lg1.edit_margin_min('top', maxsubt, col=i)
+            for i in ss1.rowspan[:-1]:
+                lg1.edit_margin_min('bottom', maxsubb, col=i)
 
 
 def _get_cb_parent_spans(cbax):
@@ -361,15 +395,14 @@ def _get_pos_and_bbox(ax, renderer):
 
 def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
     """
-    For each axes, make a margin between the *pos* layoutbox and the
-    *axes* layoutbox be a minimum size that can accommodate the
-    decorations on the axis.
+    Reposition all the axes based on the new inner bounding box.
     """
-    trans = fig.transFigure + fig.transPanel.inverted()
+    trans_fig_to_panel = fig.transFigure + fig.transPanel.inverted()
 
     for panel in fig.panels:
         bbox = panel._layoutgrid.get_outer_bbox()
-        panel._redo_transform_rel_fig(bbox=bbox.transformed(trans))
+        panel._redo_transform_rel_fig(
+            bbox=bbox.transformed(trans_fig_to_panel))
         _reposition_axes(panel, renderer,
                          w_pad=w_pad, h_pad=h_pad,
                          wspace=wspace, hspace=hspace)
@@ -389,12 +422,12 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
                                                   cols=ss.colspan)
 
         # transform from figure to panel for set_position:
-        newbbox = trans.transform_bbox(bbox)
+        newbbox = trans_fig_to_panel.transform_bbox(bbox)
         ax._set_position(newbbox)
 
         # move the colorbars:
-        # we need to keep track of some stuff if there is more than
-        # one colorbar.
+        # we need to keep track of oldw and oldh if there is more than
+        # one colorbar:
         oldw = {'right': 0, 'left': 0}
         oldh = {'bottom': 0, 'top': 0}
         for nn, cbax in enumerate(ax._colorbars):
@@ -422,14 +455,15 @@ def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
         width and height padding as fraction of figure size divided by
         number of  columns or rows
     oldw, oldh : float
-        offset the colorbar needs to be pushed to.
+        offset the colorbar needs to be pushed to in order to
+        account for multiple colorbars
     """
 
     parents = cbax._colorbar_info['parents']
     gs = parents[0].get_gridspec()
     ncols, nrows = gs.ncols, gs.nrows
     fig = cbax.figure
-    trans = fig.transFigure + fig.transPanel.inverted()
+    trans_fig_to_panel = fig.transFigure + fig.transPanel.inverted()
 
     cb_rspans, cb_cspans = _get_cb_parent_spans(cbax)
     bboxouter = gs._layoutgrid.get_outer_bbox(rows=cb_rspans, cols=cb_cspans)
@@ -453,7 +487,9 @@ def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
     # It needs to be moved in by: 1) a pad 2) its "margin" 3) by
     # any colorbars already added at this location:
     if location in ('left', 'right'):
+        # fraction and shrink are fractions of parent
         pbcb = pb.shrunk(fraction, shrink).anchored(anchor, pb)
+        # now we need to translate the parent.
         if location == 'right':
             margin = cbbbox.x1 - cbpos.x1  # decorators on CB
             dx = bboxouter.x1 - pbcb.x1
@@ -466,7 +502,7 @@ def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
             dx = dx + w_pad + oldw['left'] + margin + wspace / ncols / 2
             oldw['left'] += cbbbox.width + 2 * w_pad
             pbcb = pbcb.translated(dx, 0)
-    else:
+    else:  # horizontal axes:
         pbcb = pb.shrunk(shrink, fraction).anchored(anchor, pb)
         if location == 'top':
             margin = cbbbox.y1 - cbpos.y1
@@ -481,7 +517,7 @@ def _reposition_colorbar(cbax, renderer, *, w_pad=0, h_pad=0, hspace=0,
             oldh['bottom'] += cbbbox.height + 2 * h_pad
             pbcb = pbcb.translated(0, dy)
 
-    pbcb = trans.transform_bbox(pbcb)
+    pbcb = trans_fig_to_panel.transform_bbox(pbcb)
     cbax.set_transform(fig.transPanel)
     cbax._set_position(pbcb)
     cbax.set_aspect(aspect, anchor=anchor, adjustable='box')
@@ -492,8 +528,8 @@ def _reset_margins(fig):
     """
     Reset the margins in the layoutboxes of fig.
 
-    These need to be reset to zero before they are recalculated
-    so we can
+    Margins are usualy set as a minimum, so if the figure gets smaller
+    the minimum needs to be zero in order for it to grow again.
     """
     for span in fig.panels:
         _reset_margins(span)

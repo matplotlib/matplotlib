@@ -420,6 +420,7 @@ class GridSpec(GridSpecBase):
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
 
+        # set up layoutgrid for constrained_layout:
         self._layoutgrid = None
         if self.figure is None or not self.figure.get_constrained_layout():
             self._layoutgrid = None
@@ -428,8 +429,10 @@ class GridSpec(GridSpecBase):
             self._layoutgrid = layoutgrid.LayoutGrid(
                 parent=self.figure._layoutgrid,
                 parent_inner=True,
-                name=self.figure._layoutgrid.name + '.gridspec' + layoutgrid.seq_id(),
-                ncols=ncols, nrows=nrows, width_ratios=width_ratios, height_ratios=height_ratios)
+                name=(self.figure._layoutgrid.name + '.gridspec' +
+                      layoutgrid.seq_id()),
+                ncols=ncols, nrows=nrows, width_ratios=width_ratios,
+                height_ratios=height_ratios)
 
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
 
@@ -563,19 +566,24 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
-        # do the layoutboxes
+        # do the layoutgrids for constrained_layout:
         subspeclb = subplot_spec.get_gridspec()._layoutgrid
         if subspeclb is None:
             self._layoutgrid = None
         else:
-            self._toplayoutbox =  layoutgrid.LayoutGrid(
+            # this _toplayoutbox is a container that spans the cols and
+            # rows in the parent gridspec.  Not yet implimented,
+            # but we do this so that its possible to have subgridspec
+            # level artists.
+            self._toplayoutbox = layoutgrid.LayoutGrid(
                 parent=subspeclb,
                 name=subspeclb.name + '.top' + layoutgrid.seq_id(),
                 nrows=1, ncols=1,
                 parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
             self._layoutgrid = layoutgrid.LayoutGrid(
-                    parent = self._toplayoutbox,
-                    name=self._toplayoutbox.name + '.gridspec' + layoutgrid.seq_id(),
+                    parent=self._toplayoutbox,
+                    name=(self._toplayoutbox.name + '.gridspec' +
+                          layoutgrid.seq_id()),
                     nrows=nrows, ncols=ncols,
                     width_ratios=width_ratios, height_ratios=height_ratios)
 
