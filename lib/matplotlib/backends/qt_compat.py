@@ -85,7 +85,7 @@ def _setup_pyqt5():
         raise ValueError("Unexpected value for the 'backend.qt5' rcparam")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
 
-    @mpl.cbook.deprecated("3.3", alternative="QtCore.QT_VERSION_STR")
+    @mpl.cbook.deprecated("3.3", alternative="QtCore.qVersion()")
     def is_pyqt5():
         return True
 
@@ -145,7 +145,7 @@ def _setup_pyqt4():
         raise ValueError("Unexpected value for the 'backend.qt4' rcparam")
     QtWidgets = QtGui
 
-    @mpl.cbook.deprecated("3.3", alternative="QtCore.QT_VERSION_STR")
+    @mpl.cbook.deprecated("3.3", alternative="QtCore.qVersion()")
     def is_pyqt5():
         return False
 

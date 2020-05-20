@@ -545,7 +545,7 @@ The ``cbid`` and ``locator`` attribute are deprecated.  Use
 ``qt_compat.is_pyqt5``
 ~~~~~~~~~~~~~~~~~~~~~~
 This function is deprecated in prevision of the future release of PyQt6.  The
-Qt version can be checked using ``QtCore.QT_VERSION_STR``.
+Qt version can be checked using ``QtCore.qVersion()``.
 
 Reordering of parameters by `.Artist.set`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
