@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -197,7 +196,7 @@ def test_constrained_layout11subpanel():
     spl0 = spl.add_subpanel(gsl[1])
     axs = spl0.subplots(2, 2)
     for ax in axs.flat:
-       pcm = example_pcolor(ax, fontsize=9)
+        pcm = example_pcolor(ax, fontsize=9)
     spl0.colorbar(pcm, ax=axs, shrink=0.6, aspect=20.)
 
 
@@ -401,7 +400,7 @@ def test_hidden_axes():
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
     np.testing.assert_allclose(
-        extents1, [0.045552, 0.548288, 0.47319 , 0.982638], rtol=1e-5)
+        extents1, [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
 
 
 @image_comparison(['test_overlapping_gridspecs2.png'])
@@ -426,6 +425,7 @@ def test_overlapping_gridspecs2():
     example_plot(ax)
     ax.set_xlabel('x-label')
 
+
 @image_comparison(['test_overlapping_gridspecs3.png'])
 def test_overlapping_gridspecs3():
     # this is like grid_strategy.
@@ -437,4 +437,3 @@ def test_overlapping_gridspecs3():
     for i in range(1):
         a3 = fig.add_subplot(gs[1, (i * 2 + 1):((i + 1) * 2 + 1)])
         a3.set_ylabel('YY', fontsize=28)
-

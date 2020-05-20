@@ -334,12 +334,12 @@ class LayoutGrid:
             existig minimum it updates the margin size. Fraction of
             figure size.
         """
-        
+
         for i in range(len(self.margin_vals[todo])):
             self.edit_margin_min(todo, width, i)
 
     def get_margins(self, todo, col):
-        "Return the margin at this position"
+        """Return the margin at this position"""
         return self.margin_vals[todo][col]
 
     def get_outer_bbox(self, rows=[0], cols=[0]):
