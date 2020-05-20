@@ -346,8 +346,12 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     png_write_end(png_ptr, info_ptr);
 
 exit:
-    if (png_ptr && info_ptr) {
-        png_destroy_write_struct(&png_ptr, &info_ptr);
+    if (png_ptr) {
+        if (info_ptr) {
+            png_destroy_write_struct(&png_ptr, &info_ptr);
+        } else {
+            png_destroy_write_struct(&png_ptr, NULL);
+        }
     }
     if (PyErr_Occurred()) {
         Py_XDECREF(buff.str);
