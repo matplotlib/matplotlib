@@ -1,8 +1,19 @@
 """
+Figures are typically created via `~.pyplot.figure` or `~.pyplot.subplots`.
+
 `matplotlib.figure` implements the following classes:
 
+`PanelBase`
+    Abstract `~matplotlib.artist.Artist`, which holds all plot elements
+    typically contained in a Figure
+
 `Figure`
-    Top level `~matplotlib.artist.Artist`, which holds all plot elements.
+    Top-level `.PanelBase`, which holds all plot elements.
+
+`SubPanel`
+    A panel within a figure (or a subpanel of a figure) that
+    behaves like a figure, has a `~.PanelBase.suptitle`,
+    `~.PanelBase.legend`, and axes within its own logical container.
 
 `SubplotParams`
     Control the default spacing between subplots.

@@ -376,6 +376,70 @@ class LayoutGrid:
              self.margins['top'][rows[0]].value()))
         return bbox
 
+    def get_left_margin_bbox(self, rows=[0], cols=[0]):
+        """
+        Return the left margin bounding box of the subplot specs
+        given by rows and cols.  rows and cols can be spans.
+        """
+        rows = np.atleast_1d(rows)
+        cols = np.atleast_1d(cols)
+
+        bbox = Bbox.from_extents(
+            (self.lefts[cols[0]].value()),
+            (self.bottoms[rows[-1]].value()),
+            (self.lefts[cols[0]].value() +
+                self.margins['left'][cols[0]].value()),
+            (self.tops[rows[0]].value()))
+        return bbox
+
+    def get_bottom_margin_bbox(self, rows=[0], cols=[0]):
+        """
+        Return the left margin bounding box of the subplot specs
+        given by rows and cols.  rows and cols can be spans.
+        """
+        rows = np.atleast_1d(rows)
+        cols = np.atleast_1d(cols)
+
+        bbox = Bbox.from_extents(
+            (self.lefts[cols[0]].value()),
+            (self.bottoms[rows[-1]].value()),
+            (self.rights[cols[-1]].value()),
+            (self.bottoms[rows[-1]].value() +
+                self.margins['bottom'][rows[-1]].value()))
+        return bbox
+
+    def get_right_margin_bbox(self, rows=[0], cols=[0]):
+        """
+        Return the left margin bounding box of the subplot specs
+        given by rows and cols.  rows and cols can be spans.
+        """
+        rows = np.atleast_1d(rows)
+        cols = np.atleast_1d(cols)
+
+        bbox = Bbox.from_extents(
+            (self.rights[cols[-1]].value() -
+                self.margins['right'][cols[-1]].value()),
+            (self.bottoms[rows[-1]].value()),
+            (self.rights[cols[-1]].value()),
+            (self.tops[rows[0]].value()))
+        return bbox
+
+    def get_top_margin_bbox(self, rows=[0], cols=[0]):
+        """
+        Return the left margin bounding box of the subplot specs
+        given by rows and cols.  rows and cols can be spans.
+        """
+        rows = np.atleast_1d(rows)
+        cols = np.atleast_1d(cols)
+
+        bbox = Bbox.from_extents(
+            (self.lefts[cols[0]].value()),
+            (self.tops[rows[0]].value()),
+            (self.rights[cols[-1]].value()),
+            (self.tops[rows[0]].value() -
+                self.margins['top'][rows[0]].value()))
+        return bbox
+
     def update_variables(self):
         """
         Update the variables for the solver attached to this layoutgrid.
@@ -434,11 +498,35 @@ def plot_children(fig, lg, level=0, printit=False):
                                    edgecolor='0.7', facecolor='0.7',
                                    alpha=0.2, transform=fig.transFigure,
                                    zorder=-3))
-
-            bb = lg.get_inner_bbox(rows=i, cols=j)
+            bbi = lg.get_inner_bbox(rows=i, cols=j)
             fig.add_artist(
-                mpatches.Rectangle(bb.p0, bb.width, bb.height, linewidth=2,
+                mpatches.Rectangle(bbi.p0, bbi.width, bbi.height, linewidth=2,
                                    edgecolor=col, facecolor='none',
+                                   transform=fig.transFigure, zorder=-2))
+
+            bbi = lg.get_left_margin_bbox(rows=i, cols=j)
+            fig.add_artist(
+                mpatches.Rectangle(bbi.p0, bbi.width, bbi.height, linewidth=0,
+                                   edgecolor='none', alpha=0.2,
+                                   facecolor=[0.5, 0.7, 0.5],
+                                   transform=fig.transFigure, zorder=-2))
+            bbi = lg.get_right_margin_bbox(rows=i, cols=j)
+            fig.add_artist(
+                mpatches.Rectangle(bbi.p0, bbi.width, bbi.height, linewidth=0,
+                                   edgecolor='none', alpha=0.2,
+                                   facecolor=[0.7, 0.5, 0.5],
+                                   transform=fig.transFigure, zorder=-2))
+            bbi = lg.get_bottom_margin_bbox(rows=i, cols=j)
+            fig.add_artist(
+                mpatches.Rectangle(bbi.p0, bbi.width, bbi.height, linewidth=0,
+                                   edgecolor='none', alpha=0.2,
+                                   facecolor=[0.5, 0.5, 0.7],
+                                   transform=fig.transFigure, zorder=-2))
+            bbi = lg.get_top_margin_bbox(rows=i, cols=j)
+            fig.add_artist(
+                mpatches.Rectangle(bbi.p0, bbi.width, bbi.height, linewidth=0,
+                                   edgecolor='none', alpha=0.2,
+                                   facecolor=[0.7, 0.2, 0.7],
                                    transform=fig.transFigure, zorder=-2))
     for ch in lg.children.flat:
         if ch is not None:
