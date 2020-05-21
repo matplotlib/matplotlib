@@ -85,7 +85,7 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
     PyObject *output_mesh =
         PyObject_CallMethod(
             py_inverse, (char *)"transform", (char *)"O",
-            (char *)input_mesh.pyobj(), NULL);
+            (char *)input_mesh.pyobj_steal(), NULL);
 
     Py_DECREF(py_inverse);
 

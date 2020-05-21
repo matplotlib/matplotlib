@@ -139,11 +139,6 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<unsigned char, 3> buffer;
     PyObject *filein;
     PyObject *metadata = NULL;
-    PyObject *meta_key, *meta_val;
-    png_text *text;
-    Py_ssize_t pos = 0;
-    int meta_pos = 0;
-    Py_ssize_t meta_size;
     double dpi = 0;
     int compression = 6;
     int filter = -1;
@@ -274,8 +269,14 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
             PyErr_SetString(PyExc_TypeError, "metadata must be a dict or None");
             goto exit;
         }
-        meta_size = PyDict_Size(metadata);
-        text = new png_text[meta_size];
+
+        Py_ssize_t meta_size = PyDict_Size(metadata);
+        png_text *text = new png_text[meta_size];
+        PyObject *meta_key, *meta_val;
+        Py_ssize_t pos = 0;
+        int meta_pos = 0;
+        std::vector<PyObject*> temp_strs;
+        temp_strs.reserve(meta_size);
 
         while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
             text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
@@ -283,6 +284,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
                 PyObject *temp_key = PyUnicode_AsEncodedString(meta_key, "latin_1", "strict");
                 if (temp_key != NULL) {
                     text[meta_pos].key = PyBytes_AsString(temp_key);
+                    temp_strs.push_back(temp_key);
                 }
             } else if (PyBytes_Check(meta_key)) {
                 text[meta_pos].key = PyBytes_AsString(meta_key);
@@ -295,6 +297,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
                 PyObject *temp_val = PyUnicode_AsEncodedString(meta_val, "latin_1", "strict");
                 if (temp_val != NULL) {
                     text[meta_pos].text = PyBytes_AsString(temp_val);
+                    temp_strs.push_back(temp_val);
                 }
             } else if (PyBytes_Check(meta_val)) {
                 text[meta_pos].text = PyBytes_AsString(meta_val);
@@ -307,6 +310,10 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
             meta_pos++;
         }
         png_set_text(png_ptr, info_ptr, text, meta_size);
+        for (std::vector<PyObject*>::iterator it = temp_strs.begin();
+             it != temp_strs.end(); ++it) {
+            Py_DECREF(*it);
+        }
         delete[] text;
     }
 #endif
@@ -339,8 +346,12 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     png_write_end(png_ptr, info_ptr);
 
 exit:
-    if (png_ptr && info_ptr) {
-        png_destroy_write_struct(&png_ptr, &info_ptr);
+    if (png_ptr) {
+        if (info_ptr) {
+            png_destroy_write_struct(&png_ptr, &info_ptr);
+        } else {
+            png_destroy_write_struct(&png_ptr, NULL);
+        }
     }
     if (PyErr_Occurred()) {
         Py_XDECREF(buff.str);
