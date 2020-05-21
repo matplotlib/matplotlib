@@ -14,19 +14,21 @@ from matplotlib import cbook
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
-from matplotlib.rcsetup import (validate_bool_maybe_none,
-                                validate_stringlist,
-                                validate_colorlist,
-                                validate_color,
-                                validate_bool,
-                                validate_fontweight,
-                                validate_nseq_int,
-                                validate_nseq_float,
-                                validate_cycler,
-                                validate_hatch,
-                                validate_hist_bins,
-                                validate_markevery,
-                                _validate_linestyle)
+from matplotlib.rcsetup import (
+    validate_bool,
+    validate_bool_maybe_none,
+    validate_color,
+    validate_colorlist,
+    validate_cycler,
+    validate_float,
+    validate_fontweight,
+    validate_hatch,
+    validate_hist_bins,
+    validate_int,
+    validate_markevery,
+    validate_stringlist,
+    _validate_linestyle,
+    _listify_validator)
 
 
 def test_rcparams(tmpdir):
@@ -229,7 +231,7 @@ def generate_validator_testcases(valid):
                   (1, ValueError),
                   )
          },
-        {'validator': validate_nseq_int(2),
+        {'validator': _listify_validator(validate_int, n=2),
          'success': ((_, [1, 2])
                      for _ in ('1, 2', [1.5, 2.5], [1, 2],
                                (1, 2), np.array((1, 2)))),
@@ -238,7 +240,7 @@ def generate_validator_testcases(valid):
                             (1, 2, 3)
                             ))
          },
-        {'validator': validate_nseq_float(2),
+        {'validator': _listify_validator(validate_float, n=2),
          'success': ((_, [1.5, 2.5])
                      for _ in ('1.5, 2.5', [1.5, 2.5], [1.5, 2.5],
                                (1.5, 2.5), np.array((1.5, 2.5)))),
