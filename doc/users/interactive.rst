@@ -9,38 +9,38 @@
 .. toctree::
 
 
-When working with data, interactivity can be invaluable. The pan/zoom and 
-mouse-location tools built into the Matplotlib GUI windows are often sufficient, but 
+When working with data, interactivity can be invaluable. The pan/zoom and
+mouse-location tools built into the Matplotlib GUI windows are often sufficient, but
 you can also use the event system to build customized data exploration tools.
 
 Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to
 several GUI toolkits (Qt, Tk, Wx, GTK, macOS, JavaScript) and third party
 packages provide bindings to `kivy
 <https://github.com/kivy-garden/garden.matplotlib>`__ and `Jupyter Lab
-<https://github.com/matplotlib/ipympl>`__.  For the figures to be interactive, 
-the GUI event loop will need to be integrated with your interactive prompt. 
-We recommend using IPython (see :ref:`below <ipython-pylab>`).
+<https://github.com/matplotlib/ipympl>`__.  For the figures to be responsive to
+mouse, keyboard, and paint events, the GUI event loop needs to be integrated
+with an interactive prompt. We recommend using IPython (see :ref:`below <ipython-pylab>`).
 
-The `.pyplot` module provides functions for explicitly creating figures 
+The `.pyplot` module provides functions for explicitly creating figures
 that include interactive tools, a toolbar, a tool-tip, and
 :ref:`key bindings <key-event-handling>`:
 
-* `.pyplot.figure`
+`.pyplot.figure`
     Creates a new empty `.figure.Figure` or selects an existing figure
 
-* `.pyplot.subplots`
+`.pyplot.subplots`
     Creates a new `.figure.Figure` and fills it with a grid of `.axes.Axes`
 
 `.pyplot` has a notion of "The Current Figure" which can be accessed
 through `.pyplot.gcf` and a notion of "The Current Axes" accessed
 through `.pyplot.gca`.  Almost all of the functions in `.pyplot` pass
 through the current `.Figure` / `.axes.Axes` (or create one) as
-appropriate.  
+appropriate.
 
 Matplotlib keeps a reference to all of the open figures
-created this way so they will not be garbage collected.  You can close
-and deregister `.Figure`\s from `.pyplot` individually via
-`.pyplot.close` or close all open figures via ``plt.close('all')``.
+created via `pyplot.figure` or `pyplot.subplots` so that the figures will not be garbage
+collected. `.Figure`\s can be closed and deregistered from `.pyplot` individually via
+`.pyplot.close`; all open `.Figure`\s can be closed via ``plt.close('all')``.
 
 
 For more discussion of Matplotlib's event system and integrated event loops, please read:
@@ -58,12 +58,14 @@ IPython integration
 ===================
 
 We recommend using IPython for an interactive shell.  In addition to
-all of its features (improved tab-completion, magics,
-multiline editing, etc), it also ensures that the GUI toolkit event
-loop is properly integrated with the command line (see
-:ref:`cp_integration`).  To configure the integration and enable
-:ref:`interactive mode <controlling-interactive>` use the
-``%matplotlib`` magic
+all of its features (improved tab-completion, magics, multiline editing, etc),
+it also ensures that the GUI toolkit event loop is properly integrated
+with the command line (see :ref:`cp_integration`).
+
+In this example, we create and modify a figure via an IPython prompt.
+The figure displays in a Qt5Agg GUI window. To configure the integration
+and enable :ref:`interactive mode <controlling-interactive>` use the
+``%matplotlib`` magic:
 
 .. highlight:: ipython
 
@@ -92,13 +94,13 @@ Change the color of the line from blue to orange:
 
    In [5]: ln.set_color('orange')
 
-If you wish to disable interactive modification of the plot:
+If you wish to disable automatic redrawing of the plot:
 
 ::
 
    In [6]: plt.ioff()
 
-If you wish to re-enable interactive "live" modification of the plot:
+If you wish to re-enable automatic redrawing of the plot:
 
 ::
 
@@ -106,8 +108,8 @@ If you wish to re-enable interactive "live" modification of the plot:
 
 
 In recent versions of ``Matplotlib`` and ``IPython``, it is
-sufficient to import `matplotlib.pyplot` and call `.pyplot.ion`. 
-Using the ``%`` magic is guaranteed to work in all versions of ``Matplotlib`` and ``IPython``.
+sufficient to import `matplotlib.pyplot` and call `.pyplot.ion`.
+Using the ``%`` magic is guaranteed to work in all versions of Matplotlib and IPython.
 
 
 .. highlight:: python
@@ -139,43 +141,43 @@ Interactive mode controls:
 
 - whether created figures are automatically shown
 - whether changes to artists automatically trigger re-drawing existing figures
-- when `.pyplot.show` exits: immediately, or after all of the figures have been closed if given no arguments
+- when `.pyplot.show()` returns if given no arguments: immediately, or after all of the figures have been closed
 
-Interactive mode:
+If in interactive mode:
 
 - newly created figures will be displayed immediately
 - figures will automatically redraw when elements are changed
-- `pyplot.show` displays the figures and immediately returns to the prompt
+- `pyplot.show()` displays the figures and immediately returns
 
-Not in interactive mode:
+If not in interactive mode:
 
-- newly created figures and changes to figures are not displayed until 
-`.pyplot.show` is called again or `.pyplot.pause` exits
-- `pyplot.show` runs the GUI event loop and does not return until all 
-the plot windows are closed
-
+- newly created figures and changes to figures are not displayed until
+   * `.pyplot.show()` is called
+   * `.pyplot.pause()` is called
+   * `.FigureCanvasBase.flush_events()` is called
+- `pyplot.show()` runs the GUI event loop and does not return until all the plot windows are closed
 
 If you are in non-interactive mode (or created figures while in
 non-interactive mode) you may need to explicitly call `.pyplot.show`
 to display the windows on your screen.  If you only want to run the
 GUI event loop for a fixed amount of time, you can use `.pyplot.pause`.
 This will block the progress of your code as if you had called
-`time.sleep`, ensure the current window is shown and re-drawn if needed, 
-and run the GUI event loop (so the windows are "live" for
-interactive modification) for the specified period of time.
+`time.sleep`, ensure the current window is shown and re-drawn if needed,
+and run the GUI event loop for the specified period of time.
 
-The GUI event loop being integrated with your command prompt and 
-the figures being in interactive mode are independent of each other. 
-If you use `pyplot.ion` but have not arranged for the event loop integration, 
-your figures will appear but will not be "live" while the prompt is waiting for input. 
+The GUI event loop being integrated with your command prompt and
+the figures being in interactive mode are independent of each other.
+If you use `pyplot.ion` but have not arranged for the event loop integration,
+your figures will appear but will not be interactive while the prompt is waiting for input.
 You will not be able to pan/zoom and the figure may not even render
 (the window might appear black, transparent, or as a snapshot of the
 desktop under it).  Conversely, if you configure the event loop
-integration, displayed figures will be "live" while waiting for input
-at the prompt, regardless of pyplot's "interactive mode". 
+integration, displayed figures will be responsive while waiting for input
+at the prompt, regardless of pyplot's "interactive mode".
 
-The figures will also be "live" if you use ``pyplot.show(block=True)``, 
-`.pyplot.pause`, or run the the GUI main loop in some other way.
+No matter what combination of interactive mode setting and event loop integration,
+figures will be responsive if you use ``pyplot.show(block=True)``, `.pyplot.pause`, or run
+the GUI main loop in some other way.
 
 
 .. warning::
@@ -255,11 +257,11 @@ Jupyter Notebooks / Lab
    using an interactive backend.  The default backend in notebooks,
    the inline backend, is not.  `~ipykernel.pylab.backend_inline`
    renders the figure once and inserts a static image into the
-   notebook when the cell is executed.  Because the images are static, they 
+   notebook when the cell is executed.  Because the images are static, they
    can not be panned / zoomed, take user input, or be updated from other
    cells.
 
-To get interactive figures in the 'classic' notebook or Jupyter lab, 
+To get interactive figures in the 'classic' notebook or Jupyter lab,
 use the `ipympl <https://github.com/matplotlib/ipympl>`__ backend
 (must be installed separately) which uses the **ipywidget** framework.
 If ``ipympl`` is installed use the magic:
@@ -276,17 +278,17 @@ If you only need to use the classic notebook, you can use
 
   %matplotlib notebook
 
-which uses the `.backend_nbagg` backend which is installed by Matplotlib; 
+which uses the `.backend_nbagg` backend provided by Matplotlib;
 however, nbagg does not work in Jupyter Lab.
 
 GUIs + Jupyter
 ~~~~~~~~~~~~~~
 
-You can also use one of the non-ipympl GUI backends in a Jupyter Notebook. 
-If you are running your Jupyter kernel locally, the GUI window will spawn on 
-your desktop adjacent to your web browser. If you run your notebook on a remote server, 
-the kernel will try to open the GUI window on the remote computer. Unless you have 
-arranged to forward the xserver back to your desktop, you will not be able to 
+You can also use one of the non-``ipympl`` GUI backends in a Jupyter Notebook.
+If you are running your Jupyter kernel locally, the GUI window will spawn on
+your desktop adjacent to your web browser. If you run your notebook on a remote server,
+the kernel will try to open the GUI window on the remote computer. Unless you have
+arranged to forward the xserver back to your desktop, you will not be able to
 see or interact with the window. It may also raise an exception.
 
 
