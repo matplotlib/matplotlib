@@ -1930,61 +1930,81 @@ class RectangleSelector(_SelectorWidget):
     _shape_klass = Rectangle
 
     def __init__(self, ax, onselect, drawtype='box',
-                 minspanx=None, minspany=None, useblit=False,
+                 minspanx=0, minspany=0, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
                  interactive=False, state_modifier_keys=None):
-        r"""
-        Create a selector in *ax*.  When a selection is made, clear
-        the span and call onselect with::
+        """
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            The parent axes for the widget.
 
-          onselect(pos_1, pos_2)
+        onselect : function
+            A callback function that is called after a selection is completed.
+            It must have the signature::
 
-        and clear the drawn box/line. The ``pos_1`` and ``pos_2`` are
-        arrays of length 2 containing the x- and y-coordinate.
+                def onselect(eclick: MouseEvent, erelease: MouseEvent)
 
-        If *minspanx* is not *None* then events smaller than *minspanx*
-        in x direction are ignored (it's the same for y).
+            where *eclick* and *erelease* are the mouse click and release
+            `.MouseEvent`\s that start and complete the selection.
 
-        The rectangle is drawn with *rectprops*; default::
+        drawtype : {"box", "line", "none"}, default: "box"
+            Whether to draw the full rectangle box, the diagonal line of the
+            rectangle, or nothing at all.
 
-          rectprops = dict(facecolor='red', edgecolor = 'black',
-                           alpha=0.2, fill=True)
+        minspanx : float, default: 0
+            Selections with an x-span less than *minspanx* are ignored.
 
-        The line is drawn with *lineprops*; default::
+        minspany : float, default: 0
+            Selections with an y-span less than *minspany* are ignored.
 
-          lineprops = dict(color='black', linestyle='-',
-                           linewidth = 2, alpha=0.5)
+        useblit : bool, default: False
+            Whether to use blitting for faster drawing (if supported by the
+            backend).
 
-        Use *drawtype* if you want the mouse to draw a line,
-        a box or nothing between click and actual position by setting
+        lineprops : dict, optional
+            Properties with which the line is drawn, if ``drawtype == "line"``.
+            Default::
 
-        ``drawtype = 'line'``, ``drawtype='box'`` or ``drawtype = 'none'``.
-        Drawing a line would result in a line from vertex A to vertex C in
-        a rectangle ABCD.
+                dict(color="black", linestyle="-", linewidth=2, alpha=0.5)
 
-        *spancoords* is one of 'data' or 'pixels'.  If 'data', *minspanx*
-        and *minspanx* will be interpreted in the same coordinates as
-        the x and y axis. If 'pixels', they are in pixels.
+        rectprops : dict, optional
+            Properties with which the rectangle is drawn, if ``drawtype ==
+            "box"``.  Default::
 
-        *button* is the `.MouseButton` or list of `.MouseButton`\s used for
-        rectangle selection.  Default is *None*, which means any button.
+                dict(facecolor="red", edgecolor="black", alpha=0.2, fill=True)
 
-        *interactive* will draw a set of handles and allow you interact
-        with the widget after it is drawn.
+        spancoords : {"data", "pixels"}, default: "data"
+            Whether to interpret *minspanx* and *minspany* in data or in pixel
+            coordinates.
 
-        *state_modifier_keys* are keyboard modifiers that affect the behavior
-        of the widget.
+        button : `.MouseButton`, list of `.MouseButton`, default: all buttons
+            Button(s) that trigger rectangle selection.
 
-        The defaults are:
-        dict(move=' ', clear='escape', square='shift', center='ctrl')
+        maxdist : float, default: 10
+            Distance in pixels within which the interactive tool handles can be
+            activated.
 
-        Keyboard modifiers, which:
-        'move': Move the existing shape.
-        'clear': Clear the current shape.
-        'square': Makes the shape square.
-        'center': Make the initial point the center of the shape.
-        'square' and 'center' can be combined.
+        marker_props : dict
+            Properties with which the interactive handles are drawn.  Currently
+            not implemented and ignored.
+
+        interactive : bool, default: False
+            Whether to draw a set of handles that allow interaction with the
+            widget after it is drawn.
+
+        state_modifier_keys : dict, optional
+            Keyboard modifiers which affect the widget's behavior.  Values
+            amend the defaults.
+
+            - "move": Move the existing shape, default: no modifier.
+            - "clear": Clear the current shape, default: "escape".
+            - "square": Makes the shape square, default: "shift".
+            - "center": Make the initial point the center of the shape,
+              default: "ctrl".
+
+            "square" and "center" can be combined.
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
                                  button=button,
