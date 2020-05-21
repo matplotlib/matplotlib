@@ -184,7 +184,7 @@ def test_constrained_layout11subpanel():
     fig = plt.figure(constrained_layout=True, figsize=(13, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1.75, 1])
 
-    spl = fig.add_subpanel(gs0[0])
+    spl = fig.add_subpanel(gs0[0], facecolor='0.8')
     ax = fig.add_subplot(gs0[1])
     example_plot(ax, fontsize=9)
 
@@ -194,7 +194,7 @@ def test_constrained_layout11subpanel():
     ax = spl.add_subplot(gsl[0])
     example_plot(ax, fontsize=9)
     #split right side of left side into 2x2
-    spl0 = spl.add_subpanel(gsl[1])
+    spl0 = spl.add_subpanel(gsl[1], facecolor='0.7')
     axs = spl0.subplots(2, 2)
     for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=9)
@@ -401,7 +401,7 @@ def test_hidden_axes():
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
     np.testing.assert_allclose(
-        extents1, [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
+        extents1, [0.045552, 0.541343, 0.478398, 0.982638], rtol=1e-5)
 
 
 @image_comparison(['test_overlapping_gridspecs2.png'])

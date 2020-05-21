@@ -350,7 +350,6 @@ class LayoutGrid:
         ss: SubplotSpec
             defines the subplotspec these margins should be applied to
         """
-        print(ss)
         self.edit_margin_min('left', margin['left'], ss.colspan.start)
         self.edit_margin_min('right', margin['right'], ss.colspan.stop - 1)
         # rows are from the top down:

@@ -195,11 +195,11 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
         _make_layout_margins(panel, renderer, w_pad=w_pad, h_pad=h_pad,
                              hspace=hspace, wspace=wspace)
 
-        margins = _get_margin_from_padding(panel, w_pad=w_pad, h_pad=h_pad,
+        margins = _get_margin_from_padding(panel, w_pad=0, h_pad=0,
                                            hspace=hspace, wspace=wspace)
         panel._layoutgrid.parent.edit_outer_margin_mins(margins, ss)
 
-    for ax in [a for a in fig.axes if hasattr(a, 'get_subplotspec')]:
+    for ax in [a for a in fig._localaxes if hasattr(a, 'get_subplotspec')]:
 
         ss = ax.get_subplotspec()
         gs = ss.get_gridspec()
