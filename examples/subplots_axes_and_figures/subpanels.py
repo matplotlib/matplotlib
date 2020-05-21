@@ -22,6 +22,7 @@ def example_plot(ax, fontsize=12, hide_labels=False):
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
 
+
 # gridspec inside gridspec
 fig = plt.figure(constrained_layout=True)
 subpanels = fig.subpanels(1, 2, wspace=0.07)

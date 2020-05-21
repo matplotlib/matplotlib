@@ -124,7 +124,7 @@ norm = mcolors.Normalize(vmin=0., vmax=100.)
 pc_kwargs = {'rasterized': True, 'cmap': 'viridis', 'norm': norm}
 fig, ax = plt.subplots(figsize=(4, 4), constrained_layout=True)
 im = ax.pcolormesh(arr, **pc_kwargs)
-fig.colorbar(im, ax=ax, shrink=0.6);
+fig.colorbar(im, ax=ax, shrink=0.6)
 
 ############################################################################
 # If you specify a list of axes (or other iterable container) to the
@@ -134,7 +134,7 @@ fig.colorbar(im, ax=ax, shrink=0.6);
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flat:
     im = ax.pcolormesh(arr, **pc_kwargs)
-fig.colorbar(im, ax=axs, shrink=0.6);
+fig.colorbar(im, ax=axs, shrink=0.6)
 
 ############################################################################
 # If you specify a list of axes from inside a grid of axes, the colorbar
@@ -145,7 +145,7 @@ fig, axs = plt.subplots(3, 3, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flat:
     im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs[1:, ][:, 1], shrink=0.8)
-fig.colorbar(im, ax=axs[:, -1], shrink=0.6);
+fig.colorbar(im, ax=axs[:, -1], shrink=0.6)
 
 ####################################################
 # Suptitle
@@ -157,7 +157,7 @@ fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flat:
     im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
-fig.suptitle('Big Suptitle');
+fig.suptitle('Big Suptitle')
 
 ####################################################
 # Legends
@@ -170,7 +170,7 @@ fig.suptitle('Big Suptitle');
 
 fig, ax = plt.subplots(constrained_layout=True)
 ax.plot(np.arange(10), label='This is a plot')
-ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5));
+ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
 #############################################
 # However, this will steal space from a subplot layout:
@@ -178,7 +178,7 @@ ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5));
 fig, axs = plt.subplots(1, 2, figsize=(4, 2), constrained_layout=True)
 axs[0].plot(np.arange(10))
 axs[1].plot(np.arange(10), label='This is a plot')
-axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5));
+axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
 #############################################
 # In order for a legend or other artist to *not* steal space
@@ -380,7 +380,7 @@ ax = fig.add_subplot(gs0[2:4, 1])
 example_plot(ax, hide_labels=True)
 ax = fig.add_subplot(gs0[4:, 1])
 example_plot(ax, hide_labels=True)
-fig.suptitle('Overlapping Gridspecs');
+fig.suptitle('Overlapping Gridspecs')
 
 ############################################################################
 # This example uses two gridspecs to have the colorbar only pertain to
