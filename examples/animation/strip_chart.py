@@ -49,7 +49,7 @@ def emitter(p=0.1):
             yield np.random.rand(1)
 
 # Fixing random state for reproducibility
-np.random.seed(1968080)
+np.random.seed(19680801 // 10)
 
 
 fig, ax = plt.subplots()
