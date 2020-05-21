@@ -890,7 +890,9 @@ Miscellaneous
 Adding animations
 -----------------
 
-There is a Matplotlib Google/Gmail account with username ``mplgithub``
+Animations are scraped automatically by Sphinx-gallery. If this is not
+desired,
+there is also a Matplotlib Google/Gmail account with username ``mplgithub``
 which was used to setup the github account but can be used for other
 purposes, like hosting Google docs or Youtube videos.  You can embed a
 Matplotlib animation in the docs by first saving the animation as a

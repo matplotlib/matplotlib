@@ -27,7 +27,8 @@ apt-run:  &apt-install
       graphviz \
       fonts-crosextra-carlito \
       fonts-freefont-otf \
-      fonts-humor-sans
+      fonts-humor-sans \
+      optipng
 
 fonts-run:  &fonts-install
   name: Install custom fonts

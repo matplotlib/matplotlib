@@ -139,6 +139,8 @@ sphinx_gallery_conf = {
     'within_subsection_order': gallery_order.subsectionorder,
     'remove_config_comments': True,
     'min_reported_time': 1,
+    'compress_images': ('thumbnails', 'images'),
+    'matplotlib_animations': True,
 }
 
 plot_gallery = 'True'
