@@ -105,7 +105,7 @@ def _create_qApp():
         app = QtWidgets.QApplication.instance()
         if app is None:
             # check for DISPLAY env variable on X11 build of Qt
-            if QtCore.QT_VERSION_STR >= "5.":
+            if QtCore.qVersion() >= "5.":
                 try:
                     importlib.import_module(
                         # i.e. PyQt5.QtX11Extras or PySide2.QtX11Extras.
@@ -331,7 +331,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.button_release_event(self, x, y, button,
                                                   guiEvent=event)
 
-    if QtCore.QT_VERSION_STR >= "5.":
+    if QtCore.qVersion() >= "5.":
         def wheelEvent(self, event):
             x, y = self.mouseEventCoords(event)
             # from QWheelEvent::delta doc
@@ -688,7 +688,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         return str(cbook._get_data_path('images'))
 
     def _icon(self, name):
-        if QtCore.QT_VERSION_STR >= '5.':
+        if QtCore.qVersion() >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
         qt_compat._setDevicePixelRatio(pm, qt_compat._devicePixelRatio(self))
