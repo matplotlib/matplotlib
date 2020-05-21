@@ -38,7 +38,7 @@ import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
-from matplotlib.gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
@@ -814,52 +814,48 @@ default: 'top'
             fig.add_axes(ax)
         """
 
-        if not len(args) and 'rect' not in kwargs:
-            cbook.warn_deprecated(
-                "3.3",
-                message="Calling add_axes() without argument is "
-                "deprecated since %(since)s and will be removed %(removal)s. "
-                "You may want to use add_subplot() instead.")
-            return
-        elif 'rect' in kwargs:
-            if len(args):
-                raise TypeError(
-                    "add_axes() got multiple values for argument 'rect'")
-            args = (kwargs.pop('rect'), )
+        if 'figure' in kwargs:
+            # Axes itself allows for a 'figure' kwarg, but since we want to
+            # bind the created Axes to self, it is not allowed here.
+            raise TypeError(
+                "add_subplot() got an unexpected keyword argument 'figure'")
 
-        # shortcut the projection "key" modifications later on, if an axes
-        # with the exact args/kwargs exists, return it immediately.
-        key = self._make_key(*args, **kwargs)
-        ax = self._axstack.get(key)
-        if ax is not None:
-            self.sca(ax)
-            return ax
+        if len(args) == 1 and isinstance(args[0], SubplotBase):
+            ax = args[0]
+            if ax.get_figure() is not self:
+                raise ValueError("The Subplot must have been created in "
+                                 "the present figure")
+            # make a key for the subplot (which includes the axes object id
+            # in the hash)
+            key = self._make_key(*args, **kwargs)
 
-        if isinstance(args[0], Axes):
-            a = args[0]
-            if a.get_figure() is not self:
-                raise ValueError(
-                    "The Axes must have been created in the present figure")
         else:
-            rect = args[0]
-            if not np.isfinite(rect).all():
-                raise ValueError('all entries in rect must be finite '
-                                 'not {}'.format(rect))
+            if not args:
+                args = (1, 1, 1)
+            # Normalize correct ijk values to (i, j, k) here so that
+            # add_subplot(111) == add_subplot(1, 1, 1).  Invalid values will
+            # trigger errors later (via SubplotSpec._from_subplot_args).
+            if (len(args) == 1 and isinstance(args[0], Integral)
+                    and 100 <= args[0] <= 999):
+                args = tuple(map(int, str(args[0])))
             projection_class, kwargs, key = \
                 self._process_projection_requirements(*args, **kwargs)
+            ax = self._axstack.get(key)  # search axes with this key in stack
+            if ax is not None:
+                if isinstance(ax, projection_class):
+                    # the axes already existed, so set it as active & return
+                    self.sca(ax)
+                    return ax
+                else:
+                    # Undocumented convenience behavior:
+                    # subplot(111); subplot(111, projection='polar')
+                    # will replace the first with the second.
+                    # Without this, add_subplot would be simpler and
+                    # more similar to add_axes.
+                    self._axstack.remove(ax)
+            ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
 
-            # check that an axes of this type doesn't already exist, if it
-            # does, set it as active and return it
-            ax = self._axstack.get(key)
-            if isinstance(ax, projection_class):
-                self.sca(ax)
-                return ax
-
-            # create the new axes using the axes class given
-            a = projection_class(self, rect, **kwargs)
-
-        return self._add_axes_internal(key, a)
-
+        return self._add_axes_internal(key, ax)
 
     def _add_axes_internal(self, key, ax):
         """Private helper for `add_axes` and `add_subplot`."""
