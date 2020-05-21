@@ -111,13 +111,14 @@ missing_references_write_json = False
 missing_references_warn_unused_ignores = False
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
+    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler', None),
     'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
+    'ipykernel': ('https://ipykernel.readthedocs.io/en/latest/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'pytest': ('https://pytest.org/en/stable', None),
+    'python': ('https://docs.python.org/3', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
 
