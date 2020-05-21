@@ -48,6 +48,7 @@ def emitter(p=0.1):
         else:
             yield np.random.rand(1)
 
+
 # Fixing random state for reproducibility
 np.random.seed(19680801 // 10)
 
