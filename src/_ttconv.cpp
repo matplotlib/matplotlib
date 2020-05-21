@@ -49,7 +49,7 @@ class PythonFileWriter : public TTStreamWriter
             if (decoded == NULL) {
                 throw py::exception();
             }
-            result = PyObject_CallFunction(_write_method, (char *)"O", decoded);
+            result = PyObject_CallFunctionObjArgs(_write_method, decoded, NULL);
             Py_DECREF(decoded);
             if (!result) {
                 throw py::exception();
