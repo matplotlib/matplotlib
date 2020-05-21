@@ -51,7 +51,7 @@ class LayoutGrid:
     def __init__(self, parent=None, parent_pos=(0, 0),
                  parent_inner=False, name='', ncols=1, nrows=1,
                  h_pad=None, w_pad=None, width_ratios=None,
-                 height_ratios=None, fixed_margins=False):
+                 height_ratios=None):
         Variable = kiwi.Variable
         self.parent = parent
         self.parent_pos = parent_pos
@@ -79,7 +79,6 @@ class LayoutGrid:
         self.artists = np.empty((nrows, ncols), dtype=object)
         self.children = np.empty((nrows, ncols), dtype=object)
 
-        self.fixed_margins = fixed_margins
         self.margins = {}
         self.margin_vals = {}
         # all the boxes in each column share the same left/right margins:
@@ -337,6 +336,26 @@ class LayoutGrid:
 
         for i in range(len(self.margin_vals[todo])):
             self.edit_margin_min(todo, width, i)
+
+    def edit_outer_margin_mins(self, margin, ss):
+        """
+        Edit all four margin minimums in one statement.
+
+        Parameters
+        ----------
+        margin: dict
+            size of margins in a dict with keys 'left', 'right', 'bottom',
+            'top'
+
+        ss: SubplotSpec
+            defines the subplotspec these margins should be applied to
+        """
+        print(ss)
+        self.edit_margin_min('left', margin['left'], ss.colspan.start)
+        self.edit_margin_min('right', margin['right'], ss.colspan.stop - 1)
+        # rows are from the top down:
+        self.edit_margin_min('top', margin['top'], ss.rowspan.start)
+        self.edit_margin_min('bottom', margin['bottom'], ss.rowspan.stop - 1)
 
     def get_margins(self, todo, col):
         """Return the margin at this position"""

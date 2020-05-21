@@ -150,6 +150,35 @@ def _check_ok(fig):
                             return False
     return True
 
+def _get_margin_from_padding(object, *, w_pad=0, h_pad=0,
+                         hspace=0, wspace=0):
+
+    ss = object._subplotspec
+    gs = ss.get_gridspec()
+    lg = gs._layoutgrid
+
+    if hasattr(gs, 'hspace'):
+
+        _hspace = (gs.hspace if gs.hspace is not None else hspace)
+        _wspace = (gs.wspace if gs.wspace is not None else wspace)
+    else:
+        _hspace = (gs._hspace if gs._hspace is not None else hspace)
+        _wspace = (gs._wspace if gs._wspace is not None else wspace)
+
+    nrows, ncols = gs.get_geometry()
+    margin = {'left': w_pad, 'right': w_pad,
+              'bottom': h_pad, 'top': h_pad}
+    if ss.colspan.start > 0:
+        margin['left'] = _wspace / ncols / 2
+    if ss.colspan.stop < ncols:
+        margin['right'] = _wspace / ncols / 2
+    if ss.rowspan.stop < nrows:
+        margin['bottom'] = _hspace / nrows / 2
+    if ss.rowspan.start > 0:
+        margin['top'] = _hspace / nrows / 2
+
+    return margin
+
 
 def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                          hspace=0, wspace=0):
@@ -160,9 +189,15 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
 
     Then make room for colorbars.
     """
+
     for panel in fig.panels:  # recursively make child panel margins
+        ss = panel._subplotspec
         _make_layout_margins(panel, renderer, w_pad=w_pad, h_pad=h_pad,
                              hspace=hspace, wspace=wspace)
+
+        margins = _get_margin_from_padding(panel, w_pad=w_pad, h_pad=h_pad,
+                                           hspace=hspace, wspace=wspace)
+        panel._layoutgrid.parent.edit_outer_margin_mins(margins, ss)
 
     for ax in [a for a in fig.axes if hasattr(a, 'get_subplotspec')]:
 
@@ -173,26 +208,18 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
         if gs._layoutgrid is None:
             return
 
+        margin = _get_margin_from_padding(ax, w_pad=w_pad, h_pad=h_pad,
+                                           hspace=hspace, wspace=wspace)
+
         pos, bbox = _get_pos_and_bbox(ax, renderer)
 
         # the margin is the distance between the bounding box of the axes
-        # and its position.  Then we add the fixed padding (w_pad) and
-        # the interior padding (wspace)
-        margin = {}
-        margin['left'] = -bbox.x0 + pos.x0 + w_pad
-        if ss.colspan.start > 0:
-            margin['left'] += wspace / ncols / 2  # interior padding
-        margin['right'] = bbox.x1 - pos.x1 + w_pad
-        if ss.colspan.stop < ncols:
-            margin['right'] += wspace / ncols / 2
-
+        # and its position (plus the padding from above)
+        margin['left'] += -bbox.x0 + pos.x0
+        margin['right'] += bbox.x1 - pos.x1
         # remember that rows are ordered from top:
-        margin['bottom'] = pos.y0 - bbox.y0 + h_pad
-        if ss.rowspan.stop < nrows:
-            margin['bottom'] += hspace / nrows / 2
-        margin['top'] = -pos.y1 + bbox.y1 + h_pad
-        if ss.rowspan.start > 0:
-            margin['top'] += hspace / nrows / 2
+        margin['bottom'] += pos.y0 - bbox.y0
+        margin['top'] += -pos.y1 + bbox.y1
 
         # increase margin for colorbars...
         for cbax in ax._colorbars:
@@ -221,15 +248,7 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                     margin['bottom'] += cbbbox.height + h_pad * 2
 
         # pass the new margins down to the layout grid for the solution...
-        gs._layoutgrid.edit_margin_min('left', margin['left'],
-                                       ss.colspan[0])
-        gs._layoutgrid.edit_margin_min('right', margin['right'],
-                                       ss.colspan[-1])
-        # rows are from the top down:
-        gs._layoutgrid.edit_margin_min('top', margin['top'],
-                                       ss.rowspan[0])
-        gs._layoutgrid.edit_margin_min('bottom', margin['bottom'],
-                                       ss.rowspan[-1])
+        gs._layoutgrid.edit_outer_margin_mins(margin, ss)
 
 
 def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):

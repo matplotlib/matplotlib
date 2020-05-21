@@ -1442,14 +1442,27 @@ default: 'top'
         self._gridspecs.append(gs)
         return gs
 
-    def subpanels(self, nrows=1, ncols=1, **kwargs):
-        _ = kwargs.pop('figure', None)  # pop in case user has added this...
-        gs = GridSpec(nrows=nrows, ncols=ncols, figure=self, **kwargs)
+    def subpanels(self, nrows=1, ncols=1, squeeze=True,
+                  wspace=None, hspace=None,
+                  width_ratios=None, height_ratios=None,
+                  **kwargs):
+        gs = GridSpec(nrows=nrows, ncols=ncols, figure=self,
+                      wspace=wspace, hspace=hspace,
+                      width_ratios=width_ratios,
+                      height_ratios=height_ratios)
 
         sfarr = np.empty((nrows, ncols), dtype=object)
         for i in range(ncols):
             for j in range(nrows):
                 sfarr[j, i] = self.add_subpanel(gs[j, i], **kwargs)
+
+        if squeeze:
+            # Discarding unneeded dimensions that equal 1.  If we only have one
+            # subpanel, just return it instead of a 1-element array.
+            return sfarr.item() if sfarr.size == 1 else sfarr.squeeze()
+        else:
+            # Returned axis array will be always 2-d, even if nrows=ncols=1.
+            return sfarr
 
         return sfarr
 
@@ -1781,7 +1794,7 @@ class SubPanel(PanelBase):
                 parent=parent,
                 name=(parent.name + '.' + 'panellb' +
                       layoutgrid.seq_id()),
-                fixed_margins=True,
+                parent_inner=True,
                 nrows=1, ncols=1,
                 parent_pos=(self._subplotspec.rowspan,
                             self._subplotspec.colspan))
@@ -2840,7 +2853,7 @@ class Figure(PanelBase):
         """Initialize the layoutgrid for use in constrained_layout."""
         if self._layoutgrid is None:
             self._layoutgrid = layoutgrid.LayoutGrid(
-                parent=None, name='figlb', fixed_margins=True)
+                parent=None, name='figlb')
 
 
 def figaspect(arg):
