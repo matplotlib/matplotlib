@@ -252,7 +252,7 @@ def _make_type_validator(cls, *, allow_none=False):
 validate_string = _make_type_validator(str)
 validate_string_or_None = _make_type_validator(str, allow_none=True)
 validate_stringlist = _listify_validator(
-    validate_string, doc='return a list or strings')
+    validate_string, doc='return a list of strings')
 validate_int = _make_type_validator(int)
 validate_int_or_None = _make_type_validator(int, allow_none=True)
 validate_float = _make_type_validator(float)
