@@ -6,7 +6,7 @@
 
 .. automodule:: matplotlib.figure
    :no-members:
-   :no-inherited-members:
+   :inherited-members:
 
 Classes
 -------
@@ -17,6 +17,7 @@ Classes
    :nosignatures:
 
    AxesStack
+   SubPanel
    Figure
    SubplotParams
 
