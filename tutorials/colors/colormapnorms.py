@@ -196,11 +196,10 @@ plt.show()
 # elevation range than the water has depth range, and they are often
 # represented by a different colormap.
 
-filename = cbook.get_sample_data('topobathy.npz', asfileobj=False)
-with np.load(filename) as dem:
-    topo = dem['topo']
-    longitude = dem['longitude']
-    latitude = dem['latitude']
+dem = cbook.get_sample_data('topobathy.npz', np_load=True)
+topo = dem['topo']
+longitude = dem['longitude']
+latitude = dem['latitude']
 
 fig, ax = plt.subplots()
 # make a colormap that has land and ocean clearly delineated and of the

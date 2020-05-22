@@ -617,14 +617,13 @@ def test_autoscale_masked():
 @image_comparison(['light_source_shading_topo.png'])
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
-    with cbook.get_sample_data('jacksboro_fault_dem.npz') as file, \
-         np.load(file) as dem:
-        elev = dem['elevation']
-        dx, dy = dem['dx'], dem['dy']
-        # Get the true cellsize in meters for accurate vertical exaggeration
-        # Convert from decimal degrees to meters
-        dx = 111320.0 * dx * np.cos(dem['ymin'])
-        dy = 111320.0 * dy
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    elev = dem['elevation']
+    dx, dy = dem['dx'], dem['dy']
+    # Get the true cellsize in meters for accurate vertical exaggeration
+    # Convert from decimal degrees to meters
+    dx = 111320.0 * dx * np.cos(dem['ymin'])
+    dy = 111320.0 * dy
 
     ls = mcolors.LightSource(315, 45)
     cmap = cm.gist_earth
