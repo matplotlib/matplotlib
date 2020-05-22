@@ -385,10 +385,7 @@ class TextPath(Path):
         # Circular import.
         from matplotlib.text import Text
 
-        if prop is None:
-            prop = FontProperties()
-        else:
-            prop = FontProperties._from_any(prop)
+        prop = FontProperties._from_any(prop)
         if size is None:
             size = prop.get_size_in_points()
 

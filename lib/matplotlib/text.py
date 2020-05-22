@@ -147,15 +147,9 @@ class Text(Artist):
         """
         Artist.__init__(self)
         self._x, self._y = x, y
-
-        if color is None:
-            color = rcParams['text.color']
-        if fontproperties is None:
-            fontproperties = FontProperties()
-
         self._text = ''
         self.set_text(text)
-        self.set_color(color)
+        self.set_color(color if color is not None else rcParams["text.color"])
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
         self.set_wrap(wrap)
