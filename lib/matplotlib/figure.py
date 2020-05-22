@@ -54,118 +54,6 @@ def _stale_figure_callback(self, val):
         self.figure.stale = val
 
 
-class _AxesStack(cbook.Stack):
-    """
-    Specialization of `.Stack`, to handle all tracking of `~.axes.Axes` in a
-    `.Figure`.
-
-    This stack stores ``key, (ind, axes)`` pairs, where:
-
-    * **key** is a hash of the args and kwargs used in generating the Axes.
-    * **ind** is a serial index tracking the order in which axes were added.
-
-    AxesStack is a callable; calling it returns the current axes.
-    The `current_key_axes` method returns the current key and associated axes.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self._ind = 0
-
-    def as_list(self):
-        """
-        Return a list of the Axes instances that have been added to the figure.
-        """
-        ia_list = [a for k, a in self._elements]
-        ia_list.sort()
-        return [a for i, a in ia_list]
-
-    def get(self, key):
-        """
-        Return the Axes instance that was added with *key*.
-        If it is not present, return *None*.
-        """
-        item = dict(self._elements).get(key)
-        if item is None:
-            return None
-        cbook.warn_deprecated(
-            "2.1",
-            message="Adding an axes using the same arguments as a previous "
-            "axes currently reuses the earlier instance.  In a future "
-            "version, a new instance will always be created and returned.  "
-            "Meanwhile, this warning can be suppressed, and the future "
-            "behavior ensured, by passing a unique label to each axes "
-            "instance.")
-        return item[1]
-
-    def _entry_from_axes(self, e):
-        ind, k = {a: (ind, k) for k, (ind, a) in self._elements}[e]
-        return (k, (ind, e))
-
-    def remove(self, a):
-        """Remove the axes from the stack."""
-        super().remove(self._entry_from_axes(a))
-
-    def bubble(self, a):
-        """
-        Move the given axes, which must already exist in the
-        stack, to the top.
-        """
-        return super().bubble(self._entry_from_axes(a))
-
-    def add(self, key, a):
-        """
-        Add Axes *a*, with key *key*, to the stack, and return the stack.
-
-        If *key* is unhashable, replace it by a unique, arbitrary object.
-
-        If *a* is already on the stack, don't add it again, but
-        return *None*.
-        """
-        # All the error checking may be unnecessary; but this method
-        # is called so seldom that the overhead is negligible.
-        cbook._check_isinstance(Axes, a=a)
-        try:
-            hash(key)
-        except TypeError:
-            key = object()
-
-        a_existing = self.get(key)
-        if a_existing is not None:
-            super().remove((key, a_existing))
-            cbook._warn_external(
-                "key {!r} already existed; Axes is being replaced".format(key))
-            # I don't think the above should ever happen.
-
-        if a in self:
-            return None
-        self._ind += 1
-        return super().push((key, (self._ind, a)))
-
-    def current_key_axes(self):
-        """
-        Return a tuple of ``(key, axes)`` for the active axes.
-
-        If no axes exists on the stack, then returns ``(None, None)``.
-        """
-        if not len(self._elements):
-            return self._default, self._default
-        else:
-            key, (index, axes) = self._elements[self._pos]
-            return key, axes
-
-    def __call__(self):
-        return self.current_key_axes()[1]
-
-    def __contains__(self, a):
-        return a in self.as_list()
-
-
-@cbook.deprecated("3.2")
-class AxesStack(_AxesStack):
-    pass
-
-
 class SubplotParams:
     """
     A class to hold the parameters for a subplot.
@@ -228,28 +116,11 @@ class SubplotParams:
 
 
 class PanelBase(Artist):
-    def __init__(self,
-                 facecolor=None,
-                 edgecolor=None,
-                 linewidth=0.0,
-                 frameon=None):
-        """
-        Parameters
-        ----------
-
-        facecolor : default: :rc:`figure.facecolor`
-            The figure patch facecolor.
-
-        edgecolor : default: :rc:`figure.edgecolor`
-            The figure patch edge color.
-
-        linewidth : float
-            The linewidth of the frame (i.e. the edge linewidth of the figure
-            patch).
-
-        frameon : bool, default: :rc:`figure.frameon`
-            If ``False``, suppress drawing the figure background patch.
-        """
+    """
+    Base class for `.figure.Figure` and `.figure.SubPanel` containing the
+    methods that add artists to the figure, create axes, etc.
+    """
+    def __init__(self):
         super().__init__()
         # remove the non-figure artist _axes property
         # as it makes no sense for a figure to be _in_ an axes
@@ -1683,15 +1554,52 @@ default: 'top'
 
 
 class SubPanel(PanelBase):
+    """
+    Logical panel that can be place in a figure typically using
+    `.Figure.add_subpanel` or `.SubPanel.add_subpanel`, or
+    `.SubPanel.subpanels`.  A panel has the same methods as a figure
+    except for those particularly tied to the size or dpi of the figure, and
+    is confined to a prescribed region of the figure.  For example the
+    following puts two subpanels side-by-side::
+
+        fig = plt.figure()
+        spanels = fig.subpanels(1, 2)
+        axsL = spanels[0].subplots(1, 2)
+        axsR = spanels[0].subplots(2, 1)
+
+    See :doc:`/gallery/subplots_axes_and_figures/subpanels'
+    """
 
     def __init__(self, subplotspec, parent, *,
                  facecolor=None,
                  edgecolor=None,
                  linewidth=0.0,
-                 frameon=None,
-                 **kwargs):
+                 frameon=None):
+        """
+        Parameters
+        ----------
+        subplotspec : `.gridspec.SubplotSpec`
+            defines the region in a parent gridspec where the subpanel will
+            be placed
 
-        super().__init__(**kwargs)
+        parent : `.figure.Figure` or `.figure.SubPanel`
+            Figure or subpanel that contains the SubPanel.  SubPanels
+            can be nested.
+
+        facecolor : default: :rc:`figure.facecolor`
+            The figure patch facecolor.
+
+        edgecolor : default: :rc:`figure.edgecolor`
+            The figure patch edge color.
+
+        linewidth : float
+            The linewidth of the frame (i.e. the edge linewidth of the figure
+            patch).
+
+        frameon : boolean, default: :rc:`figure.frameon`
+            If ``False``, suppress drawing the figure background patch.
+        """
+        super().__init__()
         if facecolor is None:
             facecolor = mpl.rcParams['figure.facecolor']
         if edgecolor is None:
@@ -1797,13 +1705,8 @@ class SubPanel(PanelBase):
 
     def get_axes(self):
         """
-        Return a list of axes in the SubFigure. You can access and modify the
+        Return a list of axes in the SubPanel. You can access and modify the
         axes in the Figure through this list.
-
-        Do not modify the list itself. Instead, use `~Figure.add_axes`,
-        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an axes.
-
-        Note: This is equivalent to the property `~.Figure.axes`.
         """
         return self._localaxes
 
@@ -1816,8 +1719,8 @@ class SubPanel(PanelBase):
         List of axes in the Figure.  You can access and modify the axes
         in the Figure through this list.
 
-        Do not modify the list itself. Instead, use "`~Figure.add_axes`,
-        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an
+        Do not modify the list itself. Instead, use "`~.SubPanel.add_axes`,
+        `~.SubPanel.add_subplot` or `~.SubPanel.delaxes` to add or remove an
         axes.
         """)
 
@@ -2932,3 +2835,116 @@ def figaspect(arg):
     return newsize
 
 docstring.interpd.update(Figure=martist.kwdoc(Figure))
+
+
+
+class _AxesStack(cbook.Stack):
+    """
+    Specialization of `.Stack`, to handle all tracking of `~.axes.Axes` in a
+    `.Figure`.
+
+    This stack stores ``key, (ind, axes)`` pairs, where:
+
+    * **key** is a hash of the args and kwargs used in generating the Axes.
+    * **ind** is a serial index tracking the order in which axes were added.
+
+    AxesStack is a callable; calling it returns the current axes.
+    The `current_key_axes` method returns the current key and associated axes.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._ind = 0
+
+    def as_list(self):
+        """
+        Return a list of the Axes instances that have been added to the figure.
+        """
+        ia_list = [a for k, a in self._elements]
+        ia_list.sort()
+        return [a for i, a in ia_list]
+
+    def get(self, key):
+        """
+        Return the Axes instance that was added with *key*.
+        If it is not present, return *None*.
+        """
+        item = dict(self._elements).get(key)
+        if item is None:
+            return None
+        cbook.warn_deprecated(
+            "2.1",
+            message="Adding an axes using the same arguments as a previous "
+            "axes currently reuses the earlier instance.  In a future "
+            "version, a new instance will always be created and returned.  "
+            "Meanwhile, this warning can be suppressed, and the future "
+            "behavior ensured, by passing a unique label to each axes "
+            "instance.")
+        return item[1]
+
+    def _entry_from_axes(self, e):
+        ind, k = {a: (ind, k) for k, (ind, a) in self._elements}[e]
+        return (k, (ind, e))
+
+    def remove(self, a):
+        """Remove the axes from the stack."""
+        super().remove(self._entry_from_axes(a))
+
+    def bubble(self, a):
+        """
+        Move the given axes, which must already exist in the
+        stack, to the top.
+        """
+        return super().bubble(self._entry_from_axes(a))
+
+    def add(self, key, a):
+        """
+        Add Axes *a*, with key *key*, to the stack, and return the stack.
+
+        If *key* is unhashable, replace it by a unique, arbitrary object.
+
+        If *a* is already on the stack, don't add it again, but
+        return *None*.
+        """
+        # All the error checking may be unnecessary; but this method
+        # is called so seldom that the overhead is negligible.
+        cbook._check_isinstance(Axes, a=a)
+        try:
+            hash(key)
+        except TypeError:
+            key = object()
+
+        a_existing = self.get(key)
+        if a_existing is not None:
+            super().remove((key, a_existing))
+            cbook._warn_external(
+                "key {!r} already existed; Axes is being replaced".format(key))
+            # I don't think the above should ever happen.
+
+        if a in self:
+            return None
+        self._ind += 1
+        return super().push((key, (self._ind, a)))
+
+    def current_key_axes(self):
+        """
+        Return a tuple of ``(key, axes)`` for the active axes.
+
+        If no axes exists on the stack, then returns ``(None, None)``.
+        """
+        if not len(self._elements):
+            return self._default, self._default
+        else:
+            key, (index, axes) = self._elements[self._pos]
+            return key, axes
+
+    def __call__(self):
+        return self.current_key_axes()[1]
+
+    def __contains__(self, a):
+        return a in self.as_list()
+
+
+@cbook.deprecated("3.2")
+class AxesStack(_AxesStack):
+    pass
