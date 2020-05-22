@@ -20,6 +20,7 @@ L1 = 1.0  # length of pendulum 1 in m
 L2 = 1.0  # length of pendulum 2 in m
 M1 = 1.0  # mass of pendulum 1 in kg
 M2 = 1.0  # mass of pendulum 2 in kg
+t_stop = 5  # how many seconds to simulate
 
 
 def derivs(state, t):
@@ -48,7 +49,7 @@ def derivs(state, t):
 
 # create a time array from 0..100 sampled at 0.05 second steps
 dt = 0.05
-t = np.arange(0, 20, dt)
+t = np.arange(0, t_stop, dt)
 
 # th1 and th2 are the initial angles (degrees)
 # w10 and w20 are the initial angular velocities (degrees per second)
@@ -69,8 +70,8 @@ y1 = -L1*cos(y[:, 0])
 x2 = L2*sin(y[:, 2]) + x1
 y2 = -L2*cos(y[:, 2]) + y1
 
-fig = plt.figure()
-ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 2))
+fig = plt.figure(figsize=(5, 4))
+ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 1))
 ax.set_aspect('equal')
 ax.grid()
 

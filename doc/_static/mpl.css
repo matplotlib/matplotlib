@@ -189,10 +189,6 @@ div.documentwrapper {
 }
 */
 
-div.clearer {
-    clear: both;
-}
-
 div.related h3 {
     display: none;
 }

@@ -21,11 +21,8 @@
    creates no example file for those (sphinx-gallery/sphinx-gallery#365)
 
 {% else %}
-.. include:: {{module}}.{{objname}}.examples
-
-.. raw:: html
-
-    <div class="clearer"></div>
+.. minigallery:: {{module}}.{{objname}}
+   :add-heading:
 
 {% endif %}
 {% endif %}
