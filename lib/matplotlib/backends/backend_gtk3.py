@@ -176,7 +176,19 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         self.set_double_buffered(True)
         self.set_can_focus(True)
-        self._renderer_init()
+
+        renderer_init = cbook._deprecate_method_override(
+            __class__._renderer_init, self, allow_empty=True, since="3.3",
+            addendum="Please initialize the renderer, if needed, in the "
+            "subclass' __init__; a fully empty _renderer_init implementation "
+            "may be kept for compatibility with earlier versions of "
+            "Matplotlib.")
+        if renderer_init:
+            renderer_init()
+
+    @cbook.deprecated("3.3", alternative="__init__")
+    def _renderer_init(self):
+        pass
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)

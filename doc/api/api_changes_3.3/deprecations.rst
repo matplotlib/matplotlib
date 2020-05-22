@@ -407,6 +407,16 @@ what the docs stated).  They are deprecated; if you write a backend
 which needs to customize such events, please directly override
 ``press_pan``/``press_zoom``/``release_pan``/``release_zoom`` instead.
 
+FigureCanvasGTK3._renderer_init
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Overriding this method to initialize renderers for GTK3 canvases is deprecated.
+Instead, the renderer should be initialized in the ``__init__`` method of the
+subclass (which should call the base-class' ``__init__`` as appropriate).  To
+keep back-compatibility with earlier versions of Matplotlib (which *required*
+``_renderer_init`` to be overridden), a fully empty implementation (``def
+_renderer_init(self): pass``) may be kept and will not trigger the deprecation
+warning.
+
 Path helpers in :mod:`.bezier`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
