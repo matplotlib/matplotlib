@@ -212,6 +212,7 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                                            hspace=hspace, wspace=wspace)
 
         pos, bbox = _get_pos_and_bbox(ax, renderer)
+        print('pos/bbox', pos, bbox)
 
         # the margin is the distance between the bounding box of the axes
         # and its position (plus the padding from above)
@@ -398,6 +399,7 @@ def _get_pos_and_bbox(ax, renderer):
     invTransFig = fig.transFigure.inverted()
 
     pos = ax.get_position(original=True)
+    print('actual pos', pos)
     # pos is in panel co-ords, but we need in figure for the layout
     pos = pos.transformed(fig.transPanel+invTransFig)
     try:
@@ -409,6 +411,7 @@ def _get_pos_and_bbox(ax, renderer):
         bbox = pos
     else:
         bbox = tightbbox.transformed(invTransFig)
+    print('tbb', bbox)
     return pos, bbox
 
 

@@ -5,7 +5,7 @@ Nested Subpanels
 
 Sometimes it is desirable to have a figure that has two different
 layouts in it.  This can be achieved with
-:doc:`nested gridspecs</examples/subplots_axes_and_figures/gridspec_nested>`
+:doc:`nested gridspecs</gallery/subplots_axes_and_figures/gridspec_nested>`
 but having a virtual figure with its own artists is helpful, so
 Matplotlib also has "subpanels", usually implimented by calling
 ``.figure.PanelBase.add_subpanel`` in a way that is analagous to

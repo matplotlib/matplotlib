@@ -4160,6 +4160,7 @@ class _AxesBase(martist.Artist):
                     bb.append(bb_yaxis)
         self._update_title_position(renderer)
         axbbox = self.get_window_extent(renderer)
+        print('axbbox', axbbox)
         bb.append(axbbox)
 
         for title in [self.title, self._left_title, self._right_title]:

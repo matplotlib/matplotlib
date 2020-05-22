@@ -585,7 +585,7 @@ example_plot(ax4)
 #     gridspec._layoutgrid[0, 0].edit_margin_min('left',
 #           -bbox.x0 + pos.x0 + w_pad)
 #
-# where `bbox` is the tight bounding box of the axes, and `pos` its
+# where ``bbox`` is the tight bounding box of the axes, and ``pos`` its
 # position.  Note how the four margins encompass the axes decorations.
 
 from matplotlib._layoutgrid import plot_children
