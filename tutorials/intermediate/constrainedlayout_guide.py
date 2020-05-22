@@ -562,8 +562,8 @@ example_plot(ax4)
 # into rows and columns, with the reltive width of the axes in those
 # rows and columns set by width_ratios and height ratios.
 #
-# In constrained_layout, each gridspec gets a `~.layoutgrid` associated with
-# it.  The layout grid has a series of ``left`` and ``right`` variables
+# In constrained_layout, each gridspec gets a *layoutgrid* associated with
+# it.  The *layoutgrid* has a series of ``left`` and ``right`` variables
 # for each column, and ``bottom`` and ``top`` variables for each row, and
 # further it has a margin for each of left, right, bottom and top.
 # Constrained_layout the inner part of each cell the same width and height
