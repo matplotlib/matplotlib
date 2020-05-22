@@ -301,3 +301,9 @@ When `.cbook.get_sample_data` is used to load a npy or npz file and the
 keyword-only parameter ``np_load`` is True, the file is automatically loaded
 using `numpy.load`.  ``np_load`` defaults to False for backwards compatibility,
 but will become True in a later release.
+
+``get_text_width_height_descent`` now checks ``ismath`` rather than :rc:`text.usetex`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... to determine whether a string should be passed to the usetex machinery or
+not.  This allows single strings to be marked as not-usetex even when the
+rcParam is True.
