@@ -503,6 +503,7 @@ class RendererBase:
         """
         return False
 
+    @cbook._delete_parameter("3.3", "ismath")
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         """
         """
