@@ -2068,30 +2068,21 @@ class RectangleSelector(_SelectorWidget):
         xy2 = self.ax.transData.transform([x2, y2])
         self.eventrelease.x, self.eventrelease.y = xy2
 
+        # calculate dimensions of box or line
         if self.spancoords == 'data':
-            xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
-            xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
-            # calculate dimensions of box or line get values in the right order
+            spanx = abs(self.eventpress.xdata - self.eventrelease.xdata)
+            spany = abs(self.eventpress.ydata - self.eventrelease.ydata)
         elif self.spancoords == 'pixels':
-            xmin, ymin = self.eventpress.x, self.eventpress.y
-            xmax, ymax = self.eventrelease.x, self.eventrelease.y
+            spanx = abs(self.eventpress.x - self.eventrelease.x)
+            spany = abs(self.eventpress.y - self.eventrelease.y)
         else:
             cbook._check_in_list(['data', 'pixels'],
                                  spancoords=self.spancoords)
-
-        if xmin > xmax:
-            xmin, xmax = xmax, xmin
-        if ymin > ymax:
-            ymin, ymax = ymax, ymin
-
-        spanx = xmax - xmin
-        spany = ymax - ymin
-        xproblems = self.minspanx is not None and spanx < self.minspanx
-        yproblems = self.minspany is not None and spany < self.minspany
-
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
-        if self.drawtype != 'none' and (xproblems or yproblems):
+        if (self.drawtype != 'none'
+                and (self.minspanx is not None and spanx < self.minspanx
+                     or self.minspany is not None and spany < self.minspany)):
             for artist in self.artists:
                 artist.set_visible(False)
             self.update()
