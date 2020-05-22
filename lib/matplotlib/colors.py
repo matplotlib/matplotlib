@@ -1936,7 +1936,7 @@ class LightSource:
                                  .format(lookup.keys)) from err
 
         # Only apply result where hillshade intensity isn't masked
-        if hasattr(intensity, 'mask'):
+        if np.ma.is_masked(intensity):
             mask = intensity.mask[..., 0]
             for i in range(3):
                 blend[..., i][mask] = rgb[..., i][mask]
