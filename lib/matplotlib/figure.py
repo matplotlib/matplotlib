@@ -1567,7 +1567,7 @@ class SubPanel(PanelBase):
         axsL = spanels[0].subplots(1, 2)
         axsR = spanels[0].subplots(2, 1)
 
-    See :doc:`/gallery/subplots_axes_and_figures/subpanels'
+    See :doc:`/gallery/subplots_axes_and_figures/subpanels`
     """
 
     def __init__(self, subplotspec, parent, *,

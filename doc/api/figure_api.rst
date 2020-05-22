@@ -6,7 +6,7 @@
 
 .. automodule:: matplotlib.figure
    :no-members:
-   :inherited-members:
+   :no-inherited-members:
 
 Classes
 -------
@@ -15,6 +15,7 @@ Classes
    :toctree: _as_gen/
    :template: autosummary.rst
    :nosignatures:
+   :inhereted-members:
 
    SubPanel
    Figure
