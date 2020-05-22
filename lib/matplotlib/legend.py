@@ -404,8 +404,9 @@ class Legend(Artist):
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
             if isinstance(label, str) and label.startswith('_'):
-                cbook._warn_external('The label {!r} of handle {!r} cannot be a '
-                                     'string starting with "_"'.format(handle, label))
+                cbook._warn_external('The label {!r} of handle {!r} cannot be '
+                                     'a string starting with '
+                                     '"_"'.format(handle, label))
             else:
                 _lab.append(label)
                 _hand.append(handle)
