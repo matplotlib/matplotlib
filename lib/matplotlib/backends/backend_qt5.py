@@ -460,6 +460,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             self._draw_pending = True
             QtCore.QTimer.singleShot(0, self._draw_idle)
 
+    def blit(self, bbox=None):
+        # docstring inherited
+        if bbox is None and self.figure:
+            bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
+        # repaint uses logical pixels, not physical pixels like the renderer.
+        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
+        t = b + h
+        self.repaint(l, self.rect().height() - t, w, h)
+
     def _draw_idle(self):
         with self._idle_draw_cntx():
             if not self._draw_pending:
