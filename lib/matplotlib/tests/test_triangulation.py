@@ -935,6 +935,24 @@ def test_trirefine():
     assert_array_almost_equal(xyz_data[0], xyz_data[1])
 
 
+@pytest.mark.parametrize('interpolator',
+                         [mtri.LinearTriInterpolator,
+                          mtri.CubicTriInterpolator],
+                         ids=['linear', 'cubic'])
+def test_trirefine_masked(interpolator):
+    # Repeated points means we will have fewer triangles than points, and thus
+    # get masking.
+    x, y = np.mgrid[:2, :2]
+    x = np.repeat(x.flatten(), 2)
+    y = np.repeat(y.flatten(), 2)
+
+    z = np.zeros_like(x)
+    tri = mtri.Triangulation(x, y)
+    refiner = mtri.UniformTriRefiner(tri)
+    interp = interpolator(tri, z)
+    refiner.refine_field(z, triinterpolator=interp, subdiv=2)
+
+
 def meshgrid_triangles(n):
     """
     Return (2*(N-1)**2, 3) array of triangles to mesh (N, N)-point np.meshgrid.
