@@ -191,7 +191,8 @@ def test_gid():
             elif obj.axes is None:
                 return False
         if isinstance(obj, plt.Line2D):
-            if np.array(obj.get_data()).shape == (2, 1):
+            xdata, ydata = obj.get_data()
+            if len(xdata) == len(ydata) == 1:
                 return False
             elif not hasattr(obj, "axes") or obj.axes is None:
                 return False
