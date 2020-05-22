@@ -1,0 +1,25 @@
+Constrained layout rewrite
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The layout manager ``constrained_layout`` was re-written with different
+outer constraints that should be more robust to complicated subplot layouts.
+User-facing changes are:
+
+- some poorly constrained layouts will have different width/height plots than
+  before.
+- colorbars now respect the ``anchor`` keyword argument of
+  `matplotlib.colorbar.make_axes`
+- colorbars are wider.
+- colorbars in different rows or columns line up more robustly.
+- *hspace* and *wspace* options to  `.Figure.set_constrained_layout_pads`
+  were twice as wide as the docs said they should be.  So these now follow
+  the docs.
+
+This feature will remain "experimental" until the new changes have been
+used enough by users, so we anticipate version 3.5 or 3.6. On the other hand,
+``constrained_layout`` is extensively tested and used in examples in the
+library, so using it should be safe, but layouts may not be exactly the same
+as more development takes place.
+
+Details of using ``constrained_layout``, and its algorithm are available at
+:doc:`/tutorials/intermediate/constrainedlayout_guide`

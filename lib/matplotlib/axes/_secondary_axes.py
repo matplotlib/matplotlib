@@ -36,8 +36,6 @@ class SecondaryAxis(_AxesBase):
             self._otherstrings = ['top', 'bottom']
         self._parentscale = None
         # this gets positioned w/o constrained_layout so exclude:
-        self._layoutbox = None
-        self._poslayoutbox = None
 
         self.set_location(location)
         self.set_functions(functions)

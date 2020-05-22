@@ -64,7 +64,7 @@ def test_constrained_layout3():
         fig.colorbar(pcm, ax=ax, pad=pad)
 
 
-@image_comparison(['constrained_layout4'])
+@image_comparison(['constrained_layout4.png'])
 def test_constrained_layout4():
     """Test constrained_layout for a single colorbar with subplots"""
     # Remove this line when this test image is regenerated.
@@ -76,7 +76,7 @@ def test_constrained_layout4():
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
 
-@image_comparison(['constrained_layout5.png'], tol=5.e-2)
+@image_comparison(['constrained_layout5.png'])
 def test_constrained_layout5():
     """
     Test constrained_layout for a single colorbar with subplots,
@@ -123,8 +123,9 @@ def test_constrained_layout6():
 def test_constrained_layout7():
     """Test for proper warning if fig not set in GridSpec"""
     with pytest.warns(
-        UserWarning, match=('Calling figure.constrained_layout, but figure '
-                            'not setup to do constrained layout')):
+        UserWarning, match=('There are no gridspecs with layoutgrids. '
+                            'Possibly did not call parent GridSpec with '
+                            'the "figure" keyword')):
         fig = plt.figure(constrained_layout=True)
         gs = gridspec.GridSpec(1, 2)
         gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])
@@ -238,15 +239,15 @@ def test_constrained_layout11rat():
 @image_comparison(['constrained_layout12.png'])
 def test_constrained_layout12():
     """Test that very unbalanced labeling still works."""
-    fig = plt.figure(constrained_layout=True)
+    fig = plt.figure(constrained_layout=True, figsize=(6, 8))
 
     gs0 = gridspec.GridSpec(6, 2, figure=fig)
 
     ax1 = fig.add_subplot(gs0[:3, 1])
     ax2 = fig.add_subplot(gs0[3:, 1])
 
-    example_plot(ax1, fontsize=24)
-    example_plot(ax2, fontsize=24)
+    example_plot(ax1, fontsize=18)
+    example_plot(ax2, fontsize=18)
 
     ax = fig.add_subplot(gs0[0:2, 0])
     example_plot(ax, nodec=True)
@@ -388,15 +389,12 @@ def test_constrained_layout23():
     """
 
     for i in range(2):
-        fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)
+        fig = plt.figure(constrained_layout=True, clear=True, num="123")
+        gs = fig.add_gridspec(1, 2)
+        sub = gs[0].subgridspec(2, 2)
         fig.suptitle("Suptitle{}".format(i))
 
 
-# This test occasionally fails the image comparison tests, so we mark as
-# flaky.  Apparently the constraint solver occasionally doesn't fully
-# optimize.  Would be nice if this were more deterministic...
-@pytest.mark.timeout(30)
-@pytest.mark.flaky(reruns=3)
 @image_comparison(['test_colorbar_location.png'],
                   remove_text=True, style='mpl20')
 def test_colorbar_location():
@@ -414,7 +412,7 @@ def test_colorbar_location():
         ax.set_ylabel('')
     fig.colorbar(pcm, ax=axs[:, 1], shrink=0.4)
     fig.colorbar(pcm, ax=axs[-1, :2], shrink=0.5, location='bottom')
-    fig.colorbar(pcm, ax=axs[0, 2:], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[0, 2:], shrink=0.5, location='bottom', pad=0.05)
     fig.colorbar(pcm, ax=axs[-2, 3:], shrink=0.5, location='top')
     fig.colorbar(pcm, ax=axs[0, 0], shrink=0.5, location='left')
     fig.colorbar(pcm, ax=axs[1:3, 2], shrink=0.5, location='right')
@@ -430,4 +428,62 @@ def test_hidden_axes():
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
     np.testing.assert_allclose(
-        extents1, [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
+        extents1, [0.045552, 0.543288, 0.47819, 0.982638], rtol=1e-5)
+
+
+def test_colorbar_align():
+    for location in ['right', 'left', 'top', 'bottom']:
+        fig, axs = plt.subplots(2, 2, constrained_layout=True)
+        cbs = []
+        for nn, ax in enumerate(axs.flat):
+            ax.tick_params(direction='in')
+            pc = example_pcolor(ax)
+            cb = fig.colorbar(pc, ax=ax, location=location, shrink=0.6,
+                              pad=0.04)
+            cbs += [cb]
+            cb.ax.tick_params(direction='in')
+            if nn != 1:
+                cb.ax.xaxis.set_ticks([])
+                cb.ax.yaxis.set_ticks([])
+                ax.set_xticklabels('')
+                ax.set_yticklabels('')
+        fig.set_constrained_layout_pads(w_pad=4 / 72, h_pad=4 / 72, hspace=0.1,
+                                        wspace=0.1)
+
+        fig.canvas.draw()
+        if location in ['left', 'right']:
+            np.testing.assert_allclose(cbs[0].ax.get_position().x0,
+                                       cbs[2].ax.get_position().x0)
+            np.testing.assert_allclose(cbs[1].ax.get_position().x0,
+                                       cbs[3].ax.get_position().x0)
+        else:
+            np.testing.assert_allclose(cbs[0].ax.get_position().y0,
+                                       cbs[1].ax.get_position().y0)
+            np.testing.assert_allclose(cbs[2].ax.get_position().y0,
+                                       cbs[3].ax.get_position().y0)
+
+
+@image_comparison(['test_colorbars_no_overlapV.png'],
+                  remove_text=False, style='mpl20')
+def test_colorbars_no_overlapV():
+    fig = plt.figure(figsize=(2, 4), constrained_layout=True)
+    axs = fig.subplots(2, 1, sharex=True, sharey=True)
+    for ax in axs:
+        ax.yaxis.set_major_formatter(ticker.NullFormatter())
+        ax.tick_params(axis='both', direction='in')
+        im = ax.imshow([[1, 2], [3, 4]])
+        fig.colorbar(im, ax=ax, orientation="vertical")
+    fig.suptitle("foo")
+
+
+@image_comparison(['test_colorbars_no_overlapH.png'],
+                  remove_text=False, style='mpl20')
+def test_colorbars_no_overlapH():
+    fig = plt.figure(figsize=(4, 2), constrained_layout=True)
+    fig.suptitle("foo")
+    axs = fig.subplots(1, 2, sharex=True, sharey=True)
+    for ax in axs:
+        ax.yaxis.set_major_formatter(ticker.NullFormatter())
+        ax.tick_params(axis='both', direction='in')
+        im = ax.imshow([[1, 2], [3, 4]])
+        fig.colorbar(im, ax=ax, orientation="horizontal")
