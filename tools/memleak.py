@@ -41,7 +41,8 @@ def run_memleak_test(bench, iterations, report):
         print("{0: 4d}: pymalloc {1: 10d}, rss {2: 10d}, nobjs {3: 10d}, "
               "garbage {4: 4d}, files: {5: 4d}".format(
                   i, malloc, rss, nobjs, garbage, open_files))
-
+        if i == starti:
+            print('{:-^86s}'.format(' warmup done '))
         malloc_arr[i] = malloc
         rss_arr[i] = rss
         if rss > rss_peak:
@@ -56,6 +57,8 @@ def run_memleak_test(bench, iterations, report):
 
     from matplotlib import pyplot as plt
     fig, (ax1, ax2, ax3) = plt.subplots(3)
+    for ax in (ax1, ax2, ax3):
+        ax.axvline(starti, linestyle='--', color='k')
     ax1b = ax1.twinx()
     ax1.plot(malloc_arr, 'r')
     ax1b.plot(rss_arr, 'b')
