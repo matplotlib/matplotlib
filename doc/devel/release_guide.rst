@@ -219,12 +219,23 @@ Via the `GitHub UI
 pushed tag into a release.  If this is a pre-release remember to mark
 it as such.
 
-For final releases, also get the DOI from `zenodo <https://zenodo.org/>`__
-(which will automatically produce one once the tag is pushed), add the DOI link
-to :file:`doc/citing.rst`, commit to the VER-doc branch and push to GitHub ::
+For final releases, also get the DOI from `zenodo
+<https://zenodo.org/>`__ (which will automatically produce one once
+the tag is pushed).  Add the doi post-fix and version to the dictionary in
+:file:`tools/cache_zenodo_svg.py`  and run the script (requires ``httpx``).
+
+
+This will download the new svg to the :file:`_static` directory
+in the docs and print the restructured text that needs to be put into
+:file:`doc/citing.rst`.  Commit the new svg, the change to
+:file:`tools/cache_zenodo_svg.py`, and the changes to
+:file:`doc/citing.rst` to the VER-doc branch and push to GitHub. ::
 
   git checkout v2.0.0-doc
+  $EDITOR tools/cache_zenodo_svg.py
+  python tools/cache_zenodo_svg.py
   $EDITOR doc/citing.html
+  git commit -a
   git push DANGER v2.0.0-doc:v2.0.0-doc
 
 .. _release_bld_bin:
