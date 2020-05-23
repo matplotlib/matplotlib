@@ -149,7 +149,8 @@ def _draw_list_compositing_images(
             del image_group[:]
 
         for a in artists:
-            if isinstance(a, _ImageBase) and a.can_composite():
+            if (isinstance(a, _ImageBase) and a.can_composite() and
+                    a.get_clip_on()):
                 image_group.append(a)
             else:
                 flush_images()
