@@ -113,6 +113,7 @@ class MemleakTest:
             ax.pcolor(10 * np.random.rand(50, 50))
 
         fig.savefig(BytesIO(), dpi=75)
+        fig.canvas.flush_events()
         plt.close(1)
 
 
