@@ -4281,9 +4281,15 @@ class Axes(_AxesBase):
             except ValueError:
                 pass  # Failed to convert to float array; must be color specs.
             else:
+                # handle the documented special case of a 2D array with 1
+                # row which as RGB(A) to broadcast.
+                if c.shape == (1, 4) or c.shape == (1, 3):
+                    c_is_mapped = False
+                    if c.size != xsize:
+                        valid_shape = False
                 # If c can be either mapped values or a RGB(A) color, prefer
                 # the former if shapes match, the latter otherwise.
-                if c.size == xsize:
+                elif c.size == xsize:
                     c = c.ravel()
                     c_is_mapped = True
                 else:  # Wrong size; it must not be intended for mapping.
