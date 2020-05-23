@@ -13,7 +13,7 @@ import sys
 from tempfile import TemporaryDirectory, TemporaryFile
 
 import numpy as np
-import PIL
+from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import cbook
@@ -391,8 +391,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         expected = convert(expected, cache=True)
 
     # open the image files and remove the alpha channel (if it exists)
-    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
+    expected_image = np.asarray(Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(Image.open(actual).convert("RGB"))
 
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
@@ -442,8 +442,8 @@ def save_diff_image(expected, actual, output):
         File path to save difference image to.
     """
     # Drop alpha channels, similarly to compare_images.
-    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
+    expected_image = np.asarray(Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(Image.open(actual).convert("RGB"))
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
     expected_image = np.array(expected_image).astype(float)
@@ -469,4 +469,4 @@ def save_diff_image(expected, actual, output):
     # Hard-code the alpha channel to fully solid
     save_image_np[:, :, 3] = 255
 
-    PIL.Image.fromarray(save_image_np).save(output, format="png")
+    Image.fromarray(save_image_np).save(output, format="png")
