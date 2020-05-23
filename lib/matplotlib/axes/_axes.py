@@ -4281,19 +4281,26 @@ class Axes(_AxesBase):
             except ValueError:
                 pass  # Failed to convert to float array; must be color specs.
             else:
+                # handle the documented special case of a 2D array with 1
+                # row which as RGB(A) to broadcast.
+                if c.shape == (1, 4) or c.shape == (1, 3):
+                    c_is_mapped = False
+                    if c.size != xsize:
+                        valid_shape = False
                 # If c can be either mapped values or a RGB(A) color, prefer
                 # the former if shapes match, the latter otherwise.
-                if c.size == xsize:
+                elif c.size == xsize:
                     c = c.ravel()
                     c_is_mapped = True
                 else:  # Wrong size; it must not be intended for mapping.
                     if c.shape in ((3,), (4,)):
                         _log.warning(
-                            "'c' argument looks like a single numeric RGB or "
+                            "*c* argument looks like a single numeric RGB or "
                             "RGBA sequence, which should be avoided as value-"
                             "mapping will have precedence in case its length "
-                            "matches with 'x' & 'y'.  Please use a 2-D array "
-                            "with a single row if you really want to specify "
+                            "matches with *x* & *y*.  Please use the *color* "
+                            "keyword-argument or provide a 2-D array "
+                            "with a single row if you intend to specify "
                             "the same RGB or RGBA value for all points.")
                     valid_shape = False
         if not c_is_mapped:
@@ -4340,14 +4347,14 @@ class Axes(_AxesBase):
             The marker size in points**2.
             Default is ``rcParams['lines.markersize'] ** 2``.
 
-        c : color or list of colors or array-like, optional
-            The marker color. Possible values:
+        c : array-like or list of colors or color, optional
+            The marker colors. Possible values:
 
-            - A single color format string.
-            - A sequence of colors of length n.
             - A scalar or sequence of n numbers to be mapped to colors using
               *cmap* and *norm*.
             - A 2-D array in which the rows are RGB or RGBA.
+            - A sequence of colors of length n.
+            - A single color format string.
 
             Note that *c* should not be a single numeric RGB or RGBA sequence
             because that is indistinguishable from an array of values to be
@@ -4356,9 +4363,12 @@ class Axes(_AxesBase):
             matching will have precedence in case of a size matching with *x*
             and *y*.
 
-            Defaults to ``None``. In that case the marker color is determined
-            by the value of ``color``, ``facecolor`` or ``facecolors``. In case
-            those are not specified or ``None``, the marker color is determined
+            If you wish to specify a single color for all points
+            prefer the *color* keyword argument.
+
+            Defaults to `None`. In that case the marker color is determined
+            by the value of *color*, *facecolor* or *facecolors*. In case
+            those are not specified or `None`, the marker color is determined
             by the next color of the ``Axes``' current "shape and fill" color
             cycle. This cycle defaults to :rc:`axes.prop_cycle`.
 
