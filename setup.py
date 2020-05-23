@@ -22,8 +22,10 @@ Make sure you have pip >= 9.0.1.
            '.'.join(str(n) for n in sys.version_info[:3]))
     sys.exit(error)
 
+import os
 from pathlib import Path
 import shutil
+import subprocess
 from zipfile import ZipFile
 
 from setuptools import setup, find_packages, Extension
@@ -42,6 +44,7 @@ except ImportError:
 else:
     del sdist.sdist.make_release_tree
 
+from distutils.errors import CompileError
 from distutils.dist import Distribution
 
 import setupext
@@ -64,6 +67,19 @@ mpl_packages = [
     ]
 
 
+# From https://bugs.python.org/issue26689
+def has_flag(self, flagname):
+    """Return whether a flag name is supported on the specified compiler."""
+    import tempfile
+    with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
+        f.write('int main (int argc, char **argv) { return 0; }')
+        try:
+            self.compile([f.name], extra_postargs=[flagname])
+        except CompileError:
+            return False
+    return True
+
+
 class NoopTestCommand(TestCommand):
     def __init__(self, dist):
         print("Matplotlib does not support running tests with "
@@ -79,6 +95,74 @@ class BuildExtraLibraries(BuildExtCommand):
         ]
         super().finalize_options()
 
+    def add_optimization_flags(self):
+        """
+        Add optional optimization flags to extension.
+
+        This adds flags for LTO and hidden visibility to both compiled
+        extensions, and to the environment variables so that vendored libraries
+        will also use them. If the compiler does not support these flags, then
+        none are added.
+        """
+
+        env = os.environ.copy()
+        if sys.platform == 'win32':
+            return env
+
+        cppflags = []
+        if 'CPPFLAGS' in os.environ:
+            cppflags.append(os.environ['CPPFLAGS'])
+        cxxflags = []
+        if 'CXXFLAGS' in os.environ:
+            cxxflags.append(os.environ['CXXFLAGS'])
+        ldflags = []
+        if 'LDFLAGS' in os.environ:
+            ldflags.append(os.environ['LDFLAGS'])
+
+        if has_flag(self.compiler, '-fvisibility=hidden'):
+            for ext in self.extensions:
+                ext.extra_compile_args.append('-fvisibility=hidden')
+            cppflags.append('-fvisibility=hidden')
+        if has_flag(self.compiler, '-fvisibility-inlines-hidden'):
+            for ext in self.extensions:
+                if self.compiler.detect_language(ext.sources) != 'cpp':
+                    continue
+                ext.extra_compile_args.append('-fvisibility-inlines-hidden')
+            cxxflags.append('-fvisibility-inlines-hidden')
+        ranlib = 'RANLIB' in env
+        if not ranlib and self.compiler.compiler_type == 'unix':
+            try:
+                result = subprocess.run(self.compiler.compiler +
+                                        ['--version'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT,
+                                        universal_newlines=True)
+            except Exception as e:
+                pass
+            else:
+                version = result.stdout.lower()
+                if 'gcc' in version:
+                    ranlib = shutil.which('gcc-ranlib')
+                elif 'clang' in version:
+                    if sys.platform == 'darwin':
+                        ranlib = True
+                    else:
+                        ranlib = shutil.which('llvm-ranlib')
+        if ranlib and has_flag(self.compiler, '-flto'):
+            for ext in self.extensions:
+                ext.extra_compile_args.append('-flto')
+            cppflags.append('-flto')
+            ldflags.append('-flto')
+            # Needed so FreeType static library doesn't lose its LTO objects.
+            if isinstance(ranlib, str):
+                env['RANLIB'] = ranlib
+
+        env['CPPFLAGS'] = ' '.join(cppflags)
+        env['CXXFLAGS'] = ' '.join(cxxflags)
+        env['LDFLAGS'] = ' '.join(ldflags)
+
+        return env
+
     def build_extensions(self):
         # Remove the -Wstrict-prototypes option, it's not valid for C++.  Fixed
         # in Py3.7 as bpo-5755.
@@ -86,8 +170,10 @@ class BuildExtraLibraries(BuildExtCommand):
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
         except (ValueError, AttributeError):
             pass
+
+        env = self.add_optimization_flags()
         for package in good_packages:
-            package.do_custom_build()
+            package.do_custom_build(env)
         return super().build_extensions()
 
 

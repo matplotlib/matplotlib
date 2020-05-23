@@ -2531,6 +2531,8 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyObject* PyInit__macosx(void)
 {
     PyObject *module;
@@ -2556,3 +2558,5 @@ PyObject* PyInit__macosx(void)
 
     return module;
 }
+
+#pragma GCC visibility pop

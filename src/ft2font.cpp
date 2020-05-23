@@ -43,7 +43,7 @@
 FT_Library _ft2Library;
 
 void throw_ft_error(std::string message, FT_Error error) {
-    std::ostringstream os;
+    std::ostringstream os("");
     os << message << " (error code 0x" << std::hex << error << ")";
     throw std::runtime_error(os.str());
 }

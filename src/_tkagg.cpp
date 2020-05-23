@@ -226,6 +226,8 @@ static PyModuleDef _tkagg_module = {
     PyModuleDef_HEAD_INIT, "_tkagg", "", -1, functions, NULL, NULL, NULL, NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC PyInit__tkagg(void)
 {
     load_tkinter_funcs();
@@ -240,3 +242,5 @@ PyMODINIT_FUNC PyInit__tkagg(void)
     }
     return PyModule_Create(&_tkagg_module);
 }
+
+#pragma GCC visibility pop

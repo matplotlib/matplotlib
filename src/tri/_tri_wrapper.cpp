@@ -504,6 +504,8 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC PyInit__tri(void)
 {
     PyObject *m;
@@ -528,3 +530,5 @@ PyMODINIT_FUNC PyInit__tri(void)
 
     return m;
 }
+
+#pragma GCC visibility pop
