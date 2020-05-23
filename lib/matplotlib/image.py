@@ -1514,7 +1514,15 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             origin = mpl.rcParams["image.origin"]
         if origin == "lower":
             arr = arr[::-1]
-        rgba = sm.to_rgba(arr, bytes=True)
+        if (isinstance(arr, memoryview) and arr.format == "B"
+                and arr.ndim == 3 and arr.shape[-1] == 4):
+            # Such an ``arr`` would also be handled fine by sm.to_rgba (after
+            # casting with asarray), but it is useful to special-case it
+            # because that's what backend_agg passes, and can be in fact used
+            # as is, saving a few operations.
+            rgba = arr
+        else:
+            rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
             pil_kwargs = {}
         pil_shape = (rgba.shape[1], rgba.shape[0])

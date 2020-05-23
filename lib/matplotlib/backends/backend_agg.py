@@ -500,9 +500,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         FigureCanvasAgg.draw(self)
         mpl.image.imsave(
-            filename_or_obj, np.asarray(self.buffer_rgba()), format="png",
-            origin="upper", dpi=self.figure.dpi,
-            metadata=metadata, pil_kwargs=pil_kwargs)
+            filename_or_obj, self.buffer_rgba(), format="png", origin="upper",
+            dpi=self.figure.dpi, metadata=metadata, pil_kwargs=pil_kwargs)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
