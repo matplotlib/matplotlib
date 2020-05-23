@@ -56,10 +56,13 @@ def run_memleak_test(bench, iterations, report):
         np.sum(rss_peaks[starti+1:] - rss_peaks[starti:-1]) / (endi - starti)))
 
     from matplotlib import pyplot as plt
+    from matplotlib.ticker import EngFormatter
+    formatter0 = EngFormatter(unit='B')
     fig, (ax1, ax2, ax3) = plt.subplots(3)
     for ax in (ax1, ax2, ax3):
         ax.axvline(starti, linestyle='--', color='k')
     ax1b = ax1.twinx()
+    ax1b.yaxis.set_major_formatter(formatter0)
     ax1.plot(malloc_arr, 'r')
     ax1b.plot(rss_arr, 'b')
     ax1.set_ylabel('pymalloc', color='r')
