@@ -4492,7 +4492,12 @@ default: :rc:`scatter.edgecolors`
             marker_obj.get_transform())
         if not marker_obj.is_filled():
             edgecolors = 'face'
-            linewidths = rcParams['lines.linewidth']
+            if linewidths is None:
+                linewidths = rcParams['lines.linewidth']
+            elif np.iterable(linewidths):
+                linewidths = [
+                    lw if lw is not None else rcParams['lines.linewidth']
+                    for lw in linewidths]
 
         offsets = np.ma.column_stack([x, y])
 
