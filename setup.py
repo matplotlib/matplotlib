@@ -95,7 +95,16 @@ class BuildExtraLibraries(BuildExtCommand):
         ]
         super().finalize_options()
 
-    def add_optional_flags(self):
+    def add_optimization_flags(self):
+        """
+        Add optional optimization flags to extension.
+
+        This adds flags for LTO and hidden visibility to both compiled
+        extensions, and to the environment variables so that vendored libraries
+        will also use them. If the compiler does not support these flags, then
+        none are added.
+        """
+
         env = os.environ.copy()
         if sys.platform == 'win32':
             return env
@@ -162,7 +171,7 @@ class BuildExtraLibraries(BuildExtCommand):
         except (ValueError, AttributeError):
             pass
 
-        env = self.add_optional_flags()
+        env = self.add_optimization_flags()
         for package in good_packages:
             package.do_custom_build(env)
         return super().build_extensions()
