@@ -298,6 +298,10 @@
                         # type1cm, textcomp.
                         # Adobe Postscript (PSSNFS) font packages may also be
                         # loaded, depending on your font settings.
+#text.latex.textcomp_full: False  # Set this to True to use the form
+                                  # \usepackage[full]{textcomp} in the preamble
+                                  # instead of \usepackage{textcomp}. This
+                                  # prevents package collision with newtxtext.
 
 ## FreeType hinting flag ("foo" corresponds to FT_LOAD_FOO); may be one of the
 ## following (Proprietary Matplotlib-specific synonyms are given in parentheses,

@@ -154,8 +154,10 @@ class TexManager:
                self._fonts['monospace'][1]]
         if self.font_family == 'cursive':
             cmd.append(self._fonts['cursive'][1])
+        textcomp_full = rcParams['text.latex.textcomp_full']
         self._font_preamble = '\n'.join(
-            [r'\usepackage{type1cm}', *cmd, r'\usepackage{textcomp}'])
+            [r'\usepackage{type1cm}', *cmd,
+             r'\usepackage%s{textcomp}' % ('[full]' if textcomp_full else '')])
 
         return ''.join(fontconfig)
 

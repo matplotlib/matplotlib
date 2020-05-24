@@ -1168,6 +1168,7 @@ _validators = {
     "text.usetex":         validate_bool,
     "text.latex.preamble": _validate_tex_preamble,
     "text.latex.preview":  validate_bool,
+    "text.latex.textcomp_full": validate_bool,
     "text.hinting":        _validate_hinting,
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
