@@ -1,0 +1,8 @@
+# Rename this file to setup.cfg to modify Matplotlib-tests's build options.
+
+[packages]
+# There are a number of data subpackages from Matplotlib that are
+# considered optional. All except 'tests' data (meaning the baseline
+# image files) are installed by default, but that can be changed here.
+#tests = False
+#sample_data = True

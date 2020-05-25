@@ -9,13 +9,6 @@
 #system_freetype = False
 #system_qhull = False
 
-[packages]
-# There are a number of data subpackages from Matplotlib that are
-# considered optional. All except 'tests' data (meaning the baseline
-# image files) are installed by default, but that can be changed here.
-#tests = False
-#sample_data = True
-
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, known as backends.
 # The MacOSX backend requires the Cocoa headers included with XCode.

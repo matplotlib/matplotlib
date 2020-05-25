@@ -1,4 +1,5 @@
 include sub-wheels/matplotlib.tests/README.rst
 include sub-wheels/matplotlib.tests/MANIFEST.in
+include matplotlibrc.template sub-wheels/matplotlib.test/setup.cfg.template
 include pytest.ini
 include tests.py
