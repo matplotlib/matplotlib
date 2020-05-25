@@ -406,7 +406,7 @@ class Legend(Artist):
             if isinstance(label, str) and label.startswith('_'):
                 cbook._warn_external('The label {!r} of handle {!r} cannot be '
                                      'a string starting with '
-                                     '"_"'.format(handle, label))
+                                     '"_"'.format(label, handle))
             else:
                 _lab.append(label)
                 _hand.append(handle)
