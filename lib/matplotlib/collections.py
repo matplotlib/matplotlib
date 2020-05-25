@@ -779,7 +779,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """Update colors from the scalar mappable array, if it is not None."""
         if self._A is None:
             return
-        if self._A.ndim > 1:
+        # QuadMesh can map 2d arrays
+        if self._A.ndim > 1 and not isinstance(self, QuadMesh):
             raise ValueError('Collections can only map rank 1 arrays')
         if not self._check_update("array"):
             return
@@ -2044,8 +2045,10 @@ class QuadMesh(Collection):
         else:
             renderer.draw_quad_mesh(
                 gc, transform.frozen(), self._meshWidth, self._meshHeight,
-                coordinates, offsets, transOffset, self.get_facecolor(),
-                self._antialiased, self.get_edgecolors())
+                coordinates, offsets, transOffset,
+                # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
+                self.get_facecolor().reshape((-1, 4)),
+                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
