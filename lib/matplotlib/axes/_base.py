@@ -217,7 +217,9 @@ class _process_plot_var_args:
         if not args:
             return
 
-        if data is not None:  # Process the 'data' kwarg.
+        if data is None:  # Process dict views
+            args = [cbook.sanitize_sequence(a) for a in args]
+        else:  # Process the 'data' kwarg.
             replaced = [mpl._replacer(data, arg) for arg in args]
             if len(args) == 1:
                 label_namer_idx = 0
@@ -262,6 +264,7 @@ class _process_plot_var_args:
 
         # Repeatedly grab (x, y) or (x, y, format) from the front of args and
         # massage them into arguments to plot() or fill().
+
         while args:
             this, args = args[:2], args[2:]
             if args and isinstance(args[0], str):
