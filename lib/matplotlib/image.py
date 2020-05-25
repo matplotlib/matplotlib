@@ -149,7 +149,8 @@ def _draw_list_compositing_images(
             del image_group[:]
 
         for a in artists:
-            if isinstance(a, _ImageBase) and a.can_composite():
+            if (isinstance(a, _ImageBase) and a.can_composite() and
+                    a.get_clip_on()):
                 image_group.append(a)
             else:
                 flush_images()
@@ -886,10 +887,10 @@ class AxesImage(_ImageBase):
         x1, x2, y1, y2 = self.get_extent()
         bbox = Bbox(np.array([[x1, y1], [x2, y2]]))
         transformed_bbox = TransformedBbox(bbox, trans)
-        return self._make_image(
-            self._A, bbox, transformed_bbox,
-            self.get_clip_box() or self.axes.bbox,
-            magnification, unsampled=unsampled)
+        clip = ((self.get_clip_box() or self.axes.bbox) if self.get_clip_on()
+                else self.figure.bbox)
+        return self._make_image(self._A, bbox, transformed_bbox, clip,
+                                magnification, unsampled=unsampled)
 
     def _check_unsampled_image(self):
         """Return whether the image would be better drawn unsampled."""
