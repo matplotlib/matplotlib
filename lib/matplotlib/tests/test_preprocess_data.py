@@ -227,7 +227,9 @@ def test_docstring_addition():
 
 
 class TestPlotTypes:
+
     plotters = [Axes.scatter, Axes.bar, Axes.plot]
+
     @pytest.mark.parametrize('plotter', plotters)
     @check_figures_equal(extensions=['png'])
     def test_dict_unpack(self, plotter, fig_test, fig_ref):
