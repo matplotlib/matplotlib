@@ -32,9 +32,10 @@ plt.show()
 #
 #
 # Alternative Method For Creating Multiple Plots
-# """"""""""
+# """"""""""""""""""""""""""""""""""""""""""""""
 #
-# Subplots can also be generated using `subplot()` as in the following example:
+# Subplots can also be generated using `~.pyplot.subplot()` \
+# as in the following example:
 #
 
 
