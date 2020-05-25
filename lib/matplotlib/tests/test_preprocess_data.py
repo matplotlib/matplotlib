@@ -73,12 +73,13 @@ def test_function_call_without_data(func):
     assert (func(None, x="x", y="y", label="text") ==
             "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
 
+
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_with_dict_input(func):
     """Tests with dict input, unpacking via preprocess_pipeline"""
-    data =  {'a': 1, 'b': 2}
+    data = {'a': 1, 'b': 2}
     assert(func(None, data.keys(), data.values()) ==
-           "x: ['a', 'b'], y: [1, 2], ls: x, w: xyz, label: None")
+            "x: ['a', 'b'], y: [1, 2], ls: x, w: xyz, label: None")
 
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
@@ -227,25 +228,23 @@ def test_docstring_addition():
 
 class TestPlotTypes:
     plotters = [Axes.scatter, Axes.bar, Axes.plot]
-    
     @pytest.mark.parametrize('plotter', plotters)
     @check_figures_equal(extensions=['png'])
     def test_dict_unpack(self, plotter, fig_test, fig_ref):
-        x = [1,2,3]
-        y = [4,5,6]
-        ddict = dict(zip(x,y))
+        x = [1, 2, 3]
+        y = [4, 5, 6]
+        ddict = dict(zip(x, y))
 
-        plotter(fig_test.subplots(), 
+        plotter(fig_test.subplots(),
                 ddict.keys(), ddict.values())
         plotter(fig_ref.subplots(), x, y)
 
     @pytest.mark.parametrize('plotter', plotters)
     @check_figures_equal(extensions=['png'])
     def test_data_kwarg(self, plotter, fig_test, fig_ref):
-        x = [1,2,3]
-        y = [4,5,6]
+        x = [1, 2, 3]
+        y = [4, 5, 6]
 
-        plotter(fig_test.subplots(), 'xval', 'yval', 
-                data={'xval':x, 'yval':y})
+        plotter(fig_test.subplots(), 'xval', 'yval',
+                data={'xval': x, 'yval': y})
         plotter(fig_ref.subplots(), x, y)
-  
