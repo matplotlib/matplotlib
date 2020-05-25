@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from matplotlib import _preprocess_data
-
+from matplotlib.axes import Axes
+from matplotlib.testing.decorators import check_figures_equal
 
 # Notes on testing the plotting functions itself
 # *   the individual decorated plotting functions are tested in 'test_axes.py'
@@ -72,11 +73,18 @@ def test_function_call_without_data(func):
     assert (func(None, x="x", y="y", label="text") ==
             "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
 
+@pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
+def test_function_call_with_dict_input(func):
+    """Tests with dict input, unpacking via preprocess_pipeline"""
+    data =  {'a': 1, 'b': 2}
+    assert(func(None, data.keys(), data.values()) ==
+           "x: ['a', 'b'], y: [1, 2], ls: x, w: xyz, label: None")
+
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_with_dict_data(func):
     """Test with dict data -> label comes from the value of 'x' parameter."""
-    data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
+    data = {'a': [1, 2], 'b': [8, 9], "w": "NOT"}
     assert (func(None, "a", "b", data=data) ==
             "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
     assert (func(None, x="a", y="b", data=data) ==
@@ -215,3 +223,29 @@ def test_docstring_addition():
     assert not re.search(r"every other argument", funcy.__doc__)
     assert not re.search(r"the following arguments .*: \*x\*, \*t\*\.",
                          funcy.__doc__)
+
+
+class TestPlotTypes:
+    plotters = [Axes.scatter, Axes.bar, Axes.plot]
+    
+    @pytest.mark.parametrize('plotter', plotters)
+    @check_figures_equal(extensions=['png'])
+    def test_dict_unpack(self, plotter, fig_test, fig_ref):
+        x = [1,2,3]
+        y = [4,5,6]
+        ddict = dict(zip(x,y))
+
+        plotter(fig_test.subplots(), 
+                ddict.keys(), ddict.values())
+        plotter(fig_ref.subplots(), x, y)
+
+    @pytest.mark.parametrize('plotter', plotters)
+    @check_figures_equal(extensions=['png'])
+    def test_data_kwarg(self, plotter, fig_test, fig_ref):
+        x = [1,2,3]
+        y = [4,5,6]
+
+        plotter(fig_test.subplots(), 'xval', 'yval', 
+                data={'xval':x, 'yval':y})
+        plotter(fig_ref.subplots(), x, y)
+  
