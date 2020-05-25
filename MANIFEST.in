@@ -1,5 +1,4 @@
 include INSTALL.rst README.rst
-include pytest.ini
 include MANIFEST.in
 include matplotlibrc.template setup.cfg.template
 include setupext.py setup.py
@@ -20,4 +19,3 @@ recursive-include tools *
 recursive-include tutorials *
 include versioneer.py
 include lib/matplotlib/_version.py
-include tests.py
