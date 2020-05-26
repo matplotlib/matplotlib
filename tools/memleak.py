@@ -57,12 +57,12 @@ def run_memleak_test(bench, iterations, report):
 
     from matplotlib import pyplot as plt
     from matplotlib.ticker import EngFormatter
-    formatter0 = EngFormatter(unit='B')
+    bytes_formatter = EngFormatter(unit='B')
     fig, (ax1, ax2, ax3) = plt.subplots(3)
     for ax in (ax1, ax2, ax3):
         ax.axvline(starti, linestyle='--', color='k')
     ax1b = ax1.twinx()
-    ax1b.yaxis.set_major_formatter(formatter0)
+    ax1b.yaxis.set_major_formatter(bytes_formatter)
     ax1.plot(malloc_arr, 'C0')
     ax1b.plot(rss_arr, 'C1', label='rss')
     ax1b.plot(rss_peaks, 'C1', linestyle='--', label='rss max')
