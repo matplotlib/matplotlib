@@ -488,12 +488,14 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
                || !PyBytes_Check(data)) {
         PyErr_SetString(PyExc_TypeError,
                         "First argument must be a path or binary-mode file object");
+        Py_CLEAR(data);
         goto exit;
     } else {
         self->py_file = filename;
         self->stream.close = NULL;
         Py_INCREF(filename);
     }
+    Py_CLEAR(data);
 
     CALL_CPP_FULL(
         "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)),
@@ -505,9 +507,7 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     self->fname = filename;
 
 exit:
-    Py_XDECREF(data);
-
-    return 0;
+    return PyErr_Occurred() ? -1 : 0;
 }
 
 static void PyFT2Font_dealloc(PyFT2Font *self)
