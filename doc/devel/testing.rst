@@ -27,7 +27,7 @@ The following software is required to run the tests:
 
 - pytest_ (>=3.6)
 - Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (<1.0, to render SVG files)
+- Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
