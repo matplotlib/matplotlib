@@ -576,3 +576,16 @@ Statusbar classes and attributes
 The ``statusbar`` attribute of `.FigureManagerBase`, `.StatusbarBase` and all
 its subclasses, and ``StatusBarWx``, are deprecated, as messages are now
 displayed in the toolbar instead.
+
+``ismath`` parameter of ``draw_tex``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``ismath`` parameter of the ``draw_tex`` method of all renderer classes is
+deprecated (as a call to ``draw_tex`` -- not to be confused with ``draw_text``!
+-- means that the entire string should be passed to the ``usetex`` machinery
+anyways).  Likewise, the text machinery will no longer pass the ``ismath``
+parameter when calling ``draw_tex`` (this should only matter for backend
+implementers).
+
+Passing ``ismath="TeX!"`` to `.RendererAgg.get_text_width_height_descent` is
+deprecated.  Pass ``ismath="TeX"`` instead, consistently with other low-level
+APIs which support the values True, False, and "TeX" for ``ismath``.

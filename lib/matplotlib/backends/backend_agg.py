@@ -216,6 +216,11 @@ class RendererAgg(RendererBase):
         # docstring inherited
 
         if ismath in ["TeX", "TeX!"]:
+            if ismath == "TeX!":
+                cbook._warn_deprecated(
+                    "3.3", message="Support for ismath='TeX!' is deprecated "
+                    "since %(since)s and will be removed %(removal)s; use "
+                    "ismath='TeX' instead.")
             # todo: handle props
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
@@ -238,6 +243,7 @@ class RendererAgg(RendererBase):
         d /= 64.0
         return w, h, d
 
+    @cbook._delete_parameter("3.2", "ismath")
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # docstring inherited
         # todo, handle props, angle, origins
@@ -248,7 +254,7 @@ class RendererAgg(RendererBase):
         Z = texmanager.get_grey(s, size, self.dpi)
         Z = np.array(Z * 255.0, np.uint8)
 
-        w, h, d = self.get_text_width_height_descent(s, prop, ismath)
+        w, h, d = self.get_text_width_height_descent(s, prop, ismath="TeX")
         xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
         x = round(x + xd)
