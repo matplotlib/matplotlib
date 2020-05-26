@@ -309,28 +309,32 @@ class TestLegendFigureFunction:
         lines = ax.plot(range(10))
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend(lines, ['hello world'])
-        Legend.assert_called_with(fig, lines, ['hello world'])
+        Legend.assert_called_with(fig, lines, ['hello world'],
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_no_args(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend()
-        Legend.assert_called_with(fig, lines, ['hello world'])
+        Legend.assert_called_with(fig, lines, ['hello world'],
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_label_arg(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10))
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend(['foobar'])
-        Legend.assert_called_with(fig, lines, ['foobar'])
+        Legend.assert_called_with(fig, lines, ['foobar'],
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_label_three_args(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10))
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend(lines, ['foobar'], 'right')
-        Legend.assert_called_with(fig, lines, ['foobar'], 'right')
+        Legend.assert_called_with(fig, lines, ['foobar'], 'right',
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_label_three_args_pluskw(self):
         # test that third argument and loc=  called together give
@@ -347,7 +351,8 @@ class TestLegendFigureFunction:
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend(loc='right', labels=('a', 'b'), handles=(lines, lines2))
         Legend.assert_called_with(
-            fig, (lines, lines2), ('a', 'b'), loc='right')
+            fig, (lines, lines2), ('a', 'b'), loc='right',
+            bbox_transform=fig.transFigure)
 
     def test_warn_args_kwargs(self):
         fig, axs = plt.subplots(1, 2)

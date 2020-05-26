@@ -10,7 +10,7 @@ from matplotlib.ticker import FuncFormatter
 
 
 @image_comparison(['bbox_inches_tight'], remove_text=True,
-                  savefig_kwarg=dict(bbox_inches='tight'))
+                  savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight():
     #: Test that a figure saved using bbox_inches='tight' is clipped correctly
     data = [[66386, 174296, 75131, 577908, 32015],
@@ -35,6 +35,7 @@ def test_bbox_inches_tight():
     plt.xticks([])
     plt.xlim(0, 5)
     plt.legend([''] * 5, loc=(1.2, 0.2))
+    fig.legend([''] * 5, bbox_to_anchor=(0, 0.2), loc='lower left')
     # Add a table at the bottom of the axes
     cellText.reverse()
     plt.table(cellText=cellText, rowLabels=rowLabels, colLabels=colLabels,
