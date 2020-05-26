@@ -840,7 +840,7 @@ class FigureCanvasPS(FigureCanvasBase):
             # distillers improperly clip eps files if pagesize is too small
             if width > paper_width or height > paper_height:
                 papertype = _get_papertype(
-                    *orientation.swap_if_landscape(width, height))
+                    *orientation.swap_if_landscape((width, height)))
                 paper_width, paper_height = orientation.swap_if_landscape(
                     papersize[papertype])
 
