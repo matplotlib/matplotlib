@@ -310,3 +310,18 @@ def test_suptitle():
     t = ax.set_title("bar")
     fig.canvas.draw()
     assert st.get_window_extent().y0 > t.get_window_extent().y1
+
+
+@pytest.mark.backend("pdf")
+def test_non_agg_renderer(monkeypatch, recwarn):
+    unpatched_init = mpl.backend_bases.RendererBase.__init__
+
+    def __init__(self, *args, **kwargs):
+        # Check that we don't instantiate any other renderer than a pdf
+        # renderer to perform pdf tight layout.
+        assert isinstance(self, mpl.backends.backend_pdf.RendererPdf)
+        unpatched_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(mpl.backend_bases.RendererBase, "__init__", __init__)
+    fig, ax = plt.subplots()
+    fig.tight_layout()

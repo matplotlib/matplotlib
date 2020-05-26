@@ -166,19 +166,14 @@ def auto_adjust_subplotpars(
 
 def get_renderer(fig):
     if fig._cachedRenderer:
-        renderer = fig._cachedRenderer
+        return fig._cachedRenderer
     else:
         canvas = fig.canvas
-
         if canvas and hasattr(canvas, "get_renderer"):
-            renderer = canvas.get_renderer()
-        else:  # Some noninteractive backends have no renderer until draw time.
-            cbook._warn_external("tight_layout: falling back to Agg renderer")
-            from matplotlib.backends.backend_agg import FigureCanvasAgg
-            canvas = FigureCanvasAgg(fig)
-            renderer = canvas.get_renderer()
-
-    return renderer
+            return canvas.get_renderer()
+        else:
+            from . import backend_bases
+            return backend_bases._get_renderer(fig, draw_disabled=True)
 
 
 def get_subplotspec_list(axes_list, grid_spec=None):
