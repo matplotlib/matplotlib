@@ -558,9 +558,21 @@ def test_single_artist_usetex():
     # Check that a single artist marked with usetex does not get passed through
     # the mathtext parser at all (for the Agg backend) (the mathtext parser
     # currently fails to parse \frac12, requiring \frac{1}{2} instead).
-    fig, ax = plt.subplots()
-    ax.text(.5, .5, r"$\frac12$", usetex=True)
+    fig = plt.figure()
+    fig.text(.5, .5, r"$\frac12$", usetex=True)
     fig.canvas.draw()
+
+
+@pytest.mark.parametrize("fmt", ["png", "pdf", "svg"])
+def test_single_artist_usenotex(fmt):
+    # Check that a single artist can be marked as not-usetex even though the
+    # rcParam is on ("2_2_2" fails if passed to TeX).  This currently skips
+    # postscript output as the ps renderer doesn't support mixing usetex and
+    # non-usetex.
+    plt.rcParams["text.usetex"] = True
+    fig = plt.figure()
+    fig.text(.5, .5, "2_2_2", usetex=False)
+    fig.savefig(io.BytesIO(), format=fmt)
 
 
 @image_comparison(['text_as_path_opacity.svg'])
