@@ -214,3 +214,63 @@ def test_savefig_tight():
     # Check that the draw-disabled renderer correctly disables open/close_group
     # as well.
     plt.savefig(BytesIO(), format="svgz", bbox_inches="tight")
+
+
+def test_url():
+    # Test that object url appears in output svg.
+
+    fig, ax = plt.subplots()
+
+    # collections
+    s = ax.scatter([1, 2, 3], [4, 5, 6])
+    s.set_urls(['http://example.com/foo', 'http://example.com/bar', None])
+
+    # Line2D
+    p, = plt.plot([1, 3], [6, 5])
+    p.set_url('http://example.com/baz')
+
+    # QuadMesh
+    data = np.array([
+        [np.nan, 4, np.nan],
+        [2, 7, 5],
+        [np.nan, 8, np.nan]
+    ])
+    links = np.array([
+        [np.nan, 'http://example.com/qux', np.nan],
+        ['http://example.com/quux', 'http://example.com/quuz',
+            'http://example.com/corge'],
+        [np.nan, 'http://example.com/grault', np.nan]
+    ])
+    ax.pcolormesh(data, urls=links)
+
+    b = BytesIO()
+    fig.savefig(b, format='svg')
+    b = b.getvalue()
+    for v in [b'foo', b'bar', b'baz', b'qux', b'quux', b'quuz', b'corge',
+              b'grault']:
+        assert b'http://example.com/' + v in b
+
+
+def test_url_tick():
+    fig1, ax = plt.subplots()
+    ax.scatter([1, 2, 3], [4, 5, 6])
+    for i, tick in enumerate(ax.yaxis.get_major_ticks()):
+        tick.set_url(f'http://example.com/{i}')
+
+    fig2, ax = plt.subplots()
+    ax.scatter([1, 2, 3], [4, 5, 6])
+    for i, tick in enumerate(ax.yaxis.get_major_ticks()):
+        tick.label1.set_url(f'http://example.com/{i}')
+        tick.label2.set_url(f'http://example.com/{i}')
+
+    b1 = BytesIO()
+    fig1.savefig(b1, format='svg')
+    b1 = b1.getvalue()
+
+    b2 = BytesIO()
+    fig2.savefig(b2, format='svg')
+    b2 = b2.getvalue()
+
+    for i in range(len(ax.yaxis.get_major_ticks())):
+        assert f'http://example.com/{i}'.encode('ascii') in b1
+    assert b1 == b2
