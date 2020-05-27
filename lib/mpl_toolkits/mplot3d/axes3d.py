@@ -2853,6 +2853,27 @@ pivot='tail', normalize=False, **kwargs)
 
         return polygons
 
+    def get_tightbbox(self, renderer, call_axes_locator=True,
+                      bbox_extra_artists=None, *, for_layout_only=False):
+        ret = super().get_tightbbox(renderer,
+                                    call_axes_locator=call_axes_locator,
+                                    bbox_extra_artists=bbox_extra_artists,
+                                    for_layout_only=for_layout_only)
+        batch = [ret]
+        if self._axis3don:
+            for axis in self._get_axis_list():
+                if axis.get_visible():
+                    try:
+                        axis_bb = axis.get_tightbbox(
+                            renderer,
+                            for_layout_only=for_layout_only
+                        )
+                    except TypeError:
+                        # in case downstream library has redefined axis:
+                        axis_bb = axis.get_tightbbox(renderer)
+                if axis_bb:
+                    batch.append(axis_bb)
+        return mtransforms.Bbox.union(batch)
 
 docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
