@@ -316,6 +316,19 @@ class Tick(martist.Artist):
         self.label2.set_text(s)
         self.stale = True
 
+    def set_url(self, url):
+        """
+        Set the url of label1 and label2.
+
+        Parameters
+        ----------
+        url : str
+        """
+        super().set_url(url)
+        self.label1.set_url(url)
+        self.label2.set_url(url)
+        self.stale = True
+
     def _set_artist_props(self, a):
         a.set_figure(self.figure)
 
