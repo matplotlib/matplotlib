@@ -881,7 +881,8 @@ class TextArea(OffsetBox):
 
     def get_extent(self, renderer):
         _, h_, d_ = renderer.get_text_width_height_descent(
-            "lp", self._text._fontproperties, ismath=False)
+            "lp", self._text._fontproperties,
+            ismath="TeX" if self._text.get_usetex() else False)
 
         bbox, info, d = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
