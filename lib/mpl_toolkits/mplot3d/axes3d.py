@@ -53,6 +53,7 @@ class Axes3D(Axes):
     def __init__(
             self, fig, rect=None, *args,
             azim=-60, elev=30, sharez=None, proj_type='persp',
+            box_aspect=None,
             **kwargs):
         """
         Parameters
@@ -91,11 +92,7 @@ class Axes3D(Axes):
         self.zz_viewLim = Bbox.unit()
         self.xy_dataLim = Bbox.unit()
         self.zz_dataLim = Bbox.unit()
-        if 'pb_aspect' in kwargs:
-            self.pb_aspect = np.asarray(kwargs['pb_aspect'])
-        else:
-            # chosen for similarity with the previous initial view
-            self.pb_aspect = np.array([4, 4, 3]) / 3.5
+
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
@@ -105,7 +102,9 @@ class Axes3D(Axes):
             self._shared_z_axes.join(self, sharez)
             self._adjustable = 'datalim'
 
-        super().__init__(fig, rect, frameon=True, *args, **kwargs)
+        super().__init__(
+            fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
+        )
         # Disable drawing of axes by base class
         super().set_axis_off()
         # Enable drawing of axes by Axes3D class
@@ -309,6 +308,9 @@ class Axes3D(Axes):
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect
         """
         if aspect != 'auto':
             raise NotImplementedError(
@@ -347,8 +349,43 @@ class Axes3D(Axes):
             ax._anchor = anchor
             ax.stale = True
 
-    def set_pb_aspect(self, pb_aspect, zoom=1):
-        self.pb_aspect = pb_aspect * 1.8 * zoom / proj3d.mod(pb_aspect)
+    def set_box_aspect(self, aspect, zoom=1):
+        """
+        Set the axes box aspect.
+
+        The box aspect is the ratio of the axes height to the axes width in
+        physical units. This is not to be confused with the data
+        aspect, set via `~.Axes.set_aspect`.
+
+        Parameters
+        ----------
+        aspect : 3-tuple of floats on None
+            Changes the physical dimensions of the Axes, such that the ratio
+            of the size of the axis in physical units is x:y:z
+
+            The input will be normalized to a unit vector.
+
+            If None, it is approximately ::
+
+                ax.set_box_aspect(aspect=(4, 4, 3), zoom=1)
+
+        zoom : float
+            Control the "zoom" of the
+
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.set_aspect
+            for a description of aspect handling.
+        """
+        if aspect is None:
+            aspect = np.asarray((4, 4, 3), dtype=float)
+        else:
+            aspect = np.asarray(aspect, dtype=float)
+        # default scale tuned to match the mpl32 appearance.
+        aspect *= 1.8294640721620434 * zoom / np.linalg.norm(aspect)
+
+        self._box_aspect = aspect
+        self.stale = True
 
     def apply_aspect(self, position=None):
         if position is None:
@@ -426,6 +463,7 @@ class Axes3D(Axes):
         return xhigh, yhigh, zhigh
 
     def _on_units_changed(self, scalex=False, scaley=False, scalez=False):
+
         """
         Callback for processing changes to axis units.
 
@@ -973,8 +1011,6 @@ class Axes3D(Axes):
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
-        # chosen for similarity with the initial view before gh-8896
-
         # elev stores the elevation angle in the z plane
         # azim stores the azimuth angle in the x,y plane
         #
@@ -990,10 +1026,11 @@ class Axes3D(Axes):
         # transform to uniform world coordinates 0-1, 0-1, 0-1
         worldM = proj3d.world_transformation(xmin, xmax,
                                              ymin, ymax,
-                                             zmin, zmax, pb_aspect=self.pb_aspect)
+                                             zmin, zmax,
+                                             pb_aspect=self._box_aspect)
 
         # look into the middle of the new coordinates
-        R = self.pb_aspect / 2
+        R = self._box_aspect / 2
 
         xp = R[0] + np.cos(razim) * np.cos(relev) * self.dist
         yp = R[1] + np.sin(razim) * np.cos(relev) * self.dist
