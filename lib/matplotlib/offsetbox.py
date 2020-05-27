@@ -1544,6 +1544,24 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         """Return the fontsize in points."""
         return self.prop.get_size_in_points()
 
+    def get_window_extent(self, renderer):
+        """
+        get the bounding box in display space.
+        """
+        bboxes = [child.get_window_extent(renderer)
+                  for child in self.get_children()]
+
+        return Bbox.union(bboxes)
+
+    def get_tightbbox(self, renderer):
+        """
+        get tight bounding box in display space.
+        """
+        bboxes = [child.get_tightbbox(renderer)
+                  for child in self.get_children()]
+
+        return Bbox.union(bboxes)
+
     def update_positions(self, renderer):
         """
         Update the pixel positions of the annotated point and the text.
