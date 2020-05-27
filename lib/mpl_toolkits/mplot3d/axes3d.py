@@ -24,6 +24,7 @@ import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
+import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
 from matplotlib.axes._base import _axis_method_wrapper
 from matplotlib.transforms import Bbox
@@ -261,9 +262,91 @@ class Axes3D(Axes):
                  (tc[7], tc[4])]
         return edges
 
+    def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
+        """
+        Set the aspect of the axis scaling.
+
+        Parameters
+        ----------
+        aspect : {'auto'}
+            Possible values:
+
+            =========   ==================================================
+            value       description
+            =========   ==================================================
+            'auto'      automatic; fill the position rectangle with data.
+            =========   ==================================================
+
+        adjustable : None or {'box', 'datalim'}, optional
+            If not ``None``, this defines which parameter will be adjusted to
+            meet the required aspect. See `.set_adjustable` for further
+            details.
+
+            Currently ignored by Axes3D
+
+        anchor : None or str or 2-tuple of float, optional
+            If not ``None``, this defines where the Axes will be drawn if there
+            is extra space due to aspect constraints. The most common way to
+            to specify the anchor are abbreviations of cardinal directions:
+
+            =====   =====================
+            value   description
+            =====   =====================
+            'C'     centered
+            'SW'    lower left corner
+            'S'     middle of bottom edge
+            'SE'    lower right corner
+            etc.
+            =====   =====================
+
+            See `.set_anchor` for further details.
+
+        share : bool, default: False
+            If ``True``, apply the settings to all shared Axes.
+
+        """
+        if aspect != 'auto':
+            raise NotImplementedError(
+                "Axes3D currently only support the aspect arguments "
+                f"'auto'. You passed in {aspect!r}."
+            )
+
+        if share:
+            axes = {*self._shared_x_axes.get_siblings(self),
+                    *self._shared_y_axes.get_siblings(self),
+                    *self._shared_z_axes.get_siblings(self),
+                    }
+        else:
+            axes = {self}
+
+        for ax in axes:
+            ax._aspect = aspect
+            ax.stale = True
+
+        if anchor is not None:
+            self.set_anchor(anchor, share=share)
+
+    def set_anchor(self, anchor, share=False):
+        # docstring inherited
+        if not (anchor in mtransforms.Bbox.coefs or len(anchor) == 2):
+            raise ValueError('argument must be among %s' %
+                             ', '.join(mtransforms.Bbox.coefs))
+        if share:
+            axes = {*self._shared_x_axes.get_siblings(self),
+                    *self._shared_y_axes.get_siblings(self),
+                    *self._shared_z_axes.get_siblings(self),
+                    }
+        else:
+            axes = {self}
+        for ax in axes:
+            ax._anchor = anchor
+            ax.stale = True
+
     def apply_aspect(self, position=None):
         if position is None:
             position = self.get_position(original=True)
+
+        aspect = self.get_aspect()
 
         # in the superclass, we would go through and actually deal with axis
         # scales and box/datalim. Those are all irrelevant - all we need to do
