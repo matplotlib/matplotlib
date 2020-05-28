@@ -66,7 +66,7 @@ def autoscale_and_margins(autoscale=False):
     fig.canvas.draw()
 
 # Utility function for describing relation between autoscale and Collections Class  
-def autoscale_and_collections():
+def autoscale_and_Collection():
     fig,ax = plt.subplots(ncols=2)
     x = np.arange(10) 
     y = np.arange(15) 
@@ -158,8 +158,10 @@ def autoscale_disable():
 
 
 """
+=============
 autoscale
 =============
+
 There are some cases when we have to explicitly enable or disable autoscaling
 feature and we would see some of those cases in the following tutorial. Lets
 just discuss how we can explicitly enable or disable autoscaling.
@@ -168,8 +170,10 @@ just discuss how we can explicitly enable or disable autoscaling.
 autoscale()
 
 """
+=====================
 autoscale and margins
 =====================
+
 Whenever we set margins our axes remains invariant of the change caused by
 it.Hence we use autoscaling if we want data to be bound with the axes
 irrespective of the margin set.
@@ -178,8 +182,10 @@ irrespective of the margin set.
 autoscale_and_margins()
 
 """
+=====================
 Artist with autoscale
 =====================
+
 Collection and Patch subclasses of Artist class does not support autoscaling by
 default. If one wants to enable autoscaling he have to explicitly enable it. See
 Axes limits in the below plots.   
@@ -190,14 +196,18 @@ https://matplotlib.org/3.2.1/api/prev_api_changes/api_changes_3.2.0/behavior.htm
 """
 
 """
-autoscale and collections
 =========================
+autoscale and Collection
+=========================
+Let's have a look at how autoscaling affects Collection instance. 
 """
-autoscale_and_collections()
+autoscale_and_Collection()
 
 """
+=====================
 autoscale and patches
 =====================
+Let's have a look at how autoscaling affects PathPatch instance. 
 """
 autoscale_and_patches()
 
@@ -218,8 +228,10 @@ we can set the limits.
 """
 
 """
+=================
 autoscale disable
 =================
+Let's have a look at above case.
 """
 
 autoscale_disable()
