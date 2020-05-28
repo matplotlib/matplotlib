@@ -121,8 +121,12 @@ You can use the ``O`` variable to set additional options:
 Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
-On Windows, options needs to be set as environment variables, e.g. ``set O=-W
---keep-going -j4 & make html``.
+On Windows, options needs to be set as environment variables, e.g.:
+
+.. code-block:: bat
+
+   set O=-W --keep-going -j4 
+   make html 
 
 .. _writing-rest-pages:
 
