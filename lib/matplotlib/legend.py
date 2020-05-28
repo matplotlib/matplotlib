@@ -237,7 +237,7 @@ bbox_transform : None or `matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
-title_fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
+title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
     The font size of the legend's title.
 
