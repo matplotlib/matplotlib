@@ -1753,7 +1753,10 @@ default: 'top'
             # kwargs['loc'] = extra_args[0]
             # extra_args = extra_args[1:]
             pass
-        l = mlegend.Legend(self, handles, labels, *extra_args, **kwargs)
+        transform = kwargs.pop('bbox_transform', self.transFigure)
+        # explicitly set the bbox transform if the user hasn't.
+        l = mlegend.Legend(self, handles, labels, *extra_args,
+                           bbox_transform=transform, **kwargs)
         self.legends.append(l)
         l._remove_method = self.legends.remove
         self.stale = True
