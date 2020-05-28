@@ -6694,3 +6694,33 @@ def test_invisible_axes():
     assert fig.canvas.inaxes((200, 200)) is not None
     ax.set_visible(False)
     assert fig.canvas.inaxes((200, 200)) is None
+
+
+@pytest.mark.parametrize('auto', (True, False, None))
+def test_unautoscaley(auto):
+    fig, ax = plt.subplots()
+    x = np.arange(100)
+    y = np.linspace(-.1, .1, 100)
+    ax.scatter(x, y)
+
+    post_auto = ax.get_autoscaley_on() if auto is None else auto
+
+    ax.set_ylim((-.5, .5), auto=auto)
+    assert post_auto == ax.get_autoscaley_on()
+    fig.canvas.draw()
+    assert_array_equal(ax.get_ylim(), (-.5, .5))
+
+
+@pytest.mark.parametrize('auto', (True, False, None))
+def test_unautoscalex(auto):
+    fig, ax = plt.subplots()
+    x = np.arange(100)
+    y = np.linspace(-.1, .1, 100)
+    ax.scatter(y, x)
+
+    post_auto = ax.get_autoscalex_on() if auto is None else auto
+
+    ax.set_xlim((-.5, .5), auto=auto)
+    assert post_auto == ax.get_autoscalex_on()
+    fig.canvas.draw()
+    assert_array_equal(ax.get_xlim(), (-.5, .5))
