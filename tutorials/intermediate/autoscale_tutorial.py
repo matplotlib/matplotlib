@@ -19,7 +19,7 @@ from matplotlib.patches import PathPatch
 from matplotlib.path import Path 
 from matplotlib.collections import EllipseCollection
 
-
+# Utility function to describe enabling and disabling of autoscaling.
 def autoscale():
     x = np.sin(np.linspace(0,6))
     fig,ax =plt.subplots(ncols=2)
@@ -32,22 +32,40 @@ def autoscale():
     ax[1].autoscale(False)
     ax[1].plot(x)
 
+    fontdict ={
+        "fontsize":15,
+        "fontweight" : 14
+    }
 
-# Utility function to describe autoscaling feature with Margins.
+    ax[0].set_title("Autoscale Enabled",fontdict = fontdict)
+    ax[1].set_title("Autoscale Disabled",fontdict = fontdict)
+    fig.canvas.draw()
+
+
+# Utility function to describe autoscaling with margins.
 def autoscale_and_margins(autoscale=False):
+    fig,ax = plt.subplots(ncols=2)
+    
     t = np.arange(-np.pi/2,(3 * np.pi)/2,0.1)
     f_t = np.cos(t)
-    fig,ax = plt.subplots(ncols=2)
+    
     for axis in [ax[0],ax[1]]:
         axis.plot(t,f_t,color="red")
         axis.axhline(y=0,color="magenta",alpha=0.7)
         axis.margins(0.2,0.2)
     
-    ax[1].autoscale(tight=True)    # tight in ax.margins is by default True but unable to autoscale itself when Zoomed in or Zoomed out.
+    fontdict ={
+        "fontsize":15,
+        "fontweight" : 14
+    }
+
+    ax[1].autoscale(tight=True)
+    ax[0].set_title("Without Autoscale",fontdict=fontdict)
+    ax[1].set_title("With Autoscale",fontdict=fontdict)
     plt.tight_layout()
+    fig.canvas.draw()
 
-
-
+# Utility function for describing relation between autoscale and Collections Class  
 def autoscale_and_collections():
     fig,ax = plt.subplots(ncols=2)
     x = np.arange(10) 
@@ -55,7 +73,9 @@ def autoscale_and_collections():
     X, Y = np.meshgrid(x, y) 
       
     XY = np.column_stack((X.ravel(), Y.ravel())) 
-        
+
+    # We have to add create different artist instances for different axis.
+         
     ec_1 = EllipseCollection(10, 10, 5, units ='y', 
                           offsets = XY * 0.5,           # when autoscaling is enabled then axis is autoscaled to this offset. 
                           transOffset = ax[0].transData, 
@@ -68,39 +88,75 @@ def autoscale_and_collections():
                           cmap ="jet")
     ec_2.set_array((X * Y).ravel()) 
     
+    fontdict ={
+        "fontsize":15,
+        "fontweight" : 14
+    }
+
     ax[0].add_collection(ec_1) 
     ax[1].add_collection(ec_2)
     ax[1].autoscale_view()
+    
+    ax[0].set_title("Without Autoscale",fontdict=fontdict)
+    ax[1].set_title("With Autoscale",fontdict=fontdict)
+
     fig.canvas.draw()
      
-
+# Utility function for describing relationship between autoscale and Patches.
 def autoscale_and_patches():
     fig,ax = plt.subplots(ncols=2)
+    
     vertices = [(0,0),(0,3),(1,0),(0,0)]
     codes = [Path.MOVETO] + [Path.LINETO]*2 + [Path.MOVETO]
     vertices = np.array(vertices,float)
+    
     path_1 = Path(vertices,codes)
     patches_1 = PathPatch(path_1,facecolor="magenta",alpha=0.7)  
-    # matplotlib.patches.Patch is Base class of PathPatch and it                                                           
-    # does not support autoscaling.  
-    # creating two because re-using of artists not supported.
-    path_2 = Path(vertices,codes)
-    patches_2 = PathPatch(path_2,facecolor="magenta",alpha=0.7)   
+    
     # matplotlib.patches.Patch is Base class of PathPatch and it                                                           
     # does not support autoscaling.  
     
+    # creating two because re-using of artists not supported.
+    
+    path_2 = Path(vertices,codes)
+    patches_2 = PathPatch(path_2,facecolor="magenta",alpha=0.7)   
+    
+    fontdict ={
+        "fontsize":15,
+        "fontweight" : 14
+    }
+
     ax[0].add_patch(patches_1)
     ax[1].add_patch(patches_2)
     ax[1].autoscale()
+
+    ax[0].set_title("Without Autoscale",fontdict=fontdict)
+    ax[1].set_title("With Autoscale",fontdict=fontdict)
     fig.canvas.draw()
 
+# Utility function for describing case when we need to disable autoscaling.
 def autoscale_disable():
+    fig,ax = plt.subplots(ncols=2)
+
     x = np.arange(10)
+
     # Disable Autoscaling
-    plt.autoscale(False) 
+    ax[1].autoscale(False) 
         
-    plt.xlim(0,2)
-    plt.plot(x)
+    for axis  in [ax[0],ax[1]]:
+        axis.set_ylim(0,2)
+        axis.plot(x)
+        
+    ax[0].set_title("Autoscale Enabled")
+    ax[1].set_title("Autoscale Disabled")
+    plt.tight_layout()
+    
+    fig,ax = plt.subplots()
+    ax.plot(x)
+    ax.set_title("Original Plot")
+    plt.tight_layout()
+
+
 """
 autoscale
 =============
@@ -158,8 +214,9 @@ which case we possibly need to disable it.
 Suppose we want to plot a line at 45 degrees to x and y axes and we want data to
 be shown within a given range out of the whole and hence we have to set limits
 for x and y axes and in that case we have to first disable autoscaling and then
-we can set the limits .
+we can set the limits.
 """
+
 """
 autoscale disable
 =================
@@ -167,3 +224,9 @@ autoscale disable
 
 autoscale_disable()
 
+"""
+As we can see that setting the y_lim between 0 and 2 worked for both axes but
+the one whose autoscaling was not disabled, got autoscaled in the x-axis and the
+one which had autoscaling disabled, maintained the default range(between 0 to 1)
+for x-axis.
+"""
