@@ -234,116 +234,110 @@ cmdclass['install_lib'] = install_lib_with_jquery
 cmdclass['develop'] = develop_with_jquery
 
 
-# One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
-# however, this is needed on Windows to avoid creating infinite subprocesses
-# when using multiprocessing.
-if __name__ == '__main__':
-    package_data = {}  # Will be filled below by the various components.
+package_data = {}  # Will be filled below by the various components.
 
-    # If the user just queries for information, don't bother figuring out which
-    # packages to build or install.
-    if not (any('--' + opt in sys.argv
-                for opt in Distribution.display_option_names + ['help'])
-            or 'clean' in sys.argv):
-        # Go through all of the packages and figure out which ones we are
-        # going to build/install.
-        print_raw()
-        print_raw("Edit setup.cfg to change the build options; "
-                  "suppress output with --quiet.")
-        print_raw()
-        print_raw("BUILDING MATPLOTLIB")
+# If the user just queries for information, don't bother figuring out which
+# packages to build or install.
+if not (any('--' + opt in sys.argv
+            for opt in Distribution.display_option_names + ['help'])
+        or 'clean' in sys.argv):
+    # Go through all of the packages and figure out which ones we are
+    # going to build/install.
+    print_raw()
+    print_raw("Edit setup.cfg to change the build options; "
+              "suppress output with --quiet.")
+    print_raw()
+    print_raw("BUILDING MATPLOTLIB")
 
-        good_packages = []
-        for package in mpl_packages:
-            try:
-                message = package.check()
-            except setupext.Skipped as e:
-                print_status(package.name, "no  [{e}]".format(e=e))
-                continue
-            if message is not None:
-                print_status(package.name,
-                             "yes [{message}]".format(message=message))
-            good_packages.append(package)
+    good_packages = []
+    for package in mpl_packages:
+        try:
+            message = package.check()
+        except setupext.Skipped as e:
+            print_status(package.name, "no  [{e}]".format(e=e))
+            continue
+        if message is not None:
+            print_status(package.name,
+                         "yes [{message}]".format(message=message))
+        good_packages.append(package)
 
-        print_raw()
+    print_raw()
 
-        # Now collect all of the information we need to build all of the
-        # packages.
-        for package in good_packages:
-            # Extension modules only get added in build_ext, as numpy will have
-            # been installed (as setup_requires) at that point.
-            data = package.get_package_data()
-            for key, val in data.items():
-                package_data.setdefault(key, [])
-                package_data[key] = list(set(val + package_data[key]))
+    # Now collect all of the information we need to build all of the packages.
+    for package in good_packages:
+        # Extension modules only get added in build_ext, as numpy will have
+        # been installed (as setup_requires) at that point.
+        data = package.get_package_data()
+        for key, val in data.items():
+            package_data.setdefault(key, [])
+            package_data[key] = list(set(val + package_data[key]))
 
-        # Write the default matplotlibrc file
-        with open('matplotlibrc.template') as fd:
-            template_lines = fd.read().splitlines(True)
-        backend_line_idx, = [  # Also asserts that there is a single such line.
-            idx for idx, line in enumerate(template_lines)
-            if line.startswith('#backend:')]
-        if setupext.options['backend']:
-            template_lines[backend_line_idx] = (
-                'backend: {}'.format(setupext.options['backend']))
-        with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(''.join(template_lines))
+    # Write the default matplotlibrc file
+    with open('matplotlibrc.template') as fd:
+        template_lines = fd.read().splitlines(True)
+    backend_line_idx, = [  # Also asserts that there is a single such line.
+        idx for idx, line in enumerate(template_lines)
+        if line.startswith('#backend:')]
+    if setupext.options['backend']:
+        template_lines[backend_line_idx] = (
+            'backend: {}'.format(setupext.options['backend']))
+    with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
+        fd.write(''.join(template_lines))
 
-    # Finally, pass this all along to distutils to do the heavy lifting.
-    setup(
-        name="matplotlib",
-        version=__version__,
-        description="Python plotting package",
-        author="John D. Hunter, Michael Droettboom",
-        author_email="matplotlib-users@python.org",
-        url="https://matplotlib.org",
-        download_url="https://matplotlib.org/users/installing.html",
-        project_urls={
-            'Documentation': 'https://matplotlib.org',
-            'Source Code': 'https://github.com/matplotlib/matplotlib',
-            'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
-            'Forum': 'https://discourse.matplotlib.org/',
-            'Donate': 'https://numfocus.org/donate-to-matplotlib'
-        },
-        long_description=Path("README.rst").read_text(encoding="utf-8"),
-        long_description_content_type="text/x-rst",
-        license="PSF",
-        platforms="any",
-        classifiers=[
-            'Development Status :: 5 - Production/Stable',
-            'Framework :: Matplotlib',
-            'Intended Audience :: Science/Research',
-            'Intended Audience :: Education',
-            'License :: OSI Approved :: Python Software Foundation License',
-            'Programming Language :: Python',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.6',
-            'Programming Language :: Python :: 3.7',
-            'Programming Language :: Python :: 3.8',
-            'Topic :: Scientific/Engineering :: Visualization',
-        ],
+setup(  # Finally, pass this all along to distutils to do the heavy lifting.
+    name="matplotlib",
+    version=__version__,
+    description="Python plotting package",
+    author="John D. Hunter, Michael Droettboom",
+    author_email="matplotlib-users@python.org",
+    url="https://matplotlib.org",
+    download_url="https://matplotlib.org/users/installing.html",
+    project_urls={
+        'Documentation': 'https://matplotlib.org',
+        'Source Code': 'https://github.com/matplotlib/matplotlib',
+        'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
+        'Forum': 'https://discourse.matplotlib.org/',
+        'Donate': 'https://numfocus.org/donate-to-matplotlib'
+    },
+    long_description=Path("README.rst").read_text(encoding="utf-8"),
+    long_description_content_type="text/x-rst",
+    license="PSF",
+    platforms="any",
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Framework :: Matplotlib',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: Education',
+        'License :: OSI Approved :: Python Software Foundation License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Scientific/Engineering :: Visualization',
+    ],
 
-        package_dir={"": "lib"},
-        packages=find_packages("lib"),
-        namespace_packages=["mpl_toolkits"],
-        py_modules=["pylab"],
-        # Dummy extension to trigger build_ext, which will swap it out with
-        # real extensions that can depend on numpy for the build.
-        ext_modules=[Extension("", [])],
-        package_data=package_data,
+    package_dir={"": "lib"},
+    packages=find_packages("lib"),
+    namespace_packages=["mpl_toolkits"],
+    py_modules=["pylab"],
+    # Dummy extension to trigger build_ext, which will swap it out with
+    # real extensions that can depend on numpy for the build.
+    ext_modules=[Extension("", [])],
+    package_data=package_data,
 
-        python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
-        setup_requires=[
-            "numpy>=1.15",
-        ],
-        install_requires=[
-            "cycler>=0.10",
-            "kiwisolver>=1.0.1",
-            "numpy>=1.15",
-            "pillow>=6.2.0",
-            "pyparsing>=2.0.3,!=2.0.4,!=2.1.2,!=2.1.6",
-            "python-dateutil>=2.1",
-        ],
+    python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
+    setup_requires=[
+        "numpy>=1.15",
+    ],
+    install_requires=[
+        "cycler>=0.10",
+        "kiwisolver>=1.0.1",
+        "numpy>=1.15",
+        "pillow>=6.2.0",
+        "pyparsing>=2.0.3,!=2.0.4,!=2.1.2,!=2.1.6",
+        "python-dateutil>=2.1",
+    ],
 
-        cmdclass=cmdclass,
-    )
+    cmdclass=cmdclass,
+)
