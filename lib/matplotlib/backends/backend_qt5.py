@@ -656,7 +656,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.setAllowedAreas(
             QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea)
 
-        self._parent = parent
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
 
@@ -687,8 +686,15 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    parent = cbook._deprecate_privatize_attribute(
-        "3.3", alternative="self.canvas.parent()")
+    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
+    @property
+    def parent(self):
+        return self.canvas.parent()
+
+    @cbook.deprecated("3.3", alternative="self.canvas.setParent()")
+    @parent.setter
+    def parent(self, value):
+        pass
 
     @cbook.deprecated(
         "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
