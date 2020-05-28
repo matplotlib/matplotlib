@@ -896,11 +896,10 @@ def axes(arg=None, **kwargs):
 
     Returns
     -------
-    `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+    `~.axes.Axes`, or a subclass of `~.axes.Axes`
         The returned axes class depends on the projection used. It is
-        `~.axes.Axes` if rectilinear projection are used and
-        `.projections.polar.PolarAxes` if polar projection
-        are used.
+        `~.axes.Axes` if rectilinear projection is used and
+        `.projections.polar.PolarAxes` if polar projection is used.
 
     Other Parameters
     ----------------
@@ -1023,13 +1022,12 @@ def subplot(*args, **kwargs):
 
     Returns
     -------
-    an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass of \
-`~.axes.Axes`)
+    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
 
         The axes of the subplot. The returned axes base class depends on
         the projection used. It is `~.axes.Axes` if rectilinear projection
-        are used and `.projections.polar.PolarAxes` if polar projection
-        are used. The returned axes is then a subplot subclass of the
+        is used and `.projections.polar.PolarAxes` if polar projection
+        is used. The returned axes is then a subplot subclass of the
         base class.
 
     Other Parameters
@@ -1288,7 +1286,7 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
         Row number and column number of the axis location within the grid.
     rowspan : int, default: 1
         Number of rows for the axis to span to the right.
-    colspan : int. default: 1
+    colspan : int, default: 1
         Number of columns for the axis to span downwards.
     fig : `.Figure`, optional
         Figure to place the subplot in. Defaults to the current figure.
@@ -1301,8 +1299,8 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
         The axes of the subplot. The returned axes base class depends on
         the projection used. It is `~.axes.Axes` if rectilinear projection
-        are used and `.projections.polar.PolarAxes` if polar projection
-        are used. The returned axes is then a subplot subclass of the
+        is used and `.projections.polar.PolarAxes` if polar projection
+        is used. The returned axes is then a subplot subclass of the
         base class.
 
     Notes

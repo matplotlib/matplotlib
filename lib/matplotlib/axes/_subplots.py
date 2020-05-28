@@ -30,6 +30,9 @@ class SubplotBase:
             If *nrows*, *ncols*, and *index* are all single digit numbers, then
             *args* can be passed as a single 3-digit number (e.g. 234 for
             (2, 3, 4)).
+
+        **kwargs
+            Keyword arguments are passed to the Axes (sub)class constructor.
         """
 
         self.figure = fig
@@ -78,15 +81,15 @@ class SubplotBase:
         self.set_position(self.figbox)
 
     def get_subplotspec(self):
-        """Return the SubplotSpec instance associated with the subplot."""
+        """Return the `.SubplotSpec` instance associated with the subplot."""
         return self._subplotspec
 
     def set_subplotspec(self, subplotspec):
-        """Set the SubplotSpec instance associated with the subplot."""
+        """Set the `.SubplotSpec`. instance associated with the subplot."""
         self._subplotspec = subplotspec
 
     def get_gridspec(self):
-        """Return the GridSpec instance associated with the subplot."""
+        """Return the `.GridSpec` instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
 
     def update_params(self):
