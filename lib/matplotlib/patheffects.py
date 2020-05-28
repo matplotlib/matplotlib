@@ -174,6 +174,7 @@ def _subclass_with_normal(effect_class):
             renderer.draw_path(gc, tpath, affine, rgbFace)
 
     withEffect.__name__ = f"with{effect_class.__name__}"
+    withEffect.__qualname__ = f"with{effect_class.__name__}"
     withEffect.__doc__ = f"""
     A shortcut PathEffect for applying `.{effect_class.__name__}` and then
     drawing the original Artist.
