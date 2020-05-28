@@ -41,7 +41,7 @@ from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
 from matplotlib import _path
-from matplotlib import ttconv
+from matplotlib import _ttconv
 from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
@@ -996,7 +996,7 @@ end"""
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
             try:
-                rawcharprocs = ttconv.get_pdf_charprocs(
+                rawcharprocs = _ttconv.get_pdf_charprocs(
                     os.fsencode(filename), glyph_ids)
             except RuntimeError:
                 _log.warning("The PDF backend does not currently support the "
