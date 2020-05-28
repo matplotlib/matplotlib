@@ -111,6 +111,12 @@ it, use
 .. code-block:: sh
 
    make SPHINXOPTS= html
+   
+On Windows the arguments must be at the end of the statement:
+
+.. code-block:: bat
+
+   make html SPHINXOPTS=
 
 You can use the ``O`` variable to set additional options:
 
@@ -121,7 +127,7 @@ You can use the ``O`` variable to set additional options:
 Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
-On Windows, options needs to be set as environment variables, e.g.:
+On Windows, either use the format shown above or set options as environment variables, e.g.:
 
 .. code-block:: bat
 
