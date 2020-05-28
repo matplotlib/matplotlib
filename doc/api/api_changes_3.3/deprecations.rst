@@ -589,3 +589,7 @@ implementers).
 Passing ``ismath="TeX!"`` to `.RendererAgg.get_text_width_height_descent` is
 deprecated.  Pass ``ismath="TeX"`` instead, consistently with other low-level
 APIs which support the values True, False, and "TeX" for ``ismath``.
+
+``matplotlib.ttconv``
+~~~~~~~~~~~~~~~~~~~~~
+This module is deprecated.
