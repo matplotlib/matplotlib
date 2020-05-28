@@ -105,7 +105,7 @@ def test_utf16m_sfnt():
     else:
         # Check that we successfully read "semibold" from the font's sfnt table
         # and set its weight accordingly.
-        assert entry.weight == "semibold"
+        assert entry.weight == 600
 
 
 def test_find_ttc():

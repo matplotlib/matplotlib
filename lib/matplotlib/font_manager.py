@@ -29,6 +29,7 @@ import logging
 from numbers import Number
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 try:
@@ -86,6 +87,33 @@ weight_dict = {
     'extra bold': 800,
     'black':      900,
 }
+_weight_regexes = [
+    # From fontconfig's FcFreeTypeQueryFaceInternal; not the same as
+    # weight_dict!
+    ("thin", 100),
+    ("extralight", 200),
+    ("ultralight", 200),
+    ("demilight", 350),
+    ("semilight", 350),
+    ("light", 300),  # Needs to come *after* demi/semilight!
+    ("book", 380),
+    ("regular", 400),
+    ("normal", 400),
+    ("medium", 500),
+    ("demibold", 600),
+    ("demi", 600),
+    ("semibold", 600),
+    ("extrabold", 800),
+    ("superbold", 800),
+    ("ultrabold", 800),
+    ("bold", 700),  # Needs to come *after* extra/super/ultrabold!
+    ("ultrablack", 1000),
+    ("superblack", 1000),
+    ("extrablack", 1000),
+    (r"\bultra", 1000),
+    ("black", 900),  # Needs to come *after* ultra/super/extrablack!
+    ("heavy", 900),
+]
 font_family_aliases = {
     'serif',
     'sans-serif',
@@ -95,6 +123,8 @@ font_family_aliases = {
     'monospace',
     'sans',
 }
+
+
 # OS Font paths
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
@@ -356,14 +386,21 @@ def ttfFontProperty(font):
     #  Styles are: italic, oblique, and normal (default)
 
     sfnt = font.get_sfnt()
+    mac_key = (1,  # platform: macintosh
+               0,  # id: roman
+               0)  # langid: english
+    ms_key = (3,  # platform: microsoft
+              1,  # id: unicode_cs
+              0x0409)  # langid: english_united_states
+
     # These tables are actually mac_roman-encoded, but mac_roman support may be
     # missing in some alternative Python implementations and we are only going
     # to look for ASCII substrings, where any ASCII-compatible encoding works
     # - or big-endian UTF-16, since important Microsoft fonts use that.
-    sfnt2 = (sfnt.get((1, 0,      0, 2), b'').decode('latin-1').lower() or
-             sfnt.get((3, 1, 0x0409, 2), b'').decode('utf_16_be').lower())
-    sfnt4 = (sfnt.get((1, 0,      0, 4), b'').decode('latin-1').lower() or
-             sfnt.get((3, 1, 0x0409, 4), b'').decode('utf_16_be').lower())
+    sfnt2 = (sfnt.get((*mac_key, 2), b'').decode('latin-1').lower() or
+             sfnt.get((*ms_key, 2), b'').decode('utf_16_be').lower())
+    sfnt4 = (sfnt.get((*mac_key, 4), b'').decode('latin-1').lower() or
+             sfnt.get((*ms_key, 4), b'').decode('utf_16_be').lower())
 
     if sfnt4.find('oblique') >= 0:
         style = 'oblique'
@@ -384,10 +421,47 @@ def ttfFontProperty(font):
     else:
         variant = 'normal'
 
-    if font.style_flags & ft2font.BOLD:
-        weight = 700
-    else:
-        weight = next((w for w in weight_dict if w in sfnt4), 400)
+    # The weight-guessing algorithm is directly translated from fontconfig
+    # 2.13.1's FcFreeTypeQueryFaceInternal (fcfreetype.c).
+    wws_subfamily = 22
+    typographic_subfamily = 16
+    font_subfamily = 2
+    styles = [
+        sfnt.get((*mac_key, wws_subfamily), b'').decode('latin-1'),
+        sfnt.get((*mac_key, typographic_subfamily), b'').decode('latin-1'),
+        sfnt.get((*mac_key, font_subfamily), b'').decode('latin-1'),
+        sfnt.get((*ms_key, wws_subfamily), b'').decode('utf-16-be'),
+        sfnt.get((*ms_key, typographic_subfamily), b'').decode('utf-16-be'),
+        sfnt.get((*ms_key, font_subfamily), b'').decode('utf-16-be'),
+    ]
+    styles = [*filter(None, styles)] or [font.style_name]
+
+    def get_weight():  # From fontconfig's FcFreeTypeQueryFaceInternal.
+        # OS/2 table weight.
+        os2 = font.get_sfnt_table("OS/2")
+        if os2 and os2["version"] != 0xffff:
+            return os2["usWeightClass"]
+        # PostScript font info weight.
+        try:
+            ps_font_info_weight = (
+                font.get_ps_font_info()["weight"].replace(" ", "") or "")
+        except ValueError:
+            pass
+        else:
+            for regex, weight in _weight_regexes:
+                if re.fullmatch(regex, ps_font_info_weight, re.I):
+                    return weight
+        # Style name weight.
+        for style in styles:
+            style = style.replace(" ", "")
+            for regex, weight in _weight_regexes:
+                if re.search(regex, style, re.I):
+                    return weight
+        if font.style_flags & ft2font.BOLD:
+            return 700  # "bold"
+        return 500  # "medium", not "regular"!
+
+    weight = int(get_weight())
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
@@ -956,7 +1030,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 310
+    __version__ = 330
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
