@@ -4500,6 +4500,28 @@ def test_pie_textprops():
             assert tx.get_color() == textprops["color"]
 
 
+def test_pie_get_negative_values():
+    # Test the ValueError raised when feeding negative values into axes.pie
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.pie([5, 5, -3], explode=[0, .1, .2])
+
+
+def test_normalize_kwarg_warn_pie():
+    fig, ax = plt.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.pie(x=[0], normalize=None)
+
+
+def test_normalize_kwarg_pie():
+    fig, ax = plt.subplots()
+    x = [0.3, 0.3, 0.1]
+    t1 = ax.pie(x=x, normalize=True)
+    assert abs(t1[0][-1].theta2 - 360.) < 1e-3
+    t2 = ax.pie(x=x, normalize=False)
+    assert abs(t2[0][-1].theta2 - 360.) > 1e-3
+
+
 @image_comparison(['set_get_ticklabels.png'])
 def test_set_get_ticklabels():
     # test issue 2246
@@ -6208,13 +6230,6 @@ def test_bbox_aspect_axes_init():
     assert_allclose(sizes, sizes[0])
 
 
-def test_pie_get_negative_values():
-    # Test the ValueError raised when feeding negative values into axes.pie
-    fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
-        ax.pie([5, 5, -3], explode=[0, .1, .2])
-
-
 def test_invisible_axes():
     # invisible axes should not respond to events...
     fig, ax = plt.subplots()
@@ -6275,18 +6290,3 @@ def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
     l.get_path()._interpolation_steps = 100
     fig_ref.add_subplot(projection="polar").plot(
         np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
-
-
-def test_normalize_kwarg_warn_pie():
-    fig, ax = plt.subplots()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.pie(x=[0], normalize=None)
-
-
-def test_normalize_kwarg_pie():
-    fig, ax = plt.subplots()
-    x = [0.3, 0.3, 0.1]
-    t1 = ax.pie(x=x, normalize=True)
-    assert abs(t1[0][-1].theta2 - 360.) < 1e-3
-    t2 = ax.pie(x=x, normalize=False)
-    assert abs(t2[0][-1].theta2 - 360.) > 1e-3
