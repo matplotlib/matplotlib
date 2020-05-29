@@ -2610,28 +2610,24 @@ def test_boxplot_no_weird_whisker():
     ax1.xaxis.grid(False)
 
 
-def test_boxplot_bad_medians_1():
+def test_boxplot_bad_medians():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.boxplot(x, usermedians=[1, 2])
-
-
-def test_boxplot_bad_medians_2():
-    x = np.linspace(-7, 7, 140)
-    x = np.hstack([-25, x, 25])
-    fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.boxplot([x, x], usermedians=[[1, 2], [1, 2]])
 
 
-def test_boxplot_bad_ci_1():
+def test_boxplot_bad_ci():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.boxplot([x, x], conf_intervals=[[1, 2]])
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 
 def test_boxplot_zorder():
@@ -2639,14 +2635,6 @@ def test_boxplot_zorder():
     fix, ax = plt.subplots()
     assert ax.boxplot(x)['boxes'][0].get_zorder() == 2
     assert ax.boxplot(x, zorder=10)['boxes'][0].get_zorder() == 10
-
-
-def test_boxplot_bad_ci_2():
-    x = np.linspace(-7, 7, 140)
-    x = np.hstack([-25, x, 25])
-    fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
-        ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 
 def test_boxplot_marker_behavior():
