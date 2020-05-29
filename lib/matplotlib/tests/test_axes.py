@@ -2236,10 +2236,10 @@ def test_bxp_rangewhis():
     _bxp_test_helper(stats_kwargs=dict(whis=[0, 100]))
 
 
-@image_comparison(['bxp_precentilewhis.png'],
+@image_comparison(['bxp_percentilewhis.png'],
                   savefig_kwarg={'dpi': 40},
                   style='default')
-def test_bxp_precentilewhis():
+def test_bxp_percentilewhis():
     _bxp_test_helper(stats_kwargs=dict(whis=[5, 95]))
 
 
@@ -6208,7 +6208,7 @@ def test_bbox_aspect_axes_init():
     assert_allclose(sizes, sizes[0])
 
 
-def test_pi_get_negative_values():
+def test_pie_get_negative_values():
     # Test the ValueError raised when feeding negative values into axes.pie
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
