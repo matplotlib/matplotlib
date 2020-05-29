@@ -1543,7 +1543,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
                 }
                 pil_kwargs["pnginfo"] = pnginfo = PIL.PngImagePlugin.PngInfo()
                 for k, v in metadata.items():
-                    pnginfo.add_text(k, v)
+                    if v is not None:
+                        pnginfo.add_text(k, v)
         if format in ["jpg", "jpeg"]:
             format = "jpeg"  # Pillow doesn't recognize "jpg".
             facecolor = mpl.rcParams["savefig.facecolor"]
