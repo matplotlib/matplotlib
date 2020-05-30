@@ -42,10 +42,10 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
 ###############################################################################
 # Extended colorbar with continuous colorscale
 # --------------------------------------------
-
+#
 # The second example shows how to make a discrete colorbar based on a
-# continuous cmap. With the "extend" kwarg the appropriate colors are chosen to
-# fill the colorspace, including the extensions:
+# continuous cmap. With the "extend" keyword argument the appropriate colors
+# are chosen to fill the colorspace, including the extensions:
 fig, ax = plt.subplots(figsize=(6, 1))
 fig.subplots_adjust(bottom=0.5)
 
@@ -62,7 +62,7 @@ fig.show()
 # Discrete intervals colorbar
 # ---------------------------
 #
-# The second example illustrates the use of a
+# The third example illustrates the use of a
 # :class:`~matplotlib.colors.ListedColormap` which generates a colormap from a
 # set of listed colors, `.colors.BoundaryNorm` which generates a colormap
 # index based on discrete intervals and extended ends to show the "over" and
@@ -74,11 +74,15 @@ fig.show()
 # bounds array must be one greater than the length of the color list. The
 # bounds must be monotonically increasing.
 #
-# This time we pass some more arguments in addition to previous arguments to
-# `~.Figure.colorbar`. For the out-of-range values to
-# display on the colorbar, we have to use the *extend* keyword argument. To use
-# *extend*, you must specify two extra boundaries. Finally spacing argument
-# ensures that intervals are shown on colorbar proportionally.
+# This time we pass additional arguments to
+# `~.Figure.colorbar`. For the out-of-range values to display on the colorbar
+# without using the *extend* keyword with
+# `.colors.BoundaryNorm`, we have to use the *extend* keyword argument directly
+# in the colorbar call, and supply an additional boundary on each end of the
+# range.  Here we also
+# use the spacing argument to make
+# the length of each colorbar segment proportional to its corresponding
+# interval.
 
 fig, ax = plt.subplots(figsize=(6, 1))
 fig.subplots_adjust(bottom=0.5)
@@ -92,7 +96,7 @@ norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 fig.colorbar(
     mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
     cax=ax,
-    boundaries=[0] + bounds + [13],
+    boundaries=[0] + bounds + [13],  # Adding values for extensions.
     extend='both',
     ticks=bounds,
     spacing='proportional',
@@ -104,7 +108,7 @@ fig.colorbar(
 # Colorbar with custom extension lengths
 # --------------------------------------
 #
-# Here we illustrate the use of custom length colorbar extensions, used on a
+# Here we illustrate the use of custom length colorbar extensions, on a
 # colorbar with discrete intervals. To make the length of each extension the
 # same as the length of the interior colors, use ``extendfrac='auto'``.
 

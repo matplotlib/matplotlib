@@ -1,14 +1,15 @@
 New "extend" keyword to colors.BoundaryNorm
 -------------------------------------------
 
-`~.colors.BoundaryNorm` now has an ``extend`` kwarg,
-analogous to ``extend`` in ~.axes._axes.Axes.contourf`. When set to
-'both', 'min', or 'max', it interpolates such that the corresponding
-out-of-range values are mapped to colors distinct from their in-range
-neighbors.  The colorbar inherits the ``extend`` argument from the
-norm, so with ``extend='both'``, for example, the colorbar will have
-triangular extensions for out-of-range values with colors that differ
-from adjacent colors.
+`~.colors.BoundaryNorm` now has an ``extend`` keyword argument, analogous to
+``extend`` in ~.axes._axes.Axes.contourf`. When set to 'both', 'min', or 'max',
+it maps the corresponding out-of-range values to `~.colors.Colormap`
+lookup-table indices near the appropriate ends of their range so that the
+colors for out-of range values are adjacent to, but distinct from, their
+in-range neighbors.  The colorbar inherits the ``extend`` argument from the
+norm, so with ``extend='both'``, for example, the colorbar will have triangular
+extensions for out-of-range values with colors that differ from adjacent
+colors.
 
   .. plot::
 

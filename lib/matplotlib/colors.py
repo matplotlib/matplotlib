@@ -1434,7 +1434,7 @@ class BoundaryNorm(Normalize):
             pair of boundaries is mapped will be distinct from the first
             color in the colormap, and by default a
             `~matplotlib.colorbar.Colorbar` will be drawn with
-            the triangle extension on the left side.
+            the triangle extension on the left or lower end.
 
         Notes
         -----

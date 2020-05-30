@@ -147,7 +147,7 @@ plt.show()
 # which data is to be mapped.  The colors are then linearly distributed between
 # these "bounds".  It can also take an *extend* argument to add upper and/or
 # lower out-of-bounds values to the range over which the colors are
-# distributed For instance:
+# distributed. For instance:
 #
 # .. ipython::
 #
