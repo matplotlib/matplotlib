@@ -3,6 +3,7 @@
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
 import numpy as np
+
 import matplotlib.transforms as mtransforms
 from matplotlib import (
     artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)

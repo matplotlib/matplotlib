@@ -349,13 +349,16 @@ class Axes3D(Axes):
             ax._anchor = anchor
             ax.stale = True
 
-    def set_box_aspect(self, aspect, zoom=1):
+    def set_box_aspect(self, aspect, *, zoom=1):
         """
         Set the axes box aspect.
 
         The box aspect is the ratio of the axes height to the axes width in
         physical units. This is not to be confused with the data
         aspect, set via `~.Axes.set_aspect`.
+
+        The *zoom* is a Axes3D only parameter that controls the overall
+        size of the Axes3D in the figure.
 
         Parameters
         ----------
@@ -370,7 +373,7 @@ class Axes3D(Axes):
                 ax.set_box_aspect(aspect=(4, 4, 3), zoom=1)
 
         zoom : float
-            Control the "zoom" of the
+            Control overall size of the Axes3D in the figure.
 
         See Also
         --------
@@ -390,8 +393,6 @@ class Axes3D(Axes):
     def apply_aspect(self, position=None):
         if position is None:
             position = self.get_position(original=True)
-
-        aspect = self.get_aspect()
 
         # in the superclass, we would go through and actually deal with axis
         # scales and box/datalim. Those are all irrelevant - all we need to do
@@ -463,7 +464,6 @@ class Axes3D(Axes):
         return xhigh, yhigh, zhigh
 
     def _on_units_changed(self, scalex=False, scaley=False, scalez=False):
-
         """
         Callback for processing changes to axis units.
 

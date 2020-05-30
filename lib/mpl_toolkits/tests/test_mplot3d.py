@@ -975,7 +975,7 @@ def test_equal_box_aspect():
     v = np.linspace(0, np.pi, 100)
     x = np.outer(np.cos(u), np.sin(v))
     y = np.outer(np.sin(u), np.sin(v))
-    z = np.outer(np.ones(np.size(u)), np.cos(v))
+    z = np.outer(np.ones_like(u), np.cos(v))
 
     # Plot the surface
     ax.plot_surface(x, y, z)
@@ -987,7 +987,9 @@ def test_equal_box_aspect():
             ax.plot3D(*zip(s, e), color="b")
 
     # Make axes limits
-    xyzlim = np.array([ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()]).T
+    xyzlim = np.column_stack(
+        [ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()]
+    )
     XYZlim = [min(xyzlim[0]), max(xyzlim[1])]
     ax.set_xlim3d(XYZlim)
     ax.set_ylim3d(XYZlim)
