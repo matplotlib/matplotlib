@@ -824,6 +824,15 @@ class HelpGTK3(backend_tools.ToolHelpBase):
 
         return ''.join(mods) + key
 
+    def _is_valid_shortcut(self, key):
+        """
+        Check for a valid shortcut to be displayed.
+
+        - GTK will never send 'cmd+' (see `FigureCanvasGTK3._get_key`).
+        - The shortcut window only shows keyboard shortcuts, not mouse buttons.
+        """
+        return 'cmd+' not in key and not key.startswith('MouseButton.')
+
     def _show_shortcuts_window(self):
         section = Gtk.ShortcutsSection()
 
@@ -844,8 +853,7 @@ class HelpGTK3(backend_tools.ToolHelpBase):
                 accelerator=' '.join(
                     self._normalize_shortcut(key)
                     for key in self.toolmanager.get_tool_keymap(name)
-                    # Will never be sent:
-                    if 'cmd+' not in key),
+                    if self._is_valid_shortcut(key)),
                 title=tool.name,
                 subtitle=tool.description)
             group.add(shortcut)
