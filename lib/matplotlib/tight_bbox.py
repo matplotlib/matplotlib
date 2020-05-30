@@ -15,6 +15,8 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     changes, the scale of the original figure is conserved.  A
     function which restores the original values are returned.
     """
+    def no_op_apply_aspect(position=None):
+        return
 
     origBbox = fig.bbox
     origBboxInches = fig.bbox_inches
@@ -23,22 +25,24 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
     fig.set_tight_layout(False)
 
-    asp_list = []
     locator_list = []
     for ax in fig.axes:
         pos = ax.get_position(original=False).frozen()
         locator_list.append(ax.get_axes_locator())
-        asp_list.append(ax.get_aspect())
 
         def _l(a, r, pos=pos):
             return pos
         ax.set_axes_locator(_l)
-        ax.set_aspect("auto")
+        # override the method that enforces the aspect ratio
+        # on the Axes
+        ax.apply_aspect = no_op_apply_aspect
 
     def restore_bbox():
-        for ax, asp, loc in zip(fig.axes, asp_list, locator_list):
-            ax.set_aspect(asp)
+        for ax, loc in zip(fig.axes, locator_list):
             ax.set_axes_locator(loc)
+            # delete our no-op function which un-hides the
+            # method
+            del ax.apply_aspect
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
