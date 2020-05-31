@@ -27,7 +27,7 @@ except ValueError as e:
     # auto-backend selection logic correctly skips.
     raise ImportError from e
 
-from gi.repository import GLib, GObject, Gtk, Gdk
+from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 
 
 _log = logging.getLogger(__name__)
@@ -464,9 +464,11 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             if text is None:
                 self.insert(Gtk.SeparatorToolItem(), -1)
                 continue
-            image = Gtk.Image()
-            image.set_from_file(
-                str(cbook._get_data_path('images', image_file + '.png')))
+            image = Gtk.Image.new_from_gicon(
+                Gio.Icon.new_for_string(
+                    str(cbook._get_data_path('images',
+                                             f'{image_file}-symbolic.svg'))),
+                Gtk.IconSize.LARGE_TOOLBAR)
             self._gtk_ids[text] = tbutton = (
                 Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
                 Gtk.ToolButton())
@@ -623,7 +625,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
-    _icon_extension = '.png'
+    _icon_extension = '-symbolic.svg'
 
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
@@ -644,8 +646,9 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         tbutton.set_label(name)
 
         if image_file is not None:
-            image = Gtk.Image()
-            image.set_from_file(image_file)
+            image = Gtk.Image.new_from_gicon(
+                Gio.Icon.new_for_string(image_file),
+                Gtk.IconSize.LARGE_TOOLBAR)
             tbutton.set_icon_widget(image)
 
         if position is None:
