@@ -1427,7 +1427,7 @@ class BoundaryNorm(Normalize):
             they are below ``boundaries[0]`` or mapped to *ncolors* if they are
             above ``boundaries[-1]``. These are then converted to valid indices
             by `Colormap.__call__`.
-        extend : {'neither', 'both', 'min', 'max'}, optional
+        extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
             Extend the number of bins to include one or both of the
             regions beyond the boundaries.  For example, if ``extend``
             is 'min', then the color to which the region between the first
