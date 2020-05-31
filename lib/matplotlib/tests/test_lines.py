@@ -183,6 +183,14 @@ def test_marker_fill_styles():
     ax.set_xlim([-5, 155])
 
 
+def test_markerfacecolor_fillstyle():
+    """Test that markerfacecolor does not override fillstyle='none'."""
+    l, = plt.plot([1, 3, 2], marker=MarkerStyle('o', fillstyle='none'),
+                  markerfacecolor='red')
+    assert l.get_fillstyle() == 'none'
+    assert l.get_markerfacecolor() == 'none'
+
+
 @image_comparison(['scaled_lines'], style='default')
 def test_lw_scaling():
     th = np.linspace(0, 32)
