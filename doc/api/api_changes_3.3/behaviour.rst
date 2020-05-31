@@ -307,3 +307,11 @@ but will become True in a later release.
 ... to determine whether a string should be passed to the usetex machinery or
 not.  This allows single strings to be marked as not-usetex even when the
 rcParam is True.
+
+LaTeX ``textcomp`` package no longer loaded by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The LaTeX ``textcomp`` package provides various commands such as
+``\textdagger``.  It used to be loaded by default in usetex mode, but this
+occasionally conflicted with other packages.  Hence, it is no longer loaded by
+default; add ``\usepackage{textcomp}`` to :rc:`text.latex.preamble` if you need
+it.

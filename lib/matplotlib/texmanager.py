@@ -154,8 +154,7 @@ class TexManager:
                self._fonts['monospace'][1]]
         if self.font_family == 'cursive':
             cmd.append(self._fonts['cursive'][1])
-        self._font_preamble = '\n'.join(
-            [r'\usepackage{type1cm}', *cmd, r'\usepackage{textcomp}'])
+        self._font_preamble = '\n'.join([r'\usepackage{type1cm}', *cmd])
 
         return ''.join(fontconfig)
 
