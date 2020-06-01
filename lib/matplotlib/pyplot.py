@@ -872,7 +872,7 @@ def axes(arg=None, **kwargs):
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
-          ``subplot(111, **kwargs)``
+          ``subplot(111, **kwargs)``.
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
@@ -896,11 +896,10 @@ def axes(arg=None, **kwargs):
 
     Returns
     -------
-    `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+    `~.axes.Axes`, or a subclass of `~.axes.Axes`
         The returned axes class depends on the projection used. It is
-        `~.axes.Axes` if rectilinear projection are used and
-        `.projections.polar.PolarAxes` if polar projection
-        are used.
+        `~.axes.Axes` if rectilinear projection is used and
+        `.projections.polar.PolarAxes` if polar projection is used.
 
     Other Parameters
     ----------------
@@ -1023,13 +1022,12 @@ def subplot(*args, **kwargs):
 
     Returns
     -------
-    an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass of \
-`~.axes.Axes`)
+    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
 
         The axes of the subplot. The returned axes base class depends on
         the projection used. It is `~.axes.Axes` if rectilinear projection
-        are used and `.projections.polar.PolarAxes` if polar projection
-        are used. The returned axes is then a subplot subclass of the
+        is used and `.projections.polar.PolarAxes` if polar projection
+        is used. The returned axes is then a subplot subclass of the
         base class.
 
     Other Parameters
@@ -1278,7 +1276,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
 def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
-    Create an axis at specific location inside a regular grid.
+    Create a subplot at a specific location inside a regular grid.
 
     Parameters
     ----------
@@ -1286,14 +1284,24 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
         Number of rows and of columns of the grid in which to place axis.
     loc : (int, int)
         Row number and column number of the axis location within the grid.
-    rowspan : int
+    rowspan : int, default: 1
         Number of rows for the axis to span to the right.
-    colspan : int
+    colspan : int, default: 1
         Number of columns for the axis to span downwards.
     fig : `.Figure`, optional
-        Figure to place axis in. Defaults to current figure.
+        Figure to place the subplot in. Defaults to the current figure.
     **kwargs
-        Additional keyword arguments are handed to `add_subplot`.
+        Additional keyword arguments are handed to `~.Figure.add_subplot`.
+
+    Returns
+    -------
+    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+
+        The axes of the subplot. The returned axes base class depends on
+        the projection used. It is `~.axes.Axes` if rectilinear projection
+        is used and `.projections.polar.PolarAxes` if polar projection
+        is used. The returned axes is then a subplot subclass of the
+        base class.
 
     Notes
     -----

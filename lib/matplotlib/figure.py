@@ -1149,11 +1149,10 @@ default: 'top'
 
         Returns
         -------
-        `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+        `~.axes.Axes`, or a subclass of `~.axes.Axes`
             The returned axes class depends on the projection used. It is
-            `~.axes.Axes` if rectilinear projection are used and
-            `.projections.polar.PolarAxes` if polar projection
-            are used.
+            `~.axes.Axes` if rectilinear projection is used and
+            `.projections.polar.PolarAxes` if polar projection is used.
 
         Other Parameters
         ----------------
@@ -1309,8 +1308,8 @@ default: 'top'
 
             The axes of the subplot. The returned axes base class depends on
             the projection used. It is `~.axes.Axes` if rectilinear projection
-            are used and `.projections.polar.PolarAxes` if polar projection
-            are used. The returned axes is then a subplot subclass of the
+            is used and `.projections.polar.PolarAxes` if polar projection
+            is used. The returned axes is then a subplot subclass of the
             base class.
 
         Other Parameters
