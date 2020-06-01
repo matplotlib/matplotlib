@@ -141,7 +141,7 @@ install:
       python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
       echo 'PyGObject is available' ||
       echo 'PyGObject is not available'
-    python -mpip install --upgrade pyqt5 &&
+    python -mpip install --upgrade pyqt5!=5.15.0 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
