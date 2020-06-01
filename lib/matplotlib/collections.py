@@ -1076,8 +1076,10 @@ class PathCollection(_CollectionWithSizes):
             cond = ((label_values >= func(arr).min()) &
                     (label_values <= func(arr).max()))
             label_values = label_values[cond]
-            xarr = np.linspace(arr.min(), arr.max(), 256)
-            values = np.interp(label_values, func(xarr), xarr)
+            yarr = np.linspace(arr.min(), arr.max(), 256)
+            xarr = func(yarr)
+            ix = np.argsort(xarr)
+            values = np.interp(label_values, xarr[ix], yarr[ix])
 
         kw = dict(markeredgewidth=self.get_linewidths()[0],
                   alpha=self.get_alpha())
