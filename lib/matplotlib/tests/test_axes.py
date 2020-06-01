@@ -3815,6 +3815,13 @@ def test_vlines():
     ax5.set_xlim(0, 15)
 
 
+def test_vlines_default():
+    fig, ax = plt.subplots()
+    with mpl.rc_context({'lines.color': 'red'}):
+        lines = ax.vlines(0.5, 0, 1)
+        assert mpl.colors.same_color(lines.get_color(), 'red')
+
+
 @image_comparison(['hlines_basic', 'hlines_with_nan', 'hlines_masked'],
                   extensions=['png'])
 def test_hlines():
@@ -3853,6 +3860,13 @@ def test_hlines():
     xmax5 = np.ma.masked_equal([13, 14, 15, 16, 17, 18], 18)
     ax5.hlines(y5, xmin5, xmax5, colors='k', linewidth=2)
     ax5.set_ylim(0, 15)
+
+
+def test_hlines_default():
+    fig, ax = plt.subplots()
+    with mpl.rc_context({'lines.color': 'red'}):
+        lines = ax.hlines(0.5, 0, 1)
+        assert mpl.colors.same_color(lines.get_color(), 'red')
 
 
 @pytest.mark.parametrize('data', [[1, 2, 3, np.nan, 5],
