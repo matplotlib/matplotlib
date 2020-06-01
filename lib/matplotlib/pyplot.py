@@ -1295,17 +1295,27 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     **kwargs
         Additional keyword arguments are handed to `add_subplot`.
 
+    Returns
+    -------
+    an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass of \
+`~.axes.Axes`)
+
+        The axes of the subplot.  The returned axes base class depends on the
+        projection used.  It is `~.axes.Axes` if rectilinear projection is used
+        and `.projections.polar.PolarAxes` if polar projection is used.  The
+        returned axes is then a subplot subclass of the base class.
+
     Notes
     -----
     The following call ::
 
-        subplot2grid(shape, loc, rowspan=1, colspan=1)
+        ax = subplot2grid((nrows, ncols), (row, col), rowspan, colspan)
 
     is identical to ::
 
-        gridspec = GridSpec(shape[0], shape[1])
-        subplotspec = gridspec.new_subplotspec(loc, rowspan, colspan)
-        subplot(subplotspec)
+        fig = gcf()
+        gs = fig.add_gridspec(nrows, ncols)
+        ax = fig.add_subplot(gs[row:row+rowspan, col:col+colspan])
     """
 
     if fig is None:
