@@ -530,7 +530,7 @@ class Colormap:
         """
         Parameters
         ----------
-        X : float, ndarray
+        X : float or int, ndarray or scalar
             The data value(s) to convert to RGBA.
             For floats, X should be in the interval ``[0.0, 1.0]`` to
             return the RGBA values ``X*100`` percent along the Colormap line.
@@ -1410,7 +1410,7 @@ class BoundaryNorm(Normalize):
     interpolation, but using integers seems simpler, and reduces the number of
     conversions back and forth between integer and floating point.
     """
-    def __init__(self, boundaries, ncolors, clip=False, extend='neither'):
+    def __init__(self, boundaries, ncolors, clip=False, *, extend='neither'):
         """
         Parameters
         ----------
@@ -1436,14 +1436,18 @@ class BoundaryNorm(Normalize):
             `~matplotlib.colorbar.Colorbar` will be drawn with
             the triangle extension on the left or lower end.
 
+        Returns
+        -------
+        int16 scalar or array
+
         Notes
         -----
         *boundaries* defines the edges of bins, and data falling within a bin
         is mapped to the color with the same index.
 
-        If the number of bins, including any extensions, doesn't equal
-        *ncolors*, the color is chosen by linear interpolation of the
-        bin number onto color numbers.
+        If the number of bins, including any extensions, is less than
+        *ncolors*, the color index is chosen by linear interpolation, mapping
+        the ``[0, nbins - 1]`` range onto the ``[0, ncolors - 1]`` range.
         """
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
@@ -1462,6 +1466,11 @@ class BoundaryNorm(Normalize):
             self._offset = 1
         if extend in ('max', 'both'):
             self._N += 1
+        if self._N > self.Ncmap:
+            raise ValueError(f"There are {self._N} color bins including "
+                             f"extensions, but ncolors = {ncolors}; "
+                             "ncolors must equal or exceed the number of "
+                             "bins")
 
     def __call__(self, value, clip=None):
         if clip is None:
