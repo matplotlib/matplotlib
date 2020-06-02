@@ -214,48 +214,30 @@ def test_bbox_inches():
                    tol=0)
 
 
-@needs_pdflatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
-def test_pdf_pages():
+@pytest.mark.parametrize('system', [
+    pytest.param('lualatex', marks=[needs_lualatex]),
+    pytest.param('pdflatex', marks=[needs_pdflatex]),
+    pytest.param('xelatex', marks=[needs_xelatex]),
+])
+def test_pdf_pages(system):
     rc_pdflatex = {
         'font.family': 'serif',
         'pgf.rcfonts': False,
-        'pgf.texsystem': 'pdflatex',
+        'pgf.texsystem': system,
     }
     mpl.rcParams.update(rc_pdflatex)
 
-    fig1 = plt.figure()
-    ax1 = fig1.add_subplot(1, 1, 1)
+    fig1, ax1 = plt.subplots()
     ax1.plot(range(5))
     fig1.tight_layout()
 
-    fig2 = plt.figure(figsize=(3, 2))
-    ax2 = fig2.add_subplot(1, 1, 1)
+    fig2, ax2 = plt.subplots(figsize=(3, 2))
     ax2.plot(range(5))
     fig2.tight_layout()
 
-    with PdfPages(os.path.join(result_dir, 'pdfpages.pdf')) as pdf:
-        pdf.savefig(fig1)
-        pdf.savefig(fig2)
-
-
-@needs_xelatex
-@pytest.mark.style('default')
-@pytest.mark.backend('pgf')
-def test_pdf_pages_metadata():
-    rc_pdflatex = {
-        'font.family': 'serif',
-        'pgf.rcfonts': False,
-        'pgf.texsystem': 'xelatex',
-    }
-    mpl.rcParams.update(rc_pdflatex)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    ax.plot(range(5))
-    fig.tight_layout()
-
+    path = os.path.join(result_dir, f'pdfpages_{system}.pdf')
     md = {
         'Author': 'me',
         'Title': 'Multipage PDF with pgf',
@@ -265,39 +247,12 @@ def test_pdf_pages_metadata():
         'Trapped': 'Unknown'
     }
 
-    path = os.path.join(result_dir, 'pdfpages_meta.pdf')
-
     with PdfPages(path, metadata=md) as pdf:
-        pdf.savefig(fig)
-        pdf.savefig(fig)
-        pdf.savefig(fig)
+        pdf.savefig(fig1)
+        pdf.savefig(fig2)
+        pdf.savefig(fig1)
 
         assert pdf.get_pagecount() == 3
-
-
-@needs_lualatex
-@pytest.mark.style('default')
-@pytest.mark.backend('pgf')
-def test_pdf_pages_lualatex():
-    rc_pdflatex = {
-        'font.family': 'serif',
-        'pgf.rcfonts': False,
-        'pgf.texsystem': 'lualatex'
-    }
-    mpl.rcParams.update(rc_pdflatex)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    ax.plot(range(5))
-    fig.tight_layout()
-
-    md = {'Author': 'me', 'Title': 'Multipage PDF with pgf'}
-    path = os.path.join(result_dir, 'pdfpages_lua.pdf')
-    with PdfPages(path, metadata=md) as pdf:
-        pdf.savefig(fig)
-        pdf.savefig(fig)
-
-        assert pdf.get_pagecount() == 2
 
 
 @needs_xelatex
