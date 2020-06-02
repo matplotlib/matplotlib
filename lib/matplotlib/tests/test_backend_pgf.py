@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from io import BytesIO
 import os
 from pathlib import Path
@@ -243,7 +243,8 @@ def test_pdf_pages(system):
         'Title': 'Multipage PDF with pgf',
         'Subject': 'Test page',
         'Keywords': 'test,pdf,multipage',
-        'ModDate': datetime(1968, 8, 1),
+        'ModDate': datetime.datetime(
+            1968, 8, 1, tzinfo=datetime.timezone(datetime.timedelta(0))),
         'Trapped': 'Unknown'
     }
 
@@ -253,6 +254,59 @@ def test_pdf_pages(system):
         pdf.savefig(fig1)
 
         assert pdf.get_pagecount() == 3
+
+
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+@pytest.mark.parametrize('system', [
+    pytest.param('lualatex', marks=[needs_lualatex]),
+    pytest.param('pdflatex', marks=[needs_pdflatex]),
+    pytest.param('xelatex', marks=[needs_xelatex]),
+])
+def test_pdf_pages_metadata_check(monkeypatch, system):
+    # Basically the same as test_pdf_pages, but we keep it separate to leave
+    # pikepdf as an optional dependency.
+    pikepdf = pytest.importorskip('pikepdf')
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    mpl.rcParams.update({'pgf.texsystem': system})
+
+    fig, ax = plt.subplots()
+    ax.plot(range(5))
+
+    md = {
+        'Author': 'me',
+        'Title': 'Multipage PDF with pgf',
+        'Subject': 'Test page',
+        'Keywords': 'test,pdf,multipage',
+        'ModDate': datetime.datetime(
+            1968, 8, 1, tzinfo=datetime.timezone(datetime.timedelta(0))),
+        'Trapped': 'True'
+    }
+    path = os.path.join(result_dir, f'pdfpages_meta_check_{system}.pdf')
+    with PdfPages(path, metadata=md) as pdf:
+        pdf.savefig(fig)
+
+    with pikepdf.Pdf.open(path) as pdf:
+        info = {k: str(v) for k, v in pdf.docinfo.items()}
+
+    # Not set by us, so don't bother checking.
+    if '/PTEX.FullBanner' in info:
+        del info['/PTEX.FullBanner']
+    if '/PTEX.Fullbanner' in info:
+        del info['/PTEX.Fullbanner']
+
+    assert info == {
+        '/Author': 'me',
+        '/CreationDate': 'D:19700101000000Z',
+        '/Creator': f'Matplotlib v{mpl.__version__}, https://matplotlib.org',
+        '/Keywords': 'test,pdf,multipage',
+        '/ModDate': 'D:19680801000000Z',
+        '/Producer': f'Matplotlib pgf backend v{mpl.__version__}',
+        '/Subject': 'Test page',
+        '/Title': 'Multipage PDF with pgf',
+        '/Trapped': '/True',
+    }
 
 
 @needs_xelatex
