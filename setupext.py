@@ -341,7 +341,8 @@ class Matplotlib(SetupPackage):
         # c_internal_utils
         ext = Extension(
             "matplotlib._c_internal_utils", ["src/_c_internal_utils.c"],
-            libraries={"win32": ["ole32", "shell32"]}.get(sys.platform, []))
+            libraries=({"win32": ["ole32", "shell32", "user32"]}
+                       .get(sys.platform, [])))
         yield ext
         # contour
         ext = Extension(
@@ -400,8 +401,7 @@ class Matplotlib(SetupPackage):
             ],
             include_dirs=["src"],
             # psapi library needed for finding Tcl/Tk at run time.
-            # user32 library needed for window manipulation functions.
-            libraries=({"linux": ["dl"], "win32": ["psapi", "user32"],
+            libraries=({"linux": ["dl"], "win32": ["psapi"],
                         "cygwin": ["psapi"]}.get(sys.platform, [])),
             extra_link_args={"win32": ["-mwindows"]}.get(sys.platform, []))
         add_numpy_flags(ext)
