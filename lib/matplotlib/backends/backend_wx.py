@@ -1645,6 +1645,7 @@ class _BackendWx(_Backend):
         if wxapp is None:
             wxapp = wx.App(False)
             wxapp.SetExitOnFrameDelete(True)
+            cbook._setup_new_guiapp()
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp

@@ -338,6 +338,11 @@ class Matplotlib(SetupPackage):
         add_libagg_flags_and_sources(ext)
         FreeType().add_flags(ext)
         yield ext
+        # c_internal_utils
+        ext = Extension(
+            "matplotlib._c_internal_utils", ["src/_c_internal_utils.c"],
+            libraries={"win32": ["ole32", "shell32"]}.get(sys.platform, []))
+        yield ext
         # contour
         ext = Extension(
             "matplotlib._contour", [

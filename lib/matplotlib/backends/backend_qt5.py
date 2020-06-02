@@ -127,6 +127,7 @@ def _create_qApp():
                 pass
             qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
+            cbook._setup_new_guiapp()
         else:
             qApp = app
 
