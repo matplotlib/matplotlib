@@ -96,7 +96,7 @@ if __name__ == "__main__":
     doc_dir = Path(__file__).parent.parent.absolute() / "doc"
     target_dir = doc_dir / "_static/zenodo_cache"
     citing = doc_dir / "citing.rst"
-
+    target_dir.mkdir(exist_ok=True, parents=True)
     header = []
     footer = []
     with open(citing, "r") as fin:
@@ -118,13 +118,14 @@ if __name__ == "__main__":
             if not svg_path.exists():
                 url = f"https://zenodo.org/badge/doi/10.5281/zenodo.{doi}.svg"
                 payload = download_or_cache(url, f"{doi}.svg")
-                with open(svg_path, "xb") as fout:
-                    fout.write(payload.read())
+                with open(svg_path, "xb") as svgout:
+                    svgout.write(payload.read())
             fout.write(
                 f"""
 {version}
-   .. image:: _static/{doi}.svg
+   .. image:: _static/zenodo_cache/{doi}.svg
       :target:  https://doi.org/10.5281/zenodo.{doi}"""
             )
         fout.write("\n\n")
         fout.write("\n".join(footer))
+        fout.write('\n')
