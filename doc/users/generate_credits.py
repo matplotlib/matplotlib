@@ -23,6 +23,7 @@ The current co-lead developers are Michael Droettboom
 and Thomas A. Caswell; they are assisted by many
 `active
 <https://www.openhub.net/p/matplotlib/contributors>`_ developers.
+Please also see our instructions on :doc:`/citing`.
 
 The following is a list of contributors extracted from the
 git revision control history of the project:
