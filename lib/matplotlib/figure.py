@@ -2392,6 +2392,8 @@ default: 'top'
 
         from .tight_layout import (
             get_renderer, get_subplotspec_list, get_tight_layout_figure)
+        from .cbook import _setattr_cm
+        from .backend_bases import RendererBase
 
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
@@ -2402,9 +2404,17 @@ default: 'top'
         if renderer is None:
             renderer = get_renderer(self)
 
-        kwargs = get_tight_layout_figure(
-            self, self.axes, subplotspec_list, renderer,
-            pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+        no_ops = {
+            meth_name: lambda *args, **kwargs: None
+            for meth_name in dir(RendererBase)
+            if (meth_name.startswith("draw_")
+                or meth_name in ["open_group", "close_group"])
+        }
+
+        with _setattr_cm(renderer, **no_ops):
+            kwargs = get_tight_layout_figure(
+                self, self.axes, subplotspec_list, renderer,
+                pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:
             self.subplots_adjust(**kwargs)
 
