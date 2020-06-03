@@ -94,7 +94,7 @@ if __name__ == "__main__":
         "v1.4.0": "11451",
     }
     doc_dir = Path(__file__).parent.parent.absolute() / "doc"
-    target_dir = doc_dir / "_static"
+    target_dir = doc_dir / "_static/zenodo_cache"
     citing = doc_dir / "citing.rst"
 
     header = []
