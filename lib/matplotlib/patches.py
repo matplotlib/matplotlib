@@ -1659,14 +1659,36 @@ class Arc(Ellipse):
             theta = np.deg2rad(theta)
             x = np.cos(theta)
             y = np.sin(theta)
-            return np.rad2deg(np.arctan2(scale * y, x))
-        theta1 = theta_stretch(self.theta1, width / height)
-        theta2 = theta_stretch(self.theta2, width / height)
+            stheta = np.rad2deg(np.arctan2(scale * y, x))
+            # arctan2 has the range [-pi, pi], we expect [0, 2*pi]
 
-        # Get width and height in pixels
-        width, height = self.get_transform().transform((width, height))
+            return (stheta + 360) % 360
+
+        theta1 = self.theta1
+        theta2 = self.theta2
+
+        if (
+            # if we need to stretch the angles because we are distorted
+            width != height
+            # and we are not doing a full circle
+            and not (theta1 != theta2 and theta1 % 360 == theta2 % 360)
+        ):
+            theta1 = theta_stretch(self.theta1, width / height)
+            theta2 = theta_stretch(self.theta2, width / height)
+
+        # Get width and height in pixels we need to use
+        # `self.get_data_transform` rather than `self.get_transform`
+        # because we want the transform from from dataspace to the
+        # screen space to estimate how big the arc will be in physical
+        # units when rendered (the transform that we get via
+        # `self.get_transform()` goes from an idealized unit-radius
+        # space to screen space).
+        data_to_screen_trans = self.get_data_transform()
+        pwidth, pheight = (data_to_screen_trans.transform((width, height)) -
+                           data_to_screen_trans.transform((0, 0)))
         inv_error = (1.0 / 1.89818e-6) * 0.5
-        if width < inv_error and height < inv_error:
+
+        if pwidth < inv_error and pheight < inv_error:
             self._path = Path.arc(theta1, theta2)
             return Patch.draw(self, renderer)
 
@@ -1700,29 +1722,32 @@ class Arc(Ellipse):
                 y0e, y1e = y0, y1
             xys = line_circle_intersect(x0, y0, x1, y1)
             xs, ys = xys.T
-            return xys[(x0e - epsilon < xs) & (xs < x1e + epsilon)
-                       & (y0e - epsilon < ys) & (ys < y1e + epsilon)]
+            return xys[
+                (x0e - epsilon < xs) & (xs < x1e + epsilon)
+                & (y0e - epsilon < ys) & (ys < y1e + epsilon)
+            ]
 
         # Transforms the axes box_path so that it is relative to the unit
         # circle in the same way that it is relative to the desired ellipse.
-        box_path = Path.unit_rectangle()
         box_path_transform = (transforms.BboxTransformTo(self.axes.bbox)
                               + self.get_transform().inverted())
-        box_path = box_path.transformed(box_path_transform)
+        box_path = Path.unit_rectangle().transformed(box_path_transform)
 
         thetas = set()
         # For each of the point pairs, there is a line segment
         for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):
             xy = segment_circle_intersect(*p0, *p1)
             x, y = xy.T
-            theta = np.rad2deg(np.arctan2(y, x))
+            # arctan2 return [-pi, pi), the rest of our angles are in
+            # [0, 360], adjust as needed.
+            theta = (np.rad2deg(np.arctan2(y, x)) + 360) % 360
             thetas.update(theta[(theta1 < theta) & (theta < theta2)])
         thetas = sorted(thetas) + [theta2]
-
         last_theta = theta1
         theta1_rad = np.deg2rad(theta1)
-        inside = box_path.contains_point((np.cos(theta1_rad),
-                                          np.sin(theta1_rad)))
+        inside = box_path.contains_point(
+            (np.cos(theta1_rad), np.sin(theta1_rad))
+        )
 
         # save original path
         path_original = self._path
