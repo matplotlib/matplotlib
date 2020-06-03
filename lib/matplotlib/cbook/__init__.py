@@ -11,6 +11,7 @@ import collections.abc
 import contextlib
 import functools
 import gzip
+import inspect
 import itertools
 import math
 import operator
@@ -1961,6 +1962,10 @@ def _array_patch_perimeters(x, rstride, cstride):
 def _setattr_cm(obj, **kwargs):
     """
     Temporarily set some attributes; restore original state at context exit.
+
+    .. warning ::
+
+        This is not threadsafe.
     """
     sentinel = object()
     origs = {}
@@ -1978,14 +1983,18 @@ def _setattr_cm(obj, **kwargs):
             # we want to set the original value back.
             if isinstance(cls_orig, property):
                 origs[attr] = orig
+
+            # detect when we have Python Descriptors that supports
+            # setting so we will need to restore it
+            #
+            # https://docs.python.org/3/howto/descriptor.html
+            if hasattr(inspect.getattr_static(type(obj), attr), '__set__'):
+                origs[attr] = orig
+
             # otherwise this is _something_ we are going to shadow at
             # the instance dict level from higher up in the MRO.  We
             # are going to assume we can delattr(obj, attr) to clean
-            # up after ourselves.  It is possible that this code will
-            # fail if used with a non-property custom descriptor which
-            # implements __set__ (and __delete__ does not act like a
-            # stack).  However, this is an internal tool and we do not
-            # currently have any custom descriptors.
+            # up after ourselves.
             else:
                 origs[attr] = sentinel
 
