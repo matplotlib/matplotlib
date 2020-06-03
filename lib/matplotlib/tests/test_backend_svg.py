@@ -31,12 +31,9 @@ def test_visibility():
     for artist in b:
         artist.set_visible(False)
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-
-    fd.seek(0)
-    buf = fd.read()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue()
 
     parser = xml.parsers.expat.ParserCreate()
     parser.Parse(buf)  # this will raise ExpatError if the svg is invalid
@@ -65,11 +62,9 @@ def test_text_urls():
     test_url = "http://test_text_urls.matplotlib.org"
     fig.suptitle("test_text_urls", url=test_url)
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
 
     expected = '<a xlink:href="{0}">'.format(test_url)
     assert expected in buf
@@ -177,11 +172,9 @@ def test_gid():
             gdic[gid] = obj
             obj.set_gid(gid)
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
 
     def include(gid, obj):
         # we need to exclude certain objects which will not appear in the svg
@@ -270,11 +263,9 @@ def test_svg_default_metadata(monkeypatch):
     monkeypatch.setenv('SOURCE_DATE_EPOCH', '19680801')
 
     fig, ax = plt.subplots()
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
 
     # Creator
     assert mpl.__version__ in buf
@@ -299,11 +290,9 @@ def test_svg_metadata():
     }
 
     fig, ax = plt.subplots()
-    fd = BytesIO()
-    fig.savefig(fd, format='svg', metadata=metadata)
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg', metadata=metadata)
+        buf = fd.getvalue().decode()
 
     # Check things that are easy, single or multi-value entries.
     for k in ['Description', *single_value]:
