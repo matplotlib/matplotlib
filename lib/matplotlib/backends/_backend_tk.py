@@ -438,7 +438,7 @@ class FigureManagerTk(FigureManagerBase):
                 'You have requested to resize the '
                 f'Tk window to ({width}, {height}), one of which '
                 f'is bigger than {max_size}.  At larger sizes xorg will '
-                'either exit with an error on never versions (~1.20) or '
+                'either exit with an error on newer versions (~1.20) or '
                 'cause corruption on older version (~1.19).  We '
                 'do not expect a window over a million pixel wide or tall '
                 'to be intended behavior.')
