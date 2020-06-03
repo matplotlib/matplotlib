@@ -41,7 +41,7 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
         for ax, loc in zip(fig.axes, locator_list):
             ax.set_axes_locator(loc)
             # delete our no-op function which un-hides the
-            # method
+            # original method
             del ax.apply_aspect
 
         fig.bbox = origBbox

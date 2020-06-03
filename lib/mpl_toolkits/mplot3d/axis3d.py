@@ -427,7 +427,7 @@ class Axis(maxis.XAxis):
             try:
                 loc_t = self.get_transform().transform(tick.get_loc())
             except AssertionError:
-                # transforms.transform doesn't allow masked values but
+                # Transform.transform doesn't allow masked values but
                 # some scales might make them, so we need this try/except.
                 pass
             else:

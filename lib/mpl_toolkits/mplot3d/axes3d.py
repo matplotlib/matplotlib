@@ -282,14 +282,14 @@ class Axes3D(Axes):
             =========   ==================================================
 
         adjustable : None or {'box', 'datalim'}, optional
-            If not ``None``, this defines which parameter will be adjusted to
+            If not *None*, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
 
             Currently ignored by Axes3D
 
         anchor : None or str or 2-tuple of float, optional
-            If not ``None``, this defines where the Axes will be drawn if there
+            If not *None*, this defines where the Axes will be drawn if there
             is extra space due to aspect constraints. The most common way to
             to specify the anchor are abbreviations of cardinal directions:
 
@@ -357,7 +357,7 @@ class Axes3D(Axes):
         physical units. This is not to be confused with the data
         aspect, set via `~.Axes.set_aspect`.
 
-        The *zoom* is a Axes3D only parameter that controls the overall
+        The *zoom* is an Axes3D-only parameter that controls the overall
         size of the Axes3D in the figure.
 
         Parameters
