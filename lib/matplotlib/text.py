@@ -6,6 +6,7 @@ import contextlib
 import logging
 import math
 import weakref
+import copy
 
 import numpy as np
 
@@ -1262,7 +1263,7 @@ class OffsetFrom:
             The screen units to use (pixels or points) for the offset input.
         """
         self._artist = artist
-        self._ref_coord = ref_coord
+        self._ref_coord = copy.copy(ref_coord)
         self.set_unit(unit)
 
     def set_unit(self, unit):
@@ -1329,7 +1330,7 @@ class _AnnotationBase:
                  xycoords='data',
                  annotation_clip=None):
 
-        self.xy = np.array(xy)
+        self.xy = copy.copy(xy)
         self.xycoords = xycoords
         self.set_annotation_clip(annotation_clip)
 
