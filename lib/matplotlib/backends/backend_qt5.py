@@ -486,7 +486,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
         # to be called at the end of paintEvent.
         if rect is not None:
-            x0, y0, w, h = map(int, [pt / self._dpi_ratio for pt in rect])
+            x0, y0, w, h = [int(pt / self._dpi_ratio) for pt in rect]
             x1 = x0 + w
             y1 = y0 + h
             def _draw_rect_callback(painter):
