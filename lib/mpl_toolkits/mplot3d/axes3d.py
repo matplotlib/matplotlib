@@ -362,15 +362,11 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        aspect : 3-tuple of floats on None
-            Changes the physical dimensions of the Axes, such that the ratio
-            of the size of the axis in physical units is x:y:z
+        aspect : 3-tuple of floats or None
+            Changes the physical dimensions of the Axes3D, such that the ratio
+            of the axis lengths in physical units is x:y:z.
 
-            The input will be normalized to a unit vector.
-
-            If None, it is approximately ::
-
-                ax.set_box_aspect(aspect=(4, 4, 3), zoom=1)
+            If None, defaults to 4:4:3
 
         zoom : float
             Control overall size of the Axes3D in the figure.
