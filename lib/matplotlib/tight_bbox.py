@@ -24,8 +24,9 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     _boxout = fig.transFigure._boxout
 
     fig.set_tight_layout(False)
-
+    old_aspect = []
     locator_list = []
+    sentinel = object()
     for ax in fig.axes:
         pos = ax.get_position(original=False).frozen()
         locator_list.append(ax.get_axes_locator())
@@ -35,14 +36,21 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
         ax.set_axes_locator(_l)
         # override the method that enforces the aspect ratio
         # on the Axes
+        if 'apply_aspect' in ax.__dict__:
+            old_aspect.append(ax.apply_aspect)
+        else:
+            old_aspect.append(sentinel)
         ax.apply_aspect = no_op_apply_aspect
 
     def restore_bbox():
-        for ax, loc in zip(fig.axes, locator_list):
+        for ax, loc, aspect in zip(fig.axes, locator_list, old_aspect):
             ax.set_axes_locator(loc)
-            # delete our no-op function which un-hides the
-            # original method
-            del ax.apply_aspect
+            if aspect is sentinel:
+                # delete our no-op function which un-hides the
+                # original method
+                del ax.apply_aspect
+            else:
+                ax.apply_aspect = aspect
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
