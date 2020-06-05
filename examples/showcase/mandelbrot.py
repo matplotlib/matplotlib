@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # Normalized recount as explained in:
     # https://linas.org/art-gallery/escape/smooth.html
-    # https://www.ibm.com/developerworks/community/blogs/jfp/entry/My_Christmas_Gift
+    # https://web.archive.org/web/20160331171238/https://www.ibm.com/developerworks/community/blogs/jfp/entry/My_Christmas_Gift?lang=en
 
     # This line will generate warnings for null values but it is faster to
     # process them afterwards using the nan_to_num
