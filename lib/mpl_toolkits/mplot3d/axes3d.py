@@ -385,7 +385,13 @@ class Axes3D(Axes):
         if aspect is None:
             aspect = np.asarray((4, 4, 3), dtype=float)
         else:
+            orig_aspect = aspect
             aspect = np.asarray(aspect, dtype=float)
+            if aspect.shape != (3,):
+                raise ValueError(
+                    "You must pass a 3-tuple that can be cast to floats. "
+                    f"You passed {orig_aspect!r}"
+                )
         # default scale tuned to match the mpl32 appearance.
         aspect *= 1.8294640721620434 * zoom / np.linalg.norm(aspect)
 
