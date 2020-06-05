@@ -343,7 +343,7 @@ class Axes3D(Axes):
     def set_anchor(self, anchor, share=False):
         # docstring inherited
         if not (anchor in mtransforms.Bbox.coefs or len(anchor) == 2):
-            raise ValueError('argument must be among %s' %
+            raise ValueError('anchor must be among %s' %
                              ', '.join(mtransforms.Bbox.coefs))
         if share:
             axes = {*self._shared_x_axes.get_siblings(self),
