@@ -268,7 +268,14 @@ class Axes3D(Axes):
 
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
-        Set the aspect of the axis scaling.
+        Set the aspect ratios.
+
+        Axes 3D does not current support any aspect but 'auto' which fills
+        the axes with the data limits.
+
+        To simulate having equal aspect in data space, set the ratio
+        of your data limits to match the value of `~.get_box_aspect`.
+        To control box aspect ratios use `~.Axes3D.set_box_aspect`.
 
         Parameters
         ----------
@@ -281,12 +288,12 @@ class Axes3D(Axes):
             'auto'      automatic; fill the position rectangle with data.
             =========   ==================================================
 
-        adjustable : None or {'box', 'datalim'}, optional
+        adjustable : None
+            Currently ignored by Axes3D
+
             If not *None*, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
-
-            Currently ignored by Axes3D
 
         anchor : None or str or 2-tuple of float, optional
             If not *None*, this defines where the Axes will be drawn if there
@@ -314,7 +321,7 @@ class Axes3D(Axes):
         """
         if aspect != 'auto':
             raise NotImplementedError(
-                "Axes3D currently only support the aspect arguments "
+                "Axes3D currently only supports the aspect argument "
                 f"'auto'. You passed in {aspect!r}."
             )
 
@@ -353,28 +360,27 @@ class Axes3D(Axes):
         """
         Set the axes box aspect.
 
-        The box aspect is the ratio of the axes height to the axes width in
-        physical units. This is not to be confused with the data
-        aspect, set via `~.Axes.set_aspect`.
+        The box aspect is the ratio of height to width in display
+        units for each face of the box when viewed perpendicular to
+        that face.  This is not to be confused with the data aspect
+        (which for Axes3D is always 'auto').  The default ratios are
+        4:4:3 (x:y:z).
 
-        The *zoom* is an Axes3D-only parameter that controls the overall
-        size of the Axes3D in the figure.
+        To simulate having equal aspect in data space, set the box
+        aspect to match your data range in each dimension.
+
+        *zoom* controls the overall size of the Axes3D in the figure.
 
         Parameters
         ----------
         aspect : 3-tuple of floats or None
             Changes the physical dimensions of the Axes3D, such that the ratio
-            of the axis lengths in physical units is x:y:z.
+            of the axis lengths in display units is x:y:z.
 
             If None, defaults to 4:4:3
 
         zoom : float
             Control overall size of the Axes3D in the figure.
-
-        See Also
-        --------
-        mpl_toolkits.mplot3d.axes3d.Axes3D.set_aspect
-            for a description of aspect handling.
         """
         if aspect is None:
             aspect = np.asarray((4, 4, 3), dtype=float)
