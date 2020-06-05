@@ -1,12 +1,14 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-/*
- * This code is derived from The Python Imaging Library and is covered
- * by the PIL license.
- *
- * See LICENSE/LICENSE.PIL for details.
- *
- */
+// Where is PIL?
+//
+// Many years ago, Matplotlib used to include code from PIL (the Python Imaging
+// Library).  Since then, the code has changed a lot - the organizing principle
+// and methods of operation are now quite different.  Because our review of
+// the codebase showed that all the code that came from PIL was removed or
+// rewritten, we have removed the PIL licensing information.  If you want PIL,
+// you can get it at https://python-pillow.org/
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
