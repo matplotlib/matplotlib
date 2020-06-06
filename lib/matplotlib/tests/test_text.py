@@ -3,15 +3,14 @@ import io
 import warnings
 
 import numpy as np
-import pytest
 from numpy.testing import assert_almost_equal
+import pytest
 
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
-from matplotlib.backend_bases import MouseEvent
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 needs_usetex = pytest.mark.skipif(
