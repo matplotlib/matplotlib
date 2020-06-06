@@ -689,3 +689,20 @@ def test_fontproperties_kwarg_precedence():
     text2 = plt.ylabel("counts", size=40.0, fontproperties='Times New Roman')
     assert text1.get_size() == 40.0
     assert text2.get_size() == 40.0
+
+
+@check_figures_equal()
+def test_mutable_xy_copied(fig_test, fig_ref)
+    ax = fig_test.add_subplot()
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-3, 3)
+    xy_0 =np.array((-4, 1))
+    xy_f =np.array((-1, 1))
+    ax.annotate(s='', xy=xy_0, xytext=xy_f, arrowprops=dict(arrowstyle='<->'))
+    xy_0[1] = 3
+    ax = fig_ref.add_subplot()
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-3, 3)
+    xy_0 =np.array((-4, 1))
+    xy_f =np.array((-1, 1))
+    ax.annotate(s='', xy=xy_0, xytext=xy_f, arrowprops=dict(arrowstyle='<->'))
