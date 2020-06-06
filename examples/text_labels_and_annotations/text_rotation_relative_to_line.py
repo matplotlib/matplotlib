@@ -10,7 +10,7 @@ are changed).  However, at times one wants to rotate text with respect
 to something on the plot.  In this case, the correct angle won't be
 the angle of that object in the plot coordinate system, but the angle
 that that object APPEARS in the screen coordinate system.  This angle
-can be provided by the helper parameter `transform_rotates_text`, as
+can be provided by the helper parameter *transform_rotates_text*, as
 shown in the example below.
 """
 
