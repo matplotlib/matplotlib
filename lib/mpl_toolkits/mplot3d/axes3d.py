@@ -24,6 +24,7 @@ import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
+import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
 from matplotlib.axes._base import _axis_method_wrapper
 from matplotlib.transforms import Bbox
@@ -52,6 +53,7 @@ class Axes3D(Axes):
     def __init__(
             self, fig, rect=None, *args,
             azim=-60, elev=30, sharez=None, proj_type='persp',
+            box_aspect=None,
             **kwargs):
         """
         Parameters
@@ -90,6 +92,7 @@ class Axes3D(Axes):
         self.zz_viewLim = Bbox.unit()
         self.xy_dataLim = Bbox.unit()
         self.zz_dataLim = Bbox.unit()
+
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
@@ -99,7 +102,9 @@ class Axes3D(Axes):
             self._shared_z_axes.join(self, sharez)
             self._adjustable = 'datalim'
 
-        super().__init__(fig, rect, frameon=True, *args, **kwargs)
+        super().__init__(
+            fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
+        )
         # Disable drawing of axes by base class
         super().set_axis_off()
         # Enable drawing of axes by Axes3D class
@@ -260,6 +265,138 @@ class Axes3D(Axes):
                  (tc[6], tc[7]),
                  (tc[7], tc[4])]
         return edges
+
+    def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
+        """
+        Set the aspect ratios.
+
+        Axes 3D does not current support any aspect but 'auto' which fills
+        the axes with the data limits.
+
+        To simulate having equal aspect in data space, set the ratio
+        of your data limits to match the value of `~.get_box_aspect`.
+        To control box aspect ratios use `~.Axes3D.set_box_aspect`.
+
+        Parameters
+        ----------
+        aspect : {'auto'}
+            Possible values:
+
+            =========   ==================================================
+            value       description
+            =========   ==================================================
+            'auto'      automatic; fill the position rectangle with data.
+            =========   ==================================================
+
+        adjustable : None
+            Currently ignored by Axes3D
+
+            If not *None*, this defines which parameter will be adjusted to
+            meet the required aspect. See `.set_adjustable` for further
+            details.
+
+        anchor : None or str or 2-tuple of float, optional
+            If not *None*, this defines where the Axes will be drawn if there
+            is extra space due to aspect constraints. The most common way to
+            to specify the anchor are abbreviations of cardinal directions:
+
+            =====   =====================
+            value   description
+            =====   =====================
+            'C'     centered
+            'SW'    lower left corner
+            'S'     middle of bottom edge
+            'SE'    lower right corner
+            etc.
+            =====   =====================
+
+            See `.set_anchor` for further details.
+
+        share : bool, default: False
+            If ``True``, apply the settings to all shared Axes.
+
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect
+        """
+        if aspect != 'auto':
+            raise NotImplementedError(
+                "Axes3D currently only supports the aspect argument "
+                f"'auto'. You passed in {aspect!r}."
+            )
+
+        if share:
+            axes = {*self._shared_x_axes.get_siblings(self),
+                    *self._shared_y_axes.get_siblings(self),
+                    *self._shared_z_axes.get_siblings(self),
+                    }
+        else:
+            axes = {self}
+
+        for ax in axes:
+            ax._aspect = aspect
+            ax.stale = True
+
+        if anchor is not None:
+            self.set_anchor(anchor, share=share)
+
+    def set_anchor(self, anchor, share=False):
+        # docstring inherited
+        if not (anchor in mtransforms.Bbox.coefs or len(anchor) == 2):
+            raise ValueError('anchor must be among %s' %
+                             ', '.join(mtransforms.Bbox.coefs))
+        if share:
+            axes = {*self._shared_x_axes.get_siblings(self),
+                    *self._shared_y_axes.get_siblings(self),
+                    *self._shared_z_axes.get_siblings(self),
+                    }
+        else:
+            axes = {self}
+        for ax in axes:
+            ax._anchor = anchor
+            ax.stale = True
+
+    def set_box_aspect(self, aspect, *, zoom=1):
+        """
+        Set the axes box aspect.
+
+        The box aspect is the ratio of height to width in display
+        units for each face of the box when viewed perpendicular to
+        that face.  This is not to be confused with the data aspect
+        (which for Axes3D is always 'auto').  The default ratios are
+        4:4:3 (x:y:z).
+
+        To simulate having equal aspect in data space, set the box
+        aspect to match your data range in each dimension.
+
+        *zoom* controls the overall size of the Axes3D in the figure.
+
+        Parameters
+        ----------
+        aspect : 3-tuple of floats or None
+            Changes the physical dimensions of the Axes3D, such that the ratio
+            of the axis lengths in display units is x:y:z.
+
+            If None, defaults to 4:4:3
+
+        zoom : float
+            Control overall size of the Axes3D in the figure.
+        """
+        if aspect is None:
+            aspect = np.asarray((4, 4, 3), dtype=float)
+        else:
+            orig_aspect = aspect
+            aspect = np.asarray(aspect, dtype=float)
+            if aspect.shape != (3,):
+                raise ValueError(
+                    "You must pass a 3-tuple that can be cast to floats. "
+                    f"You passed {orig_aspect!r}"
+                )
+        # default scale tuned to match the mpl32 appearance.
+        aspect *= 1.8294640721620434 * zoom / np.linalg.norm(aspect)
+
+        self._box_aspect = aspect
+        self.stale = True
 
     def apply_aspect(self, position=None):
         if position is None:
@@ -882,8 +1019,11 @@ class Axes3D(Axes):
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
-        # chosen for similarity with the initial view before gh-8896
-        pb_aspect = np.array([4, 4, 3]) / 3.5
+        # elev stores the elevation angle in the z plane
+        # azim stores the azimuth angle in the x,y plane
+        #
+        # dist is the distance of the eye viewing point from the object
+        # point.
 
         relev, razim = np.pi * self.elev/180, np.pi * self.azim/180
 
@@ -894,10 +1034,11 @@ class Axes3D(Axes):
         # transform to uniform world coordinates 0-1, 0-1, 0-1
         worldM = proj3d.world_transformation(xmin, xmax,
                                              ymin, ymax,
-                                             zmin, zmax, pb_aspect=pb_aspect)
+                                             zmin, zmax,
+                                             pb_aspect=self._box_aspect)
 
         # look into the middle of the new coordinates
-        R = pb_aspect / 2
+        R = self._box_aspect / 2
 
         xp = R[0] + np.cos(razim) * np.cos(relev) * self.dist
         yp = R[1] + np.sin(razim) * np.cos(relev) * self.dist
@@ -2770,6 +2911,27 @@ pivot='tail', normalize=False, **kwargs)
 
         return polygons
 
+    def get_tightbbox(self, renderer, call_axes_locator=True,
+                      bbox_extra_artists=None, *, for_layout_only=False):
+        ret = super().get_tightbbox(renderer,
+                                    call_axes_locator=call_axes_locator,
+                                    bbox_extra_artists=bbox_extra_artists,
+                                    for_layout_only=for_layout_only)
+        batch = [ret]
+        if self._axis3don:
+            for axis in self._get_axis_list():
+                if axis.get_visible():
+                    try:
+                        axis_bb = axis.get_tightbbox(
+                            renderer,
+                            for_layout_only=for_layout_only
+                        )
+                    except TypeError:
+                        # in case downstream library has redefined axis:
+                        axis_bb = axis.get_tightbbox(renderer)
+                if axis_bb:
+                    batch.append(axis_bb)
+        return mtransforms.Bbox.union(batch)
 
 docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
