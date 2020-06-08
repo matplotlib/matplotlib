@@ -25,7 +25,7 @@ graphics contexts must implement to serve as a Matplotlib backend.
     The base class for the Toolbar class of each interactive backend.
 """
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from enum import Enum, IntEnum
 import functools
 import importlib
@@ -708,6 +708,23 @@ class RendererBase:
 
         Currently only supported by the agg renderer.
         """
+
+    def _draw_disabled(self):
+        """
+        Context manager to temporary disable drawing.
+
+        This is used for getting the drawn size of Artists.  This lets us
+        run the draw process to update any Python state but does not pay the
+        cost of the draw_XYZ calls on the canvas.
+        """
+        no_ops = {
+            meth_name: lambda *args, **kwargs: None
+            for meth_name in dir(RendererBase)
+            if (meth_name.startswith("draw_")
+                or meth_name in ["open_group", "close_group"])
+        }
+
+        return _setattr_cm(self, **no_ops)
 
 
 class GraphicsContextBase:
@@ -1509,7 +1526,7 @@ def _get_renderer(figure, print_method=None):
     the figure.
 
     If you need a renderer without any active draw methods use
-    cbook._setattr_cm to temporary patch them out at your call site.
+    renderer._draw_disabled to temporary patch them out at your call site.
 
     """
     # This is implemented by triggering a draw, then immediately jumping out of
@@ -2089,14 +2106,10 @@ class FigureCanvasBase:
                         functools.partial(
                             print_method, orientation=orientation)
                     )
-                    no_ops = {
-                        meth_name: lambda *args, **kwargs: None
-                        for meth_name in dir(RendererBase)
-                        if (meth_name.startswith("draw_")
-                            or meth_name in ["open_group", "close_group"])
-                    }
-
-                    with _setattr_cm(renderer, **no_ops):
+                    ctx = (renderer._draw_disabled()
+                           if hasattr(renderer, '_draw_disabled')
+                           else suppress())
+                    with ctx:
                         self.figure.draw(renderer)
 
                     bbox_inches = self.figure.get_tightbbox(
