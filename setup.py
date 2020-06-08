@@ -26,12 +26,9 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-from zipfile import ZipFile
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as BuildExtCommand
-from setuptools.command.develop import develop as DevelopCommand
-from setuptools.command.install_lib import install_lib as InstallLibCommand
 from setuptools.command.test import test as TestCommand
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
@@ -48,7 +45,7 @@ from distutils.errors import CompileError
 from distutils.dist import Distribution
 
 import setupext
-from setupext import print_raw, print_status, download_or_cache
+from setupext import print_raw, print_status
 
 # Get the version from versioneer
 import versioneer
@@ -180,58 +177,6 @@ class BuildExtraLibraries(BuildExtCommand):
 cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
-
-
-def _download_jquery_to(dest):
-    # Note: When bumping the jquery-ui version, also update the versions in
-    # single_figure.html and all_figures.html.
-    url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
-    sha = "f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d"
-    name = Path(url).stem
-    if (dest / name).exists():
-        return
-    # If we are installing from an sdist, use the already downloaded jquery-ui.
-    sdist_src = Path("lib/matplotlib/backends/web_backend", name)
-    if sdist_src.exists():
-        shutil.copytree(sdist_src, dest / name)
-        return
-    if not (dest / name).exists():
-        dest.mkdir(parents=True, exist_ok=True)
-        try:
-            buff = download_or_cache(url, sha)
-        except Exception:
-            raise IOError(
-                "Failed to download jquery-ui.  Please download "
-                "{url} and extract it to {dest}.".format(url=url, dest=dest))
-        with ZipFile(buff) as zf:
-            zf.extractall(dest)
-
-
-# Relying on versioneer's implementation detail.
-class sdist_with_jquery(cmdclass['sdist']):
-    def make_release_tree(self, base_dir, files):
-        super().make_release_tree(base_dir, files)
-        _download_jquery_to(
-            Path(base_dir, "lib/matplotlib/backends/web_backend/"))
-
-
-# Affects install and bdist_wheel.
-class install_lib_with_jquery(InstallLibCommand):
-    def run(self):
-        super().run()
-        _download_jquery_to(
-            Path(self.install_dir, "matplotlib/backends/web_backend/"))
-
-
-class develop_with_jquery(DevelopCommand):
-    def run(self):
-        super().run()
-        _download_jquery_to(Path("lib/matplotlib/backends/web_backend/"))
-
-
-cmdclass['sdist'] = sdist_with_jquery
-cmdclass['install_lib'] = install_lib_with_jquery
-cmdclass['develop'] = develop_with_jquery
 
 
 package_data = {}  # Will be filled below by the various components.
