@@ -1370,19 +1370,7 @@ const char *PyFT2Font_get_path__doc__ =
 
 static PyObject *PyFT2Font_get_path(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    int count;
-
-    CALL_CPP("get_path", (count = self->x->get_path_count()));
-
-    npy_intp vertices_dims[2] = { count, 2 };
-    numpy::array_view<double, 2> vertices(vertices_dims);
-
-    npy_intp codes_dims[1] = { count };
-    numpy::array_view<unsigned char, 1> codes(codes_dims);
-
-    self->x->get_path(vertices.data(), codes.data());
-
-    return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
+    CALL_CPP("get_path", return self->x->get_path());
 }
 
 const char *PyFT2Font_get_image__doc__ =
