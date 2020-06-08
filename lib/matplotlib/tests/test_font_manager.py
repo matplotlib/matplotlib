@@ -122,8 +122,7 @@ def test_find_ttc():
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
     fig.savefig(BytesIO(), format="raw")
     fig.savefig(BytesIO(), format="svg")
-    with pytest.raises(RuntimeError):
-        fig.savefig(BytesIO(), format="pdf")
+    fig.savefig(BytesIO(), format="pdf")
     with pytest.raises(RuntimeError):
         fig.savefig(BytesIO(), format="ps")
 
