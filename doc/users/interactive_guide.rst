@@ -392,7 +392,7 @@ Eventloop integration mechanism
 CPython / readline
 ------------------
 
-The Python C API provides a hook, :c:var:`PyOS_InputHook`, to register a
+The Python C API provides a hook, :c:data:`PyOS_InputHook`, to register a
 function to be run "The function will be called when Python's
 interpreter prompt is about to become idle and wait for user input
 from the terminal.".  This hook can be used to integrate a second
@@ -402,12 +402,11 @@ event queue, run the main loop for a short fixed amount of time, or
 run the event loop until a key is pressed on stdin.
 
 
-Matplotlib does not currently do any management of
-:c:var:`PyOS_InputHook` due to the wide range of ways that Matplotlib
-is used.  This management is left to downstream libraries -- either
-user code or the shell.  Interactive figures, even with matplotlib in
-'interactive mode', may not work in the vanilla python repl if an
-appropriate :c:var:`PyOS_InputHook` is not registered.
+Matplotlib does not currently do any management of :c:data:`PyOS_InputHook` due
+to the wide range of ways that Matplotlib is used.  This management is left to
+downstream libraries -- either user code or the shell.  Interactive figures,
+even with matplotlib in 'interactive mode', may not work in the vanilla python
+repl if an appropriate :c:data:`PyOS_InputHook` is not registered.
 
 Input hooks, and helpers to install them, are usually included with
 the python bindings for GUI toolkits and may be registered on import.
