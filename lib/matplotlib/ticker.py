@@ -484,11 +484,21 @@ class ScalarFormatter(Formatter):
     """
     Format tick values as a number.
 
-    If ``useOffset == True`` and the data range is much smaller than the data
-    average, then an offset will be determined such that the tick labels
-    are meaningful.  Scientific notation is used for ``data < 10^n`` or
-    ``data >= 10^m``, where ``n`` and ``m`` are the power limits set using
-    ``set_powerlimits((n, m))``, defaulting to :rc:`axes.formatter.limits`.
+    Parameters
+    ----------
+    useOffset : bool or float, default: :rc:`axes.formatter.useoffset`
+        Whether to use offset notation. See `.set_useOffset`.
+    useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
+        Whether to use fancy math formatting. See `.set_useMathText`.
+    useLocale : bool, default: :rc:`axes.formatter.use_locale`.
+        Whether to use locale settings for decimal sign and positive sign.
+        See `.set_useLocale`.
+
+    Notes
+    -----
+    In addition to the parameters above, the formatting of scientific vs.
+    floating point representation can be configured via `.set_scientific`
+    and `.set_powerlimits`).
     """
 
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
@@ -514,9 +524,45 @@ class ScalarFormatter(Formatter):
         self._useLocale = useLocale
 
     def get_useOffset(self):
+        """
+        Return whether automatic mode for offset notation is active.
+
+        This returns True if ``set_useOffset(True)``; it returns False if an
+        explicit offset was set, e.g. ``set_useOffset(1000)``.
+
+        See Also
+        --------
+        ScalarFormatter.set_useOffset
+        """
         return self._useOffset
 
     def set_useOffset(self, val):
+        """
+        Set whether to use offset notation.
+
+        When formatting a set numbers whose value is large compared to their
+        range, the formatter can separate an additive constant. This can
+        shorten the formatted numbers so that they are less likely to overlap
+        when drawn on an axis.
+
+        Parameters
+        ----------
+        val : bool or float
+            - If False, do not use offset notation.
+            - If True (=automatic mode), use offset notation if it can make
+              the residual numbers significantly shorter. The exact behavior
+              is controlled by :rc:`axes.formatter.offset_threshold`.
+            - If a number, force an offset of the given value.
+
+        Examples
+        --------
+        With active offset notation, the values
+
+        ``100_000, 100_002, 100_004, 100_006, 100_008``
+
+        will be formatted as ``0, 2, 4, 6, 8`` plus an offset ``+1e5``, which
+        is written to the edge of the axis.
+        """
         if val in [True, False]:
             self.offset = 0
             self._useOffset = val
@@ -527,9 +573,24 @@ class ScalarFormatter(Formatter):
     useOffset = property(fget=get_useOffset, fset=set_useOffset)
 
     def get_useLocale(self):
+        """
+        Return whether locale settings are used for formatting.
+
+        See Also
+        --------
+        ScalarFormatter.set_useLocale
+        """
         return self._useLocale
 
     def set_useLocale(self, val):
+        """
+        Set whether to use locale settings for decimal sign and positive sign.
+
+        Parameters
+        ----------
+        val : bool or None
+            *None* resets to :rc:`axes.formatter.use_locale`.
+        """
         if val is None:
             self._useLocale = mpl.rcParams['axes.formatter.use_locale']
         else:
@@ -538,9 +599,26 @@ class ScalarFormatter(Formatter):
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
 
     def get_useMathText(self):
+        """
+        Return whether to use fancy math formatting.
+
+        See Also
+        --------
+        ScalarFormatter.set_useMathText
+        """
         return self._useMathText
 
     def set_useMathText(self, val):
+        r"""
+        Set whether to use fancy math formatting.
+
+        If active, scientific notation is formatted as :math:`1.2 \times 10^3`.
+
+        Parameters
+        ----------
+        val : bool or None
+            *None* resets to :rc:`axes.formatter.use_mathtext`.
+        """
         if val is None:
             self._useMathText = mpl.rcParams['axes.formatter.use_mathtext']
         else:
