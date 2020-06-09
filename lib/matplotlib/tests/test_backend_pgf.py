@@ -100,6 +100,7 @@ def create_figure():
 def test_common_texification(plain_text, escaped_text):
     assert common_texification(plain_text) == escaped_text
 
+
 # test compiling a figure to pdf with xelatex
 @needs_xelatex
 @pytest.mark.backend('pgf')

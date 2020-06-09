@@ -73,6 +73,7 @@ axs1[0].xaxis.set_major_formatter(ticker.NullFormatter())
 setup(axs1[1], title="StrMethodFormatter('{x:.3f}')")
 axs1[1].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.3f}"))
 
+
 # FuncFormatter can be used as a decorator
 @ticker.FuncFormatter
 def major_formatter(x, pos):
