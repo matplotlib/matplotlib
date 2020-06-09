@@ -110,6 +110,14 @@ from .axisline_style import AxislineStyle
 class BezierPath(Line2D):
 
     def __init__(self, path, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        path : `~.path.Path`
+            The path to draw.
+        **kwargs
+            All remaining keyword arguments are passed to `.Line2D`.
+        """
         Line2D.__init__(self, [], [], *args, **kwargs)
         self._path = path
         self._invalid = False

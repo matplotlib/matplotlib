@@ -184,7 +184,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                     obj.__doc__ = new_doc
                 except AttributeError:  # Can't set on some extension objects.
                     pass
-                obj.__init__ = wrapper
+                obj.__init__ = functools.wraps(obj.__init__)(wrapper)
                 return obj
 
         elif isinstance(obj, property):
