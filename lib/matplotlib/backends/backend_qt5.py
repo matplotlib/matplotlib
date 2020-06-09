@@ -387,9 +387,12 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         event_mods = int(event.modifiers())  # actually a bitmask
 
         # get names of the pressed modifier keys
+        # 'control' is named 'control' when a standalone key, but 'ctrl' when a
+        # modifier
         # bit twiddling to pick out modifier keys from event_mods bitmask,
         # if event_key is a MODIFIER, it should not be duplicated in mods
-        mods = [SPECIAL_KEYS[key] for mod, key in _MODIFIER_KEYS
+        mods = [SPECIAL_KEYS[key].replace('control', 'ctrl')
+                for mod, key in _MODIFIER_KEYS
                 if event_key != key and event_mods & mod]
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
