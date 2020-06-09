@@ -1401,7 +1401,8 @@ class MouseEvent(LocationEvent):
         self.step = step
         self.dblclick = dblclick
 
-        # super-init deferred to the end: callback errors if called before
+        # super-init is deferred to the end because it calls back on
+        # 'axes_enter_event', which requires a fully initialized event.
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
     def __str__(self):
