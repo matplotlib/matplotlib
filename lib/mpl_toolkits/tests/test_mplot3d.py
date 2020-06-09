@@ -36,6 +36,18 @@ def test_bar3d():
         ax.bar(xs, ys, zs=z, zdir='y', align='edge', color=cs, alpha=0.8)
 
 
+def test_bar3d_colors():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for c in ['red', 'green', 'blue', 'yellow']:
+        xs = np.arange(len(c))
+        ys = np.zeros_like(xs)
+        zs = np.zeros_like(ys)
+        # Color names with same length as xs/ys/zs should not be split into
+        # individual letters.
+        ax.bar3d(xs, ys, zs, 1, 1, 1, color=c)
+
+
 @mpl3d_image_comparison(['bar3d_shaded.png'])
 def test_bar3d_shaded():
     x = np.arange(4)
