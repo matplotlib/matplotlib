@@ -665,6 +665,8 @@ class ScalarFormatter(Formatter):
             scientific notation will be used if ``exp <= min_exp`` or
             ``exp >= max_exp``.
 
+            The default limits are controlled by :rc:`axes.formatter.limits`.
+
             In particular numbers with *exp* equal to the thresholds are
             written in scientific notation.
 
