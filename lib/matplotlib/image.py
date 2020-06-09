@@ -425,8 +425,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                         # cast float16 up into float32
                         if A.dtype == np.float16:
                             scaled_dtype = np.float32
-                        # cast float128 down into float64
-                        elif A.dtype == np.float128:
+                        # cast large floats down into float64
+                        else:
                             scaled_dtype = np.float64
 
                         # warn when casting floats
