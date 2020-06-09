@@ -600,8 +600,7 @@ class DviFont:
         # (https://tex.stackexchange.com/questions/526103/),
         # but we actually care about the rasterization depth to align
         # the dvipng-generated images.
-        minus_re = re.compile(br'^cmsy\d+$')
-        if minus_re.match(self.texname) and char == 0:
+        if re.match(br'^cmsy\d+$', self.texname) and char == 0:
             result[-1] = 0
         return result
 
