@@ -1420,13 +1420,16 @@ class MouseEvent(LocationEvent):
         (*x*, *y*) in figure coords ((0, 0) = bottom left)
         button pressed None, 1, 2, 3, 'up', 'down'
         """
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         if button in MouseButton.__members__.values():
             button = MouseButton(button)
         self.button = button
         self.key = key
         self.step = step
         self.dblclick = dblclick
+
+        # super-init is deferred to the end because it calls back on
+        # 'axes_enter_event', which requires a fully initialized event.
+        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
     def __str__(self):
         return (f"{self.name}: "
@@ -1512,8 +1515,9 @@ class KeyEvent(LocationEvent):
         cid = fig.canvas.mpl_connect('key_press_event', on_key)
     """
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
+        # super-init deferred to the end: callback errors if called before
+        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
 
 def _get_renderer(figure, print_method, *, draw_disabled=False):
