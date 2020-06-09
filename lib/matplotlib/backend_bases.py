@@ -2073,8 +2073,9 @@ class FigureCanvasBase:
         # Some code (e.g. Figure.show) differentiates between having *no*
         # manager and a *None* manager, which should be fixed at some point,
         # but this should be fine.
-        with cbook._setattr_cm(self, _is_saving=True, manager=None), \
-                cbook._setattr_cm(self.figure, dpi=dpi):
+        with cbook._setattr_cm(self, manager=None), \
+                cbook._setattr_cm(self.figure, dpi=dpi), \
+                cbook._setattr_cm(canvas, _is_saving=True):
             origfacecolor = self.figure.get_facecolor()
             origedgecolor = self.figure.get_edgecolor()
 

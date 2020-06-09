@@ -579,3 +579,12 @@ def test_tightbbox_box_aspect():
     ax2 = fig.add_subplot(gs[0, 1], projection='3d')
     ax1.set_box_aspect(.5)
     ax2.set_box_aspect((2, 1, 1))
+
+
+@check_figures_equal(extensions=["svg", "pdf", "eps", "png"])
+def test_animated_with_canvas_change(fig_test, fig_ref):
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot(range(5))
+
+    ax_test = fig_test.subplots()
+    ax_test.plot(range(5), animated=True)
