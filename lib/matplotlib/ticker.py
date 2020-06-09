@@ -653,19 +653,30 @@ class ScalarFormatter(Formatter):
         self._scientific = bool(b)
 
     def set_powerlimits(self, lims):
-        """
-        Sets size thresholds for scientific notation.
+        r"""
+        Set size thresholds for scientific notation.
 
         Parameters
         ----------
-        lims : (min_exp, max_exp)
-            A tuple containing the powers of 10 that determine the switchover
-            threshold. Numbers below ``10**min_exp`` and above ``10**max_exp``
-            will be displayed in scientific notation.
+        lims : (int, int)
+            A tuple *(min_exp, max_exp)* containing the powers of 10 that
+            determine the switchover threshold. For a number representable as
+            :math:`a \times 10^\mathrm{exp}`` with :math:`1 <= |a| < 10`,
+            scientific notation will be used if ``exp <= min_exp`` or
+            ``exp >= max_exp``.
 
-            For example, ``formatter.set_powerlimits((-3, 4))`` sets the
-            pre-2007 default in which scientific notation is used for
-            numbers less than 1e-3 or greater than 1e4.
+            The default limits are controlled by :rc:`axes.formatter.limits`.
+
+            In particular numbers with *exp* equal to the thresholds are
+            written in scientific notation.
+
+            Typically, *min_exp* will be negative and *max_exp* will be
+            positive.
+
+            For example, ``formatter.set_powerlimits((-3, 4))`` will provide
+            the following formatting:
+            :math:`1 \times 10^{-3}, 9.9 \times 10^{-3}, 0.01,`
+            :math:`9999, 1 \times 10^4`.
 
         See Also
         --------
