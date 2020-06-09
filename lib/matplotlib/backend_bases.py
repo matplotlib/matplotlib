@@ -25,7 +25,7 @@ graphics contexts must implement to serve as a Matplotlib backend.
     The base class for the Toolbar class of each interactive backend.
 """
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from enum import Enum, IntEnum
 import functools
 import importlib
@@ -46,6 +46,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
+from matplotlib.cbook import _setattr_cm
 
 
 _log = logging.getLogger(__name__)
@@ -707,6 +708,23 @@ class RendererBase:
 
         Currently only supported by the agg renderer.
         """
+
+    def _draw_disabled(self):
+        """
+        Context manager to temporary disable drawing.
+
+        This is used for getting the drawn size of Artists.  This lets us
+        run the draw process to update any Python state but does not pay the
+        cost of the draw_XYZ calls on the canvas.
+        """
+        no_ops = {
+            meth_name: lambda *args, **kwargs: None
+            for meth_name in dir(RendererBase)
+            if (meth_name.startswith("draw_")
+                or meth_name in ["open_group", "close_group"])
+        }
+
+        return _setattr_cm(self, **no_ops)
 
 
 class GraphicsContextBase:
@@ -1506,15 +1524,14 @@ class KeyEvent(LocationEvent):
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
 
-def _get_renderer(figure, print_method=None, *, draw_disabled=False):
+def _get_renderer(figure, print_method=None):
     """
     Get the renderer that would be used to save a `~.Figure`, and cache it on
     the figure.
 
-    If *draw_disabled* is True, additionally replace drawing methods on
-    *renderer* by no-ops.  This is used by the tight-bbox-saving renderer,
-    which needs to walk through the artist tree to compute the tight-bbox, but
-    for which the output file may be closed early.
+    If you need a renderer without any active draw methods use
+    renderer._draw_disabled to temporary patch them out at your call site.
+
     """
     # This is implemented by triggering a draw, then immediately jumping out of
     # Figure.draw() by raising an exception.
@@ -1532,12 +1549,6 @@ def _get_renderer(figure, print_method=None, *, draw_disabled=False):
             print_method(io.BytesIO(), dpi=figure.dpi)
         except Done as exc:
             renderer, = figure._cachedRenderer, = exc.args
-
-    if draw_disabled:
-        for meth_name in dir(RendererBase):
-            if (meth_name.startswith("draw_")
-                    or meth_name in ["open_group", "close_group"]):
-                setattr(renderer, meth_name, lambda *args, **kwargs: None)
 
     return renderer
 
@@ -2097,9 +2108,14 @@ class FigureCanvasBase:
                     renderer = _get_renderer(
                         self.figure,
                         functools.partial(
-                            print_method, orientation=orientation),
-                        draw_disabled=True)
-                    self.figure.draw(renderer)
+                            print_method, orientation=orientation)
+                    )
+                    ctx = (renderer._draw_disabled()
+                           if hasattr(renderer, '_draw_disabled')
+                           else suppress())
+                    with ctx:
+                        self.figure.draw(renderer)
+
                     bbox_inches = self.figure.get_tightbbox(
                         renderer, bbox_extra_artists=bbox_extra_artists)
                     if pad_inches is None:
