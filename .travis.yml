@@ -206,4 +206,4 @@ after_success:
   - lcov --remove coverage.info --output-file coverage.info '/usr/*' '/home/travis/build/matplotlib/matplotlib/build/*' '/home/travis/build/matplotlib/matplotlib/extern/*' # filter system-files
   - lcov --list coverage.info
   # Uploading to CodeCov but excluding gcov reports
-  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov -e TRAVIS_PYTHON_VERSION -y ci/codecov.yml|| echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov -e TRAVIS_PYTHON_VERSION || echo "Codecov did not collect coverage reports"
