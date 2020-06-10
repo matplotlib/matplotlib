@@ -2478,7 +2478,7 @@ default: 'top'
 
         from .tight_layout import (
             get_renderer, get_subplotspec_list, get_tight_layout_figure)
-
+        from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
             cbook._warn_external("This figure includes Axes that are not "
@@ -2487,10 +2487,13 @@ default: 'top'
 
         if renderer is None:
             renderer = get_renderer(self)
-
-        kwargs = get_tight_layout_figure(
-            self, self.axes, subplotspec_list, renderer,
-            pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+        ctx = (renderer._draw_disabled()
+               if hasattr(renderer, '_draw_disabled')
+               else suppress())
+        with ctx:
+            kwargs = get_tight_layout_figure(
+                self, self.axes, subplotspec_list, renderer,
+                pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:
             self.subplots_adjust(**kwargs)
 
