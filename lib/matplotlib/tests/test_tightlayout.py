@@ -258,29 +258,23 @@ def test_empty_layout():
 
 @pytest.mark.parametrize("label", ["xlabel", "ylabel"])
 def test_verybig_decorators(label):
-    """Test that warning emitted when xlabel/ylabel too big."""
+    """Test that no warning emitted when xlabel/ylabel too big."""
     fig, ax = plt.subplots(figsize=(3, 2))
     ax.set(**{label: 'a' * 100})
-    with pytest.warns(UserWarning):
-        fig.tight_layout()
 
 
 def test_big_decorators_horizontal():
-    """Test that warning emitted when xlabel too big."""
+    """Test that doesn't warn when xlabel too big."""
     fig, axs = plt.subplots(1, 2, figsize=(3, 2))
     axs[0].set_xlabel('a' * 30)
     axs[1].set_xlabel('b' * 30)
-    with pytest.warns(UserWarning):
-        fig.tight_layout()
 
 
 def test_big_decorators_vertical():
-    """Test that warning emitted when xlabel too big."""
+    """Test that doesn't warn when ylabel too big."""
     fig, axs = plt.subplots(2, 1, figsize=(3, 2))
     axs[0].set_ylabel('a' * 20)
     axs[1].set_ylabel('b' * 20)
-    with pytest.warns(UserWarning):
-        fig.tight_layout()
 
 
 def test_badsubplotgrid():
@@ -308,3 +302,26 @@ def test_collapsed():
     # test that passing a rect doesn't crash...
     with pytest.warns(UserWarning):
         plt.tight_layout(rect=[0, 0, 0.8, 0.8])
+
+
+def test_suptitle():
+    fig, ax = plt.subplots(tight_layout=True)
+    st = fig.suptitle("foo")
+    t = ax.set_title("bar")
+    fig.canvas.draw()
+    assert st.get_window_extent().y0 > t.get_window_extent().y1
+
+
+@pytest.mark.backend("pdf")
+def test_non_agg_renderer(monkeypatch, recwarn):
+    unpatched_init = mpl.backend_bases.RendererBase.__init__
+
+    def __init__(self, *args, **kwargs):
+        # Check that we don't instantiate any other renderer than a pdf
+        # renderer to perform pdf tight layout.
+        assert isinstance(self, mpl.backends.backend_pdf.RendererPdf)
+        unpatched_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(mpl.backend_bases.RendererBase, "__init__", __init__)
+    fig, ax = plt.subplots()
+    fig.tight_layout()

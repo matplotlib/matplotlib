@@ -25,6 +25,7 @@ import os
 from pathlib import Path
 import re
 import struct
+import sys
 import textwrap
 
 import numpy as np
@@ -214,7 +215,7 @@ class Dvi:
         self.baseline = self._get_baseline(filename)
 
     def _get_baseline(self, filename):
-        if rcParams['text.latex.preview']:
+        if dict.__getitem__(rcParams, 'text.latex.preview'):
             baseline = Path(filename).with_suffix(".baseline")
             if baseline.exists():
                 height, depth, width = baseline.read_bytes().split()
@@ -1067,9 +1068,11 @@ def find_tex_file(filename, format=None):
         # On Windows only, kpathsea can use utf-8 for cmd args and output.
         # The `command_line_encoding` environment variable is set to force it
         # to always use utf-8 encoding.  See Matplotlib issue #11848.
-        kwargs = dict(env=dict(os.environ, command_line_encoding='utf-8'))
-    else:
-        kwargs = {}
+        kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
+                  'encoding': 'utf-8'}
+    else:  # On POSIX, run through the equivalent of os.fsdecode().
+        kwargs = {'encoding': sys.getfilesystemencoding(),
+                  'errors': 'surrogatescape'}
 
     cmd = ['kpsewhich']
     if format is not None:
@@ -1079,10 +1082,7 @@ def find_tex_file(filename, format=None):
         result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
     except RuntimeError:
         return ''
-    if os.name == 'nt':
-        return result.decode('utf-8').rstrip('\r\n')
-    else:
-        return os.fsdecode(result).rstrip('\n')
+    return result.rstrip('\n')
 
 
 @lru_cache()

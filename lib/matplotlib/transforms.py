@@ -36,6 +36,7 @@ themselves.
 import functools
 import textwrap
 import weakref
+import math
 
 import numpy as np
 from numpy.linalg import inv
@@ -847,8 +848,8 @@ class Bbox(BboxBase):
 
     def update_from_path(self, path, ignore=None, updatex=True, updatey=True):
         """
-        Update the bounds of the `Bbox` based on the passed in
-        data.  After updating, the bounds will have positive *width*
+        Update the bounds of the `Bbox` to contain the vertices of the
+        provided path. After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
         Parameters
@@ -1266,6 +1267,9 @@ class Transform(TransformNode):
     def __add__(self, other):
         """
         Compose two transforms together so that *self* is followed by *other*.
+
+        ``A + B`` returns a transform ``C`` so that
+        ``C.transform(x) == B.transform(A.transform(x))``.
         """
         return (composite_transform_factory(self, other)
                 if isinstance(other, Transform) else
@@ -1340,24 +1344,32 @@ class Transform(TransformNode):
 
     def __sub__(self, other):
         """
-        Return a transform stack which goes all the way down self's transform
-        stack, and then ascends back up other's stack. If it can, this is
-        optimised::
+        Compose *self* with the inverse of *other*, cancelling identical terms
+        if any::
 
-            # normally
-            A - B == a + b.inverted()
+            # In general:
+            A - B == A + B.inverted()
+            # (but see note regarding frozen transforms below).
 
-            # sometimes, when A contains the tree B there is no need to
-            # descend all the way down to the base of A (via B), instead we
-            # can just stop at B.
+            # If A "ends with" B (i.e. A == A' + B for some A') we can cancel
+            # out B:
+            (A' + B) - B == A'
 
-            (A + B) - (B)^-1 == A
+            # Likewise, if B "starts with" A (B = A + B'), we can cancel out A:
+            A - (A + B') == B'.inverted() == B'^-1
 
-            # similarly, when B contains tree A, we can avoid descending A at
-            # all, basically:
-            A - (A + B) == ((B + A) - A).inverted() or B^-1
+        Cancellation (rather than naively returning ``A + B.inverted()``) is
+        important for multiple reasons:
 
-        For clarity, the result of ``(A + B) - B + B == (A + B)``.
+        - It avoids floating-point inaccuracies when computing the inverse of
+          B: ``B - B`` is guaranteed to cancel out exactly (resulting in the
+          identity transform), whereas ``B + B.inverted()`` may differ by a
+          small epsilon.
+        - ``B.inverted()`` always returns a frozen transform: if one computes
+          ``A + B + B.inverted()`` and later mutates ``B``, then
+          ``B.inverted()`` won't be updated and the last two terms won't cancel
+          out anymore; on the other hand, ``A + B - B`` will always be equal to
+          ``A`` even if ``B`` is mutated.
         """
         # we only know how to do this operation if other is a Transform.
         if not isinstance(other, Transform):
@@ -1831,7 +1843,7 @@ class Affine2D(Affine2DBase):
         if matrix is None:
             # A bit faster than np.identity(3).
             matrix = IdentityTransform._mtx.copy()
-        self._mtx = matrix
+        self._mtx = matrix.copy()
         self._invalid = 0
 
     __str__ = _make_str_method("_mtx")
@@ -1914,8 +1926,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        a = np.cos(theta)
-        b = np.sin(theta)
+        a = math.cos(theta)
+        b = math.sin(theta)
         rotate_mtx = np.array([[a, -b, 0.0], [b, a, 0.0], [0.0, 0.0, 1.0]],
                               float)
         self._mtx = np.dot(rotate_mtx, self._mtx)
@@ -1930,7 +1942,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.rotate(np.deg2rad(degrees))
+        return self.rotate(math.radians(degrees))
 
     def rotate_around(self, x, y, theta):
         """
@@ -1962,9 +1974,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        translate_mtx = np.array(
-            [[1.0, 0.0, tx], [0.0, 1.0, ty], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(translate_mtx, self._mtx)
+        self._mtx[0, 2] += tx
+        self._mtx[1, 2] += ty
         self.invalidate()
         return self
 
@@ -1981,9 +1992,13 @@ class Affine2D(Affine2DBase):
         """
         if sy is None:
             sy = sx
-        scale_mtx = np.array(
-            [[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(scale_mtx, self._mtx)
+        # explicit element-wise scaling is fastest
+        self._mtx[0, 0] *= sx
+        self._mtx[0, 1] *= sx
+        self._mtx[0, 2] *= sx
+        self._mtx[1, 0] *= sy
+        self._mtx[1, 1] *= sy
+        self._mtx[1, 2] *= sy
         self.invalidate()
         return self
 
@@ -1998,8 +2013,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        rotX = np.tan(xShear)
-        rotY = np.tan(yShear)
+        rotX = math.tan(xShear)
+        rotY = math.tan(yShear)
         skew_mtx = np.array(
             [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]], float)
         self._mtx = np.dot(skew_mtx, self._mtx)
@@ -2017,7 +2032,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
+        return self.skew(math.radians(xShear), math.radians(yShear))
 
 
 class IdentityTransform(Affine2DBase):
@@ -2606,6 +2621,36 @@ class ScaledTranslation(Affine2DBase):
         return self._mtx
 
 
+class AffineDeltaTransform(Affine2DBase):
+    r"""
+    A transform wrapper for transforming displacements between pairs of points.
+
+    This class is intended to be used to transform displacements ("position
+    deltas") between pairs of points (e.g., as the ``offset_transform``
+    of `.Collection`\s): given a transform ``t`` such that ``t =
+    AffineDeltaTransform(t) + offset``, ``AffineDeltaTransform``
+    satisfies ``AffineDeltaTransform(a - b) == AffineDeltaTransform(a) -
+    AffineDeltaTransform(b)``.
+
+    This is implemented by forcing the offset components of the transform
+    matrix to zero.
+
+    This class is experimental as of 3.3, and the API may change.
+    """
+
+    def __init__(self, transform, **kwargs):
+        super().__init__(**kwargs)
+        self._base_transform = transform
+
+    __str__ = _make_str_method("_base_transform")
+
+    def get_matrix(self):
+        if self._invalid:
+            self._mtx = self._base_transform.get_matrix().copy()
+            self._mtx[:2, -1] = 0
+        return self._mtx
+
+
 class TransformedPath(TransformNode):
     """
     A `TransformedPath` caches a non-affine transformed copy of the
@@ -2780,9 +2825,9 @@ def interval_contains(interval, val):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
 
     Returns
@@ -2803,13 +2848,15 @@ def _interval_contains_close(interval, val, rtol=1e-10):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
-    rtol : scalar
-        Tolerance slippage allowed outside of this interval.  Default
-        1e-10 * (b - a).
+    rtol : float, default: 1e-10
+        Relative tolerance slippage allowed outside of the interval.
+        For an interval ``[a, b]``, values
+        ``a - rtol * (b - a) <= val <= b + rtol * (b - a)`` are considered
+        inside the interval.
 
     Returns
     -------
@@ -2829,9 +2876,9 @@ def interval_contains_open(interval, val):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
 
     Returns

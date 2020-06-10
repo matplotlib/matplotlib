@@ -1,6 +1,5 @@
 import copy
 import signal
-import sys
 from unittest import mock
 
 import matplotlib

@@ -17,6 +17,10 @@ import matplotlib.cbook as cbook
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 ###############################################################################
 # First we'll generate a simple bivariate normal distribution.
 

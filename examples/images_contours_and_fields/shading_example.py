@@ -21,9 +21,8 @@ def main():
     x, y = np.mgrid[-5:5:0.05, -5:5:0.05]
     z = 5 * (np.sqrt(x**2 + y**2) + np.sin(x**2 + y**2))
 
-    with cbook.get_sample_data('jacksboro_fault_dem.npz') as file, \
-         np.load(file) as dem:
-        elev = dem['elevation']
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    elev = dem['elevation']
 
     fig = compare(z, plt.cm.copper)
     fig.suptitle('HSV Blending Looks Best with Smooth Surfaces', y=0.95)

@@ -87,7 +87,7 @@ def inverse(a):
 
 ax = axs[2, 1]
 
-t = np.arange(-170.0, 170.0, 0.1)
+t = np.arange(0, 170.0, 0.1)
 s = t / 2.
 
 ax.plot(t, s, '-', lw=2)
@@ -95,9 +95,9 @@ ax.plot(t, s, '-', lw=2)
 ax.set_yscale('function', functions=(forward, inverse))
 ax.set_title('function: Mercator')
 ax.grid(True)
-ax.set_xlim([-180, 180])
+ax.set_xlim([0, 180])
 ax.yaxis.set_minor_formatter(NullFormatter())
-ax.yaxis.set_major_locator(FixedLocator(np.arange(-90, 90, 30)))
+ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 90, 10)))
 
 plt.show()
 

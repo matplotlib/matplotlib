@@ -18,7 +18,8 @@ from matplotlib.path import Path
 
 
 class SelectFromCollection:
-    """Select indices from a matplotlib collection using `LassoSelector`.
+    """
+    Select indices from a matplotlib collection using `LassoSelector`.
 
     Selected indices are saved in the `ind` attribute. This tool fades out the
     points that are not part of the selection (i.e., reduces their alpha

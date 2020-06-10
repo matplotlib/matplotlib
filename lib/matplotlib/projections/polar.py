@@ -949,6 +949,7 @@ class PolarAxes(Axes):
     @cbook._delete_parameter("3.3", "args")
     @cbook._delete_parameter("3.3", "kwargs")
     def draw(self, renderer, *args, **kwargs):
+        self._unstale_viewLim()
         thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
@@ -1040,13 +1041,30 @@ class PolarAxes(Axes):
         where minval and maxval are the minimum and maximum limits. Values are
         wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
-        an axes symmetric around 0.
+        an axes symmetric around 0. A ValueError is raised if the absolute
+        angle difference is larger than :math:`2\pi`.
         """
+        thetamin = None
+        thetamax = None
+        left = None
+        right = None
+
+        if len(args) == 2:
+            if args[0] is not None and args[1] is not None:
+                left, right = args
+                if abs(right - left) > 2 * np.pi:
+                    raise ValueError('The angle range must be <= 2 pi')
+
         if 'thetamin' in kwargs:
-            kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
+            thetamin = np.deg2rad(kwargs.pop('thetamin'))
         if 'thetamax' in kwargs:
-            kwargs['xmax'] = np.deg2rad(kwargs.pop('thetamax'))
-        return tuple(np.rad2deg(self.set_xlim(*args, **kwargs)))
+            thetamax = np.deg2rad(kwargs.pop('thetamax'))
+
+        if thetamin is not None and thetamax is not None:
+            if abs(thetamax - thetamin) > 2 * np.pi:
+                raise ValueError('The angle range must be <= 360 degrees')
+        return tuple(np.rad2deg(self.set_xlim(left=left, right=right,
+                                              xmin=thetamin, xmax=thetamax)))
 
     def set_theta_offset(self, offset):
         """
@@ -1206,14 +1224,14 @@ class PolarAxes(Axes):
 
         Parameters
         ----------
-        bottom : scalar, optional
+        bottom : float, optional
             The bottom limit (default: None, which leaves the bottom
             limit unchanged).
             The bottom and top ylims may be passed as the tuple
             (*bottom*, *top*) as the first positional argument (or as
             the *bottom* keyword argument).
 
-        top : scalar, optional
+        top : float, optional
             The top limit (default: None, which leaves the top limit
             unchanged).
 
@@ -1224,7 +1242,7 @@ class PolarAxes(Axes):
             Whether to turn on autoscaling of the y-axis. True turns on,
             False turns off, None leaves unchanged.
 
-        ymin, ymax : scalar, optional
+        ymin, ymax : float, optional
             These arguments are deprecated and will be removed in a future
             version.  They are equivalent to *bottom* and *top* respectively,
             and it is an error to pass both *ymin* and *bottom* or
@@ -1332,8 +1350,7 @@ class PolarAxes(Axes):
             t.update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
-    def set_rgrids(self, radii, labels=None, angle=None, fmt=None,
-                   **kwargs):
+    def set_rgrids(self, radii, labels=None, angle=None, fmt=None, **kwargs):
         """
         Set the radial gridlines on a polar plot.
 

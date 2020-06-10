@@ -817,7 +817,7 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
 inline bool isclose(double a, double b)
 {
     // relative and absolute tolerance values are chosen empirically
-    // it looks the atol value matters here bacause of round-off errors
+    // it looks the atol value matters here because of round-off errors
     const double rtol = 1e-10;
     const double atol = 1e-13;
 

@@ -1,5 +1,0 @@
-# Extra pip requirements for the travis flake8 build
-
-flake8>=3.7
-pydocstyle<4.0
-flake8-docstrings

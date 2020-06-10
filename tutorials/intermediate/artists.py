@@ -650,22 +650,9 @@ plt.show()
 # ==============   ==========================================================
 #
 # Here is an example which sets the formatter for the right side ticks with
-# dollar signs and colors them green on the right side of the yaxis
-
-import matplotlib.ticker as ticker
-
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-fig, ax = plt.subplots()
-ax.plot(100*np.random.rand(20))
-
-formatter = ticker.FormatStrFormatter('$%1.2f')
-ax.yaxis.set_major_formatter(formatter)
-
-for tick in ax.yaxis.get_major_ticks():
-    tick.label1.set_visible(False)
-    tick.label2.set_visible(True)
-    tick.label2.set_color('green')
-
-plt.show()
+# dollar signs and colors them green on the right side of the yaxis.
+#
+#
+# .. include:: ../../gallery/pyplots/dollar_ticks.rst
+#    :start-after: y axis labels.
+#    :end-before: -------

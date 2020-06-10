@@ -262,7 +262,7 @@ class SetupPackage:
         """
         return []
 
-    def do_custom_build(self):
+    def do_custom_build(self, env):
         """
         If a package needs to do extra custom things, such as building a
         third-party library, before building an extension, it should
@@ -396,8 +396,8 @@ class Matplotlib(SetupPackage):
             include_dirs=["src"],
             # psapi library needed for finding Tcl/Tk at run time.
             # user32 library needed for window manipulation functions.
-            libraries=({"linux": ["dl"], "win32": ["psapi", "user32"]}
-                       .get(sys.platform, [])),
+            libraries=({"linux": ["dl"], "win32": ["psapi", "user32"],
+                        "cygwin": ["psapi"]}.get(sys.platform, [])),
             extra_link_args={"win32": ["-mwindows"]}.get(sys.platform, []))
         add_numpy_flags(ext)
         add_libagg_flags(ext)
@@ -413,7 +413,7 @@ class Matplotlib(SetupPackage):
         yield ext
         # ttconv
         ext = Extension(
-            "matplotlib.ttconv", [
+            "matplotlib._ttconv", [
                 "src/_ttconv.cpp",
                 "extern/ttconv/pprdrv_tt.cpp",
                 "extern/ttconv/pprdrv_tt2.cpp",
@@ -538,7 +538,7 @@ class FreeType(SetupPackage):
                 0, str(src_path / 'objs' / '.libs' / libfreetype))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
 
-    def do_custom_build(self):
+    def do_custom_build(self, env):
         # We're using a system freetype
         if options.get('system_freetype'):
             return
@@ -586,11 +586,11 @@ class FreeType(SetupPackage):
 
         print(f"Building freetype in {src_path}")
         if sys.platform != 'win32':  # compilation on non-windows
-            env = {**os.environ,
-                   "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
+            env = {**env, "CFLAGS": "{} -fPIC".format(env.get("CFLAGS", ""))}
             subprocess.check_call(
                 ["./configure", "--with-zlib=no", "--with-bzip2=no",
-                 "--with-png=no", "--with-harfbuzz=no"],
+                 "--with-png=no", "--with-harfbuzz=no", "--enable-static",
+                 "--disable-shared"],
                 env=env, cwd=src_path)
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:  # compilation on windows

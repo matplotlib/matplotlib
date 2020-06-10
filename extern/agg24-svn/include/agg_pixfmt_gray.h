@@ -136,14 +136,13 @@ namespace agg
         typedef typename color_type::calc_type    calc_type;
         enum 
         {
-            num_components = 1,
             pix_width = sizeof(value_type) * Step,
             pix_step = Step,
             pix_offset = Offset,
         };
         struct pixel_type
         {
-            value_type c[num_components];
+            value_type c[pix_step];
 
             void set(value_type v)
             {
@@ -167,22 +166,22 @@ namespace agg
 
             pixel_type* next()
             {
-                return (pixel_type*)(c + pix_step);
+                return this + 1;
             }
 
             const pixel_type* next() const
             {
-                return (const pixel_type*)(c + pix_step);
+                return this + 1;
             }
 
             pixel_type* advance(int n)
             {
-                return (pixel_type*)(c + n * pix_step);
+                return this + n;
             }
 
             const pixel_type* advance(int n) const
             {
-                return (const pixel_type*)(c + n * pix_step);
+                return this + n;
             }
         };
 

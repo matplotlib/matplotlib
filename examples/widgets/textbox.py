@@ -29,7 +29,7 @@ def submit(expression):
     """
     Update the plotted function to the new math *expression*.
 
-    *expession* is a string using "t" as its independent variable, e.g.
+    *expression* is a string using "t" as its independent variable, e.g.
     "t ** 3".
     """
     ydata = eval(expression)

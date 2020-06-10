@@ -7,12 +7,12 @@ from enum import Enum
 import glob
 from io import StringIO, TextIOWrapper
 import logging
+import math
 import os
 import pathlib
 import re
 import shutil
 from tempfile import TemporaryDirectory
-import textwrap
 import time
 
 import numpy as np
@@ -26,7 +26,7 @@ from matplotlib.backend_bases import (
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import is_opentype_cff_font, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING
-from matplotlib.ttconv import convert_ttf_to_ps
+from matplotlib._ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
@@ -286,9 +286,17 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         h, w = im.shape[:2]
         imagecmd = "false 3 colorimage"
         data = im[::-1, :, :3]  # Vertically flipped rgb values.
-        # data.tobytes().hex() has no spaces, so can be linewrapped by relying
-        # on textwrap.fill breaking long words.
-        hexlines = textwrap.fill(data.tobytes().hex(), 128)
+        # data.tobytes().hex() has no spaces, so can be linewrapped by simply
+        # splitting data every nchars. It's equivalent to textwrap.fill only
+        # much faster.
+        nchars = 128
+        data = data.tobytes().hex()
+        hexlines = "\n".join(
+            [
+                data[n * nchars:(n + 1) * nchars]
+                for n in range(math.ceil(len(data) / nchars))
+            ]
+        )
 
         if transform is None:
             matrix = "1 0 0 1 0 0"
@@ -304,9 +312,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
         clip = []
         if bbox is not None:
-            clipx, clipy, clipw, cliph = bbox.bounds
-            clip.append(
-                '%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy))
+            clip.append('%s clipbox' % _nums_to_str(*bbox.size, *bbox.p0))
         if clippath is not None:
             id = self._get_clip_path(clippath, clippath_trans)
             clip.append('%s' % id)
@@ -438,14 +444,12 @@ newpath
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
-        write = self._pswriter.write
-
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
             name = 'p%x_%x' % (self._path_collection_id, i)
             path_bytes = self._convert_path(path, transform, simplify=False)
-            write(f"""\
+            self._pswriter.write(f"""\
 /{name} {{
 newpath
 translate
@@ -463,10 +467,19 @@ translate
 
         self._path_collection_id += 1
 
+    @cbook._delete_parameter("3.3", "ismath")
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # docstring inherited
+        if not hasattr(self, "psfrag"):
+            _log.warning(
+                "The PS backend determines usetex status solely based on "
+                "rcParams['text.usetex'] and does not support having "
+                "usetex=True only for some elements; this element will thus "
+                "be rendered as if usetex=False.")
+            self.draw_text(gc, x, y, s, prop, angle, False, mtext)
+            return
 
-        w, h, bl = self.get_text_width_height_descent(s, prop, ismath)
+        w, h, bl = self.get_text_width_height_descent(s, prop, ismath="TeX")
         fontsize = prop.get_size_in_points()
         thetext = 'psmarker%d' % self.textcnt
         color = '%1.3f,%1.3f,%1.3f' % gc.get_rgb()[:3]
@@ -477,7 +490,7 @@ translate
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
         corr = 0  # w/2*(fontsize-10)/10
-        if mpl.rcParams['text.latex.preview']:
+        if dict.__getitem__(mpl.rcParams, 'text.latex.preview'):
             # use baseline alignment!
             pos = _nums_to_str(x-corr, y)
             self.psfrag.append(
@@ -502,10 +515,8 @@ grestore
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
 
-        # local to avoid repeated attribute lookups
-        write = self._pswriter.write
         if debugPS:
-            write("% text\n")
+            self._pswriter.write("% text\n")
 
         if _is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
@@ -682,8 +693,8 @@ grestore
 
         cliprect = gc.get_clip_rectangle()
         if cliprect:
-            x, y, w, h = cliprect.bounds
-            write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (w, h, x, y))
+            write('%1.4g %1.4g %1.4g %1.4g clipbox\n'
+                  % (*cliprect.size, *cliprect.p0))
         clippath, clippath_trans = gc.get_clip_path()
         if clippath:
             id = self._get_clip_path(clippath, clippath_trans)
@@ -838,11 +849,10 @@ class FigureCanvasPS(FigureCanvasBase):
         xo = 72 * 0.5 * (paper_width - width)
         yo = 72 * 0.5 * (paper_height - height)
 
-        l, b, w, h = self.figure.bbox.bounds
         llx = xo
         lly = yo
-        urx = llx + w
-        ury = lly + h
+        urx = llx + self.figure.bbox.width
+        ury = lly + self.figure.bbox.height
         rotation = 0
         if orientation is _Orientation.landscape:
             llx, lly, urx, ury = lly, llx, ury, urx
@@ -933,10 +943,7 @@ class FigureCanvasPS(FigureCanvasBase):
                   file=fh)
 
             # write the figure
-            content = self._pswriter.getvalue()
-            if not isinstance(content, str):
-                content = content.decode('ascii')
-            print(content, file=fh)
+            print(self._pswriter.getvalue(), file=fh)
 
             # write the trailer
             print("end", file=fh)
@@ -996,11 +1003,10 @@ class FigureCanvasPS(FigureCanvasBase):
         xo = 0
         yo = 0
 
-        l, b, w, h = self.figure.bbox.bounds
         llx = xo
         lly = yo
-        urx = llx + w
-        ury = lly + h
+        urx = llx + self.figure.bbox.width
+        ury = lly + self.figure.bbox.height
         bbox = (llx, lly, urx, ury)
 
         if dryrun:

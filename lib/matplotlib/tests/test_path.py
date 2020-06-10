@@ -1,4 +1,5 @@
 import copy
+import re
 
 import numpy as np
 
@@ -30,6 +31,25 @@ def test_readonly_path():
         modify_vertices()
 
 
+def test_path_exceptions():
+    bad_verts1 = np.arange(12).reshape(4, 3)
+    with pytest.raises(ValueError,
+                       match=re.escape(f'has shape {bad_verts1.shape}')):
+        Path(bad_verts1)
+
+    bad_verts2 = np.arange(12).reshape(2, 3, 2)
+    with pytest.raises(ValueError,
+                       match=re.escape(f'has shape {bad_verts2.shape}')):
+        Path(bad_verts2)
+
+    good_verts = np.arange(12).reshape(6, 2)
+    bad_codes = np.arange(2)
+    msg = re.escape(f"Your vertices have shape {good_verts.shape} "
+                    f"but your codes have shape {bad_codes.shape}")
+    with pytest.raises(ValueError, match=msg):
+        Path(good_verts, bad_codes)
+
+
 def test_point_in_path():
     # Test #1787
     verts2 = [(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)]
@@ -47,6 +67,37 @@ def test_contains_points_negative_radius():
     points = [(0.0, 0.0), (1.25, 0.0), (0.9, 0.9)]
     result = path.contains_points(points, radius=-0.5)
     np.testing.assert_equal(result, [True, False, False])
+
+
+_test_paths = [
+    # interior extrema determine extents and degenerate derivative
+    Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+           [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]),
+    # a quadratic curve
+    Path([[0, 0], [0, 1], [1, 0]], [Path.MOVETO, Path.CURVE3, Path.CURVE3]),
+    # a linear curve, degenerate vertically
+    Path([[0, 1], [1, 1]], [Path.MOVETO, Path.LINETO]),
+    # a point
+    Path([[1, 2]], [Path.MOVETO]),
+]
+
+
+_test_path_extents = [(0., 0., 0.75, 1.), (0., 0., 1., 0.5), (0., 1., 1., 1.),
+                      (1., 2., 1., 2.)]
+
+
+@pytest.mark.parametrize('path, extents', zip(_test_paths, _test_path_extents))
+def test_exact_extents(path, extents):
+    # notice that if we just looked at the control points to get the bounding
+    # box of each curve, we would get the wrong answers. For example, for
+    # hard_curve = Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+    #                   [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    # we would get that the extents area (0, 0, 1, 1). This code takes into
+    # account the curved part of the path, which does not typically extend all
+    # the way out to the control points.
+    # Note that counterintuitively, path.get_extents() returns a Bbox, so we
+    # have to get that Bbox's `.extents`.
+    assert np.all(path.get_extents().extents == extents)
 
 
 def test_point_in_path_nan():

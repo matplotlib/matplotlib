@@ -39,7 +39,7 @@ class Scope:
         return self.line,
 
 
-def emitter(p=0.03):
+def emitter(p=0.1):
     """Return a random value in [0, 1) with probability p, else 0."""
     while True:
         v = np.random.rand(1)
@@ -48,15 +48,16 @@ def emitter(p=0.03):
         else:
             yield np.random.rand(1)
 
+
 # Fixing random state for reproducibility
-np.random.seed(19680801)
+np.random.seed(19680801 // 10)
 
 
 fig, ax = plt.subplots()
 scope = Scope(ax)
 
 # pass a generator in "emitter" to produce data for the update func
-ani = animation.FuncAnimation(fig, scope.update, emitter, interval=10,
+ani = animation.FuncAnimation(fig, scope.update, emitter, interval=50,
                               blit=True)
 
 plt.show()

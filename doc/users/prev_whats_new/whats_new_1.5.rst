@@ -509,12 +509,12 @@ which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 
-`.Axes.remove()` works as expected
-``````````````````````````````````
+``Axes.remove()`` works as expected
+```````````````````````````````````
 
 As with artists added to an :class:`~matplotlib.axes.Axes`,
 `~.axes.Axes` objects can be removed from their figure via
-:meth:`~matplotlib.axes.Axes.remove()`.
+`~.Artist.remove()`.
 
 
 API Consistency fix within Locators set_params() function
@@ -622,7 +622,7 @@ backends include a `ToolContainer` called `toolbar`
     be treated as experimental until further notice as API changes will occur.
     For the moment the `.ToolManager` works only with the GTK3 and Tk backends.
     Make sure you use one of those.
-    Port for the rest of the backends is comming soon.
+    Port for the rest of the backends is coming soon.
 
     To activate the `.ToolManager` include the following at the top of your file ::
 

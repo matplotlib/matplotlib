@@ -139,6 +139,9 @@ Milestones
 
   If multiple rules apply, choose the first matching from the above list.
 
+  Setting a milestone does not imply or guarantee that a PR will be merged for that
+  release, but if it were to be merged what release it would be in.
+
   All of these PRs should target the master branch. The milestone tag triggers
   an :ref:`automatic backport <automated-backports>` for milestones which have
   a corresponding branch.
@@ -176,24 +179,45 @@ Merging
     A core dev should only champion one PR at a time and we should try to keep
     the flow of championed PRs reasonable.
 
+* Do not self merge, except for 'small' patches to un-break the CI or
+  when another reviewer explicitly allows it (ex, "Approve modulo CI
+  passing, may self merge when green").
+
 .. _pr-automated-tests:
 
 Automated tests
 ---------------
 
-* Make sure the Travis, Appveyor, CircleCI, and codecov tests are passing
-  before merging.
+Whenever a pull request is created or updated, various automated test tools
+will run on all supported platforms and versions of Python.
 
-  - Whenever a pull request is created or updated, Travis and Appveyor
-    automatically runs the test suite on all versions of Python
-    supported by Matplotlib.  The tox_ support in Matplotlib may be
-    useful for testing locally.
+* Make sure the Linting, Travis, AppVeyor, CircleCI, and Azure pipelines are
+  passing before merging (All checks are listed at the bottom of the GitHub
+  page of your pull request). Here are some tips for finding the cause of the
+  test failure:
+
+  - If *Linting* fails, you have a code style issue, which will be listed
+    as annotations on the pull request's diff.
+  - If a Travis or AppVeyor run fails, search the log for ``FAILURES``. The
+    subsequent section will contain information on the failed tests.
+  - If CircleCI fails, likely you have some reStructuredText style issue in
+    the docs. Search the CircleCI log for ``WARNING``.
+  - If Azure pipelines fail with an image comparison error, you can find the
+    images as *artifacts* of the Azure job:
+
+    - Click *Details* on the check on the GitHub PR page.
+    - Click *View more details on Azure Pipelines* to go to Azure.
+    - On the overview page *artifacts* are listed in the section *Related*.
+
+
+* Codecov and LGTM are currently for information only. Their failure is not
+  necessarily a blocker.
+
+* tox_ is not used in the automated testing. It is supported for testing
+  locally.
 
   .. _tox: https://tox.readthedocs.io/
 
-* Do not self merge, except for 'small' patches to un-break the CI or
-  when another reviewer explicitly allows it (ex, "Approve modulo CI
-  passing, may self merge when green").
 
 .. _pr-squashing:
 

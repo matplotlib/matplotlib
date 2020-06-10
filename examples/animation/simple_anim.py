@@ -16,12 +16,12 @@ line, = ax.plot(x, np.sin(x))
 
 
 def animate(i):
-    line.set_ydata(np.sin(x + i / 100))  # update the data.
+    line.set_ydata(np.sin(x + i / 50))  # update the data.
     return line,
 
 
 ani = animation.FuncAnimation(
-    fig, animate, interval=2, blit=True, save_count=50)
+    fig, animate, interval=20, blit=True, save_count=50)
 
 # To save the animation, use e.g.
 #

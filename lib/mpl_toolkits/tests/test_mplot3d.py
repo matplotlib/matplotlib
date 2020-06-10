@@ -36,6 +36,18 @@ def test_bar3d():
         ax.bar(xs, ys, zs=z, zdir='y', align='edge', color=cs, alpha=0.8)
 
 
+def test_bar3d_colors():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for c in ['red', 'green', 'blue', 'yellow']:
+        xs = np.arange(len(c))
+        ys = np.zeros_like(xs)
+        zs = np.zeros_like(ys)
+        # Color names with same length as xs/ys/zs should not be split into
+        # individual letters.
+        ax.bar3d(xs, ys, zs, 1, 1, 1, color=c)
+
+
 @mpl3d_image_comparison(['bar3d_shaded.png'])
 def test_bar3d_shaded():
     x = np.arange(4)
@@ -228,6 +240,51 @@ def test_scatter3d_color():
                color='r', marker='o')
     ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
                color='b', marker='s')
+
+
+@pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first
+@check_figures_equal(extensions=['png'])
+def test_marker_draw_order_data_reversed(fig_test, fig_ref, azim):
+    """
+    Test that the draw order does not depend on the data point order.
+
+    For the given viewing angle at azim=-50, the yellow marker should be in
+    front. For azim=130, the blue marker should be in front.
+    """
+    x = [-1, 1]
+    y = [1, -1]
+    z = [0, 0]
+    color = ['b', 'y']
+    ax = fig_test.add_subplot(projection='3d')
+    ax.scatter(x, y, z, s=3500, c=color)
+    ax.view_init(elev=0, azim=azim)
+    ax = fig_ref.add_subplot(projection='3d')
+    ax.scatter(x[::-1], y[::-1], z[::-1], s=3500, c=color[::-1])
+    ax.view_init(elev=0, azim=azim)
+
+
+@check_figures_equal(extensions=['png'])
+def test_marker_draw_order_view_rotated(fig_test, fig_ref):
+    """
+    Test that the draw order changes with the direction.
+
+    If we rotate *azim* by 180 degrees and exchange the colors, the plot
+    plot should look the same again.
+    """
+    azim = 130
+    x = [-1, 1]
+    y = [1, -1]
+    z = [0, 0]
+    color = ['b', 'y']
+    ax = fig_test.add_subplot(projection='3d')
+    # axis are not exactly invariant under 180 degree rotation -> deactivate
+    ax.set_axis_off()
+    ax.scatter(x, y, z, s=3500, c=color)
+    ax.view_init(elev=0, azim=azim)
+    ax = fig_ref.add_subplot(projection='3d')
+    ax.set_axis_off()
+    ax.scatter(x, y, z, s=3500, c=color[::-1])  # color reversed
+    ax.view_init(elev=0, azim=azim - 180)  # view rotated by 180 degrees
 
 
 @mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.01)
@@ -950,3 +1007,38 @@ def test_errorbar3d():
                 yuplims=True,
                 ecolor='purple', label='Error lines')
     ax.legend()
+
+
+@image_comparison(["equal_box_aspect.png"], style="mpl20")
+def test_equal_box_aspect():
+    from itertools import product, combinations
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    # Make data
+    u = np.linspace(0, 2 * np.pi, 100)
+    v = np.linspace(0, np.pi, 100)
+    x = np.outer(np.cos(u), np.sin(v))
+    y = np.outer(np.sin(u), np.sin(v))
+    z = np.outer(np.ones_like(u), np.cos(v))
+
+    # Plot the surface
+    ax.plot_surface(x, y, z)
+
+    # draw cube
+    r = [-1, 1]
+    for s, e in combinations(np.array(list(product(r, r, r))), 2):
+        if np.sum(np.abs(s - e)) == r[1] - r[0]:
+            ax.plot3D(*zip(s, e), color="b")
+
+    # Make axes limits
+    xyzlim = np.column_stack(
+        [ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()]
+    )
+    XYZlim = [min(xyzlim[0]), max(xyzlim[1])]
+    ax.set_xlim3d(XYZlim)
+    ax.set_ylim3d(XYZlim)
+    ax.set_zlim3d(XYZlim)
+    ax.axis('off')
+    ax.set_box_aspect((1, 1, 1))

@@ -1,0 +1,5 @@
+# Extra pip requirements for the GitHub Actions flake8 build
+
+flake8>=3.7
+pydocstyle<4.0
+flake8-docstrings

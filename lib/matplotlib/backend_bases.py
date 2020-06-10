@@ -23,12 +23,9 @@ graphics contexts must implement to serve as a Matplotlib backend.
 
 `ToolContainerBase`
     The base class for the Toolbar class of each interactive backend.
-
-`StatusbarBase`
-    The base class for the messaging area.
 """
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from enum import Enum, IntEnum
 import functools
 import importlib
@@ -43,12 +40,13 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
-    widgets, get_backend, is_interactive, rcParams)
+    backend_tools as tools, cbook, colors, textpath, tight_bbox,
+    transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
+from matplotlib.cbook import _setattr_cm
 
 
 _log = logging.getLogger(__name__)
@@ -205,8 +203,10 @@ class RendererBase:
         *linestyles* and *antialiaseds*. *offsets* is a list of
         offsets to apply to each of the paths.  The offsets in
         *offsets* are first transformed by *offsetTrans* before being
-        applied.  *offset_position* may be either "screen" or "data"
-        depending on the space that the offsets are in.
+        applied.
+
+        *offset_position* may be either "screen" or "data" depending on the
+        space that the offsets are in; "data" is deprecated.
 
         This provides a fallback implementation of
         :meth:`draw_path_collection` that makes multiple calls to
@@ -220,18 +220,22 @@ class RendererBase:
         recommended to use those generators, so that changes to the
         behavior of :meth:`draw_path_collection` can be made globally.
         """
-        path_ids = [
-            (path, transforms.Affine2D(transform))
-            for path, transform in self._iter_collection_raw_paths(
-                    master_transform, paths, all_transforms)]
+        path_ids = self._iter_collection_raw_paths(master_transform,
+                                                   paths, all_transforms)
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, path_ids, offsets,
+                gc, master_transform, all_transforms, list(path_ids), offsets,
                 offsetTrans, facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             path, transform = path_id
-            transform = transforms.Affine2D(
-                            transform.get_matrix()).translate(xo, yo)
+            # Only apply another translation if we have an offset, else we
+            # resuse the inital transform.
+            if xo != 0 or yo != 0:
+                # The transformation can be used by multiple paths. Since
+                # translate is a inplace operation, we need to copy the
+                # transformation by .frozen() before applying the translation.
+                transform = transform.frozen()
+                transform.translate(xo, yo)
             self.draw_path(gc0, path, transform, rgbFace)
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
@@ -380,6 +384,11 @@ class RendererBase:
         Naa = len(antialiaseds)
         Nurls = len(urls)
 
+        if offset_position == "data":
+            cbook.warn_deprecated(
+                "3.3", message="Support for offset_position='data' is "
+                "deprecated since %(since)s and will be removed %(removal)s.")
+
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
         if Noffsets:
@@ -495,6 +504,7 @@ class RendererBase:
         """
         return False
 
+    @cbook._delete_parameter("3.3", "ismath")
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         """
         """
@@ -698,6 +708,23 @@ class RendererBase:
 
         Currently only supported by the agg renderer.
         """
+
+    def _draw_disabled(self):
+        """
+        Context manager to temporary disable drawing.
+
+        This is used for getting the drawn size of Artists.  This lets us
+        run the draw process to update any Python state but does not pay the
+        cost of the draw_XYZ calls on the canvas.
+        """
+        no_ops = {
+            meth_name: lambda *args, **kwargs: None
+            for meth_name in dir(RendererBase)
+            if (meth_name.startswith("draw_")
+                or meth_name in ["open_group", "close_group"])
+        }
+
+        return _setattr_cm(self, **no_ops)
 
 
 class GraphicsContextBase:
@@ -1059,10 +1086,9 @@ class TimerBase:
             `remove_callback` can be used.
         """
         self.callbacks = [] if callbacks is None else callbacks.copy()
-        self._interval = 1000 if interval is None else interval
-        self._single = False
-        # Default attribute for holding the GUI-specific timer object
-        self._timer = None
+        # Set .interval and not ._interval to go through the property setter.
+        self.interval = 1000 if interval is None else interval
+        self.single_shot = False
 
     def __del__(self):
         """Need to stop timer and possibly disconnect timer."""
@@ -1399,13 +1425,16 @@ class MouseEvent(LocationEvent):
         (*x*, *y*) in figure coords ((0, 0) = bottom left)
         button pressed None, 1, 2, 3, 'up', 'down'
         """
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         if button in MouseButton.__members__.values():
             button = MouseButton(button)
         self.button = button
         self.key = key
         self.step = step
         self.dblclick = dblclick
+
+        # super-init is deferred to the end because it calls back on
+        # 'axes_enter_event', which requires a fully initialized event.
+        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
     def __str__(self):
         return (f"{self.name}: "
@@ -1490,19 +1519,19 @@ class KeyEvent(LocationEvent):
         cid = fig.canvas.mpl_connect('key_press_event', on_key)
     """
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
+        # super-init deferred to the end: callback errors if called before
+        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
 
-def _get_renderer(figure, print_method, *, draw_disabled=False):
+def _get_renderer(figure, print_method=None):
     """
     Get the renderer that would be used to save a `~.Figure`, and cache it on
     the figure.
 
-    If *draw_disabled* is True, additionally replace drawing methods on
-    *renderer* by no-ops.  This is used by the tight-bbox-saving renderer,
-    which needs to walk through the artist tree to compute the tight-bbox, but
-    for which the output file may be closed early.
+    If you need a renderer without any active draw methods use
+    renderer._draw_disabled to temporary patch them out at your call site.
+
     """
     # This is implemented by triggering a draw, then immediately jumping out of
     # Figure.draw() by raising an exception.
@@ -1513,16 +1542,13 @@ def _get_renderer(figure, print_method, *, draw_disabled=False):
     def _draw(renderer): raise Done(renderer)
 
     with cbook._setattr_cm(figure, draw=_draw):
+        if print_method is None:
+            fmt = figure.canvas.get_default_filetype()
+            print_method = getattr(figure.canvas, f"print_{fmt}")
         try:
-            print_method(io.BytesIO())
+            print_method(io.BytesIO(), dpi=figure.dpi)
         except Done as exc:
             renderer, = figure._cachedRenderer, = exc.args
-
-    if draw_disabled:
-        for meth_name in dir(RendererBase):
-            if (meth_name.startswith("draw_")
-                    or meth_name in ["open_group", "close_group"]):
-                setattr(renderer, meth_name, lambda *args, **kwargs: None)
 
     return renderer
 
@@ -1838,8 +1864,10 @@ class FigureCanvasBase:
             x = None
             y = None
             cbook.warn_deprecated(
-                '3.0', message='enter_notify_event expects a location but '
-                'your backend did not pass one.')
+                '3.0', removal='3.5', name='enter_notify_event',
+                message='Since %(since)s, %(name)s expects a location but '
+                'your backend did not pass one. This will become an error '
+                '%(removal)s.')
 
         event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
@@ -1996,11 +2024,13 @@ class FigureCanvasBase:
         dpi : float, default: :rc:`savefig.dpi`
             The dots per inch to save the figure in.
 
-        facecolor : color, default: :rc:`savefig.facecolor`
-            The facecolor of the figure.
+        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+            The facecolor of the figure.  If 'auto', use the current figure
+            facecolor.
 
-        edgecolor : color, default: :rc:`savefig.edgecolor`
-            The edgecolor of the figure.
+        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.  If 'auto', use the current figure
+            edgecolor.
 
         orientation : {'landscape', 'portrait'}, default: 'portrait'
             Only currently applies to PostScript printing.
@@ -2054,31 +2084,39 @@ class FigureCanvasBase:
         # Some code (e.g. Figure.show) differentiates between having *no*
         # manager and a *None* manager, which should be fixed at some point,
         # but this should be fine.
-        with cbook._setattr_cm(self, _is_saving=True, manager=None), \
-                cbook._setattr_cm(self.figure, dpi=dpi):
+        with cbook._setattr_cm(self, manager=None), \
+                cbook._setattr_cm(self.figure, dpi=dpi), \
+                cbook._setattr_cm(canvas, _is_saving=True):
+            origfacecolor = self.figure.get_facecolor()
+            origedgecolor = self.figure.get_edgecolor()
 
             if facecolor is None:
                 facecolor = rcParams['savefig.facecolor']
+            if cbook._str_equal(facecolor, 'auto'):
+                facecolor = origfacecolor
             if edgecolor is None:
                 edgecolor = rcParams['savefig.edgecolor']
-
-            origfacecolor = self.figure.get_facecolor()
-            origedgecolor = self.figure.get_edgecolor()
+            if cbook._str_equal(edgecolor, 'auto'):
+                edgecolor = origedgecolor
 
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
-
             if bbox_inches:
                 if bbox_inches == "tight":
                     renderer = _get_renderer(
                         self.figure,
                         functools.partial(
-                            print_method, dpi=dpi, orientation=orientation),
-                        draw_disabled=True)
-                    self.figure.draw(renderer)
+                            print_method, orientation=orientation)
+                    )
+                    ctx = (renderer._draw_disabled()
+                           if hasattr(renderer, '_draw_disabled')
+                           else suppress())
+                    with ctx:
+                        self.figure.draw(renderer)
+
                     bbox_inches = self.figure.get_tightbbox(
                         renderer, bbox_extra_artists=bbox_extra_artists)
                     if pad_inches is None:
@@ -2598,6 +2636,11 @@ class FigureManagerBase:
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
 
+    @cbook.deprecated("3.3")
+    @property
+    def statusbar(self):
+        return None
+
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
@@ -2662,11 +2705,11 @@ class _Mode(str, Enum):
 
 class NavigationToolbar2:
     """
-    Base class for the navigation cursor, version 2
+    Base class for the navigation cursor, version 2.
 
-    backends must implement a canvas that handles connections for
+    Backends must implement a canvas that handles connections for
     'button_press_event' and 'button_release_event'.  See
-    :meth:`FigureCanvasBase.mpl_connect` for more information
+    :meth:`FigureCanvasBase.mpl_connect` for more information.
 
     They must also define
 
@@ -2676,19 +2719,8 @@ class NavigationToolbar2:
       :meth:`set_cursor`
          if you want the pointer icon to change
 
-      :meth:`_init_toolbar`
-         create your toolbar widget
-
       :meth:`draw_rubberband` (optional)
          draw the zoom to rect "rubberband" rectangle
-
-      :meth:`press`  (optional)
-         whenever a mouse button is pressed, you'll be notified with
-         the event
-
-      :meth:`release` (optional)
-         whenever a mouse button is released, you'll be notified with
-         the event
 
       :meth:`set_message` (optional)
          display message
@@ -2696,6 +2728,12 @@ class NavigationToolbar2:
       :meth:`set_history_buttons` (optional)
          you can change the history back / forward buttons to
          indicate disabled / enabled state.
+
+    and override ``__init__`` to set up the toolbar -- without forgetting to
+    call the base-class init.  Typically, ``__init__`` needs to set up toolbar
+    buttons connected to the `home`, `back`, `forward`, `pan`, `zoom`, and
+    `save_figure` methods and using standard icons in the "images" subdirectory
+    of the data path.
 
     That's it, we'll do the rest!
     """
@@ -2726,7 +2764,15 @@ class NavigationToolbar2:
         self._xypress = None  # location and axis info at the time of the press
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
-        self._init_toolbar()
+
+        init = cbook._deprecate_method_override(
+            __class__._init_toolbar, self, allow_empty=True, since="3.3",
+            addendum="Please fully initialize the toolbar in your subclass' "
+            "__init__; a fully empty _init_toolbar implementation may be kept "
+            "for compatibility with earlier versions of Matplotlib.")
+        if init:
+            init()
+
         self._id_press = self.canvas.mpl_connect(
             'button_press_event', self._zoom_pan_handler)
         self._id_release = self.canvas.mpl_connect(
@@ -2789,6 +2835,7 @@ class NavigationToolbar2:
         self.set_history_buttons()
         self._update_view()
 
+    @cbook.deprecated("3.3", alternative="__init__")
     def _init_toolbar(self):
         """
         This is where you actually build the GUI widgets (called by
@@ -2861,22 +2908,18 @@ class NavigationToolbar2:
             except (ValueError, OverflowError):
                 pass
             else:
+                s = s.rstrip()
                 artists = [a for a in event.inaxes._mouseover_set
                            if a.contains(event)[0] and a.get_visible()]
-
                 if artists:
                     a = cbook._topmost_artist(artists)
                     if a is not event.inaxes.patch:
                         data = a.get_cursor_data(event)
                         if data is not None:
-                            data_str = a.format_cursor_data(data)
-                            if data_str is not None:
-                                s = s + ' ' + data_str
-
-                if len(self.mode):
-                    self.set_message('%s, %s' % (self.mode, s))
-                else:
-                    self.set_message(s)
+                            data_str = a.format_cursor_data(data).rstrip()
+                            if data_str:
+                                s = s + '\n' + data_str
+                self.set_message(s)
         else:
             self.set_message(self.mode)
 
@@ -2908,6 +2951,7 @@ class NavigationToolbar2:
             a.set_navigate_mode(self.mode)
         self.set_message(self.mode)
 
+    @cbook.deprecated("3.3")
     def press(self, event):
         """Called whenever a mouse button is pressed."""
 
@@ -2931,7 +2975,12 @@ class NavigationToolbar2:
                 self.canvas.mpl_disconnect(self._id_drag)
                 self._id_drag = self.canvas.mpl_connect(
                     'motion_notify_event', self.drag_pan)
-        self.press(event)
+        press = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden press() at pan start is deprecated since %(since)s "
+            "and will be removed %(removal)s; override press_pan() instead.")
+        if press is not None:
+            press(event)
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
@@ -2953,7 +3002,12 @@ class NavigationToolbar2:
             "axes": axes,
             "cid": id_zoom,
         }
-        self.press(event)
+        press = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden press() at zoom start is deprecated since %(since)s "
+            "and will be removed %(removal)s; override press_zoom() instead.")
+        if press is not None:
+            press(event)
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
@@ -2966,6 +3020,7 @@ class NavigationToolbar2:
                  for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
 
+    @cbook.deprecated("3.3")
     def release(self, event):
         """Callback for mouse button release."""
 
@@ -2984,7 +3039,12 @@ class NavigationToolbar2:
         self._xypress = []
         self._button_pressed = None
         self.push_current()
-        self.release(event)
+        release = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden release() at pan stop is deprecated since %(since)s "
+            "and will be removed %(removal)s; override release_pan() instead.")
+        if release is not None:
+            release(event)
         self._draw()
 
     def drag_pan(self, event):
@@ -3027,7 +3087,13 @@ class NavigationToolbar2:
             if ((abs(x - start_x) < 5 and event.key != "y") or
                     (abs(y - start_y) < 5 and event.key != "x")):
                 self._xypress = None
-                self.release(event)
+                release = cbook._deprecate_method_override(
+                    __class__.press, self, since="3.3", message="Calling an "
+                    "overridden release() at zoom stop is deprecated since "
+                    "%(since)s and will be removed %(removal)s; override "
+                    "release_zoom() instead.")
+                if release is not None:
+                    release(event)
                 self._draw()
                 return
 
@@ -3046,7 +3112,13 @@ class NavigationToolbar2:
         self._zoom_info = None
 
         self.push_current()
-        self.release(event)
+        release = cbook._deprecate_method_override(
+            __class__.release, self, since="3.3", message="Calling an "
+            "overridden release() at zoom stop is deprecated since %(since)s "
+            "and will be removed %(removal)s; override release_zoom() "
+            "instead.")
+        if release is not None:
+            release(event)
 
     @cbook.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
     def draw(self):
@@ -3143,8 +3215,12 @@ class ToolContainerBase:
 
     def __init__(self, toolmanager):
         self.toolmanager = toolmanager
-        self.toolmanager.toolmanager_connect('tool_removed_event',
-                                             self._remove_tool_cbk)
+        toolmanager.toolmanager_connect(
+            'tool_message_event',
+            lambda event: self.set_message(event.message))
+        toolmanager.toolmanager_connect(
+            'tool_removed_event',
+            lambda event: self.remove_toolitem(event.tool.name))
 
     def _tool_toggled_cbk(self, event):
         """
@@ -3178,10 +3254,6 @@ class ToolContainerBase:
             # If initially toggled
             if tool.toggled:
                 self.toggle_toolitem(tool.name, True)
-
-    def _remove_tool_cbk(self, event):
-        """Capture the 'tool_removed_event' signal and removes the tool."""
-        self.remove_toolitem(event.tool.name)
 
     def _get_image_filename(self, image):
         """Find the image based on its name."""
@@ -3267,7 +3339,19 @@ class ToolContainerBase:
         """
         raise NotImplementedError
 
+    def set_message(self, s):
+        """
+        Display a message on the toolbar.
 
+        Parameters
+        ----------
+        s : str
+            Message text.
+        """
+        raise NotImplementedError
+
+
+@cbook.deprecated("3.3")
 class StatusbarBase:
     """Base class for the statusbar."""
     def __init__(self, toolmanager):
@@ -3288,7 +3372,6 @@ class StatusbarBase:
         s : str
             Message text.
         """
-        pass
 
 
 class _Backend:

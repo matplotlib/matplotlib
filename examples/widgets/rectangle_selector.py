@@ -30,23 +30,23 @@ def line_select_callback(eclick, erelease):
 
 def toggle_selector(event):
     print(' Key pressed.')
-    if event.key in ['Q', 'q'] and toggle_selector.RS.active:
-        print(' RectangleSelector deactivated.')
-        toggle_selector.RS.set_active(False)
-    if event.key in ['A', 'a'] and not toggle_selector.RS.active:
-        print(' RectangleSelector activated.')
-        toggle_selector.RS.set_active(True)
+    if event.key == 't':
+        if toggle_selector.RS.active:
+            print(' RectangleSelector deactivated.')
+            toggle_selector.RS.set_active(False)
+        else:
+            print(' RectangleSelector activated.')
+            toggle_selector.RS.set_active(True)
 
 
 fig, ax = plt.subplots()
 N = 100000  # If N is large one can see improvement by using blitting.
-x = np.linspace(0.0, 10.0, N)
+x = np.linspace(0, 10, N)
 
-ax.plot(x, +np.sin(.2*np.pi*x), lw=3.5, c='b', alpha=.7)  # plot something
-ax.plot(x, +np.cos(.2*np.pi*x), lw=3.5, c='r', alpha=.5)
-ax.plot(x, -np.sin(.2*np.pi*x), lw=3.5, c='g', alpha=.3)
-
-print("\n      click  -->  release")
+ax.plot(x, np.sin(2*np.pi*x))  # plot something
+ax.set_title(
+    "Click and drag to draw a rectangle.\n"
+    "Press 't' to toggle the selector on and off.")
 
 # drawtype is 'box' or 'line' or 'none'
 toggle_selector.RS = RectangleSelector(ax, line_select_callback,

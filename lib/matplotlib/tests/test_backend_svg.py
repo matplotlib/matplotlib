@@ -1,9 +1,9 @@
-import numpy as np
 from io import BytesIO
 import re
 import tempfile
 import xml.parsers.expat
 
+import numpy as np
 import pytest
 
 import matplotlib as mpl
@@ -191,7 +191,8 @@ def test_gid():
             elif obj.axes is None:
                 return False
         if isinstance(obj, plt.Line2D):
-            if np.array(obj.get_data()).shape == (2, 1):
+            xdata, ydata = obj.get_data()
+            if len(xdata) == len(ydata) == 1:
                 return False
             elif not hasattr(obj, "axes") or obj.axes is None:
                 return False
@@ -213,3 +214,48 @@ def test_savefig_tight():
     # Check that the draw-disabled renderer correctly disables open/close_group
     # as well.
     plt.savefig(BytesIO(), format="svgz", bbox_inches="tight")
+
+
+def test_url():
+    # Test that object url appears in output svg.
+
+    fig, ax = plt.subplots()
+
+    # collections
+    s = ax.scatter([1, 2, 3], [4, 5, 6])
+    s.set_urls(['http://example.com/foo', 'http://example.com/bar', None])
+
+    # Line2D
+    p, = plt.plot([1, 3], [6, 5])
+    p.set_url('http://example.com/baz')
+
+    b = BytesIO()
+    fig.savefig(b, format='svg')
+    b = b.getvalue()
+    for v in [b'foo', b'bar', b'baz']:
+        assert b'http://example.com/' + v in b
+
+
+def test_url_tick():
+    fig1, ax = plt.subplots()
+    ax.scatter([1, 2, 3], [4, 5, 6])
+    for i, tick in enumerate(ax.yaxis.get_major_ticks()):
+        tick.set_url(f'http://example.com/{i}')
+
+    fig2, ax = plt.subplots()
+    ax.scatter([1, 2, 3], [4, 5, 6])
+    for i, tick in enumerate(ax.yaxis.get_major_ticks()):
+        tick.label1.set_url(f'http://example.com/{i}')
+        tick.label2.set_url(f'http://example.com/{i}')
+
+    b1 = BytesIO()
+    fig1.savefig(b1, format='svg')
+    b1 = b1.getvalue()
+
+    b2 = BytesIO()
+    fig2.savefig(b2, format='svg')
+    b2 = b2.getvalue()
+
+    for i in range(len(ax.yaxis.get_major_ticks())):
+        assert f'http://example.com/{i}'.encode('ascii') in b1
+    assert b1 == b2

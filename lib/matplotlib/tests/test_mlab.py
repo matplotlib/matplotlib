@@ -303,7 +303,7 @@ class TestWindow:
         assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
-    def test_apply_window_hanning_2D__els1_axis1(self):
+    def test_apply_window_hanning_2D_els1_axis1(self):
         x = np.random.standard_normal([10, 1000]) + 100.
         window = mlab.window_hanning(np.ones(x.shape[1]))
         window1 = mlab.window_hanning

@@ -239,11 +239,10 @@ for a in range(4):
     for b in range(4):
         # gridspec inside gridspec
         inner_grid = outer_grid[a, b].subgridspec(3, 3, wspace=0, hspace=0)
-        for c in range(3):
-            for d in range(3):
-                ax = fig11.add_subplot(inner_grid[c, d])
-                ax.plot(*squiggle_xy(a + 1, b + 1, c + 1, d + 1))
-                ax.set(xticks=[], yticks=[])
+        axs = inner_grid.subplots()  # Create all subplots for the inner grid.
+        for (c, d), ax in np.ndenumerate(axs):
+            ax.plot(*squiggle_xy(a + 1, b + 1, c + 1, d + 1))
+            ax.set(xticks=[], yticks=[])
 
 # show only the outside spines
 for ax in fig11.get_axes():

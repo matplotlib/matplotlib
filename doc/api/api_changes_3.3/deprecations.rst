@@ -137,9 +137,10 @@ This method is deprecated.  Use
 ``SymmetricalScale.InvertedSymmetricalTransform`` are deprecated.  Directly
 access the transform classes from the :mod:`.scale` module.
 
-``TexManager.cachedir``
-~~~~~~~~~~~~~~~~~~~~~~~
-Use `matplotlib.get_cachedir()` instead.
+``TexManager.cachedir``, ``TexManager.rgba_arrayd``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use `matplotlib.get_cachedir()` instead for the former; there is no replacement
+for the latter.
 
 Setting `.Line2D`\'s pickradius via `.Line2D.set_picker`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,7 +152,7 @@ and containment checks) via `.Line2D.set_picker` is deprecated.  Use
 
 ``Artist.set_contains``, ``Artist.get_contains``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Setting a custom method overridding `.Artist.contains` is deprecated.
+Setting a custom method overriding `.Artist.contains` is deprecated.
 There is no replacement, but you may still customize pick events using
 `.Artist.set_picker`.
 
@@ -183,6 +184,11 @@ variables is deprecated.  Additional fonts may be registered using
 ``matplotlib.compat``
 ~~~~~~~~~~~~~~~~~~~~~
 This module is deprecated.
+
+``matplotlib.backends.qt_editor.formsubplottool``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This module is deprecated.  Use ``matplotlib.backends.backend_qt5.SubplotToolQt``
+instead.
 
 AVConv animation writer deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,7 +238,8 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_axes_titlelocation``, ``validate_toolbar``,
 ``validate_ps_papersize``, ``validate_legend_loc``,
 ``validate_bool_maybe_none``, ``validate_hinting``,
-``validate_movie_writers``, ``validate_webagg_address``.
+``validate_movie_writers``, ``validate_webagg_address``,
+``validate_nseq_float``, ``validate_nseq_int``.
 To test whether an rcParam value would be acceptable, one can test e.g. ``rc =
 RcParams(); rc[k] = v`` raises an exception.
 
@@ -366,12 +373,49 @@ The ``Fil``, ``Fill``, ``Filll``, ``NegFil``, ``NegFill``, ``NegFilll``, and
 ``SsGlue`` classes in the :mod:`matplotlib.mathtext` module are deprecated.
 As an alternative, directly construct glue instances with ``Glue("fil")``, etc.
 
+NavigationToolbar2._init_toolbar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Overriding this method to initialize third-party toolbars is deprecated.
+Instead, the toolbar should be initialized in the ``__init__`` method of the
+subclass (which should call the base-class' ``__init__`` as appropriate).  To
+keep back-compatibility with earlier versions of Matplotlib (which *required*
+``_init_toolbar`` to be overridden), a fully empty implementation (``def
+_init_toolbar(self): pass``) may be kept and will not trigger the deprecation
+warning.
+
 NavigationToolbar2QT.parent and .basedir
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These attributes are deprecated.  In order to access the parent window, use
 ``toolbar.canvas.parent()``.  Once the deprecation period is elapsed, it will
 also be accessible as ``toolbar.parent()``.  The base directory to the icons
 is ``os.path.join(mpl.get_data_path(), "images")``.
+
+NavigationToolbar2QT.ctx
+~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute is deprecated.
+
+NavigationToolbar2Wx attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``prevZoomRect``, ``retinaFix``, ``savedRetinaImage``, ``wxoverlay``,
+``zoomAxes``, ``zoomStartX``, and ``zoomStartY`` attributes are deprecated.
+
+NavigationToolbar2.press and .release
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These methods were called when pressing or releasing a mouse button,
+but *only* when an interactive pan or zoom was occurring (contrary to
+what the docs stated).  They are deprecated; if you write a backend
+which needs to customize such events, please directly override
+``press_pan``/``press_zoom``/``release_pan``/``release_zoom`` instead.
+
+FigureCanvasGTK3._renderer_init
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Overriding this method to initialize renderers for GTK3 canvases is deprecated.
+Instead, the renderer should be initialized in the ``__init__`` method of the
+subclass (which should call the base-class' ``__init__`` as appropriate).  To
+keep back-compatibility with earlier versions of Matplotlib (which *required*
+``_renderer_init`` to be overridden), a fully empty implementation (``def
+_renderer_init(self): pass``) may be kept and will not trigger the deprecation
+warning.
 
 Path helpers in :mod:`.bezier`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -388,6 +432,12 @@ instead.
 The unused ``animation.html_args`` rcParam and ``animation.HTMLWriter.args_key``
 attribute are deprecated.
 
+``text.latex.preview`` rcParam
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This rcParam, which controlled the use of the preview.sty LaTeX package to
+align TeX string baselines, is deprecated, as Matplotlib's own dvi parser now
+computes baselines just as well as preview.sty.
+
 ``SubplotSpec.get_rows_columns``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Use the ``GridSpec.nrows``, ``GridSpec.ncols``,
@@ -399,6 +449,11 @@ The qt4agg and qt4cairo backends are deprecated.
 
 *fontdict* and *minor* parameters of `.Axes.set_xticklabels` and `.Axes.set_yticklabels` will become keyword-only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All parameters of `.Figure.subplots` except *nrows* and *ncols* will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This avoids typing e.g. ``subplots(1, 1, 1)`` when meaning ``subplot(1, 1, 1)``,
+but actually getting ``subplots(1, 1, sharex=1)``.
 
 ``RendererWx.get_gc``
 ~~~~~~~~~~~~~~~~~~~~~
@@ -450,3 +505,109 @@ needed.
 The associated helper methods ``NavigationToolbar2.draw()`` and
 ``ToolViewsPositions.refresh_locators()`` are deprecated, and should be
 replaced by calls to ``draw_idle()`` on the corresponding canvas.
+
+`.ScalarMappable` checkers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``add_checker`` and ``check_update`` methods and ``update_dict`` attribute
+of `.ScalarMappable` are deprecated.
+
+`.pyplot.tight_layout` and ``ColorbarBase`` parameters will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All parameters of `.pyplot.tight_layout` and all parameters of ``ColorbarBase``
+except for the first (*ax*) will become keyword-only, consistently with
+`.Figure.tight_layout` and ``Colorbar``, respectively.
+
+`.Axes.pie` radius and startangle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing ``None`` as either the ``radius`` or ``startangle`` of an `.Axes.pie`
+is deprecated; use the explicit defaults of 1 and 0, respectively, instead.
+
+``AxisArtist.dpi_transform``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  Scale ``Figure.dpi_scale_trans`` by 1/72 to achieve the
+same effect.
+
+``offset_position`` property of `.Collection`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``offset_position`` property of `.Collection` is deprecated.  In the
+future, `.Collection`\s will always behave as if ``offset_position`` is set to
+"screen" (the default).
+
+Support for passing ``offset_position="data"`` to the ``draw_path_collection``
+of all renderer classes is deprecated.
+
+`.transforms.AffineDeltaTransform` can be used as a replacement.  This API is
+experimental and may change in the future.
+
+``testing.compare.make_external_conversion_command``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.
+
+`.epoch2num` and `.num2epoch` are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These are unused and can be easily reproduced by other date tools.
+`.get_epoch` will return Matplotlib's epoch.
+
+``axes_grid1.CbarAxes`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``cbid`` and ``locator`` attribute are deprecated.  Use
+``mappable.colorbar_cid`` and ``colorbar.locator``, as for standard colorbars.
+
+``qt_compat.is_pyqt5``
+~~~~~~~~~~~~~~~~~~~~~~
+This function is deprecated in prevision of the future release of PyQt6.  The
+Qt version can be checked using ``QtCore.qVersion()``.
+
+Reordering of parameters by `.Artist.set`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In a future version, ``Artist.set`` will apply artist properties in the order
+in which they are given.  This only affects the interaction between the
+*color*, *edgecolor*, *facecolor*, and, for `.Collection`\s, *alpha*
+properties: the *color* property now needs to be passed first in order not to
+override the other properties.  This is consistent with e.g. `.Artist.update`,
+which did not reorder the properties passed to it.
+
+Passing multiple keys as a single comma-separated string or multiple arguments to `.ToolManager.update_keymap`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is deprecated; pass keys as a list of strings instead.
+
+Statusbar classes and attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``statusbar`` attribute of `.FigureManagerBase`, `.StatusbarBase` and all
+its subclasses, and ``StatusBarWx``, are deprecated, as messages are now
+displayed in the toolbar instead.
+
+``ismath`` parameter of ``draw_tex``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``ismath`` parameter of the ``draw_tex`` method of all renderer classes is
+deprecated (as a call to ``draw_tex`` -- not to be confused with ``draw_text``!
+-- means that the entire string should be passed to the ``usetex`` machinery
+anyways).  Likewise, the text machinery will no longer pass the ``ismath``
+parameter when calling ``draw_tex`` (this should only matter for backend
+implementers).
+
+Passing ``ismath="TeX!"`` to `.RendererAgg.get_text_width_height_descent` is
+deprecated.  Pass ``ismath="TeX"`` instead, consistently with other low-level
+APIs which support the values True, False, and "TeX" for ``ismath``.
+
+``matplotlib.ttconv``
+~~~~~~~~~~~~~~~~~~~~~
+This module is deprecated.
+
+
+Stricter PDF metadata keys in PGF
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Saving metadata in PDF with the PGF backend currently normalizes all keys to
+lowercase, unlike the PDF backend, which only accepts the canonical case.  This
+is deprecated; in a future version, only the canonically cased keys listed in
+the PDF specification (and the `~.backend_pgf.PdfPages` documentation) will be
+accepted.
+
+
+Qt modifier keys
+~~~~~~~~~~~~~~~~
+The ``MODIFIER_KEYS``, ``SUPER``, ``ALT``, ``CTRL``, and ``SHIFT``
+global variables of the :mod:`matplotlib.backends.backend_qt4agg`,
+:mod:`matplotlib.backends.backend_qt4cairo`,
+:mod:`matplotlib.backends.backend_qt5agg` and
+:mod:`matplotlib.backends.backend_qt5cairo` modules are deprecated.

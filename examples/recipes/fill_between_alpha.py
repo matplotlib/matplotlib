@@ -16,9 +16,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.cbook as cbook
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 # load up some sample financial data
-with cbook.get_sample_data('goog.npz') as datafile:
-    r = np.load(datafile)['price_data'].view(np.recarray)
+r = (cbook.get_sample_data('goog.npz', np_load=True)['price_data']
+     .view(np.recarray))
 # create two subplots with the shared x and y axes
 fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
 

@@ -14,7 +14,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
-from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
+from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
@@ -57,31 +57,21 @@ SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Pause: 'pause',
                 QtCore.Qt.Key_SysReq: 'sysreq',
                 QtCore.Qt.Key_Clear: 'clear', }
-
-# define which modifier keys are collected on keyboard events.
-# elements are (Matplotlib modifier names, Modifier Flag, Qt Key) tuples
-SUPER = 0
-ALT = 1
-CTRL = 2
-SHIFT = 3
-MODIFIER_KEYS = [('super', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
-                 ('alt', QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
-                 ('ctrl', QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
-                 ('shift', QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
-                 ]
-
 if sys.platform == 'darwin':
     # in OSX, the control and super (aka cmd/apple) keys are switched, so
     # switch them back.
     SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'cmd',  # cmd/apple key
                          QtCore.Qt.Key_Meta: 'control',
                          })
-    MODIFIER_KEYS[0] = ('cmd', QtCore.Qt.ControlModifier,
-                        QtCore.Qt.Key_Control)
-    MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier,
-                        QtCore.Qt.Key_Meta)
-
-
+# Define which modifier keys are collected on keyboard events.
+# Elements are (Modifier Flag, Qt Key) tuples.
+# Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
+_MODIFIER_KEYS = [
+    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
+    (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
+    (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
+    (QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
+]
 cursord = {
     cursors.MOVE: QtCore.Qt.SizeAllCursor,
     cursors.HAND: QtCore.Qt.PointingHandCursor,
@@ -89,6 +79,12 @@ cursord = {
     cursors.SELECT_REGION: QtCore.Qt.CrossCursor,
     cursors.WAIT: QtCore.Qt.WaitCursor,
     }
+SUPER = 0  # Deprecated.
+ALT = 1  # Deprecated.
+CTRL = 2  # Deprecated.
+SHIFT = 3  # Deprecated.
+MODIFIER_KEYS = [  # Deprecated.
+    (SPECIAL_KEYS[key], mod, key) for mod, key in _MODIFIER_KEYS]
 
 
 # make place holder
@@ -105,7 +101,7 @@ def _create_qApp():
         app = QtWidgets.QApplication.instance()
         if app is None:
             # check for DISPLAY env variable on X11 build of Qt
-            if is_pyqt5():
+            if QtCore.qVersion() >= "5.":
                 try:
                     importlib.import_module(
                         # i.e. PyQt5.QtX11Extras or PySide2.QtX11Extras.
@@ -130,11 +126,10 @@ def _create_qApp():
         else:
             qApp = app
 
-    if is_pyqt5():
-        try:
-            qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-        except AttributeError:
-            pass
+    try:
+        qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+    except AttributeError:
+        pass
 
 
 def _allow_super_init(__init__):
@@ -180,12 +175,11 @@ class TimerQT(TimerBase):
     """Subclass of `.TimerBase` using QTimer events."""
 
     def __init__(self, *args, **kwargs):
-        TimerBase.__init__(self, *args, **kwargs)
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._on_timer)
-        self._timer_set_interval()
+        TimerBase.__init__(self, *args, **kwargs)
 
     def __del__(self):
         # The check for deletedness is needed to avoid an error at animation
@@ -333,7 +327,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.button_release_event(self, x, y, button,
                                                   guiEvent=event)
 
-    if is_pyqt5():
+    if QtCore.qVersion() >= "5.":
         def wheelEvent(self, event):
             x, y = self.mouseEventCoords(event)
             # from QWheelEvent::delta doc
@@ -393,22 +387,24 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         event_mods = int(event.modifiers())  # actually a bitmask
 
         # get names of the pressed modifier keys
+        # 'control' is named 'control' when a standalone key, but 'ctrl' when a
+        # modifier
         # bit twiddling to pick out modifier keys from event_mods bitmask,
         # if event_key is a MODIFIER, it should not be duplicated in mods
-        mods = [name for name, mod_key, qt_key in MODIFIER_KEYS
-                if event_key != qt_key and (event_mods & mod_key) == mod_key]
+        mods = [SPECIAL_KEYS[key].replace('control', 'ctrl')
+                for mod, key in _MODIFIER_KEYS
+                if event_key != key and event_mods & mod]
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
             # key, rather than unicode
             key = SPECIAL_KEYS[event_key]
         except KeyError:
-            # unicode defines code points up to 0x0010ffff
+            # unicode defines code points up to 0x10ffff (sys.maxunicode)
             # QT will use Key_Codes larger than that for keyboard keys that are
             # are not unicode characters (like multimedia keys)
             # skip these
             # if you really want them, you should add them to SPECIAL_KEYS
-            MAX_UNICODE = 0x10ffff
-            if event_key > MAX_UNICODE:
+            if event_key > sys.maxunicode:
                 return None
 
             key = chr(event_key)
@@ -419,7 +415,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             else:
                 key = key.lower()
 
-        mods.reverse()
         return '+'.join(mods + [key])
 
     def flush_events(self):
@@ -462,6 +457,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             self._draw_pending = True
             QtCore.QTimer.singleShot(0, self._draw_idle)
 
+    def blit(self, bbox=None):
+        # docstring inherited
+        if bbox is None and self.figure:
+            bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
+        # repaint uses logical pixels, not physical pixels like the renderer.
+        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
+        t = b + h
+        self.repaint(l, self.rect().height() - t, w, h)
+
     def _draw_idle(self):
         with self._idle_draw_cntx():
             if not self._draw_pending:
@@ -479,11 +483,23 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
         # to be called at the end of paintEvent.
         if rect is not None:
+            x0, y0, w, h = [int(pt / self._dpi_ratio) for pt in rect]
+            x1 = x0 + w
+            y1 = y0 + h
             def _draw_rect_callback(painter):
-                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
-                                 QtCore.Qt.DotLine)
-                painter.setPen(pen)
-                painter.drawRect(*(pt / self._dpi_ratio for pt in rect))
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio)
+                pen.setDashPattern([3, 3])
+                for color, offset in [
+                        (QtCore.Qt.black, 0), (QtCore.Qt.white, 3)]:
+                    pen.setDashOffset(offset)
+                    pen.setColor(color)
+                    painter.setPen(pen)
+                    # Draw the lines from x0, y0 towards x1, y1 so that the
+                    # dashes don't "jump" when moving the zoom box.
+                    painter.drawLine(x0, y0, x0, y1)
+                    painter.drawLine(x0, y0, x1, y0)
+                    painter.drawLine(x0, y1, x1, y1)
+                    painter.drawLine(x1, y0, x1, y1)
         else:
             def _draw_rect_callback(painter):
                 return
@@ -533,21 +549,14 @@ class FigureManagerQT(FigureManagerBase):
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
-        self.statusbar = None
 
         if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarQt(self.window, self.toolmanager)
 
-        if self.toolbar is not None:
+        if self.toolbar:
             self.window.addToolBar(self.toolbar)
-            if not self.toolmanager:
-                # add text label to status bar
-                statusbar_label = QtWidgets.QLabel()
-                self.window.statusBar().addWidget(statusbar_label)
-                self.toolbar.message.connect(statusbar_label.setText)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0
@@ -555,8 +564,8 @@ class FigureManagerQT(FigureManagerBase):
         # resize the main window so it will display the canvas with the
         # requested size:
         cs = canvas.sizeHint()
-        sbs = self.window.statusBar().sizeHint()
-        height = cs.height() + tbs_height + sbs.height()
+        cs_height = cs.height()
+        height = cs_height + tbs_height
         self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
@@ -589,7 +598,7 @@ class FigureManagerQT(FigureManagerBase):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if matplotlib.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2QT(canvas, parent, False)
+            toolbar = NavigationToolbar2QT(canvas, parent, True)
         elif matplotlib.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarQt(self.toolmanager, self.window)
         else:
@@ -640,46 +649,18 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
-        self._parent = parent
+        QtWidgets.QToolBar.__init__(self, parent)
+        self.setAllowedAreas(
+            QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea)
+
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
-        QtWidgets.QToolBar.__init__(self, parent)
-        NavigationToolbar2.__init__(self, canvas)
-
-    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
-    @property
-    def parent(self):
-        return self._parent
-
-    @cbook.deprecated(
-        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
-    @property
-    def basedir(self):
-        return str(cbook._get_data_path('images'))
-
-    def _icon(self, name, color=None):
-        if is_pyqt5():
-            name = name.replace('.png', '_large.png')
-        pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
-        qt_compat._setDevicePixelRatio(pm, self.canvas._dpi_ratio)
-        if color is not None:
-            mask = pm.createMaskFromColor(QtGui.QColor('black'),
-                                          QtCore.Qt.MaskOutColor)
-            pm.fill(color)
-            pm.setMask(mask)
-        return QtGui.QIcon(pm)
-
-    def _init_toolbar(self):
-        background_color = self.palette().color(self.backgroundRole())
-        foreground_color = self.palette().color(self.foregroundRole())
-        icon_color = (foreground_color
-                      if background_color.value() < 128 else None)
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.addSeparator()
             else:
-                a = self.addAction(self._icon(image_file + '.png', icon_color),
+                a = self.addAction(self._icon(image_file + '.png'),
                                    text, getattr(self, callback))
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
@@ -693,12 +674,47 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if self.coordinates:
             self.locLabel = QtWidgets.QLabel("", self)
             self.locLabel.setAlignment(
-                    QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
+                QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             self.locLabel.setSizePolicy(
                 QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                       QtWidgets.QSizePolicy.Ignored))
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
+
+        NavigationToolbar2.__init__(self, canvas)
+
+    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
+    @property
+    def parent(self):
+        return self.canvas.parent()
+
+    @cbook.deprecated("3.3", alternative="self.canvas.setParent()")
+    @parent.setter
+    def parent(self, value):
+        pass
+
+    @cbook.deprecated(
+        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
+    @property
+    def basedir(self):
+        return str(cbook._get_data_path('images'))
+
+    def _icon(self, name):
+        """
+        Construct a `.QIcon` from an image file *name*, including the extension
+        and relative to Matplotlib's "images" data directory.
+        """
+        if QtCore.qVersion() >= '5.':
+            name = name.replace('.png', '_large.png')
+        pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
+        qt_compat._setDevicePixelRatio(pm, qt_compat._devicePixelRatio(self))
+        if self.palette().color(self.backgroundRole()).value() < 128:
+            icon_color = self.palette().color(self.foregroundRole())
+            mask = pm.createMaskFromColor(QtGui.QColor('black'),
+                                          QtCore.Qt.MaskOutColor)
+            pm.fill(icon_color)
+            pm.setMask(mask)
+        return QtGui.QIcon(pm)
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
@@ -881,20 +897,23 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
     def __init__(self, toolmanager, parent):
         ToolContainerBase.__init__(self, toolmanager)
         QtWidgets.QToolBar.__init__(self, parent)
+        self.setAllowedAreas(
+            QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea)
+        message_label = QtWidgets.QLabel("")
+        message_label.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        message_label.setSizePolicy(
+            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                  QtWidgets.QSizePolicy.Ignored))
+        self._message_action = self.addWidget(message_label)
         self._toolitems = {}
         self._groups = {}
-
-    @property
-    def _icon_extension(self):
-        if is_pyqt5():
-            return '_large.png'
-        return '.png'
 
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):
 
         button = QtWidgets.QToolButton(self)
-        button.setIcon(self._icon(image_file))
+        button.setIcon(NavigationToolbar2QT._icon(self, image_file))
         button.setText(name)
         if description:
             button.setToolTip(description)
@@ -914,17 +933,12 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
     def _add_to_group(self, group, name, button, position):
         gr = self._groups.get(group, [])
         if not gr:
-            sep = self.addSeparator()
+            sep = self.insertSeparator(self._message_action)
             gr.append(sep)
         before = gr[position]
         widget = self.insertWidget(before, button)
         gr.insert(position, widget)
         self._groups[group] = gr
-
-    def _icon(self, name):
-        pm = QtGui.QPixmap(name)
-        qt_compat._setDevicePixelRatio(pm, self.toolmanager.canvas._dpi_ratio)
-        return QtGui.QIcon(pm)
 
     def toggle_toolitem(self, name, toggled):
         if name not in self._toolitems:
@@ -939,7 +953,11 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
             button.setParent(None)
         del self._toolitems[name]
 
+    def set_message(self, s):
+        self.widgetForAction(self._message_action).setText(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)

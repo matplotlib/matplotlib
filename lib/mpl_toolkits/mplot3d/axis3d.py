@@ -4,6 +4,7 @@
 
 import numpy as np
 
+import matplotlib.transforms as mtransforms
 from matplotlib import (
     artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
 from . import art3d, proj3d
@@ -398,12 +399,53 @@ class Axis(maxis.XAxis):
         renderer.close_group('axis3d')
         self.stale = False
 
-    # TODO: Get this to work properly when mplot3d supports
-    #       the transforms framework.
-    def get_tightbbox(self, renderer):
-        # Currently returns None so that Axis.get_tightbbox
-        # doesn't return junk info.
-        return None
+    # TODO: Get this to work (more) properly when mplot3d supports the
+    #       transforms framework.
+    def get_tightbbox(self, renderer, *, for_layout_only=False):
+        # inherited docstring
+        if not self.get_visible():
+            return
+        # We have to directly access the internal data structures
+        # (and hope they are up to date) because at draw time we
+        # shift the ticks and their labels around in (x, y) space
+        # based on the projection, the current view port, and their
+        # position in 3D space.  If we extend the transforms framework
+        # into 3D we would not need to do this different book keeping
+        # than we do in the normal axis
+        major_locs = self.get_majorticklocs()
+        minor_locs = self.get_minorticklocs()
+
+        ticks = [*self.get_minor_ticks(len(minor_locs)),
+                 *self.get_major_ticks(len(major_locs))]
+        view_low, view_high = self.get_view_interval()
+        if view_low > view_high:
+            view_low, view_high = view_high, view_low
+        interval_t = self.get_transform().transform([view_low, view_high])
+
+        ticks_to_draw = []
+        for tick in ticks:
+            try:
+                loc_t = self.get_transform().transform(tick.get_loc())
+            except AssertionError:
+                # Transform.transform doesn't allow masked values but
+                # some scales might make them, so we need this try/except.
+                pass
+            else:
+                if mtransforms._interval_contains_close(interval_t, loc_t):
+                    ticks_to_draw.append(tick)
+
+        ticks = ticks_to_draw
+
+        bb_1, bb_2 = self._get_tick_bboxes(ticks, renderer)
+        other = []
+
+        if self.line.get_visible():
+            other.append(self.line.get_window_extent(renderer))
+        if (self.label.get_visible() and not for_layout_only and
+                self.label.get_text()):
+            other.append(self.label.get_window_extent(renderer))
+
+        return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
 
     @property
     def d_interval(self):

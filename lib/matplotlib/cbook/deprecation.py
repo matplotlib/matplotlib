@@ -180,7 +180,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                     obj.__doc__ = new_doc
                 except AttributeError:  # Can't set on some extension objects.
                     pass
-                obj.__init__ = wrapper
+                obj.__init__ = functools.wraps(obj.__init__)(wrapper)
                 return obj
 
         elif isinstance(obj, property):
@@ -249,6 +249,29 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         return finalize(wrapper, new_doc)
 
     return deprecate
+
+
+class _deprecate_privatize_attribute:
+    """
+    Helper to deprecate public access to an attribute.
+
+    This helper should only be used at class scope, as follows::
+
+        class Foo:
+            attr = _deprecate_privatize_attribute(*args, **kwargs)
+
+    where *all* parameters are forwarded to `deprecated`.  This form makes
+    ``attr`` a property which forwards access to ``self._attr`` (same name but
+    with a leading underscore), with a deprecation warning.  Note that the
+    attribute name is derived from *the name this helper is assigned to*.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.deprecator = deprecated(*args, **kwargs)
+
+    def __set_name__(self, owner, name):
+        setattr(owner, name, self.deprecator(
+            property(lambda self: getattr(self, f"_{name}")), name=name))
 
 
 def _rename_parameter(since, old, new, func=None):
@@ -427,6 +450,43 @@ def _make_keyword_only(since, name, func=None):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
+    """
+    Return ``obj.method`` with a deprecation if it was overridden, else None.
+
+    Parameters
+    ----------
+    method
+        An unbound method, i.e. an expression of the form
+        ``Class.method_name``.  Remember that within the body of a method, one
+        can always use ``__class__`` to refer to the class that is currently
+        being defined.
+    obj
+        An object of the class where *method* is defined.
+    allow_empty : bool, default: False
+        Whether to allow overrides by "empty" methods without emitting a
+        warning.
+    **kwargs
+        Additional parameters passed to `warn_deprecated` to generate the
+        deprecation warning; must at least include the "since" key.
+    """
+
+    def empty(): pass
+    def empty_with_docstring(): """doc"""
+
+    name = method.__name__
+    bound_method = getattr(obj, name)
+    if (bound_method != method.__get__(obj)
+            and (not allow_empty
+                 or (getattr(getattr(bound_method, "__code__", None),
+                             "co_code", None)
+                     not in [empty.__code__.co_code,
+                             empty_with_docstring.__code__.co_code]))):
+        warn_deprecated(**{"name": name, "obj_type": "method", **kwargs})
+        return bound_method
+    return None
 
 
 @contextlib.contextmanager

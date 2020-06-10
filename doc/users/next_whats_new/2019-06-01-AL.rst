@@ -1,0 +1,11 @@
+GridSpec.subplots()
+```````````````````
+
+The `.GridSpec` class gained a `~.GridSpecBase.subplots` method, so that one
+can write ::
+
+    fig.add_gridspec(2, 2, height_ratios=[3, 1]).subplots()
+
+as an alternative to ::
+
+    fig.subplots(2, 2, gridspec_kw={"height_ratios": [3, 1]})

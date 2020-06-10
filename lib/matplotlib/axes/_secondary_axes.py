@@ -311,7 +311,7 @@ class SecondaryAxis(_AxesBase):
         ylabel : str
             The label text.
 
-        labelpad : scalar, default: ``self.yaxis.labelpad``
+        labelpad : float, default: ``self.yaxis.labelpad``
             Spacing in points between the label and the y-axis.
 
         Other Parameters

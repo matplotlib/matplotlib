@@ -18,12 +18,20 @@ Windows and Linux distributions::
   python -m pip install -U pip
   python -m pip install -U matplotlib
 
+If this command results in Matplotlib being compiled from source and
+there's trouble with the compilation, you can add ``--prefer-binary`` to
+select the newest version of Matplotlib for which there is a
+precompiled wheel for your OS and Python.
+
 .. note::
 
-   The following backends work out of the box: Agg, ps, pdf, svg and TkAgg.
+   The following backends work out of the box: Agg, ps, pdf, svg
+
+   Python is typically shipped with tk bindings which are used by
+   TkAgg.
 
    For support of other GUI frameworks, LaTeX rendering, saving
-   animations and a larger selection of file formats, you may need to
+   animations and a larger selection of file formats, you need to
    install :ref:`additional dependencies <install_requirements>`.
 
 Although not required, we suggest also installing ``IPython`` for

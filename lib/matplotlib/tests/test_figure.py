@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 import platform
+from types import SimpleNamespace
 import warnings
 try:
     from contextlib import nullcontext
@@ -150,7 +151,11 @@ def test_gca():
         # empty call to add_axes() will throw deprecation warning
         assert fig.add_axes() is None
 
-    ax1 = fig.add_axes([0, 0, 1, 1])
+    ax0 = fig.add_axes([0, 0, 1, 1])
+    assert fig.gca(projection='rectilinear') is ax0
+    assert fig.gca() is ax0
+
+    ax1 = fig.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
@@ -185,9 +190,9 @@ def test_add_subplot_invalid():
     with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 5)
 
-    with pytest.raises(ValueError, match='must be a three-digit number'):
+    with pytest.raises(ValueError, match='must be a three-digit integer'):
         fig.add_subplot(42)
-    with pytest.raises(ValueError, match='must be a three-digit number'):
+    with pytest.raises(ValueError, match='must be a three-digit integer'):
         fig.add_subplot(1000)
 
     with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
@@ -387,6 +392,9 @@ def test_invalid_figure_add_axes():
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
 
+    with pytest.raises(TypeError, match="multiple values for argument 'rect'"):
+        fig.add_axes([0, 0, 1, 1], rect=[0, 0, 1, 1])
+
 
 def test_subplots_shareax_loglabels():
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, squeeze=False)
@@ -526,3 +534,57 @@ def test_removed_axis():
     fig, axs = plt.subplots(2, sharex=True)
     axs[0].remove()
     fig.canvas.draw()
+
+
+@pytest.mark.style('mpl20')
+def test_picking_does_not_stale():
+    fig, ax = plt.subplots()
+    col = ax.scatter([0], [0], [1000], picker=True)
+    fig.canvas.draw()
+    assert not fig.stale
+
+    mouse_event = SimpleNamespace(x=ax.bbox.x0 + ax.bbox.width / 2,
+                                  y=ax.bbox.y0 + ax.bbox.height / 2,
+                                  inaxes=ax, guiEvent=None)
+    fig.pick(mouse_event)
+    assert not fig.stale
+
+
+def test_add_subplot_twotuple():
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 2, (3, 5))
+    assert ax1.get_subplotspec().rowspan == range(1, 3)
+    assert ax1.get_subplotspec().colspan == range(0, 1)
+    ax2 = fig.add_subplot(3, 2, (4, 6))
+    assert ax2.get_subplotspec().rowspan == range(1, 3)
+    assert ax2.get_subplotspec().colspan == range(1, 2)
+    ax3 = fig.add_subplot(3, 2, (3, 6))
+    assert ax3.get_subplotspec().rowspan == range(1, 3)
+    assert ax3.get_subplotspec().colspan == range(0, 2)
+    ax4 = fig.add_subplot(3, 2, (4, 5))
+    assert ax4.get_subplotspec().rowspan == range(1, 3)
+    assert ax4.get_subplotspec().colspan == range(0, 2)
+    with pytest.raises(IndexError):
+        fig.add_subplot(3, 2, (6, 3))
+
+
+@image_comparison(['tightbbox_box_aspect.svg'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight',
+                                 'facecolor': 'teal'},
+                  remove_text=True)
+def test_tightbbox_box_aspect():
+    fig = plt.figure()
+    gs = fig.add_gridspec(1, 2)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1], projection='3d')
+    ax1.set_box_aspect(.5)
+    ax2.set_box_aspect((2, 1, 1))
+
+
+@check_figures_equal(extensions=["svg", "pdf", "eps", "png"])
+def test_animated_with_canvas_change(fig_test, fig_ref):
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot(range(5))
+
+    ax_test = fig_test.subplots()
+    ax_test.plot(range(5), animated=True)

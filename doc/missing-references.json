@@ -1,4 +1,10 @@
 {
+  "c:var": {
+    "PyOS_InputHook": [
+      "doc/users/interactive_guide.rst:401",
+      "doc/users/interactive_guide.rst:411"
+    ]
+  },
   "py:attr": {
     "ax": [
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.ColorbarBase:23"
@@ -201,7 +207,7 @@
     ],
     "matplotlib.axes._axes.Axes": [
       "doc/api/artist_api.rst:189",
-      "doc/api/axes_api.rst:686",
+      "doc/api/axes_api.rst:616",
       "lib/matplotlib/projections/polar.py:docstring of matplotlib.projections.polar.PolarAxes:1",
       "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:1",
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.Axes:1",
@@ -209,7 +215,7 @@
     ],
     "matplotlib.axes._base._AxesBase": [
       "doc/api/artist_api.rst:189",
-      "doc/api/axes_api.rst:686",
+      "doc/api/axes_api.rst:616",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:1"
     ],
     "matplotlib.backend_bases.FigureCanvas": [
@@ -453,25 +459,27 @@
     "FigureCanvasQTAgg.print_figure": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:199"
     ],
+    "IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook": [
+      "doc/users/interactive_guide.rst:428"
+    ],
     "_find_tails": [
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:9"
     ],
-    "_init_toolbar": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.NavigationToolbar2:17"
-    ],
     "_iter_collection": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.draw_path_collection:10",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_path_collection:10",
-      "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS.draw_path_collection:10",
-      "lib/matplotlib/backends/backend_svg.py:docstring of matplotlib.backends.backend_svg.RendererSVG.draw_path_collection:10",
-      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.PathEffectRenderer.draw_path_collection:10"
+      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_svg.py:docstring of matplotlib.backends.backend_svg.RendererSVG.draw_path_collection:12",
+      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.PathEffectRenderer.draw_path_collection:12"
     ],
     "_iter_collection_raw_paths": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.draw_path_collection:10",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_path_collection:10",
-      "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS.draw_path_collection:10",
-      "lib/matplotlib/backends/backend_svg.py:docstring of matplotlib.backends.backend_svg.RendererSVG.draw_path_collection:10",
-      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.PathEffectRenderer.draw_path_collection:10"
+      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS.draw_path_collection:12",
+      "lib/matplotlib/backends/backend_svg.py:docstring of matplotlib.backends.backend_svg.RendererSVG.draw_path_collection:12",
+      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.PathEffectRenderer.draw_path_collection:12"
     ],
     "_make_barbs": [
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:9"
@@ -522,6 +530,9 @@
     ]
   },
   "py:mod": {
+    "IPython.terminal.pt_inputhooks": [
+      "doc/users/interactive_guide.rst:428"
+    ],
     "dateutil": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:1"
     ],
@@ -563,8 +574,11 @@
     "./gallery/index.html": [
       "doc/devel/contributing.rst:562"
     ],
+    "Artist.stale_callback": [
+      "doc/users/interactive_guide.rst:326"
+    ],
     "Artist.sticky_edges": [
-      "doc/api/axes_api.rst:357:<autosummary>:1",
+      "doc/api/axes_api.rst:362:<autosummary>:1",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.use_sticky_edges:2"
     ],
     "ArtistInspector.aliasd": [
@@ -583,12 +597,12 @@
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:247"
     ],
     "Axes.dataLim": [
-      "doc/api/axes_api.rst:297:<autosummary>:1",
+      "doc/api/axes_api.rst:302:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.update_datalim:2",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.update_datalim:2"
     ],
     "Axes.datalim": [
-      "doc/api/axes_api.rst:297:<autosummary>:1",
+      "doc/api/axes_api.rst:302:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.update_datalim_bounds:2"
     ],
     "Axes.fmt_xdata": [
@@ -606,11 +620,11 @@
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:96"
     ],
     "AxesBase": [
-      "doc/api/axes_api.rst:449:<autosummary>:1",
+      "doc/api/axes_api.rst:454:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.add_child_axes:2"
     ],
     "Axis._update_ticks": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1066"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1067"
     ],
     "Axis.get_inverted": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:241",
@@ -641,6 +655,9 @@
       "doc/gallery/misc/ftface_props.rst:16",
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.ttfFontProperty:8"
     ],
+    "Figure.stale_callback": [
+      "doc/users/interactive_guide.rst:336"
+    ],
     "FigureCanvas": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolBase:25"
     ],
@@ -654,8 +671,8 @@
       "doc/devel/MEP/MEP23.rst:87"
     ],
     "Formatter.__call__": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1115",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1121"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1116",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1122"
     ],
     "GaussianKDE": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.violinplot:46",
@@ -701,7 +718,7 @@
       "doc/devel/MEP/MEP23.rst:93"
     ],
     "NavigationToolbar2QT.adj_window": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:961"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:962"
     ],
     "PolyCollection.get_offset": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hexbin:71",
@@ -810,13 +827,13 @@
       "doc/users/prev_whats_new/whats_new_3.0.rst:111"
     ],
     "axes3d.Axes3D.xaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:934"
     ],
     "axes3d.Axes3D.yaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:934"
     ],
     "axes3d.Axes3D.zaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:934"
     ],
     "axis.Axis.get_ticks_position": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:821"
@@ -834,16 +851,16 @@
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.add_tools_to_container:8"
     ],
     "backend_gtk3.FileChooserDialog": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:958"
-    ],
-    "backend_gtk3.NavigationToolbar2GTK3.get_filechooser": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:959"
     ],
-    "backend_gtk3.SaveFigureGTK3.get_filechooser": [
+    "backend_gtk3.NavigationToolbar2GTK3.get_filechooser": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:960"
     ],
+    "backend_gtk3.SaveFigureGTK3.get_filechooser": [
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:961"
+    ],
     "backend_wx.IDLE_DELAY": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:962"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:963"
     ],
     "barstacked": [
       "doc/users/prev_whats_new/whats_new_1.2.rst:177"
@@ -855,7 +872,7 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.find_r_to_boundary_of_closedpath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1018",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1019",
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.split_bezier_intersecting_with_closedpath": [
@@ -884,7 +901,7 @@
       "doc/devel/contributing.rst:542"
     ],
     "cbook.deprecated": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1073",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1074",
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
     ],
     "cbook.warn_deprecated": [
@@ -966,6 +983,9 @@
     ],
     "invert_yaxis": [
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_ylim3d:24"
+    ],
+    "ipykernel.pylab.backend_inline": [
+      "doc/users/interactive.rst:249"
     ],
     "kde.covariance_factor": [
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:41"
@@ -1361,16 +1381,13 @@
       "lib/matplotlib/tri/tricontour.py:docstring of matplotlib.axes.Axes.tricontourf:57"
     ],
     "matplotlib.dates.rrulewrapper": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates:103"
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates:121"
     ],
     "matplotlib.docstring.dedent_interpd": [
-      "doc/devel/documenting_mpl.rst:663"
+      "doc/devel/documenting_mpl.rst:679"
     ],
     "matplotlib.patches.Patch.__init__": [
-      "doc/devel/documenting_mpl.rst:696"
-    ],
-    "matplotlib.pyplot.get_scale_docs()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:853"
+      "doc/devel/documenting_mpl.rst:712"
     ],
     "matplotlib.sphinxext.mathmpl": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:225"
@@ -1389,7 +1406,7 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:771"
     ],
     "matplotlib.testing.conftest.mpl_test_settings": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:942"
     ],
     "move_canvas": [
       "doc/devel/MEP/MEP23.rst:65"
@@ -1417,9 +1434,13 @@
       "doc/faq/howto_faq.rst:21",
       "doc/gallery/recipes/common_date_problems.rst:36",
       "doc/gallery/text_labels_and_annotations/date.rst:20",
-      "doc/tutorials/text/text_intro.rst:582",
+      "doc/gallery/ticks_and_spines/date_precision_and_epochs.rst:16",
+      "doc/gallery/ticks_and_spines/date_precision_and_epochs.rst:190",
+      "doc/tutorials/text/text_intro.rst:581",
       "doc/users/prev_whats_new/whats_new_2.2.rst:155",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.date2num:8"
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates.date2num:8",
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates.get_epoch:9",
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates.set_epoch:19"
     ],
     "numpy.max": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hexbin:125",
@@ -1445,7 +1466,7 @@
       "doc/devel/MEP/MEP23.rst:63"
     ],
     "rrulewrapper": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates:103"
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates:121"
     ],
     "scipy.stats.norm.pdf": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:565",

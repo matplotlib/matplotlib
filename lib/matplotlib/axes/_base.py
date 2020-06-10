@@ -217,7 +217,9 @@ class _process_plot_var_args:
         if not args:
             return
 
-        if data is not None:  # Process the 'data' kwarg.
+        if data is None:  # Process dict views
+            args = [cbook.sanitize_sequence(a) for a in args]
+        else:  # Process the 'data' kwarg.
             replaced = [mpl._replacer(data, arg) for arg in args]
             if len(args) == 1:
                 label_namer_idx = 0
@@ -262,6 +264,7 @@ class _process_plot_var_args:
 
         # Repeatedly grab (x, y) or (x, y, format) from the front of args and
         # massage them into arguments to plot() or fill().
+
         while args:
             this, args = args[:2], args[2:]
             if args and isinstance(args[0], str):
@@ -621,13 +624,7 @@ class _AxesBase(martist.Artist):
         self._update_transScale()
 
     def set_figure(self, fig):
-        """
-        Set the `.Figure` for this `.Axes`.
-
-        Parameters
-        ----------
-        fig : `.Figure`
-        """
+        # docstring inherited
         martist.Artist.set_figure(self, fig)
 
         self.bbox = mtransforms.TransformedBbox(self._position,
@@ -1342,10 +1339,6 @@ class _AxesBase(martist.Artist):
         if cbook._str_equal(aspect, 'equal'):
             aspect = 1
         if not cbook._str_equal(aspect, 'auto'):
-            if self.name == '3d':
-                raise NotImplementedError(
-                    'It is not currently possible to manually set the aspect '
-                    'on 3D axes')
             aspect = float(aspect)  # raise ValueError if necessary
 
         if share:
@@ -1430,7 +1423,7 @@ class _AxesBase(martist.Artist):
     def get_box_aspect(self):
         """
         Get the axes box aspect.
-        Will be ``None`` if not explicitely specified.
+        Will be ``None`` if not explicitly specified.
 
         See Also
         --------
@@ -1642,8 +1635,7 @@ class _AxesBase(martist.Artist):
         xsize = max(abs(xmax - xmin), 1e-30)
         ysize = max(abs(ymax - ymin), 1e-30)
 
-        l, b, w, h = position.bounds
-        box_aspect = fig_aspect * (h / w)
+        box_aspect = fig_aspect * (position.height / position.width)
         data_ratio = box_aspect / aspect
 
         y_expander = data_ratio * xsize / ysize - 1
@@ -2301,6 +2293,7 @@ class _AxesBase(martist.Artist):
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
         self._xmargin = m
+        self._request_autoscale_view(scalex=True, scaley=False)
         self.stale = True
 
     def set_ymargin(self, m):
@@ -2323,6 +2316,7 @@ class _AxesBase(martist.Artist):
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
         self._ymargin = m
+        self._request_autoscale_view(scalex=False, scaley=True)
         self.stale = True
 
     def margins(self, *margins, x=None, y=None, tight=True):
@@ -2393,14 +2387,12 @@ class _AxesBase(martist.Artist):
                 cbook._warn_external(f'ignoring tight={tight!r} in get mode')
             return self._xmargin, self._ymargin
 
+        if tight is not None:
+            self._tight = tight
         if x is not None:
             self.set_xmargin(x)
         if y is not None:
             self.set_ymargin(y)
-
-        self._request_autoscale_view(
-            tight=tight, scalex=(x is not None), scaley=(y is not None)
-        )
 
     def set_rasterization_zorder(self, z):
         """
@@ -2533,7 +2525,7 @@ class _AxesBase(martist.Artist):
             # ignore non-finite data limits if good limits exist
             finite_dl = [d for d in dl if np.isfinite(d).all()]
             if len(finite_dl):
-                # if finite limits exist for atleast one axis (and the
+                # if finite limits exist for at least one axis (and the
                 # other is infinite), restore the finite limits
                 x_finite = [d for d in dl
                             if (np.isfinite(d.intervalx).all() and
@@ -2890,7 +2882,7 @@ class _AxesBase(martist.Artist):
         grid is determined by the zorder of each axis, not by the zorder of the
         `.Line2D` objects comprising the grid.  Therefore, to set grid zorder,
         use `.set_axisbelow` or, for more control, call the
-        `~matplotlib.axis.Axis.set_zorder` method of each axis.
+        `~.Artist.set_zorder` method of each axis.
         """
         if len(kwargs):
             b = True
@@ -3017,6 +3009,7 @@ class _AxesBase(martist.Artist):
             self.yaxis.get_major_locator().set_params(**kwargs)
         self._request_autoscale_view(tight=tight,
                                      scalex=update_x, scaley=update_y)
+        self.stale = True
 
     def tick_params(self, axis='both', **kwargs):
         """
@@ -3338,6 +3331,9 @@ class _AxesBase(martist.Artist):
         left, right = sorted([left, right], reverse=bool(reverse))
 
         self._viewLim.intervalx = (left, right)
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_x_axes.get_siblings(self):
+            ax._stale_viewlim_x = False
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
@@ -3516,7 +3512,7 @@ class _AxesBase(martist.Artist):
             Whether to turn on autoscaling of the y-axis. *True* turns on,
             *False* turns off, *None* leaves unchanged.
 
-        ymin, ymax : scalar, optional
+        ymin, ymax : float, optional
             They are equivalent to bottom and top respectively,
             and it is an error to pass both *ymin* and *bottom* or
             *ymax* and *top*.
@@ -3607,6 +3603,9 @@ class _AxesBase(martist.Artist):
         bottom, top = sorted([bottom, top], reverse=bool(reverse))
 
         self._viewLim.intervaly = (bottom, top)
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_y_axes.get_siblings(self):
+            ax._stale_viewlim_y = False
         if auto is not None:
             self._autoscaleYon = bool(auto)
 
@@ -4087,11 +4086,15 @@ class _AxesBase(martist.Artist):
             for _axis in self._get_axis_list():
                 artists.remove(_axis)
 
+        artists.remove(self.title)
+        artists.remove(self._left_title)
+        artists.remove(self._right_title)
+
         return [artist for artist in artists
                 if (artist.get_visible() and artist.get_in_layout())]
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
-                      bbox_extra_artists=None):
+                      bbox_extra_artists=None, *, for_layout_only=False):
         """
         Return the tight bounding box of the axes, including axis and their
         decorators (xlabel, title, etc).
@@ -4116,6 +4119,10 @@ class _AxesBase(martist.Artist):
             bounding box. ``call_axes_locator=False`` can be used if the
             caller is only interested in the relative size of the tightbbox
             compared to the axes bbox.
+
+        for_layout_only : default: False
+            The bounding box will *not* include the x-extent of the title and
+            the xlabel, or the y-extent of the ylabel.
 
         Returns
         -------
@@ -4142,22 +4149,38 @@ class _AxesBase(martist.Artist):
             self.apply_aspect()
 
         if self.axison:
-            bb_xaxis = self.xaxis.get_tightbbox(renderer)
-            if bb_xaxis:
-                bb.append(bb_xaxis)
-
-            bb_yaxis = self.yaxis.get_tightbbox(renderer)
-            if bb_yaxis:
-                bb.append(bb_yaxis)
-
+            if self.xaxis.get_visible():
+                try:
+                    bb_xaxis = self.xaxis.get_tightbbox(
+                        renderer, for_layout_only=for_layout_only)
+                except TypeError:
+                    # in case downstream library has redefined axis:
+                    bb_xaxis = self.xaxis.get_tightbbox(renderer)
+                if bb_xaxis:
+                    bb.append(bb_xaxis)
+            if self.yaxis.get_visible():
+                try:
+                    bb_yaxis = self.yaxis.get_tightbbox(
+                        renderer, for_layout_only=for_layout_only)
+                except TypeError:
+                    # in case downstream library has redefined axis:
+                    bb_yaxis = self.yaxis.get_tightbbox(renderer)
+                if bb_yaxis:
+                    bb.append(bb_yaxis)
         self._update_title_position(renderer)
-
         axbbox = self.get_window_extent(renderer)
         bb.append(axbbox)
 
         for title in [self.title, self._left_title, self._right_title]:
             if title.get_visible():
-                bb.append(title.get_window_extent(renderer))
+                bt = title.get_window_extent(renderer)
+                if for_layout_only and bt.width > 0:
+                    # make the title bbox 1 pixel wide so its width
+                    # is not accounted for in bbox calculations in
+                    # tight/constrained_layout
+                    bt.x0 = (bt.x0 + bt.x1) / 2 - 0.5
+                    bt.x1 = bt.x0 + 1.0
+                bb.append(bt)
 
         bbox_artists = bbox_extra_artists
         if bbox_artists is None:
@@ -4180,7 +4203,6 @@ class _AxesBase(martist.Artist):
                     and 0 < bbox.width < np.inf
                     and 0 < bbox.height < np.inf):
                 bb.append(bbox)
-
         return mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])
 

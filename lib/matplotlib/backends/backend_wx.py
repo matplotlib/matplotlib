@@ -13,6 +13,9 @@ import pathlib
 import sys
 import weakref
 
+import numpy as np
+import PIL
+
 import matplotlib as mpl
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -70,9 +73,9 @@ class TimerWx(TimerBase):
     """Subclass of `.TimerBase` using wx.Timer events."""
 
     def __init__(self, *args, **kwargs):
-        TimerBase.__init__(self, *args, **kwargs)
         self._timer = wx.Timer()
         self._timer.Notify = self._on_timer
+        TimerBase.__init__(self, *args, **kwargs)
 
     def _timer_start(self):
         self._timer.Start(self._interval, self._single)
@@ -81,7 +84,8 @@ class TimerWx(TimerBase):
         self._timer.Stop()
 
     def _timer_set_interval(self):
-        self._timer_start()
+        if self._timer.IsRunning():
+            self._timer_start()  # Restart with new interval.
 
     def _timer_set_single_shot(self):
         self._timer.Start()
@@ -518,14 +522,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """
 
         FigureCanvasBase.__init__(self, figure)
-        # Set preferred window size hint - helps the sizer (if one is
-        # connected)
-        l, b, w, h = figure.bbox.bounds
-        w = math.ceil(w)
-        h = math.ceil(h)
-
+        w, h = map(math.ceil, figure.bbox.size)
+        # Set preferred window size hint - helps the sizer, if one is connected
         wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
-
         # Create the drawing bitmap
         self.bitmap = wx.Bitmap(w, h)
         _log.debug("%s - __init__() - bitmap w:%d h:%d", type(self), w, h)
@@ -627,7 +626,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         The 'WXAgg' backend sets origin accordingly.
         """
         _log.debug("%s - gui_repaint()", type(self))
-        if self.IsShownOnScreen():
+        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
+        # RuntimeError if doing things after window is closed.
+        if self and self.IsShownOnScreen():
             if not drawDC:
                 # not called from OnPaint use a ClientDC
                 drawDC = wx.ClientDC(self)
@@ -698,13 +699,13 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 # no change in size
                 return
         self._width, self._height = size
-        # Create a new, correctly sized bitmap
-        self.bitmap = wx.Bitmap(self._width, self._height)
-
         self._isDrawn = False
 
         if self._width <= 1 or self._height <= 1:
             return  # Empty figure
+
+        # Create a new, correctly sized bitmap
+        self.bitmap = wx.Bitmap(self._width, self._height)
 
         dpival = self.figure.dpi
         winch = self._width / dpival
@@ -863,16 +864,11 @@ class FigureCanvasWx(_FigureCanvasWxBase):
     def _print_image(self, filename, filetype, *args, **kwargs):
         origBitmap = self.bitmap
 
-        l, b, width, height = self.figure.bbox.bounds
-        width = math.ceil(width)
-        height = math.ceil(height)
-
-        self.bitmap = wx.Bitmap(width, height)
-
+        self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
+                                math.ceil(self.figure.bbox.height))
         renderer = RendererWx(self.bitmap, self.figure.dpi)
 
         gc = renderer.new_gc()
-
         self.figure.draw(renderer)
 
         # image is the object that we call SaveFile on.
@@ -890,14 +886,11 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
         # Now that we have rendered into the bitmap, save it to the appropriate
         # file type and clean up.
-        if isinstance(filename, str):
-            if not image.SaveFile(filename, filetype):
-                raise RuntimeError(f'Could not save figure to {filename}')
-        elif cbook.is_writable_file_like(filename):
-            if not isinstance(image, wx.Image):
-                image = image.ConvertToImage()
-            if not image.SaveStream(filename, filetype):
-                raise RuntimeError(f'Could not save figure to {filename}')
+        if (cbook.is_writable_file_like(filename) and
+                not isinstance(image, wx.Image)):
+            image = image.ConvertToImage()
+        if not image.SaveFile(filename, filetype):
+            raise RuntimeError(f'Could not save figure to {filename}')
 
         # Restore everything to normal
         self.bitmap = origBitmap
@@ -909,7 +902,10 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         # otherwise.
         if self._isDrawn:
             self.draw()
-        self.Refresh()
+        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
+        # RuntimeError if doing things after window is closed.
+        if self:
+            self.Refresh()
 
 
 class FigureFrameWx(wx.Frame):
@@ -937,13 +933,10 @@ class FigureFrameWx(wx.Frame):
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
-        statusbar = (StatusbarWx(self, self.toolmanager)
-                     if self.toolmanager else StatusBarWx(self))
-        self.SetStatusBar(statusbar)
         self.toolbar = self._get_toolbar()
 
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
+        if self.figmgr.toolmanager:
+            backend_tools.add_tools_to_manager(self.figmgr.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
 
@@ -1113,23 +1106,9 @@ cursord = {
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
-        NavigationToolbar2.__init__(self, canvas)
-        self._idle = True
-        self.prevZoomRect = None
-        # for now, use alternate zoom-rectangle drawing on all
-        # Macs. N.B. In future versions of wx it may be possible to
-        # detect Retina displays with window.GetContentScaleFactor()
-        # and/or dc.GetContentScaleFactor()
-        self.retinaFix = 'wxMac' in wx.PlatformInfo
 
-    def get_canvas(self, frame, fig):
-        return type(self.canvas)(frame, -1, fig)
-
-    def _init_toolbar(self):
-        _log.debug("%s - _init_toolbar", type(self))
-
-        self._parent = self.canvas.GetParent()
-
+        if 'wxMac' in wx.PlatformInfo:
+            self.SetToolBitmapSize((24, 24))
         self.wx_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -1138,7 +1117,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.wx_ids[text] = (
                 self.AddTool(
                     -1,
-                    bitmap=_load_bitmap(f"{image_file}.png"),
+                    bitmap=self._icon(f"{image_file}.png"),
                     bmpDisabled=wx.NullBitmap,
                     label=text, shortHelp=text, longHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
@@ -1147,7 +1126,56 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
                       id=self.wx_ids[text])
 
+        self.AddStretchableSpace()
+        self._label_text = wx.StaticText(self)
+        self.AddControl(self._label_text)
+
         self.Realize()
+
+        NavigationToolbar2.__init__(self, canvas)
+        self._idle = True
+        self._prevZoomRect = None
+        # for now, use alternate zoom-rectangle drawing on all
+        # Macs. N.B. In future versions of wx it may be possible to
+        # detect Retina displays with window.GetContentScaleFactor()
+        # and/or dc.GetContentScaleFactor()
+        self._retinaFix = 'wxMac' in wx.PlatformInfo
+
+    prevZoomRect = cbook._deprecate_privatize_attribute("3.3")
+    retinaFix = cbook._deprecate_privatize_attribute("3.3")
+    savedRetinaImage = cbook._deprecate_privatize_attribute("3.3")
+    wxoverlay = cbook._deprecate_privatize_attribute("3.3")
+    zoomAxes = cbook._deprecate_privatize_attribute("3.3")
+    zoomStartX = cbook._deprecate_privatize_attribute("3.3")
+    zoomStartY = cbook._deprecate_privatize_attribute("3.3")
+
+    @staticmethod
+    def _icon(name):
+        """
+        Construct a `wx.Bitmap` suitable for use as icon from an image file
+        *name*, including the extension and relative to Matplotlib's "images"
+        data directory.
+        """
+        image = np.array(PIL.Image.open(cbook._get_data_path("images", name)))
+        try:
+            dark = wx.SystemSettings.GetAppearance().IsDark()
+        except AttributeError:  # wxpython < 4.1
+            # copied from wx's IsUsingDarkBackground / GetLuminance.
+            bg = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+            fg = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+            # See wx.Colour.GetLuminance.
+            bg_lum = (.299 * bg.red + .587 * bg.green + .114 * bg.blue) / 255
+            fg_lum = (.299 * fg.red + .587 * fg.green + .114 * fg.blue) / 255
+            dark = fg_lum - bg_lum > .2
+        if dark:
+            fg = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+            black_mask = (image[..., :3] == 0).all(axis=-1)
+            image[black_mask, :3] = (fg.Red(), fg.Green(), fg.Blue())
+        return wx.Bitmap.FromBufferRGBA(
+            image.shape[1], image.shape[0], image.tobytes())
+
+    def get_canvas(self, frame, fig):
+        return type(self.canvas)(frame, -1, fig)
 
     def zoom(self, *args):
         self.ToggleTool(self.wx_ids['Pan'], False)
@@ -1211,54 +1239,56 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
 
-    def press(self, event):
+    def press_zoom(self, event):
+        super().press_zoom(event)
         if self.mode.name == 'ZOOM':
-            if not self.retinaFix:
-                self.wxoverlay = wx.Overlay()
+            if not self._retinaFix:
+                self._wxoverlay = wx.Overlay()
             else:
                 if event.inaxes is not None:
-                    self.savedRetinaImage = self.canvas.copy_from_bbox(
+                    self._savedRetinaImage = self.canvas.copy_from_bbox(
                         event.inaxes.bbox)
-                    self.zoomStartX = event.xdata
-                    self.zoomStartY = event.ydata
-                    self.zoomAxes = event.inaxes
+                    self._zoomStartX = event.xdata
+                    self._zoomStartY = event.ydata
+                    self._zoomAxes = event.inaxes
 
-    def release(self, event):
+    def release_zoom(self, event):
+        super().release_zoom(event)
         if self.mode.name == 'ZOOM':
             # When the mouse is released we reset the overlay and it
             # restores the former content to the window.
-            if not self.retinaFix:
-                self.wxoverlay.Reset()
-                del self.wxoverlay
+            if not self._retinaFix:
+                self._wxoverlay.Reset()
+                del self._wxoverlay
             else:
-                del self.savedRetinaImage
-                if self.prevZoomRect:
-                    self.prevZoomRect.pop(0).remove()
-                    self.prevZoomRect = None
-                if self.zoomAxes:
-                    self.zoomAxes = None
+                del self._savedRetinaImage
+                if self._prevZoomRect:
+                    self._prevZoomRect.pop(0).remove()
+                    self._prevZoomRect = None
+                if self._zoomAxes:
+                    self._zoomAxes = None
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        if self.retinaFix:  # On Macs, use the following code
+        if self._retinaFix:  # On Macs, use the following code
             # wx.DCOverlay does not work properly on Retina displays.
             rubberBandColor = '#C0C0FF'
-            if self.prevZoomRect:
-                self.prevZoomRect.pop(0).remove()
-            self.canvas.restore_region(self.savedRetinaImage)
-            X0, X1 = self.zoomStartX, event.xdata
-            Y0, Y1 = self.zoomStartY, event.ydata
+            if self._prevZoomRect:
+                self._prevZoomRect.pop(0).remove()
+            self.canvas.restore_region(self._savedRetinaImage)
+            X0, X1 = self._zoomStartX, event.xdata
+            Y0, Y1 = self._zoomStartY, event.ydata
             lineX = (X0, X0, X1, X1, X0)
             lineY = (Y0, Y1, Y1, Y0, Y0)
-            self.prevZoomRect = self.zoomAxes.plot(
+            self._prevZoomRect = self._zoomAxes.plot(
                 lineX, lineY, '-', color=rubberBandColor)
-            self.zoomAxes.draw_artist(self.prevZoomRect[0])
-            self.canvas.blit(self.zoomAxes.bbox)
+            self._zoomAxes.draw_artist(self._prevZoomRect[0])
+            self.canvas.blit(self._zoomAxes.bbox)
             return
 
         # Use an Overlay to draw a rubberband-like bounding box.
 
         dc = wx.ClientDC(self.canvas)
-        odc = wx.DCOverlay(self.wxoverlay, dc)
+        odc = wx.DCOverlay(self._wxoverlay, dc)
         odc.Clear()
 
         # Mac's DC is already the same as a GCDC, and it causes
@@ -1303,9 +1333,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return self.GetTopLevelParent().GetStatusBar()
 
     def set_message(self, s):
-        status_bar = self.GetTopLevelParent().GetStatusBar()
-        if status_bar is not None:
-            status_bar.set_function(s)
+        self._label_text.SetLabel(s)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
@@ -1316,6 +1344,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.EnableTool(self.wx_ids['Forward'], can_forward)
 
 
+@cbook.deprecated("3.3")
 class StatusBarWx(wx.StatusBar):
     """
     A status bar is added to _FigureFrame to allow measurements and the
@@ -1336,15 +1365,45 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
     def __init__(self, toolmanager, parent, style=wx.TB_HORIZONTAL):
         ToolContainerBase.__init__(self, toolmanager)
         wx.ToolBar.__init__(self, parent, -1, style=style)
+        self._space = self.AddStretchableSpace()
+        self._label_text = wx.StaticText(self)
+        self.AddControl(self._label_text)
         self._toolitems = {}
-        self._groups = {}
+        self._groups = {}  # Mapping of groups to the separator after them.
+
+    def _get_tool_pos(self, tool):
+        """
+        Find the position (index) of a wx.ToolBarToolBase in a ToolBar.
+
+        ``ToolBar.GetToolPos`` is not useful because wx assigns the same Id to
+        all Separators and StretchableSpaces.
+        """
+        pos, = [pos for pos in range(self.ToolsCount)
+                if self.GetToolByPos(pos) == tool]
+        return pos
 
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
-        before, group = self._add_to_group(group, name, position)
-        idx = self.GetToolPos(before.Id)
+        # Find or create the separator that follows this group.
+        if group not in self._groups:
+            self._groups[group] = self.InsertSeparator(
+                self._get_tool_pos(self._space))
+        sep = self._groups[group]
+        # List all separators.
+        seps = [t for t in map(self.GetToolByPos, range(self.ToolsCount))
+                if t.IsSeparator() and not t.IsStretchableSpace()]
+        # Find where to insert the tool.
+        if position >= 0:
+            # Find the start of the group by looking for the separator
+            # preceding this one; then move forward from it.
+            start = (0 if sep == seps[0]
+                     else self._get_tool_pos(seps[seps.index(sep) - 1]) + 1)
+        else:
+            # Move backwards from this separator.
+            start = self._get_tool_pos(sep) + 1
+        idx = start + position
         if image_file:
-            bmp = _load_bitmap(image_file)
+            bmp = NavigationToolbar2Wx._icon(image_file)
             kind = wx.ITEM_NORMAL if not toggle else wx.ITEM_CHECK
             tool = self.InsertTool(idx, -1, name, bmp, wx.NullBitmap, kind,
                                    description or "")
@@ -1366,17 +1425,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             control.Bind(wx.EVT_LEFT_DOWN, handler)
 
         self._toolitems.setdefault(name, [])
-        group.insert(position, tool)
         self._toolitems[name].append((tool, handler))
-
-    def _add_to_group(self, group, name, position):
-        gr = self._groups.get(group, [])
-        if not gr:
-            sep = self.AddSeparator()
-            gr.append(sep)
-        before = gr[position]
-        self._groups[group] = gr
-        return before, gr
 
     def toggle_toolitem(self, name, toggled):
         if name not in self._toolitems:
@@ -1393,7 +1442,11 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             self.DeleteTool(tool.Id)
         del self._toolitems[name]
 
+    def set_message(self, s):
+        self._label_text.SetLabel(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarWx(StatusbarBase, wx.StatusBar):
     """For use with ToolManager."""
     def __init__(self, parent, *args, **kwargs):
@@ -1450,14 +1503,14 @@ if 'wxMac' not in wx.PlatformInfo:
     class RubberbandWx(backend_tools.RubberbandBase):
         def __init__(self, *args, **kwargs):
             backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-            self.wxoverlay = None
+            self._wxoverlay = None
 
         def draw_rubberband(self, x0, y0, x1, y1):
             # Use an Overlay to draw a rubberband-like bounding box.
-            if self.wxoverlay is None:
-                self.wxoverlay = wx.Overlay()
+            if self._wxoverlay is None:
+                self._wxoverlay = wx.Overlay()
             dc = wx.ClientDC(self.canvas)
-            odc = wx.DCOverlay(self.wxoverlay, dc)
+            odc = wx.DCOverlay(self._wxoverlay, dc)
             odc.Clear()
 
             dc = wx.GCDC(dc)
@@ -1488,10 +1541,10 @@ if 'wxMac' not in wx.PlatformInfo:
             dc.DrawRectangle(rect)
 
         def remove_rubberband(self):
-            if self.wxoverlay is None:
+            if self._wxoverlay is None:
                 return
-            self.wxoverlay.Reset()
-            self.wxoverlay = None
+            self._wxoverlay.Reset()
+            self._wxoverlay = None
 
 else:
     # on Mac OS retina displays DCOverlay does not work

@@ -874,6 +874,9 @@ class RendererSVG(RendererBase):
 
             attrib['transform'] = generate_transform(
                 [('matrix', flipped.frozen())])
+            attrib['style'] = (
+                'image-rendering:crisp-edges;'
+                'image-rendering:pixelated')
             self.writer.element(
                 'image',
                 width=short_float_fmt(w), height=short_float_fmt(h),
@@ -1111,6 +1114,7 @@ class RendererSVG(RendererBase):
 
             writer.end('g')
 
+    @cbook._delete_parameter("3.3", "ismath")
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # docstring inherited
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")

@@ -1,11 +1,8 @@
 import datetime
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py 3.6.
 
 import dateutil.tz
 import dateutil.rrule
+import functools
 import numpy as np
 import pytest
 
@@ -163,11 +160,20 @@ def test_too_many_date_ticks(caplog):
     assert len(caplog.records) > 0
 
 
+def _new_epoch_decorator(thefunc):
+    @functools.wraps(thefunc)
+    def wrapper():
+        mdates._reset_epoch_test_example()
+        mdates.set_epoch('2000-01-01')
+        thefunc()
+        mdates._reset_epoch_test_example()
+    return wrapper
+
+
 @image_comparison(['RRuleLocator_bounds.png'])
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
     units.register()
-
     # This will cause the RRuleLocator to go out of bounds when it tries
     # to add padding to the limits, so we make sure it caps at the correct
     # boundary values.
@@ -294,19 +300,7 @@ def test_drange():
     assert mdates.num2date(daterange[-1]) == (end - delta)
 
 
-def test_empty_date_with_year_formatter():
-    # exposes sf bug 2861426:
-    # https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720
-
-    # update: I am no longer believe this is a bug, as I commented on
-    # the tracker.  The question is now: what to do with this test
-
-    fig, ax = plt.subplots()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
-    with pytest.raises(ValueError):
-        fig.canvas.draw()
-
-
+@_new_epoch_decorator
 def test_auto_date_locator():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator(interval_multiples=False)
@@ -367,18 +361,18 @@ def test_auto_date_locator():
                  '1990-01-01 00:00:00+00:00',
                  '1990-01-01 00:00:00.000500+00:00',
                  '1990-01-01 00:00:00.001000+00:00',
-                 '1990-01-01 00:00:00.001500+00:00']
+                 '1990-01-01 00:00:00.001500+00:00',
+                 '1990-01-01 00:00:00.002000+00:00']
                 ],
                )
 
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        with (pytest.warns(UserWarning) if t_delta.microseconds
-              else nullcontext()):
-            assert list(map(str, mdates.num2date(locator()))) == expected
+        assert list(map(str, mdates.num2date(locator()))) == expected
 
 
+@_new_epoch_decorator
 def test_auto_date_locator_intmult():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator(interval_multiples=True)
@@ -443,7 +437,8 @@ def test_auto_date_locator_intmult():
                  '1997-01-01 00:00:00+00:00',
                  '1997-01-01 00:00:00.000500+00:00',
                  '1997-01-01 00:00:00.001000+00:00',
-                 '1997-01-01 00:00:00.001500+00:00']
+                 '1997-01-01 00:00:00.001500+00:00',
+                 '1997-01-01 00:00:00.002000+00:00']
                 ],
                )
 
@@ -451,9 +446,7 @@ def test_auto_date_locator_intmult():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        with (pytest.warns(UserWarning) if t_delta.microseconds
-              else nullcontext()):
-            assert list(map(str, mdates.num2date(locator()))) == expected
+        assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 def test_concise_formatter():
@@ -740,6 +733,7 @@ def test_date_inverted_limit():
 
 def _test_date2num_dst(date_range, tz_convert):
     # Timezones
+
     BRUSSELS = dateutil.tz.gettz('Europe/Brussels')
     UTC = mdates.UTC
 
@@ -752,8 +746,8 @@ def _test_date2num_dst(date_range, tz_convert):
 
     dt_utc = date_range(start=dtstart, freq=interval, periods=N)
     dt_bxl = tz_convert(dt_utc, BRUSSELS)
-
-    expected_ordinalf = [735322.0 + (i * interval_days) for i in range(N)]
+    t0 = 735322.0 + mdates.date2num(np.datetime64('0000-12-31'))
+    expected_ordinalf = [t0 + (i * interval_days) for i in range(N)]
     actual_ordinalf = list(mdates.date2num(dt_bxl))
 
     assert actual_ordinalf == expected_ordinalf
@@ -878,10 +872,11 @@ def test_yearlocator_pytz():
     locator.create_dummy_axis()
     locator.set_view_interval(mdates.date2num(x[0])-1.0,
                               mdates.date2num(x[-1])+1.0)
-
-    np.testing.assert_allclose([733408.208333, 733773.208333, 734138.208333,
-                                734503.208333, 734869.208333,
-                                735234.208333, 735599.208333], locator())
+    t = np.array([733408.208333, 733773.208333, 734138.208333,
+                  734503.208333, 734869.208333, 735234.208333, 735599.208333])
+    # convert to new epoch from old...
+    t = t + mdates.date2num(np.datetime64('0000-12-31'))
+    np.testing.assert_allclose(t, locator())
     expected = ['2009-01-01 00:00:00-05:00',
                 '2010-01-01 00:00:00-05:00', '2011-01-01 00:00:00-05:00',
                 '2012-01-01 00:00:00-05:00', '2013-01-01 00:00:00-05:00',
@@ -919,4 +914,36 @@ def test_num2timedelta(x, tdelta):
 def test_datetime64_in_list():
     dt = [np.datetime64('2000-01-01'), np.datetime64('2001-01-01')]
     dn = mdates.date2num(dt)
-    np.testing.assert_equal(dn, [730120.,  730486.])
+    # convert fixed values from old to new epoch
+    t = (np.array([730120.,  730486.]) +
+         mdates.date2num(np.datetime64('0000-12-31')))
+    np.testing.assert_equal(dn, t)
+
+
+def test_change_epoch():
+    date = np.datetime64('2000-01-01')
+
+    with pytest.raises(RuntimeError):
+        # this should fail here because there is a sentinel on the epoch
+        # if the epoch has been used then it cannot be set.
+        mdates.set_epoch('0000-01-01')
+
+    # use private method to clear the epoch and allow it to be set...
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01')
+    dt = (date - np.datetime64('1970-01-01')).astype('datetime64[D]')
+    dt = dt.astype('int')
+    np.testing.assert_equal(mdates.date2num(date), float(dt))
+
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('0000-12-31')
+    np.testing.assert_equal(mdates.date2num(date), 730120.0)
+
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01T01:00:00')
+    np.testing.assert_allclose(mdates.date2num(date), dt - 1./24.)
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01T00:00:00')
+    np.testing.assert_allclose(
+        mdates.date2num(np.datetime64('1970-01-01T12:00:00')),
+        0.5)

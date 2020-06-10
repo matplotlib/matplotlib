@@ -1,8 +1,8 @@
 r"""
-`~matplotlib.mathtext` is a module for parsing a subset of the
-TeX math syntax and drawing them to a matplotlib backend.
+A module for parsing a subset of the TeX math syntax and rendering it to a
+Matplotlib backend.
 
-For a tutorial of its usage see :doc:`/tutorials/text/mathtext`.  This
+For a tutorial of its usage, see :doc:`/tutorials/text/mathtext`.  This
 document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.
@@ -231,8 +231,7 @@ class MathtextBackendPs(MathtextBackend):
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
         postscript_name = info.postscript_name
-        fontsize        = info.fontsize
-        symbol_name     = info.symbol_name
+        fontsize = info.fontsize
 
         if (postscript_name, fontsize) != self.lastfont:
             self.lastfont = postscript_name, fontsize
@@ -243,7 +242,7 @@ class MathtextBackendPs(MathtextBackend):
 
         self.pswriter.write(
             f"{ox:f} {oy:f} moveto\n"
-            f"/{symbol_name} glyphshow\n")
+            f"/{info.symbol_name} glyphshow\n")
 
     def render_rect_filled(self, x1, y1, x2, y2):
         ps = "%f %f %f %f rectfill\n" % (
@@ -3480,10 +3479,10 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
         Where to write the image data.
     prop : `.FontProperties`, optional
         The size and style of the text.
-    dpi : scalar, optional
+    dpi : float, optional
         The output dpi.  If not set, the dpi is determined as for
         `.Figure.savefig`.
-    format : str
+    format : str, optional
         The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not set, the
         format is determined as for `.Figure.savefig`.
     """

@@ -30,6 +30,9 @@ class SubplotBase:
             If *nrows*, *ncols*, and *index* are all single digit numbers, then
             *args* can be passed as a single 3-digit number (e.g. 234 for
             (2, 3, 4)).
+
+        **kwargs
+            Keyword arguments are passed to the Axes (sub)class constructor.
         """
 
         self.figure = fig
@@ -78,15 +81,15 @@ class SubplotBase:
         self.set_position(self.figbox)
 
     def get_subplotspec(self):
-        """Return the SubplotSpec instance associated with the subplot."""
+        """Return the `.SubplotSpec` instance associated with the subplot."""
         return self._subplotspec
 
     def set_subplotspec(self, subplotspec):
-        """Set the SubplotSpec instance associated with the subplot."""
+        """Set the `.SubplotSpec`. instance associated with the subplot."""
         self._subplotspec = subplotspec
 
     def get_gridspec(self):
-        """Return the GridSpec instance associated with the subplot."""
+        """Return the `.GridSpec` instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
 
     def update_params(self):
@@ -188,7 +191,8 @@ def subplot_class_factory(axes_class=None):
     if axes_class is None:
         cbook.warn_deprecated(
             "3.3", message="Support for passing None to subplot_class_factory "
-            "is deprecated; explicitly pass the default Axes class instead.")
+            "is deprecated since %(since)s; explicitly pass the default Axes "
+            "class instead. This will become an error %(removal)s.")
         axes_class = Axes
     try:
         # Avoid creating two different instances of GeoAxesSubplot...

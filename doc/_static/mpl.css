@@ -3,7 +3,7 @@
  * Originally created by Armin Ronacher for Werkzeug, adapted by Georg Brandl.
  */
 
-/* Carlogo font (simmilar to Calibri in the MPL logo) */
+/* Carlogo font (similar to Calibri in the MPL logo) */
 @font-face {
     font-family: 'CarlogoRegular';
     font-style: normal;
@@ -188,10 +188,6 @@ div.documentwrapper {
     width: 100%;
 }
 */
-
-div.clearer {
-    clear: both;
-}
 
 div.related h3 {
     display: none;

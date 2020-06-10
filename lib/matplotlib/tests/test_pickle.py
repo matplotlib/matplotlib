@@ -190,7 +190,7 @@ def test_shared():
     assert fig.axes[1].get_xlim() == (10, 20)
 
 
-@pytest.mark.parametrize("cmap", cm.cmap_d.values())
+@pytest.mark.parametrize("cmap", cm._cmap_registry.values())
 def test_cmap(cmap):
     pickle.dumps(cmap)
 

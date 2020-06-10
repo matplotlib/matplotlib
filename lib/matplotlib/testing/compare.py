@@ -1,6 +1,5 @@
 """
-Provides a collection of utilities for comparing (image) results.
-
+Utilities for comparing image results.
 """
 
 import atexit
@@ -11,12 +10,13 @@ import re
 import shutil
 import subprocess
 import sys
-from tempfile import TemporaryFile
+from tempfile import TemporaryDirectory, TemporaryFile
 
 import numpy as np
-import PIL
+from PIL import Image
 
 import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
 __all__ = ['compare_images', 'comparable_formats']
@@ -55,6 +55,7 @@ def get_file_hash(path, block_size=2 ** 20):
     return md5.hexdigest()
 
 
+@cbook.deprecated("3.3")
 def make_external_conversion_command(cmd):
     def convert(old, new):
         cmdline = cmd(old, new)
@@ -157,57 +158,71 @@ class _GSConverter(_Converter):
 
 class _SVGConverter(_Converter):
     def __call__(self, orig, dest):
+        old_inkscape = mpl._get_executable_info("inkscape").version < "1"
+        terminator = b"\n>" if old_inkscape else b"> "
+        if not hasattr(self, "_tmpdir"):
+            self._tmpdir = TemporaryDirectory()
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
-            env = os.environ.copy()
-            # If one passes e.g. a png file to Inkscape, it will try to
-            # query the user for conversion options via a GUI (even with
-            # `--without-gui`).  Unsetting `DISPLAY` prevents this (and causes
-            # GTK to crash and Inkscape to terminate, but that'll just be
-            # reported as a regular exception below).
-            env.pop("DISPLAY", None)  # May already be unset.
-            # Do not load any user options.
-            env["INKSCAPE_PROFILE_DIR"] = os.devnull
-            # Old versions of Inkscape (0.48.3.1, used on Travis as of now)
-            # seem to sometimes deadlock when stderr is redirected to a pipe,
-            # so we redirect it to a temporary file instead.  This is not
-            # necessary anymore as of Inkscape 0.92.1.
+            env = {
+                **os.environ,
+                # If one passes e.g. a png file to Inkscape, it will try to
+                # query the user for conversion options via a GUI (even with
+                # `--without-gui`).  Unsetting `DISPLAY` prevents this (and
+                # causes GTK to crash and Inkscape to terminate, but that'll
+                # just be reported as a regular exception below).
+                "DISPLAY": "",
+                # Do not load any user options.
+                "INKSCAPE_PROFILE_DIR": os.devnull,
+            }
+            # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
+            # deadlock when stderr is redirected to a pipe, so we redirect it
+            # to a temporary file instead.  This is not necessary anymore as of
+            # Inkscape 0.92.1.
             stderr = TemporaryFile()
             self._proc = subprocess.Popen(
-                ["inkscape", "--without-gui", "--shell"],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=stderr, env=env)
+                ["inkscape", "--without-gui", "--shell"] if old_inkscape else
+                ["inkscape", "--shell"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr,
+                env=env, cwd=self._tmpdir.name)
             # Slight abuse, but makes shutdown handling easier.
             self._proc.stderr = stderr
             try:
-                self._read_until(b"\n>")
+                self._read_until(terminator)
             except _ConverterError as err:
                 raise OSError("Failed to start Inkscape in interactive "
                               "mode") from err
 
-        # Inkscape uses glib's `g_shell_parse_argv`, which has a consistent
-        # behavior across platforms, so we can just use `shlex.quote`.
-        orig_b, dest_b = map(_shlex_quote_bytes,
-                             map(os.fsencode, [orig, dest]))
-        if b"\n" in orig_b or b"\n" in dest_b:
-            # Who knows whether the current folder name has a newline, or if
-            # our encoding is even ASCII compatible...  Just fall back on the
-            # slow solution (Inkscape uses `fgets` so it will always stop at a
-            # newline).
-            return make_external_conversion_command(lambda old, new: [
-                'inkscape', '-z', old, '--export-png', new])(orig, dest)
-        self._proc.stdin.write(orig_b + b" --export-png=" + dest_b + b"\n")
+        # Inkscape's shell mode does not support escaping metacharacters in the
+        # filename ("\n", and ":;" for inkscape>=1).  Avoid any problems by
+        # running from a temporary directory and using fixed filenames.
+        inkscape_orig = Path(self._tmpdir.name, os.fsdecode(b"f.svg"))
+        inkscape_dest = Path(self._tmpdir.name, os.fsdecode(b"f.png"))
+        try:
+            inkscape_orig.symlink_to(Path(orig).resolve())
+        except OSError:
+            shutil.copyfile(orig, inkscape_orig)
+        self._proc.stdin.write(
+            b"f.svg --export-png=f.png\n" if old_inkscape else
+            b"file-open:f.svg;export-filename:f.png;export-do;file-close\n")
         self._proc.stdin.flush()
         try:
-            self._read_until(b"\n>")
+            self._read_until(terminator)
         except _ConverterError as err:
             # Inkscape's output is not localized but gtk's is, so the output
             # stream probably has a mixed encoding.  Using the filesystem
             # encoding should at least get the filenames right...
-            self._stderr.seek(0)
+            self._proc.stderr.seek(0)
             raise ImageComparisonFailure(
-                self._stderr.read().decode(
+                self._proc.stderr.read().decode(
                     sys.getfilesystemencoding(), "replace")) from err
+        os.remove(inkscape_orig)
+        shutil.move(inkscape_dest, dest)
+
+    def __del__(self):
+        super().__del__()
+        if hasattr(self, "_tmpdir"):
+            self._tmpdir.cleanup()
 
 
 def _update_converter():
@@ -376,8 +391,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         expected = convert(expected, cache=True)
 
     # open the image files and remove the alpha channel (if it exists)
-    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
+    expected_image = np.asarray(Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(Image.open(actual).convert("RGB"))
 
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
@@ -427,8 +442,8 @@ def save_diff_image(expected, actual, output):
         File path to save difference image to.
     """
     # Drop alpha channels, similarly to compare_images.
-    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
+    expected_image = np.asarray(Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(Image.open(actual).convert("RGB"))
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
     expected_image = np.array(expected_image).astype(float)
@@ -454,4 +469,4 @@ def save_diff_image(expected, actual, output):
     # Hard-code the alpha channel to fully solid
     save_image_np[:, :, 3] = 255
 
-    PIL.Image.fromarray(save_image_np).save(output, format="png")
+    Image.fromarray(save_image_np).save(output, format="png")

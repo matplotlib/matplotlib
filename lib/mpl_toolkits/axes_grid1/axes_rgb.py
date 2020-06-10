@@ -115,25 +115,14 @@ class RGBAxes:
             kwargs["add_all"] = add_all  # only show deprecation in that case
         self.R, self.G, self.B = make_rgb_axes(
             ax, pad=pad, axes_class=axes_class, **kwargs)
-        self._config_axes()
-
-    def _config_axes(self, line_color='w', marker_edge_color='w'):
-        """
-        Set the line color and ticks for the axes.
-
-        Parameters
-        ----------
-        line_color : color
-        marker_edge_color : color
-        """
+        # Set the line color and ticks for the axes.
         for ax1 in [self.RGB, self.R, self.G, self.B]:
-            ax1.axis[:].line.set_color(line_color)
-            ax1.axis[:].major_ticks.set_markeredgecolor(marker_edge_color)
+            ax1.axis[:].line.set_color("w")
+            ax1.axis[:].major_ticks.set_markeredgecolor("w")
 
     @cbook.deprecated("3.3")
     def add_RGB_to_figure(self):
-        """Add the red, green and blue axes to the RGB composite's axes figure
-        """
+        """Add red, green and blue axes to the RGB composite's axes figure."""
         self.RGB.get_figure().add_axes(self.R)
         self.RGB.get_figure().add_axes(self.G)
         self.RGB.get_figure().add_axes(self.B)

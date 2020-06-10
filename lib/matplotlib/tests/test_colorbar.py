@@ -226,7 +226,7 @@ def test_remove_from_figure(use_gridspec):
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    ColorbarBase(ax, plt.cm.bone)
+    ColorbarBase(ax, cmap=plt.cm.bone)
 
 
 @image_comparison(['colorbar_closed_patch'], remove_text=True)
@@ -534,13 +534,11 @@ def test_colorbar_scale_reset():
 
 
 def test_colorbar_get_ticks_2():
-    with rc_context({'_internal.classic_mode': False}):
-
-        fig, ax = plt.subplots()
-        np.random.seed(19680801)
-        pc = ax.pcolormesh(np.random.rand(30, 30))
-        cb = fig.colorbar(pc)
-        np.testing.assert_allclose(cb.get_ticks(), [0.2, 0.4, 0.6, 0.8])
+    plt.rcParams['_internal.classic_mode'] = False
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh([[.05, .95]])
+    cb = fig.colorbar(pc)
+    np.testing.assert_allclose(cb.get_ticks(), [0.2, 0.4, 0.6, 0.8])
 
 
 def test_colorbar_inverted_ticks():

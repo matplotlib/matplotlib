@@ -276,15 +276,8 @@ class MovieWriter(AbstractMovieWriter):
     # stored.  Third-party writers cannot meaningfully set these as they cannot
     # extend rcParams with new keys.
 
-    @cbook.deprecated("3.3")
-    @property
-    def exec_key(self):
-        return self._exec_key
-
-    @cbook.deprecated("3.3")
-    @property
-    def args_key(self):
-        return self._args_key
+    exec_key = cbook._deprecate_privatize_attribute("3.3")
+    args_key = cbook._deprecate_privatize_attribute("3.3")
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
@@ -577,7 +570,9 @@ class FFMpegBase:
 
     @property
     def output_args(self):
-        args = ['-vcodec', self.codec]
+        args = []
+        if not Path(self.outfile).suffix == '.gif':
+            args.extend(['-vcodec', self.codec])
         extra_args = (self.extra_args if self.extra_args is not None
                       else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible

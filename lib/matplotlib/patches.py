@@ -553,14 +553,7 @@ class Patch(artist.Artist):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
-            try:
-                gc.set_hatch_color(self._hatch_color)
-            except AttributeError:
-                # if we end up with a GC that does not have this method
-                cbook.warn_deprecated(
-                    "3.1", message="Your backend does not support setting the "
-                    "hatch color; such backends will become unsupported in "
-                    "Matplotlib 3.3.")
+            gc.set_hatch_color(self._hatch_color)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -657,10 +650,7 @@ class Shadow(Patch):
         self._shadow_transform = transforms.Affine2D()
         self._update()
 
-    @cbook.deprecated("3.3")
-    @property
-    def props(self):
-        return self._props
+    props = cbook._deprecate_privatize_attribute("3.3")
 
     def _update(self):
         self.update_from(self.patch)
@@ -1197,15 +1187,15 @@ class Arrow(Patch):
 
         Parameters
         ----------
-        x : scalar
-            x coordinate of the arrow tail
-        y : scalar
-            y coordinate of the arrow tail
-        dx : scalar
-            Arrow length in the x direction
-        dy : scalar
-            Arrow length in the y direction
-        width : scalar, default: 1
+        x : float
+            x coordinate of the arrow tail.
+        y : float
+            y coordinate of the arrow tail.
+        dx : float
+            Arrow length in the x direction.
+        dy : float
+            Arrow length in the y direction.
+        width : float, default: 1
             Scale factor for the width of the arrow. With a default value of 1,
             the tail width is 0.2 and head width is 0.6.
         **kwargs
@@ -1764,18 +1754,10 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     pad = props.pop('pad', 4)
     pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
-    l, b, w, h = bbox.bounds
-    l -= pad / 2.
-    b -= pad / 2.
-    w += pad
-    h += pad
-    r = Rectangle(xy=(l, b),
-                  width=w,
-                  height=h,
-                  fill=fill,
-                  )
-    r.set_transform(transforms.IdentityTransform())
-    r.set_clip_on(False)
+    r = Rectangle(
+        xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
+        width=bbox.width + pad, height=bbox.height + pad,
+        fill=fill, transform=transforms.IdentityTransform(), clip_on=False)
     r.update(props)
     r.draw(renderer)
 
@@ -1786,17 +1768,10 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     box returned by an artist's `.Artist.get_window_extent`
     to test whether the artist is returning the correct bbox.
     """
-
-    l, b, w, h = bbox.bounds
-    r = Rectangle(xy=(l, b),
-                  width=w,
-                  height=h,
-                  edgecolor=color,
-                  fill=False,
-                  )
+    r = Rectangle(xy=(bbox.x0, bbox.y0), width=bbox.width, height=bbox.height,
+                  edgecolor=color, fill=False, clip_on=False)
     if trans is not None:
         r.set_transform(trans)
-    r.set_clip_on(False)
     r.draw(renderer)
 
 
@@ -3825,9 +3800,7 @@ class FancyArrowPatch(Patch):
     def __init__(self, posA=None, posB=None,
                  path=None,
                  arrowstyle="simple",
-                 arrow_transmuter=None,
                  connectionstyle="arc3",
-                 connector=None,
                  patchA=None,
                  patchB=None,
                  shrinkA=2,
@@ -3866,9 +3839,6 @@ class FancyArrowPatch(Patch):
 
             %(AvailableArrowstyles)s
 
-        arrow_transmuter
-            Ignored.
-
         connectionstyle : str or `.ConnectionStyle` or None, optional, \
 default: 'arc3'
             The `.ConnectionStyle` with which *posA* and *posB* are connected.
@@ -3877,9 +3847,6 @@ default: 'arc3'
             connection styles are available:
 
             %(AvailableConnectorstyles)s
-
-        connector
-            Ignored.
 
         patchA, patchB : `.Patch`, default: None
             Head and tail patches, respectively.
@@ -3910,20 +3877,6 @@ default: 'arc3'
             In contrast to other patches, the default ``capstyle`` and
             ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
-        if arrow_transmuter is not None:
-            cbook.warn_deprecated(
-                3.0,
-                message=('The "arrow_transmuter" keyword argument is not used,'
-                         ' and will be removed in Matplotlib 3.1'),
-                name='arrow_transmuter',
-                obj_type='keyword argument')
-        if connector is not None:
-            cbook.warn_deprecated(
-                3.0,
-                message=('The "connector" keyword argument is not used,'
-                         ' and will be removed in Matplotlib 3.1'),
-                name='connector',
-                obj_type='keyword argument')
         # Traditionally, the cap- and joinstyle for FancyArrowPatch are round
         kwargs.setdefault("joinstyle", "round")
         kwargs.setdefault("capstyle", "round")
@@ -3963,7 +3916,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        dpi_cor : scalar
+        dpi_cor : float
         """
         self._dpi_cor = dpi_cor
         self.stale = True
@@ -4090,7 +4043,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        scale : scalar
+        scale : float
         """
         self._mutation_scale = scale
         self.stale = True
@@ -4111,7 +4064,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        aspect : scalar
+        aspect : float
         """
         self._mutation_aspect = aspect
         self.stale = True
@@ -4193,9 +4146,7 @@ class ConnectionPatch(FancyArrowPatch):
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
-                 arrow_transmuter=None,
                  connectionstyle="arc3",
-                 connector=None,
                  patchA=None,
                  patchB=None,
                  shrinkA=0.,
@@ -4278,9 +4229,7 @@ class ConnectionPatch(FancyArrowPatch):
         FancyArrowPatch.__init__(self,
                                  posA=(0, 0), posB=(1, 1),
                                  arrowstyle=arrowstyle,
-                                 arrow_transmuter=arrow_transmuter,
                                  connectionstyle=connectionstyle,
-                                 connector=connector,
                                  patchA=patchA,
                                  patchB=patchB,
                                  shrinkA=shrinkA,
@@ -4294,10 +4243,20 @@ class ConnectionPatch(FancyArrowPatch):
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
 
-    def _get_xy(self, x, y, s, axes=None):
+    def _get_xy(self, xy, s, axes=None):
         """Calculate the pixel position of given point."""
+        s0 = s  # For the error message, if needed.
         if axes is None:
             axes = self.axes
+        xy = np.array(xy)
+        if s in ["figure points", "axes points"]:
+            xy *= self.figure.dpi / 72
+            s = s.replace("points", "pixels")
+        elif s == "figure fraction":
+            s = self.figure.transFigure
+        elif s == "axes fraction":
+            s = axes.transAxes
+        x, y = xy
 
         if s == 'data':
             trans = axes.transData
@@ -4305,97 +4264,33 @@ class ConnectionPatch(FancyArrowPatch):
             y = float(self.convert_yunits(y))
             return trans.transform((x, y))
         elif s == 'offset points':
-            # convert the data point
-            dx, dy = self.xy
-
-            # prevent recursion
-            if self.xycoords == 'offset points':
-                return self._get_xy(dx, dy, 'data')
-
-            dx, dy = self._get_xy(dx, dy, self.xycoords)
-
-            # convert the offset
-            dpi = self.figure.get_dpi()
-            x *= dpi / 72.
-            y *= dpi / 72.
-
-            # add the offset to the data point
-            x += dx
-            y += dy
-
-            return x, y
+            if self.xycoords == 'offset points':  # prevent recursion
+                return self._get_xy(self.xy, 'data')
+            return (
+                self._get_xy(self.xy, self.xycoords)  # converted data point
+                + xy * self.figure.dpi / 72)  # converted offset
         elif s == 'polar':
             theta, r = x, y
             x = r * np.cos(theta)
             y = r * np.sin(theta)
             trans = axes.transData
             return trans.transform((x, y))
-        elif s == 'figure points':
-            # points from the lower left corner of the figure
-            dpi = self.figure.dpi
-            l, b, w, h = self.figure.bbox.bounds
-            r = l + w
-            t = b + h
-
-            x *= dpi / 72.
-            y *= dpi / 72.
-            if x < 0:
-                x = r + x
-            if y < 0:
-                y = t + y
-            return x, y
         elif s == 'figure pixels':
             # pixels from the lower left corner of the figure
-            l, b, w, h = self.figure.bbox.bounds
-            r = l + w
-            t = b + h
-            if x < 0:
-                x = r + x
-            if y < 0:
-                y = t + y
-            return x, y
-        elif s == 'figure fraction':
-            # (0, 0) is lower left, (1, 1) is upper right of figure
-            trans = self.figure.transFigure
-            return trans.transform((x, y))
-        elif s == 'axes points':
-            # points from the lower left corner of the axes
-            dpi = self.figure.dpi
-            l, b, w, h = axes.bbox.bounds
-            r = l + w
-            t = b + h
-            if x < 0:
-                x = r + x * dpi / 72.
-            else:
-                x = l + x * dpi / 72.
-            if y < 0:
-                y = t + y * dpi / 72.
-            else:
-                y = b + y * dpi / 72.
+            bb = self.figure.bbox
+            x = bb.x0 + x if x >= 0 else bb.x1 + x
+            y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y
         elif s == 'axes pixels':
             # pixels from the lower left corner of the axes
-            l, b, w, h = axes.bbox.bounds
-            r = l + w
-            t = b + h
-            if x < 0:
-                x = r + x
-            else:
-                x = l + x
-            if y < 0:
-                y = t + y
-            else:
-                y = b + y
+            bb = axes.bbox
+            x = bb.x0 + x if x >= 0 else bb.x1 + x
+            y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y
-        elif s == 'axes fraction':
-            # (0, 0) is lower left, (1, 1) is upper right of axes
-            trans = axes.transAxes
-            return trans.transform((x, y))
         elif isinstance(s, transforms.Transform):
-            return s.transform((x, y))
+            return s.transform(xy)
         else:
-            raise ValueError("{} is not a valid coordinate "
-                             "transformation.".format(s))
+            raise ValueError(f"{s0} is not a valid coordinate transformation")
 
     def set_annotation_clip(self, b):
         """
@@ -4425,30 +4320,21 @@ class ConnectionPatch(FancyArrowPatch):
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-
         dpi_cor = self.get_dpi_cor()
-
-        x, y = self.xy1
-        posA = self._get_xy(x, y, self.coords1, self.axesA)
-
-        x, y = self.xy2
-        posB = self._get_xy(x, y, self.coords2, self.axesB)
-
-        _path = self.get_connectionstyle()(posA, posB,
-                                           patchA=self.patchA,
-                                           patchB=self.patchB,
-                                           shrinkA=self.shrinkA * dpi_cor,
-                                           shrinkB=self.shrinkB * dpi_cor
-                                           )
-
-        _path, fillable = self.get_arrowstyle()(
-                                        _path,
-                                        self.get_mutation_scale() * dpi_cor,
-                                        self.get_linewidth() * dpi_cor,
-                                        self.get_mutation_aspect()
-                                        )
-
-        return _path, fillable
+        posA = self._get_xy(self.xy1, self.coords1, self.axesA)
+        posB = self._get_xy(self.xy2, self.coords2, self.axesB)
+        path = self.get_connectionstyle()(
+            posA, posB,
+            patchA=self.patchA, patchB=self.patchB,
+            shrinkA=self.shrinkA * dpi_cor, shrinkB=self.shrinkB * dpi_cor,
+        )
+        path, fillable = self.get_arrowstyle()(
+            path,
+            self.get_mutation_scale() * dpi_cor,
+            self.get_linewidth() * dpi_cor,
+            self.get_mutation_aspect()
+        )
+        return path, fillable
 
     def _check_xy(self, renderer):
         """Check whether the annotation needs to be drawn."""
@@ -4456,8 +4342,7 @@ class ConnectionPatch(FancyArrowPatch):
         b = self.get_annotation_clip()
 
         if b or (b is None and self.coords1 == "data"):
-            x, y = self.xy1
-            xy_pixel = self._get_xy(x, y, self.coords1, self.axesA)
+            xy_pixel = self._get_xy(self.xy1, self.coords1, self.axesA)
             if self.axesA is None:
                 axes = self.axes
             else:
@@ -4466,8 +4351,7 @@ class ConnectionPatch(FancyArrowPatch):
                 return False
 
         if b or (b is None and self.coords2 == "data"):
-            x, y = self.xy2
-            xy_pixel = self._get_xy(x, y, self.coords2, self.axesB)
+            xy_pixel = self._get_xy(self.xy2, self.coords2, self.axesB)
             if self.axesB is None:
                 axes = self.axes
             else:

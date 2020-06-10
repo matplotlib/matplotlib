@@ -304,12 +304,12 @@ Including figures and files
 ---------------------------
 
 Image files can directly included in pages with the ``image::`` directive.
-e.g., :file:`users/navigation_toolbar.rst` displays the toolbar icons
-with a call to a static image::
+e.g., :file:`thirdpartypackages/index.rst` displays the images for the third-party
+packages as static images::
 
-    .. image:: ../_static/toolbar.png
+    .. image:: /_static/toolbar.png
 
-as rendered on the page: :ref:`navigation-toolbar`.
+as rendered on the page: :ref:`thirdparty-index`.
 
 Files can be included verbatim.  For instance the ``matplotlibrc`` file
 is important for customizing Matplotlib, and is included verbatim in the
@@ -406,6 +406,22 @@ Formatting conventions
 The basic docstring conventions are covered in the `numpydoc docstring guide`_
 and the Sphinx_ documentation.  Some Matplotlib-specific formatting conventions
 to keep in mind:
+
+Quote positions
+~~~~~~~~~~~~~~~
+The quotes for single line docstrings are on the same line (pydocstyle D200)::
+
+    def get_linewidth(self):
+        """Return the line width in points."""
+
+The quotes for multi-line docstrings are on separate lines (pydocstyle D213)::
+
+        def set_linestyle(self, ls):
+        """
+        Set the linestyle of the line.
+
+        [...]
+        """
 
 Function arguments
 ~~~~~~~~~~~~~~~~~~
@@ -874,7 +890,9 @@ Miscellaneous
 Adding animations
 -----------------
 
-There is a Matplotlib Google/Gmail account with username ``mplgithub``
+Animations are scraped automatically by Sphinx-gallery. If this is not
+desired,
+there is also a Matplotlib Google/Gmail account with username ``mplgithub``
 which was used to setup the github account but can be used for other
 purposes, like hosting Google docs or Youtube videos.  You can embed a
 Matplotlib animation in the docs by first saving the animation as a

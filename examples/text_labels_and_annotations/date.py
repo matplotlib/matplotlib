@@ -29,8 +29,7 @@ years_fmt = mdates.DateFormatter('%Y')
 # close, volume, adj_close from the mpl-data/example directory.  This array
 # stores the date as an np.datetime64 with a day unit ('D') in the 'date'
 # column.
-with cbook.get_sample_data('goog.npz') as datafile:
-    data = np.load(datafile)['price_data']
+data = cbook.get_sample_data('goog.npz', np_load=True)['price_data']
 
 fig, ax = plt.subplots()
 ax.plot('date', 'adj_close', data=data)

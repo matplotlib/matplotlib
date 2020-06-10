@@ -101,10 +101,7 @@ os.environ.pop("DISPLAY", None)
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-if sphinx.version_info < (1, 8):
-    autodoc_default_flags = ['members', 'undoc-members']
-else:
-    autodoc_default_options = {'members': None, 'undoc-members': None}
+autodoc_default_options = {'members': None, 'undoc-members': None}
 
 # missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
 # for older sphinxes.
@@ -114,13 +111,14 @@ missing_references_write_json = False
 missing_references_warn_unused_ignores = False
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
+    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler', None),
     'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
+    'ipykernel': ('https://ipykernel.readthedocs.io/en/latest/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'pytest': ('https://pytest.org/en/stable', None),
+    'python': ('https://docs.python.org/3', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
 
@@ -141,6 +139,8 @@ sphinx_gallery_conf = {
     'within_subsection_order': gallery_order.subsectionorder,
     'remove_config_comments': True,
     'min_reported_time': 1,
+    'compress_images': ('thumbnails', 'images'),
+    'matplotlib_animations': True,
 }
 
 plot_gallery = 'True'
@@ -345,10 +345,7 @@ latex_appendices = []
 # If false, no module index is generated.
 latex_use_modindex = True
 
-if hasattr(sphinx, 'version_info') and sphinx.version_info[:2] >= (1, 4):
-    latex_toplevel_sectioning = 'part'
-else:
-    latex_use_parts = True
+latex_toplevel_sectioning = 'part'
 
 # Show both class-level docstring and __init__ docstring in class
 # documentation

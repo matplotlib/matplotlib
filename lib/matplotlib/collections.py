@@ -49,7 +49,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     - *antialiaseds*: None
     - *offsets*: None
     - *transOffset*: transforms.IdentityTransform()
-    - *offset_position*: 'screen' (default) or 'data'
+    - *offset_position* (deprecated): 'screen' (default) or 'data' (deprecated)
     - *norm*: None (optional for `matplotlib.cm.ScalarMappable`)
     - *cmap*: None (optional for `matplotlib.cm.ScalarMappable`)
     - *hatch*: None
@@ -59,8 +59,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
     rendering (default no offsets).  If offset_position is 'screen'
     (default) the offset is applied after the master transform has
     been applied, that is, the offsets are in screen coordinates.  If
-    offset_position is 'data', the offset is applied before the master
-    transform, i.e., the offsets are in data coordinates.
+    offset_position is 'data' (deprecated), the offset is applied before the
+    master transform, i.e., the offsets are in data coordinates.
 
     If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
     None, they default to their `.rcParams` patch setting, in sequence form.
@@ -85,6 +85,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # subclass-by-subclass basis.
     _edge_default = False
 
+    @cbook._delete_parameter("3.3", "offset_position")
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -130,7 +131,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_pickradius(pickradius)
         self.set_urls(urls)
         self.set_hatch(hatch)
-        self.set_offset_position(offset_position)
+        self._offset_position = "screen"
+        if offset_position != "screen":
+            self.set_offset_position(offset_position)  # emit deprecation.
         self.set_zorder(zorder)
 
         if capstyle:
@@ -211,8 +214,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # we may have transform.contains_branch(transData) but not
             # transforms.get_affine().contains_branch(transData).  But later,
             # be careful to only apply the affine part that remains.
-        if not transOffset.is_affine:
-            offsets = transOffset.transform_non_affine(offsets)
 
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
@@ -226,7 +227,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # also use this algorithm (like streamplot).
                 result = mpath.get_path_collection_extents(
                     transform.get_affine(), paths, self.get_transforms(),
-                    offsets, transOffset.get_affine().frozen())
+                    transOffset.transform_non_affine(offsets),
+                    transOffset.get_affine().frozen())
                 return result.transformed(transData.inverted())
             if not self._offsetsNone:
                 # this is for collections that have their paths (shapes)
@@ -234,9 +236,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # (i.e. like scatter). We can't uniquely set limits based on
                 # those shapes, so we just set the limits based on their
                 # location.
-                # Finish the transform:
-                offsets = (transOffset.get_affine() +
-                           transData.inverted()).transform(offsets)
+
+                offsets = (transOffset - transData).transform(offsets)
+                # note A-B means A B^{-1}
                 offsets = np.ma.masked_invalid(offsets)
                 if not offsets.mask.all():
                     points = np.row_stack((offsets.min(axis=0),
@@ -302,14 +304,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
-            try:
-                gc.set_hatch_color(self._hatch_color)
-            except AttributeError:
-                # if we end up with a GC that does not have this method
-                cbook.warn_deprecated(
-                    "3.1", message="Your backend does not support setting the "
-                    "hatch color; such backends will become unsupported in "
-                    "Matplotlib 3.3.")
+            gc.set_hatch_color(self._hatch_color)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -405,7 +400,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
 
-        if self.axes and self.get_offset_position() == "data":
+        if self.axes:
             self.axes._unstale_viewLim()
 
         transform, transOffset, offsets, paths = self._prepare_points()
@@ -414,7 +409,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, pickradius <= 0,
-            self.get_offset_position())
+            self._offset_position)
 
         return len(ind) > 0, dict(ind=ind)
 
@@ -495,6 +490,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._uniform_offsets
 
+    @cbook.deprecated("3.3")
     def set_offset_position(self, offset_position):
         """
         Set how offsets are applied.  If *offset_position* is 'screen'
@@ -512,6 +508,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._offset_position = offset_position
         self.stale = True
 
+    @cbook.deprecated("3.3")
     def get_offset_position(self):
         """
         Return how offsets are applied for the collection.  If
@@ -768,7 +765,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_alpha(self, alpha):
         # docstring inherited
         super().set_alpha(alpha)
-        self.update_dict['array'] = True
+        self._update_dict['array'] = True
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
 
@@ -782,9 +779,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """Update colors from the scalar mappable array, if it is not None."""
         if self._A is None:
             return
-        if self._A.ndim > 1:
+        # QuadMesh can map 2d arrays
+        if self._A.ndim > 1 and not isinstance(self, QuadMesh):
             raise ValueError('Collections can only map rank 1 arrays')
-        if not self.check_update("array"):
+        if not self._check_update("array"):
             return
         if self._is_filled:
             self._facecolors = self.to_rgba(self._A, self._alpha)
@@ -815,7 +813,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._A = other._A
         self.norm = other.norm
         self.cmap = other.cmap
-        # self.update_dict = other.update_dict # do we need to copy this? -JJL
+        # do we need to copy self._update_dict? -JJL
         self.stale = True
 
 
@@ -1451,7 +1449,7 @@ class EventCollection(LineCollection):
 
     The events are given by a 1-dimensional array, usually the position of
     something along an axis, such as time or length.  They do not have an
-    amplitude and are displayed as vertical or horizontal parallel bars.
+    amplitude and are displayed as parallel lines.
     """
 
     _edge_default = True
@@ -1474,22 +1472,23 @@ class EventCollection(LineCollection):
             Each value is an event.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
-            The orientation of the **collection** (the event bars are along
-            the orthogonal direction).
+            The sequence of events is plotted along this direction.
+            The marker lines of the single events are along the orthogonal
+            direction.
 
-        lineoffset : scalar, default: 0
+        lineoffset : float, default: 0
             The offset of the center of the markers from the origin, in the
             direction orthogonal to *orientation*.
 
-        linelength : scalar, default: 1
+        linelength : float, default: 1
             The total height of the marker (i.e. the marker stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-        linewidth : scalar or None, default: None
-            If it is None, defaults to its rcParams setting, in sequence form.
+        linewidth : float, default: :rc:`lines.linewidth`
+            The line width of the event lines, in points.
 
-        color : color, sequence of colors or None, default: None
-            If it is None, defaults to its rcParams setting, in sequence form.
+        color : color or list of colors, default: :rc:`lines.color`
+            The color of the event lines.
 
         linestyle : str or tuple, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
@@ -1500,10 +1499,10 @@ class EventCollection(LineCollection):
             where *onoffseq* is an even length tuple of on and off ink
             in points.
 
-        antialiased : {None, 1, 2}, optional
-            If it is None, defaults to its rcParams setting, in sequence form.
+        antialiased : bool, default: :rc:`lines.antialiased`
+            Whether to use antialiasing for drawing the lines.
 
-        **kwargs : optional
+        **kwargs
             Other keyword arguments are line collection properties.  See
             :class:`~matplotlib.collections.LineCollection` for a list of
             the valid properties.
@@ -2046,8 +2045,10 @@ class QuadMesh(Collection):
         else:
             renderer.draw_quad_mesh(
                 gc, transform.frozen(), self._meshWidth, self._meshHeight,
-                coordinates, offsets, transOffset, self.get_facecolor(),
-                self._antialiased, self.get_edgecolors())
+                coordinates, offsets, transOffset,
+                # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
+                self.get_facecolor().reshape((-1, 4)),
+                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False

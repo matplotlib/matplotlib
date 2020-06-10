@@ -12,11 +12,16 @@ set for interactive exploration), you may want to define some
 functions in a custom module that set the defaults, e.g.,::
 
     def set_pub():
-        rc('font', weight='bold')    # bold fonts are easier to see
-        rc('tick', labelsize=15)     # tick labels bigger
-        rc('lines', lw=1, color='k') # thicker black lines
-        rc('grid', c='0.5', ls='-', lw=0.5)  # solid gray grid lines
-        rc('savefig', dpi=300)       # higher res outputs
+        rcParams.update({
+            "font.weight": "bold",  # bold fonts
+            "tick.labelsize": 15,   # large tick labels
+            "lines.linewidth": 1,   # thick lines
+            "lines.color": "k",     # black lines
+            "grid.color": "0.5",    # gray gridlines
+            "grid.linestyle": "-",  # solid gridlines
+            "grid.linewidth": 0.5,  # thin gridlines
+            "savefig.dpi": 300,     # higher resolution output.
+        })
 
 Then as you are working interactively, you just need to do::
 
@@ -33,15 +38,18 @@ plt.subplot(311)
 plt.plot([1, 2, 3])
 
 # the axes attributes need to be set before the call to subplot
-plt.rc('font', weight='bold')
-plt.rc('xtick.major', size=5, pad=7)
-plt.rc('xtick', labelsize=15)
-
-# using aliases for color, linestyle and linewidth; gray, solid, thick
-plt.rc('grid', c='0.5', ls='-', lw=5)
-plt.rc('lines', lw=2, color='g')
+plt.rcParams.update({
+    "font.weight": "bold",
+    "xtick.major.size": 5,
+    "xtick.major.pad": 7,
+    "xtick.labelsize": 15,
+    "grid.color": "0.5",
+    "grid.linestyle": "-",
+    "grid.linewidth": 5,
+    "lines.linewidth": 2,
+    "lines.color": "g",
+})
 plt.subplot(312)
-
 plt.plot([1, 2, 3])
 plt.grid(True)
 

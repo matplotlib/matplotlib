@@ -82,9 +82,9 @@ class TimerTk(TimerBase):
     """Subclass of `backend_bases.TimerBase` using Tk timer events."""
 
     def __init__(self, parent, *args, **kwargs):
+        self._timer = None
         TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent
-        self._timer = None
 
     def _timer_start(self):
         self._timer_stop()
@@ -97,7 +97,6 @@ class TimerTk(TimerBase):
 
     def _on_timer(self):
         TimerBase._on_timer(self)
-
         # Tk after() is only a single shot, so we need to add code here to
         # reset the timer if we're not operating in single shot mode.  However,
         # if _timer is None, this means that _timer_stop has been called; so
@@ -179,8 +178,7 @@ class FigureCanvasTk(FigureCanvasBase):
         super(FigureCanvasTk, self).__init__(figure)
         self._idle = True
         self._idle_callback = None
-        t1, t2, w, h = self.figure.bbox.bounds
-        w, h = int(w), int(h)
+        w, h = self.figure.bbox.size.astype(int)
         self._tkcanvas = tk.Canvas(
             master=master, background="white",
             width=w, height=h, borderwidth=0, highlightthickness=0)
@@ -416,13 +414,10 @@ class FigureManagerTk(FigureManagerBase):
         self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        self.statusbar = None
-
         if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarTk(self.window, self.toolmanager)
 
         self._shown = False
 
@@ -436,6 +431,17 @@ class FigureManagerTk(FigureManagerBase):
         return toolbar
 
     def resize(self, width, height):
+        max_size = 1_400_000  # the measured max on xorg 1.20.8 was 1_409_023
+
+        if (width > max_size or height > max_size) and sys.platform == 'linux':
+            raise ValueError(
+                'You have requested to resize the '
+                f'Tk window to ({width}, {height}), one of which '
+                f'is bigger than {max_size}.  At larger sizes xorg will '
+                'either exit with an error on newer versions (~1.20) or '
+                'cause corruption on older version (~1.19).  We '
+                'do not expect a window over a million pixel wide or tall '
+                'to be intended behavior.')
         self.canvas._tkcanvas.configure(width=width, height=height)
 
     def show(self):
@@ -493,6 +499,29 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
         # so that Tool implementations can reuse the methods.
         self.window = window
+
+        tk.Frame.__init__(self, master=window, borderwidth=2,
+                          width=int(canvas.figure.bbox.width), height=50)
+
+        self._buttons = {}
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                # Add a spacer; return value is unused.
+                self._Spacer()
+            else:
+                self._buttons[text] = button = self._Button(
+                    text,
+                    str(cbook._get_data_path(f"images/{image_file}.gif")),
+                    toggle=callback in ["zoom", "pan"],
+                    command=getattr(self, callback),
+                )
+                if tooltip_text is not None:
+                    ToolTip.createToolTip(button, tooltip_text)
+
+        self.message = tk.StringVar(master=self)
+        self._message_label = tk.Label(master=self, textvariable=self.message)
+        self._message_label.pack(side=tk.RIGHT)
+
         NavigationToolbar2.__init__(self, canvas)
         if pack_toolbar:
             self.pack(side=tk.BOTTOM, fill=tk.X)
@@ -512,22 +541,38 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas._tkcanvas.delete(self.lastrect)
         self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
 
-    def release(self, event):
+    def release_zoom(self, event):
+        super().release_zoom(event)
         if hasattr(self, "lastrect"):
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
 
     def set_cursor(self, cursor):
         window = self.canvas.get_tk_widget().master
-        window.configure(cursor=cursord[cursor])
-        window.update_idletasks()
+        try:
+            window.configure(cursor=cursord[cursor])
+        except tkinter.TclError:
+            pass
+        else:
+            window.update_idletasks()
 
-    def _Button(self, text, file, command, extension='.gif'):
-        img_file = str(cbook._get_data_path('images', file + extension))
-        im = tk.PhotoImage(master=self, file=img_file)
-        b = tk.Button(
-            master=self, text=text, padx=2, pady=2, image=im, command=command)
-        b._ntimage = im
+    def _Button(self, text, image_file, toggle, command):
+        image = (tk.PhotoImage(master=self, file=image_file)
+                 if image_file is not None else None)
+        if not toggle:
+            b = tk.Button(master=self, text=text, image=image, command=command)
+        else:
+            # There is a bug in tkinter included in some python 3.6 versions
+            # that without this variable, produces a "visual" toggling of
+            # other near checkbuttons
+            # https://bugs.python.org/issue29402
+            # https://bugs.python.org/issue25684
+            var = tk.IntVar()
+            b = tk.Checkbutton(
+                master=self, text=text, image=image, command=command,
+                indicatoron=False, variable=var)
+            b.var = var
+        b._ntimage = image
         b.pack(side=tk.LEFT)
         return b
 
@@ -537,29 +582,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             master=self, height=26, relief=tk.RIDGE, pady=2, bg="DarkGray")
         s.pack(side=tk.LEFT, padx=5)
         return s
-
-    def _init_toolbar(self):
-        xmin, xmax = self.canvas.figure.bbox.intervalx
-        height, width = 50, xmax-xmin
-        tk.Frame.__init__(self, master=self.window,
-                          width=int(width), height=int(height),
-                          borderwidth=2)
-
-        self.update()  # Make axes menu
-
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                # Add a spacer; return value is unused.
-                self._Spacer()
-            else:
-                button = self._Button(text=text, file=image_file,
-                                      command=getattr(self, callback))
-                if tooltip_text is not None:
-                    ToolTip.createToolTip(button, tooltip_text)
-
-        self.message = tk.StringVar(master=self)
-        self._message_label = tk.Label(master=self, textvariable=self.message)
-        self._message_label.pack(side=tk.RIGHT)
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))
@@ -610,6 +632,16 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas.figure.savefig(fname)
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
+
+    def set_history_buttons(self):
+        if self._nav_stack._pos > 0:
+            self._buttons['Back']['state'] = tk.NORMAL
+        else:
+            self._buttons['Back']['state'] = tk.DISABLED
+        if self._nav_stack._pos < len(self._nav_stack._elements) - 1:
+            self._buttons['Forward']['state'] = tk.NORMAL
+        else:
+            self._buttons['Forward']['state'] = tk.DISABLED
 
 
 class ToolTip:
@@ -694,6 +726,9 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
                           borderwidth=2)
+        self._message = tk.StringVar(master=self)
+        self._message_label = tk.Label(master=self, textvariable=self._message)
+        self._message_label.pack(side=tk.RIGHT)
         self._toolitems = {}
         self.pack(side=tk.TOP, fill=tk.X)
         self._groups = {}
@@ -701,7 +736,8 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):
         frame = self._get_groupframe(group)
-        button = self._Button(name, image_file, toggle, frame)
+        button = NavigationToolbar2Tk._Button(self, name, image_file, toggle,
+                                              lambda: self._button_click(name))
         if description is not None:
             ToolTip.createToolTip(button, description)
         self._toolitems.setdefault(name, [])
@@ -720,30 +756,6 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         separator = tk.Frame(master=self, bd=5, width=1, bg='black')
         separator.pack(side=tk.LEFT, fill=tk.Y, padx=2)
 
-    def _Button(self, text, image_file, toggle, frame):
-        if image_file is not None:
-            im = tk.PhotoImage(master=self, file=image_file)
-        else:
-            im = None
-
-        if not toggle:
-            b = tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
-                          command=lambda: self._button_click(text))
-        else:
-            # There is a bug in tkinter included in some python 3.6 versions
-            # that without this variable, produces a "visual" toggling of
-            # other near checkbuttons
-            # https://bugs.python.org/issue29402
-            # https://bugs.python.org/issue25684
-            var = tk.IntVar()
-            b = tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
-                               image=im, indicatoron=False,
-                               command=lambda: self._button_click(text),
-                               variable=var)
-        b._ntimage = im
-        b.pack(side=tk.LEFT)
-        return b
-
     def _button_click(self, name):
         self.trigger_tool(name)
 
@@ -761,7 +773,11 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
             toolitem.pack_forget()
         del self._toolitems[name]
 
+    def set_message(self, s):
+        self._message.set(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarTk(StatusbarBase, tk.Frame):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)

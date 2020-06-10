@@ -53,7 +53,6 @@ class TexManager:
 
     # Caches.
     texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
-    rgba_arrayd = {}
     grey_arrayd = {}
 
     font_family = 'serif'
@@ -84,6 +83,11 @@ class TexManager:
     @property
     def cachedir(self):
         return mpl.get_cachedir()
+
+    @cbook.deprecated("3.3")
+    @property
+    def rgba_arrayd(self):
+        return {}
 
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
@@ -131,8 +135,7 @@ class TexManager:
                                font_family, font, self.font_info[font.lower()])
                     break
                 else:
-                    _log.debug('%s font is not compatible with usetex.',
-                               font_family)
+                    _log.debug('%s font is not compatible with usetex.', font)
             else:
                 _log.info('No LaTeX-compatible font found for the %s font '
                           'family in rcParams. Using default.', font_family)
@@ -208,8 +211,11 @@ class TexManager:
 %s
 \pagestyle{empty}
 \begin{document}
-%% The empty hbox ensures that a page is printed even for empty inputs.
-\fontsize{%f}{%f}\hbox{}%s
+%% The empty hbox ensures that a page is printed even for empty inputs, except
+%% when using psfrag which gets confused by it.
+\fontsize{%f}{%f}%%
+\ifdefined\psfrag\else\hbox{}\fi%%
+%s
 \end{document}
 """ % (self._get_preamble(), fontsize, fontsize * 1.25, fontcmd % tex),
             encoding='utf-8')
@@ -219,6 +225,7 @@ class TexManager:
     _re_vbox = re.compile(
         r"MatplotlibBox:\(([\d.]+)pt\+([\d.]+)pt\)x([\d.]+)pt")
 
+    @cbook.deprecated("3.3")
     def make_tex_preview(self, tex, fontsize):
         """
         Generate a tex file to render the tex string at a specific font size.
@@ -286,7 +293,7 @@ class TexManager:
         Return the file name.
         """
 
-        if rcParams['text.latex.preview']:
+        if dict.__getitem__(rcParams, 'text.latex.preview'):
             return self.make_dvi_preview(tex, fontsize)
 
         basefile = self.get_basefile(tex, fontsize)
@@ -306,6 +313,7 @@ class TexManager:
 
         return dvifile
 
+    @cbook.deprecated("3.3")
     def make_dvi_preview(self, tex, fontsize):
         """
         Generate a dvi file containing latex's layout of tex string.
@@ -365,30 +373,25 @@ class TexManager:
 
     def get_grey(self, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
-        key = tex, self.get_font_config(), fontsize, dpi
-        alpha = self.grey_arrayd.get(key)
-        if alpha is None:
-            pngfile = self.make_png(tex, fontsize, dpi)
-            X = mpl.image.imread(os.path.join(self.texcache, pngfile))
-            self.grey_arrayd[key] = alpha = X[:, :, -1]
-        return alpha
-
-    def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
-        """Return latex's rendering of the tex string as an rgba array."""
         if not fontsize:
             fontsize = rcParams['font.size']
         if not dpi:
             dpi = rcParams['savefig.dpi']
-        r, g, b = rgb
-        key = tex, self.get_font_config(), fontsize, dpi, tuple(rgb)
-        Z = self.rgba_arrayd.get(key)
+        key = tex, self.get_font_config(), fontsize, dpi
+        alpha = self.grey_arrayd.get(key)
+        if alpha is None:
+            pngfile = self.make_png(tex, fontsize, dpi)
+            rgba = mpl.image.imread(os.path.join(self.texcache, pngfile))
+            self.grey_arrayd[key] = alpha = rgba[:, :, -1]
+        return alpha
 
-        if Z is None:
-            alpha = self.get_grey(tex, fontsize, dpi)
-            Z = np.dstack([r, g, b, alpha])
-            self.rgba_arrayd[key] = Z
-
-        return Z
+    def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
+        """Return latex's rendering of the tex string as an rgba array."""
+        alpha = self.get_grey(tex, fontsize, dpi)
+        rgba = np.empty((*alpha.shape, 4))
+        rgba[..., :3] = mpl.colors.to_rgb(rgb)
+        rgba[..., -1] = alpha
+        return rgba
 
     def get_text_width_height_descent(self, tex, fontsize, renderer=None):
         """Return width, height and descent of the text."""
@@ -397,7 +400,7 @@ class TexManager:
 
         dpi_fraction = renderer.points_to_pixels(1.) if renderer else 1
 
-        if rcParams['text.latex.preview']:
+        if dict.__getitem__(rcParams, 'text.latex.preview'):
             # use preview.sty
             basefile = self.get_basefile(tex, fontsize)
             baselinefile = '%s.baseline' % basefile

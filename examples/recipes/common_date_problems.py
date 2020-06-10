@@ -38,8 +38,8 @@ import matplotlib.dates as mdates
 import numpy as np
 import matplotlib.pyplot as plt
 
-with cbook.get_sample_data('goog.npz') as datafile:
-    r = np.load(datafile)['price_data'].view(np.recarray)
+r = (cbook.get_sample_data('goog.npz', np_load=True)['price_data']
+     .view(np.recarray))
 
 fig, ax = plt.subplots()
 ax.plot(r.date, r.close)

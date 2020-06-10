@@ -29,7 +29,8 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
                     head_starts_at_zero=True,
                     rate_labels=lettered_bases_to_rates,
                     **kwargs):
-    """Makes an arrow plot.
+    """
+    Makes an arrow plot.
 
     Parameters
     ----------

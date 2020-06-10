@@ -384,6 +384,7 @@ class Figure(Artist):
         AttributeError.
 
         .. warning::
+
             This does not manage an GUI event loop. Consequently, the figure
             may only be shown briefly or not shown at all if you or your
             environment are not managing an event loop.
@@ -523,19 +524,19 @@ class Figure(Artist):
 
         Parameters
         ----------
-        w_pad : scalar
+        w_pad : float
             Width padding in inches.  This is the pad around axes
             and is meant to make sure there is enough room for fonts to
             look good.  Defaults to 3 pts = 0.04167 inches
 
-        h_pad : scalar
+        h_pad : float
             Height padding in inches. Defaults to 3 pts.
 
-        wspace : scalar
+        wspace : float
             Width padding between subplots, expressed as a fraction of the
             subplot width.  The total padding ends up being w_pad + wspace.
 
-        hspace : scalar
+        hspace : float
             Height padding between subplots, expressed as a fraction of the
             subplot width. The total padding ends up being h_pad + hspace.
 
@@ -588,11 +589,11 @@ class Figure(Artist):
 
         Parameters
         ----------
-        bottom : scalar
+        bottom : float, default: 0.2
             The bottom of the subplots for `subplots_adjust`.
-        rotation : angle in degrees
-            The rotation of the xtick labels.
-        ha : str
+        rotation : float, default: 30 degrees
+            The rotation angle of the xtick labels in degrees.
+        ha : {'left', 'center', 'right'}, default: 'right'
             The horizontal alignment of the xticklabels.
         which : {'major', 'minor', 'both'}, default: 'major'
             Selects which ticklabels to rotate.
@@ -787,7 +788,7 @@ default: 'top'
         cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The colormap to use.
 
-        vmin, vmax : scalar
+        vmin, vmax : float
             If *norm* is not given, these values set the data limits for the
             colormap.
 
@@ -1148,11 +1149,10 @@ default: 'top'
 
         Returns
         -------
-        `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+        `~.axes.Axes`, or a subclass of `~.axes.Axes`
             The returned axes class depends on the projection used. It is
-            `~.axes.Axes` if rectilinear projection are used and
-            `.projections.polar.PolarAxes` if polar projection
-            are used.
+            `~.axes.Axes` if rectilinear projection is used and
+            `.projections.polar.PolarAxes` if polar projection is used.
 
         Other Parameters
         ----------------
@@ -1208,9 +1208,14 @@ default: 'top'
             cbook.warn_deprecated(
                 "3.3",
                 message="Calling add_axes() without argument is "
-                "deprecated. You may want to use add_subplot() "
-                "instead.")
+                "deprecated since %(since)s and will be removed %(removal)s. "
+                "You may want to use add_subplot() instead.")
             return
+        elif 'rect' in kwargs:
+            if len(args):
+                raise TypeError(
+                    "add_axes() got multiple values for argument 'rect'")
+            args = (kwargs.pop('rect'), )
 
         # shortcut the projection "key" modifications later on, if an axes
         # with the exact args/kwargs exists, return it immediately.
@@ -1259,13 +1264,16 @@ default: 'top'
 
         Parameters
         ----------
-        *args, int or (int, int, int) or `SubplotSpec`, default: (1, 1, 1)
+        *args : int, (int, int, *index*), or `.SubplotSpec`, default: (1, 1, 1)
             The position of the subplot described by one of
 
             - Three integers (*nrows*, *ncols*, *index*). The subplot will
               take the *index* position on a grid with *nrows* rows and
               *ncols* columns. *index* starts at 1 in the upper left corner
-              and increases to the right.
+              and increases to the right.  *index* can also be a two-tuple
+              specifying the (*first*, *last*) indices (1-based, and including
+              *last*) of the subplot, e.g., ``fig.add_subplot(3, 1, (1, 2))``
+              makes a subplot that spans the upper 2/3 of the figure.
             - A 3-digit integer. The digits are interpreted as if given
               separately as three single-digit integers, i.e.
               ``fig.add_subplot(235)`` is the same as
@@ -1300,8 +1308,8 @@ default: 'top'
 
             The axes of the subplot. The returned axes base class depends on
             the projection used. It is `~.axes.Axes` if rectilinear projection
-            are used and `.projections.polar.PolarAxes` if polar projection
-            are used. The returned axes is then a subplot subclass of the
+            is used and `.projections.polar.PolarAxes` if polar projection
+            is used. The returned axes is then a subplot subclass of the
             base class.
 
         Other Parameters
@@ -1357,33 +1365,7 @@ default: 'top'
             raise TypeError(
                 "add_subplot() got an unexpected keyword argument 'figure'")
 
-        nargs = len(args)
-        if nargs == 0:
-            args = (1, 1, 1)
-        elif nargs == 1:
-            if isinstance(args[0], Integral):
-                if not 100 <= args[0] <= 999:
-                    raise ValueError(f"Integer subplot specification must be "
-                                     f"a three-digit number, not {args[0]}")
-                args = tuple(map(int, str(args[0])))
-            elif isinstance(args[0], (SubplotBase, SubplotSpec)):
-                pass  # no further validation or normalization needed
-            else:
-                raise TypeError('Positional arguments are not a valid '
-                                'position specification.')
-        elif nargs == 3:
-            for arg in args:
-                if not isinstance(arg, Integral):
-                    cbook.warn_deprecated(
-                        "3.3",
-                        message="Passing non-integers as three-element "
-                                "position specification is deprecated.")
-            args = tuple(map(int, args))
-        else:
-            raise TypeError(f'add_subplot() takes 1 or 3 positional arguments '
-                            f'but {nargs} were given')
-
-        if isinstance(args[0], SubplotBase):
+        if len(args) == 1 and isinstance(args[0], SubplotBase):
             ax = args[0]
             if ax.get_figure() is not self:
                 raise ValueError("The Subplot must have been created in "
@@ -1391,13 +1373,19 @@ default: 'top'
             # make a key for the subplot (which includes the axes object id
             # in the hash)
             key = self._make_key(*args, **kwargs)
+
         else:
+            if not args:
+                args = (1, 1, 1)
+            # Normalize correct ijk values to (i, j, k) here so that
+            # add_subplot(111) == add_subplot(1, 1, 1).  Invalid values will
+            # trigger errors later (via SubplotSpec._from_subplot_args).
+            if (len(args) == 1 and isinstance(args[0], Integral)
+                    and 100 <= args[0] <= 999):
+                args = tuple(map(int, str(args[0])))
             projection_class, kwargs, key = \
                 self._process_projection_requirements(*args, **kwargs)
-
-            # try to find the axes with this key in the stack
-            ax = self._axstack.get(key)
-
+            ax = self._axstack.get(key)  # search axes with this key in stack
             if ax is not None:
                 if isinstance(ax, projection_class):
                     # the axes already existed, so set it as active & return
@@ -1410,7 +1398,6 @@ default: 'top'
                     # Without this, add_subplot would be simpler and
                     # more similar to add_axes.
                     self._axstack.remove(ax)
-
             ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
 
         return self._add_axes_internal(key, ax)
@@ -1424,6 +1411,7 @@ default: 'top'
         ax.stale_callback = _stale_figure_callback
         return ax
 
+    @cbook._make_keyword_only("3.3", "sharex")
     def subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
                  squeeze=True, subplot_kw=None, gridspec_kw=None):
         """
@@ -1528,68 +1516,11 @@ default: 'top'
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
         """
-
-        if isinstance(sharex, bool):
-            sharex = "all" if sharex else "none"
-        if isinstance(sharey, bool):
-            sharey = "all" if sharey else "none"
-        # This check was added because it is very easy to type
-        # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
-        # In most cases, no error will ever occur, but mysterious behavior
-        # will result because what was intended to be the subplot index is
-        # instead treated as a bool for sharex.
-        if isinstance(sharex, Integral):
-            cbook._warn_external(
-                "sharex argument to subplots() was an integer.  Did you "
-                "intend to use subplot() (without 's')?")
-        cbook._check_in_list(["all", "row", "col", "none"],
-                             sharex=sharex, sharey=sharey)
-        if subplot_kw is None:
-            subplot_kw = {}
         if gridspec_kw is None:
             gridspec_kw = {}
-        # don't mutate kwargs passed by user...
-        subplot_kw = subplot_kw.copy()
-        gridspec_kw = gridspec_kw.copy()
-
-        if self.get_constrained_layout():
-            gs = GridSpec(nrows, ncols, figure=self, **gridspec_kw)
-        else:
-            # this should turn constrained_layout off if we don't want it
-            gs = GridSpec(nrows, ncols, figure=None, **gridspec_kw)
-        self._gridspecs.append(gs)
-
-        # Create array to hold all axes.
-        axarr = np.empty((nrows, ncols), dtype=object)
-        for row in range(nrows):
-            for col in range(ncols):
-                shared_with = {"none": None, "all": axarr[0, 0],
-                               "row": axarr[row, 0], "col": axarr[0, col]}
-                subplot_kw["sharex"] = shared_with[sharex]
-                subplot_kw["sharey"] = shared_with[sharey]
-                axarr[row, col] = self.add_subplot(gs[row, col], **subplot_kw)
-
-        # turn off redundant tick labeling
-        if sharex in ["col", "all"]:
-            # turn off all but the bottom row
-            for ax in axarr[:-1, :].flat:
-                ax.xaxis.set_tick_params(which='both',
-                                         labelbottom=False, labeltop=False)
-                ax.xaxis.offsetText.set_visible(False)
-        if sharey in ["row", "all"]:
-            # turn off all but the first column
-            for ax in axarr[:, 1:].flat:
-                ax.yaxis.set_tick_params(which='both',
-                                         labelleft=False, labelright=False)
-                ax.yaxis.offsetText.set_visible(False)
-
-        if squeeze:
-            # Discarding unneeded dimensions that equal 1.  If we only have one
-            # subplot, just return it instead of a 1-element array.
-            return axarr.item() if axarr.size == 1 else axarr.squeeze()
-        else:
-            # Returned axis array will be always 2-d, even if nrows=ncols=1.
-            return axarr
+        return (self.add_gridspec(nrows, ncols, figure=self, **gridspec_kw)
+                .subplots(sharex=sharex, sharey=sharey, squeeze=squeeze,
+                          subplot_kw=subplot_kw))
 
     def delaxes(self, ax):
         """
@@ -1599,7 +1530,7 @@ default: 'top'
         def _reset_locators_and_formatters(axis):
             # Set the formatters and locators to be associated with axis
             # (where previously they may have been associated with another
-            # Axis isntance)
+            # Axis instance)
             #
             # Because set_major_formatter() etc. force isDefault_* to be False,
             # we have to manually check if the original formatter was a
@@ -1821,7 +1752,10 @@ default: 'top'
             # kwargs['loc'] = extra_args[0]
             # extra_args = extra_args[1:]
             pass
-        l = mlegend.Legend(self, handles, labels, *extra_args, **kwargs)
+        transform = kwargs.pop('bbox_transform', self.transFigure)
+        # explicitly set the bbox transform if the user hasn't.
+        l = mlegend.Legend(self, handles, labels, *extra_args,
+                           bbox_transform=transform, **kwargs)
         self.legends.append(l)
         l._remove_method = self.legends.remove
         self.stale = True
@@ -2044,7 +1978,7 @@ default: 'top'
 
         Parameters
         ----------
-        fname : str or PathLike or file-like object
+        fname : str or path-like or file-like
             A path, or a Python file-like object, or
             possibly some backend-dependent object such as
             `matplotlib.backends.backend_pdf.PdfPages`.
@@ -2091,11 +2025,13 @@ default: 'top'
 
             This parameter is deprecated.
 
-        facecolor : color, default: :rc:`savefig.facecolor`
-            The facecolor of the figure.
+        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+            The facecolor of the figure.  If 'auto', use the current figure
+            facecolor.
 
-        edgecolor : color, default: :rc:`savefig.edgecolor`
-            The edgecolor of the figure.
+        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.  If 'auto', use the current figure
+            edgecolor.
 
         orientation : {'landscape', 'portrait'}
             Currently only supported by the postscript backend.
@@ -2122,9 +2058,8 @@ default: 'top'
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : scalar, optional
-            Amount of padding around the figure when bbox_inches is
-            'tight'. If None, use savefig.pad_inches
+        pad_inches : float, default: :rc:`savefig.pad_inches`
+            Amount of padding around the figure when bbox_inches is 'tight'.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
@@ -2167,9 +2102,6 @@ default: 'top'
                                              patch.get_edgecolor()))
                 patch.set_facecolor('none')
                 patch.set_edgecolor('none')
-        else:
-            kwargs.setdefault('facecolor', mpl.rcParams['savefig.facecolor'])
-            kwargs.setdefault('edgecolor', mpl.rcParams['savefig.edgecolor'])
 
         self.canvas.print_figure(fname, **kwargs)
 
@@ -2212,8 +2144,31 @@ default: 'top'
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
         """
-        Update the `SubplotParams` with *kwargs* (defaulting to rc when
-        *None*), and update the subplot locations.
+        Adjust the subplot layout parameters.
+
+        Unset parameters are left unmodified; initial values are given by
+        :rc:`figure.subplot.[name]`.
+
+        Parameters
+        ----------
+        left : float, optional
+            The position of the left edge of the subplots,
+            as a fraction of the figure width.
+        right : float, optional
+            The position of the right edge of the subplots,
+            as a fraction of the figure width.
+        bottom : float, optional
+            The position of the bottom edge of the subplots,
+            as a fraction of the figure height.
+        top : float, optional
+            The position of the top edge of the subplots,
+            as a fraction of the figure height.
+        wspace : float, optional
+            The width of the padding between subplots,
+            as a fraction of the average axes width.
+        hspace : float, optional
+            The height of the padding between subplots,
+            as a fraction of the average axes height.
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
@@ -2261,7 +2216,7 @@ default: 'top'
         n : int, default: 1
             Number of mouse clicks to accumulate. If negative, accumulate
             clicks until the input is terminated manually.
-        timeout : scalar, default: 30 seconds
+        timeout : float, default: 30 seconds
             Number of seconds to wait before timing out. If zero or negative
             will never timeout.
         show_clicks : bool, default: True
@@ -2409,7 +2364,7 @@ default: 'top'
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
                      rect=None):
         """
-        Automatically adjust subplot parameters to give specified padding.
+        Adjust the padding between and around subplots.
 
         To exclude an artist on the axes from the bounding box calculation
         that determines the subplot parameters (i.e. legend, or annotation),
@@ -2419,16 +2374,15 @@ default: 'top'
         ----------
         renderer : subclass of `~.backend_bases.RendererBase`, optional
             Defaults to the renderer for the figure.  Deprecated.
-        pad : float, optional
+        pad : float, default: 1.08
             Padding between the figure edge and the edges of subplots,
             as a fraction of the font size.
-        h_pad, w_pad : float, optional
+        h_pad, w_pad : float, default: *pad*
             Padding (height/width) between edges of adjacent subplots,
-            as a fraction of the font size.  Defaults to *pad*.
-        rect : tuple (left, bottom, right, top), optional
-            A rectangle (left, bottom, right, top) in the normalized
-            figure coordinate that the whole subplots area (including
-            labels) will fit into. Default is (0, 0, 1, 1).
+            as a fraction of the font size.
+        rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1)
+            A rectangle in normalized figure coordinates into which the whole
+            subplots area (including labels) will fit.
 
         See Also
         --------
@@ -2438,7 +2392,7 @@ default: 'top'
 
         from .tight_layout import (
             get_renderer, get_subplotspec_list, get_tight_layout_figure)
-
+        from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
             cbook._warn_external("This figure includes Axes that are not "
@@ -2447,10 +2401,13 @@ default: 'top'
 
         if renderer is None:
             renderer = get_renderer(self)
-
-        kwargs = get_tight_layout_figure(
-            self, self.axes, subplotspec_list, renderer,
-            pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+        ctx = (renderer._draw_disabled()
+               if hasattr(renderer, '_draw_disabled')
+               else suppress())
+        with ctx:
+            kwargs = get_tight_layout_figure(
+                self, self.axes, subplotspec_list, renderer,
+                pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:
             self.subplots_adjust(**kwargs)
 
@@ -2599,17 +2556,17 @@ default: 'top'
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
 
-    def add_gridspec(self, nrows, ncols, **kwargs):
+    def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
         Return a `.GridSpec` that has this figure as a parent.  This allows
         complex layout of axes in the figure.
 
         Parameters
         ----------
-        nrows : int
+        nrows : int, default: 1
             Number of rows in grid.
 
-        ncols : int
+        ncols : int, default: 1
             Number or columns in grid.
 
         Returns
@@ -2655,8 +2612,8 @@ def figaspect(arg):
 
     Parameters
     ----------
-    arg : scalar or 2d array
-        If a scalar, this defines the aspect ratio (i.e. the ratio height /
+    arg : float or 2d array
+        If a float, this defines the aspect ratio (i.e. the ratio height /
         width).
         In case of an array the aspect ratio is number of rows / number of
         columns, so that the array could be fitted in the figure undistorted.

@@ -35,7 +35,7 @@ multiple columns and rows, as well as fancy box drawing.  See
    :align: center
    :scale: 50
 
-   Whats New 98 4 Legend
+   What's New 98 4 Legend
 
 .. _fancy-annotations:
 
@@ -150,7 +150,7 @@ where you want to do the filling.
    :align: center
    :scale: 50
 
-   Whats New 98 4 Fill Between
+   What's New 98 4 Fill Between
 
 Lots more
 ---------

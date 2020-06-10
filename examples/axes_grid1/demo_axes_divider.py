@@ -6,14 +6,13 @@ Demo Axes Divider
 Axes divider to calculate location of axes and
 create a divider for them using existing axes instances.
 """
+
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 
 
 def get_demo_image():
-    import numpy as np
-    from matplotlib.cbook import get_sample_data
-    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-    z = np.load(f)
+    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     # z is a numpy array of 15x15
     return z, (-3, 4, -4, 3)
 

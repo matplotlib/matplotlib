@@ -9,8 +9,8 @@ In the second subplot a connection to the region of interest is
 created via `~.mark_inset`.
 """
 
+from matplotlib import cbook
 import matplotlib.pyplot as plt
-
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
@@ -18,10 +18,7 @@ import numpy as np
 
 
 def get_demo_image():
-    from matplotlib.cbook import get_sample_data
-    import numpy as np
-    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-    z = np.load(f)
+    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     # z is a numpy array of 15x15
     return z, (-3, 4, -4, 3)
 
@@ -60,11 +57,9 @@ Z2 = np.zeros((150, 150))
 ny, nx = Z.shape
 Z2[30:30+ny, 30:30+nx] = Z
 
-# extent = [-3, 4, -4, 3]
 ax2.imshow(Z2, extent=extent, origin="lower")
 
-
-axins2 = zoomed_inset_axes(ax2, 6, loc=1)  # zoom = 6
+axins2 = zoomed_inset_axes(ax2, zoom=6, loc=1)
 axins2.imshow(Z2, extent=extent, origin="lower")
 
 # sub region of the original image

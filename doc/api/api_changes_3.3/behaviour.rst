@@ -37,6 +37,13 @@ did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 `.pyplot.tick_params`) used to accept any value for ``which`` and silently
 did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 
+``Axis.set_ticklabels()`` must match ``FixedLocator.locs``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If an axis is using a `.ticker.FixedLocator`, typically set by a call to
+`.Axis.set_ticks`, then the number of ticklabels supplied must match the
+number of locations available (``FixedFormattor.locs``).  If not, a
+``ValueError`` is raised.
+
 ``backend_pgf.LatexManager.latex``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``backend_pgf.LatexManager.latex`` is now created with ``encoding="utf-8"``, so
@@ -172,7 +179,136 @@ values are displayed with an appropriate number of significant digits even if
 they are much smaller or much bigger than 1.  To restore the old behavior,
 explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
 
+Add *normalize*  keyword argument to ``Axes.pie``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``pie()`` used to draw a partial pie if the sum of the values was < 1. This behavior
+is deprecated and will change to always normalizing the values to a full pie by default.
+If you want to draw a partial pie, please pass ``normalize=False`` explicitly.
+
 ``table.CustomCell`` is now an alias for `.table.Cell`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All the functionality of ``CustomCell`` has been moved to its base class
 `~.table.Cell`.
+
+wx Timer interval
+~~~~~~~~~~~~~~~~~
+Setting the timer interval on a not-yet-started ``TimerWx`` won't start it
+anymore.
+
+"step"-type histograms default to the zorder of `.Line2D`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This ensures that they go above gridlines by default.  The old ``zorder`` can
+be kept by passing it as a keyword argument to `.Axes.hist`.
+
+`.Legend` and `.OffsetBox` visibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.Legend` and `.OffsetBox` subclasses (`.PaddedBox`, `.AnchoredOffsetbox`, and
+`.AnnotationBbox`) no longer directly keep track of the visibility of their
+underlying `.Patch` artist, but instead pass that flag down to the `.Patch`.
+
+`.Legend` and `.Table` no longer allow invalid locations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This affects legends produced on an Axes (`.Axes.legend` and `.pyplot.legend`)
+and on a Figure (`.Figure.legend` and `.pyplot.figlegend`).  Figure legends also
+no longer accept the unsupported ``'best'`` location.  Previously, invalid Axes
+locations would use ``'best'`` and invalid Figure locations would used ``'upper
+right'``.
+
+Passing Line2D's *drawstyle* together with *linestyle* is removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of ``plt.plot(..., linestyle="steps--")``, use ``plt.plot(...,
+linestyle="--", drawstyle="steps")``. ``ds`` is also an alias for
+``drawstyle``.
+
+Upper case color strings
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for passing single-letter colors (one of "rgbcmykw") as UPPERCASE
+characters is removed; these colors are now case-sensitive (lowercase).
+
+tight/constrained_layout no longer worry about titles that are too wide
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*tight_layout* and *constrained_layout* shrink axes to accommodate
+"decorations" on the axes.  However, if an xlabel or title is too long in the
+x direction, making the axes smaller in the x-direction doesn't help.  The
+behavior of both has been changed to ignore the width of the title and
+xlabel and the height of the ylabel in the layout logic.
+
+This also means there is a new keyword argument for `.axes.Axes.get_tightbbox`
+and `.axis.Axis.get_tightbbox`: ``for_layout_only``, which defaults to *False*,
+but if *True* returns a bounding box using the rules above.
+
+:rc:`savefig.facecolor` and :rc:`savefig.edgecolor` now default to "auto"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This newly allowed value for :rc:`savefig.facecolor` and :rc:`savefig.edgecolor`,
+as well as the *facecolor* and *edgecolor* parameters to `.Figure.savefig`, means
+"use whatever facecolor and edgecolor the figure current has".
+
+When using a single dataset, `.Axes.hist` no longer wraps the added artist in a `.silent_list`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When `.Axes.hist` is called with a single dataset, it adds to the axes either
+a `.BarContainer` object (when ``histtype="bar"`` or ``"barstacked"``), or a
+`.Polygon` object (when ``histype="step"`` or ``"stepfilled"``) -- the latter
+being wrapped in a list-of-one-element.  Previously, either artist would be
+wrapped in a `.silent_list`.  This is no longer the case: the `.BarContainer` is
+now returned as is (this is an API breaking change if you were directly relying
+on the concrete `list` API; however, `.BarContainer` inherits from `tuple` so
+most common operations remain available), and the list-of-one `.Polygon` is
+returned as is.  This makes the `repr` of the returned artist more accurate: it
+is now ::
+
+    <BarContainer object of of 10 artists>  # "bar", "barstacked"
+    [<matplotlib.patches.Polygon object at 0xdeadbeef>]  # "step", "stepfilled"
+
+instead of ::
+
+    <a list of 10 Patch objects>  # "bar", "barstacked"
+    <a list of 1 Patch objects>  # "step", "stepfilled"
+
+When `.Axes.hist` is called with multiple artists, it still wraps its return
+value in a `.silent_list`, but uses more accurate type information ::
+
+    <a list of 3 BarContainer objects>  # "bar", "barstacked"
+    <a list of 3 List[Polygon] objects>  # "step", "stepfilled"
+
+instead of ::
+
+    <a list of 3 Lists of Patches objects>  # "bar", "barstacked"
+    <a list of 3 Lists of Patches objects>  # "step", "stepfilled"
+
+Qt and wx backends no longer create a status bar by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The coordinates information is now displayed in the toolbar, consistently with
+the other backends.  This is intended to simplify embedding of Matplotlib in
+larger GUIs, where Matplotlib may control the toolbar but not the status bar.
+
+:rc:`text.hinting` now supports names mapping to FreeType flags
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:rc:`text.hinting` now supports the values "default", "no_autohint",
+"force_autohint", and "no_hinting", which directly map to the FreeType flags
+FT_LOAD_DEFAULT, etc.  The old synonyms (respectively "either", "native",
+"auto", and "none") are still supported, but their use is discouraged.  To get
+normalized values, use `.backend_agg.get_hinting_flag`, which returns integer
+flag values.
+
+`.cbook.get_sample_data` auto-loads numpy arrays
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When `.cbook.get_sample_data` is used to load a npy or npz file and the
+keyword-only parameter ``np_load`` is True, the file is automatically loaded
+using `numpy.load`.  ``np_load`` defaults to False for backwards compatibility,
+but will become True in a later release.
+
+``get_text_width_height_descent`` now checks ``ismath`` rather than :rc:`text.usetex`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... to determine whether a string should be passed to the usetex machinery or
+not.  This allows single strings to be marked as not-usetex even when the
+rcParam is True.
+
+`.Axes.vlines`, `.Axes.hlines`, `.pyplot.vlines` and `.pyplot.hlines` *colors* parameter default change
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *colors* parameter will now default to :rc:`lines.color`, while previously it defaulted to 'k'.

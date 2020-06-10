@@ -167,7 +167,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         if do_suptitle:
             bbox = invTransFig(
                 suptitle.get_window_extent(renderer=renderer))
-            height = bbox.y1 - bbox.y0
+            height = bbox.height
             if np.isfinite(height):
                 # reserve at top of figure include an h_pad above and below
                 suptitle._layoutbox.edit_height(height + h_pad * 2)
@@ -258,7 +258,11 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     fig = ax.figure
     invTransFig = fig.transFigure.inverted().transform_bbox
     pos = ax.get_position(original=True)
-    tightbbox = ax.get_tightbbox(renderer=renderer)
+    try:
+        tightbbox = ax.get_tightbbox(renderer=renderer, for_layout_only=True)
+    except TypeError:
+        tightbbox = ax.get_tightbbox(renderer=renderer)
+
     if tightbbox is None:
         bbox = pos
     else:
@@ -399,15 +403,9 @@ def _align_spines(fig, gs):
                 if height0 > height1:
                     ax0._poslayoutbox.constrain_height_min(
                         ax1._poslayoutbox.height * height0 / height1)
-                    # these constraints stop the smaller axes from
-                    # being allowed to go to zero height...
-                    ax1._poslayoutbox.constrain_height_min(
-                        ax0._poslayoutbox.height * height1 / (height0*1.8))
                 elif height0 < height1:
                     ax1._poslayoutbox.constrain_height_min(
                         ax0._poslayoutbox.height * height1 / height0)
-                    ax0._poslayoutbox.constrain_height_min(
-                        ax0._poslayoutbox.height * height0 / (height1*1.8))
             # For widths, do it if the subplots share a row.
             if not alignwidth and len(colspan0) == len(colspan1):
                 ax0._poslayoutbox.constrain_width(
@@ -417,13 +415,9 @@ def _align_spines(fig, gs):
                 if width0 > width1:
                     ax0._poslayoutbox.constrain_width_min(
                         ax1._poslayoutbox.width * width0 / width1)
-                    ax1._poslayoutbox.constrain_width_min(
-                        ax0._poslayoutbox.width * width1 / (width0*1.8))
                 elif width0 < width1:
                     ax1._poslayoutbox.constrain_width_min(
                         ax0._poslayoutbox.width * width1 / width0)
-                    ax0._poslayoutbox.constrain_width_min(
-                        ax1._poslayoutbox.width * width0 / (width1*1.8))
 
 
 def _arrange_subplotspecs(gs, hspace=0, wspace=0):

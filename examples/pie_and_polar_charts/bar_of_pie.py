@@ -58,7 +58,7 @@ bar_height = sum([item.get_height() for item in ax2.patches])
 
 # draw top connecting line
 x = r * np.cos(np.pi / 180 * theta2) + center[0]
-y = np.sin(np.pi / 180 * theta2) + center[1]
+y = r * np.sin(np.pi / 180 * theta2) + center[1]
 con = ConnectionPatch(xyA=(-width / 2, bar_height), coordsA=ax2.transData,
                       xyB=(x, y), coordsB=ax1.transData)
 con.set_color([0, 0, 0])
@@ -67,7 +67,7 @@ ax2.add_artist(con)
 
 # draw bottom connecting line
 x = r * np.cos(np.pi / 180 * theta1) + center[0]
-y = np.sin(np.pi / 180 * theta1) + center[1]
+y = r * np.sin(np.pi / 180 * theta1) + center[1]
 con = ConnectionPatch(xyA=(-width / 2, 0), coordsA=ax2.transData,
                       xyB=(x, y), coordsB=ax1.transData)
 con.set_color([0, 0, 0])

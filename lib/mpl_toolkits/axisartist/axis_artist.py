@@ -108,6 +108,14 @@ from .axisline_style import AxislineStyle
 class BezierPath(Line2D):
 
     def __init__(self, path, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        path : `~.path.Path`
+            The path to draw.
+        **kwargs
+            All remaining keyword arguments are passed to `.Line2D`.
+        """
         Line2D.__init__(self, [], [], *args, **kwargs)
         self._path = path
         self._invalid = False
@@ -245,32 +253,25 @@ class Ticks(AttributeCopier, Line2D):
         if not self.get_visible():
             return
 
-        size = self._ticksize
-        path_trans = self.get_transform()
-
         gc = renderer.new_gc()
         gc.set_foreground(self.get_markeredgecolor())
         gc.set_linewidth(self.get_markeredgewidth())
         gc.set_alpha(self._alpha)
 
-        offset = renderer.points_to_pixels(size)
-        marker_scale = Affine2D().scale(offset)
-
+        path_trans = self.get_transform()
+        marker_transform = (Affine2D()
+                            .scale(renderer.points_to_pixels(self._ticksize)))
         if self.get_tick_out():
-            add_angle = 180
-        else:
-            add_angle = 0
-
-        marker_rotation = Affine2D()
-        marker_transform = marker_scale + marker_rotation
+            marker_transform.rotate_deg(180)
 
         for loc, angle in self.locs_angles:
-            marker_rotation.clear().rotate_deg(angle + add_angle)
             locs = path_trans.transform_non_affine(np.array([loc]))
             if self.axes and not self.axes.viewLim.contains(*locs[0]):
                 continue
-            renderer.draw_markers(gc, self._tickvert_path, marker_transform,
-                                  Path(locs), path_trans.get_affine())
+            renderer.draw_markers(
+                gc, self._tickvert_path,
+                marker_transform + Affine2D().rotate_deg(angle),
+                Path(locs), path_trans.get_affine())
 
         gc.restore()
 
@@ -325,21 +326,15 @@ class LabelBase(mtext.Text):
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
-
-        offset_tr = Affine2D()
-        self.set_transform(tr+offset_tr)
-
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
-
         theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
-        offset_tr.translate(dx, dy)
+
+        self.set_transform(tr + Affine2D().translate(dx, dy))
         self.set_rotation(text_ref_angle+angle_orig)
         super().draw(renderer)
-        offset_tr.clear()
-
         # restore original properties
         self.set_transform(tr)
         self.set_rotation(angle_orig)
@@ -348,23 +343,15 @@ class LabelBase(mtext.Text):
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
-
-        offset_tr = Affine2D()
-        self.set_transform(tr+offset_tr)
-
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
-
         theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
-        offset_tr.translate(dx, dy)
+
+        self.set_transform(tr + Affine2D().translate(dx, dy))
         self.set_rotation(text_ref_angle+angle_orig)
-
         bbox = super().get_window_extent(renderer).frozen()
-
-        offset_tr.clear()
-
         # restore original properties
         self.set_transform(tr)
         self.set_rotation(angle_orig)
@@ -383,10 +370,10 @@ class AxisLabel(AttributeCopier, LabelBase):
 
     def __init__(self, *args, axis_direction="bottom", axis=None, **kwargs):
         self._axis = axis
-        LabelBase.__init__(self, *args, **kwargs)
-        self.set_axis_direction(axis_direction)
         self._pad = 5
         self._extra_pad = 0
+        LabelBase.__init__(self, *args, **kwargs)
+        self.set_axis_direction(axis_direction)
 
     def set_pad(self, pad):
         """
@@ -712,7 +699,7 @@ class AxisArtist(martist.Artist):
     is constant) line, ticks, ticklabels, and axis label.
     """
 
-    ZORDER = 2.5
+    zorder = ZORDER = 2.5  # ZORDER is a backcompat alias.
 
     @property
     def LABELPAD(self):
@@ -743,34 +730,33 @@ class AxisArtist(martist.Artist):
 
         if offset is None:
             offset = (0, 0)
-        self.dpi_transform = Affine2D()
-        self.offset_transform = ScaledTranslation(offset[0], offset[1],
-                                                  self.dpi_transform)
+        self.offset_transform = ScaledTranslation(
+            *offset,
+            Affine2D().scale(1 / 72)  # points to inches.
+            + self.axes.figure.dpi_scale_trans)
 
         if axis_direction in ["left", "right"]:
-            axis_name = "ytick"
             self.axis = axes.yaxis
         else:
-            axis_name = "xtick"
             self.axis = axes.xaxis
 
         self._axisline_style = None
         self._axis_direction = axis_direction
 
         self._init_line()
-        self._init_ticks(axis_name, **kwargs)
+        self._init_ticks(**kwargs)
         self._init_offsetText(axis_direction)
         self._init_label()
 
-        self.set_zorder(self.ZORDER)
-
-        self._rotate_label_along_line = False
-
         # axis direction
-        self._tick_add_angle = 180.
         self._ticklabel_add_angle = 0.
         self._axislabel_add_angle = 0.
         self.set_axis_direction(axis_direction)
+
+    @cbook.deprecated("3.3")
+    @property
+    def dpi_transform(self):
+        return Affine2D().scale(1 / 72) + self.axes.figure.dpi_scale_trans
 
     # axis direction
 
@@ -914,46 +900,40 @@ class AxisArtist(martist.Artist):
             self.line.set_line_mutation_scale(self.major_ticklabels.get_size())
         self.line.draw(renderer)
 
-    def _init_ticks(self, axis_name, **kwargs):
+    def _init_ticks(self, **kwargs):
+        axis_name = self.axis.axis_name
 
         trans = (self._axis_artist_helper.get_tick_transform(self.axes)
                  + self.offset_transform)
 
-        major_tick_size = kwargs.get("major_tick_size",
-                                     rcParams[f'{axis_name}.major.size'])
-        major_tick_pad = kwargs.get("major_tick_pad",
-                                    rcParams[f'{axis_name}.major.pad'])
-        minor_tick_size = kwargs.get("minor_tick_size",
-                                     rcParams[f'{axis_name}.minor.size'])
-        minor_tick_pad = kwargs.get("minor_tick_pad",
-                                    rcParams[f'{axis_name}.minor.pad'])
+        self.major_ticks = Ticks(
+            kwargs.get(
+                "major_tick_size", rcParams[f"{axis_name}tick.major.size"]),
+            axis=self.axis, transform=trans)
+        self.minor_ticks = Ticks(
+            kwargs.get(
+                "minor_tick_size", rcParams[f"{axis_name}tick.minor.size"]),
+            axis=self.axis, transform=trans)
 
-        self.major_ticks = Ticks(major_tick_size,
-                                 axis=self.axis,
-                                 transform=trans)
-        self.minor_ticks = Ticks(minor_tick_size,
-                                 axis=self.axis,
-                                 transform=trans)
-
-        if axis_name == "xaxis":
-            size = rcParams['xtick.labelsize']
-        else:
-            size = rcParams['ytick.labelsize']
-
-        self.major_ticklabels = TickLabels(size=size, axis=self.axis,
-                                           axis_direction=self._axis_direction)
-        self.minor_ticklabels = TickLabels(size=size, axis=self.axis,
-                                           axis_direction=self._axis_direction)
-
-        self.major_ticklabels.set(figure=self.axes.figure,
-                                  transform=trans,
-                                  fontsize=size)
-        self.major_ticklabels.set_pad(major_tick_pad)
-
-        self.minor_ticklabels.set(figure=self.axes.figure,
-                                  transform=trans,
-                                  fontsize=size)
-        self.minor_ticklabels.set_pad(minor_tick_pad)
+        size = rcParams[f"{axis_name}tick.labelsize"]
+        self.major_ticklabels = TickLabels(
+            axis=self.axis,
+            axis_direction=self._axis_direction,
+            figure=self.axes.figure,
+            transform=trans,
+            fontsize=size,
+            pad=kwargs.get(
+                "major_tick_pad", rcParams[f"{axis_name}tick.major.pad"]),
+        )
+        self.minor_ticklabels = TickLabels(
+            axis=self.axis,
+            axis_direction=self._axis_direction,
+            figure=self.axes.figure,
+            transform=trans,
+            fontsize=size,
+            pad=kwargs.get(
+                "minor_tick_pad", rcParams[f"{axis_name}tick.minor.pad"]),
+        )
 
     def _get_tick_info(self, tick_iter):
         """
@@ -1181,12 +1161,7 @@ class AxisArtist(martist.Artist):
     def get_tightbbox(self, renderer):
         if not self.get_visible():
             return
-
         self._axis_artist_helper.update_lim(self.axes)
-
-        dpi_cor = renderer.points_to_pixels(1.)
-        self.dpi_transform.clear().scale(dpi_cor)
-
         self._update_ticks(renderer)
         self._update_label(renderer)
         bb = [
@@ -1205,21 +1180,13 @@ class AxisArtist(martist.Artist):
     @martist.allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-
         if not self.get_visible():
             return
-
         renderer.open_group(__name__, gid=self.get_gid())
-
         self._axis_artist_helper.update_lim(self.axes)
-
-        dpi_cor = renderer.points_to_pixels(1.)
-        self.dpi_transform.clear().scale(dpi_cor)
-
         self._draw_ticks(renderer)
         self._draw_line(renderer)
         self._draw_label(renderer)
-
         renderer.close_group(__name__)
 
     def toggle(self, all=None, ticks=None, ticklabels=None, label=None):

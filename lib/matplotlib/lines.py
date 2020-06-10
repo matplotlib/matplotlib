@@ -335,16 +335,6 @@ class Line2D(Artist):
         if solid_joinstyle is None:
             solid_joinstyle = rcParams['lines.solid_joinstyle']
 
-        if isinstance(linestyle, str):
-            ds, ls = self._split_drawstyle_linestyle(linestyle)
-            if ds is not None and drawstyle is not None and ds != drawstyle:
-                raise ValueError("Inconsistent drawstyle ({!r}) and linestyle "
-                                 "({!r})".format(drawstyle, linestyle))
-            linestyle = ls
-
-            if ds is not None:
-                drawstyle = ds
-
         if drawstyle is None:
             drawstyle = 'default'
 
@@ -547,7 +537,7 @@ class Line2D(Artist):
         Parameters
         ----------
         every : None or int or (int, int) or slice or List[int] or float or \
-(float, float)
+(float, float) or List[bool]
             Which markers to plot.
 
             - every=None, every point will be plotted.
@@ -559,6 +549,8 @@ class Line2D(Artist):
               point start, up to but not including point end, will be plotted.
             - every=[i, j, m, n], only markers at points i, j, m, and n
               will be plotted.
+            - every=[True, False, True], positions that are True will be
+              plotted.
             - every=0.1, (i.e. a float) then markers will be spaced at
               approximately equal distances along the line; the distance
               along the line between markers is determined by multiplying the
@@ -590,9 +582,8 @@ class Line2D(Artist):
         axes-bounding-box-diagonal regardless of the actual axes data limits.
 
         """
-        if self._markevery != every:
-            self.stale = True
         self._markevery = every
+        self.stale = True
 
     def get_markevery(self):
         """
@@ -608,7 +599,8 @@ class Line2D(Artist):
             # After deprecation, the whole method can be deleted and inherited.
             cbook.warn_deprecated(
                 "3.3", message="Setting the line's pick radius via set_picker "
-                "is deprecated; use set_pickradius instead.")
+                "is deprecated since %(since)s and will be removed "
+                "%(removal)s; use set_pickradius instead.")
             self.pickradius = p
         self._picker = p
 
@@ -770,6 +762,7 @@ class Line2D(Artist):
             if len(tpath.vertices):
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
+                gc.set_url(self.get_url())
 
                 lc_rgba = mcolors.to_rgba(self._color, self._alpha)
                 gc.set_foreground(lc_rgba, isRGBA=True)
@@ -796,6 +789,7 @@ class Line2D(Artist):
         if self._marker and self._markersize > 0:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
+            gc.set_url(self.get_url())
             gc.set_linewidth(self._markeredgewidth)
             gc.set_antialiased(self._antialiased)
 
@@ -942,12 +936,11 @@ class Line2D(Artist):
         return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
+        if self.get_fillstyle() == 'none':
+            return 'none'
         fc = self._markerfacecoloralt if alt else self._markerfacecolor
         if cbook._str_lower_equal(fc, 'auto'):
-            if self.get_fillstyle() == 'none':
-                return 'none'
-            else:
-                return self._color
+            return self._color
         else:
             return fc
 
@@ -1102,39 +1095,6 @@ class Line2D(Artist):
         self._dashOffset, self._dashSeq = _scale_dashes(
             self._us_dashOffset, self._us_dashSeq, self._linewidth)
 
-    def _split_drawstyle_linestyle(self, ls):
-        """
-        Split drawstyle from linestyle string.
-
-        If *ls* is only a drawstyle default to returning a linestyle
-        of '-'.
-
-        Parameters
-        ----------
-        ls : str
-            The linestyle to be processed
-
-        Returns
-        -------
-        ret_ds : str or None
-            If the linestyle string does not contain a drawstyle prefix
-            return None, otherwise return it.
-
-        ls : str
-            The linestyle with the drawstyle (if any) stripped.
-        """
-        for ds in self.drawStyleKeys:  # long names are first in the list
-            if ls.startswith(ds):
-                cbook.warn_deprecated(
-                    "3.1", message="Passing the drawstyle with the linestyle "
-                    "as a single string is deprecated since Matplotlib "
-                    "%(since)s and support will be removed %(removal)s; "
-                    "please pass the drawstyle separately using the drawstyle "
-                    "keyword argument to Line2D or set_drawstyle() method (or "
-                    "ds/set_ds()).")
-                return ds, ls[len(ds):] or '-'
-        return None, ls
-
     def set_linestyle(self, ls):
         """
         Set the linestyle of the line.
@@ -1167,10 +1127,6 @@ class Line2D(Artist):
             For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         if isinstance(ls, str):
-            ds, ls = self._split_drawstyle_linestyle(ls)
-            if ds is not None:
-                self.set_drawstyle(ds)
-
             if ls in [' ', '', 'none']:
                 ls = 'None'
 

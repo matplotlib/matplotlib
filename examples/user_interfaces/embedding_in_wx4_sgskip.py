@@ -73,8 +73,9 @@ class App(wx.App):
         """Create the main window and insert the custom frame."""
         frame = CanvasFrame()
         frame.Show(True)
-
         return True
 
-app = App(0)
-app.MainLoop()
+
+if __name__ == "__main__":
+    app = App()
+    app.MainLoop()

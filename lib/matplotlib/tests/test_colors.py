@@ -70,6 +70,41 @@ def test_register_cmap():
         cm.register_cmap()
 
 
+def test_colormap_global_set_warn():
+    new_cm = plt.get_cmap('viridis')
+    # Store the old value so we don't override the state later on.
+    orig_cmap = copy.copy(new_cm)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="You are modifying the state of a globally"):
+        # This should warn now because we've modified the global state
+        new_cm.set_under('k')
+
+    # This shouldn't warn because it is a copy
+    copy.copy(new_cm).set_under('b')
+
+    # Test that registering and then modifying warns
+    plt.register_cmap(name='test_cm', cmap=copy.copy(orig_cmap))
+    new_cm = plt.get_cmap('test_cm')
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="You are modifying the state of a globally"):
+        # This should warn now because we've modified the global state
+        new_cm.set_under('k')
+
+    # Re-register the original
+    plt.register_cmap(cmap=orig_cmap)
+
+
+def test_colormap_dict_deprecate():
+    # Make sure we warn on get and set access into cmap_d
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="The global colormaps dictionary is no longer"):
+        cm = plt.cm.cmap_d['viridis']
+
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="The global colormaps dictionary is no longer"):
+        plt.cm.cmap_d['test'] = cm
+
+
 def test_colormap_copy():
     cm = plt.cm.Reds
     cm_copy = copy.copy(cm)
@@ -229,6 +264,84 @@ def test_BoundaryNorm():
     assert np.all(bn(vals).mask)
     vals = np.ma.masked_invalid([np.Inf])
     assert np.all(bn(vals).mask)
+
+    # Incompatible extend and clip
+    with pytest.raises(ValueError, match="not compatible"):
+        mcolors.BoundaryNorm(np.arange(4), 5, extend='both', clip=True)
+
+    # Too small ncolors argument
+    with pytest.raises(ValueError, match="ncolors must equal or exceed"):
+        mcolors.BoundaryNorm(np.arange(4), 2)
+
+    with pytest.raises(ValueError, match="ncolors must equal or exceed"):
+        mcolors.BoundaryNorm(np.arange(4), 3, extend='min')
+
+    with pytest.raises(ValueError, match="ncolors must equal or exceed"):
+        mcolors.BoundaryNorm(np.arange(4), 4, extend='both')
+
+    # Testing extend keyword, with interpolation (large cmap)
+    bounds = [1, 2, 3]
+    cmap = cm.get_cmap('viridis')
+    mynorm = mcolors.BoundaryNorm(bounds, cmap.N, extend='both')
+    refnorm = mcolors.BoundaryNorm([0] + bounds + [4], cmap.N)
+    x = np.random.randn(100) * 10 + 2
+    ref = refnorm(x)
+    ref[ref == 0] = -1
+    ref[ref == cmap.N - 1] = cmap.N
+    assert_array_equal(mynorm(x), ref)
+
+    # Without interpolation
+    cmref = mcolors.ListedColormap(['blue', 'red'])
+    cmref.set_over('black')
+    cmref.set_under('white')
+    cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
+
+    refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
+    mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='both')
+    assert mynorm.vmin == refnorm.vmin
+    assert mynorm.vmax == refnorm.vmax
+
+    assert mynorm(bounds[0] - 0.1) == -1  # under
+    assert mynorm(bounds[0] + 0.1) == 1   # first bin -> second color
+    assert mynorm(bounds[-1] - 0.1) == cmshould.N - 2  # next-to-last color
+    assert mynorm(bounds[-1] + 0.1) == cmshould.N  # over
+
+    x = [-1, 1.2, 2.3, 9.6]
+    assert_array_equal(cmshould(mynorm(x)), cmshould([0, 1, 2, 3]))
+    x = np.random.randn(100) * 10 + 2
+    assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
+
+    # Just min
+    cmref = mcolors.ListedColormap(['blue', 'red'])
+    cmref.set_under('white')
+    cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
+
+    assert cmref.N == 2
+    assert cmshould.N == 3
+    refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
+    mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='min')
+    assert mynorm.vmin == refnorm.vmin
+    assert mynorm.vmax == refnorm.vmax
+    x = [-1, 1.2, 2.3]
+    assert_array_equal(cmshould(mynorm(x)), cmshould([0, 1, 2]))
+    x = np.random.randn(100) * 10 + 2
+    assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
+
+    # Just max
+    cmref = mcolors.ListedColormap(['blue', 'red'])
+    cmref.set_over('black')
+    cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
+
+    assert cmref.N == 2
+    assert cmshould.N == 3
+    refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
+    mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='max')
+    assert mynorm.vmin == refnorm.vmin
+    assert mynorm.vmax == refnorm.vmax
+    x = [1.2, 2.3, 4]
+    assert_array_equal(cmshould(mynorm(x)), cmshould([0, 1, 2]))
+    x = np.random.randn(100) * 10 + 2
+    assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
 
 
 @pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])
@@ -502,6 +615,35 @@ def test_cmap_and_norm_from_levels_and_colors():
     ax.tick_params(labelleft=False, labelbottom=False)
 
 
+@image_comparison(baseline_images=['boundarynorm_and_colorbar'],
+                  extensions=['png'])
+def test_boundarynorm_and_colorbarbase():
+
+    # Make a figure and axes with dimensions as desired.
+    fig = plt.figure()
+    ax1 = fig.add_axes([0.05, 0.80, 0.9, 0.15])
+    ax2 = fig.add_axes([0.05, 0.475, 0.9, 0.15])
+    ax3 = fig.add_axes([0.05, 0.15, 0.9, 0.15])
+
+    # Set the colormap and bounds
+    bounds = [-1, 2, 5, 7, 12, 15]
+    cmap = cm.get_cmap('viridis')
+
+    # Default behavior
+    norm = mcolors.BoundaryNorm(bounds, cmap.N)
+    cb1 = mcolorbar.ColorbarBase(ax1, cmap=cmap, norm=norm, extend='both',
+                                 orientation='horizontal')
+    # New behavior
+    norm = mcolors.BoundaryNorm(bounds, cmap.N, extend='both')
+    cb2 = mcolorbar.ColorbarBase(ax2, cmap=cmap, norm=norm,
+                                 orientation='horizontal')
+
+    # User can still force to any extend='' if really needed
+    norm = mcolors.BoundaryNorm(bounds, cmap.N, extend='both')
+    cb3 = mcolorbar.ColorbarBase(ax3, cmap=cmap, norm=norm,
+                                 extend='neither', orientation='horizontal')
+
+
 def test_cmap_and_norm_from_levels_and_colors2():
     levels = [-1, 2, 2.5, 3]
     colors = ['red', (0, 1, 0), 'blue', (0.5, 0.5, 0.5), (0.0, 0.0, 0.0, 1.0)]
@@ -582,14 +724,13 @@ def test_autoscale_masked():
 @image_comparison(['light_source_shading_topo.png'])
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
-    with cbook.get_sample_data('jacksboro_fault_dem.npz') as file, \
-         np.load(file) as dem:
-        elev = dem['elevation']
-        dx, dy = dem['dx'], dem['dy']
-        # Get the true cellsize in meters for accurate vertical exaggeration
-        # Convert from decimal degrees to meters
-        dx = 111320.0 * dx * np.cos(dem['ymin'])
-        dy = 111320.0 * dy
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    elev = dem['elevation']
+    dx, dy = dem['dx'], dem['dy']
+    # Get the true cellsize in meters for accurate vertical exaggeration
+    # Convert from decimal degrees to meters
+    dx = 111320.0 * dx * np.cos(dem['ymin'])
+    dy = 111320.0 * dy
 
     ls = mcolors.LightSource(315, 45)
     cmap = cm.gist_earth
@@ -655,6 +796,19 @@ def test_light_source_shading_default():
          ]).T
 
     assert_array_almost_equal(rgb, expect, decimal=2)
+
+
+def test_light_source_shading_empty_mask():
+    y, x = np.mgrid[-1.2:1.2:8j, -1.2:1.2:8j]
+    z0 = 10 * np.cos(x**2 + y**2)
+    z1 = np.ma.array(z0)
+
+    cmap = plt.cm.copper
+    ls = mcolors.LightSource(315, 45)
+    rgb0 = ls.shade(z0, cmap)
+    rgb1 = ls.shade(z1, cmap)
+
+    assert_array_almost_equal(rgb0, rgb1)
 
 
 # Numpy 1.9.1 fixed a bug in masked arrays which resulted in
@@ -818,7 +972,7 @@ def test_pandas_iterable(pd):
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-@pytest.mark.parametrize('name', sorted(cm.cmap_d))
+@pytest.mark.parametrize('name', sorted(plt.colormaps()))
 def test_colormap_reversing(name):
     """
     Check the generated _lut data of a colormap and corresponding reversed
@@ -964,6 +1118,13 @@ def test_ndarray_subclass_norm():
 def test_same_color():
     assert mcolors.same_color('k', (0, 0, 0))
     assert not mcolors.same_color('w', (1, 1, 0))
+    assert mcolors.same_color(['red', 'blue'], ['r', 'b'])
+    assert mcolors.same_color('none', 'none')
+    assert not mcolors.same_color('none', 'red')
+    with pytest.raises(ValueError):
+        mcolors.same_color(['r', 'g', 'b'], ['r'])
+    with pytest.raises(ValueError):
+        mcolors.same_color(['red', 'green'], 'none')
 
 
 def test_hex_shorthand_notation():

@@ -27,7 +27,7 @@ except ValueError as e:
     # auto-backend selection logic correctly skips.
     raise ImportError from e
 
-from gi.repository import GLib, GObject, Gtk, Gdk
+from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 
 
 _log = logging.getLogger(__name__)
@@ -51,6 +51,10 @@ except TypeError as exc:
 
 class TimerGTK3(TimerBase):
     """Subclass of `.TimerBase` using GTK3 timer events."""
+
+    def __init__(self, *args, **kwargs):
+        self._timer = None
+        TimerBase.__init__(self, *args, **kwargs)
 
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
@@ -172,7 +176,19 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         self.set_double_buffered(True)
         self.set_can_focus(True)
-        self._renderer_init()
+
+        renderer_init = cbook._deprecate_method_override(
+            __class__._renderer_init, self, allow_empty=True, since="3.3",
+            addendum="Please initialize the renderer, if needed, in the "
+            "subclass' __init__; a fully empty _renderer_init implementation "
+            "may be kept for compatibility with earlier versions of "
+            "Matplotlib.")
+        if renderer_init:
+            renderer_init()
+
+    @cbook.deprecated("3.3", alternative="__init__")
+    def _renderer_init(self):
+        pass
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
@@ -343,7 +359,6 @@ class FigureManagerGTK3(FigureManagerBase):
         h = int(self.canvas.figure.bbox.height)
 
         self.toolbar = self._get_toolbar()
-        self.statusbar = None
 
         def add_widget(child):
             child.show()
@@ -355,9 +370,6 @@ class FigureManagerGTK3(FigureManagerBase):
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarGTK3(self.toolmanager)
-                h += add_widget(self.statusbar)
-                h += add_widget(Gtk.HSeparator())
 
         if self.toolbar is not None:
             self.toolbar.show()
@@ -429,9 +441,6 @@ class FigureManagerGTK3(FigureManagerBase):
         if self.toolbar:
             toolbar_size = self.toolbar.size_request()
             height += toolbar_size.height
-        if self.statusbar:
-            statusbar_size = self.statusbar.size_request()
-            height += statusbar_size.height
         canvas_size = self.canvas.get_allocation()
         if canvas_size.width == canvas_size.height == 1:
             # A canvas size of (1, 1) cannot exist in most cases, because
@@ -447,8 +456,48 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
+
+        self.set_style(Gtk.ToolbarStyle.ICONS)
+
+        self._gtk_ids = {}
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                self.insert(Gtk.SeparatorToolItem(), -1)
+                continue
+            image = Gtk.Image.new_from_gicon(
+                Gio.Icon.new_for_string(
+                    str(cbook._get_data_path('images',
+                                             f'{image_file}-symbolic.svg'))),
+                Gtk.IconSize.LARGE_TOOLBAR)
+            self._gtk_ids[text] = tbutton = (
+                Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
+                Gtk.ToolButton())
+            tbutton.set_label(text)
+            tbutton.set_icon_widget(image)
+            self.insert(tbutton, -1)
+            # Save the handler id, so that we can block it as needed.
+            tbutton._signal_handler = tbutton.connect(
+                'clicked', getattr(self, callback))
+            tbutton.set_tooltip_text(tooltip_text)
+
+        toolitem = Gtk.SeparatorToolItem()
+        self.insert(toolitem, -1)
+        toolitem.set_draw(False)
+        toolitem.set_expand(True)
+
+        toolitem = Gtk.ToolItem()
+        self.insert(toolitem, -1)
+        self.message = Gtk.Label()
+        toolitem.add(self.message)
+
+        self.show_all()
+
         NavigationToolbar2.__init__(self, canvas)
-        self.ctx = None
+
+    @cbook.deprecated("3.3")
+    @property
+    def ctx(self):
+        return self.canvas.get_property("window").cairo_create()
 
     def set_message(self, s):
         self.message.set_label(s)
@@ -478,40 +527,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
         self.ctx.set_source_rgb(0, 0, 0)
         self.ctx.stroke()
-
-    def _init_toolbar(self):
-        self.set_style(Gtk.ToolbarStyle.ICONS)
-
-        self._gtk_ids = {}
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                self.insert(Gtk.SeparatorToolItem(), -1)
-                continue
-            image = Gtk.Image()
-            image.set_from_file(
-                str(cbook._get_data_path('images', image_file + '.png')))
-            self._gtk_ids[text] = tbutton = (
-                Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
-                Gtk.ToolButton())
-            tbutton.set_label(text)
-            tbutton.set_icon_widget(image)
-            self.insert(tbutton, -1)
-            # Save the handler id, so that we can block it as needed.
-            tbutton._signal_handler = tbutton.connect(
-                'clicked', getattr(self, callback))
-            tbutton.set_tooltip_text(tooltip_text)
-
-        toolitem = Gtk.SeparatorToolItem()
-        self.insert(toolitem, -1)
-        toolitem.set_draw(False)
-        toolitem.set_expand(True)
-
-        toolitem = Gtk.ToolItem()
-        self.insert(toolitem, -1)
-        self.message = Gtk.Label()
-        toolitem.add(self.message)
-
-        self.show_all()
 
     def _update_buttons_checked(self):
         for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
@@ -562,7 +577,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         ff = dialog.get_filter()  # Doesn't autoadjust to filename :/
         fmt = self.canvas.get_supported_filetypes_grouped()[ff.get_name()][0]
         dialog.destroy()
-        if response == Gtk.ResponseType.CANCEL:
+        if response != Gtk.ResponseType.OK:
             return
         # Save dir for next time, unless empty str (which means use cwd).
         if mpl.rcParams['savefig.directory']:
@@ -610,17 +625,15 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
-    _icon_extension = '.png'
+    _icon_extension = '-symbolic.svg'
 
     def __init__(self, toolmanager):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
-        self.set_property("orientation", Gtk.Orientation.VERTICAL)
-
-        self._toolarea = Gtk.Box()
-        self._toolarea.set_property('orientation', Gtk.Orientation.HORIZONTAL)
-        self.pack_start(self._toolarea, False, False, 0)
-        self._toolarea.show_all()
+        self.set_property('orientation', Gtk.Orientation.HORIZONTAL)
+        self._message = Gtk.Label()
+        self.pack_end(self._message, False, False, 0)
+        self.show_all()
         self._groups = {}
         self._toolitems = {}
 
@@ -633,8 +646,9 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         tbutton.set_label(name)
 
         if image_file is not None:
-            image = Gtk.Image()
-            image.set_from_file(image_file)
+            image = Gtk.Image.new_from_gicon(
+                Gio.Icon.new_for_string(image_file),
+                Gtk.IconSize.LARGE_TOOLBAR)
             tbutton.set_icon_widget(image)
 
         if position is None:
@@ -653,7 +667,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
                 self._add_separator()
             toolbar = Gtk.Toolbar()
             toolbar.set_style(Gtk.ToolbarStyle.ICONS)
-            self._toolarea.pack_start(toolbar, False, False, 0)
+            self.pack_start(toolbar, False, False, 0)
             toolbar.show_all()
             self._groups[group] = toolbar
         self._groups[group].insert(button, position)
@@ -683,10 +697,14 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def _add_separator(self):
         sep = Gtk.Separator()
         sep.set_property("orientation", Gtk.Orientation.VERTICAL)
-        self._toolarea.pack_start(sep, False, True, 0)
+        self.pack_start(sep, False, True, 0)
         sep.show_all()
 
+    def set_message(self, s):
+        self._message.set_label(s)
 
+
+@cbook.deprecated("3.3")
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
     def __init__(self, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
@@ -806,6 +824,15 @@ class HelpGTK3(backend_tools.ToolHelpBase):
 
         return ''.join(mods) + key
 
+    def _is_valid_shortcut(self, key):
+        """
+        Check for a valid shortcut to be displayed.
+
+        - GTK will never send 'cmd+' (see `FigureCanvasGTK3._get_key`).
+        - The shortcut window only shows keyboard shortcuts, not mouse buttons.
+        """
+        return 'cmd+' not in key and not key.startswith('MouseButton.')
+
     def _show_shortcuts_window(self):
         section = Gtk.ShortcutsSection()
 
@@ -826,8 +853,7 @@ class HelpGTK3(backend_tools.ToolHelpBase):
                 accelerator=' '.join(
                     self._normalize_shortcut(key)
                     for key in self.toolmanager.get_tool_keymap(name)
-                    # Will never be sent:
-                    if 'cmd+' not in key),
+                    if self._is_valid_shortcut(key)),
                 title=tool.name,
                 subtitle=tool.description)
             group.add(shortcut)

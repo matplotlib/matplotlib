@@ -5,7 +5,7 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import _text_layout, cbook, dviread, font_manager, rcParams
+from matplotlib import _text_layout, dviread, font_manager, rcParams
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
@@ -51,18 +51,8 @@ class TextToPath:
         char_id = urllib.parse.quote('%s-%d' % (ps_name, ccode))
         return char_id
 
-    @cbook.deprecated(
-        "3.1",
-        alternative="font.get_path() and manual translation of the vertices")
-    def glyph_to_path(self, font, currx=0.):
-        """Convert the *font*'s current glyph to a (vertices, codes) pair."""
-        verts, codes = font.get_path()
-        if currx != 0.0:
-            verts[:, 0] += currx
-        return verts, codes
-
     def get_text_width_height_descent(self, s, prop, ismath):
-        if rcParams['text.usetex']:
+        if ismath == "TeX":
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
@@ -103,7 +93,7 @@ class TextToPath:
             The text to be converted.
 
         ismath : {False, True, "TeX"}
-            If True, use mathtext parser.  If "TeX", use tex for renderering.
+            If True, use mathtext parser.  If "TeX", use tex for rendering.
 
         Returns
         -------
@@ -349,8 +339,7 @@ class TextPath(Path):
     """
 
     def __init__(self, xy, s, size=None, prop=None,
-                 _interpolation_steps=1, usetex=False,
-                 *args, **kwargs):
+                 _interpolation_steps=1, usetex=False):
         r"""
         Create a path from the text. Note that it simply is a path,
         not an artist. You need to use the `~.PathPatch` (or other artists)
@@ -396,15 +385,7 @@ class TextPath(Path):
         # Circular import.
         from matplotlib.text import Text
 
-        if args or kwargs:
-            cbook.warn_deprecated(
-                "3.1", message="Additional arguments to TextPath used to be "
-                "ignored, but will trigger a TypeError %(removal)s.")
-
-        if prop is None:
-            prop = FontProperties()
-        else:
-            prop = FontProperties._from_any(prop)
+        prop = FontProperties._from_any(prop)
         if size is None:
             size = prop.get_size_in_points()
 

@@ -21,13 +21,14 @@ See the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
 information.
 """
 
+import itertools
 import logging
 import time
 
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, docstring
+from matplotlib import cbook, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -172,6 +173,12 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
 
+labelcolor : str or list
+    Sets the color of the text in the legend. Can be a valid color string
+    (for example, 'red'), or a list of color strings. The labelcolor can
+    also be made to match the color of the line or marker using 'linecolor',
+    'markerfacecolor' (or 'mfc'), or 'markeredgecolor' (or 'mec').
+
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
     entry for a `.Line2D` (line).
@@ -230,7 +237,7 @@ bbox_transform : None or `matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
-title_fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
+title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
     The font size of the legend's title.
 
@@ -293,7 +300,8 @@ class Legend(Artist):
                  scatterpoints=None,    # number of scatter points
                  scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
-                 fontsize=None,        # keyword to set font size directly
+                 fontsize=None,      # keyword to set font size directly
+                 labelcolor=None,    # keyword to set the text color
 
                  # spacing & pad defined as a fraction of the font-size
                  borderpad=None,      # the whitespace inside the legend border
@@ -444,28 +452,15 @@ class Legend(Artist):
                 loc = 'upper right'
         if isinstance(loc, str):
             if loc not in self.codes:
-                if self.isaxes:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'best'; valid locations are\n\t{}\n"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 0
-                else:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'upper right'; valid locations are\n\t{}\n'"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 1
+                raise ValueError(
+                    "Unrecognized location {!r}. Valid locations are\n\t{}\n"
+                    .format(loc, '\n\t'.join(self.codes)))
             else:
                 loc = self.codes[loc]
         if not self.isaxes and loc == 0:
-            cbook.warn_deprecated(
-                "3.1", message="Automatic legend placement (loc='best') not "
-                "implemented for figure legend. Falling back on 'upper "
-                "right'. This will raise an exception %(removal)s.")
-            loc = 1
+            raise ValueError(
+                "Automatic legend placement (loc='best') not implemented for "
+                "figure legend.")
 
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
@@ -499,11 +494,10 @@ class Legend(Artist):
                       else "square,pad=0"),
             mutation_scale=self._fontsize,
             snap=True,
+            visible=(frameon if frameon is not None
+                     else mpl.rcParams["legend.frameon"])
         )
         self._set_artist_props(self.legendPatch)
-
-        self._drawFrame = (frameon if frameon is not None
-                           else mpl.rcParams["legend.frameon"])
 
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
@@ -518,6 +512,36 @@ class Legend(Artist):
         tprop = FontProperties(size=title_fontsize)
         self.set_title(title, prop=tprop)
         self._draggable = None
+
+        # set the text color
+
+        color_getters = {  # getter function depends on line or patch
+            'linecolor':       ['get_color',           'get_facecolor'],
+            'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
+            'mfc':             ['get_markerfacecolor', 'get_facecolor'],
+            'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
+            'mec':             ['get_markeredgecolor', 'get_edgecolor'],
+        }
+        if labelcolor is None:
+            pass
+        elif isinstance(labelcolor, str) and labelcolor in color_getters:
+            getter_names = color_getters[labelcolor]
+            for handle, text in zip(self.legendHandles, self.texts):
+                for getter_name in getter_names:
+                    try:
+                        color = getattr(handle, getter_name)()
+                        text.set_color(color)
+                        break
+                    except AttributeError:
+                        pass
+        elif np.iterable(labelcolor):
+            for text, color in zip(self.texts,
+                                   itertools.cycle(
+                                       colors.to_rgba_array(labelcolor))):
+                text.set_color(color)
+        else:
+            raise ValueError("Invalid argument for labelcolor : %s" %
+                             str(labelcolor))
 
     def _set_artist_props(self, a):
         """
@@ -580,17 +604,13 @@ class Legend(Artist):
         # update the location and size of the legend. This needs to
         # be done in any case to clip the figure right.
         bbox = self._legend_box.get_window_extent(renderer)
-        self.legendPatch.set_bounds(bbox.x0, bbox.y0,
-                                    bbox.width, bbox.height)
+        self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         self.legendPatch.set_mutation_scale(fontsize)
 
-        if self._drawFrame:
-            if self.shadow:
-                shadow = Shadow(self.legendPatch, 2, -2)
-                shadow.draw(renderer)
+        if self.shadow:
+            Shadow(self.legendPatch, 2, -2).draw(renderer)
 
-            self.legendPatch.draw(renderer)
-
+        self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)
 
         renderer.close_group('legend')
@@ -895,7 +915,7 @@ class Legend(Artist):
 
     def get_frame_on(self):
         """Get whether the legend box patch is drawn."""
-        return self._drawFrame
+        return self.legendPatch.get_visible()
 
     def set_frame_on(self, b):
         """
@@ -905,7 +925,7 @@ class Legend(Artist):
         ----------
         b : bool
         """
-        self._drawFrame = b
+        self.legendPatch.set_visible(b)
         self.stale = True
 
     draw_frame = set_frame_on  # Backcompat alias.

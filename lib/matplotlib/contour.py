@@ -1257,7 +1257,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         linewidths = self.linewidths
         Nlev = len(self.levels)
         if linewidths is None:
-            tlinewidths = [(mpl.rcParams['lines.linewidth'],)] * Nlev
+            default_linewidth = mpl.rcParams['contour.linewidth']
+            if default_linewidth is None:
+                default_linewidth = mpl.rcParams['lines.linewidth']
+            tlinewidths = [(default_linewidth,)] * Nlev
         else:
             if not np.iterable(linewidths):
                 linewidths = [linewidths] * Nlev
@@ -1712,7 +1715,7 @@ class QuadContourSet(ContourSet):
 
             .. note::
 
-                An exising `.QuadContourSet` does not get notified if
+                An existing `.QuadContourSet` does not get notified if
                 properties of its colormap are changed. Therefore, an explicit
                 call `.QuadContourSet.changed()` is needed after modifying the
                 colormap. The explicit call can be left out, if a colorbar is
@@ -1749,7 +1752,7 @@ class QuadContourSet(ContourSet):
             however introduce rendering artifacts at chunk boundaries depending
             on the backend, the *antialiased* flag and value of *alpha*.
 
-        linewidths : float or sequence of float, default: :rc:`lines.linewidth`
+        linewidths : float or array-like, default: :rc:`contour.linewidth`
             *Only applies to* `.contour`.
 
             The line width of the contour lines.
@@ -1758,6 +1761,8 @@ class QuadContourSet(ContourSet):
 
             If a sequence, the levels in ascending order will be plotted with
             the linewidths in the order specified.
+
+            If None, this falls back to :rc:`lines.linewidth`.
 
         linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
             *Only applies to* `.contour`.

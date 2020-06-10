@@ -7,6 +7,7 @@ This backend depends on cairocffi or pycairo.
 """
 
 import gzip
+import math
 
 import numpy as np
 
@@ -402,7 +403,46 @@ class GraphicsContextCairo(GraphicsContextBase):
         self.ctx.set_line_width(self.renderer.points_to_pixels(w))
 
 
+class _CairoRegion:
+    def __init__(self, slices, data):
+        self._slices = slices
+        self._data = data
+
+
 class FigureCanvasCairo(FigureCanvasBase):
+
+    def copy_from_bbox(self, bbox):
+        surface = self._renderer.gc.ctx.get_target()
+        if not isinstance(surface, cairo.ImageSurface):
+            raise RuntimeError(
+                "copy_from_bbox only works when rendering to an ImageSurface")
+        sw = surface.get_width()
+        sh = surface.get_height()
+        x0 = math.ceil(bbox.x0)
+        x1 = math.floor(bbox.x1)
+        y0 = math.ceil(sh - bbox.y1)
+        y1 = math.floor(sh - bbox.y0)
+        if not (0 <= x0 and x1 <= sw and bbox.x0 <= bbox.x1
+                and 0 <= y0 and y1 <= sh and bbox.y0 <= bbox.y1):
+            raise ValueError("Invalid bbox")
+        sls = slice(y0, y0 + max(y1 - y0, 0)), slice(x0, x0 + max(x1 - x0, 0))
+        data = (np.frombuffer(surface.get_data(), np.uint32)
+                .reshape((sh, sw))[sls].copy())
+        return _CairoRegion(sls, data)
+
+    def restore_region(self, region):
+        surface = self._renderer.gc.ctx.get_target()
+        if not isinstance(surface, cairo.ImageSurface):
+            raise RuntimeError(
+                "restore_region only works when rendering to an ImageSurface")
+        surface.flush()
+        sw = surface.get_width()
+        sh = surface.get_height()
+        sly, slx = region._slices
+        (np.frombuffer(surface.get_data(), np.uint32)
+         .reshape((sh, sw))[sly, slx]) = region._data
+        surface.mark_dirty_rectangle(
+            slx.start, sly.start, slx.stop - slx.start, sly.stop - sly.start)
 
     def print_png(self, fobj, *args, **kwargs):
         self._get_printed_image_surface().write_to_png(fobj)

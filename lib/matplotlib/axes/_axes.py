@@ -708,7 +708,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : scalars
+        x, y : float
             The position to place the text. By default, this is in data
             coordinates. The coordinate system can be changed using the
             *transform* parameter.
@@ -882,7 +882,7 @@ class Axes(_AxesBase):
         --------
         vlines : Add vertical lines in data coordinates.
         axvspan : Add a vertical span (rectangle) across the axis.
-        axline : Add a line with an abritrary slope.
+        axline : Add a line with an arbitrary slope.
 
         Examples
         --------
@@ -1116,21 +1116,21 @@ class Axes(_AxesBase):
 
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
                       label_namer="y")
-    def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
+    def hlines(self, y, xmin, xmax, colors=None, linestyles='solid',
                label='', **kwargs):
         """
         Plot horizontal lines at each *y* from *xmin* to *xmax*.
 
         Parameters
         ----------
-        y : scalar or sequence of scalar
+        y : float or array-like
             y-indexes where to plot the lines.
 
-        xmin, xmax : scalar or 1D array-like
+        xmin, xmax : float or array-like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array-like of colors, default: 'k'
+        colors : list of colors, default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1196,7 +1196,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
                       label_namer="x")
-    def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
+    def vlines(self, x, ymin, ymax, colors=None, linestyles='solid',
                label='', **kwargs):
         """
         Plot vertical lines.
@@ -1205,14 +1205,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : scalar or 1D array-like
+        x : float or array-like
             x-indexes where to plot the lines.
 
-        ymin, ymax : scalar or 1D array-like
+        ymin, ymax : float or array-like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array-like of colors, default: 'k'
+        colors : list of colors, default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1285,9 +1285,6 @@ class Axes(_AxesBase):
         """
         Plot identical parallel lines at the given positions.
 
-        *positions* should be a 1D or 2D array-like object, with each row
-        corresponding to a row or column of lines.
-
         This type of plot is commonly used in neuroscience for representing
         neural events, where it is usually called a spike raster, dot raster,
         or raster plot.
@@ -1299,48 +1296,53 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        positions : 1D or 2D array-like object
-            Each value is an event. If *positions* is a 2D array-like, each
-            row corresponds to a row or a column of lines (depending on the
-            *orientation* parameter).
+        positions : array-like or list of array-like
+            A 1D array-like defines the positions of one sequence of events.
+
+            Multiple groups of events may be passed as a list of array-likes.
+            Each group can be styled independently by passing lists of values
+            to *lineoffsets*, *linelengths*, *linewidths*, *colors* and
+            *linestyles*.
+
+            Note that *positions* can be a 2D array, but in practice different
+            event groups usually have different counts so that one will use a
+            list of different-length arrays rather than a 2D array.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
-            The direction of the event collections:
+            The direction of the event sequence:
 
-            - 'horizontal': the lines are arranged horizontally in rows,
-              and are vertical.
-            - 'vertical': the lines are arranged vertically in columns,
-              and are horizontal.
+            - 'horizontal': the events are arranged horizontally.
+              The indicator lines are vertical.
+            - 'vertical': the events are arranged vertically.
+              The indicator lines are horizontal.
 
-        lineoffsets : scalar or sequence of scalars, default: 1
+        lineoffsets : float or array-like, default: 1
             The offset of the center of the lines from the origin, in the
             direction orthogonal to *orientation*.
 
-            A sequence must match the dimension of *positions*
-            in the direction of *orientation*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-        linelengths : scalar or sequence of scalars, default: 1
+        linelengths : float or array-like, default: 1
             The total height of the lines (i.e. the lines stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-        linewidths : scalar, scalar sequence or None, default: None
-            The line width(s) of the event lines, in points. If it is None,
-            defaults to its rcParams setting.
+        linewidths : float or array-like, default: :rc:`lines.linewidth`
+            The line width(s) of the event lines, in points.
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-        colors : color, sequence of colors or None, default: None
-            The color(s) of the event lines. If it is None, defaults to its
-            rcParams setting.
+        colors : color or list of colors, default: :rc:`lines.color`
+            The color(s) of the event lines.
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-        linestyles : str or tuple or a sequence of such values, optional
+        linestyles : str or tuple or list of such values, default: 'solid'
             Default is 'solid'. Valid strings are ['solid', 'dashed',
             'dashdot', 'dotted', '-', '--', '-.', ':']. Dash tuples
             should be of the form::
@@ -1350,11 +1352,10 @@ class Axes(_AxesBase):
             where *onoffseq* is an even length tuple of on and off ink
             in points.
 
-            If a sequence, then *positions* must be 2D and the length
-            must match the first dimension of *positions*.
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
 
-
-        **kwargs : optional
+        **kwargs
             Other keyword arguments are line collection properties.  See
             `.LineCollection` for a list of the valid properties.
 
@@ -1809,12 +1810,7 @@ class Axes(_AxesBase):
             self.xaxis_date(tz)
         if ydate:
             self.yaxis_date(tz)
-
-        ret = self.plot(x, y, fmt, **kwargs)
-
-        self._request_autoscale_view()
-
-        return ret
+        return self.plot(x, y, fmt, **kwargs)
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
@@ -2273,26 +2269,25 @@ class Axes(_AxesBase):
         Make a bar plot.
 
         The bars are positioned at *x* with the given *align*\ment. Their
-        dimensions are given by *width* and *height*. The vertical baseline
+        dimensions are given by *height* and *width*. The vertical baseline
         is *bottom* (default 0).
 
-        Each of *x*, *height*, *width*, and *bottom* may either be a scalar
-        applying to all bars, or it may be a sequence of length N providing a
-        separate value for each bar.
+        Many parameters can take either a single value applying to all bars
+        or a sequence of values, one for each bar.
 
         Parameters
         ----------
-        x : sequence of scalars
+        x : float or array-like
             The x coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
 
-        height : scalar or sequence of scalars
+        height : float or array-like
             The height(s) of the bars.
 
-        width : scalar or array-like, default: 0.8
+        width : float or array-like, default: 0.8
             The width(s) of the bars.
 
-        bottom : scalar or array-like, default: 0
+        bottom : float or array-like, default: 0
             The y coordinate(s) of the bars bases.
 
         align : {'center', 'edge'}, default: 'center'
@@ -2311,20 +2306,20 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : scalar or array-like, optional
+        color : color or list of color, optional
             The colors of the bar faces.
 
-        edgecolor : scalar or array-like, optional
+        edgecolor : color or list of color, optional
             The colors of the bar edges.
 
-        linewidth : scalar or array-like, optional
+        linewidth : float or array-like, optional
             Width of the bar edge(s). If 0, don't draw edges.
 
-        tick_label : str or array-like, optional
+        tick_label : str or list of str, optional
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
-        xerr, yerr : scalar or array-like of shape(N,) or shape(2, N), optional
+        xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
             The values are +/- sizes relative to the data:
 
@@ -2338,13 +2333,11 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        ecolor : scalar or array-like, default: 'black'
+        ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
 
-        capsize : scalar, optional
+        capsize : float, default: :rc:`errorbar.capsize`
            The length of the error bar caps in points.
-           Default: None, which will take the value from
-           :rc:`errorbar.capsize`.
 
         error_kw : dict, optional
             Dictionary of kwargs to be passed to the `~.Axes.errorbar`
@@ -2354,9 +2347,9 @@ class Axes(_AxesBase):
         log : bool, default: False
             If *True*, set the y-axis to be log scale.
 
-        orientation : {'vertical',  'horizontal'}, optional
-            *This is for internal use only.* Please use `barh` for
-            horizontal bar plots. Default: 'vertical'.
+        **kwargs : `.Rectangle` properties
+
+        %(Rectangle)s
 
         See Also
         --------
@@ -2364,17 +2357,8 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        The optional arguments *color*, *edgecolor*, *linewidth*,
-        *xerr*, and *yerr* can be either scalars or sequences of
-        length equal to the number of bars.  This enables you to use
-        bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
-        independent specification of lower and upper errors.
-
-        Other optional kwargs:
-
-        %(Rectangle)s
+        Stacked bars can be achieved by passing individual *bottom* values per
+        bar. See :doc:`/gallery/lines_bars_and_markers/bar_stacked`.
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
         color = kwargs.pop('color', None)
@@ -2401,6 +2385,9 @@ class Axes(_AxesBase):
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
 
+        # The keyword argument *orientation* is used by barh() to defer all
+        # logic and drawing to bar(). It is considered internal and is
+        # intentionally not mentioned in the docstring.
         orientation = kwargs.pop('orientation', 'vertical')
         cbook._check_in_list(['vertical', 'horizontal'],
                              orientation=orientation)
@@ -2548,23 +2535,22 @@ class Axes(_AxesBase):
         dimensions are given by *width* and *height*. The horizontal baseline
         is *left* (default 0).
 
-        Each of *y*, *width*, *height*, and *left* may either be a scalar
-        applying to all bars, or it may be a sequence of length N providing a
-        separate value for each bar.
+        Many parameters can take either a single value applying to all bars
+        or a sequence of values, one for each bar.
 
         Parameters
         ----------
-        y : scalar or array-like
+        y : float or array-like
             The y coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
 
-        width : scalar or array-like
+        width : float or array-like
             The width(s) of the bars.
 
-        height : sequence of scalars, default: 0.8
+        height : float or array-like, default: 0.8
             The heights of the bars.
 
-        left : sequence of scalars, default: 0
+        left : float or array-like, default: 0
             The x coordinates of the left sides of the bars.
 
         align : {'center', 'edge'}, default: 'center'
@@ -2584,20 +2570,20 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : scalar or array-like, optional
+        color : color or list of color, optional
             The colors of the bar faces.
 
-        edgecolor : scalar or array-like, optional
+        edgecolor : color or list of color, optional
             The colors of the bar edges.
 
-        linewidth : scalar or array-like, optional
+        linewidth : float or array-like, optional
             Width of the bar edge(s). If 0, don't draw edges.
 
-        tick_label : str or array-like, optional
+        tick_label : str or list of str, optional
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
-        xerr, yerr : scalar or array-like of shape(N,) or shape(2, N), optional
+        xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not ``None``, add horizontal / vertical errorbars to the
             bar tips. The values are +/- sizes relative to the data:
 
@@ -2611,13 +2597,11 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        ecolor : scalar or array-like, default: 'black'
+        ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
 
-        capsize : scalar, optional
+        capsize : float, default: :rc:`errorbar.capsize`
            The length of the error bar caps in points.
-           Default: None, which will take the value from
-           :rc:`errorbar.capsize`.
 
         error_kw : dict, optional
             Dictionary of kwargs to be passed to the `~.Axes.errorbar`
@@ -2627,23 +2611,20 @@ class Axes(_AxesBase):
         log : bool, default: False
             If ``True``, set the x-axis to be log scale.
 
+        **kwargs : `.Rectangle` properties
+
+        %(Rectangle)s
+
         See Also
         --------
         bar: Plot a vertical bar plot.
 
         Notes
         -----
-        The optional arguments *color*, *edgecolor*, *linewidth*,
-        *xerr*, and *yerr* can be either scalars or sequences of
-        length equal to the number of bars.  This enables you to use
-        bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
-        independent specification of lower and upper errors.
-
-        Other optional kwargs:
-
-        %(Rectangle)s
+        Stacked bars can be achieved by passing individual *left* values per
+        bar. See
+        :doc:`/gallery/lines_bars_and_markers/horizontal_barchart_distribution`
+        .
         """
         kwargs.setdefault('orientation', 'horizontal')
         patches = self.bar(x=left, height=height, width=width, bottom=y,
@@ -2768,7 +2749,7 @@ class Axes(_AxesBase):
             Note: While it is technically possible to specify valid formats
             other than color or color and linestyle (e.g. 'rx' or '-.'), this
             is beyond the intention of the method and will most likely not
-            result in a reasonable reasonable plot.
+            result in a reasonable plot.
 
         markerfmt : str, optional
             A string defining the properties of the markers at the stem heads.
@@ -2899,9 +2880,9 @@ class Axes(_AxesBase):
     @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
-            startangle=None, radius=None, counterclock=True,
+            startangle=0, radius=1, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False):
+            frame=False, rotatelabels=False, *, normalize=None):
         """
         Plot a pie chart.
 
@@ -2915,7 +2896,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : array-like
+        x : 1D array-like
             The wedge sizes.
 
         explode : array-like, default: None
@@ -2932,7 +2913,7 @@ class Axes(_AxesBase):
         autopct : None or str or callable, default: None
             If not *None*, is a string or function used to label the wedges
             with their numeric value.  The label will be placed inside the
-            wedge.  If it is a format string, the label will be ``fmt%pct``.
+            wedge.  If it is a format string, the label will be ``fmt % pct``.
             If it is a function, it will be called.
 
         pctdistance : float, default: 0.6
@@ -2942,17 +2923,30 @@ class Axes(_AxesBase):
         shadow : bool, default: False
             Draw a shadow beneath the pie.
 
+        normalize: None or bool, default: None
+            When *True*, always make a full pie by normalizing x so that
+            ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
+            and raises a `ValueError` for ``sum(x) > 1``.
+
+            When *None*, defaults to *True* if ``sum(x) > 0`` and *False* if
+            ``sum(x) < 1``.
+
+            Please note that the previous default value of *None* is now
+            deprecated, and the default will change to *True* in the next
+            release. Please pass ``normalize=False`` explicitly if you want to
+            draw a partial pie.
+
         labeldistance : float or None, default: 1.1
             The radial distance at which the pie labels are drawn.
             If set to ``None``, label are not drawn, but are stored for use in
             ``legend()``
 
-        startangle : float, default: None
-            If not *None*, rotates the start of the pie chart by *angle*
-            degrees counterclockwise from the x-axis.
+        startangle : float, default: 0 degrees
+            The angle by which the start of the pie is rotated,
+            counterclockwise from the x-axis.
 
-        radius : float, default: None
-            The radius of the pie, if *radius* is *None* it will be set to 1.
+        radius : float, default: 1
+            The radius of the pie.
 
         counterclock : bool, default: True
             Specify fractions direction, clockwise or counterclockwise.
@@ -2999,20 +2993,29 @@ class Axes(_AxesBase):
         # The use of float32 is "historical", but can't be changed without
         # regenerating the test baselines.
         x = np.asarray(x, np.float32)
-        if x.ndim != 1 and x.squeeze().ndim <= 1:
-            cbook.warn_deprecated(
-                "3.1", message="Non-1D inputs to pie() are currently "
-                "squeeze()d, but this behavior is deprecated since %(since)s "
-                "and will be removed %(removal)s; pass a 1D array instead.")
-            x = np.atleast_1d(x.squeeze())
+        if x.ndim > 1:
+            raise ValueError("x must be 1D")
 
         if np.any(x < 0):
             raise ValueError("Wedge sizes 'x' must be non negative values")
 
         sx = x.sum()
-        if sx > 1:
-            x = x / sx
 
+        if normalize is None:
+            if sx < 1:
+                cbook.warn_deprecated(
+                    "3.3", message="normalize=None does not normalize "
+                    "if the sum is less than 1 but this behavior"
+                    "is deprecated since %(since)s until %(removal)s. "
+                    "After the deprecation "
+                    "period the default value will be normalize=True. "
+                    "To prevent normalization pass normalize=False ")
+            else:
+                normalize = True
+        if normalize:
+            x = x / sx
+        elif sx > 1:
+            raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
         if labels is None:
             labels = [''] * len(x)
         if explode is None:
@@ -3030,22 +3033,25 @@ class Axes(_AxesBase):
                 return next(color_cycle)
 
         if radius is None:
+            cbook.warn_deprecated(
+                "3.3", message="Support for passing a radius of None to mean "
+                "1 is deprecated since %(since)s and will be removed "
+                "%(removal)s.")
             radius = 1
 
         # Starting theta1 is the start fraction of the circle
         if startangle is None:
-            theta1 = 0
-        else:
-            theta1 = startangle / 360.0
+            cbook.warn_deprecated(
+                "3.3", message="Support for passing a startangle of None to "
+                "mean 0 is deprecated since %(since)s and will be removed "
+                "%(removal)s.")
+            startangle = 0
+        theta1 = startangle / 360
 
-        # set default values in wedge_prop
         if wedgeprops is None:
             wedgeprops = {}
-        wedgeprops.setdefault('clip_on', False)
-
         if textprops is None:
             textprops = {}
-        textprops.setdefault('clip_on', False)
 
         texts = []
         slices = []
@@ -3061,18 +3067,17 @@ class Axes(_AxesBase):
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
                                360. * max(theta1, theta2),
                                facecolor=get_next_color(),
-                               **wedgeprops)
+                               clip_on=False,
+                               label=label)
+            w.set(**wedgeprops)
             slices.append(w)
             self.add_patch(w)
-            w.set_label(label)
 
             if shadow:
-                # make sure to add a shadow after the call to
-                # add_patch so the figure and transform props will be
-                # set
+                # Make sure to add a shadow after the call to add_patch so the
+                # figure and transform props will be set.
                 shad = mpatches.Shadow(w, -0.02, -0.02)
-                shad.set_zorder(0.9 * w.get_zorder())
-                shad.set_label('_nolegend_')
+                shad.set(zorder=0.9 * w.get_zorder(), label='_nolegend_')
                 self.add_patch(shad)
 
             if labeldistance is not None:
@@ -3085,14 +3090,13 @@ class Axes(_AxesBase):
                     label_alignment_v = 'bottom' if yt > 0 else 'top'
                     label_rotation = (np.rad2deg(thetam)
                                       + (0 if xt > 0 else 180))
-                props = dict(horizontalalignment=label_alignment_h,
-                             verticalalignment=label_alignment_v,
-                             rotation=label_rotation,
-                             size=rcParams['xtick.labelsize'])
-                props.update(textprops)
-
-                t = self.text(xt, yt, label, **props)
-
+                t = self.text(xt, yt, label,
+                              clip_on=False,
+                              horizontalalignment=label_alignment_h,
+                              verticalalignment=label_alignment_v,
+                              rotation=label_rotation,
+                              size=rcParams['xtick.labelsize'])
+                t.set(**textprops)
                 texts.append(t)
 
             if autopct is not None:
@@ -3105,25 +3109,19 @@ class Axes(_AxesBase):
                 else:
                     raise TypeError(
                         'autopct must be callable or a format string')
-
-                props = dict(horizontalalignment='center',
-                             verticalalignment='center')
-                props.update(textprops)
-                t = self.text(xt, yt, s, **props)
-
+                t = self.text(xt, yt, s,
+                              clip_on=False,
+                              horizontalalignment='center',
+                              verticalalignment='center')
+                t.set(**textprops)
                 autotexts.append(t)
 
             theta1 = theta2
 
         if not frame:
-            self.set_frame_on(False)
-
-            self.set_xlim((-1.25 + center[0],
-                           1.25 + center[0]))
-            self.set_ylim((-1.25 + center[1],
-                           1.25 + center[1]))
-            self.set_xticks([])
-            self.set_yticks([])
+            self.set(frame_on=False, xticks=[], yticks=[],
+                     xlim=(-1.25 + center[0], 1.25 + center[0]),
+                     ylim=(-1.25 + center[1], 1.25 + center[1]))
 
         if autopct is None:
             return slices, texts
@@ -3147,10 +3145,10 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : scalar or array-like
+        x, y : float or array-like
             The data positions.
 
-        xerr, yerr : scalar or array-like, shape(N,) or shape(2, N), optional
+        xerr, yerr : float or array-like, shape(N,) or shape(2, N), optional
             The errorbar sizes:
 
             - scalar: Symmetric +/- values for all data points.
@@ -3176,14 +3174,14 @@ class Axes(_AxesBase):
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
-        elinewidth : scalar, default: None
+        elinewidth : float, default: None
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        capsize : scalar, default: :rc:`errorbar.capsize`
+        capsize : float, default: :rc:`errorbar.capsize`
             The length of the error bar caps in points.
 
-        capthick : scalar, default: None
+        capthick : float, default: None
             An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
             This setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
@@ -3197,10 +3195,13 @@ class Axes(_AxesBase):
 
         lolims, uplims, xlolims, xuplims : bool, default: False
             These arguments can be used to indicate that a value gives only
-            upper/lower limits. In that case a caret symbol is used to
-            indicate this. *lims*-arguments may be of the same type as *xerr*
-            and *yerr*.  To use limits with inverted axes, `~.Axes.set_xlim`
-            or `~.Axes.set_ylim` must be called before :meth:`errorbar`.
+            upper/lower limits.  In that case a caret symbol is used to
+            indicate this. *lims*-arguments may be scalars, or array-likes of
+            the same length as *xerr* and *yerr*.  To use limits with inverted
+            axes, `~.Axes.set_xlim` or `~.Axes.set_ylim` must be called before
+            :meth:`errorbar`.  Note the tricky parameter names: setting e.g.
+            *lolims* to True means that the y-value is a *lower* limit of the
+            True value, so, only an *upward*-pointing arrow will be drawn!
 
         errorevery : int or (int, int), default: 1
             draws error bars on a subset of the data. *errorevery* =N draws
@@ -3294,6 +3295,9 @@ class Axes(_AxesBase):
         if not np.iterable(y):
             y = [y]
 
+        if len(x) != len(y):
+            raise ValueError("'x' and 'y' must have the same size")
+
         if xerr is not None:
             if not np.iterable(xerr):
                 xerr = [xerr] * len(x)
@@ -3366,22 +3370,29 @@ class Axes(_AxesBase):
         everymask = np.zeros(len(x), bool)
         everymask[offset::errorevery] = True
 
-        def xywhere(xs, ys, mask):
-            """
-            Return xs[mask], ys[mask] where mask is True but xs and
-            ys are not arrays.
-            """
-            assert len(xs) == len(ys)
-            assert len(xs) == len(mask)
-            xs = [thisx for thisx, b in zip(xs, mask) if b]
-            ys = [thisy for thisy, b in zip(ys, mask) if b]
-            return xs, ys
+        def apply_mask(arrays, mask):
+            # Return, for each array in *arrays*, the elements for which *mask*
+            # is True, without using fancy indexing.
+            return [[*itertools.compress(array, mask)] for array in arrays]
 
-        def extract_err(err, data):
+        def extract_err(name, err, data, lolims, uplims):
             """
-            Private function to parse *err* and subtract/add it to *data*.
+            Private function to compute error bars.
 
-            Both *err* and *data* are already iterables at this point.
+            Parameters
+            ----------
+            name : {'x', 'y'}
+                Name used in the error message.
+            err : array-like
+                xerr or yerr from errorbar().
+            data : array-like
+                x or y from errorbar().
+            lolims : array-like
+                Error is only applied on **upper** side when this is True.  See
+                the note in the main docstring about this parameter's name.
+            uplims : array-like
+                Error is only applied on **lower** side when this is True.  See
+                the note in the main docstring about this parameter's name.
             """
             try:  # Asymmetric error: pair of 1D iterables.
                 a, b = err
@@ -3389,136 +3400,101 @@ class Axes(_AxesBase):
                 iter(b)
             except (TypeError, ValueError):
                 a = b = err  # Symmetric error: 1D iterable.
-            # This could just be `np.ndim(a) > 1 and np.ndim(b) > 1`, except
-            # for the (undocumented, but tested) support for (n, 1) arrays.
-            a_sh = np.shape(a)
-            b_sh = np.shape(b)
-            if (len(a_sh) > 2 or (len(a_sh) == 2 and a_sh[1] != 1)
-                    or len(b_sh) > 2 or (len(b_sh) == 2 and b_sh[1] != 1)):
+            if np.ndim(a) > 1 or np.ndim(b) > 1:
                 raise ValueError(
-                    "err must be a scalar or a 1D or (2, n) array-like")
-            if len(a_sh) == 2 or len(b_sh) == 2:
-                cbook.warn_deprecated(
-                    "3.1", message="Support for passing a (n, 1)-shaped error "
-                    "array to errorbar() is deprecated since Matplotlib "
-                    "%(since)s and will be removed %(removal)s; pass a 1D "
-                    "array instead.")
+                    f"{name}err must be a scalar or a 1D or (2, n) array-like")
             # Using list comprehensions rather than arrays to preserve units.
             for e in [a, b]:
                 if len(data) != len(e):
                     raise ValueError(
                         f"The lengths of the data ({len(data)}) and the "
                         f"error {len(e)} do not match")
-            low = [v - e for v, e in zip(data, a)]
-            high = [v + e for v, e in zip(data, b)]
+            low = [v if lo else v - e for v, e, lo in zip(data, a, lolims)]
+            high = [v if up else v + e for v, e, up in zip(data, b, uplims)]
             return low, high
 
         if xerr is not None:
-            left, right = extract_err(xerr, x)
+            left, right = extract_err('x', xerr, x, xlolims, xuplims)
+            barcols.append(self.hlines(
+                *apply_mask([y, left, right], everymask), **eb_lines_style))
             # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
-            if noxlims.any() or len(noxlims) == 0:
-                yo, _ = xywhere(y, right, noxlims & everymask)
-                lo, ro = xywhere(left, right, noxlims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(lo, yo, marker='|',
-                                                  **eb_cap_style))
-                    caplines.append(mlines.Line2D(ro, yo, marker='|',
-                                                  **eb_cap_style))
-
+            if noxlims.any() and capsize > 0:
+                yo, lo, ro = apply_mask([y, left, right], noxlims & everymask)
+                caplines.extend([
+                    mlines.Line2D(lo, yo, marker='|', **eb_cap_style),
+                    mlines.Line2D(ro, yo, marker='|', **eb_cap_style)])
             if xlolims.any():
-                yo, _ = xywhere(y, right, xlolims & everymask)
-                lo, ro = xywhere(x, right, xlolims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
-                rightup, yup = xywhere(right, y, xlolims & everymask)
+                xo, yo, lo, ro = apply_mask([x, y, left, right],
+                                            xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
                 else:
                     marker = mlines.CARETRIGHTBASE
-                caplines.append(
-                    mlines.Line2D(rightup, yup, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    ro, yo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xlo, ylo = xywhere(x, y, xlolims & everymask)
-                    caplines.append(mlines.Line2D(xlo, ylo, marker='|',
-                                                  **eb_cap_style))
-
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='|', **eb_cap_style))
             if xuplims.any():
-                yo, _ = xywhere(y, right, xuplims & everymask)
-                lo, ro = xywhere(left, x, xuplims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
-                leftlo, ylo = xywhere(left, y, xuplims & everymask)
+                xo, yo, lo, ro = apply_mask([x, y, left, right],
+                                            xuplims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETRIGHTBASE
                 else:
                     marker = mlines.CARETLEFTBASE
-                caplines.append(
-                    mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    lo, yo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xup, yup = xywhere(x, y, xuplims & everymask)
-                    caplines.append(mlines.Line2D(xup, yup, marker='|',
-                                                  **eb_cap_style))
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='|', **eb_cap_style))
 
         if yerr is not None:
-            lower, upper = extract_err(yerr, y)
+            lower, upper = extract_err('y', yerr, y, lolims, uplims)
+            barcols.append(self.vlines(
+                *apply_mask([x, lower, upper], everymask), **eb_lines_style))
             # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
-            if noylims.any() or len(noylims) == 0:
-                xo, _ = xywhere(x, lower, noylims & everymask)
-                lo, uo = xywhere(lower, upper, noylims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(xo, lo, marker='_',
-                                                  **eb_cap_style))
-                    caplines.append(mlines.Line2D(xo, uo, marker='_',
-                                                  **eb_cap_style))
-
+            if noylims.any() and capsize > 0:
+                xo, lo, uo = apply_mask([x, lower, upper], noylims & everymask)
+                caplines.extend([
+                    mlines.Line2D(xo, lo, marker='_', **eb_cap_style),
+                    mlines.Line2D(xo, uo, marker='_', **eb_cap_style)])
             if lolims.any():
-                xo, _ = xywhere(x, lower, lolims & everymask)
-                lo, uo = xywhere(y, upper, lolims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
-                xup, upperup = xywhere(x, upper, lolims & everymask)
+                xo, yo, lo, uo = apply_mask([x, y, lower, upper],
+                                            lolims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETDOWNBASE
                 else:
                     marker = mlines.CARETUPBASE
-                caplines.append(
-                    mlines.Line2D(xup, upperup, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    xo, uo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xlo, ylo = xywhere(x, y, lolims & everymask)
-                    caplines.append(mlines.Line2D(xlo, ylo, marker='_',
-                                                  **eb_cap_style))
-
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='_', **eb_cap_style))
             if uplims.any():
-                xo, _ = xywhere(x, lower, uplims & everymask)
-                lo, uo = xywhere(lower, y, uplims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
-                xlo, lowerlo = xywhere(x, lower, uplims & everymask)
+                xo, yo, lo, uo = apply_mask([x, y, lower, upper],
+                                            uplims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETUPBASE
                 else:
                     marker = mlines.CARETDOWNBASE
-                caplines.append(
-                    mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    xo, lo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xup, yup = xywhere(x, y, uplims & everymask)
-                    caplines.append(mlines.Line2D(xup, yup, marker='_',
-                                                  **eb_cap_style))
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='_', **eb_cap_style))
+
         for l in caplines:
             self.add_line(l)
 
         self._request_autoscale_view()
-        errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
-                                                tuple(barcols)),
-                                               has_xerr=(xerr is not None),
-                                               has_yerr=(yerr is not None),
-                                               label=label)
+        errorbar_container = ErrorbarContainer(
+            (data_line, tuple(caplines), tuple(barcols)),
+            has_xerr=(xerr is not None), has_yerr=(yerr is not None),
+            label=label)
         self.containers.append(errorbar_container)
 
         return errorbar_container  # (l0, caplines, barcols)
@@ -3620,7 +3596,7 @@ class Axes(_AxesBase):
             automatically set to match the positions. Defaults to
             ``range(1, N+1)`` where N is the number of boxes to be drawn.
 
-        widths : scalar or array-like
+        widths : float or array-like
             Sets the width of each box either with a scalar or a
             sequence. The default is 0.5, or ``0.15*(distance between
             extreme positions)``, if that is smaller.
@@ -3647,7 +3623,7 @@ class Axes(_AxesBase):
             *meanprops* (see below).  Not recommended if *shownotches* is also
             True.  Otherwise, means will be shown as points.
 
-        zorder : scalar, default: None
+        zorder : float, default: ``Line2D.zorder = 2``
             Sets the zorder of the boxplot.
 
         Returns
@@ -3786,7 +3762,7 @@ class Axes(_AxesBase):
                         stats['med'] = med
 
         if conf_intervals is not None:
-            if np.shape(conf_intervals)[0] != len(bxpstats):
+            if len(conf_intervals) != len(bxpstats):
                 raise ValueError(
                     "'conf_intervals' and 'x' have different lengths")
             else:
@@ -3923,7 +3899,7 @@ class Axes(_AxesBase):
           If True, the tick locations and labels will be adjusted to match the
           boxplot positions.
 
-        zorder : scalar, default: None
+        zorder : float, default: ``Line2D.zorder = 2``
           The zorder of the resulting boxplot.
 
         Returns
@@ -4289,32 +4265,42 @@ class Axes(_AxesBase):
             except ValueError:
                 pass  # Failed to convert to float array; must be color specs.
             else:
+                # handle the documented special case of a 2D array with 1
+                # row which as RGB(A) to broadcast.
+                if c.shape == (1, 4) or c.shape == (1, 3):
+                    c_is_mapped = False
+                    if c.size != xsize:
+                        valid_shape = False
                 # If c can be either mapped values or a RGB(A) color, prefer
                 # the former if shapes match, the latter otherwise.
-                if c.size == xsize:
+                elif c.size == xsize:
                     c = c.ravel()
                     c_is_mapped = True
                 else:  # Wrong size; it must not be intended for mapping.
                     if c.shape in ((3,), (4,)):
                         _log.warning(
-                            "'c' argument looks like a single numeric RGB or "
+                            "*c* argument looks like a single numeric RGB or "
                             "RGBA sequence, which should be avoided as value-"
                             "mapping will have precedence in case its length "
-                            "matches with 'x' & 'y'.  Please use a 2-D array "
-                            "with a single row if you really want to specify "
+                            "matches with *x* & *y*.  Please use the *color* "
+                            "keyword-argument or provide a 2-D array "
+                            "with a single row if you intend to specify "
                             "the same RGB or RGBA value for all points.")
                     valid_shape = False
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
             except (TypeError, ValueError) as err:
-                if not valid_shape:
-                    raise invalid_shape_exception(c.size, xsize) from err
-                # Both the mapping *and* the RGBA conversion failed: pretty
-                # severe failure => one may appreciate a verbose feedback.
-                raise ValueError(
-                    f"'c' argument must be a color, a sequence of colors, or "
-                    f"a sequence of numbers, not {c}") from err
+                if "RGBA values should be within 0-1 range" in str(err):
+                    raise
+                else:
+                    if not valid_shape:
+                        raise invalid_shape_exception(c.size, xsize) from err
+                    # Both the mapping *and* the RGBA conversion failed: pretty
+                    # severe failure => one may appreciate a verbose feedback.
+                    raise ValueError(
+                        f"'c' argument must be a color, a sequence of colors, "
+                        f"or a sequence of numbers, not {c}") from err
             else:
                 if len(colors) not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
@@ -4338,21 +4324,21 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : scalar or array-like, shape (n, )
+        x, y : float or array-like, shape (n, )
             The data positions.
 
-        s : scalar or array-like, shape (n, ), optional
+        s : float or array-like, shape (n, ), optional
             The marker size in points**2.
             Default is ``rcParams['lines.markersize'] ** 2``.
 
-        c : color, sequence, or sequence of colors, optional
-            The marker color. Possible values:
+        c : array-like or list of colors or color, optional
+            The marker colors. Possible values:
 
-            - A single color format string.
-            - A sequence of colors of length n.
             - A scalar or sequence of n numbers to be mapped to colors using
               *cmap* and *norm*.
             - A 2-D array in which the rows are RGB or RGBA.
+            - A sequence of colors of length n.
+            - A single color format string.
 
             Note that *c* should not be a single numeric RGB or RGBA sequence
             because that is indistinguishable from an array of values to be
@@ -4361,9 +4347,12 @@ class Axes(_AxesBase):
             matching will have precedence in case of a size matching with *x*
             and *y*.
 
-            Defaults to ``None``. In that case the marker color is determined
-            by the value of ``color``, ``facecolor`` or ``facecolors``. In case
-            those are not specified or ``None``, the marker color is determined
+            If you wish to specify a single color for all points
+            prefer the *color* keyword argument.
+
+            Defaults to `None`. In that case the marker color is determined
+            by the value of *color*, *facecolor* or *facecolors*. In case
+            those are not specified or `None`, the marker color is determined
             by the next color of the ``Axes``' current "shape and fill" color
             cycle. This cycle defaults to :rc:`axes.prop_cycle`.
 
@@ -4383,16 +4372,16 @@ class Axes(_AxesBase):
             *cmap*.
             If *None*, use the default `.colors.Normalize`.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             *vmin* and *vmax* are used in conjunction with the default norm to
             map the color array *c* to the colormap *cmap*. If None, the
             respective min and max of the color array is used.
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        linewidths : scalar or array-like, default: :rc:`lines.linewidth`
+        linewidths : float or array-like, default: :rc:`lines.linewidth`
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
 
@@ -4404,8 +4393,9 @@ default: :rc:`scatter.edgecolors`
             - 'none': No patch boundary will be drawn.
             - A color or sequence of colors.
 
-            For non-filled markers, the *edgecolors* kwarg is ignored and
-            forced to 'face' internally.
+            For non-filled markers, *edgecolors* is ignored. Instead, the color
+            is determined like with 'face', i.e. from *c*, *colors*, or
+            *facecolors*.
 
         plotnonfinite : bool, default: False
             Set to plot points with nonfinite *c*, in conjunction with
@@ -4487,15 +4477,19 @@ default: :rc:`scatter.edgecolors`
         path = marker_obj.get_path().transformed(
             marker_obj.get_transform())
         if not marker_obj.is_filled():
-            edgecolors = 'face'
-            linewidths = rcParams['lines.linewidth']
+            if linewidths is None:
+                linewidths = rcParams['lines.linewidth']
+            elif np.iterable(linewidths):
+                linewidths = [
+                    lw if lw is not None else rcParams['lines.linewidth']
+                    for lw in linewidths]
 
         offsets = np.ma.column_stack([x, y])
 
         collection = mcoll.PathCollection(
                 (path,), scales,
-                facecolors=colors,
-                edgecolors=edgecolors,
+                facecolors=colors if marker_obj.is_filled() else 'none',
+                edgecolors=edgecolors if marker_obj.is_filled() else colors,
                 linewidths=linewidths,
                 offsets=offsets,
                 transOffset=kwargs.pop('transform', self.transData),
@@ -4821,8 +4815,7 @@ default: :rc:`scatter.edgecolors`
                 edgecolors=edgecolors,
                 linewidths=linewidths,
                 offsets=offsets,
-                transOffset=mtransforms.IdentityTransform(),
-                offset_position="data"
+                transOffset=mtransforms.AffineDeltaTransform(self.transData),
                 )
 
         # Set normalizer if bins is 'log'
@@ -5106,7 +5099,7 @@ default: :rc:`scatter.edgecolors`
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
         # Common implementation between fill_between (*ind_dir*="x") and
-        # fill_betweenx (*ind_dir*="y").  *ind* is the indepedent variable,
+        # fill_betweenx (*ind_dir*="y").  *ind* is the independent variable,
         # *dep* the dependent variable.  The docstring below is interpolated
         # to generate both methods' docstrings.
         """
@@ -5225,9 +5218,9 @@ default: :rc:`scatter.edgecolors`
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
                 cbook.warn_deprecated(
-                    "3.2", message=f"The parameter where must have the same "
-                    f"size as {ind} in {func_name}(). This will become an "
-                    "error in future versions of Matplotlib.")
+                    "3.2", message=f"Since %(since)s, the parameter *where* "
+                    f"must have the same size as {ind} in {func_name}(). This "
+                    "will become an error %(removal)s.")
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
 
@@ -5426,12 +5419,12 @@ default: :rc:`scatter.edgecolors`
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        alpha : scalar or array-like, optional
+        alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
             If *alpha* is an array, the alpha blending values are applied pixel
             by pixel, and *alpha* must have the same shape as *X*.
 
-        vmin, vmax : scalar, optional
+        vmin, vmax : float, optional
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
@@ -5448,7 +5441,7 @@ default: :rc:`scatter.edgecolors`
             See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
             examples and a more detailed description.
 
-        extent : scalars (left, right, bottom, top), optional
+        extent : floats (left, right, bottom, top), optional
             The bounding box in data coordinates that the image will fill.
             The image is stretched individually along x and y to fill the box.
 
@@ -5611,7 +5604,8 @@ default: :rc:`scatter.edgecolors`
                     "dimensions as C is deprecated since %(since)s.  Either "
                     "specify the corners of the quadrilaterals with X and Y, "
                     "or pass shading='auto', 'nearest' or 'gouraud', or set "
-                    "rcParams['pcolor.shading']")
+                    "rcParams['pcolor.shading'].  This will become an error "
+                    "%(removal)s.")
             C = C[:Ny - 1, :Nx - 1]
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
@@ -5728,7 +5722,7 @@ default: :rc:`scatter.edgecolors`
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
@@ -5746,7 +5740,7 @@ default: :rc:`scatter.edgecolors`
 
             The singular form *edgecolor* works as an alias.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value of the face color, between 0 (transparent)
             and 1 (opaque). Note: The edgecolor is currently not affected by
             this.
@@ -5959,7 +5953,7 @@ default: :rc:`scatter.edgecolors`
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
@@ -5977,7 +5971,7 @@ default: :rc:`scatter.edgecolors`
 
             The singular form *edgecolor* works as an alias.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
@@ -6207,14 +6201,14 @@ default: :rc:`scatter.edgecolors`
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, default: None
+        vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
-        alpha : scalar, default: None
+        alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         snap : bool, default: False
@@ -6478,7 +6472,7 @@ default: :rc:`scatter.edgecolors`
             If 'horizontal', `~.Axes.barh` will be used for bar-type histograms
             and the *bottom* kwarg will be the left edges.
 
-        rwidth : scalar or None, default: None
+        rwidth : float or None, default: None
             The relative width of the bars as a fraction of the bin width.  If
             ``None``, automatically compute the width.
 
@@ -6520,9 +6514,10 @@ default: :rc:`scatter.edgecolors`
             edge of last bin).  Always a single array even when multiple data
             sets are passed in.
 
-        patches : list or list of lists
-            Silent list of individual patches used to create the histogram
-            or list of such list if multiple input datasets.
+        patches : `.BarContainer` or list of a single `.Polygon` or list of \
+such objects
+            Container of individual artists used to create the histogram
+            or list of such containers if there are multiple input datasets.
 
         Other Parameters
         ----------------
@@ -6559,8 +6554,6 @@ default: :rc:`scatter.edgecolors`
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
-        # basic input validation
-        input_empty = np.size(x) == 0
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
@@ -6585,9 +6578,13 @@ default: :rc:`scatter.edgecolors`
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
 
+        input_empty = True
         for xi, wi in zip(x, w):
-            if wi is not None and len(wi) != len(xi):
+            len_xi = len(xi)
+            if wi is not None and len(wi) != len_xi:
                 raise ValueError('weights should have the same shape as x')
+            if len_xi:
+                input_empty = False
 
         if color is None:
             color = [self._get_lines.get_next_color() for i in range(nx)]
@@ -6774,7 +6771,8 @@ default: :rc:`scatter.edgecolors`
                     closed=True if fill else None,
                     facecolor=c,
                     edgecolor=None if fill else c,
-                    fill=fill if fill else None))
+                    fill=fill if fill else None,
+                    zorder=None if fill else mlines.Line2D.zorder))
             for patch_list in patches:
                 for patch in patch_list:
                     if orientation == 'vertical':
@@ -6803,9 +6801,11 @@ default: :rc:`scatter.edgecolors`
                     p.set_label('_nolegend_')
 
         if nx == 1:
-            return tops[0], bins, cbook.silent_list('Patch', patches[0])
+            return tops[0], bins, patches[0]
         else:
-            return tops, bins, cbook.silent_list('Lists of Patches', patches)
+            patch_type = ("BarContainer" if histtype.startswith("bar")
+                          else "List[Polygon]")
+            return tops, bins, cbook.silent_list(patch_type, patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @docstring.dedent_interpd
@@ -6847,15 +6847,11 @@ default: :rc:`scatter.edgecolors`
         weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
 
-        cmin : scalar, default: None
-            All bins that has count less than cmin will not be displayed (set
-            to NaN before passing to imshow) and these count values in the
-            return value count histogram will also be set to nan upon return.
-
-        cmax : scalar, default: None
-            All bins that has count more than cmax will not be displayed (set
-            to NaN before passing to imshow) and these count values in the
-            return value count histogram will also be set to nan upon return.
+        cmin, cmax : float, default: None
+            All bins that has count less than *cmin* or more than *cmax* will
+            not be displayed (set to NaN before passing to imshow) and these
+            count values in the return value count histogram will also be set
+            to nan upon return.
 
         Returns
         -------
@@ -7789,7 +7785,7 @@ default: :rc:`scatter.edgecolors`
           which stands for the quantiles that will be rendered for that
           violin.
 
-        points : scalar, default: 100
+        points : int, default: 100
           Defines the number of points to evaluate each of the
           gaussian kernel density estimations at.
 

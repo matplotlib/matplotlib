@@ -1,7 +1,19 @@
 [flake8]
 max-line-length = 79
+select =
+    # flake8 default
+    C90, E, F, W,
+    # docstring-convention=numpy
+    D100, D101, D102, D103, D104, D105, D106,
+    D200, D201, D202, D204, D205, D206, D207, D208,
+    D209, D210, D211, D214, D215,
+    D300, D301, D302,
+    D400, D401, D403, D404, D405, D406, D407, D408,
+    D409, D410, D411, D412, D414,
+    # matplotlib-specific extra pydocstyle errors
+    D213,
 ignore =
-    # Normal default
+    # flake8 default
     E121,E123,E126,E226,E24,E704,W503,W504,
     # Additional ignores:
     E122, E127, E131,
@@ -14,8 +26,8 @@ ignore =
     # pydocstyle
     D100, D101, D102, D103, D104, D105, D106, D107,
     D200, D202, D203, D204, D205, D207, D212,
-    D301
-    D400, D401, D402, D403, D413,
+    D301,
+    D400, D401, D402, D403, D404, D413,
 
 exclude =
     .git
@@ -51,10 +63,8 @@ per-file-ignores =
     lib/matplotlib/mathtext.py: E221, E251
     lib/matplotlib/pylab.py: F401, F403
     lib/matplotlib/pyplot.py: F401, F811
-    lib/matplotlib/rcsetup.py: E501
     lib/matplotlib/style/__init__.py: F401
     lib/matplotlib/testing/conftest.py: F401
-    lib/matplotlib/testing/compare.py: F401
     lib/matplotlib/testing/decorators.py: F401
     lib/matplotlib/tests/conftest.py: F401
     lib/matplotlib/tests/test_backend_qt.py: F401
@@ -148,6 +158,7 @@ per-file-ignores =
     examples/images_contours_and_fields/tripcolor_demo.py: E201, E402
     examples/images_contours_and_fields/triplot_demo.py: E201, E402
     examples/images_contours_and_fields/watermark_image.py: E402
+    examples/lines_bars_and_markers/curve_error_band.py: E402
     examples/lines_bars_and_markers/errorbar_limits_simple.py: E402
     examples/lines_bars_and_markers/fill.py: E402
     examples/lines_bars_and_markers/fill_between_demo.py: E402
@@ -168,6 +179,7 @@ per-file-ignores =
     examples/misc/svg_filter_line.py: E402
     examples/misc/svg_filter_pie.py: E402
     examples/misc/table_demo.py: E201
+    examples/mplot3d/surface3d.py: E402
     examples/pie_and_polar_charts/bar_of_pie.py: E402
     examples/pie_and_polar_charts/nested_pie.py: E402
     examples/pie_and_polar_charts/pie_and_donut_labels.py: E402
@@ -220,6 +232,8 @@ per-file-ignores =
     examples/shapes_and_collections/path_patch.py: E402
     examples/shapes_and_collections/quad_bezier.py: E402
     examples/shapes_and_collections/scatter.py: E402
+    examples/showcase/anatomy.py: E402
+    examples/showcase/bachelors_degrees_by_gender.py: E402
     examples/showcase/firefox.py: E501
     examples/specialty_plots/anscombe.py: E402
     examples/specialty_plots/radar_chart.py: E402
@@ -238,7 +252,7 @@ per-file-ignores =
     examples/subplots_axes_and_figures/secondary_axis.py: E402
     examples/subplots_axes_and_figures/two_scales.py: E402
     examples/subplots_axes_and_figures/zoom_inset_axes.py: E402
-    examples/tests/backend_driver_sgskip.py: E402
+    examples/text_labels_and_annotations/date_index_formatter.py: E402
     examples/text_labels_and_annotations/demo_text_rotation_mode.py: E402
     examples/text_labels_and_annotations/custom_legends.py: E402
     examples/text_labels_and_annotations/fancyarrow_demo.py: E402
@@ -249,7 +263,11 @@ per-file-ignores =
     examples/text_labels_and_annotations/mathtext_asarray.py: E402
     examples/text_labels_and_annotations/tex_demo.py: E402
     examples/text_labels_and_annotations/watermark_text.py: E402
+    examples/ticks_and_spines/custom_ticker1.py: E402
     examples/ticks_and_spines/date_concise_formatter.py: E402
+    examples/ticks_and_spines/major_minor_demo.py: E402
+    examples/ticks_and_spines/tick-formatters.py: E402
+    examples/ticks_and_spines/tick_labels_from_values.py: E402
     examples/user_interfaces/canvasagg.py: E402
     examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
     examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402

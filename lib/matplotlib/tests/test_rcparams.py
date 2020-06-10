@@ -14,19 +14,21 @@ from matplotlib import cbook
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
-from matplotlib.rcsetup import (validate_bool_maybe_none,
-                                validate_stringlist,
-                                validate_colorlist,
-                                validate_color,
-                                validate_bool,
-                                validate_fontweight,
-                                validate_nseq_int,
-                                validate_nseq_float,
-                                validate_cycler,
-                                validate_hatch,
-                                validate_hist_bins,
-                                validate_markevery,
-                                _validate_linestyle)
+from matplotlib.rcsetup import (
+    validate_bool,
+    validate_bool_maybe_none,
+    validate_color,
+    validate_colorlist,
+    validate_cycler,
+    validate_float,
+    validate_fontweight,
+    validate_hatch,
+    validate_hist_bins,
+    validate_int,
+    validate_markevery,
+    validate_stringlist,
+    _validate_linestyle,
+    _listify_validator)
 
 
 def test_rcparams(tmpdir):
@@ -229,7 +231,7 @@ def generate_validator_testcases(valid):
                   (1, ValueError),
                   )
          },
-        {'validator': validate_nseq_int(2),
+        {'validator': _listify_validator(validate_int, n=2),
          'success': ((_, [1, 2])
                      for _ in ('1, 2', [1.5, 2.5], [1, 2],
                                (1, 2), np.array((1, 2)))),
@@ -238,7 +240,7 @@ def generate_validator_testcases(valid):
                             (1, 2, 3)
                             ))
          },
-        {'validator': validate_nseq_float(2),
+        {'validator': _listify_validator(validate_float, n=2),
          'success': ((_, [1.5, 2.5])
                      for _ in ('1.5, 2.5', [1.5, 2.5], [1.5, 2.5],
                                (1.5, 2.5), np.array((1.5, 2.5)))),
@@ -452,69 +454,16 @@ def test_keymaps():
 
 
 def test_rcparams_reset_after_fail():
-
     # There was previously a bug that meant that if rc_context failed and
     # raised an exception due to issues in the supplied rc parameters, the
     # global rc parameters were left in a modified state.
-
     with mpl.rc_context(rc={'text.usetex': False}):
-
         assert mpl.rcParams['text.usetex'] is False
-
         with pytest.raises(KeyError):
             with mpl.rc_context(rc=OrderedDict([('text.usetex', True),
                                                 ('test.blah', True)])):
                 pass
-
         assert mpl.rcParams['text.usetex'] is False
-
-
-def test_if_rctemplate_is_up_to_date():
-    # This tests if the matplotlibrc.template file contains all valid rcParams.
-    deprecated = {*mpl._all_deprecated, *mpl._deprecated_remain_as_none}
-    with cbook._get_data_path('matplotlibrc').open() as file:
-        rclines = file.readlines()
-    missing = {}
-    for k, v in mpl.defaultParams.items():
-        if k[0] == "_":
-            continue
-        if k in deprecated:
-            continue
-        found = False
-        for line in rclines:
-            if k in line:
-                found = True
-        if not found:
-            missing.update({k: v})
-    if missing:
-        raise ValueError("The following params are missing in the "
-                         "matplotlibrc.template file: {}"
-                         .format(missing.items()))
-
-
-def test_if_rctemplate_would_be_valid(tmpdir):
-    # This tests if the matplotlibrc.template file would result in a valid
-    # rc file if all lines are uncommented.
-    with cbook._get_data_path('matplotlibrc').open() as file:
-        rclines = file.readlines()
-    newlines = []
-    for line in rclines:
-        if line[0] == "#":
-            newline = line[1:]
-        else:
-            newline = line
-        if "$TEMPLATE_BACKEND" in newline:
-            newline = "backend : Agg"
-        if "datapath" in newline:
-            newline = ""
-        newlines.append(newline)
-    d = tmpdir.mkdir('test1')
-    fname = str(d.join('testrcvalid.temp'))
-    with open(fname, "w") as f:
-        f.writelines(newlines)
-    mpl.rc_params_from_file(fname,
-                            fail_on_error=True,  # Test also fails on warning.
-                            use_default_template=False)
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")

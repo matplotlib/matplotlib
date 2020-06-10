@@ -130,10 +130,9 @@ def test_jpl_bar_units():
     x = [0*units.km, 1*units.km, 2*units.km]
     w = [1*day, 2*day, 3*day]
     b = units.Epoch("ET", dt=datetime(2009, 4, 25))
-
     fig, ax = plt.subplots()
     ax.bar(x, w, bottom=b)
-    ax.set_ylim([b-1*day, b+w[-1]+1*day])
+    ax.set_ylim([b-1*day, b+w[-1]+(1.001)*day])
 
 
 @image_comparison(['jpl_barh_units.png'],
@@ -149,7 +148,7 @@ def test_jpl_barh_units():
 
     fig, ax = plt.subplots()
     ax.barh(x, w, left=b)
-    ax.set_xlim([b-1*day, b+w[-1]+1*day])
+    ax.set_xlim([b-1*day, b+w[-1]+(1.001)*day])
 
 
 def test_empty_arrays():

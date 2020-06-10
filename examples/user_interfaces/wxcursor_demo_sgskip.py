@@ -64,5 +64,5 @@ class App(wx.App):
 
 
 if __name__ == '__main__':
-    app = App(0)
+    app = App()
     app.MainLoop()

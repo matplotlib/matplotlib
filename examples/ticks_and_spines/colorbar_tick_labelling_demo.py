@@ -13,6 +13,10 @@ import numpy as np
 from matplotlib import cm
 from numpy.random import randn
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 ###############################################################################
 # Make plot with vertical (default) colorbar
 

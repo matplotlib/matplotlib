@@ -33,7 +33,7 @@ def world_transformation(xmin, xmax,
                          ymin, ymax,
                          zmin, zmax, pb_aspect=None):
     """
-    Produce a matrix that scales homogenous coords in the specified ranges
+    Produce a matrix that scales homogeneous coords in the specified ranges
     to [0, 1], or [0, pb_aspect[i]] if the plotbox aspect ratio is specified.
     """
     dx = xmax - xmin

@@ -1,0 +1,4 @@
+Qt zoom rectangle now black and white
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This makes it visible even over a dark background.

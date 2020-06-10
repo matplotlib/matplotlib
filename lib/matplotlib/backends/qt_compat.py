@@ -85,6 +85,7 @@ def _setup_pyqt5():
         raise ValueError("Unexpected value for the 'backend.qt5' rcparam")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
 
+    @mpl.cbook.deprecated("3.3", alternative="QtCore.qVersion()")
     def is_pyqt5():
         return True
 
@@ -144,6 +145,7 @@ def _setup_pyqt4():
         raise ValueError("Unexpected value for the 'backend.qt4' rcparam")
     QtWidgets = QtGui
 
+    @mpl.cbook.deprecated("3.3", alternative="QtCore.qVersion()")
     def is_pyqt5():
         return False
 
@@ -183,7 +185,7 @@ else:  # We should not get there.
 # These globals are only defined for backcompatibility purposes.
 ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
            pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
-QT_RC_MAJOR_VERSION = 5 if is_pyqt5() else 4
+QT_RC_MAJOR_VERSION = int(QtCore.qVersion().split(".")[0])
 
-if not is_pyqt5():
+if QT_RC_MAJOR_VERSION == 4:
     mpl.cbook.warn_deprecated("3.3", name="support for Qt4")

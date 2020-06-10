@@ -12,5 +12,6 @@ colorspacious
 ipython
 ipywidgets
 numpydoc>=0.8
-sphinx-gallery>=0.5
+sphinx-gallery>=0.7
 sphinx-copybutton
+scipy

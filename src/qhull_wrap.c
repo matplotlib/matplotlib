@@ -337,6 +337,8 @@ static struct PyModuleDef qhull_module = {
     NULL, NULL, NULL, NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC
 PyInit__qhull(void)
 {
@@ -352,3 +354,5 @@ PyInit__qhull(void)
 
     return m;
 }
+
+#pragma GCC visibility pop

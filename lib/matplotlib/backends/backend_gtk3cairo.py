@@ -16,13 +16,9 @@ class RendererGTK3Cairo(backend_cairo.RendererCairo):
 class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
                             backend_cairo.FigureCanvasCairo):
 
-    def _renderer_init(self):
-        """Use cairo renderer."""
+    def __init__(self, figure):
+        super().__init__(figure)
         self._renderer = RendererGTK3Cairo(self.figure.dpi)
-
-    def _render_figure(self, width, height):
-        self._renderer.set_width_height(width, height)
-        self.figure.draw(self._renderer)
 
     def on_draw_event(self, widget, ctx):
         """GtkDrawable draw event."""
@@ -34,7 +30,9 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
                 self.get_style_context(), ctx,
                 allocation.x, allocation.y,
                 allocation.width, allocation.height)
-            self._render_figure(allocation.width, allocation.height)
+            self._renderer.set_width_height(
+                allocation.width, allocation.height)
+            self.figure.draw(self._renderer)
 
 
 @_BackendGTK3.export

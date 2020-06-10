@@ -589,7 +589,7 @@ def _single_spectrum_helper(
 # Split out these keyword docs so that they can be used elsewhere
 docstring.interpd.update(
     Spectral="""\
-Fs : scalar, default: 2
+Fs : float, default: 2
     The sampling frequency (samples per time unit).  It is used to calculate
     the Fourier frequencies, *freqs*, in cycles per time unit.
 

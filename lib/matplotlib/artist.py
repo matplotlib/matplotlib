@@ -65,10 +65,6 @@ class Artist:
     """
 
     zorder = 0
-    # order of precedence when bulk setting/updating properties
-    # via update.  The keys should be property names and the values
-    # integers
-    _prop_order = dict(color=-1)
 
     def __init__(self):
         self._stale = True
@@ -89,7 +85,9 @@ class Artist:
         self._contains = None
         self._rasterized = None
         self._agg_filter = None
-        self._mouseover = False
+        # Normally, artist classes need to be queried for mouseover info if and
+        # only if they override get_cursor_data.
+        self._mouseover = type(self).get_cursor_data != Artist.get_cursor_data
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
@@ -397,7 +395,7 @@ class Artist:
             # subclass-specific implementation follows
 
         The *figure* kwarg is provided for the implementation of
-        `Figure.contains`.
+        `.Figure.contains`.
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -836,7 +834,7 @@ class Artist:
         """
         Set whether the artist uses clipping.
 
-        When False artists will be visible out side of the axes which
+        When False artists will be visible outside of the axes which
         can lead to unexpected results.
 
         Parameters
@@ -1088,10 +1086,31 @@ class Artist:
     def set(self, **kwargs):
         """A property batch setter.  Pass *kwargs* to set properties."""
         kwargs = cbook.normalize_kwargs(kwargs, self)
-        props = OrderedDict(
-            sorted(kwargs.items(), reverse=True,
-                   key=lambda x: (self._prop_order.get(x[0], 0), x[0])))
-        return self.update(props)
+        move_color_to_start = False
+        if "color" in kwargs:
+            keys = [*kwargs]
+            i_color = keys.index("color")
+            props = ["edgecolor", "facecolor"]
+            if any(tp.__module__ == "matplotlib.collections"
+                   and tp.__name__ == "Collection"
+                   for tp in type(self).__mro__):
+                props.append("alpha")
+            for other in props:
+                if other not in keys:
+                    continue
+                i_other = keys.index(other)
+                if i_other < i_color:
+                    move_color_to_start = True
+                    cbook.warn_deprecated(
+                        "3.3", message=f"You have passed the {other!r} kwarg "
+                        "before the 'color' kwarg.  Artist.set() currently "
+                        "reorders the properties to apply 'color' first, but "
+                        "this is deprecated since %(since)s and will be "
+                        "removed %(removal)s; please pass 'color' first "
+                        "instead.")
+        if move_color_to_start:
+            kwargs = {"color": kwargs.pop("color"), **kwargs}
+        return self.update(kwargs)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1304,24 +1323,6 @@ class ArtistInspector:
 
         return 'unknown'
 
-    def _get_setters_and_targets(self):
-        """
-        Get the attribute strings and a full path to where the setter
-        is defined for all setters in an object.
-        """
-        setters = []
-        for name in dir(self.o):
-            if not name.startswith('set_'):
-                continue
-            func = getattr(self.o, name)
-            if (not callable(func)
-                    or len(inspect.signature(func).parameters) < 2
-                    or self.is_alias(func)):
-                continue
-            setters.append(
-                (name[4:], f"{func.__module__}.{func.__qualname__}"))
-        return setters
-
     def _replace_path(self, source_class):
         """
         Changes the full path to the public API path that is used
@@ -1335,10 +1336,22 @@ class ArtistInspector:
 
     def get_setters(self):
         """
-        Get the attribute strings with setters for object.  e.g., for a line,
-        return ``['markerfacecolor', 'linewidth', ....]``.
+        Get the attribute strings with setters for object.
+
+        For example, for a line, return ``['markerfacecolor', 'linewidth',
+        ....]``.
         """
-        return [prop for prop, target in self._get_setters_and_targets()]
+        setters = []
+        for name in dir(self.o):
+            if not name.startswith('set_'):
+                continue
+            func = getattr(self.o, name)
+            if (not callable(func)
+                    or len(inspect.signature(func).parameters) < 2
+                    or self.is_alias(func)):
+                continue
+            setters.append(name[4:])
+        return setters
 
     def is_alias(self, o):
         """Return whether method object *o* is an alias for another method."""
@@ -1361,7 +1374,7 @@ class ArtistInspector:
     def aliased_name_rest(self, s, target):
         """
         Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME',
-        formatted for ReST.
+        formatted for reST.
 
         e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
@@ -1387,24 +1400,20 @@ class ArtistInspector:
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' % (pad, prop, accepts)
 
-        attrs = self._get_setters_and_targets()
-        attrs.sort()
         lines = []
-
-        for prop, path in attrs:
+        for prop in sorted(self.get_setters()):
             accepts = self.get_valid_values(prop)
             name = self.aliased_name(prop)
-
             lines.append('%s%s: %s' % (pad, name, accepts))
         return lines
 
     def pprint_setters_rest(self, prop=None, leadingspace=4):
         """
-        If *prop* is *None*, return a list of strings of all settable
-        properties and their valid values.  Format the output for ReST
+        If *prop* is *None*, return a list of reST-formatted strings of all
+        settable properties and their valid values.
 
         If *prop* is not *None*, it is a valid property name and that
-        property will be returned as a string of property : valid
+        property will be returned as a string of "property : valid"
         values.
         """
         if leadingspace:
@@ -1415,13 +1424,24 @@ class ArtistInspector:
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' % (pad, prop, accepts)
 
-        attrs = sorted(self._get_setters_and_targets())
+        prop_and_qualnames = []
+        for prop in sorted(self.get_setters()):
+            # Find the parent method which actually provides the docstring.
+            for cls in self.o.__mro__:
+                method = getattr(cls, f"set_{prop}", None)
+                if method and method.__doc__ is not None:
+                    break
+            else:  # No docstring available.
+                method = getattr(self.o, f"set_{prop}")
+            prop_and_qualnames.append(
+                (prop, f"{method.__module__}.{method.__qualname__}"))
 
-        names = [self.aliased_name_rest(prop, target).replace(
-            '_base._AxesBase', 'Axes').replace(
-            '_axes.Axes', 'Axes')
-                 for prop, target in attrs]
-        accepts = [self.get_valid_values(prop) for prop, target in attrs]
+        names = [self.aliased_name_rest(prop, target)
+                 .replace('_base._AxesBase', 'Axes')
+                 .replace('_axes.Axes', 'Axes')
+                 for prop, target in prop_and_qualnames]
+        accepts = [self.get_valid_values(prop)
+                   for prop, _ in prop_and_qualnames]
 
         col0_len = max(len(n) for n in names)
         col1_len = max(len(a) for a in accepts)

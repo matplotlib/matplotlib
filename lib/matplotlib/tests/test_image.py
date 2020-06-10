@@ -8,7 +8,6 @@ import sys
 import urllib.request
 
 import numpy as np
-from numpy import ma
 from numpy.testing import assert_array_equal
 from PIL import Image
 
@@ -79,8 +78,9 @@ def test_interp_nearest_vs_none():
     ax2.set_title('interpolation nearest')
 
 
-def do_figimage(suppressComposite):
-    """Helper for the next two tests."""
+@pytest.mark.parametrize('suppressComposite', [False, True])
+@image_comparison(['figimage'], extensions=['png', 'pdf'])
+def test_figimage(suppressComposite):
     fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite
     x, y = np.ix_(np.arange(100) / 100.0, np.arange(100) / 100)
@@ -92,18 +92,6 @@ def do_figimage(suppressComposite):
     fig.figimage(img[::-1, :], xo=0, yo=100, origin='lower')
     fig.figimage(img[:, ::-1], xo=100, yo=0, origin='lower')
     fig.figimage(img[::-1, ::-1], xo=100, yo=100, origin='lower')
-
-
-@image_comparison(['figimage-0'], extensions=['png', 'pdf'])
-def test_figimage0():
-    suppressComposite = False
-    do_figimage(suppressComposite)
-
-
-@image_comparison(['figimage-1'], extensions=['png', 'pdf'])
-def test_figimage1():
-    suppressComposite = True
-    do_figimage(suppressComposite)
 
 
 def test_image_python_io():
@@ -820,7 +808,7 @@ def test_mask_image_over_under():
     palette.set_over('r', 1.0)
     palette.set_under('g', 1.0)
     palette.set_bad('b', 1.0)
-    Zm = ma.masked_where(Z > 1.2, Z)
+    Zm = np.ma.masked_where(Z > 1.2, Z)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
                     cmap=palette,
@@ -1030,6 +1018,18 @@ def test_relim():
     ax.relim()
     ax.autoscale()
     assert ax.get_xlim() == ax.get_ylim() == (0, 1)
+
+
+def test_unclipped():
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+    im = ax.imshow([[0, 0], [0, 0]], aspect="auto", extent=(-10, 10, -10, 10),
+                   cmap='gray', clip_on=False)
+    ax.set(xlim=(0, 1), ylim=(0, 1))
+    fig.canvas.draw()
+    # The unclipped image should fill the *entire* figure and be black.
+    # Ignore alpha for this comparison.
+    assert (np.array(fig.canvas.buffer_rgba())[..., :3] == 0).all()
 
 
 def test_respects_bbox():

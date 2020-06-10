@@ -135,8 +135,10 @@ def turn_on_internet(verbose=False):
 
 @contextlib.contextmanager
 def no_internet(verbose=False):
-    """Context manager to temporarily disable internet access (if not already
-    disabled).  If it was already disabled before entering the context manager
+    """
+    Temporarily disables internet access (if not already disabled).
+
+    If it was already disabled before entering the context manager
     (i.e. `turn_off_internet` was called previously) then this is a no-op and
     leaves internet access disabled until a manual call to `turn_on_internet`.
     """
