@@ -364,8 +364,12 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # the rendered buffer is useless before anyways.
         if self._dpi_ratio_prev is None:
             return
-        w = event.size().width() * self._dpi_ratio
-        h = event.size().height() * self._dpi_ratio
+        width = event.size().width()
+        height = event.size().height()
+        if width <= 0 or height <= 0:
+            return
+        w = width * self._dpi_ratio
+        h = height * self._dpi_ratio
         dpival = self.figure.dpi
         winch = w / dpival
         hinch = h / dpival
