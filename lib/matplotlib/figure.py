@@ -2081,6 +2081,8 @@ default: 'top'
               `~.FigureCanvasAgg.print_png`.
             - 'pdf' with pdf backend: See the parameter ``metadata`` of
               `~.backend_pdf.PdfPages`.
+            - 'svg' with svg backend: See the parameter ``metadata`` of
+              `~.FigureCanvasSVG.print_svg`.
             - 'eps' and 'ps' with PS backend: Only 'Creator' is supported.
 
         pil_kwargs : dict, optional
