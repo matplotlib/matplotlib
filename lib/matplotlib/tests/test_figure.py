@@ -374,7 +374,6 @@ def test_change_dpi():
 
 @pytest.mark.parametrize('width, height', [
     (1, np.nan),
-    (0, 1),
     (-1, 1),
     (np.inf, 1)
 ])

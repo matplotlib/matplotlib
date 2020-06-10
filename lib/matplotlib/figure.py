@@ -317,7 +317,7 @@ class Figure(Artist):
         if frameon is None:
             frameon = mpl.rcParams['figure.frameon']
 
-        if not np.isfinite(figsize).all() or (np.array(figsize) <= 0).any():
+        if not np.isfinite(figsize).all() or (np.array(figsize) < 0).any():
             raise ValueError('figure size must be positive finite not '
                              f'{figsize}')
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
@@ -876,7 +876,7 @@ default: 'top'
         if h is None:  # Got called with a single pair as argument.
             w, h = w
         size = np.array([w, h])
-        if not np.isfinite(size).all() or (size <= 0).any():
+        if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
         self.bbox_inches.p1 = size
         if forward:
