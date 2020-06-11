@@ -402,9 +402,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # To save plots using the non-interactive backends, use the
 # ``matplotlib.pyplot.savefig('filename')`` method.
 #
-# To save plots using the non-interactive backends, use the
-# ``matplotlib.pyplot.savefig('filename')`` method.
-#
 # And here are the user interfaces and renderer combinations supported;
 # these are *interactive backends*, capable of displaying to the screen
 # and of using appropriate renderers from the table above to write to
