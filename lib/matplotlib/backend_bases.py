@@ -2316,7 +2316,7 @@ class FigureCanvasBase:
         The event loop blocks until a callback function triggers
         `stop_event_loop`, or *timeout* is reached.
 
-        If *timeout* is negative, never timeout.
+        If *timeout* is 0 or negative, never timeout.
 
         Only interactive backends need to reimplement this method and it relies
         on `flush_events` being properly implemented.
