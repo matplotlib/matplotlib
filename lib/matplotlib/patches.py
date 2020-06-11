@@ -1647,6 +1647,8 @@ class Arc(Ellipse):
         """
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
+        if not self.get_visible():
+            return
 
         self._recompute_transform()
 
@@ -1661,7 +1663,6 @@ class Arc(Ellipse):
             y = np.sin(theta)
             stheta = np.rad2deg(np.arctan2(scale * y, x))
             # arctan2 has the range [-pi, pi], we expect [0, 2*pi]
-
             return (stheta + 360) % 360
 
         theta1 = self.theta1

@@ -535,7 +535,6 @@ def test_rotated_arcs():
         for prescale, centers in zip((1 - .0001, (1 - .0001) / np.sqrt(2)),
                                       (on_axis_centers, diag_centers)):
             for j, (x_sign, y_sign) in enumerate(centers, start=k):
-                print(j)
                 a = mpatches.Arc(
                     (x_sign * scale * prescale,
                      y_sign * scale * prescale),
