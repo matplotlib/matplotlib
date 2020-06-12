@@ -26,8 +26,8 @@ except ImportError:
 
 from .. import cbook, font_manager
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, RendererBase)
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -444,10 +444,12 @@ class FigureCanvasCairo(FigureCanvasBase):
         surface.mark_dirty_rectangle(
             slx.start, sly.start, slx.stop - slx.start, sly.stop - sly.start)
 
-    def print_png(self, fobj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_png(self, fobj, *args):
         self._get_printed_image_surface().write_to_png(fobj)
 
-    def print_rgba(self, fobj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_rgba(self, fobj, *args):
         width, height = self.get_width_height()
         buf = self._get_printed_image_surface().get_data()
         fobj.write(cbook._premultiplied_argb32_to_unmultiplied_rgba8888(
@@ -476,7 +478,8 @@ class FigureCanvasCairo(FigureCanvasBase):
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
 
-    def _save(self, fo, fmt, *, orientation='portrait', **kwargs):
+    @_check_savefig_extra_args
+    def _save(self, fo, fmt, *, orientation='portrait'):
         # save PDF/PS/SVG
 
         dpi = 72

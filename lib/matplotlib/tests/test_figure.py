@@ -1,4 +1,5 @@
 from datetime import datetime
+import io
 from pathlib import Path
 import platform
 from types import SimpleNamespace
@@ -422,6 +423,14 @@ def test_savefig():
     msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
     with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
+
+
+def test_savefig_warns():
+    fig = plt.figure()
+    msg = r'savefig\(\) got unexpected keyword argument "non_existent_kwarg"'
+    for format in ['png', 'pdf', 'svg', 'tif', 'jpg']:
+        with pytest.warns(cbook.MatplotlibDeprecationWarning, match=msg):
+            fig.savefig(io.BytesIO(), format=format, non_existent_kwarg=True)
 
 
 def test_savefig_backend():

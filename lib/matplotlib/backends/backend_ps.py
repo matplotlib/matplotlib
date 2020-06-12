@@ -21,8 +21,8 @@ import matplotlib as mpl
 from matplotlib import cbook, _path
 from matplotlib import _text_layout
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import is_opentype_cff_font, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING
@@ -808,11 +808,12 @@ class FigureCanvasPS(FigureCanvasBase):
         printer(outfile, format, dpi=dpi, dsc_comments=dsc_comments,
                 orientation=orientation, papertype=papertype, **kwargs)
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None, **kwargs):
+            dryrun=False, bbox_inches_restore=None):
         """
         Render the figure to a filesystem path or a file-like object.
 
@@ -985,11 +986,12 @@ class FigureCanvasPS(FigureCanvasBase):
                 with open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure_tex(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None, **kwargs):
+            dryrun=False, bbox_inches_restore=None):
         """
         If :rc:`text.usetex` is True, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags

@@ -18,9 +18,9 @@ import PIL
 
 import matplotlib as mpl
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    MouseButton, NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
-    ToolContainerBase, cursors)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
+    StatusbarBase, TimerBase, ToolContainerBase, cursors)
 
 from matplotlib import cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -861,7 +861,8 @@ class FigureCanvasWx(_FigureCanvasWxBase):
     def print_xpm(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
 
-    def _print_image(self, filename, filetype, *args, quality=None, **kwargs):
+    @_check_savefig_extra_args
+    def _print_image(self, filename, filetype, *args, quality=None):
         origBitmap = self.bitmap
 
         self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),

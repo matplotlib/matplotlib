@@ -16,7 +16,8 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib.backend_bases import (
-     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
@@ -1328,8 +1329,9 @@ class FigureCanvasSVG(FigureCanvasBase):
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
             return self.print_svg(gzipwriter)
 
+    @_check_savefig_extra_args
     def _print_svg(self, filename, fh, *, dpi=72, bbox_inches_restore=None,
-                   metadata=None, **kwargs):
+                   metadata=None):
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
         w, h = width * 72, height * 72
