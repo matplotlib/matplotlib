@@ -1,4 +1,5 @@
 from numbers import Number
+import functools
 
 import numpy as np
 
@@ -173,6 +174,9 @@ class Grid:
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
+        elif isinstance(axes_class, (list, tuple)):
+            cls, kwargs = axes_class
+            axes_class = functools.partial(cls, **kwargs)
 
         kw = dict(horizontal=[], vertical=[], aspect=aspect)
         if isinstance(rect, (str, Number, SubplotSpec)):
