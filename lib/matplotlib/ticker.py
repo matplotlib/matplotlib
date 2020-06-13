@@ -198,6 +198,8 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
 
 
 class _DummyAxis:
+    __name__ = "dummy"
+
     def __init__(self, minpos=0):
         self.dataLim = mtransforms.Bbox.unit()
         self.viewLim = mtransforms.Bbox.unit()
@@ -708,8 +710,8 @@ class ScalarFormatter(Formatter):
                         screen_xy + [[0, -1], [0, +1]])[:, 1]
                 delta = abs(neighbor_values - value).max()
             else:
-                # Rough approximation: no more than 1e4 pixels.
-                delta = self.axis.get_view_interval() / 1e4
+                # Rough approximation: no more than 1e4 divisions.
+                delta = np.diff(self.axis.get_view_interval()) / 1e4
             # If e.g. value = 45.67 and delta = 0.02, then we want to round to
             # 2 digits after the decimal point (floor(log10(0.02)) = -2);
             # 45.67 contributes 2 digits before the decimal point
