@@ -1,0 +1,37 @@
+Add API for composing semantic axes layouts from text or nested lists
+---------------------------------------------------------------------
+
+The `.Figure` class has a provisional method to generate complex grids
+of named `.axes.Axes` based on nested list input or ASCII art:
+
+.. plot::
+   :include-source: True
+
+   axd = plt.figure(constrained_layout=True).subplot_mosaic(
+     [["Top", "Top", "Edge"],
+      ["Left", ".",  "Edge"]]
+   )
+   for k, ax in axd.items():
+       ax.text(0.5, 0.5, k,
+               ha='center', va='center', fontsize=36,
+               color='darkgrey')
+
+or as a string (with single-character Axes labels):
+
+.. plot::
+   :include-source: True
+
+   axd = plt.figure(constrained_layout=True).subplot_mosaic(
+   """
+   TTE
+   L.E
+   """)
+   for k, ax in axd.items():
+       ax.text(0.5, 0.5, k,
+               ha='center', va='center', fontsize=36,
+               color='darkgrey')
+
+
+
+See :ref:`sphx_glr_tutorials_provisional_mosaic.py` for more
+details and examples.
