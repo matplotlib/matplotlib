@@ -695,7 +695,8 @@ class ScalarFormatter(Formatter):
         if isinstance(value, Integral):
             fmt = "%d"
         else:
-            if self.axis.__name__ in ["xaxis", "yaxis"]:
+            if (hasattr(self.axis, '__name__') and
+                    self.axis.__name__ in ["xaxis", "yaxis"]):
                 if self.axis.__name__ == "xaxis":
                     axis_trf = self.axis.axes.get_xaxis_transform()
                     axis_inv_trf = axis_trf.inverted()
