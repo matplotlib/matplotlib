@@ -18,6 +18,7 @@ from mpl_toolkits.axes_grid1.anchored_artists import (
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+import mpl_toolkits.axes_grid1.mpl_axes
 
 import pytest
 
@@ -471,3 +472,9 @@ def test_hbox_divider():
     p2 = ax2.get_position()
     assert p1.height == p2.height
     assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)
+
+
+def test_axes_class_tuple():
+    fig = plt.figure()
+    axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
+    gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)
