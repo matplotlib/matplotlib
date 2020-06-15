@@ -500,7 +500,7 @@ def _warn_if_global_cmap_modified(cmap):
                     "colormap. In future versions, you will not be able to "
                     "modify a registered colormap in-place. To remove this "
                     "warning, you can make a copy of the colormap first. "
-                    f"cmap = mpl.cm.get_cmap({cmap.name}).copy()"
+                    f'cmap = copy.copy(mpl.cm.get_cmap("{cmap.name}"))'
         )
 
 
