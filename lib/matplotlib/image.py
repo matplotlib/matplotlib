@@ -460,15 +460,36 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if newmax is not None or newmin is not None:
                     np.clip(A_scaled, newmin, newmax, out=A_scaled)
 
+                # used to rescale the raw data to [offset, 1-offset]
+                # so that the resampling code will run cleanly.  Using
+                # dyadic numbers here could reduce the error, but
+                # would not full eliminate it and breaks a number of
+                # tests (due to the slightly different error bouncing
+                # some pixels across a boundary in the (very
+                # quantized) color mapping step).
+                offset = .1
+                frac = .8
+                # we need to run the vmin/vmax through the same rescaling
+                # that we run the raw data through because there are small
+                # errors in the round-trip due to float precision.  If we
+                # do not run the vmin/vmax through the same pipeline we can
+                # have values close or equal to the boundaries end up on the
+                # wrong side.
+                vrange = np.array([self.norm.vmin, self.norm.vmax],
+                                  dtype=scaled_dtype)
+
                 A_scaled -= a_min
+                vrange -= a_min
                 # a_min and a_max might be ndarray subclasses so use
                 # item to avoid errors
                 a_min = a_min.astype(scaled_dtype).item()
                 a_max = a_max.astype(scaled_dtype).item()
 
                 if a_min != a_max:
-                    A_scaled /= ((a_max - a_min) / 0.8)
-                A_scaled += 0.1
+                    A_scaled /= ((a_max - a_min) / frac)
+                    vrange /= ((a_max - a_min) / frac)
+                A_scaled += offset
+                vrange += offset
                 # resample the input data to the correct resolution and shape
                 A_resampled = _resample(self, A_scaled, out_shape, t)
                 # done with A_scaled now, remove from namespace to be sure!
@@ -478,10 +499,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # below the original min/max will still be above /
                 # below, but possibly clipped in the case of higher order
                 # interpolation + drastically changing data.
-                A_resampled -= 0.1
+                A_resampled -= offset
+                vrange -= offset
                 if a_min != a_max:
-                    A_resampled *= ((a_max - a_min) / 0.8)
+                    A_resampled *= ((a_max - a_min) / frac)
+                    vrange *= ((a_max - a_min) / frac)
                 A_resampled += a_min
+                vrange += a_min
                 # if using NoNorm, cast back to the original datatype
                 if isinstance(self.norm, mcolors.NoNorm):
                     A_resampled = A_resampled.astype(A.dtype)
@@ -508,7 +532,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     out_alpha *= _resample(self, alpha, out_shape,
                                            t, resample=True)
                 # mask and run through the norm
-                output = self.norm(np.ma.masked_array(A_resampled, out_mask))
+                resampled_masked = np.ma.masked_array(A_resampled, out_mask)
+                # we have re-set the vmin/vmax to account for small errors
+                # that may have moved input values in/out of range
+                with cbook._setattr_cm(self.norm,
+                                       vmin=vrange[0],
+                                       vmax=vrange[1],
+                                       ):
+                    output = self.norm(resampled_masked)
             else:
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
