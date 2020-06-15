@@ -596,7 +596,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
-    def print_tif(self, filename_or_obj, *args, dryrun=False, pil_kwargs=None):
+    def print_tif(self, filename_or_obj, *, dryrun=False, pil_kwargs=None):
         FigureCanvasAgg.draw(self)
         if dryrun:
             return

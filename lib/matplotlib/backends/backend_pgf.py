@@ -804,7 +804,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
-    def _print_pgf_to_fh(self, fh, *args,
+    def _print_pgf_to_fh(self, fh, *,
                          dryrun=False, bbox_inches_restore=None):
 
         if dryrun:

@@ -445,11 +445,11 @@ class FigureCanvasCairo(FigureCanvasBase):
             slx.start, sly.start, slx.stop - slx.start, sly.stop - sly.start)
 
     @_check_savefig_extra_args
-    def print_png(self, fobj, *args):
+    def print_png(self, fobj):
         self._get_printed_image_surface().write_to_png(fobj)
 
     @_check_savefig_extra_args
-    def print_rgba(self, fobj, *args):
+    def print_rgba(self, fobj):
         width, height = self.get_width_height()
         buf = self._get_printed_image_surface().get_data()
         fobj.write(cbook._premultiplied_argb32_to_unmultiplied_rgba8888(

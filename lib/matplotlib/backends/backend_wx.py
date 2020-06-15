@@ -862,7 +862,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
 
     @_check_savefig_extra_args
-    def _print_image(self, filename, filetype, *args, quality=None):
+    def _print_image(self, filename, filetype, *, quality=None):
         origBitmap = self.bitmap
 
         self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
