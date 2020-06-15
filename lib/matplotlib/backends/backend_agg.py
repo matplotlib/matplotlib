@@ -38,7 +38,8 @@ import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    RendererBase)
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
                                 LOAD_DEFAULT, LOAD_NO_AUTOHINT)
@@ -447,7 +448,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         return self.renderer.buffer_rgba()
 
-    def print_raw(self, filename_or_obj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_raw(self, filename_or_obj, *args):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         with cbook.open_file_cm(filename_or_obj, "wb") as fh:
@@ -455,9 +457,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_rgba = print_raw
 
+    @_check_savefig_extra_args
     def print_png(self, filename_or_obj, *args,
-                  metadata=None, pil_kwargs=None,
-                  **kwargs):
+                  metadata=None, pil_kwargs=None):
         """
         Write the figure to a PNG file.
 
@@ -519,6 +521,8 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
+    @_check_savefig_extra_args(
+        extra_kwargs=["quality", "optimize", "progressive"])
     @cbook._delete_parameter("3.2", "dryrun")
     @cbook._delete_parameter("3.3", "quality",
                              alternative="pil_kwargs={'quality': ...}")
@@ -572,7 +576,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             pil_kwargs = {}
         for k in ["quality", "optimize", "progressive"]:
             if k in kwargs:
-                pil_kwargs.setdefault(k, kwargs[k])
+                pil_kwargs.setdefault(k, kwargs.pop(k))
         if "quality" not in pil_kwargs:
             quality = pil_kwargs["quality"] = \
                 dict.__getitem__(mpl.rcParams, "savefig.jpeg_quality")
@@ -590,9 +594,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_jpeg = print_jpg
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
-    def print_tif(self, filename_or_obj, *args, dryrun=False, pil_kwargs=None,
-                  **kwargs):
+    def print_tif(self, filename_or_obj, *, dryrun=False, pil_kwargs=None):
         FigureCanvasAgg.draw(self)
         if dryrun:
             return

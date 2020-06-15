@@ -26,8 +26,8 @@ import matplotlib as mpl
 from matplotlib import _text_layout, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
@@ -2573,10 +2573,11 @@ class FigureCanvasPdf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
+    @_check_savefig_extra_args
     def print_pdf(self, filename, *,
                   dpi=72,  # dpi to use for images
-                  bbox_inches_restore=None, metadata=None,
-                  **kwargs):
+                  bbox_inches_restore=None, metadata=None):
+
         self.figure.set_dpi(72)            # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):

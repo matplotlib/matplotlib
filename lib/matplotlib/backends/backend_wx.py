@@ -18,9 +18,9 @@ import PIL
 
 import matplotlib as mpl
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    MouseButton, NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
-    ToolContainerBase, cursors)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
+    StatusbarBase, TimerBase, ToolContainerBase, cursors)
 
 from matplotlib import cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -861,7 +861,8 @@ class FigureCanvasWx(_FigureCanvasWxBase):
     def print_xpm(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
 
-    def _print_image(self, filename, filetype, *args, **kwargs):
+    @_check_savefig_extra_args
+    def _print_image(self, filename, filetype, *, quality=None):
         origBitmap = self.bitmap
 
         self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
@@ -878,11 +879,11 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         # are saving a JPEG, convert the wx.Bitmap to a wx.Image,
         # and set the quality.
         if filetype == wx.BITMAP_TYPE_JPEG:
-            jpeg_quality = kwargs.get(
-                'quality',
-                dict.__getitem__(mpl.rcParams, 'savefig.jpeg_quality'))
+            if quality is None:
+                quality = dict.__getitem__(mpl.rcParams,
+                                           'savefig.jpeg_quality')
             image = self.bitmap.ConvertToImage()
-            image.SetOption(wx.IMAGE_OPTION_QUALITY, str(jpeg_quality))
+            image.SetOption(wx.IMAGE_OPTION_QUALITY, str(quality))
 
         # Now that we have rendered into the bitmap, save it to the appropriate
         # file type and clean up.

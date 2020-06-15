@@ -18,8 +18,8 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import cbook, font_manager as fm
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
     _create_pdf_info_dict, _datetime_to_pdf)
@@ -802,9 +802,11 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
-    def _print_pgf_to_fh(self, fh, *args,
-                         dryrun=False, bbox_inches_restore=None, **kwargs):
+    def _print_pgf_to_fh(self, fh, *,
+                         dryrun=False, bbox_inches_restore=None):
+
         if dryrun:
             renderer = RendererPgf(self.figure, None, dummy=True)
             self.figure.draw(renderer)
