@@ -1116,7 +1116,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
                       label_namer="y")
-    def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
+    def hlines(self, y, xmin, xmax, colors=None, linestyles='solid',
                label='', **kwargs):
         """
         Plot horizontal lines at each *y* from *xmin* to *xmax*.
@@ -1130,7 +1130,7 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : list of colors, default: 'k'
+        colors : list of colors, default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1196,7 +1196,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
                       label_namer="x")
-    def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
+    def vlines(self, x, ymin, ymax, colors=None, linestyles='solid',
                label='', **kwargs):
         """
         Plot vertical lines.
@@ -1212,7 +1212,7 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : list of colors, default: 'k'
+        colors : list of colors, default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1810,11 +1810,7 @@ class Axes(_AxesBase):
             self.xaxis_date(tz)
         if ydate:
             self.yaxis_date(tz)
-        ret = self.plot(x, y, fmt, **kwargs)
-
-        self._request_autoscale_view()
-
-        return ret
+        return self.plot(x, y, fmt, **kwargs)
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
@@ -4397,8 +4393,9 @@ default: :rc:`scatter.edgecolors`
             - 'none': No patch boundary will be drawn.
             - A color or sequence of colors.
 
-            For non-filled markers, the *edgecolors* kwarg is ignored and
-            forced to 'face' internally.
+            For non-filled markers, *edgecolors* is ignored. Instead, the color
+            is determined like with 'face', i.e. from *c*, *colors*, or
+            *facecolors*.
 
         plotnonfinite : bool, default: False
             Set to plot points with nonfinite *c*, in conjunction with
@@ -4480,7 +4477,6 @@ default: :rc:`scatter.edgecolors`
         path = marker_obj.get_path().transformed(
             marker_obj.get_transform())
         if not marker_obj.is_filled():
-            edgecolors = 'face'
             if linewidths is None:
                 linewidths = rcParams['lines.linewidth']
             elif np.iterable(linewidths):
@@ -4492,8 +4488,8 @@ default: :rc:`scatter.edgecolors`
 
         collection = mcoll.PathCollection(
                 (path,), scales,
-                facecolors=colors,
-                edgecolors=edgecolors,
+                facecolors=colors if marker_obj.is_filled() else 'none',
+                edgecolors=edgecolors if marker_obj.is_filled() else colors,
                 linewidths=linewidths,
                 offsets=offsets,
                 transOffset=kwargs.pop('transform', self.transData),

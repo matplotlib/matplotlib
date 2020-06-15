@@ -41,7 +41,7 @@ from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
 from matplotlib import _path
-from matplotlib import ttconv
+from matplotlib import _ttconv
 from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
@@ -135,6 +135,110 @@ def _string_escape(match):
     assert False
 
 
+def _create_pdf_info_dict(backend, metadata):
+    """
+    Create a PDF infoDict based on user-supplied metadata.
+
+    A default ``Creator``, ``Producer``, and ``CreationDate`` are added, though
+    the user metadata may override it. The date may be the current time, or a
+    time set by the ``SOURCE_DATE_EPOCH`` environment variable.
+
+    Metadata is verified to have the correct keys and their expected types. Any
+    unknown keys/types will raise a warning.
+
+    Parameters
+    ----------
+    backend : str
+        The name of the backend to use in the Producer value.
+    metadata : Dict[str, Union[str, datetime, Name]]
+        A dictionary of metadata supplied by the user with information
+        following the PDF specification, also defined in
+        `~.backend_pdf.PdfPages` below.
+
+        If any value is *None*, then the key will be removed. This can be used
+        to remove any pre-defined values.
+
+    Returns
+    -------
+    Dict[str, Union[str, datetime, Name]]
+        A validated dictionary of metadata.
+    """
+
+    # get source date from SOURCE_DATE_EPOCH, if set
+    # See https://reproducible-builds.org/specs/source-date-epoch/
+    source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+    if source_date_epoch:
+        source_date = datetime.utcfromtimestamp(int(source_date_epoch))
+        source_date = source_date.replace(tzinfo=UTC)
+    else:
+        source_date = datetime.today()
+
+    info = {
+        'Creator': f'Matplotlib v{mpl.__version__}, https://matplotlib.org',
+        'Producer': f'Matplotlib {backend} backend v{mpl.__version__}',
+        'CreationDate': source_date,
+        **metadata
+    }
+    info = {k: v for (k, v) in info.items() if v is not None}
+
+    def is_string_like(x):
+        return isinstance(x, str)
+
+    def is_date(x):
+        return isinstance(x, datetime)
+
+    def check_trapped(x):
+        if isinstance(x, Name):
+            return x.name in (b'True', b'False', b'Unknown')
+        else:
+            return x in ('True', 'False', 'Unknown')
+
+    keywords = {
+        'Title': is_string_like,
+        'Author': is_string_like,
+        'Subject': is_string_like,
+        'Keywords': is_string_like,
+        'Creator': is_string_like,
+        'Producer': is_string_like,
+        'CreationDate': is_date,
+        'ModDate': is_date,
+        'Trapped': check_trapped,
+    }
+    for k in info:
+        if k not in keywords:
+            cbook._warn_external(f'Unknown infodict keyword: {k}')
+        elif not keywords[k](info[k]):
+            cbook._warn_external(f'Bad value for infodict keyword {k}')
+    if 'Trapped' in info:
+        info['Trapped'] = Name(info['Trapped'])
+
+    return info
+
+
+def _datetime_to_pdf(d):
+    """
+    Convert a datetime to a PDF string representing it.
+
+    Used for PDF and PGF.
+    """
+    r = d.strftime('D:%Y%m%d%H%M%S')
+    z = d.utcoffset()
+    if z is not None:
+        z = z.seconds
+    else:
+        if time.daylight:
+            z = time.altzone
+        else:
+            z = time.timezone
+    if z == 0:
+        r += 'Z'
+    elif z < 0:
+        r += "+%02d'%02d'" % ((-z) // 3600, (-z) % 3600)
+    else:
+        r += "-%02d'%02d'" % (z // 3600, z % 3600)
+    return r
+
+
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
@@ -199,22 +303,7 @@ def pdfRepr(obj):
 
     # A date.
     elif isinstance(obj, datetime):
-        r = obj.strftime('D:%Y%m%d%H%M%S')
-        z = obj.utcoffset()
-        if z is not None:
-            z = z.seconds
-        else:
-            if time.daylight:
-                z = time.altzone
-            else:
-                z = time.timezone
-        if z == 0:
-            r += 'Z'
-        elif z < 0:
-            r += "+%02d'%02d'" % ((-z) // 3600, (-z) % 3600)
-        else:
-            r += "-%02d'%02d'" % (z // 3600, z % 3600)
-        return pdfRepr(r)
+        return pdfRepr(_datetime_to_pdf(obj))
 
     # A bounding box
     elif isinstance(obj, BboxBase):
@@ -503,24 +592,7 @@ class PdfFile:
                 'Pages': self.pagesObject}
         self.writeObject(self.rootObject, root)
 
-        # get source date from SOURCE_DATE_EPOCH, if set
-        # See https://reproducible-builds.org/specs/source-date-epoch/
-        source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
-        if source_date_epoch:
-            source_date = datetime.utcfromtimestamp(int(source_date_epoch))
-            source_date = source_date.replace(tzinfo=UTC)
-        else:
-            source_date = datetime.today()
-
-        self.infoDict = {
-            'Creator': f'matplotlib {mpl.__version__}, http://matplotlib.org',
-            'Producer': f'matplotlib pdf backend {mpl.__version__}',
-            'CreationDate': source_date
-        }
-        if metadata is not None:
-            self.infoDict.update(metadata)
-        self.infoDict = {k: v for (k, v) in self.infoDict.items()
-                         if v is not None}
+        self.infoDict = _create_pdf_info_dict('pdf', metadata or {})
 
         self.fontNames = {}     # maps filenames to internal font names
         self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
@@ -996,7 +1068,7 @@ end"""
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
             try:
-                rawcharprocs = ttconv.get_pdf_charprocs(
+                rawcharprocs = _ttconv.get_pdf_charprocs(
                     os.fsencode(filename), glyph_ids)
             except RuntimeError:
                 _log.warning("The PDF backend does not currently support the "
@@ -1546,7 +1618,14 @@ end"""
     def writeMarkers(self):
         for ((pathops, fill, stroke, joinstyle, capstyle),
              (name, ob, bbox, lw)) in self.markers.items():
-            bbox = bbox.padded(lw * 0.5)
+            # bbox wraps the exact limits of the control points, so half a line
+            # will appear outside it. If the join style is miter and the line
+            # is not parallel to the edge, then the line will extend even
+            # further. From the PDF specification, Section 8.4.3.5, the miter
+            # limit is miterLength / lineWidth and from Table 52, the default
+            # is 10. With half the miter length outside, that works out to the
+            # following padding:
+            bbox = bbox.padded(lw * 5)
             self.beginStream(
                 ob.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
@@ -1639,32 +1718,6 @@ end"""
 
     def writeInfoDict(self):
         """Write out the info dictionary, checking it for good form"""
-
-        def is_string_like(x):
-            return isinstance(x, str)
-
-        def is_date(x):
-            return isinstance(x, datetime)
-
-        check_trapped = (lambda x: isinstance(x, Name) and
-                         x.name in ('True', 'False', 'Unknown'))
-
-        keywords = {'Title': is_string_like,
-                    'Author': is_string_like,
-                    'Subject': is_string_like,
-                    'Keywords': is_string_like,
-                    'Creator': is_string_like,
-                    'Producer': is_string_like,
-                    'CreationDate': is_date,
-                    'ModDate': is_date,
-                    'Trapped': check_trapped}
-        for k in self.infoDict:
-            if k not in keywords:
-                cbook._warn_external('Unknown infodict keyword: %s' % k)
-            else:
-                if not keywords[k](self.infoDict[k]):
-                    cbook._warn_external(
-                        'Bad value for infodict keyword %s' % k)
 
         self.infoObject = self.reserveObject('info')
         self.writeObject(self.infoObject, self.infoDict)

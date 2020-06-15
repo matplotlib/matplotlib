@@ -1908,7 +1908,7 @@ class RectangleSelector(_SelectorWidget):
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
                  interactive=False, state_modifier_keys=None):
-        """
+        r"""
         Parameters
         ----------
         ax : `~matplotlib.axes.Axes`

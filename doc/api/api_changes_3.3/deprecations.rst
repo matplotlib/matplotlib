@@ -589,3 +589,25 @@ implementers).
 Passing ``ismath="TeX!"`` to `.RendererAgg.get_text_width_height_descent` is
 deprecated.  Pass ``ismath="TeX"`` instead, consistently with other low-level
 APIs which support the values True, False, and "TeX" for ``ismath``.
+
+``matplotlib.ttconv``
+~~~~~~~~~~~~~~~~~~~~~
+This module is deprecated.
+
+
+Stricter PDF metadata keys in PGF
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Saving metadata in PDF with the PGF backend currently normalizes all keys to
+lowercase, unlike the PDF backend, which only accepts the canonical case.  This
+is deprecated; in a future version, only the canonically cased keys listed in
+the PDF specification (and the `~.backend_pgf.PdfPages` documentation) will be
+accepted.
+
+
+Qt modifier keys
+~~~~~~~~~~~~~~~~
+The ``MODIFIER_KEYS``, ``SUPER``, ``ALT``, ``CTRL``, and ``SHIFT``
+global variables of the :mod:`matplotlib.backends.backend_qt4agg`,
+:mod:`matplotlib.backends.backend_qt4cairo`,
+:mod:`matplotlib.backends.backend_qt5agg` and
+:mod:`matplotlib.backends.backend_qt5cairo` modules are deprecated.

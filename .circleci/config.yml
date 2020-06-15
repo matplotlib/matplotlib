@@ -4,76 +4,105 @@
 version: 2.1
 
 
-###########################################
-# Define some common steps as YAML anchors.
+#######################################
+# Define some common steps as commands.
 #
 
-apt-run:  &apt-install
-  name: Install apt packages
-  command: |
-    sudo apt -qq update
-    sudo apt install -y \
-      inkscape \
-      ffmpeg \
-      dvipng \
-      lmodern \
-      cm-super \
-      texlive-latex-base \
-      texlive-latex-extra \
-      texlive-fonts-recommended \
-      texlive-latex-recommended \
-      texlive-pictures \
-      texlive-xetex \
-      graphviz \
-      fonts-crosextra-carlito \
-      fonts-freefont-otf \
-      fonts-humor-sans \
-      optipng
+commands:
+  apt-install:
+    steps:
+      - run:
+          name: Install apt packages
+          command: |
+            sudo apt -qq update
+            sudo apt install -y \
+              inkscape \
+              ffmpeg \
+              dvipng \
+              lmodern \
+              cm-super \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-fonts-recommended \
+              texlive-latex-recommended \
+              texlive-pictures \
+              texlive-xetex \
+              graphviz \
+              fonts-crosextra-carlito \
+              fonts-freefont-otf \
+              fonts-humor-sans \
+              optipng
 
-fonts-run:  &fonts-install
-  name: Install custom fonts
-  command: |
-    mkdir -p ~/.local/share/fonts
-    wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
-    fc-cache -f -v
-  save_cache:
-    key: fonts-2
-    paths:
-      - ~/.local/share/fonts/
-  restore_cache:
-    key: fonts-2
+  fonts-install:
+    steps:
+      - restore_cache:
+          key: fonts-2
+      - run:
+          name: Install custom fonts
+          command: |
+            mkdir -p ~/.local/share/fonts
+            wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+            fc-cache -f -v
+      - save_cache:
+          key: fonts-2
+          paths:
+            - ~/.local/share/fonts/
 
-pip-run:  &pip-install
-  # Upgrade pip and setuptools and wheel to get as clean an install as possible
-  name: Upgrade pip, setuptools, wheel
-  command: |
-    python -mpip install --upgrade --user pip
-    python -mpip install --upgrade --user wheel
-    python -mpip install --upgrade --user setuptools
+  pip-install:
+    description: Upgrade pip and setuptools and wheel to get as clean an install as possible
+    steps:
+      - run:
+          name: Upgrade pip, setuptools, wheel
+          command: |
+            python -mpip install --upgrade --user pip
+            python -mpip install --upgrade --user wheel
+            python -mpip install --upgrade --user setuptools
 
-deps-run: &deps-install
-  name: Install Python dependencies
-  command: |
-    python -mpip install --user numpy${NUMPY_VERSION} codecov coverage
-    python -mpip install --user -r requirements/doc/doc-requirements.txt
+  deps-install:
+    parameters:
+      numpy_version:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Install Python dependencies
+          command: |
+            python -mpip install --user numpy<< parameters.numpy_version >> codecov coverage
+            python -mpip install --user -r requirements/doc/doc-requirements.txt
 
-mpl-run: &mpl-install
-  name: Install Matplotlib
-  command: python -mpip install --user -ve .
+  mpl-install:
+    steps:
+      - run:
+          name: Install Matplotlib
+          command: python -mpip install --user -ve .
 
-doc-run: &doc-build
-  name: Build documentation
-  command: |
-    # Set epoch to date of latest tag.
-    export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
-    make html O=-T
-    rm -r build/html/_sources
-  working_directory: doc
+  doc-build:
+    steps:
+      - restore_cache:
+          keys:
+            - sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+            - sphinx-env-v1-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}-{{ .Environment.CIRCLE_JOB }}
+      - run:
+          name: Build documentation
+          command: |
+            # Set epoch to date of latest tag.
+            export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
+            make html O=-T
+            rm -r build/html/_sources
+          working_directory: doc
+      - save_cache:
+          key: sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+          paths:
+            - doc/build/doctrees
 
-doc-bundle-run: &doc-bundle
-  name: Bundle sphinx-gallery documentation artifacts
-  command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
-  when: always
+  doc-bundle:
+    steps:
+      - run:
+          name: Bundle sphinx-gallery documentation artifacts
+          command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
+          when: always
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
 
 
 ##########################################
@@ -87,20 +116,16 @@ jobs:
     steps:
       - checkout
 
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
-      - run:
-           <<: *deps-install
-           environment:
-             NUMPY_VERSION: "==1.13.0"
-      - run: *mpl-install
+      - apt-install
+      - fonts-install
+      - pip-install
+      - deps-install:
+          numpy_version: "==1.13.0"
+      - mpl-install
 
-      - run: *doc-build
+      - doc-build
 
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
+      - doc-bundle
 
       - store_artifacts:
           path: doc/build/html
@@ -111,18 +136,16 @@ jobs:
     steps:
       - checkout
 
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
+      - apt-install
+      - fonts-install
+      - pip-install
 
-      - run: *deps-install
-      - run: *mpl-install
+      - deps-install
+      - mpl-install
 
-      - run: *doc-build
+      - doc-build
 
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
+      - doc-bundle
 
       - store_artifacts:
           path: doc/build/html
@@ -133,18 +156,16 @@ jobs:
     steps:
       - checkout
 
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
+      - apt-install
+      - fonts-install
+      - pip-install
 
-      - run: *deps-install
-      - run: *mpl-install
+      - deps-install
+      - mpl-install
 
-      - run: *doc-build
+      - doc-build
 
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
+      - doc-bundle
 
       - store_artifacts:
           path: doc/build/html

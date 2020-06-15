@@ -872,7 +872,7 @@ def axes(arg=None, **kwargs):
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
-          ``subplot(111, **kwargs)``
+          ``subplot(111, **kwargs)``.
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
@@ -896,11 +896,10 @@ def axes(arg=None, **kwargs):
 
     Returns
     -------
-    `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+    `~.axes.Axes`, or a subclass of `~.axes.Axes`
         The returned axes class depends on the projection used. It is
-        `~.axes.Axes` if rectilinear projection are used and
-        `.projections.polar.PolarAxes` if polar projection
-        are used.
+        `~.axes.Axes` if rectilinear projection is used and
+        `.projections.polar.PolarAxes` if polar projection is used.
 
     Other Parameters
     ----------------
@@ -1023,13 +1022,12 @@ def subplot(*args, **kwargs):
 
     Returns
     -------
-    an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass of \
-`~.axes.Axes`)
+    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
 
         The axes of the subplot. The returned axes base class depends on
         the projection used. It is `~.axes.Axes` if rectilinear projection
-        are used and `.projections.polar.PolarAxes` if polar projection
-        are used. The returned axes is then a subplot subclass of the
+        is used and `.projections.polar.PolarAxes` if polar projection
+        is used. The returned axes is then a subplot subclass of the
         base class.
 
     Other Parameters
@@ -1276,9 +1274,90 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return fig, axs
 
 
+def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
+                   empty_sentinel='.', **fig_kw):
+    """
+    Build a layout of Axes based on ASCII art or nested lists.
+
+    This is a helper function to build complex GridSpec layouts visually.
+
+    .. note ::
+
+       This API is provisional and may be revised in the future based on
+       early user feedback.
+
+
+    Parameters
+    ----------
+    layout : list of list of {hashable or nested} or str
+
+        A visual layout of how you want your Axes to be arranged
+        labeled as strings.  For example ::
+
+           x = [['A panel', 'A panel', 'edge'],
+                ['C panel', '.',       'edge']]
+
+        Produces 4 axes:
+
+        - 'A panel' which is 1 row high and spans the first two columns
+        - 'edge' which is 2 rows high and is on the right edge
+        - 'C panel' which in 1 row and 1 column wide in the bottom left
+        - a blank space 1 row and 1 column wide in the bottom center
+
+        Any of the entries in the layout can be a list of lists
+        of the same form to create nested layouts.
+
+        If input is a str, then it must be of the form ::
+
+          '''
+          AAE
+          C.E
+          '''
+
+        where each character is a column and each line is a row.
+        This only allows only single character Axes labels and does
+        not allow nesting but is very terse.
+
+    subplot_kw : dict, optional
+        Dictionary with keywords passed to the `.Figure.add_subplot` call
+        used to create each subplot.
+
+    gridspec_kw : dict, optional
+        Dictionary with keywords passed to the `.GridSpec` constructor used
+        to create the grid the subplots are placed on.
+
+    empty_sentinel : object, optional
+        Entry in the layout to mean "leave this space empty".  Defaults
+        to ``'.'``. Note, if *layout* is a string, it is processed via
+        `inspect.cleandoc` to remove leading white space, which may
+        interfere with using white-space as the empty sentinel.
+
+    **fig_kw
+        All additional keyword arguments are passed to the
+        `.pyplot.figure` call.
+
+    Returns
+    -------
+    fig : `~.figure.Figure`
+       The new figure
+
+    dict[label, Axes]
+       A dictionary mapping the labels to the Axes objects.
+
+    """
+    fig = figure(**fig_kw)
+    ax_dict = fig.subplot_mosaic(
+        layout,
+        subplot_kw=subplot_kw,
+        gridspec_kw=gridspec_kw,
+        empty_sentinel=empty_sentinel
+    )
+    return fig, ax_dict
+
+
 def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
-    Create an axis at specific location inside a regular grid.
+    Create a subplot at a specific location inside a regular grid.
 
     Parameters
     ----------
@@ -1286,26 +1365,35 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
         Number of rows and of columns of the grid in which to place axis.
     loc : (int, int)
         Row number and column number of the axis location within the grid.
-    rowspan : int
+    rowspan : int, default: 1
         Number of rows for the axis to span to the right.
-    colspan : int
+    colspan : int, default: 1
         Number of columns for the axis to span downwards.
     fig : `.Figure`, optional
-        Figure to place axis in. Defaults to current figure.
+        Figure to place the subplot in. Defaults to the current figure.
     **kwargs
-        Additional keyword arguments are handed to `add_subplot`.
+        Additional keyword arguments are handed to `~.Figure.add_subplot`.
+
+    Returns
+    -------
+    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+
+        The axes of the subplot.  The returned axes base class depends on the
+        projection used.  It is `~.axes.Axes` if rectilinear projection is used
+        and `.projections.polar.PolarAxes` if polar projection is used.  The
+        returned axes is then a subplot subclass of the base class.
 
     Notes
     -----
     The following call ::
 
-        subplot2grid(shape, loc, rowspan=1, colspan=1)
+        ax = subplot2grid((nrows, ncols), (row, col), rowspan, colspan)
 
     is identical to ::
 
-        gridspec = GridSpec(shape[0], shape[1])
-        subplotspec = gridspec.new_subplotspec(loc, rowspan, colspan)
-        subplot(subplotspec)
+        fig = gcf()
+        gs = fig.add_gridspec(nrows, ncols)
+        ax = fig.add_subplot(gs[row:row+rowspan, col:col+colspan])
     """
 
     if fig is None:
@@ -2601,7 +2689,7 @@ def hist2d(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.hlines)
 def hlines(
-        y, xmin, xmax, colors='k', linestyles='solid', label='', *,
+        y, xmin, xmax, colors=None, linestyles='solid', label='', *,
         data=None, **kwargs):
     return gca().hlines(
         y, xmin, xmax, colors=colors, linestyles=linestyles,
@@ -2972,7 +3060,7 @@ def violinplot(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.vlines)
 def vlines(
-        x, ymin, ymax, colors='k', linestyles='solid', label='', *,
+        x, ymin, ymax, colors=None, linestyles='solid', label='', *,
         data=None, **kwargs):
     return gca().vlines(
         x, ymin, ymax, colors=colors, linestyles=linestyles,

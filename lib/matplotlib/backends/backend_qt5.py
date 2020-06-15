@@ -57,31 +57,21 @@ SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Pause: 'pause',
                 QtCore.Qt.Key_SysReq: 'sysreq',
                 QtCore.Qt.Key_Clear: 'clear', }
-
-# define which modifier keys are collected on keyboard events.
-# elements are (Matplotlib modifier names, Modifier Flag, Qt Key) tuples
-SUPER = 0
-ALT = 1
-CTRL = 2
-SHIFT = 3
-MODIFIER_KEYS = [('super', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
-                 ('alt', QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
-                 ('ctrl', QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
-                 ('shift', QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
-                 ]
-
 if sys.platform == 'darwin':
     # in OSX, the control and super (aka cmd/apple) keys are switched, so
     # switch them back.
     SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'cmd',  # cmd/apple key
                          QtCore.Qt.Key_Meta: 'control',
                          })
-    MODIFIER_KEYS[0] = ('cmd', QtCore.Qt.ControlModifier,
-                        QtCore.Qt.Key_Control)
-    MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier,
-                        QtCore.Qt.Key_Meta)
-
-
+# Define which modifier keys are collected on keyboard events.
+# Elements are (Modifier Flag, Qt Key) tuples.
+# Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
+_MODIFIER_KEYS = [
+    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
+    (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
+    (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
+    (QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
+]
 cursord = {
     cursors.MOVE: QtCore.Qt.SizeAllCursor,
     cursors.HAND: QtCore.Qt.PointingHandCursor,
@@ -89,6 +79,12 @@ cursord = {
     cursors.SELECT_REGION: QtCore.Qt.CrossCursor,
     cursors.WAIT: QtCore.Qt.WaitCursor,
     }
+SUPER = 0  # Deprecated.
+ALT = 1  # Deprecated.
+CTRL = 2  # Deprecated.
+SHIFT = 3  # Deprecated.
+MODIFIER_KEYS = [  # Deprecated.
+    (SPECIAL_KEYS[key], mod, key) for mod, key in _MODIFIER_KEYS]
 
 
 # make place holder
@@ -391,22 +387,24 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         event_mods = int(event.modifiers())  # actually a bitmask
 
         # get names of the pressed modifier keys
+        # 'control' is named 'control' when a standalone key, but 'ctrl' when a
+        # modifier
         # bit twiddling to pick out modifier keys from event_mods bitmask,
         # if event_key is a MODIFIER, it should not be duplicated in mods
-        mods = [name for name, mod_key, qt_key in MODIFIER_KEYS
-                if event_key != qt_key and (event_mods & mod_key) == mod_key]
+        mods = [SPECIAL_KEYS[key].replace('control', 'ctrl')
+                for mod, key in _MODIFIER_KEYS
+                if event_key != key and event_mods & mod]
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
             # key, rather than unicode
             key = SPECIAL_KEYS[event_key]
         except KeyError:
-            # unicode defines code points up to 0x0010ffff
+            # unicode defines code points up to 0x10ffff (sys.maxunicode)
             # QT will use Key_Codes larger than that for keyboard keys that are
             # are not unicode characters (like multimedia keys)
             # skip these
             # if you really want them, you should add them to SPECIAL_KEYS
-            MAX_UNICODE = 0x10ffff
-            if event_key > MAX_UNICODE:
+            if event_key > sys.maxunicode:
                 return None
 
             key = chr(event_key)
@@ -417,7 +415,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             else:
                 key = key.lower()
 
-        mods.reverse()
         return '+'.join(mods + [key])
 
     def flush_events(self):
@@ -429,7 +426,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if hasattr(self, "_event_loop") and self._event_loop.isRunning():
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
-        if timeout:
+        if timeout > 0:
             timer = QtCore.QTimer.singleShot(timeout * 1000, event_loop.quit)
         event_loop.exec_()
 
@@ -486,7 +483,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
         # to be called at the end of paintEvent.
         if rect is not None:
-            x0, y0, w, h = [pt / self._dpi_ratio for pt in rect]
+            x0, y0, w, h = [int(pt / self._dpi_ratio) for pt in rect]
             x1 = x0 + w
             y1 = y0 + h
             def _draw_rect_callback(painter):
@@ -656,7 +653,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.setAllowedAreas(
             QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea)
 
-        self._parent = parent
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
 
@@ -687,8 +683,15 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    parent = cbook._deprecate_privatize_attribute(
-        "3.3", alternative="self.canvas.parent()")
+    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
+    @property
+    def parent(self):
+        return self.canvas.parent()
+
+    @cbook.deprecated("3.3", alternative="self.canvas.setParent()")
+    @parent.setter
+    def parent(self, value):
+        pass
 
     @cbook.deprecated(
         "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
@@ -697,6 +700,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         return str(cbook._get_data_path('images'))
 
     def _icon(self, name):
+        """
+        Construct a `.QIcon` from an image file *name*, including the extension
+        and relative to Matplotlib's "images" data directory.
+        """
         if QtCore.qVersion() >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))

@@ -537,7 +537,7 @@ class Line2D(Artist):
         Parameters
         ----------
         every : None or int or (int, int) or slice or List[int] or float or \
-(float, float)
+(float, float) or List[bool]
             Which markers to plot.
 
             - every=None, every point will be plotted.
@@ -549,6 +549,8 @@ class Line2D(Artist):
               point start, up to but not including point end, will be plotted.
             - every=[i, j, m, n], only markers at points i, j, m, and n
               will be plotted.
+            - every=[True, False, True], positions that are True will be
+              plotted.
             - every=0.1, (i.e. a float) then markers will be spaced at
               approximately equal distances along the line; the distance
               along the line between markers is determined by multiplying the
@@ -580,9 +582,8 @@ class Line2D(Artist):
         axes-bounding-box-diagonal regardless of the actual axes data limits.
 
         """
-        if self._markevery != every:
-            self.stale = True
         self._markevery = every
+        self.stale = True
 
     def get_markevery(self):
         """
@@ -935,12 +936,11 @@ class Line2D(Artist):
         return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
+        if self.get_fillstyle() == 'none':
+            return 'none'
         fc = self._markerfacecoloralt if alt else self._markerfacecolor
         if cbook._str_lower_equal(fc, 'auto'):
-            if self.get_fillstyle() == 'none':
-                return 'none'
-            else:
-                return self._color
+            return self._color
         else:
             return fc
 

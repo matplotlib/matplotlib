@@ -1,3 +1,24 @@
+/* General styling */
+.ui-helper-clearfix:before,
+.ui-helper-clearfix:after {
+  content: "";
+  display: table;
+  border-collapse: collapse;
+}
+.ui-helper-clearfix:after {
+  clear: both;
+}
+
+/* Header */
+.ui-widget-header {
+  border: 1px solid #dddddd;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  background: #e9e9e9;
+  color: #333333;
+  font-weight: bold;
+}
+
 /* Toolbar and items */
 .mpl-toolbar {
   width: 100%;

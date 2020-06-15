@@ -1,6 +1,8 @@
+import datetime
 from io import BytesIO
 import re
 import tempfile
+import xml.etree.ElementTree
 import xml.parsers.expat
 
 import numpy as np
@@ -29,12 +31,9 @@ def test_visibility():
     for artist in b:
         artist.set_visible(False)
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-
-    fd.seek(0)
-    buf = fd.read()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue()
 
     parser = xml.parsers.expat.ParserCreate()
     parser.Parse(buf)  # this will raise ExpatError if the svg is invalid
@@ -63,11 +62,9 @@ def test_text_urls():
     test_url = "http://test_text_urls.matplotlib.org"
     fig.suptitle("test_text_urls", url=test_url)
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
 
     expected = '<a xlink:href="{0}">'.format(test_url)
     assert expected in buf
@@ -175,11 +172,9 @@ def test_gid():
             gdic[gid] = obj
             obj.set_gid(gid)
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
 
     def include(gid, obj):
         # we need to exclude certain objects which will not appear in the svg
@@ -236,7 +231,9 @@ def test_url():
         assert b'http://example.com/' + v in b
 
 
-def test_url_tick():
+def test_url_tick(monkeypatch):
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '19680801')
+
     fig1, ax = plt.subplots()
     ax.scatter([1, 2, 3], [4, 5, 6])
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
@@ -259,3 +256,79 @@ def test_url_tick():
     for i in range(len(ax.yaxis.get_major_ticks())):
         assert f'http://example.com/{i}'.encode('ascii') in b1
     assert b1 == b2
+
+
+def test_svg_default_metadata(monkeypatch):
+    # Values have been predefined for 'Creator', 'Date', 'Format', and 'Type'.
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '19680801')
+
+    fig, ax = plt.subplots()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+
+    # Creator
+    assert mpl.__version__ in buf
+    # Date
+    assert '1970-08-16' in buf
+    # Format
+    assert 'image/svg+xml' in buf
+    # Type
+    assert 'StillImage' in buf
+
+
+def test_svg_metadata():
+    single_value = ['Coverage', 'Identifier', 'Language', 'Relation', 'Source',
+                    'Title', 'Type']
+    multi_value = ['Contributor', 'Creator', 'Keywords', 'Publisher', 'Rights']
+    metadata = {
+        'Date': [datetime.date(1968, 8, 1),
+                 datetime.datetime(1968, 8, 2, 1, 2, 3)],
+        'Description': 'description\ntext',
+        **{k: f'{k} foo' for k in single_value},
+        **{k: [f'{k} bar', f'{k} baz'] for k in multi_value},
+    }
+
+    fig, ax = plt.subplots()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg', metadata=metadata)
+        buf = fd.getvalue().decode()
+
+    SVGNS = '{http://www.w3.org/2000/svg}'
+    RDFNS = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
+    CCNS = '{http://creativecommons.org/ns#}'
+    DCNS = '{http://purl.org/dc/elements/1.1/}'
+
+    root = xml.etree.ElementTree.fromstring(buf)
+    rdf, = root.findall(f'./{SVGNS}metadata/{RDFNS}RDF')
+
+    # Check things that are single entries.
+    titles = [node.text for node in root.findall(f'./{SVGNS}title')]
+    assert titles == [metadata['Title']]
+    types = [node.attrib[f'{RDFNS}resource']
+             for node in rdf.findall(f'./{CCNS}Work/{DCNS}type')]
+    assert types == [metadata['Type']]
+    for k in ['Description', *single_value]:
+        if k == 'Type':
+            continue
+        values = [node.text
+                  for node in rdf.findall(f'./{CCNS}Work/{DCNS}{k.lower()}')]
+        assert values == [metadata[k]]
+
+    # Check things that are multi-value entries.
+    for k in multi_value:
+        if k == 'Keywords':
+            continue
+        values = [
+            node.text
+            for node in rdf.findall(
+                f'./{CCNS}Work/{DCNS}{k.lower()}/{CCNS}Agent/{DCNS}title')]
+        assert values == metadata[k]
+
+    # Check special things.
+    dates = [node.text for node in rdf.findall(f'./{CCNS}Work/{DCNS}date')]
+    assert dates == ['1968-08-01/1968-08-02T01:02:03']
+
+    values = [node.text for node in
+              rdf.findall(f'./{CCNS}Work/{DCNS}subject/{RDFNS}Bag/{RDFNS}li')]
+    assert values == metadata['Keywords']

@@ -1339,10 +1339,6 @@ class _AxesBase(martist.Artist):
         if cbook._str_equal(aspect, 'equal'):
             aspect = 1
         if not cbook._str_equal(aspect, 'auto'):
-            if self.name == '3d':
-                raise NotImplementedError(
-                    'It is not currently possible to manually set the aspect '
-                    'on 3D axes')
             aspect = float(aspect)  # raise ValueError if necessary
 
         if share:
@@ -2549,15 +2545,17 @@ class _AxesBase(martist.Artist):
             locator = axis.get_major_locator()
             x0, x1 = locator.nonsingular(x0, x1)
 
-            # Prevent margin addition from crossing a sticky value.  Small
-            # tolerances (whose values come from isclose()) must be used due to
-            # floating point issues with streamplot.
-            def tol(x): return 1e-5 * abs(x) + 1e-8
+            # Prevent margin addition from crossing a sticky value.  A small
+            # tolerance must be added due to floating point issues with
+            # streamplot; it is defined relative to x0, x1, x1-x0 but has
+            # no absolute term (e.g. "+1e-8") to avoid issues when working with
+            # datasets where all values are tiny (less than 1e-8).
+            tol = 1e-5 * max(abs(x0), abs(x1), abs(x1 - x0))
             # Index of largest element < x0 + tol, if any.
-            i0 = stickies.searchsorted(x0 + tol(x0)) - 1
+            i0 = stickies.searchsorted(x0 + tol) - 1
             x0bound = stickies[i0] if i0 != -1 else None
             # Index of smallest element > x1 - tol, if any.
-            i1 = stickies.searchsorted(x1 - tol(x1))
+            i1 = stickies.searchsorted(x1 - tol)
             x1bound = stickies[i1] if i1 != len(stickies) else None
 
             # Add the margin in figure space and then transform back, to handle
@@ -3335,6 +3333,9 @@ class _AxesBase(martist.Artist):
         left, right = sorted([left, right], reverse=bool(reverse))
 
         self._viewLim.intervalx = (left, right)
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_x_axes.get_siblings(self):
+            ax._stale_viewlim_x = False
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
@@ -3604,6 +3605,9 @@ class _AxesBase(martist.Artist):
         bottom, top = sorted([bottom, top], reverse=bool(reverse))
 
         self._viewLim.intervaly = (bottom, top)
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_y_axes.get_siblings(self):
+            ax._stale_viewlim_y = False
         if auto is not None:
             self._autoscaleYon = bool(auto)
 

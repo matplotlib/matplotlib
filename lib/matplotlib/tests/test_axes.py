@@ -1837,6 +1837,16 @@ class TestScatter:
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
+    def test_scatter_unfilled(self):
+        coll = plt.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
+                           marker=mmarkers.MarkerStyle('o', fillstyle='none'),
+                           linewidths=[1.1, 1.2, 1.3])
+        assert coll.get_facecolors().shape == (0, 4)  # no facecolors
+        assert_array_equal(coll.get_edgecolors(), [[0.1, 0.1, 0.1, 1],
+                                                   [0.3, 0.3, 0.3, 1],
+                                                   [0.5, 0.5, 0.5, 1]])
+        assert_array_equal(coll.get_linewidths(), [1.1, 1.2, 1.3])
+
     def test_scatter_size_arg_size(self):
         x = np.arange(4)
         with pytest.raises(ValueError):
@@ -2236,10 +2246,10 @@ def test_bxp_rangewhis():
     _bxp_test_helper(stats_kwargs=dict(whis=[0, 100]))
 
 
-@image_comparison(['bxp_precentilewhis.png'],
+@image_comparison(['bxp_percentilewhis.png'],
                   savefig_kwarg={'dpi': 40},
                   style='default')
-def test_bxp_precentilewhis():
+def test_bxp_percentilewhis():
     _bxp_test_helper(stats_kwargs=dict(whis=[5, 95]))
 
 
@@ -2610,28 +2620,24 @@ def test_boxplot_no_weird_whisker():
     ax1.xaxis.grid(False)
 
 
-def test_boxplot_bad_medians_1():
+def test_boxplot_bad_medians():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.boxplot(x, usermedians=[1, 2])
-
-
-def test_boxplot_bad_medians_2():
-    x = np.linspace(-7, 7, 140)
-    x = np.hstack([-25, x, 25])
-    fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.boxplot([x, x], usermedians=[[1, 2], [1, 2]])
 
 
-def test_boxplot_bad_ci_1():
+def test_boxplot_bad_ci():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.boxplot([x, x], conf_intervals=[[1, 2]])
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 
 def test_boxplot_zorder():
@@ -2639,14 +2645,6 @@ def test_boxplot_zorder():
     fix, ax = plt.subplots()
     assert ax.boxplot(x)['boxes'][0].get_zorder() == 2
     assert ax.boxplot(x, zorder=10)['boxes'][0].get_zorder() == 10
-
-
-def test_boxplot_bad_ci_2():
-    x = np.linspace(-7, 7, 140)
-    x = np.hstack([-25, x, 25])
-    fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
-        ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 
 def test_boxplot_marker_behavior():
@@ -3815,6 +3813,13 @@ def test_vlines():
     ax5.set_xlim(0, 15)
 
 
+def test_vlines_default():
+    fig, ax = plt.subplots()
+    with mpl.rc_context({'lines.color': 'red'}):
+        lines = ax.vlines(0.5, 0, 1)
+        assert mpl.colors.same_color(lines.get_color(), 'red')
+
+
 @image_comparison(['hlines_basic', 'hlines_with_nan', 'hlines_masked'],
                   extensions=['png'])
 def test_hlines():
@@ -3853,6 +3858,13 @@ def test_hlines():
     xmax5 = np.ma.masked_equal([13, 14, 15, 16, 17, 18], 18)
     ax5.hlines(y5, xmin5, xmax5, colors='k', linewidth=2)
     ax5.set_ylim(0, 15)
+
+
+def test_hlines_default():
+    fig, ax = plt.subplots()
+    with mpl.rc_context({'lines.color': 'red'}):
+        lines = ax.hlines(0.5, 0, 1)
+        assert mpl.colors.same_color(lines.get_color(), 'red')
 
 
 @pytest.mark.parametrize('data', [[1, 2, 3, np.nan, 5],
@@ -4510,6 +4522,28 @@ def test_pie_textprops():
             assert tx.get_rotation_mode() == textprops["rotation_mode"]
             assert tx.get_size() == textprops["size"]
             assert tx.get_color() == textprops["color"]
+
+
+def test_pie_get_negative_values():
+    # Test the ValueError raised when feeding negative values into axes.pie
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.pie([5, 5, -3], explode=[0, .1, .2])
+
+
+def test_normalize_kwarg_warn_pie():
+    fig, ax = plt.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.pie(x=[0], normalize=None)
+
+
+def test_normalize_kwarg_pie():
+    fig, ax = plt.subplots()
+    x = [0.3, 0.3, 0.1]
+    t1 = ax.pie(x=x, normalize=True)
+    assert abs(t1[0][-1].theta2 - 360.) < 1e-3
+    t2 = ax.pie(x=x, normalize=False)
+    assert abs(t2[0][-1].theta2 - 360.) > 1e-3
 
 
 @image_comparison(['set_get_ticklabels.png'])
@@ -6220,13 +6254,6 @@ def test_bbox_aspect_axes_init():
     assert_allclose(sizes, sizes[0])
 
 
-def test_pi_get_negative_values():
-    # Test the ValueError raised when feeding negative values into axes.pie
-    fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
-        ax.pie([5, 5, -3], explode=[0, .1, .2])
-
-
 def test_invisible_axes():
     # invisible axes should not respond to events...
     fig, ax = plt.subplots()
@@ -6251,6 +6278,36 @@ def test_ytickcolor_is_not_markercolor():
         assert tick.tick1line.get_markeredgecolor() != 'white'
 
 
+@pytest.mark.parametrize('auto', (True, False, None))
+def test_unautoscaley(auto):
+    fig, ax = plt.subplots()
+    x = np.arange(100)
+    y = np.linspace(-.1, .1, 100)
+    ax.scatter(x, y)
+
+    post_auto = ax.get_autoscaley_on() if auto is None else auto
+
+    ax.set_ylim((-.5, .5), auto=auto)
+    assert post_auto == ax.get_autoscaley_on()
+    fig.canvas.draw()
+    assert_array_equal(ax.get_ylim(), (-.5, .5))
+
+
+@pytest.mark.parametrize('auto', (True, False, None))
+def test_unautoscalex(auto):
+    fig, ax = plt.subplots()
+    x = np.arange(100)
+    y = np.linspace(-.1, .1, 100)
+    ax.scatter(y, x)
+
+    post_auto = ax.get_autoscalex_on() if auto is None else auto
+
+    ax.set_xlim((-.5, .5), auto=auto)
+    assert post_auto == ax.get_autoscalex_on()
+    fig.canvas.draw()
+    assert_array_equal(ax.get_xlim(), (-.5, .5))
+
+
 @check_figures_equal(extensions=["png"])
 def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
     l, = fig_test.add_subplot(projection="polar").plot([0, np.pi/2], [1, 2])
@@ -6259,16 +6316,9 @@ def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
         np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
 
 
-def test_normalize_kwarg_warn_pie():
+@pytest.mark.style('default')
+def test_autoscale_tiny_sticky():
     fig, ax = plt.subplots()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.pie(x=[0], normalize=None)
-
-
-def test_normalize_kwarg_pie():
-    fig, ax = plt.subplots()
-    x = [0.3, 0.3, 0.1]
-    t1 = ax.pie(x=x, normalize=True)
-    assert abs(t1[0][-1].theta2 - 360.) < 1e-3
-    t2 = ax.pie(x=x, normalize=False)
-    assert abs(t2[0][-1].theta2 - 360.) > 1e-3
+    ax.bar(0, 1e-9)
+    fig.canvas.draw()
+    assert ax.get_ylim() == (0, 1.05e-9)

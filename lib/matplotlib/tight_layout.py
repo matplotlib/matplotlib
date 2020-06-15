@@ -173,7 +173,7 @@ def get_renderer(fig):
             return canvas.get_renderer()
         else:
             from . import backend_bases
-            return backend_bases._get_renderer(fig, draw_disabled=True)
+            return backend_bases._get_renderer(fig)
 
 
 def get_subplotspec_list(axes_list, grid_spec=None):

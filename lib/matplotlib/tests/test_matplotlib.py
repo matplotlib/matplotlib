@@ -9,6 +9,8 @@ import matplotlib
 
 @pytest.mark.skipif(
     os.name == "nt", reason="chmod() doesn't work as is on Windows")
+@pytest.mark.skipif(os.name != "nt" and os.geteuid() == 0,
+                    reason="chmod() doesn't work as root")
 def test_tmpconfigdir_warning(tmpdir):
     """Test that a warning is emitted if a temporary configdir must be used."""
     mode = os.stat(tmpdir).st_mode

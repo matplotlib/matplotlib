@@ -1,5 +1,6 @@
 import atexit
 import codecs
+import datetime
 import functools
 import logging
 import math
@@ -20,6 +21,8 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
+from matplotlib.backends.backend_pdf import (
+    _create_pdf_info_dict, _datetime_to_pdf)
 from matplotlib.path import Path
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
@@ -155,6 +158,17 @@ def _font_properties_str(prop):
 
     commands.append(r"\selectfont")
     return "".join(commands)
+
+
+def _metadata_to_str(key, value):
+    """Convert metadata key/value to a form that hyperref accepts."""
+    if isinstance(value, datetime.datetime):
+        value = _datetime_to_pdf(value)
+    elif key == 'Trapped':
+        value = value.name.decode('ascii')
+    else:
+        value = str(value)
+    return f'{key}={{{value}}}'
 
 
 def make_pdf_to_png_converter():
@@ -867,8 +881,12 @@ class FigureCanvasPgf(FigureCanvasBase):
                 file = codecs.getwriter("utf-8")(file)
             self._print_pgf_to_fh(file, *args, **kwargs)
 
-    def _print_pdf_to_fh(self, fh, *args, **kwargs):
+    def _print_pdf_to_fh(self, fh, *args, metadata=None, **kwargs):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
+
+        info_dict = _create_pdf_info_dict('pgf', metadata or {})
+        hyperref_options = ','.join(
+            _metadata_to_str(k, v) for k, v in info_dict.items())
 
         try:
             # create temporary directory for compiling the figure
@@ -883,6 +901,8 @@ class FigureCanvasPgf(FigureCanvasBase):
             latex_preamble = get_preamble()
             latex_fontspec = get_fontspec()
             latexcode = """
+\\PassOptionsToPackage{pdfinfo={%s}}{hyperref}
+\\RequirePackage{hyperref}
 \\documentclass[12pt]{minimal}
 \\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
 %s
@@ -892,7 +912,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 \\begin{document}
 \\centering
 \\input{figure.pgf}
-\\end{document}""" % (w, h, latex_preamble, latex_fontspec)
+\\end{document}""" % (hyperref_options, w, h, latex_preamble, latex_fontspec)
             pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
 
             texcommand = mpl.rcParams["pgf.texsystem"]
@@ -989,7 +1009,8 @@ class PdfPages:
         '_fname_pdf',
         '_n_figures',
         '_file',
-        'metadata',
+        '_info_dict',
+        '_metadata',
     )
 
     def __init__(self, filename, *, keep_empty=True, metadata=None):
@@ -1017,7 +1038,21 @@ class PdfPages:
         self._outputfile = filename
         self._n_figures = 0
         self.keep_empty = keep_empty
-        self.metadata = metadata or {}
+        self._metadata = (metadata or {}).copy()
+        if metadata:
+            for key in metadata:
+                canonical = {
+                    'creationdate': 'CreationDate',
+                    'moddate': 'ModDate',
+                }.get(key.lower(), key.lower().title())
+                if canonical != key:
+                    cbook.warn_deprecated(
+                        '3.3', message='Support for setting PDF metadata keys '
+                        'case-insensitively is deprecated since %(since)s and '
+                        'will be removed %(removal)s; '
+                        f'set {canonical} instead of {key}.')
+                    self._metadata[canonical] = self._metadata.pop(key)
+        self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
 
         # create temporary directory for compiling the figure
         self._tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_pdfpages_")
@@ -1026,29 +1061,21 @@ class PdfPages:
         self._fname_pdf = os.path.join(self._tmpdir, self._basename + ".pdf")
         self._file = open(self._fname_tex, 'wb')
 
+    @cbook.deprecated('3.3')
+    @property
+    def metadata(self):
+        return self._metadata
+
     def _write_header(self, width_inches, height_inches):
-        supported_keys = {
-            'title', 'author', 'subject', 'keywords', 'creator',
-            'producer', 'trapped'
-        }
-        infoDict = {
-            'creator': f'matplotlib {mpl.__version__}, https://matplotlib.org',
-            'producer': f'matplotlib pgf backend {mpl.__version__}',
-        }
-        metadata = {k.lower(): v for k, v in self.metadata.items()}
-        infoDict.update(metadata)
-        hyperref_options = ''
-        for k, v in infoDict.items():
-            if k not in supported_keys:
-                raise ValueError(
-                    'Not a supported pdf metadata field: "{}"'.format(k)
-                )
-            hyperref_options += 'pdf' + k + '={' + str(v) + '},'
+        hyperref_options = ','.join(
+            _metadata_to_str(k, v) for k, v in self._info_dict.items())
 
         latex_preamble = get_preamble()
         latex_fontspec = get_fontspec()
         latex_header = r"""\PassOptionsToPackage{{
-  {metadata}
+  pdfinfo={{
+    {metadata}
+  }}
 }}{{hyperref}}
 \RequirePackage{{hyperref}}
 \documentclass[12pt]{{minimal}}

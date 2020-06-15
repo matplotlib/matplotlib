@@ -2032,13 +2032,30 @@ def _setattr_cm(obj, **kwargs):
     Temporarily set some attributes; restore original state at context exit.
     """
     sentinel = object()
-    origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
+    origs = {}
+    for attr in kwargs:
+        orig = getattr(obj, attr, sentinel)
+
+        if attr in obj.__dict__ or orig is sentinel:
+            origs[attr] = orig
+        else:
+            cls_orig = getattr(type(obj), attr)
+            if isinstance(cls_orig, property):
+                origs[attr] = orig
+            elif isinstance(cls_orig, types.FunctionType):
+                origs[attr] = sentinel
+            else:
+                raise ValueError(
+                    f"trying to set {attr} which is not a method, "
+                    "property, or instance level attribute"
+                )
+
     try:
         for attr, val in kwargs.items():
             setattr(obj, attr, val)
         yield
     finally:
-        for attr, orig in origs:
+        for attr, orig in origs.items():
             if orig is sentinel:
                 delattr(obj, attr)
             else:

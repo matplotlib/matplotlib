@@ -18,6 +18,7 @@ from mpl_toolkits.axes_grid1.anchored_artists import (
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+import mpl_toolkits.axes_grid1.mpl_axes
 
 import pytest
 
@@ -25,46 +26,32 @@ import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
-@image_comparison(['divider_append_axes'])
 def test_divider_append_axes():
-
-    # the random data
-    np.random.seed(0)
-    x = np.random.randn(1000)
-    y = np.random.randn(1000)
-
-    fig, axScatter = plt.subplots()
-
-    # the scatter plot:
-    axScatter.scatter(x, y)
-
-    # create new axes on the right and on the top of the current axes
-    # The first argument of the new_vertical(new_horizontal) method is
-    # the height (width) of the axes to be created in inches.
-    divider = make_axes_locatable(axScatter)
-    axHistbot = divider.append_axes("bottom", 1.2, pad=0.1, sharex=axScatter)
-    axHistright = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
-    axHistleft = divider.append_axes("left", 1.2, pad=0.1, sharey=axScatter)
-    axHisttop = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
-
-    # now determine nice limits by hand:
-    binwidth = 0.25
-    xymax = max(np.max(np.abs(x)), np.max(np.abs(y)))
-    lim = (int(xymax/binwidth) + 1) * binwidth
-
-    bins = np.arange(-lim, lim + binwidth, binwidth)
-    axHisttop.hist(x, bins=bins)
-    axHistbot.hist(x, bins=bins)
-    axHistleft.hist(y, bins=bins, orientation='horizontal')
-    axHistright.hist(y, bins=bins, orientation='horizontal')
-
-    axHistbot.invert_yaxis()
-    axHistleft.invert_xaxis()
-
-    axHisttop.xaxis.set_ticklabels(())
-    axHistbot.xaxis.set_ticklabels(())
-    axHistleft.yaxis.set_ticklabels(())
-    axHistright.yaxis.set_ticklabels(())
+    fig, ax = plt.subplots()
+    divider = make_axes_locatable(ax)
+    axs = {
+        "main": ax,
+        "top": divider.append_axes("top", 1.2, pad=0.1, sharex=ax),
+        "bottom": divider.append_axes("bottom", 1.2, pad=0.1, sharex=ax),
+        "left": divider.append_axes("left", 1.2, pad=0.1, sharey=ax),
+        "right": divider.append_axes("right", 1.2, pad=0.1, sharey=ax),
+    }
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    bboxes = {k: axs[k].get_window_extent() for k in axs}
+    dpi = fig.dpi
+    assert bboxes["top"].height == pytest.approx(1.2 * dpi)
+    assert bboxes["bottom"].height == pytest.approx(1.2 * dpi)
+    assert bboxes["left"].width == pytest.approx(1.2 * dpi)
+    assert bboxes["right"].width == pytest.approx(1.2 * dpi)
+    assert bboxes["top"].y0 - bboxes["main"].y1 == pytest.approx(0.1 * dpi)
+    assert bboxes["main"].y0 - bboxes["bottom"].y1 == pytest.approx(0.1 * dpi)
+    assert bboxes["main"].x0 - bboxes["left"].x1 == pytest.approx(0.1 * dpi)
+    assert bboxes["right"].x0 - bboxes["main"].x1 == pytest.approx(0.1 * dpi)
+    assert bboxes["left"].y0 == bboxes["main"].y0 == bboxes["right"].y0
+    assert bboxes["left"].y1 == bboxes["main"].y1 == bboxes["right"].y1
+    assert bboxes["top"].x0 == bboxes["main"].x0 == bboxes["bottom"].x0
+    assert bboxes["top"].x1 == bboxes["main"].x1 == bboxes["bottom"].x1
 
 
 @image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1)
@@ -485,3 +472,9 @@ def test_hbox_divider():
     p2 = ax2.get_position()
     assert p1.height == p2.height
     assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)
+
+
+def test_axes_class_tuple():
+    fig = plt.figure()
+    axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
+    gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)

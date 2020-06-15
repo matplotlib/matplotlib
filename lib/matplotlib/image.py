@@ -1515,18 +1515,37 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             origin = mpl.rcParams["image.origin"]
         if origin == "lower":
             arr = arr[::-1]
-        rgba = sm.to_rgba(arr, bytes=True)
+        if (isinstance(arr, memoryview) and arr.format == "B"
+                and arr.ndim == 3 and arr.shape[-1] == 4):
+            # Such an ``arr`` would also be handled fine by sm.to_rgba (after
+            # casting with asarray), but it is useful to special-case it
+            # because that's what backend_agg passes, and can be in fact used
+            # as is, saving a few operations.
+            rgba = arr
+        else:
+            rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
             pil_kwargs = {}
         pil_shape = (rgba.shape[1], rgba.shape[0])
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
-        if format == "png" and metadata is not None:
-            # cf. backend_agg's print_png.
-            pnginfo = PIL.PngImagePlugin.PngInfo()
-            for k, v in metadata.items():
-                pnginfo.add_text(k, v)
-            pil_kwargs["pnginfo"] = pnginfo
+        if format == "png":
+            # Only use the metadata kwarg if pnginfo is not set, because the
+            # semantics of duplicate keys in pnginfo is unclear.
+            if "pnginfo" in pil_kwargs:
+                if metadata:
+                    cbook._warn_external("'metadata' is overridden by the "
+                                         "'pnginfo' entry in 'pil_kwargs'.")
+            else:
+                metadata = {
+                    "Software": (f"Matplotlib version{mpl.__version__}, "
+                                 f"https://matplotlib.org/"),
+                    **(metadata if metadata is not None else {}),
+                }
+                pil_kwargs["pnginfo"] = pnginfo = PIL.PngImagePlugin.PngInfo()
+                for k, v in metadata.items():
+                    if v is not None:
+                        pnginfo.add_text(k, v)
         if format in ["jpg", "jpeg"]:
             format = "jpeg"  # Pillow doesn't recognize "jpg".
             facecolor = mpl.rcParams["savefig.facecolor"]

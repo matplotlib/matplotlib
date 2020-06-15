@@ -20,4 +20,5 @@ User's Guide
     github_stats.rst
     whats_new_old.rst
     license.rst
+    ../citing.rst
     credits.rst
