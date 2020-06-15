@@ -6314,3 +6314,11 @@ def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
     l.get_path()._interpolation_steps = 100
     fig_ref.add_subplot(projection="polar").plot(
         np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
+
+
+@pytest.mark.style('default')
+def test_autoscale_tiny_sticky():
+    fig, ax = plt.subplots()
+    ax.bar(0, 1e-9)
+    fig.canvas.draw()
+    assert ax.get_ylim() == (0, 1.05e-9)
