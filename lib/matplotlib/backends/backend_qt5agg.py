@@ -85,7 +85,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             bbox = self.figure.bbox
 
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
+        l, b, w, h = [int(pt / self._dpi_ratio) for pt in bbox.bounds]
         t = b + h
         self.repaint(l, self.renderer.height / self._dpi_ratio - t, w, h)
 
