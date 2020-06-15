@@ -28,14 +28,12 @@ def on_draw(event):
         # want the inverse of that
         bboxi = bbox.inverse_transformed(fig.transFigure)
         bboxes.append(bboxi)
-
-        # this is the bbox that bounds all the bboxes, again in relative
-        # figure coords
-        bbox = mtransforms.Bbox.union(bboxes)
-        if fig.subplotpars.left < bbox.width:
-            # we need to move it over
-            fig.subplots_adjust(left=1.1*bbox.width)  # pad a little
-            fig.canvas.draw()
+    # the bbox that bounds all the bboxes, again in relative figure coords
+    bbox = mtransforms.Bbox.union(bboxes)
+    if fig.subplotpars.left < bbox.width:
+        # we need to move it over
+        fig.subplots_adjust(left=1.1*bbox.width)  # pad a little
+        fig.canvas.draw()
 
 fig.canvas.mpl_connect('draw_event', on_draw)
 

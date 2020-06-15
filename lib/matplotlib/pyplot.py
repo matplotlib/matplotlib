@@ -1500,7 +1500,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     Parameters
     ----------
     ticks : array-like, optional
-        The list of xtick locations.  Passing an empty list removes all xticks.
+        The list of ytick locations.  Passing an empty list removes all yticks.
     labels : array-like, optional
         The labels to place at the given *ticks* locations.  This argument can
         only be passed if *ticks* is passed as well.
