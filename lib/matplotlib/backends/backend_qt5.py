@@ -17,7 +17,9 @@ import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
+    QtCore, QtGui, QtWidgets, __version__, QT_API,
+    _devicePixelRatioF, _isdeleted,
+)
 
 backend_version = __version__
 
@@ -247,7 +249,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     @property
     def _dpi_ratio(self):
-        return qt_compat._devicePixelRatio(self)
+        return _devicePixelRatioF(self)
 
     def _update_dpi(self):
         # As described in __init__ above, we need to be careful in cases with
@@ -708,7 +710,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if QtCore.qVersion() >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
-        qt_compat._setDevicePixelRatio(pm, qt_compat._devicePixelRatio(self))
+        qt_compat._setDevicePixelRatio(pm, _devicePixelRatioF(self))
         if self.palette().color(self.backgroundRole()).value() < 128:
             icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(QtGui.QColor('black'),

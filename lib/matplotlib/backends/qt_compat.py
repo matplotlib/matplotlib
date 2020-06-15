@@ -185,7 +185,41 @@ else:  # We should not get there.
 # These globals are only defined for backcompatibility purposes.
 ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
            pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
+
 QT_RC_MAJOR_VERSION = int(QtCore.qVersion().split(".")[0])
 
 if QT_RC_MAJOR_VERSION == 4:
     mpl.cbook.warn_deprecated("3.3", name="support for Qt4")
+
+
+def _devicePixelRatioF(obj):
+    """
+    Return obj.devicePixelRatioF() with graceful fallback for older Qt.
+
+    This can be replaced by the direct call when we require Qt>=5.6.
+    """
+    try:
+        # Not available on Qt<5.6
+        return obj.devicePixelRatioF() or 1
+    except AttributeError:
+        pass
+    try:
+        # Not available on Qt4 or some older Qt5.
+        # self.devicePixelRatio() returns 0 in rare cases
+        return obj.devicePixelRatio() or 1
+    except AttributeError:
+        return 1
+
+
+def _setDevicePixelRatioF(obj, val):
+    """
+    Call obj.setDevicePixelRatioF(val) with graceful fallback for older Qt.
+
+    This can be replaced by the direct call when we require Qt>=5.6.
+    """
+    if hasattr(obj, 'setDevicePixelRatioF'):
+        # Not available on Qt<5.6
+        obj.setDevicePixelRatioF(val)
+    if hasattr(obj, 'setDevicePixelRatio'):
+        # Not available on Qt4 or some older Qt5.
+        obj.setDevicePixelRatio(val)
