@@ -292,7 +292,7 @@ that you copy into the source tree will be packaged too.
 .. note::
 
    The current master branch (which will become matplotlib 3.3) includes its own copy of Qhull; and by default downloads and builds
-   its own copy of FreeType and JQuery. The only non-python dependency that you would require is Visual Studio 2015 or later.
+   its own copy of FreeType. The only non-python dependency that you would require is Visual Studio 2015 or later.
    See https://matplotlib.org/devdocs/users/installing.html#building-on-windows for the instructions on installing from master).
 
 Wheel builds using conda packages
