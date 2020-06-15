@@ -427,7 +427,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
         if timeout > 0:
-            timer = QtCore.QTimer.singleShot(timeout * 1000, event_loop.quit)
+            timer = QtCore.QTimer.singleShot(int(timeout * 1000),
+                                             event_loop.quit)
         event_loop.exec_()
 
     def stop_event_loop(self, event=None):
@@ -462,7 +463,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if bbox is None and self.figure:
             bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
+        l, b, w, h = [int(pt / self._dpi_ratio) for pt in bbox.bounds]
         t = b + h
         self.repaint(l, self.rect().height() - t, w, h)
 
