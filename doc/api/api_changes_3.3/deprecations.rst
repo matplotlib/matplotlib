@@ -611,3 +611,10 @@ global variables of the :mod:`matplotlib.backends.backend_qt4agg`,
 :mod:`matplotlib.backends.backend_qt4cairo`,
 :mod:`matplotlib.backends.backend_qt5agg` and
 :mod:`matplotlib.backends.backend_qt5cairo` modules are deprecated.
+
+``TexManager``
+~~~~~~~~~~~~~~
+
+The ``TexManager.serif``, ``TexManager.sans_serif``,
+``TexManager.cursive`` and ``TexManager.monospace`` attributes are
+deprecated.
