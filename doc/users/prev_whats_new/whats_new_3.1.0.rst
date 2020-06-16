@@ -243,11 +243,10 @@ The `.Axis.get_inverted` and `.Axis.set_inverted` methods query and set whether
 the axis uses "inverted" orientation (i.e. increasing to the left for the
 x-axis and to the bottom for the y-axis).
 
-They perform tasks similar to `.Axes.xaxis_inverted`,
-`.Axes.yaxis_inverted`, `.Axes.invert_xaxis`, and
-`.Axes.invert_yaxis`, with the specific difference that
-`.Axes..set_inverted` makes it easier to set the invertedness of an
-axis regardless of whether it had previously been inverted before.
+They perform tasks similar to `.Axes.xaxis_inverted`, `.Axes.yaxis_inverted`,
+`.Axes.invert_xaxis`, and `.Axes.invert_yaxis`, with the specific difference
+that `.Axis.set_inverted` makes it easier to set the inversion of an axis
+regardless of whether it had previously been inverted before.
 
 Adjust default minor tick spacing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -267,9 +266,9 @@ the ticklabels will be rendered. By default, *useMathText* evaluates to
 If either is `True` then the numbers will be encapsulated by ``$``
 signs.  When using ``TeX`` this implies that the numbers will be shown
 in TeX's math font. When using mathtext, the ``$`` signs around
-numbers will ensure unicode rendering (as implied by mathtext). This
+numbers will ensure Unicode rendering (as implied by mathtext). This
 will make sure that the minus signs in the ticks are rendered as the
-unicode=minus (U+2212) when using mathtext (without relying on the
+Unicode minus (U+2212) when using mathtext (without relying on the
 `~.Formatter.fix_minus` method).
 
 
@@ -309,9 +308,9 @@ caching; thereby, this new argument provides a fix for issue
 Endless Looping GIFs with PillowWriter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We acknowledge that most people want to watch a gif more than
-once. Saving an animation as a gif with PillowWriter now produces an
-endless looping gif.
+We acknowledge that most people want to watch a GIF more than
+once. Saving an animation as a GIF with PillowWriter now produces an
+endless looping GIF.
 
 
 Adjusted `.matplotlib.widgets.Slider` to have vertical orientation

@@ -125,7 +125,7 @@ Note that they may *not* be used to share axes after any operation (e.g.,
 drawing) has occurred on them.
 
 
-Align labels to axes edges
+Align labels to Axes edges
 --------------------------
 
 `~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and `.ColorbarBase.set_label`
@@ -216,15 +216,15 @@ raising the plot window when calling `~.pyplot.show` or `~.pyplot.pause`.
 
 
 
-Imshow now coerces 3D arrays with depth 1 to 2D
-------------------------------------------------
+``imshow`` now coerces 3D arrays with depth 1 to 2D
+---------------------------------------------------
 
 Starting from this version arrays of size MxNx1 will be coerced into MxN
 for displaying. This means commands like ``plt.imshow(np.random.rand(3, 3, 1))``
 will no longer return an error message that the image shape is invalid.
 
 
-``Axes3D`` no longer distorts the 3d plot to match the 2d aspect ratio
+``Axes3D`` no longer distorts the 3D plot to match the 2D aspect ratio
 ----------------------------------------------------------------------
 
 Plots made with :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` were previously
@@ -255,7 +255,7 @@ Home/Forward/Backward buttons now work with 3D axes
 
 The *backend* keyword argument to ``savefig`` can now be used to pick the
 rendering backend without having to globally set the backend; e.g. one can save
-pdfs using the pgf backend with ``savefig("file.pdf", backend="pgf")``.
+PDFs using the pgf backend with ``savefig("file.pdf", backend="pgf")``.
 
 
 Offset text is now set to the top when using ``axis.tick_top()``
@@ -415,8 +415,8 @@ Add :rc:`contour.linewidth` to rcParams
 ---------------------------------------
 
 The new config option :rc:`contour.linewidth` allows to control the default
-linewidth of contours as a float. When set to ``None``, the linewidths fall
-back to :rc:`lines.linewidth`. The config value is overidden as usual by the
+line width of contours as a float. When set to ``None``, the line widths fall
+back to :rc:`lines.linewidth`. The config value is overridden as usual by the
 *linewidths* argument passed to `~.axes.Axes.contour` when it is not set to
 ``None``.
 

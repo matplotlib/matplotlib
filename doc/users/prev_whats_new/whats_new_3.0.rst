@@ -10,8 +10,8 @@ The default backend no longer must be set as part of the build
 process.  Instead, at run time, the builtin backends are tried in
 sequence until one of them imports.
 
-Headless linux servers (identified by the DISPLAY env not being defined)
-will not select a GUI backend.
+Headless Linux servers (identified by the DISPLAY environment variable not
+being defined) will not select a GUI backend.
 
 Cyclic colormaps
 ----------------
@@ -53,8 +53,8 @@ be rotated and the color can be changed. By default the labels and arrows have
 the same color, but the class may also pass arguments for customizing arrow
 and text layout, these are passed to :class:`matplotlib.textpath.TextPath` and
 `matplotlib.patches.FancyArrowPatch`. Location, length and width for both
-arrow tail and head can be adjusted, the the direction arrows and labels can
-have a frame. Padding and separation parameters can be adjusted.
+arrow tail and head can be adjusted, the direction arrows and labels can have a
+frame. Padding and separation parameters can be adjusted.
 
 
 Add ``minorticks_on()/off()`` methods for colorbar
@@ -96,11 +96,11 @@ manually set using `.figure.Figure.canvas.set_window_title()`.
 Legend now has a *title_fontsize* keyword argument (and rcParam)
 ----------------------------------------------------------------
 
-The title for a `.Figure.legend` and `.Axes.legend` can now have its fontsize
+The title for a `.Figure.legend` and `.Axes.legend` can now have its font size
 set via the *title_fontsize* keyword argument.  There is also a new
 :rc:`legend.title_fontsize`.  Both default to ``None``, which means the legend
-title will have the same fontsize as the axes default fontsize (*not* the
-legend fontsize, set by the *fontsize* keyword argument or
+title will have the same font size as the axes default font size (*not* the
+legend font size, set by the *fontsize* keyword argument or
 :rc:`legend.fontsize`).
 
 
@@ -112,10 +112,10 @@ of the attribute `axes.prop_cycle` with cyclers using the `markevery`
 Line2D object property. An example of this feature is provided at
 :doc:`/gallery/lines_bars_and_markers/markevery_prop_cycle`.
 
-Multipage PDF support for pgf backend
--------------------------------------
+Multi-page PDF support for pgf backend
+--------------------------------------
 
-The pgf backend now also supports multipage PDF files.
+The pgf backend now also supports multi-page PDF files.
 
 .. code-block:: python
 
@@ -227,4 +227,4 @@ Sphinx 1.8 provides by default.  (``:mathmpl:`` uses Matplotlib to render math
 expressions to images embedded in html, whereas Sphinx uses MathJax.)
 
 When using Sphinx<1.8, both names (``:math:`` and ``:mathmpl:``) remain
-available for backcompatibility.
+available for backwards-compatibility.
