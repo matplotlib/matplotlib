@@ -1679,7 +1679,7 @@ class Arc(Ellipse):
 
         # Get width and height in pixels we need to use
         # `self.get_data_transform` rather than `self.get_transform`
-        # because we want the transform from from dataspace to the
+        # because we want the transform from dataspace to the
         # screen space to estimate how big the arc will be in physical
         # units when rendered (the transform that we get via
         # `self.get_transform()` goes from an idealized unit-radius
