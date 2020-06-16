@@ -253,6 +253,29 @@ def test_dpi_ratio_change():
         assert qt_canvas.get_width_height() == (600, 240)
         assert (fig.get_size_inches() == (5, 2)).all()
 
+        p.return_value = 1.5
+
+        assert qt_canvas._dpi_ratio == 1.5
+
+        qt_canvas.draw()
+        qApp.processEvents()
+        # this second processEvents is required to fully run the draw.
+        # On `update` we notice the DPI has changed and trigger a
+        # resize event to refresh, the second processEvents is
+        # required to process that and fully update the window sizes.
+        qApp.processEvents()
+
+        # The DPI and the renderer width/height change
+        assert fig.dpi == 180
+        assert qt_canvas.renderer.width == 900
+        assert qt_canvas.renderer.height == 360
+
+        # The actual widget size and figure physical size don't change
+        assert size.width() == 600
+        assert size.height() == 240
+        assert qt_canvas.get_width_height() == (600, 240)
+        assert (fig.get_size_inches() == (5, 2)).all()
+
 
 @pytest.mark.backend('Qt5Agg')
 def test_subplottool():

@@ -15,10 +15,12 @@ from matplotlib.backend_bases import (
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 from matplotlib.backend_managers import ToolManager
-
+from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _isdeleted, _getSaveFileName,
-    is_pyqt5, __version__, QT_API)
+    is_pyqt5, __version__, QT_API, _setDevicePixelRatioF,
+    _devicePixelRatioF)
+
 
 backend_version = __version__
 
@@ -267,12 +269,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     @property
     def _dpi_ratio(self):
-        # Not available on Qt4 or some older Qt5.
-        try:
-            # self.devicePixelRatio() returns 0 in rare cases
-            return self.devicePixelRatio() or 1
-        except AttributeError:
-            return 1
+        return _devicePixelRatioF(self)
 
     def _update_dpi(self):
         # As described in __init__ above, we need to be careful in cases with
@@ -454,8 +451,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if hasattr(self, "_event_loop") and self._event_loop.isRunning():
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
-        if timeout:
-            timer = QtCore.QTimer.singleShot(timeout * 1000, event_loop.quit)
+        if timeout > 0:
+            timer = QtCore.QTimer.singleShot(int(timeout * 1000),
+                                             event_loop.quit)
         event_loop.exec_()
 
     def stop_event_loop(self, event=None):
@@ -683,8 +681,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(os.path.join(self.basedir, name))
-        if hasattr(pm, 'setDevicePixelRatio'):
-            pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        _setDevicePixelRatioF(pm, _devicePixelRatioF(self))
         if color is not None:
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
                                           QtCore.Qt.MaskOutColor)

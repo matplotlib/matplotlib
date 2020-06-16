@@ -11,7 +11,7 @@ from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import (
     QtCore, QtGui, QtWidgets, _BackendQT5, FigureCanvasQT, FigureManagerQT,
     NavigationToolbar2QT, backend_version)
-from .qt_compat import QT_API
+from .qt_compat import QT_API, _setDevicePixelRatioF
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
@@ -64,9 +64,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
             qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
                                   QtGui.QImage.Format_ARGB32_Premultiplied)
-            if hasattr(qimage, 'setDevicePixelRatio'):
-                # Not available on Qt4 or some older Qt5.
-                qimage.setDevicePixelRatio(self._dpi_ratio)
+            _setDevicePixelRatioF(qimage, self._dpi_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
@@ -87,7 +85,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             bbox = self.figure.bbox
 
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
+        l, b, w, h = [int(pt / self._dpi_ratio) for pt in bbox.bounds]
         t = b + h
         self.repaint(l, self.renderer.height / self._dpi_ratio - t, w, h)
 
