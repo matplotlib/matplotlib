@@ -138,15 +138,14 @@ takes the rcParam based on its orientation.
 New "extend" keyword to colors.BoundaryNorm
 -------------------------------------------
 
-`~.colors.BoundaryNorm` now has an ``extend`` keyword argument, analogous to
-``extend`` in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max',
-it maps the corresponding out-of-range values to `~.colors.Colormap`
-lookup-table indices near the appropriate ends of their range so that the
-colors for out-of range values are adjacent to, but distinct from, their
-in-range neighbors.  The colorbar inherits the ``extend`` argument from the
-norm, so with ``extend='both'``, for example, the colorbar will have triangular
-extensions for out-of-range values with colors that differ from adjacent in-range
-colors.
+`~.colors.BoundaryNorm` now has an *extend* keyword argument, analogous to
+*extend* in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max', it
+maps the corresponding out-of-range values to `~.colors.Colormap` lookup-table
+indices near the appropriate ends of their range so that the colors for out-of
+range values are adjacent to, but distinct from, their in-range neighbors. The
+colorbar inherits the *extend* argument from the norm, so with
+``extend='both'``, for example, the colorbar will have triangular extensions
+for out-of-range values with colors that differ from adjacent in-range colors.
 
   .. plot::
 
@@ -251,10 +250,10 @@ Home/Forward/Backward buttons now work with 3D axes
 
 
 
-``savefig()`` gained a ``backend`` keyword argument
----------------------------------------------------
+``savefig()`` gained a *backend* keyword argument
+-------------------------------------------------
 
-The ``backend`` keyword argument to ``savefig`` can now be used to pick the
+The *backend* keyword argument to ``savefig`` can now be used to pick the
 rendering backend without having to globally set the backend; e.g. one can save
 pdfs using the pgf backend with ``savefig("file.pdf", backend="pgf")``.
 
@@ -275,7 +274,7 @@ edges of the remaining rows and columns in *C*.  However, many users want
 *x* and *y* centered on the rows and columns of *C*.
 
 To accommodate this, ``shading='nearest'`` and ``shading='auto'`` are new
-allowed strings for the ``shading`` keyword argument. ``'nearest'`` will center
+allowed strings for the *shading* keyword argument. ``'nearest'`` will center
 the color on *x* and *y* if *x* and *y* have the same dimensions as *C*
 (otherwise an error will be thrown). ``shading='auto'`` will choose 'flat' or
 'nearest' based on the size of *X*, *Y*, *C*.
@@ -397,8 +396,8 @@ conversion (using the new epoch) is::
 
 
 
-`~.axes.Axes.set_title` gains a y keyword argument to control auto positioning
-------------------------------------------------------------------------------
+`~.axes.Axes.set_title` gains a *y* keyword argument to control auto positioning
+--------------------------------------------------------------------------------
 
 `~.axes.Axes.set_title` tries to auto-position the title to avoid any
 decorators on the top x-axis.  This is not always desirable so now
@@ -417,9 +416,9 @@ Add :rc:`contour.linewidth` to rcParams
 
 The new config option :rc:`contour.linewidth` allows to control the default
 linewidth of contours as a float. When set to ``None``, the linewidths fall
-back to :rc:`lines.linewidth`. The config value is overidden as usual
-by the ``linewidths`` argument passed to `~.axes.Axes.contour` when
-it is not set to ``None``.
+back to :rc:`lines.linewidth`. The config value is overidden as usual by the
+*linewidths* argument passed to `~.axes.Axes.contour` when it is not set to
+``None``.
 
 
 The SVG backend can now render hatches with transparency

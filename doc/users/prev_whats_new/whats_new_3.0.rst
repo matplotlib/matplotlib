@@ -73,8 +73,8 @@ Colorbar ticks can now be automatic
 
 The number of ticks placed on colorbars was previously appropriate for a large
 colorbar, but looked bad if the colorbar was made smaller (i.e. via the
-``shrink`` keyword argument). This has been changed so that the number of
-ticks is now responsive to how large the colorbar is.
+*shrink* keyword argument). This has been changed so that the number of ticks
+is now responsive to how large the colorbar is.
 
 
 
@@ -97,10 +97,10 @@ Legend now has a *title_fontsize* keyword argument (and rcParam)
 ----------------------------------------------------------------
 
 The title for a `.Figure.legend` and `.Axes.legend` can now have its fontsize
-set via the ``title_fontsize`` keyword argument.  There is also a new
+set via the *title_fontsize* keyword argument.  There is also a new
 :rc:`legend.title_fontsize`.  Both default to ``None``, which means the legend
 title will have the same fontsize as the axes default fontsize (*not* the
-legend fontsize, set by the ``fontsize`` keyword argument or
+legend fontsize, set by the *fontsize* keyword argument or
 :rc:`legend.fontsize`).
 
 
