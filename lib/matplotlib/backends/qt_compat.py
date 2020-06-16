@@ -67,7 +67,7 @@ else:
 
 def _setup_pyqt5():
     global QtCore, QtGui, QtWidgets, __version__, is_pyqt5, \
-        _isdeleted, _devicePixelRatio, _setDevicePixelRatio, _getSaveFileName
+        _isdeleted, _getSaveFileName
 
     if QT_API == QT_API_PYQT5:
         from PyQt5 import QtCore, QtGui, QtWidgets
@@ -89,14 +89,10 @@ def _setup_pyqt5():
     def is_pyqt5():
         return True
 
-    # self.devicePixelRatio() returns 0 in rare cases
-    def _devicePixelRatio(obj): return obj.devicePixelRatio() or 1
-    def _setDevicePixelRatio(obj, factor): obj.setDevicePixelRatio(factor)
-
 
 def _setup_pyqt4():
     global QtCore, QtGui, QtWidgets, __version__, is_pyqt5, \
-        _isdeleted, _devicePixelRatio, _setDevicePixelRatio, _getSaveFileName
+        _isdeleted, _getSaveFileName
 
     def _setup_pyqt4_internal(api):
         global QtCore, QtGui, QtWidgets, \
@@ -148,9 +144,6 @@ def _setup_pyqt4():
     @mpl.cbook.deprecated("3.3", alternative="QtCore.qVersion()")
     def is_pyqt5():
         return False
-
-    def _devicePixelRatio(obj): return 1
-    def _setDevicePixelRatio(obj, factor): pass
 
 
 if QT_API in [QT_API_PYQT5, QT_API_PYSIDE2]:
@@ -220,6 +213,6 @@ def _setDevicePixelRatioF(obj, val):
     if hasattr(obj, 'setDevicePixelRatioF'):
         # Not available on Qt<5.6
         obj.setDevicePixelRatioF(val)
-    if hasattr(obj, 'setDevicePixelRatio'):
+    elif hasattr(obj, 'setDevicePixelRatio'):
         # Not available on Qt4 or some older Qt5.
         obj.setDevicePixelRatio(val)
