@@ -275,18 +275,25 @@ compiler, see e.g.
 https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-build-environment-on-windows
 for how to set up a build environment.
 
-Since there is no canonical Windows package manager, the methods for building
-FreeType, zlib, and libpng from source code are documented as a build script
-at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
+The Windows OS has no canonical package manager to provide easy inclusion of the dependencies that are
+required for the Matplotlib build. However, documentation and scripts that build the FreeType, zlib,
+and libpng dependencies from source code and integrate them into the Matplotlib build can be found
+at `matplotlib-winbuild <https://github.com/MaxvandenBoom/matplotlib-winbuild>`_.
 
 There are a few possibilities to build Matplotlib on Windows:
 
-* Wheels via `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_
+* Wheels via `matplotlib-winbuild <https://github.com/MaxvandenBoom/matplotlib-winbuild>`_
 * Wheels by using conda packages (see below)
 * Conda packages (see below)
 
 If you are building your own Matplotlib wheels (or sdists), note that any DLLs
 that you copy into the source tree will be packaged too.
+
+.. note::
+
+   The current master branch (which will become matplotlib 3.3) includes its own copy of Qhull; and by default downloads and builds
+   its own copy of FreeType. The only non-python dependency that you would require is Visual Studio 2015 or later.
+   See https://matplotlib.org/devdocs/users/installing.html#building-on-windows for the instructions on installing from master).
 
 Wheel builds using conda packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
