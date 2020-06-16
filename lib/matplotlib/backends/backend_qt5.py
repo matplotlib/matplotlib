@@ -18,7 +18,7 @@ from matplotlib.backend_managers import ToolManager
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _isdeleted, _getSaveFileName,
-    is_pyqt5, __version__, QT_API,
+    is_pyqt5, __version__, QT_API, _setDevicePixelRatioF,
     _devicePixelRatioF)
 
 
@@ -681,7 +681,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(os.path.join(self.basedir, name))
-        qt_compat._setDevicePixelRatioF(pm, _devicePixelRatioF(self))
+        _setDevicePixelRatioF(pm, _devicePixelRatioF(self))
         if color is not None:
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
                                           QtCore.Qt.MaskOutColor)

@@ -205,6 +205,6 @@ def _setDevicePixelRatioF(obj, val):
     if hasattr(obj, 'setDevicePixelRatioF'):
         # Not available on Qt<5.6
         obj.setDevicePixelRatioF(val)
-    if hasattr(obj, 'setDevicePixelRatio'):
+    elif hasattr(obj, 'setDevicePixelRatio'):
         # Not available on Qt4 or some older Qt5.
         obj.setDevicePixelRatio(val)
