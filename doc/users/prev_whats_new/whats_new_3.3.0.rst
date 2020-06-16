@@ -347,3 +347,110 @@ support a parameter ``loc`` for simplified positioning. Supported values are
 'left', 'center', or 'right'. The default is controlled via
 :rc:`xaxis.labelposition` and :rc:`yaxis.labelposition`; the Colorbar label
 takes the rcParam based on its orientation.
+
+Saving SVG now supports adding metadata
+---------------------------------------
+
+When saving SVG files, metadata can now be passed which will be saved in the
+file using `Dublin Core`_ and `RDF`_. A list of valid metadata can be found in
+the documentation for `.FigureCanvasSVG.print_svg`.
+
+.. _Dublin Core: https://www.dublincore.org/specifications/dublin-core/
+.. _RDF: https://www.w3.org/1999/.status/PR-rdf-syntax-19990105/status
+
+Saving PDF metadata via PGF now consistent with PDF backend
+-----------------------------------------------------------
+
+When saving PDF files using the PGF backend, passed metadata will be
+interpreted in the same way as with the PDF backend.  Previously, this metadata
+was only accepted by the PGF backend when saving a multi-page PDF with
+`.backend_pgf.PdfPages`, but is now allowed when saving a single figure, as
+well.
+
+New "extend" keyword to colors.BoundaryNorm
+-------------------------------------------
+
+`~.colors.BoundaryNorm` now has an ``extend`` keyword argument, analogous to
+``extend`` in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max',
+it maps the corresponding out-of-range values to `~.colors.Colormap`
+lookup-table indices near the appropriate ends of their range so that the
+colors for out-of range values are adjacent to, but distinct from, their
+in-range neighbors.  The colorbar inherits the ``extend`` argument from the
+norm, so with ``extend='both'``, for example, the colorbar will have triangular
+extensions for out-of-range values with colors that differ from adjacent in-range
+colors.
+
+  .. plot::
+
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import BoundaryNorm
+    import numpy as np
+
+    # Make the data
+    dx, dy = 0.05, 0.05
+    y, x = np.mgrid[slice(1, 5 + dy, dy),
+                    slice(1, 5 + dx, dx)]
+    z = np.sin(x) ** 10 + np.cos(10 + y * x) * np.cos(x)
+    z = z[:-1, :-1]
+
+    # Z roughly varies between -1 and +1.
+    # Color boundary levels range from -0.8 to 0.8, so there are out-of-bounds
+    # areas.
+    levels = [-0.8, -0.5, -0.2, 0.2, 0.5, 0.8]
+    cmap = plt.get_cmap('PiYG')
+
+    fig, axs = plt.subplots(nrows=2, constrained_layout=True, sharex=True)
+
+    # Before this change:
+    norm = BoundaryNorm(levels, ncolors=cmap.N)
+    im = axs[0].pcolormesh(x, y, z, cmap=cmap, norm=norm)
+    fig.colorbar(im, ax=axs[0], extend='both')
+    axs[0].axis([x.min(), x.max(), y.min(), y.max()])
+    axs[0].set_title("Colorbar with extend='both'")
+
+    # With the new keyword:
+    norm = BoundaryNorm(levels, ncolors=cmap.N, extend='both')
+    im = axs[1].pcolormesh(x, y, z, cmap=cmap, norm=norm)
+    fig.colorbar(im, ax=axs[1])  # note that the colorbar is updated accordingly
+    axs[1].axis([x.min(), x.max(), y.min(), y.max()])
+    axs[1].set_title("BoundaryNorm with extend='both'")
+
+    plt.show()
+
+Add API for composing semantic axes layouts from text or nested lists
+---------------------------------------------------------------------
+
+The `.Figure` class has a provisional method to generate complex grids
+of named `.axes.Axes` based on nested list input or ASCII art:
+
+.. plot::
+   :include-source: True
+
+   axd = plt.figure(constrained_layout=True).subplot_mosaic(
+     [["Top", "Top", "Edge"],
+      ["Left", ".",  "Edge"]]
+   )
+   for k, ax in axd.items():
+       ax.text(0.5, 0.5, k,
+               ha='center', va='center', fontsize=36,
+               color='darkgrey')
+
+or as a string (with single-character Axes labels):
+
+.. plot::
+   :include-source: True
+
+   axd = plt.figure(constrained_layout=True).subplot_mosaic(
+   """
+   TTE
+   L.E
+   """)
+   for k, ax in axd.items():
+       ax.text(0.5, 0.5, k,
+               ha='center', va='center', fontsize=36,
+               color='darkgrey')
+
+
+
+See :ref:`sphx_glr_tutorials_provisional_mosaic.py` for more
+details and examples.
