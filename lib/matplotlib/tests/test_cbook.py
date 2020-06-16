@@ -666,6 +666,14 @@ def test_setattr_cm():
         def meth(self):
             ...
 
+        @classmethod
+        def classy(klass):
+            ...
+
+        @staticmethod
+        def static():
+            ...
+
         @property
         def prop(self):
             return self._p
@@ -696,6 +704,10 @@ def test_setattr_cm():
         assert not hasattr(obj, 'extra')
         assert obj.prop == 'p'
         assert obj.monkey == other.meth
+        assert obj.cls_level is A.cls_level
+        assert 'cls_level' not in obj.__dict__
+        assert 'classy' not in obj.__dict__
+        assert 'static' not in obj.__dict__
 
     a = B()
 
@@ -705,7 +717,8 @@ def test_setattr_cm():
             a, prop='squirrel',
             aardvark='moose', meth=lambda: None,
             override='boo', extra='extra',
-            monkey=lambda: None):
+            monkey=lambda: None, cls_level='bob',
+            classy='classy', static='static'):
         # because we have set a lambda, it is normal attribute access
         # and the same every time
         assert a.meth is a.meth
@@ -715,9 +728,8 @@ def test_setattr_cm():
         assert a.extra == 'extra'
         assert a.prop == 'squirrel'
         assert a.monkey != other.meth
+        assert a.cls_level == 'bob'
+        assert a.classy == 'classy'
+        assert a.static == 'static'
 
     verify_pre_post_state(a)
-
-    with pytest.raises(ValueError):
-        with cbook._setattr_cm(a, cls_level='bob'):
-            pass
