@@ -274,11 +274,11 @@ dropping the last row and column of *C*, and *x* and *y* are regarded as the
 edges of the remaining rows and columns in *C*.  However, many users want
 *x* and *y* centered on the rows and columns of *C*.
 
-To accommodate this, ``shading='nearest'`` and ``shading='auto'`` are
-new allowed strings for the ``shading`` kwarg.  ``'nearest'`` will center the
-color on *x* and *y* if *x* and *y* have the same dimensions as *C*
-(otherwise an error will be thrown).  ``shading='auto'`` will choose 'flat'
-or 'nearest' based on the size of *X*, *Y*, *C*.
+To accommodate this, ``shading='nearest'`` and ``shading='auto'`` are new
+allowed strings for the ``shading`` keyword argument. ``'nearest'`` will center
+the color on *x* and *y* if *x* and *y* have the same dimensions as *C*
+(otherwise an error will be thrown). ``shading='auto'`` will choose 'flat' or
+'nearest' based on the size of *X*, *Y*, *C*.
 
 If ``shading='flat'`` then *X*, and *Y* should have dimensions one larger
 than *C*.  If *X* and *Y* have the same dimensions as *C*, then the previous
@@ -296,20 +296,20 @@ for examples.
 Set zorder of contour labels
 ----------------------------
 
-`~.axes.Axes.clabel` now accepts a *zorder* kwarg
-making it easier to set the *zorder* of contour labels.
-If not specified, the default *zorder* of clabels used to always be 3
-(i.e. the default *zorder* of `~.text.Text`) irrespective of the *zorder*
-passed to `~.axes.Axes.contour`/`~.axes.Axes.contourf`.
-The new default *zorder* for clabels has been changed to (``2 + zorder``
-passed to `~.axes.Axes.contour` / `~.axes.Axes.contourf`).
+`~.axes.Axes.clabel` now accepts a *zorder* keyword argument making it easier
+to set the *zorder* of contour labels. If not specified, the default *zorder*
+of clabels used to always be 3 (i.e. the default *zorder* of `~.text.Text`)
+irrespective of the *zorder* passed to
+`~.axes.Axes.contour`/`~.axes.Axes.contourf`.  The new default *zorder* for
+clabels has been changed to (``2 + zorder`` passed to `~.axes.Axes.contour` /
+`~.axes.Axes.contourf`).
 
 
 Simple syntax to select fonts by absolute path
 ----------------------------------------------
 
 Fonts can now be selected by passing an absolute `pathlib.Path` to the *font*
-kwarg of `.Text`.
+keyword argument of `.Text`.
 
 
 Add generalized "mathtext.fallback" rcParam

@@ -60,22 +60,21 @@ have a frame. Padding and separation parameters can be adjusted.
 Add ``minorticks_on()/off()`` methods for colorbar
 --------------------------------------------------
 
-A new method :meth:`.colorbar.Colobar.minorticks_on` has been added
-to correctly display minor ticks on a colorbar. This method
-doesn't allow the minor ticks to extend into the regions beyond vmin and vmax
-when the *extend* kwarg (used while creating the colorbar) is set to 'both',
-'max' or 'min'.
-A complementary method :meth:`.colorbar.Colobar.minorticks_off`
-has also been added to remove the minor ticks on the colorbar.
+A new method :meth:`.colorbar.Colobar.minorticks_on` has been added to
+correctly display minor ticks on a colorbar. This method doesn't allow the
+minor ticks to extend into the regions beyond vmin and vmax when the *extend*
+keyword argument (used while creating the colorbar) is set to 'both', 'max' or
+'min'. A complementary method :meth:`.colorbar.Colobar.minorticks_off` has
+also been added to remove the minor ticks on the colorbar.
 
 
 Colorbar ticks can now be automatic
 -----------------------------------
 
 The number of ticks placed on colorbars was previously appropriate for a large
-colorbar, but looked bad if the colorbar was made smaller (i.e. via the ``shrink`` kwarg).
-This has been changed so that the number of ticks is now responsive to how
-large the colorbar is.
+colorbar, but looked bad if the colorbar was made smaller (i.e. via the
+``shrink`` keyword argument). This has been changed so that the number of
+ticks is now responsive to how large the colorbar is.
 
 
 
@@ -94,14 +93,14 @@ overwriting, especially when the figure name has been
 manually set using `.figure.Figure.canvas.set_window_title()`.
 
 
-Legend now has a *title_fontsize* kwarg (and rcParam)
------------------------------------------------------
+Legend now has a *title_fontsize* keyword argument (and rcParam)
+----------------------------------------------------------------
 
-The title for a `.Figure.legend` and `.Axes.legend` can now have its
-fontsize set via the ``title_fontsize`` kwarg.  There is also a new
-:rc:`legend.title_fontsize`.  Both default to ``None``, which means
-the legend title will have the same fontsize as the axes default fontsize
-(*not* the legend fontsize, set by the ``fontsize`` kwarg or
+The title for a `.Figure.legend` and `.Axes.legend` can now have its fontsize
+set via the ``title_fontsize`` keyword argument.  There is also a new
+:rc:`legend.title_fontsize`.  Both default to ``None``, which means the legend
+title will have the same fontsize as the axes default fontsize (*not* the
+legend fontsize, set by the ``fontsize`` keyword argument or
 :rc:`legend.fontsize`).
 
 
