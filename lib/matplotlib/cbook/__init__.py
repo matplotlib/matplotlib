@@ -2039,10 +2039,12 @@ def _setattr_cm(obj, **kwargs):
         if attr in obj.__dict__ or orig is sentinel:
             origs[attr] = orig
         else:
-            cls_orig = getattr(type(obj), attr)
-            if isinstance(cls_orig, property):
+            if isinstance(getattr(type(obj), attr), property):
                 origs[attr] = orig
-            elif isinstance(cls_orig, types.FunctionType):
+            # Check whether orig is a bound method (`MethodType`).  We can't
+            # check that `isinstance(getattr(type(obj), attr), FunctionType)`,
+            # because that returns False for pybind11-generated methods.
+            elif isinstance(orig, types.MethodType):
                 origs[attr] = sentinel
             else:
                 raise ValueError(
