@@ -1671,7 +1671,12 @@ class Arc(Ellipse):
         if (
             # if we need to stretch the angles because we are distorted
             width != height
-            # and we are not doing a full circle
+            # and we are not doing a full circle.
+            #
+            # 0 and 360 do not exactly round-trip through the angle
+            # stretching (due to both float precision limitations and
+            # the difference between the range of arctan2 [-pi, pi] and
+            # this method [0, 360]) so avoid doing it if we don't have to.
             and not (theta1 != theta2 and theta1 % 360 == theta2 % 360)
         ):
             theta1 = theta_stretch(self.theta1, width / height)
