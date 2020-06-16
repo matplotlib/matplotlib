@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-The ``TexManager.serif``, ``TexManager.sans_serif``, ``TexManager.cursive`` and
-``TexManager.monospace`` attributes are deprecated.
