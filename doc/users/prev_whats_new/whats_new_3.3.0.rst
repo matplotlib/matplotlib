@@ -125,7 +125,7 @@ Note that they may *not* be used to share axes after any operation (e.g.,
 drawing) has occurred on them.
 
 
-Align labels to axes edges
+Align labels to Axes edges
 --------------------------
 
 `~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and `.ColorbarBase.set_label`
@@ -138,15 +138,14 @@ takes the rcParam based on its orientation.
 New "extend" keyword to colors.BoundaryNorm
 -------------------------------------------
 
-`~.colors.BoundaryNorm` now has an ``extend`` keyword argument, analogous to
-``extend`` in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max',
-it maps the corresponding out-of-range values to `~.colors.Colormap`
-lookup-table indices near the appropriate ends of their range so that the
-colors for out-of range values are adjacent to, but distinct from, their
-in-range neighbors.  The colorbar inherits the ``extend`` argument from the
-norm, so with ``extend='both'``, for example, the colorbar will have triangular
-extensions for out-of-range values with colors that differ from adjacent in-range
-colors.
+`~.colors.BoundaryNorm` now has an *extend* keyword argument, analogous to
+*extend* in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max', it
+maps the corresponding out-of-range values to `~.colors.Colormap` lookup-table
+indices near the appropriate ends of their range so that the colors for out-of
+range values are adjacent to, but distinct from, their in-range neighbors. The
+colorbar inherits the *extend* argument from the norm, so with
+``extend='both'``, for example, the colorbar will have triangular extensions
+for out-of-range values with colors that differ from adjacent in-range colors.
 
   .. plot::
 
@@ -217,15 +216,15 @@ raising the plot window when calling `~.pyplot.show` or `~.pyplot.pause`.
 
 
 
-Imshow now coerces 3D arrays with depth 1 to 2D
-------------------------------------------------
+``imshow`` now coerces 3D arrays with depth 1 to 2D
+---------------------------------------------------
 
 Starting from this version arrays of size MxNx1 will be coerced into MxN
 for displaying. This means commands like ``plt.imshow(np.random.rand(3, 3, 1))``
 will no longer return an error message that the image shape is invalid.
 
 
-``Axes3D`` no longer distorts the 3d plot to match the 2d aspect ratio
+``Axes3D`` no longer distorts the 3D plot to match the 2D aspect ratio
 ----------------------------------------------------------------------
 
 Plots made with :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` were previously
@@ -251,12 +250,12 @@ Home/Forward/Backward buttons now work with 3D axes
 
 
 
-``savefig()`` gained a ``backend`` keyword argument
----------------------------------------------------
+``savefig()`` gained a *backend* keyword argument
+-------------------------------------------------
 
-The ``backend`` keyword argument to ``savefig`` can now be used to pick the
+The *backend* keyword argument to ``savefig`` can now be used to pick the
 rendering backend without having to globally set the backend; e.g. one can save
-pdfs using the pgf backend with ``savefig("file.pdf", backend="pgf")``.
+PDFs using the pgf backend with ``savefig("file.pdf", backend="pgf")``.
 
 
 Offset text is now set to the top when using ``axis.tick_top()``
@@ -274,11 +273,11 @@ dropping the last row and column of *C*, and *x* and *y* are regarded as the
 edges of the remaining rows and columns in *C*.  However, many users want
 *x* and *y* centered on the rows and columns of *C*.
 
-To accommodate this, ``shading='nearest'`` and ``shading='auto'`` are
-new allowed strings for the ``shading`` kwarg.  ``'nearest'`` will center the
-color on *x* and *y* if *x* and *y* have the same dimensions as *C*
-(otherwise an error will be thrown).  ``shading='auto'`` will choose 'flat'
-or 'nearest' based on the size of *X*, *Y*, *C*.
+To accommodate this, ``shading='nearest'`` and ``shading='auto'`` are new
+allowed strings for the *shading* keyword argument. ``'nearest'`` will center
+the color on *x* and *y* if *x* and *y* have the same dimensions as *C*
+(otherwise an error will be thrown). ``shading='auto'`` will choose 'flat' or
+'nearest' based on the size of *X*, *Y*, *C*.
 
 If ``shading='flat'`` then *X*, and *Y* should have dimensions one larger
 than *C*.  If *X* and *Y* have the same dimensions as *C*, then the previous
@@ -296,20 +295,20 @@ for examples.
 Set zorder of contour labels
 ----------------------------
 
-`~.axes.Axes.clabel` now accepts a *zorder* kwarg
-making it easier to set the *zorder* of contour labels.
-If not specified, the default *zorder* of clabels used to always be 3
-(i.e. the default *zorder* of `~.text.Text`) irrespective of the *zorder*
-passed to `~.axes.Axes.contour`/`~.axes.Axes.contourf`.
-The new default *zorder* for clabels has been changed to (``2 + zorder``
-passed to `~.axes.Axes.contour` / `~.axes.Axes.contourf`).
+`~.axes.Axes.clabel` now accepts a *zorder* keyword argument making it easier
+to set the *zorder* of contour labels. If not specified, the default *zorder*
+of clabels used to always be 3 (i.e. the default *zorder* of `~.text.Text`)
+irrespective of the *zorder* passed to
+`~.axes.Axes.contour`/`~.axes.Axes.contourf`.  The new default *zorder* for
+clabels has been changed to (``2 + zorder`` passed to `~.axes.Axes.contour` /
+`~.axes.Axes.contourf`).
 
 
 Simple syntax to select fonts by absolute path
 ----------------------------------------------
 
 Fonts can now be selected by passing an absolute `pathlib.Path` to the *font*
-kwarg of `.Text`.
+keyword argument of `.Text`.
 
 
 Add generalized "mathtext.fallback" rcParam
@@ -397,8 +396,8 @@ conversion (using the new epoch) is::
 
 
 
-`~.axes.Axes.set_title` gains a y keyword argument to control auto positioning
-------------------------------------------------------------------------------
+`~.axes.Axes.set_title` gains a *y* keyword argument to control auto positioning
+--------------------------------------------------------------------------------
 
 `~.axes.Axes.set_title` tries to auto-position the title to avoid any
 decorators on the top x-axis.  This is not always desirable so now
@@ -416,10 +415,10 @@ Add :rc:`contour.linewidth` to rcParams
 ---------------------------------------
 
 The new config option :rc:`contour.linewidth` allows to control the default
-linewidth of contours as a float. When set to ``None``, the linewidths fall
-back to :rc:`lines.linewidth`. The config value is overidden as usual
-by the ``linewidths`` argument passed to `~.axes.Axes.contour` when
-it is not set to ``None``.
+line width of contours as a float. When set to ``None``, the line widths fall
+back to :rc:`lines.linewidth`. The config value is overridden as usual by the
+*linewidths* argument passed to `~.axes.Axes.contour` when it is not set to
+``None``.
 
 
 The SVG backend can now render hatches with transparency
