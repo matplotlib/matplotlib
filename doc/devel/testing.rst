@@ -243,7 +243,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py36,py37
+    $ tox -e py37,py38
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,

@@ -8,7 +8,7 @@ setup.cfg.template for more information.
 # and/or pip.
 import sys
 
-min_version = (3, 6)
+min_version = (3, 7)
 
 if sys.version_info < min_version:
     error = """
