@@ -120,7 +120,11 @@ class Tick(martist.Artist):
         self._base_pad = pad
 
         if labelcolor is None:
-            labelcolor = mpl.rcParams[f"{name}.color"]
+            labelcolor = mpl.rcParams[f"{name}.labelcolor"]
+            if labelcolor is None:
+                # fallback to old behaviour: set the same color for the ticks
+                # and the tick labels
+                labelcolor = color
 
         if labelsize is None:
             labelsize = mpl.rcParams[f"{name}.labelsize"]

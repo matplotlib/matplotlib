@@ -6322,3 +6322,23 @@ def test_autoscale_tiny_sticky():
     ax.bar(0, 1e-9)
     fig.canvas.draw()
     assert ax.get_ylim() == (0, 1.05e-9)
+
+
+def test_xtickcolor_is_not_xticklabelcolor():
+    plt.rcParams['xtick.color'] = 'yellow'
+    plt.rcParams['xtick.labelcolor'] = 'blue'
+    ax = plt.axes()
+    ticks = ax.xaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.color == 'yellow'
+        assert tick.labelcolor == 'blue'
+
+
+def test_ytickcolor_is_not_yticklabelcolor():
+    plt.rcParams['ytick.color'] = 'yellow'
+    plt.rcParams['ytick.labelcolor'] = 'blue'
+    ax = plt.axes()
+    ticks = ax.yaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.color == 'yellow'
+        assert tick.labelcolor == 'blue'
