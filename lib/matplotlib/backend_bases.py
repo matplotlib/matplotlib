@@ -2857,6 +2857,28 @@ class NavigationToolbar2:
     def set_message(self, s):
         """Display a message on toolbar or in status bar."""
 
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        """
+        Draw a rectangle rubberband to indicate zoom limits.
+
+        Note that it is not guaranteed that ``x0 <= x1`` and ``y0 <= y1``.
+        """
+
+    def remove_rubberband(self):
+        """Remove the rubberband."""
+
+    def home(self, *args):
+        """
+        Restore the original view.
+
+        For convenience of being directly connected as a GUI callback, which
+        often get passed additional parameters, this method accepts arbitrary
+        parameters, but does not use them.
+        """
+        self._nav_stack.home()
+        self.set_history_buttons()
+        self._update_view()
+
     def back(self, *args):
         """
         Move back up the view lim stack.
@@ -2869,16 +2891,6 @@ class NavigationToolbar2:
         self.set_history_buttons()
         self._update_view()
 
-    def draw_rubberband(self, event, x0, y0, x1, y1):
-        """
-        Draw a rectangle rubberband to indicate zoom limits.
-
-        Note that it is not guaranteed that ``x0 <= x1`` and ``y0 <= y1``.
-        """
-
-    def remove_rubberband(self):
-        """Remove the rubberband."""
-
     def forward(self, *args):
         """
         Move forward in the view lim stack.
@@ -2888,18 +2900,6 @@ class NavigationToolbar2:
         parameters, but does not use them.
         """
         self._nav_stack.forward()
-        self.set_history_buttons()
-        self._update_view()
-
-    def home(self, *args):
-        """
-        Restore the original view.
-
-        For convenience of being directly connected as a GUI callback, which
-        often get passed additional parameters, this method accepts arbitrary
-        parameters, but does not use them.
-        """
-        self._nav_stack.home()
         self.set_history_buttons()
         self._update_view()
 
@@ -3003,6 +3003,14 @@ class NavigationToolbar2:
             elif event.name == "button_release_event":
                 self.release_zoom(event)
 
+    @cbook.deprecated("3.3")
+    def press(self, event):
+        """Called whenever a mouse button is pressed."""
+
+    @cbook.deprecated("3.3")
+    def release(self, event):
+        """Callback for mouse button release."""
+
     def pan(self, *args):
         """
         Toggle the pan/zoom tool.
@@ -3018,10 +3026,6 @@ class NavigationToolbar2:
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode)
         self.set_message(self.mode)
-
-    @cbook.deprecated("3.3")
-    def press(self, event):
-        """Called whenever a mouse button is pressed."""
 
     def press_pan(self, event):
         """Callback for mouse button press in pan/zoom mode."""
@@ -3050,6 +3054,49 @@ class NavigationToolbar2:
         if press is not None:
             press(event)
 
+    def drag_pan(self, event):
+        """Callback for dragging in pan/zoom mode."""
+        for a, ind in self._xypress:
+            #safer to use the recorded button at the press than current button:
+            #multiple button can get pressed during motion...
+            a.drag_pan(self._button_pressed, event.key, event.x, event.y)
+        self.canvas.draw_idle()
+
+    def release_pan(self, event):
+        """Callback for mouse button release in pan/zoom mode."""
+
+        if self._button_pressed is None:
+            return
+        self.canvas.mpl_disconnect(self._id_drag)
+        self._id_drag = self.canvas.mpl_connect(
+            'motion_notify_event', self.mouse_move)
+        for a, ind in self._xypress:
+            a.end_pan()
+        if not self._xypress:
+            return
+        self._xypress = []
+        self._button_pressed = None
+        self.push_current()
+        release = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden release() at pan stop is deprecated since %(since)s "
+            "and will be removed %(removal)s; override release_pan() instead.")
+        if release is not None:
+            release(event)
+        self._draw()
+
+    def zoom(self, *args):
+        """Toggle zoom to rect mode."""
+        if self.mode == _Mode.ZOOM:
+            self.mode = _Mode.NONE
+            self.canvas.widgetlock.release(self)
+        else:
+            self.mode = _Mode.ZOOM
+            self.canvas.widgetlock(self)
+        for a in self.canvas.figure.get_axes():
+            a.set_navigate_mode(self.mode)
+        self.set_message(self.mode)
+
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
         if event.button not in [1, 3]:
@@ -3076,52 +3123,6 @@ class NavigationToolbar2:
             "and will be removed %(removal)s; override press_zoom() instead.")
         if press is not None:
             press(event)
-
-    def push_current(self):
-        """Push the current view limits and position onto the stack."""
-        self._nav_stack.push(
-            WeakKeyDictionary(
-                {ax: (ax._get_view(),
-                      # Store both the original and modified positions.
-                      (ax.get_position(True).frozen(),
-                       ax.get_position().frozen()))
-                 for ax in self.canvas.figure.axes}))
-        self.set_history_buttons()
-
-    @cbook.deprecated("3.3")
-    def release(self, event):
-        """Callback for mouse button release."""
-
-    def release_pan(self, event):
-        """Callback for mouse button release in pan/zoom mode."""
-
-        if self._button_pressed is None:
-            return
-        self.canvas.mpl_disconnect(self._id_drag)
-        self._id_drag = self.canvas.mpl_connect(
-            'motion_notify_event', self.mouse_move)
-        for a, ind in self._xypress:
-            a.end_pan()
-        if not self._xypress:
-            return
-        self._xypress = []
-        self._button_pressed = None
-        self.push_current()
-        release = cbook._deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
-            "overridden release() at pan stop is deprecated since %(since)s "
-            "and will be removed %(removal)s; override release_pan() instead.")
-        if release is not None:
-            release(event)
-        self._draw()
-
-    def drag_pan(self, event):
-        """Callback for dragging in pan/zoom mode."""
-        for a, ind in self._xypress:
-            #safer to use the recorded button at the press than current button:
-            #multiple button can get pressed during motion...
-            a.drag_pan(self._button_pressed, event.key, event.x, event.y)
-        self.canvas.draw_idle()
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
@@ -3188,6 +3189,17 @@ class NavigationToolbar2:
         if release is not None:
             release(event)
 
+    def push_current(self):
+        """Push the current view limits and position onto the stack."""
+        self._nav_stack.push(
+            WeakKeyDictionary(
+                {ax: (ax._get_view(),
+                      # Store both the original and modified positions.
+                      (ax.get_position(True).frozen(),
+                       ax.get_position().frozen()))
+                 for ax in self.canvas.figure.axes}))
+        self.set_history_buttons()
+
     @cbook.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
     def draw(self):
         """Redraw the canvases, update the locators."""
@@ -3247,18 +3259,6 @@ class NavigationToolbar2:
         """Reset the axes stack."""
         self._nav_stack.clear()
         self.set_history_buttons()
-
-    def zoom(self, *args):
-        """Toggle zoom to rect mode."""
-        if self.mode == _Mode.ZOOM:
-            self.mode = _Mode.NONE
-            self.canvas.widgetlock.release(self)
-        else:
-            self.mode = _Mode.ZOOM
-            self.canvas.widgetlock(self)
-        for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self.mode)
-        self.set_message(self.mode)
 
     def set_history_buttons(self):
         """Enable or disable the back/forward button."""
