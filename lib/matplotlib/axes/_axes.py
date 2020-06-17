@@ -3076,8 +3076,7 @@ class Axes(_AxesBase):
             if shadow:
                 # Make sure to add a shadow after the call to add_patch so the
                 # figure and transform props will be set.
-                shad = mpatches.Shadow(w, -0.02, -0.02)
-                shad.set(zorder=0.9 * w.get_zorder(), label='_nolegend_')
+                shad = mpatches.Shadow(w, -0.02, -0.02, label='_nolegend_')
                 self.add_patch(shad)
 
             if labeldistance is not None:
