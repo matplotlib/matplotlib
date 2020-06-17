@@ -27,6 +27,9 @@ pp. 90-95, 2007 <https://doi.org/10.1109/MCSE.2007.55>`_.
 
 DOIs
 ----
+v3.2.2
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3898017.svg
+      :target: https://doi.org/10.5281/zenodo.3898017
 v3.2.1
    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3714460.svg
       :target: https://doi.org/10.5281/zenodo.3714460
