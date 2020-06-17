@@ -147,7 +147,7 @@ Matplotlib requires the following dependencies:
 * `NumPy <https://numpy.org>`_ (>= 1.15)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
-* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
+* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.7)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.0.3)
