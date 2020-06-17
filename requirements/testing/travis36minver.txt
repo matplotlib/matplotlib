@@ -4,3 +4,4 @@ cycler==0.10
 python-dateutil==2.7
 numpy==1.16.0
 pyparsing==2.2.1
+kiwisolver==1.0.1
