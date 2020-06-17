@@ -154,8 +154,7 @@ class TexManager:
                self._fonts['monospace'][1]]
         if self.font_family == 'cursive':
             cmd.append(self._fonts['cursive'][1])
-        self._font_preamble = '\n'.join(
-            [r'\usepackage{type1cm}', *cmd, r'\usepackage{textcomp}'])
+        self._font_preamble = '\n'.join([r'\usepackage{type1cm}', *cmd])
 
         return ''.join(fontconfig)
 
@@ -188,10 +187,16 @@ class TexManager:
             self._font_preamble,
             r"\usepackage[utf8]{inputenc}",
             r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
-            # Needs to come early so that the custom preamble can change the
-            # geometry, e.g. in convert_psfrags.
+            # geometry is loaded before the custom preamble as convert_psfrags
+            # relies on a custom preamble to change the geometry.
             r"\usepackage[papersize=72in,body=70in,margin=1in]{geometry}",
             self.get_custom_preamble(),
+            # textcomp is loaded last (if not already loaded by the custom
+            # preamble) in order not to clash with custom packages (e.g.
+            # newtxtext) which load it with different options.
+            r"\makeatletter"
+            r"\@ifpackageloaded{textcomp}{}{\usepackage{textcomp}}"
+            r"\makeatother",
         ])
 
     def make_tex(self, tex, fontsize):
