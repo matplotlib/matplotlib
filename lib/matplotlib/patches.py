@@ -645,7 +645,14 @@ class Shadow(Patch):
         self.patch = patch
         # Note: when removing props, we can directly pass kwargs to _update()
         # and remove self._props
-        self._props = {**(props if props is not None else {}), **kwargs}
+        if props is None:
+            color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+            props = {
+                'facecolor': color,
+                'edgecolor': color,
+                'alpha': 0.5,
+            }
+        self._props = {**props, **kwargs}
         self._ox, self._oy = ox, oy
         self._shadow_transform = transforms.Affine2D()
         self._update()
@@ -658,13 +665,7 @@ class Shadow(Patch):
         # Place the shadow patch directly behind the inherited patch.
         self.set_zorder(np.nextafter(self.patch.zorder, -np.inf))
 
-        if self._props:
-            self.update(self._props)
-        else:
-            color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
-            self.set_facecolor(color)
-            self.set_edgecolor(color)
-            self.set_alpha(0.5)
+        self.update(self._props)
 
     def _update_transform(self, renderer):
         ox = renderer.points_to_pixels(self._ox)
