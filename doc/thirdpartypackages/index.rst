@@ -26,11 +26,11 @@ continental and political boundaries.
 
 Cartopy
 =======
-`Cartopy <http://scitools.org.uk/cartopy/docs/latest>`_ builds on top
+`Cartopy <https://scitools.org.uk/cartopy/docs/latest/>`_ builds on top
 of Matplotlib to provide object oriented map projection definitions
 and close integration with Shapely for powerful yet easy-to-use vector
 data processing tools. An example plot from the `Cartopy gallery
-<http://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
+<https://scitools.org.uk/cartopy/docs/latest/gallery/index.html>`_:
 
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
