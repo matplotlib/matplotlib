@@ -6330,8 +6330,8 @@ def test_xtickcolor_is_not_xticklabelcolor():
     ax = plt.axes()
     ticks = ax.xaxis.get_major_ticks()
     for tick in ticks:
-        assert tick.color == 'yellow'
-        assert tick.labelcolor == 'blue'
+        assert tick.tick1line.get_color() == 'yellow'
+        assert tick.label1.get_color() == 'blue'
 
 
 def test_ytickcolor_is_not_yticklabelcolor():
@@ -6340,5 +6340,5 @@ def test_ytickcolor_is_not_yticklabelcolor():
     ax = plt.axes()
     ticks = ax.yaxis.get_major_ticks()
     for tick in ticks:
-        assert tick.color == 'yellow'
-        assert tick.labelcolor == 'blue'
+        assert tick.tick1line.get_color() == 'yellow'
+        assert tick.label1.get_color() == 'blue'
