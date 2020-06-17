@@ -11,8 +11,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib.testing.compare import compare_images
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 needs_usetex = pytest.mark.skipif(
@@ -245,16 +244,13 @@ def test_missing_psfont(monkeypatch):
 
 
 @pytest.mark.style('default')
-def test_pdf_savefig_when_color_is_none(tmpdir):
-    fig, ax = plt.subplots()
-    plt.axis('off')
-    ax.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
-    actual_image = tmpdir.join('figure.pdf')
-    expected_image = tmpdir.join('figure.eps')
-    fig.savefig(str(actual_image), format='pdf')
-    fig.savefig(str(expected_image), format='eps')
-    result = compare_images(str(actual_image), str(expected_image), 0)
-    assert result is None
+@check_figures_equal(extensions=["pdf", "eps"])
+def test_pdf_eps_savefig_when_color_is_none(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_test.set_axis_off()
+    ax_test.plot(np.sin(np.linspace(-5, 5, 100)), "v", c="none")
+    ax_ref = fig_ref.add_subplot()
+    ax_ref.set_axis_off()
 
 
 @needs_usetex
