@@ -3,4 +3,4 @@
 cycler==0.10
 python-dateutil==2.7
 numpy==1.15.0
-pyparsing==2.0.3
+pyparsing==2.2.1

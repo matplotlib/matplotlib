@@ -282,7 +282,7 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         "kiwisolver>=1.0.1",
         "numpy>=1.15",
         "pillow>=6.2.0",
-        "pyparsing>=2.0.3,!=2.0.4,!=2.1.2,!=2.1.6",
+        "pyparsing>=2.2.1",
         "python-dateutil>=2.7",
     ],
 
