@@ -490,3 +490,60 @@ def test_fancyarrow_units():
     fig, ax = plt.subplots()
     arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
     ax.add_patch(arrow)
+
+
+@image_comparison(["large_arc.svg"], style="mpl20")
+def test_large_arc():
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    x = 210
+    y = -2115
+    diameter = 4261
+    for ax in [ax1, ax2]:
+        a = mpatches.Arc((x, y), diameter, diameter, lw=2, color='k')
+        ax.add_patch(a)
+        ax.set_axis_off()
+        ax.set_aspect('equal')
+    # force the high accuracy case
+    ax1.set_xlim(7, 8)
+    ax1.set_ylim(5, 6)
+
+    # force the low accuracy case
+    ax2.set_xlim(-25000, 18000)
+    ax2.set_ylim(-20000, 6600)
+
+
+@image_comparison(["all_quadrants_arcs.svg"], style="mpl20")
+def test_rotated_arcs():
+    fig, ax_arr = plt.subplots(2, 2, squeeze=False, figsize=(10, 10))
+
+    scale = 10_000_000
+    diag_centers = ((-1, -1), (-1, 1), (1, 1), (1, -1))
+    on_axis_centers = ((0, 1), (1, 0), (0, -1), (-1, 0))
+    skews = ((2, 2), (2, 1/10), (2,  1/100), (2, 1/1000))
+
+    for ax, (sx, sy) in zip(ax_arr.ravel(), skews):
+        k = 0
+        for prescale, centers in zip((1 - .0001, (1 - .0001) / np.sqrt(2)),
+                                      (on_axis_centers, diag_centers)):
+            for j, (x_sign, y_sign) in enumerate(centers, start=k):
+                a = mpatches.Arc(
+                    (x_sign * scale * prescale,
+                     y_sign * scale * prescale),
+                    scale * sx,
+                    scale * sy,
+                    lw=4,
+                    color=f"C{j}",
+                    zorder=1 + j,
+                    angle=np.rad2deg(np.arctan2(y_sign, x_sign)) % 360,
+                    label=f'big {j}',
+                    gid=f'big {j}'
+                )
+                ax.add_patch(a)
+
+            k = j+1
+        ax.set_xlim(-scale / 4000, scale / 4000)
+        ax.set_ylim(-scale / 4000, scale / 4000)
+        ax.axhline(0, color="k")
+        ax.axvline(0, color="k")
+        ax.set_axis_off()
+        ax.set_aspect("equal")
