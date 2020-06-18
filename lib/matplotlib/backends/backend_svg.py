@@ -334,7 +334,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
 
         if 'Title' in metadata:
-            writer.element('title', text=metadata['Title'], indent=False)
+            writer.element('title', text=metadata['Title'])
 
         # Special handling.
         date = metadata.get('Date', None)
@@ -387,7 +387,7 @@ class RendererSVG(RendererBase):
                     'identifier', 'language', 'relation', 'source']:
             info = metadata.pop(key.title(), None)
             if info is not None:
-                writer.element(f'dc:{key}', text=info, indent=False)
+                writer.element(f'dc:{key}', text=info)
 
         # Multiple Agent values.
         for key in ['creator', 'contributor', 'publisher', 'rights']:
@@ -401,7 +401,7 @@ class RendererSVG(RendererBase):
             writer.start(f'dc:{key}')
             for agent in agents:
                 writer.start('cc:Agent')
-                writer.element('dc:title', text=agent, indent=False)
+                writer.element('dc:title', text=agent)
                 writer.end('cc:Agent')
             writer.end(f'dc:{key}')
 
@@ -414,7 +414,7 @@ class RendererSVG(RendererBase):
             writer.start('dc:subject')
             writer.start('rdf:Bag')
             for keyword in keywords:
-                writer.element('rdf:li', text=keyword, indent=False)
+                writer.element('rdf:li', text=keyword)
             writer.end('rdf:Bag')
             writer.end('dc:subject')
 
