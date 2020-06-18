@@ -12,6 +12,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 from functools import reduce
+from itertools import compress
 import math
 import textwrap
 
@@ -2972,10 +2973,14 @@ pivot='tail', normalize=False, **kwargs)
             symbols. Default is below.
 
         xlolims, ylolims, zlolims : bool, default: False
-            These arguments can be used to indicate that a value gives
-            only lower limits. In that case a caret symbol is being
-            drawn to indicate this. lims-arguments may be of the same
-            type as *xerr* and *yerr*.
+            These arguments can be used to indicate that a value gives only
+            lower limits. In that case a caret symbol is used to indicate
+            this. *lims*-arguments may be scalars, or array-likes of the same
+            length as the errors. To use limits with inverted axes,
+            `~.Axes.set_xlim` or `~.Axes.set_ylim` must be called before
+            :meth:`errorbar`. Note the tricky parameter names: setting e.g.
+            *ylolims* to True means that the y-value is a *lower* limit of the
+            True value, so, only an *upward*-pointing arrow will be drawn!
 
         xuplims, yuplims, zuplims : bool, default: False
             Same as above, but for controlling the upper limits.
@@ -3052,6 +3057,9 @@ pivot='tail', normalize=False, **kwargs)
         y = y if np.iterable(y) else [y]
         z = z if np.iterable(z) else [z]
 
+        if not len(x) == len(y) == len(z):
+            raise ValueError("'x', 'y', and 'z' must have the same size")
+
         # make the style dict for the 'normal' plot line
         if 'zorder' not in kwargs:
             kwargs['zorder'] = 2
@@ -3112,14 +3120,12 @@ pivot='tail', normalize=False, **kwargs)
         everymask = np.zeros(len(x), bool)
         everymask[offset::errorevery] = True
 
-        def _mask_lists(xs, ys, zs, mask=None):
-            """Applies a mask to three lists."""
-            xs = [l for l, m in zip(xs, mask) if m]
-            ys = [l for l, m in zip(ys, mask) if m]
-            zs = [l for l, m in zip(zs, mask) if m]
-            return xs, ys, zs
+        def _apply_mask(arrays, mask):
+            # Return, for each array in *arrays*, the elements for which *mask*
+            # is True, without using fancy indexing.
+            return [[*compress(array, mask)] for array in arrays]
 
-        def _unpack_errs(err, data, lomask, himask):
+        def _extract_errs(err, data, lomask, himask):
             # For separate +/- error values we need to unpack err
             if len(err.shape) == 2:
                 low_err, high_err = err
@@ -3175,15 +3181,15 @@ pivot='tail', normalize=False, **kwargs)
             # where x/y/z and l/h correspond to dimensions and low/high
             # positions of errorbars in a dimension we're looping over
             coorderr = [
-                _unpack_errs(err * dir_vector[i], coord,
-                             ~lolims & everymask, ~uplims & everymask)
+                _extract_errs(err * dir_vector[i], coord,
+                              ~lolims & everymask, ~uplims & everymask)
                 for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
 
             # draws capmarkers - flat caps othogonal to the error bars
             if nolims.any() and capsize > 0:
-                lo_caps_xyz = _mask_lists(xl, yl, zl, nolims & everymask)
-                hi_caps_xyz = _mask_lists(xh, yh, zh, nolims & everymask)
+                lo_caps_xyz = _apply_mask([xl, yl, zl], nolims & everymask)
+                hi_caps_xyz = _apply_mask([xh, yh, zh], nolims & everymask)
 
                 # setting '_' for z-caps and '|' for x- and y-caps;
                 # these markers will rotate as the viewing angle changes
@@ -3200,16 +3206,16 @@ pivot='tail', normalize=False, **kwargs)
 
             if (lolims | uplims).any():
                 limits = [
-                    _unpack_errs(err*dir_vector[i], coord, uplims, lolims)
+                    _extract_errs(err*dir_vector[i], coord, uplims, lolims)
                     for i, coord in enumerate([x, y, z])]
 
                 (xlo, xup), (ylo, yup), (zlo, zup) = limits
                 lomask = lolims & everymask
                 upmask = uplims & everymask
-                lolims_xyz = np.array(_mask_lists(xlo, ylo, zlo, upmask))
-                uplims_xyz = np.array(_mask_lists(xup, yup, zup, lomask))
-                lo_xyz = np.array(_mask_lists(x, y, z, upmask))
-                up_xyz = np.array(_mask_lists(x, y, z, lomask))
+                lolims_xyz = np.array(_apply_mask([xlo, ylo, zlo], upmask))
+                uplims_xyz = np.array(_apply_mask([xup, yup, zup], lomask))
+                lo_xyz = np.array(_apply_mask([x, y, z], upmask))
+                up_xyz = np.array(_apply_mask([x, y, z], lomask))
                 x0, y0, z0 = np.concatenate([lo_xyz, up_xyz], axis=-1)
                 dx, dy, dz = np.concatenate([lolims_xyz - lo_xyz,
                                              uplims_xyz - up_xyz], axis=-1)
