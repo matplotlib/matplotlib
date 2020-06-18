@@ -280,7 +280,7 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     install_requires=[
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
-        "numpy>=1.15",
+        "numpy>=1.16",
         "pillow>=6.2.0",
         "pyparsing>=2.2.1",
         "python-dateutil>=2.7",
