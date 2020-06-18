@@ -15,9 +15,11 @@ Matplotlib recognizes the following formats to specify a color:
   case-insensitive);
 * a string representation of a float value in ``[0, 1]`` inclusive for gray
   level (e.g., ``'0.5'``);
-* one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``, they are the single
-  character short-hand notations for blue, green, red, cyan, magenta, yellow,
-  black, and white.
+* one of the characters ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``, which
+  are short-hand notations for shades of blue, green, red, cyan, magenta,
+  yellow, black, and white. Note that the colors ``'g', 'c', 'm', 'y'`` do not
+  coincide with the X11/CSS4 colors. Their particular shades were chosen for
+  better visibility of colored lines against typical backgrounds.
 * a X11/CSS4 color name (case-insensitive);
 * a name from the `xkcd color survey`_, prefixed with ``'xkcd:'`` (e.g.,
   ``'xkcd:sky blue'``; case insensitive);
