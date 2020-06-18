@@ -430,9 +430,7 @@ class RendererSVG(RendererBase):
             'stroke-linejoin': 'round',
             'stroke-linecap': 'butt'})
         writer.start('defs')
-        writer.start('style', type='text/css')
-        writer.data('*{%s}\n' % default_style)
-        writer.end('style')
+        writer.element('style', type='text/css', text='*{%s}' % default_style)
         writer.end('defs')
 
     def _make_id(self, type, content):
