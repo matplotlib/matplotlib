@@ -1340,7 +1340,7 @@ class Axis(martist.Artist):
         tick_kw = self._major_tick_kw
         size = tick_kw.get('labelsize',
                            mpl.rcParams[f'{axis_name}tick.labelsize'])
-        return mtext.FontProperties(size).get_size_in_points()
+        return mtext.FontProperties(size=size).get_size_in_points()
 
     def _copy_tick_props(self, src, dest):
         """Copy the properties from *src* tick to *dest* tick."""
