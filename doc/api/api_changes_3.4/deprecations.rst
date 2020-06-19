@@ -1,2 +1,6 @@
 Deprecations
 ------------
+
+Passing `bytes` to ``FT2Font.set_text``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated, pass `str` instead.
