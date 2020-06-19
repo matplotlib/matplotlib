@@ -21,11 +21,12 @@ import matplotlib
 import matplotlib as mpl
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
-import matplotlib.pyplot as plt
-import matplotlib.markers as mmarkers
-import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
+import matplotlib.font_manager as mfont_manager
+import matplotlib.markers as mmarkers
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 from numpy.testing import (
@@ -6322,3 +6323,17 @@ def test_autoscale_tiny_sticky():
     ax.bar(0, 1e-9)
     fig.canvas.draw()
     assert ax.get_ylim() == (0, 1.05e-9)
+
+
+@pytest.mark.parametrize('size', [size for size in mfont_manager.font_scalings
+                                  if size is not None] + [8, 10, 12])
+@pytest.mark.style('default')
+def test_relative_ticklabel_sizes(size):
+    mpl.rcParams['xtick.labelsize'] = size
+    mpl.rcParams['ytick.labelsize'] = size
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+
+    for name, axis in zip(['x', 'y'], [ax.xaxis, ax.yaxis]):
+        for tick in axis.get_major_ticks():
+            assert tick.label1.get_size() == axis._get_tick_label_size(name)
