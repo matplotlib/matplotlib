@@ -160,8 +160,10 @@ etc., you can install the following:
 * `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs.
-* `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
+* `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
+  <https://ctan.org/pkg/cm-super>`__ ) and `GhostScript (>=9.0)
+  <https://ghostscript.com/download/>`_ : for rendering text with
+  LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
