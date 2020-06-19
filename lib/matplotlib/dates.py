@@ -1215,14 +1215,14 @@ class AutoDateLocator(DateLocator):
     ----------
     intervald : dict
 
-        Mapping of tick frequencies (a constant from dateutil.rrule) to
-        multiples allowed for that ticking.  The default looks like this::
+        Mapping of tick frequencies to multiples allowed for that ticking.
+        The default is ::
 
             self.intervald = {
                 YEARLY  : [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
                            1000, 2000, 4000, 5000, 10000],
                 MONTHLY : [1, 2, 3, 4, 6],
-                DAILY   : [1, 2, 3, 7, 14],
+                DAILY   : [1, 2, 3, 7, 14, 21],
                 HOURLY  : [1, 2, 3, 4, 6, 12],
                 MINUTELY: [1, 5, 10, 15, 30],
                 SECONDLY: [1, 5, 10, 15, 30],
@@ -1231,10 +1231,16 @@ class AutoDateLocator(DateLocator):
                                 100000, 200000, 500000, 1000000],
             }
 
+        where the keys are defined in `dateutil.rrule`.
+
         The interval is used to specify multiples that are appropriate for
         the frequency of ticking. For instance, every 7 days is sensible
         for daily ticks, but for minutes/seconds, 15 or 30 make sense.
-        You can customize this dictionary by doing::
+
+        When customizing, you should only modify the values for the existing
+        keys. You should not add or delete entries.
+
+        Example for forcing ticks every 3 hours::
 
             locator = AutoDateLocator()
             locator.intervald[HOURLY] = [3]  # only show every 3 hours
