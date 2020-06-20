@@ -48,6 +48,7 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
+    'sphinxcontrib.inkscapeconverter',
     'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
@@ -69,6 +70,7 @@ def _check_dependencies():
         "PIL.Image": 'pillow',
         "sphinx_copybutton": 'sphinx_copybutton',
         "sphinx_gallery": 'sphinx_gallery',
+        "sphinxcontrib.inkscapeconverter": 'sphinxcontrib-svg2pdfconverter',
     }
     missing = []
     for name in names:
