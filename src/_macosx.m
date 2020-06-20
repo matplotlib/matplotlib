@@ -1108,8 +1108,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     self->height = height;
 
-    const char* basedir;
-
     obj = PyObject_GetAttrString((PyObject*)self, "canvas");
     if (obj==NULL)
     {
@@ -1130,8 +1128,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         return -1;
     }
 
-    if(!PyArg_ParseTuple(args, "s", &basedir)) return -1;
-
     NSRect bounds = [view bounds];
     NSWindow* window = [view window];
 
@@ -1141,27 +1137,17 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     bounds.size.height += height;
     [window setContentSize: bounds.size];
 
-    NSString* dir = [NSString stringWithCString: basedir
-                                       encoding: NSASCIIStringEncoding];
+    const char* images[7];
+    const char* tooltips[7];
+    if (!PyArg_ParseTuple(args, "(sssssss)(sssssss)",
+                &images[0], &images[1], &images[2], &images[3],
+                &images[4], &images[5], &images[6],
+                &tooltips[0], &tooltips[1], &tooltips[2], &tooltips[3],
+                &tooltips[4], &tooltips[5], &tooltips[6])) {
+        return -1;
+    }
 
     NSButton* buttons[7];
-
-    NSString* images[7] = {@"home.pdf",
-                           @"back.pdf",
-                           @"forward.pdf",
-                           @"move.pdf",
-                           @"zoom_to_rect.pdf",
-                           @"subplots.pdf",
-                           @"filesave.pdf"};
-
-    NSString* tooltips[7] = {@"Reset original view",
-                             @"Back to  previous view",
-                             @"Forward to next view",
-                             @"Pan axes with left mouse, zoom with right",
-                             @"Zoom to rectangle",
-                             @"Configure subplots",
-                             @"Save the figure"};
-
     SEL actions[7] = {@selector(home:),
                       @selector(back:),
                       @selector(forward:),
@@ -1169,7 +1155,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
                       @selector(zoom:),
                       @selector(configure_subplots:),
                       @selector(save_figure:)};
-
     NSButtonType buttontypes[7] = {NSMomentaryLightButton,
                                    NSMomentaryLightButton,
                                    NSMomentaryLightButton,
@@ -1194,9 +1179,11 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.x = gap;
     rect.origin.y = 0.5*(height - rect.size.height);
 
-    for (i = 0; i < 7; i++)
-    {
-        NSString* filename = [dir stringByAppendingPathComponent: images[i]];
+    for (i = 0; i < 7; i++) {
+        NSString* filename = [NSString stringWithCString: images[i]
+                                                encoding: NSUTF8StringEncoding];
+        NSString* tooltip = [NSString stringWithCString: tooltips[i]
+                                               encoding: NSUTF8StringEncoding];
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
@@ -1205,7 +1192,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         [buttons[i] setImage: image];
         [buttons[i] scaleUnitSquareToSize: scale];
         [buttons[i] setImagePosition: NSImageOnly];
-        [buttons[i] setToolTip: tooltips[i]];
+        [buttons[i] setToolTip: tooltip];
         [[window contentView] addSubview: buttons[i]];
         [buttons[i] release];
         [image release];
