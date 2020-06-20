@@ -1716,9 +1716,19 @@ class FuncAnimation(TimedAnimation):
         # func needs to return a sequence of any artists that were modified.
         self._drawn_artists = self._func(framedata, *self._args)
         if self._blit:
-            if self._drawn_artists is None:
-                raise RuntimeError('The animation function must return a '
+            err = RuntimeError('The animation function must return a '
                                    'sequence of Artist objects.')
+            try:
+                # check if a sequence
+                iter(self._drawn_artists)
+            except TypeError:
+                raise err
+
+            # check each item if is artist
+            for i in self._drawn_artists:
+                if not isinstance(i, mpl.artist.Artist):
+                    raise err
+
             self._drawn_artists = sorted(self._drawn_artists,
                                          key=lambda x: x.get_zorder())
 

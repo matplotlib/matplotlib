@@ -272,3 +272,40 @@ def test_funcanimation_cache_frame_data(cache_frame_data):
         # If cache_frame_data is True, then the weakref should be alive;
         # if cache_frame_data is False, then the weakref should be dead (None).
         assert (f() is None) != cache_frame_data
+
+
+def test_draw_frame():
+    # test _draw_frame method
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([])
+
+    def init():
+        pass
+
+    def animate_case_1(i):
+        # user forgot to return (returns None)
+        line.set_data([0, 1], [0, i])
+        # return line
+
+    def animate_case_2(i):
+        # user forgot to put comma or return a sequence
+        # TypeError will be raised (same with returning a number or bool)
+        line.set_data([0, 1], [0, i])
+        return line
+
+    def animate_case_3(i):
+        # user (for some reason) returned a string...AttributeError is raised
+        line.set_data([0, 1], [0, i])
+        return 'a string'
+
+    def animate_case_4(i):
+        # user returns a sequence other objects instead of Artist.
+        line.set_data([0, 1], [0, i])
+        return 'a string',
+
+    with pytest.raises(RuntimeError) as context:
+        animation.FuncAnimation(fig, animate_case_1, blit=True)
+        animation.FuncAnimation(fig, animate_case_2, blit=True)
+        animation.FuncAnimation(fig, animate_case_3, blit=True)
+        animation.FuncAnimation(fig, animate_case_4, blit=True)
