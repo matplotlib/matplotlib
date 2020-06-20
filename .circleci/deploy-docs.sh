@@ -4,7 +4,7 @@ set -e
 
 if [ "$CIRCLE_PROJECT_USERNAME" != "matplotlib" ] || \
         [ "$CIRCLE_BRANCH" != "master" ] || \
-        [ "$CIRCLE_PULL_REQUEST" != "" ]; then
+        [[ "$CIRCLE_PULL_REQUEST" == https://github.com/matplotlib/matplotlib/pull/* ]]; then
     echo "Not uploading docs for ${CIRCLE_SHA1}"\
          "from non-master branch (${CIRCLE_BRANCH})"\
          "or pull request (${CIRCLE_PULL_REQUEST})"\
