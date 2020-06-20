@@ -1120,7 +1120,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     -1,
                     bitmap=self._icon(f"{image_file}.png"),
                     bmpDisabled=wx.NullBitmap,
-                    label=text, shortHelp=text, longHelp=tooltip_text,
+                    label=text, shortHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
                           else wx.ITEM_NORMAL))
                 .Id)
