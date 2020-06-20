@@ -314,6 +314,8 @@ typedef struct {
     View* view;
 } FigureCanvas;
 
+View* FigureCanvas_view(void* self);
+
 static PyObject*
 FigureCanvas_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -329,14 +331,10 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 {
     int width;
     int height;
-    if(!self->view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    if (!FigureCanvas_view(self) ||
+        !PyArg_ParseTuple(args, "ii", &width, &height)) {
         return -1;
     }
-
-    if(!PyArg_ParseTuple(args, "ii", &width, &height)) return -1;
-
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
     self->view = [self->view initWithFrame: rect];
     self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
@@ -385,10 +383,8 @@ FigureCanvas_draw(FigureCanvas* self)
 static PyObject*
 FigureCanvas_draw_idle(FigureCanvas* self)
 {
-    View* view = self->view;
-    if(!view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    View* view;
+    if (!(view = FigureCanvas_view(self))) {
         return NULL;
     }
     [view setNeedsDisplay: YES];
@@ -398,10 +394,8 @@ FigureCanvas_draw_idle(FigureCanvas* self)
 static PyObject*
 FigureCanvas_flush_events(FigureCanvas* self)
 {
-    View* view = self->view;
-    if(!view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    View* view;
+    if (!(view = FigureCanvas_view(self))) {
         return NULL;
     }
     [view displayIfNeeded];
@@ -411,42 +405,18 @@ FigureCanvas_flush_events(FigureCanvas* self)
 static PyObject*
 FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 {
-    View* view = self->view;
+    View* view;
     int x0, y0, x1, y1;
-    NSRect rubberband;
-    if(!view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    if (!(view = FigureCanvas_view(self)) ||
+        !PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) {
         return NULL;
     }
-    if(!PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) return NULL;
-
     x0 /= view->device_scale;
     x1 /= view->device_scale;
     y0 /= view->device_scale;
     y1 /= view->device_scale;
-
-    if (x1 > x0)
-    {
-        rubberband.origin.x = x0;
-        rubberband.size.width = x1 - x0;
-    }
-    else
-    {
-        rubberband.origin.x = x1;
-        rubberband.size.width = x0 - x1;
-    }
-    if (y1 > y0)
-    {
-        rubberband.origin.y = y0;
-        rubberband.size.height = y1 - y0;
-    }
-    else
-    {
-        rubberband.origin.y = y1;
-        rubberband.size.height = y0 - y1;
-    }
-
+    NSRect rubberband = NSMakeRect(x0 < x1 ? x0 : x1, y0 < y1 ? y0 : y1,
+                                   abs(x1 - x0), abs(y1 - y0));
     [view setRubberband: rubberband];
     Py_RETURN_NONE;
 }
@@ -454,10 +424,8 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 static PyObject*
 FigureCanvas_remove_rubberband(FigureCanvas* self)
 {
-    View* view = self->view;
-    if(!view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    View* view;
+    if (!(view = FigureCanvas_view(self))) {
         return NULL;
     }
     [view removeRubberband];
@@ -632,6 +600,17 @@ static PyTypeObject FigureCanvasType = {
     FigureCanvas_new,          /* tp_new */
 };
 
+View* FigureCanvas_view(void* canvas)
+{
+    View* view = NULL;
+    if (PyObject_IsInstance((PyObject*)canvas, (PyObject*)&FigureCanvasType) != 1) {
+        PyErr_SetString(PyExc_TypeError, "Expected a FigureCanvas, but didn't get one");
+    } else if (!(view = ((FigureCanvas*)canvas)->view)) {
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    }
+    return view;
+}
+
 typedef struct {
     PyObject_HEAD
     Window* window;
@@ -657,52 +636,40 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 {
-    NSRect rect;
     Window* window;
     View* view;
+    PyObject* canvas;
     const char* title;
     PyObject* size;
     int width, height;
-    PyObject* obj;
-    FigureCanvas* canvas;
 
-    if(!self->window)
-    {
+    if (!(window = self->window)) {
         PyErr_SetString(PyExc_RuntimeError, "NSWindow* is NULL");
         return -1;
     }
-
-    if(!PyArg_ParseTuple(args, "Os", &obj, &title)) return -1;
-
-    canvas = (FigureCanvas*)obj;
-    view = canvas->view;
-    if (!view) /* Something really weird going on */
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    if (!PyArg_ParseTuple(args, "O!s", &FigureCanvasType, &canvas, &title)) {
         return -1;
     }
-
-    size = PyObject_CallMethod(obj, "get_width_height", "");
-    if(!size) return -1;
-    if(!PyArg_ParseTuple(size, "ii", &width, &height))
-    {    Py_DECREF(size);
-         return -1;
+    if (!(view = FigureCanvas_view(canvas))) {
+        return -1;
+    }
+    if (!(size = PyObject_CallMethod(canvas, "get_width_height", NULL)) ||
+        !PyArg_ParseTuple(size, "ii", &width, &height)) {
+        Py_XDECREF(size);
+        return -1;
     }
     Py_DECREF(size);
 
-    rect.origin.x = 100;
-    rect.origin.y = 350;
-    rect.size.height = height;
-    rect.size.width = width;
-
-    self->window = [self->window initWithContentRect: rect
-                                         styleMask: NSWindowStyleMaskTitled
-                                                  | NSWindowStyleMaskClosable
-                                                  | NSWindowStyleMaskResizable
-                                                  | NSWindowStyleMaskMiniaturizable
-                                           backing: NSBackingStoreBuffered
-                                             defer: YES
-                                       withManager: (PyObject*)self];
+    self->window = [
+        self->window
+            initWithContentRect: NSMakeRect( /* x */ 100, /* y */ 350, width, height)
+                      styleMask: NSWindowStyleMaskTitled
+                               | NSWindowStyleMaskClosable
+                               | NSWindowStyleMaskResizable
+                               | NSWindowStyleMaskMiniaturizable
+                        backing: NSBackingStoreBuffered
+                          defer: YES
+                    withManager: (PyObject*)self];
     window = self->window;
     [window setTitle: [NSString stringWithCString: title
                                          encoding: NSASCIIStringEncoding]];
@@ -779,20 +746,14 @@ static PyObject*
 FigureManager_get_window_title(FigureManager* self)
 {
     Window* window = self->window;
-    PyObject* result = NULL;
     if(window)
     {
         NSString* title = [window title];
         if (title) {
-            const char* cTitle = [title UTF8String];
-            result = PyUnicode_FromString(cTitle);
+            return PyUnicode_FromString([title UTF8String]);
         }
     }
-    if (result) {
-        return result;
-    } else {
-        Py_RETURN_NONE;
-    }
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -998,74 +959,38 @@ typedef struct {
 }
 
 -(void)configure_subplots:(id)sender
-{   PyObject* canvas;
-    View* view;
-    PyObject* size;
-    NSRect rect;
+{
+    View* master_view;
+    View* canvas_view;
+    PyObject* master = NULL;
+    PyObject* canvas = NULL;
+    PyObject* size = NULL;
     int width, height;
 
-    rect.origin.x = 100;
-    rect.origin.y = 350;
     PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* master = PyObject_GetAttrString(toolbar, "canvas");
-    if (master==nil)
-    {
-        PyErr_Print();
-        PyGILState_Release(gstate);
-        return;
+    if (!(master = PyObject_GetAttrString(toolbar, "canvas")) ||
+        !(master_view = FigureCanvas_view(master)) ||
+        !(canvas = PyObject_CallMethod(toolbar, "prepare_configure_subplots", NULL) ||
+        !(canvas_view = FigureCanvas_view(canvas)) ||
+        !(size = PyObject_CallMethod(canvas, "get_width_height", NULL))) ||
+        !(PyArg_ParseTuple(size, "ii", &width, &height))) {
+        goto exit;
     }
-    canvas = PyObject_CallMethod(toolbar, "prepare_configure_subplots", "");
-    if(!canvas)
-    {
-        PyErr_Print();
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    view = ((FigureCanvas*)canvas)->view;
-    if (!view) /* Something really weird going on */
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
-        PyErr_Print();
-        Py_DECREF(canvas);
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    size = PyObject_CallMethod(canvas, "get_width_height", "");
-    Py_DECREF(canvas);
-    if(!size)
-    {
-        PyErr_Print();
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    int ok = PyArg_ParseTuple(size, "ii", &width, &height);
-    Py_DECREF(size);
-    if (!ok)
-    {
-        PyErr_Print();
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    NSWindow* mw = [((FigureCanvas*)master)->view window];
-    Py_DECREF(master);
-    PyGILState_Release(gstate);
-
-    rect.size.width = width;
-    rect.size.height = height;
-
-    ToolWindow* window = [ [ToolWindow alloc] initWithContentRect: rect
-                                                           master: mw];
-    [window setContentView: view];
-    [view release];
+    ToolWindow* window = [
+        [ToolWindow alloc]
+            initWithContentRect: NSMakeRect( /* x */ 100, /* y */ 350, width, height)
+                         master: [master_view window]];
+    [window setContentView: canvas_view];
+    [canvas_view release];
     [window makeKeyAndOrderFront: nil];
+exit:
+    Py_XDECREF(master);
+    Py_XDECREF(canvas);
+    Py_XDECREF(size);
+    if (PyErr_Occurred()) {
+        PyErr_Print();
+    }
+    PyGILState_Release(gstate);
 }
 
 -(void)save_figure:(id)sender
@@ -1100,38 +1025,26 @@ NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds)
 {
-    PyObject* obj;
-    FigureCanvas* canvas;
+    PyObject* canvas;
     View* view;
-
-    int i;
     NSRect rect;
-    NSSize size;
-    NSSize scale;
-
+    NSSize size, scale;
     const float gap = 2;
     const int height = 36;
     const int imagesize = 24;
 
     self->height = height;
 
-    obj = PyObject_GetAttrString((PyObject*)self, "canvas");
-    if (obj==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Attempt to install toolbar for NULL canvas");
-        return -1;
-    }
-    Py_DECREF(obj); /* Don't increase the reference count */
-    if (!PyObject_IsInstance(obj, (PyObject*) &FigureCanvasType))
-    {
-        PyErr_SetString(PyExc_TypeError, "Attempt to install toolbar for object that is not a FigureCanvas");
-        return -1;
-    }
-    canvas = (FigureCanvas*)obj;
-    view = canvas->view;
-    if(!view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+    const char* images[7];
+    const char* tooltips[7];
+    if (!PyArg_ParseTuple(
+                args, "O(sssssss)(sssssss)",
+                &canvas,
+                &images[0], &images[1], &images[2], &images[3],
+                &images[4], &images[5], &images[6],
+                &tooltips[0], &tooltips[1], &tooltips[2], &tooltips[3],
+                &tooltips[4], &tooltips[5], &tooltips[6]) ||
+        !(view = FigureCanvas_view(canvas))) {
         return -1;
     }
 
@@ -1143,16 +1056,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     bounds.size.height += height;
     [window setContentSize: bounds.size];
-
-    const char* images[7];
-    const char* tooltips[7];
-    if (!PyArg_ParseTuple(args, "(sssssss)(sssssss)",
-                &images[0], &images[1], &images[2], &images[3],
-                &images[4], &images[5], &images[6],
-                &tooltips[0], &tooltips[1], &tooltips[2], &tooltips[3],
-                &tooltips[4], &tooltips[5], &tooltips[6])) {
-        return -1;
-    }
 
     NSButton* buttons[7];
     SEL actions[7] = {@selector(home:),
@@ -1178,15 +1081,15 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect = [window convertRectToBacking: rect];
 #endif
     size = rect.size;
-    scale.width = imagesize / size.width;
-    scale.height = imagesize / size.height;
+    scale.width = imagesize / rect.size.width;
+    scale.height = imagesize / rect.size.height;
 
     rect.size.width = 32;
     rect.size.height = 32;
     rect.origin.x = gap;
     rect.origin.y = 0.5*(height - rect.size.height);
 
-    for (i = 0; i < 7; i++) {
+    for (int i = 0; i < 7; i++) {
         NSString* filename = [NSString stringWithCString: images[i]
                                                 encoding: NSUTF8StringEncoding];
         NSString* tooltip = [NSString stringWithCString: tooltips[i]
@@ -2091,43 +1994,31 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)keyDown:(NSEvent*)event
 {
-    PyObject* result;
     const char* s = [self convertKeyEvent: event];
     PyGILState_STATE gstate = PyGILState_Ensure();
-    if (s==NULL)
-    {
-        result = PyObject_CallMethod(canvas, "key_press_event", "O", Py_None);
-    }
-    else
-    {
-        result = PyObject_CallMethod(canvas, "key_press_event", "s", s);
-    }
-    if(result)
+    PyObject* result = s ?
+        PyObject_CallMethod(canvas, "key_press_event", "s", s) :
+        PyObject_CallMethod(canvas, "key_press_event", "O", Py_None);
+    if (result) {
         Py_DECREF(result);
-    else
+    } else {
         PyErr_Print();
-
+    }
     PyGILState_Release(gstate);
 }
 
 - (void)keyUp:(NSEvent*)event
 {
-    PyObject* result;
     const char* s = [self convertKeyEvent: event];
     PyGILState_STATE gstate = PyGILState_Ensure();
-    if (s==NULL)
-    {
-        result = PyObject_CallMethod(canvas, "key_release_event", "O", Py_None);
-    }
-    else
-    {
-        result = PyObject_CallMethod(canvas, "key_release_event", "s", s);
-    }
-    if(result)
+    PyObject* result = s ?
+        PyObject_CallMethod(canvas, "key_release_event", "s", s) :
+        PyObject_CallMethod(canvas, "key_release_event", "O", Py_None);
+    if (result) {
         Py_DECREF(result);
-    else
+    } else {
         PyErr_Print();
-
+    }
     PyGILState_Release(gstate);
 }
 
