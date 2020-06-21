@@ -661,7 +661,8 @@ def test_quadmesh_set_array():
     fig.canvas.draw()
     assert np.array_equal(coll.get_array(), np.ones(9))
 
-def test_legend_size_with_inverse_relationship():
+
+def test_legend_inverse_size_label_relationship():
     '''
     Ensure legend markers scale appropriately when label and size are inversely related.
     Here label = 5 / size
@@ -673,13 +674,13 @@ def test_legend_size_with_inverse_relationship():
     C = 1 - np.random.random(50)
     S = 5 / C
 
-    leg_sizes = [0.2, 0.4, 0.6, 0.8]
+    legend_sizes = [0.2, 0.4, 0.6, 0.8]
     fig, ax = plt.subplots()
     sc = ax.scatter(X, Y, s=S)
-    handles, labels = sc.legend_elements(prop='sizes', num=leg_sizes, func=lambda x: 5 / x)
+    handles, labels = sc.legend_elements(prop='sizes', num=legend_sizes, func=lambda s: 5 / s)
 
     # Convert markersize scale to 's' scale
     handle_sizes = [x.get_markersize() for x in handles]
     handle_sizes = [5 / x**2 for x in handle_sizes]
 
-    assert_array_almost_equal(handle_sizes, leg_sizes, decimal=1)
+    assert_array_almost_equal(handle_sizes, legend_sizes, decimal=1)
