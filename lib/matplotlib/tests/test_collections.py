@@ -682,4 +682,4 @@ def test_legend_size_with_inverse_relationship():
     handle_sizes = [x.get_markersize() for x in handles]
     handle_sizes = [5 / x**2 for x in handle_sizes]
 
-    assert_almost_equal(handle_sizes, leg_sizes, decimal=2)
+    assert_array_almost_equal(handle_sizes, leg_sizes, decimal=1)
