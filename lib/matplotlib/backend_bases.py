@@ -2235,6 +2235,8 @@ class FigureCanvasBase:
         """
         return rcParams['savefig.format']
 
+    @cbook.deprecated(
+        "3.4", alternative="manager.get_window_title or GUI-specific methods")
     def get_window_title(self):
         """
         Return the title text of the window containing the figure, or None
@@ -2243,6 +2245,8 @@ class FigureCanvasBase:
         if self.manager is not None:
             return self.manager.get_window_title()
 
+    @cbook.deprecated(
+        "3.4", alternative="manager.set_window_title or GUI-specific methods")
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
@@ -2256,11 +2260,12 @@ class FigureCanvasBase:
         Return a string, which includes extension, suitable for use as
         a default filename.
         """
-        default_basename = self.get_window_title() or 'image'
-        default_basename = default_basename.replace(' ', '_')
-        default_filetype = self.get_default_filetype()
-        default_filename = default_basename + '.' + default_filetype
-        return default_filename
+        basename = (self.manager.get_window_title() if self.manager is not None
+                    else '')
+        basename = (basename or 'image').replace(' ', '_')
+        filetype = self.get_default_filetype()
+        filename = basename + '.' + filetype
+        return filename
 
     def switch_backends(self, FigureCanvasClass):
         """
