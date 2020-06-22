@@ -121,10 +121,6 @@ class Tick(martist.Artist):
 
         if labelcolor is None:
             labelcolor = mpl.rcParams[f"{name}.labelcolor"]
-            if labelcolor is None:
-                # fallback to old behaviour: set the same color for the ticks
-                # and the tick labels
-                labelcolor = mpl.rcParams[f"{name}.color"]
 
         if labelcolor == 'inherit':
             # inherit from tick color
