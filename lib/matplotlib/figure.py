@@ -2108,8 +2108,10 @@ default: 'top'
         # The canvas cannot currently be pickled, but this has the benefit
         # of meaning that a figure can be detached from one canvas, and
         # re-attached to another.
-        for attr_to_pop in ('canvas', '_cachedRenderer'):
-            state.pop(attr_to_pop, None)
+        state.pop("canvas")
+
+        # Set cached renderer to None -- it can't be pickled.
+        state["_cachedRenderer"] = None
 
         # add version information to the state
         state['__mpl_version__'] = _mpl_version
