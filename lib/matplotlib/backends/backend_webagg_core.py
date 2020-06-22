@@ -414,10 +414,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
-        backend_bases.FigureManagerBase.__init__(self, canvas, num)
-
         self.web_sockets = set()
-
+        backend_bases.FigureManagerBase.__init__(self, canvas, num)
         self.toolbar = self._get_toolbar(canvas)
 
     def show(self):

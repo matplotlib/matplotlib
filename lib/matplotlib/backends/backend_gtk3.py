@@ -333,11 +333,10 @@ class FigureManagerGTK3(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
+        self.window = Gtk.Window()
         FigureManagerBase.__init__(self, canvas, num)
 
-        self.window = Gtk.Window()
         self.window.set_wmclass("matplotlib", "Matplotlib")
-        self.set_window_title("Figure %d" % num)
         try:
             self.window.set_icon_from_file(window_icon)
         except Exception:

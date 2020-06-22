@@ -917,8 +917,7 @@ class FigureFrameWx(wx.Frame):
             pos = wx.DefaultPosition
         else:
             pos = wx.Point(20, 20)
-        wx.Frame.__init__(self, parent=None, id=-1, pos=pos,
-                          title="Figure %d" % num)
+        wx.Frame.__init__(self, parent=None, id=-1, pos=pos)
         # Frame will be sized later by the Fit method
         _log.debug("%s - __init__()", type(self))
         self.num = num
@@ -1031,9 +1030,10 @@ class FigureManagerWx(FigureManagerBase):
 
     def __init__(self, canvas, num, frame):
         _log.debug("%s - __init__()", type(self))
+        self.frame = self.window = frame
+        self._initializing = True
         FigureManagerBase.__init__(self, canvas, num)
-        self.frame = frame
-        self.window = frame
+        self._initializing = False
 
     @property
     def toolbar(self):
@@ -1043,7 +1043,7 @@ class FigureManagerWx(FigureManagerBase):
     def toolbar(self, value):
         # Never allow this, except that base class inits this to None before
         # the frame is set up.
-        if value is not None or hasattr(self, "frame"):
+        if not self._initializing:
             raise AttributeError("can't set attribute")
 
     def show(self):
