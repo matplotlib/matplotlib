@@ -2713,6 +2713,7 @@ class FigureManagerBase:
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
         self.num = num
+        self.set_window_title(f"Figure {num:d}")
 
         self.key_press_handler_id = None
         self.button_press_handler_id = None
