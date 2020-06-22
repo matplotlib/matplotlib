@@ -2,29 +2,12 @@
 Tick locating and formatting
 ============================
 
-This module contains classes to support completely configurable tick
-locating and formatting. Although the locators know nothing about major
-or minor ticks, they are used by the Axis class to support major and
-minor tick locating and formatting. Generic tick locators and
-formatters are provided, as well as domain specific custom ones.
+This module contains classes for configuring tick locating and formatting.
+Generic tick locators and formatters are provided, as well as domain specific
+custom ones.
 
-Default Formatter
------------------
-
-The default formatter identifies when the x-data being plotted is a
-small range on top of a large offset. To reduce the chances that the
-ticklabels overlap, the ticks are labeled as deltas from a fixed offset.
-For example::
-
-   ax.plot(np.arange(2000, 2010), range(10))
-
-will have tick of 0-9 with an offset of +2e3. If this is not desired
-turn off the use of the offset on the default formatter::
-
-   ax.get_xaxis().get_major_formatter().set_useOffset(False)
-
-Set :rc:`axes.formatter.useoffset` to turn it off
-globally, or set a different formatter.
+Although the locators know nothing about major or minor ticks, they are used
+by the Axis class to support major and minor tick locating and formatting.
 
 Tick locating
 -------------
@@ -142,10 +125,10 @@ operates on a single tick value and returns a string to the axis.
     Probability formatter.
 
 :class:`EngFormatter`
-    Format labels in engineering notation
+    Format labels in engineering notation.
 
 :class:`PercentFormatter`
-    Format labels as a percentage
+    Format labels as a percentage.
 
 You can derive your own formatter from the Formatter base class by
 simply overriding the ``__call__`` method. The formatter class has
@@ -501,13 +484,38 @@ class ScalarFormatter(Formatter):
     In addition to the parameters above, the formatting of scientific vs.
     floating point representation can be configured via `.set_scientific`
     and `.set_powerlimits`).
+
+    **Offset notation and scientific notation**
+
+    Offset notation and scientific notation look quite similar at first sight.
+    Both split some information from the formatted tick values and display it
+    at the end of the axis.
+
+    - The scientific notation splits up the order of magnitude, i.e. a
+      multiplicative scaling factor, e.g. ``1e6``.
+
+    - The offset notation separates an additive constant, e.g. ``+1e6``. The
+      offset notation label is always prefixed with a ``+`` or ``-`` sign
+      and is thus distinguishable from the order of magnitude label.
+
+    The following plot with x limits ``1_000_000`` to ``1_000_010`` illustrates
+    the different formatting. Note the labels at the right edge of the x axis.
+
+    .. plot::
+
+        lim = (1_000_000, 1_000_010)
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, gridspec_kw={'hspace': 2})
+        ax1.set(title='offset_notation', xlim=lim)
+        ax2.set(title='scientific notation', xlim=lim)
+        ax2.xaxis.get_major_formatter().set_useOffset(False)
+        ax3.set(title='floating point notation', xlim=lim)
+        ax3.xaxis.get_major_formatter().set_useOffset(False)
+        ax3.xaxis.get_major_formatter().set_scientific(False)
+
     """
 
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
-        # useOffset allows plotting small data ranges with large offsets: for
-        # example: [1+1e-9, 1+2e-9, 1+3e-9] useMathText will render the offset
-        # and scientific notation in mathtext
-
         if useOffset is None:
             useOffset = mpl.rcParams['axes.formatter.useoffset']
         self._offset_threshold = \

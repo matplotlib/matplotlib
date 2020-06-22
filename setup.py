@@ -103,6 +103,8 @@ class BuildExtraLibraries(BuildExtCommand):
         """
 
         env = os.environ.copy()
+        if not setupext.config.getboolean('libs', 'enable_lto', fallback=True):
+            return env
         if sys.platform == 'win32':
             return env
 

@@ -115,7 +115,7 @@ intersphinx_mapping = {
     'cycler': ('https://matplotlib.org/cycler', None),
     'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
     'ipykernel': ('https://ipykernel.readthedocs.io/en/latest/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
     'pytest': ('https://pytest.org/en/stable', None),
     'python': ('https://docs.python.org/3', None),
