@@ -45,9 +45,11 @@ class GridSpecBase:
             If not given, all rows will have the same height.
         """
         if not isinstance(nrows, Integral) or nrows <= 0:
-            raise ValueError(f"Number of rows must be > 0, not {nrows}")
+            raise ValueError(
+                f"Number of rows must be a positive integer, not {nrows}")
         if not isinstance(ncols, Integral) or ncols <= 0:
-            raise ValueError(f"Number of columns must be > 0, not {ncols}")
+            raise ValueError(
+                f"Number of columns must be a positive integer, not {ncols}")
         self._nrows, self._ncols = nrows, ncols
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
