@@ -182,9 +182,11 @@ def test_gca():
 
 def test_add_subplot_invalid():
     fig = plt.figure()
-    with pytest.raises(ValueError, match='Number of columns must be > 0'):
+    with pytest.raises(ValueError,
+                       match='Number of columns must be a positive integer'):
         fig.add_subplot(2, 0, 1)
-    with pytest.raises(ValueError, match='Number of rows must be > 0'):
+    with pytest.raises(ValueError,
+                       match='Number of rows must be a positive integer'):
         fig.add_subplot(0, 2, 1)
     with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 0)
