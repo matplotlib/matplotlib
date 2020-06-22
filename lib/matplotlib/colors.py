@@ -1255,6 +1255,82 @@ class TwoSlopeNorm(Normalize):
         return result
 
 
+class SymNorm(Normalize):
+    def __init__(self, vcenter=0.0, vmax=None, clip=False):
+        """
+        Normalize symmetrical data around a center (0 by default).
+
+        Unlike `TwoSlopeNorm`, `SymNorm` applies an equal rate of change
+        around the center.
+
+        Useful when mapping symmetrical data around a conceptual center
+        e.g., data that range from -2 to 4, with 0 as the midpoint, and
+        with equal rates of change around that midpoint.
+
+        Parameters
+        ----------
+        vcenter : float, optional
+            The data value that defines ``0.5`` in the normalization.
+            Defaults to ``0.0``.
+        vmax : float, optional
+            The data value that defines ``1.0`` in the normalization.
+            Defaults to the sum of *vcenter* plus the largest absolute
+            difference to *vcenter* for the values in the dataset.
+            If vmax is less than *vcenter*, it is automatically mirrored
+            over the center.
+
+        Examples
+        --------
+        This maps data values -2 to 0.25, 0 to 0.5, and 4 to 1.0
+        (assuming equal rates of change above and below 0.0):
+
+            >>> import matplotlib.colors as mcolors
+            >>> norm = mcolors.SymNorm(vmax=4.0)
+            >>> data = [-2., 0., 4.]
+            >>> norm(data)
+            array([[0.25, 0.5 , 1.  ])
+        """
+
+        self._vcenter = vcenter
+        if vmax is None:
+            self.vmin = None
+            self.vmax = None
+        else:
+            self.vmax = vcenter + abs(vmax-vcenter)
+            self.vmin = vcenter - vmax
+        self.clip = clip
+
+    def autoscale(self, A):
+        """
+        Set *vmax* to *vcenter* + max(abs(*A*-*vcenter*)),
+        then mirror *vmax* around *vcenter* to set *vmin*.
+        """
+        A = np.asanyarray(A)
+        self.vmax = self._vcenter + max(self._vcenter-A.min(),
+                                        A.max()-self._vcenter)
+        self.vmin = 2*self._vcenter - self.vmax
+
+    def autoscale_None(self, A):
+        """Set *vmin* and *vmax*."""
+        A = np.asanyarray(A)
+        if self.vmax is None and A.size:
+            self.autoscale(A)
+
+    @property
+    def vcenter(self):
+        return self._vcenter
+
+    @vcenter.setter
+    def vcenter(self, vcenter):
+        self._vcenter = vcenter
+        if self.vmax is not None:
+            # recompute vmax and vmin,assuming they represent
+            # min and max of data
+            self.vmax = self._vcenter + max(self._vcenter-self.vmin,
+                                            self.vmax-self._vcenter)
+            self.vmin = 2*self._vcenter - self.vmax
+
+
 def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
     Decorator for building a `.Normalize` subclass from a `.Scale` subclass.
