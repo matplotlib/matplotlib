@@ -28,6 +28,7 @@ import weakref
 import numpy as np
 
 import matplotlib
+from matplotlib import _c_internal_utils
 from .deprecation import (
     deprecated, warn_deprecated,
     _rename_parameter, _delete_parameter, _make_keyword_only,
@@ -2342,3 +2343,17 @@ def _backend_module_name(name):
     """
     return (name[9:] if name.startswith("module://")
             else "matplotlib.backends.backend_{}".format(name.lower()))
+
+
+def _setup_new_guiapp():
+    """
+    Perform OS-dependent setup when Matplotlib creates a new GUI application.
+    """
+    # Windows: If not explicit app user model id has been set yet (so we're not
+    # already embedded), then set it to "matplotlib", so that taskbar icons are
+    # correct.
+    try:
+        _c_internal_utils.Win32_GetCurrentProcessExplicitAppUserModelID()
+    except OSError:
+        _c_internal_utils.Win32_SetCurrentProcessExplicitAppUserModelID(
+            "matplotlib")

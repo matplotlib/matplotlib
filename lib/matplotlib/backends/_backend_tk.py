@@ -856,6 +856,8 @@ class _BackendTk(_Backend):
         Create a new figure manager instance for the given figure.
         """
         with _restore_foreground_window_at_end():
+            if cbook._get_running_interactive_framework() is None:
+                cbook._setup_new_guiapp()
             window = tk.Tk(className="matplotlib")
             window.withdraw()
 
