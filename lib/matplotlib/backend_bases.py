@@ -1403,7 +1403,7 @@ class MouseEvent(LocationEvent):
            last change of keyboard state occurred while the canvas did not have
            focus, this attribute will be wrong.
 
-    step : int
+    step : float
         The number of scroll steps (positive for 'up', negative for 'down').
         This applies only to 'scroll_event' and defaults to 0 otherwise.
 
