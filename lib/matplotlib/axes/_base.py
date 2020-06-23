@@ -461,9 +461,9 @@ class _AxesBase(martist.Artist):
         frameon : bool, default: True
             Whether the axes frame is visible.
 
-        box_aspect : None, or a number, optional
-            Sets the aspect of the axes box. See `~.axes.Axes.set_box_aspect`
-            for details.
+        box_aspect : float, optional
+            Set a fixed aspect for the axes box, i.e. the ratio of height to
+            width. See `~.axes.Axes.set_box_aspect` for details.
 
         **kwargs
             Other optional keyword arguments:
@@ -1422,8 +1422,10 @@ class _AxesBase(martist.Artist):
 
     def get_box_aspect(self):
         """
-        Get the axes box aspect.
-        Will be ``None`` if not explicitly specified.
+        Return the axes box aspect, i.e. the ratio of height to width.
+
+        The box aspect is ``None`` (i.e. chosen depending on the available
+        figure space) unless explicitly specified.
 
         See Also
         --------
@@ -1436,19 +1438,21 @@ class _AxesBase(martist.Artist):
 
     def set_box_aspect(self, aspect=None):
         """
-        Set the axes box aspect. The box aspect is the ratio of the
-        axes height to the axes width in physical units. This is not to be
-        confused with the data aspect, set via `~.Axes.set_aspect`.
+        Set the axes box aspect, i.e. the ratio of height to width.
+
+        This defines the aspect of the axes in figure space and is not to be
+        confused with the data aspect (see `~.Axes.set_aspect`).
 
         Parameters
         ----------
-        aspect : None, or a number
+        aspect : float or None
             Changes the physical dimensions of the Axes, such that the ratio
             of the axes height to the axes width in physical units is equal to
-            *aspect*. If *None*, the axes geometry will not be adjusted.
+            *aspect*. Defining a box aspect will change the *adjustable*
+            property to 'datalim' (see `~.Axes.set_adjustable`).
 
-        Note that calling this function with a number changes the *adjustable*
-        to *datalim*.
+            *None* will disable a fixed box aspect so that height and width
+            of the axes are chosen independently.
 
         See Also
         --------
