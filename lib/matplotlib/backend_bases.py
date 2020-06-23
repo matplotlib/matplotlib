@@ -1552,8 +1552,10 @@ def _get_renderer(figure, print_method=None):
             print_method(io.BytesIO(), dpi=figure.dpi)
         except Done as exc:
             renderer, = figure._cachedRenderer, = exc.args
-
-    return renderer
+            return renderer
+        else:
+            raise RuntimeError(f"{print_method} did not call Figure.draw, so "
+                               f"no renderer is available")
 
 
 def _is_non_interactive_terminal_ipython(ip):
