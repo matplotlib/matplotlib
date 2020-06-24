@@ -206,24 +206,27 @@ over all axes)
             raise ValueError("The value of numarrows must be"
                              "greater than -1")
 
-        # Add arrows along each trajectory.
-        for x in range(1, numarrows+1):
+        s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
+        n = np.searchsorted(s, s[-1])
 
-            s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
-            n = np.searchsorted(s, s[-1] * (x/(numarrows+1)))
+        if isinstance(linewidth, np.ndarray):
+
+            line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
+            line_kw['linewidth'].extend(line_widths)
+            arrow_kw['linewidth'] = line_widths[n]   
+
+        # Add arrows along each trajectory.
+        for x in range(numarrows):
+
+            n = np.searchsorted(s, s[-1] * ((x+1)/(numarrows+1)))
             arrow_tail = (tx[n], ty[n])
             arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
-
-            if isinstance(linewidth, np.ndarray):
-                line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
-                line_kw['linewidth'].extend(line_widths)
-                arrow_kw['linewidth'] = line_widths[n]
 
             if use_multicolor_lines:
                 arrow_kw['color'] = cmap(norm(color_values[n]))
 
             p = patches.FancyArrowPatch(
-                arrow_tail, arrow_head, transform=transform, **arrow_kw)
+            arrow_tail, arrow_head, transform=transform, **arrow_kw)
 
             axes.add_patch(p)
             arrows.append(p)
