@@ -1256,7 +1256,7 @@ class TwoSlopeNorm(Normalize):
 
 
 class SymNorm(Normalize):
-    def __init__(self, vcenter=0.0, vmax=None, clip=False):
+    def __init__(self, vcenter=0, vmax=None, clip=False):
         """
         Normalize symmetrical data around a center (0 by default).
 
@@ -1269,9 +1269,8 @@ class SymNorm(Normalize):
 
         Parameters
         ----------
-        vcenter : float, optional
+        vcenter : float, default: 0
             The data value that defines ``0.5`` in the normalization.
-            Defaults to ``0.0``.
         vmax : float, optional
             The data value that defines ``1.0`` in the normalization.
             Defaults to the sum of *vcenter* plus the largest absolute
@@ -1303,7 +1302,7 @@ class SymNorm(Normalize):
     def autoscale(self, A):
         """
         Set *vmax* to *vcenter* + max(abs(*A*-*vcenter*)),
-        then mirror *vmax* around *vcenter* to set *vmin*.
+        then set *vmin* by mirroring *vmax* at *vcenter*.
         """
         A = np.asanyarray(A)
         self.vmax = self._vcenter + max(self._vcenter-A.min(),
