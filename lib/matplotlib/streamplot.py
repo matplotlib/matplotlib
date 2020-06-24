@@ -18,9 +18,10 @@ __all__ = ['streamplot']
 
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
-               cmap=None, norm=None, arrowsize=1, arrowstyle='-|>', numarrows=1, 
-               minlength=0.1, transform=None, zorder=None, start_points=None,
-               maxlength=4.0, integration_direction='both'):
+               cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
+               numarrows=1, minlength=0.1, transform=None, zorder=None,
+               start_points=None, maxlength=4.0, 
+               integration_direction='both'):
     """
     Draw streamlines of a vector flow.
 
@@ -59,7 +60,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     numarrows : int
         Number of arrows per streamline.
         The default is 1, which plots one arrow in the middle of the streamline.
-over all axes)
     minlength : float
         Minimum length of streamline in axes coordinates.
     start_points : Nx2 array
