@@ -120,6 +120,10 @@ class Tick(martist.Artist):
         self._base_pad = pad
 
         if labelcolor is None:
+            labelcolor = mpl.rcParams[f"{name}.labelcolor"]
+
+        if labelcolor == 'inherit':
+            # inherit from tick color
             labelcolor = mpl.rcParams[f"{name}.color"]
 
         if labelsize is None:
