@@ -20,7 +20,7 @@ __all__ = ['streamplot']
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                numarrows=1, minlength=0.1, transform=None, zorder=None,
-               start_points=None, maxlength=4.0, 
+               start_points=None, maxlength=4.0,
                integration_direction='both'):
     """
     Draw streamlines of a vector flow.
@@ -59,7 +59,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See `~matplotlib.patches.FancyArrowPatch`.
     numarrows : int
         Number of arrows per streamline.
-        The default is 1, which plots one arrow in the middle of the streamline.
+        The default is 1, which plots one arrow in the middle of the
+        streamline.
     minlength : float
         Minimum length of streamline in axes coordinates.
     start_points : Nx2 array
@@ -199,8 +200,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
 
         if use_multicolor_lines:
-                color_values = interpgrid(color, tgx, tgy)[:-1]
-                line_colors.append(color_values)
+            color_values = interpgrid(color, tgx, tgy)[:-1]
+            line_colors.append(color_values)
 
         if numarrows <= -1:
             raise ValueError("The value of numarrows must be"
@@ -210,10 +211,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         n = np.searchsorted(s, s[-1])
 
         if isinstance(linewidth, np.ndarray):
-
             line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
             line_kw['linewidth'].extend(line_widths)
-            arrow_kw['linewidth'] = line_widths[n]   
+            arrow_kw['linewidth'] = line_widths[n]
 
         # Add arrows along each trajectory.
         for x in range(numarrows):
