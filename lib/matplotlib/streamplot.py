@@ -207,7 +207,7 @@ over all axes)
                              "greater than -1")
 
         # Add arrows along each trajectory.
-        for x in range(1, numarrows+1):
+        for x in range(0, numarrows):
 
             s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
             n = np.searchsorted(s, s[-1] * (x/(numarrows+1)))
