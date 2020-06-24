@@ -1287,7 +1287,7 @@ class SymNorm(Normalize):
             >>> norm = mcolors.SymNorm(vmax=4.0)
             >>> data = [-2., 0., 4.]
             >>> norm(data)
-            array([[0.25, 0.5 , 1.  ])
+            array([0.25, 0.5 , 1.  ])
         """
 
         self._vcenter = vcenter
@@ -1328,6 +1328,12 @@ class SymNorm(Normalize):
             self.vmax = self._vcenter + max(self._vcenter-self.vmin,
                                             self.vmax-self._vcenter)
             self.vmin = 2*self._vcenter - self.vmax
+
+    def __call__(self, value, clip=None):
+        if self.vmax is not None:
+            # enforce symmetry, undo changes to vmin
+            self.vmin = 2*self._vcenter - self.vmax
+        return super().__call__(value, clip=clip)
 
 
 def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
