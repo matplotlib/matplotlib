@@ -34,7 +34,7 @@ class TriContourSet(ContourSet):
 
         The first argument of the initializer must be an axes
         object.  The remaining arguments and keyword arguments
-        are described in the docstring of `tricontour`.
+        are described in the docstring of `~.Axes.tricontour`.
         """
         ContourSet.__init__(self, ax, *args, **kwargs)
 
@@ -164,7 +164,7 @@ def tricontour(ax, *args, **kwargs):
     Use keyword args to control colors, linewidth, origin, cmap ... see
     below for more details.
 
-    `~.Axes.tricontour` returns a `~matplotlib.contour.TriContourSet` object.
+    `~.Axes.tricontour` returns a `~matplotlib.tri.TriContourSet` object.
 
     Optional keyword arguments:
 
