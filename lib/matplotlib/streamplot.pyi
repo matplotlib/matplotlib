@@ -28,6 +28,8 @@ def streamplot(
     maxlength: float = ...,
     integration_direction: Literal["forward", "backward", "both"] = ...,
     broken_streamlines: bool = ...,
+    *,
+    narrows: int = 1
 ) -> StreamplotSet: ...
 
 class StreamplotSet:
