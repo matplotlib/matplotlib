@@ -2892,11 +2892,11 @@ class ArrowStyle(_Style):
                 path_shrunk = Path(vertices, path.codes)
                 # call transmute method with squeezed height.
                 path_mutated, fillable = self.transmute(path_shrunk,
-                                                        linewidth,
-                                                        mutation_size)
+                                                        mutation_size,
+                                                        linewidth)
                 if np.iterable(fillable):
                     path_list = []
-                    for p in zip(path_mutated):
+                    for p in path_mutated:
                         # Restore the height
                         path_list.append(
                             Path(p.vertices * [1, aspect_ratio], p.codes))
@@ -3565,10 +3565,8 @@ class FancyBboxPatch(Patch):
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height,
-                 boxstyle="round",
-                 bbox_transmuter=None,
-                 mutation_scale=1.,
-                 mutation_aspect=None,
+                 boxstyle="round", bbox_transmuter=None,
+                 mutation_scale=1, mutation_aspect=1,
                  **kwargs):
         """
         Parameters
@@ -3597,7 +3595,7 @@ class FancyBboxPatch(Patch):
             Scaling factor applied to the attributes of the box style
             (e.g. pad or rounding_size).
 
-        mutation_aspect : float, optional
+        mutation_aspect : float, default: 1
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it. For example, this allows different horizontal and vertical
@@ -3703,7 +3701,8 @@ class FancyBboxPatch(Patch):
 
     def get_mutation_aspect(self):
         """Return the aspect ratio of the bbox mutation."""
-        return self._mutation_aspect
+        return (self._mutation_aspect if self._mutation_aspect is not None
+                else 1)  # backcompat.
 
     def get_boxstyle(self):
         """Return the boxstyle object."""
@@ -3830,16 +3829,11 @@ class FancyArrowPatch(Patch):
 
     @docstring.dedent_interpd
     @cbook._delete_parameter("3.4", "dpi_cor")
-    def __init__(self, posA=None, posB=None,
-                 path=None,
-                 arrowstyle="simple",
-                 connectionstyle="arc3",
-                 patchA=None,
-                 patchB=None,
-                 shrinkA=2,
-                 shrinkB=2,
-                 mutation_scale=1,
-                 mutation_aspect=None,
+    def __init__(self, posA=None, posB=None, path=None,
+                 arrowstyle="simple", connectionstyle="arc3",
+                 patchA=None, patchB=None,
+                 shrinkA=2, shrinkB=2,
+                 mutation_scale=1, mutation_aspect=1,
                  dpi_cor=1,
                  **kwargs):
         """
@@ -4106,7 +4100,8 @@ default: 'arc3'
 
     def get_mutation_aspect(self):
         """Return the aspect ratio of the bbox mutation."""
-        return self._mutation_aspect
+        return (self._mutation_aspect if self._mutation_aspect is not None
+                else 1)  # backcompat.
 
     def get_path(self):
         """
