@@ -1,5 +1,5 @@
 The color of ticks and tick labels can be set independently using rcParams
--------------------------------------------------------------------------
+--------------------------------------------------------------------------
 
 The color of ticks and tick labels can now be set independently from the
 matplotlib rc file or the rcParams. :rc:`xtick.color` used to define the tick
