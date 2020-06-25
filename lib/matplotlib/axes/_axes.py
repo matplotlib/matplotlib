@@ -5329,7 +5329,7 @@ default: :rc:`scatter.edgecolors`
                origin=None, extent=None, *, filternorm=True, filterrad=4.0,
                resample=None, url=None, **kwargs):
         """
-        Display data as an image; i.e. on a 2D regular raster.
+        Display data as an image, i.e., on a 2D regular raster.
 
         The input may either be actual RGB(A) data, or 2D scalar data, which
         will be rendered as a pseudocolor image. For displaying a grayscale
