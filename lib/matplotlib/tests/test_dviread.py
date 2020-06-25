@@ -9,7 +9,7 @@ import pytest
 def test_PsfontsMap(monkeypatch):
     monkeypatch.setattr(dr, 'find_tex_file', lambda x: x)
 
-    filename = str(Path(__file__).parent / 'baseline_images/dviread/test.map')
+    filename = str(Path(__file__).parent / 'test_data/dviread/test.map')
     fontmap = dr.PsfontsMap(filename)
     # Check all properties of a few fonts
     for n in [1, 2, 3, 4, 5]:
@@ -51,7 +51,7 @@ def test_PsfontsMap(monkeypatch):
 @pytest.mark.skipif(shutil.which("kpsewhich") is None,
                     reason="kpsewhich is not available")
 def test_dviread():
-    dirpath = Path(__file__).parent / 'baseline_images/dviread'
+    dirpath = Path(__file__).parent / 'test_data/dviread'
     with (dirpath / 'test.json').open() as f:
         correct = json.load(f)
     with dr.Dvi(str(dirpath / 'test.dvi'), None) as dvi:

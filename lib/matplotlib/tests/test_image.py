@@ -148,8 +148,8 @@ def test_imshow_zoom(fig_test, fig_ref):
 @check_figures_equal()
 def test_imshow_pil(fig_test, fig_ref):
     style.use("default")
-    png_path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
-    tiff_path = Path(__file__).parent / "baseline_images/test_image/uint16.tif"
+    png_path = Path(__file__).parent / "test_data/pngsuite/basn3p04.png"
+    tiff_path = Path(__file__).parent / "test_data/test_image/uint16.tif"
     axs = fig_test.subplots(2)
     axs[0].imshow(Image.open(png_path))
     axs[1].imshow(Image.open(tiff_path))
@@ -160,14 +160,14 @@ def test_imshow_pil(fig_test, fig_ref):
 
 def test_imread_pil_uint16():
     img = plt.imread(os.path.join(os.path.dirname(__file__),
-                     'baseline_images', 'test_image', 'uint16.tif'))
+                     'test_data', 'test_image', 'uint16.tif'))
     assert img.dtype == np.uint16
     assert np.sum(img) == 134184960
 
 
 def test_imread_fspath():
     img = plt.imread(
-        Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
+        Path(__file__).parent / 'test_data/test_image/uint16.tif')
     assert img.dtype == np.uint16
     assert np.sum(img) == 134184960
 
@@ -713,7 +713,7 @@ def test_minimized_rasterized():
 
 
 def test_load_from_url():
-    path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
+    path = Path(__file__).parent / "test_data/pngsuite/basn3p04.png"
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())

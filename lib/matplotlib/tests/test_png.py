@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 @image_comparison(['pngsuite.png'], tol=0.03)
 def test_pngsuite():
     files = sorted(
-        (Path(__file__).parent / "baseline_images/pngsuite").glob("basn*.png"))
+        (Path(__file__).parent / "test_data/pngsuite").glob("basn*.png"))
 
     plt.figure(figsize=(len(files), 2))
 
