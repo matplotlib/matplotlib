@@ -8,3 +8,4 @@ pytest-timeout
 pytest-xdist
 python-dateutil
 tornado
+-e sub-wheels/matplotlib-baseline-images

@@ -1,10 +1,9 @@
-from pathlib import Path
-
-
-# Check that the test directories exist
-if not (Path(__file__).parent / "baseline_images").exists():
-    raise IOError(
+# Check for the mpl_toolkits_baseline_images.
+try:
+    import mpl_toolkits_baseline_images
+except:
+    raise ImportError(
         'The baseline image directory does not exist. '
         'This is most likely because the test data is not installed. '
-        'You may need to install matplotlib from source to get the '
+        'You may need to install mpl_toolkits_baseline_images to get the '
         'test data.')

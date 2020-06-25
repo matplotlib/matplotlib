@@ -148,9 +148,10 @@ The first time this test is run, there will be no baseline image to compare
 against, so the test will fail.  Copy the output images (in this case
 :file:`result_images/test_lines/test_line_dashes.png`) to the correct
 subdirectory of :file:`baseline_images` tree in the source directory (in this
-case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
-file under source code revision control (with ``git add``).  When rerunning
-the tests, they should now pass.
+case :file:`sub-wheels/matplotlib-baseline-images/lib/'
+'matplotlib_baseline_images/test_lines`).  Put this new file under source code
+revision control (with ``git add``).  When rerunning the tests,
+they should now pass.
 
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
