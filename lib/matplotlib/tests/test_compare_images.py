@@ -58,10 +58,11 @@ def test_image_comparison_expect_rms(im1, im2, tol, expect_rms):
     # Copy both "baseline" and "test" image to result_dir, so that 1)
     # compare_images writes the diff to result_dir, rather than to the source
     # tree and 2) the baseline image doesn't appear missing to triage_tests.py.
+    dir_path = Path(__file__).parent / 'test_data/compare_images'
     result_im1 = make_test_filename(result_dir / im1, "expected")
-    shutil.copyfile(baseline_dir / im1, result_im1)
+    shutil.copyfile(dir_path / im1, result_im1)
     result_im2 = result_dir / im1
-    shutil.copyfile(baseline_dir / im2, result_im2)
+    shutil.copyfile(dir_path / im2, result_im2)
     results = compare_images(
         result_im1, result_im2, tol=tol, in_decorator=True)
 
