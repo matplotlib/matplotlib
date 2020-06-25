@@ -684,7 +684,7 @@ class ToolTip:
         except tk.TclError:
             pass
         label = tk.Label(tw, text=self.text, justify=tk.LEFT,
-                         background="#ffffe0", relief=tk.SOLID, borderwidth=1)
+                         relief=tk.SOLID, borderwidth=1)
         label.pack(ipadx=1)
 
     def hidetip(self):
