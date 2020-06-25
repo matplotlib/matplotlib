@@ -59,7 +59,6 @@ mpl_packages = [
     setupext.Platform(),
     setupext.FreeType(),
     setupext.SampleData(),
-    setupext.Tests(),
     setupext.BackendMacOSX(),
     ]
 

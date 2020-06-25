@@ -64,6 +64,7 @@ per-file-ignores =
     lib/matplotlib/pylab.py: F401, F403
     lib/matplotlib/pyplot.py: F401, F811
     lib/matplotlib/style/__init__.py: F401
+    lib/matplotlib/tests/__init__.py: F401
     lib/matplotlib/testing/conftest.py: F401
     lib/matplotlib/tests/conftest.py: F401
     lib/matplotlib/tests/test_backend_qt.py: F401
@@ -81,6 +82,7 @@ per-file-ignores =
     lib/mpl_toolkits/axisartist/axes_rgb.py: F401
     lib/mpl_toolkits/axisartist/axislines.py: F401
     lib/mpl_toolkits/mplot3d/__init__.py: F401
+    lib/mpl_toolkits/tests/__init__.py: F401
     lib/mpl_toolkits/tests/conftest.py: F401
     lib/pylab.py: F401, F403
 

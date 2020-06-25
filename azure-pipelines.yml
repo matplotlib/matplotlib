@@ -85,6 +85,7 @@ steps:
 
 - bash: |
     python -m pip install --upgrade pip
+    python -m pip install --upgrade setuptools
     python -m pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis_extra.txt ||
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: 'Install dependencies with pip'

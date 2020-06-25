@@ -37,12 +37,15 @@ from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 # order to find the source, we need to search for a match in one of
 # these two places.
 
-BASELINE_IMAGES = [
-    Path('lib/matplotlib/tests/baseline_images'),
-    Path('lib/mpl_toolkits/tests/baseline_images'),
-]
-
-
+try:
+    import matplotlib_baseline_images
+    import mpl_toolkits_baseline_images
+    BASELINE_IMAGES = [
+        (Path(matplotlib_baseline_images.__file__).parent),
+        (Path(mpl_toolkits_baseline_images.__file__).parent),
+    ]
+except:
+    raise ImportError("Not able to import baseline images packages")
 # Non-png image extensions
 
 exts = ['pdf', 'svg']

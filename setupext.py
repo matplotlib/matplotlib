@@ -452,24 +452,6 @@ class SampleData(OptionalPackage):
         }
 
 
-class Tests(OptionalPackage):
-    name = "tests"
-    default_config = False
-
-    def get_package_data(self):
-        return {
-            'matplotlib': [
-                *_pkg_data_helper('matplotlib', 'tests/baseline_images'),
-                *_pkg_data_helper('matplotlib', 'tests/tinypages'),
-                'tests/cmr10.pfb',
-                'tests/mpltest.ttf',
-            ],
-            'mpl_toolkits': [
-                *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
-            ]
-        }
-
-
 def add_numpy_flags(ext):
     import numpy as np
     ext.include_dirs.append(np.get_include())
