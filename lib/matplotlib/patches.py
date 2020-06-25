@@ -3829,6 +3829,7 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @docstring.dedent_interpd
+    @cbook._delete_parameter("3.4", "dpi_cor")
     def __init__(self, posA=None, posB=None,
                  path=None,
                  arrowstyle="simple",
@@ -3897,7 +3898,7 @@ default: 'arc3'
 
         dpi_cor : float, default: 1
             dpi_cor is currently used for linewidth-related things and shrink
-            factor. Mutation scale is affected by this.
+            factor. Mutation scale is affected by this.  Deprecated.
 
         Other Parameters
         ----------------
@@ -3939,8 +3940,9 @@ default: 'arc3'
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
 
-        self.set_dpi_cor(dpi_cor)
+        self._dpi_cor = dpi_cor
 
+    @cbook.deprecated("3.4")
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -3953,6 +3955,7 @@ default: 'arc3'
         self._dpi_cor = dpi_cor
         self.stale = True
 
+    @cbook.deprecated("3.4")
     def get_dpi_cor(self):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -4118,7 +4121,7 @@ default: 'arc3'
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-        dpi_cor = self.get_dpi_cor()
+        dpi_cor = self._dpi_cor
 
         if self._posA_posB is not None:
             posA = self._convert_xy_units(self._posA_posB[0])
@@ -4151,8 +4154,10 @@ default: 'arc3'
         with self._bind_draw_path_function(renderer) as draw_path:
 
             # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
-            # could be room for improvement.
-            self.set_dpi_cor(renderer.points_to_pixels(1.))
+            # could be room for improvement.  Maybe get_path_in_displaycoord
+            # could take a renderer argument, but get_path should be adapted
+            # too.
+            self._dpi_cor = renderer.points_to_pixels(1.)
             path, fillable = self.get_path_in_displaycoord()
 
             if not np.iterable(fillable):
@@ -4175,6 +4180,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @docstring.dedent_interpd
+    @cbook._delete_parameter("3.4", "dpi_cor")
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
@@ -4269,8 +4275,8 @@ class ConnectionPatch(FancyArrowPatch):
                                  mutation_scale=mutation_scale,
                                  mutation_aspect=mutation_aspect,
                                  clip_on=clip_on,
-                                 dpi_cor=dpi_cor,
                                  **kwargs)
+        self._dpi_cor = dpi_cor
 
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
@@ -4352,7 +4358,7 @@ class ConnectionPatch(FancyArrowPatch):
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-        dpi_cor = self.get_dpi_cor()
+        dpi_cor = self._dpi_cor
         posA = self._get_xy(self.xy1, self.coords1, self.axesA)
         posB = self._get_xy(self.xy2, self.coords2, self.axesB)
         path = self.get_connectionstyle()(
