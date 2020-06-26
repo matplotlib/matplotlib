@@ -149,20 +149,20 @@ plt.show()
 # Customizing your objects
 # ========================
 #
-# Every element in the figure is represented by a matplotlib
+# Every element in the figure is represented by a Matplotlib
 # :class:`~matplotlib.artist.Artist`, and each has an extensive list of
 # properties to configure its appearance.  The figure itself contains a
 # :class:`~matplotlib.patches.Rectangle` exactly the size of the figure,
 # which you can use to set the background color and transparency of the
 # figures.  Likewise, each :class:`~matplotlib.axes.Axes` bounding box
-# (the standard white box with black edges in the typical matplotlib
+# (the standard white box with black edges in the typical Matplotlib
 # plot, has a ``Rectangle`` instance that determines the color,
 # transparency, and other properties of the Axes.  These instances are
 # stored as member variables :attr:`Figure.patch
 # <matplotlib.figure.Figure.patch>` and :attr:`Axes.patch
 # <matplotlib.axes.Axes.patch>` ("Patch" is a name inherited from
 # MATLAB, and is a 2D "patch" of color on the figure, e.g., rectangles,
-# circles and polygons).  Every matplotlib ``Artist`` has the following
+# circles and polygons).  Every Matplotlib ``Artist`` has the following
 # properties
 #
 # ==========  =================================================================
@@ -354,7 +354,7 @@ plt.show()
 # Axes container
 # --------------
 #
-# The :class:`matplotlib.axes.Axes` is the center of the matplotlib
+# The :class:`matplotlib.axes.Axes` is the center of the Matplotlib
 # universe -- it contains the vast majority of all the ``Artists`` used
 # in a figure with many helper methods to create and add these
 # ``Artists`` to itself, as well as helper methods to access and
