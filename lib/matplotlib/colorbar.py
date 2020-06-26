@@ -43,7 +43,6 @@ import matplotlib.collections as collections
 import matplotlib.colors as colors
 import matplotlib.contour as contour
 import matplotlib.cm as cm
-import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -55,6 +54,18 @@ from matplotlib import docstring
 _log = logging.getLogger(__name__)
 
 _make_axes_param_doc = """
+    location : None or {'left', 'right', 'top', 'bottom'}
+        The location, relative to the parent axes, where the colorbar axes
+        is created.  It also determines the *orientation* of the colorbar
+        (colorbars on the left and right are vertical, colorbars at the top
+        and bottom are horizontal).  If None, the location will come from the
+        *orientation* if it is set (vertical colorbars on the right, horizontal
+        ones at the bottom), or default to 'right' if *orientation* is unset.
+    orientation : None or {'vertical', 'horizontal'}
+        The orientation of the colorbar.  It is preferrable to set the
+        *location* of the colorbar, as that also determines the *orientation*;
+        passing incompatible values for *location* and *orientation* raises an
+        exception.
     fraction : float, default: 0.15
         Fraction of original axes to use for colorbar.
     shrink : float, default: 1.0
@@ -1363,6 +1374,27 @@ class Colorbar(ColorbarBase):
             ax.set_subplotspec(subplotspec)
 
 
+def _normalize_location_orientation(location, orientation):
+    if location is None:
+        location = cbook._check_getitem(
+            {None: "right", "vertical": "right", "horizontal": "bottom"},
+            orientation=orientation)
+    loc_settings = cbook._check_getitem({
+        "left":   {"location": "left", "orientation": "vertical",
+                   "anchor": (1.0, 0.5), "panchor": (0.0, 0.5), "pad": 0.10},
+        "right":  {"location": "right", "orientation": "vertical",
+                   "anchor": (0.0, 0.5), "panchor": (1.0, 0.5), "pad": 0.05},
+        "top":    {"location": "top", "orientation": "horizontal",
+                   "anchor": (0.5, 0.0), "panchor": (0.5, 1.0), "pad": 0.05},
+        "bottom": {"location": "bottom", "orientation": "horizontal",
+                   "anchor": (0.5, 1.0), "panchor": (0.5, 0.0), "pad": 0.15},
+    }, location=location)
+    if orientation is not None and orientation != loc_settings["orientation"]:
+        # Allow the user to pass both if they are consistent.
+        raise TypeError("location and orientation are mutually exclusive")
+    return loc_settings
+
+
 @docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kw):
@@ -1376,16 +1408,6 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     ----------
     parents : `~.axes.Axes` or list of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
-
-    location : None or {'left', 'right', 'top', 'bottom'}
-        The position, relative to *parents*, where the colorbar axes
-        should be created. If None, the value will either come from the
-        given ``orientation``, else it will default to 'right'.
-
-    orientation : None or {'vertical', 'horizontal'}
-        The orientation of the colorbar. Typically, this keyword shouldn't
-        be used, as it can be derived from the ``location`` keyword.
-
     %s
 
     Returns
@@ -1400,47 +1422,11 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     ----------------
     %s
     """
-    locations = ["left", "right", "top", "bottom"]
-    if orientation is not None and location is not None:
-        raise TypeError('position and orientation are mutually exclusive. '
-                        'Consider setting the position to any of {}'
-                        .format(', '.join(locations)))
-
-    # provide a default location
-    if location is None and orientation is None:
-        location = 'right'
-
-    # allow the user to not specify the location by specifying the
-    # orientation instead
-    if location is None:
-        location = 'right' if orientation == 'vertical' else 'bottom'
-
-    cbook._check_in_list(locations, location=location)
-
-    default_location_settings = {'left':   {'anchor': (1.0, 0.5),
-                                            'panchor': (0.0, 0.5),
-                                            'pad': 0.10,
-                                            'orientation': 'vertical'},
-                                 'right':  {'anchor': (0.0, 0.5),
-                                            'panchor': (1.0, 0.5),
-                                            'pad': 0.05,
-                                            'orientation': 'vertical'},
-                                 'top':    {'anchor': (0.5, 0.0),
-                                            'panchor': (0.5, 1.0),
-                                            'pad': 0.05,
-                                            'orientation': 'horizontal'},
-                                 'bottom': {'anchor': (0.5, 1.0),
-                                            'panchor': (0.5, 0.0),
-                                            'pad': 0.15,  # backwards compat
-                                            'orientation': 'horizontal'},
-                                 }
-
-    loc_settings = default_location_settings[location]
-
+    loc_settings = _normalize_location_orientation(location, orientation)
     # put appropriate values into the kw dict for passing back to
     # the Colorbar class
     kw['orientation'] = loc_settings['orientation']
-    kw['ticklocation'] = location
+    location = kw['ticklocation'] = loc_settings['location']
 
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
@@ -1533,7 +1519,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
 
 @docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
-def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
+def make_axes_gridspec(parent, *, location=None, orientation=None,
+                       fraction=0.15, shrink=1.0, aspect=20, **kw):
     """
     Create a `~.SubplotBase` suitable for a colorbar.
 
@@ -1541,9 +1528,6 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     repositioning *parent*.
 
     This function is similar to `.make_axes`. Primary differences are
-
-    - `.make_axes_gridspec` only handles the *orientation* keyword
-      and cannot handle the *location* keyword.
 
     - `.make_axes_gridspec` should only be used with a `.SubplotBase` parent.
 
@@ -1560,7 +1544,6 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     ----------
     parent : `~.axes.Axes`
         The Axes to use as parent for placing the colorbar.
-
     %s
 
     Returns
@@ -1573,63 +1556,54 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
 
     Other Parameters
     ----------------
-    orientation : {'vertical', 'horizontal'}, default: 'vertical'
-        The orientation of the colorbar.
-
     %s
     """
 
-    orientation = kw.setdefault('orientation', 'vertical')
-    kw['ticklocation'] = 'auto'
+    loc_settings = _normalize_location_orientation(location, orientation)
+    kw['orientation'] = loc_settings['orientation']
+    location = kw['ticklocation'] = loc_settings['location']
 
-    x1 = 1 - fraction
+    pad = loc_settings["pad"]
+    wh_space = 2 * pad / (1 - pad)
 
     # for shrinking
     pad_s = (1 - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
-    # we need to none the tree of layoutboxes because
-    # constrained_layout can't remove and replace the tree
-    # hierarchy w/o a seg fault.
-    gs = parent.get_subplotspec().get_gridspec()
-    layoutbox.nonetree(gs._layoutbox)
-    gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
-    if orientation == 'vertical':
-        pad = kw.pop('pad', 0.05)
-        wh_space = 2 * pad / (1 - pad)
-        gs = gs_from_subplotspec(1, 2,
-                                 subplot_spec=parent.get_subplotspec(),
-                                 wspace=wh_space,
-                                 width_ratios=[x1 - pad, fraction])
-        gs2 = gs_from_subplotspec(3, 1,
-                                  subplot_spec=gs[1],
-                                  hspace=0.,
-                                  height_ratios=wh_ratios)
-        anchor = (0.0, 0.5)
-        panchor = (1.0, 0.5)
-    else:
-        pad = kw.pop('pad', 0.15)
-        wh_space = 2 * pad / (1 - pad)
-        gs = gs_from_subplotspec(2, 1,
-                                 subplot_spec=parent.get_subplotspec(),
-                                 hspace=wh_space,
-                                 height_ratios=[x1 - pad, fraction])
-        gs2 = gs_from_subplotspec(1, 3,
-                                  subplot_spec=gs[1],
-                                  wspace=0.,
-                                  width_ratios=wh_ratios)
+    # we need to none the tree of layoutboxes because constrained_layout can't
+    # remove and replace the tree hierarchy w/o a segfault.
+    layoutbox.nonetree(parent.get_subplotspec().get_gridspec()._layoutbox)
+    if location == "left":
+        gs = parent.get_subplotspec().subgridspec(
+            1, 2, wspace=wh_space, width_ratios=[fraction, 1-fraction-pad])
+        ss_main = gs[1]
+        ss_cb = gs[0].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
+    elif location == "right":
+        gs = parent.get_subplotspec().subgridspec(
+            1, 2, wspace=wh_space, width_ratios=[1-fraction-pad, fraction])
+        ss_main = gs[0]
+        ss_cb = gs[1].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
+    elif location == "top":
+        gs = parent.get_subplotspec().subgridspec(
+            2, 1, hspace=wh_space, height_ratios=[fraction, 1-fraction-pad])
+        ss_main = gs[1]
+        ss_cb = gs[0].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
         aspect = 1 / aspect
-        anchor = (0.5, 1.0)
-        panchor = (0.5, 0.0)
+    else:  # "bottom"
+        gs = parent.get_subplotspec().subgridspec(
+            2, 1, hspace=wh_space, height_ratios=[1-fraction-pad, fraction])
+        ss_main = gs[0]
+        ss_cb = gs[1].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
+        aspect = 1 / aspect
 
-    parent.set_subplotspec(gs[0])
+    parent.set_subplotspec(ss_main)
     parent.update_params()
     parent._set_position(parent.figbox)
-    parent.set_anchor(panchor)
+    parent.set_anchor(loc_settings["panchor"])
 
     fig = parent.get_figure()
-    cax = fig.add_subplot(gs2[1], label="<colorbar>")
-    cax.set_aspect(aspect, anchor=anchor, adjustable='box')
+    cax = fig.add_subplot(ss_cb, label="<colorbar>")
+    cax.set_aspect(aspect, anchor=loc_settings["anchor"], adjustable='box')
     return cax, kw
 
 
