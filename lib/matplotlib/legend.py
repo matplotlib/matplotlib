@@ -941,13 +941,21 @@ class Legend(Artist):
         """
         Set the bbox that the legend will be anchored to.
 
-        *bbox* can be
+        Parameters
+        ----------
+        bbox : `~matplotlib.transforms.BboxBase` or tuple
+            The bounding box can be specified in the following ways:
 
-        - A `.BboxBase` instance
-        - A tuple of ``(left, bottom, width, height)`` in the given transform
-          (normalized axes coordinate if None)
-        - A tuple of ``(left, bottom)`` where the width and height will be
-          assumed to be zero.
+            - A `.BboxBase` instance
+            - A tuple of ``(left, bottom, width, height)`` in the given
+              transform (normalized axes coordinate if None)
+            - A tuple of ``(left, bottom)`` where the width and height will be
+              assumed to be zero.
+            - *None*, to remove the bbox anchoring, and use the parent bbox.
+
+        transform : `~matplotlib.transforms.Transform`, optional
+            A transform to apply to the bounding box. If not specified, this
+            will use a transform to the bounding box of the parent.
         """
         if bbox is None:
             self._bbox_to_anchor = None
@@ -978,13 +986,16 @@ class Legend(Artist):
         Place the *bbox* inside the *parentbbox* according to a given
         location code. Return the (x, y) coordinate of the bbox.
 
-        - loc: a location code in range(1, 11).
-          This corresponds to the possible values for self._loc, excluding
-          "best".
+        Parameters
+        ----------
+        loc : int
+            A location code in range(1, 11). This corresponds to the possible
+            values for ``self._loc``, excluding "best".
+        bbox : `~matplotlib.transforms.Bbox`
+            bbox to be placed, in display coordinates.
+        parentbbox : `~matplotlib.transforms.Bbox`
+            A parent box which will contain the bbox, in display coordinates.
 
-        - bbox: bbox to be placed, display coordinate units.
-        - parentbbox: a parent box which will contain the bbox. In
-            display coordinates.
         """
         assert loc in range(1, 11)  # called only internally
 
@@ -1079,8 +1090,9 @@ class Legend(Artist):
 
         Returns
         -------
-        If *state* is ``True`` this returns the `~.DraggableLegend` helper
-        instance. Otherwise this returns ``None``.
+        `.DraggableLegend` or *None*
+            If *state* is ``True`` this returns the `.DraggableLegend` helper
+            instance. Otherwise this returns *None*.
         """
         if state:
             if self._draggable is None:

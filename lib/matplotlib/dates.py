@@ -607,8 +607,12 @@ class IndexDateFormatter(ticker.Formatter):
 
     def __init__(self, t, fmt, tz=None):
         """
-        *t* is a sequence of dates (floating point days).  *fmt* is a
-        `~datetime.datetime.strftime` format string.
+        Parameters
+        ----------
+        t : list of float
+            A sequence of dates (floating point days).
+        fmt : str
+            A `~datetime.datetime.strftime` format string.
         """
         if tz is None:
             tz = _get_rc_timezone()

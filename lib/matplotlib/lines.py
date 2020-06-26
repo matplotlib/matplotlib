@@ -1493,8 +1493,12 @@ class VertexSelector:
         Default "do nothing" implementation of the
         :meth:`process_selected` method.
 
-        *ind* are the indices of the selected vertices.  *xs* and *ys*
-        are the coordinates of the selected vertices.
+        Parameters
+        ----------
+        ind : list of int
+            The indices of the selected vertices.
+        xs, ys : array-like
+            The coordinates of the selected vertices.
         """
         pass
 
