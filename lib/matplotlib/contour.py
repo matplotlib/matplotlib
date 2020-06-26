@@ -1653,7 +1653,7 @@ class QuadContourSet(ContourSet):
             By default (value *None*), the colormap specified by *cmap*
             will be used.
 
-        alpha : float, optional
+        alpha : float, default: 1
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         cmap : str or `.Colormap`, default: :rc:`image.cmap`
@@ -1707,7 +1707,7 @@ class QuadContourSet(ContourSet):
             and above the *levels* range.
 
             Values below ``min(levels)`` and above ``max(levels)`` are mapped
-            to the under/over values of the `.Colormap`. Note, that most
+            to the under/over values of the `.Colormap`. Note that most
             colormaps do not have dedicated colors for these by default, so
             that the over and under values are the edge values of the colormap.
             You may want to set these values explicitly using

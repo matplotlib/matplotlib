@@ -1374,12 +1374,6 @@
     "matplotlib.colorbar.ColorbarBase.set_norm": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
-    "matplotlib.contour.TriContourSet": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.tricontour:57",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.tricontourf:57",
-      "lib/matplotlib/tri/tricontour.py:docstring of matplotlib.axes.Axes.tricontour:57",
-      "lib/matplotlib/tri/tricontour.py:docstring of matplotlib.axes.Axes.tricontourf:57"
-    ],
     "matplotlib.dates.rrulewrapper": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:121"
     ],
