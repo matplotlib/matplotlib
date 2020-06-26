@@ -54,25 +54,26 @@ from matplotlib import docstring
 
 _log = logging.getLogger(__name__)
 
-make_axes_kw_doc = """
-
-    ============= ====================================================
-    Property      Description
-    ============= ====================================================
-    *orientation* vertical or horizontal
-    *fraction*    0.15; fraction of original axes to use for colorbar
-    *pad*         0.05 if vertical, 0.15 if horizontal; fraction
-                  of original axes between colorbar and new image axes
-    *shrink*      1.0; fraction by which to multiply the size of the colorbar
-    *aspect*      20; ratio of long to short dimensions
-    *anchor*      (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal;
-                  the anchor point of the colorbar axes
-    *panchor*     (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal;
-                  the anchor point of the colorbar parent axes. If
-                  False, the parent axes' anchor will be unchanged
-    ============= ====================================================
-
+_make_axes_param_doc = """
+    fraction : float, default: 0.15
+        Fraction of original axes to use for colorbar.
+    shrink : float, default: 1.0
+        Fraction by which to multiply the size of the colorbar.
+    aspect : float, default: 20
+        Ratio of long to short dimensions.
 """
+_make_axes_other_param_doc = """
+    pad : float, default: 0.05 if vertical, 0.15 if horizontal
+        Fraction of original axes between colorbar and new image axes.
+    anchor : (float, float), optional
+        The anchor point of the colorbar axes.
+        Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
+    panchor : (float, float), or *False*, optional
+        The anchor point of the colorbar parent axes. If *False*, the parent
+        axes' anchor will be unchanged.
+        Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
+"""
+make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
 
 colormap_kw_doc = """
 
@@ -1362,7 +1363,7 @@ class Colorbar(ColorbarBase):
             ax.set_subplotspec(subplotspec)
 
 
-@docstring.Substitution(make_axes_kw_doc)
+@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kw):
     """
@@ -1371,21 +1372,33 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     The axes is placed in the figure of the *parents* axes, by resizing and
     repositioning *parents*.
 
-    Keyword arguments may include the following (with defaults):
+    Parameters
+    ----------
+    parents : `~.axes.Axes` or list of `~.axes.Axes`
+        The Axes to use as parents for placing the colorbar.
 
-        location : None or {'left', 'right', 'top', 'bottom'}
-            The position, relative to *parents*, where the colorbar axes
-            should be created. If None, the value will either come from the
-            given ``orientation``, else it will default to 'right'.
+    location : None or {'left', 'right', 'top', 'bottom'}
+        The position, relative to *parents*, where the colorbar axes
+        should be created. If None, the value will either come from the
+        given ``orientation``, else it will default to 'right'.
 
-        orientation : None or {'vertical', 'horizontal'}
-            The orientation of the colorbar. Typically, this keyword shouldn't
-            be used, as it can be derived from the ``location`` keyword.
+    orientation : None or {'vertical', 'horizontal'}
+        The orientation of the colorbar. Typically, this keyword shouldn't
+        be used, as it can be derived from the ``location`` keyword.
 
     %s
 
-    Returns (cax, kw), the child axes and the reduced kw dictionary to be
-    passed when creating the colorbar instance.
+    Returns
+    -------
+    cax : `~.axes.Axes`
+        The child axes.
+    kw : dict
+        The reduced keyword dictionary to be passed when creating the colorbar
+        instance.
+
+    Other Parameters
+    ----------------
+    %s
     """
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
@@ -1519,7 +1532,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     return cax, kw
 
 
-@docstring.Substitution(make_axes_kw_doc)
+@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
 def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     """
     Create a `~.SubplotBase` suitable for a colorbar.
@@ -1530,7 +1543,7 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     This function is similar to `.make_axes`. Primary differences are
 
     - `.make_axes_gridspec` only handles the *orientation* keyword
-      and cannot handle the "location" keyword.
+      and cannot handle the *location* keyword.
 
     - `.make_axes_gridspec` should only be used with a `.SubplotBase` parent.
 
@@ -1538,22 +1551,32 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
       `.SubplotBase`.
 
     - `.make_axes` updates the position of the parent.  `.make_axes_gridspec`
-       replaces the ``grid_spec`` attribute of the parent with a new one.
+      replaces the ``grid_spec`` attribute of the parent with a new one.
 
     While this function is meant to be compatible with `.make_axes`,
     there could be some minor differences.
 
-    Keyword arguments may include the following (with defaults):
-
-        *orientation*
-            'vertical' or 'horizontal'
+    Parameters
+    ----------
+    parent : `~.axes.Axes`
+        The Axes to use as parent for placing the colorbar.
 
     %s
 
-    All but the first of these are stripped from the input kw set.
+    Returns
+    -------
+    cax : `~.axes.SubplotBase`
+        The child axes.
+    kw : dict
+        The reduced keyword dictionary to be passed when creating the colorbar
+        instance.
 
-    Returns (cax, kw), the child axes and the reduced kw dictionary to be
-    passed when creating the colorbar instance.
+    Other Parameters
+    ----------------
+    orientation : {'vertical', 'horizontal'}, default: 'vertical'
+        The orientation of the colorbar.
+
+    %s
     """
 
     orientation = kw.setdefault('orientation', 'vertical')
