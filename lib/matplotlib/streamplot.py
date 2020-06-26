@@ -16,7 +16,6 @@ import matplotlib.patches as patches
 
 __all__ = ['streamplot']
 
-
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                numarrows=1, minlength=0.1, transform=None, zorder=None,
@@ -58,9 +57,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Arrow style specification.
         See `~matplotlib.patches.FancyArrowPatch`.
     numarrows : int
-        Number of arrows per streamline.
-        The default is 1, which plots one arrow in the middle of the
-        streamline.
+        Number of arrows per streamline. The arrows are
+        distributed equidistantly on each line.
     minlength : float
         Minimum length of streamline in axes coordinates.
     start_points : Nx2 array
@@ -203,9 +201,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.append(color_values)
 
-        if numarrows <= -1:
+        if numarrows < 0:
             raise ValueError("The value of numarrows must be"
-                             "greater than -1")
+                             "not be negative")
 
         s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
         n = np.searchsorted(s, s[-1])
@@ -245,7 +243,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     ac = matplotlib.collections.PatchCollection(arrows)
     stream_container = StreamplotSet(lc, ac)
     return stream_container
-
 
 class StreamplotSet:
 
@@ -718,3 +715,34 @@ def _gen_starting_points(shape):
             if y <= yfirst:
                 yfirst += 1
                 direction = 'right'
+
+# Test streamplot function
+
+# First test function
+def test_num_arrows(arrows=4):
+    """
+    Example test to determine whether the numarrows parameter is actually 
+    plotting the correct number of arrows per streamline
+    """
+    import matplotlib.pyplot as plt
+
+    # Create dummy data of a streamplot with 15 vertical lines
+    x = np.arange(0, 2) 
+    y = np.arange(0, 2) 
+    X, Y = np.meshgrid(x, y) 
+    u = np.ones((2, 2))
+    v = np.zeros((2, 2))
+  
+    fig = plt.figure(figsize = (8, 8)) 
+    ax = fig.add_subplot()
+    strmplot = streamplot(ax, X, Y, u, v, density = 0.5, numarrows=arrows)
+
+    # Get data for all arrow locations
+    arrowpaths = strmplot.arrows.get_paths()
+    numarrows = len(arrowpaths)
+
+    # Num arrows should be number of lines * the number of arrows on each line
+    assert numarrows == 15*arrows
+
+for x in range(10):
+    test_num_arrows(arrows=x)
