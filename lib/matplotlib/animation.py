@@ -1106,6 +1106,7 @@ class Animation:
                                      "save animations.")
                 _log.warning("MovieWriter %s unavailable; trying to use %s "
                              "instead.", writer, alt_writer)
+                alt_writer = writers[alt_writer]
                 writer = alt_writer(
                     fps, codec, bitrate,
                     extra_args=extra_args, metadata=metadata)
