@@ -1551,6 +1551,20 @@ def test_bar_pandas_indexed(pd):
     ax.bar(df.x, 1., width=df.width)
 
 
+@check_figures_equal()
+def test_bar_hatches(fig_test, fig_ref):
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    x = [1, 2]
+    y = [2, 3]
+    hatches = ['x', 'o']
+    for i in range(2):
+        ax_ref.bar(x[i], y[i], color='blue', hatch=hatches[i])
+
+    ax_test.bar(x, y, hatch=hatches)
+
+
 def test_pandas_minimal_plot(pd):
     # smoke test that series and index objcets do not warn
     x = pd.Series([1, 2], dtype="float64")
