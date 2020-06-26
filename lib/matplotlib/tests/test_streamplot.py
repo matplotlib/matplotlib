@@ -113,3 +113,25 @@ def test_streamplot_limits():
     # datalim.
     assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
                               decimal=1)
+
+def test_num_arrows():
+    # Test numarrows values 0 through 9
+    for arrows in range(10):
+
+        # Create dummy data of a streamplot with 15 vertical lines
+        x = np.arange(0, 2)
+        y = np.arange(0, 2)
+        X, Y = np.meshgrid(x, y)
+        u = np.ones((2, 2))
+        v = np.zeros((2, 2))
+
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot()
+        strmplot = ax.streamplot(X, Y, u, v, density=0.5, numarrows=arrows)
+
+        # Get data for all arrow locations
+        arrowpaths = strmplot.arrows.get_paths()
+        numarrows = len(arrowpaths)
+
+        # Num arrows should be number of lines * the number of arrows on each line
+        assert numarrows == 15*arrows

@@ -717,32 +717,3 @@ def _gen_starting_points(shape):
             if y <= yfirst:
                 yfirst += 1
                 direction = 'right'
-
-
-def test_num_arrows(arrows=4):
-    """
-    Example test to determine whether the numarrows parameter is actually
-    plotting the correct number of arrows per streamline
-    """
-    import matplotlib.pyplot as plt
-
-    # Create dummy data of a streamplot with 15 vertical lines
-    x = np.arange(0, 2)
-    y = np.arange(0, 2)
-    X, Y = np.meshgrid(x, y)
-    u = np.ones((2, 2))
-    v = np.zeros((2, 2))
-
-    fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot()
-    strmplot = streamplot(ax, X, Y, u, v, density=0.5, numarrows=arrows)
-
-    # Get data for all arrow locations
-    arrowpaths = strmplot.arrows.get_paths()
-    numarrows = len(arrowpaths)
-
-    # Num arrows should be number of lines * the number of arrows on each line
-    assert numarrows == 15*arrows
-
-for x in range(10):
-    test_num_arrows(arrows=x)
