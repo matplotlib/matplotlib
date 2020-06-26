@@ -114,6 +114,7 @@ def test_streamplot_limits():
     assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
                               decimal=1)
 
+
 def test_num_arrows():
     # Test numarrows values 0 through 9
     for arrows in range(10):
@@ -133,5 +134,5 @@ def test_num_arrows():
         arrowpaths = strmplot.arrows.get_paths()
         numarrows = len(arrowpaths)
 
-        # Num arrows should be number of lines * the number of arrows on each line
+        # Num arrows should be (num of lines)*(num of arrows on each line)
         assert numarrows == 15*arrows
