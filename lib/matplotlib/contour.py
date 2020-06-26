@@ -845,10 +845,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if extend_max:
                     cmap.set_over(self.colors[-1])
 
-        if self.filled:
-            self.collections = cbook.silent_list('mcoll.PathCollection')
-        else:
-            self.collections = cbook.silent_list('mcoll.LineCollection')
+        self.collections = cbook.silent_list(None)
+
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -869,53 +867,48 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.filled:
             if self.linewidths is not None:
                 cbook._warn_external('linewidths is ignored by contourf')
-
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
-
             # Ensure allkinds can be zipped below.
             if self.allkinds is None:
                 self.allkinds = [None] * len(self.allsegs)
-
             # Default zorder taken from Collection
             self._contour_zorder = kwargs.pop('zorder', 1)
-            for level, level_upper, segs, kinds in \
-                    zip(lowers, uppers, self.allsegs, self.allkinds):
-                paths = self._make_paths(segs, kinds)
 
-                col = mcoll.PathCollection(
-                    paths,
+            self.collections[:] = [
+                mcoll.PathCollection(
+                    self._make_paths(segs, kinds),
                     antialiaseds=(self.antialiased,),
                     edgecolors='none',
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=self._contour_zorder)
-                self.axes.add_collection(col, autolim=False)
-                self.collections.append(col)
+                for level, level_upper, segs, kinds
+                in zip(lowers, uppers, self.allsegs, self.allkinds)]
         else:
-            tlinewidths = self._process_linewidths()
-            self.tlinewidths = tlinewidths
+            self.tlinewidths = tlinewidths = self._process_linewidths()
             tlinestyles = self._process_linestyles()
             aa = self.antialiased
             if aa is not None:
                 aa = (self.antialiased,)
             # Default zorder taken from LineCollection
             self._contour_zorder = kwargs.pop('zorder', 2)
-            for level, width, lstyle, segs in \
-                    zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
-                col = mcoll.LineCollection(
+
+            self.collections[:] = [
+                mcoll.LineCollection(
                     segs,
                     antialiaseds=aa,
                     linewidths=width,
                     linestyles=[lstyle],
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=self._contour_zorder)
-                col.set_label('_nolegend_')
-                self.axes.add_collection(col, autolim=False)
-                self.collections.append(col)
+                    zorder=self._contour_zorder,
+                    label='_nolegend_')
+                for level, width, lstyle, segs
+                in zip(self.levels, tlinewidths, tlinestyles, self.allsegs)]
 
         for col in self.collections:
+            self.axes.add_collection(col, autolim=False)
             col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
             col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
         self.axes.update_datalim([self._mins, self._maxs])
