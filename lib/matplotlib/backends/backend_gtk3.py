@@ -509,7 +509,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         # adapted from
         # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
-        self.ctx = self.canvas.get_property("window").cairo_create()
+        ctx = self.canvas.get_property("window").cairo_create()
 
         # todo: instead of redrawing the entire figure, copy the part of
         # the figure that was covered by the previous rubberband rectangle
@@ -522,11 +522,11 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         h = abs(y1 - y0)
         rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
 
-        self.ctx.new_path()
-        self.ctx.set_line_width(0.5)
-        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
-        self.ctx.set_source_rgb(0, 0, 0)
-        self.ctx.stroke()
+        ctx.new_path()
+        ctx.set_line_width(0.5)
+        ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
+        ctx.set_source_rgb(0, 0, 0)
+        ctx.stroke()
 
     def _update_buttons_checked(self):
         for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
