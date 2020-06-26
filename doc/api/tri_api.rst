@@ -7,6 +7,9 @@
 .. autoclass:: matplotlib.tri.Triangulation
     :members:
 
+.. autoclass:: matplotlib.tri.TriContourSet
+    :show-inheritance:
+
 .. autoclass:: matplotlib.tri.TriFinder
 
 .. autoclass:: matplotlib.tri.TrapezoidMapTriFinder
