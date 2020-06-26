@@ -13,6 +13,6 @@ The following globals in :mod:`matplotlib.colorbar` are deprecated:
 
 ``FancyBboxPatch(..., boxstyle="custom", bbox_transmuter=...)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order to use a custom boxsyle, directly pass it as the *boxstyle* argument
+In order to use a custom boxstyle, directly pass it as the *boxstyle* argument
 to `.FancyBboxPatch`.  This was previously already possible, and is consistent
 with custom arrow styles and connection styles.
