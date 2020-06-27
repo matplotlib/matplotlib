@@ -779,6 +779,21 @@ def test_nonfinite_limits():
     ax.plot(x, y)
 
 
+def test_limits_empty_data():
+    # Check that plotting empty data doesn't change autoscaling of dates
+    x = np.arange("2010-01-01", "2011-01-01", dtype="datetime64[D]")
+    lims = (14591.8, 14992.2)
+
+    fig, ax = plt.subplots()
+    ax.scatter(x, np.arange(len(x)))
+    assert ax.get_xlim() == lims
+
+    fig, ax = plt.subplots()
+    ax.scatter([], [])
+    ax.scatter(x, np.arange(len(x)))
+    assert ax.get_xlim() == lims
+
+
 @image_comparison(['imshow', 'imshow'], remove_text=True, style='mpl20')
 def test_imshow():
     # use former defaults to match existing baseline image
