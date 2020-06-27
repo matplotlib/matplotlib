@@ -84,9 +84,8 @@ _make_axes_other_param_doc = """
         axes' anchor will be unchanged.
         Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
 """
-make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
 
-colormap_kw_doc = """
+_colormap_kw_doc = """
 
     ============  ====================================================
     Property      Description
@@ -149,17 +148,8 @@ colormap_kw_doc = """
 
 """
 
-colorbar_doc = """
-
+docstring.interpd.update(colorbar_doc="""
 Add a colorbar to a plot.
-
-Function signatures for the :mod:`~matplotlib.pyplot` interface; all
-but the first are also method signatures for the `~.Figure.colorbar` method::
-
-  colorbar(**kwargs)
-  colorbar(mappable, **kwargs)
-  colorbar(mappable, cax=cax, **kwargs)
-  colorbar(mappable, ax=ax, **kwargs)
 
 Parameters
 ----------
@@ -179,9 +169,8 @@ cax : `~matplotlib.axes.Axes`, optional
     Axes into which the colorbar will be drawn.
 
 ax : `~matplotlib.axes.Axes`, list of Axes, optional
-    Parent axes from which space for a new colorbar axes will be stolen.
-    If a list of axes is given they will all be resized to make room for the
-    colorbar axes.
+    One or more parent axes from which space for a new colorbar axes will be
+    stolen, if *cax* is None.  This has no effect if *cax* is set.
 
 use_gridspec : bool, optional
     If *cax* is ``None``, a new *cax* is created as an instance of Axes.  If
@@ -198,6 +187,7 @@ Notes
 Additional keyword arguments are of two kinds:
 
   axes properties:
+%s
 %s
   colorbar properties:
 %s
@@ -225,10 +215,12 @@ segments::
 However this has negative consequences in other circumstances, e.g. with
 semi-transparent images (alpha < 1) and colorbar extensions; therefore, this
 workaround is not used by default (see issue #1188).
+""" % (_make_axes_param_doc, _make_axes_other_param_doc, _colormap_kw_doc))
 
-""" % (make_axes_kw_doc, colormap_kw_doc)
-
-docstring.interpd.update(colorbar_doc=colorbar_doc)
+# Deprecated since 3.4.
+colorbar_doc = docstring.interpd.params["colorbar_doc"]
+colormap_kw_doc = _colormap_kw_doc
+make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
 
 
 def _set_ticks_on_axis_warn(*args, **kw):

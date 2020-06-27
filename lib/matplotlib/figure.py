@@ -2315,12 +2315,7 @@ default: 'top'
 
     @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
-        """
-        Create a colorbar for a ScalarMappable instance, *mappable*.
-
-        Documentation for the pyplot thin wrapper:
-        %(colorbar_doc)s
-        """
+        """%(colorbar_doc)s"""
         if ax is None:
             ax = self.gca()
 
