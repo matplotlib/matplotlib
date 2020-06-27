@@ -2148,7 +2148,7 @@ class _AxesBase(martist.Artist):
             Whether to update the x/y limits.
         """
         xys = np.asarray(xys)
-        if not len(xys):
+        if not np.any(np.isfinite(xys)):
             return
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits,
                                          updatex=updatex, updatey=updatey)
