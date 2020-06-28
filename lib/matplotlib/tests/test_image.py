@@ -713,7 +713,7 @@ def test_minimized_rasterized():
 
 
 def test_load_from_url():
-    path = Path(__file__).parent / "baseline_images/test_image/imshow.png"
+    path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
