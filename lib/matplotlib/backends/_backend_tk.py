@@ -232,7 +232,6 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.create_image(
             int(width / 2), int(height / 2), image=self._tkphoto)
         self.resize_event()
-        self.draw()
 
     def draw_idle(self):
         # docstring inherited
