@@ -525,10 +525,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if pack_toolbar:
             self.pack(side=tk.BOTTOM, fill=tk.X)
 
-    def destroy(self, *args):
-        del self.message
-        tk.Frame.destroy(self, *args)
-
     def set_message(self, s):
         self.message.set(s)
 
