@@ -2366,6 +2366,7 @@ class Axes(_AxesBase):
             color = self._get_patches_for_fill.get_next_color()
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
+        hatch = kwargs.pop('hatch', None)
 
         # Because xerr and yerr will be passed to errorbar, most dimension
         # checking and processing will be left to the errorbar method.
@@ -2427,9 +2428,9 @@ class Axes(_AxesBase):
             if yerr is not None:
                 yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
 
-        x, height, width, y, linewidth = np.broadcast_arrays(
+        x, height, width, y, linewidth, hatch = np.broadcast_arrays(
             # Make args iterable too.
-            np.atleast_1d(x), height, width, y, linewidth)
+            np.atleast_1d(x), height, width, y, linewidth, hatch)
 
         # Now that units have been converted, set the tick locations.
         if orientation == 'vertical':
@@ -2440,6 +2441,7 @@ class Axes(_AxesBase):
             tick_label_position = y
 
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
+        hatch = itertools.cycle(np.atleast_1d(hatch))
         color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
                                 # Fallback if color == "none".
                                 itertools.repeat('none'))
@@ -2476,14 +2478,16 @@ class Axes(_AxesBase):
             bottom = y
 
         patches = []
-        args = zip(left, bottom, width, height, color, edgecolor, linewidth)
-        for l, b, w, h, c, e, lw in args:
+        args = zip(left, bottom, width, height, color, edgecolor, linewidth,
+                   hatch)
+        for l, b, w, h, c, e, lw, htch in args:
             r = mpatches.Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
                 label='_nolegend_',
+                hatch=htch,
                 )
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
