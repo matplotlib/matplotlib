@@ -381,6 +381,16 @@ class FigureCanvasTk(FigureCanvasBase):
         # docstring inherited
         self._master.update()
 
+    def start_event_loop(self, timeout=0):
+        # docstring inherited
+        if timeout > 0:
+            self._master.after(timeout, self.stop_event_loop)
+        self._master.mainloop()
+
+    def stop_event_loop(self):
+        # docstring inherited
+        self._master.quit()
+
 
 class FigureManagerTk(FigureManagerBase):
     """
