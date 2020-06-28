@@ -2172,6 +2172,7 @@ def _setup_pyplot_info_docstrings():
 ## Plotting part 1: manually generated functions and wrappers ##
 
 
+@_copy_docstring_and_deprecators(Figure.colorbar)
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
@@ -2184,7 +2185,6 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
         ax = gca()
     ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
     return ret
-colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
 
 def clim(vmin=None, vmax=None):
