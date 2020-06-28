@@ -209,7 +209,6 @@ class FigureCanvasTk(FigureCanvasBase):
         # to the window and filter.
         def filter_destroy(event):
             if event.widget is self._tkcanvas:
-                self._master.update_idletasks()
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")
 
@@ -554,8 +553,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             window.configure(cursor=cursord[cursor])
         except tkinter.TclError:
             pass
-        else:
-            window.update_idletasks()
 
     def _Button(self, text, image_file, toggle, command):
         image = (tk.PhotoImage(master=self, file=image_file)
