@@ -779,21 +779,21 @@ def test_nonfinite_limits():
     ax.plot(x, y)
 
 
-@pytest.mark.parametrize('plot_fun, lims',
-                         [[plt.plot, (14610.0, 14974.0)],
-                          [plt.scatter, (14591.8, 14992.2)]])
-def test_limits_empty_data(plot_fun, lims):
+@pytest.mark.style('default')
+@pytest.mark.parametrize('plot_fun',
+                         ['scatter', 'plot', 'fill_between'])
+@check_figures_equal(extensions=["png"])
+def test_limits_empty_data(plot_fun, fig_test, fig_ref):
     # Check that plotting empty data doesn't change autoscaling of dates
     x = np.arange("2010-01-01", "2011-01-01", dtype="datetime64[D]")
 
-    fig, ax = plt.subplots()
-    plot_fun(x, np.arange(len(x)))
-    assert ax.get_xlim() == lims
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
 
-    fig, ax = plt.subplots()
-    plot_fun([], [])
-    plot_fun(x, np.arange(len(x)))
-    assert ax.get_xlim() == lims
+    getattr(ax_test, plot_fun)([], [])
+
+    for ax in [ax_test, ax_ref]:
+        getattr(ax, plot_fun)(x, range(len(x)), color='C0')
 
 
 @image_comparison(['imshow', 'imshow'], remove_text=True, style='mpl20')
