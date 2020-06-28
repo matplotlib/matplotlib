@@ -3564,6 +3564,7 @@ class FancyBboxPatch(Patch):
         return s % (self._x, self._y, self._width, self._height)
 
     @docstring.dedent_interpd
+    @cbook._delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
     def __init__(self, xy, width, height,
                  boxstyle="round", bbox_transmuter=None,
                  mutation_scale=1, mutation_aspect=1,
@@ -3616,6 +3617,10 @@ class FancyBboxPatch(Patch):
         self._height = height
 
         if boxstyle == "custom":
+            cbook._warn_deprecated(
+                "3.4", message="Support for boxstyle='custom' is deprecated "
+                "since %(since)s and will be removed %(removal)s; directly "
+                "pass a boxstyle instance as the boxstyle parameter instead.")
             if bbox_transmuter is None:
                 raise ValueError("bbox_transmuter argument is needed with "
                                  "custom boxstyle")
@@ -3641,10 +3646,12 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str
-            The name of the box style. Optionally, followed by a comma and a
-            comma-separated list of attributes. The attributes may
-            alternatively be passed separately as keyword arguments.
+        boxstyle : str or `matplotlib.patches.BoxStyle`
+            The style of the fancy box. This can either be a `.BoxStyle`
+            instance or a string of the style name and optionally comma
+            seprarated attributes (e.g. "Round, pad=0.2"). This string is
+            passed to `.BoxStyle` to construct a `.BoxStyle` object. See
+            there for a full documentation.
 
             The following box styles are available:
 

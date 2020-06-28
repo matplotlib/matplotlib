@@ -449,20 +449,12 @@ class Text(Artist):
             else:
                 if pad is None:
                     pad = 0.3
-
             # boxstyle could be a callable or a string
             if isinstance(boxstyle, str) and "pad" not in boxstyle:
                 boxstyle += ",pad=%0.2f" % pad
-
-            bbox_transmuter = props.pop("bbox_transmuter", None)
-
             self._bbox_patch = FancyBboxPatch(
-                                    (0., 0.),
-                                    1., 1.,
-                                    boxstyle=boxstyle,
-                                    bbox_transmuter=bbox_transmuter,
-                                    transform=IdentityTransform(),
-                                    **props)
+                (0, 0), 1, 1,
+                boxstyle=boxstyle, transform=IdentityTransform(), **props)
         else:
             self._bbox_patch = None
 
