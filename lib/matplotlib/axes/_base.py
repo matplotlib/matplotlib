@@ -906,6 +906,10 @@ class _AxesBase(martist.Artist):
         which : {'both', 'active', 'original'}, default: 'both'
             Determines which position variables to change.
 
+        See Also
+        --------
+        matplotlib.transforms.Bbox.from_bounds
+        matplotlib.transforms.Bbox.from_extents
         """
         self._set_position(pos, which=which)
         # because this is being called externally to the library we
