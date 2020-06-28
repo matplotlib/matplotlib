@@ -1708,7 +1708,9 @@ class Axis(martist.Artist):
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
-            if len(locator.locs) != len(ticklabels):
+            # Passing [] as a list of ticklabels is often used as a way to
+            # remove all tick labels, so only error for > 0 ticklabels
+            if len(locator.locs) != len(ticklabels) and len(ticklabels) != 0:
                 raise ValueError(
                     "The number of FixedLocator locations"
                     f" ({len(locator.locs)}), usually from a call to"
