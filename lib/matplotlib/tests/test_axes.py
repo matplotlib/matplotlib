@@ -4593,6 +4593,14 @@ def test_mismatched_ticklabels():
         ax.xaxis.set_ticklabels(['a', 'b', 'c'])
 
 
+def test_empty_ticks_fixed_loc():
+    # Smoke test that [] can be used to unset all tick labels
+    fig, ax = plt.subplots()
+    ax.bar([1, 2], [1, 2])
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels([])
+
+
 @image_comparison(['retain_tick_visibility.png'])
 def test_retain_tick_visibility():
     fig, ax = plt.subplots()
