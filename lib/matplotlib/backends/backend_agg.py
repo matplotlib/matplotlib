@@ -116,8 +116,12 @@ class RendererAgg(RendererBase):
         # self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
-        self.get_content_extents = self._renderer.get_content_extents
 
+    @cbook.deprecated("3.4")  # Also needs to be removed at C-level.
+    def get_content_extents(self):
+        return self._renderer.get_content_extents()
+
+    @cbook.deprecated("3.4")
     def tostring_rgba_minimized(self):
         extents = self.get_content_extents()
         bbox = [[extents[0], self.height - (extents[1] + extents[3])],
@@ -364,23 +368,21 @@ class RendererAgg(RendererBase):
         The saved renderer is restored and the returned image from
         post_processing is plotted (using draw_image) on it.
         """
-
-        width, height = int(self.width), int(self.height)
-
-        buffer, (l, b, w, h) = self.tostring_rgba_minimized()
+        orig_img = np.asarray(self.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+        cropped_img = orig_img[slice_y, slice_x]
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
 
-        if w > 0 and h > 0:
-            img = np.frombuffer(buffer, np.uint8)
-            img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
-                                          self.dpi)
+        if cropped_img.size:
+            img, ox, oy = post_processing(cropped_img / 255, self.dpi)
             gc = self.new_gc()
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
-            img = img[::-1]
-            self._renderer.draw_image(gc, l + ox, height - b - h + oy, img)
+            self._renderer.draw_image(
+                gc, slice_x.start + ox, int(self.height) - slice_y.stop + oy,
+                img[::-1])
 
 
 class FigureCanvasAgg(FigureCanvasBase):
