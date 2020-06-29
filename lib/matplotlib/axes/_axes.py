@@ -5295,9 +5295,7 @@ default: :rc:`scatter.edgecolors`
                             np.column_stack([ind[where], dep2[where]])])
         if ind_dir == "y":
             pts = pts[:, ::-1]
-        self.dataLim.update_from_data_xy(pts, self.ignore_existing_data_limits,
-                                         updatex=True, updatey=True)
-        self.ignore_existing_data_limits = False
+        self.update_datalim(pts, updatex=True, updatey=True)
         self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
         return collection
