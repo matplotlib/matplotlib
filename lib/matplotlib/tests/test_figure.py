@@ -22,7 +22,7 @@ import pytest
 
 
 @image_comparison(['figure_align_labels'],
-                  tol={'aarch64': 0.01}.get(platform.machine(), 0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_labels():
     fig = plt.figure(tight_layout=True)
     gs = gridspec.GridSpec(3, 3)

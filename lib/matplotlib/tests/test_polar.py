@@ -10,7 +10,7 @@ from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 @image_comparison(['polar_axes'], style='default',
-                  tol={'aarch64': 0.01}.get(platform.machine(), 0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_polar_annotations():
     # You can specify the xypoint and the xytext in different positions and
     # coordinate systems, and optionally turn on a connecting line and mark the
