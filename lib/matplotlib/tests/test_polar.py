@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
@@ -7,7 +9,8 @@ from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
-@image_comparison(['polar_axes'], style='default')
+@image_comparison(['polar_axes'], style='default',
+                  tol={'aarch64': 0.01}.get(platform.machine(), 0))
 def test_polar_annotations():
     # You can specify the xypoint and the xytext in different positions and
     # coordinate systems, and optionally turn on a connecting line and mark the
