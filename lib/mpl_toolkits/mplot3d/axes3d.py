@@ -2228,9 +2228,10 @@ class Axes3D(Axes):
         modifying the object and adding z coordinate information.
 
         Supported are:
-            - PolyCollection
-            - LineCollection
-            - PatchCollection
+
+        - PolyCollection
+        - LineCollection
+        - PatchCollection
         """
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
@@ -2404,12 +2405,12 @@ class Axes3D(Axes):
             When coloring the faces of the boxes specifically, this is
             the order of the coloring:
 
-              1. -Z (bottom of box)
-              2. +Z (top of box)
-              3. -Y
-              4. +Y
-              5. -X
-              6. +X
+            1. -Z (bottom of box)
+            2. +Z (top of box)
+            3. -Y
+            4. +Y
+            5. -X
+            6. +X
 
         zsort : str, optional
             The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
@@ -2724,16 +2725,16 @@ pivot='tail', normalize=False, **kwargs)
         facecolors, edgecolors : array-like, optional
             The color to draw the faces and edges of the voxels. Can only be
             passed as keyword arguments.
-            This parameter can be:
+            These parameters can be:
 
-              - A single color value, to color all voxels the same color. This
-                can be either a string, or a 1D rgb/rgba array
-              - ``None``, the default, to use a single color for the faces, and
-                the style default for the edges.
-              - A 3D ndarray of color names, with each item the color for the
-                corresponding voxel. The size must match the voxels.
-              - A 4D ndarray of rgb/rgba data, with the components along the
-                last axis.
+            - A single color value, to color all voxels the same color. This
+              can be either a string, or a 1D rgb/rgba array
+            - ``None``, the default, to use a single color for the faces, and
+              the style default for the edges.
+            - A 3D ndarray of color names, with each item the color for the
+              corresponding voxel. The size must match the voxels.
+            - A 4D ndarray of rgb/rgba data, with the components along the
+              last axis.
 
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
