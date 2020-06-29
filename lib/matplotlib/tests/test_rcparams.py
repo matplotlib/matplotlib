@@ -473,7 +473,10 @@ def test_backend_fallback_headless(tmpdir):
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.run(
             [sys.executable, "-c",
-             "import matplotlib; matplotlib.use('tkagg')"],
+             ("import matplotlib;" +
+              "matplotlib.use('tkagg');" +
+              "import matplotlib.pyplot")
+             ],
             env=env, check=True)
 
 
