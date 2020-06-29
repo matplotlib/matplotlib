@@ -61,12 +61,18 @@ mask[40:60, 40:60] = True
 U[:20, :20] = np.nan
 U = np.ma.array(U, mask=mask)
 
-ax4 = fig.add_subplot(gs[2:, :])
+ax4 = fig.add_subplot(gs[2:, 0])
 ax4.streamplot(X, Y, U, V, color='r')
 ax4.set_title('Streamplot with Masking')
 
 ax4.imshow(~mask, extent=(-w, w, -w, w), alpha=0.5, cmap='gray', aspect='auto')
 ax4.set_aspect('equal')
+
+# Multiple arrows on streamline
+ax5 = fig.add_subplot(gs[2, 1])
+strm = ax5.streamplot(X, Y, U, V, color=U, linewidth=2, numarrows=3)
+ax5.set_title('Multiple Arrows on Streamplots')
+ax5.set_aspect('equal')
 
 plt.tight_layout()
 plt.show()
