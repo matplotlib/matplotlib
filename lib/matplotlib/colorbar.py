@@ -737,7 +737,26 @@ class ColorbarBase:
         self.stale = True
 
     def set_label(self, label, *, loc=None, **kwargs):
-        """Add a label to the long axis of the colorbar."""
+        """
+        Add a label to the long axis of the colorbar.
+
+        Parameters
+        ----------
+        label : str
+            The label text.
+        loc : str, optional
+            The location of the label.
+
+            - For horizontal orientation one of {'left', 'center', 'right'}
+            - For vertical orientation one of {'bottom', 'center', 'top'}
+
+            Defaults to :rc:`xaxis.labellocation` or :rc:`yaxis.labellocation`
+            depending on the orientation.
+        **kwargs
+            Keyword arguments are passed to `~.Axes.set_xlabel` /
+            `~.Axes.set_ylabel`.
+            Supported keywords are *labelpad* and `.Text` properties.
+        """
         _pos_xy = 'y' if self.orientation == 'vertical' else 'x'
         _protected_kw = [_pos_xy, 'horizontalalignment', 'ha']
         if any([k in kwargs for k in _protected_kw]):
