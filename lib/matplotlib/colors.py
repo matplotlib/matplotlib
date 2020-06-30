@@ -1255,12 +1255,12 @@ class TwoSlopeNorm(Normalize):
         return result
 
 
-class SymNorm(Normalize):
-    def __init__(self, vcenter=0, vmax=None, clip=False):
+class CenteredNorm(Normalize):
+    def __init__(self, vcenter=0, halfrange=None, clip=False):
         """
         Normalize symmetrical data around a center (0 by default).
 
-        Unlike `TwoSlopeNorm`, `SymNorm` applies an equal rate of change
+        Unlike `TwoSlopeNorm`, `CenteredNorm` applies an equal rate of change
         around the center.
 
         Useful when mapping symmetrical data around a conceptual center
@@ -1271,12 +1271,12 @@ class SymNorm(Normalize):
         ----------
         vcenter : float, default: 0
             The data value that defines ``0.5`` in the normalization.
-        vmax : float, optional
-            The data value that defines ``1.0`` in the normalization.
-            Defaults to the sum of *vcenter* plus the largest absolute
-            difference to *vcenter* for the values in the dataset.
-            If vmax is less than *vcenter*, it is automatically mirrored
-            over the center.
+        halfrange : float, optional
+            The range of data values that defines a range of ``0.5`` in the
+            normalization, so that *vcenter* - *halfrange* is ``0.0`` and
+            *vcenter* + *halfrange* is ``1.0`` in the normalization.
+            Defaults to the largest absolute difference to *vcenter* for
+            the values in the dataset.
 
         Examples
         --------
@@ -1284,30 +1284,31 @@ class SymNorm(Normalize):
         (assuming equal rates of change above and below 0.0):
 
             >>> import matplotlib.colors as mcolors
-            >>> norm = mcolors.SymNorm(vmax=4.0)
+            >>> norm = mcolors.CenteredNorm(halfrange=4.0)
             >>> data = [-2., 0., 4.]
             >>> norm(data)
             array([0.25, 0.5 , 1.  ])
         """
-
         self._vcenter = vcenter
-        if vmax is None:
-            self.vmin = None
-            self.vmax = None
-        else:
-            self.vmax = vcenter + abs(vmax-vcenter)
-            self.vmin = vcenter - vmax
+        self.halfrange = halfrange
         self.clip = clip
+
+    def _set_vmin_vmax(self):
+        """
+        Set *vmin* and *vmax* based on *vcenter* and *halfrange*.
+        """
+        self.vmax = self._vcenter + self.halfrange
+        self.vmin = self._vcenter - self.halfrange
 
     def autoscale(self, A):
         """
-        Set *vmax* to *vcenter* + max(abs(*A*-*vcenter*)),
-        then set *vmin* by mirroring *vmax* at *vcenter*.
+        Set *halfrange* to max(abs(*A*-*vcenter*)),
+        then set *vmin* and *vmax*.
         """
         A = np.asanyarray(A)
-        self.vmax = self._vcenter + max(self._vcenter-A.min(),
-                                        A.max()-self._vcenter)
-        self.vmin = 2*self._vcenter - self.vmax
+        self._halfrange = max(self._vcenter-A.min(),
+                              A.max()-self._vcenter)
+        self._set_vmin_vmax()
 
     def autoscale_None(self, A):
         """Set *vmin* and *vmax*."""
@@ -1323,16 +1324,29 @@ class SymNorm(Normalize):
     def vcenter(self, vcenter):
         self._vcenter = vcenter
         if self.vmax is not None:
-            # recompute vmax and vmin,assuming they represent
+            # recompute halfrange assuming vmin and vmax represent
             # min and max of data
-            self.vmax = self._vcenter + max(self._vcenter-self.vmin,
-                                            self.vmax-self._vcenter)
-            self.vmin = 2*self._vcenter - self.vmax
+            self._halfrange = max(self._vcenter-self.vmin,
+                                  self.vmax-self._vcenter)
+            self._set_vmin_vmax()
+
+    @property
+    def halfrange(self):
+        return self._halfrange
+
+    @halfrange.setter
+    def halfrange(self, halfrange):
+        if halfrange is None:
+            self.vmin = None
+            self.vmax = None
+        else:
+            self.halfrange = abs(halfrange)
+            self._set_vmin_vmax()
 
     def __call__(self, value, clip=None):
-        if self.vmax is not None:
-            # enforce symmetry, undo changes to vmin
-            self.vmin = 2*self._vcenter - self.vmax
+        if self._halfrange is not None:
+            # enforce symmetry, reset vmin and vmax
+            self._set_vmin_vmax()
         return super().__call__(value, clip=clip)
 
 
