@@ -5,12 +5,12 @@ Integral as the area under a curve
 
 Although this is a simple example, it demonstrates some important tweaks:
 
-    * A simple line plot with custom color and line width.
-    * A shaded region created using a Polygon patch.
-    * A text label with mathtext rendering.
-    * figtext calls to label the x- and y-axes.
-    * Use of axis spines to hide the top and right spines.
-    * Custom tick placement and labels.
+* A simple line plot with custom color and line width.
+* A shaded region created using a Polygon patch.
+* A text label with mathtext rendering.
+* figtext calls to label the x- and y-axes.
+* Use of axis spines to hide the top and right spines.
+* Custom tick placement and labels.
 """
 import numpy as np
 import matplotlib.pyplot as plt

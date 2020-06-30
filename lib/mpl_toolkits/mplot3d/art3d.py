@@ -44,6 +44,7 @@ def get_dir_vector(zdir):
     ----------
     zdir : {'x', 'y', 'z', None, 3-tuple}
         The direction. Possible values are:
+
         - 'x': equivalent to (1, 0, 0)
         - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
@@ -55,7 +56,6 @@ def get_dir_vector(zdir):
     x, y, z : array-like
         The direction vector. This is either a numpy.array or *zdir* itself if
         *zdir* is already a length-3 iterable.
-
     """
     if zdir == 'x':
         return np.array((1, 0, 0))
