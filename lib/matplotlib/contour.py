@@ -629,7 +629,7 @@ def _is_closed_polygon(X):
     presumably coordinates on a polygonal curve, in which case this function
     tests if that curve is closed.
     """
-    return np.all(X[0] == X[-1])
+    return np.allclose(X[0], X[-1], rtol=1e-10, atol=1e-13)
 
 
 def _find_closest_point_on_path(lc, point):
