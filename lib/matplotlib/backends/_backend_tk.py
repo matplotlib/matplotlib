@@ -398,7 +398,7 @@ class FigureManagerTk(FigureManagerBase):
         The tk.Window
     """
 
-    def __init__(self, canvas, num, window, mainloop_running):
+    def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
         self.window = window
         self.window.withdraw()
@@ -414,7 +414,7 @@ class FigureManagerTk(FigureManagerBase):
                 backend_tools.add_tools_to_container(self.toolbar)
 
         self._shown = False
-        self._tk_mainloop_already_started_before_creation = mainloop_running
+        self._tk_mainloop_already_started_before_creation = 'tk' == cbook._get_running_interactive_framework()
 
     def _get_toolbar(self):
         if mpl.rcParams['toolbar'] == 'toolbar2':
@@ -870,7 +870,7 @@ class _BackendTk(_Backend):
                 _log.info('Could not load matplotlib icon: %s', exc)
 
             canvas = cls.FigureCanvas(figure, master=window)
-            manager = cls.FigureManager(canvas, num, window, is_tk_mainloop_running())
+            manager = cls.FigureManager(canvas, num, window)
             if mpl.is_interactive():
                 manager.show()
                 canvas.draw_idle()
@@ -885,37 +885,6 @@ class _BackendTk(_Backend):
         managers = Gcf.get_all_fig_managers()
         if not managers:
             return
-        if not is_tk_mainloop_running():
+        if not 'tk' == cbook._get_running_interactive_framework():
             managers[0].window.mainloop()
 
-
-def is_tk_mainloop_running():
-    import threading
-    dispatching = sentinel = object()
-
-    def target():
-        nonlocal dispatching
-        try:
-            tk._default_root.call('while', '0', '{}')
-        except RuntimeError as e:
-            if str(e) == "main thread is not in main loop":
-                print('not dispatching')
-                dispatching = False
-            else:
-                raise
-        except BaseException as e:
-            print(e)
-            raise
-        else:
-            dispatching = True
-            print('dispatching')
-
-    t = threading.Thread(target=target, daemon=True)
-    t.start()
-    tk._default_root.update()
-    t.join()
-
-    if dispatching is sentinel:
-        raise RuntimeError('thread failed to determine dispatching value')
-
-    return dispatching

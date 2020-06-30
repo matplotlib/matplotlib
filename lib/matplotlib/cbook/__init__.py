@@ -64,9 +64,10 @@ def _get_running_interactive_framework():
         return "wx"
     tkinter = sys.modules.get("tkinter")
     if tkinter:
+        codes = {tkinter.mainloop.__code__, tkinter.Misc.mainloop.__code__}
         for frame in sys._current_frames().values():
             while frame:
-                if frame.f_code == tkinter.mainloop.__code__:
+                if frame.f_code in codes:
                     return "tk"
                 frame = frame.f_back
     if 'matplotlib.backends._macosx' in sys.modules:
