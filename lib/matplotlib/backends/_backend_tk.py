@@ -398,7 +398,7 @@ class FigureManagerTk(FigureManagerBase):
         The tk.Window
     """
 
-    def __init__(self, canvas, num, window):
+    def __init__(self, canvas, num, window, mainloop_running):
         FigureManagerBase.__init__(self, canvas, num)
         self.window = window
         self.window.withdraw()
@@ -414,6 +414,7 @@ class FigureManagerTk(FigureManagerBase):
                 backend_tools.add_tools_to_container(self.toolbar)
 
         self._shown = False
+        self._tk_mainloop_already_started_before_creation = mainloop_running
 
     def _get_toolbar(self):
         if mpl.rcParams['toolbar'] == 'toolbar2':
@@ -460,7 +461,7 @@ class FigureManagerTk(FigureManagerBase):
                 self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
             self.window.destroy()
         if Gcf.get_num_fig_managers() == 0:
-            if self.window is not None:
+            if self.window is not None and not self._tk_mainloop_already_started_before_creation:
                 self.window.quit()
         self.window = None
 
@@ -869,7 +870,7 @@ class _BackendTk(_Backend):
                 _log.info('Could not load matplotlib icon: %s', exc)
 
             canvas = cls.FigureCanvas(figure, master=window)
-            manager = cls.FigureManager(canvas, num, window)
+            manager = cls.FigureManager(canvas, num, window, is_tk_mainloop_running())
             if mpl.is_interactive():
                 manager.show()
                 canvas.draw_idle()
@@ -882,5 +883,39 @@ class _BackendTk(_Backend):
     @staticmethod
     def mainloop():
         managers = Gcf.get_all_fig_managers()
-        if managers:
+        if not managers:
+            return
+        if not is_tk_mainloop_running():
             managers[0].window.mainloop()
+
+
+def is_tk_mainloop_running():
+    import threading
+    dispatching = sentinel = object()
+
+    def target():
+        nonlocal dispatching
+        try:
+            tk._default_root.call('while', '0', '{}')
+        except RuntimeError as e:
+            if str(e) == "main thread is not in main loop":
+                print('not dispatching')
+                dispatching = False
+            else:
+                raise
+        except BaseException as e:
+            print(e)
+            raise
+        else:
+            dispatching = True
+            print('dispatching')
+
+    t = threading.Thread(target=target, daemon=True)
+    t.start()
+    tk._default_root.update()
+    t.join()
+
+    if dispatching is sentinel:
+        raise RuntimeError('thread failed to determine dispatching value')
+
+    return dispatching
