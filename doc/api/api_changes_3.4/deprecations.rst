@@ -16,3 +16,8 @@ The following globals in :mod:`matplotlib.colorbar` are deprecated:
 In order to use a custom boxstyle, directly pass it as the *boxstyle* argument
 to `.FancyBboxPatch`.  This was previously already possible, and is consistent
 with custom arrow styles and connection styles.
+
+``FigureCanvasBase.get_window_title`` and ``FigureCanvasBase.set_window_title``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.  Use the corresponding methods on the FigureManager if
+using pyplot, or GUI-specific methods if embedding.

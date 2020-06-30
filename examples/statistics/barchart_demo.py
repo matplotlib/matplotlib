@@ -67,7 +67,7 @@ def format_ycursor(y):
 def plot_student_results(student, scores, cohort_size):
     fig, ax1 = plt.subplots(figsize=(9, 7))  # Create the figure
     fig.subplots_adjust(left=0.115, right=0.88)
-    fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
+    fig.canvas.manager.set_window_title('Eldorado K-8 Fitness Chart')
 
     pos = np.arange(len(test_names))
 
