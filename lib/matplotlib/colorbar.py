@@ -548,7 +548,7 @@ class ColorbarBase:
                       ticks_position=self.ticklocation)
         short_axis.set_ticks([])
         short_axis.set_ticks([], minor=True)
-        self._set_label()
+        self.stale = True
 
     def _get_ticker_locator_formatter(self):
         """
@@ -726,15 +726,7 @@ class ColorbarBase:
         """Turn the minor ticks of the colorbar off."""
         ax = self.ax
         long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
-
         long_axis.set_minor_locator(ticker.NullLocator())
-
-    def _set_label(self):
-        if self.orientation == 'vertical':
-            self.ax.set_ylabel(self._label, **self._labelkw)
-        else:
-            self.ax.set_xlabel(self._label, **self._labelkw)
-        self.stale = True
 
     def set_label(self, label, *, loc=None, **kwargs):
         """
@@ -778,9 +770,11 @@ class ColorbarBase:
         elif loc in ['left', 'bottom']:
             kwargs[_pos_xy] = 0.
             kwargs['horizontalalignment'] = 'left'
-        self._label = label
-        self._labelkw = kwargs
-        self._set_label()
+        if self.orientation == 'vertical':
+            self.ax.set_ylabel(label, **kwargs)
+        else:
+            self.ax.set_xlabel(label, **kwargs)
+        self.stale = True
 
     def _outline(self, X, Y):
         """
