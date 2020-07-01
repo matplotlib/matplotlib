@@ -235,7 +235,7 @@ def figure_edit(axes, parent=None):
 
         # re-generate legend, if checkbox is checked
         if generate_legend:
-            kwargs = {'ncol' : 1}
+            kwargs = {}
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 kwargs = {name: getattr(old_legend, name) for name in
@@ -253,8 +253,7 @@ def figure_edit(axes, parent=None):
                 kwargs['bbox_to_anchor'] = old_legend._bbox
                 kwargs['handler_map'] = old_legend.get_legend_handler_map()
 
-            handles, labels = axes.get_legend_handles_labels()
-            new_legend = axes.legend(handles, labels, **kwargs)
+            new_legend = axes.legend(**kwargs)
 
         # Redraw
         figure = axes.get_figure()
