@@ -881,10 +881,12 @@ class _BackendTk(_Backend):
     def trigger_manager_draw(manager):
         manager.show()
 
-    @classmethod
-    def mainloop(cls):
+    @staticmethod
+    def mainloop():
         managers = Gcf.get_all_fig_managers()
         if managers:
-            cls._owns_mainloop = True
-            managers[0].window.mainloop()
-            cls._owns_mainloop = False
+            first_manager = managers[0]
+            manager_class = type(first_manager)
+            manager_class._owns_mainloop = True
+            first_manager.window.mainloop()
+            manager_class._owns_mainloop = False
