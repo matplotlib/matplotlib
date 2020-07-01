@@ -95,7 +95,7 @@ yourself, it is not difficult to build Matplotlib from source.
 
 The easiest way to get the latest development version to start contributing
 is to go to the git `repository <https://github.com/matplotlib/matplotlib>`_
-and run: ::
+and run::
 
   git clone https://github.com/matplotlib/matplotlib.git
 
@@ -103,20 +103,20 @@ If you're developing, it's better to do it in editable mode. The reason why
 is that pytest's test discovery only works for Matplotlib
 if installation is done this way. Also, editable mode allows your code changes
 to be instantly propagated to your library code without reinstalling (though
-you will have to restart your python process / kernel): ::
+you will have to restart your python process / kernel)::
 
   python -m pip install -e .
 
 If you're not developing, it can be installed from the source directory with
-a simple ::
+a simple::
 
   python -m pip install .
 
-To run the tests you will need to install some additional dependencies: ::
+To run the tests you will need to install some additional dependencies::
 
   python -m pip install -r requirements/dev/dev-requirements.txt
 
-.. warning ::
+.. warning::
 
   The following instructions in this section are for very custom
   installations of Matplotlib. Proceed with caution because these instructions
@@ -139,7 +139,7 @@ Dependencies
 ------------
 
 Matplotlib will automatically install dependencies when you install with
-`pip`, so this section is mostly for your reference.
+``pip``, so this section is mostly for your reference.
 
 Matplotlib requires the following dependencies:
 
@@ -269,7 +269,7 @@ and on Windows:
   - ``ttconv``: a TrueType font utility.
 
 If you go this route but need to reset and rebuild to change your settings,
-remember to clear your artifacts before re-building: ::
+remember to clear your artifacts before re-building::
 
   git clean -xfd
 
