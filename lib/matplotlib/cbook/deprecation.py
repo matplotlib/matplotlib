@@ -379,6 +379,8 @@ def _delete_parameter(since, name, func=None, **kwargs):
             f"Matplotlib internal error: {name!r} must be a parameter for "
             f"{func.__name__}()")
 
+    addendum = kwargs.pop('addendum', None)
+
     @functools.wraps(func)
     def wrapper(*inner_args, **inner_kwargs):
         arguments = signature.bind(*inner_args, **inner_kwargs).arguments
@@ -396,16 +398,15 @@ def _delete_parameter(since, name, func=None, **kwargs):
         # wrappers always pass all arguments explicitly.
         elif any(name in d and d[name] != _deprecated_parameter
                  for d in [arguments, arguments.get(kwargs_name, {})]):
-            addendum = (f"If any parameter follows {name!r}, they should be "
-                        f"passed as keyword, not positionally.")
-            if kwargs.get("addendum"):
-                kwargs["addendum"] += " " + addendum
-            else:
-                kwargs["addendum"] = addendum
+            deprecation_addendum = (
+                f"If any parameter follows {name!r}, they should be passed as "
+                f"keyword, not positionally.")
             warn_deprecated(
                 since,
                 name=repr(name),
                 obj_type=f"parameter of {func.__name__}()",
+                addendum=(addendum + " " + deprecation_addendum) if addendum
+                         else deprecation_addendum,
                 **kwargs)
         return func(*inner_args, **inner_kwargs)
 
