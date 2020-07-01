@@ -6,9 +6,15 @@ import os
 from pathlib import Path
 import shutil
 import string
+import subprocess
 import sys
 import unittest
 import warnings
+import pytest
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py3.6.
 
 import matplotlib.style
 import matplotlib.units
@@ -199,7 +205,27 @@ class _ImageComparisonBase:
                 f"{orig_expected_path}") from err
         return expected_fname
 
-    def compare(self, idx, baseline, extension, *, _lock=False):
+
+    def create_baseline(self, baseline, extension):
+        src_path = self.result_dir / baseline
+        orig_src_path = src_path.with_suffix(f'.{extension}')
+        if extension == 'eps' and not orig_src_path.exists():
+            orig_src_path = orig_src_path.with_suffix('.pdf')
+        dest_path = Path(self.baseline_dir / orig_src_path.name)
+        try:
+            if dest_path.exists():
+                return dest_path
+            Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
+            try:
+                os.symlink(orig_src_path, dest_path)
+            except OSError:  # On Windows, symlink *may* be unavailable.
+                shutil.copyfile(orig_src_path, dest_path)
+        except OSError as err:
+            raise ValueError("Failed to put the image in the right place")
+        return dest_path
+
+
+    def compare(self, idx, baseline, extension, *, _lock=False, generating=False):
         __tracebackhide__ = True
         fignum = plt.get_fignums()[idx]
         fig = plt.figure(fignum)
@@ -218,8 +244,12 @@ class _ImageComparisonBase:
                 if _lock else contextlib.nullcontext())
         with lock:
             fig.savefig(actual_path, **kwargs)
-            expected_path = self.copy_baseline(baseline, extension)
-            _raise_on_image_difference(expected_path, actual_path, self.tol)
+            if generating:
+                self.create_baseline(baseline, extension)
+            else:
+                expected_path = self.copy_baseline(baseline, extension)
+                _raise_on_image_difference(expected_path, actual_path, self.tol)
+
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -244,12 +274,14 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
         @pytest.mark.style(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
+        @pytest.mark.matplotlib_baseline_image_generation
         def wrapper(*args, extension, request, **kwargs):
             __tracebackhide__ = True
             if 'extension' in old_sig.parameters:
                 kwargs['extension'] = extension
             if 'request' in old_sig.parameters:
                 kwargs['request'] = request
+            matplotlib_baseline_image_generation = request.config.getoption("--matplotlib_baseline_image_generation")
 
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
@@ -275,7 +307,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 "Test generated {} images but there are {} baseline images"
                 .format(len(plt.get_fignums()), len(our_baseline_images)))
             for idx, baseline in enumerate(our_baseline_images):
-                img.compare(idx, baseline, extension, _lock=needs_lock)
+                img.compare(idx, baseline, extension, _lock=needs_lock, generating=matplotlib_baseline_image_generation)
 
         parameters = list(old_sig.parameters.values())
         if 'extension' not in old_sig.parameters:
@@ -483,25 +515,9 @@ def _image_directories(func):
     doesn't exist.
     """
     module_path = Path(sys.modules[func.__module__].__file__)
-    if func.__module__.startswith("matplotlib."):
-        try:
-            import matplotlib_baseline_images
-        except:
-            raise ImportError("Not able to import matplotlib_baseline_images")
-        baseline_dir = (Path(matplotlib_baseline_images.__file__).parent /
-                            module_path.stem)
-    elif func.__module__.startswith("mpl_toolkits."):
-        try:
-            import mpl_toolkits_baseline_images
-        except:
-            raise ImportError("Not able to import "
-                              "mpl_toolkits_baseline_images")
-        baseline_dir = (Path(mpl_toolkits_baseline_images.__file__).parent /
-                            module_path.stem)
-    else:
-        baseline_dir = (module_path.parent /
-                            "baseline_images" /
-                            module_path.stem)
+    baseline_dir = (module_path.parent /
+                      "baseline_images" /
+                       module_path.stem)
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
     return baseline_dir, result_dir

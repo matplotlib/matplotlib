@@ -105,3 +105,12 @@ lib/z.lib
 #########################
 lib/matplotlib/backends/web_backend/node_modules/
 lib/matplotlib/backends/web_backend/package-lock.json
+
+# Matplotlib tempenv #
+######################
+temp/testenv
+
+# Baseline Images #
+###################
+lib/matplotlib/tests/baseline_images
+lib/mpl_toolkits/tests/baseline_images/
