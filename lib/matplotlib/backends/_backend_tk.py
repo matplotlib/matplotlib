@@ -398,7 +398,7 @@ class FigureManagerTk(FigureManagerBase):
         The tk.Window
     """
 
-    #_owns_mainloop = False
+    _owns_mainloop = False
 
     def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
@@ -462,7 +462,7 @@ class FigureManagerTk(FigureManagerBase):
                 self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
             self.window.destroy()
         if Gcf.get_num_fig_managers() == 0:
-            if self.window is not None:# and self._owns_mainloop:
+            if self.window is not None and self._owns_mainloop:
                 self.window.quit()
         self.window = None
 
@@ -885,6 +885,6 @@ class _BackendTk(_Backend):
     def mainloop(cls):
         managers = Gcf.get_all_fig_managers()
         if managers:
-            #cls._owns_mainloop = True
+            cls._owns_mainloop = True
             managers[0].window.mainloop()
-            #cls._owns_mainloop = False
+            cls._owns_mainloop = False
