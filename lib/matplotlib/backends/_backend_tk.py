@@ -444,9 +444,8 @@ class FigureManagerTk(FigureManagerBase):
         with _restore_foreground_window_at_end():
             if not self._shown:
                 def destroy(*args):
-                    self.window = None
                     Gcf.destroy(self)
-                self.canvas._tkcanvas.bind("<Destroy>", destroy)
+                self.window.protocol("WM_DELETE_WINDOW", destroy)
                 self.window.deiconify()
             else:
                 self.canvas.draw_idle()
@@ -456,15 +455,13 @@ class FigureManagerTk(FigureManagerBase):
             self._shown = True
 
     def destroy(self, *args):
-        if self.window is not None:
-            #self.toolbar.destroy()
-            if self.canvas._idle_callback:
-                self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
-            self.window.destroy()
-        if Gcf.get_num_fig_managers() == 0:
-            if self.window is not None and self._owns_mainloop:
-                self.window.quit()
-        self.window = None
+        if self.canvas._idle_callback:
+            self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
+
+        self.window.destroy()
+
+        if not Gcf.get_num_fig_managers() and self._owns_mainloop:
+            self.window.quit()
 
     def get_window_title(self):
         return self.window.wm_title()
