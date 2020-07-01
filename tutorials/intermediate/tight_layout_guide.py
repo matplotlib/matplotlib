@@ -289,7 +289,7 @@ gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
 # Pre Matplotlib 2.2, legends and annotations were excluded from the bounding
 # box calculations that decide the layout.  Subsequently these artists were
 # added to the calculation, but sometimes it is undesirable to include them.
-# For instance in this case it might be good to have the axes shring a bit
+# For instance in this case it might be good to have the axes shrink a bit
 # to make room for the legend:
 
 fig, ax = plt.subplots(figsize=(4, 3))
@@ -349,8 +349,8 @@ plt.colorbar(im)
 plt.tight_layout()
 
 ###############################################################################
-# Another option is to use AxesGrid1 toolkit to
-# explicitly create an axes for colorbar.
+# Another option is to use the AxesGrid1 toolkit to
+# explicitly create an axes for the colorbar.
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
