@@ -35,7 +35,7 @@ def test_figuremanager_preserves_host_mainloop():
     success = False
     def do_plot():
         plt.figure()
-        plt.plot([1,2],[3,5])
+        plt.plot([1, 2], [3, 5])
         plt.close()
         root.after(0, legitmate_quit)
 
