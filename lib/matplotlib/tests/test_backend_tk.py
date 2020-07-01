@@ -1,7 +1,10 @@
+import threading
+import time
 import tkinter
 
-import pytest
 import numpy as np
+import pytest
+
 from matplotlib import pyplot as plt
 
 
@@ -33,9 +36,10 @@ def test_blit():
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
 def test_figuremanager_preserves_host_mainloop():
     success = False
+
     def do_plot():
         plt.figure()
-        plt.plot([1,2],[3,5])
+        plt.plot([1, 2], [3, 5])
         plt.close()
         root.after(0, legitmate_quit)
 
@@ -49,3 +53,28 @@ def test_figuremanager_preserves_host_mainloop():
     root.mainloop()
 
     assert success
+
+
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
+def test_figuremanager_cleans_own_mainloop():
+    root = tkinter.Tk()
+    plt.plot([1, 2, 3], [1, 2, 5])
+    can_detect_mainloop = False
+    thread_died_before_quit = True
+
+    def target():
+        nonlocal can_detect_mainloop
+        nonlocal thread_died_before_quit
+        from matplotlib.cbook import _get_running_interactive_framework
+
+        time.sleep(0.1)  # should poll for mainloop being up
+        can_detect_mainloop = 'tk' == _get_running_interactive_framework()
+        plt.close()
+        time.sleep(0.1)  # should poll for mainloop going down
+        root.quit()
+        thread_died_before_quit = False
+
+    threading.Thread(target=target, daemon=True).start()
+    plt.show(block=True)
+    assert can_detect_mainloop
+    assert thread_died_before_quit
