@@ -75,7 +75,7 @@ def target():
     plt.close()
     if show_finished_event.wait():
         print('success')
-        
+
 show_finished_event = threading.Event()
 thread = threading.Thread(target=target, daemon=True)
 thread.start()
@@ -87,7 +87,9 @@ thread.join()
     try:
         proc = subprocess.run(
             [sys.executable, "-c", script],
-            env={**os.environ, "MPLBACKEND": "TkAgg", "SOURCE_DATE_EPOCH": "0"},
+            env={**os.environ,
+                 "MPLBACKEND": "TkAgg",
+                 "SOURCE_DATE_EPOCH": "0"},
             timeout=10,
             stdout=subprocess.PIPE,
             universal_newlines=True,
