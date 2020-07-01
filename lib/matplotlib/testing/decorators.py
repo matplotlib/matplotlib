@@ -276,6 +276,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
         @matplotlib.style.context(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
+        @pytest.mark.matplotlib_baseline_image_generation
         def wrapper(*args, extension, request, **kwargs):
             __tracebackhide__ = True
             if 'extension' in old_sig.parameters:
@@ -317,7 +318,9 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 f"Test generated {len(figs)} images but there are "
                 f"{len(our_baseline_images)} baseline images")
 
-            generating = bool(os.environ.get("MPLGENERATEBASELINE"))
+            generating = request.config.getoption(
+                "--matplotlib_baseline_image_generation"
+            )
 
             for fig, baseline in zip(figs, our_baseline_images):
                 if generating:
