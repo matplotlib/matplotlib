@@ -235,28 +235,26 @@ def figure_edit(axes, parent=None):
 
         # re-generate legend, if checkbox is checked
         if generate_legend:
-            old_legend = None
-            ncol = 1
+            kwargs = {'ncol' : 1}
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
-                ncol = old_legend._ncol
-            new_legend = axes.legend(ncol=ncol)
-            if new_legend:
-                if old_legend is not None:
-                    for name in ["numpoints", "markerscale", "shadow",
+                kwargs = {name: getattr(old_legend, name) for name in
+                                ["numpoints", "markerscale", "shadow",
                                  "columnspacing", "scatterpoints",
                                  "handleheight", "borderpad",
                                  "labelspacing", "handlelength",
-                                 "handletextpad", "borderaxespad"]:
-                        value = getattr(old_legend, name)
-                        setattr(new_legend, name, value)
+                                 "handletextpad", "borderaxespad"]}
 
-                    new_legend._scatteryoffsets = old_legend._scatteryoffsets
-                    new_legend._mode = old_legend._mode
-                    new_legend._legend_box = old_legend._legend_box
-                    new_legend._loc_real = old_legend._get_loc()
-                    draggable = old_legend._draggable is not None
-                    new_legend.set_draggable(draggable)
+                kwargs['ncol'] = old_legend._ncol
+                kwargs['loc'] = old_legend._get_loc()
+                kwargs['mode'] = old_legend._mode
+                kwargs['title'] = old_legend.get_title().get_text()
+                kwargs['frameon'] = old_legend.get_frame_on()
+                kwargs['bbox_to_anchor'] = old_legend._bbox
+                kwargs['handler_map'] = old_legend.get_legend_handler_map()
+
+            handles, labels = axes.get_legend_handles_labels()
+            new_legend = axes.legend(handles, labels, **kwargs)
 
         # Redraw
         figure = axes.get_figure()

@@ -463,6 +463,7 @@ class Legend(Artist):
                 "figure legend.")
 
         self._mode = mode
+        self._bbox = bbox_to_anchor
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
 
         # We use FancyBboxPatch to draw a legend frame. The location
