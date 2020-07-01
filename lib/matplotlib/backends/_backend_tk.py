@@ -398,6 +398,8 @@ class FigureManagerTk(FigureManagerBase):
         The tk.Window
     """
 
+    #_owns_mainloop = False
+
     def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
         self.window = window
@@ -414,7 +416,6 @@ class FigureManagerTk(FigureManagerBase):
                 backend_tools.add_tools_to_container(self.toolbar)
 
         self._shown = False
-        self._tk_mainloop_already_started_before_creation = 'tk' == cbook._get_running_interactive_framework()
 
     def _get_toolbar(self):
         if mpl.rcParams['toolbar'] == 'toolbar2':
@@ -461,7 +462,7 @@ class FigureManagerTk(FigureManagerBase):
                 self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
             self.window.destroy()
         if Gcf.get_num_fig_managers() == 0:
-            if self.window is not None and not self._tk_mainloop_already_started_before_creation:
+            if self.window is not None:# and self._owns_mainloop:
                 self.window.quit()
         self.window = None
 
@@ -880,11 +881,10 @@ class _BackendTk(_Backend):
     def trigger_manager_draw(manager):
         manager.show()
 
-    @staticmethod
-    def mainloop():
+    @classmethod
+    def mainloop(cls):
         managers = Gcf.get_all_fig_managers()
-        if not managers:
-            return
-        if not 'tk' == cbook._get_running_interactive_framework():
+        if managers:
+            #cls._owns_mainloop = True
             managers[0].window.mainloop()
-
+            #cls._owns_mainloop = False

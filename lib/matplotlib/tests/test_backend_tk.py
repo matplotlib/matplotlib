@@ -1,3 +1,5 @@
+import tkinter
+
 import pytest
 import numpy as np
 from matplotlib import pyplot as plt
@@ -26,3 +28,24 @@ def test_blit():
                       np.ones((4, 4, 4)),
                       (0, 1, 2, 3),
                       bad_boxes)
+
+
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
+def test_figuremanager_preserves_host_mainloop():
+    success = False
+    def do_plot():
+        plt.figure()
+        plt.plot([1,2],[3,5])
+        plt.close()
+        root.after(0, legitmate_quit)
+
+    def legitmate_quit():
+        root.quit()
+        nonlocal success
+        success = True
+
+    root = tkinter.Tk()
+    root.after(0, do_plot)
+    root.mainloop()
+
+    assert success
