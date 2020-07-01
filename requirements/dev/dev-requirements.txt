@@ -1,19 +1,4 @@
-coverage
-cycler
-flake8>=3.7
-flake8-docstrings
-ipykernel
-nbconvert[execute]
-numpy
-pillow
-pydocstyle<4.0
-pyparsing
-pytest!=4.6.0
-pytest-cov
-pytest-rerunfailures
-pytest-timeout
-pytest-xdist
-python-dateutil
-pytz
-tornado
-tox
+-r ../doc/doc-requirements.txt
+-r ../testing/travis_all.txt
+-r ../testing/travis_extra.txt
+-r ../testing/flake8.txt
