@@ -265,11 +265,13 @@ def test_contourf_symmetric_locator():
      'If mask is set it must be a 2D array with the same dimensions as x.'),
 ])
 def test_internal_cpp_api(args, cls, message):  # Github issue 8197.
+    from matplotlib import _contour  # noqa: ensure lazy-loaded module *is* loaded.
     with pytest.raises(cls, match=re.escape(message)):
         mpl._contour.QuadContourGenerator(*args)
 
 
 def test_internal_cpp_api_2():
+    from matplotlib import _contour  # noqa: ensure lazy-loaded module *is* loaded.
     arr = [[0, 1], [2, 3]]
     qcg = mpl._contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
     with pytest.raises(
