@@ -460,7 +460,7 @@ class FigureManagerTk(FigureManagerBase):
 
         self.window.destroy()
 
-        if not Gcf.get_num_fig_managers() and self._owns_mainloop:
+        if self._owns_mainloop and not Gcf.get_num_fig_managers():
             self.window.quit()
 
     def get_window_title(self):
@@ -884,6 +884,10 @@ class _BackendTk(_Backend):
         if managers:
             first_manager = managers[0]
             manager_class = type(first_manager)
+            if manager_class._owns_mainloop:
+                return
             manager_class._owns_mainloop = True
-            first_manager.window.mainloop()
-            manager_class._owns_mainloop = False
+            try:
+                first_manager.window.mainloop()
+            finally:
+                manager_class._owns_mainloop = False
