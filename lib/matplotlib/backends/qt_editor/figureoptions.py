@@ -235,9 +235,11 @@ def figure_edit(axes, parent=None):
 
         # re-generate legend, if checkbox is checked
         if generate_legend:
+            draggable = None
             kwargs = {}
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
+                draggable = old_legend._draggable is not None
                 kwargs = {name: getattr(old_legend, name) for name in
                                 ["numpoints", "markerscale", "shadow",
                                  "columnspacing", "scatterpoints",
@@ -254,6 +256,8 @@ def figure_edit(axes, parent=None):
                 kwargs['handler_map'] = old_legend.get_legend_handler_map()
 
             new_legend = axes.legend(**kwargs)
+            if new_legend:
+                new_legend.set_draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()
