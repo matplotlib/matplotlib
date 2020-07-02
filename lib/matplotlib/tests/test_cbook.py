@@ -502,6 +502,14 @@ def test_reshape2d():
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (5, 3)
 
+    # Test a list of lists which are all of length 1
+    x = [[1], [2], [3]]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert isinstance(xnew, list)
+    assert isinstance(xnew[0], np.ndarray) and xnew[0].shape == (1,)
+    assert isinstance(xnew[1], np.ndarray) and xnew[1].shape == (1,)
+    assert isinstance(xnew[2], np.ndarray) and xnew[2].shape == (1,)
+
     # Now test with a list of lists with different lengths, which means the
     # array will internally be converted to a 1D object array of lists
     x = [[1, 2, 3], [3, 4], [2]]

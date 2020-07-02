@@ -1363,12 +1363,12 @@ def _reshape_2D(X, name):
     result = []
     is_1d = True
     for xi in X:
+        if isinstance(xi, collections.abc.Iterable):
+            is_1d = False
         xi = np.asanyarray(xi)
         nd = np.ndim(xi)
         if nd > 1:
             raise ValueError(f'{name} must have 2 or fewer dimensions')
-        elif nd == 1 and len(xi) != 1:
-            is_1d = False
         result.append(xi.reshape(-1))
 
     if is_1d:
