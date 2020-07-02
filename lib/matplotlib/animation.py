@@ -935,6 +935,9 @@ class Animation:
         if self._blit:
             self._setup_blit()
 
+        # Boolean indicating if the animation is paused.
+        self._paused = False
+
     def _start(self, *args):
         """
         Starts interactive animation. Adds the draw frame command to the GUI
@@ -1370,6 +1373,22 @@ class Animation:
             return self.to_html5_video()
         elif fmt == 'jshtml':
             return self.to_jshtml()
+
+    def pause(self):
+        """Pause the animation."""
+        if not self._paused:
+            self._paused = True
+            self.event_source.stop()
+            self._fig.canvas.draw_idle()
+            self._fig.set_animated(False)
+            
+
+    def resume(self):
+        """Resume the animation."""
+        if self._paused:
+            self.event_source.start()
+            self._fig.set_animated(True)
+            self._paused = False
 
 
 class TimedAnimation(Animation):
