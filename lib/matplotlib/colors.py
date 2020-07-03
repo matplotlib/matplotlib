@@ -1470,6 +1470,9 @@ class BoundaryNorm(Normalize):
         self.vmax = boundaries[-1]
         self.boundaries = np.asarray(boundaries)
         self.N = len(self.boundaries)
+        if self.N < 2:
+            raise ValueError("You must provide at least 2 boundaries "
+                             f"(1 region) but you passed in {boundaries!r}")
         self.Ncmap = ncolors
         self.extend = extend
 
