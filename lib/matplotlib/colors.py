@@ -1473,18 +1473,18 @@ class BoundaryNorm(Normalize):
         self.Ncmap = ncolors
         self.extend = extend
 
-        self._N = self.N - 1  # number of colors needed
+        self._n_regions = self.N - 1  # number of colors needed
         self._offset = 0
         if extend in ('min', 'both'):
-            self._N += 1
+            self._n_regions += 1
             self._offset = 1
         if extend in ('max', 'both'):
-            self._N += 1
-        if self._N > self.Ncmap:
-            raise ValueError(f"There are {self._N} color bins including "
-                             f"extensions, but ncolors = {ncolors}; "
-                             "ncolors must equal or exceed the number of "
-                             "bins")
+            self._n_regions += 1
+        if self._n_regions > self.Ncmap:
+            raise ValueError(f"There are {self._n_regions} color bins "
+                             "including extensions, but ncolors = "
+                             f"{ncolors}; ncolors must equal or exceed the "
+                             "number of bins")
 
     def __call__(self, value, clip=None):
         if clip is None:
@@ -1499,8 +1499,8 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
-        if self.Ncmap > self._N:
-            scalefac = (self.Ncmap - 1) / (self._N - 1)
+        if self.Ncmap > self._n_regions:
+            scalefac = (self.Ncmap - 1) / (self._n_regions - 1)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
