@@ -1381,7 +1381,6 @@ class Animation:
             self.event_source.stop()
             self._fig.canvas.draw_idle()
             self._fig.set_animated(False)
-            
 
     def resume(self):
         """Resume the animation."""
