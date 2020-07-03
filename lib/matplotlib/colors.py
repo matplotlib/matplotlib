@@ -1429,9 +1429,9 @@ class BoundaryNorm(Normalize):
         Parameters
         ----------
         boundaries : array-like
-            Monotonically increasing sequence of boundaries
+            Monotonically increasing sequence of boundaries.
         ncolors : int
-            Number of colors in the colormap to be used
+            Number of colors in the colormap to be used.
         clip : bool, optional
             If clip is ``True``, out of range values are mapped to 0 if they
             are below ``boundaries[0]`` or mapped to ``ncolors - 1`` if they
@@ -1492,6 +1492,7 @@ class BoundaryNorm(Normalize):
 
         xx, is_scalar = self.process_value(value)
         mask = np.ma.getmaskarray(xx)
+        # Fill masked values a value above the upper boundary
         xx = np.atleast_1d(xx.filled(self.vmax + 1))
         if clip:
             np.clip(xx, self.vmin, self.vmax, out=xx)
@@ -1500,7 +1501,10 @@ class BoundaryNorm(Normalize):
             max_col = self.Ncmap
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         if self.Ncmap > self._n_regions:
-            scalefac = (self.Ncmap - 1) / (self._n_regions - 1)
+            if self._n_regions == 1:
+                scalefac = 1
+            else:
+                scalefac = (self.Ncmap - 1) / (self._n_regions - 1)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
