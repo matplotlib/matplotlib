@@ -167,41 +167,6 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
     return has_clippath;
 }
 
-agg::rect_i RendererAgg::get_content_extents()
-{
-    agg::rect_i r(width, height, 0, 0);
-
-    // Looks at the alpha channel to find the minimum extents of the image
-    unsigned char *pixel = pixBuffer + 3;
-    for (int y = 0; y < (int)height; ++y) {
-        for (int x = 0; x < (int)width; ++x) {
-            if (*pixel) {
-                if (x < r.x1)
-                    r.x1 = x;
-                if (y < r.y1)
-                    r.y1 = y;
-                if (x > r.x2)
-                    r.x2 = x;
-                if (y > r.y2)
-                    r.y2 = y;
-            }
-            pixel += 4;
-        }
-    }
-
-    if (r.x1 == (int)width && r.x2 == 0) {
-      // The buffer is completely empty.
-      r.x1 = r.y1 = r.x2 = r.y2 = 0;
-    } else {
-      r.x1 = std::max(0, r.x1);
-      r.y1 = std::max(0, r.y1);
-      r.x2 = std::min(r.x2 + 1, (int)width);
-      r.y2 = std::min(r.y2 + 1, (int)height);
-    }
-
-    return r;
-}
-
 void RendererAgg::clear()
 {
     //"clear the rendered buffer";

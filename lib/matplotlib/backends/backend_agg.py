@@ -117,9 +117,12 @@ class RendererAgg(RendererBase):
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
-    @cbook.deprecated("3.4")  # Also needs to be removed at C-level.
+    @cbook.deprecated("3.4")
     def get_content_extents(self):
-        return self._renderer.get_content_extents()
+        orig_img = np.asarray(self.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+        return (slice_x.start, slice_y.start,
+                slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
 
     @cbook.deprecated("3.4")
     def tostring_rgba_minimized(self):
