@@ -1502,18 +1502,16 @@ class BoundaryNorm(Normalize):
         # this gives us the bins in the lookup table in the range
         # [0, _n_regions - 1]  (the offset is baked in in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
-        # if we have more colors than regions, stretch the region index
-        # computed above to full range of the color bins.  This will
-        # make use skip some of the colors in the middle of the
-        # colormap but will use the full range
+        # if we have more colors than regions, stretch the region
+        # index computed above to full range of the color bins.  This
+        # will make use of the full range (but skip some of the colors
+        # in the middle) such that the first region is mapped to the
+        # first color and the last region is mapped to the last color.
         if self.Ncmap > self._n_regions:
             # the maximum possible value in iret
             divsor = self._n_regions - 1
             if divsor == 0:
-                # special case the 1 region case.  What we should do here
-                # is a bit undefined (as _any_ color in the colormap is
-                # justifiable) we go with not adjusting the value (which will
-                # either be 0 or 1 depending on if we are extending down)
+                # special case the 1 region case, don't scale anything
                 scalefac = 1
             else:
                 # otherwise linearly remap the values from the region index
