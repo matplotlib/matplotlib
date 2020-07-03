@@ -1308,7 +1308,7 @@ class AutoDateLocator(DateLocator):
             # Swap "3" for "4" in the DAILY list; If we use 3 we get bad
             # tick loc for months w/ 31 days: 1, 4, ..., 28, 31, 1
             # If we use 4 then we get: 1, 5, ... 25, 29, 1
-            self.intervald[DAILY] = [1, 2, 4, 7, 14, 21]
+            self.intervald[DAILY] = [1, 2, 4, 7, 14]
 
         self._byranges = [None, range(1, 13), range(1, 32),
                           range(0, 24), range(0, 60), range(0, 60), None]
@@ -1357,7 +1357,6 @@ class AutoDateLocator(DateLocator):
         if dmin > dmax:
             delta = -delta
             tdelta = -tdelta
-
         # The following uses a mix of calls to relativedelta and timedelta
         # methods because there is incomplete overlap in the functionality of
         # these similar functions, and it's best to avoid doing our own math
@@ -1400,13 +1399,12 @@ class AutoDateLocator(DateLocator):
                 if num <= interval * (self.maxticks[freq] - 1):
                     break
             else:
-                # We went through the whole loop without breaking, default to
-                # the last interval in the list and raise a warning
-                cbook._warn_external(
-                    f"AutoDateLocator was unable to pick an appropriate "
-                    f"interval for this date range. It may be necessary to "
-                    f"add an interval value to the AutoDateLocator's "
-                    f"intervald dictionary. Defaulting to {interval}.")
+                if not (self.interval_multiples and freq == DAILY):
+                    cbook._warn_external(
+                        f"AutoDateLocator was unable to pick an appropriate "
+                        f"interval for this date range. It may be necessary "
+                        f"to add an interval value to the AutoDateLocator's "
+                        f"intervald dictionary. Defaulting to {interval}.")
 
             # Set some parameters as appropriate
             self._freq = freq
