@@ -194,3 +194,18 @@ def test_webagg():
     conn.close()
     proc.send_signal(signal.SIGINT)
     assert proc.wait(timeout=_test_timeout) == 0
+
+
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
+def test_never_update(monkeypatch):
+    import tkinter
+    monkeypatch.delattr(tkinter.Misc, 'update')
+    monkeypatch.delattr(tkinter.Misc, 'update_idletasks')
+
+    import matplotlib.pyplot as plt
+    plt.plot([1, 2, 3], [1, 3, 5])
+    plt.show(block=False)
+    fig = plt.gcf()
+    fig.canvas.toolbar.configure_subplots()
+    # skirt monkeypatch
+    tkinter._default_root.tk.call('update')
