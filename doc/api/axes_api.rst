@@ -150,8 +150,8 @@ Contours
    Axes.contour
    Axes.contourf
 
-Array
------
+2D arrays
+---------
 
 .. autosummary::
    :toctree: _as_gen
@@ -198,8 +198,8 @@ Text and Annotations
    Axes.secondary_yaxis
 
 
-Fields
-------
+Vector fields
+-------------
 
 .. autosummary::
    :toctree: _as_gen
