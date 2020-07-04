@@ -353,10 +353,9 @@ class ColorbarBase:
     ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` instance in which the colorbar is drawn.
     lines : list
-        A list of `.LineCollection` if lines were drawn, otherwise
-        an empty list.
+        A list of `.LineCollection` (empty if no lines were drawn).
     dividers : `.LineCollection`
-        A LineCollection if *drawedges* is ``True``, otherwise ``None``.
+        A LineCollection (empty if *drawedges* is ``False``).
 
     Parameters
     ----------
@@ -464,12 +463,18 @@ class ColorbarBase:
             linewidth=mpl.rcParams['axes.linewidth'], closed=True, zorder=2)
         ax.add_artist(self.outline)
         self.outline.set(clip_box=None, clip_path=None)
+
         self.patch = mpatches.Polygon(
             np.empty((0, 2)),
             color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
         ax.add_artist(self.patch)
 
-        self.dividers = None
+        self.dividers = collections.LineCollection(
+            [],
+            colors=[mpl.rcParams['axes.edgecolor']],
+            linewidths=[0.5 * mpl.rcParams['axes.linewidth']])
+        self.ax.add_collection(self.dividers)
+
         self.locator = None
         self.formatter = None
         self._manual_tick_data_values = None
@@ -819,18 +824,13 @@ class ColorbarBase:
         if self.solids is not None:
             self.solids.remove()
         self.solids = col
-        if self.dividers is not None:
-            self.dividers.remove()
-            self.dividers = None
+
         if self.drawedges:
-            linewidths = (0.5 * mpl.rcParams['axes.linewidth'],)
-            self.dividers = collections.LineCollection(
-                    self._edges(X, Y),
-                    colors=(mpl.rcParams['axes.edgecolor'],),
-                    linewidths=linewidths)
-            self.ax.add_collection(self.dividers)
-        elif len(self._y) >= self.n_rasterize:
-            self.solids.set_rasterized(True)
+            self.dividers.set_segments(self._edges(X, Y))
+        else:
+            self.dividers.set_segments([])
+            if len(self._y) >= self.n_rasterize:
+                self.solids.set_rasterized(True)
 
     def add_lines(self, levels, colors, linewidths, erase=True):
         """
@@ -1335,7 +1335,6 @@ class Colorbar(ColorbarBase):
         self.ax.add_artist(self.patch)
         self.solids = None
         self.lines = []
-        self.dividers = None
         self.update_normal(mappable)
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
@@ -1664,16 +1663,7 @@ class ColorbarPatch(Colorbar):
 
         self.solids_patches = patches
 
-        if self.dividers is not None:
-            self.dividers.remove()
-            self.dividers = None
-
-        if self.drawedges:
-            self.dividers = collections.LineCollection(
-                    self._edges(X, Y),
-                    colors=(mpl.rcParams['axes.edgecolor'],),
-                    linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
-            self.ax.add_collection(self.dividers)
+        self.dividers.set_segments(self._edges(X, Y) if self.drawedges else [])
 
 
 def colorbar_factory(cax, mappable, **kwargs):
