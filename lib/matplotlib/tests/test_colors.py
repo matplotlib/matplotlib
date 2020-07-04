@@ -208,7 +208,7 @@ def test_BoundaryNorm():
     assert_array_equal(bn(vals), expected)
 
     # with a single region and interpolation
-    expected = [-1, 0, 0, 0, 3, 3]
+    expected = [-1, 1, 1, 1, 3, 3]
     bn = mcolors.BoundaryNorm([0, 2.2], ncolors)
     assert_array_equal(bn(vals), expected)
 

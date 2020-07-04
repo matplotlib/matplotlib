@@ -1511,17 +1511,15 @@ class BoundaryNorm(Normalize):
         # in the middle) such that the first region is mapped to the
         # first color and the last region is mapped to the last color.
         if self.Ncmap > self._n_regions:
-            # the maximum possible value in iret
-            divsor = self._n_regions - 1
-            if divsor == 0:
-                # special case the 1 region case, don't scale anything
-                scalefac = 1
+            if self._n_regions == 1:
+                # special case the 1 region case, pick the middle color
+                iret[iret == 0] = (self.Ncmap - 1) // 2
             else:
                 # otherwise linearly remap the values from the region index
                 # to the color index spaces
-                scalefac = (self.Ncmap - 1) / divsor
-            # do the scaling and re-cast to integers
-            iret = (iret * scalefac).astype(np.int16)
+                iret = (self.Ncmap - 1) / (self._n_regions - 1) * iret
+        # cast to 16bit integers in all cases
+        iret = iret.astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
         ret = np.ma.array(iret, mask=mask)
