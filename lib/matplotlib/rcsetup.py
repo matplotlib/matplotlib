@@ -1090,6 +1090,7 @@ _validators = {
 
     ## pcolor(mesh) props:
     "pcolor.shading": ["auto", "flat", "nearest", "gouraud"],
+    "pcolormesh.snap": validate_bool,
 
     ## patch props
     "patch.linewidth":       validate_float,  # line width in points
