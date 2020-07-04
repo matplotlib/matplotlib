@@ -449,8 +449,8 @@ class _process_plot_var_args:
             raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
 
         if ('label' in kwargs and max(ncx, ncy) > 1
-                    and isinstance(kwargs['label'], Iterable)
-                    and not isinstance(kwargs['label'], str)):
+                and isinstance(kwargs['label'], Iterable)
+                and not isinstance(kwargs['label'], str)):
             if len(kwargs['label']) != max(ncx, ncy):
                 raise ValueError(f"if label is iterable label and input data"
                                  f" must have same length, but have lengths "
