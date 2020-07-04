@@ -796,6 +796,9 @@ def test_image_preserve_size2():
 
 @image_comparison(['mask_image_over_under.png'], remove_text=True)
 def test_mask_image_over_under():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     delta = 0.025
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
