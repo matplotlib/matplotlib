@@ -694,7 +694,13 @@ class PdfFile:
 
         self.paths = []
 
-        self.pageAnnotations = []  # A list of annotations for the current page
+        # A list of annotations for each page. Each entry is a tuple of the
+        # overall Annots object reference that's inserted into the page object,
+        # followed by a list of the actual annotations.
+        self._annotations = []
+        # For annotations added before a page is created; mostly for the
+        # purpose of newTextnote.
+        self.pageAnnotations = []
 
         # The PDF spec recommends to include every procset
         procsets = [Name(x) for x in "PDF Text ImageB ImageC ImageI".split()]
@@ -720,6 +726,7 @@ class PdfFile:
 
         self.width, self.height = width, height
         contentObject = self.reserveObject('page contents')
+        annotsObject = self.reserveObject('annotations')
         thePage = {'Type': Name('Page'),
                    'Parent': self.pagesObject,
                    'Resources': self.resourceObject,
@@ -728,11 +735,12 @@ class PdfFile:
                    'Group': {'Type': Name('Group'),
                              'S': Name('Transparency'),
                              'CS': Name('DeviceRGB')},
-                   'Annots': self.pageAnnotations,
+                   'Annots': annotsObject,
                    }
         pageObject = self.reserveObject('page')
         self.writeObject(pageObject, thePage)
         self.pageList.append(pageObject)
+        self._annotations.append((annotsObject, self.pageAnnotations))
 
         self.beginStream(contentObject.id,
                          self.reserveObject('length of content stream'))
@@ -750,14 +758,13 @@ class PdfFile:
                    'Contents': text,
                    'Rect': positionRect,
                    }
-        annotObject = self.reserveObject('annotation')
-        self.writeObject(annotObject, theNote)
-        self.pageAnnotations.append(annotObject)
+        self.pageAnnotations.append(theNote)
 
     def finalize(self):
         """Write out the various deferred objects and the pdf end matter."""
 
         self.endStream()
+        self._write_annotations()
         self.writeFonts()
         self.writeExtGSTates()
         self._write_soft_mask_groups()
@@ -815,6 +822,10 @@ class PdfFile:
         if self.currentstream is not None:
             self.currentstream.end()
             self.currentstream = None
+
+    def _write_annotations(self):
+        for annotsObject, annotations in self._annotations:
+            self.writeObject(annotsObject, annotations)
 
     def fontName(self, fontprop):
         """
