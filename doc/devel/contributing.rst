@@ -17,8 +17,8 @@ Submitting a bug report
 
 If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
-`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also
-welcome to post feature requests or pull requests.
+`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are
+also welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
 
@@ -47,6 +47,17 @@ We have preloaded the issue creation page with a Markdown template that you can
 use to organize this information.
 
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
+
+Requesting a new feature
+========================
+
+Please post feature requests to the
+`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_.
+
+The Matplotlib developers will give feedback on the feature proposal. Since
+Matplotlib is an open source project with limited resources, we encourage
+users to then also
+:ref:`participate in the implementation <contributing-code>`.
 
 .. _installing_for_devs:
 
@@ -123,6 +134,7 @@ You can then run the tests to check your work environment is set up properly::
 
   * :ref:`testing`
 
+.. _contributing-code:
 
 Contributing code
 =================
