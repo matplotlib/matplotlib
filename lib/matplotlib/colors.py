@@ -1429,7 +1429,7 @@ class BoundaryNorm(Normalize):
         Parameters
         ----------
         boundaries : array-like
-            Monotonically increasing sequence of boundaries.
+            Monotonically increasing sequence of at least 2 boundaries.
         ncolors : int
             Number of colors in the colormap to be used.
         clip : bool, optional
