@@ -2172,7 +2172,15 @@ class _AxesBase(martist.Artist):
         self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
-        """Look for unit *kwargs* and update the axis instances as necessary"""
+        """
+        Look for unit *kwargs* and update the axis instances as necessary
+
+
+        .. warning ::
+
+           This method may mutate the dictionary passed in an kwargs and
+           the Axis instances attached to this Axes.
+        """
 
         def _process_single_axis(data, axis, unit_name, kwargs):
             # Return if there's no axis set
@@ -2188,10 +2196,12 @@ class _AxesBase(martist.Artist):
             if kwargs is not None:
                 units = kwargs.pop(unit_name, axis.units)
                 if self.name == 'polar':
+                    # handle special casing to allow the kwargs
+                    # thetaunits and runits to be used with polar
                     polar_units = {'xunits': 'thetaunits', 'yunits': 'runits'}
                     units = kwargs.pop(polar_units[unit_name], units)
 
-                if units != axis.units:
+                if units != axis.units and units is not None:
                     axis.set_units(units)
                     # If the units being set imply a different converter,
                     # we need to update.
@@ -3780,7 +3790,7 @@ class _AxesBase(martist.Artist):
         """
         Set the navigation toolbar button status;
 
-        .. warning::
+        .. warning ::
             this is not a user-API function.
 
         """
