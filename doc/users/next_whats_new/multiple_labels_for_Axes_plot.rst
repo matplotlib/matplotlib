@@ -1,10 +1,10 @@
-An iterable object with labels can be passed to `Axes.plot()`
+An iterable object with labels can be passed to `.Axes.plot`
 -------------------------------------------------------------
 
 If multidimensional data is used for plotting, labels can be specified in
 a vectorized way with an iterable object of size corresponding to the
 data array shape (exactly 5 labels are expected when plotting 5 lines).
-It works with `Axes.plot()` as well as with it's wrapper `plt.plot()`.
+It works with `.Axes.plot` as well as with it's wrapper `.pyplot.plot`.
 
 .. plot::
 
