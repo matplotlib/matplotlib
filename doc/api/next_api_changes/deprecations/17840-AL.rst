@@ -1,0 +1,6 @@
+ColorbarBase.add_lines
+~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  Use standard axes methods (e.g.
+``colorbar.ax.axhline``, ``colorbar.ax.axvline``) to draw lines on the colorbar.
+
+Note that ``Colorbar.add_lines(contourset)`` is not deprecated.

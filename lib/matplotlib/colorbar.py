@@ -832,6 +832,7 @@ class ColorbarBase:
         elif len(self._y) >= self.n_rasterize:
             self.solids.set_rasterized(True)
 
+    @cbook.deprecated("3.4", alternative="axhline()/axvline()")
     def add_lines(self, levels, colors, linewidths, erase=True):
         """
         Draw lines on the colorbar.
@@ -1256,8 +1257,19 @@ class Colorbar(ColorbarBase):
         tcolors = [c[0] for c in CS.tcolors]
         tlinewidths = [t[0] for t in CS.tlinewidths]
         # Wishlist: Make colorbar lines auto-follow changes in contour lines.
-        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths,
-                               erase=erase)
+        if erase:
+            for lc in self.lines:
+                lc.remove()
+        if self.orientation == "vertical":
+            self.lines.append(self.ax.hlines(
+                self._locate(CS.levels), 0, 1,
+                colors=tcolors, linewidths=tlinewidths,
+                transform=self.ax.get_yaxis_transform()))
+        else:
+            self.lines.append(self.ax.vlines(
+                self._locate(CS.levels), 0, 1,
+                colors=tcolors, linewidths=tlinewidths,
+                transform=self.ax.get_xaxis_transform()))
 
     def update_normal(self, mappable):
         """
