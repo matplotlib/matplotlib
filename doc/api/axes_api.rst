@@ -150,8 +150,8 @@ Contours
    Axes.contour
    Axes.contourf
 
-Array
------
+2D arrays
+---------
 
 .. autosummary::
    :toctree: _as_gen
@@ -165,7 +165,7 @@ Array
    Axes.pcolormesh
    Axes.spy
 
-Unstructured Triangles
+Unstructured triangles
 ----------------------
 
 .. autosummary::
@@ -179,7 +179,7 @@ Unstructured Triangles
    Axes.tricontourf
 
 
-Text and Annotations
+Text and annotations
 --------------------
 
 .. autosummary::
@@ -198,8 +198,8 @@ Text and Annotations
    Axes.secondary_yaxis
 
 
-Fields
-------
+Vector fields
+-------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -274,7 +274,7 @@ Axis / limits
    Axes.get_xaxis
    Axes.get_yaxis
 
-Axis Limits and direction
+Axis limits and direction
 -------------------------
 
 .. autosummary::
@@ -300,7 +300,7 @@ Axis Limits and direction
    Axes.set_ybound
    Axes.get_ybound
 
-Axis Labels, title, and legend
+Axis labels, title, and legend
 ------------------------------
 
 .. autosummary::
@@ -434,7 +434,7 @@ Units
    Axes.have_units
 
 
-Adding Artists
+Adding artists
 ==============
 
 .. autosummary::
@@ -470,7 +470,7 @@ Twinning and sharing
    Axes.get_shared_y_axes
 
 
-Axes Position
+Axes position
 =============
 .. autosummary::
    :toctree: _as_gen
@@ -489,7 +489,7 @@ Axes Position
    Axes.set_position
 
 
-Async/Event based
+Async/event based
 =================
 
 .. autosummary::
