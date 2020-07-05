@@ -545,29 +545,6 @@ contributors free time, so there is no guarantee that your
 feature will be added.  The *best* way to get the feature
 you need added is to contribute it your self.
 
-.. _how-to-submit-patch:
-
-Reporting a bug or submitting a patch
--------------------------------------
-
-The development of Matplotlib is organized through `github
-<https://github.com/matplotlib/matplotlib>`_.  If you would like
-to report a bug or submit a patch please use that interface.
-
-To report a bug `create an issue
-<https://github.com/matplotlib/matplotlib/issues/new>`_ on github
-(this requires having a github account).  Please include a `Short,
-Self Contained, Correct (Compilable), Example <http://sscce.org>`_
-demonstrating what the bug is.  Including a clear, easy to test
-example makes it easy for the developers to evaluate the bug.  Expect
-that the bug reports will be a conversation.  If you do not want to
-register with github, please email bug reports to the `mailing list
-<matplotlib-devel@python.org>`_.
-
-The easiest way to submit patches to Matplotlib is through pull
-requests on github.  Please see the :ref:`developers-guide-index` for
-the details.
-
 .. _how-to-contribute-docs:
 
 Contribute to Matplotlib documentation
@@ -610,7 +587,7 @@ your documents.
 
 Once your documentation contributions are working (and hopefully
 tested by actually *building* the docs) you can submit them as a patch
-against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
+against git.  See :ref:`install-git` and :ref:`pr-guidelines`.
 Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
 or look at the open issues on github.
 

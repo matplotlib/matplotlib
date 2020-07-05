@@ -1,5 +1,3 @@
-.. _pr-guidelines:
-
 .. raw:: html
 
    <style>
@@ -8,6 +6,8 @@
    .checklist li:before { content: "\2610\2001"; margin-left: -24px; }
    .checklist li p {display: inline; }
    </style>
+
+.. _pr-guidelines:
 
 ***********************
 Pull request guidelines
