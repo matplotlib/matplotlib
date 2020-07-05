@@ -35,6 +35,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+from tempfile import TemporaryDirectory
 
 import numpy as np
 
@@ -269,12 +270,12 @@ class TexManager:
 
         return texfile
 
-    def _run_checked_subprocess(self, command, tex):
+    def _run_checked_subprocess(self, command, tex, *, cwd=None):
         _log.debug(cbook._pformat_subprocess(command))
         try:
-            report = subprocess.check_output(command,
-                                             cwd=self.texcache,
-                                             stderr=subprocess.STDOUT)
+            report = subprocess.check_output(
+                command, cwd=cwd if cwd is not None else self.texcache,
+                stderr=subprocess.STDOUT)
         except FileNotFoundError as exc:
             raise RuntimeError(
                 'Failed to process string with tex because {} could not be '
@@ -305,17 +306,16 @@ class TexManager:
         dvifile = '%s.dvi' % basefile
         if not os.path.exists(dvifile):
             texfile = self.make_tex(tex, fontsize)
-            with cbook._lock_path(texfile):
+            # Generate the dvi in a temporary directory to avoid race
+            # conditions e.g. if multiple processes try to process the same tex
+            # string at the same time.  Having tmpdir be a subdirectory of the
+            # final output dir ensures that they are on the same filesystem,
+            # and thus replace() works atomically.
+            with TemporaryDirectory(dir=Path(dvifile).parent) as tmpdir:
                 self._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                     texfile], tex)
-            for fname in glob.glob(basefile + '*'):
-                if not fname.endswith(('dvi', 'tex')):
-                    try:
-                        os.remove(fname)
-                    except OSError:
-                        pass
-
+                     texfile], tex, cwd=tmpdir)
+                (Path(tmpdir) / Path(dvifile).name).replace(dvifile)
         return dvifile
 
     @cbook.deprecated("3.3")
