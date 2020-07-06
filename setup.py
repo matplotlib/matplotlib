@@ -8,7 +8,7 @@ setup.cfg.template for more information.
 # and/or pip.
 import sys
 
-min_version = (3, 6)
+min_version = (3, 7)
 
 if sys.version_info < min_version:
     error = """
@@ -280,10 +280,10 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     install_requires=[
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
-        "numpy>=1.15",
+        "numpy>=1.16",
         "pillow>=6.2.0",
-        "pyparsing>=2.0.3,!=2.0.4,!=2.1.2,!=2.1.6",
-        "python-dateutil>=2.1",
+        "pyparsing>=2.2.1",
+        "python-dateutil>=2.7",
     ],
 
     cmdclass=cmdclass,
