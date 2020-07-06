@@ -2181,8 +2181,6 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
                                'creation. First define a mappable such as '
                                'an image (with imshow) or a contour set ('
                                'with contourf).')
-    if ax is None:
-        ax = gca()
     ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
     return ret
 
