@@ -445,7 +445,9 @@ This method is deprecated.  Use the ``GridSpec.nrows``, ``GridSpec.ncols``,
 
 Qt4-based backends
 ~~~~~~~~~~~~~~~~~~
-The qt4agg and qt4cairo backends are deprecated.
+The qt4agg and qt4cairo backends are deprecated. Qt4 has reached its
+end-of-life in 2015 and there are no releases for recent versions of Python.
+Please consider switching to Qt5.
 
 *fontdict* and *minor* parameters of `.Axes.set_xticklabels` and `.Axes.set_yticklabels` will become keyword-only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
