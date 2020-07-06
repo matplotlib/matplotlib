@@ -2106,6 +2106,19 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         width, height, descent, glyphs, rects = \
             self._text2path.mathtext_parser.parse(s, 72, prop)
 
+        if gc.get_url() is not None:
+            link_annotation = {
+                'Type': Name('Annot'),
+                'Subtype': Name('Link'),
+                'Rect': (x, y, x + width, y + height),
+                'Border': [0, 0, 0],
+                'A': {
+                    'S': Name('URI'),
+                    'URI': gc.get_url(),
+                },
+            }
+            self.file._annotations[-1][1].append(link_annotation)
+
         global_fonttype = mpl.rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
@@ -2161,6 +2174,19 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         dvifile = texmanager.make_dvi(s, fontsize)
         with dviread.Dvi(dvifile, 72) as dvi:
             page, = dvi
+
+        if gc.get_url() is not None:
+            link_annotation = {
+                'Type': Name('Annot'),
+                'Subtype': Name('Link'),
+                'Rect': (x, y, x + page.width, y + page.height),
+                'Border': [0, 0, 0],
+                'A': {
+                    'S': Name('URI'),
+                    'URI': gc.get_url(),
+                },
+            }
+            self.file._annotations[-1][1].append(link_annotation)
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2260,6 +2286,21 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # in that case.
             if is_opentype_cff_font(font.fname):
                 fonttype = 42
+
+        if gc.get_url() is not None:
+            font.set_text(s)
+            width, height = font.get_width_height()
+            link_annotation = {
+                'Type': Name('Annot'),
+                'Subtype': Name('Link'),
+                'Rect': (x, y, x + width / 64, y + height / 64),
+                'Border': [0, 0, 0],
+                'A': {
+                    'S': Name('URI'),
+                    'URI': gc.get_url(),
+                },
+            }
+            self.file._annotations[-1][1].append(link_annotation)
 
         # If fonttype != 3 or there are no multibyte characters, emit the whole
         # string at once.
