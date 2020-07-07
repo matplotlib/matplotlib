@@ -1380,13 +1380,18 @@ class Animation:
             self._paused = True
             self.event_source.stop()
             self._fig.canvas.draw_idle()
+            if self._blit:
+                for artist in self._drawn_artists:
+                    artist.set_animated(False)
             self._fig.set_animated(False)
 
     def resume(self):
         """Resume the animation."""
         if self._paused:
             self.event_source.start()
-            self._fig.set_animated(True)
+            if self._blit:
+                for artist in self._drawn_artists:
+                    artist.set_animated(True)
             self._paused = False
 
 
