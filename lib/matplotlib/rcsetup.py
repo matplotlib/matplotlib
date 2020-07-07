@@ -20,6 +20,7 @@ from numbers import Number
 import operator
 import os
 import re
+import sys
 
 import numpy as np
 
@@ -172,6 +173,23 @@ def validate_bool_maybe_none(b):
         return False
     else:
         raise ValueError('Could not convert "%s" to bool' % b)
+
+
+def _validate_date_converter(s):
+    s = validate_string(s)
+    mdates = sys.modules.get("matplotlib.dates")
+    if mdates:
+        mdates._rcParam_helper.set_converter(s)
+
+
+def _validate_date_int_mult(s):
+    if s is None:
+        return
+    s = validate_bool(s)
+    # only do this if dates is already imported...
+    mdates = sys.modules.get("matplotlib.dates")
+    if mdates:
+        mdates._rcParam_helper.set_int_mult(s)
 
 
 def _validate_tex_preamble(s):
@@ -1271,6 +1289,11 @@ _validators = {
     "date.autoformatter.second":      validate_string,
     "date.autoformatter.microsecond": validate_string,
 
+    # 'auto', 'concise', 'auto-noninterval'
+    'date.converter': _validate_date_converter,
+    # for auto date locator, choose interval_multiples
+    'date.interval_multiples': _validate_date_int_mult,
+
     # legend properties
     "legend.fancybox": validate_bool,
     "legend.loc": _ignorecase([
@@ -1278,6 +1301,7 @@ _validators = {
         "upper right", "upper left", "lower left", "lower right", "right",
         "center left", "center right", "lower center", "upper center",
         "center"]),
+
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
     # the number of points in the legend line for scatter

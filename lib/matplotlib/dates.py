@@ -1834,8 +1834,11 @@ class DateConverter(units.ConversionInterface):
     The 'unit' tag for such data is None or a tzinfo instance.
     """
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    def __init__(self, *, interval_multiples=True):
+        self._interval_multiples = interval_multiples
+        super().__init__()
+
+    def axisinfo(self, unit, axis):
         """
         Return the `~matplotlib.units.AxisInfo` for *unit*.
 
@@ -1844,7 +1847,8 @@ class DateConverter(units.ConversionInterface):
         """
         tz = unit
 
-        majloc = AutoDateLocator(tz=tz)
+        majloc = AutoDateLocator(tz=tz,
+                                 interval_multiples=self._interval_multiples)
         majfmt = AutoDateFormatter(majloc, tz=tz)
         datemin = datetime.date(2000, 1, 1)
         datemax = datetime.date(2010, 1, 1)
@@ -1886,17 +1890,19 @@ class ConciseDateConverter(DateConverter):
     # docstring inherited
 
     def __init__(self, formats=None, zero_formats=None, offset_formats=None,
-                 show_offset=True):
+                 show_offset=True, *, interval_multiples=True):
         self._formats = formats
         self._zero_formats = zero_formats
         self._offset_formats = offset_formats
         self._show_offset = show_offset
+        self._interval_multiples = interval_multiples
         super().__init__()
 
     def axisinfo(self, unit, axis):
         # docstring inherited
         tz = unit
-        majloc = AutoDateLocator(tz=tz)
+        majloc = AutoDateLocator(tz=tz,
+                                 interval_multiples=self._interval_multiples)
         majfmt = ConciseDateFormatter(majloc, tz=tz, formats=self._formats,
                                       zero_formats=self._zero_formats,
                                       offset_formats=self._offset_formats,
@@ -1907,6 +1913,42 @@ class ConciseDateConverter(DateConverter):
                               default_limits=(datemin, datemax))
 
 
-units.registry[np.datetime64] = DateConverter()
-units.registry[datetime.date] = DateConverter()
-units.registry[datetime.datetime] = DateConverter()
+class _rcParam_helper:
+    """
+    This helper class is so that we can set the converter for dates
+    via the validator for the rcParams `date.converter` and
+    `date.interval_multiples`.  Never instatiated.
+    """
+
+    conv_st = 'auto'
+    int_mult = True
+
+    @classmethod
+    def set_converter(cls, s):
+        """Called by validator for rcParams date.converter"""
+        cls.conv_st = s
+        cls.register_converters()
+
+    @classmethod
+    def set_int_mult(cls, b):
+        """Called by validator for rcParams date.interval_multiples"""
+        cls.int_mult = b
+        cls.register_converters()
+
+    @classmethod
+    def register_converters(cls):
+        """
+        Helper to register the date converters when rcParams `date.converter`
+        and `date.interval_multiples` are changed.  Called by the helpers
+        above.
+        """
+        if cls.conv_st == 'concise':
+            converter = ConciseDateConverter
+        else:
+            converter = DateConverter
+
+        interval_multiples = cls.int_mult
+        convert = converter(interval_multiples=interval_multiples)
+        units.registry[np.datetime64] = convert
+        units.registry[datetime.date] = convert
+        units.registry[datetime.datetime] = convert

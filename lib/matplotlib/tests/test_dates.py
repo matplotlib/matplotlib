@@ -958,3 +958,41 @@ def test_warn_notintervals():
                               mdates.date2num(dates[-1]))
     with pytest.warns(UserWarning, match="AutoDateLocator was unable") as rec:
         locs = locator()
+
+
+def test_change_converter():
+    plt.rcParams['date.converter'] = 'concise'
+    dates = np.arange('2020-01-01', '2020-05-01', dtype='datetime64[D]')
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan'
+    assert ax.get_xticklabels()[1].get_text() == '15'
+
+    plt.rcParams['date.converter'] = 'auto'
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan 01 2020'
+    assert ax.get_xticklabels()[1].get_text() == 'Jan 15 2020'
+
+
+def test_change_interval_multiples():
+    plt.rcParams['date.interval_multiples'] = False
+    dates = np.arange('2020-01-10', '2020-05-01', dtype='datetime64[D]')
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan 10 2020'
+    assert ax.get_xticklabels()[1].get_text() == 'Jan 24 2020'
+
+    plt.rcParams['date.interval_multiples'] = 'True'
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan 15 2020'
+    assert ax.get_xticklabels()[1].get_text() == 'Feb 01 2020'
