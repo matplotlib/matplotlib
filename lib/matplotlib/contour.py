@@ -23,6 +23,7 @@ import matplotlib.transforms as mtransforms
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
+from matplotlib import docstring
 
 # We can't use a single line collection for contour because a line
 # collection can have only a single line style, and we want to be able to have
@@ -667,6 +668,27 @@ def _find_closest_point_on_path(lc, point):
     return (dmin, xcmin, legmin)
 
 
+docstring.interpd.update(contour_set_attributes=r"""
+Attributes
+----------
+ax : `~matplotlib.axes.Axes`
+    The Axes object in which the contours are drawn.
+
+collections : `.silent_list` of `.LineCollection`\s or `.PathCollection`\s
+    The `.Artist`\s representing the contour. This is a list of
+    `.LineCollection`\s for line contours and a list of `.PathCollection`\s
+    for filled contours.
+
+levels : array
+    The values of the contour levels.
+
+layers : array
+    Same as levels for line contours; half-way between
+    levels for filled contours.  See ``ContourSet._process_colors``.
+""")
+
+
+@docstring.dedent_interpd
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.
@@ -707,20 +729,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Keyword arguments are as described in the docstring of
         `~.Axes.contour`.
 
-    Attributes
-    ----------
-    ax
-        The axes object in which the contours are drawn.
-
-    collections
-        A silent_list of LineCollections or PolyCollections.
-
-    levels
-        Contour levels.
-
-    layers
-        Same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors`.
+    %(contour_set_attributes)s
     """
 
     def __init__(self, ax, *args,
@@ -1378,26 +1387,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return (conmin, segmin, imin, xmin, ymin, dmin)
 
 
+@docstring.dedent_interpd
 class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: `~.Axes.clabel`
+    This class is typically not instantiated directly by the user but by
+    `~.Axes.contour` and `~.Axes.contourf`.
 
-    Attributes
-    ----------
-    ax
-        The axes object in which the contours are drawn.
-
-    collections
-        A silent_list of LineCollections or PolyCollections.
-
-    levels
-        Contour levels.
-
-    layers
-        Same as levels for line contours; half-way between
-        levels for filled contours. See :meth:`_process_colors` method.
+    %(contour_set_attributes)s
     """
 
     def _process_args(self, *args, corner_mask=None, **kwargs):

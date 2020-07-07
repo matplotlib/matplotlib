@@ -5,27 +5,16 @@ from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
 
 
+@docstring.dedent_interpd
 class TriContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions for
     a triangular grid.
 
-    User-callable method: clabel
+    This class is typically not instantiated directly by the user but by
+    `~.Axes.tricontour` and `~.Axes.tricontourf`.
 
-    Attributes
-    ----------
-    ax
-        The axes object in which the contours are drawn.
-
-    collections
-        A silent_list of LineCollections or PolyCollections.
-
-    levels
-        Contour levels.
-
-    layers
-        Same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors`.
+    %(contour_set_attributes)s
     """
     def __init__(self, ax, *args, **kwargs):
         """
