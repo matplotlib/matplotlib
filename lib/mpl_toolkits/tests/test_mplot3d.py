@@ -505,6 +505,60 @@ def test_poly3dcollection_alpha():
     ax.add_collection3d(c2)
 
 
+@mpl3d_image_comparison(['add_collection3d_zs_array.png'])
+def test_add_collection3d_zs_array():
+    theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
+    z = np.linspace(-2, 2, 100)
+    r = z**2 + 1
+    x = r * np.sin(theta)
+    y = r * np.cos(theta)
+
+    points = np.array([x, y, z]).T.reshape(-1, 1, 3)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    norm = plt.Normalize(0, 2*np.pi)
+    # 2D LineCollection from x & y values
+    lc = LineCollection(segments[:, :, :2], cmap='twilight', norm=norm)
+    lc.set_array(np.mod(theta, 2*np.pi))
+    # Add 2D collection at z values to ax
+    line = ax.add_collection3d(lc, zs=segments[:, :, 2])
+
+    assert line is not None
+
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-4, 6)
+    ax.set_zlim(-2, 2)
+
+
+@mpl3d_image_comparison(['add_collection3d_zs_scalar.png'])
+def test_add_collection3d_zs_scalar():
+    theta = np.linspace(0, 2 * np.pi, 100)
+    z = 1
+    r = z**2 + 1
+    x = r * np.sin(theta)
+    y = r * np.cos(theta)
+
+    points = np.array([x, y]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    norm = plt.Normalize(0, 2*np.pi)
+    lc = LineCollection(segments, cmap='twilight', norm=norm)
+    lc.set_array(theta)
+    line = ax.add_collection3d(lc, zs=z)
+
+    assert line is not None
+
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-4, 6)
+    ax.set_zlim(0, 2)
+
+
 @mpl3d_image_comparison(['axes3d_labelpad.png'], remove_text=False)
 def test_axes3d_labelpad():
     fig = plt.figure()
