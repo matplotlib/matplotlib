@@ -1063,6 +1063,10 @@ class FigureManagerWx(FigureManagerBase):
         if wxapp:
             wxapp.Yield()
 
+    def full_screen_toggle(self):
+        # docstring inherited
+        self.frame.ShowFullScreen(not self.frame.IsFullScreen())
+
     def get_window_title(self):
         # docstring inherited
         return self.window.GetTitle()
