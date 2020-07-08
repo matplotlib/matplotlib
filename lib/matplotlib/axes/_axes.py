@@ -4401,8 +4401,9 @@ default: :rc:`scatter.edgecolors`
             *facecolors*.
 
         plotnonfinite : bool, default: False
-            Set to plot points with nonfinite *c*, in conjunction with
-            `~matplotlib.colors.Colormap.set_bad`.
+            Whether to plot points with nonfinite *c* (i.e. ``inf``, ``-inf``
+            or ``nan``). If ``True`` the points are drawn with the *bad*
+            colormap color (see `.Colormap.set_bad`).
 
         Returns
         -------
