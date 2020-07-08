@@ -12,8 +12,8 @@ revision, see the :ref:`github-stats`.
    :maxdepth: 4
 
 
-New `~.axes.Axes.axline` method
--------------------------------
+New ``Axes.axline`` method
+--------------------------
 
 A new `~.axes.Axes.axline` method has been added to draw infinitely long lines
 that pass through two points.
@@ -114,8 +114,8 @@ For use cases check out the :doc:`Axes box aspect
 </gallery/subplots_axes_and_figures/axes_box_aspect>` example.
 
 
-`.Axes.sharex`, `.Axes.sharey`
-------------------------------
+``Axes.sharex``, ``Axes.sharey``
+--------------------------------
 
 These new methods allow sharing axes *immediately* after creating them.  For
 example, they can be used to selectively link some axes created all together
@@ -198,8 +198,8 @@ as an alternative to ::
     fig.subplots(2, 2, gridspec_kw={"height_ratios": [3, 1]})
 
 
-`matplotlib.rc_context` is now a `contextlib.contextmanager`
-------------------------------------------------------------
+``matplotlib.rc_context`` is now a ``contextlib.contextmanager``
+----------------------------------------------------------------
 
 `matplotlib.rc_context` can now be used as a decorator (technically, it is now
 implemented as a `contextlib.contextmanager`), e.g. ::
@@ -396,8 +396,8 @@ conversion (using the new epoch) is::
 
 
 
-`~.axes.Axes.set_title` gains a *y* keyword argument to control auto positioning
---------------------------------------------------------------------------------
+``Axes.set_title`` gains a *y* keyword argument to control auto positioning
+---------------------------------------------------------------------------
 
 `~.axes.Axes.set_title` tries to auto-position the title to avoid any
 decorators on the top x-axis.  This is not always desirable so now
@@ -411,8 +411,8 @@ tight_layout now supports suptitle
 ----------------------------------
 
 
-Add :rc:`contour.linewidth` to rcParams
----------------------------------------
+Add ``contour.linewidth`` to rcParams
+-------------------------------------
 
 The new config option :rc:`contour.linewidth` allows to control the default
 line width of contours as a float. When set to ``None``, the line widths fall
@@ -448,11 +448,12 @@ was only accepted by the PGF backend when saving a multi-page PDF with
 `.backend_pgf.PdfPages`, but is now allowed when saving a single figure, as
 well.
 
-`.backend_bases.key_press_handler` and `.backend_bases.button_press_handler` simplifications
---------------------------------------------------------------------------------------------
+``backend_bases.key_press_handler`` and ``backend_bases.button_press_handler`` simplifications
+----------------------------------------------------------------------------------------------
 
-These event handlers can now be directly connected to a canvas with
-``canvas.mpl_connect("key_press_event", key_press_handler)`` and
-``canvas.mpl_connect("button_press_event", button_press_handler)``, rather than
-having to write wrapper functions that fill in the (now optional) *canvas* and
-*toolbar* parameters.
+The `.backend_bases.key_press_handler` and
+`.backend_bases.button_press_handler` event handlers can now be directly
+connected to a canvas with ``canvas.mpl_connect("key_press_event",
+key_press_handler)`` and ``canvas.mpl_connect("button_press_event",
+button_press_handler)``, rather than having to write wrapper functions that
+fill in the (now optional) *canvas* and *toolbar* parameters.
