@@ -111,7 +111,7 @@ before_install: |
     ci/silence brew update
     brew uninstall numpy gdal postgis
     brew unlink python@2
-    brew upgrade python
+    brew install python || brew upgrade python
     brew install ffmpeg imagemagick mplayer ccache
     hash -r
     which python
