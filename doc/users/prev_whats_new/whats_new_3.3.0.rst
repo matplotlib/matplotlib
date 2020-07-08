@@ -378,8 +378,8 @@ Qt zoom rectangle now black and white
 
 This makes it visible even over a dark background.
 
-``backend_bases.key_press_handler`` and ``backend_bases.button_press_handler`` simplifications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Event handler simplifications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `.backend_bases.key_press_handler` and
 `.backend_bases.button_press_handler` event handlers can now be directly
