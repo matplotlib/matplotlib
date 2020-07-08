@@ -113,7 +113,7 @@ on two or more property cycles.
 
 
 New Colormaps
---------------
+-------------
 
 All four of the colormaps proposed as the new default are available
 as ``'viridis'`` (the new default in 2.0), ``'magma'``, ``'plasma'``, and
