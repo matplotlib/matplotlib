@@ -43,7 +43,7 @@ plt.show()
 # It is also possible to show images of pictures.
 
 # A sample image
-with cbook.get_sample_data('ada.png') as image_file:
+with cbook.get_sample_data('grace_hopper.jpg') as image_file:
     image = plt.imread(image_file)
 
 fig, ax = plt.subplots()
@@ -53,12 +53,11 @@ ax.axis('off')  # clear x-axis and y-axis
 
 # And another image
 
-w, h = 512, 512
-
-with cbook.get_sample_data('ct.raw.gz') as datafile:
+# Data are 256x256 16-bit integers.
+w, h = 256, 256
+with cbook.get_sample_data('s1045.ima.gz') as datafile:
     s = datafile.read()
 A = np.frombuffer(s, np.uint16).astype(float).reshape((w, h))
-A /= A.max()
 
 fig, ax = plt.subplots()
 extent = (0, 25, 0, 25)
@@ -68,7 +67,7 @@ markers = [(15.9, 14.5), (16.8, 15)]
 x, y = zip(*markers)
 ax.plot(x, y, 'o')
 
-ax.set_title('CT density')
+ax.set_title('MRI')
 
 plt.show()
 
