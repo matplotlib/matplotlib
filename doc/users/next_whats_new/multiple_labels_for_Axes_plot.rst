@@ -1,20 +1,17 @@
 An iterable object with labels can be passed to `.Axes.plot`
 -------------------------------------------------------------
 
-If multidimensional data is used for plotting, labels can be specified in
-a vectorized way with an iterable object of size corresponding to the
-data array shape (exactly 5 labels are expected when plotting 5 lines).
-It works with `.Axes.plot` as well as with it's wrapper `.pyplot.plot`.
+When plotting multiple datasets by passing 2D data as *y* value to `~.Axes.plot`, labels for the datasets can be passed as a list, the length matching the number of columns in *y*.
 
 .. plot::
 
-    from matplotlib import pyplot as plt
+    import matplotlib.pyplot as plt
+    
+    x = [1, 2, 3]
 
-    x = [1, 2, 5]
+    y = [[1, 9],
+         [2, 8],
+         [4, 6]]
 
-    y = [[2, 4, 3],
-        [4, 7, 1],
-        [3, 9, 2]]
-
-    plt.plot(x, y, label=['one', 'two', 'three'])
+    plt.plot(x, y, label=['low', 'high'])
     plt.legend()

@@ -448,22 +448,20 @@ class _process_plot_var_args:
         if ncx > 1 and ncy > 1 and ncx != ncy:
             raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
 
-        if ('label' in kwargs and max(ncx, ncy) > 1
-                and isinstance(kwargs['label'], Iterable)
-                and not isinstance(kwargs['label'], str)):
-            if len(kwargs['label']) != max(ncx, ncy):
-                raise ValueError(f"if label is iterable label and input data"
-                                 f" must have same length, but have lengths "
-                                 f"{len(kwargs['label'])} and "
-                                 f"{max(ncx, ncy)}")
-        elif 'label' in kwargs:
-            kwargs['label'] = [kwargs['label']] * max(ncx, ncy)
+        label = kwargs.get('label')
+        n_datasets = max(ncx, ncy)
+        if n_datasets > 1 and not cbook.is_scalar_or_string(label):
+            if len(label) != n_datasets:
+                raise ValueError(f"label must be scalar or have the same "
+                                 f"length as the input data, but found "
+                                 f"{len(label)} for {n_datasets} datasets.")
+            labels = label
         else:
-            kwargs['label'] = [None] * max(ncx, ncy)
+            labels = [label] * n_datasets
 
         result = (func(x[:, j % ncx], y[:, j % ncy], kw,
-                     {**kwargs, 'label': kwargs['label'][j]})
-                for j in range(max(ncx, ncy)))
+                     {**kwargs, 'label': label})
+                for j, label in enumerate(labels))
 
         if return_kwargs:
             return list(result)

@@ -688,10 +688,8 @@ def test_plot_multiple_input_multiple_label():
         ax.plot(x, y, label=label)
         leg = ax.legend()
 
-        assert len(leg.get_texts()) == 3
-        assert leg.get_texts()[0].get_text() == 'one'
-        assert leg.get_texts()[1].get_text() == 'two'
-        assert leg.get_texts()[2].get_text() == 'three'
+        legend_texts = [entry.get_text() for entry in leg.get_texts()]
+        assert legend_texts == ['one', 'two', 'three']
 
 
 def test_plot_multiple_input_single_label():
@@ -706,10 +704,8 @@ def test_plot_multiple_input_single_label():
         ax.plot(x, y, label=label)
         leg = ax.legend()
 
-        assert len(leg.get_texts()) == 3
-        assert leg.get_texts()[0].get_text() == str(label)
-        assert leg.get_texts()[1].get_text() == str(label)
-        assert leg.get_texts()[2].get_text() == str(label)
+        legend_texts = [entry.get_text() for entry in leg.get_texts()]
+        assert legend_texts == [str(label)] * 3
 
 
 def test_plot_single_input_multiple_label():
