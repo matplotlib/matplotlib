@@ -146,26 +146,90 @@ The text color of legend labels can now be set by passing a parameter
 * ``markeredgecolor``,  which sets the text color of each label to match the
   corresponding marker edge color.
 
+.. plot::
 
-``Axes.sharex``, ``Axes.sharey``
---------------------------------
+    options = ['C3', 'linecolor', 'markerfacecolor', 'markeredgecolor']
 
-These new methods allow sharing axes *immediately* after creating them. For
-example, they can be used to selectively link some axes created all together
-using `~.Figure.subplots`.
+    fig, axs = plt.subplots(2, 2, constrained_layout=True)
+    for ax, color in zip(axs.flat, options):
+        ax.plot([1, 2, 3], marker='o',
+                color='C0', markerfacecolor='C1', markeredgecolor='C2',
+                linewidth=3, markersize=10, markeredgewidth=3,
+                label='a line')
 
-Note that they may *not* be used to share axes after any operation (e.g.,
-drawing) has occurred on them.
+        ax.legend(labelcolor=color)
+        ax.set_title(f'labelcolor={color!r}')
+
+        ax.margins(0.1)
+
+
+New ``Axes.sharex``, ``Axes.sharey`` methods
+--------------------------------------------
+
+These new methods allow sharing axes *immediately* after creating them. Note
+that they may *not* be used to share axes after any operation (e.g., drawing)
+has occurred on them.
+
+For example, they can be used to selectively link some axes created all
+together using `~.Figure.subplot_mosaic`::
+
+    fig = plt.figure(constrained_layout=True)
+    axd = fig.subplot_mosaic([['.', 'histx'], ['histy', 'scat']],
+                             gridspec_kw={'width_ratios': [1, 7],
+                                          'height_ratios': [2, 7]})
+
+    axd['histx'].sharex(axd['scat'])
+    axd['histy'].sharey(axd['scat'])
+
+.. plot::
+
+    np.random.seed(0)
+    x = np.random.random(100) * 100 + 20
+    y = np.random.random(100) * 50 + 25
+    c = np.random.random(100) - 0.5
+
+    fig = plt.figure(constrained_layout=True)
+    axd = fig.subplot_mosaic([['.', 'histx'], ['histy', 'scat']],
+                             gridspec_kw={'width_ratios': [1, 7],
+                                          'height_ratios': [2, 7]})
+
+    axd['histy'].invert_xaxis()
+    axd['histx'].sharex(axd['scat'])
+    axd['histy'].sharey(axd['scat'])
+
+    im = axd['scat'].scatter(x, y, c=c, cmap='RdBu', picker=True)
+    fig.colorbar(im, orientation='horizontal', ax=axd['scat'], shrink=0.8)
+
+    axd['histx'].hist(x)
+    axd['histy'].hist(y, orientation='horizontal')
 
 
 Align labels to Axes edges
 --------------------------
 
-`~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and `.ColorbarBase.set_label`
-support a parameter ``loc`` for simplified positioning. Supported values are
-'left', 'center', or 'right'. The default is controlled via
-:rc:`xaxis.labelposition` and :rc:`yaxis.labelposition`; the Colorbar label
-takes the rcParam based on its orientation.
+`~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and
+`.ColorbarBase.set_label` support a parameter ``loc`` for simplified
+positioning. For the xlabel, the supported values are 'left', 'center', or
+'right'. For the ylabel, the supported values are 'bottom', 'center', or
+'top'.
+
+The default is controlled via :rc:`xaxis.labelposition` and
+:rc:`yaxis.labelposition`; the Colorbar label takes the rcParam based on its
+orientation.
+
+.. plot::
+
+    options = ['left', 'center', 'right']
+    fig, axs = plt.subplots(len(options), 1, constrained_layout=True)
+    for ax, loc in zip(axs, options):
+        ax.plot([1, 2, 3])
+        ax.set_xlabel(f'xlabel loc={loc!r}', loc=loc)
+
+    options = ['bottom', 'center', 'top']
+    fig, axs = plt.subplots(1, len(options), constrained_layout=True)
+    for ax, loc in zip(axs, options):
+        ax.plot([1, 2, 3])
+        ax.set_ylabel(f'ylabel loc={loc!r}', loc=loc)
 
 
 Offset text is now set to the top when using ``axis.tick_top()``
@@ -184,6 +248,13 @@ explicit keyword argument of `~.axes.Axes.set_title`. It defaults to *None*
 which means to use auto-positioning. If a value is supplied (i.e. the pre-3.0
 default was ``y=1.0``) then auto-positioning is turned off. This can also be
 set with the new rcParameter :rc:`axes.titley`.
+
+.. plot::
+
+    fig, axs = plt.subplots(1, 2, constrained_layout=True, figsize=(5, 2))
+    axs[0].set_title('y=0.7\n$\sum_{j_n} x_j$', y=0.7)
+    axs[1].set_title('y=None\n$\sum_{j_n} x_j$')
+    plt.show()
 
 
 Dates now use a modern epoch
@@ -212,6 +283,32 @@ conversion (using the new epoch) is::
 
 tight_layout now supports suptitle
 ----------------------------------
+
+Previous versions did not consider `.Figure.suptitle`, and so it may overlap
+with other artists after calling `~.Figure.tight_layout`:
+
+.. plot::
+
+    fig, axs = plt.subplots(1, 3)
+    for i, ax in enumerate(axs):
+        ax.plot([1, 2, 3])
+        ax.set_title(f'Axes {i}')
+
+    t = fig.suptitle('suptitle')
+    t.set_in_layout(False)
+    fig.tight_layout()
+
+From now on, the ``suptitle`` will be considered:
+
+.. plot::
+
+    fig, axs = plt.subplots(1, 3)
+    for i, ax in enumerate(axs):
+        ax.plot([1, 2, 3])
+        ax.set_title(f'Axes {i}')
+
+    fig.suptitle('suptitle')
+    fig.tight_layout()
 
 
 Allow tick formatters to be set with str or function inputs
@@ -359,6 +456,26 @@ ratios as a 3-tuple of X:Y:Z. The default aspect ratio is 4:4:3.
 
 3D axes now support minor ticks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. plot::
+    :include-source: True
+
+    ax = plt.figure().add_subplot(projection='3d')
+
+    ax.scatter([0, 1, 2], [1, 3, 5], [30, 50, 70])
+
+    ax.set_xticks([0.25, 0.75, 1.25, 1.75], minor=True)
+    ax.set_xticklabels(['a', 'b', 'c', 'd'], minor=True)
+
+    ax.set_yticks([1.5, 2.5, 3.5, 4.5], minor=True)
+    ax.set_yticklabels(['A', 'B', 'C', 'D'], minor=True)
+
+    ax.set_zticks([35, 45, 55, 65], minor=True)
+    ax.set_zticklabels([r'$\alpha$', r'$\beta$', r'$\delta$', r'$\gamma$'],
+                       minor=True)
+
+    ax.tick_params(which='major', color='C0', labelcolor='C0', width=5)
+    ax.tick_params(which='minor', color='C1', labelcolor='C1', width=3)
 
 Home/Forward/Backward buttons now work with 3D axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
