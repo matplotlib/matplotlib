@@ -62,6 +62,30 @@ as an alternative to ::
     fig.subplots(2, 2, gridspec_kw={"height_ratios": [3, 1]})
 
 
+New Turbo colormap
+------------------
+
+Turbo is an improved rainbow colormap for visualization, created by the Google
+AI team for computer visualization and machine learning. Its purpose is to
+display depth and disparity data. Please see the `Google AI Blog
+<https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`_
+for further details.
+
+Below shows Turbo and some other rainbow-esque colormaps:
+
+.. plot::
+
+    gradient = np.linspace(0, 1, 256)
+    gradient = np.vstack((gradient, gradient))
+    cmaps = ['turbo', 'jet', 'gist_rainbow_r', 'hsv_r']
+
+    fig, axs = plt.subplots(len(cmaps), constrained_layout=True)
+    for name, ax in zip(cmaps, axs):
+        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
+        ax.set_title(name)
+        ax.set_axis_off()
+
+
 New ``Axes.axline`` method
 --------------------------
 
@@ -391,11 +415,31 @@ clabels has been changed to (``2 + zorder`` passed to `~.axes.Axes.contour` /
 `~.axes.Axes.contourf`).
 
 
+Better control of ``Axes.pie`` normalization
+--------------------------------------------
+
+Previously, `.Axes.pie` would normalize its input *x* if ``sum(x) > 1``, but
+would do nothing if the sum were less than 1. This can be confusing, so an
+explicit keyword argument *normalize* has been added. By default, the old
+behavior is preserved.
+
+By passing *normalize*, one can explicitly control whether any rescaling takes
+place and whether partial pies should be created.
+
+
 Simple syntax to select fonts by absolute path
 ----------------------------------------------
 
 Fonts can now be selected by passing an absolute `pathlib.Path` to the *font*
 keyword argument of `.Text`.
+
+
+Improved font weight detection
+------------------------------
+
+Matplotlib is now better able to determine the weight of fonts from their
+metadata, allowing to differentiate between fonts within the same family more
+accurately.
 
 
 rcParams improvements
@@ -453,7 +497,6 @@ value of `~.get_box_aspect`. To control these ratios use the
 `~mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect` method which accepts the
 ratios as a 3-tuple of X:Y:Z. The default aspect ratio is 4:4:3.
 
-
 3D axes now support minor ticks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -482,6 +525,23 @@ Home/Forward/Backward buttons now work with 3D axes
 
 Interactive tool improvements
 -----------------------------
+
+More consistent toolbar behavior across backends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Toolbar features are now more consistent across backends. The history buttons
+will auto-disable when there is no further action in a direction. The pan and
+zoom buttons will be marked active when they are in use.
+
+In NbAgg and WebAgg, the toolbar buttons are now grouped similarly to other
+backends. The WebAgg toolbar now uses the same icons as other backends.
+
+Toolbar icons are now styled for dark themes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On dark themes, toolbar icons will now be inverted. When using the GTK3Agg
+backend, toolbar icons are now symbolic, and both foreground and background
+colors will follow the theme. Tooltips should also behave correctly.
 
 Cursor text now uses a number of significant digits matching pointing precision
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -551,6 +611,19 @@ The SVG backend now respects the hatch stroke alpha. Useful applications are,
 among others, semi-transparent hatches as a subtle way to differentiate columns
 in bar plots.
 
+SVG supports URLs on more artists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+URLs on more artists (i.e., from `.Artist.set_url`) will now be saved in
+SVG files, namely, ``Tick``\s and ``Line2D``\s are now supported.
+
+Images in SVG will no longer be blurred in some viewers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A style is now supplied to images without interpolation (``imshow(...,
+interpolation='none'``) so that SVG image viewers will no longer perform
+interpolation when rendering themselves.
+
 Saving SVG now supports adding metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -569,3 +642,9 @@ interpreted in the same way as with the PDF backend.  Previously, this metadata
 was only accepted by the PGF backend when saving a multi-page PDF with
 `.backend_pgf.PdfPages`, but is now allowed when saving a single figure, as
 well.
+
+NbAgg and WebAgg no longer use jQuery & jQuery UI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead, they are implemented using vanilla JavaScript. Please report any
+issues with browsers.
