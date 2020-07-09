@@ -977,6 +977,8 @@ def test_change_converter():
     fig.canvas.draw()
     assert ax.get_xticklabels()[0].get_text() == 'Jan 01 2020'
     assert ax.get_xticklabels()[1].get_text() == 'Jan 15 2020'
+    with pytest.warns(UserWarning) as rec:
+        plt.rcParams['date.converter'] = 'boo'
 
 
 def test_change_interval_multiples():
