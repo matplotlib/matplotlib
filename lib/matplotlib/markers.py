@@ -237,10 +237,7 @@ class MarkerStyle:
         self._snap_threshold = None
         self._joinstyle = 'round'
         self._capstyle = 'butt'
-        # Initial guess: Assume the marker is filled unless the fillstyle is
-        # set to 'none'. The marker function will override this for unfilled
-        # markers.
-        self._filled = self._fillstyle != 'none'
+        self._filled = True
         self._marker_function()
 
     def __bool__(self):

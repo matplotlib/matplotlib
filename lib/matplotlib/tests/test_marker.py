@@ -7,12 +7,6 @@ from matplotlib.testing.decorators import check_figures_equal
 import pytest
 
 
-def test_marker_fillstyle():
-    marker_style = markers.MarkerStyle(marker='o', fillstyle='none')
-    assert marker_style.get_fillstyle() == 'none'
-    assert not marker_style.is_filled()
-
-
 def test_markers_valid():
     marker_style = markers.MarkerStyle()
     mrk_array = np.array([[-0.5, 0],
