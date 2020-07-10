@@ -1366,9 +1366,9 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     loc : (int, int)
         Row number and column number of the axis location within the grid.
     rowspan : int, default: 1
-        Number of rows for the axis to span to the right.
+        Number of rows for the axis to span downwards.
     colspan : int, default: 1
-        Number of columns for the axis to span downwards.
+        Number of columns for the axis to span to the right.
     fig : `.Figure`, optional
         Figure to place the subplot in. Defaults to the current figure.
     **kwargs
