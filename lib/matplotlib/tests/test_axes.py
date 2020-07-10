@@ -3713,7 +3713,7 @@ def test_vertex_markers():
 
 
 @image_comparison(['vline_hline_zorder', 'errorbar_zorder'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_eb_line_zorder():
     x = list(range(10))
 
