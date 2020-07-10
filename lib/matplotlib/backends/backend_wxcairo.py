@@ -38,7 +38,7 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
         self.figure.draw(self._renderer)
         self.bitmap = wxcairo.BitmapFromImageSurface(surface)
         self._isDrawn = True
-        self.gui_repaint(drawDC=drawDC, origin='WXCairo')
+        self.gui_repaint(drawDC=drawDC)
 
 
 @_BackendWx.export

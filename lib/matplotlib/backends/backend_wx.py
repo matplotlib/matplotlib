@@ -615,6 +615,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wildcards = '|'.join(wildcards)
         return wildcards, extensions, filter_index
 
+    @cbook._delete_parameter("3.4", "origin")
     def gui_repaint(self, drawDC=None, origin='WX'):
         """
         Performs update of the displayed image on the GUI canvas, using the
@@ -632,7 +633,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # For 'WX' backend on Windows, the bitmap can not be in use by another
         # DC (see GraphicsContextWx._cache).
         bmp = (self.bitmap.ConvertToImage().ConvertToBitmap()
-               if wx.Platform == '__WXMSW__' and origin == 'WX'
+               if wx.Platform == '__WXMSW__'
+                  and isinstance(self.figure._cachedRenderer, RendererWx)
                else self.bitmap)
         drawDC.DrawBitmap(bmp, 0, 0)
         if self._rubberband_rect is not None:
@@ -1174,6 +1176,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return wx.Bitmap.FromBufferRGBA(
             image.shape[1], image.shape[0], image.tobytes())
 
+    @cbook.deprecated("3.4")
     def get_canvas(self, frame, fig):
         return type(self.canvas)(frame, -1, fig)
 
