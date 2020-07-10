@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from collections.abc import Iterable
 from contextlib import ExitStack
 import functools
 import inspect
