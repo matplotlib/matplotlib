@@ -159,12 +159,14 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         self._idle_draw_id = 0
         self._lastCursor = None
+        self._rubberband_rect = None
 
         self.connect('scroll_event',         self.scroll_event)
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
         self.connect('configure_event',      self.configure_event)
         self.connect('draw',                 self.on_draw_event)
+        self.connect('draw',                 self._post_draw)
         self.connect('key_press_event',      self.key_press_event)
         self.connect('key_release_event',    self.key_release_event)
         self.connect('motion_notify_event',  self.motion_notify_event)
@@ -285,6 +287,40 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         dpi = self.figure.dpi
         self.figure.set_size_inches(w / dpi, h / dpi, forward=False)
         return False  # finish event propagation?
+
+    def _draw_rubberband(self, rect):
+        self._rubberband_rect = rect
+        # TODO: Only update the rubberband area.
+        self.queue_draw()
+
+    def _post_draw(self, widget, ctx):
+        if self._rubberband_rect is None:
+            return
+
+        x0, y0, w, h = self._rubberband_rect
+        x1 = x0 + w
+        y1 = y0 + h
+
+        # Draw the lines from x0, y0 towards x1, y1 so that the
+        # dashes don't "jump" when moving the zoom box.
+        ctx.move_to(x0, y0)
+        ctx.line_to(x0, y1)
+        ctx.move_to(x0, y0)
+        ctx.line_to(x1, y0)
+        ctx.move_to(x0, y1)
+        ctx.line_to(x1, y1)
+        ctx.move_to(x1, y0)
+        ctx.line_to(x1, y1)
+
+        ctx.set_antialias(1)
+        ctx.set_line_width(1)
+        ctx.set_dash((3, 3), 0)
+        ctx.set_source_rgb(0, 0, 0)
+        ctx.stroke_preserve()
+
+        ctx.set_dash((3, 3), 3)
+        ctx.set_source_rgb(1, 1, 1)
+        ctx.stroke()
 
     def on_draw_event(self, widget, ctx):
         # to be overwritten by GTK3Agg or GTK3Cairo
@@ -507,26 +543,14 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         Gtk.main_iteration()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        # adapted from
-        # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
-        ctx = self.canvas.get_property("window").cairo_create()
-
-        # todo: instead of redrawing the entire figure, copy the part of
-        # the figure that was covered by the previous rubberband rectangle
-        self.canvas.draw()
-
         height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
+        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
+        self.canvas._draw_rubberband(rect)
 
-        ctx.new_path()
-        ctx.set_line_width(0.5)
-        ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
-        ctx.set_source_rgb(0, 0, 0)
-        ctx.stroke()
+    def remove_rubberband(self):
+        self.canvas._draw_rubberband(None)
 
     def _update_buttons_checked(self):
         for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
@@ -720,6 +744,10 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
         NavigationToolbar2GTK3.draw_rubberband(
             self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
+
+    def remove_rubberband(self):
+        NavigationToolbar2GTK3.remove_rubberband(
+            self._make_classic_style_pseudo_toolbar())
 
 
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
