@@ -105,7 +105,7 @@ def test_multiple_keys():
 
 
 @image_comparison(['rgba_alpha.png'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_alpha_rgba():
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
@@ -114,7 +114,7 @@ def test_alpha_rgba():
 
 
 @image_comparison(['rcparam_alpha.png'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_alpha_rcparam():
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
@@ -140,7 +140,7 @@ def test_fancy():
 
 
 @image_comparison(['framealpha'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_framealpha():
     x = np.linspace(1, 100, 100)
     y = x

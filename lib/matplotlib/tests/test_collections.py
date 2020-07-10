@@ -1,5 +1,4 @@
 import io
-import platform
 from types import SimpleNamespace
 
 import numpy as np
@@ -334,8 +333,7 @@ def test_barb_limits():
                               decimal=1)
 
 
-@image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+@image_comparison(['EllipseCollection_test_image.png'], remove_text=True)
 def test_EllipseCollection():
     # Test basic functionality
     fig, ax = plt.subplots()

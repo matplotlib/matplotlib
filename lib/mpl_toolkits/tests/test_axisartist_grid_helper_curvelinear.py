@@ -17,7 +17,7 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
 
 
 @image_comparison(['custom_transform.png'], style='default',
-                  tol={'aarch64': 0.034}.get(platform.machine(), 0.03))
+                  tol=0.03 if platform.machine() == 'x86_64' else 0.034)
 def test_custom_transform():
     class MyTransform(Transform):
         input_dims = output_dims = 2

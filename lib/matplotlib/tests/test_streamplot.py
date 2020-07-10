@@ -1,5 +1,4 @@
 import sys
-import platform
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -48,8 +47,7 @@ def test_colormap():
     plt.colorbar()
 
 
-@image_comparison(['streamplot_linewidth'], remove_text=True, style='mpl20',
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+@image_comparison(['streamplot_linewidth'], remove_text=True, style='mpl20')
 def test_linewidth():
     X, Y, U, V = velocity_field()
     speed = np.hypot(U, V)
