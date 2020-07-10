@@ -258,9 +258,9 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         'License :: OSI Approved :: Python Software Foundation License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering :: Visualization',
     ],
 
