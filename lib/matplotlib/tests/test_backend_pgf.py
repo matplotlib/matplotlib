@@ -8,7 +8,6 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
-import platform
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -179,10 +178,7 @@ def test_pathclip():
 # test mixed mode rendering
 @needs_xelatex
 @pytest.mark.backend('pgf')
-@image_comparison(['pgf_mixedmode.pdf'], style='default',
-                  tol={'aarch64': 1.086, 'x86_64': 1.086}.get(
-                      platform.machine(), 0.0
-                      ))
+@image_comparison(['pgf_mixedmode.pdf'], style='default')
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
