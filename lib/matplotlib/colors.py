@@ -1298,8 +1298,8 @@ class CenteredNorm(Normalize):
         """
         Set *vmin* and *vmax* based on *vcenter* and *halfrange*.
         """
-        self.vmax = self._vcenter + self.halfrange
-        self.vmin = self._vcenter - self.halfrange
+        self.vmax = self._vcenter + self._halfrange
+        self.vmin = self._vcenter - self._halfrange
 
     def autoscale(self, A):
         """
@@ -1338,10 +1338,11 @@ class CenteredNorm(Normalize):
     @halfrange.setter
     def halfrange(self, halfrange):
         if halfrange is None:
+            self._halfrange = None
             self.vmin = None
             self.vmax = None
         else:
-            self.halfrange = abs(halfrange)
+            self._halfrange = abs(halfrange)
             self._set_vmin_vmax()
 
     def __call__(self, value, clip=None):
