@@ -62,16 +62,14 @@ as an alternative to ::
     fig.subplots(2, 2, gridspec_kw={"height_ratios": [3, 1]})
 
 
-New Turbo colormap
-------------------
+Turbo colormap
+--------------
 
 Turbo is an improved rainbow colormap for visualization, created by the Google
 AI team for computer visualization and machine learning. Its purpose is to
 display depth and disparity data. Please see the `Google AI Blog
 <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`_
 for further details.
-
-Below shows Turbo and some other rainbow-esque colormaps:
 
 .. plot::
 
@@ -103,8 +101,8 @@ that pass through two points.
    ax.legend()
 
 
-New "extend" keyword to colors.BoundaryNorm
--------------------------------------------
+``colors.BoundaryNorm`` supports *extend* keyword argument
+----------------------------------------------------------
 
 `~.colors.BoundaryNorm` now has an *extend* keyword argument, analogous to
 *extend* in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max', it
@@ -191,8 +189,8 @@ New ``Axes.sharex``, ``Axes.sharey`` methods
 --------------------------------------------
 
 These new methods allow sharing axes *immediately* after creating them. Note
-that they may *not* be used to share axes after any operation (e.g., drawing)
-has occurred on them.
+that behavior is indeterminate if axes are not shared immediately after
+creation.
 
 For example, they can be used to selectively link some axes created all
 together using `~.Figure.subplot_mosaic`::
@@ -281,8 +279,8 @@ set with the new rcParameter :rc:`axes.titley`.
     plt.show()
 
 
-Dates now use a modern epoch
-----------------------------
+Dates use a modern epoch
+------------------------
 
 Matplotlib converts dates to days since an epoch using `.dates.date2num` (via
 `matplotlib.units`). Previously, an epoch of ``0000-12-31T00:00:00`` was used
@@ -299,8 +297,8 @@ by `~.dates.get_epoch`, and there is a new :rc:`date.epoch` rcParam. The user
 may also call `~.dates.set_epoch`, but it must be set *before* any date
 conversion or plotting is used.
 
-If you have data stored as ordinal floats in the old epoch, a simple
-conversion (using the new epoch) is::
+If you have data stored as ordinal floats in the old epoch, you can convert
+them to the new ordinal using the following formula::
 
     new_ordinal = old_ordinal + mdates.date2num(np.datetime64('0000-12-31'))
 
@@ -308,8 +306,8 @@ conversion (using the new epoch) is::
 tight_layout now supports suptitle
 ----------------------------------
 
-Previous versions did not consider `.Figure.suptitle`, and so it may overlap
-with other artists after calling `~.Figure.tight_layout`:
+Previous versions did not consider `.Figure.suptitle`, so it may overlap with
+other artists after calling `~.Figure.tight_layout`:
 
 .. plot::
 
@@ -342,18 +340,30 @@ Allow tick formatters to be set with str or function inputs
 now accept `str` or function inputs in addition to `~.ticker.Formatter`
 instances. For a `str` a `~.ticker.StrMethodFormatter` is automatically
 generated and used. For a function a `~.ticker.FuncFormatter` is automatically
-generated and used.
+generated and used. In other words,
+::
+
+    ax.xaxis.set_major_formatter('price: {x:02}')
+    ax.xaxis.set_minor_formatter(lambda x, pos: 'low' if x < 2 else 'high')
+
+are shortcuts for::
+
+    import matplotlib.ticker as mticker
+
+    ax.xaxis.set_major_formatter(mticker.StrMethodFormatter('price: {x:02}'))
+    ax.xaxis.set_minor_formatter(
+        mticker.FuncFormatter(lambda x, pos: 'low' if x < 2 else 'high'))
 
 
 Setting axes box aspect
 -----------------------
 
 It is now possible to set the aspect of an axes box directly via
-`~.Axes.set_box_aspect`. The box aspect is the ratio between axes height
-and axes width in physical units, independent of the data limits.
-This is useful to, e.g., produce a square plot, independent of the data it
-contains, or to have a usual plot with the same axes dimensions next to
-an image plot with fixed (data-)aspect.
+`~.Axes.set_box_aspect`. The box aspect is the ratio between axes height and
+axes width in physical units, independent of the data limits. This is useful
+to, e.g., produce a square plot, independent of the data it contains, or to
+have a non-image plot with the same axes dimensions next to an image plot with
+fixed (data-)aspect.
 
 For use cases check out the :doc:`Axes box aspect
 </gallery/subplots_axes_and_figures/axes_box_aspect>` example.
@@ -424,7 +434,30 @@ explicit keyword argument *normalize* has been added. By default, the old
 behavior is preserved.
 
 By passing *normalize*, one can explicitly control whether any rescaling takes
-place and whether partial pies should be created.
+place or whether partial pies should be created. If normalization is disabled,
+and ``sum(x) > 1``, then an error is raised.
+
+.. plot::
+
+    def label(x):
+        return [str(v) for v in x]
+
+    x = np.array([0.25, 0.3, 0.3])
+    fig, ax = plt.subplots(2, 2, constrained_layout=True)
+
+    ax[0, 0].pie(x, autopct='%1.1f%%', labels=label(x), normalize=False)
+    ax[0, 0].set_title('normalize=False')
+    ax[0, 1].pie(x, autopct='%1.2f%%', labels=label(x), normalize=True)
+    ax[0, 1].set_title('normalize=True')
+
+    # For the purposes of keeping the documentation build warning-free, and
+    # future proof for when the deprecation is made permanent, we pass
+    # *normalize* here explicitly anyway.
+    ax[1, 0].pie(x, autopct='%1.2f%%', labels=label(x), normalize=False)
+    ax[1, 0].set_title('normalize unspecified\nsum(x) < 1')
+    ax[1, 1].pie(x * 10, autopct='%1.2f%%', labels=label(x * 10),
+                 normalize=True)
+    ax[1, 1].set_title('normalize unspecified\nsum(x) > 1')
 
 
 Simple syntax to select fonts by absolute path
@@ -445,8 +478,8 @@ accurately.
 rcParams improvements
 ---------------------
 
-``matplotlib.rc_context`` is now a ``contextlib.contextmanager``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``matplotlib.rc_context`` can be used as a decorator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `matplotlib.rc_context` can now be used as a decorator (technically, it is now
 implemented as a `contextlib.contextmanager`), e.g., ::
@@ -457,9 +490,10 @@ implemented as a `contextlib.contextmanager`), e.g., ::
 
 rcParams for controlling default "raise window" behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The new config option :rc:`figure.raise_window` allows to disable
-raising the plot window when calling `~.pyplot.show` or `~.pyplot.pause`.
-The ``MacOSX`` backend is currently not supported.
+
+The new config option :rc:`figure.raise_window` allows disabling of the raising
+of the plot window when calling `~.pyplot.show` or `~.pyplot.pause`. The
+``MacOSX`` backend is currently not supported.
 
 Add generalized ``mathtext.fallback`` to rcParams
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
