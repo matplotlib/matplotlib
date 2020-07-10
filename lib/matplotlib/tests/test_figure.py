@@ -1,13 +1,10 @@
+from contextlib import nullcontext
 from datetime import datetime
 import io
 from pathlib import Path
 import platform
 from types import SimpleNamespace
 import warnings
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py3.6
 
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
