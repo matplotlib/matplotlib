@@ -9,9 +9,9 @@ When plotting multiple datasets by passing 2D data as *y* value to `~.Axes.plot`
     
     x = [1, 2, 3]
 
-    y = [[1, 9],
-         [2, 8],
-         [4, 6]]
+    y = [[1, 2],
+         [2, 5],
+         [4, 9]]
 
     plt.plot(x, y, label=['low', 'high'])
     plt.legend()
