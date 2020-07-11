@@ -366,6 +366,7 @@ class Figure(Artist):
         self._gridspecs = []
 
     def _repr_png_(self):
+        """Generate a PNG representation of the Figure."""
         return self.canvas._repr_png_()
 
     def show(self, warn=True):
