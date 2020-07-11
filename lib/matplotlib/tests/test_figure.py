@@ -781,3 +781,9 @@ class TestSubplotMosaic:
     def test_hashable_keys(self, fig_test, fig_ref):
         fig_test.subplot_mosaic([[object(), object()]])
         fig_ref.subplot_mosaic([["A", "B"]])
+
+def test_figure_repr_png():
+    from matplotlib.figure import Figure
+    fig = Figure(figsize=(4, 2))
+    ax = fig.add_subplot()
+    fig._repr_png_()
