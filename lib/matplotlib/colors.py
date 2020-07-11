@@ -75,6 +75,7 @@ import re
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
+import matplotlib as mpl
 import numpy as np
 import matplotlib.cbook as cbook
 from matplotlib import docstring
@@ -701,7 +702,13 @@ class Colormap:
         X = np.tile(np.linspace(0, 1, IMAGE_SIZE[0]), (IMAGE_SIZE[1], 1))
         pixels = self(X, bytes=True)
         png_bytes = io.BytesIO()
-        pnginfo = PngInfo().add_text('name', self.name)
+        title = self.name + ' color map'
+        author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'
+        pnginfo = PngInfo()
+        pnginfo.add_text('Title', title)
+        pnginfo.add_text('Description', title)
+        pnginfo.add_text('Author', author)
+        pnginfo.add_text('Software', author)
         Image.fromarray(pixels).save(png_bytes, format='png', pnginfo=pnginfo)
         return png_bytes.getvalue()
 
