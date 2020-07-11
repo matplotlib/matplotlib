@@ -452,3 +452,15 @@ def test_intersect_zero_length_segment():
 
     assert outline_path.intersects_path(this_path)
     assert this_path.intersects_path(outline_path)
+
+
+def test_cleanup_closepoly():
+    # if the first connected component of a Path ends in a CLOSEPOLY, but that
+    # component contains a NaN, then Path.cleaned should ignore not just the
+    # control points but also the CLOSEPOLY, since it has nowhere valid to
+    # point.
+    p = Path([[np.nan, np.nan], [np.nan, np.nan]],
+             [Path.MOVETO, Path.CLOSEPOLY])
+    cleaned = p.cleaned(remove_nans=True)
+    assert len(cleaned) == 1
+    assert cleaned.codes[0] == Path.STOP

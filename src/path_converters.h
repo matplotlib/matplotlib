@@ -163,6 +163,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
     VertexSource *m_source;
     bool m_remove_nans;
     bool m_has_curves;
+    bool valid_segment_exists;
 
   public:
     /* has_curves should be true if the path contains bezier curve
@@ -172,7 +173,9 @@ class PathNanRemover : protected EmbeddedQueue<4>
     PathNanRemover(VertexSource &source, bool remove_nans, bool has_curves)
         : m_source(&source), m_remove_nans(remove_nans), m_has_curves(has_curves)
     {
-        // empty
+        // ignore all close/end_poly commands until after the first valid
+        // (nan-free) command is encountered
+        valid_segment_exists = false;
     }
 
     inline void rewind(unsigned path_id)
@@ -202,8 +205,11 @@ class PathNanRemover : protected EmbeddedQueue<4>
                    are found along the way, the queue is emptied, and
                    the next curve segment is handled. */
                 code = m_source->vertex(x, y);
-                if (code == agg::path_cmd_stop ||
-                    code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                if (code == agg::path_cmd_stop) {
+                    return code;
+                }
+                if (code == (agg::path_cmd_end_poly | agg::path_flags_close)
+                        && valid_segment_exists) {
                     return code;
                 }
 
@@ -224,6 +230,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 }
 
                 if (!has_nan) {
+                    valid_segment_exists = true;
                     break;
                 }
 
