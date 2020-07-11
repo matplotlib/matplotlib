@@ -24,9 +24,9 @@ for h, p, t in zip(hashes, pos, text_pos):
     ax.add_patch(Rectangle(p, 2, 2, fill=False, hatch=h))
     ax.text(t[0], t[1], h, fontsize=15)
 
-plt.axis('equal')
-plt.axis('off')
-plt.tight_layout()
+ax.axis('equal')
+ax.axis('off')
+fig.tight_layout()
 
 plt.show()
 
