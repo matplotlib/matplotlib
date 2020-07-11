@@ -15,7 +15,7 @@ fig, ax = plt.subplots()
 x = np.repeat([1, 4, 7, 10, 13], 2)
 y = np.tile([2, 5], 5)
 
-pos = np.array(list(zip(x, y)))
+pos = np.column_stack((x, y))
 text_pos = pos + [0.9, -0.5]
 
 hashes = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']
