@@ -2242,7 +2242,7 @@ def _check_isinstance(_types, **kwargs):
                     type_name(type(v))))
 
 
-def _check_in_list(_values, **kwargs):
+def _check_in_list(_values, _print_supported_values=True, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
     if not, raise an appropriate ValueError.
@@ -2254,9 +2254,13 @@ def _check_in_list(_values, **kwargs):
     values = _values
     for k, v in kwargs.items():
         if v not in values:
-            raise ValueError(
-                "{!r} is not a valid value for {}; supported values are {}"
-                .format(v, k, ', '.join(map(repr, values))))
+            if _print_supported_values:
+                raise ValueError(
+                    "{!r} is not a valid value for {}; supported values are {}"
+                    .format(v, k, ', '.join(map(repr, values))))
+            else:
+                raise ValueError(
+                    "{!r} is not a valid value for {}".format(v, k))
 
 
 def _check_shape(_shape, **kwargs):

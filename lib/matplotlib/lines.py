@@ -14,6 +14,7 @@ from . import artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
+from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import (
@@ -1039,6 +1040,9 @@ class Line2D(Artist):
         ----------
         color : color
         """
+        if not is_color_like(color):
+            cbook._check_in_list(get_named_colors_mapping(),
+                                 _print_supported_values=False, color=color)
         self._color = color
         self.stale = True
 
