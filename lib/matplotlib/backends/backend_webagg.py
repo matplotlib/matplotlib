@@ -33,6 +33,7 @@ import tornado.ioloop
 import tornado.websocket
 
 import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
@@ -49,9 +50,6 @@ webagg_server_thread = ServerThread()
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     _timer_cls = TimerTornado
-
-    def _repr_html_(self):
-        return ipython_inline_display(self.figure)
 
     def show(self):
         # show the figure window
@@ -285,6 +283,7 @@ class WebAggApplication(tornado.web.Application):
             ioloop.start()
 
 
+@cbook.deprecated("3.4")
 def ipython_inline_display(figure):
     import tornado.template
 
