@@ -1,0 +1,6 @@
+Removing ``ipython_inline_display`` from Webagg backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The function ``matplotlib.backends.backend_webagg.ipython_inline_display`` is
+deprecated. It relies on outdated functionality of the tornado server and
+asyncio event loop and appears to be broken.
