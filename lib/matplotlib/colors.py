@@ -73,6 +73,7 @@ import itertools
 from numbers import Number
 import re
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -700,7 +701,8 @@ class Colormap:
         X = np.tile(np.linspace(0, 1, IMAGE_SIZE[0]), (IMAGE_SIZE[1], 1))
         pixels = self(X, bytes=True)
         png_bytes = io.BytesIO()
-        Image.fromarray(pixels).save(png_bytes, format='png')
+        pnginfo = PngInfo().add_text('name', self.name)
+        Image.fromarray(pixels).save(png_bytes, format='png', pnginfo=pnginfo)
         return png_bytes.getvalue()
 
     def _repr_html_(self):
