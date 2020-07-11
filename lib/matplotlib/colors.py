@@ -711,6 +711,7 @@ class Colormap:
                 '<img ' +
                 'alt="' + self.name + ' color map" ' +
                 'title="' + self.name + '"' +
+                'style="border: 1px solid #555;" ' +
                 'src="data:image/png;base64,' + png_base64 + '">')
 
 
