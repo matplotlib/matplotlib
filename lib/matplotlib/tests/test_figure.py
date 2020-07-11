@@ -786,4 +786,5 @@ def test_figure_repr_png():
     from matplotlib.figure import Figure
     fig = Figure(figsize=(4, 2))
     ax = fig.add_subplot()
-    fig._repr_png_()
+    png_bytes = fig._repr_png_()
+    assert len(png_bytes) > 0
