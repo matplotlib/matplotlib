@@ -367,7 +367,8 @@ class Figure(Artist):
 
     def _repr_png_(self):
         """Generate a PNG representation of the Figure."""
-        return self.canvas._repr_png_()
+        if hasattr(self.canvas, '_repr_png_'):
+            return self.canvas._repr_png_()
 
     def show(self, warn=True):
         """
