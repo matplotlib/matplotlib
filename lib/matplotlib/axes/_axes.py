@@ -7548,8 +7548,10 @@ such objects
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
+
+        kwargs.pop('origin', None)
         im = self.imshow(Z, cmap, extent=extent, vmin=vmin, vmax=vmax,
-                         **kwargs)
+                         origin='upper', **kwargs)
         self.axis('auto')
 
         return spec, freqs, t, im
