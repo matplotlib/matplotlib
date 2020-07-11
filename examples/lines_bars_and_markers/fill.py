@@ -20,7 +20,7 @@ def koch_snowflake(order, scale=10):
     """
     Return two lists x, y of point coordinates of the Koch snowflake.
 
-    Arguments
+    Parameters
     ---------
     order : int
         The recursion depth.
