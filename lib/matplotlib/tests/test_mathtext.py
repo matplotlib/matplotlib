@@ -285,6 +285,18 @@ def test_spaces(fig_test, fig_ref):
     fig_ref.subplots().set_title(r"$1\/2\:3~4$")
 
 
+@check_figures_equal(extensions=["png"])
+def test_operator_space(fig_test, fig_ref):
+    fig_test.text(0.1, 0.1, r"$\log 6$")
+    fig_test.text(0.1, 0.2, r"$\log(6)$")
+    fig_test.text(0.1, 0.3, r"$\arcsin 6$")
+    fig_test.text(0.1, 0.4, r"$\arcsin|6|$")
+    fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
+    fig_ref.text(0.1, 0.3, r"$\mathrm{arcsin\,}6$")
+    fig_ref.text(0.1, 0.4, r"$\mathrm{arcsin}|6|$")
+
+
 def test_mathtext_fallback_valid():
     for fallback in ['cm', 'stix', 'stixsans', 'None']:
         mpl.rcParams['mathtext.fallback'] = fallback

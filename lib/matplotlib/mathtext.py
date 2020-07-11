@@ -2876,7 +2876,14 @@ class Parser:
         self.push_state()
         state = self.get_state()
         state.font = 'rm'
-        hlist = Hlist([Char(c, state) for c in toks[0]])
+        hlist_list = [Char(c, state) for c in toks[0]]
+        next_char = next((c for c in s[loc+len(toks[0])+1:] if c != ' '), '')
+        delimiters = self._left_delim | self._ambi_delim | self._right_delim
+        if (next_char not in delimiters and
+                toks[0] not in self._overunder_functions):
+            # Add thin space except when followed by parenthesis, bracket, etc.
+            hlist_list += [self._make_space(self._space_widths[r'\,'])]
+        hlist = Hlist(hlist_list)
         self.pop_state()
         hlist.function_name = toks[0]
         return hlist
