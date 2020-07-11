@@ -2,7 +2,8 @@
 
 coverage
 cycler
-numpy
+# don't forward port this, 3.2.x warns with np 1.19 and up
+numpy<1.19
 pillow
 pyparsing
 pytest!=4.6.0,!=5.3.3,!=5.4.0
