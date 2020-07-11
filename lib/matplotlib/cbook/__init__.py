@@ -2242,7 +2242,7 @@ def _check_isinstance(_types, **kwargs):
                     type_name(type(v))))
 
 
-def _check_in_list(_values, _print_supported_values=True, **kwargs):
+def _check_in_list(_values, *, _print_supported_values=True, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
     if not, raise an appropriate ValueError.
