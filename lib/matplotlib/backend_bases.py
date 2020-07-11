@@ -1702,6 +1702,7 @@ class FigureCanvasBase:
         self._is_idle_drawing = False
 
     def _repr_png_(self):
+        """Generate a PNG representation of the FigureCanvasBase."""
         # Defer to IPython to handle output if possible.
         if 'IPython' in sys.modules:
             from IPython.core.pylabtools import configure_inline_support
