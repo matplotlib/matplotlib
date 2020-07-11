@@ -1701,44 +1701,24 @@ class FigureCanvasBase:
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
 
-    def _repr_html_(self):
-        # Defer to IPython to handle html output if possible
+    def _repr_png_(self):
+        # Defer to IPython to handle output if possible.
         if 'IPython' in sys.modules:
-            import IPython
-            ip = IPython.get_ipython()
-            # Check whether %matplotlib was run. Is there a better way?
-            ib_list = [c for c in ip.configurables 
-                       if 'InlineBackend' in type(c).__name__]
-            if ib_list:
+            from IPython.core.pylabtools import configure_inline_support
+            # Check whether %matplotlib was run.
+            if hasattr(configure_inline_support, 'current_backend'):
                 return
-            
-        fmt = self.get_default_filetype()
 
-        kw = {
-            "format":fmt,
-            "facecolor":self.figure.get_facecolor(),
-            "edgecolor":self.figure.get_edgecolor(),
-            "dpi":self.figure.dpi,
-            "bbox_inches":self.figure.bbox_inches
-        }
-
-        bytes_io = io.BytesIO()
-        self.print_figure(bytes_io, **kw)
-        raw_bytes = bytes_io.getvalue()
-
-        from base64 import b64encode
-        data = b64encode(raw_bytes).decode()
-
-        if fmt == 'svg':
-            return raw_bytes.decode()
-        elif fmt == 'png':
-            return f'<img src="data:image/png;base64, {data}" />'
-        elif fmt == 'pdf':
-            w, h = self.figure.get_size_inches()
-            w, h = w * self.figure.dpi, h * self.figure.dpi
-            return f'<embed width="{w}" height="{h}" src="data:application/pdf;base64, {data}">'
-        elif fmt == 'jpg':
-            return f'<img src="data:image/jpeg;base64, {data}" />'
+        png_bytes = io.BytesIO()
+        self.print_figure(
+            png_bytes,
+            format='png',
+            facecolor=self.figure.get_facecolor(),
+            edgecolor=self.figure.get_edgecolor(),
+            dpi=self.figure.dpi,
+            bbox_inches=self.figure.bbox_inches
+        )
+        return png_bytes.getvalue()
 
     @classmethod
     @functools.lru_cache()
