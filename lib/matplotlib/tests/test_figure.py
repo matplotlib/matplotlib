@@ -782,6 +782,7 @@ class TestSubplotMosaic:
         fig_test.subplot_mosaic([[object(), object()]])
         fig_ref.subplot_mosaic([["A", "B"]])
 
+
 def test_figure_repr_png():
     from matplotlib.figure import Figure
     fig = Figure(figsize=(4, 2))
