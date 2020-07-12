@@ -274,7 +274,7 @@ def _get_executable_info(name):
     Returns
     -------
 
-    tuple or None:
+    tuple or None
         If the executable is found, a namedtuple with fields ``executable``
         (`str`) and ``version`` (`distutils.version.LooseVersion`, or ``None``
         if the version cannot be determined).
