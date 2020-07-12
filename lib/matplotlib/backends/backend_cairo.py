@@ -21,7 +21,7 @@ except ImportError:
         import cairocffi as cairo
     except ImportError as err:
         raise ImportError(
-            "cairo backend requires that pycairo>=1.11.0 or cairocffi"
+            "cairo backend requires that pycairo>=1.11.0 or cairocffi "
             "is installed") from err
 
 from .. import cbook, font_manager
