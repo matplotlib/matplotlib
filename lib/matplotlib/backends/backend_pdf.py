@@ -1529,7 +1529,8 @@ end"""
         buffer = BytesIO()
         img.save(buffer, format="png")
         buffer.seek(8)
-        png_data = bit_depth = palette = None
+        png_data = b''
+        bit_depth = palette = None
         while True:
             length, type = struct.unpack(b'!L4s', buffer.read(8))
             if type in [b'IHDR', b'PLTE', b'IDAT']:
@@ -1541,7 +1542,7 @@ end"""
                 elif type == b'PLTE':
                     palette = data
                 elif type == b'IDAT':
-                    png_data = data
+                    png_data += data
             elif type == b'IEND':
                 break
             else:
