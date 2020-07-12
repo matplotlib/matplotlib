@@ -1,4 +1,4 @@
-Get over/under/bad colors of Colormap objects
+Get under/over/bad colors of Colormap objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `matplotlib.colors.Colormap` object now has methods

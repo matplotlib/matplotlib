@@ -1169,6 +1169,7 @@ def test_repr_html():
     assert len(html) > 0
     assert cmap.name in html
 
+
 def test_get_under_over_bad():
     cmap = plt.get_cmap('viridis')
     assert_array_equal(cmap.get_under(), cmap(0.0))
