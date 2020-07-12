@@ -7464,7 +7464,7 @@ such objects
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`
-            which makes the specgram image.
+            which makes the specgram image. The origin kwarg is ignored.
 
         Returns
         -------
@@ -7501,6 +7501,9 @@ such objects
         -----
         The parameters *detrend* and *scale_by_freq* do only apply when *mode*
         is set to 'psd'.
+
+        The origin of the plot is forced to 'upper'. The origin rcParam and
+        the value of the origin kwarg, if passed, are ignored.
         """
         if NFFT is None:
             NFFT = 256  # same default as in mlab.specgram()
