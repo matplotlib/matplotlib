@@ -4101,7 +4101,7 @@ def test_specgram_fs_none():
 
 @check_figures_equal(extensions=["png"])
 def test_specgram_origin(fig_test, fig_ref):
-    """Test that specgram ignores origin='lower' and always uses origin='upper'."""
+    """Test that specgram ignores origin='lower' and always uses 'upper'."""
     t = np.arange(500)
     signal = np.sin(t)
 
