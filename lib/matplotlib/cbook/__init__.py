@@ -2247,6 +2247,20 @@ def _check_in_list(_values, *, _print_supported_values=True, **kwargs):
     For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
     if not, raise an appropriate ValueError.
 
+    Parameters
+    ----------
+    _values : iterable
+        Sequence of values to check on
+    _print_supported_values : bool, default: True
+        Whether to print *_values* when raising ValueError
+    **kwargs : dict-like
+        *key, values* pairs as keyword arguments to find in *_values*
+    
+    Raises
+    ------
+    ValueError
+        If any *value* in *kwargs* is not found in *_values*
+
     Examples
     --------
     >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
