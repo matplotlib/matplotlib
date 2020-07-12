@@ -9,10 +9,6 @@ import string
 import sys
 import unittest
 import warnings
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py3.6.
 
 import matplotlib as mpl
 import matplotlib.style
@@ -219,7 +215,8 @@ class _ImageComparisonBase:
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
 
-        lock = cbook._lock_path(actual_path) if _lock else nullcontext()
+        lock = (cbook._lock_path(actual_path)
+                if _lock else contextlib.nullcontext())
         with lock:
             fig.savefig(actual_path, **kwargs)
             expected_path = self.copy_baseline(baseline, extension)
