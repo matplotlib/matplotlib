@@ -291,10 +291,14 @@ def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.2, r"$\log(6)$")
     fig_test.text(0.1, 0.3, r"$\arcsin 6$")
     fig_test.text(0.1, 0.4, r"$\arcsin|6|$")
+    fig_test.text(0.1, 0.5, r"$\operatorname{op} 6$")
+    fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
     fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
     fig_ref.text(0.1, 0.3, r"$\mathrm{arcsin\,}6$")
     fig_ref.text(0.1, 0.4, r"$\mathrm{arcsin}|6|$")
+    fig_ref.text(0.1, 0.5, r"$\mathrm{op\,}6$")
+    fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
 
 
 def test_mathtext_fallback_valid():

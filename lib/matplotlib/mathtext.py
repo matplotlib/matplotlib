@@ -28,7 +28,7 @@ from PIL import Image
 from pyparsing import (
     Combine, Empty, FollowedBy, Forward, Group, Literal, oneOf, OneOrMore,
     Optional, ParseBaseException, ParseFatalException, ParserElement,
-    QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
+    ParseResults, QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
 
 from matplotlib import cbook, colors as mcolors, rcParams
 from matplotlib.afm import AFM
@@ -2873,19 +2873,7 @@ class Parser:
                 ])
 
     def function(self, s, loc, toks):
-        self.push_state()
-        state = self.get_state()
-        state.font = 'rm'
-        hlist_list = [Char(c, state) for c in toks[0]]
-        next_char = next((c for c in s[loc+len(toks[0])+1:] if c != ' '), '')
-        delimiters = self._left_delim | self._ambi_delim | self._right_delim
-        delimiters |= set(r"^_".split())
-        if (next_char not in delimiters and
-                toks[0] not in self._overunder_functions):
-            # Add thin space except when followed by parenthesis, bracket, etc.
-            hlist_list += [self._make_space(self._space_widths[r'\,'])]
-        hlist = Hlist(hlist_list)
-        self.pop_state()
+        hlist = self.operatorname(s, loc, toks)
         hlist.function_name = toks[0]
         return hlist
 
@@ -2893,13 +2881,27 @@ class Parser:
         self.push_state()
         state = self.get_state()
         state.font = 'rm'
+        hlist_list = []
         # Change the font of Chars, but leave Kerns alone
         for c in toks[0]:
             if isinstance(c, Char):
                 c.font = 'rm'
                 c._update_metrics()
+                hlist_list.append(c)
+            else:
+                hlist_list.append(Char(c, state))
+        next_char_loc = loc + len(toks[0]) + 1
+        if isinstance(toks[0], ParseResults):
+            next_char_loc += 14  # Skip `operatorname{}`
+        next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
+        delimiters = self._left_delim | self._ambi_delim | self._right_delim
+        delimiters |= set(r"^_".split())
+        if (next_char not in delimiters and
+                toks[0] not in self._overunder_functions):
+            # Add thin space except when followed by parenthesis, bracket, etc.
+            hlist_list += [self._make_space(self._space_widths[r'\,'])]
         self.pop_state()
-        return Hlist(toks[0])
+        return Hlist(hlist_list)
 
     def start_group(self, s, loc, toks):
         self.push_state()
