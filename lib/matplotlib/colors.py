@@ -677,7 +677,7 @@ class Colormap:
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
-        """Determine if the color map is grayscale."""
+        """Return whether the color map is grayscale."""
         if not self._isinit:
             self._init()
         return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
