@@ -38,7 +38,6 @@ class PauseAnimation:
         self.paused = not self.paused
 
     def update(self, i):
-        """Translate the normal distribution and plot it mod 20."""
         self.n0 += i / 100 % 5
         self.p.set_ydata(self.n0 % 20)
         return (self.p,)
