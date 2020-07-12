@@ -2255,7 +2255,7 @@ def _check_in_list(_values, *, _print_supported_values=True, **kwargs):
         Whether to print *_values* when raising ValueError
     **kwargs : dict-like
         *key, values* pairs as keyword arguments to find in *_values*
-    
+
     Raises
     ------
     ValueError
