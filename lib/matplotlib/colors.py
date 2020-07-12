@@ -726,12 +726,30 @@ class Colormap:
         """Generate an HTML representation of the Colormap."""
         png_bytes = self._repr_png_()
         png_base64 = base64.b64encode(png_bytes).decode('ascii')
-        return ('<strong>' + self.name + '</strong>' +
-                '<img ' +
+        def color_block(name, color):
+            hex_color = to_hex(color, keep_alpha=True)
+            return ('<span style="margin: 0 0.4em 0 0.4em;">' +
+                    '<span>' + name + ':</span> ' +
+                    '<div title="' + hex_color + '" ' +
+                    'style="display: inline-block; ' +
+                    'width: 1em; height: 1em; ' +
+                    'margin: 0; ' +
+                    'vertical-align: middle; ' +
+                    'border: 1px solid #555; ' +
+                    'background-color: ' + hex_color + ';"></div>' +
+                    '</span>')
+
+        return ('<div style="vertical-align: middle;">' +
+                '<strong>' + self.name + '</strong> ' +
+                color_block('under', self.get_under()) +
+                color_block('over', self.get_over()) +
+                color_block('bad', self.get_bad()) +
+                '</div>' +
+                '<div><img ' +
                 'alt="' + self.name + ' color map" ' +
                 'title="' + self.name + '"' +
                 'style="border: 1px solid #555;" ' +
-                'src="data:image/png;base64,' + png_base64 + '">')
+                'src="data:image/png;base64,' + png_base64 + '"></div>')
 
 
 class LinearSegmentedColormap(Colormap):
