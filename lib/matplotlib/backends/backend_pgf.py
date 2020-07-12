@@ -1024,9 +1024,11 @@ class PdfPages:
         filename : str or path-like
             Plots using `PdfPages.savefig` will be written to a file at this
             location. Any older file with the same name is overwritten.
+
         keep_empty : bool, default: True
             If set to False, then empty pdf files will be deleted automatically
             when closed.
+
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:

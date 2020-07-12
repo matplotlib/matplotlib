@@ -198,7 +198,7 @@ class XMLWriter:
         tag
             Element tag.  If given, the tag must match the start tag.  If
             omitted, the current element is closed.
-       """
+        """
         if tag:
             assert self.__tags, "unbalanced end(%s)" % tag
             assert escape_cdata(tag) == self.__tags[-1], \
@@ -1023,11 +1023,11 @@ class RendererSVG(RendererBase):
         Parameters
         ----------
         s : str
-          text to be converted
+            text to be converted
         prop : `matplotlib.font_manager.FontProperties`
-          font property
+            font property
         ismath : bool
-          If True, use mathtext parser. If "TeX", use *usetex* mode.
+            If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
         writer = self.writer
 
@@ -1278,6 +1278,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         ----------
         filename : str or path-like or file-like
             Output target; if a string, a file will be opened for writing.
+
         metadata : Dict[str, Any], optional
             Metadata in the SVG file defined as key-value pairs of strings,
             datetimes, or lists of strings, e.g., ``{'Creator': 'My software',
