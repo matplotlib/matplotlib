@@ -1040,7 +1040,7 @@ class Line2D(Artist):
         ----------
         color : color
         """
-        if not is_color_like(color):
+        if not is_color_like(color) and color != 'auto':
             cbook._check_in_list(get_named_colors_mapping(),
                                  _print_supported_values=False, color=color)
         self._color = color
