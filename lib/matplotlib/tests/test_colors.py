@@ -303,6 +303,9 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
 
+    assert_array_equal(cmref.get_over(), mcolors.to_rgba('black'))
+    assert_array_equal(cmref.get_under(), mcolors.to_rgba('white'))
+
     refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
     mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='both')
     assert mynorm.vmin == refnorm.vmin
@@ -323,6 +326,8 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
 
+    assert_array_equal(cmref.get_under(), mcolors.to_rgba('white'))
+
     assert cmref.N == 2
     assert cmshould.N == 3
     refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
@@ -338,6 +343,8 @@ def test_BoundaryNorm():
     cmref = mcolors.ListedColormap(['blue', 'red'])
     cmref.set_over('black')
     cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
+
+    assert_array_equal(cmref.get_over(), mcolors.to_rgba('black'))
 
     assert cmref.N == 2
     assert cmshould.N == 3
@@ -1161,3 +1168,9 @@ def test_repr_html():
     html = cmap._repr_html_()
     assert len(html) > 0
     assert cmap.name in html
+
+def test_get_under_over_bad():
+    cmap = plt.get_cmap('viridis')
+    assert_array_equal(cmap.get_under(), cmap(0.0))
+    assert_array_equal(cmap.get_over(), cmap(1.0))
+    assert_array_equal(cmap.get_bad(), cmap(np.nan))
