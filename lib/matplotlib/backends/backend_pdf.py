@@ -1570,7 +1570,7 @@ end"""
                 data = data.squeeze(axis=-1)
             img = Image.fromarray(data)
             img_colors = img.getcolors(maxcolors=256)
-            if img_colors is not None:
+            if colors == 3 and img_colors is not None:
                 # Convert to indexed color if there are 256 colors or fewer
                 # This can significantly reduce the file size
                 num_colors = len(img_colors)
@@ -1580,14 +1580,8 @@ end"""
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
                 palette = palette[:num_colors * 3]  # Trim padding
-                if colors == 1:
-                    # The PNG format uses an RGB palette for all indexed color
-                    # images, but the PDF format allows for grayscale palettes.
-                    # Thus, we convert the palette.
-                    palette = palette[::3]
                 palette = pdfRepr(palette)
-                colorspace = obj['ColorSpace'].pdfRepr()
-                obj['ColorSpace'] = Verbatim(b'[/Indexed ' + colorspace + b' '
+                obj['ColorSpace'] = Verbatim(b'[/Indexed /DeviceRGB '
                                              + str(num_colors - 1).encode()
                                              + b' ' + palette + b']')
                 obj['BitsPerComponent'] = bit_depth
