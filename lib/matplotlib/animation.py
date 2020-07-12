@@ -1374,7 +1374,6 @@ class Animation:
     def pause(self):
         """Pause the animation."""
         self.event_source.stop()
-        self._fig.canvas.draw_idle()
         if self._blit:
             for artist in self._drawn_artists:
                 artist.set_animated(False)
