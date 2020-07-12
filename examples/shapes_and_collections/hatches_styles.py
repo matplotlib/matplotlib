@@ -1,7 +1,7 @@
 """
-==========
+===================
 Hatches Styles Demo
-==========
+===================
 
 Hatching (pattern filled polygons) is supported currently in the PS,
 PDF, SVG and Agg backends only.
