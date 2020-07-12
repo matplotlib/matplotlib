@@ -77,17 +77,16 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     Parameters
     ----------
     fig : Figure
-      is the ``figure`` instance to do the layout in.
+        ``Figure`` instance to do the layout in.
 
     renderer : Renderer
-      the renderer to use.
+        Renderer to use.
 
-     h_pad, w_pad : float
-       are in figure-normalized units, and are a padding around the axes
-       elements.
+    h_pad, w_pad : float
+        Padding around the axes elements in figure-normalized units.
 
-     hspace, wspace : float
-        are in fractions of the subplot sizes.
+    hspace, wspace : float
+        Spacing in fractions of the subplot sizes.
 
     """
 

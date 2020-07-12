@@ -3,7 +3,7 @@
 3D voxel / volumetric plot with cylindrical coordinates
 =======================================================
 
-Demonstrates using the *x*, *y*, *z* arguments of `.Axes3D.voxels`.
+Demonstrates using the *x*, *y*, *z* parameters of `.Axes3D.voxels`.
 """
 
 import matplotlib.pyplot as plt
