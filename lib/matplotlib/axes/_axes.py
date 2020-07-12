@@ -7464,8 +7464,8 @@ such objects
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`
-            which makes the specgram image. The origin kwarg is ignored.
-
+            which makes the specgram image. The origin keyword argument
+            is not supported.
         Returns
         -------
         spectrum : 2-D array
@@ -7503,7 +7503,7 @@ such objects
         is set to 'psd'.
 
         The origin of the plot is forced to 'upper'. The image.origin rcParam
-        and the value of the origin kwarg, if passed, are ignored.
+        is ignored and passing origin as a keyword argument raises a `TypeError.`
         """
         if NFFT is None:
             NFFT = 256  # same default as in mlab.specgram()
@@ -7552,7 +7552,10 @@ such objects
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
 
-        kwargs.pop('origin', None)
+        if 'origin' in kwargs:
+            raise TypeError("specgram() got an unexpected keyword argument "
+                            "'origin'")
+
         im = self.imshow(Z, cmap, extent=extent, vmin=vmin, vmax=vmax,
                          origin='upper', **kwargs)
         self.axis('auto')
