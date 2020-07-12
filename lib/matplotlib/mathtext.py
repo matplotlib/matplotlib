@@ -2879,6 +2879,7 @@ class Parser:
         hlist_list = [Char(c, state) for c in toks[0]]
         next_char = next((c for c in s[loc+len(toks[0])+1:] if c != ' '), '')
         delimiters = self._left_delim | self._ambi_delim | self._right_delim
+        delimiters |= set(r"^_".split())
         if (next_char not in delimiters and
                 toks[0] not in self._overunder_functions):
             # Add thin space except when followed by parenthesis, bracket, etc.
