@@ -614,12 +614,26 @@ class Colormap:
         cmapobject._global = False
         return cmapobject
 
+    def get_bad(self):
+        """Get the color for masked values."""
+        if not self._isinit:
+            self._init()
+        return self._lut[self._i_bad]
+
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
         _warn_if_global_cmap_modified(self)
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+
+    def get_under(self):
+        """
+        Get the color for low out-of-range values when ``norm.clip = False``.
+        """
+        if not self._isinit:
+            self._init()
+        return self._lut[self._i_under]
 
     def set_under(self, color='k', alpha=None):
         """
@@ -629,6 +643,14 @@ class Colormap:
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+
+    def get_over(self):
+        """
+        Get the color for high out-of-range values when ``norm.clip = False``.
+        """
+        if not self._isinit:
+            self._init()
+        return self._lut[self._i_over]
 
     def set_over(self, color='k', alpha=None):
         """
