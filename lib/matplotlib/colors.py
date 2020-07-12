@@ -1431,9 +1431,9 @@ class BoundaryNorm(Normalize):
         Parameters
         ----------
         boundaries : array-like
-            Monotonically increasing sequence of boundaries
+            Monotonically increasing sequence of at least 2 boundaries.
         ncolors : int
-            Number of colors in the colormap to be used
+            Number of colors in the colormap to be used.
         clip : bool, optional
             If clip is ``True``, out of range values are mapped to 0 if they
             are below ``boundaries[0]`` or mapped to ``ncolors - 1`` if they
@@ -1472,21 +1472,24 @@ class BoundaryNorm(Normalize):
         self.vmax = boundaries[-1]
         self.boundaries = np.asarray(boundaries)
         self.N = len(self.boundaries)
+        if self.N < 2:
+            raise ValueError("You must provide at least 2 boundaries "
+                             f"(1 region) but you passed in {boundaries!r}")
         self.Ncmap = ncolors
         self.extend = extend
 
-        self._N = self.N - 1  # number of colors needed
+        self._n_regions = self.N - 1  # number of colors needed
         self._offset = 0
         if extend in ('min', 'both'):
-            self._N += 1
+            self._n_regions += 1
             self._offset = 1
         if extend in ('max', 'both'):
-            self._N += 1
-        if self._N > self.Ncmap:
-            raise ValueError(f"There are {self._N} color bins including "
-                             f"extensions, but ncolors = {ncolors}; "
-                             "ncolors must equal or exceed the number of "
-                             "bins")
+            self._n_regions += 1
+        if self._n_regions > self.Ncmap:
+            raise ValueError(f"There are {self._n_regions} color bins "
+                             "including extensions, but ncolors = "
+                             f"{ncolors}; ncolors must equal or exceed the "
+                             "number of bins")
 
     def __call__(self, value, clip=None):
         if clip is None:
@@ -1494,16 +1497,31 @@ class BoundaryNorm(Normalize):
 
         xx, is_scalar = self.process_value(value)
         mask = np.ma.getmaskarray(xx)
+        # Fill masked values a value above the upper boundary
         xx = np.atleast_1d(xx.filled(self.vmax + 1))
         if clip:
             np.clip(xx, self.vmin, self.vmax, out=xx)
             max_col = self.Ncmap - 1
         else:
             max_col = self.Ncmap
+        # this gives us the bins in the lookup table in the range
+        # [0, _n_regions - 1]  (the offset is baked in in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
-        if self.Ncmap > self._N:
-            scalefac = (self.Ncmap - 1) / (self._N - 1)
-            iret = (iret * scalefac).astype(np.int16)
+        # if we have more colors than regions, stretch the region
+        # index computed above to full range of the color bins.  This
+        # will make use of the full range (but skip some of the colors
+        # in the middle) such that the first region is mapped to the
+        # first color and the last region is mapped to the last color.
+        if self.Ncmap > self._n_regions:
+            if self._n_regions == 1:
+                # special case the 1 region case, pick the middle color
+                iret[iret == 0] = (self.Ncmap - 1) // 2
+            else:
+                # otherwise linearly remap the values from the region index
+                # to the color index spaces
+                iret = (self.Ncmap - 1) / (self._n_regions - 1) * iret
+        # cast to 16bit integers in all cases
+        iret = iret.astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
         ret = np.ma.array(iret, mask=mask)
