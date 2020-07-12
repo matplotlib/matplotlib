@@ -1,7 +1,9 @@
 import copy
 import itertools
 
+from io import BytesIO
 import numpy as np
+from PIL import Image
 import pytest
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -1140,3 +1142,23 @@ def test_hex_shorthand_notation():
 def test_DivergingNorm_deprecated():
     with pytest.warns(cbook.MatplotlibDeprecationWarning):
         norm = mcolors.DivergingNorm(vcenter=0)
+
+
+def test_repr_png():
+    cmap = plt.get_cmap('viridis')
+    png = cmap._repr_png_()
+    assert len(png) > 0
+    img = Image.open(BytesIO(png))
+    assert img.width > 0
+    assert img.height > 0
+    assert 'Title' in img.text
+    assert 'Description' in img.text
+    assert 'Author' in img.text
+    assert 'Software' in img.text
+
+
+def test_repr_html():
+    cmap = plt.get_cmap('viridis')
+    html = cmap._repr_html_()
+    assert len(html) > 0
+    assert cmap.name in html

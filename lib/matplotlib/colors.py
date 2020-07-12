@@ -65,12 +65,17 @@ Matplotlib recognizes the following formats to specify a color:
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 """
 
+import base64
 from collections.abc import Sized
 import functools
+import io
 import itertools
 from numbers import Number
 import re
+from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 
+import matplotlib as mpl
 import numpy as np
 import matplotlib.cbook as cbook
 from matplotlib import docstring
@@ -690,6 +695,33 @@ class Colormap:
         ListedColormap.reversed
         """
         raise NotImplementedError()
+
+    def _repr_png_(self):
+        """Generate a PNG representation of the Colormap."""
+        IMAGE_SIZE = (400, 50)
+        X = np.tile(np.linspace(0, 1, IMAGE_SIZE[0]), (IMAGE_SIZE[1], 1))
+        pixels = self(X, bytes=True)
+        png_bytes = io.BytesIO()
+        title = self.name + ' color map'
+        author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'
+        pnginfo = PngInfo()
+        pnginfo.add_text('Title', title)
+        pnginfo.add_text('Description', title)
+        pnginfo.add_text('Author', author)
+        pnginfo.add_text('Software', author)
+        Image.fromarray(pixels).save(png_bytes, format='png', pnginfo=pnginfo)
+        return png_bytes.getvalue()
+
+    def _repr_html_(self):
+        """Generate an HTML representation of the Colormap."""
+        png_bytes = self._repr_png_()
+        png_base64 = base64.b64encode(png_bytes).decode('ascii')
+        return ('<strong>' + self.name + '</strong>' +
+                '<img ' +
+                'alt="' + self.name + ' color map" ' +
+                'title="' + self.name + '"' +
+                'style="border: 1px solid #555;" ' +
+                'src="data:image/png;base64,' + png_base64 + '">')
 
 
 class LinearSegmentedColormap(Colormap):
