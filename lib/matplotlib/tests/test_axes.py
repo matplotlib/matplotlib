@@ -4101,7 +4101,7 @@ def test_specgram_fs_none():
 
 @check_figures_equal(extensions=["png"])
 def test_specgram_origin_rcparam(fig_test, fig_ref):
-    """Test that specgram ignores the image.origin rcParam"""
+    """Test specgram ignores image.origin rcParam and uses origin 'upper'."""
     t = np.arange(500)
     signal = np.sin(t)
 
