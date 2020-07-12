@@ -2888,8 +2888,10 @@ class Parser:
                 c.font = 'rm'
                 c._update_metrics()
                 hlist_list.append(c)
-            else:
+            elif isinstance(c, str):
                 hlist_list.append(Char(c, state))
+            else:
+                hlist_list.append(c)
         next_char_loc = loc + len(toks[0]) + 1
         if isinstance(toks[0], ParseResults):
             next_char_loc += 14  # Skip `operatorname{}`
