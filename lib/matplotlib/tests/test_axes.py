@@ -4099,6 +4099,22 @@ def test_specgram_fs_none():
     assert xmin == 32 and xmax == 96
 
 
+@check_figures_equal(extensions=["png"])
+def test_specgram_origin(fig_test, fig_ref):
+    """Test that specgram ignores origin='lower' and always uses origin='upper'."""
+    t = np.arange(0.0, 500)
+    signal = np.sin(2 * np.pi * 100 * t)
+
+    # Reference: First graph using default origin in imshow (upper),
+    fig_ref.subplots().specgram(signal)
+
+    # Try to overwrite the setting trying to flip the specgram
+    plt.rcParams["image.origin"] = 'lower'
+
+    # Test: origin='lower' should be ignored
+    fig_test.subplots().specgram(signal)
+
+
 @image_comparison(
     ["psd_freqs.png", "csd_freqs.png", "psd_noise.png", "csd_noise.png"],
     remove_text=True, tol=0.002)
