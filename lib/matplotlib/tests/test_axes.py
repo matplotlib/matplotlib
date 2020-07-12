@@ -4100,8 +4100,8 @@ def test_specgram_fs_none():
 
 
 @check_figures_equal(extensions=["png"])
-def test_specgram_origin(fig_test, fig_ref):
-    """Test that specgram ignores origin='lower' and always uses origin='upper'."""
+def test_specgram_origin_rcparam(fig_test, fig_ref):
+    """Test that specgram ignores the image.origin rcParam"""
     t = np.arange(500)
     signal = np.sin(t)
 
@@ -4114,7 +4114,16 @@ def test_specgram_origin(fig_test, fig_ref):
     plt.rcParams["image.origin"] = 'lower'
 
     # Test: origin='lower' should be ignored
-    fig_test.subplots().specgram(signal,  origin='lower')
+    fig_test.subplots().specgram(signal)
+
+
+@pytest.mark.xfail(strict=True)
+def test_specgram_origin_kwarg():
+    """Ensure passing origin as a kwarg raises an exception."""
+    t = np.arange(500)
+    signal = np.sin(t)
+
+    plt.specgram(signal, origin='lower')
 
 
 @image_comparison(
