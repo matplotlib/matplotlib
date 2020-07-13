@@ -204,6 +204,28 @@ class GridSpecBase:
         fig_lefts, fig_rights = (left + cell_ws).reshape((-1, 2)).T
         return fig_bottoms, fig_tops, fig_lefts, fig_rights
 
+    @staticmethod
+    def _check_gridspec_exists(figure, nrows, ncols):
+        """
+        Check if the figure already has a gridspec with these dimensions,
+        or create a new one
+        """
+        for ax in figure.get_axes():
+            if hasattr(ax, 'get_subplotspec'):
+                gs = ax.get_subplotspec().get_gridspec()
+                if hasattr(gs, 'get_topmost_subplotspec'):
+                    # This is needed for colorbar gridspec layouts.
+                    # This is probably OK becase this whole logic tree
+                    # is for when the user is doing simple things with the
+                    # add_subplot command.  For complicated layouts
+                    # like subgridspecs the proper gridspec is passed in...
+                    gs = gs.get_topmost_subplotspec().get_gridspec()
+                if gs.get_geometry() == (nrows, ncols):
+                    return gs
+        # else gridspec not found:
+        return GridSpec(nrows, ncols, figure=figure)
+
+
     def __getitem__(self, key):
         """Create and return a `.SubplotSpec` instance."""
         nrows, ncols = self.get_geometry()
@@ -666,8 +688,7 @@ class SubplotSpec:
                     raise ValueError(
                         f"Single argument to subplot must be a three-digit "
                         f"integer, not {arg}") from None
-                # num - 1 for converting from MATLAB to python indexing
-                return GridSpec(rows, cols, figure=figure)[num - 1]
+                i = j = num
         elif len(args) == 3:
             rows, cols, num = args
             if not (isinstance(rows, Integral) and isinstance(cols, Integral)):
@@ -680,7 +701,6 @@ class SubplotSpec:
                     i, j = map(int, num)
                 else:
                     i, j = num
-                return gs[i-1:j]
             else:
                 if not isinstance(num, Integral):
                     cbook.warn_deprecated("3.3", message=message)
@@ -688,10 +708,15 @@ class SubplotSpec:
                 if num < 1 or num > rows*cols:
                     raise ValueError(
                         f"num must be 1 <= num <= {rows*cols}, not {num}")
-                return gs[num - 1]   # -1 due to MATLAB indexing.
+                i = j = num
         else:
             raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
                             f"{len(args)} were given")
+
+        gs = GridSpec._check_gridspec_exists(figure, rows, cols)
+        if gs is None:
+            gs = GridSpec(rows, cols, figure=figure)
+        return gs[i-1:j]
 
     # num2 is a property only to handle the case where it is None and someone
     # mutates num1.
