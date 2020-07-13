@@ -1801,6 +1801,9 @@ class Axis(martist.Artist):
         """
         Set this Axis' tick locations.
 
+        If necessary, the view limits of the Axis are expanded so that all
+        given ticks are visible.
+
         Parameters
         ----------
         ticks : list of floats
