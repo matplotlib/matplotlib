@@ -125,7 +125,8 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.set_rubberband(int(x0), int(y0), int(x1), int(y1))
 
-    def release(self, event):
+    def release_zoom(self, event):
+        super().release_zoom(event)
         self.canvas.remove_rubberband()
 
     def set_cursor(self, cursor):
