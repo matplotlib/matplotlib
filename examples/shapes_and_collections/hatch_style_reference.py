@@ -4,7 +4,7 @@ Hatch style reference
 =====================
 
 Hatching (pattern filled polygons) is currently supported in the backends
-PS, PDF, SVG and *Agg. The backends OSX, WX and *Cairo ignore hatching.
+PS, PDF, SVG and Agg. The backends OSX, WX and Cairo ignore hatching.
 """
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
