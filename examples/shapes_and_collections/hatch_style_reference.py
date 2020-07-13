@@ -1,7 +1,7 @@
 """
-===================
-Hatches Styles Demo
-===================
+=====================
+Hatch style reference
+=====================
 
 Hatching (pattern filled polygons) is supported currently in the PS,
 PDF, SVG and Agg backends only.
@@ -10,25 +10,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Rectangle
 
-fig, ax = plt.subplots()
+fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(10, 5))
 
-x = np.repeat([1, 4, 7, 10, 13], 2)
-y = np.tile([2, 5], 5)
+hatches = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']
 
-pos = np.column_stack((x, y))
-text_pos = pos + [0.9, -0.5]
 
-hashes = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']
+def hatches_plot(ax, h):
+    ax.add_patch(Rectangle((0, 0), 2, 2, fill=False, hatch=h))
+    ax.set_title(f"' {h} '")
+    ax.axis('equal')
+    ax.axis('off')
 
-for h, p, t in zip(hashes, pos, text_pos):
-    ax.add_patch(Rectangle(p, 2, 2, fill=False, hatch=h))
-    ax.text(t[0], t[1], h, fontsize=15)
-
-ax.axis('equal')
-ax.axis('off')
-fig.tight_layout()
-
-plt.show()
+for ax, h in zip(axs.flat, hatches):
+    hatches_plot(ax, h)
 
 #############################################################################
 #
