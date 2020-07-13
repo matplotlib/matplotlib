@@ -205,11 +205,13 @@ class PathNanRemover : protected EmbeddedQueue<4>
                    are found along the way, the queue is emptied, and
                    the next curve segment is handled. */
                 code = m_source->vertex(x, y);
-                if (code == agg::path_cmd_stop) {
-                    return code;
-                }
-                if (code == (agg::path_cmd_end_poly | agg::path_flags_close)
-                        && valid_segment_exists) {
+                /* The vertices attached to STOP and CLOSEPOLY left are never
+                   used, so we leave them as-is even if NaN. However, CLOSEPOLY
+                   only makes sense if a valid MOVETO command has already been
+                   emitted. */
+                if (code == agg::path_cmd_stop ||
+                    (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
+                     valid_segment_exists)) {
                     return code;
                 }
 
@@ -258,7 +260,8 @@ class PathNanRemover : protected EmbeddedQueue<4>
             code = m_source->vertex(x, y);
 
             if (code == agg::path_cmd_stop ||
-                code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
+                 valid_segment_exists)) {
                 return code;
             }
 
@@ -266,13 +269,14 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 do {
                     code = m_source->vertex(x, y);
                     if (code == agg::path_cmd_stop ||
-                        code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                        (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
+                         valid_segment_exists)) {
                         return code;
                     }
                 } while (!(std::isfinite(*x) && std::isfinite(*y)));
                 return agg::path_cmd_move_to;
             }
-
+            valid_segment_exists = true;
             return code;
         }
     }
