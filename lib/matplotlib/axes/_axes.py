@@ -7503,7 +7503,7 @@ such objects
         is set to 'psd'.
 
         The origin of the plot is forced to 'upper'. The image.origin rcParam
-        is ignored. Passing origin as a keyword argument raises a `TypeError.`
+        is ignored. Passing origin as a keyword argument raises a `TypeError`.
         """
         if NFFT is None:
             NFFT = 256  # same default as in mlab.specgram()
