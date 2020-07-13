@@ -747,7 +747,8 @@ def validate_movie_writer(s):
 
 
 validate_movie_frame_fmt = ValidateInStrings(
-    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba'],
+    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba', 'ppm',
+                               'sgi', 'bmp', 'pbm', 'svg'],
     _deprecated_since="3.3")
 validate_axis_locator = ValidateInStrings(
     'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
@@ -1491,7 +1492,8 @@ _validators = {
     "animation.codec":        validate_string,
     "animation.bitrate":      validate_int,
     # Controls image format when frames are written to disk
-    "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba"],
+    "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba", "ppm",
+                               "sgi", "bmp", "pbm", "svg"],
     # Additional arguments for HTML writer
     "animation.html_args":    validate_stringlist,
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
