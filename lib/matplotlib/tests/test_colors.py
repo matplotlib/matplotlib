@@ -1172,6 +1172,6 @@ def test_repr_html():
 
 def test_get_under_over_bad():
     cmap = plt.get_cmap('viridis')
-    assert_array_equal(cmap.get_under(), cmap(0.0))
-    assert_array_equal(cmap.get_over(), cmap(1.0))
+    assert_array_equal(cmap.get_under(), cmap(-np.inf))
+    assert_array_equal(cmap.get_over(), cmap(np.inf))
     assert_array_equal(cmap.get_bad(), cmap(np.nan))
