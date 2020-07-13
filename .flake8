@@ -226,7 +226,7 @@ per-file-ignores =
     examples/shapes_and_collections/ellipse_demo.py: E402
     examples/shapes_and_collections/fancybox_demo.py: E402
     examples/shapes_and_collections/hatch_demo.py: E402
-    examples/shapes_and_collections/hatches_styles.py: E402
+    examples/shapes_and_collections/hatch_style_reference: E402
     examples/shapes_and_collections/line_collection.py: E402
     examples/shapes_and_collections/marker_path.py: E402
     examples/shapes_and_collections/patch_collection.py: E402
