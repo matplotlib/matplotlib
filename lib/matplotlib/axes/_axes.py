@@ -7501,9 +7501,6 @@ such objects
         -----
         The parameters *detrend* and *scale_by_freq* do only apply when *mode*
         is set to 'psd'.
-
-        The origin of the plot is forced to 'upper'. The image.origin rcParam
-        is ignored. Passing origin as a keyword argument raises a `TypeError`.
         """
         if NFFT is None:
             NFFT = 256  # same default as in mlab.specgram()
