@@ -303,8 +303,8 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
 
-    assert_array_equal(cmref.get_over(), mcolors.to_rgba('black'))
-    assert_array_equal(cmref.get_under(), mcolors.to_rgba('white'))
+    assert mcolors.same_color(cmref.get_over(), 'black')
+    assert mcolors.same_color(cmref.get_under(), 'white')
 
     refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
     mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='both')
@@ -326,7 +326,7 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
 
-    assert_array_equal(cmref.get_under(), mcolors.to_rgba('white'))
+    assert mcolors.same_color(cmref.get_under(), 'white')
 
     assert cmref.N == 2
     assert cmshould.N == 3
@@ -344,7 +344,7 @@ def test_BoundaryNorm():
     cmref.set_over('black')
     cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
 
-    assert_array_equal(cmref.get_over(), mcolors.to_rgba('black'))
+    assert mcolors.same_color(cmref.get_over(), 'black')
 
     assert cmref.N == 2
     assert cmshould.N == 3
