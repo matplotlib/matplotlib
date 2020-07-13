@@ -7,7 +7,6 @@ Hatching (pattern filled polygons) is supported currently in the PS,
 PDF, SVG and Agg backends only.
 """
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.patches import Rectangle
 
 fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(10, 5))
