@@ -119,7 +119,7 @@ def test_label_without_ticks():
     ax.set_xlabel('x label')
     ax.xaxis.set_ticks([])
     ax.yaxis.set_ticks([])
-    plt.draw()
+    fig.canvas.draw()
 
     spine = ax.spines.left
     spinebbox = spine.get_transform().transform_path(
