@@ -22,8 +22,8 @@ The `.Figure` class has a provisional method to generate complex grids of named
    :include-source: True
 
    axd = plt.figure(constrained_layout=True).subplot_mosaic(
-       [["Top", "Top", "Edge"],
-        ["Left", ".",  "Edge"]]
+       [['.', 'histx'],
+        ['histy', 'scat']]
    )
    for k, ax in axd.items():
        ax.text(0.5, 0.5, k,
@@ -343,16 +343,45 @@ generated and used. For a function a `~.ticker.FuncFormatter` is automatically
 generated and used. In other words,
 ::
 
-    ax.xaxis.set_major_formatter('price: {x:02}')
-    ax.xaxis.set_minor_formatter(lambda x, pos: 'low' if x < 2 else 'high')
+    ax.xaxis.set_major_formatter('{x} km')
+    ax.xaxis.set_minor_formatter(lambda x, pos: str(x-5))
 
 are shortcuts for::
 
     import matplotlib.ticker as mticker
 
-    ax.xaxis.set_major_formatter(mticker.StrMethodFormatter('price: {x:02}'))
+    ax.xaxis.set_major_formatter(mticker.StrMethodFormatter('{x} km'))
     ax.xaxis.set_minor_formatter(
-        mticker.FuncFormatter(lambda x, pos: 'low' if x < 2 else 'high'))
+        mticker.FuncFormatter(lambda x, pos: str(x-5))
+
+.. plot::
+
+    from matplotlib import ticker
+
+    titles = ["'{x} km'", "lambda x, pos: str(x-5)"]
+    formatters = ['{x} km', lambda x, pos: str(x-5)]
+
+    fig, axs = plt.subplots(2, 1, figsize=(8, 2), constrained_layout=True)
+
+    for ax, title, formatter in zip(axs, titles, formatters):
+        # only show the bottom spine
+        ax.yaxis.set_major_locator(ticker.NullLocator())
+        for spine in ['top', 'left', 'right']:
+            ax.spines[spine].set_visible(False)
+
+        # define tick positions
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
+
+        ax.tick_params(which='major', width=1.00, length=5)
+        ax.tick_params(which='minor', width=0.75, length=2.5, labelsize=10)
+        ax.set_xlim(0, 5)
+        ax.set_ylim(0, 1)
+        ax.text(0.0, 0.2, f'ax.xaxis.set_major_formatter({title})',
+                transform=ax.transAxes, fontsize=14, fontname='Monospace',
+                color='tab:blue')
+
+        ax.xaxis.set_major_formatter(formatter)
 
 
 Setting axes box aspect
@@ -450,9 +479,10 @@ and ``sum(x) > 1``, then an error is raised.
     ax[0, 1].pie(x, autopct='%1.2f%%', labels=label(x), normalize=True)
     ax[0, 1].set_title('normalize=True')
 
-    # For the purposes of keeping the documentation build warning-free, and
-    # future proof for when the deprecation is made permanent, we pass
-    # *normalize* here explicitly anyway.
+    # This is supposed to show the 'old' behavior of not passing *normalize*
+    # explicitly, but for the purposes of keeping the documentation build
+    # warning-free, and future proof for when the deprecation is made
+    # permanent, we pass *normalize* here explicitly anyway.
     ax[1, 0].pie(x, autopct='%1.2f%%', labels=label(x), normalize=False)
     ax[1, 0].set_title('normalize unspecified\nsum(x) < 1')
     ax[1, 1].pie(x * 10, autopct='%1.2f%%', labels=label(x * 10),
