@@ -2244,8 +2244,7 @@ def _check_isinstance(_types, **kwargs):
 
 def _check_in_list(_values, *, _print_supported_values=True, **kwargs):
     """
-    For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
-    if not, raise an appropriate ValueError.
+    For each *key, value* pair in *kwargs*, check that *value* is in *_values*.
 
     Parameters
     ----------
@@ -2254,7 +2253,7 @@ def _check_in_list(_values, *, _print_supported_values=True, **kwargs):
     _print_supported_values : bool, default: True
         Whether to print *_values* when raising ValueError
     **kwargs : dict-like
-        *key, values* pairs as keyword arguments to find in *_values*
+        *key, value* pairs as keyword arguments to find in *_values*
 
     Raises
     ------
