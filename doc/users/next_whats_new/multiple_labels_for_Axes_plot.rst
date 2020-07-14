@@ -1,7 +1,9 @@
 An iterable object with labels can be passed to `.Axes.plot`
--------------------------------------------------------------
+------------------------------------------------------------
 
-When plotting multiple datasets by passing 2D data as *y* value to `~.Axes.plot`, labels for the datasets can be passed as a list, the length matching the number of columns in *y*.
+When plotting multiple datasets by passing 2D data as *y* value to 
+`~.Axes.plot`, labels for the datasets can be passed as a list, the 
+length matching the number of columns in *y*.
 
 .. plot::
 
