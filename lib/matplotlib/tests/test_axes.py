@@ -6427,11 +6427,11 @@ def test_secondary_minorloc():
     assert isinstance(secax._axis.get_minor_locator(),
                       mticker.AutoMinorLocator)
     ax.set_xscale('log')
-    plt.draw()
+    fig.canvas.draw()
     assert isinstance(secax._axis.get_minor_locator(),
                       mticker.LogLocator)
     ax.set_xscale('linear')
-    plt.draw()
+    fig.canvas.draw()
     assert isinstance(secax._axis.get_minor_locator(),
                       mticker.NullLocator)
 
