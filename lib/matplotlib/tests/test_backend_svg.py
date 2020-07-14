@@ -12,7 +12,7 @@ import matplotlib as mpl
 from matplotlib import dviread
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 needs_usetex = pytest.mark.skipif(
@@ -89,6 +89,104 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_xlabel('nonbold-xlabel')
     ax.set_ylabel('bold-ylabel', fontweight='bold')
     ax.set_title('bold-title', fontweight='bold')
+
+
+@check_figures_equal(tol=20)
+def test_rasterized(fig_test, fig_ref):
+    t = np.arange(0, 100) * (2.3)
+    x = np.cos(t)
+    y = np.sin(t)
+
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot(x, y, "-", c="r", lw=10)
+    ax_ref.plot(x+1, y, "-", c="b", lw=10)
+
+    ax_test = fig_test.subplots()
+    ax_test.plot(x, y, "-", c="r", lw=10, rasterized=True)
+    ax_test.plot(x+1, y, "-", c="b", lw=10, rasterized=True)
+
+
+@check_figures_equal()
+def test_rasterized_ordering(fig_test, fig_ref):
+    t = np.arange(0, 100) * (2.3)
+    x = np.cos(t)
+    y = np.sin(t)
+
+    ax_ref = fig_ref.subplots()
+    ax_ref.set_xlim(0, 3)
+    ax_ref.set_ylim(-1.1, 1.1)
+    ax_ref.plot(x, y, "-", c="r", lw=10, rasterized=True)
+    ax_ref.plot(x+1, y, "-", c="b", lw=10, rasterized=False)
+    ax_ref.plot(x+2, y, "-", c="g", lw=10, rasterized=True)
+    ax_ref.plot(x+3, y, "-", c="m", lw=10, rasterized=True)
+
+    ax_test = fig_test.subplots()
+    ax_test.set_xlim(0, 3)
+    ax_test.set_ylim(-1.1, 1.1)
+    ax_test.plot(x, y, "-", c="r", lw=10, rasterized=True, zorder=1.1)
+    ax_test.plot(x+2, y, "-", c="g", lw=10, rasterized=True, zorder=1.3)
+    ax_test.plot(x+3, y, "-", c="m", lw=10, rasterized=True, zorder=1.4)
+    ax_test.plot(x+1, y, "-", c="b", lw=10, rasterized=False, zorder=1.2)
+
+
+def test_count_bitmaps():
+    def count_tag(fig, tag):
+        fd = BytesIO()
+        fig.savefig(fd, format='svg')
+        fd.seek(0)
+        buf = fd.read().decode()
+        fd.close()
+        open("test.svg", "w").write(buf)
+        return buf.count("<%s" % tag)
+
+    # No rasterized elements
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1.set_axis_off()
+    for n in range(5):
+        ax1.plot([0, 20], [0, n], "b-", rasterized=False)
+    assert count_tag(fig1, "image") == 0
+    assert count_tag(fig1, "path") == 6  # axis patch plus lines
+
+    # rasterized can be merged
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(1, 1, 1)
+    ax2.set_axis_off()
+    for n in range(5):
+        ax2.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig2, "image") == 1
+    assert count_tag(fig2, "path") == 1  # axis patch
+
+    # rasterized can't be merged without effecting draw order
+    fig3 = plt.figure()
+    ax3 = fig3.add_subplot(1, 1, 1)
+    ax3.set_axis_off()
+    for n in range(5):
+        ax3.plot([0, 20], [n, 0], "b-", rasterized=False)
+        ax3.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig3, "image") == 5
+    assert count_tag(fig3, "path") == 6
+
+    # rasterized whole axes
+    fig4 = plt.figure()
+    ax4 = fig4.add_subplot(1, 1, 1)
+    ax4.set_axis_off()
+    ax4.set_rasterized(True)
+    for n in range(5):
+        ax4.plot([0, 20], [n, 0], "b-", rasterized=False)
+        ax4.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig4, "image") == 1
+    assert count_tag(fig4, "path") == 1
+
+    # rasterized can be merged, but inhibited by suppressComposite
+    fig5 = plt.figure()
+    fig5.suppressComposite = True
+    ax5 = fig5.add_subplot(1, 1, 1)
+    ax5.set_axis_off()
+    for n in range(5):
+        ax5.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig5, "image") == 5
+    assert count_tag(fig5, "path") == 1  # axis patch
 
 
 @needs_usetex
