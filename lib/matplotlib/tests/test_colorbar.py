@@ -601,7 +601,7 @@ def test_mappable_no_alpha():
     sm = cm.ScalarMappable(norm=mcolors.Normalize(), cmap='viridis')
     fig.colorbar(sm)
     sm.set_cmap('plasma')
-    plt.draw()
+    fig.canvas.draw()
 
 
 def test_mappable_2d_alpha():

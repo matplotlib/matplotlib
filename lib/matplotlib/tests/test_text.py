@@ -446,14 +446,8 @@ def test_annotation_negative_fig_coords():
 
 
 def test_text_stale():
-    # A version of draw_all that draws even when interactive is off
-    def draw_all_when_not_interactive():
-        for f_mgr in plt._pylab_helpers.Gcf.get_all_fig_managers():
-            if f_mgr.canvas.figure.stale:
-                f_mgr.canvas.draw()
-
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    draw_all_when_not_interactive()
+    fig.canvas.draw()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale
@@ -468,7 +462,7 @@ def test_text_stale():
     assert ann1.stale
     assert fig.stale
 
-    draw_all_when_not_interactive()
+    fig.canvas.draw()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale

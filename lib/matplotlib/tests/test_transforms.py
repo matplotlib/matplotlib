@@ -43,12 +43,12 @@ def test_non_affine_caching():
     my_trans = AssertingNonAffineTransform()
     ax = plt.axes()
     plt.plot(np.arange(10), transform=my_trans + ax.transData)
-    plt.draw()
+    ax.figure.canvas.draw()
     # enable the transform to raise an exception if it's non-affine transform
     # method is triggered again.
     my_trans.raise_on_transform = True
     ax.transAxes.invalidate()
-    plt.draw()
+    ax.figure.canvas.draw()
 
 
 def test_external_transform_api():
