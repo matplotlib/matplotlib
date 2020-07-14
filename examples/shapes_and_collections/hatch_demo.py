@@ -1,11 +1,20 @@
 """
 ==========
-Hatch Demo
+Hatch demo
 ==========
 
-Hatching (pattern filled polygons) is supported currently in the PS,
-PDF, SVG and Agg backends only.
+Hatches can be added to most polygons in Matplotlib, including `~.Axes.bar`,
+`~.Axes.fill_between`, `~.Axes.contourf`, and childern of `~.patches.Polygon`.
+They are currently supported in the PS, PDF, SVG, OSX, and Agg backends. The WX
+and Cairo backends do not currently support hatching.
+
+See also :doc:`/gallery/images_contours_and_fields/contourf_hatching` for
+an example using `~.Axes.contourf`, and
+:doc:`/gallery/shapes_and_collections/hatch_style_reference` for swatches
+of the existing hatches.
+
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Polygon
@@ -14,23 +23,26 @@ x = np.arange(1, 5)
 y1 = np.arange(1, 5)
 y2 = np.ones(y1.shape) * 4
 
-fig, (ax1, ax2, ax3) = plt.subplots(3)
+fig = plt.figure()
+axs = fig.subplot_mosaic([['bar1', 'patches'], ['bar2', 'patches']])
 
-ax1.bar(x, y1, edgecolor='black', hatch="/")
-ax1.bar(x, y2, bottom=y1, edgecolor='black', hatch='//')
-ax1.set_xticks([1.5, 2.5, 3.5, 4.5])
+axs['bar1'].bar(x, y1, edgecolor='black', hatch="/")
+axs['bar1'].bar(x, y2, bottom=y1, edgecolor='black', hatch='//')
 
-ax2.bar(x, y1, edgecolor='black', hatch=['-', '+', 'x', '\\'])
-ax2.bar(x, y2, bottom=y1, edgecolor='black', hatch=['*', 'o', 'O', '.'])
-ax2.set_xticks([1.5, 2.5, 3.5, 4.5])
+axs['bar2'].bar(x, y1, edgecolor='black', hatch=['--', '+', 'x', '\\'])
+axs['bar2'].bar(x, y2, bottom=y1, edgecolor='black',
+                hatch=['*', 'o', 'O', '.'])
 
-ax3.fill([1, 3, 3, 1], [1, 1, 2, 2], fill=False, hatch='\\')
-ax3.add_patch(Ellipse((4, 1.5), 4, 0.5, fill=False, hatch='*'))
-ax3.add_patch(Polygon([[0, 0], [4, 1.1], [6, 2.5], [2, 1.4]], closed=True,
-                      fill=False, hatch='/'))
-ax3.set_xlim((0, 6))
-ax3.set_ylim((0, 2.5))
-
+x = np.arange(0, 40, 0.2)
+axs['patches'].fill_between(x, np.sin(x) * 4 + 30, y2=0,
+                            hatch='///', zorder=2, fc='c')
+axs['patches'].add_patch(Ellipse((4, 50), 10, 10, fill=True,
+                                 hatch='*', facecolor='y'))
+axs['patches'].add_patch(Polygon([(10, 20), (30, 50), (50, 10)],
+                                 hatch='\\/...', facecolor='g'))
+axs['patches'].set_xlim([0, 40])
+axs['patches'].set_ylim([10, 60])
+axs['patches'].set_aspect(1)
 plt.show()
 
 #############################################################################
