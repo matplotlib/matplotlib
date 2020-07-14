@@ -1,0 +1,20 @@
+Make ``draw_idle`` method on ``FigureCanvasBase`` a no-op if not in interactive mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For backends that do not have an event loop associated with them
+(e.g. non-GUI backends) the semantics of `.FigureCanvasBase.draw_idle` are
+not clear.  Previously it was equivalent to a non-re-entrant
+``fig.canvas.draw()`` call in all cases.  Now it will be a no-op
+unless Matplotlib is in "interactive mode" (as given by
+`matplotlib.is_interactive`).
+
+There are a number of derived properties in the Figure that we defer
+computing until draw time (limits, ticks, the size of things in screen
+space, optimized layout, etc).  If you need to be sure that these
+values are correct (with any backend) call ::
+
+  fig.canvas.draw()
+
+to force the Figure to fully render.  This may break user code if it
+is relying on `pyplot.draw` (which internally calls ``draw_idle``)
+for the same effect in non-interactive mode.
