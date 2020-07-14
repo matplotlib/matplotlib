@@ -12,8 +12,11 @@ revision, see the :ref:`github-stats`.
    :maxdepth: 4
 
 
+Figure and Axes creation / management
+-------------------------------------
+
 Provisional API for composing semantic axes layouts from text or nested lists
------------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `.Figure` class has a provisional method to generate complex grids of named
 `.axes.Axes` based on nested list input or ASCII art:
@@ -48,9 +51,8 @@ or as a string (with single-character Axes labels):
 See :ref:`sphx_glr_tutorials_provisional_mosaic.py` for more
 details and examples.
 
-
 ``GridSpec.subplots()``
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The `.GridSpec` class gained a `~.GridSpecBase.subplots` method, so that one
 can write ::
@@ -61,9 +63,94 @@ as an alternative to ::
 
     fig.subplots(2, 2, gridspec_kw={"height_ratios": [3, 1]})
 
+New ``Axes.sharex``, ``Axes.sharey`` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These new methods allow sharing axes *immediately* after creating them. Note
+that behavior is indeterminate if axes are not shared immediately after
+creation.
+
+For example, they can be used to selectively link some axes created all
+together using `~.Figure.subplot_mosaic`::
+
+    fig = plt.figure(constrained_layout=True)
+    axd = fig.subplot_mosaic([['.', 'histx'], ['histy', 'scat']],
+                             gridspec_kw={'width_ratios': [1, 7],
+                                          'height_ratios': [2, 7]})
+
+    axd['histx'].sharex(axd['scat'])
+    axd['histy'].sharey(axd['scat'])
+
+.. plot::
+
+    np.random.seed(0)
+    x = np.random.random(100) * 100 + 20
+    y = np.random.random(100) * 50 + 25
+    c = np.random.random(100) - 0.5
+
+    fig = plt.figure(constrained_layout=True)
+    axd = fig.subplot_mosaic([['.', 'histx'], ['histy', 'scat']],
+                             gridspec_kw={'width_ratios': [1, 7],
+                                          'height_ratios': [2, 7]})
+
+    axd['histy'].invert_xaxis()
+    axd['histx'].sharex(axd['scat'])
+    axd['histy'].sharey(axd['scat'])
+
+    im = axd['scat'].scatter(x, y, c=c, cmap='RdBu', picker=True)
+    fig.colorbar(im, orientation='horizontal', ax=axd['scat'], shrink=0.8)
+
+    axd['histx'].hist(x)
+    axd['histy'].hist(y, orientation='horizontal')
+
+tight_layout now supports suptitle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previous versions did not consider `.Figure.suptitle`, so it may overlap with
+other artists after calling `~.Figure.tight_layout`:
+
+.. plot::
+
+    fig, axs = plt.subplots(1, 3)
+    for i, ax in enumerate(axs):
+        ax.plot([1, 2, 3])
+        ax.set_title(f'Axes {i}')
+
+    t = fig.suptitle('suptitle')
+    t.set_in_layout(False)
+    fig.tight_layout()
+
+From now on, the ``suptitle`` will be considered:
+
+.. plot::
+
+    fig, axs = plt.subplots(1, 3)
+    for i, ax in enumerate(axs):
+        ax.plot([1, 2, 3])
+        ax.set_title(f'Axes {i}')
+
+    fig.suptitle('suptitle')
+    fig.tight_layout()
+
+Setting axes box aspect
+~~~~~~~~~~~~~~~~~~~~~~~
+
+It is now possible to set the aspect of an axes box directly via
+`~.Axes.set_box_aspect`. The box aspect is the ratio between axes height and
+axes width in physical units, independent of the data limits. This is useful
+to, e.g., produce a square plot, independent of the data it contains, or to
+have a non-image plot with the same axes dimensions next to an image plot with
+fixed (data-)aspect.
+
+For use cases check out the :doc:`Axes box aspect
+</gallery/subplots_axes_and_figures/axes_box_aspect>` example.
+
+
+Colors and colormaps
+--------------------
 
 Turbo colormap
---------------
+~~~~~~~~~~~~~~
 
 Turbo is an improved rainbow colormap for visualization, created by the Google
 AI team for computer visualization and machine learning. Its purpose is to
@@ -83,26 +170,8 @@ for further details.
         ax.set_title(name)
         ax.set_axis_off()
 
-
-New ``Axes.axline`` method
---------------------------
-
-A new `~.axes.Axes.axline` method has been added to draw infinitely long lines
-that pass through two points.
-
-.. plot::
-   :include-source: True
-
-   fig, ax = plt.subplots()
-
-   ax.axline((.1, .1), slope=5, color='C0', label='by slope')
-   ax.axline((.1, .2), (.8, .7), color='C3', label='by points')
-
-   ax.legend()
-
-
 ``colors.BoundaryNorm`` supports *extend* keyword argument
-----------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `~.colors.BoundaryNorm` now has an *extend* keyword argument, analogous to
 *extend* in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max', it
@@ -150,9 +219,8 @@ for out-of-range values with colors that differ from adjacent in-range colors.
 
     plt.show()
 
-
 Text color for legend labels
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The text color of legend labels can now be set by passing a parameter
 ``labelcolor`` to `~.axes.Axes.legend`. The ``labelcolor`` keyword can be:
@@ -184,50 +252,38 @@ The text color of legend labels can now be set by passing a parameter
 
         ax.margins(0.1)
 
+Pcolor and Pcolormesh now accept ``shading='nearest'`` and ``'auto'``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-New ``Axes.sharex``, ``Axes.sharey`` methods
---------------------------------------------
+Previously `.axes.Axes.pcolor` and `.axes.Axes.pcolormesh` handled the
+situation where *x* and *y* have the same (respective) size as *C* by dropping
+the last row and column of *C*, and *x* and *y* are regarded as the edges of
+the remaining rows and columns in *C*. However, many users want *x* and *y*
+centered on the rows and columns of *C*.
 
-These new methods allow sharing axes *immediately* after creating them. Note
-that behavior is indeterminate if axes are not shared immediately after
-creation.
+To accommodate this, ``shading='nearest'`` and ``shading='auto'`` are new
+allowed strings for the *shading* keyword argument. ``'nearest'`` will center
+the color on *x* and *y* if *x* and *y* have the same dimensions as *C*
+(otherwise an error will be thrown). ``shading='auto'`` will choose 'flat' or
+'nearest' based on the size of *X*, *Y*, *C*.
 
-For example, they can be used to selectively link some axes created all
-together using `~.Figure.subplot_mosaic`::
+If ``shading='flat'`` then *X*, and *Y* should have dimensions one larger than
+*C*. If *X* and *Y* have the same dimensions as *C*, then the previous behavior
+is used and the last row and column of *C* are dropped, and a
+DeprecationWarning is emitted.
 
-    fig = plt.figure(constrained_layout=True)
-    axd = fig.subplot_mosaic([['.', 'histx'], ['histy', 'scat']],
-                             gridspec_kw={'width_ratios': [1, 7],
-                                          'height_ratios': [2, 7]})
+Users can also specify this by the new :rc:`pcolor.shading` in their
+``.matplotlibrc`` or via `.rcParams`.
 
-    axd['histx'].sharex(axd['scat'])
-    axd['histy'].sharey(axd['scat'])
+See :doc:`pcolormesh </gallery/images_contours_and_fields/pcolormesh_grids>`
+for examples.
 
-.. plot::
 
-    np.random.seed(0)
-    x = np.random.random(100) * 100 + 20
-    y = np.random.random(100) * 50 + 25
-    c = np.random.random(100) - 0.5
-
-    fig = plt.figure(constrained_layout=True)
-    axd = fig.subplot_mosaic([['.', 'histx'], ['histy', 'scat']],
-                             gridspec_kw={'width_ratios': [1, 7],
-                                          'height_ratios': [2, 7]})
-
-    axd['histy'].invert_xaxis()
-    axd['histx'].sharex(axd['scat'])
-    axd['histy'].sharey(axd['scat'])
-
-    im = axd['scat'].scatter(x, y, c=c, cmap='RdBu', picker=True)
-    fig.colorbar(im, orientation='horizontal', ax=axd['scat'], shrink=0.8)
-
-    axd['histx'].hist(x)
-    axd['histy'].hist(y, orientation='horizontal')
-
+Titles, ticks, and labels
+-------------------------
 
 Align labels to Axes edges
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and
 `.ColorbarBase.set_label` support a parameter ``loc`` for simplified
@@ -253,88 +309,8 @@ orientation.
         ax.plot([1, 2, 3])
         ax.set_ylabel(f'ylabel loc={loc!r}', loc=loc)
 
-
-Offset text is now set to the top when using ``axis.tick_top()``
-----------------------------------------------------------------
-
-Solves the issue that the power indicator (e.g., 1e4) stayed on the bottom,
-even if the ticks were on the top.
-
-
-``Axes.set_title`` gains a *y* keyword argument to control auto positioning
----------------------------------------------------------------------------
-
-`~.axes.Axes.set_title` tries to auto-position the title to avoid any
-decorators on the top x-axis. This is not always desirable so now *y* is an
-explicit keyword argument of `~.axes.Axes.set_title`. It defaults to *None*
-which means to use auto-positioning. If a value is supplied (i.e. the pre-3.0
-default was ``y=1.0``) then auto-positioning is turned off. This can also be
-set with the new rcParameter :rc:`axes.titley`.
-
-.. plot::
-
-    fig, axs = plt.subplots(1, 2, constrained_layout=True, figsize=(5, 2))
-    axs[0].set_title('y=0.7\n$\sum_{j_n} x_j$', y=0.7)
-    axs[1].set_title('y=None\n$\sum_{j_n} x_j$')
-    plt.show()
-
-
-Dates use a modern epoch
-------------------------
-
-Matplotlib converts dates to days since an epoch using `.dates.date2num` (via
-`matplotlib.units`). Previously, an epoch of ``0000-12-31T00:00:00`` was used
-so that ``0001-01-01`` was converted to 1.0. An epoch so distant in the
-past meant that a modern date was not able to preserve microseconds because
-2000 years times the 2^(-52) resolution of a 64-bit float gives 14
-microseconds.
-
-Here we change the default epoch to the more reasonable UNIX default of
-``1970-01-01T00:00:00`` which for a modern date has 0.35 microsecond
-resolution.  (Finer resolution is not possible because we rely on
-`datetime.datetime` for the date locators). Access to the epoch is provided
-by `~.dates.get_epoch`, and there is a new :rc:`date.epoch` rcParam. The user
-may also call `~.dates.set_epoch`, but it must be set *before* any date
-conversion or plotting is used.
-
-If you have data stored as ordinal floats in the old epoch, you can convert
-them to the new ordinal using the following formula::
-
-    new_ordinal = old_ordinal + mdates.date2num(np.datetime64('0000-12-31'))
-
-
-tight_layout now supports suptitle
-----------------------------------
-
-Previous versions did not consider `.Figure.suptitle`, so it may overlap with
-other artists after calling `~.Figure.tight_layout`:
-
-.. plot::
-
-    fig, axs = plt.subplots(1, 3)
-    for i, ax in enumerate(axs):
-        ax.plot([1, 2, 3])
-        ax.set_title(f'Axes {i}')
-
-    t = fig.suptitle('suptitle')
-    t.set_in_layout(False)
-    fig.tight_layout()
-
-From now on, the ``suptitle`` will be considered:
-
-.. plot::
-
-    fig, axs = plt.subplots(1, 3)
-    for i, ax in enumerate(axs):
-        ax.plot([1, 2, 3])
-        ax.set_title(f'Axes {i}')
-
-    fig.suptitle('suptitle')
-    fig.tight_layout()
-
-
 Allow tick formatters to be set with str or function inputs
------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `~.Axis.set_major_formatter` and `~.Axis.set_minor_formatter`
 now accept `str` or function inputs in addition to `~.ticker.Formatter`
@@ -383,79 +359,69 @@ are shortcuts for::
 
         ax.xaxis.set_major_formatter(formatter)
 
+``Axes.set_title`` gains a *y* keyword argument to control auto positioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Setting axes box aspect
------------------------
+`~.axes.Axes.set_title` tries to auto-position the title to avoid any
+decorators on the top x-axis. This is not always desirable so now *y* is an
+explicit keyword argument of `~.axes.Axes.set_title`. It defaults to *None*
+which means to use auto-positioning. If a value is supplied (i.e. the pre-3.0
+default was ``y=1.0``) then auto-positioning is turned off. This can also be
+set with the new rcParameter :rc:`axes.titley`.
 
-It is now possible to set the aspect of an axes box directly via
-`~.Axes.set_box_aspect`. The box aspect is the ratio between axes height and
-axes width in physical units, independent of the data limits. This is useful
-to, e.g., produce a square plot, independent of the data it contains, or to
-have a non-image plot with the same axes dimensions next to an image plot with
-fixed (data-)aspect.
+.. plot::
 
-For use cases check out the :doc:`Axes box aspect
-</gallery/subplots_axes_and_figures/axes_box_aspect>` example.
+    fig, axs = plt.subplots(1, 2, constrained_layout=True, figsize=(5, 2))
+    axs[0].set_title('y=0.7\n$\sum_{j_n} x_j$', y=0.7)
+    axs[1].set_title('y=None\n$\sum_{j_n} x_j$')
+    plt.show()
 
+Offset text is now set to the top when using ``axis.tick_top()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pcolor and Pcolormesh now accept ``shading='nearest'`` and ``'auto'``
----------------------------------------------------------------------
-
-Previously `.axes.Axes.pcolor` and  `.axes.Axes.pcolormesh` handled
-the situation where *x* and *y* have the same (respective) size as *C* by
-dropping the last row and column of *C*, and *x* and *y* are regarded as the
-edges of the remaining rows and columns in *C*.  However, many users want
-*x* and *y* centered on the rows and columns of *C*.
-
-To accommodate this, ``shading='nearest'`` and ``shading='auto'`` are new
-allowed strings for the *shading* keyword argument. ``'nearest'`` will center
-the color on *x* and *y* if *x* and *y* have the same dimensions as *C*
-(otherwise an error will be thrown). ``shading='auto'`` will choose 'flat' or
-'nearest' based on the size of *X*, *Y*, *C*.
-
-If ``shading='flat'`` then *X*, and *Y* should have dimensions one larger
-than *C*.  If *X* and *Y* have the same dimensions as *C*, then the previous
-behavior is used and the last row and column of *C* are dropped, and a
-DeprecationWarning is emitted.
-
-Users can also specify this by the new :rc:`pcolor.shading` in their
-``.matplotlibrc`` or via `.rcParams`.
-
-See :doc:`pcolormesh </gallery/images_contours_and_fields/pcolormesh_grids>`
-for examples.
-
-
-Lines now accept ``MarkerStyle`` instances as input
----------------------------------------------------
-
-Similar to `~.Axes.scatter`, `~.Axes.plot` and `~.lines.Line2D` now accept
-`~.markers.MarkerStyle` instances as input for the *marker* parameter::
-
-    plt.plot(..., marker=matplotlib.markers.MarkerStyle("D"))
-
-
-``imshow`` now coerces 3D arrays with depth 1 to 2D
----------------------------------------------------
-
-Starting from this version arrays of size MxNx1 will be coerced into MxN
-for displaying. This means commands like ``plt.imshow(np.random.rand(3, 3, 1))``
-will no longer return an error message that the image shape is invalid.
-
+Solves the issue that the power indicator (e.g., 1e4) stayed on the bottom,
+even if the ticks were on the top.
 
 Set zorder of contour labels
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `~.axes.Axes.clabel` now accepts a *zorder* keyword argument making it easier
 to set the *zorder* of contour labels. If not specified, the default *zorder*
 of clabels used to always be 3 (i.e. the default *zorder* of `~.text.Text`)
 irrespective of the *zorder* passed to
-`~.axes.Axes.contour`/`~.axes.Axes.contourf`.  The new default *zorder* for
+`~.axes.Axes.contour`/`~.axes.Axes.contourf`. The new default *zorder* for
 clabels has been changed to (``2 + zorder`` passed to `~.axes.Axes.contour` /
 `~.axes.Axes.contourf`).
 
 
+Other changes
+-------------
+
+New ``Axes.axline`` method
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A new `~.axes.Axes.axline` method has been added to draw infinitely long lines
+that pass through two points.
+
+.. plot::
+   :include-source: True
+
+   fig, ax = plt.subplots()
+
+   ax.axline((.1, .1), slope=5, color='C0', label='by slope')
+   ax.axline((.1, .2), (.8, .7), color='C3', label='by points')
+
+   ax.legend()
+
+``imshow`` now coerces 3D arrays with depth 1 to 2D
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting from this version arrays of size MxNx1 will be coerced into MxN
+for displaying. This means commands like ``plt.imshow(np.random.rand(3, 3, 1))``
+will no longer return an error message that the image shape is invalid.
+
 Better control of ``Axes.pie`` normalization
---------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously, `.Axes.pie` would normalize its input *x* if ``sum(x) > 1``, but
 would do nothing if the sum were less than 1. This can be confusing, so an
@@ -489,16 +455,48 @@ and ``sum(x) > 1``, then an error is raised.
                  normalize=True)
     ax[1, 1].set_title('normalize unspecified\nsum(x) > 1')
 
+Dates use a modern epoch
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Matplotlib converts dates to days since an epoch using `.dates.date2num` (via
+`matplotlib.units`). Previously, an epoch of ``0000-12-31T00:00:00`` was used
+so that ``0001-01-01`` was converted to 1.0. An epoch so distant in the past
+meant that a modern date was not able to preserve microseconds because 2000
+years times the 2^(-52) resolution of a 64-bit float gives 14 microseconds.
+
+Here we change the default epoch to the more reasonable UNIX default of
+``1970-01-01T00:00:00`` which for a modern date has 0.35 microsecond
+resolution.  (Finer resolution is not possible because we rely on
+`datetime.datetime` for the date locators). Access to the epoch is provided by
+`~.dates.get_epoch`, and there is a new :rc:`date.epoch` rcParam. The user may
+also call `~.dates.set_epoch`, but it must be set *before* any date conversion
+or plotting is used.
+
+If you have data stored as ordinal floats in the old epoch, you can convert
+them to the new ordinal using the following formula::
+
+    new_ordinal = old_ordinal + mdates.date2num(np.datetime64('0000-12-31'))
+
+Lines now accept ``MarkerStyle`` instances as input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Similar to `~.Axes.scatter`, `~.Axes.plot` and `~.lines.Line2D` now accept
+`~.markers.MarkerStyle` instances as input for the *marker* parameter::
+
+    plt.plot(..., marker=matplotlib.markers.MarkerStyle("D"))
+
+
+Fonts
+-----
 
 Simple syntax to select fonts by absolute path
-----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fonts can now be selected by passing an absolute `pathlib.Path` to the *font*
 keyword argument of `.Text`.
 
-
 Improved font weight detection
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Matplotlib is now better able to determine the weight of fonts from their
 metadata, allowing to differentiate between fonts within the same family more
