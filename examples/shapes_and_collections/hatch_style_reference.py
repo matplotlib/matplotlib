@@ -9,9 +9,43 @@ PS, PDF, SVG and Agg. The backends OSX, WX and Cairo ignore hatching.
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(10, 5))
+fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(9, 4.5))
 
 hatches = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']
+
+
+def hatches_plot(ax, h):
+    ax.add_patch(Rectangle((0, 0), 2, 2, fill=False, hatch=h))
+    ax.text(1, -0.5, f"' {h} '", size=15, ha="center")
+    ax.axis('equal')
+    ax.axis('off')
+
+for ax, h in zip(axs.flat, hatches):
+    hatches_plot(ax, h)
+
+###############################################################################
+# Hatching patterns can be repeated to increase the density.
+
+fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(9, 4.5))
+
+hatches = ['//', '\\\\', '||', '--', '++', 'xx', 'oo', 'OO', '..', '**']
+
+
+def hatches_plot(ax, h):
+    ax.add_patch(Rectangle((0, 0), 2, 2, fill=False, hatch=h))
+    ax.text(1, -0.5, f"' {h} '", size=15, ha="center")
+    ax.axis('equal')
+    ax.axis('off')
+
+for ax, h in zip(axs.flat, hatches):
+    hatches_plot(ax, h)
+
+###############################################################################
+# Hatching patterns can be combined to create additional patterns.
+
+fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(9, 4.5))
+
+hatches = ['//', '\\\\', '||', '--', '++', 'xx', 'oo', 'OO', '..', '**']
 
 
 def hatches_plot(ax, h):
