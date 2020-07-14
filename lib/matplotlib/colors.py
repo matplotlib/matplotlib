@@ -629,7 +629,7 @@ class Colormap:
 
     def get_under(self):
         """
-        Get the color for low out-of-range values when ``norm.clip = False``.
+        Get the color for low out-of-range values.
         """
         if not self._isinit:
             self._init()
@@ -637,7 +637,7 @@ class Colormap:
 
     def set_under(self, color='k', alpha=None):
         """
-        Set the color for low out-of-range values when ``norm.clip = False``.
+        Set the color for low out-of-range values.
         """
         _warn_if_global_cmap_modified(self)
         self._rgba_under = to_rgba(color, alpha)
@@ -646,7 +646,7 @@ class Colormap:
 
     def get_over(self):
         """
-        Get the color for high out-of-range values when ``norm.clip = False``.
+        Get the color for high out-of-range values.
         """
         if not self._isinit:
             self._init()
@@ -654,7 +654,7 @@ class Colormap:
 
     def set_over(self, color='k', alpha=None):
         """
-        Set the color for high out-of-range values when ``norm.clip = False``.
+        Set the color for high out-of-range values.
         """
         _warn_if_global_cmap_modified(self)
         self._rgba_over = to_rgba(color, alpha)
