@@ -4117,13 +4117,13 @@ def test_specgram_origin_rcparam(fig_test, fig_ref):
     fig_test.subplots().specgram(signal)
 
 
-@pytest.mark.xfail(strict=True)
 def test_specgram_origin_kwarg():
-    """Ensure passing origin as a kwarg raises an exception."""
+    """Ensure passing origin as a kwarg raises a TypeError."""
     t = np.arange(500)
     signal = np.sin(t)
 
-    plt.specgram(signal, origin='lower')
+    with pytest.raises(TypeError):
+        plt.specgram(signal, origin='lower')
 
 
 @image_comparison(
