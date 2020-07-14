@@ -378,7 +378,9 @@ html4_writer = True
 inheritance_node_attrs = dict(fontsize=16)
 
 graphviz_dot = shutil.which('dot')
-graphviz_output_format = 'svg'
+# Still use PNG until SVG linking is fixed
+# https://github.com/sphinx-doc/sphinx/issues/3176
+# graphviz_output_format = 'svg'
 
 
 def setup(app):

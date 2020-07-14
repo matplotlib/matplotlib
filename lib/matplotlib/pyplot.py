@@ -1399,10 +1399,10 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     if fig is None:
         fig = gcf()
 
-    s1, s2 = shape
-    subplotspec = GridSpec(s1, s2).new_subplotspec(loc,
-                                                   rowspan=rowspan,
-                                                   colspan=colspan)
+    rows, cols = shape
+    gs = GridSpec._check_gridspec_exists(fig, rows, cols)
+
+    subplotspec = gs.new_subplotspec(loc, rowspan=rowspan, colspan=colspan)
     ax = fig.add_subplot(subplotspec, **kwargs)
     bbox = ax.bbox
     axes_to_delete = []

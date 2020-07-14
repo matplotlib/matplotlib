@@ -25,10 +25,7 @@ try:
     import threading
 except ImportError:
     import dummy_threading as threading
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py 3.6.
+from contextlib import nullcontext
 from math import radians, cos, sin
 
 import numpy as np

@@ -96,9 +96,10 @@ internal quotes) now cause a ValueError to be raised.
 `.SymLogNorm` now has a *base* parameter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously, `.SymLogNorm` had no *base* kwarg, and defaulted to ``base=np.e``
-whereas the documentation said it was ``base=10``.  In preparation to make
-the default 10, calling `.SymLogNorm` without the new *base* kwarg emits a
+Previously, `.SymLogNorm` had no *base* keyword argument, and
+defaulted to ``base=np.e`` whereas the documentation said it was
+``base=10``.  In preparation to make the default 10, calling
+`.SymLogNorm` without the new *base* keyword argument emits a
 deprecation warning.
 
 
@@ -312,3 +313,29 @@ rcParam is True.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The *colors* parameter will now default to :rc:`lines.color`, while previously it defaulted to 'k'.
+
+Aggressively autoscale clim in ``ScalerMappable`` classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Previously some plotting methods would defer autoscaling until the
+first draw if only one of the *vmin* or *vmax* keyword arguments were
+passed (`.Axes.scatter`, `.Axes.hexbin`, `.Axes.imshow`,
+`.Axes.pcolorfast`) but would scale based on the passed data if
+neither was passed (independent of the *norm* keyword arguments).
+Other methods (`.Axes.pcolor`, `.Axes.pcolormesh`) always autoscaled
+base on the initial data.
+
+All of the plotting methods now resolve the unset *vmin* or *vmax*
+at the initial call time using the data passed in.
+
+If you were relying on exactly one of the *vmin* or *vmax* remaining
+unset between the time when the method is called and the first time
+the figure is rendered you get back the old behavior by manually setting
+the relevant limit back to `None` ::
+
+  cm_obj.norm.vmin = None
+  # or
+  cm_obj.norm.vmax = None
+
+which will be resolved during the draw process.

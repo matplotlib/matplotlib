@@ -1,13 +1,10 @@
+from contextlib import nullcontext
 from datetime import datetime
 import io
 from pathlib import Path
 import platform
 from types import SimpleNamespace
 import warnings
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py3.6
 
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
@@ -789,3 +786,18 @@ def test_figure_repr_png():
     ax = fig.add_subplot()
     png_bytes = fig._repr_png_()
     assert len(png_bytes) > 0
+
+
+def test_reused_gridspec():
+    """Test that these all use the same gridspec"""
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 2, (3, 5))
+    ax2 = fig.add_subplot(3, 2, 4)
+    ax3 = plt.subplot2grid((3, 2), (2, 1), colspan=2, fig=fig)
+
+    gs1 = ax1.get_subplotspec().get_gridspec()
+    gs2 = ax2.get_subplotspec().get_gridspec()
+    gs3 = ax3.get_subplotspec().get_gridspec()
+
+    assert gs1 == gs2
+    assert gs1 == gs3

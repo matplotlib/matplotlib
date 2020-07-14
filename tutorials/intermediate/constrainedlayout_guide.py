@@ -492,40 +492,43 @@ ax2 = fig.add_axes(bb_ax2)
 # Incompatible functions
 # ----------------------
 #
-# ``constrained_layout`` will not work on subplots created via
-# `.pyplot.subplot`.  The reason is that each call to `.pyplot.subplot` creates
-# a separate `.GridSpec` instance and ``constrained_layout`` uses (nested)
-# gridspecs to carry out the layout.  So the following fails to yield a nice
-# layout:
+# ``constrained_layout`` will work with `.pyplot.subplot`, but only if the
+# number of rows and columns is the same for each call.
+# The reason is that each call to `.pyplot.subplot` will create a new
+# `.GridSpec` instance if the geometry is not the same, and
+# ``constrained_layout``.  So the following works fine:
+
 
 fig = plt.figure()
 
-ax1 = plt.subplot(221)
-ax2 = plt.subplot(223)
-ax3 = plt.subplot(122)
+ax1 = plt.subplot(2, 2, 1)
+ax2 = plt.subplot(2, 2, 3)
+# third axes that spans both rows in second column:
+ax3 = plt.subplot(2, 2, (2, 4))
 
 example_plot(ax1)
 example_plot(ax2)
 example_plot(ax3)
+plt.suptitle('Homogenous nrows, ncols')
 
 ###############################################################################
-# Of course that layout is possible using a gridspec:
+# but the following leads to a poor layout:
 
 fig = plt.figure()
-gs = fig.add_gridspec(2, 2)
 
-ax1 = fig.add_subplot(gs[0, 0])
-ax2 = fig.add_subplot(gs[1, 0])
-ax3 = fig.add_subplot(gs[:, 1])
+ax1 = plt.subplot(2, 2, 1)
+ax2 = plt.subplot(2, 2, 3)
+ax3 = plt.subplot(1, 2, 2)
 
 example_plot(ax1)
 example_plot(ax2)
 example_plot(ax3)
+plt.suptitle('Mixed nrows, ncols')
 
 ###############################################################################
 # Similarly,
-# :func:`~matplotlib.pyplot.subplot2grid` doesn't work for the same reason:
-# each call creates a different parent gridspec.
+# :func:`~matplotlib.pyplot.subplot2grid` works with the same limitation
+# that nrows and ncols cannot change for the layout to look good.
 
 fig = plt.figure()
 
@@ -538,23 +541,7 @@ example_plot(ax1)
 example_plot(ax2)
 example_plot(ax3)
 example_plot(ax4)
-
-###############################################################################
-# The way to make this plot compatible with ``constrained_layout`` is again
-# to use ``gridspec`` directly
-
-fig = plt.figure()
-gs = fig.add_gridspec(3, 3)
-
-ax1 = fig.add_subplot(gs[0, 0])
-ax2 = fig.add_subplot(gs[0, 1:])
-ax3 = fig.add_subplot(gs[1:, 0:2])
-ax4 = fig.add_subplot(gs[1:, -1])
-
-example_plot(ax1)
-example_plot(ax2)
-example_plot(ax3)
-example_plot(ax4)
+fig.suptitle('subplot2grid')
 
 ###############################################################################
 # Other Caveats
