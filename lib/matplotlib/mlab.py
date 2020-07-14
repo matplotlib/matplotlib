@@ -934,10 +934,10 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     Returns
     -------
-    The return value is the tuple (*Cxy*, *f*), where *f* are the
-    frequencies of the coherence vector. For cohere, scaling the
-    individual densities by the sampling frequency has no effect,
-    since the factors cancel out.
+    Cxy : 1-D array
+        The coherence vector.
+    freqs : 1-D array
+            The frequencies for the elements in *Cxy*.
 
     See Also
     --------
