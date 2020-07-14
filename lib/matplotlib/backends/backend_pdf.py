@@ -1557,12 +1557,13 @@ end"""
         (alpha channel) *smask*, which should be either None or a ``(height,
         width, 1)`` array.
         """
-        height, width, colors = data.shape
+        height, width, color_channels = data.shape
         obj = {'Type': Name('XObject'),
                'Subtype': Name('Image'),
                'Width': width,
                'Height': height,
-               'ColorSpace': Name({1: 'DeviceGray', 3: 'DeviceRGB'}[colors]),
+               'ColorSpace': Name({1: 'DeviceGray',
+                                   3: 'DeviceRGB'}[color_channels]),
                'BitsPerComponent': 8}
         if smask:
             obj['SMask'] = smask
@@ -1571,13 +1572,13 @@ end"""
                 data = data.squeeze(axis=-1)
             img = Image.fromarray(data)
             img_colors = img.getcolors(maxcolors=256)
-            if colors == 3 and img_colors is not None:
+            if color_channels == 3 and img_colors is not None:
                 # Convert to indexed color if there are 256 colors or fewer
                 # This can significantly reduce the file size
                 num_colors = len(img_colors)
                 img = img.convert(mode='P', dither=Image.NONE,
                                   palette=Image.ADAPTIVE, colors=num_colors)
-                data, bit_depth, palette = self._writePng(img)
+                png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
                 palette = palette[:num_colors * 3]  # Trim padding
@@ -1586,10 +1587,10 @@ end"""
                                              + str(num_colors - 1).encode()
                                              + b' ' + palette + b']')
                 obj['BitsPerComponent'] = bit_depth
-                colors = 1
+                color_channels = 1
             else:
-                data, _, _ = self._writePng(img)
-            png = {'Predictor': 10, 'Colors': colors, 'Columns': width}
+                png_data, _, _ = self._writePng(img)
+            png = {'Predictor': 10, 'Colors': color_channels, 'Columns': width}
         else:
             png = None
         self.beginStream(
@@ -1599,7 +1600,7 @@ end"""
             png=png
             )
         if png:
-            self.currentstream.write(data)
+            self.currentstream.write(png_data)
         else:
             self.currentstream.write(data.tobytes())
         self.endStream()
