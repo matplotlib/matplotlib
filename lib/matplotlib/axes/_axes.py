@@ -7466,6 +7466,7 @@ such objects
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`
             which makes the specgram image. The origin keyword argument
             is not supported.
+            
         Returns
         -------
         spectrum : 2-D array
