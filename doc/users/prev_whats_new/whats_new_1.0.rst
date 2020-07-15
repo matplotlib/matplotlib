@@ -1,7 +1,7 @@
 .. _whats-new-1-0:
 
 New in matplotlib 1.0
-======================
+=====================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -9,7 +9,7 @@ New in matplotlib 1.0
 .. _whats-new-html5:
 
 HTML5/Canvas backend
----------------------
+--------------------
 
 Simon Ratcliffe and Ludwig Schwardt have released an `HTML5/Canvas
 <http://code.google.com/p/mplh5canvas/>`__ backend for matplotlib.  The
@@ -47,7 +47,7 @@ indexing (starts with 0).  e.g.::
 See :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for several code examples.
 
 Contour fixes and and triplot
----------------------------------
+-----------------------------
 
 Ian Thomas has fixed a long-standing bug that has vexed our most
 talented developers for years.  :func:`~matplotlib.pyplot.contourf`
@@ -66,7 +66,7 @@ plotting unstructured triangular grids.
    Triplot Demo
 
 multiple calls to show supported
----------------------------------
+--------------------------------
 
 A long standing request is to support multiple calls to
 :func:`~matplotlib.pyplot.show`.  This has been difficult because it
@@ -85,7 +85,7 @@ and `bug tracker
 
 
 mplot3d graphs can be embedded in arbitrary axes
--------------------------------------------------
+------------------------------------------------
 
 You can now place an mplot3d graph into an arbitrary axes location,
 supporting mixing of 2D and 3D graphs in the same figure, and/or
@@ -100,7 +100,7 @@ argument to add_axes or add_subplot.  Thanks Ben Root.
    What's New 1 Subplot3d
 
 tick_params
-------------
+-----------
 
 Eric Firing wrote tick_params, a convenience method for changing the
 appearance of ticks and tick labels. See pyplot function
@@ -108,7 +108,7 @@ appearance of ticks and tick labels. See pyplot function
 :meth:`~matplotlib.axes.Axes.tick_params`.
 
 Lots of performance and feature enhancements
----------------------------------------------
+--------------------------------------------
 
 
 * Faster magnification of large images, and the ability to zoom in to
@@ -124,7 +124,7 @@ Lots of performance and feature enhancements
   throughout the API
 
 Much improved software carpentry
----------------------------------
+--------------------------------
 
 The matplotlib trunk is probably in as good a shape as it has ever
 been, thanks to improved `software carpentry
@@ -140,7 +140,7 @@ Thanks to Andrew Straw, Michael Droettboom and other matplotlib
 developers for the heavy lifting.
 
 Bugfix marathon
-----------------
+---------------
 
 Eric Firing went on a bug fixing and closing marathon, closing over 100 bugs on
 the (now-closed) SourceForge bug tracker with help from Jae-Joon Lee, Michael

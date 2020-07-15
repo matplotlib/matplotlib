@@ -37,14 +37,14 @@ Features include:
 Note the new API to access this:
 
 New ``plt.figure`` and ``plt.subplots`` kwarg: ``constrained_layout``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :meth:`~matplotlib.pyplot.figure` and :meth:`~matplotlib.pyplot.subplots`
 can now be called with ``constrained_layout=True`` kwarg to enable
 constrained_layout.
 
 New ``ax.set_position`` behaviour
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `.Axes.set_position` now makes the specified axis no
 longer responsive to ``constrained_layout``, consistent with the idea that the
