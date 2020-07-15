@@ -2932,7 +2932,7 @@ class Axes(_AxesBase):
             ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
             and raises a `ValueError` for ``sum(x) > 1``.
 
-            When *None*, defaults to *True* if ``sum(x) > 0`` and *False* if
+            When *None*, defaults to *True* if ``sum(x) >= 1`` and *False* if
             ``sum(x) < 1``.
 
             Please note that the previous default value of *None* is now
@@ -3009,7 +3009,7 @@ class Axes(_AxesBase):
             if sx < 1:
                 cbook.warn_deprecated(
                     "3.3", message="normalize=None does not normalize "
-                    "if the sum is less than 1 but this behavior"
+                    "if the sum is less than 1 but this behavior "
                     "is deprecated since %(since)s until %(removal)s. "
                     "After the deprecation "
                     "period the default value will be normalize=True. "

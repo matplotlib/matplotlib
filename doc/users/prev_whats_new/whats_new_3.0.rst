@@ -1,7 +1,7 @@
 .. _whats-new-3-0-0:
 
 New in Matplotlib 3.0
-=============================
+=====================
 
 Improved default backend selection
 ----------------------------------
@@ -41,7 +41,7 @@ the order of magnitude depending on the axis values, rather than keeping it fixe
 
 
 Add ``AnchoredDirectionArrows`` feature to mpl_toolkits
---------------------------------------------------------
+-------------------------------------------------------
 
 A new mpl_toolkits class
 :class:`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows`
