@@ -1615,6 +1615,8 @@ default: 'top'
             """
             r0, *rest = inp
             for j, r in enumerate(rest, start=1):
+                if isinstance(r, str):
+                    raise ValueError('List layout specification must be 2D')
                 if len(r0) != len(r):
                     raise ValueError(
                         "All of the rows must be the same length, however "
