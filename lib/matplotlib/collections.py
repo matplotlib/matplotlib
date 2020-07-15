@@ -15,7 +15,7 @@ import numpy as np
 
 import matplotlib as mpl
 from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
-               lines as mlines, path as mpath, transforms)
+               hatch as mhatch, lines as mlines, path as mpath, transforms)
 import warnings
 
 
@@ -522,6 +522,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
+        # Use validate_hatch(list) after deprecation.
+        mhatch._validate_hatch_pattern(hatch)
         self._hatch = hatch
         self.stale = True
 

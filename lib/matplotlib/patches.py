@@ -8,7 +8,8 @@ import textwrap
 import numpy as np
 
 import matplotlib as mpl
-from . import artist, cbook, colors, docstring, lines as mlines, transforms
+from . import (artist, cbook, colors, docstring, hatch as mhatch,
+               lines as mlines, transforms)
 from .bezier import (
     NonIntersectingPathException, get_cos_sin, get_intersection,
     get_parallels, inside_circle, make_wedged_bezier2,
@@ -513,6 +514,8 @@ class Patch(artist.Artist):
         ----------
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
+        # Use validate_hatch(list) after deprecation.
+        mhatch._validate_hatch_pattern(hatch)
         self._hatch = hatch
         self.stale = True
 
