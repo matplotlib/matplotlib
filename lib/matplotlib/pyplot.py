@@ -622,63 +622,49 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     in the matplotlibrc file.
     """
 
-    if figsize is None:
-        figsize = rcParams['figure.figsize']
-    if dpi is None:
-        dpi = rcParams['figure.dpi']
-    if facecolor is None:
-        facecolor = rcParams['figure.facecolor']
-    if edgecolor is None:
-        edgecolor = rcParams['figure.edgecolor']
-
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
-    figLabel = ''
+    fig_label = ''
     if num is None:
         num = next_num
     elif isinstance(num, str):
-        figLabel = num
-        allLabels = get_figlabels()
-        if figLabel not in allLabels:
-            if figLabel == 'all':
+        fig_label = num
+        all_labels = get_figlabels()
+        if fig_label not in all_labels:
+            if fig_label == 'all':
                 cbook._warn_external(
-                    "close('all') closes all existing figures")
+                    "close('all') closes all existing figures.")
             num = next_num
         else:
-            inum = allLabels.index(figLabel)
+            inum = all_labels.index(fig_label)
             num = allnums[inum]
     else:
         num = int(num)  # crude validation of num argument
 
-    figManager = _pylab_helpers.Gcf.get_fig_manager(num)
-    if figManager is None:
+    manager = _pylab_helpers.Gcf.get_fig_manager(num)
+    if manager is None:
         max_open_warning = rcParams['figure.max_open_warning']
-
         if len(allnums) == max_open_warning >= 1:
             cbook._warn_external(
-                "More than %d figures have been opened. Figures "
-                "created through the pyplot interface "
-                "(`matplotlib.pyplot.figure`) are retained until "
-                "explicitly closed and may consume too much memory. "
-                "(To control this warning, see the rcParam "
-                "`figure.max_open_warning`)." %
-                max_open_warning, RuntimeWarning)
+                f"More than {max_open_warning} figures have been opened. "
+                f"Figures created through the pyplot interface "
+                f"(`matplotlib.pyplot.figure`) are retained until explicitly "
+                f"closed and may consume too much memory. (To control this "
+                f"warning, see the rcParam `figure.max_open_warning`).",
+                RuntimeWarning)
 
         if get_backend().lower() == 'ps':
             dpi = 72
 
-        figManager = new_figure_manager(num, figsize=figsize,
-                                        dpi=dpi,
-                                        facecolor=facecolor,
-                                        edgecolor=edgecolor,
-                                        frameon=frameon,
-                                        FigureClass=FigureClass,
-                                        **kwargs)
-        fig = figManager.canvas.figure
-        if figLabel:
-            fig.set_label(figLabel)
+        manager = new_figure_manager(
+            num, figsize=figsize, dpi=dpi,
+            facecolor=facecolor, edgecolor=edgecolor, frameon=frameon,
+            FigureClass=FigureClass, **kwargs)
+        fig = manager.canvas.figure
+        if fig_label:
+            fig.set_label(fig_label)
 
-        _pylab_helpers.Gcf._set_new_active_manager(figManager)
+        _pylab_helpers.Gcf._set_new_active_manager(manager)
 
         # make sure backends (inline) that we don't ship that expect this
         # to be called in plotting commands to make the figure call show
@@ -690,9 +676,9 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
             fig.stale_callback = _auto_draw_if_interactive
 
     if clear:
-        figManager.canvas.figure.clear()
+        manager.canvas.figure.clear()
 
-    return figManager.canvas.figure
+    return manager.canvas.figure
 
 
 def _auto_draw_if_interactive(fig, val):
@@ -723,9 +709,9 @@ def gcf():
     If no current figure exists, a new one is created using
     `~.pyplot.figure()`.
     """
-    figManager = _pylab_helpers.Gcf.get_active()
-    if figManager is not None:
-        return figManager.canvas.figure
+    manager = _pylab_helpers.Gcf.get_active()
+    if manager is not None:
+        return manager.canvas.figure
     else:
         return figure()
 
@@ -742,9 +728,9 @@ def get_fignums():
 
 def get_figlabels():
     """Return a list of existing figure labels."""
-    figManagers = _pylab_helpers.Gcf.get_all_fig_managers()
-    figManagers.sort(key=lambda m: m.num)
-    return [m.canvas.figure.get_label() for m in figManagers]
+    managers = _pylab_helpers.Gcf.get_all_fig_managers()
+    managers.sort(key=lambda m: m.num)
+    return [m.canvas.figure.get_label() for m in managers]
 
 
 def get_current_fig_manager():
@@ -791,11 +777,11 @@ def close(fig=None):
 
     """
     if fig is None:
-        figManager = _pylab_helpers.Gcf.get_active()
-        if figManager is None:
+        manager = _pylab_helpers.Gcf.get_active()
+        if manager is None:
             return
         else:
-            _pylab_helpers.Gcf.destroy(figManager)
+            _pylab_helpers.Gcf.destroy(manager)
     elif fig == 'all':
         _pylab_helpers.Gcf.destroy_all()
     elif isinstance(fig, int):
@@ -805,9 +791,9 @@ def close(fig=None):
         # can use its integer representation
         _pylab_helpers.Gcf.destroy(fig.int)
     elif isinstance(fig, str):
-        allLabels = get_figlabels()
-        if fig in allLabels:
-            num = get_fignums()[allLabels.index(fig)]
+        all_labels = get_figlabels()
+        if fig in all_labels:
+            num = get_fignums()[all_labels.index(fig)]
             _pylab_helpers.Gcf.destroy(num)
     elif isinstance(fig, Figure):
         _pylab_helpers.Gcf.destroy_fig(fig)
