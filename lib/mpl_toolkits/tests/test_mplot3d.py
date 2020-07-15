@@ -299,6 +299,9 @@ def test_plot_3d_from_2d():
 
 @mpl3d_image_comparison(['surface3d.png'])
 def test_surface3d():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     X = np.arange(-5, 5, 0.25)

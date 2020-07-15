@@ -731,6 +731,10 @@ def test_hexbin_pickable():
 @image_comparison(['hexbin_log.png'], style='mpl20')
 def test_hexbin_log():
     # Issue #1636 (and also test log scaled colorbar)
+
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     np.random.seed(19680801)
     n = 100000
     x = np.random.standard_normal(n)
@@ -992,6 +996,9 @@ def test_pcolorargs_5205():
 
 @image_comparison(['pcolormesh'], remove_text=True)
 def test_pcolormesh():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     n = 12
     x = np.linspace(-1.5, 1.5, n)
     y = np.linspace(-1.5, 1.5, n*2)
@@ -1014,6 +1021,9 @@ def test_pcolormesh():
 @image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"],
                   remove_text=True)
 def test_pcolormesh_alpha():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     n = 12
     X, Y = np.meshgrid(
         np.linspace(-1.5, 1.5, n),
@@ -1046,6 +1056,9 @@ def test_pcolormesh_alpha():
 @image_comparison(['pcolormesh_datetime_axis.png'],
                   remove_text=False, style='mpl20')
 def test_pcolormesh_datetime_axis():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
     base = datetime.datetime(2013, 1, 1)
@@ -1750,6 +1763,9 @@ def test_contour_hatching():
 
 @image_comparison(['contour_colorbar'], style='mpl20')
 def test_contour_colorbar():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     x, y, z = contour_dat()
 
     fig = plt.figure()
@@ -1773,6 +1789,9 @@ def test_contour_colorbar():
 
 @image_comparison(['hist2d', 'hist2d'], remove_text=True, style='mpl20')
 def test_hist2d():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     np.random.seed(0)
     # make it not symmetric in case we switch x and y axis
     x = np.random.randn(100)*2+5
@@ -1790,6 +1809,9 @@ def test_hist2d():
 
 @image_comparison(['hist2d_transpose'], remove_text=True, style='mpl20')
 def test_hist2d_transpose():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     np.random.seed(0)
     # make sure the output from np.histogram is transposed before
     # passing to pcolorfast

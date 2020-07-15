@@ -43,6 +43,9 @@ def test_simple():
 @image_comparison(['multi_pickle.png'], remove_text=True, style='mpl20',
                   tol=0 if platform.machine() == 'x86_64' else 0.082)
 def test_complete():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     fig = plt.figure('Figure with a label?', figsize=(10, 6))
 
     plt.suptitle('Can you fit any more in a figure?')

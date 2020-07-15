@@ -131,6 +131,9 @@
 #markers.fillstyle: full  # {full, left, right, bottom, top, none}
 
 #pcolor.shading : flat
+#pcolormesh.snap : True  # Whether to snap the mesh to pixel boundaries. This
+                         # is provided solely to allow old test images to remain
+                         # unchanged. Set to False to obtain the previous behavior.
 
 ## ***************************************************************************
 ## * PATCHES                                                                 *

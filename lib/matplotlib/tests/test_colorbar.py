@@ -101,6 +101,9 @@ def _colorbar_extension_length(spacing):
                    'colorbar_extensions_shape_proportional.png'])
 def test_colorbar_extension_shape():
     """Test rectangular colorbar extensions."""
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     # Create figures for uniform and proportionally spaced colorbars.
     _colorbar_extension_shape('uniform')
     _colorbar_extension_shape('proportional')
@@ -110,6 +113,9 @@ def test_colorbar_extension_shape():
                    'colorbar_extensions_proportional.png'])
 def test_colorbar_extension_length():
     """Test variable length colorbar extensions."""
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     # Create figures for uniform and proportionally spaced colorbars.
     _colorbar_extension_length('uniform')
     _colorbar_extension_length('proportional')
@@ -124,6 +130,9 @@ def test_colorbar_extension_length():
                   extensions=['png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_colorbar_positioning(use_gridspec):
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
@@ -232,6 +241,9 @@ def test_colorbarbase():
 
 @image_comparison(['colorbar_closed_patch'], remove_text=True)
 def test_colorbar_closed_patch():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     fig = plt.figure(figsize=(8, 6))
     ax1 = fig.add_axes([0.05, 0.85, 0.9, 0.1])
     ax2 = fig.add_axes([0.1, 0.65, 0.75, 0.1])

@@ -6090,6 +6090,8 @@ default: :rc:`scatter.edgecolors`
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,
                                     **kwargs)
+        snap = kwargs.get('snap', rcParams['pcolormesh.snap'])
+        collection.set_snap(snap)
         collection.set_alpha(alpha)
         collection.set_array(C)
         collection.set_cmap(cmap)
