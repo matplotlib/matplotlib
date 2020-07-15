@@ -725,6 +725,10 @@ class TestSubplotMosaic:
         axB = fig_ref.add_subplot(gs[1, 1])
         axB.set_title(labels[1])
 
+    def test_fail_list_of_str(self):
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic(['foo', 'bar'])
+
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
     def test_subplot_kw(self, fig_test, fig_ref, subplot_kw):
