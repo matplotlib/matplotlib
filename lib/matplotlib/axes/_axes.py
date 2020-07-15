@@ -7464,7 +7464,8 @@ such objects
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`
-            which makes the specgram image.
+            which makes the specgram image. The origin keyword argument
+            is not supported.
 
         Returns
         -------
@@ -7548,8 +7549,13 @@ such objects
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
+
+        if 'origin' in kwargs:
+            raise TypeError("specgram() got an unexpected keyword argument "
+                            "'origin'")
+
         im = self.imshow(Z, cmap, extent=extent, vmin=vmin, vmax=vmax,
-                         **kwargs)
+                         origin='upper', **kwargs)
         self.axis('auto')
 
         return spec, freqs, t, im
