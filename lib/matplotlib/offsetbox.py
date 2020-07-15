@@ -142,10 +142,15 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
     *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
 
-    *hd_list* : list of (width, xdescent) of boxes to be aligned.
-    *sep* : spacing between boxes
-    *height* : Intended total length. None if not used.
-    *align* : align mode. 'baseline', 'top', 'bottom', or 'center'.
+    Parameters
+    ----------
+    hd_list
+        List of (height, xdescent) of boxes to be aligned.
+    height : float or None
+        Intended total length. If None, the maximum of the heights in *hd_list*
+        is used.
+    align : {'baseline', 'left', 'top', 'right', 'bottom', 'center'}
+        Align mode.
     """
 
     if height is None:

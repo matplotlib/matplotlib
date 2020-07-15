@@ -28,6 +28,7 @@ import weakref
 import numpy as np
 
 import matplotlib
+from matplotlib import _c_internal_utils
 from .deprecation import (
     deprecated, warn_deprecated,
     _rename_parameter, _delete_parameter, _make_keyword_only,
@@ -247,14 +248,22 @@ class silent_list(list):
     one will get ::
 
         <a list of 3 Line2D objects>
+
+    If ``self.type`` is None, the type name is obtained from the first item in
+    the list (if any).
     """
+
     def __init__(self, type, seq=None):
         self.type = type
         if seq is not None:
             self.extend(seq)
 
     def __repr__(self):
-        return '<a list of %d %s objects>' % (len(self), self.type)
+        if self.type is not None or len(self) != 0:
+            tp = self.type if self.type is not None else type(self[0]).__name__
+            return f"<a list of {len(self)} {tp} objects>"
+        else:
+            return "<an empty list>"
 
 
 @deprecated("3.3")
@@ -1363,12 +1372,12 @@ def _reshape_2D(X, name):
     result = []
     is_1d = True
     for xi in X:
+        if isinstance(xi, collections.abc.Iterable):
+            is_1d = False
         xi = np.asanyarray(xi)
         nd = np.ndim(xi)
         if nd > 1:
             raise ValueError(f'{name} must have 2 or fewer dimensions')
-        elif nd == 1 and len(xi) != 1:
-            is_1d = False
         result.append(xi.reshape(-1))
 
     if is_1d:
@@ -2342,3 +2351,17 @@ def _backend_module_name(name):
     """
     return (name[9:] if name.startswith("module://")
             else "matplotlib.backends.backend_{}".format(name.lower()))
+
+
+def _setup_new_guiapp():
+    """
+    Perform OS-dependent setup when Matplotlib creates a new GUI application.
+    """
+    # Windows: If not explicit app user model id has been set yet (so we're not
+    # already embedded), then set it to "matplotlib", so that taskbar icons are
+    # correct.
+    try:
+        _c_internal_utils.Win32_GetCurrentProcessExplicitAppUserModelID()
+    except OSError:
+        _c_internal_utils.Win32_SetCurrentProcessExplicitAppUserModelID(
+            "matplotlib")

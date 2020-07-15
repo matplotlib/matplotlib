@@ -43,7 +43,6 @@ import matplotlib.collections as collections
 import matplotlib.colors as colors
 import matplotlib.contour as contour
 import matplotlib.cm as cm
-import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -54,27 +53,39 @@ from matplotlib import docstring
 
 _log = logging.getLogger(__name__)
 
-make_axes_kw_doc = """
-
-    ============= ====================================================
-    Property      Description
-    ============= ====================================================
-    *orientation* vertical or horizontal
-    *fraction*    0.15; fraction of original axes to use for colorbar
-    *pad*         0.05 if vertical, 0.15 if horizontal; fraction
-                  of original axes between colorbar and new image axes
-    *shrink*      1.0; fraction by which to multiply the size of the colorbar
-    *aspect*      20; ratio of long to short dimensions
-    *anchor*      (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal;
-                  the anchor point of the colorbar axes
-    *panchor*     (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal;
-                  the anchor point of the colorbar parent axes. If
-                  False, the parent axes' anchor will be unchanged
-    ============= ====================================================
-
+_make_axes_param_doc = """
+    location : None or {'left', 'right', 'top', 'bottom'}
+        The location, relative to the parent axes, where the colorbar axes
+        is created.  It also determines the *orientation* of the colorbar
+        (colorbars on the left and right are vertical, colorbars at the top
+        and bottom are horizontal).  If None, the location will come from the
+        *orientation* if it is set (vertical colorbars on the right, horizontal
+        ones at the bottom), or default to 'right' if *orientation* is unset.
+    orientation : None or {'vertical', 'horizontal'}
+        The orientation of the colorbar.  It is preferrable to set the
+        *location* of the colorbar, as that also determines the *orientation*;
+        passing incompatible values for *location* and *orientation* raises an
+        exception.
+    fraction : float, default: 0.15
+        Fraction of original axes to use for colorbar.
+    shrink : float, default: 1.0
+        Fraction by which to multiply the size of the colorbar.
+    aspect : float, default: 20
+        Ratio of long to short dimensions.
+"""
+_make_axes_other_param_doc = """
+    pad : float, default: 0.05 if vertical, 0.15 if horizontal
+        Fraction of original axes between colorbar and new image axes.
+    anchor : (float, float), optional
+        The anchor point of the colorbar axes.
+        Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
+    panchor : (float, float), or *False*, optional
+        The anchor point of the colorbar parent axes. If *False*, the parent
+        axes' anchor will be unchanged.
+        Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
 """
 
-colormap_kw_doc = """
+_colormap_kw_doc = """
 
     ============  ====================================================
     Property      Description
@@ -137,17 +148,8 @@ colormap_kw_doc = """
 
 """
 
-colorbar_doc = """
-
+docstring.interpd.update(colorbar_doc="""
 Add a colorbar to a plot.
-
-Function signatures for the :mod:`~matplotlib.pyplot` interface; all
-but the first are also method signatures for the `~.Figure.colorbar` method::
-
-  colorbar(**kwargs)
-  colorbar(mappable, **kwargs)
-  colorbar(mappable, cax=cax, **kwargs)
-  colorbar(mappable, ax=ax, **kwargs)
 
 Parameters
 ----------
@@ -167,9 +169,8 @@ cax : `~matplotlib.axes.Axes`, optional
     Axes into which the colorbar will be drawn.
 
 ax : `~matplotlib.axes.Axes`, list of Axes, optional
-    Parent axes from which space for a new colorbar axes will be stolen.
-    If a list of axes is given they will all be resized to make room for the
-    colorbar axes.
+    One or more parent axes from which space for a new colorbar axes will be
+    stolen, if *cax* is None.  This has no effect if *cax* is set.
 
 use_gridspec : bool, optional
     If *cax* is ``None``, a new *cax* is created as an instance of Axes.  If
@@ -186,6 +187,7 @@ Notes
 Additional keyword arguments are of two kinds:
 
   axes properties:
+%s
 %s
   colorbar properties:
 %s
@@ -213,10 +215,12 @@ segments::
 However this has negative consequences in other circumstances, e.g. with
 semi-transparent images (alpha < 1) and colorbar extensions; therefore, this
 workaround is not used by default (see issue #1188).
+""" % (_make_axes_param_doc, _make_axes_other_param_doc, _colormap_kw_doc))
 
-""" % (make_axes_kw_doc, colormap_kw_doc)
-
-docstring.interpd.update(colorbar_doc=colorbar_doc)
+# Deprecated since 3.4.
+colorbar_doc = docstring.interpd.params["colorbar_doc"]
+colormap_kw_doc = _colormap_kw_doc
+make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
 
 
 def _set_ticks_on_axis_warn(*args, **kw):
@@ -349,10 +353,9 @@ class ColorbarBase:
     ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` instance in which the colorbar is drawn.
     lines : list
-        A list of `.LineCollection` if lines were drawn, otherwise
-        an empty list.
+        A list of `.LineCollection` (empty if no lines were drawn).
     dividers : `.LineCollection`
-        A LineCollection if *drawedges* is ``True``, otherwise ``None``.
+        A LineCollection (empty if *drawedges* is ``False``).
 
     Parameters
     ----------
@@ -460,12 +463,18 @@ class ColorbarBase:
             linewidth=mpl.rcParams['axes.linewidth'], closed=True, zorder=2)
         ax.add_artist(self.outline)
         self.outline.set(clip_box=None, clip_path=None)
+
         self.patch = mpatches.Polygon(
             np.empty((0, 2)),
             color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
         ax.add_artist(self.patch)
 
-        self.dividers = None
+        self.dividers = collections.LineCollection(
+            [],
+            colors=[mpl.rcParams['axes.edgecolor']],
+            linewidths=[0.5 * mpl.rcParams['axes.linewidth']])
+        self.ax.add_collection(self.dividers)
+
         self.locator = None
         self.formatter = None
         self._manual_tick_data_values = None
@@ -544,7 +553,7 @@ class ColorbarBase:
                       ticks_position=self.ticklocation)
         short_axis.set_ticks([])
         short_axis.set_ticks([], minor=True)
-        self._set_label()
+        self.stale = True
 
     def _get_ticker_locator_formatter(self):
         """
@@ -722,18 +731,29 @@ class ColorbarBase:
         """Turn the minor ticks of the colorbar off."""
         ax = self.ax
         long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
-
         long_axis.set_minor_locator(ticker.NullLocator())
 
-    def _set_label(self):
-        if self.orientation == 'vertical':
-            self.ax.set_ylabel(self._label, **self._labelkw)
-        else:
-            self.ax.set_xlabel(self._label, **self._labelkw)
-        self.stale = True
-
     def set_label(self, label, *, loc=None, **kwargs):
-        """Add a label to the long axis of the colorbar."""
+        """
+        Add a label to the long axis of the colorbar.
+
+        Parameters
+        ----------
+        label : str
+            The label text.
+        loc : str, optional
+            The location of the label.
+
+            - For horizontal orientation one of {'left', 'center', 'right'}
+            - For vertical orientation one of {'bottom', 'center', 'top'}
+
+            Defaults to :rc:`xaxis.labellocation` or :rc:`yaxis.labellocation`
+            depending on the orientation.
+        **kwargs
+            Keyword arguments are passed to `~.Axes.set_xlabel` /
+            `~.Axes.set_ylabel`.
+            Supported keywords are *labelpad* and `.Text` properties.
+        """
         _pos_xy = 'y' if self.orientation == 'vertical' else 'x'
         _protected_kw = [_pos_xy, 'horizontalalignment', 'ha']
         if any([k in kwargs for k in _protected_kw]):
@@ -755,9 +775,11 @@ class ColorbarBase:
         elif loc in ['left', 'bottom']:
             kwargs[_pos_xy] = 0.
             kwargs['horizontalalignment'] = 'left'
-        self._label = label
-        self._labelkw = kwargs
-        self._set_label()
+        if self.orientation == 'vertical':
+            self.ax.set_ylabel(label, **kwargs)
+        else:
+            self.ax.set_xlabel(label, **kwargs)
+        self.stale = True
 
     def _outline(self, X, Y):
         """
@@ -802,18 +824,13 @@ class ColorbarBase:
         if self.solids is not None:
             self.solids.remove()
         self.solids = col
-        if self.dividers is not None:
-            self.dividers.remove()
-            self.dividers = None
+
         if self.drawedges:
-            linewidths = (0.5 * mpl.rcParams['axes.linewidth'],)
-            self.dividers = collections.LineCollection(
-                    self._edges(X, Y),
-                    colors=(mpl.rcParams['axes.edgecolor'],),
-                    linewidths=linewidths)
-            self.ax.add_collection(self.dividers)
-        elif len(self._y) >= self.n_rasterize:
-            self.solids.set_rasterized(True)
+            self.dividers.set_segments(self._edges(X, Y))
+        else:
+            self.dividers.set_segments([])
+            if len(self._y) >= self.n_rasterize:
+                self.solids.set_rasterized(True)
 
     def add_lines(self, levels, colors, linewidths, erase=True):
         """
@@ -989,18 +1006,6 @@ class ColorbarBase:
         elif self.extend in ('min', 'max'):
             nb -= 1
         return nb
-
-    def _extended_N(self):
-        """
-        Based on the colormap and extend variable, return the
-        number of boundaries.
-        """
-        N = self.cmap.N + 1
-        if self.extend == 'both':
-            N += 2
-        elif self.extend in ('min', 'max'):
-            N += 1
-        return N
 
     def _get_extension_lengths(self, frac, automin, automax, default=0.05):
         """
@@ -1250,13 +1255,7 @@ class Colorbar(ColorbarBase):
             raise ValueError('add_lines is only for a ContourSet of lines')
         tcolors = [c[0] for c in CS.tcolors]
         tlinewidths = [t[0] for t in CS.tlinewidths]
-        # The following was an attempt to get the colorbar lines
-        # to follow subsequent changes in the contour lines,
-        # but more work is needed: specifically, a careful
-        # look at event sequences, and at how
-        # to make one object track another automatically.
-        #tcolors = [col.get_colors()[0] for col in CS.collections]
-        #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
+        # Wishlist: Make colorbar lines auto-follow changes in contour lines.
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths,
                                erase=erase)
 
@@ -1318,7 +1317,6 @@ class Colorbar(ColorbarBase):
         self.ax.add_artist(self.patch)
         self.solids = None
         self.lines = []
-        self.dividers = None
         self.update_normal(mappable)
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
@@ -1362,7 +1360,28 @@ class Colorbar(ColorbarBase):
             ax.set_subplotspec(subplotspec)
 
 
-@docstring.Substitution(make_axes_kw_doc)
+def _normalize_location_orientation(location, orientation):
+    if location is None:
+        location = cbook._check_getitem(
+            {None: "right", "vertical": "right", "horizontal": "bottom"},
+            orientation=orientation)
+    loc_settings = cbook._check_getitem({
+        "left":   {"location": "left", "orientation": "vertical",
+                   "anchor": (1.0, 0.5), "panchor": (0.0, 0.5), "pad": 0.10},
+        "right":  {"location": "right", "orientation": "vertical",
+                   "anchor": (0.0, 0.5), "panchor": (1.0, 0.5), "pad": 0.05},
+        "top":    {"location": "top", "orientation": "horizontal",
+                   "anchor": (0.5, 0.0), "panchor": (0.5, 1.0), "pad": 0.05},
+        "bottom": {"location": "bottom", "orientation": "horizontal",
+                   "anchor": (0.5, 1.0), "panchor": (0.5, 0.0), "pad": 0.15},
+    }, location=location)
+    if orientation is not None and orientation != loc_settings["orientation"]:
+        # Allow the user to pass both if they are consistent.
+        raise TypeError("location and orientation are mutually exclusive")
+    return loc_settings
+
+
+@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kw):
     """
@@ -1371,63 +1390,29 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     The axes is placed in the figure of the *parents* axes, by resizing and
     repositioning *parents*.
 
-    Keyword arguments may include the following (with defaults):
-
-        location : None or {'left', 'right', 'top', 'bottom'}
-            The position, relative to *parents*, where the colorbar axes
-            should be created. If None, the value will either come from the
-            given ``orientation``, else it will default to 'right'.
-
-        orientation : None or {'vertical', 'horizontal'}
-            The orientation of the colorbar. Typically, this keyword shouldn't
-            be used, as it can be derived from the ``location`` keyword.
-
+    Parameters
+    ----------
+    parents : `~.axes.Axes` or list of `~.axes.Axes`
+        The Axes to use as parents for placing the colorbar.
     %s
 
-    Returns (cax, kw), the child axes and the reduced kw dictionary to be
-    passed when creating the colorbar instance.
+    Returns
+    -------
+    cax : `~.axes.Axes`
+        The child axes.
+    kw : dict
+        The reduced keyword dictionary to be passed when creating the colorbar
+        instance.
+
+    Other Parameters
+    ----------------
+    %s
     """
-    locations = ["left", "right", "top", "bottom"]
-    if orientation is not None and location is not None:
-        raise TypeError('position and orientation are mutually exclusive. '
-                        'Consider setting the position to any of {}'
-                        .format(', '.join(locations)))
-
-    # provide a default location
-    if location is None and orientation is None:
-        location = 'right'
-
-    # allow the user to not specify the location by specifying the
-    # orientation instead
-    if location is None:
-        location = 'right' if orientation == 'vertical' else 'bottom'
-
-    cbook._check_in_list(locations, location=location)
-
-    default_location_settings = {'left':   {'anchor': (1.0, 0.5),
-                                            'panchor': (0.0, 0.5),
-                                            'pad': 0.10,
-                                            'orientation': 'vertical'},
-                                 'right':  {'anchor': (0.0, 0.5),
-                                            'panchor': (1.0, 0.5),
-                                            'pad': 0.05,
-                                            'orientation': 'vertical'},
-                                 'top':    {'anchor': (0.5, 0.0),
-                                            'panchor': (0.5, 1.0),
-                                            'pad': 0.05,
-                                            'orientation': 'horizontal'},
-                                 'bottom': {'anchor': (0.5, 1.0),
-                                            'panchor': (0.5, 0.0),
-                                            'pad': 0.15,  # backwards compat
-                                            'orientation': 'horizontal'},
-                                 }
-
-    loc_settings = default_location_settings[location]
-
+    loc_settings = _normalize_location_orientation(location, orientation)
     # put appropriate values into the kw dict for passing back to
     # the Colorbar class
     kw['orientation'] = loc_settings['orientation']
-    kw['ticklocation'] = location
+    location = kw['ticklocation'] = loc_settings['location']
 
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
@@ -1519,8 +1504,9 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     return cax, kw
 
 
-@docstring.Substitution(make_axes_kw_doc)
-def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
+@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
+def make_axes_gridspec(parent, *, location=None, orientation=None,
+                       fraction=0.15, shrink=1.0, aspect=20, **kw):
     """
     Create a `~.SubplotBase` suitable for a colorbar.
 
@@ -1529,84 +1515,81 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
 
     This function is similar to `.make_axes`. Primary differences are
 
-    - `.make_axes_gridspec` only handles the *orientation* keyword
-      and cannot handle the "location" keyword.
-
     - `.make_axes_gridspec` should only be used with a `.SubplotBase` parent.
 
     - `.make_axes` creates an `~.axes.Axes`; `.make_axes_gridspec` creates a
       `.SubplotBase`.
 
     - `.make_axes` updates the position of the parent.  `.make_axes_gridspec`
-       replaces the ``grid_spec`` attribute of the parent with a new one.
+      replaces the ``grid_spec`` attribute of the parent with a new one.
 
     While this function is meant to be compatible with `.make_axes`,
     there could be some minor differences.
 
-    Keyword arguments may include the following (with defaults):
-
-        *orientation*
-            'vertical' or 'horizontal'
-
+    Parameters
+    ----------
+    parent : `~.axes.Axes`
+        The Axes to use as parent for placing the colorbar.
     %s
 
-    All but the first of these are stripped from the input kw set.
+    Returns
+    -------
+    cax : `~.axes.SubplotBase`
+        The child axes.
+    kw : dict
+        The reduced keyword dictionary to be passed when creating the colorbar
+        instance.
 
-    Returns (cax, kw), the child axes and the reduced kw dictionary to be
-    passed when creating the colorbar instance.
+    Other Parameters
+    ----------------
+    %s
     """
 
-    orientation = kw.setdefault('orientation', 'vertical')
-    kw['ticklocation'] = 'auto'
+    loc_settings = _normalize_location_orientation(location, orientation)
+    kw['orientation'] = loc_settings['orientation']
+    location = kw['ticklocation'] = loc_settings['location']
 
-    x1 = 1 - fraction
+    pad = loc_settings["pad"]
+    wh_space = 2 * pad / (1 - pad)
 
     # for shrinking
     pad_s = (1 - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
-    # we need to none the tree of layoutboxes because
-    # constrained_layout can't remove and replace the tree
-    # hierarchy w/o a seg fault.
-    gs = parent.get_subplotspec().get_gridspec()
-    layoutbox.nonetree(gs._layoutbox)
-    gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
-    if orientation == 'vertical':
-        pad = kw.pop('pad', 0.05)
-        wh_space = 2 * pad / (1 - pad)
-        gs = gs_from_subplotspec(1, 2,
-                                 subplot_spec=parent.get_subplotspec(),
-                                 wspace=wh_space,
-                                 width_ratios=[x1 - pad, fraction])
-        gs2 = gs_from_subplotspec(3, 1,
-                                  subplot_spec=gs[1],
-                                  hspace=0.,
-                                  height_ratios=wh_ratios)
-        anchor = (0.0, 0.5)
-        panchor = (1.0, 0.5)
-    else:
-        pad = kw.pop('pad', 0.15)
-        wh_space = 2 * pad / (1 - pad)
-        gs = gs_from_subplotspec(2, 1,
-                                 subplot_spec=parent.get_subplotspec(),
-                                 hspace=wh_space,
-                                 height_ratios=[x1 - pad, fraction])
-        gs2 = gs_from_subplotspec(1, 3,
-                                  subplot_spec=gs[1],
-                                  wspace=0.,
-                                  width_ratios=wh_ratios)
+    # we need to none the tree of layoutboxes because constrained_layout can't
+    # remove and replace the tree hierarchy w/o a segfault.
+    layoutbox.nonetree(parent.get_subplotspec().get_gridspec()._layoutbox)
+    if location == "left":
+        gs = parent.get_subplotspec().subgridspec(
+            1, 2, wspace=wh_space, width_ratios=[fraction, 1-fraction-pad])
+        ss_main = gs[1]
+        ss_cb = gs[0].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
+    elif location == "right":
+        gs = parent.get_subplotspec().subgridspec(
+            1, 2, wspace=wh_space, width_ratios=[1-fraction-pad, fraction])
+        ss_main = gs[0]
+        ss_cb = gs[1].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
+    elif location == "top":
+        gs = parent.get_subplotspec().subgridspec(
+            2, 1, hspace=wh_space, height_ratios=[fraction, 1-fraction-pad])
+        ss_main = gs[1]
+        ss_cb = gs[0].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
         aspect = 1 / aspect
-        anchor = (0.5, 1.0)
-        panchor = (0.5, 0.0)
+    else:  # "bottom"
+        gs = parent.get_subplotspec().subgridspec(
+            2, 1, hspace=wh_space, height_ratios=[1-fraction-pad, fraction])
+        ss_main = gs[0]
+        ss_cb = gs[1].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
+        aspect = 1 / aspect
 
-    parent.set_subplotspec(gs[0])
+    parent.set_subplotspec(ss_main)
     parent.update_params()
     parent._set_position(parent.figbox)
-    parent.set_anchor(panchor)
+    parent.set_anchor(loc_settings["panchor"])
 
     fig = parent.get_figure()
-    cax = fig.add_subplot(gs2[1], label="<colorbar>")
-    cax.set_aspect(aspect, anchor=anchor, adjustable='box')
+    cax = fig.add_subplot(ss_cb, label="<colorbar>")
+    cax.set_aspect(aspect, anchor=loc_settings["anchor"], adjustable='box')
     return cax, kw
 
 
@@ -1662,16 +1645,7 @@ class ColorbarPatch(Colorbar):
 
         self.solids_patches = patches
 
-        if self.dividers is not None:
-            self.dividers.remove()
-            self.dividers = None
-
-        if self.drawedges:
-            self.dividers = collections.LineCollection(
-                    self._edges(X, Y),
-                    colors=(mpl.rcParams['axes.edgecolor'],),
-                    linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
-            self.ax.add_collection(self.dividers)
+        self.dividers.set_segments(self._edges(X, Y) if self.drawedges else [])
 
 
 def colorbar_factory(cax, mappable, **kwargs):

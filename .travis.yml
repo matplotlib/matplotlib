@@ -73,9 +73,9 @@ env:
 
 matrix:
   include:
-    - python: 3.6
+    - python: 3.7
       env:
-        - PINNEDVERS='-c requirements/testing/travis36minver.txt'
+        - PINNEDVERS='-c requirements/testing/minver.txt'
         - DELETE_FONT_CACHE=1
     - python: 3.7
       env:
@@ -111,7 +111,7 @@ before_install: |
     ci/silence brew update
     brew uninstall numpy gdal postgis
     brew unlink python@2
-    brew upgrade python
+    brew install python || brew upgrade python
     brew install ffmpeg imagemagick mplayer ccache
     hash -r
     which python

@@ -2892,11 +2892,11 @@ class ArrowStyle(_Style):
                 path_shrunk = Path(vertices, path.codes)
                 # call transmute method with squeezed height.
                 path_mutated, fillable = self.transmute(path_shrunk,
-                                                        linewidth,
-                                                        mutation_size)
+                                                        mutation_size,
+                                                        linewidth)
                 if np.iterable(fillable):
                     path_list = []
-                    for p in zip(path_mutated):
+                    for p in path_mutated:
                         # Restore the height
                         path_list.append(
                             Path(p.vertices * [1, aspect_ratio], p.codes))
@@ -3564,11 +3564,10 @@ class FancyBboxPatch(Patch):
         return s % (self._x, self._y, self._width, self._height)
 
     @docstring.dedent_interpd
+    @cbook._delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
     def __init__(self, xy, width, height,
-                 boxstyle="round",
-                 bbox_transmuter=None,
-                 mutation_scale=1.,
-                 mutation_aspect=None,
+                 boxstyle="round", bbox_transmuter=None,
+                 mutation_scale=1, mutation_aspect=1,
                  **kwargs):
         """
         Parameters
@@ -3597,7 +3596,7 @@ class FancyBboxPatch(Patch):
             Scaling factor applied to the attributes of the box style
             (e.g. pad or rounding_size).
 
-        mutation_aspect : float, optional
+        mutation_aspect : float, default: 1
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it. For example, this allows different horizontal and vertical
@@ -3618,6 +3617,10 @@ class FancyBboxPatch(Patch):
         self._height = height
 
         if boxstyle == "custom":
+            cbook._warn_deprecated(
+                "3.4", message="Support for boxstyle='custom' is deprecated "
+                "since %(since)s and will be removed %(removal)s; directly "
+                "pass a boxstyle instance as the boxstyle parameter instead.")
             if bbox_transmuter is None:
                 raise ValueError("bbox_transmuter argument is needed with "
                                  "custom boxstyle")
@@ -3643,10 +3646,12 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str
-            The name of the box style. Optionally, followed by a comma and a
-            comma-separated list of attributes. The attributes may
-            alternatively be passed separately as keyword arguments.
+        boxstyle : str or `matplotlib.patches.BoxStyle`
+            The style of the fancy box. This can either be a `.BoxStyle`
+            instance or a string of the style name and optionally comma
+            seprarated attributes (e.g. "Round, pad=0.2"). This string is
+            passed to `.BoxStyle` to construct a `.BoxStyle` object. See
+            there for a full documentation.
 
             The following box styles are available:
 
@@ -3703,7 +3708,8 @@ class FancyBboxPatch(Patch):
 
     def get_mutation_aspect(self):
         """Return the aspect ratio of the bbox mutation."""
-        return self._mutation_aspect
+        return (self._mutation_aspect if self._mutation_aspect is not None
+                else 1)  # backcompat.
 
     def get_boxstyle(self):
         """Return the boxstyle object."""
@@ -3829,16 +3835,12 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @docstring.dedent_interpd
-    def __init__(self, posA=None, posB=None,
-                 path=None,
-                 arrowstyle="simple",
-                 connectionstyle="arc3",
-                 patchA=None,
-                 patchB=None,
-                 shrinkA=2,
-                 shrinkB=2,
-                 mutation_scale=1,
-                 mutation_aspect=None,
+    @cbook._delete_parameter("3.4", "dpi_cor")
+    def __init__(self, posA=None, posB=None, path=None,
+                 arrowstyle="simple", connectionstyle="arc3",
+                 patchA=None, patchB=None,
+                 shrinkA=2, shrinkB=2,
+                 mutation_scale=1, mutation_aspect=1,
                  dpi_cor=1,
                  **kwargs):
         """
@@ -3897,7 +3899,7 @@ default: 'arc3'
 
         dpi_cor : float, default: 1
             dpi_cor is currently used for linewidth-related things and shrink
-            factor. Mutation scale is affected by this.
+            factor. Mutation scale is affected by this.  Deprecated.
 
         Other Parameters
         ----------------
@@ -3939,8 +3941,9 @@ default: 'arc3'
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
 
-        self.set_dpi_cor(dpi_cor)
+        self._dpi_cor = dpi_cor
 
+    @cbook.deprecated("3.4")
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -3953,6 +3956,7 @@ default: 'arc3'
         self._dpi_cor = dpi_cor
         self.stale = True
 
+    @cbook.deprecated("3.4")
     def get_dpi_cor(self):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -4103,7 +4107,8 @@ default: 'arc3'
 
     def get_mutation_aspect(self):
         """Return the aspect ratio of the bbox mutation."""
-        return self._mutation_aspect
+        return (self._mutation_aspect if self._mutation_aspect is not None
+                else 1)  # backcompat.
 
     def get_path(self):
         """
@@ -4118,7 +4123,7 @@ default: 'arc3'
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-        dpi_cor = self.get_dpi_cor()
+        dpi_cor = self._dpi_cor
 
         if self._posA_posB is not None:
             posA = self._convert_xy_units(self._posA_posB[0])
@@ -4151,8 +4156,10 @@ default: 'arc3'
         with self._bind_draw_path_function(renderer) as draw_path:
 
             # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
-            # could be room for improvement.
-            self.set_dpi_cor(renderer.points_to_pixels(1.))
+            # could be room for improvement.  Maybe get_path_in_displaycoord
+            # could take a renderer argument, but get_path should be adapted
+            # too.
+            self._dpi_cor = renderer.points_to_pixels(1.)
             path, fillable = self.get_path_in_displaycoord()
 
             if not np.iterable(fillable):
@@ -4175,6 +4182,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @docstring.dedent_interpd
+    @cbook._delete_parameter("3.4", "dpi_cor")
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
@@ -4269,8 +4277,8 @@ class ConnectionPatch(FancyArrowPatch):
                                  mutation_scale=mutation_scale,
                                  mutation_aspect=mutation_aspect,
                                  clip_on=clip_on,
-                                 dpi_cor=dpi_cor,
                                  **kwargs)
+        self._dpi_cor = dpi_cor
 
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
@@ -4352,7 +4360,7 @@ class ConnectionPatch(FancyArrowPatch):
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-        dpi_cor = self.get_dpi_cor()
+        dpi_cor = self._dpi_cor
         posA = self._get_xy(self.xy1, self.coords1, self.axesA)
         posB = self._get_xy(self.xy2, self.coords2, self.axesB)
         path = self.get_connectionstyle()(

@@ -607,8 +607,12 @@ class IndexDateFormatter(ticker.Formatter):
 
     def __init__(self, t, fmt, tz=None):
         """
-        *t* is a sequence of dates (floating point days).  *fmt* is a
-        `~datetime.datetime.strftime` format string.
+        Parameters
+        ----------
+        t : list of float
+            A sequence of dates (floating point days).
+        fmt : str
+            A `~datetime.datetime.strftime` format string.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -1304,7 +1308,7 @@ class AutoDateLocator(DateLocator):
             # Swap "3" for "4" in the DAILY list; If we use 3 we get bad
             # tick loc for months w/ 31 days: 1, 4, ..., 28, 31, 1
             # If we use 4 then we get: 1, 5, ... 25, 29, 1
-            self.intervald[DAILY] = [1, 2, 4, 7, 14, 21]
+            self.intervald[DAILY] = [1, 2, 4, 7, 14]
 
         self._byranges = [None, range(1, 13), range(1, 32),
                           range(0, 24), range(0, 60), range(0, 60), None]
@@ -1353,7 +1357,6 @@ class AutoDateLocator(DateLocator):
         if dmin > dmax:
             delta = -delta
             tdelta = -tdelta
-
         # The following uses a mix of calls to relativedelta and timedelta
         # methods because there is incomplete overlap in the functionality of
         # these similar functions, and it's best to avoid doing our own math
@@ -1396,13 +1399,12 @@ class AutoDateLocator(DateLocator):
                 if num <= interval * (self.maxticks[freq] - 1):
                     break
             else:
-                # We went through the whole loop without breaking, default to
-                # the last interval in the list and raise a warning
-                cbook._warn_external(
-                    f"AutoDateLocator was unable to pick an appropriate "
-                    f"interval for this date range. It may be necessary to "
-                    f"add an interval value to the AutoDateLocator's "
-                    f"intervald dictionary. Defaulting to {interval}.")
+                if not (self.interval_multiples and freq == DAILY):
+                    cbook._warn_external(
+                        f"AutoDateLocator was unable to pick an appropriate "
+                        f"interval for this date range. It may be necessary "
+                        f"to add an interval value to the AutoDateLocator's "
+                        f"intervald dictionary. Defaulting to {interval}.")
 
             # Set some parameters as appropriate
             self._freq = freq
@@ -1832,8 +1834,11 @@ class DateConverter(units.ConversionInterface):
     The 'unit' tag for such data is None or a tzinfo instance.
     """
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    def __init__(self, *, interval_multiples=True):
+        self._interval_multiples = interval_multiples
+        super().__init__()
+
+    def axisinfo(self, unit, axis):
         """
         Return the `~matplotlib.units.AxisInfo` for *unit*.
 
@@ -1842,7 +1847,8 @@ class DateConverter(units.ConversionInterface):
         """
         tz = unit
 
-        majloc = AutoDateLocator(tz=tz)
+        majloc = AutoDateLocator(tz=tz,
+                                 interval_multiples=self._interval_multiples)
         majfmt = AutoDateFormatter(majloc, tz=tz)
         datemin = datetime.date(2000, 1, 1)
         datemax = datetime.date(2010, 1, 1)
@@ -1884,17 +1890,19 @@ class ConciseDateConverter(DateConverter):
     # docstring inherited
 
     def __init__(self, formats=None, zero_formats=None, offset_formats=None,
-                 show_offset=True):
+                 show_offset=True, *, interval_multiples=True):
         self._formats = formats
         self._zero_formats = zero_formats
         self._offset_formats = offset_formats
         self._show_offset = show_offset
+        self._interval_multiples = interval_multiples
         super().__init__()
 
     def axisinfo(self, unit, axis):
         # docstring inherited
         tz = unit
-        majloc = AutoDateLocator(tz=tz)
+        majloc = AutoDateLocator(tz=tz,
+                                 interval_multiples=self._interval_multiples)
         majfmt = ConciseDateFormatter(majloc, tz=tz, formats=self._formats,
                                       zero_formats=self._zero_formats,
                                       offset_formats=self._offset_formats,
@@ -1905,6 +1913,44 @@ class ConciseDateConverter(DateConverter):
                               default_limits=(datemin, datemax))
 
 
-units.registry[np.datetime64] = DateConverter()
-units.registry[datetime.date] = DateConverter()
-units.registry[datetime.datetime] = DateConverter()
+class _rcParam_helper:
+    """
+    This helper class is so that we can set the converter for dates
+    via the validator for the rcParams `date.converter` and
+    `date.interval_multiples`.  Never instatiated.
+    """
+
+    conv_st = 'auto'
+    int_mult = True
+
+    @classmethod
+    def set_converter(cls, s):
+        """Called by validator for rcParams date.converter"""
+        if s not in ['concise', 'auto']:
+            raise ValueError('Converter must be one of "concise" or "auto"')
+        cls.conv_st = s
+        cls.register_converters()
+
+    @classmethod
+    def set_int_mult(cls, b):
+        """Called by validator for rcParams date.interval_multiples"""
+        cls.int_mult = b
+        cls.register_converters()
+
+    @classmethod
+    def register_converters(cls):
+        """
+        Helper to register the date converters when rcParams `date.converter`
+        and `date.interval_multiples` are changed.  Called by the helpers
+        above.
+        """
+        if cls.conv_st == 'concise':
+            converter = ConciseDateConverter
+        else:
+            converter = DateConverter
+
+        interval_multiples = cls.int_mult
+        convert = converter(interval_multiples=interval_multiples)
+        units.registry[np.datetime64] = convert
+        units.registry[datetime.date] = convert
+        units.registry[datetime.datetime] = convert

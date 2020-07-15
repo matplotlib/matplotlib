@@ -21,11 +21,12 @@ import matplotlib
 import matplotlib as mpl
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
-import matplotlib.pyplot as plt
-import matplotlib.markers as mmarkers
-import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
+import matplotlib.font_manager as mfont_manager
+import matplotlib.markers as mmarkers
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 from numpy.testing import (
@@ -776,6 +777,23 @@ def test_nonfinite_limits():
     x[len(x)//2] = np.nan
     fig, ax = plt.subplots()
     ax.plot(x, y)
+
+
+@pytest.mark.style('default')
+@pytest.mark.parametrize('plot_fun',
+                         ['scatter', 'plot', 'fill_between'])
+@check_figures_equal(extensions=["png"])
+def test_limits_empty_data(plot_fun, fig_test, fig_ref):
+    # Check that plotting empty data doesn't change autoscaling of dates
+    x = np.arange("2010-01-01", "2011-01-01", dtype="datetime64[D]")
+
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    getattr(ax_test, plot_fun)([], [])
+
+    for ax in [ax_test, ax_ref]:
+        getattr(ax, plot_fun)(x, range(len(x)), color='C0')
 
 
 @image_comparison(['imshow', 'imshow'], remove_text=True, style='mpl20')
@@ -1548,6 +1566,21 @@ def test_bar_pandas_indexed(pd):
                       index=[1, 2, 3])
     fig, ax = plt.subplots()
     ax.bar(df.x, 1., width=df.width)
+
+
+@check_figures_equal()
+@pytest.mark.style('default')
+def test_bar_hatches(fig_test, fig_ref):
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    x = [1, 2]
+    y = [2, 3]
+    hatches = ['x', 'o']
+    for i in range(2):
+        ax_ref.bar(x[i], y[i], color='C0', hatch=hatches[i])
+
+    ax_test.bar(x, y, hatch=hatches)
 
 
 def test_pandas_minimal_plot(pd):
@@ -3705,7 +3738,7 @@ def test_vertex_markers():
 
 
 @image_comparison(['vline_hline_zorder', 'errorbar_zorder'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -4590,6 +4623,14 @@ def test_mismatched_ticklabels():
     ax.xaxis.set_ticks([1.5, 2.5])
     with pytest.raises(ValueError):
         ax.xaxis.set_ticklabels(['a', 'b', 'c'])
+
+
+def test_empty_ticks_fixed_loc():
+    # Smoke test that [] can be used to unset all tick labels
+    fig, ax = plt.subplots()
+    ax.bar([1, 2], [1, 2])
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels([])
 
 
 @image_comparison(['retain_tick_visibility.png'])
@@ -6322,3 +6363,37 @@ def test_autoscale_tiny_sticky():
     ax.bar(0, 1e-9)
     fig.canvas.draw()
     assert ax.get_ylim() == (0, 1.05e-9)
+
+
+def test_xtickcolor_is_not_xticklabelcolor():
+    plt.rcParams['xtick.color'] = 'yellow'
+    plt.rcParams['xtick.labelcolor'] = 'blue'
+    ax = plt.axes()
+    ticks = ax.xaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.tick1line.get_color() == 'yellow'
+        assert tick.label1.get_color() == 'blue'
+
+
+def test_ytickcolor_is_not_yticklabelcolor():
+    plt.rcParams['ytick.color'] = 'yellow'
+    plt.rcParams['ytick.labelcolor'] = 'blue'
+    ax = plt.axes()
+    ticks = ax.yaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.tick1line.get_color() == 'yellow'
+        assert tick.label1.get_color() == 'blue'
+
+
+@pytest.mark.parametrize('size', [size for size in mfont_manager.font_scalings
+                                  if size is not None] + [8, 10, 12])
+@pytest.mark.style('default')
+def test_relative_ticklabel_sizes(size):
+    mpl.rcParams['xtick.labelsize'] = size
+    mpl.rcParams['ytick.labelsize'] = size
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+
+    for name, axis in zip(['x', 'y'], [ax.xaxis, ax.yaxis]):
+        for tick in axis.get_major_ticks():
+            assert tick.label1.get_size() == axis._get_tick_label_size(name)

@@ -20,6 +20,7 @@ from numbers import Number
 import operator
 import os
 import re
+import sys
 
 import numpy as np
 
@@ -172,6 +173,27 @@ def validate_bool_maybe_none(b):
         return False
     else:
         raise ValueError('Could not convert "%s" to bool' % b)
+
+
+def _validate_date_converter(s):
+    if s is None:
+        return
+    s = validate_string(s)
+    if s not in ['auto', 'concise']:
+        cbook._warn_external(f'date.converter string must be "auto" '
+                             f'or "concise", not "{s}".  Check your '
+                             'matplotlibrc')
+        return
+    import matplotlib.dates as mdates
+    mdates._rcParam_helper.set_converter(s)
+
+
+def _validate_date_int_mult(s):
+    if s is None:
+        return
+    s = validate_bool(s)
+    import matplotlib.dates as mdates
+    mdates._rcParam_helper.set_int_mult(s)
 
 
 def _validate_tex_preamble(s):
@@ -729,7 +751,8 @@ def validate_movie_writer(s):
 
 
 validate_movie_frame_fmt = ValidateInStrings(
-    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba'],
+    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba', 'ppm',
+                               'sgi', 'bmp', 'pbm', 'svg'],
     _deprecated_since="3.3")
 validate_axis_locator = ValidateInStrings(
     'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
@@ -1271,6 +1294,11 @@ _validators = {
     "date.autoformatter.second":      validate_string,
     "date.autoformatter.microsecond": validate_string,
 
+    # 'auto', 'concise', 'auto-noninterval'
+    'date.converter': _validate_date_converter,
+    # for auto date locator, choose interval_multiples
+    'date.interval_multiples': _validate_date_int_mult,
+
     # legend properties
     "legend.fancybox": validate_bool,
     "legend.loc": _ignorecase([
@@ -1278,6 +1306,7 @@ _validators = {
         "upper right", "upper left", "lower left", "lower right", "right",
         "center left", "center right", "lower center", "upper center",
         "center"]),
+
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
     # the number of points in the legend line for scatter
@@ -1320,7 +1349,9 @@ _validators = {
     "xtick.minor.width":   validate_float,     # minor xtick width in points
     "xtick.major.pad":     validate_float,     # distance to label in points
     "xtick.minor.pad":     validate_float,     # distance to label in points
-    "xtick.color":         validate_color,     # color of xtick labels
+    "xtick.color":         validate_color,     # color of xticks
+    "xtick.labelcolor":    validate_color_or_inherit,
+    # color of xtick labels
     "xtick.minor.visible": validate_bool,      # visibility of minor xticks
     "xtick.minor.top":     validate_bool,      # draw top minor xticks
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
@@ -1340,7 +1371,9 @@ _validators = {
     "ytick.minor.width":   validate_float,     # minor ytick width in points
     "ytick.major.pad":     validate_float,     # distance to label in points
     "ytick.minor.pad":     validate_float,     # distance to label in points
-    "ytick.color":         validate_color,     # color of ytick labels
+    "ytick.color":         validate_color,     # color of yticks
+    "ytick.labelcolor":    validate_color_or_inherit,
+    # color of ytick labels
     "ytick.minor.visible": validate_bool,      # visibility of minor yticks
     "ytick.minor.left":    validate_bool,      # draw left minor yticks
     "ytick.minor.right":   validate_bool,      # draw right minor yticks
@@ -1463,7 +1496,8 @@ _validators = {
     "animation.codec":        validate_string,
     "animation.bitrate":      validate_int,
     # Controls image format when frames are written to disk
-    "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba"],
+    "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba", "ppm",
+                               "sgi", "bmp", "pbm", "svg"],
     # Additional arguments for HTML writer
     "animation.html_args":    validate_stringlist,
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.

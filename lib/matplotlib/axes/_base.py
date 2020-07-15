@@ -461,9 +461,9 @@ class _AxesBase(martist.Artist):
         frameon : bool, default: True
             Whether the axes frame is visible.
 
-        box_aspect : None, or a number, optional
-            Sets the aspect of the axes box. See `~.axes.Axes.set_box_aspect`
-            for details.
+        box_aspect : float, optional
+            Set a fixed aspect for the axes box, i.e. the ratio of height to
+            width. See `~.axes.Axes.set_box_aspect` for details.
 
         **kwargs
             Other optional keyword arguments:
@@ -906,6 +906,10 @@ class _AxesBase(martist.Artist):
         which : {'both', 'active', 'original'}, default: 'both'
             Determines which position variables to change.
 
+        See Also
+        --------
+        matplotlib.transforms.Bbox.from_bounds
+        matplotlib.transforms.Bbox.from_extents
         """
         self._set_position(pos, which=which)
         # because this is being called externally to the library we
@@ -1422,8 +1426,10 @@ class _AxesBase(martist.Artist):
 
     def get_box_aspect(self):
         """
-        Get the axes box aspect.
-        Will be ``None`` if not explicitly specified.
+        Return the axes box aspect, i.e. the ratio of height to width.
+
+        The box aspect is ``None`` (i.e. chosen depending on the available
+        figure space) unless explicitly specified.
 
         See Also
         --------
@@ -1436,19 +1442,21 @@ class _AxesBase(martist.Artist):
 
     def set_box_aspect(self, aspect=None):
         """
-        Set the axes box aspect. The box aspect is the ratio of the
-        axes height to the axes width in physical units. This is not to be
-        confused with the data aspect, set via `~.Axes.set_aspect`.
+        Set the axes box aspect, i.e. the ratio of height to width.
+
+        This defines the aspect of the axes in figure space and is not to be
+        confused with the data aspect (see `~.Axes.set_aspect`).
 
         Parameters
         ----------
-        aspect : None, or a number
+        aspect : float or None
             Changes the physical dimensions of the Axes, such that the ratio
             of the axes height to the axes width in physical units is equal to
-            *aspect*. If *None*, the axes geometry will not be adjusted.
+            *aspect*. Defining a box aspect will change the *adjustable*
+            property to 'datalim' (see `~.Axes.set_adjustable`).
 
-        Note that calling this function with a number changes the *adjustable*
-        to *datalim*.
+            *None* will disable a fixed box aspect so that height and width
+            of the axes are chosen independently.
 
         See Also
         --------
@@ -2144,7 +2152,7 @@ class _AxesBase(martist.Artist):
             Whether to update the x/y limits.
         """
         xys = np.asarray(xys)
-        if not len(xys):
+        if not np.any(np.isfinite(xys)):
             return
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits,
                                          updatex=updatex, updatey=updatey)
@@ -2164,7 +2172,15 @@ class _AxesBase(martist.Artist):
         self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
-        """Look for unit *kwargs* and update the axis instances as necessary"""
+        """
+        Look for unit *kwargs* and update the axis instances as necessary
+
+
+        .. warning ::
+
+           This method may mutate the dictionary passed in an kwargs and
+           the Axis instances attached to this Axes.
+        """
 
         def _process_single_axis(data, axis, unit_name, kwargs):
             # Return if there's no axis set
@@ -2180,10 +2196,12 @@ class _AxesBase(martist.Artist):
             if kwargs is not None:
                 units = kwargs.pop(unit_name, axis.units)
                 if self.name == 'polar':
+                    # handle special casing to allow the kwargs
+                    # thetaunits and runits to be used with polar
                     polar_units = {'xunits': 'thetaunits', 'yunits': 'runits'}
                     units = kwargs.pop(polar_units[unit_name], units)
 
-                if units != axis.units:
+                if units != axis.units and units is not None:
                     axis.set_units(units)
                     # If the units being set imply a different converter,
                     # we need to update.
@@ -3772,7 +3790,7 @@ class _AxesBase(martist.Artist):
         """
         Set the navigation toolbar button status;
 
-        .. warning::
+        .. warning ::
             this is not a user-API function.
 
         """

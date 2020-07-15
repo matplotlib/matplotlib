@@ -622,63 +622,49 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     in the matplotlibrc file.
     """
 
-    if figsize is None:
-        figsize = rcParams['figure.figsize']
-    if dpi is None:
-        dpi = rcParams['figure.dpi']
-    if facecolor is None:
-        facecolor = rcParams['figure.facecolor']
-    if edgecolor is None:
-        edgecolor = rcParams['figure.edgecolor']
-
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
-    figLabel = ''
+    fig_label = ''
     if num is None:
         num = next_num
     elif isinstance(num, str):
-        figLabel = num
-        allLabels = get_figlabels()
-        if figLabel not in allLabels:
-            if figLabel == 'all':
+        fig_label = num
+        all_labels = get_figlabels()
+        if fig_label not in all_labels:
+            if fig_label == 'all':
                 cbook._warn_external(
-                    "close('all') closes all existing figures")
+                    "close('all') closes all existing figures.")
             num = next_num
         else:
-            inum = allLabels.index(figLabel)
+            inum = all_labels.index(fig_label)
             num = allnums[inum]
     else:
         num = int(num)  # crude validation of num argument
 
-    figManager = _pylab_helpers.Gcf.get_fig_manager(num)
-    if figManager is None:
+    manager = _pylab_helpers.Gcf.get_fig_manager(num)
+    if manager is None:
         max_open_warning = rcParams['figure.max_open_warning']
-
         if len(allnums) == max_open_warning >= 1:
             cbook._warn_external(
-                "More than %d figures have been opened. Figures "
-                "created through the pyplot interface "
-                "(`matplotlib.pyplot.figure`) are retained until "
-                "explicitly closed and may consume too much memory. "
-                "(To control this warning, see the rcParam "
-                "`figure.max_open_warning`)." %
-                max_open_warning, RuntimeWarning)
+                f"More than {max_open_warning} figures have been opened. "
+                f"Figures created through the pyplot interface "
+                f"(`matplotlib.pyplot.figure`) are retained until explicitly "
+                f"closed and may consume too much memory. (To control this "
+                f"warning, see the rcParam `figure.max_open_warning`).",
+                RuntimeWarning)
 
         if get_backend().lower() == 'ps':
             dpi = 72
 
-        figManager = new_figure_manager(num, figsize=figsize,
-                                        dpi=dpi,
-                                        facecolor=facecolor,
-                                        edgecolor=edgecolor,
-                                        frameon=frameon,
-                                        FigureClass=FigureClass,
-                                        **kwargs)
-        fig = figManager.canvas.figure
-        if figLabel:
-            fig.set_label(figLabel)
+        manager = new_figure_manager(
+            num, figsize=figsize, dpi=dpi,
+            facecolor=facecolor, edgecolor=edgecolor, frameon=frameon,
+            FigureClass=FigureClass, **kwargs)
+        fig = manager.canvas.figure
+        if fig_label:
+            fig.set_label(fig_label)
 
-        _pylab_helpers.Gcf._set_new_active_manager(figManager)
+        _pylab_helpers.Gcf._set_new_active_manager(manager)
 
         # make sure backends (inline) that we don't ship that expect this
         # to be called in plotting commands to make the figure call show
@@ -690,9 +676,9 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
             fig.stale_callback = _auto_draw_if_interactive
 
     if clear:
-        figManager.canvas.figure.clear()
+        manager.canvas.figure.clear()
 
-    return figManager.canvas.figure
+    return manager.canvas.figure
 
 
 def _auto_draw_if_interactive(fig, val):
@@ -723,9 +709,9 @@ def gcf():
     If no current figure exists, a new one is created using
     `~.pyplot.figure()`.
     """
-    figManager = _pylab_helpers.Gcf.get_active()
-    if figManager is not None:
-        return figManager.canvas.figure
+    manager = _pylab_helpers.Gcf.get_active()
+    if manager is not None:
+        return manager.canvas.figure
     else:
         return figure()
 
@@ -742,9 +728,9 @@ def get_fignums():
 
 def get_figlabels():
     """Return a list of existing figure labels."""
-    figManagers = _pylab_helpers.Gcf.get_all_fig_managers()
-    figManagers.sort(key=lambda m: m.num)
-    return [m.canvas.figure.get_label() for m in figManagers]
+    managers = _pylab_helpers.Gcf.get_all_fig_managers()
+    managers.sort(key=lambda m: m.num)
+    return [m.canvas.figure.get_label() for m in managers]
 
 
 def get_current_fig_manager():
@@ -791,11 +777,11 @@ def close(fig=None):
 
     """
     if fig is None:
-        figManager = _pylab_helpers.Gcf.get_active()
-        if figManager is None:
+        manager = _pylab_helpers.Gcf.get_active()
+        if manager is None:
             return
         else:
-            _pylab_helpers.Gcf.destroy(figManager)
+            _pylab_helpers.Gcf.destroy(manager)
     elif fig == 'all':
         _pylab_helpers.Gcf.destroy_all()
     elif isinstance(fig, int):
@@ -805,9 +791,9 @@ def close(fig=None):
         # can use its integer representation
         _pylab_helpers.Gcf.destroy(fig.int)
     elif isinstance(fig, str):
-        allLabels = get_figlabels()
-        if fig in allLabels:
-            num = get_fignums()[allLabels.index(fig)]
+        all_labels = get_figlabels()
+        if fig in all_labels:
+            num = get_fignums()[all_labels.index(fig)]
             _pylab_helpers.Gcf.destroy(num)
     elif isinstance(fig, Figure):
         _pylab_helpers.Gcf.destroy_fig(fig)
@@ -1366,9 +1352,9 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     loc : (int, int)
         Row number and column number of the axis location within the grid.
     rowspan : int, default: 1
-        Number of rows for the axis to span to the right.
+        Number of rows for the axis to span downwards.
     colspan : int, default: 1
-        Number of columns for the axis to span downwards.
+        Number of columns for the axis to span to the right.
     fig : `.Figure`, optional
         Figure to place the subplot in. Defaults to the current figure.
     **kwargs
@@ -1399,10 +1385,10 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     if fig is None:
         fig = gcf()
 
-    s1, s2 = shape
-    subplotspec = GridSpec(s1, s2).new_subplotspec(loc,
-                                                   rowspan=rowspan,
-                                                   colspan=colspan)
+    rows, cols = shape
+    gs = GridSpec._check_gridspec_exists(fig, rows, cols)
+
+    subplotspec = gs.new_subplotspec(loc, rowspan=rowspan, colspan=colspan)
     ax = fig.add_subplot(subplotspec, **kwargs)
     bbox = ax.bbox
     axes_to_delete = []
@@ -2120,11 +2106,10 @@ def colormaps():
 
 def _setup_pyplot_info_docstrings():
     """
-    Generate the plotting docstring.
+    Setup the docstring of `plotting` and of the colormap-setting functions.
 
-    These must be done after the entire module is imported, so it is
-    called from the end of this module, which is generated by
-    boilerplate.py.
+    These must be done after the entire module is imported, so it is called
+    from the end of this module, which is generated by boilerplate.py.
     """
     commands = get_plot_commands()
 
@@ -2160,10 +2145,20 @@ def _setup_pyplot_info_docstrings():
     ]
     plotting.__doc__ = '\n'.join(lines)
 
+    for cm_name in colormaps():
+        if cm_name in globals():
+            globals()[cm_name].__doc__ = f"""
+    Set the colormap to {cm_name!r}.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+
 
 ## Plotting part 1: manually generated functions and wrappers ##
 
 
+@_copy_docstring_and_deprecators(Figure.colorbar)
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
@@ -2176,7 +2171,6 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
         ax = gca()
     ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
     return ret
-colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
 
 def clim(vmin=None, vmax=None):
@@ -3121,211 +3115,25 @@ def yscale(value, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def autumn():
-    """
-    Set the colormap to "autumn".
+def autumn(): set_cmap('autumn')
+def bone(): set_cmap('bone')
+def cool(): set_cmap('cool')
+def copper(): set_cmap('copper')
+def flag(): set_cmap('flag')
+def gray(): set_cmap('gray')
+def hot(): set_cmap('hot')
+def hsv(): set_cmap('hsv')
+def jet(): set_cmap('jet')
+def pink(): set_cmap('pink')
+def prism(): set_cmap('prism')
+def spring(): set_cmap('spring')
+def summer(): set_cmap('summer')
+def winter(): set_cmap('winter')
+def magma(): set_cmap('magma')
+def inferno(): set_cmap('inferno')
+def plasma(): set_cmap('plasma')
+def viridis(): set_cmap('viridis')
+def nipy_spectral(): set_cmap('nipy_spectral')
 
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("autumn")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def bone():
-    """
-    Set the colormap to "bone".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("bone")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def cool():
-    """
-    Set the colormap to "cool".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("cool")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def copper():
-    """
-    Set the colormap to "copper".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("copper")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def flag():
-    """
-    Set the colormap to "flag".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("flag")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def gray():
-    """
-    Set the colormap to "gray".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("gray")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def hot():
-    """
-    Set the colormap to "hot".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("hot")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def hsv():
-    """
-    Set the colormap to "hsv".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("hsv")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def jet():
-    """
-    Set the colormap to "jet".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("jet")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def pink():
-    """
-    Set the colormap to "pink".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("pink")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def prism():
-    """
-    Set the colormap to "prism".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("prism")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def spring():
-    """
-    Set the colormap to "spring".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("spring")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def summer():
-    """
-    Set the colormap to "summer".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("summer")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def winter():
-    """
-    Set the colormap to "winter".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("winter")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def magma():
-    """
-    Set the colormap to "magma".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("magma")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def inferno():
-    """
-    Set the colormap to "inferno".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("inferno")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def plasma():
-    """
-    Set the colormap to "plasma".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("plasma")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def viridis():
-    """
-    Set the colormap to "viridis".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("viridis")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def nipy_spectral():
-    """
-    Set the colormap to "nipy_spectral".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("nipy_spectral")
 
 _setup_pyplot_info_docstrings()

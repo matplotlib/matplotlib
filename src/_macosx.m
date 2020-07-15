@@ -235,29 +235,6 @@ static int wait_for_stdin(void)
 //- (void)flagsChanged:(NSEvent*)event;
 @end
 
-@interface ScrollableButton : NSButton
-{
-    SEL scrollWheelUpAction;
-    SEL scrollWheelDownAction;
-}
-- (void)setScrollWheelUpAction:(SEL)action;
-- (void)setScrollWheelDownAction:(SEL)action;
-- (void)scrollWheel:(NSEvent *)event;
-@end
-
-@interface MenuItem: NSMenuItem
-{   int index;
-}
-+ (MenuItem*)menuItemWithTitle:(NSString*)title;
-+ (MenuItem*)menuItemSelectAll;
-+ (MenuItem*)menuItemInvertAll;
-+ (MenuItem*)menuItemForAxis:(int)i;
-- (void)toggle:(id)sender;
-- (void)selectAll:(id)sender;
-- (void)invertAll:(id)sender;
-- (int)index;
-@end
-
 /* ---------------------------- Python classes ---------------------------- */
 
 static bool backend_inited = false;
@@ -1108,8 +1085,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     self->height = height;
 
-    const char* basedir;
-
     obj = PyObject_GetAttrString((PyObject*)self, "canvas");
     if (obj==NULL)
     {
@@ -1130,8 +1105,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         return -1;
     }
 
-    if(!PyArg_ParseTuple(args, "s", &basedir)) return -1;
-
     NSRect bounds = [view bounds];
     NSWindow* window = [view window];
 
@@ -1141,27 +1114,17 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     bounds.size.height += height;
     [window setContentSize: bounds.size];
 
-    NSString* dir = [NSString stringWithCString: basedir
-                                       encoding: NSASCIIStringEncoding];
+    const char* images[7];
+    const char* tooltips[7];
+    if (!PyArg_ParseTuple(args, "(sssssss)(sssssss)",
+                &images[0], &images[1], &images[2], &images[3],
+                &images[4], &images[5], &images[6],
+                &tooltips[0], &tooltips[1], &tooltips[2], &tooltips[3],
+                &tooltips[4], &tooltips[5], &tooltips[6])) {
+        return -1;
+    }
 
     NSButton* buttons[7];
-
-    NSString* images[7] = {@"home.pdf",
-                           @"back.pdf",
-                           @"forward.pdf",
-                           @"move.pdf",
-                           @"zoom_to_rect.pdf",
-                           @"subplots.pdf",
-                           @"filesave.pdf"};
-
-    NSString* tooltips[7] = {@"Reset original view",
-                             @"Back to  previous view",
-                             @"Forward to next view",
-                             @"Pan axes with left mouse, zoom with right",
-                             @"Zoom to rectangle",
-                             @"Configure subplots",
-                             @"Save the figure"};
-
     SEL actions[7] = {@selector(home:),
                       @selector(back:),
                       @selector(forward:),
@@ -1169,7 +1132,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
                       @selector(zoom:),
                       @selector(configure_subplots:),
                       @selector(save_figure:)};
-
     NSButtonType buttontypes[7] = {NSMomentaryLightButton,
                                    NSMomentaryLightButton,
                                    NSMomentaryLightButton,
@@ -1194,9 +1156,11 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.x = gap;
     rect.origin.y = 0.5*(height - rect.size.height);
 
-    for (i = 0; i < 7; i++)
-    {
-        NSString* filename = [dir stringByAppendingPathComponent: images[i]];
+    for (i = 0; i < 7; i++) {
+        NSString* filename = [NSString stringWithCString: images[i]
+                                                encoding: NSUTF8StringEncoding];
+        NSString* tooltip = [NSString stringWithCString: tooltips[i]
+                                               encoding: NSUTF8StringEncoding];
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
@@ -1205,7 +1169,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         [buttons[i] setImage: image];
         [buttons[i] scaleUnitSquareToSize: scale];
         [buttons[i] setImagePosition: NSImageOnly];
-        [buttons[i] setToolTip: tooltips[i]];
+        [buttons[i] setToolTip: tooltip];
         [[window contentView] addSubview: buttons[i]];
         [buttons[i] release];
         [image release];
@@ -2186,110 +2150,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_Release(gstate);
 }
  */
-@end
-
-@implementation ScrollableButton
-- (void)setScrollWheelUpAction:(SEL)action
-{
-    scrollWheelUpAction = action;
-}
-
-- (void)setScrollWheelDownAction:(SEL)action
-{
-    scrollWheelDownAction = action;
-}
-
-- (void)scrollWheel:(NSEvent*)event
-{
-    float d = [event deltaY];
-    Window* target = [self target];
-    if (d > 0)
-        [NSApp sendAction: scrollWheelUpAction to: target from: self];
-    else if (d < 0)
-        [NSApp sendAction: scrollWheelDownAction to: target from: self];
-}
-@end
-
-@implementation MenuItem
-+ (MenuItem*)menuItemWithTitle: (NSString*)title
-{
-    MenuItem* item = [[MenuItem alloc] initWithTitle: title
-                                              action: nil
-                                       keyEquivalent: @""];
-    item->index = -1;
-    return [item autorelease];
-}
-
-+ (MenuItem*)menuItemForAxis: (int)i
-{
-    NSString* title = [NSString stringWithFormat: @"Axis %d", i+1];
-    MenuItem* item = [[MenuItem alloc] initWithTitle: title
-                                              action: @selector(toggle:)
-                                       keyEquivalent: @""];
-    [item setTarget: item];
-    [item setState: NSOnState];
-    item->index = i;
-    return [item autorelease];
-}
-
-+ (MenuItem*)menuItemSelectAll
-{
-    MenuItem* item = [[MenuItem alloc] initWithTitle: @"Select All"
-                                              action: @selector(selectAll:)
-                                       keyEquivalent: @""];
-    [item setTarget: item];
-    item->index = -1;
-    return [item autorelease];
-}
-
-+ (MenuItem*)menuItemInvertAll
-{
-    MenuItem* item = [[MenuItem alloc] initWithTitle: @"Invert All"
-                                              action: @selector(invertAll:)
-                                       keyEquivalent: @""];
-    [item setTarget: item];
-    item->index = -1;
-    return [item autorelease];
-}
-
-- (void)toggle:(id)sender
-{
-    if ([self state]) [self setState: NSOffState];
-    else [self setState: NSOnState];
-}
-
-- (void)selectAll:(id)sender
-{
-    NSMenu* menu = [sender menu];
-    if(!menu) return; /* Weird */
-    NSArray* items = [menu itemArray];
-    NSEnumerator* enumerator = [items objectEnumerator];
-    MenuItem* item;
-    while ((item = [enumerator nextObject]))
-    {
-        if (item->index >= 0) [item setState: NSOnState];
-    }
-}
-
-- (void)invertAll:(id)sender
-{
-    NSMenu* menu = [sender menu];
-    if(!menu) return; /* Weird */
-    NSArray* items = [menu itemArray];
-    NSEnumerator* enumerator = [items objectEnumerator];
-    MenuItem* item;
-    while ((item = [enumerator nextObject]))
-    {
-        if (item->index < 0) continue;
-        if ([item state]==NSOffState) [item setState: NSOnState];
-        else [item setState: NSOffState];
-    }
-}
-
-- (int)index
-{
-    return self->index;
-}
 @end
 
 static PyObject*

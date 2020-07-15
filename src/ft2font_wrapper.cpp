@@ -635,11 +635,10 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
     size_t size;
 
     if (PyUnicode_Check(textobj)) {
-        size = PyUnicode_GET_SIZE(textobj);
+        size = PyUnicode_GET_LENGTH(textobj);
         codepoints.resize(size);
-        Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
         for (size_t i = 0; i < size; ++i) {
-            codepoints[i] = unistr[i];
+            codepoints[i] = PyUnicode_ReadChar(textobj, i);
         }
     } else if (PyBytes_Check(textobj)) {
         size = PyBytes_Size(textobj);

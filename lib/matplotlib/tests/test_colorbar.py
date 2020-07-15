@@ -115,6 +115,7 @@ def test_colorbar_extension_length():
     _colorbar_extension_length('proportional')
 
 
+@pytest.mark.parametrize('use_gridspec', [True, False])
 @image_comparison(['cbar_with_orientation',
                    'cbar_locationing',
                    'double_cbar',
@@ -122,21 +123,21 @@ def test_colorbar_extension_length():
                    ],
                   extensions=['png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
-def test_colorbar_positioning():
+def test_colorbar_positioning(use_gridspec):
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
     # -------------------
     plt.figure()
     plt.contourf(data, levels=levels)
-    plt.colorbar(orientation='horizontal', use_gridspec=False)
+    plt.colorbar(orientation='horizontal', use_gridspec=use_gridspec)
 
     locations = ['left', 'right', 'top', 'bottom']
     plt.figure()
     for i, location in enumerate(locations):
         plt.subplot(2, 2, i + 1)
         plt.contourf(data, levels=levels)
-        plt.colorbar(location=location, use_gridspec=False)
+        plt.colorbar(location=location, use_gridspec=use_gridspec)
 
     # -------------------
     plt.figure()
@@ -152,9 +153,9 @@ def test_colorbar_positioning():
     plt.contour(hatch_mappable, colors='black')
 
     plt.colorbar(color_mappable, location='left', label='variable 1',
-                 use_gridspec=False)
+                 use_gridspec=use_gridspec)
     plt.colorbar(hatch_mappable, location='right', label='variable 2',
-                 use_gridspec=False)
+                 use_gridspec=use_gridspec)
 
     # -------------------
     plt.figure()
@@ -166,11 +167,11 @@ def test_colorbar_positioning():
     plt.contourf(data, levels=levels)
 
     plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5,
-                 panchor=False, use_gridspec=False)
+                 panchor=False, use_gridspec=use_gridspec)
     plt.colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5,
-                 panchor=False, use_gridspec=False)
+                 panchor=False, use_gridspec=use_gridspec)
     plt.colorbar(ax=[ax1], location='bottom', panchor=False,
-                 anchor=(0.8, 0.5), shrink=0.6, use_gridspec=False)
+                 anchor=(0.8, 0.5), shrink=0.6, use_gridspec=use_gridspec)
 
 
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,

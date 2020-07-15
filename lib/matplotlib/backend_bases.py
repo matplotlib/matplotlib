@@ -143,6 +143,8 @@ class RendererBase:
         super().__init__()
         self._texmanager = None
         self._text2path = textpath.TextToPath()
+        self._raster_depth = 0
+        self._rasterizing = False
 
     def open_group(self, s, gid=None):
         """
@@ -1403,7 +1405,7 @@ class MouseEvent(LocationEvent):
            last change of keyboard state occurred while the canvas did not have
            focus, this attribute will be wrong.
 
-    step : int
+    step : float
         The number of scroll steps (positive for 'up', negative for 'down').
         This applies only to 'scroll_event' and defaults to 0 otherwise.
 
@@ -1534,7 +1536,6 @@ def _get_renderer(figure, print_method=None):
 
     If you need a renderer without any active draw methods use
     renderer._draw_disabled to temporary patch them out at your call site.
-
     """
     # This is implemented by triggering a draw, then immediately jumping out of
     # Figure.draw() by raising an exception.
@@ -1545,15 +1546,23 @@ def _get_renderer(figure, print_method=None):
     def _draw(renderer): raise Done(renderer)
 
     with cbook._setattr_cm(figure, draw=_draw):
+        orig_canvas = figure.canvas
         if print_method is None:
             fmt = figure.canvas.get_default_filetype()
-            print_method = getattr(figure.canvas, f"print_{fmt}")
+            # Even for a canvas' default output type, a canvas switch may be
+            # needed, e.g. for FigureCanvasBase.
+            print_method = getattr(
+                figure.canvas._get_output_canvas(None, fmt), f"print_{fmt}")
         try:
             print_method(io.BytesIO(), dpi=figure.dpi)
         except Done as exc:
             renderer, = figure._cachedRenderer, = exc.args
-
-    return renderer
+            return renderer
+        else:
+            raise RuntimeError(f"{print_method} did not call Figure.draw, so "
+                               f"no renderer is available")
+        finally:
+            figure.canvas = orig_canvas
 
 
 def _is_non_interactive_terminal_ipython(ip):
@@ -2228,20 +2237,24 @@ class FigureCanvasBase:
         """
         return rcParams['savefig.format']
 
+    @cbook.deprecated(
+        "3.4", alternative="manager.get_window_title or GUI-specific methods")
     def get_window_title(self):
         """
         Return the title text of the window containing the figure, or None
         if there is no window (e.g., a PS backend).
         """
-        if self.manager:
+        if self.manager is not None:
             return self.manager.get_window_title()
 
+    @cbook.deprecated(
+        "3.4", alternative="manager.set_window_title or GUI-specific methods")
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
         this has no effect if there is no window (e.g., a PS backend).
         """
-        if hasattr(self, "manager"):
+        if self.manager is not None:
             self.manager.set_window_title(title)
 
     def get_default_filename(self):
@@ -2249,11 +2262,12 @@ class FigureCanvasBase:
         Return a string, which includes extension, suitable for use as
         a default filename.
         """
-        default_basename = self.get_window_title() or 'image'
-        default_basename = default_basename.replace(' ', '_')
-        default_filetype = self.get_default_filetype()
-        default_filename = default_basename + '.' + default_filetype
-        return default_filename
+        basename = (self.manager.get_window_title() if self.manager is not None
+                    else '')
+        basename = (basename or 'image').replace(' ', '_')
+        filetype = self.get_default_filetype()
+        filename = basename + '.' + filetype
+        return filename
 
     def switch_backends(self, FigureCanvasClass):
         """
@@ -2818,8 +2832,12 @@ class NavigationToolbar2:
         ('Back', 'Back to previous view', 'back', 'back'),
         ('Forward', 'Forward to next view', 'forward', 'forward'),
         (None, None, None, None),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
-        ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
+        ('Pan',
+         'Left button pans, Right button zooms\n'
+         'x/y fixes axis, CTRL fixes aspect',
+         'move', 'pan'),
+        ('Zoom', 'Zoom to rectangle\nx/y fixes axis, CTRL fixes aspect',
+         'zoom_to_rect', 'zoom'),
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
         (None, None, None, None),
         ('Save', 'Save the figure', 'filesave', 'save_figure'),

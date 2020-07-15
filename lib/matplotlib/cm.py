@@ -258,8 +258,10 @@ class ScalarMappable:
                             "simultaneously is deprecated since %(since)s and "
                             "will become an error %(removal)s. Please pass "
                             "vmin/vmax directly to the norm when creating it.")
-        else:
-            self.autoscale_None()
+
+        # always resolve the autoscaling so we have concrete limits
+        # rather than deferring to draw time.
+        self.autoscale_None()
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """

@@ -115,7 +115,7 @@ def test_SimplePatchShadow_offset():
     assert pe._offset == (4, 5)
 
 
-@image_comparison(['collection'], tol=0.02, style='mpl20')
+@image_comparison(['collection'], tol=0.03, style='mpl20')
 def test_collection():
     x, y = np.meshgrid(np.linspace(0, 10, 150), np.linspace(-5, 5, 100))
     data = np.sin(x) + np.cos(y)

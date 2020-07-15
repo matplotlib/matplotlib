@@ -48,6 +48,7 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
+    'sphinxcontrib.inkscapeconverter',
     'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
@@ -69,6 +70,7 @@ def _check_dependencies():
         "PIL.Image": 'pillow',
         "sphinx_copybutton": 'sphinx_copybutton',
         "sphinx_gallery": 'sphinx_gallery',
+        "sphinxcontrib.inkscapeconverter": 'sphinxcontrib-svg2pdfconverter',
     }
     missing = []
     for name in names:
@@ -139,6 +141,7 @@ sphinx_gallery_conf = {
     'within_subsection_order': gallery_order.subsectionorder,
     'remove_config_comments': True,
     'min_reported_time': 1,
+    'thumbnail_size': (320, 224),
     'compress_images': ('thumbnails', 'images'),
     'matplotlib_animations': True,
 }
@@ -375,7 +378,9 @@ html4_writer = True
 inheritance_node_attrs = dict(fontsize=16)
 
 graphviz_dot = shutil.which('dot')
-graphviz_output_format = 'svg'
+# Still use PNG until SVG linking is fixed
+# https://github.com/sphinx-doc/sphinx/issues/3176
+# graphviz_output_format = 'svg'
 
 
 def setup(app):

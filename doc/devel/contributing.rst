@@ -227,8 +227,10 @@ rules before submitting a pull request:
   :file:`doc/users/next_whats_new/README.rst` for more information).
 
 * If you change the API in a backward-incompatible way, please document it in
-  :file:`doc/api/api_changes`, by adding to the relevant file
-  (see :file:`doc/api/api_changes.rst` for more information)
+  :file:`doc/api/next_api_changes/behavior`, by adding a new file with the
+  naming convention ``99999-ABC.rst`` where the pull request number is followed
+  by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
+  information)
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
@@ -317,8 +319,10 @@ API changes
 Changes to the public API must follow a standard deprecation procedure to
 prevent unexpected breaking of code that uses Matplotlib.
 
-- Deprecations must be announced via an entry in
-  the most recent :file:`doc/api/api_changes_X.Y`
+- Deprecations must be announced via a new file in
+  a new file in :file:`doc/api/next_api_changes/deprecations/` with
+  naming convention ``99999-ABC.rst`` where ``99999`` is the pull request
+  number and ``ABC`` are the contributor's initials.
 - Deprecations are targeted at the next point-release (i.e. 3.x.0).
 - The deprecated API should, to the maximum extent possible, remain fully
   functional during the deprecation period. In cases where this is not

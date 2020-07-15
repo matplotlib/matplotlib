@@ -208,6 +208,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
         to their original values after this call, so you don't need to
         save and restore them.
         """
+        self.draw()
 
     def get_default_filetype(self):
         return 'foo'

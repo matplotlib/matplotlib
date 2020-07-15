@@ -23,6 +23,7 @@ import matplotlib.transforms as mtransforms
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
+from matplotlib import docstring
 
 # We can't use a single line collection for contour because a line
 # collection can have only a single line style, and we want to be able to have
@@ -629,7 +630,7 @@ def _is_closed_polygon(X):
     presumably coordinates on a polygonal curve, in which case this function
     tests if that curve is closed.
     """
-    return np.all(X[0] == X[-1])
+    return np.allclose(X[0], X[-1], rtol=1e-10, atol=1e-13)
 
 
 def _find_closest_point_on_path(lc, point):
@@ -667,6 +668,27 @@ def _find_closest_point_on_path(lc, point):
     return (dmin, xcmin, legmin)
 
 
+docstring.interpd.update(contour_set_attributes=r"""
+Attributes
+----------
+ax : `~matplotlib.axes.Axes`
+    The Axes object in which the contours are drawn.
+
+collections : `.silent_list` of `.LineCollection`\s or `.PathCollection`\s
+    The `.Artist`\s representing the contour. This is a list of
+    `.LineCollection`\s for line contours and a list of `.PathCollection`\s
+    for filled contours.
+
+levels : array
+    The values of the contour levels.
+
+layers : array
+    Same as levels for line contours; half-way between
+    levels for filled contours.  See ``ContourSet._process_colors``.
+""")
+
+
+@docstring.dedent_interpd
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.
@@ -707,20 +729,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Keyword arguments are as described in the docstring of
         `~.Axes.contour`.
 
-    Attributes
-    ----------
-    ax
-        The axes object in which the contours are drawn.
-
-    collections
-        A silent_list of LineCollections or PolyCollections.
-
-    levels
-        Contour levels.
-
-    layers
-        Same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors`.
+    %(contour_set_attributes)s
     """
 
     def __init__(self, ax, *args,
@@ -845,10 +854,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if extend_max:
                     cmap.set_over(self.colors[-1])
 
-        if self.filled:
-            self.collections = cbook.silent_list('mcoll.PathCollection')
-        else:
-            self.collections = cbook.silent_list('mcoll.LineCollection')
+        self.collections = cbook.silent_list(None)
+
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -869,53 +876,48 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.filled:
             if self.linewidths is not None:
                 cbook._warn_external('linewidths is ignored by contourf')
-
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
-
             # Ensure allkinds can be zipped below.
             if self.allkinds is None:
                 self.allkinds = [None] * len(self.allsegs)
-
             # Default zorder taken from Collection
             self._contour_zorder = kwargs.pop('zorder', 1)
-            for level, level_upper, segs, kinds in \
-                    zip(lowers, uppers, self.allsegs, self.allkinds):
-                paths = self._make_paths(segs, kinds)
 
-                col = mcoll.PathCollection(
-                    paths,
+            self.collections[:] = [
+                mcoll.PathCollection(
+                    self._make_paths(segs, kinds),
                     antialiaseds=(self.antialiased,),
                     edgecolors='none',
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=self._contour_zorder)
-                self.axes.add_collection(col, autolim=False)
-                self.collections.append(col)
+                for level, level_upper, segs, kinds
+                in zip(lowers, uppers, self.allsegs, self.allkinds)]
         else:
-            tlinewidths = self._process_linewidths()
-            self.tlinewidths = tlinewidths
+            self.tlinewidths = tlinewidths = self._process_linewidths()
             tlinestyles = self._process_linestyles()
             aa = self.antialiased
             if aa is not None:
                 aa = (self.antialiased,)
             # Default zorder taken from LineCollection
             self._contour_zorder = kwargs.pop('zorder', 2)
-            for level, width, lstyle, segs in \
-                    zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
-                col = mcoll.LineCollection(
+
+            self.collections[:] = [
+                mcoll.LineCollection(
                     segs,
                     antialiaseds=aa,
                     linewidths=width,
                     linestyles=[lstyle],
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=self._contour_zorder)
-                col.set_label('_nolegend_')
-                self.axes.add_collection(col, autolim=False)
-                self.collections.append(col)
+                    zorder=self._contour_zorder,
+                    label='_nolegend_')
+                for level, width, lstyle, segs
+                in zip(self.levels, tlinewidths, tlinestyles, self.allsegs)]
 
         for col in self.collections:
+            self.axes.add_collection(col, autolim=False)
             col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
             col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
         self.axes.update_datalim([self._mins, self._maxs])
@@ -1385,26 +1387,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return (conmin, segmin, imin, xmin, ymin, dmin)
 
 
+@docstring.dedent_interpd
 class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: `~.Axes.clabel`
+    This class is typically not instantiated directly by the user but by
+    `~.Axes.contour` and `~.Axes.contourf`.
 
-    Attributes
-    ----------
-    ax
-        The axes object in which the contours are drawn.
-
-    collections
-        A silent_list of LineCollections or PolyCollections.
-
-    levels
-        Contour levels.
-
-    layers
-        Same as levels for line contours; half-way between
-        levels for filled contours. See :meth:`_process_colors` method.
+    %(contour_set_attributes)s
     """
 
     def _process_args(self, *args, corner_mask=None, **kwargs):
@@ -1653,7 +1644,7 @@ class QuadContourSet(ContourSet):
             By default (value *None*), the colormap specified by *cmap*
             will be used.
 
-        alpha : float, optional
+        alpha : float, default: 1
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         cmap : str or `.Colormap`, default: :rc:`image.cmap`
@@ -1707,7 +1698,7 @@ class QuadContourSet(ContourSet):
             and above the *levels* range.
 
             Values below ``min(levels)`` and above ``max(levels)`` are mapped
-            to the under/over values of the `.Colormap`. Note, that most
+            to the under/over values of the `.Colormap`. Note that most
             colormaps do not have dedicated colors for these by default, so
             that the over and under values are the edge values of the colormap.
             You may want to set these values explicitly using

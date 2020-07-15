@@ -1371,8 +1371,13 @@ class FontManager:
             if rebuild_if_missing:
                 _log.info(
                     'findfont: Found a missing font file.  Rebuilding cache.')
-                _rebuild()
-                return fontManager.findfont(
+                new_fm = _load_fontmanager(try_read_cache=False)
+                # Replace self by the new fontmanager, because users may have
+                # a reference to this specific instance.
+                # TODO: _load_fontmanager should really be (used by) a method
+                # modifying the instance in place.
+                vars(self).update(vars(new_fm))
+                return self.findfont(
                     prop, fontext, directory, rebuild_if_missing=False)
             else:
                 raise ValueError("No valid font could be found")
@@ -1394,11 +1399,6 @@ def is_opentype_cff_font(filename):
         return False
 
 
-_fmcache = os.path.join(
-    mpl.get_cachedir(), 'fontlist-v{}.json'.format(FontManager.__version__))
-fontManager = None
-
-
 _get_font = lru_cache(64)(ft2font.FT2Font)
 # FT2Font objects cannot be used across fork()s because they reference the same
 # FT_Library object.  While invalidating *all* existing FT2Fonts after a fork
@@ -1418,22 +1418,23 @@ def get_font(filename, hinting_factor=None):
                      _kerning_factor=rcParams['text.kerning_factor'])
 
 
-def _rebuild():
-    global fontManager
-    _log.info("Generating new fontManager, this may take some time...")
-    fontManager = FontManager()
-    json_dump(fontManager, _fmcache)
+def _load_fontmanager(*, try_read_cache=True):
+    fm_path = Path(
+        mpl.get_cachedir(), f"fontlist-v{FontManager.__version__}.json")
+    if try_read_cache:
+        try:
+            fm = json_load(fm_path)
+        except Exception as exc:
+            pass
+        else:
+            if getattr(fm, "_version", object()) == FontManager.__version__:
+                _log.debug("Using fontManager instance from %s", fm_path)
+                return fm
+    fm = FontManager()
+    json_dump(fm, fm_path)
+    _log.info("generated new fontManager")
+    return fm
 
 
-try:
-    fontManager = json_load(_fmcache)
-except Exception:
-    _rebuild()
-else:
-    if getattr(fontManager, '_version', object()) != FontManager.__version__:
-        _rebuild()
-    else:
-        _log.debug("Using fontManager instance from %s", _fmcache)
-
-
+fontManager = _load_fontmanager()
 findfont = fontManager.findfont

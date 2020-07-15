@@ -1,7 +1,10 @@
+import math
+
+import numpy as np
+
 from matplotlib.patches import _Style, FancyArrowPatch
 from matplotlib.transforms import IdentityTransform
 from matplotlib.path import Path
-import numpy as np
 
 
 class _FancyAxislineStyle:
@@ -37,22 +40,15 @@ class _FancyAxislineStyle:
             """
             Extend the path to make a room for drawing arrow.
             """
-            from matplotlib.bezier import get_cos_sin
-
-            x0, y0 = path.vertices[-2]
-            x1, y1 = path.vertices[-1]
-            cost, sint = get_cos_sin(x0, y0, x1, y1)
-
-            d = mutation_size * 1.
-            x2, y2 = x1 + cost*d, y1+sint*d
-
+            (x0, y0), (x1, y1) = path.vertices[-2:]
+            theta = math.atan2(y1 - y0, x1 - x0)
+            x2 = x1 + math.cos(theta) * mutation_size
+            y2 = y1 + math.sin(theta) * mutation_size
             if path.codes is None:
-                _path = Path(np.concatenate([path.vertices, [[x2, y2]]]))
+                return Path(np.concatenate([path.vertices, [[x2, y2]]]))
             else:
-                _path = Path(np.concatenate([path.vertices, [[x2, y2]]]),
-                             np.concatenate([path.codes, [Path.LINETO]]))
-
-            return _path
+                return Path(np.concatenate([path.vertices, [[x2, y2]]]),
+                            np.concatenate([path.codes, [Path.LINETO]]))
 
         def set_path(self, path):
             self._line_path = path

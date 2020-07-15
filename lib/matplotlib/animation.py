@@ -597,7 +597,8 @@ class FFMpegBase:
             # NOTE: when removed, remove the same method in AVConvBase.
             and b'LibAv' not in subprocess.run(
                 [cls.bin_path()], creationflags=subprocess_creation_flags,
-                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr)
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE).stderr)
 
 
 # Combine FFMpeg options with pipe-based writing

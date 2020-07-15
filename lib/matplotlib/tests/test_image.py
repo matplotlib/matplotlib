@@ -713,7 +713,7 @@ def test_minimized_rasterized():
 
 
 def test_load_from_url():
-    path = Path(__file__).parent / "baseline_images/test_image/imshow.png"
+    path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
@@ -732,7 +732,11 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-@image_comparison(['rotate_image'], remove_text=True)
+# Increased tolerance is needed for PDF test to avoid failure. After the PDF
+# backend was modified to use indexed color, there are ten pixels that differ
+# due to how the subpixel calculation is done when converting the PDF files to
+# PNG images.
+@image_comparison(['rotate_image'], remove_text=True, tol=0.35)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -861,7 +865,7 @@ def test_imshow_endianess():
 
 
 @image_comparison(['imshow_masked_interpolation'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
+                  tol=0 if platform.machine() == 'x86_64' else 0.01,
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 

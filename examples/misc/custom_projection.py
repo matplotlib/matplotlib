@@ -76,13 +76,13 @@ class GeoAxes(Axes):
 
         # There are three important coordinate spaces going on here:
         #
-        #    1. Data space: The space of the data itself
+        # 1. Data space: The space of the data itself
         #
-        #    2. Axes space: The unit rectangle (0, 0) to (1, 1)
-        #       covering the entire plot area.
+        # 2. Axes space: The unit rectangle (0, 0) to (1, 1)
+        #    covering the entire plot area.
         #
-        #    3. Display space: The coordinates of the resulting image,
-        #       often in pixels or dpi/inch.
+        # 3. Display space: The coordinates of the resulting image,
+        #    often in pixels or dpi/inch.
 
         # This function makes heavy use of the Transform classes in
         # ``lib/matplotlib/transforms.py.`` For more information, see

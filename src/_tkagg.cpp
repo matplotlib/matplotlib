@@ -89,38 +89,8 @@ exit:
     }
 }
 
-#ifdef _WIN32
-static PyObject *
-Win32_GetForegroundWindow(PyObject *module, PyObject *args)
-{
-    HWND handle = GetForegroundWindow();
-    if (!PyArg_ParseTuple(args, ":GetForegroundWindow")) {
-        return NULL;
-    }
-    return PyLong_FromSize_t((size_t)handle);
-}
-
-static PyObject *
-Win32_SetForegroundWindow(PyObject *module, PyObject *args)
-{
-    HWND handle;
-    if (!PyArg_ParseTuple(args, "n:SetForegroundWindow", &handle)) {
-        return NULL;
-    }
-    if (!SetForegroundWindow(handle)) {
-        return PyErr_Format(PyExc_RuntimeError, "Error setting window");
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-#endif
-
 static PyMethodDef functions[] = {
     { "blit", (PyCFunction)mpl_tk_blit, METH_VARARGS },
-#ifdef _WIN32
-    { "Win32_GetForegroundWindow", (PyCFunction)Win32_GetForegroundWindow, METH_VARARGS },
-    { "Win32_SetForegroundWindow", (PyCFunction)Win32_SetForegroundWindow, METH_VARARGS },
-#endif
     { NULL, NULL } /* sentinel */
 };
 

@@ -1063,6 +1063,10 @@ class FigureManagerWx(FigureManagerBase):
         if wxapp:
             wxapp.Yield()
 
+    def full_screen_toggle(self):
+        # docstring inherited
+        self.frame.ShowFullScreen(not self.frame.IsFullScreen())
+
     def get_window_title(self):
         # docstring inherited
         return self.window.GetTitle()
@@ -1120,7 +1124,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     -1,
                     bitmap=self._icon(f"{image_file}.png"),
                     bmpDisabled=wx.NullBitmap,
-                    label=text, shortHelp=text, longHelp=tooltip_text,
+                    label=text, shortHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
                           else wx.ITEM_NORMAL))
                 .Id)
@@ -1674,6 +1678,7 @@ class _BackendWx(_Backend):
         if wxapp is None:
             wxapp = wx.App(False)
             wxapp.SetExitOnFrameDelete(True)
+            cbook._setup_new_guiapp()
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp

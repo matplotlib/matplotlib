@@ -1,0 +1,20 @@
+xunits=None and yunits=None passed as kwargs are treated as "no action"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many (but not all) of the methods on `~.axes.Axes` take the (undocumented)
+kwargs *xunits* and *yunits* that will update the units on the given
+Axis by calling `.Axis.set_units` and `.Axis.update_units`.
+
+Previously if `None` was passed it would clear the value stored in
+``.Axis.units`` which will in turn break converters (notably
+`.StrCategoryConverter`) which rely on the value in
+``.Axis.units`` to work properly.
+
+This changes the semantics of ``ax.meth(..., xunits=None,
+yunits=None)`` from "please clear the units" to "do the default thing
+as if they had not been passed" which is consistent with the standard
+behavior of Matplotlib keyword arguments.
+
+If you were relying on passing ``xuints=None`` to plotting methods to
+clear the ``.Axes.units`` attribute, directly call `.Axis.set_units` (and
+`.Axis.update_units` if you also require the converter to be updated).

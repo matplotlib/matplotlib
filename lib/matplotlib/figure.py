@@ -19,7 +19,8 @@ from matplotlib import docstring, projections
 from matplotlib import __version__ as _mpl_version
 
 import matplotlib.artist as martist
-from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.artist import (
+    Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
     FigureCanvasBase, NonGuiException, MouseButton)
 import matplotlib.cbook as cbook
@@ -1814,6 +1815,7 @@ default: 'top'
         """Clear the figure -- synonym for `clf`."""
         self.clf(keep_observers=keep_observers)
 
+    @_finalize_rasterization
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
@@ -2108,8 +2110,10 @@ default: 'top'
         # The canvas cannot currently be pickled, but this has the benefit
         # of meaning that a figure can be detached from one canvas, and
         # re-attached to another.
-        for attr_to_pop in ('canvas', '_cachedRenderer'):
-            state.pop(attr_to_pop, None)
+        state.pop("canvas")
+
+        # Set cached renderer to None -- it can't be pickled.
+        state["_cachedRenderer"] = None
 
         # add version information to the state
         state['__mpl_version__'] = _mpl_version
@@ -2313,12 +2317,7 @@ default: 'top'
 
     @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
-        """
-        Create a colorbar for a ScalarMappable instance, *mappable*.
-
-        Documentation for the pyplot thin wrapper:
-        %(colorbar_doc)s
-        """
+        """%(colorbar_doc)s"""
         if ax is None:
             ax = self.gca()
 

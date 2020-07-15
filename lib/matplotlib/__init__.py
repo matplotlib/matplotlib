@@ -273,9 +273,10 @@ def _get_executable_info(name):
 
     Returns
     -------
-    If the executable is found, a namedtuple with fields ``executable`` (`str`)
-    and ``version`` (`distutils.version.LooseVersion`, or ``None`` if the
-    version cannot be determined).
+    tuple
+        A namedtuple with fields ``executable`` (`str`) and ``version``
+        (`distutils.version.LooseVersion`, or ``None`` if the version cannot be
+        determined).
 
     Raises
     ------
@@ -1136,16 +1137,34 @@ def use(backend, *, force=True):
     matplotlib.get_backend
     """
     name = validate_backend(backend)
+    # we need to use the base-class method here to avoid (prematurely)
+    # resolving the "auto" backend setting
     if dict.__getitem__(rcParams, 'backend') == name:
         # Nothing to do if the requested backend is already set
         pass
     else:
-        try:
-            from matplotlib import pyplot as plt
-            plt.switch_backend(name)
-        except ImportError:
-            if force:
-                raise
+        # if pyplot is not already imported, do not import it.  Doing
+        # so may trigger a `plt.switch_backend` to the _default_ backend
+        # before we get a chance to change to the one the user just requested
+        plt = sys.modules.get('matplotlib.pyplot')
+        # if pyplot is imported, then try to change backends
+        if plt is not None:
+            try:
+                # we need this import check here to re-raise if the
+                # user does not have the libraries to support their
+                # chosen backend installed.
+                plt.switch_backend(name)
+            except ImportError:
+                if force:
+                    raise
+        # if we have not imported pyplot, then we can set the rcParam
+        # value which will be respected when the user finally imports
+        # pyplot
+        else:
+            rcParams['backend'] = backend
+    # if the user has asked for a given backend, do not helpfully
+    # fallback
+    rcParams['backend_fallback'] = False
 
 
 if os.environ.get('MPLBACKEND'):

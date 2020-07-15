@@ -11,7 +11,7 @@ import tkinter.messagebox
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import backend_tools, cbook
+from matplotlib import backend_tools, cbook, _c_internal_utils
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -19,22 +19,6 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 from . import _tkagg
-
-try:
-    from ._tkagg import Win32_GetForegroundWindow, Win32_SetForegroundWindow
-except ImportError:
-    @contextmanager
-    def _restore_foreground_window_at_end():
-        yield
-else:
-    @contextmanager
-    def _restore_foreground_window_at_end():
-        foreground = Win32_GetForegroundWindow()
-        try:
-            yield
-        finally:
-            if mpl.rcParams['tk.window_focus']:
-                Win32_SetForegroundWindow(foreground)
 
 
 _log = logging.getLogger(__name__)
@@ -48,6 +32,16 @@ cursord = {
     cursors.SELECT_REGION: "tcross",
     cursors.WAIT: "watch",
     }
+
+
+@contextmanager
+def _restore_foreground_window_at_end():
+    foreground = _c_internal_utils.Win32_GetForegroundWindow()
+    try:
+        yield
+    finally:
+        if mpl.rcParams['tk.window_focus']:
+            _c_internal_utils.Win32_SetForegroundWindow(foreground)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
@@ -684,7 +678,7 @@ class ToolTip:
         except tk.TclError:
             pass
         label = tk.Label(tw, text=self.text, justify=tk.LEFT,
-                         background="#ffffe0", relief=tk.SOLID, borderwidth=1)
+                         relief=tk.SOLID, borderwidth=1)
         label.pack(ipadx=1)
 
     def hidetip(self):
@@ -856,6 +850,8 @@ class _BackendTk(_Backend):
         Create a new figure manager instance for the given figure.
         """
         with _restore_foreground_window_at_end():
+            if cbook._get_running_interactive_framework() is None:
+                cbook._setup_new_guiapp()
             window = tk.Tk(className="matplotlib")
             window.withdraw()
 

@@ -120,6 +120,10 @@ class Tick(martist.Artist):
         self._base_pad = pad
 
         if labelcolor is None:
+            labelcolor = mpl.rcParams[f"{name}.labelcolor"]
+
+        if labelcolor == 'inherit':
+            # inherit from tick color
             labelcolor = mpl.rcParams[f"{name}.color"]
 
         if labelsize is None:
@@ -1340,7 +1344,7 @@ class Axis(martist.Artist):
         tick_kw = self._major_tick_kw
         size = tick_kw.get('labelsize',
                            mpl.rcParams[f'{axis_name}tick.labelsize'])
-        return mtext.FontProperties(size).get_size_in_points()
+        return mtext.FontProperties(size=size).get_size_in_points()
 
     def _copy_tick_props(self, src, dest):
         """Copy the properties from *src* tick to *dest* tick."""
@@ -1708,7 +1712,9 @@ class Axis(martist.Artist):
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
-            if len(locator.locs) != len(ticklabels):
+            # Passing [] as a list of ticklabels is often used as a way to
+            # remove all tick labels, so only error for > 0 ticklabels
+            if len(locator.locs) != len(ticklabels) and len(ticklabels) != 0:
                 raise ValueError(
                     "The number of FixedLocator locations"
                     f" ({len(locator.locs)}), usually from a call to"
@@ -1794,6 +1800,9 @@ class Axis(martist.Artist):
     def set_ticks(self, ticks, minor=False):
         """
         Set this Axis' tick locations.
+
+        If necessary, the view limits of the Axis are expanded so that all
+        given ticks are visible.
 
         Parameters
         ----------

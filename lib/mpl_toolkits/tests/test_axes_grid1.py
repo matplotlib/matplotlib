@@ -331,7 +331,7 @@ def test_zooming_with_inverted_axes():
 
 
 @image_comparison(['anchored_direction_arrows.png'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((10, 10)), interpolation='nearest')
