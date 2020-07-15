@@ -1404,6 +1404,11 @@ def test_bar_tick_label_single():
     ax.bar("a", "b", align='edge', tick_label='0', data=data)
 
 
+def test_nan_bar_values():
+    fig, ax = plt.subplots()
+    ax.bar([0, 1], [np.nan, 4])
+
+
 def test_bar_ticklabel_fail():
     fig, ax = plt.subplots()
     ax.bar([], [])
