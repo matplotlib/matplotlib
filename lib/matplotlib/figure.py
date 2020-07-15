@@ -1613,6 +1613,9 @@ default: 'top'
             2D object array
 
             """
+            if all(isinstance(e, str) for e in inp):
+                # ['foo', 'bar'] is interpreted as [['foo', 'bar']]
+                inp = [inp]
             r0, *rest = inp
             for j, r in enumerate(rest, start=1):
                 if len(r0) != len(r):

@@ -726,6 +726,11 @@ class TestSubplotMosaic:
         axB.set_title(labels[1])
 
     @check_figures_equal(extensions=["png"])
+    def test_list_of_str(self, fig_test, fig_ref):
+        fig_test.subplot_mosaic(['foo', 'bar'])
+        fig_ref.subplot_mosaic([['foo', 'bar']])
+
+    @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
     def test_subplot_kw(self, fig_test, fig_ref, subplot_kw):
         x = [[1, 2]]
