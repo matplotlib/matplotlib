@@ -14,7 +14,7 @@ For API changes in older versions see
    api_changes_old
 
 Changes for the latest version are listed below. For new features that were
-added to Matplotlib, see :ref:`whats-new`.
+added to Matplotlib, see :ref:`whats-new`
 
 .. ifconfig:: releaselevel == 'dev'
 
