@@ -195,21 +195,24 @@ def _create_pdf_info_dict(backend, metadata):
             return x in ('True', 'False', 'Unknown')
 
     keywords = {
-        'Title': is_string_like,
-        'Author': is_string_like,
-        'Subject': is_string_like,
-        'Keywords': is_string_like,
-        'Creator': is_string_like,
-        'Producer': is_string_like,
-        'CreationDate': is_date,
-        'ModDate': is_date,
-        'Trapped': check_trapped,
+        'Title': (is_string_like, 'an instance of str'),
+        'Author': (is_string_like, 'an instance of str'),
+        'Subject': (is_string_like, 'an instance of str'),
+        'Keywords': (is_string_like, 'an instance of str'),
+        'Creator': (is_string_like, 'an instance of  str'),
+        'Producer': (is_string_like, 'an instance of str'),
+        'CreationDate': (is_date, 'an instance of datetime.datetime'),
+        'ModDate': (is_date, 'an instance of datetime.datetime'),
+        'Trapped': (check_trapped, 'one of {"True", "False", "Unknown"}'),
     }
     for k in info:
         if k not in keywords:
-            cbook._warn_external(f'Unknown infodict keyword: {k}')
-        elif not keywords[k](info[k]):
-            cbook._warn_external(f'Bad value for infodict keyword {k}')
+            cbook._warn_external(f'Unknown infodict keyword: {k!r}. '
+                                 f'Must be one of {set(keywords)!r}.')
+        elif not keywords[k][0](info[k]):
+            cbook._warn_external(f'Bad value for infodict keyword {k}. '
+                                 f'Got {info[k]!r} which is not '
+                                 f'{keywords[k][1]}.')
     if 'Trapped' in info:
         info['Trapped'] = Name(info['Trapped'])
 
