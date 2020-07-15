@@ -532,19 +532,6 @@ most GUI backends *require* being run from the main thread as well.
 How-to: Contributing
 ====================
 
-.. _how-to-request-feature:
-
-Request a new feature
----------------------
-
-Is there a feature you wish Matplotlib had?  Then ask!  The best
-way to get started is to email the developer `mailing
-list <matplotlib-devel@python.org>`_ for discussion.
-This is an open source project developed primarily in the
-contributors free time, so there is no guarantee that your
-feature will be added.  The *best* way to get the feature
-you need added is to contribute it your self.
-
 .. _how-to-contribute-docs:
 
 Contribute to Matplotlib documentation
