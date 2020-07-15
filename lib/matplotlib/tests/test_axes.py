@@ -3147,14 +3147,25 @@ def test_errobar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
-@image_comparison(['errorbar_with_prop_cycle.png'],
-                  style='mpl20', remove_text=True)
-def test_errorbar_with_prop_cycle():
-    _cycle = cycler(ls=['--', ':'], marker=['s', 's'], mfc=['k', 'w'])
+@check_figures_equal(extensions=['png'])
+def test_errorbar_with_prop_cycle(fig_test, fig_ref):
+    ax = fig_ref.subplots()
+    ax.errorbar(x=[2, 4, 10], y=[0, 1, 2], yerr=0.5,
+                ls='--', marker='s', mfc='k')
+    ax.errorbar(x=[2, 4, 10], y=[2, 3, 4], yerr=0.5, color='tab:green',
+                ls=':', marker='s', mfc='y')
+    ax.errorbar(x=[2, 4, 10], y=[4, 5, 6], yerr=0.5, fmt='tab:blue',
+                ls='-.', marker='o', mfc='c')
+    ax.set_xlim(1, 11)
+
+    _cycle = cycler(ls=['--', ':', '-.'], marker=['s', 's', 'o'],
+                    mfc=['k', 'y', 'c'], color=['b', 'g', 'r'])
     plt.rc("axes", prop_cycle=_cycle)
-    fig, ax = plt.subplots()
-    ax.errorbar(x=[2, 4, 10], y=[3, 2, 4], yerr=0.5)
-    ax.errorbar(x=[2, 4, 10], y=[6, 4, 2], yerr=0.5)
+    ax = fig_test.subplots()
+    ax.errorbar(x=[2, 4, 10], y=[0, 1, 2], yerr=0.5)
+    ax.errorbar(x=[2, 4, 10], y=[2, 3, 4], yerr=0.5, color='tab:green')
+    ax.errorbar(x=[2, 4, 10], y=[4, 5, 6], yerr=0.5, fmt='tab:blue')
+    ax.set_xlim(1, 11)
 
 
 @check_figures_equal()

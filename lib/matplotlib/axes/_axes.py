@@ -3329,13 +3329,10 @@ class Axes(_AxesBase):
             # Remove alpha=0 color that _process_plot_format returns
             fmt_style_kwargs.pop('color')
 
-        if ('color' in kwargs or 'color' in fmt_style_kwargs):
-            base_style = {}
-            if 'color' in kwargs:
-                base_style['color'] = kwargs.pop('color')
-        else:
-            base_style = next(self._get_lines.prop_cycler)
-
+        base_style = self._get_lines._getdefaults(
+            set(), {**fmt_style_kwargs, **kwargs})
+        if 'color' in kwargs:
+            base_style['color'] = kwargs.pop('color')
         base_style['label'] = '_nolegend_'
         base_style.update(fmt_style_kwargs)
         if 'color' not in base_style:
