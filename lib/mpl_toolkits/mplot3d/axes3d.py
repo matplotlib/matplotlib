@@ -3131,42 +3131,35 @@ pivot='tail', normalize=False, **kwargs)
         if not len(x) == len(y) == len(z):
             raise ValueError("'x', 'y', and 'z' must have the same size")
 
-        plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
+        kwargs['label'] = '_nolegend_'
 
-        if fmt == '':
-            fmt_style_kwargs = {}
+        # Create the main line and determine overall kwargs for child artists.
+        # We avoid calling self.plot() directly, or self._get_lines(), because
+        # that would call self._process_unit_info again, and do other indirect
+        # data processing.
+        (data_line, base_style), = self._get_lines._plot_args(
+            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+        art3d.line_2d_to_3d(data_line, zs=z)
+
+        # Do this after creating `data_line` to avoid modifying `base_style`.
+        if barsabove:
+            data_line.set_zorder(kwargs['zorder'] - .1)
         else:
-            fmt_style_kwargs = {k: v for k, v in
-                                zip(('linestyle', 'marker', 'color'),
-                                    _process_plot_format(fmt))
-                                if v is not None}
+            data_line.set_zorder(kwargs['zorder'] + .1)
 
-        if fmt == 'none':
-            # Remove alpha=0 color that _process_plot_format returns
-            fmt_style_kwargs.pop('color')
-
-        if ('color' in kwargs or 'color' in fmt_style_kwargs):
-            base_style = {}
-            if 'color' in kwargs:
-                base_style['color'] = kwargs.pop('color')
+        # Add line to plot, or throw it away and use it to determine kwargs.
+        if fmt.lower() != 'none':
+            self.add_line(data_line)
         else:
-            base_style = next(self._get_lines.prop_cycler)
+            data_line = None
+            # Remove alpha=0 color that _process_plot_format returns.
+            base_style.pop('color')
 
-        base_style['label'] = '_nolegend_'
-        base_style.update(fmt_style_kwargs)
         if 'color' not in base_style:
             base_style['color'] = 'C0'
         if ecolor is None:
             ecolor = base_style['color']
-
-        # make the style dict for the 'normal' plot line
-        plot_line_style = {
-            **base_style,
-            **kwargs,
-            'zorder': (kwargs['zorder'] - .1 if barsabove else
-                       kwargs['zorder'] + .1),
-        }
 
         # Eject any marker information from line format string, as it's not
         # needed for bars or caps.
@@ -3198,11 +3191,6 @@ pivot='tail', normalize=False, **kwargs)
         if capthick is not None:
             eb_cap_style['markeredgewidth'] = capthick
         eb_cap_style['color'] = ecolor
-
-        data_line = None
-        if plot_line:
-            data_line = art3d.Line3D(x, y, z, **plot_line_style)
-            self.add_line(data_line)
 
         everymask = np.zeros(len(x), bool)
         everymask[offset::errorevery] = True
