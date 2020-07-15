@@ -131,13 +131,10 @@ def test_rasterized_ordering(fig_test, fig_ref):
 
 def test_count_bitmaps():
     def count_tag(fig, tag):
-        fd = BytesIO()
-        fig.savefig(fd, format='svg')
-        fd.seek(0)
-        buf = fd.read().decode()
-        fd.close()
-        open("test.svg", "w").write(buf)
-        return buf.count("<%s" % tag)
+        with BytesIO() as fd:
+            fig.savefig(fd, format='svg')
+            buf = fd.getvalue().decode()
+        return buf.count(f"<{tag}")
 
     # No rasterized elements
     fig1 = plt.figure()
@@ -157,7 +154,7 @@ def test_count_bitmaps():
     assert count_tag(fig2, "image") == 1
     assert count_tag(fig2, "path") == 1  # axis patch
 
-    # rasterized can't be merged without effecting draw order
+    # rasterized can't be merged without affecting draw order
     fig3 = plt.figure()
     ax3 = fig3.add_subplot(1, 1, 1)
     ax3.set_axis_off()
