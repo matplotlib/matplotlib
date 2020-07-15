@@ -3,8 +3,15 @@
 Hatch style reference
 =====================
 
-Hatching (pattern filled polygons) is currently supported in the backends
-PS, PDF, SVG and Agg. The backends OSX, WX and Cairo ignore hatching.
+Hatches can be added to most polygons in Matplotlib, including `~.Axes.bar`,
+`~.Axes.fill_between`, `~.Axes.contourf`, and childern of `~.patches.Polygon`.
+They are currently supported in the PS, PDF, SVG, OSX, and Agg backends. The WX
+and Cairo backends do not currently support hatching.
+
+See also :doc:`/gallery/images_contours_and_fields/contourf_hatching` for
+an example using `~.Axes.contourf`, and
+:doc:`/gallery/shapes_and_collections/hatch_demo` for more usage examples.
+
 """
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
