@@ -2894,10 +2894,10 @@ class Parser:
                 hlist_list.append(c)
         next_char_loc = loc + len(toks[0]) + 1
         if isinstance(toks[0], ParseResults):
-            next_char_loc += 14  # Skip `operatorname{}`
+            next_char_loc += len('operatorname{}')
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
         delimiters = self._left_delim | self._ambi_delim | self._right_delim
-        delimiters |= set(r"^_".split())
+        delimiters |= {'^', '_'}
         if (next_char not in delimiters and
                 toks[0] not in self._overunder_functions):
             # Add thin space except when followed by parenthesis, bracket, etc.
