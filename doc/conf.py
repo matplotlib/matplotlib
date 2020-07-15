@@ -114,13 +114,13 @@ missing_references_warn_unused_ignores = False
 
 intersphinx_mapping = {
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
-    'cycler': ('https://matplotlib.org/cycler', None),
+    'cycler': ('https://matplotlib.org/cycler/', None),
     'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
     'ipykernel': ('https://ipykernel.readthedocs.io/en/latest/', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'pytest': ('https://pytest.org/en/stable', None),
-    'python': ('https://docs.python.org/3', None),
+    'pytest': ('https://pytest.org/en/stable/', None),
+    'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
 
@@ -133,8 +133,8 @@ sphinx_gallery_conf = {
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'reference_url': {
         'matplotlib': None,
-        'numpy': 'https://docs.scipy.org/doc/numpy',
-        'scipy': 'https://docs.scipy.org/doc/scipy/reference',
+        'numpy': 'https://docs.scipy.org/doc/numpy/',
+        'scipy': 'https://docs.scipy.org/doc/scipy/reference/',
     },
     'backreferences_dir': 'api/_as_gen',
     'subsection_order': gallery_order.sectionorder,
