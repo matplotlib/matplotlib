@@ -19,8 +19,8 @@ in the ParaView python shell ::
 
  >> import sys
  >> sys.path.append(path_to_examples)
- >> import embed_in_paraview_sgksip as eip
- >> fig = eip.make_dock_figure()
+ >> import embed_in_paraview_sgskip as eip
+ >> fig, dock = eip.make_dock_figure()
  >> ax = fig.add_subplot(111)  # or ax = fig.subplots()
  >> ln, = ax.plot(range(5))
 
@@ -29,7 +29,7 @@ in the ParaView python shell ::
 
 from PyQt5 import QtWidgets, QtCore
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvas, NavigationToolbar2QT
+import matplotlib.backends.backend_qt5agg as backend_qt
 
 
 def get_main_window(target_name="pqClientMainWindow"):
@@ -51,19 +51,11 @@ def get_main_window(target_name="pqClientMainWindow"):
     app = QtWidgets.QApplication.instance()
     if app is None:
         raise RuntimeError(
-            "No running QApplication found. " "May not be running inside of ParaView"
+            "No running QApplication found. "
+            "May not be running inside of ParaView"
         )
-
-    return next(
-        iter(
-            w
-            for w in app.topLevelWidgets()
-            if (
-                isinstance(w, QtWidgets.QMainWindow)
-                and w.objectName() == "pqClientMainWindow"
-            )
-        )
-    )
+    tlw = app.topLevelWidgets()
+    return next(iter(w for w in tlw if (w.objectName() == target_name)))
 
 
 def make_dock_figure():
@@ -89,8 +81,8 @@ def make_dock_figure():
     mpl_dock.setWidget(qw)
 
     # create the Canvas and toolbar
-    cv = FigureCanvas(f)
-    mpl_toolbar = NavigationToolbar2QT(cv, qw)
+    cv = backend_qt.FigureCanvas(f)
+    mpl_toolbar = backend_qt.NavigationToolbar2QT(cv, qw)
 
     # add to the layout
     layout.addWidget(cv)
