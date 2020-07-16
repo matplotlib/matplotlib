@@ -1,4 +1,4 @@
-
+==============================
 What's new in Matplotlib 3.3.0
 ==============================
 
@@ -13,10 +13,10 @@ revision, see the :ref:`github-stats`.
 
 
 Figure and Axes creation / management
--------------------------------------
+=====================================
 
 Provisional API for composing semantic axes layouts from text or nested lists
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------------------------
 
 The `.Figure` class has a provisional method to generate complex grids of named
 `.axes.Axes` based on nested list input or ASCII art:
@@ -52,7 +52,7 @@ See :ref:`sphx_glr_tutorials_provisional_mosaic.py` for more
 details and examples.
 
 ``GridSpec.subplots()``
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 The `.GridSpec` class gained a `~.GridSpecBase.subplots` method, so that one
 can write ::
@@ -64,7 +64,7 @@ as an alternative to ::
     fig.subplots(2, 2, gridspec_kw={"height_ratios": [3, 1]})
 
 New ``Axes.sharex``, ``Axes.sharey`` methods
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------
 
 These new methods allow sharing axes *immediately* after creating them. Note
 that behavior is indeterminate if axes are not shared immediately after
@@ -104,7 +104,7 @@ together using `~.Figure.subplot_mosaic`::
     axd['histy'].hist(y, orientation='horizontal')
 
 tight_layout now supports suptitle
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 Previous versions did not consider `.Figure.suptitle`, so it may overlap with
 other artists after calling `~.Figure.tight_layout`:
@@ -133,7 +133,7 @@ From now on, the ``suptitle`` will be considered:
     fig.tight_layout()
 
 Setting axes box aspect
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 It is now possible to set the aspect of an axes box directly via
 `~.Axes.set_box_aspect`. The box aspect is the ratio between axes height and
@@ -147,10 +147,10 @@ For use cases check out the :doc:`Axes box aspect
 
 
 Colors and colormaps
---------------------
+====================
 
 Turbo colormap
-~~~~~~~~~~~~~~
+--------------
 
 Turbo is an improved rainbow colormap for visualization, created by the Google
 AI team for computer visualization and machine learning. Its purpose is to
@@ -171,7 +171,7 @@ for further details.
         ax.set_axis_off()
 
 ``colors.BoundaryNorm`` supports *extend* keyword argument
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------
 
 `~.colors.BoundaryNorm` now has an *extend* keyword argument, analogous to
 *extend* in `~.axes.Axes.contourf`. When set to 'both', 'min', or 'max', it
@@ -220,7 +220,7 @@ for out-of-range values with colors that differ from adjacent in-range colors.
     plt.show()
 
 Text color for legend labels
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 The text color of legend labels can now be set by passing a parameter
 ``labelcolor`` to `~.axes.Axes.legend`. The ``labelcolor`` keyword can be:
@@ -253,7 +253,7 @@ The text color of legend labels can now be set by passing a parameter
         ax.margins(0.1)
 
 Pcolor and Pcolormesh now accept ``shading='nearest'`` and ``'auto'``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------------------------
 
 Previously `.axes.Axes.pcolor` and `.axes.Axes.pcolormesh` handled the
 situation where *x* and *y* have the same (respective) size as *C* by dropping
@@ -280,10 +280,10 @@ for examples.
 
 
 Titles, ticks, and labels
--------------------------
+=========================
 
 Align labels to Axes edges
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 `~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and
 `.ColorbarBase.set_label` support a parameter ``loc`` for simplified
@@ -310,7 +310,7 @@ orientation.
         ax.set_ylabel(f'ylabel loc={loc!r}', loc=loc)
 
 Allow tick formatters to be set with str or function inputs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------
 
 `~.Axis.set_major_formatter` and `~.Axis.set_minor_formatter`
 now accept `str` or function inputs in addition to `~.ticker.Formatter`
@@ -360,7 +360,7 @@ are shortcuts for::
         ax.xaxis.set_major_formatter(formatter)
 
 ``Axes.set_title`` gains a *y* keyword argument to control auto positioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------------------------------
 
 `~.axes.Axes.set_title` tries to auto-position the title to avoid any
 decorators on the top x-axis. This is not always desirable so now *y* is an
@@ -377,13 +377,13 @@ set with the new rcParameter :rc:`axes.titley`.
     plt.show()
 
 Offset text is now set to the top when using ``axis.tick_top()``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------------
 
 Solves the issue that the power indicator (e.g., 1e4) stayed on the bottom,
 even if the ticks were on the top.
 
 Set zorder of contour labels
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 `~.axes.Axes.clabel` now accepts a *zorder* keyword argument making it easier
 to set the *zorder* of contour labels. If not specified, the default *zorder*
@@ -395,10 +395,10 @@ clabels has been changed to (``2 + zorder`` passed to `~.axes.Axes.contour` /
 
 
 Other changes
--------------
+=============
 
 New ``Axes.axline`` method
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 A new `~.axes.Axes.axline` method has been added to draw infinitely long lines
 that pass through two points.
@@ -414,14 +414,14 @@ that pass through two points.
    ax.legend()
 
 ``imshow`` now coerces 3D arrays with depth 1 to 2D
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 
 Starting from this version arrays of size MxNx1 will be coerced into MxN
 for displaying. This means commands like ``plt.imshow(np.random.rand(3, 3, 1))``
 will no longer return an error message that the image shape is invalid.
 
 Better control of ``Axes.pie`` normalization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------
 
 Previously, `.Axes.pie` would normalize its input *x* if ``sum(x) > 1``, but
 would do nothing if the sum were less than 1. This can be confusing, so an
@@ -456,7 +456,7 @@ and ``sum(x) > 1``, then an error is raised.
     ax[1, 1].set_title('normalize unspecified\nsum(x) > 1')
 
 Dates use a modern epoch
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 Matplotlib converts dates to days since an epoch using `.dates.date2num` (via
 `matplotlib.units`). Previously, an epoch of ``0000-12-31T00:00:00`` was used
@@ -478,7 +478,7 @@ them to the new ordinal using the following formula::
     new_ordinal = old_ordinal + mdates.date2num(np.datetime64('0000-12-31'))
 
 Lines now accept ``MarkerStyle`` instances as input
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 
 Similar to `~.Axes.scatter`, `~.Axes.plot` and `~.lines.Line2D` now accept
 `~.markers.MarkerStyle` instances as input for the *marker* parameter::
@@ -487,16 +487,16 @@ Similar to `~.Axes.scatter`, `~.Axes.plot` and `~.lines.Line2D` now accept
 
 
 Fonts
------
+=====
 
 Simple syntax to select fonts by absolute path
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------
 
 Fonts can now be selected by passing an absolute `pathlib.Path` to the *font*
 keyword argument of `.Text`.
 
 Improved font weight detection
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 Matplotlib is now better able to determine the weight of fonts from their
 metadata, allowing to differentiate between fonts within the same family more
@@ -504,10 +504,10 @@ accurately.
 
 
 rcParams improvements
----------------------
+=====================
 
 ``matplotlib.rc_context`` can be used as a decorator
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------
 
 `matplotlib.rc_context` can now be used as a decorator (technically, it is now
 implemented as a `contextlib.contextmanager`), e.g., ::
@@ -517,21 +517,21 @@ implemented as a `contextlib.contextmanager`), e.g., ::
         ...
 
 rcParams for controlling default "raise window" behavior
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------
 
 The new config option :rc:`figure.raise_window` allows disabling of the raising
 of the plot window when calling `~.pyplot.show` or `~.pyplot.pause`. The
 ``MacOSX`` backend is currently not supported.
 
 Add generalized ``mathtext.fallback`` to rcParams
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 New  :rc:`mathtext.fallback` rcParam. Takes "cm", "stix", "stixsans"
 or "none" to turn fallback off. The rcParam *mathtext.fallback_to_cm* is
 deprecated, but if used, will override new fallback.
 
 Add ``contour.linewidth`` to rcParams
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 The new config option :rc:`contour.linewidth` allows to control the default
 line width of contours as a float. When set to ``None``, the line widths fall
@@ -541,10 +541,10 @@ back to :rc:`lines.linewidth`. The config value is overridden as usual by the
 
 
 3D Axes improvements
---------------------
+====================
 
 ``Axes3D`` no longer distorts the 3D plot to match the 2D aspect ratio
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------------------
 
 Plots made with :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` were previously
 stretched to fit a square bounding box. As this stretching was done after the
@@ -560,7 +560,7 @@ value of `~.get_box_aspect`. To control these ratios use the
 ratios as a 3-tuple of X:Y:Z. The default aspect ratio is 4:4:3.
 
 3D axes now support minor ticks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 .. plot::
     :include-source: True
@@ -583,13 +583,14 @@ ratios as a 3-tuple of X:Y:Z. The default aspect ratio is 4:4:3.
     ax.tick_params(which='minor', color='C1', labelcolor='C1', width=3)
 
 Home/Forward/Backward buttons now work with 3D axes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
+
 
 Interactive tool improvements
------------------------------
+=============================
 
 More consistent toolbar behavior across backends
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------
 
 Toolbar features are now more consistent across backends. The history buttons
 will auto-disable when there is no further action in a direction. The pan and
@@ -599,26 +600,26 @@ In NbAgg and WebAgg, the toolbar buttons are now grouped similarly to other
 backends. The WebAgg toolbar now uses the same icons as other backends.
 
 Toolbar icons are now styled for dark themes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------
 
 On dark themes, toolbar icons will now be inverted. When using the GTK3Agg
 backend, toolbar icons are now symbolic, and both foreground and background
 colors will follow the theme. Tooltips should also behave correctly.
 
 Cursor text now uses a number of significant digits matching pointing precision
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------------------------------
 
 Previously, the x/y position displayed by the cursor text would usually include
 far more significant digits than the mouse pointing precision (typically one
 pixel). This is now fixed for linear scales.
 
 GTK / Qt zoom rectangle now black and white
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------
 
 This makes it visible even over a dark background.
 
 Event handler simplifications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 The `.backend_bases.key_press_handler` and
 `.backend_bases.button_press_handler` event handlers can now be directly
@@ -629,7 +630,7 @@ fill in the (now optional) *canvas* and *toolbar* parameters.
 
 
 Functions to compute a Path's size
-----------------------------------
+==================================
 
 Various functions were added to `~.bezier.BezierSegment` and `~.path.Path` to
 allow computation of the shape/size of a `~.path.Path` and its composite Bezier
@@ -640,7 +641,7 @@ documentation and usability improvements, including properties that contain its
 dimension, degree, control_points, and more.
 
 Better interface for Path segment iteration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------
 
 `~.path.Path.iter_bezier` iterates through the `~.bezier.BezierSegment`'s that
 make up the Path. This is much more useful typically than the existing
@@ -648,7 +649,7 @@ make up the Path. This is much more useful typically than the existing
 of information possible to reconstruct the Path.
 
 Fixed bug that computed a Path's Bbox incorrectly
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 Historically, `~.path.Path.get_extents` has always simply returned the Bbox of
 a curve's control points, instead of the Bbox of the curve itself. While this is
@@ -657,37 +658,37 @@ the Path's actual extents for non-linear Bezier curves.
 
 
 Backend-specific improvements
------------------------------
+=============================
 
 ``savefig()`` gained a *backend* keyword argument
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 The *backend* keyword argument to ``savefig`` can now be used to pick the
 rendering backend without having to globally set the backend; e.g., one can
 save PDFs using the pgf backend with ``savefig("file.pdf", backend="pgf")``.
 
 The SVG backend can now render hatches with transparency
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------
 
 The SVG backend now respects the hatch stroke alpha. Useful applications are,
 among others, semi-transparent hatches as a subtle way to differentiate columns
 in bar plots.
 
 SVG supports URLs on more artists
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 URLs on more artists (i.e., from `.Artist.set_url`) will now be saved in
 SVG files, namely, ``Tick``\s and ``Line2D``\s are now supported.
 
 Images in SVG will no longer be blurred in some viewers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------
 
 A style is now supplied to images without interpolation (``imshow(...,
 interpolation='none'``) so that SVG image viewers will no longer perform
 interpolation when rendering themselves.
 
 Saving SVG now supports adding metadata
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------
 
 When saving SVG files, metadata can now be passed which will be saved in the
 file using `Dublin Core`_ and `RDF`_. A list of valid metadata can be found in
@@ -697,7 +698,7 @@ the documentation for `.FigureCanvasSVG.print_svg`.
 .. _RDF: https://www.w3.org/1999/.status/PR-rdf-syntax-19990105/status
 
 Saving PDF metadata via PGF now consistent with PDF backend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------
 
 When saving PDF files using the PGF backend, passed metadata will be
 interpreted in the same way as with the PDF backend.  Previously, this metadata
@@ -706,7 +707,7 @@ was only accepted by the PGF backend when saving a multi-page PDF with
 well.
 
 NbAgg and WebAgg no longer use jQuery & jQuery UI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 Instead, they are implemented using vanilla JavaScript. Please report any
 issues with browsers.
