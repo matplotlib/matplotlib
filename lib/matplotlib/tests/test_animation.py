@@ -10,6 +10,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
+from matplotlib import artist
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
@@ -280,32 +281,29 @@ def test_draw_frame():
     fig, ax = plt.subplots()
     line, = ax.plot([])
 
-    def init():
-        pass
-
-    def animate_case_1(i):
-        # user forgot to return (returns None)
+    def animate(i, arg):
+        # general update func
         line.set_data([0, 1], [0, i])
-        # return line
+        if arg:
+            return arg
 
-    def animate_case_2(i):
+    with pytest.raises(RuntimeError):
+
+        # user forgot to return (returns None)
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(None,))
+
+        # user (for some reason) returned a string...AttributeError is raised
+        animation.FuncAnimation(fig, animate, blit=True, fargs=('string', ))
+
+        # user (for some reason) returned a string...AttributeError is raised
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(1, ))
+
+        # user returns a sequence of other objects
+        # e.g. a string instead of Artist
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(('string',), ))
+
         # user forgot to put comma or return a sequence
         # TypeError will be raised (same with returning a number or bool)
-        line.set_data([0, 1], [0, i])
-        return line
-
-    def animate_case_3(i):
-        # user (for some reason) returned a string...AttributeError is raised
-        line.set_data([0, 1], [0, i])
-        return 'a string'
-
-    def animate_case_4(i):
-        # user returns a sequence other objects instead of Artist.
-        line.set_data([0, 1], [0, i])
-        return 'a string',
-
-    with pytest.raises(RuntimeError) as context:
-        animation.FuncAnimation(fig, animate_case_1, blit=True)
-        animation.FuncAnimation(fig, animate_case_2, blit=True)
-        animation.FuncAnimation(fig, animate_case_3, blit=True)
-        animation.FuncAnimation(fig, animate_case_4, blit=True)
+        artist_obj = artist.Artist()
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(artist_obj, ))
+    

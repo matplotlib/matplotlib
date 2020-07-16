@@ -1716,7 +1716,9 @@ class FuncAnimation(TimedAnimation):
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
         self._drawn_artists = self._func(framedata, *self._args)
+
         if self._blit:
+
             err = RuntimeError('The animation function must return a '
                                    'sequence of Artist objects.')
             try:
