@@ -306,4 +306,3 @@ def test_draw_frame():
         # TypeError will be raised (same with returning a number or bool)
         artist_obj = artist.Artist()
         animation.FuncAnimation(fig, animate, blit=True, fargs=(artist_obj, ))
-    
