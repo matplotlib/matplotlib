@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib import mathtext
 
 
+# If test is removed, use None as placeholder
 math_tests = [
     r'$a+b+\dot s+\dot{s}+\ldots$',
     r'$x \doteq y$',
@@ -91,7 +92,7 @@ math_tests = [
     r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
     r"$\left(2 \, a=b\right)$",  # Sage bug #8125
     r"$? ! &$",  # github issue #466
-    r'$\operatorname{cos} x$',  # github issue #553
+    None,
     r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
     r'$\mathring{A}  \AA$',
@@ -172,8 +173,11 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-@pytest.mark.parametrize('index, test', enumerate(math_tests),
-                         ids=[str(index) for index in range(len(math_tests))])
+cur_math_tests = list(filter(lambda x: x[1] is not None, enumerate(math_tests)))
+
+
+@pytest.mark.parametrize('index, test', cur_math_tests,
+                         ids=[str(index) for index, _ in cur_math_tests])
 @pytest.mark.parametrize('fontset',
                          ['cm', 'stix', 'stixsans', 'dejavusans',
                           'dejavuserif'])
@@ -283,6 +287,27 @@ def test_single_minus_sign():
 def test_spaces(fig_test, fig_ref):
     fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
     fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+
+
+@check_figures_equal(extensions=["png"])
+def test_operator_space(fig_test, fig_ref):
+    fig_test.text(0.1, 0.1, r"$\log 6$")
+    fig_test.text(0.1, 0.2, r"$\log(6)$")
+    fig_test.text(0.1, 0.3, r"$\arcsin 6$")
+    fig_test.text(0.1, 0.4, r"$\arcsin|6|$")
+    fig_test.text(0.1, 0.5, r"$\operatorname{op} 6$")  # GitHub issue #553
+    fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
+    fig_test.text(0.1, 0.7, r"$\cos^2$")
+    fig_test.text(0.1, 0.8, r"$\log_2$")
+
+    fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
+    fig_ref.text(0.1, 0.3, r"$\mathrm{arcsin\,}6$")
+    fig_ref.text(0.1, 0.4, r"$\mathrm{arcsin}|6|$")
+    fig_ref.text(0.1, 0.5, r"$\mathrm{op\,}6$")
+    fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
+    fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
+    fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
 
 
 def test_mathtext_fallback_valid():
