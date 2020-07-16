@@ -1,7 +1,7 @@
 :orphan:
 
-What's new in unreleased Matplotlib?
-====================================
+Instructions for writing "What's new" entries
+=============================================
 
 Please place new portions of `whats_new.rst` in the `next_whats_new` directory.
 
