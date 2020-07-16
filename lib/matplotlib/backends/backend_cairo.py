@@ -286,10 +286,12 @@ class RendererCairo(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
 
+        if ismath == 'TeX':
+            return super().get_text_width_height_descent(s, prop, ismath)
+
         if ismath:
-            width, height, descent, fonts, used_characters = \
-                self.mathtext_parser.parse(s, self.dpi, prop)
-            return width, height, descent
+            dims = self.mathtext_parser.parse(s, self.dpi, prop)
+            return dims[0:3]  # return width, height, descent
 
         ctx = self.text_ctx
         # problem - scale remembers last setting and font can become
