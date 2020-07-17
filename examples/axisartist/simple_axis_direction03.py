@@ -22,13 +22,13 @@ def setup_axes(fig, rect):
 fig = plt.figure(figsize=(5, 2))
 fig.subplots_adjust(wspace=0.4, bottom=0.3)
 
-ax1 = setup_axes(fig, "121")
+ax1 = setup_axes(fig, 121)
 ax1.set_xlabel("X-label")
 ax1.set_ylabel("Y-label")
 
 ax1.axis[:].invert_ticklabel_direction()
 
-ax2 = setup_axes(fig, "122")
+ax2 = setup_axes(fig, 122)
 ax2.set_xlabel("X-label")
 ax2.set_ylabel("Y-label")
 
