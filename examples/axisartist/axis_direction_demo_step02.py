@@ -28,13 +28,13 @@ def setup_axes(fig, rect):
 fig = plt.figure(figsize=(6, 2.5))
 fig.subplots_adjust(bottom=0.2, top=0.8)
 
-ax1 = setup_axes(fig, "121")
+ax1 = setup_axes(fig, 121)
 ax1.axis["x"].set_ticklabel_direction("+")
 ax1.annotate("ticklabel direction=$+$", (0.5, 0), xycoords="axes fraction",
              xytext=(0, -10), textcoords="offset points",
              va="top", ha="center")
 
-ax2 = setup_axes(fig, "122")
+ax2 = setup_axes(fig, 122)
 ax2.axis["x"].set_ticklabel_direction("-")
 ax2.annotate("ticklabel direction=$-$", (0.5, 0), xycoords="axes fraction",
              xytext=(0, -10), textcoords="offset points",
