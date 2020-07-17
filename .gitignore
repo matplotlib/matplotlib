@@ -79,6 +79,7 @@ examples/*/*.svgz
 examples/tests/*
 !examples/tests/backend_driver_sgskip.py
 result_images
+doc/_static/constrained_layout*.png
 
 # Nose/Pytest generated files #
 ###############################
