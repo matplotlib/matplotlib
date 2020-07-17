@@ -15,7 +15,7 @@ import numpy as np
 
 import matplotlib as mpl
 from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
-               lines as mlines, path as mpath, transforms)
+               hatch as mhatch, lines as mlines, path as mpath, transforms)
 import warnings
 
 
@@ -141,8 +141,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatch : str, optional
             Hatching pattern to use in filled paths, if any. Valid strings are
             ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']. See
-            :doc:`/gallery/shapes_and_collections/hatch_demo` for the meaning
-            of each hatch type.
+            :doc:`/gallery/shapes_and_collections/hatch_style_reference` for
+            the meaning of each hatch type.
         pickradius : float, default: 5.0
             If ``pickradius <= 0``, then `.Collection.contains` will return
             ``True`` whenever the test point is inside of one of the polygons
@@ -522,6 +522,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
+        # Use validate_hatch(list) after deprecation.
+        mhatch._validate_hatch_pattern(hatch)
         self._hatch = hatch
         self.stale = True
 
