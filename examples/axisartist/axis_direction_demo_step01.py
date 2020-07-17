@@ -25,7 +25,7 @@ def setup_axes(fig, rect):
 
 fig = plt.figure(figsize=(3, 2.5))
 fig.subplots_adjust(top=0.8)
-ax1 = setup_axes(fig, "111")
+ax1 = setup_axes(fig, 111)
 
 ax1.axis["x"].set_axis_direction("left")
 

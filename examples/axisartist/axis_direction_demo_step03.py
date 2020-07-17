@@ -28,7 +28,7 @@ def setup_axes(fig, rect):
 fig = plt.figure(figsize=(6, 2.5))
 fig.subplots_adjust(bottom=0.2, top=0.8)
 
-ax1 = setup_axes(fig, "121")
+ax1 = setup_axes(fig, 121)
 ax1.axis["x"].label.set_text("Label")
 ax1.axis["x"].toggle(ticklabels=False)
 ax1.axis["x"].set_axislabel_direction("+")
@@ -36,7 +36,7 @@ ax1.annotate("label direction=$+$", (0.5, 0), xycoords="axes fraction",
              xytext=(0, -10), textcoords="offset points",
              va="top", ha="center")
 
-ax2 = setup_axes(fig, "122")
+ax2 = setup_axes(fig, 122)
 ax2.axis["x"].label.set_text("Label")
 ax2.axis["x"].toggle(ticklabels=False)
 ax2.axis["x"].set_axislabel_direction("-")
