@@ -3306,7 +3306,7 @@ class ToolContainerBase:
             lambda event: self.set_message(event.message))
         toolmanager.toolmanager_connect(
             'tool_removed_event',
-            lambda event: self.remove_toolitem(event.tool.name))
+            lambda event: self.remove_toolitem(event.tool_name))
 
     def _tool_toggled_cbk(self, event):
         """

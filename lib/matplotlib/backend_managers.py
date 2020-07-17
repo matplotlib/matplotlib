@@ -9,7 +9,7 @@ _log = logging.getLogger(__name__)
 
 
 class ToolEvent:
-    """Event for tool manipulation (add/remove)"""
+    """Event for tool manipulation (add/remove)."""
     def __init__(self, name, sender, tool, tool_name, data=None):
         self.name = name
         self.sender = sender
@@ -19,7 +19,7 @@ class ToolEvent:
 
 
 class ToolTriggerEvent(ToolEvent):
-    """Event to inform  that a tool has been triggered"""
+    """Event to inform that a tool has been triggered."""
     def __init__(self, name, sender, tool, tool_name,
                  canvasevent=None, data=None):
         ToolEvent.__init__(self, name, sender, tool, tool_name, data)
@@ -274,7 +274,7 @@ class ToolManager:
                                  'exists, not added')
             return self._tools[name]
 
-        tool_obj = tool_cls(self, name, *args, **kwargs)
+        tool_obj = tool_cls(self, *args, **kwargs)
         self._tools[name] = tool_obj
 
         if tool_cls.default_keymap is not None:
@@ -437,7 +437,7 @@ class ToolManager:
         `.ToolBase` or None
             The tool or None if no tool with the given name exists.
         """
-        if isinstance(name, tools.ToolBase) and name.name in self._tools:
+        if isinstance(name, tools.ToolBase) and name in self._tools.values():
             return name
         if name not in self._tools:
             if warn:

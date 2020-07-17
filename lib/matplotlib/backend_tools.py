@@ -46,10 +46,10 @@ class ToolBase:
 
     Attributes
     ----------
-    toolmanager: `matplotlib.backend_managers.ToolManager`
-        ToolManager that controls this Tool
-    figure: `FigureCanvas`
-        Figure instance that is affected by this Tool
+    toolmanager : `matplotlib.backend_managers.ToolManager`
+        ToolManager that controls this Tool.
+    figure : `FigureCanvas`
+        Figure instance that is affected by this Tool.
     """
 
     default_keymap = None
@@ -76,7 +76,7 @@ class ToolBase:
     *name* is used as a label in the toolbar button.
     """
 
-    def __init__(self, toolmanager, name):
+    def __init__(self, toolmanager):
         cbook._warn_external(
             'The new Tool classes introduced in v1.5 are experimental; their '
             'API (including names) will likely change in future versions.')
@@ -273,7 +273,7 @@ class SetCursorBase(ToolBase):
         self._set_cursor_cbk(event.canvasevent)
 
     def _add_tool(self, tool_name, tool):
-        """set the cursor when the tool is triggered"""
+        """Set the cursor when the tool is triggered."""
         if getattr(tool, 'cursor', None) is not None:
             self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool_name,
                                                  self._tool_trigger_cbk)
