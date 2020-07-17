@@ -216,6 +216,7 @@ class MathtextBackendBitmap(MathtextBackendAgg):
         return image, depth
 
 
+@cbook.deprecated("3.4", alternative="MathtextBackendPath")
 class MathtextBackendPs(MathtextBackend):
     """
     Store information to write a mathtext rendering to the PostScript backend.
@@ -258,6 +259,7 @@ class MathtextBackendPs(MathtextBackend):
                               used_characters)
 
 
+@cbook.deprecated("3.4", alternative="MathtextBackendPath")
 class MathtextBackendPdf(MathtextBackend):
     """Store information to write a mathtext rendering to the PDF backend."""
 
@@ -288,6 +290,7 @@ class MathtextBackendPdf(MathtextBackend):
                                used_characters)
 
 
+@cbook.deprecated("3.4", alternative="MathtextBackendPath")
 class MathtextBackendSvg(MathtextBackend):
     """
     Store information to write a mathtext rendering to the SVG
@@ -324,28 +327,29 @@ class MathtextBackendPath(MathtextBackend):
     machinery.
     """
 
+    _Result = namedtuple("_Result", "width height depth glyphs rects")
+
     def __init__(self):
         self.glyphs = []
         self.rects = []
 
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
-        thetext = info.num
-        self.glyphs.append(
-            (info.font, info.fontsize, thetext, ox, oy))
+        self.glyphs.append((info.font, info.fontsize, info.num, ox, oy))
 
     def render_rect_filled(self, x1, y1, x2, y2):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
         ship(0, 0, box)
-        return (self.width,
-                self.height + self.depth,
-                self.depth,
-                self.glyphs,
-                self.rects)
+        return self._Result(self.width,
+                            self.height + self.depth,
+                            self.depth,
+                            self.glyphs,
+                            self.rects)
 
 
+@cbook.deprecated("3.4", alternative="MathtextBackendPath")
 class MathtextBackendCairo(MathtextBackend):
     """
     Store information to write a mathtext rendering to the Cairo
@@ -1102,7 +1106,7 @@ class StandardPsFonts(Fonts):
     }
 
     def __init__(self, default_font_prop):
-        super().__init__(default_font_prop, MathtextBackendPs())
+        super().__init__(default_font_prop, MathtextBackendPath())
         self.glyphd = {}
         self.fonts = {}
 
@@ -1117,7 +1121,11 @@ class StandardPsFonts(Fonts):
 
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
-        self.pswriter = StringIO()
+
+    @cbook.deprecated("3.4")
+    @property
+    def pswriter(self):
+        return StringIO()
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -3344,7 +3352,7 @@ class MathTextParser:
         """Create a MathTextParser for the given backend *output*."""
         self._output = output.lower()
 
-    def parse(self, s, dpi=72, prop=None):
+    def parse(self, s, dpi=72, prop=None, *, _force_standard_ps_fonts=False):
         """
         Parse the given math expression *s* at the given *dpi*.  If *prop* is
         provided, it is a `.FontProperties` object specifying the "default"
@@ -3356,16 +3364,16 @@ class MathTextParser:
         # lru_cache can't decorate parse() directly because the ps.useafm and
         # mathtext.fontset rcParams also affect the parse (e.g. by affecting
         # the glyph metrics).
-        return self._parse_cached(
-            s, dpi, prop, rcParams['ps.useafm'], rcParams['mathtext.fontset'])
+        return self._parse_cached(s, dpi, prop, _force_standard_ps_fonts,
+                                  rcParams['mathtext.fontset'])
 
     @functools.lru_cache(50)
-    def _parse_cached(self, s, dpi, prop, ps_useafm, fontset):
+    def _parse_cached(self, s, dpi, prop, force_standard_ps_fonts, fontset):
 
         if prop is None:
             prop = FontProperties()
 
-        if self._output == 'ps' and ps_useafm:
+        if force_standard_ps_fonts:
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self._output]()

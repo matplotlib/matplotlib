@@ -20,6 +20,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import cbook, _path
 from matplotlib import _text_layout
+from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
     GraphicsContextBase, RendererBase)
@@ -167,7 +168,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._path_collection_id = 0
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
-        self.mathtext_parser = MathTextParser("PS")
+
+    @cbook.deprecated("3.3")
+    @property
+    def mathtext_parser(self):
+        return MathTextParser("PS")
 
     @cbook.deprecated("3.3")
     @property
@@ -599,18 +604,33 @@ grestore
         if debugPS:
             self._pswriter.write("% mathtext\n")
 
-        width, height, descent, pswriter, used_characters = \
-            self.mathtext_parser.parse(s, 72, prop)
-        self._character_tracker.merge(used_characters)
+        width, height, descent, glyphs, rects = \
+            self._text2path.mathtext_parser.parse(
+                s, 72, prop,
+                _force_standard_ps_fonts=mpl.rcParams["ps.useafm"])
         self.set_color(*gc.get_rgb())
-        thetext = pswriter.getvalue()
-        self._pswriter.write(f"""\
-gsave
-{x:f} {y:f} translate
-{angle:f} rotate
-{thetext}
-grestore
-""")
+        self._pswriter.write(
+            f"gsave\n"
+            f"{x:f} {y:f} translate\n"
+            f"{angle:f} rotate\n")
+        lastfont = None
+        for font, fontsize, num, ox, oy in glyphs:
+            self._character_tracker.track(font, chr(num))
+            if (font.postscript_name, fontsize) != lastfont:
+                lastfont = font.postscript_name, fontsize
+                self._pswriter.write(
+                    f"/{font.postscript_name} findfont\n"
+                    f"{fontsize} scalefont\n"
+                    f"setfont\n")
+            symbol_name = (
+                font.get_name_char(chr(num)) if isinstance(font, AFM) else
+                font.get_glyph_name(font.get_char_index(num)))
+            self._pswriter.write(
+                f"{ox:f} {oy:f} moveto\n"
+                f"/{symbol_name} glyphshow\n")
+        for ox, oy, w, h in rects:
+            self._pswriter.write(f"{ox} {oy} {w} {h} rectfill\n")
+        self._pswriter.write("grestore\n")
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),

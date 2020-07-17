@@ -131,8 +131,12 @@ class RendererCairo(RendererBase):
         self.gc = GraphicsContextCairo(renderer=self)
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
-        self.mathtext_parser = MathTextParser('Cairo')
         RendererBase.__init__(self)
+
+    @cbook.deprecated("3.4")
+    @property
+    def mathtext_parser(self):
+        return MathTextParser('Cairo')
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
@@ -254,26 +258,25 @@ class RendererCairo(RendererBase):
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         ctx = gc.ctx
-        width, height, descent, glyphs, rects = self.mathtext_parser.parse(
-            s, self.dpi, prop)
+        width, height, descent, glyphs, rects = \
+            self._text2path.mathtext_parser.parse(s, self.dpi, prop)
 
         ctx.save()
         ctx.translate(x, y)
         if angle:
             ctx.rotate(np.deg2rad(-angle))
 
-        for font, fontsize, s, ox, oy in glyphs:
+        for font, fontsize, idx, ox, oy in glyphs:
             ctx.new_path()
-            ctx.move_to(ox, oy)
-
+            ctx.move_to(ox, -oy)
             ctx.select_font_face(
                 *_cairo_font_args_from_font_prop(ttfFontProperty(font)))
             ctx.set_font_size(fontsize * self.dpi / 72)
-            ctx.show_text(s)
+            ctx.show_text(chr(idx))
 
         for ox, oy, w, h in rects:
             ctx.new_path()
-            ctx.rectangle(ox, oy, w, h)
+            ctx.rectangle(ox, -oy, w, -h)
             ctx.set_source_rgb(0, 0, 0)
             ctx.fill_preserve()
 
@@ -290,8 +293,9 @@ class RendererCairo(RendererBase):
             return super().get_text_width_height_descent(s, prop, ismath)
 
         if ismath:
-            dims = self.mathtext_parser.parse(s, self.dpi, prop)
-            return dims[0:3]  # return width, height, descent
+            width, height, descent, *_ = \
+                self._text2path.mathtext_parser.parse(s, self.dpi, prop)
+            return width, height, descent
 
         ctx = self.text_ctx
         # problem - scale remembers last setting and font can become
