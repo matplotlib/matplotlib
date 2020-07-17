@@ -3341,10 +3341,6 @@ class ToolContainerBase:
             if tool.toggled:
                 self.toggle_toolitem(tool_name, True)
 
-    def _remove_tool_cbk(self, event):
-        """Captures the 'tool_removed_event' signal and removes the tool."""
-        self.remove_toolitem(event.tool_name)
-
     def _get_image_filename(self, image):
         """Find the image based on its name."""
         if not image:
