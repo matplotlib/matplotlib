@@ -10,6 +10,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
+from matplotlib import artist
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
@@ -272,3 +273,36 @@ def test_funcanimation_cache_frame_data(cache_frame_data):
         # If cache_frame_data is True, then the weakref should be alive;
         # if cache_frame_data is False, then the weakref should be dead (None).
         assert (f() is None) != cache_frame_data
+
+
+def test_draw_frame():
+    # test _draw_frame method
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([])
+
+    def animate(i, arg):
+        # general update func
+        line.set_data([0, 1], [0, i])
+        if arg:
+            return arg
+
+    with pytest.raises(RuntimeError):
+
+        # user forgot to return (returns None)
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(None,))
+
+        # user (for some reason) returned a string...AttributeError is raised
+        animation.FuncAnimation(fig, animate, blit=True, fargs=('string', ))
+
+        # user (for some reason) returned a string...AttributeError is raised
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(1, ))
+
+        # user returns a sequence of other objects
+        # e.g. a string instead of Artist
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(('string',), ))
+
+        # user forgot to put comma or return a sequence
+        # TypeError will be raised (same with returning a number or bool)
+        artist_obj = artist.Artist()
+        animation.FuncAnimation(fig, animate, blit=True, fargs=(artist_obj, ))
