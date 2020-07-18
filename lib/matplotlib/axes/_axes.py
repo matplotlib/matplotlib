@@ -3334,38 +3334,38 @@ class Axes(_AxesBase):
             if not np.iterable(yerr):
                 yerr = [yerr] * len(y)
 
-        plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
+        kwargs['label'] = '_nolegend_'
 
-        if fmt == '':
-            fmt_style_kwargs = {}
+        # Create the main line and determine overall kwargs for child artists.
+        # We avoid calling self.plot() directly, or self._get_lines(), because
+        # that would call self._process_unit_info again, and do other indirect
+        # data processing.
+        (data_line, base_style), = self._get_lines._plot_args(
+            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+
+        # Do this after creating `data_line` to avoid modifying `base_style`.
+        if barsabove:
+            data_line.set_zorder(kwargs['zorder'] - .1)
         else:
-            fmt_style_kwargs = {k: v for k, v in
-                                zip(('linestyle', 'marker', 'color'),
-                                    _process_plot_format(fmt))
-                                if v is not None}
-        if fmt == 'none':
-            # Remove alpha=0 color that _process_plot_format returns
-            fmt_style_kwargs.pop('color')
+            data_line.set_zorder(kwargs['zorder'] + .1)
 
-        base_style = self._get_lines._getdefaults(
-            set(), {**fmt_style_kwargs, **kwargs})
-        if 'color' in kwargs:
-            base_style['color'] = kwargs.pop('color')
-        base_style['label'] = '_nolegend_'
-        base_style.update(fmt_style_kwargs)
+        # Add line to plot, or throw it away and use it to determine kwargs.
+        if fmt.lower() != 'none':
+            self.add_line(data_line)
+        else:
+            data_line = None
+            # Remove alpha=0 color that _get_lines._plot_args returns for
+            # 'none' format, and replace it with user-specified color, if
+            # supplied.
+            base_style.pop('color')
+            if 'color' in kwargs:
+                base_style['color'] = kwargs.pop('color')
+
         if 'color' not in base_style:
             base_style['color'] = 'C0'
         if ecolor is None:
             ecolor = base_style['color']
-
-        # make the style dict for the 'normal' plot line
-        plot_line_style = {
-            **base_style,
-            **kwargs,
-            'zorder': (kwargs['zorder'] - .1 if barsabove else
-                       kwargs['zorder'] + .1),
-        }
 
         # Make the style dict for the line collections (the bars), ejecting any
         # marker information from format string.
@@ -3410,11 +3410,6 @@ class Axes(_AxesBase):
             if key in kwargs:
                 eb_cap_style[key] = kwargs[key]
         eb_cap_style['color'] = ecolor
-
-        data_line = None
-        if plot_line:
-            data_line = mlines.Line2D(x, y, **plot_line_style)
-            self.add_line(data_line)
 
         barcols = []
         caplines = []
