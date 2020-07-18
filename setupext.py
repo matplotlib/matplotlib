@@ -657,7 +657,7 @@ class BackendMacOSX(OptionalPackage):
             'src/_macosx.m'
             ]
         ext = Extension('matplotlib.backends._macosx', sources)
-        ext.extra_compile_args.extend(['-Wunguarded-availability', '-Werror'])
+        ext.extra_compile_args.extend(['-Werror=unguarded-availability'])
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')
