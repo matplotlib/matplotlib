@@ -1107,8 +1107,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
             mpl.rcParams["text.latex.preamble"] +
             r"\usepackage{psfrag,color}""\n"
             r"\usepackage[dvips]{graphicx}""\n"
-            r"\geometry{papersize={%(width)sin,%(height)sin},"
-            r"body={%(width)sin,%(height)sin},margin=0in}"
+            r"\geometry{papersize={%(width)sin,%(height)sin},margin=0in}"
             % {"width": paper_width, "height": paper_height}
     }):
         dvifile = TexManager().make_dvi(
