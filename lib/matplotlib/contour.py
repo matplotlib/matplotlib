@@ -455,29 +455,27 @@ class ContourLabeler:
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
         """
-        Add a label near the point (x, y). If transform is None
-        (default), (x, y) is in data coordinates; if transform is
-        False, (x, y) is in display coordinates; otherwise, the
-        specified transform will be used to translate (x, y) into
-        display coordinates.
+        Add a label near the point ``(x, y)``.
 
         Parameters
         ----------
         x, y : float
             The approximate location of the label.
-
         inline : bool, default: True
             If *True* remove the segment of the contour beneath the label.
-
         inline_spacing : int, default: 5
             Space in pixels to leave on each side of label when placing
             inline. This spacing will be exact for labels at locations where
             the contour is straight, less so for labels on curved contours.
+        transform : `.Transform` or `False`, default: ``self.axes.transData``
+            A transform applied to ``(x, y)`` before labeling.  The default
+            causes ``(x, y)`` to be interpreted as data coordinates.  `False`
+            is a synonym for `.IdentityTransform`; i.e. ``(x, y)`` should be
+            interpreted as display coordinates.
         """
 
         if transform is None:
             transform = self.axes.transData
-
         if transform:
             x, y = transform.transform((x, y))
 
@@ -485,33 +483,20 @@ class ContourLabeler:
         conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
             x, y, self.labelIndiceList)[:5]
 
-        # The calc_label_rot_and_inline routine requires that (xmin, ymin)
+        # calc_label_rot_and_inline() requires that (xmin, ymin)
         # be a vertex in the path. So, if it isn't, add a vertex here
-
-        # grab the paths from the collections
-        paths = self.collections[conmin].get_paths()
-        # grab the correct segment
-        active_path = paths[segmin]
-        # grab its vertices
-        lc = active_path.vertices
-        # sort out where the new vertex should be added data-units
+        paths = self.collections[conmin].get_paths()  # paths of correct coll.
+        lc = paths[segmin].vertices  # vertices of correct segment
+        # Where should the new vertex be added in data-units?
         xcmin = self.axes.transData.inverted().transform([xmin, ymin])
-        # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
-            # insert new data into the vertex list
-            lc = np.row_stack([lc[:imin], xcmin, lc[imin:]])
-            # replace the path with the new one
+            # No vertex is close enough, so add a new point in the vertices and
+            # replace the path by the new one.
+            lc = np.insert(lc, imin, xcmin, axis=0)
             paths[segmin] = mpath.Path(lc)
 
         # Get index of nearest level in subset of levels used for labeling
         lmin = self.labelIndiceList.index(conmin)
-
-        # Coordinates of contour
-        paths = self.collections[conmin].get_paths()
-        lc = paths[segmin].vertices
-
-        # In pixel/screen space
-        slc = self.axes.transData.transform(lc)
 
         # Get label width for rotating labels and breaking contours
         lw = self.get_label_width(self.labelLevelList[lmin],
@@ -522,7 +507,8 @@ class ContourLabeler:
 
         # Figure out label rotation.
         rotation, nlc = self.calc_label_rot_and_inline(
-            slc, imin, lw, lc if inline else None, inline_spacing)
+            self.axes.transData.transform(lc),  # to pixel space.
+            imin, lw, lc if inline else None, inline_spacing)
 
         self.add_label(xmin, ymin, rotation, self.labelLevelList[lmin],
                        self.labelCValueList[lmin])
@@ -1316,7 +1302,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # Nonetheless, improvements could probably be made.
 
         if indices is None:
-            indices = list(range(len(self.levels)))
+            indices = range(len(self.levels))
 
         d2min = np.inf
         conmin = None
