@@ -153,7 +153,7 @@ Turbo colormap
 --------------
 
 Turbo is an improved rainbow colormap for visualization, created by the Google
-AI team for computer visualization and machine learning. Its purpose is to
+AI team for computer vision and machine learning. Its purpose is to
 display depth and disparity data. Please see the `Google AI Blog
 <https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html>`_
 for further details.
