@@ -3315,6 +3315,25 @@ class Axes(_AxesBase):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
+        # Make sure all the args are iterable; use lists not arrays to preserve
+        # units.
+        if not np.iterable(x):
+            x = [x]
+
+        if not np.iterable(y):
+            y = [y]
+
+        if len(x) != len(y):
+            raise ValueError("'x' and 'y' must have the same size")
+
+        if xerr is not None:
+            if not np.iterable(xerr):
+                xerr = [xerr] * len(x)
+
+        if yerr is not None:
+            if not np.iterable(yerr):
+                yerr = [yerr] * len(y)
+
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
 
@@ -3339,24 +3358,6 @@ class Axes(_AxesBase):
             base_style['color'] = 'C0'
         if ecolor is None:
             ecolor = base_style['color']
-        # make sure all the args are iterable; use lists not arrays to
-        # preserve units
-        if not np.iterable(x):
-            x = [x]
-
-        if not np.iterable(y):
-            y = [y]
-
-        if len(x) != len(y):
-            raise ValueError("'x' and 'y' must have the same size")
-
-        if xerr is not None:
-            if not np.iterable(xerr):
-                xerr = [xerr] * len(x)
-
-        if yerr is not None:
-            if not np.iterable(yerr):
-                yerr = [yerr] * len(y)
 
         # make the style dict for the 'normal' plot line
         plot_line_style = {
@@ -3366,9 +3367,14 @@ class Axes(_AxesBase):
                        kwargs['zorder'] + .1),
         }
 
-        # make the style dict for the line collections (the bars)
+        # Make the style dict for the line collections (the bars), ejecting any
+        # marker information from format string.
         eb_lines_style = dict(base_style)
         eb_lines_style.pop('marker', None)
+        eb_lines_style.pop('markersize', None)
+        eb_lines_style.pop('markerfacecolor', None)
+        eb_lines_style.pop('markeredgewidth', None)
+        eb_lines_style.pop('markeredgecolor', None)
         eb_lines_style.pop('linestyle', None)
         eb_lines_style['color'] = ecolor
 
@@ -3381,14 +3387,14 @@ class Axes(_AxesBase):
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
-        # set up cap style dictionary
+        # Make the style dict for the caps, ejecting any marker information
+        # from format string.
         eb_cap_style = dict(base_style)
-        # eject any marker information from format string
         eb_cap_style.pop('marker', None)
-        eb_lines_style.pop('markerfacecolor', None)
-        eb_lines_style.pop('markeredgewidth', None)
-        eb_lines_style.pop('markeredgecolor', None)
-        eb_cap_style.pop('ls', None)
+        eb_cap_style.pop('markersize', None)
+        eb_cap_style.pop('markerfacecolor', None)
+        eb_cap_style.pop('markeredgewidth', None)
+        eb_cap_style.pop('markeredgecolor', None)
         eb_cap_style['linestyle'] = 'none'
         if capsize is None:
             capsize = rcParams["errorbar.capsize"]
