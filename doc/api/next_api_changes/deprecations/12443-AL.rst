@@ -1,0 +1,8 @@
+``colorbar`` now warns when the mappable's axes is different from the current axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently, `.Figure.colorbar` and `.pyplot.colorbar` steal space by default
+from the current axes to place the colorbar.  In a future version, they will
+steal space from the mappable's axes instead.  In preparation for this change,
+`.Figure.colorbar` and `.pyplot.colorbar` now emits a warning when the current
+axes is not the same as the mappable's axes.

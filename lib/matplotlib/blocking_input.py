@@ -277,7 +277,7 @@ class BlockingContourLabeler(BlockingMouseInput):
 
     def __init__(self, cs):
         self.cs = cs
-        BlockingMouseInput.__init__(self, fig=cs.ax.figure)
+        BlockingMouseInput.__init__(self, fig=cs.axes.figure)
 
     def add_click(self, event):
         self.button1(event)
