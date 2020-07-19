@@ -705,100 +705,65 @@ class ConciseDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = '%Y'
         # there are 6 levels with each level getting a specific format
-        # 0: mostly years,  1: months,  2: days,
-        # 3: hours, 4: minutes, 5: seconds
+        # 0: years,  1: months,  2: days, 3: hours, 4: minutes, 5: seconds
         if formats:
-            if len(formats) != 6:
+            if len(formats) != 7:
                 raise ValueError('formats argument must be a list of '
-                                 '6 format strings (or None)')
+                                 '7 format strings (or None)')
             self.formats = formats
         else:
-            self.formats = ['%Y',  # ticks are mostly years
-                            '%b',          # ticks are mostly months
-                            '%d',          # ticks are mostly days
-                            '%H:%M',       # hrs
-                            '%H:%M',       # min
-                            '%S.%f',       # secs
-                            ]
-        # fmt for zeros ticks at this level.  These are
-        # ticks that should be labeled w/ info the level above.
-        # like 1 Jan can just be labelled "Jan".  02:02:00 can
-        # just be labeled 02:02.
-        if zero_formats:
-            if len(zero_formats) != 6:
-                raise ValueError('zero_formats argument must be a list of '
-                                 '6 format strings (or None)')
-            self.zero_formats = zero_formats
-        elif formats:
-            # use the users formats for the zero tick formats
-            self.zero_formats = [''] + self.formats[:-1]
-        else:
-            # make the defaults a bit nicer:
-            self.zero_formats = [''] + self.formats[:-1]
-            self.zero_formats[3] = '%b-%d'
+            self.formats = ['%Y', '%b', '%d', '%Hh', '%Hh%M', '%M:%S', '%S.%f']
 
         if offset_formats:
-            if len(offset_formats) != 6:
+            if len(offset_formats) != 7:
                 raise ValueError('offsetfmts argument must be a list of '
-                                 '6 format strings (or None)')
+                                 '7 format strings (or None)')
             self.offset_formats = offset_formats
         else:
             self.offset_formats = ['',
                                    '%Y',
                                    '%Y-%b',
                                    '%Y-%b-%d',
-                                   '%Y-%b-%d',
-                                   '%Y-%b-%d %H:%M']
+                                   '%Y-%b-%d %Hh',
+                                   '%Y-%b-%d %Hh%M',
+                                   '%Y-%b-%d %Hh%M:%S']
         self.offset_string = ''
         self.show_offset = show_offset
-
+        
     def __call__(self, x, pos=None):
         formatter = DateFormatter(self.defaultfmt, self._tz)
         return formatter(x, pos=pos)
 
     def format_ticks(self, values):
+        if len(values) <= 1:
+            return [num2date(v).strftime(self.offset_formats[-1]) for v in values]
+
         tickdatetime = [num2date(value, tz=self._tz) for value in values]
-        tickdate = np.array([tdt.timetuple()[:6] for tdt in tickdatetime])
 
-        # basic algorithm:
-        # 1) only display a part of the date if it changes over the ticks.
-        # 2) don't display the smaller part of the date if:
-        #    it is always the same or if it is the start of the
-        #    year, month, day etc.
-        # fmt for most ticks at this level
-        fmts = self.formats
-        # format beginnings of days, months, years, etc...
-        zerofmts = self.zero_formats
-        # offset fmt are for the offset in the upper left of the
-        # or lower right of the axis.
-        offsetfmts = self.offset_formats
+        dates = np.array([(d.year, d.month, d.day, d.hour, d.minute, d.second,
+                           d.microsecond) for d in tickdatetime])
 
-        # determine the level we will label at:
-        # mostly 0: years,  1: months,  2: days,
-        # 3: hours, 4: minutes, 5: seconds, 6: microseconds
-        for level in range(5, -1, -1):
-            if len(np.unique(tickdate[:, level])) > 1:
+        # determine the offset level
+        for level in range(7):
+            if len(np.unique(dates[:, level])) > 1:
                 break
 
-        # level is the basic level we will label at.
-        # now loop through and decide the actual ticklabels
-        zerovals = [0, 1, 1, 0, 0, 0, 0]
-        labels = [''] * len(tickdate)
-        for nn in range(len(tickdate)):
-            if level < 5:
-                if tickdate[nn][level] == zerovals[level]:
-                    fmt = zerofmts[level]
-                else:
-                    fmt = fmts[level]
-            else:
-                # special handling for seconds + microseconds
-                if (tickdatetime[nn].second == tickdatetime[nn].microsecond
-                        == 0):
-                    fmt = zerofmts[level]
-                else:
-                    fmt = fmts[level]
-            labels[nn] = tickdatetime[nn].strftime(fmt)
+        if self.show_offset:
+            self.offset_string = tickdatetime[0].strftime(self.offset_formats[level])
+            offset = dates[0].copy()
+            offset[level:] = 0
+        else:
+            offset = np.array([0, 0, 0, 0, 0, 0, 0])
 
+        # Check what changes from one tick to the next
+        ddates = np.diff(dates, axis=0, prepend=np.array([offset]))
+
+        labels = []
+        for i, d in enumerate(tickdatetime):
+            l = np.flatnonzero(ddates[i])[0]
+            labels.append(d.strftime(self.formats[l]))
+
+        #TODO fix this to work with different offset levels...
         # special handling of seconds and microseconds:
         # strip extra zeros and decimal if possible.
         # this is complicated by two factors.  1) we have some level-4 strings
@@ -812,10 +777,6 @@ class ConciseDateFormatter(ticker.Formatter):
                 for nn in range(len(labels)):
                     if '.' in labels[nn]:
                         labels[nn] = labels[nn][:-trailing_zeros].rstrip('.')
-
-        if self.show_offset:
-            # set the offset string:
-            self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
 
         return labels
 
