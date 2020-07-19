@@ -89,7 +89,7 @@ for j in range(100):
     ln.set_ydata(np.sin(x + (j / 100) * np.pi))
     # re-render the artist, updating the canvas state, but not the screen
     ax.draw_artist(ln)
-    # copy the image to the GUI state, but screen might not changed yet
+    # copy the image to the GUI state, but screen might not be changed yet
     fig.canvas.blit(fig.bbox)
     # flush any pending GUI events, re-painting the screen if needed
     fig.canvas.flush_events()
@@ -216,7 +216,7 @@ for j in range(100):
     # update the artists
     ln.set_ydata(np.sin(x + (j / 100) * np.pi))
     fr_number.set_text("frame: {j}".format(j=j))
-    # tell the blitting manager to do it's thing
+    # tell the blitting manager to do its thing
     bm.update()
 
 ###############################################################################
