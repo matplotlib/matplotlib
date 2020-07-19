@@ -16,6 +16,7 @@ import numpy as np
 class PauseAnimation:
     def __init__(self):
         fig, ax = plt.subplots()
+        ax.title.set_text('Click to pause/resume the animation')
         x = np.linspace(-0.1, 0.1, 1000)
 
         # Start with a normal distribution
