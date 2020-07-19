@@ -16,7 +16,7 @@ not have to.  If the limits of an Axes have not changed, then there is
 no need to re-draw all of the ticks and tick-labels (particularly
 because text is one of the more expensive things to render).
 
-The procedure to save our work is rough:
+The procedure to save our work is roughly:
 
 - draw the figure, but exclude any artists marked as 'animated'
 - save a copy of the RBGA buffer
