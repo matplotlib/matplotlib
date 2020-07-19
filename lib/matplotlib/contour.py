@@ -599,31 +599,6 @@ class ContourLabeler:
                 paths[:] = additions
 
 
-def _find_closest_point_on_leg(p1, p2, p0):
-    """Find the closest point to p0 on line segment connecting p1 and p2."""
-
-    # handle degenerate case
-    if np.all(p2 == p1):
-        d = np.sum((p0 - p1)**2)
-        return d, p1
-
-    d21 = p2 - p1
-    d01 = p0 - p1
-
-    # project on to line segment to find closest point
-    proj = np.dot(d01, d21) / np.dot(d21, d21)
-    if proj < 0:
-        proj = 0
-    if proj > 1:
-        proj = 1
-    pc = p1 + proj * d21
-
-    # find squared distance
-    d = np.sum((pc-p0)**2)
-
-    return d, pc
-
-
 def _is_closed_polygon(X):
     """
     Return whether first and last object in a sequence are the same. These are
@@ -633,39 +608,40 @@ def _is_closed_polygon(X):
     return np.allclose(X[0], X[-1], rtol=1e-10, atol=1e-13)
 
 
-def _find_closest_point_on_path(lc, point):
+def _find_closest_point_on_path(xys, p):
     """
     Parameters
     ----------
-    lc : coordinates of vertices
-    point : coordinates of test point
+    xys : (N, 2) array-like
+        Coordinates of vertices.
+    p : (float, float)
+        Coordinates of point.
+
+    Returns
+    -------
+    d2min : float
+        Minimum square distance of *p* to *xys*.
+    proj : (float, float)
+        Projection of *p* onto *xys*.
+    imin : (int, int)
+        Consecutive indices of vertices of segment in *xys* where *proj* is.
+        Segments are considered as including their end-points; i.e if the
+        closest point on the path is a node in *xys* with index *i*, this
+        returns ``(i-1, i)``.  For the special case where *xys* is a single
+        point, this returns ``(0, 0)``.
     """
-
-    # find index of closest vertex for this segment
-    ds = np.sum((lc - point[None, :])**2, 1)
-    imin = np.argmin(ds)
-
-    dmin = np.inf
-    xcmin = None
-    legmin = (None, None)
-
-    closed = _is_closed_polygon(lc)
-
-    # build list of legs before and after this vertex
-    legs = []
-    if imin > 0 or closed:
-        legs.append(((imin-1) % len(lc), imin))
-    if imin < len(lc) - 1 or closed:
-        legs.append((imin, (imin+1) % len(lc)))
-
-    for leg in legs:
-        d, xc = _find_closest_point_on_leg(lc[leg[0]], lc[leg[1]], point)
-        if d < dmin:
-            dmin = d
-            xcmin = xc
-            legmin = leg
-
-    return (dmin, xcmin, legmin)
+    if len(xys) == 1:
+        return (((p - xys[0]) ** 2).sum(), xys[0], (0, 0))
+    dxys = xys[1:] - xys[:-1]  # Individual segment vectors.
+    norms = (dxys ** 2).sum(axis=1)
+    norms[norms == 0] = 1  # For zero-length segment, replace 0/0 by 0/1.
+    rel_projs = np.clip(  # Project onto each segment in relative 0-1 coords.
+        ((p - xys[:-1]) * dxys).sum(axis=1) / norms,
+        0, 1)[:, None]
+    projs = xys[:-1] + rel_projs * dxys  # Projs. onto each segment, in (x, y).
+    d2s = ((projs - p) ** 2).sum(axis=1)  # Squared distances.
+    imin = np.argmin(d2s)
+    return (d2s[imin], projs[imin], (imin, imin+1))
 
 
 docstring.interpd.update(contour_set_attributes=r"""
@@ -1341,8 +1317,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             ``(x, y)``.
         xmin, ymin : float
             The point in the contour plot that is closest to ``(x, y)``.
-        d : float
-            The distance from ``(xmin, ymin)`` to ``(x, y)``.
+        d2 : float
+            The squared distance from ``(xmin, ymin)`` to ``(x, y)``.
         """
 
         # This function uses a method that is probably quite
@@ -1356,7 +1332,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if indices is None:
             indices = list(range(len(self.levels)))
 
-        dmin = np.inf
+        d2min = np.inf
         conmin = None
         segmin = None
         xmin = None
@@ -1375,16 +1351,16 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if pixel:
                     lc = trans.transform(lc)
 
-                d, xc, leg = _find_closest_point_on_path(lc, point)
-                if d < dmin:
-                    dmin = d
+                d2, xc, leg = _find_closest_point_on_path(lc, point)
+                if d2 < d2min:
+                    d2min = d2
                     conmin = icon
                     segmin = segNum
                     imin = leg[1]
                     xmin = xc[0]
                     ymin = xc[1]
 
-        return (conmin, segmin, imin, xmin, ymin, dmin)
+        return (conmin, segmin, imin, xmin, ymin, d2min)
 
 
 @docstring.dedent_interpd
