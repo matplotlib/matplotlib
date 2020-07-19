@@ -398,6 +398,7 @@ class Fonts:
         self.mathtext_backend = mathtext_backend
         self.used_characters = {}
 
+    @cbook.deprecated("3.4")
     def destroy(self):
         """
         Fix any cyclical references before the object is about
@@ -519,7 +520,11 @@ class Fonts:
         """
         result = self.mathtext_backend.get_results(
             box, self.get_used_characters())
-        self.destroy()
+        if self.destroy != TruetypeFonts.destroy.__get__(self):
+            destroy = cbook._deprecate_method_override(
+                __class__.destroy, self, since="3.4")
+            if destroy:
+                destroy()
         return result
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
@@ -547,6 +552,7 @@ class TruetypeFonts(Fonts):
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
+    @cbook.deprecated("3.4")
     def destroy(self):
         self.glyphd = None
         Fonts.destroy(self)
