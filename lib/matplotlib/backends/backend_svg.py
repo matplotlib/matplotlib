@@ -360,7 +360,8 @@ class RendererSVG(RendererBase):
                                  'Expected str, date, datetime, or iterable '
                                  'of the same, not {!r}.'.format(type(date)))
             metadata['Date'] = '/'.join(dates)
-        else:
+        elif 'Date' not in metadata:
+            # Do not add `Date` if the user explicitly set `Date` to `None`
             # Get source date from SOURCE_DATE_EPOCH, if set.
             # See https://reproducible-builds.org/specs/source-date-epoch/
             date = os.getenv("SOURCE_DATE_EPOCH")
