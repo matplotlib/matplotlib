@@ -1,0 +1,8 @@
+Reverted deprecation of `~.dates.num2epoch` and `~.dates.epoch2num`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These two functions were deprecated in 3.3.0, and did not return
+an accurate Matplotlib datenum relative to the new Matplotlib epoch
+handling (`~.dates.get_epoch` and :rc:`date.epoch`).  This version
+reverts the deprecation and fixes those functions to work with
+`~.dates.get_epoch`. 

@@ -1750,21 +1750,45 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
-@cbook.deprecated("3.3")
 def epoch2num(e):
     """
-    Convert an epoch or sequence of epochs to the new date format,
-    that is days since 0001.
+    Convert UNIX time to days since Matplotlib epoch.
+
+    Parameters
+    ----------
+    e : list of floats
+        Time in seconds since 1970-01-01.
+
+    Returns
+    -------
+    `numpy.array`
+        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
     """
-    return EPOCH_OFFSET + np.asarray(e) / SEC_PER_DAY
+
+    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
+          np.datetime64(get_epoch(), 's')).astype(float)
+
+    return (dt + np.asarray(e)) / SEC_PER_DAY
 
 
-@cbook.deprecated("3.3")
 def num2epoch(d):
     """
-    Convert days since 0001 to epoch.  *d* can be a number or sequence.
+    Convert days since Matplotlib epoch to UNIX time.
+
+    Parameters
+    ----------
+    d : list of floats
+        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
+
+    Returns
+    -------
+    `numpy.array`
+        Time in seconds since 1970-01-01.
     """
-    return (np.asarray(d) - EPOCH_OFFSET) * SEC_PER_DAY
+    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
+          np.datetime64(get_epoch(), 's')).astype(float)
+
+    return np.asarray(d) * SEC_PER_DAY - dt
 
 
 @cbook.deprecated("3.2")
