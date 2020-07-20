@@ -7,6 +7,7 @@ import pytest
 
 from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
@@ -556,3 +557,9 @@ def test_rotated_arcs():
         ax.axvline(0, color="k")
         ax.set_axis_off()
         ax.set_aspect("equal")
+
+
+def test_degenerate_polygon():
+    point = [0, 0]
+    correct_extents = Bbox([point, point]).extents
+    assert np.all(Polygon([point]).get_extents().extents == correct_extents)
