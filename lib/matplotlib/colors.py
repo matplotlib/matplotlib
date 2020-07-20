@@ -68,6 +68,7 @@ Matplotlib recognizes the following formats to specify a color:
 import base64
 from collections.abc import Sized
 import functools
+import inspect
 import io
 import itertools
 from numbers import Number
@@ -77,8 +78,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-import matplotlib.cbook as cbook
-from matplotlib import docstring
+from matplotlib import cbook, docstring, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -1203,60 +1203,84 @@ class DivergingNorm(TwoSlopeNorm):
     ...
 
 
+def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
+    """
+    Decorator for building a `.Normalize` subclass from a `.Scale` subclass.
+
+    After ::
+
+        @_make_norm_from_scale(scale_cls)
+        class base_norm_cls(Normalize):
+            ...
+
+    *base_norm_cls* is filled with methods so that normalization computations
+    are forwarded to *scale_cls* (i.e., *scale_cls* is the scale that would be
+    used for the colorbar of a mappable normalized with *base_norm_cls*).
+
+    The constructor signature of *base_norm_cls* is derived from the
+    constructor signature of *scale_cls*, but can be overridden using *init*
+    (a callable which is *only* used for its signature).
+    """
+
+    if base_norm_cls is None:
+        return functools.partial(_make_norm_from_scale, scale_cls, init=init)
+
+    if init is None:
+        def init(vmin=None, vmax=None, clip=False): pass
+    init_signature = inspect.signature(init)
+
+    class Norm(base_norm_cls):
+
+        def __init__(self, *args, **kwargs):
+            ba = init_signature.bind(*args, **kwargs)
+            ba.apply_defaults()
+            super().__init__(
+                **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
+            self._scale = scale_cls(axis=None, **ba.arguments)
+            self._trf = self._scale.get_transform()
+            self._inv_trf = self._trf.inverted()
+
+        def __call__(self, value, clip=None):
+            value, is_scalar = self.process_value(value)
+            self.autoscale_None(value)
+            if self.vmin > self.vmax:
+                raise ValueError("vmin must be less or equal to vmax")
+            if self.vmin == self.vmax:
+                return np.full_like(value, 0)
+            if clip is None:
+                clip = self.clip
+            if clip:
+                value = np.clip(value, self.vmin, self.vmax)
+            t_value = self._trf.transform(value).reshape(np.shape(value))
+            t_vmin, t_vmax = self._trf.transform([self.vmin, self.vmax])
+            if not np.isfinite([t_vmin, t_vmax]).all():
+                raise ValueError("Invalid vmin or vmax")
+            t_value -= t_vmin
+            t_value /= (t_vmax - t_vmin)
+            t_value = np.ma.masked_invalid(t_value, copy=False)
+            return t_value[0] if is_scalar else t_value
+
+        def inverse(self, value):
+            if not self.scaled():
+                raise ValueError("Not invertible until scaled")
+            if self.vmin > self.vmax:
+                raise ValueError("vmin must be less or equal to vmax")
+            t_vmin, t_vmax = self._trf.transform([self.vmin, self.vmax])
+            if not np.isfinite([t_vmin, t_vmax]).all():
+                raise ValueError("Invalid vmin or vmax")
+            rescaled = value * (t_vmax - t_vmin)
+            rescaled += t_vmin
+            return self._inv_trf.transform(rescaled).reshape(np.shape(value))
+
+    Norm.__name__ = base_norm_cls.__name__
+    Norm.__qualname__ = base_norm_cls.__qualname__
+    Norm.__module__ = base_norm_cls.__module__
+    return Norm
+
+
+@_make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
 class LogNorm(Normalize):
     """Normalize a given value to the 0-1 range on a log scale."""
-
-    def _check_vmin_vmax(self):
-        if self.vmin > self.vmax:
-            raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif self.vmin <= 0:
-            raise ValueError("minvalue must be positive")
-
-    def __call__(self, value, clip=None):
-        if clip is None:
-            clip = self.clip
-
-        result, is_scalar = self.process_value(value)
-
-        result = np.ma.masked_less_equal(result, 0, copy=False)
-
-        self.autoscale_None(result)
-        self._check_vmin_vmax()
-        vmin, vmax = self.vmin, self.vmax
-        if vmin == vmax:
-            result.fill(0)
-        else:
-            if clip:
-                mask = np.ma.getmask(result)
-                result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                     mask=mask)
-            # in-place equivalent of above can be much faster
-            resdat = result.data
-            mask = result.mask
-            if mask is np.ma.nomask:
-                mask = (resdat <= 0)
-            else:
-                mask |= resdat <= 0
-            np.copyto(resdat, 1, where=mask)
-            np.log(resdat, resdat)
-            resdat -= np.log(vmin)
-            resdat /= (np.log(vmax) - np.log(vmin))
-            result = np.ma.array(resdat, mask=mask, copy=False)
-        if is_scalar:
-            result = result[0]
-        return result
-
-    def inverse(self, value):
-        if not self.scaled():
-            raise ValueError("Not invertible until scaled")
-        self._check_vmin_vmax()
-        vmin, vmax = self.vmin, self.vmax
-
-        if np.iterable(value):
-            val = np.ma.asarray(value)
-            return vmin * np.ma.power((vmax / vmin), val)
-        else:
-            return vmin * pow((vmax / vmin), value)
 
     def autoscale(self, A):
         # docstring inherited.
@@ -1267,6 +1291,10 @@ class LogNorm(Normalize):
         super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
 
 
+@_make_norm_from_scale(
+    scale.SymmetricalLogScale,
+    init=lambda linthresh, linscale=1., vmin=None, vmax=None, clip=False, *,
+                base=10: None)
 class SymLogNorm(Normalize):
     """
     The symmetrical logarithmic scale is logarithmic in both the
@@ -1276,124 +1304,29 @@ class SymLogNorm(Normalize):
     need to have a range around zero that is linear.  The parameter
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
+
+    Parameters
+    ----------
+    linthresh : float
+        The range within which the plot is linear (to avoid having the plot
+        go to infinity around zero).
+    linscale : float, default: 1
+        This allows the linear range (-*linthresh* to *linthresh*) to be
+        stretched relative to the logarithmic range. Its value is the
+        number of decades to use for each half of the linear range. For
+        example, when *linscale* == 1.0 (the default), the space used for
+        the positive and negative halves of the linear range will be equal
+        to one decade in the logarithmic range.
+    base : float, default: 10
     """
-    def __init__(self, linthresh, linscale=1.0, vmin=None, vmax=None,
-                 clip=False, *, base=None):
-        """
-        Parameters
-        ----------
-        linthresh : float
-            The range within which the plot is linear (to avoid having the plot
-            go to infinity around zero).
 
-        linscale : float, default: 1
-            This allows the linear range (-*linthresh* to *linthresh*)
-            to be stretched relative to the logarithmic range. Its
-            value is the number of powers of *base* to use for each
-            half of the linear range.
+    @property
+    def linthresh(self):
+        return self._scale.linthresh
 
-            For example, when *linscale* == 1.0 (the default) and
-            ``base=10``, then space used for the positive and negative
-            halves of the linear range will be equal to a decade in
-            the logarithmic.
-
-        base : float, default: None
-            If not given, defaults to ``np.e`` (consistent with prior
-            behavior) and warns.
-
-            In v3.3 the default value will change to 10 to be consistent with
-            `.SymLogNorm`.
-
-            To suppress the warning pass *base* as a keyword argument.
-
-        """
-        Normalize.__init__(self, vmin, vmax, clip)
-        if base is None:
-            self._base = np.e
-            cbook.warn_deprecated(
-                "3.2", removal="3.4", message="default base will change from "
-                "np.e to 10 %(removal)s.  To suppress this warning specify "
-                "the base keyword argument.")
-        else:
-            self._base = base
-        self._log_base = np.log(self._base)
-
-        self.linthresh = float(linthresh)
-        self._linscale_adj = (linscale / (1.0 - self._base ** -1))
-        if vmin is not None and vmax is not None:
-            self._transform_vmin_vmax()
-
-    def __call__(self, value, clip=None):
-        if clip is None:
-            clip = self.clip
-
-        result, is_scalar = self.process_value(value)
-        self.autoscale_None(result)
-        vmin, vmax = self.vmin, self.vmax
-
-        if vmin > vmax:
-            raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin == vmax:
-            result.fill(0)
-        else:
-            if clip:
-                mask = np.ma.getmask(result)
-                result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                     mask=mask)
-            # in-place equivalent of above can be much faster
-            resdat = self._transform(result.data)
-            resdat -= self._lower
-            resdat /= (self._upper - self._lower)
-
-        if is_scalar:
-            result = result[0]
-        return result
-
-    def _transform(self, a):
-        """Inplace transformation."""
-        with np.errstate(invalid="ignore"):
-            masked = np.abs(a) > self.linthresh
-        sign = np.sign(a[masked])
-        log = (self._linscale_adj +
-               np.log(np.abs(a[masked]) / self.linthresh) / self._log_base)
-        log *= sign * self.linthresh
-        a[masked] = log
-        a[~masked] *= self._linscale_adj
-        return a
-
-    def _inv_transform(self, a):
-        """Inverse inplace Transformation."""
-        masked = np.abs(a) > (self.linthresh * self._linscale_adj)
-        sign = np.sign(a[masked])
-        exp = np.power(self._base,
-                       sign * a[masked] / self.linthresh - self._linscale_adj)
-        exp *= sign * self.linthresh
-        a[masked] = exp
-        a[~masked] /= self._linscale_adj
-        return a
-
-    def _transform_vmin_vmax(self):
-        """Calculate vmin and vmax in the transformed system."""
-        vmin, vmax = self.vmin, self.vmax
-        arr = np.array([vmax, vmin]).astype(float)
-        self._upper, self._lower = self._transform(arr)
-
-    def inverse(self, value):
-        if not self.scaled():
-            raise ValueError("Not invertible until scaled")
-        val = np.ma.asarray(value)
-        val = val * (self._upper - self._lower) + self._lower
-        return self._inv_transform(val)
-
-    def autoscale(self, A):
-        # docstring inherited.
-        super().autoscale(A)
-        self._transform_vmin_vmax()
-
-    def autoscale_None(self, A):
-        # docstring inherited.
-        super().autoscale_None(A)
-        self._transform_vmin_vmax()
+    @linthresh.setter
+    def linthresh(self, value):
+        self._scale.linthresh = value
 
 
 class PowerNorm(Normalize):
