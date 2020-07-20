@@ -761,6 +761,9 @@ class ConciseDateFormatter(ticker.Formatter):
         except:
             raise ValueError('2 ticks with same value')
 
+        # First tick needs to start right where the offset left off
+        change_start[0] = level
+
         labels = []
         for i, d in enumerate(tickdatetime):
             labels.append(d.strftime(self.format_string(change_start[i], change_end[i])))
