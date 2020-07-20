@@ -704,29 +704,10 @@ class ConciseDateFormatter(ticker.Formatter):
         self._locator = locator
         self._tz = tz
         self.defaultfmt = '%Y'
-        # there are 6 levels with each level getting a specific format
-        # 0: years,  1: months,  2: days, 3: hours, 4: minutes, 5: seconds
-        if formats:
-            if len(formats) != 7:
-                raise ValueError('formats argument must be a list of '
-                                 '7 format strings (or None)')
-            self.formats = formats
-        else:
-            self.formats = ['%Y', '%b', '%d', '%Hh', '%Hh%M', '%M:%S', '%S.%f']
 
-        if offset_formats:
-            if len(offset_formats) != 7:
-                raise ValueError('offsetfmts argument must be a list of '
-                                 '7 format strings (or None)')
-            self.offset_formats = offset_formats
-        else:
-            self.offset_formats = ['',
-                                   '%Y',
-                                   '%Y-%b',
-                                   '%Y-%b-%d',
-                                   '%Y-%b-%d %Hh',
-                                   '%Y-%b-%d %Hh%M',
-                                   '%Y-%b-%d %Hh%M:%S']
+        self.formats = np.array(['%Y', '%b', '%d', '%Hh', '%M', '%S', '%fµs'])
+        self.separator = np.array(['-', '-', ' ', '', ':', '.'])
+
         self.offset_string = ''
         self.show_offset = show_offset
         
@@ -734,14 +715,27 @@ class ConciseDateFormatter(ticker.Formatter):
         formatter = DateFormatter(self.defaultfmt, self._tz)
         return formatter(x, pos=pos)
 
+
+    def format_string(self, start_level, end_level):
+        if start_level == end_level:
+            return ""
+        s = self.formats[start_level]
+        for i in range(start_level+1, end_level):
+            s += self.separator[i-1] + self.formats[i]
+        return s
+
+
     def format_ticks(self, values):
         if len(values) <= 1:
-            return [num2date(v).strftime(self.offset_formats[-1]) for v in values]
+            return [num2date(v, tz=self._tz).strftime(self.offset_formats[-1])
+                    for v in values]
 
         tickdatetime = [num2date(value, tz=self._tz) for value in values]
 
         dates = np.array([(d.year, d.month, d.day, d.hour, d.minute, d.second,
                            d.microsecond) for d in tickdatetime])
+
+        zeros = np.array([0, 1, 1, 0, 0, 0, 0])
 
         # determine the offset level
         for level in range(7):
@@ -749,21 +743,29 @@ class ConciseDateFormatter(ticker.Formatter):
                 break
 
         if self.show_offset:
-            self.offset_string = tickdatetime[0].strftime(self.offset_formats[level])
+            self.offset_string = tickdatetime[0].strftime(self.format_string(0, level))
             offset = dates[0].copy()
-            offset[level:] = 0
+            offset[level:] = zeros[level:]
         else:
-            offset = np.array([0, 0, 0, 0, 0, 0, 0])
+            offset = zeros
 
         # Check what changes from one tick to the next
         ddates = np.diff(dates, axis=0, prepend=np.array([offset]))
+        try:
+            change_start = []
+            change_end = []
+            for d in ddates:
+                z = np.nonzero(d)
+                change_start.append(z[0][0])
+                change_end.append(z[0][-1] + 1) # do usual python range
+        except:
+            raise ValueError('2 ticks with same value')
 
         labels = []
         for i, d in enumerate(tickdatetime):
-            l = np.flatnonzero(ddates[i])[0]
-            labels.append(d.strftime(self.formats[l]))
+            labels.append(d.strftime(self.format_string(change_start[i], change_end[i])))
 
-        #TODO fix this to work with different offset levels...
+        #TODO fix this to work without relying on '.' or similar hack.
         # special handling of seconds and microseconds:
         # strip extra zeros and decimal if possible.
         # this is complicated by two factors.  1) we have some level-4 strings
