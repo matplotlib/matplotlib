@@ -5307,8 +5307,10 @@ default: :rc:`scatter.edgecolors`
             "x", x, y1, y2,
             where=where, interpolate=interpolate, step=step, **kwargs)
 
-    fill_between.__doc__ = _fill_between_x_or_y.__doc__.format(
-        dir="horizontal", ind="x", dep="y")
+    if _fill_between_x_or_y.__doc__:
+        fill_between.__doc__ = _fill_between_x_or_y.__doc__.format(
+            dir="horizontal", ind="x", dep="y"
+        )
     fill_between = _preprocess_data(
         docstring.dedent_interpd(fill_between),
         replace_names=["x", "y1", "y2", "where"])
@@ -5319,8 +5321,10 @@ default: :rc:`scatter.edgecolors`
             "y", y, x1, x2,
             where=where, interpolate=interpolate, step=step, **kwargs)
 
-    fill_betweenx.__doc__ = _fill_between_x_or_y.__doc__.format(
-        dir="vertical", ind="y", dep="x")
+    if _fill_between_x_or_y.__doc__:
+        fill_betweenx.__doc__ = _fill_between_x_or_y.__doc__.format(
+            dir="vertical", ind="y", dep="x"
+        )
     fill_betweenx = _preprocess_data(
         docstring.dedent_interpd(fill_betweenx),
         replace_names=["y", "x1", "x2", "where"])
