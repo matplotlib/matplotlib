@@ -407,51 +407,50 @@ class Fonts:
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
-        r"""
+        """
         Get the kerning distance for font between *sym1* and *sym2*.
 
-        *fontX*: one of the TeX font names::
-
-          tt, it, rm, cal, sf, bf or default/regular (non-math)
-
-        *fontclassX*: TODO
-
-        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
-
-        *fontsizeX*: the fontsize in points
-
-        *dpi*: the current dots-per-inch
+        See `~.Fonts.get_metrics` for a detailed description of the parameters.
         """
         return 0.
 
     def get_metrics(self, font, font_class, sym, fontsize, dpi, math=True):
         r"""
-        *font*: one of the TeX font names::
+        Parameters
+        ----------
+        font : str
+            One of the TeX font names: "tt", "it", "rm", "cal", "sf", "bf",
+            "default", "regular", "bb", "frak", "scr".  "default" and "regular"
+            are synonyms and use the non-math font.
+        font_class : str
+            One of the TeX font names (as for *font*), but **not** "bb",
+            "frak", or "scr".  This is used to combine two font classes.  The
+            only supported combination currently is ``get_metrics("frak", "bf",
+            ...)``.
+        sym : str
+            A symbol in raw TeX form, e.g., "1", "x", or "\sigma".
+        fontsize : float
+            Font size in points.
+        dpi : float
+            Rendering dots-per-inch.
+        math : bool
+            Whether we are currently in math mode or not.
 
-          tt, it, rm, cal, sf, bf or default/regular (non-math)
+        Returns
+        -------
+        object
 
-        *font_class*: TODO
+            The returned object has the following attributes (all floats,
+            except *slanted*):
 
-        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
-
-        *fontsize*: font size in points
-
-        *dpi*: current dots-per-inch
-
-        *math*: whether sym is a math character
-
-        Returns an object with the following attributes:
-
-        - *advance*: The advance distance (in points) of the glyph.
-
-        - *height*: The height of the glyph in points.
-
-        - *width*: The width of the glyph in points.
-
-        - *xmin*, *xmax*, *ymin*, *ymax* - the ink rectangle of the glyph
-
-        - *iceberg* - the distance from the baseline to the top of
-          the glyph.  This corresponds to TeX's definition of "height".
+            - *advance*: The advance distance (in points) of the glyph.
+            - *height*: The height of the glyph in points.
+            - *width*: The width of the glyph in points.
+            - *xmin*, *xmax*, *ymin*, *ymax*: The ink rectangle of the glyph
+            - *iceberg*: The distance from the baseline to the top of the
+              glyph.  (This corresponds to TeX's definition of "height".)
+            - *slanted*: Whether the glyph should be considered as "slanted"
+              (currently used for kerning sub/superscripts).
         """
         info = self._get_info(font, font_class, sym, fontsize, dpi, math)
         return info.metrics
@@ -467,19 +466,8 @@ class Fonts:
 
     def render_glyph(self, ox, oy, facename, font_class, sym, fontsize, dpi):
         """
-        Draw a glyph at
-
-          - *ox*, *oy*: position
-
-          - *facename*: One of the TeX face names
-
-          - *font_class*:
-
-          - *sym*: TeX symbol name or single character
-
-          - *fontsize*: fontsize in points
-
-          - *dpi*: The dpi to draw at.
+        At position (*ox*, *oy*), draw the glyph specified by the remaining
+        parameters (see `get_metrics` for their detailed description).
         """
         info = self._get_info(facename, font_class, sym, fontsize, dpi)
         self.used_characters.setdefault(info.font.fname, set()).add(info.num)
@@ -771,12 +759,11 @@ class UnicodeFonts(TruetypeFonts):
         if rcParams['mathtext.fallback_to_cm'] is not None:
             fallback_rc = ('cm' if rcParams['mathtext.fallback_to_cm']
                            else None)
-
-        font_class = {'stix': StixFonts,
-                      'stixsans': StixSansFonts,
-                      'cm': BakomaFonts
-                      }.get(fallback_rc)
-        self.cm_fallback = font_class(*args, **kwargs) if font_class else None
+        font_cls = {'stix': StixFonts,
+                    'stixsans': StixSansFonts,
+                    'cm': BakomaFonts
+                    }.get(fallback_rc)
+        self.cm_fallback = font_cls(*args, **kwargs) if font_cls else None
 
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
