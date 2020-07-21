@@ -45,8 +45,8 @@ def test_use_doc_standard_backends():
 
 
 def test_importable_with__OO():
-    """When use -OO or export PYTHONOPTIMIZE=2, dostrings is discarded,
-    this simple test may prevent something like issue #17970"""
+    """When using -OO or export PYTHONOPTIMIZE=2, docstrings are discarded,
+    this simple test may prevent something like issue"""
     program = (
         "import numpy as np; "
         "import numpy.ma as ma; "
