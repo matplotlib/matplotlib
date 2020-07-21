@@ -42,3 +42,18 @@ def test_use_doc_standard_backends():
             set(matplotlib.rcsetup.interactive_bk))
     assert (set(parse('- non-interactive backends:\n')) ==
             set(matplotlib.rcsetup.non_interactive_bk))
+
+
+def test_importable_with__OO():
+    """When use -OO or export PYTHONOPTIMIZE=2, dostrings is discarded,
+    this simple test may prevent something like issue #17970"""
+    program = (
+        "import numpy as np; "
+        "import numpy.ma as ma; "
+        "import matplotlib as mpl; "
+        "import matplotlib.pyplot as plt; "
+        "import matplotlib.cbook as cbook; "
+        "import matplotlib.patches as mpatches"
+    )
+    cmd = '{} -OO -c "{}"'.format(sys.executable, program)
+    assert subprocess.call(cmd, shell=True) == 0
