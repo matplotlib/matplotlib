@@ -18,8 +18,6 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     changes, the scale of the original figure is conserved.  A
     function which restores the original values are returned.
     """
-    def no_op_apply_aspect(position=None):
-        return
 
     stack = contextlib.ExitStack()
 
@@ -27,24 +25,16 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     fig.set_tight_layout(False)
 
     for ax in fig.axes:
-        pos = ax.get_position(original=False).frozen()
-
-        def _l(a, r, pos=pos):
-            return pos
-
         stack.callback(ax.set_axes_locator, ax.get_axes_locator())
-        ax.set_axes_locator(_l)
+        current_pos = ax.get_position(original=False).frozen()
+        ax.set_axes_locator(lambda a, r, _pos=current_pos: _pos)
+        # override the method that enforces the aspect ratio on the Axes
+        stack.enter_context(_setattr_cm(ax, apply_aspect=lambda pos: None))
 
-        # override the method that enforces the aspect ratio
-        # on the Axes
-        stack.enter_context(_setattr_cm(ax, apply_aspect=no_op_apply_aspect))
-
-    if fixed_dpi is not None:
-        tr = Affine2D().scale(fixed_dpi)
-        dpi_scale = fixed_dpi / fig.dpi
-    else:
-        tr = Affine2D().scale(fig.dpi)
-        dpi_scale = 1.
+    if fixed_dpi is None:
+        fixed_dpi = fig.dpi
+    tr = Affine2D().scale(fixed_dpi)
+    dpi_scale = fixed_dpi / fig.dpi
 
     _bbox = TransformedBbox(bbox_inches, tr)
 
