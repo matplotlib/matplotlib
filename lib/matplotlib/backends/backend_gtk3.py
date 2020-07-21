@@ -882,7 +882,7 @@ class HelpGTK3(backend_tools.ToolHelpBase):
                     self._normalize_shortcut(key)
                     for key in self.toolmanager.get_tool_keymap(name)
                     if self._is_valid_shortcut(key)),
-                title=tool.name,
+                title=name,
                 subtitle=tool.description)
             group.add(shortcut)
 

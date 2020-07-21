@@ -1,0 +1,12 @@
+Tool name removal
+~~~~~~~~~~~~~~~~~~
+
+The name attribute of the tools `matplotlib.backend_tools` was removed.
+
+When adding a tool to any Tool Container (ex. Toolbars) `matplotlib.backend_bases.ToolContainerBase.add_tool` ,
+it is now needed to pass the name of the tool.
+
+When creating new tools, or initializing existing tools, the initialization doesn't accept the tool name anymore `matplotlib.backend_tools.ToolBase`
+
+When creating a tool event `matplotlib.backend_managers.ToolEvent` its necessary to pass the tool name
+
