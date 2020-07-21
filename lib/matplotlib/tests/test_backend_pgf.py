@@ -52,17 +52,6 @@ def _has_sfmath():
                                stdout=subprocess.PIPE).returncode == 0)
 
 
-def compare_figure(fname, savefig_kwargs={}, tol=0):
-    actual = os.path.join(result_dir, fname)
-    plt.savefig(actual, **savefig_kwargs)
-
-    expected = os.path.join(result_dir, "expected_%s" % fname)
-    shutil.copyfile(os.path.join(baseline_dir, fname), expected)
-    err = compare_images(expected, actual, tol=tol)
-    if err:
-        raise ImageComparisonFailure(err)
-
-
 def create_figure():
     plt.figure()
     x = np.linspace(0, 1, 15)
@@ -129,20 +118,31 @@ def test_pdflatex():
     create_figure()
 
 
-# test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
 @pytest.mark.skipif(not _has_sfmath(), reason='needs sfmath.sty')
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
-def test_rcupdate():
-    rc_sets = [{'font.family': 'sans-serif',
+@image_comparison(['pgf_rcupdate2.pdf'], style='default')
+def test_rcupdate2():
+    rc_set = {'font.family': 'sans-serif',
                 'font.size': 30,
                 'figure.subplot.left': .2,
                 'lines.markersize': 10,
                 'pgf.rcfonts': False,
-                'pgf.texsystem': 'xelatex'},
-               {'font.family': 'monospace',
+                'pgf.texsystem': 'xelatex'}
+    with mpl.rc_context(rc_set):
+        create_figure()
+
+
+@needs_xelatex
+@needs_pdflatex
+@pytest.mark.skipif(not _has_sfmath(), reason='needs sfmath.sty')
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+@image_comparison(['pgf_rcupdate1.pdf'], style='default')
+def test_rcupdate1():
+    rc_set = {'font.family': 'monospace',
                 'font.size': 10,
                 'figure.subplot.left': .1,
                 'lines.markersize': 20,
@@ -150,12 +150,9 @@ def test_rcupdate():
                 'pgf.texsystem': 'pdflatex',
                 'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
                                  '\\usepackage[T1]{fontenc}'
-                                 '\\usepackage{sfmath}')}]
-    tol = [6, 0]
-    for i, rc_set in enumerate(rc_sets):
-        with mpl.rc_context(rc_set):
-            create_figure()
-            compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
+                                 '\\usepackage{sfmath}')}
+    with mpl.rc_context(rc_set):
+        create_figure()
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
@@ -193,6 +190,7 @@ def test_mixedmode():
 @needs_xelatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+@image_comparison(['pgf_bbox_inches.pdf'])
 def test_bbox_inches():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -207,8 +205,6 @@ def test_bbox_inches():
     plt.tight_layout()
 
     bbox = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    compare_figure('pgf_bbox_inches.pdf', savefig_kwargs={'bbox_inches': bbox},
-                   tol=0)
 
 
 @pytest.mark.style('default')
