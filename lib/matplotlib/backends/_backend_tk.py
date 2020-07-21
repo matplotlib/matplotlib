@@ -747,8 +747,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         return self._groups[group]
 
     def _add_separator(self):
-        separator = tk.Frame(master=self, bd=5, width=1, bg='black')
-        separator.pack(side=tk.LEFT, fill=tk.Y, padx=2)
+        return NavigationToolbar2Tk._Spacer(self)
 
     def _button_click(self, name):
         self.trigger_tool(name)
