@@ -521,6 +521,17 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         toolitem.set_draw(False)
         toolitem.set_expand(True)
 
+        # This filler item ensures the toolbar is always at least two text
+        # lines high. Otherwise the canvas gets redrawn as the mouse hovers
+        # over images because those use two-line messages which resize the
+        # toolbar.
+        toolitem = Gtk.ToolItem()
+        self.insert(toolitem, -1)
+        label = Gtk.Label()
+        label.set_markup(
+            '<small>\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}</small>')
+        toolitem.add(label)
+
         toolitem = Gtk.ToolItem()
         self.insert(toolitem, -1)
         self.message = Gtk.Label()
@@ -536,7 +547,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         return self.canvas.get_property("window").cairo_create()
 
     def set_message(self, s):
-        self.message.set_label(s)
+        escaped = GLib.markup_escape_text(s)
+        self.message.set_markup(f'<small>{escaped}</small>')
 
     def set_cursor(self, cursor):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
