@@ -287,10 +287,10 @@ class BezierSegment:
             0`
         """
         n = self.degree
+        if n <= 1:
+            return np.array([]), np.array([])
         Cj = self.polynomial_coefficients
         dCj = np.arange(1, n+1)[:, None] * Cj[1:]
-        if len(dCj) == 0:
-            return np.array([]), np.array([])
         dims = []
         roots = []
         for i, pi in enumerate(dCj.T):
