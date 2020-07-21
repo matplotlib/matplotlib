@@ -1,0 +1,6 @@
+# Extra pip requirements of the travis python 3.7+ builds for Arm64 platform
+
+ipykernel
+nbconvert[execute]
+nbformat!=5.0.0,!=5.0.1
+pytz
