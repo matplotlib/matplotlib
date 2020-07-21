@@ -4,34 +4,8 @@ import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
+from matplotlib.axes import _axes
 from matplotlib.axes._base import _AxesBase
-
-
-def _make_secondary_locator(rect, parent):
-    """
-    Helper function to locate the secondary axes.
-
-    A locator gets used in `Axes.set_aspect` to override the default
-    locations...  It is a function that takes an axes object and
-    a renderer and tells `set_aspect` where it is to be placed.
-
-    This locator make the transform be in axes-relative co-coordinates
-    because that is how we specify the "location" of the secondary axes.
-
-    Here *rect* is a rectangle [l, b, w, h] that specifies the
-    location for the axes in the transform given by *trans* on the
-    *parent*.
-    """
-    _rect = mtransforms.Bbox.from_bounds(*rect)
-    def secondary_locator(ax, renderer):
-        # delay evaluating transform until draw time because the
-        # parent transform may have changed (i.e. if window reesized)
-        bb = mtransforms.TransformedBbox(_rect, parent.transAxes)
-        tr = parent.figure.transFigure.inverted()
-        bb = mtransforms.TransformedBbox(bb, tr)
-        return bb
-
-    return secondary_locator
 
 
 class SecondaryAxis(_AxesBase):
@@ -137,11 +111,13 @@ class SecondaryAxis(_AxesBase):
         self._loc = location
 
         if self._orientation == 'x':
+            # An x-secondary axes is like an inset axes from x = 0 to x = 1 and
+            # from y = pos to y = pos + eps, in the parent's transAxes coords.
             bounds = [0, self._pos, 1., 1e-10]
         else:
             bounds = [self._pos, 0, 1e-10, 1]
 
-        secondary_locator = _make_secondary_locator(bounds, self._parent)
+        secondary_locator = _axes._InsetLocator(bounds, self._parent.transAxes)
 
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in

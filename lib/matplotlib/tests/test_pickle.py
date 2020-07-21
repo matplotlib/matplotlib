@@ -193,6 +193,13 @@ def test_shared():
     assert fig.axes[1].get_xlim() == (10, 20)
 
 
+def test_inset_and_secondary():
+    fig, ax = plt.subplots()
+    ax.inset_axes([.1, .1, .3, .3])
+    ax.secondary_xaxis("top", functions=(np.square, np.sqrt))
+    pickle.loads(pickle.dumps(fig))
+
+
 @pytest.mark.parametrize("cmap", cm._cmap_registry.values())
 def test_cmap(cmap):
     pickle.dumps(cmap)
