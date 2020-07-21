@@ -1,9 +1,9 @@
 """
-==================================
-Pausing and Resuming and Animation
-==================================
+=================================
+Pausing and Resuming an Animation
+=================================
 
-This example showscases:
+This example showcases:
 - using the Animation.pause() method to pause an animation.
 - using the Animation.resume() method to resume an animation.
 """
@@ -16,7 +16,7 @@ import numpy as np
 class PauseAnimation:
     def __init__(self):
         fig, ax = plt.subplots()
-        ax.title.set_text('Click to pause/resume the animation')
+        ax.set_title('Click to pause/resume the animation')
         x = np.linspace(-0.1, 0.1, 1000)
 
         # Start with a normal distribution
