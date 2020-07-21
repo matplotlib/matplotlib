@@ -57,5 +57,5 @@ def test_importable_with__OO():
         "import matplotlib.cbook as cbook; "
         "import matplotlib.patches as mpatches"
     )
-    cmd = '{} -OO -c "{}"'.format(sys.executable, program)
-    assert subprocess.call(cmd, shell=True) == 0
+    cmd = [sys.executable, '-OO', '-c', program]
+    assert subprocess.call(cmd) == 0
