@@ -50,12 +50,10 @@ def test_importable_with__OO():
     this simple test may prevent something like issue #17970.
     """
     program = (
-        "import numpy as np; "
-        "import numpy.ma as ma; "
         "import matplotlib as mpl; "
         "import matplotlib.pyplot as plt; "
         "import matplotlib.cbook as cbook; "
         "import matplotlib.patches as mpatches"
     )
-    cmd = [sys.executable, '-OO', '-c', program]
+    cmd = [sys.executable, "-OO", "-c", program]
     assert subprocess.call(cmd) == 0
