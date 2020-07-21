@@ -37,31 +37,29 @@ from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 _log = logging.getLogger(__name__)
 
 
-def _make_inset_locator(bounds, trans, parent):
+class _InsetLocator:
     """
-    Helper function to locate inset axes, used in
-    `.Axes.inset_axes`.
+    Axes locator for `.Axes.inset_axes`.
 
-    A locator gets used in `Axes.set_aspect` to override the default
-    locations...  It is a function that takes an axes object and
-    a renderer and tells `set_aspect` where it is to be placed.
-
-    Here *rect* is a rectangle [l, b, w, h] that specifies the
-    location for the axes in the transform given by *trans* on the
-    *parent*.
+    The locater is a callable object used in `.Axes.set_aspect` to compute the
+    axes location depending on the renderer.
     """
-    _bounds = mtransforms.Bbox.from_bounds(*bounds)
-    _trans = trans
-    _parent = parent
 
-    def inset_locator(ax, renderer):
-        bbox = _bounds
-        bb = mtransforms.TransformedBbox(bbox, _trans)
-        tr = _parent.figure.transFigure.inverted()
-        bb = mtransforms.TransformedBbox(bb, tr)
-        return bb
+    def __init__(self, bounds, transform):
+        """
+        *bounds* (a ``[l, b, w, h]`` rectangle) and *transform* together
+        specify the position of the inset axes.
+        """
+        self._bounds = bounds
+        self._transform = transform
 
-    return inset_locator
+    def __call__(self, ax, renderer):
+        # Subtracting transFigure will typically rely on inverted(), freezing
+        # the transform; thus, this needs to be delayed until draw time as
+        # transFigure may otherwise change after this is evaluated.
+        return mtransforms.TransformedBbox(
+            mtransforms.Bbox.from_bounds(*self._bounds),
+            self._transform - ax.figure.transFigure)
 
 
 # The axes module contains all the wrappers to plotting functions.
@@ -468,10 +466,9 @@ class Axes(_AxesBase):
         kwargs.setdefault('label', 'inset_axes')
 
         # This puts the rectangle into figure-relative coordinates.
-        inset_locator = _make_inset_locator(bounds, transform, self)
-        bb = inset_locator(None, None)
-
-        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder, **kwargs)
+        inset_locator = _InsetLocator(bounds, transform)
+        bounds = inset_locator(self, None).bounds
+        inset_ax = Axes(self.figure, bounds, zorder=zorder, **kwargs)
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         inset_ax.set_axes_locator(inset_locator)
