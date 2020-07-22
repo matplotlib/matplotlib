@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 """
+pydocstyle --ignore=D101,D213
 ==========
 Radar plot
 ==========
