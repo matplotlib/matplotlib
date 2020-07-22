@@ -78,21 +78,21 @@ def mpl_test_settings(request):
             style, = style_marker.args
 
         matplotlib.testing.setup()
-        if backend is not None:
-            # This import must come after setup() so it doesn't load the
-            # default backend prematurely.
-            import matplotlib.pyplot as plt
-            try:
-                plt.switch_backend(backend)
-            except ImportError as exc:
-                # Should only occur for the cairo backend tests, if neither
-                # pycairo nor cairocffi are installed.
-                if 'cairo' in backend.lower() or skip_on_importerror:
-                    pytest.skip("Failed to switch to backend {} ({})."
-                                .format(backend, exc))
-                else:
-                    raise
         with cbook._suppress_matplotlib_deprecation_warning():
+            if backend is not None:
+                # This import must come after setup() so it doesn't load the
+                # default backend prematurely.
+                import matplotlib.pyplot as plt
+                try:
+                    plt.switch_backend(backend)
+                except ImportError as exc:
+                    # Should only occur for the cairo backend tests, if neither
+                    # pycairo nor cairocffi are installed.
+                    if 'cairo' in backend.lower() or skip_on_importerror:
+                        pytest.skip("Failed to switch to backend {} ({})."
+                                    .format(backend, exc))
+                    else:
+                        raise
             matplotlib.style.use(style)
         try:
             yield
