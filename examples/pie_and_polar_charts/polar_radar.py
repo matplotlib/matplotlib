@@ -83,4 +83,5 @@ import matplotlib
 matplotlib.pyplot
 matplotlib.axes.Axes.legend
 matplotlib.axes.Axes.plot
+matplotlib.axes.Axes.pie
 matplotlib.projections.polar
