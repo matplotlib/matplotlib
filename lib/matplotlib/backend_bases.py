@@ -1250,7 +1250,7 @@ class DrawEvent(Event):
         The renderer for the draw event.
     """
     def __init__(self, name, canvas, renderer):
-        Event.__init__(self, name, canvas)
+        super().__init__(name, canvas)
         self.renderer = renderer
 
 
@@ -1269,7 +1269,7 @@ class ResizeEvent(Event):
         Height of the canvas in pixels.
     """
     def __init__(self, name, canvas):
-        Event.__init__(self, name, canvas)
+        super().__init__(name, canvas)
         self.width, self.height = canvas.get_width_height()
 
 
@@ -1307,7 +1307,7 @@ class LocationEvent(Event):
         """
         (*x*, *y*) in figure coords ((0, 0) = bottom left).
         """
-        Event.__init__(self, name, canvas, guiEvent=guiEvent)
+        super().__init__(name, canvas, guiEvent=guiEvent)
         # x position - pixels from left of canvas
         self.x = int(x) if x is not None else x
         # y position - pixels from right of canvas
@@ -1439,7 +1439,7 @@ class MouseEvent(LocationEvent):
 
         # super-init is deferred to the end because it calls back on
         # 'axes_enter_event', which requires a fully initialized event.
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
+        super().__init__(name, canvas, x, y, guiEvent=guiEvent)
 
     def __str__(self):
         return (f"{self.name}: "
@@ -1483,7 +1483,7 @@ class PickEvent(Event):
     """
     def __init__(self, name, canvas, mouseevent, artist,
                  guiEvent=None, **kwargs):
-        Event.__init__(self, name, canvas, guiEvent)
+        super().__init__(name, canvas, guiEvent)
         self.mouseevent = mouseevent
         self.artist = artist
         self.__dict__.update(kwargs)
@@ -1526,7 +1526,7 @@ class KeyEvent(LocationEvent):
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         self.key = key
         # super-init deferred to the end: callback errors if called before
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
+        super().__init__(name, canvas, x, y, guiEvent=guiEvent)
 
 
 def _get_renderer(figure, print_method=None):
