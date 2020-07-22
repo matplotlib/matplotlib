@@ -276,6 +276,70 @@ def test_svg_default_metadata(monkeypatch):
     # Type
     assert 'StillImage' in buf
 
+    # Now make sure all the default metadata can be cleared.
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg', metadata={'Date': None, 'Creator': None,
+                                                'Format': None, 'Type': None})
+        buf = fd.getvalue().decode()
+
+    # Creator
+    assert mpl.__version__ not in buf
+    # Date
+    assert '1970-08-16' not in buf
+    # Format
+    assert 'image/svg+xml' not in buf
+    # Type
+    assert 'StillImage' not in buf
+
+
+def test_svg_clear_default_metadata(monkeypatch):
+    # Makes sure that setting a default metadata to `None`
+    # removes the corresponding tag from the metadata.
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '19680801')
+
+    metadata_contains = {'creator': mpl.__version__, 'date': '1970-08-16',
+                         'format': 'image/svg+xml', 'type': 'StillImage'}
+
+    SVGNS = '{http://www.w3.org/2000/svg}'
+    RDFNS = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
+    CCNS = '{http://creativecommons.org/ns#}'
+    DCNS = '{http://purl.org/dc/elements/1.1/}'
+
+    fig, ax = plt.subplots()
+    for name in metadata_contains:
+        with BytesIO() as fd:
+            fig.savefig(fd, format='svg', metadata={name.title(): None})
+            buf = fd.getvalue().decode()
+
+        root = xml.etree.ElementTree.fromstring(buf)
+        work, = root.findall(f'./{SVGNS}metadata/{RDFNS}RDF/{CCNS}Work')
+        for key in metadata_contains:
+            data = work.findall(f'./{DCNS}{key}')
+            if key == name:
+                # The one we cleared is not there
+                assert not data
+                continue
+            # Everything else should be there
+            data, = data
+            xmlstr = xml.etree.ElementTree.tostring(data, encoding="unicode")
+            assert metadata_contains[key] in xmlstr
+
+
+def test_svg_clear_all_metadata():
+    # Makes sure that setting all default metadata to `None`
+    # removes the metadata tag from the output.
+
+    fig, ax = plt.subplots()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg', metadata={'Date': None, 'Creator': None,
+                                                'Format': None, 'Type': None})
+        buf = fd.getvalue().decode()
+
+    SVGNS = '{http://www.w3.org/2000/svg}'
+
+    root = xml.etree.ElementTree.fromstring(buf)
+    assert not root.findall(f'./{SVGNS}metadata')
+
 
 def test_svg_metadata():
     single_value = ['Coverage', 'Identifier', 'Language', 'Relation', 'Source',
