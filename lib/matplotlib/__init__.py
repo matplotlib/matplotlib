@@ -479,7 +479,7 @@ def _get_config_or_cache_dir(xdg_base):
         "recommended to set the MPLCONFIGDIR environment variable to a "
         "writable directory, in particular to speed up the import of "
         "Matplotlib and to better support multiprocessing.",
-        configdir, tmpdir)
+        tmpdir, configdir)
     return tmpdir
 
 
