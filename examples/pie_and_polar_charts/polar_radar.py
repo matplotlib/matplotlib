@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 """
-pydocstyle --ignore=D101,D213
 ==========
 Radar plot
 ==========
@@ -19,7 +18,6 @@ subjects by two students.
 """
 
 import matplotlib.pyplot as plt
-import pandas as pd
 from math import pi
 
 values = [  # exam scores out of 100 for Student 1
