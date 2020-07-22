@@ -539,8 +539,10 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.message.set_label(s)
 
     def set_cursor(self, cursor):
-        self.canvas.get_property("window").set_cursor(cursord[cursor])
-        Gtk.main_iteration()
+        window = self.canvas.get_property("window")
+        if window is not None:
+            window.set_cursor(cursord[cursor])
+            Gtk.main_iteration()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
