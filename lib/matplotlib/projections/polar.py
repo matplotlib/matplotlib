@@ -25,7 +25,7 @@ class PolarTransform(mtransforms.Transform):
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):
-        mtransforms.Transform.__init__(self)
+        super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
@@ -119,7 +119,7 @@ class PolarAffine(mtransforms.Affine2DBase):
         its bounds that is used is the y limits (for the radius limits).
         The theta range is handled by the non-affine transform.
         """
-        mtransforms.Affine2DBase.__init__(self)
+        super().__init__()
         self._scale_transform = scale_transform
         self._limits = limits
         self.set_children(scale_transform, limits)
@@ -150,7 +150,7 @@ class InvertedPolarTransform(mtransforms.Transform):
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):
-        mtransforms.Transform.__init__(self)
+        super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
@@ -478,8 +478,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         of the axes, or using the rlabel position (``'rlabel'``).
     """
     def __init__(self, axes, pad, mode):
-        mtransforms.ScaledTranslation.__init__(self, pad, pad,
-                                               axes.figure.dpi_scale_trans)
+        super().__init__(pad, pad, axes.figure.dpi_scale_trans)
         self.set_children(axes._realViewLim)
         self.axes = axes
         self.mode = mode
@@ -509,7 +508,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
                 pady = np.sin(angle + np.pi / 2)
 
             self._t = (self.pad * padx / 72, self.pad * pady / 72)
-        return mtransforms.ScaledTranslation.get_matrix(self)
+        return super().get_matrix()
 
 
 class RadialTick(maxis.YTick):
@@ -731,7 +730,7 @@ class _WedgeBbox(mtransforms.Bbox):
         Bbox determining the origin for the wedge, if different from *viewLim*
     """
     def __init__(self, center, viewLim, originLim, **kwargs):
-        mtransforms.Bbox.__init__(self, [[0, 0], [1, 1]], **kwargs)
+        super().__init__([[0, 0], [1, 1]], **kwargs)
         self._center = center
         self._viewLim = viewLim
         self._originLim = originLim

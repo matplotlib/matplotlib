@@ -22,7 +22,7 @@ def test_non_affine_caching():
         is_affine = False
 
         def __init__(self, *args, **kwargs):
-            mtransforms.Transform.__init__(self, *args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.raise_on_transform = False
             self.underlying_transform = mtransforms.Affine2D().scale(10, 10)
 
@@ -219,7 +219,7 @@ class NonAffineForTest(mtransforms.Transform):
 
     def __init__(self, real_trans, *args, **kwargs):
         self.real_trans = real_trans
-        mtransforms.Transform.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def transform_non_affine(self, values):
         return self.real_trans.transform(values)

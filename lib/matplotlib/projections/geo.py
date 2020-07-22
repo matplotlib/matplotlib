@@ -237,7 +237,7 @@ class _GeoTransform(Transform):
         Resolution is the number of steps to interpolate between each input
         line segment to approximate its path in curved space.
         """
-        Transform.__init__(self)
+        super().__init__()
         self._resolution = resolution
 
     def __str__(self):
