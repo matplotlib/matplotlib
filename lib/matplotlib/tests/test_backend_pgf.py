@@ -52,15 +52,42 @@ def _has_sfmath():
                                stdout=subprocess.PIPE).returncode == 0)
 
 
-def compare_figure(fname, savefig_kwargs={}, tol=0):
+def create_baseline(fname):
+    src_path = result_dir / fname
+    dest_file = Path(baseline_dir / src_path.name)
+    try:
+        if dest_file.exists():
+            return dest_file
+        Path(dest_file).parent.mkdir(parents=True, exist_ok=True)
+        try:
+            os.symlink(src_path, dest_file)
+        except OSError:  # On Windows, symlink *may* be unavailable.
+            shutil.copyfile(src_path, dest_file)
+    except OSError as err:
+        raise ImageComparisonFailure(
+            f"Missing baseline image {dest_file} because the "
+            f"following file cannot be accessed: "
+            f"{src_path}. Kindly install baseline images by"
+            f"python3 -mpip install  -ve  "
+            f"sub-wheels/matplotlib-baseline-images or generate"
+            f"them by python3 -mpytest --generate_images") from err
+    return dest_file
+
+
+# Cannot use Image Comparison decorator because rc_context calls
+# save_figure before releasing memory whereas image
+# decorator is returning it afterwards.
+def compare_figure(fname, savefig_kwargs={}, tol=0, generating=False):
     actual = os.path.join(result_dir, fname)
     plt.savefig(actual, **savefig_kwargs)
-
-    expected = os.path.join(result_dir, "expected_%s" % fname)
-    shutil.copyfile(os.path.join(baseline_dir, fname), expected)
-    err = compare_images(expected, actual, tol=tol)
-    if err:
-        raise ImageComparisonFailure(err)
+    if generating:
+        expected_creation_path = create_baseline(fname)
+    else:
+        expected = os.path.join(result_dir, "expected_%s" % fname)
+        shutil.copyfile(os.path.join(baseline_dir, fname), expected)
+        err = compare_images(expected, actual, tol=tol)
+        if err:
+            raise ImageComparisonFailure(err)
 
 
 def create_figure():
@@ -135,7 +162,8 @@ def test_pdflatex():
 @pytest.mark.skipif(not _has_sfmath(), reason='needs sfmath.sty')
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
-def test_rcupdate():
+@pytest.mark.generate_images
+def test_rcupdate(request):
     rc_sets = [{'font.family': 'sans-serif',
                 'font.size': 30,
                 'figure.subplot.left': .2,
@@ -152,10 +180,12 @@ def test_rcupdate():
                                  '\\usepackage[T1]{fontenc}'
                                  '\\usepackage{sfmath}')}]
     tol = [6, 0]
+    generate_images = request.config.getoption("--generate_images")
     for i, rc_set in enumerate(rc_sets):
         with mpl.rc_context(rc_set):
             create_figure()
-            compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
+            compare_figure('pgf_rcupdate%d.pdf' % (i + 1),
+                           tol=tol[i], generating=generate_images)
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
@@ -193,7 +223,8 @@ def test_mixedmode():
 @needs_xelatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
-def test_bbox_inches():
+@pytest.mark.generate_images
+def test_bbox_inches(request):
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
@@ -205,10 +236,10 @@ def test_bbox_inches():
     ax2 = fig.add_subplot(122)
     ax2.plot(range(5))
     plt.tight_layout()
-
+    generate_images = request.config.getoption("--generate_images")
     bbox = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     compare_figure('pgf_bbox_inches.pdf', savefig_kwargs={'bbox_inches': bbox},
-                   tol=0)
+                   tol=0, generating=generate_images)
 
 
 @pytest.mark.style('default')
