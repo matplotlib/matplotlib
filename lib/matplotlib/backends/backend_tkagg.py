@@ -6,7 +6,7 @@ from ._backend_tk import (
 
 class FigureCanvasTkAgg(FigureCanvasAgg, FigureCanvasTk):
     def draw(self):
-        super(FigureCanvasTkAgg, self).draw()
+        super().draw()
         _backend_tk.blit(self._tkphoto, self.renderer._renderer, (0, 1, 2, 3))
         self._master.update_idletasks()
 

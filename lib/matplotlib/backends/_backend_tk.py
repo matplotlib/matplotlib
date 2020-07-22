@@ -169,7 +169,7 @@ class FigureCanvasTk(FigureCanvasBase):
        keys on apple keyboards."""
 
     def __init__(self, figure, master=None, resize_callback=None):
-        super(FigureCanvasTk, self).__init__(figure)
+        super().__init__(figure)
         self._idle = True
         self._idle_callback = None
         w, h = self.figure.bbox.size.astype(int)

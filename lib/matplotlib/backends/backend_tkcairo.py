@@ -9,7 +9,7 @@ from ._backend_tk import _BackendTk, FigureCanvasTk
 
 class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
     def __init__(self, *args, **kwargs):
-        super(FigureCanvasTkCairo, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._renderer = RendererCairo(self.figure.dpi)
 
     def draw(self):

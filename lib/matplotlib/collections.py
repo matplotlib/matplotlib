@@ -1653,10 +1653,10 @@ class EventCollection(LineCollection):
 
     def get_linewidth(self):
         """Get the width of the lines used to mark each event."""
-        return super(EventCollection, self).get_linewidth()[0]
+        return super().get_linewidth()[0]
 
     def get_linewidths(self):
-        return super(EventCollection, self).get_linewidth()
+        return super().get_linewidth()
 
     def get_color(self):
         """Return the color of the lines used to mark each event."""
