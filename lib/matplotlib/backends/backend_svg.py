@@ -360,7 +360,8 @@ class RendererSVG(RendererBase):
                                  'Expected str, date, datetime, or iterable '
                                  'of the same, not {!r}.'.format(type(date)))
             metadata['Date'] = '/'.join(dates)
-        else:
+        elif 'Date' not in metadata:
+            # Do not add `Date` if the user explicitly set `Date` to `None`
             # Get source date from SOURCE_DATE_EPOCH, if set.
             # See https://reproducible-builds.org/specs/source-date-epoch/
             date = os.getenv("SOURCE_DATE_EPOCH")
@@ -370,16 +371,22 @@ class RendererSVG(RendererBase):
             else:
                 metadata['Date'] = datetime.datetime.today().isoformat()
 
-        mid = writer.start('metadata')
-        writer.start('rdf:RDF', attrib={
+        mid = None
+        def ensure_metadata(mid):
+            if mid is not None:
+                return mid
+            mid = writer.start('metadata')
+            writer.start('rdf:RDF', attrib={
                 'xmlns:dc': "http://purl.org/dc/elements/1.1/",
                 'xmlns:cc': "http://creativecommons.org/ns#",
                 'xmlns:rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             })
-        writer.start('cc:Work')
+            writer.start('cc:Work')
+            return mid
 
         uri = metadata.pop('Type', None)
         if uri is not None:
+            mid = ensure_metadata(mid)
             writer.element('dc:type', attrib={'rdf:resource': uri})
 
         # Single value only.
@@ -387,6 +394,7 @@ class RendererSVG(RendererBase):
                     'identifier', 'language', 'relation', 'source']:
             info = metadata.pop(key.title(), None)
             if info is not None:
+                mid = ensure_metadata(mid)
                 writer.element(f'dc:{key}', text=info)
 
         # Multiple Agent values.
@@ -398,6 +406,7 @@ class RendererSVG(RendererBase):
             if isinstance(agents, str):
                 agents = [agents]
 
+            mid = ensure_metadata(mid)
             writer.start(f'dc:{key}')
             for agent in agents:
                 writer.start('cc:Agent')
@@ -411,6 +420,7 @@ class RendererSVG(RendererBase):
             if isinstance(keywords, str):
                 keywords = [keywords]
 
+            mid = ensure_metadata(mid)
             writer.start('dc:subject')
             writer.start('rdf:Bag')
             for keyword in keywords:
@@ -418,7 +428,8 @@ class RendererSVG(RendererBase):
             writer.end('rdf:Bag')
             writer.end('dc:subject')
 
-        writer.close(mid)
+        if mid is not None:
+            writer.close(mid)
 
         if metadata:
             raise ValueError('Unknown metadata key(s) passed to SVG writer: ' +
