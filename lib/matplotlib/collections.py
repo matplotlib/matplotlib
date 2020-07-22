@@ -930,7 +930,7 @@ class _CollectionWithSizes(Collection):
     @artist.allow_rasterization
     def draw(self, renderer):
         self.set_sizes(self._sizes, self.figure.dpi)
-        Collection.draw(self, renderer)
+        super().draw(renderer)
 
 
 class PathCollection(_CollectionWithSizes):
@@ -1122,7 +1122,7 @@ class PolyCollection(_CollectionWithSizes):
         **kwargs
             Forwarded to `.Collection`.
         """
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.set_sizes(sizes)
         self.set_verts(verts, closed)
         self.stale = True
@@ -1212,7 +1212,7 @@ class BrokenBarHCollection(PolyCollection):
                   (xmin + xwidth, ymax),
                   (xmin + xwidth, ymin),
                   (xmin, ymin)] for xmin, xwidth in xranges]
-        PolyCollection.__init__(self, verts, **kwargs)
+        super().__init__(verts, **kwargs)
 
     @classmethod
     def span_where(cls, x, ymin, ymax, where, **kwargs):
@@ -1272,7 +1272,7 @@ class RegularPolyCollection(_CollectionWithSizes):
                 transOffset=ax.transData,
                 )
         """
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.set_sizes(sizes)
         self._numsides = numsides
         self._paths = [self._path_generator(numsides)]
@@ -1292,6 +1292,8 @@ class RegularPolyCollection(_CollectionWithSizes):
             transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
             for x in self._transforms
         ]
+        # Explicitly not super().draw, because set_sizes must be called before
+        # updating self._transforms.
         Collection.draw(self, renderer)
 
 
@@ -1378,8 +1380,7 @@ class LineCollection(Collection):
             antialiaseds = (mpl.rcParams['lines.antialiased'],)
 
         colors = mcolors.to_rgba_array(colors)
-        Collection.__init__(
-            self,
+        super().__init__(
             edgecolors=colors,
             facecolors=facecolors,
             linewidths=linewidths,
@@ -1520,13 +1521,10 @@ class EventCollection(LineCollection):
         --------
         .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
         """
-        LineCollection.__init__(self,
-                                [],
-                                linewidths=linewidth,
-                                colors=color,
-                                antialiaseds=antialiased,
-                                linestyles=linestyle,
-                                **kwargs)
+        super().__init__([],
+                         linewidths=linewidth, linestyles=linestyle,
+                         colors=color, antialiaseds=antialiased,
+                         **kwargs)
         self._is_horizontal = True  # Initial value, may be switched below.
         self._linelength = linelength
         self._lineoffset = lineoffset
@@ -1677,7 +1675,7 @@ class CircleCollection(_CollectionWithSizes):
         **kwargs
             Forwarded to `.Collection`.
         """
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.set_sizes(sizes)
         self.set_transform(transforms.IdentityTransform())
         self._paths = [mpath.Path.unit_circle()]
@@ -1711,7 +1709,7 @@ class EllipseCollection(Collection):
         **kwargs
             Forwarded to `Collection`.
         """
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._widths = 0.5 * np.asarray(widths).ravel()
         self._heights = 0.5 * np.asarray(heights).ravel()
         self._angles = np.deg2rad(angles).ravel()
@@ -1765,7 +1763,7 @@ class EllipseCollection(Collection):
     @artist.allow_rasterization
     def draw(self, renderer):
         self._set_transforms()
-        Collection.draw(self, renderer)
+        super().draw(renderer)
 
 
 class PatchCollection(Collection):
@@ -1813,7 +1811,7 @@ class PatchCollection(Collection):
             kwargs['linestyles'] = [p.get_linestyle() for p in patches]
             kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
 
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self.set_paths(patches)
 
@@ -1830,7 +1828,7 @@ class TriMesh(Collection):
     A triangular mesh is a `~matplotlib.tri.Triangulation` object.
     """
     def __init__(self, triangulation, **kwargs):
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._triangulation = triangulation
         self._shading = 'gouraud'
         self._is_filled = True
@@ -1918,7 +1916,7 @@ class QuadMesh(Collection):
     """
     def __init__(self, meshWidth, meshHeight, coordinates,
                  antialiased=True, shading='flat', **kwargs):
-        Collection.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         # By converting to floats now, we can avoid that on every draw.

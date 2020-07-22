@@ -624,7 +624,7 @@ class Poly3DCollection(PolyCollection):
         """Set 3D vertices."""
         self.get_vector(verts)
         # 2D verts will be updated at draw time
-        PolyCollection.set_verts(self, [], False)
+        super().set_verts([], False)
         self._closed = closed
 
     def set_verts_and_codes(self, verts, codes):
@@ -707,11 +707,11 @@ class Poly3DCollection(PolyCollection):
             return np.nan
 
     def set_facecolor(self, colors):
-        PolyCollection.set_facecolor(self, colors)
+        super().set_facecolor(colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
 
     def set_edgecolor(self, colors):
-        PolyCollection.set_edgecolor(self, colors)
+        super().set_edgecolor(colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 
     def set_alpha(self, alpha):

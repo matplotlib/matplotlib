@@ -495,10 +495,8 @@ class Quiver(mcollections.PolyCollection):
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', color)
         kw.setdefault('linewidths', (0,))
-        mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                             transOffset=self.transform,
-                                             closed=False,
-                                             **kw)
+        super().__init__([], offsets=self.XY, transOffset=self.transform,
+                         closed=False, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -561,7 +559,7 @@ class Quiver(mcollections.PolyCollection):
         verts = self._make_verts(self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
         self._new_UV = False
-        mcollections.PolyCollection.draw(self, renderer)
+        super().draw(renderer)
         self.stale = False
 
     def set_UVC(self, U, V, C=None):
@@ -971,9 +969,8 @@ class Barbs(mcollections.PolyCollection):
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
-        mcollections.PolyCollection.__init__(self, [], (barb_size,),
-                                             offsets=xy,
-                                             transOffset=transform, **kw)
+        super().__init__([], (barb_size,), offsets=xy, transOffset=transform,
+                         **kw)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
@@ -1213,7 +1210,7 @@ class Barbs(mcollections.PolyCollection):
             self.x.ravel(), self.y.ravel(), self.u, self.v)
         _check_consistent_shapes(x, y, u, v)
         xy = np.column_stack((x, y))
-        mcollections.PolyCollection.set_offsets(self, xy)
+        super().set_offsets(xy)
         self.stale = True
 
     barbs_doc = _barbs_doc
