@@ -6,8 +6,9 @@ Radar plot
 ==========
 
 The following example shows a way to plot Radar chart in matplotlib.
-Such charts are a way to visualize multivariate data. 
-They are used to plot one or more groups of values over multiple common variables.
+Such charts are a way to visualize multivariate data.
+They are used to plot one or more groups of values over
+multiple common variables.
 
 Here, school subjects are common variables.
 Group of values are the scores obtained in those
@@ -52,7 +53,7 @@ values2 += values2[:1]
 
 ax = plt.subplot(111, polar=True)
 
-## angles for each category
+# angles for each category
 
 angles = [n / float(N) * 2 * pi for n in range(N)]
 angles += angles[:1]
@@ -62,7 +63,7 @@ ax.plot(angles, values, linewidth=2, linestyle='solid',
 ax.plot(angles, values2, linewidth=2, linestyle='solid',
         label='Student 2')
 
-##plotting
+# plotting
 
 plt.xticks(angles[:-1], subjects)
 plt.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
