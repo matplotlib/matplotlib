@@ -166,7 +166,7 @@ class Button(AxesWidget):
         hovercolor : color
             The color of the button when the mouse is over it.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         if image is not None:
             ax.imshow(image)
@@ -308,7 +308,7 @@ class Slider(AxesWidget):
         if ax.name == '3d':
             raise ValueError('Sliders cannot be added to 3D Axes')
 
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         if slidermin is not None and not hasattr(slidermin, 'val'):
             raise ValueError("Argument slidermin ({}) has no 'val'"
@@ -552,7 +552,7 @@ class CheckButtons(AxesWidget):
             The initial check states of the buttons. The list must have the
             same length as *labels*. If not given, all buttons are unchecked.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -715,7 +715,7 @@ class TextBox(AxesWidget):
         label_pad : float
             The distance between the label and the right side of the textbox.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.DIST_FROM_LEFT = .05
 
@@ -983,7 +983,7 @@ class RadioButtons(AxesWidget):
         activecolor : color
             The color of the selected button.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
         self.activecolor = activecolor
         self.value_selected = None
 
@@ -1236,7 +1236,7 @@ class Cursor(AxesWidget):
 
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.connect_event('motion_notify_event', self.onmove)
         self.connect_event('draw_event', self.clear)
@@ -1418,7 +1418,7 @@ class _SelectorWidget(AxesWidget):
 
     def __init__(self, ax, onselect, useblit=False, button=None,
                  state_modifier_keys=None):
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.visible = True
         self.onselect = onselect
@@ -1445,7 +1445,7 @@ class _SelectorWidget(AxesWidget):
         self.state = set()
 
     def set_active(self, active):
-        AxesWidget.set_active(self, active)
+        super().set_active(active)
         if active:
             self.update_background(None)
 
@@ -1676,8 +1676,7 @@ class SpanSelector(_SelectorWidget):
                  rectprops=None, onmove_callback=None, span_stays=False,
                  button=None):
 
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 button=button)
+        super().__init__(ax, onselect, useblit=useblit, button=button)
 
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
@@ -1737,7 +1736,7 @@ class SpanSelector(_SelectorWidget):
 
     def ignore(self, event):
         # docstring inherited
-        return _SelectorWidget.ignore(self, event) or not self.visible
+        return super().ignore(event) or not self.visible
 
     def _press(self, event):
         """on button press event"""
@@ -1980,9 +1979,8 @@ class RectangleSelector(_SelectorWidget):
 
             "square" and "center" can be combined.
         """
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 button=button,
-                                 state_modifier_keys=state_modifier_keys)
+        super().__init__(ax, onselect, useblit=useblit, button=button,
+                         state_modifier_keys=state_modifier_keys)
 
         self.to_draw = None
         self.visible = True
@@ -2401,8 +2399,7 @@ class LassoSelector(_SelectorWidget):
 
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
                  button=None):
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 button=button)
+        super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
         if lineprops is None:
             lineprops = dict()
@@ -2488,8 +2485,8 @@ class PolygonSelector(_SelectorWidget):
                                    move_all='shift', move='not-applicable',
                                    square='not-applicable',
                                    center='not-applicable')
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 state_modifier_keys=state_modifier_keys)
+        super().__init__(ax, onselect, useblit=useblit,
+                         state_modifier_keys=state_modifier_keys)
 
         self._xs, self._ys = [0], [0]
         self._polygon_completed = False
@@ -2666,7 +2663,7 @@ class Lasso(AxesWidget):
     """
 
     def __init__(self, ax, xy, callback=None, useblit=True):
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.useblit = useblit and self.canvas.supports_blit
         if self.useblit:
