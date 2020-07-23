@@ -68,8 +68,7 @@ class DraggableLegend(DraggableOffsetBox):
         cbook._check_in_list(["loc", "bbox"], update=update)
         self._update = update
 
-        DraggableOffsetBox.__init__(self, legend, legend._legend_box,
-                                    use_blit=use_blit)
+        super().__init__(legend, legend._legend_box, use_blit=use_blit)
 
     def finalize_offset(self):
         if self._update == "loc":

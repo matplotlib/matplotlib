@@ -205,7 +205,7 @@ class OffsetBox(martist.Artist):
         ----------
         fig : `~matplotlib.figure.Figure`
         """
-        martist.Artist.set_figure(self, fig)
+        super().set_figure(fig)
         for c in self.get_children():
             c.set_figure(fig)
 
@@ -800,7 +800,7 @@ class TextArea(OffsetBox):
             textprops = {}
         textprops.setdefault("va", "baseline")
         self._text = mtext.Text(0, 0, s, **textprops)
-        OffsetBox.__init__(self)
+        super().__init__()
         self._children = [self._text]
         self.offset_transform = mtransforms.Affine2D()
         self._baseline_transform = mtransforms.Affine2D()
@@ -931,7 +931,7 @@ class AuxTransformBox(OffsetBox):
     """
     def __init__(self, aux_transform):
         self.aux_transform = aux_transform
-        OffsetBox.__init__(self)
+        super().__init__()
         self.offset_transform = mtransforms.Affine2D()
         # ref_offset_transform makes offset_transform always relative to the
         # lower-left corner of the bbox of its children.
@@ -1315,7 +1315,7 @@ class OffsetImage(OffsetBox):
                  **kwargs
                  ):
 
-        OffsetBox.__init__(self)
+        super().__init__()
         self._dpi_cor = dpi_cor
 
         self.image = BboxImage(bbox=self.get_window_extent,
@@ -1782,7 +1782,7 @@ class DraggableBase:
 
 class DraggableOffsetBox(DraggableBase):
     def __init__(self, ref_artist, offsetbox, use_blit=False):
-        DraggableBase.__init__(self, ref_artist, use_blit=use_blit)
+        super().__init__(ref_artist, use_blit=use_blit)
         self.offsetbox = offsetbox
 
     def save_offset(self):
@@ -1808,7 +1808,7 @@ class DraggableOffsetBox(DraggableBase):
 
 class DraggableAnnotation(DraggableBase):
     def __init__(self, annotation, use_blit=False):
-        DraggableBase.__init__(self, annotation, use_blit=use_blit)
+        super().__init__(annotation, use_blit=use_blit)
         self.annotation = annotation
 
     def save_offset(self):
