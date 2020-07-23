@@ -42,14 +42,16 @@ m = ax2.pcolormesh(xx, yy, d)
 # Force rasterized drawing in vector backend output
 m.set_rasterized(True)
 
-# Create a pseudocolor non-rastertized plot with a non-regular rectangular grid and an overlapped "Text"
+# Create a pseudocolor non-rastertized plot with a non-regular rectangular
+# grid and an overlapped "Text"
 ax3.set_aspect(1)
 ax3.pcolormesh(xx, yy, d)
 ax3.text(0.5, 0.5, "Text", alpha=0.2,
          va="center", ha="center", size=50, transform=ax3.transAxes)
 ax3.set_title("No Rasterization")
 
-# Create a pseudocolor rastertized plot with a non-regular rectangular grid and an overlapped "Text"
+# Create a pseudocolor rastertized plot with a non-regular rectangular
+# grid and an overlapped "Text"
 ax4.set_aspect(1)
 m = ax4.pcolormesh(xx, yy, d)
 m.set_zorder(-20)
