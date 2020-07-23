@@ -187,7 +187,7 @@ class ToolToggleBase(ToolBase):
 
     def __init__(self, *args, **kwargs):
         self._toggled = kwargs.pop('toggled', self.default_toggled)
-        ToolBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def trigger(self, sender, event, data=None):
         """Calls `enable` or `disable` based on `toggled` value."""
@@ -235,7 +235,7 @@ class ToolToggleBase(ToolBase):
                 # if no figure the internal state is not changed
                 # we change it here so next call to trigger will change it back
                 self._toggled = False
-        ToolBase.set_figure(self, figure)
+        super().set_figure(figure)
         if toggled:
             if figure:
                 self.trigger(self, None)
@@ -253,7 +253,7 @@ class SetCursorBase(ToolBase):
     `set_cursor` when a tool gets triggered.
     """
     def __init__(self, *args, **kwargs):
-        ToolBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._id_drag = None
         self._cursor = None
         self._default_cursor = cursors.POINTER
@@ -268,7 +268,7 @@ class SetCursorBase(ToolBase):
     def set_figure(self, figure):
         if self._id_drag:
             self.canvas.mpl_disconnect(self._id_drag)
-        ToolBase.set_figure(self, figure)
+        super().set_figure(figure)
         if figure:
             self._id_drag = self.canvas.mpl_connect(
                 'motion_notify_event', self._set_cursor_cbk)
@@ -324,12 +324,12 @@ class ToolCursorPosition(ToolBase):
     """
     def __init__(self, *args, **kwargs):
         self._id_drag = None
-        ToolBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def set_figure(self, figure):
         if self._id_drag:
             self.canvas.mpl_disconnect(self._id_drag)
-        ToolBase.set_figure(self, figure)
+        super().set_figure(figure)
         if figure:
             self._id_drag = self.canvas.mpl_connect(
                 'motion_notify_event', self.send_message)
@@ -473,7 +473,7 @@ class AxisScaleBase(ToolToggleBase):
     def trigger(self, sender, event, data=None):
         if event.inaxes is None:
             return
-        ToolToggleBase.trigger(self, sender, event, data)
+        super().trigger(sender, event, data)
 
     def enable(self, event):
         self.set_scale(event.inaxes, 'log')
@@ -522,7 +522,7 @@ class ToolViewsPositions(ToolBase):
         self.views = WeakKeyDictionary()
         self.positions = WeakKeyDictionary()
         self.home_views = WeakKeyDictionary()
-        ToolBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def add_figure(self, figure):
         """Add the current figure to the stack of views and positions."""
@@ -719,7 +719,7 @@ class SaveFigureBase(ToolBase):
 class ZoomPanBase(ToolToggleBase):
     """Base class for `ToolZoom` and `ToolPan`."""
     def __init__(self, *args):
-        ToolToggleBase.__init__(self, *args)
+        super().__init__(*args)
         self._button_pressed = None
         self._xypress = None
         self._idPress = None
@@ -749,7 +749,7 @@ class ZoomPanBase(ToolToggleBase):
 
     def trigger(self, sender, event, data=None):
         self.toolmanager.get_tool(_views_positions).add_figure(self.figure)
-        ToolToggleBase.trigger(self, sender, event, data)
+        super().trigger(sender, event, data)
 
     def scroll_zoom(self, event):
         # https://gist.github.com/tacaswell/3144287
@@ -790,7 +790,7 @@ class ToolZoom(ZoomPanBase):
     radio_group = 'default'
 
     def __init__(self, *args):
-        ZoomPanBase.__init__(self, *args)
+        super().__init__(*args)
         self._ids_zoom = []
 
     def _cancel_action(self):
@@ -916,7 +916,7 @@ class ToolPan(ZoomPanBase):
     radio_group = 'default'
 
     def __init__(self, *args):
-        ZoomPanBase.__init__(self, *args)
+        super().__init__(*args)
         self._id_drag = None
 
     def _cancel_action(self):
