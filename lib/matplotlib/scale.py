@@ -206,7 +206,7 @@ class LogTransform(Transform):
 
     @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, base, nonpositive='clip'):
-        Transform.__init__(self)
+        super().__init__()
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
         self.base = base
@@ -247,7 +247,7 @@ class InvertedLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base):
-        Transform.__init__(self)
+        super().__init__()
         self.base = base
 
     def __str__(self):
@@ -373,7 +373,7 @@ class SymmetricalLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
-        Transform.__init__(self)
+        super().__init__()
         if base <= 1.0:
             raise ValueError("'base' must be larger than 1")
         if linthresh <= 0.0:
@@ -405,7 +405,7 @@ class InvertedSymmetricalLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
-        Transform.__init__(self)
+        super().__init__()
         symlog = SymmetricalLogTransform(base, linthresh, linscale)
         self.base = base
         self.linthresh = linthresh
@@ -517,7 +517,7 @@ class LogitTransform(Transform):
 
     @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
-        Transform.__init__(self)
+        super().__init__()
         cbook._check_in_list(['mask', 'clip'], nonpositive=nonpositive)
         self._nonpositive = nonpositive
         self._clip = {"clip": True, "mask": False}[nonpositive]
@@ -543,7 +543,7 @@ class LogisticTransform(Transform):
 
     @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
-        Transform.__init__(self)
+        super().__init__()
         self._nonpositive = nonpositive
 
     def transform_non_affine(self, a):

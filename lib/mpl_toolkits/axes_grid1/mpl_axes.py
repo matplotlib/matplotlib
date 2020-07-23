@@ -72,7 +72,7 @@ class SimpleAxisArtist(Artist):
         else:
             raise ValueError(
                 f"axis must be instance of XAxis or YAxis, but got {axis}")
-        Artist.__init__(self)
+        super().__init__()
 
     @property
     def major_ticks(self):
@@ -94,7 +94,7 @@ class SimpleAxisArtist(Artist):
         self.toggle(all=b)
         self.line.set_visible(b)
         self._axis.set_visible(True)
-        Artist.set_visible(self, b)
+        super().set_visible(b)
 
     def set_label(self, txt):
         self._axis.set_label_text(txt)

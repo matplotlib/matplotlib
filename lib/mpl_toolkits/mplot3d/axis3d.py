@@ -103,7 +103,7 @@ class Axis(maxis.XAxis):
                 },
             })
 
-        maxis.XAxis.__init__(self, axes, *args, **kwargs)
+        super().__init__(axes, *args, **kwargs)
 
         # data and viewing intervals for this direction
         self.d_interval = d_intervalx
@@ -134,7 +134,7 @@ class Axis(maxis.XAxis):
         self.offsetText._transform = self.axes.transData
 
     def get_major_ticks(self, numticks=None):
-        ticks = maxis.XAxis.get_major_ticks(self, numticks)
+        ticks = super().get_major_ticks(numticks)
         for t in ticks:
             for obj in [
                     t.tick1line, t.tick2line, t.gridline, t.label1, t.label2]:
@@ -142,7 +142,7 @@ class Axis(maxis.XAxis):
         return ticks
 
     def get_minor_ticks(self, numticks=None):
-        ticks = maxis.XAxis.get_minor_ticks(self, numticks)
+        ticks = super().get_minor_ticks(numticks)
         for t in ticks:
             for obj in [
                     t.tick1line, t.tick2line, t.gridline, t.label1, t.label2]:

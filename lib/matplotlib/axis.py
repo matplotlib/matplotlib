@@ -82,7 +82,7 @@ class Tick(martist.Artist):
         loc is the tick location in data coords
         size is the tick size in points
         """
-        martist.Artist.__init__(self)
+        super().__init__()
 
         if gridOn is None:
             if major and (mpl.rcParams['axes.grid.which']
@@ -231,7 +231,7 @@ class Tick(martist.Artist):
 
     def set_clip_path(self, clippath, transform=None):
         # docstring inherited
-        martist.Artist.set_clip_path(self, clippath, transform)
+        super().set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
         self.stale = True
 
@@ -675,7 +675,7 @@ class Axis(martist.Artist):
             The acceptance radius for containment tests. See also
             `.Axis.contains`.
         """
-        martist.Artist.__init__(self)
+        super().__init__()
         self._remove_overlapping_locs = True
 
         self.set_figure(axes.figure)
@@ -901,7 +901,7 @@ class Axis(martist.Artist):
         return kwtrans
 
     def set_clip_path(self, clippath, transform=None):
-        martist.Artist.set_clip_path(self, clippath, transform)
+        super().set_clip_path(clippath, transform)
         for child in self.majorTicks + self.minorTicks:
             child.set_clip_path(clippath, transform)
         self.stale = True

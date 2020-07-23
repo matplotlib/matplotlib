@@ -487,7 +487,7 @@ class TickLabels(AxisLabel):  # mtext.Text
     """
 
     def __init__(self, *, axis_direction="bottom", **kwargs):
-        AxisLabel.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.set_axis_direction(axis_direction)
         self._axislabel_pad = 0
 
