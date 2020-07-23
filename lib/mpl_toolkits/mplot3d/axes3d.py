@@ -410,7 +410,7 @@ class Axes3D(Axes):
         box_aspect = 1
         pb = position.frozen()
         pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
-        self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+        self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
 
     @artist.allow_rasterization
     def draw(self, renderer):
