@@ -782,7 +782,7 @@ class LinearSegmentedColormap(Colormap):
         """
         # True only if all colors in map are identical; needed for contouring.
         self.monochrome = False
-        Colormap.__init__(self, name, N)
+        super().__init__(name, N)
         self._segmentdata = segmentdata
         self._gamma = gamma
 
@@ -940,7 +940,7 @@ class ListedColormap(Colormap):
                 else:
                     self.colors = [gray] * N
                 self.monochrome = True
-        Colormap.__init__(self, name, N)
+        super().__init__(name, N)
 
     def _init(self):
         self._lut = np.zeros((self.N + 3, 4), float)
@@ -1335,7 +1335,7 @@ class PowerNorm(Normalize):
     a power-law normalization over that range.
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
-        Normalize.__init__(self, vmin, vmax, clip)
+        super().__init__(vmin, vmax, clip)
         self.gamma = gamma
 
     def __call__(self, value, clip=None):

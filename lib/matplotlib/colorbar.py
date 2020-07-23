@@ -1218,7 +1218,7 @@ class Colorbar(ColorbarBase):
             )
             kwargs.setdefault(
                 'ticks', ticker.FixedLocator(cs.levels, nbins=10))
-            ColorbarBase.__init__(self, ax, **kwargs)
+            super().__init__(ax, **kwargs)
             if not cs.filled:
                 self.add_lines(cs)
         else:
@@ -1226,7 +1226,7 @@ class Colorbar(ColorbarBase):
                 kwargs.setdefault('extend', mappable.cmap.colorbar_extend)
             if isinstance(mappable, martist.Artist):
                 _add_disjoint_kwargs(kwargs, alpha=mappable.get_alpha())
-            ColorbarBase.__init__(self, ax, **kwargs)
+            super().__init__(ax, **kwargs)
 
     @cbook.deprecated("3.3", alternative="update_normal")
     def on_mappable_changed(self, mappable):
@@ -1256,8 +1256,7 @@ class Colorbar(ColorbarBase):
         tcolors = [c[0] for c in CS.tcolors]
         tlinewidths = [t[0] for t in CS.tlinewidths]
         # Wishlist: Make colorbar lines auto-follow changes in contour lines.
-        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths,
-                               erase=erase)
+        super().add_lines(CS.levels, tcolors, tlinewidths, erase=erase)
 
     def update_normal(self, mappable):
         """
@@ -1338,7 +1337,7 @@ class Colorbar(ColorbarBase):
         If the colorbar was created with ``use_gridspec=True`` the previous
         gridspec is restored.
         """
-        ColorbarBase.remove(self)
+        super().remove()
         self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
         self.mappable.colorbar_cid = None
@@ -1606,7 +1605,7 @@ class ColorbarPatch(Colorbar):
         # so add a new attribute which will be a list of the
         # colored patches in the colorbar
         self.solids_patches = []
-        Colorbar.__init__(self, ax, mappable, **kw)
+        super().__init__(ax, mappable, **kw)
 
     def _add_solids(self, X, Y, C):
         """
