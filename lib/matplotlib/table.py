@@ -289,7 +289,7 @@ class Table(Artist):
             `.Artist` properties.
         """
 
-        Artist.__init__(self)
+        super().__init__()
 
         if isinstance(loc, str):
             if loc not in self.codes:

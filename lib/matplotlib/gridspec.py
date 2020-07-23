@@ -438,9 +438,9 @@ class GridSpec(GridSpecBase):
         self.hspace = hspace
         self.figure = figure
 
-        GridSpecBase.__init__(self, nrows, ncols,
-                              width_ratios=width_ratios,
-                              height_ratios=height_ratios)
+        super().__init__(nrows, ncols,
+                         width_ratios=width_ratios,
+                         height_ratios=height_ratios)
 
         if self.figure is None or not self.figure.get_constrained_layout():
             self._layoutbox = None
@@ -583,9 +583,9 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         self._hspace = hspace
         self._subplot_spec = subplot_spec
         self.figure = self._subplot_spec.get_gridspec().figure
-        GridSpecBase.__init__(self, nrows, ncols,
-                              width_ratios=width_ratios,
-                              height_ratios=height_ratios)
+        super().__init__(nrows, ncols,
+                         width_ratios=width_ratios,
+                         height_ratios=height_ratios)
         # do the layoutboxes
         subspeclb = subplot_spec._layoutbox
         if subspeclb is None:
