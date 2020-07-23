@@ -147,7 +147,7 @@ class HandlerNpoints(HandlerBase):
         -----
         Any other keyword arguments are given to `HandlerBase`.
         """
-        HandlerBase.__init__(self, **kw)
+        super().__init__(**kw)
 
         self._numpoints = numpoints
         self._marker_pad = marker_pad
@@ -193,7 +193,7 @@ class HandlerNpointsYoffsets(HandlerNpoints):
         -----
         Any other keyword arguments are given to `HandlerNpoints`.
         """
-        HandlerNpoints.__init__(self, numpoints=numpoints, **kw)
+        super().__init__(numpoints=numpoints, **kw)
         self._yoffsets = yoffsets
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -223,8 +223,7 @@ class HandlerLine2D(HandlerNpoints):
         -----
         Any other keyword arguments are given to `HandlerNpoints`.
         """
-        HandlerNpoints.__init__(self, marker_pad=marker_pad,
-                                numpoints=numpoints, **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kw)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -280,7 +279,7 @@ class HandlerPatch(HandlerBase):
         -----
         Any other keyword arguments are given to `HandlerBase`.
         """
-        HandlerBase.__init__(self, **kw)
+        super().__init__(**kw)
         self._patch_func = patch_func
 
     def _create_patch(self, legend, orig_handle,
@@ -339,7 +338,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     r"""Handler for `.RegularPolyCollection`\s."""
 
     def __init__(self, yoffsets=None, sizes=None, **kw):
-        HandlerNpointsYoffsets.__init__(self, yoffsets=yoffsets, **kw)
+        super().__init__(yoffsets=yoffsets, **kw)
 
         self._sizes = sizes
 
@@ -439,8 +438,7 @@ class HandlerErrorbar(HandlerLine2D):
         self._xerr_size = xerr_size
         self._yerr_size = yerr_size
 
-        HandlerLine2D.__init__(self, marker_pad=marker_pad,
-                               numpoints=numpoints, **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kw)
 
     def get_err_size(self, legend, xdescent, ydescent,
                      width, height, fontsize):
@@ -564,10 +562,8 @@ class HandlerStem(HandlerNpointsYoffsets):
         Any other keyword arguments are given to `HandlerNpointsYoffsets`.
         """
 
-        HandlerNpointsYoffsets.__init__(self, marker_pad=marker_pad,
-                                        numpoints=numpoints,
-                                        yoffsets=yoffsets,
-                                        **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints,
+                         yoffsets=yoffsets, **kw)
         self._bottom = bottom
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -652,7 +648,7 @@ class HandlerTuple(HandlerBase):
     def __init__(self, ndivide=1, pad=None, **kwargs):
         self._ndivide = ndivide
         self._pad = pad
-        HandlerBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,

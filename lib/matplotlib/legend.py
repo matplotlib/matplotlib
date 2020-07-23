@@ -365,7 +365,7 @@ class Legend(Artist):
         from matplotlib.axes import Axes
         from matplotlib.figure import Figure
 
-        Artist.__init__(self)
+        super().__init__()
 
         if prop is None:
             if fontsize is not None:
