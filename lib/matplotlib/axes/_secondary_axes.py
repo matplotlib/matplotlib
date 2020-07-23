@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
-import matplotlib.transforms as mtransforms
 from matplotlib.axes import _axes
 from matplotlib.axes._base import _AxesBase
 

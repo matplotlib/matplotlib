@@ -65,7 +65,6 @@ per-file-ignores =
     lib/matplotlib/pyplot.py: F401, F811
     lib/matplotlib/style/__init__.py: F401
     lib/matplotlib/testing/conftest.py: F401
-    lib/matplotlib/testing/decorators.py: F401
     lib/matplotlib/tests/conftest.py: F401
     lib/matplotlib/tests/test_backend_qt.py: F401
     lib/matplotlib/tests/test_mathtext.py: E501

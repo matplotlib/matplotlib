@@ -10,7 +10,6 @@ import sys
 import unittest
 import warnings
 
-import matplotlib as mpl
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
