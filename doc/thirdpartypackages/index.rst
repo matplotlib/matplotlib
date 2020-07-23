@@ -282,6 +282,15 @@ border, and logo.
 .. image:: /_static/mpl_template_example.png
     :height: 330px
 
+figpager
+========
+
+`figpager <https://pypi.org/project/figpager/>`_ provides 
+customizable figure elements such as text, lines and images
+and subplot layout control for single or multi page output.
+
+.. image:: /_static/figpager.png
+
 blume
 =====
 
