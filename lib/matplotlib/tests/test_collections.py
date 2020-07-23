@@ -615,6 +615,14 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._vertices, lp._vertices)
         assert np.array_equal(ap._codes, lp._codes)
 
+    verts_tuple = np.empty(10, dtype=object)
+    verts_tuple[:] = [tuple(tuple(y) for y in x) for x in verts]
+    col_arr_tuple = PolyCollection(verts_tuple)
+    assert len(col_arr._paths) == len(col_arr_tuple._paths)
+    for ap, atp in zip(col_arr._paths, col_arr_tuple._paths):
+        assert np.array_equal(ap._vertices, atp._vertices)
+        assert np.array_equal(ap._codes, atp._codes)
+
 
 def test_blended_collection_autolim():
     a = [1, 2, 4]
