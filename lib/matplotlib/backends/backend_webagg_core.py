@@ -121,7 +121,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     supports_blit = False
 
     def __init__(self, *args, **kwargs):
-        backend_agg.FigureCanvasAgg.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Set to True when the renderer contains data that is newer
         # than the PNG buffer.
@@ -379,7 +379,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
             "rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
 
     def release_zoom(self, event):
-        backend_bases.NavigationToolbar2.release_zoom(self, event)
+        super().release_zoom(event)
         self.canvas.send_event(
             "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
@@ -406,7 +406,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
-        backend_bases.FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
         self.web_sockets = set()
 

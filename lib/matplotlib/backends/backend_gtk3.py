@@ -54,7 +54,7 @@ class TimerGTK3(TimerBase):
 
     def __init__(self, *args, **kwargs):
         self._timer = None
-        TimerBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
@@ -74,7 +74,7 @@ class TimerGTK3(TimerBase):
             self._timer_start()
 
     def _on_timer(self):
-        TimerBase._on_timer(self)
+        super()._on_timer()
 
         # Gtk timeout_add() requires that the callback returns True if it
         # is to be called again.
@@ -369,7 +369,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
-        FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
         self.window = Gtk.Window()
         self.window.set_wmclass("matplotlib", "Matplotlib")

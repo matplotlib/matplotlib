@@ -761,12 +761,10 @@ def _is_transparent(rgb_or_rgba):
 
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
-        return {'butt': 0, 'round': 1, 'projecting': 2}[
-            GraphicsContextBase.get_capstyle(self)]
+        return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]
 
     def get_joinstyle(self):
-        return {'miter': 0, 'round': 1, 'bevel': 2}[
-            GraphicsContextBase.get_joinstyle(self)]
+        return {'miter': 0, 'round': 1, 'bevel': 2}[super().get_joinstyle()]
 
 
 class _Orientation(Enum):

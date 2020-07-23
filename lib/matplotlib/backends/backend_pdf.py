@@ -2296,7 +2296,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 class GraphicsContextPdf(GraphicsContextBase):
 
     def __init__(self, file):
-        GraphicsContextBase.__init__(self)
+        super().__init__()
         self._fillcolor = (0.0, 0.0, 0.0)
         self._effective_alphas = (1.0, 1.0)
         self.file = file
@@ -2481,7 +2481,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         """
         Copy properties of other into self.
         """
-        GraphicsContextBase.copy_properties(self, other)
+        super().copy_properties(other)
         fillcolor = getattr(other, '_fillcolor', self._fillcolor)
         effective_alphas = getattr(other, '_effective_alphas',
                                    self._effective_alphas)

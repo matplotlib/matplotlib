@@ -420,7 +420,7 @@ class RendererPgf(RendererBase):
             File handle for the output of the drawing commands.
         """
 
-        RendererBase.__init__(self)
+        super().__init__()
         self.dpi = figure.dpi
         self.fh = fh
         self.figure = figure

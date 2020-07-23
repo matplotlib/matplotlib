@@ -131,7 +131,7 @@ class RendererCairo(RendererBase):
         self.gc = GraphicsContextCairo(renderer=self)
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
-        RendererBase.__init__(self)
+        super().__init__()
 
     @cbook.deprecated("3.4")
     @property
@@ -338,14 +338,14 @@ class GraphicsContextCairo(GraphicsContextBase):
     }
 
     def __init__(self, renderer):
-        GraphicsContextBase.__init__(self)
+        super().__init__()
         self.renderer = renderer
 
     def restore(self):
         self.ctx.restore()
 
     def set_alpha(self, alpha):
-        GraphicsContextBase.set_alpha(self, alpha)
+        super().set_alpha(alpha)
         _alpha = self.get_alpha()
         rgb = self._rgb
         if self.get_forced_alpha():
@@ -391,7 +391,7 @@ class GraphicsContextCairo(GraphicsContextBase):
                 offset)
 
     def set_foreground(self, fg, isRGBA=None):
-        GraphicsContextBase.set_foreground(self, fg, isRGBA)
+        super().set_foreground(fg, isRGBA)
         if len(self._rgb) == 3:
             self.ctx.set_source_rgb(*self._rgb)
         else:

@@ -182,7 +182,7 @@ class TimerQT(TimerBase):
         # _on_timer method.
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._on_timer)
-        TimerBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __del__(self):
         # The check for deletedness is needed to avoid an error at animation
@@ -516,7 +516,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         self.closing.emit()
-        QtWidgets.QMainWindow.closeEvent(self, event)
+        super().closeEvent(event)
 
 
 class FigureManagerQT(FigureManagerBase):
@@ -534,7 +534,7 @@ class FigureManagerQT(FigureManagerBase):
     """
 
     def __init__(self, canvas, num):
-        FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
         self.window = MainWindow()
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
@@ -831,7 +831,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(UiSubplotTool):
     def __init__(self, targetfig, parent):
-        UiSubplotTool.__init__(self, None)
+        super().__init__(None)
 
         self._figure = targetfig
 
