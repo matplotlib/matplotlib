@@ -225,7 +225,6 @@ class GridSpecBase:
         # else gridspec not found:
         return GridSpec(nrows, ncols, figure=figure)
 
-
     def __getitem__(self, key):
         """Create and return a `.SubplotSpec` instance."""
         nrows, ncols = self.get_geometry()

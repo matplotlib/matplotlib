@@ -20,7 +20,6 @@ from numbers import Number
 import operator
 import os
 import re
-import sys
 
 import numpy as np
 
