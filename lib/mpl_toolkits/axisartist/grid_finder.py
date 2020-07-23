@@ -238,15 +238,14 @@ class MaxNLocator(mticker.MaxNLocator):
                  symmetric=False,
                  prune=None):
         # trim argument has no effect. It has been left for API compatibility
-        mticker.MaxNLocator.__init__(self, nbins, steps=steps,
-                                     integer=integer,
-                                     symmetric=symmetric, prune=prune)
+        super().__init__(nbins, steps=steps, integer=integer,
+                         symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
         self._factor = 1
 
     def __call__(self, v1, v2):
         self.set_bounds(v1 * self._factor, v2 * self._factor)
-        locs = mticker.MaxNLocator.__call__(self)
+        locs = super().__call__()
         return np.array(locs), len(locs), self._factor
 
     @cbook.deprecated("3.3")

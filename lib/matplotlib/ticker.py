@@ -2750,13 +2750,13 @@ class LogitLocator(MaxNLocator):
         """
 
         self._minor = minor
-        MaxNLocator.__init__(self, nbins=nbins, steps=[1, 2, 5, 10])
+        super().__init__(nbins=nbins, steps=[1, 2, 5, 10])
 
     def set_params(self, minor=None, **kwargs):
         """Set parameters within this locator."""
         if minor is not None:
             self._minor = minor
-        MaxNLocator.set_params(self, **kwargs)
+        super().set_params(**kwargs)
 
     @property
     def minor(self):
@@ -2841,7 +2841,7 @@ class LogitLocator(MaxNLocator):
         # the scale is zoomed so same ticks as linear scale can be used
         if self._minor:
             return []
-        return MaxNLocator.tick_values(self, vmin, vmax)
+        return super().tick_values(vmin, vmax)
 
     def nonsingular(self, vmin, vmax):
         standard_minpos = 1e-7
@@ -2897,7 +2897,7 @@ class AutoLocator(MaxNLocator):
         else:
             nbins = 'auto'
             steps = [1, 2, 2.5, 5, 10]
-        MaxNLocator.__init__(self, nbins=nbins, steps=steps)
+        super().__init__(nbins=nbins, steps=steps)
 
 
 class AutoMinorLocator(Locator):
