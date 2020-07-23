@@ -411,7 +411,7 @@ class FileMovieWriter(MovieWriter):
     This must be sub-classed to be useful.
     """
     def __init__(self, *args, **kwargs):
-        MovieWriter.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
     @cbook._delete_parameter("3.3", "clear_temp")
@@ -515,10 +515,10 @@ class FileMovieWriter(MovieWriter):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter.finish(self)  # Will call clean-up
+        super().finish()  # Will call clean-up
 
     def cleanup(self):
-        MovieWriter.cleanup(self)
+        super().cleanup()
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
@@ -1404,8 +1404,7 @@ class TimedAnimation(Animation):
         # sharing timers between animation objects for syncing animations.
         if event_source is None:
             event_source = fig.canvas.new_timer(interval=self._interval)
-        Animation.__init__(self, fig, event_source=event_source,
-                           *args, **kwargs)
+        super().__init__(fig, event_source=event_source, *args, **kwargs)
 
     def _step(self, *args):
         """Handler for getting events."""
@@ -1415,7 +1414,7 @@ class TimedAnimation(Animation):
         # _repeat_delay is set, change the event_source's interval to our loop
         # delay and set the callback to one which will then set the interval
         # back.
-        still_going = Animation._step(self, *args)
+        still_going = super()._step(*args)
         if not still_going and self.repeat:
             self._init_draw()
             self.frame_seq = self.new_frame_seq()
@@ -1431,7 +1430,7 @@ class TimedAnimation(Animation):
         # given the potential pause here), remove the loop_delay callback as
         # well.
         self.event_source.remove_callback(self._loop_delay)
-        Animation._stop(self)
+        super()._stop()
 
     def _loop_delay(self, *args):
         # Reset the interval and change callbacks after the delay.
@@ -1473,7 +1472,7 @@ class ArtistAnimation(TimedAnimation):
         # Use the list of artists as the framedata, which will be iterated
         # over by the machinery.
         self._framedata = artists
-        TimedAnimation.__init__(self, fig, *args, **kwargs)
+        super().__init__(fig, *args, **kwargs)
 
     def _init_draw(self):
         # Make all the artists involved in *any* frame invisible
@@ -1645,7 +1644,7 @@ class FuncAnimation(TimedAnimation):
         # Needs to be initialized so the draw functions work without checking
         self._save_seq = []
 
-        TimedAnimation.__init__(self, fig, **kwargs)
+        super().__init__(fig, **kwargs)
 
         # Need to reset the saved seq, since right now it will contain data
         # for a single frame from init, which is not what we want.
