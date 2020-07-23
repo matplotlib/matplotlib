@@ -116,7 +116,7 @@ class BezierPath(Line2D):
         **kwargs
             All remaining keyword arguments are passed to `.Line2D`.
         """
-        Line2D.__init__(self, [], [], *args, **kwargs)
+        super().__init__([], [], *args, **kwargs)
         self._path = path
         self._invalid = False
 

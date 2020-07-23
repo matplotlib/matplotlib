@@ -134,7 +134,7 @@ class Line3D(lines.Line2D):
         """
         Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         """
-        lines.Line2D.__init__(self, [], [], *args, **kwargs)
+        super().__init__([], [], *args, **kwargs)
         self._verts3d = xs, ys, zs
 
     def set_3d_properties(self, zs=0, zdir='z'):
@@ -183,7 +183,7 @@ class Line3D(lines.Line2D):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
         self.set_data(xs, ys)
-        lines.Line2D.draw(self, renderer)
+        super().draw(renderer)
         self.stale = False
 
 
@@ -258,7 +258,7 @@ class Line3DCollection(LineCollection):
         Set 3D segments.
         """
         self._segments3d = segments
-        LineCollection.set_segments(self, [])
+        super().set_segments([])
 
     def do_3d_projection(self, renderer):
         """
@@ -280,7 +280,7 @@ class Line3DCollection(LineCollection):
     def draw(self, renderer, project=False):
         if project:
             self.do_3d_projection(renderer)
-        LineCollection.draw(self, renderer)
+        super().draw(renderer)
 
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
