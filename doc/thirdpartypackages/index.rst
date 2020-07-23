@@ -283,8 +283,6 @@ border, and logo.
     :height: 330px
 
 figpager
-<<<<<<< HEAD
-<<<<<<< HEAD
 ========
 
 `figpager <https://pypi.org/project/figpager/>`_ provides 
@@ -292,21 +290,7 @@ customizable figure elements such as text, lines and images
 and subplot layout control for single or multi page output.
 
 .. image:: /_static/figpager.png
-<<<<<<< HEAD
-=======
-=====
-=======
-========
->>>>>>> 898e67f65... Corrected formatting in figpager entry
 
-`figpager <https://pypi.org/project/figpager/>`_ provides 
-customizable figure elements such as text, lines and images
-and subplot layout control for single or multi page output.
-
-.. image:: /_static/figpager_out_1.png
->>>>>>> 5afe979a7... Added figpager info
-=======
->>>>>>> 37a6fffb2... Updated figpager image path
 
 blume
 =====
