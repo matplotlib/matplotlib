@@ -85,8 +85,8 @@ class Cell(Rectangle):
         """
 
         # Call base
-        Rectangle.__init__(self, xy, width=width, height=height, fill=fill,
-                           edgecolor=edgecolor, facecolor=facecolor)
+        super().__init__(xy, width=width, height=height, fill=fill,
+                         edgecolor=edgecolor, facecolor=facecolor)
         self.set_clip_on(False)
         self.visible_edges = visible_edges
 
@@ -99,12 +99,12 @@ class Cell(Rectangle):
                           horizontalalignment=loc, verticalalignment='center')
 
     def set_transform(self, trans):
-        Rectangle.set_transform(self, trans)
+        super().set_transform(trans)
         # the text does not get the transform!
         self.stale = True
 
     def set_figure(self, fig):
-        Rectangle.set_figure(self, fig)
+        super().set_figure(fig)
         self._text.set_figure(fig)
 
     def get_text(self):
@@ -136,7 +136,7 @@ class Cell(Rectangle):
         if not self.get_visible():
             return
         # draw the rectangle
-        Rectangle.draw(self, renderer)
+        super().draw(renderer)
         # position the text
         self._set_text_position(renderer)
         self._text.draw(renderer)

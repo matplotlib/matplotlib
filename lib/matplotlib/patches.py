@@ -56,7 +56,7 @@ class Patch(artist.Artist):
 
         %(Patch)s
         """
-        artist.Artist.__init__(self)
+        super().__init__()
 
         if linewidth is None:
             linewidth = mpl.rcParams['patch.linewidth']
@@ -232,7 +232,7 @@ class Patch(artist.Artist):
 
     def update_from(self, other):
         # docstring inherited.
-        artist.Artist.update_from(self, other)
+        super().update_from(other)
         # For some properties we don't need or don't want to go through the
         # getters/setters, so we just copy them directly.
         self._edgecolor = other._edgecolor
@@ -644,7 +644,7 @@ class Shadow(Patch):
 
             %(Patch)s
         """
-        Patch.__init__(self)
+        super().__init__()
         self.patch = patch
         # Note: when removing props, we can directly pass kwargs to _update()
         # and remove self._props
@@ -683,7 +683,7 @@ class Shadow(Patch):
 
     def draw(self, renderer):
         self._update_transform(renderer)
-        Patch.draw(self, renderer)
+        super().draw(renderer)
 
 
 class Rectangle(Patch):
@@ -730,7 +730,7 @@ class Rectangle(Patch):
             %(Patch)s
         """
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._x0 = xy[0]
         self._y0 = xy[1]
@@ -910,7 +910,7 @@ class RegularPolygon(Patch):
         self._poly_transform = transforms.Affine2D()
         self._update_transform()
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def _update_transform(self):
         self._poly_transform.clear() \
@@ -979,7 +979,7 @@ class PathPatch(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._path = path
 
     def get_path(self):
@@ -1008,7 +1008,7 @@ class Polygon(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._closed = closed
         self.set_xy(xy)
 
@@ -1104,7 +1104,7 @@ class Wedge(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.center = center
         self.r, self.width = r, width
         self.theta1, self.theta2 = theta1, theta2
@@ -1356,11 +1356,7 @@ class CirclePolygon(RegularPolygon):
 
         %(Patch)s
         """
-        RegularPolygon.__init__(self, xy,
-                                resolution,
-                                radius,
-                                orientation=0,
-                                **kwargs)
+        super().__init__(xy, resolution, radius, orientation=0, **kwargs)
 
 
 class Ellipse(Patch):
@@ -1392,7 +1388,7 @@ class Ellipse(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._center = xy
         self._width, self._height = width, height
@@ -1518,7 +1514,7 @@ class Circle(Ellipse):
 
         %(Patch)s
         """
-        Ellipse.__init__(self, xy, radius * 2, radius * 2, **kwargs)
+        super().__init__(xy, radius * 2, radius * 2, **kwargs)
         self.radius = radius
 
     def set_radius(self, radius):
@@ -1599,7 +1595,7 @@ class Arc(Ellipse):
         if fill:
             raise ValueError("Arc objects can not be filled")
 
-        Ellipse.__init__(self, xy, width, height, angle, **kwargs)
+        super().__init__(xy, width, height, angle, **kwargs)
 
         self.theta1 = theta1
         self.theta2 = theta2
@@ -3614,7 +3610,7 @@ class FancyBboxPatch(Patch):
         %(Patch)s
         """
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._x = xy[0]
         self._y = xy[1]
@@ -3920,7 +3916,7 @@ default: 'arc3'
         kwargs.setdefault("joinstyle", "round")
         kwargs.setdefault("capstyle", "round")
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         if posA is not None and posB is not None and path is None:
             self._posA_posB = [posA, posB]
@@ -4271,18 +4267,15 @@ class ConnectionPatch(FancyArrowPatch):
         self.axesA = axesA
         self.axesB = axesB
 
-        FancyArrowPatch.__init__(self,
-                                 posA=(0, 0), posB=(1, 1),
-                                 arrowstyle=arrowstyle,
-                                 connectionstyle=connectionstyle,
-                                 patchA=patchA,
-                                 patchB=patchB,
-                                 shrinkA=shrinkA,
-                                 shrinkB=shrinkB,
-                                 mutation_scale=mutation_scale,
-                                 mutation_aspect=mutation_aspect,
-                                 clip_on=clip_on,
-                                 **kwargs)
+        super().__init__(posA=(0, 0), posB=(1, 1),
+                         arrowstyle=arrowstyle,
+                         connectionstyle=connectionstyle,
+                         patchA=patchA, patchB=patchB,
+                         shrinkA=shrinkA, shrinkB=shrinkB,
+                         mutation_scale=mutation_scale,
+                         mutation_aspect=mutation_aspect,
+                         clip_on=clip_on,
+                         **kwargs)
         self._dpi_cor = dpi_cor
 
         # if True, draw annotation only if self.xy is inside the axes
@@ -4411,4 +4404,4 @@ class ConnectionPatch(FancyArrowPatch):
             self._renderer = renderer
         if not self.get_visible() or not self._check_xy(renderer):
             return
-        FancyArrowPatch.draw(self, renderer)
+        super().draw(renderer)
