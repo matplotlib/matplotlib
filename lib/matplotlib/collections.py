@@ -1107,7 +1107,7 @@ class PolyCollection(_CollectionWithSizes):
         verts : list of array-like
             The sequence of polygons [*verts0*, *verts1*, ...] where each
             element *verts_i* defines the vertices of polygon *i* as a 2D
-            array-like of of shape (M, 2).
+            array-like of shape (M, 2).
         sizes : array-like, default: None
             Squared scaling factors for the polygons. The coordinates of each
             polygon *verts_i* are multiplied by the square-root of the
@@ -1134,7 +1134,7 @@ class PolyCollection(_CollectionWithSizes):
         verts : list of array-like
             The sequence of polygons [*verts0*, *verts1*, ...] where each
             element *verts_i* defines the vertices of polygon *i* as a 2D
-            array-like of of shape (M, 2).
+            array-like of shape (M, 2).
         closed : bool, default: True
             Whether the polygon should be closed by adding a CLOSEPOLY
             connection at the end.
@@ -1149,7 +1149,7 @@ class PolyCollection(_CollectionWithSizes):
             return
 
         # Fast path for arrays
-        if isinstance(verts, np.ndarray):
+        if isinstance(verts, np.ndarray) and len(verts.shape) == 3:
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
             # Creating the codes once is much faster than having Path do it
             # separately each time by passing closed=True.
