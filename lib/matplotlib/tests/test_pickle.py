@@ -10,6 +10,7 @@ from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
+from mpl_toolkits.axes_grid1 import parasite_axes
 
 
 def test_simple():
@@ -212,3 +213,8 @@ def test_unpickle_canvas():
     out.seek(0)
     fig2 = pickle.load(out)
     assert fig2.canvas is not None
+
+
+def test_mpl_toolkits():
+    ax = parasite_axes.host_axes([0, 0, 1, 1])
+    assert type(pickle.loads(pickle.dumps(ax))) == parasite_axes.HostAxes
