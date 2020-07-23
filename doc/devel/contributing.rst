@@ -409,7 +409,7 @@ function is a simple pass-through to
 
   # in pylab.py
   def text(*args, **kwargs):
-      ret =  gca().text(*args, **kwargs)
+      ret = gca().text(*args, **kwargs)
       draw_if_interactive()
       return ret
 
@@ -427,7 +427,7 @@ illustration) just passes them on to the
 
   # in text.py
   def __init__(self, x=0, y=0, text='', **kwargs):
-      Artist.__init__(self)
+      super().__init__()
       self.update(kwargs)
 
 ``update`` does the work looking for methods named like

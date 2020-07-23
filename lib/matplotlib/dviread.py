@@ -629,7 +629,7 @@ class Vf(Dvi):
     """
 
     def __init__(self, filename):
-        Dvi.__init__(self, filename, 0)
+        super().__init__(filename, 0)
         try:
             self._first_font = None
             self._chars = {}
