@@ -227,7 +227,8 @@ def switch_backend(newbackend):
         The name of the backend to use.
     """
     global _backend_mod
-
+    # make sure the init is pulled up so we can assign to it later
+    import matplotlib.backends
     close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
