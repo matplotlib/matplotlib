@@ -289,7 +289,7 @@ figpager
 customizable figure elements such as text, lines and images
 and subplot layout control for single or multi page output.
 
-.. image:: /_static/figpager_out_1.png
+.. image:: /_static/figpager.png
 
 blume
 =====
