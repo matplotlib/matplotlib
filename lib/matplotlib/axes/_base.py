@@ -476,7 +476,7 @@ class _AxesBase(martist.Artist):
             The new `~.axes.Axes` object.
         """
 
-        martist.Artist.__init__(self)
+        super().__init__()
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
         else:
@@ -625,7 +625,7 @@ class _AxesBase(martist.Artist):
 
     def set_figure(self, fig):
         # docstring inherited
-        martist.Artist.set_figure(self, fig)
+        super().set_figure(fig)
 
         self.bbox = mtransforms.TransformedBbox(self._position,
                                                 fig.transFigure)

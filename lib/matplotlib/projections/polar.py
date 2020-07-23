@@ -793,7 +793,7 @@ class PolarAxes(Axes):
         self.cla()
 
     def cla(self):
-        Axes.cla(self)
+        super().cla()
 
         self.title.set_y(1.05)
 
@@ -991,7 +991,7 @@ class PolarAxes(Axes):
             self.yaxis.reset_ticks()
             self.yaxis.set_clip_path(self.patch)
 
-        Axes.draw(self, renderer, *args, **kwargs)
+        super().draw(renderer, *args, **kwargs)
 
     def _gen_axes_patch(self):
         return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
@@ -1289,7 +1289,7 @@ class PolarAxes(Axes):
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
 
     def set_yscale(self, *args, **kwargs):
-        Axes.set_yscale(self, *args, **kwargs)
+        super().set_yscale(*args, **kwargs)
         self.yaxis.set_major_locator(
             self.RadialLocator(self.yaxis.get_major_locator(), self))
 

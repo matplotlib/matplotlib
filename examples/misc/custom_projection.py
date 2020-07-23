@@ -53,7 +53,7 @@ class GeoAxes(Axes):
         self._update_transScale()
 
     def cla(self):
-        Axes.cla(self)
+        super().cla()
 
         self.set_longitude_grid(30)
         self.set_latitude_grid(15)
@@ -426,7 +426,7 @@ class HammerAxes(GeoAxes):
 
     def __init__(self, *args, **kwargs):
         self._longitude_cap = np.pi / 2.0
-        GeoAxes.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
 
