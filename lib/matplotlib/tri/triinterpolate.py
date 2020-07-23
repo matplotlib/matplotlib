@@ -255,7 +255,7 @@ class LinearTriInterpolator(TriInterpolator):
 
     """
     def __init__(self, triangulation, z, trifinder=None):
-        TriInterpolator.__init__(self, triangulation, z, trifinder)
+        super().__init__(triangulation, z, trifinder)
 
         # Store plane coefficients for fast interpolation calculations.
         self._plane_coefficients = \
@@ -379,7 +379,7 @@ class CubicTriInterpolator(TriInterpolator):
     """
     def __init__(self, triangulation, z, kind='min_E', trifinder=None,
                  dz=None):
-        TriInterpolator.__init__(self, triangulation, z, trifinder)
+        super().__init__(triangulation, z, trifinder)
 
         # Loads the underlying c++ _triangulation.
         # (During loading, reordering of triangulation._triangles may occur so
@@ -1178,7 +1178,7 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
     """
     def __init__(self, Interpolator):
         self._eccs = Interpolator._eccs
-        _DOF_estimator_geom.__init__(self, Interpolator)
+        super().__init__(Interpolator)
 
     def compute_dz(self):
         """
@@ -1186,7 +1186,7 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
         Uses a dedicated 'toy' sparse Jacobi PCG solver.
         """
         # Initial guess for iterative PCG solver.
-        dz_init = _DOF_estimator_geom.compute_dz(self)
+        dz_init = super().compute_dz()
         Uf0 = np.ravel(dz_init)
 
         reference_element = _ReducedHCT_Element()
