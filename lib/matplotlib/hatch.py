@@ -130,7 +130,7 @@ class Circles(Shapes):
         path = Path.unit_circle()
         self.shape_vertices = path.vertices
         self.shape_codes = path.codes
-        Shapes.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
 class SmallCircles(Circles):
@@ -138,7 +138,7 @@ class SmallCircles(Circles):
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('o')) * density
-        Circles.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
 class LargeCircles(Circles):
@@ -146,15 +146,18 @@ class LargeCircles(Circles):
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('O')) * density
-        Circles.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
+# TODO: __init__ and class attributes override all attributes set by
+# SmallCircles. Should this class derive from Circles instead?
 class SmallFilledCircles(SmallCircles):
     size = 0.1
     filled = True
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('.')) * density
+        # Not super().__init__!
         Circles.__init__(self, hatch, density)
 
 
@@ -169,7 +172,7 @@ class Stars(Shapes):
         self.shape_codes = np.full(len(self.shape_vertices), Path.LINETO,
                                    dtype=Path.code_type)
         self.shape_codes[0] = Path.MOVETO
-        Shapes.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 _hatch_types = [
     HorizontalHatch,

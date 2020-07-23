@@ -108,9 +108,8 @@ class PathEffectRenderer(RendererBase):
         if len(self._path_effects) == 1:
             # Call the base path effect function - this uses the unoptimised
             # approach of calling "draw_path" multiple times.
-            return RendererBase.draw_markers(self, gc, marker_path,
-                                             marker_trans, path, *args,
-                                             **kwargs)
+            return super().draw_markers(gc, marker_path, marker_trans, path,
+                                        *args, **kwargs)
 
         for path_effect in self._path_effects:
             renderer = self.copy_with_path_effect([path_effect])
@@ -127,9 +126,8 @@ class PathEffectRenderer(RendererBase):
         if len(self._path_effects) == 1:
             # Call the base path effect function - this uses the unoptimised
             # approach of calling "draw_path" multiple times.
-            return RendererBase.draw_path_collection(self, gc,
-                                                     master_transform, paths,
-                                                     *args, **kwargs)
+            return super().draw_path_collection(gc, master_transform, paths,
+                                                *args, **kwargs)
 
         for path_effect in self._path_effects:
             renderer = self.copy_with_path_effect([path_effect])
