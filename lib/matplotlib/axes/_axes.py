@@ -4447,8 +4447,12 @@ default: :rc:`scatter.edgecolors`
             s = (20 if rcParams['_internal.classic_mode'] else
                  rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)
-        if len(s) not in (1, x.size):
-            raise ValueError("s must be a scalar, or the same size as x and y")
+        if (len(s) not in (1, x.size) or
+                (not np.issubdtype(s.dtype, np.floating) and
+                 not np.issubdtype(s.dtype, np.integer))):
+            raise ValueError(
+                "s must be a scalar, "
+                "or float array-like with the same size as x and y")
 
         c, colors, edgecolors = \
             self._parse_scatter_color_args(
