@@ -692,17 +692,18 @@ def test_fontproperties_kwarg_precedence():
 
 
 @check_figures_equal()
-def test_mutable_xy_copied(fig_test, fig_ref)
+def test_mutable_xy_copied_annotate(fig_test, fig_ref):
     ax = fig_test.add_subplot()
     ax.set_xlim(-5, 5)
     ax.set_ylim(-3, 3)
-    xy_0 =np.array((-4, 1))
-    xy_f =np.array((-1, 1))
-    ax.annotate(s='', xy=xy_0, xytext=xy_f, arrowprops=dict(arrowstyle='<->'))
+    xy_0 = np.array((-4, 1))
+    xy_f = np.array((-1, 1))
+    aprops = dict(arrowstyle='<->')
+    ax.annotate(text='', xy=xy_0, xytext=xy_f, arrowprops=aprops)
     xy_0[1] = 3
     ax = fig_ref.add_subplot()
     ax.set_xlim(-5, 5)
     ax.set_ylim(-3, 3)
-    xy_0 =np.array((-4, 1))
-    xy_f =np.array((-1, 1))
-    ax.annotate(s='', xy=xy_0, xytext=xy_f, arrowprops=dict(arrowstyle='<->'))
+    xy_0 = np.array((-4, 1))
+    xy_f = np.array((-1, 1))
+    ax.annotate(text='', xy=xy_0, xytext=xy_f, arrowprops=aprops)
