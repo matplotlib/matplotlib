@@ -487,33 +487,28 @@ class Path3DCollection(PathCollection):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
-               self._facecolor3d)
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
-
-        ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
-               self._edgecolor3d)
-
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
         # points and point properties according to the index array
         z_markers_idx = np.argsort(vzs)[::-1]
 
-        # Re-order items
+        if len(self._facecolor3d):
+            fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
+                   self._facecolor3d)
+            fcs = mcolors.to_rgba_array(fcs, self._alpha)
+            fcs = fcs[z_markers_idx]
+            self.set_facecolors(fcs)
+
+        ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
+               self._edgecolor3d)
+        ecs = ecs[z_markers_idx]
+        ecs = mcolors.to_rgba_array(ecs, self._alpha)
+        self.set_edgecolors(ecs)
+
         vzs = vzs[z_markers_idx]
         vxs = vxs[z_markers_idx]
         vys = vys[z_markers_idx]
-        fcs = fcs[z_markers_idx]
-        ecs = ecs[z_markers_idx]
         vps = np.column_stack((vxs, vys))
-
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        ecs = mcolors.to_rgba_array(ecs, self._alpha)
-
-        self.set_edgecolors(ecs)
-        self.set_facecolors(fcs)
-
         PathCollection.set_offsets(self, vps)
 
         return np.min(vzs) if vzs.size else np.nan

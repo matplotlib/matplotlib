@@ -232,6 +232,14 @@ def test_scatter3d():
     z[-1] = 0  # Check that scatter() copies the data.
 
 
+def test_scatter3d_nonfilledmarker():
+    # Check that scattering a non-filled marker works
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(np.arange(10), np.arange(10), np.arange(10), marker='x')
+    fig.canvas.draw()
+
+
 @mpl3d_image_comparison(['scatter3d_color.png'])
 def test_scatter3d_color():
     fig = plt.figure()
