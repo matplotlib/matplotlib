@@ -675,18 +675,6 @@ class Shadow(Patch):
         oy = renderer.points_to_pixels(self._oy)
         self._shadow_transform.clear().translate(ox, oy)
 
-    def _get_ox(self):
-        return self._ox
-
-    def _set_ox(self, ox):
-        self._ox = ox
-
-    def _get_oy(self):
-        return self._oy
-
-    def _set_oy(self, oy):
-        self._oy = oy
-
     def get_path(self):
         return self.patch.get_path()
 
