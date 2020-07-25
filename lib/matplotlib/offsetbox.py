@@ -44,22 +44,18 @@ def bbox_artist(*args, **kwargs):
     if DEBUG:
         mbbox_artist(*args, **kwargs)
 
-# _get_packed_offsets() and _get_aligned_offsets() are coded assuming
-# that we are packing boxes horizontally. But same function will be
-# used with vertical packing.
-
 
 def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
-    """
-    Given a list of (width, xdescent) of each boxes, calculate the
-    total width and the x-offset positions of each items according to
-    *mode*. xdescent is analogous to the usual descent, but along the
-    x-direction. xdescent values are currently ignored.
+    r"""
+    Pack boxes specified by their ``(width, xdescent)`` pair.
 
     For simplicity of the description, the terminology used here assumes a
     horizontal layout, but the function works equally for a vertical layout.
 
-    There are three packing modes:
+    *xdescent* is analogous to the usual descent, but along the x-direction; it
+    is currently ignored.
+
+    There are three packing *mode*\s:
 
     - 'fixed': The elements are packed tight to the left with a spacing of
       *sep* in between. If *total* is *None* the returned total will be the
@@ -136,21 +132,31 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
 
 def _get_aligned_offsets(hd_list, height, align="baseline"):
     """
-    Given a list of (height, descent) of each boxes, align the boxes
-    with *align* and calculate the y-offsets of each boxes.
-    total width and the offset positions of each items according to
-    *mode*. xdescent is analogous to the usual descent, but along the
-    x-direction. xdescent values are currently ignored.
+    Align boxes each specified by their ``(height, descent)`` pair.
+
+    For simplicity of the description, the terminology used here assumes a
+    horizontal layout (i.e., vertical alignment), but the function works
+    equally for a vertical layout.
 
     Parameters
     ----------
     hd_list
         List of (height, xdescent) of boxes to be aligned.
     height : float or None
-        Intended total length. If None, the maximum of the heights in *hd_list*
+        Intended total height. If None, the maximum of the heights in *hd_list*
         is used.
     align : {'baseline', 'left', 'top', 'right', 'bottom', 'center'}
-        Align mode.
+        The alignment anchor of the boxes.
+
+    Returns
+    -------
+    height
+        The total height of the packing (if a value was originally passed in,
+        it is returned without checking that it is actually large enough).
+    descent
+        The descent of the packing.
+    offsets
+        The bottom offsets of the boxes.
     """
 
     if height is None:
