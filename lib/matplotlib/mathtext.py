@@ -145,7 +145,7 @@ class MathtextBackendAgg(MathtextBackend):
         self.image = None
         self.mode = 'bbox'
         self.bbox = [0, 0, 0, 0]
-        MathtextBackend.__init__(self)
+        super().__init__()
 
     def _update_bbox(self, x1, y1, x2, y2):
         self.bbox = [min(self.bbox[0], x1),
@@ -154,7 +154,7 @@ class MathtextBackendAgg(MathtextBackend):
                      max(self.bbox[3], y2)]
 
     def set_canvas_size(self, w, h, d):
-        MathtextBackend.set_canvas_size(self, w, h, d)
+        super().set_canvas_size(w, h, d)
         if self.mode != 'bbox':
             self.image = FT2Image(np.ceil(w), np.ceil(h + max(d, 0)))
 
@@ -212,7 +212,7 @@ class MathtextBackendAgg(MathtextBackend):
 class MathtextBackendBitmap(MathtextBackendAgg):
     def get_results(self, box, used_characters):
         ox, oy, width, height, depth, image, characters = \
-            MathtextBackendAgg.get_results(self, box, used_characters)
+            super().get_results(box, used_characters)
         return image, depth
 
 
@@ -543,7 +543,7 @@ class TruetypeFonts(Fonts):
     (through FT2Font).
     """
     def __init__(self, default_font_prop, mathtext_backend):
-        Fonts.__init__(self, default_font_prop, mathtext_backend)
+        super().__init__(default_font_prop, mathtext_backend)
         self.glyphd = {}
         self._fonts = {}
 
@@ -555,7 +555,7 @@ class TruetypeFonts(Fonts):
     @cbook.deprecated("3.4")
     def destroy(self):
         self.glyphd = None
-        Fonts.destroy(self)
+        super().destroy()
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -641,8 +641,8 @@ class TruetypeFonts(Fonts):
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
             return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64
-        return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
-                              font2, fontclass2, sym2, fontsize2, dpi)
+        return super().get_kern(font1, fontclass1, sym1, fontsize1,
+                                font2, fontclass2, sym2, fontsize2, dpi)
 
 
 class BakomaFonts(TruetypeFonts):
@@ -665,7 +665,7 @@ class BakomaFonts(TruetypeFonts):
     def __init__(self, *args, **kwargs):
         self._stix_fallback = StixFonts(*args, **kwargs)
 
-        TruetypeFonts.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fontmap = {}
         for key, val in self._fontmap.items():
             fullpath = findfont(val)
@@ -784,7 +784,7 @@ class UnicodeFonts(TruetypeFonts):
                       }.get(fallback_rc)
         self.cm_fallback = font_class(*args, **kwargs) if font_class else None
 
-        TruetypeFonts.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fontmap = {}
         for texfont in "cal rm tt it bf sf".split():
             prop = rcParams['mathtext.' + texfont]
@@ -1102,7 +1102,7 @@ class StandardPsFonts(Fonts):
     }
 
     def __init__(self, default_font_prop):
-        Fonts.__init__(self, default_font_prop, MathtextBackendPs())
+        super().__init__(default_font_prop, MathtextBackendPs())
         self.glyphd = {}
         self.fonts = {}
 
@@ -1221,8 +1221,8 @@ class StandardPsFonts(Fonts):
             font = info1.font
             return (font.get_kern_dist(info1.glyph, info2.glyph)
                     * 0.001 * fontsize1)
-        return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
-                              font2, fontclass2, sym2, fontsize2, dpi)
+        return super().get_kern(font1, fontclass1, sym1, fontsize1,
+                                font2, fontclass2, sym2, fontsize2, dpi)
 
     def get_xheight(self, font, fontsize, dpi):
         font = self._get_font(font)
@@ -1412,20 +1412,20 @@ class Box(Node):
     """A node with a physical location."""
 
     def __init__(self, width, height, depth):
-        Node.__init__(self)
+        super().__init__()
         self.width  = width
         self.height = height
         self.depth  = depth
 
     def shrink(self):
-        Node.shrink(self)
+        super().shrink()
         if self.size < NUM_SIZE_LEVELS:
             self.width  *= SHRINK_FACTOR
             self.height *= SHRINK_FACTOR
             self.depth  *= SHRINK_FACTOR
 
     def grow(self):
-        Node.grow(self)
+        super().grow()
         self.width  *= GROW_FACTOR
         self.height *= GROW_FACTOR
         self.depth  *= GROW_FACTOR
@@ -1438,14 +1438,14 @@ class Vbox(Box):
     """A box with only height (zero width)."""
 
     def __init__(self, height, depth):
-        Box.__init__(self, 0., height, depth)
+        super().__init__(0., height, depth)
 
 
 class Hbox(Box):
     """A box with only width (zero height and depth)."""
 
     def __init__(self, width):
-        Box.__init__(self, width, 0., 0.)
+        super().__init__(width, 0., 0.)
 
 
 class Char(Node):
@@ -1462,7 +1462,7 @@ class Char(Node):
     """
 
     def __init__(self, c, state, math=True):
-        Node.__init__(self)
+        super().__init__()
         self.c = c
         self.font_output = state.font_output
         self.font = state.font
@@ -1516,7 +1516,7 @@ class Char(Node):
             self.font, self.font_class, self.c, self.fontsize, self.dpi)
 
     def shrink(self):
-        Node.shrink(self)
+        super().shrink()
         if self.size < NUM_SIZE_LEVELS:
             self.fontsize *= SHRINK_FACTOR
             self.width    *= SHRINK_FACTOR
@@ -1524,7 +1524,7 @@ class Char(Node):
             self.depth    *= SHRINK_FACTOR
 
     def grow(self):
-        Node.grow(self)
+        super().grow()
         self.fontsize *= GROW_FACTOR
         self.width    *= GROW_FACTOR
         self.height   *= GROW_FACTOR
@@ -1545,11 +1545,11 @@ class Accent(Char):
         self.depth = 0
 
     def shrink(self):
-        Char.shrink(self)
+        super().shrink()
         self._update_metrics()
 
     def grow(self):
-        Char.grow(self)
+        super().grow()
         self._update_metrics()
 
     def render(self, x, y):
@@ -1565,7 +1565,7 @@ class List(Box):
     """A list of nodes (either horizontal or vertical)."""
 
     def __init__(self, elements):
-        Box.__init__(self, 0., 0., 0.)
+        super().__init__(0., 0., 0.)
         self.shift_amount = 0.   # An arbitrary offset
         self.children     = elements  # The child nodes of this list
         # The following parameters are set in the vpack and hpack functions
@@ -1609,7 +1609,7 @@ class List(Box):
     def shrink(self):
         for child in self.children:
             child.shrink()
-        Box.shrink(self)
+        super().shrink()
         if self.size < NUM_SIZE_LEVELS:
             self.shift_amount *= SHRINK_FACTOR
             self.glue_set     *= SHRINK_FACTOR
@@ -1617,7 +1617,7 @@ class List(Box):
     def grow(self):
         for child in self.children:
             child.grow()
-        Box.grow(self)
+        super().grow()
         self.shift_amount *= GROW_FACTOR
         self.glue_set     *= GROW_FACTOR
 
@@ -1626,7 +1626,7 @@ class Hlist(List):
     """A horizontal list of boxes."""
 
     def __init__(self, elements, w=0., m='additional', do_kern=True):
-        List.__init__(self, elements)
+        super().__init__(elements)
         if do_kern:
             self.kern()
         self.hpack()
@@ -1739,7 +1739,7 @@ class Vlist(List):
     """A vertical list of boxes."""
 
     def __init__(self, elements, h=0., m='additional'):
-        List.__init__(self, elements)
+        super().__init__(elements)
         self.vpack()
 
     def vpack(self, h=0., m='additional', l=np.inf):
@@ -1826,7 +1826,7 @@ class Rule(Box):
     """
 
     def __init__(self, width, height, depth, state):
-        Box.__init__(self, width, height, depth)
+        super().__init__(width, height, depth)
         self.font_output = state.font_output
 
     def render(self, x, y, w, h):
@@ -1841,7 +1841,7 @@ class Hrule(Rule):
             thickness = state.font_output.get_underline_thickness(
                 state.font, state.fontsize, state.dpi)
         height = depth = thickness * 0.5
-        Rule.__init__(self, np.inf, height, depth, state)
+        super().__init__(np.inf, height, depth, state)
 
 
 class Vrule(Rule):
@@ -1850,7 +1850,7 @@ class Vrule(Rule):
     def __init__(self, state):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        Rule.__init__(self, thickness, np.inf, np.inf, state)
+        super().__init__(thickness, np.inf, np.inf, state)
 
 
 _GlueSpec = namedtuple(
@@ -1882,7 +1882,7 @@ class Glue(Node):
 
     @cbook._delete_parameter("3.3", "copy")
     def __init__(self, glue_type, copy=False):
-        Node.__init__(self)
+        super().__init__()
         if isinstance(glue_type, str):
             glue_spec = _GlueSpec._named[glue_type]
         elif isinstance(glue_type, _GlueSpec):
@@ -1892,13 +1892,13 @@ class Glue(Node):
         self.glue_spec = glue_spec
 
     def shrink(self):
-        Node.shrink(self)
+        super().shrink()
         if self.size < NUM_SIZE_LEVELS:
             g = self.glue_spec
             self.glue_spec = g._replace(width=g.width * SHRINK_FACTOR)
 
     def grow(self):
-        Node.grow(self)
+        super().grow()
         g = self.glue_spec
         self.glue_spec = g._replace(width=g.width * GROW_FACTOR)
 
@@ -1939,43 +1939,43 @@ with cbook._suppress_matplotlib_deprecation_warning():
 @cbook.deprecated("3.3", alternative="Glue('fil')")
 class Fil(Glue):
     def __init__(self):
-        Glue.__init__(self, 'fil')
+        super().__init__('fil')
 
 
 @cbook.deprecated("3.3", alternative="Glue('fill')")
 class Fill(Glue):
     def __init__(self):
-        Glue.__init__(self, 'fill')
+        super().__init__('fill')
 
 
 @cbook.deprecated("3.3", alternative="Glue('filll')")
 class Filll(Glue):
     def __init__(self):
-        Glue.__init__(self, 'filll')
+        super().__init__('filll')
 
 
 @cbook.deprecated("3.3", alternative="Glue('neg_fil')")
 class NegFil(Glue):
     def __init__(self):
-        Glue.__init__(self, 'neg_fil')
+        super().__init__('neg_fil')
 
 
 @cbook.deprecated("3.3", alternative="Glue('neg_fill')")
 class NegFill(Glue):
     def __init__(self):
-        Glue.__init__(self, 'neg_fill')
+        super().__init__('neg_fill')
 
 
 @cbook.deprecated("3.3", alternative="Glue('neg_filll')")
 class NegFilll(Glue):
     def __init__(self):
-        Glue.__init__(self, 'neg_filll')
+        super().__init__('neg_filll')
 
 
 @cbook.deprecated("3.3", alternative="Glue('ss')")
 class SsGlue(Glue):
     def __init__(self):
-        Glue.__init__(self, 'ss')
+        super().__init__('ss')
 
 
 class HCentered(Hlist):
@@ -2013,19 +2013,19 @@ class Kern(Node):
     depth = 0
 
     def __init__(self, width):
-        Node.__init__(self)
+        super().__init__()
         self.width = width
 
     def __repr__(self):
         return "k%.02f" % self.width
 
     def shrink(self):
-        Node.shrink(self)
+        super().shrink()
         if self.size < NUM_SIZE_LEVELS:
             self.width *= SHRINK_FACTOR
 
     def grow(self):
-        Node.grow(self)
+        super().grow()
         self.width *= GROW_FACTOR
 
 
@@ -2041,7 +2041,7 @@ class SubSuperCluster(Hlist):
         self.nucleus = None
         self.sub = None
         self.super = None
-        Hlist.__init__(self, [])
+        super().__init__([])
 
 
 class AutoHeightChar(Hlist):
@@ -2079,7 +2079,7 @@ class AutoHeightChar(Hlist):
 
             shift = (depth - char.depth)
 
-        Hlist.__init__(self, [char])
+        super().__init__([char])
         self.shift_amount = shift
 
 
@@ -2107,7 +2107,7 @@ class AutoWidthChar(Hlist):
         state.fontsize *= factor
         char = char_class(sym, state)
 
-        Hlist.__init__(self, [char])
+        super().__init__([char])
         self.width = char.width
 
 

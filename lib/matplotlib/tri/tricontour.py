@@ -26,7 +26,7 @@ class TriContourSet(ContourSet):
         object.  The remaining arguments and keyword arguments
         are described in the docstring of `~.Axes.tricontour`.
         """
-        ContourSet.__init__(self, ax, *args, **kwargs)
+        super().__init__(ax, *args, **kwargs)
 
     def _process_args(self, *args, **kwargs):
         """

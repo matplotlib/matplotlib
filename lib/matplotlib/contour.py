@@ -42,7 +42,7 @@ class ClabelText(text.Text):
 
     def get_rotation(self):
         new_angle, = self.get_transform().transform_angles(
-            [text.Text.get_rotation(self)], [self.get_position()])
+            [super().get_rotation()], [self.get_position()])
         return new_angle
 
 

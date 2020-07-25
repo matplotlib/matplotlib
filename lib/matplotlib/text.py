@@ -145,7 +145,7 @@ class Text(Artist):
 
         %(Text)s
         """
-        Artist.__init__(self)
+        super().__init__()
         self._x, self._y = x, y
         self._text = ''
         self.set_text(text)
@@ -251,7 +251,7 @@ class Text(Artist):
 
     def update_from(self, other):
         # docstring inherited
-        Artist.update_from(self, other)
+        super().update_from(other)
         self._color = other._color
         self._multialignment = other._multialignment
         self._verticalalignment = other._verticalalignment

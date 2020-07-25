@@ -300,7 +300,7 @@ class Line2D(Artist):
         :meth:`set_drawstyle` for a description of the draw styles.
 
         """
-        Artist.__init__(self)
+        super().__init__()
 
         #convert sequences to numpy arrays
         if not np.iterable(xdata):
@@ -721,7 +721,7 @@ class Line2D(Artist):
         ----------
         t : `matplotlib.transforms.Transform`
         """
-        Artist.set_transform(self, t)
+        super().set_transform(t)
         self._invalidx = True
         self._invalidy = True
         self.stale = True
@@ -1276,7 +1276,7 @@ class Line2D(Artist):
 
     def update_from(self, other):
         """Copy properties from *other* to self."""
-        Artist.update_from(self, other)
+        super().update_from(other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
         self._color = other._color
