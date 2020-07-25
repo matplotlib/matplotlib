@@ -316,7 +316,7 @@ def to_rgba_array(c, alpha=None):
     # `to_rgba(c, alpha)` (below) is expensive for such inputs, due to the need
     # to format the array in the ValueError message(!).
     if cbook._str_lower_equal(c, "none"):
-        return np.zeros((0, 4), float)
+        return np.zeros((1, 4), float)
     try:
         return np.array([to_rgba(c, alpha)], float)
     except (ValueError, TypeError):
