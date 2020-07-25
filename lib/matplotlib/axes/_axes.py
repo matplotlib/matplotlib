@@ -4602,7 +4602,7 @@ default: :rc:`scatter.edgecolors`
         `~matplotlib.collections.PolyCollection`
             A `.PolyCollection` defining the hexagonal bins.
 
-            - `.PolyCollection.get_offset` contains a Mx2 array containing
+            - `.PolyCollection.get_offsets` contains a Mx2 array containing
               the x, y positions of the M hexagon centers.
             - `.PolyCollection.get_array` contains the values of the M
               hexagons.
