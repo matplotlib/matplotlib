@@ -796,6 +796,10 @@ class ConciseDateFormatter(ticker.Formatter):
         for level in range(5, -1, -1):
             if len(np.unique(tickdate[:, level])) > 1:
                 break
+            elif level == 0:
+                # all tickdate are the same, so only micros might be different
+                # set to the most precise (6: microseconds doesn't exist...)
+                level = 5
 
         # level is the basic level we will label at.
         # now loop through and decide the actual ticklabels
