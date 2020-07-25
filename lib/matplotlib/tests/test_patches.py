@@ -11,7 +11,7 @@ from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
-    path as mpath, style as mstyle, transforms as mtransforms)
+    path as mpath, style as mstyle, transforms as mtransforms, rcParams)
 
 import sys
 on_win = (sys.platform == 'win32')
@@ -576,3 +576,13 @@ def test_color_override_warning(kwarg):
 def test_empty_verts():
     poly = Polygon(np.zeros((0, 2)))
     assert poly.get_verts() == []
+
+
+def test_default_antialiased():
+    patch = Patch()
+
+    patch.set_antialiased(not rcParams['patch.antialiased'])
+    assert patch.get_antialiased() == (not rcParams['patch.antialiased'])
+    # Check that None resets the state
+    patch.set_antialiased(None)
+    assert patch.get_antialiased() == rcParams['patch.antialiased']
