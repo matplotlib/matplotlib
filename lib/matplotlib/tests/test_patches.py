@@ -571,3 +571,8 @@ def test_color_override_warning(kwarg):
                       match="Setting the 'color' property will override "
                             "the edgecolor or facecolor properties."):
         Patch(color='black', **{kwarg: 'black'})
+
+
+def test_empty_verts():
+    poly = Polygon(np.zeros((0, 2)))
+    assert poly.get_verts() == []
