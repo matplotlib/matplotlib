@@ -1207,8 +1207,10 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.size.height = 0;
     rect.origin.x += height;
     NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
-    messagebox.textContainer.maximumNumberOfLines = 2;
-    messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
+    if (@available(macOS 10.11, *)) {
+        messagebox.textContainer.maximumNumberOfLines = 2;
+        messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
+    }
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
     [messagebox setSelectable: NO];
