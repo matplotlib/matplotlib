@@ -5549,6 +5549,15 @@ default: :rc:`scatter.edgecolors`
         # - reset shading if shading='auto' to flat or nearest
         #   depending on size;
 
+        _valid_shading = ['gouraud', 'nearest', 'flat', 'auto']
+        try:
+            cbook._check_in_list(_valid_shading, shading=shading)
+        except ValueError as err:
+            cbook._warn_external(f"shading value '{shading}' not in list of "
+                                 f"valid values {_valid_shading}. Setting "
+                                 "shading='auto'.")
+            shading = 'auto'
+
         if len(args) == 1:
             C = np.asanyarray(args[0])
             nrows, ncols = C.shape
