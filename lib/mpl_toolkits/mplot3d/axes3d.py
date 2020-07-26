@@ -2929,10 +2929,10 @@ pivot='tail', normalize=False, **kwargs)
 
         Parameters
         ----------
-        x, y, z : scalar or array-like
+        x, y, z : float or array-like
             The data positions.
 
-        xerr, yerr, zerr : scalar or array-like, optional
+        xerr, yerr, zerr : float or array-like, shape (N,) or (2, N), optional
             The errorbar sizes:
 
             - scalar: Symmetric +/- values for all data points.
@@ -2941,6 +2941,8 @@ pivot='tail', normalize=False, **kwargs)
               contains the lower errors, the second row contains the upper
               errors.
             - *None*: No errorbar.
+
+            Note that all error arrays should have *positive* values.
 
         fmt : str, default: ''
             The format for the data points / data lines. See `.plot` for
@@ -2953,14 +2955,14 @@ pivot='tail', normalize=False, **kwargs)
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
-        elinewidth : scalar, default: None
+        elinewidth : float, default: None
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        capsize : scalar, default: :rc:`errorbar.capsize`
+        capsize : float, default: :rc:`errorbar.capsize`
             The length of the error bar caps in points.
 
-        capthick : scalar, default: None
+        capthick : float, default: None
             An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
             This setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
@@ -2987,9 +2989,9 @@ pivot='tail', normalize=False, **kwargs)
 
         errorevery : int or (int, int), default: 1
             draws error bars on a subset of the data. *errorevery* =N draws
-            error bars on the points (x[::N], y[::N]).
+            error bars on the points (x[::N], y[::N], z[::N]).
             *errorevery* =(start, N) draws error bars on the points
-            (x[start::N], y[start::N]). e.g. errorevery=(6, 3)
+            (x[start::N], y[start::N], z[start::N]). e.g. errorevery=(6, 3)
             adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
             Used to avoid overlapping error bars when two series share x-axis
             values.
@@ -3186,7 +3188,7 @@ pivot='tail', normalize=False, **kwargs)
                 for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
 
-            # draws capmarkers - flat caps othogonal to the error bars
+            # draws capmarkers - flat caps orthogonal to the error bars
             if nolims.any() and capsize > 0:
                 lo_caps_xyz = _apply_mask([xl, yl, zl], nolims & everymask)
                 hi_caps_xyz = _apply_mask([xh, yh, zh], nolims & everymask)
