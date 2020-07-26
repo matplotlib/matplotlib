@@ -99,10 +99,6 @@ class MovieWriterRegistry:
     def __init__(self):
         self._registered = dict()
 
-    @cbook.deprecated("3.2")
-    def set_dirty(self):
-        """Sets a flag to re-setup the writers."""
-
     def register(self, name):
         """
         Decorator for registering a class under a name.
@@ -117,19 +113,6 @@ class MovieWriterRegistry:
             self._registered[name] = writer_cls
             return writer_cls
         return wrapper
-
-    @cbook.deprecated("3.2")
-    def ensure_not_dirty(self):
-        """If dirty, reasks the writers if they are available"""
-
-    @cbook.deprecated("3.2")
-    def reset_available_writers(self):
-        """Reset the available state of all registered writers"""
-
-    @cbook.deprecated("3.2")
-    @property
-    def avail(self):
-        return {name: self._registered[name] for name in self.list()}
 
     def is_available(self, name):
         """
