@@ -136,17 +136,6 @@ def _validate_date(s):
             f'{s!r} should be a string that can be parsed by numpy.datetime64')
 
 
-@cbook.deprecated("3.2", alternative="os.path.exists")
-def validate_path_exists(s):
-    """If s is a path, return s, else False"""
-    if s is None:
-        return None
-    if os.path.exists(s):
-        return s
-    else:
-        raise RuntimeError('"%s" should be a path but it does not exist' % s)
-
-
 def validate_bool(b):
     """Convert b to ``bool`` or raise."""
     if isinstance(b, str):
@@ -506,49 +495,14 @@ _validate_alignment = ValidateInStrings(
 
 
 def validate_whiskers(s):
-    if s == 'range':
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the boxplot.whiskers rcParam "
-            "to 'range' is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to 0, 100 instead.")
-        return 'range'
-    else:
+    try:
+        return _listify_validator(validate_float, n=2)(s)
+    except (TypeError, ValueError):
         try:
-            return _listify_validator(validate_float, n=2)(s)
-        except (TypeError, ValueError):
-            try:
-                return float(s)
-            except ValueError as e:
-                raise ValueError("Not a valid whisker value ['range', float, "
-                                 "(float, float)]") from e
-
-
-@cbook.deprecated("3.2")
-def update_savefig_format(value):
-    # The old savefig.extension could also have a value of "auto", but
-    # the new savefig.format does not.  We need to fix this here.
-    value = validate_string(value)
-    if value == 'auto':
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the 'savefig.format' rcParam "
-            "to 'auto' is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to 'png' instead.")
-        value = 'png'
-    return value
-
-
-# Replace by validate_string once deprecation period passes.
-def _update_savefig_format(value):
-    # The old savefig.extension could also have a value of "auto", but
-    # the new savefig.format does not.  We need to fix this here.
-    value = validate_string(value)
-    if value == 'auto':
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the 'savefig.format' rcParam "
-            "to 'auto' is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to 'png' instead.")
-        value = 'png'
-    return value
+            return float(s)
+        except ValueError as e:
+            raise ValueError("Not a valid whisker value ['range', float, "
+                             "(float, float)]") from e
 
 
 validate_ps_papersize = ValidateInStrings(
@@ -719,18 +673,11 @@ def validate_hinting(s):
 
 
 # Replace by plain list in _prop_validators after deprecation period.
-def _validate_hinting(s):
-    if s in (True, False):
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the text.hinting rcParam to "
-            "True or False is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to its synonyms 'auto' or 'none' instead.")
-        return s
-    return ValidateInStrings(
-        'text.hinting',
-        ['default', 'no_autohint', 'force_autohint', 'no_hinting',
-         'auto', 'native', 'either', 'none'],
-        ignorecase=True)(s)
+_validate_hinting = ValidateInStrings(
+    'text.hinting',
+    ['default', 'no_autohint', 'force_autohint', 'no_hinting',
+     'auto', 'native', 'either', 'none'],
+    ignorecase=True)
 
 
 validate_pgf_texsystem = ValidateInStrings(
@@ -1023,22 +970,6 @@ def validate_hist_bins(s):
         pass
     raise ValueError("'hist.bins' must be one of {}, an int or"
                      " a sequence of floats".format(valid_strs))
-
-
-@cbook.deprecated("3.2")
-def validate_animation_writer_path(p):
-    # Make sure it's a string and then figure out if the animations
-    # are already loaded and reset the writers (which will validate
-    # the path on next call)
-    cbook._check_isinstance(str, path=p)
-    from sys import modules
-    # set dirty, so that the next call to the registry will re-evaluate
-    # the state.
-    # only set dirty if already loaded. If not loaded, the load will
-    # trigger the checks.
-    if "matplotlib.animation" in modules:
-        modules["matplotlib.animation"].writers.set_dirty()
-    return p
 
 
 @cbook.deprecated("3.3")
@@ -1426,7 +1357,7 @@ _validators = {
     'savefig.edgecolor':    validate_color_or_auto,
     'savefig.orientation':  ['landscape', 'portrait'],
     'savefig.jpeg_quality': validate_int,
-    "savefig.format":       _update_savefig_format,
+    "savefig.format":       validate_string,
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
     # default directory in savefig dialog box
