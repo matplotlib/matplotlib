@@ -417,6 +417,7 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
     USHORT glyphIndex;
     int arg1;
     int arg2;
+    F2DOT14 mat00 = {1, 0}, mat01 = {0, 0}, mat10 = {0, 0}, mat11 = {1, 0};
 
     /* Once around this loop for each component. */
     do
@@ -444,14 +445,21 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
 
         if (flags & WE_HAVE_A_SCALE)
         {
+            mat00 = mat11 = getF2DOT14(glyph);
             glyph += 2;
         }
         else if (flags & WE_HAVE_AN_X_AND_Y_SCALE)
         {
+            mat00 = getF2DOT14(glyph);
+            mat11 = getF2DOT14(glyph+2);
             glyph += 4;
         }
         else if (flags & WE_HAVE_A_TWO_BY_TWO)
         {
+            mat00 = getF2DOT14(glyph);
+            mat01 = getF2DOT14(glyph+2);
+            mat10 = getF2DOT14(glyph+4);
+            mat11 = getF2DOT14(glyph+6);
             glyph += 8;
         }
         else
@@ -472,7 +480,10 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
                    subglyph here.  However, that doesn't seem to work with
                    xpdf or gs (only acrobat), so instead, this just includes
                    the subglyph here inline. */
-                stream.printf("q 1 0 0 1 %d %d cm\n", topost(arg1), topost(arg2));
+                stream.printf("q %.6f %.6f %.6f %.6f %d %d cm\n",
+                              F2DOT14value(mat00), F2DOT14value(mat01),
+                              F2DOT14value(mat10), F2DOT14value(mat11),
+                              topost(arg1), topost(arg2));
             }
             else
             {

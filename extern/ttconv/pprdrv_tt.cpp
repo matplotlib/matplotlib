@@ -107,6 +107,31 @@ Fixed getFixed(BYTE *s)
     return val;
 } /* end of getFixed() */
 
+/*
+** Get a 16 bit fixed point (2.14) number.
+*/
+F2DOT14 getF2DOT14(BYTE *s)
+{
+    F2DOT14 val={0, 0};
+
+    int sign = s[0] & 0x80;
+    int bit = (s[0] & 0x40) >> 6;
+    if (sign) {
+      val.whole = bit-2;
+    } else {
+      val.whole = bit;
+    }
+    val.fraction = ((s[0] & 0x3f) << 8) + s[1];
+
+    return val;
+}
+
+float F2DOT14value(F2DOT14 f)
+{
+    return f.whole + (float)f.fraction/16384;
+}
+
+
 /*-----------------------------------------------------------------------
 ** Load a TrueType font table into memory and return a pointer to it.
 ** The font's "file" and "offset_table" fields must be set before this

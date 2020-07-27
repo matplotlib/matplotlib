@@ -41,6 +41,13 @@ typedef struct
     unsigned short int fraction;
     } Fixed;
 
+/* A 2.14 fixed point number */
+typedef struct
+    {
+    SHORT whole;
+    USHORT fraction;
+    } F2DOT14;
+
 /* This structure tells what we have found out about */
 /* the current font. */
 struct TTFONT
@@ -86,6 +93,8 @@ struct TTFONT
 ULONG getULONG(BYTE *p);
 USHORT getUSHORT(BYTE *p);
 Fixed getFixed(BYTE *p);
+F2DOT14 getF2DOT14(BYTE *p);
+float F2DOT14value(F2DOT14 f);
 
 /*
 ** Get an funits word.
