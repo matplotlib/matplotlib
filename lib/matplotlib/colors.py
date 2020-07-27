@@ -322,23 +322,10 @@ def to_rgba_array(c, alpha=None):
     except (ValueError, TypeError):
         pass
 
-    # Convert one at a time.
     if isinstance(c, str):
-        # Single string as color sequence.
-        # This is deprecated and will be removed in the future.
-        try:
-            result = np.array([to_rgba(cc, alpha) for cc in c])
-        except ValueError as err:
-            raise ValueError(
-                "'%s' is neither a valid single color nor a color sequence "
-                "consisting of single character color specifiers such as "
-                "'rgb'. Note also that the latter is deprecated." % c) from err
-        else:
-            cbook.warn_deprecated(
-                "3.2", message="Using a string of single character colors as "
-                "a color sequence is deprecated since %(since)s and will be "
-                "removed %(removal)s. Use an explicit list instead.")
-            return result
+        raise ValueError("Using a string of single character colors as "
+                         "a color sequence is not supported. The colors can "
+                         "be passed as an explicit list instead.")
 
     if len(c) == 0:
         return np.zeros((0, 4), float)

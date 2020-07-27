@@ -1057,17 +1057,11 @@ def test_to_rgba_array_single_str():
     # single color name is valid
     assert_array_equal(mcolors.to_rgba_array("red"), [(1, 0, 0, 1)])
 
-    # single char color sequence is deprecated
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match="Using a string of single character colors as a "
-                            "color sequence is deprecated"):
-        array = mcolors.to_rgba_array("rgb")
-    assert_array_equal(array, [(1, 0, 0, 1), (0, 0.5, 0, 1), (0, 0, 1, 1)])
-
+    # single char color sequence is invalid
     with pytest.raises(ValueError,
-                       match="neither a valid single color nor a color "
-                             "sequence"):
-        mcolors.to_rgba_array("rgbx")
+                       match="Using a string of single character colors as "
+                             "a color sequence is not supported."):
+        array = mcolors.to_rgba_array("rgb")
 
 
 def test_failed_conversions():
