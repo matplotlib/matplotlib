@@ -1810,6 +1810,13 @@ class Axis(martist.Artist):
             List of tick locations.
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
+
+        Notes
+        -----
+        The mandatory expansion of the view limits is an intentional design
+        choice to prevent the surprise of a non-visible tick. If you need
+        other limits, you should set the limits explicitly after setting the
+        ticks.
         """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
