@@ -138,7 +138,8 @@ if os.path.exists(setup_cfg):
 options = {
     'backend': config.get('rc_options', 'backend', fallback=None),
     'system_freetype': config.getboolean(
-        'libs', 'system_freetype', fallback=sys.platform.startswith('aix')),
+        'libs', 'system_freetype',
+        fallback=sys.platform.startswith(('aix', 'openbsd', 'freebsd'))),
     'system_qhull': config.getboolean('libs', 'system_qhull',
                                       fallback=False),
 }
