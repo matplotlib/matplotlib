@@ -1061,6 +1061,40 @@ class Text(Artist):
         self._fontproperties.set_size(fontsize)
         self.stale = True
 
+    def get_math_fontfamily(self):
+        """
+        Return the font family name for math text rendered by Matplotlib.
+
+        The default value is :rc:`mathtext.fontset`.
+
+        See Also
+        --------
+        set_math_fontfamily
+        """
+        return self._fontproperties.get_math_fontfamily()
+
+    def set_math_fontfamily(self, fontfamily):
+        """
+        Set the font family for math text rendered by Matplotlib.
+
+        This does only affect Matplotlib's own math renderer. It has no effect
+        when rendering with TeX (``usetex=True``).
+
+        Parameters
+        ----------
+        fontfamily : str
+            The name of the font family.
+
+            Available font families are defined in the
+            :ref:`matplotlibrc.template file
+            <customizing-with-matplotlibrc-files>`.
+
+        See Also
+        --------
+        get_math_fontfamily
+        """
+        self._fontproperties.set_math_fontfamily(fontfamily)
+
     def set_fontweight(self, weight):
         """
         Set the font weight.
