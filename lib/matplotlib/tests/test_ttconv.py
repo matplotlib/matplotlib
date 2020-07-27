@@ -21,7 +21,8 @@ def test_truetype_conversion(recwarn):
 def test_ttconv_transforms():
     matplotlib.rcParams['pdf.fonttype'] = 3
     fig, ax = plt.subplots()
-    kw = {'font': Path(__file__).with_name("FreeSerifSubset.ttf"), 'fontsize': 14}
+    kw = {'font': Path(__file__).with_name("FreeSerifSubset.ttf"),
+          'fontsize': 14}
     # characters where Free Serif uses various scales and linear transforms
     # e.g. the right paren is a reflected left paren
     ax.text(.1, .1, "parens, FAX, u with two diacritics: ()℻ǘ", **kw)
