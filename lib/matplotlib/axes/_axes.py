@@ -29,6 +29,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
+import matplotlib.units as munits
 from matplotlib import _preprocess_data, rcParams
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 from matplotlib.axes._secondary_axes import SecondaryAxis
@@ -827,10 +828,10 @@ class Axes(_AxesBase):
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
         """
+        self._check_no_units([xmin, xmax], ['xmin', 'xmax'])
         if "transform" in kwargs:
-            raise ValueError(
-                "'transform' is not allowed as a kwarg;"
-                + "axhline generates its own transform.")
+            raise ValueError("'transform' is not allowed as a keyword argument; "
+                             "axhline generates its own transform.")
         ymin, ymax = self.get_ybound()
 
         # We need to strip away the units for comparison with
@@ -896,11 +897,10 @@ class Axes(_AxesBase):
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
         """
-
+        self._check_no_units([ymin, ymax], ['ymin', 'ymax'])
         if "transform" in kwargs:
-            raise ValueError(
-                "'transform' is not allowed as a kwarg;"
-                + "axvline generates its own transform.")
+            raise ValueError("'transform' is not allowed as a keyword argument; "
+                             "axvline generates its own transform.")
         xmin, xmax = self.get_xbound()
 
         # We need to strip away the units for comparison with
@@ -914,6 +914,14 @@ class Axes(_AxesBase):
         self.add_line(l)
         self._request_autoscale_view(scalex=scalex, scaley=False)
         return l
+
+    @staticmethod
+    def _check_no_units(vals, names):
+        # Helper method to check that vals are not unitized
+        for val, name in zip(vals, names):
+            if not munits._is_natively_supported(val):
+                raise ValueError(f"{name} must be a single scalar value, "
+                                 f"but got {val}")
 
     @docstring.dedent_interpd
     def axline(self, xy1, xy2=None, *, slope=None, **kwargs):
@@ -1035,6 +1043,7 @@ class Axes(_AxesBase):
         --------
         axvspan : Add a vertical span across the axes.
         """
+        self._check_no_units([xmin, xmax], ['xmin', 'xmax'])
         trans = self.get_yaxis_transform(which='grid')
 
         # process the unit information
@@ -1095,6 +1104,7 @@ class Axes(_AxesBase):
         >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 
         """
+        self._check_no_units([ymin, ymax], ['ymin', 'ymax'])
         trans = self.get_xaxis_transform(which='grid')
 
         # process the unit information
