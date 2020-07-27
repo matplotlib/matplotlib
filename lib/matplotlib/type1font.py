@@ -29,6 +29,8 @@ import struct
 
 import numpy as np
 
+from matplotlib.cbook import format_approx
+
 
 # token types
 _TokenType = enum.Enum('_TokenType',
@@ -269,7 +271,7 @@ class Type1Font:
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
             return (
-                '[' + ' '.join(f'{x:.5g}' for x in array) + ']'
+                '[%s]' % ' '.join(format_approx(x, 6) for x in array)
             ).encode('ascii')
 
         def replace(fun):
