@@ -364,3 +364,13 @@ def test_mathtext_to_png(tmpdir):
     mt = mathtext.MathTextParser('bitmap')
     mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
     mt.to_png(io.BytesIO(), '$x^2$')
+
+
+@image_comparison(baseline_images=['mathtext_fontset_image.png'],
+                  savefig_kwarg={'dpi': 40})
+def test_math_fontfamily():
+    fig = plt.figure(figsize=(10, 3))
+    fig.text(0.2, 0.7, r"$This\ text\ should\ have\ one\ font$",
+             size=24, math_fontfamily='dejavusans')
+    fig.text(0.2, 0.3, r"$This\ text\ should\ have\ another$",
+             size=24, math_fontfamily='cm')
