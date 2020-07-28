@@ -2385,7 +2385,7 @@ def _setup_new_guiapp():
             "matplotlib")
 
 
-def format_approx(number, precision):
+def _format_approx(number, precision):
     """
     Format the number with at most the number of decimals given as precision.
     Remove trailing zeros and possibly the decimal point.
