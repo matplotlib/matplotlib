@@ -4535,7 +4535,7 @@ default: :rc:`scatter.edgecolors`
 
         return collection
 
-    @_preprocess_data(replace_names=["x", "y"], label_namer="y")
+    @_preprocess_data(replace_names=["x", "y", "C"], label_namer="y")
     @docstring.dedent_interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
