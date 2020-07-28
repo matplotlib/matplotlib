@@ -2,8 +2,7 @@
 ==================
 Rasterization Demo
 ==================
-"""
-"""
+
 Rasterization is a method where an image described in a vector graphics
 format is being converted into a raster image (pixels).
 
@@ -21,14 +20,12 @@ passed to `~.Figure.savefig`.
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Set 'd' to be the scalar 2-D array where the values will be color-mapped
-d = np.arange(100).reshape(10, 10)
-# x, y return 2-D grid coordinates based on the coordinates contained
+d = np.arange(100).reshape(10, 10)  # the values to be color-mapped
 x, y = np.meshgrid(np.arange(11), np.arange(11))
 
 theta = 0.25*np.pi
-xx = x*np.cos(theta) - y*np.sin(theta)  # rotates x by -theta
-yy = x*np.sin(theta) + y*np.cos(theta)  # rotates y by -theta
+xx = x*np.cos(theta) - y*np.sin(theta)  # rotate x by -theta
+yy = x*np.sin(theta) + y*np.cos(theta)  # rotate y by -theta
 
 # Plot the rasterized and non-rasterized plot
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
