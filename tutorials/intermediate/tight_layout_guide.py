@@ -152,13 +152,13 @@ plt.tight_layout()
 # Caveats
 # =======
 #
-#  * :func:`~matplotlib.pyplot.tight_layout` only considers ticklabels, axis
-#    labels, and titles. Thus, other artists may be clipped and also may
-#    overlap.
+#  * :func:`~matplotlib.pyplot.tight_layout` by default considers all artists
+#    on the axes.  To remove an artist from the layout calculation you can call
+#    `~.Artist.set_in_layout`.
 #
-#  * It assumes that the extra space needed for ticklabels, axis labels,
-#    and titles is independent of original location of axes. This is
-#    often true, but there are rare cases where it is not.
+#  * It assumes that the extra space needed for artists is independent of
+#    original location of axes. This is often true, but there are rare cases
+#    where it is not.
 #
 #  * pad=0 clips some of the texts by a few pixels. This may be a bug or
 #    a limitation of the current algorithm and it is not clear why it
