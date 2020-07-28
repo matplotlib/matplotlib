@@ -109,6 +109,13 @@ Fixed getFixed(BYTE *s)
 
 /*
 ** Get a 16 bit fixed point (2.14) number.
+**
+** The value range is from -2.0 to a little under 2.0.  The two
+** most-significant bits encode the whole part in two's-complement
+** format and the remaining 14 bits encode the numerator n of the
+** fraction n/16384 to be added to the whole part.
+**
+** https://docs.microsoft.com/en-us/typography/opentype/otspec181/otff#data-types
 */
 F2DOT14 getF2DOT14(BYTE *s)
 {
@@ -126,9 +133,32 @@ F2DOT14 getF2DOT14(BYTE *s)
     return val;
 }
 
-float F2DOT14value(F2DOT14 f)
+/*
+** Convert a fixed-point 2.14 number to a newly-allocated string.
+** Use at most six decimals but remove trailing zeroes and possibly
+** the decimal point.
+*/
+char* F2DOT14value(F2DOT14 f)
 {
-    return f.whole + (float)f.fraction/16384;
+    const size_t maxlen = strlen("-1.234567") + 1;
+    char *value = (char*)calloc(sizeof(char), maxlen);
+    if (value == NULL ||
+        snprintf(value, maxlen, "%.6f", f.whole + (float)f.fraction/16384) < 0) {
+        abort();
+    }
+
+    char *ptr = &value[maxlen-1];
+    while (ptr > value && *ptr == '\0') {
+        ptr--;
+    }
+    while (ptr > value && *ptr == '0') {
+        *ptr-- = '\0';
+    }
+    if (ptr > value && *ptr == '.') {
+        *ptr = '\0';
+    }
+
+    return value;
 }
 
 

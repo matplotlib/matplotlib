@@ -409,7 +409,9 @@ void GlyphToType3::load_char(TTFONT* font, BYTE *glyph)
 } /* end of load_char() */
 
 /*
-** Emmit PostScript code for a composite character.
+** Emit PostScript code for a composite character.
+**
+** https://docs.microsoft.com/en-us/typography/opentype/spec/glyf#composite-glyph-description
 */
 void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph)
 {
@@ -480,10 +482,15 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
                    subglyph here.  However, that doesn't seem to work with
                    xpdf or gs (only acrobat), so instead, this just includes
                    the subglyph here inline. */
-                stream.printf("q %.6f %.6f %.6f %.6f %d %d cm\n",
-                              F2DOT14value(mat00), F2DOT14value(mat01),
-                              F2DOT14value(mat10), F2DOT14value(mat11),
-                              topost(arg1), topost(arg2));
+                char *s00 = F2DOT14value(mat00), *s01 = F2DOT14value(mat01),
+                    *s10 = F2DOT14value(mat10), *s11 = F2DOT14value(mat11);
+
+                stream.printf("q %s %s %s %s %d %d cm\n",
+                              s00, s01, s10, s11, topost(arg1), topost(arg2));
+                free(s00);
+                free(s01);
+                free(s10);
+                free(s11);
             }
             else
             {

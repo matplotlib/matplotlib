@@ -94,7 +94,7 @@ ULONG getULONG(BYTE *p);
 USHORT getUSHORT(BYTE *p);
 Fixed getFixed(BYTE *p);
 F2DOT14 getF2DOT14(BYTE *p);
-float F2DOT14value(F2DOT14 f);
+char *F2DOT14value(F2DOT14 f);
 
 /*
 ** Get an funits word.
