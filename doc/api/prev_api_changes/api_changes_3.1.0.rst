@@ -531,7 +531,8 @@ The following miscellaneous API elements have been removed
 
     import logging
     logger = logging.getLogger('matplotlib')
-    logger.set_level(logging.INFO)
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel(logging.INFO)
 
 - ``__version__numpy__``
 - ``collections.CIRCLE_AREA_FACTOR``
