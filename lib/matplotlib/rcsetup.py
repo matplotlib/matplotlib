@@ -18,7 +18,6 @@ from functools import lru_cache, reduce
 import logging
 from numbers import Number
 import operator
-import os
 import re
 
 import numpy as np
