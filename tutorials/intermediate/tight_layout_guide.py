@@ -152,18 +152,17 @@ plt.tight_layout()
 # Caveats
 # =======
 #
-#  * :func:`~matplotlib.pyplot.tight_layout` by default considers all artists
-#    on the axes.  To remove an artist from the layout calculation you can call
-#    `~.Artist.set_in_layout`.
+# * `~matplotlib.pyplot.tight_layout` considers all artists on the axes by
+#   default.  To remove an artist from the layout calculation you can call
+#   `.Artist.set_in_layout`.
 #
-#  * It assumes that the extra space needed for artists is independent of
-#    original location of axes. This is often true, but there are rare cases
-#    where it is not.
+# * ``tight_layout`` assumes that the extra space needed for artists is
+#   independent of the original location of axes. This is often true, but there
+#   are rare cases where it is not.
 #
-#  * pad=0 clips some of the texts by a few pixels. This may be a bug or
-#    a limitation of the current algorithm and it is not clear why it
-#    happens. Meanwhile, use of pad at least larger than 0.3 is
-#    recommended.
+# * ``pad=0`` can clip some texts by a few pixels. This may be a bug or
+#   a limitation of the current algorithm and it is not clear why it
+#   happens. Meanwhile, use of pad larger than 0.3 is recommended.
 #
 # Use with GridSpec
 # =================
