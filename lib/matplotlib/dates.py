@@ -1129,7 +1129,7 @@ class RRuleLocator(DateLocator):
     # use the dateutil rrule instance
 
     def __init__(self, o, tz=None):
-        DateLocator.__init__(self, tz)
+        super().__init__(tz)
         self.rule = o
 
     def __call__(self):
@@ -1296,7 +1296,7 @@ class AutoDateLocator(DateLocator):
             the ticks to be at hours 0, 6, 12, 18 when hourly ticking is done
             at 6 hour intervals.
         """
-        DateLocator.__init__(self, tz)
+        super().__init__(tz)
         self._freq = YEARLY
         self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
                        SECONDLY, MICROSECONDLY]
@@ -1491,7 +1491,7 @@ class YearLocator(DateLocator):
         Mark years that are multiple of base on a given month and day
         (default jan 1).
         """
-        DateLocator.__init__(self, tz)
+        super().__init__(tz)
         self.base = ticker._Edge_integer(base, 0)
         self.replaced = {'month':  month,
                          'day':    day,
@@ -1579,7 +1579,7 @@ class MonthLocator(RRuleLocator):
 
         rule = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class WeekdayLocator(RRuleLocator):
@@ -1607,7 +1607,7 @@ class WeekdayLocator(RRuleLocator):
 
         rule = rrulewrapper(DAILY, byweekday=byweekday,
                             interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class DayLocator(RRuleLocator):
@@ -1633,7 +1633,7 @@ class DayLocator(RRuleLocator):
 
         rule = rrulewrapper(DAILY, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class HourLocator(RRuleLocator):
@@ -1653,7 +1653,7 @@ class HourLocator(RRuleLocator):
 
         rule = rrulewrapper(HOURLY, byhour=byhour, interval=interval,
                             byminute=0, bysecond=0)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class MinuteLocator(RRuleLocator):
@@ -1673,7 +1673,7 @@ class MinuteLocator(RRuleLocator):
 
         rule = rrulewrapper(MINUTELY, byminute=byminute, interval=interval,
                             bysecond=0)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class SecondLocator(RRuleLocator):
@@ -1693,7 +1693,7 @@ class SecondLocator(RRuleLocator):
             bysecond = range(60)
 
         rule = rrulewrapper(SECONDLY, bysecond=bysecond, interval=interval)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class MicrosecondLocator(DateLocator):
@@ -1730,15 +1730,15 @@ class MicrosecondLocator(DateLocator):
 
     def set_axis(self, axis):
         self._wrapped_locator.set_axis(axis)
-        return DateLocator.set_axis(self, axis)
+        return super().set_axis(axis)
 
     def set_view_interval(self, vmin, vmax):
         self._wrapped_locator.set_view_interval(vmin, vmax)
-        return DateLocator.set_view_interval(self, vmin, vmax)
+        return super().set_view_interval(vmin, vmax)
 
     def set_data_interval(self, vmin, vmax):
         self._wrapped_locator.set_data_interval(vmin, vmax)
-        return DateLocator.set_data_interval(self, vmin, vmax)
+        return super().set_data_interval(vmin, vmax)
 
     def __call__(self):
         # if no data have been set, this will tank with a ValueError

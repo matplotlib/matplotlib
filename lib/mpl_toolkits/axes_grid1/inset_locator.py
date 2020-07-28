@@ -154,7 +154,7 @@ class BboxPatch(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.bbox = bbox
 
     def get_path(self):
@@ -277,10 +277,10 @@ class BboxConnector(Patch):
 
         kwargs["transform"] = IdentityTransform()
         if 'fill' in kwargs:
-            Patch.__init__(self, **kwargs)
+            super().__init__(**kwargs)
         else:
             fill = bool({'fc', 'facecolor', 'color'}.intersection(kwargs))
-            Patch.__init__(self, fill=fill, **kwargs)
+            super().__init__(fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
@@ -333,7 +333,7 @@ class BboxConnectorPatch(BboxConnector):
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
-        BboxConnector.__init__(self, bbox1, bbox2, loc1a, loc2a, **kwargs)
+        super().__init__(bbox1, bbox2, loc1a, loc2a, **kwargs)
         self.loc1b = loc1b
         self.loc2b = loc2b
 

@@ -249,7 +249,7 @@ class QuiverKey(martist.Artist):
             Any additional keyword arguments are used to override vector
             properties taken from *Q*.
         """
-        martist.Artist.__init__(self)
+        super().__init__()
         self.Q = Q
         self.X = X
         self.Y = Y
@@ -360,7 +360,7 @@ class QuiverKey(martist.Artist):
         }, coordinates=self.coord))
 
     def set_figure(self, fig):
-        martist.Artist.set_figure(self, fig)
+        super().set_figure(fig)
         self.text.set_figure(fig)
 
     def contains(self, mouseevent):

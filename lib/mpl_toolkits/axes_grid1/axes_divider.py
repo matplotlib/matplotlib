@@ -349,7 +349,7 @@ class SubplotDivider(Divider):
         self.figure = fig
         self._subplotspec = SubplotSpec._from_subplot_args(fig, args)
         self.update_params()  # sets self.figbox
-        Divider.__init__(self, fig, pos=self.figbox.bounds,
+        super().__init__(fig, pos=self.figbox.bounds,
                          horizontal=horizontal or [], vertical=vertical or [],
                          aspect=aspect, anchor=anchor)
 
@@ -406,7 +406,7 @@ class AxesDivider(Divider):
         else:
             self._yref = yref
 
-        Divider.__init__(self, fig=axes.get_figure(), pos=None,
+        super().__init__(fig=axes.get_figure(), pos=None,
                          horizontal=[self._xref], vertical=[self._yref],
                          aspect=None, anchor="C")
 

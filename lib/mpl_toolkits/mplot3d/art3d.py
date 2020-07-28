@@ -296,7 +296,7 @@ class Patch3D(Patch):
     """
 
     def __init__(self, *args, zs=(), zdir='z', **kwargs):
-        Patch.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
@@ -327,6 +327,7 @@ class PathPatch3D(Patch3D):
     """
 
     def __init__(self, path, *, zs=(), zdir='z', **kwargs):
+        # Not super().__init__!
         Patch.__init__(self, **kwargs)
         self.set_3d_properties(path, zs, zdir)
 
