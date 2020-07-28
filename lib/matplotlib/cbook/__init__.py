@@ -1321,7 +1321,7 @@ def _check_1d(x):
             with warnings.catch_warnings(record=True) as w:
                 warnings.filterwarnings(
                     "always",
-                    category=DeprecationWarning,
+                    category=Warning,
                     message='Support for multi-dimensional indexing')
 
                 ndim = x[:, None].ndim
