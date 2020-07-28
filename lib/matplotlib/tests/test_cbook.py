@@ -744,7 +744,7 @@ def test_setattr_cm():
 
 
 def test_format_approx():
-    f = cbook.format_approx
+    f = cbook._format_approx
     assert f(0, 1) == '0'
     assert f(0, 2) == '0'
     assert f(0, 3) == '0'

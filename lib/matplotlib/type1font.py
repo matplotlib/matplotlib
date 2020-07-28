@@ -29,7 +29,7 @@ import struct
 
 import numpy as np
 
-from matplotlib.cbook import format_approx
+from matplotlib.cbook import _format_approx
 
 
 # token types
@@ -271,7 +271,7 @@ class Type1Font:
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
             return (
-                '[%s]' % ' '.join(format_approx(x, 6) for x in array)
+                '[%s]' % ' '.join(_format_approx(x, 6) for x in array)
             ).encode('ascii')
 
         def replace(fun):
