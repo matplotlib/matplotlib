@@ -1373,6 +1373,12 @@
     "matplotlib.animation.TimedAnimation.to_jshtml": [
       "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:21:<autosummary>:1"
     ],
+    "matplotlib.animation.TimedAnimation.pause": [
+      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
+    ],
+    "matplotlib.animation.TimedAnimation.resume": [
+      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
+    ],
     "matplotlib.cbook.ls_mapper": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:11",
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:8"
