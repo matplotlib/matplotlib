@@ -43,5 +43,5 @@ class PauseAnimation:
         return (self.p,)
 
 
-PauseAnimation()
+pa = PauseAnimation()
 plt.show()
