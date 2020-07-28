@@ -293,7 +293,8 @@ class MovieWriter(AbstractMovieWriter):
                 'MovieWriter cannot be instantiated directly. Please use one '
                 'of its subclasses.')
 
-        super().__init__(fps=fps, metadata=metadata)
+        super().__init__(fps=fps, metadata=metadata, codec=codec,
+                         bitrate=bitrate)
 
         self.frame_format = 'rgba'
         self.extra_args = extra_args
