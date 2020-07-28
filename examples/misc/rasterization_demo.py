@@ -6,15 +6,15 @@ Rasterization Demo
 Rasterization is a method where an image described in a vector graphics
 format is being converted into a raster image (pixels).
 
-Individual artists can be rasterized for saving to a vector backend 
-such as PDF, SVG, or PS as embedded images.  This can be useful to 
-reduce the file size of large artists, while maintaining the 
-advantages of vector graphics for other artists such as the axes 
-and annotations.  For instance a complicated `~.Axes.pcolormesh` or 
-`~.Axes.contourf` can be made significantly simpler by rasterizing. 
-Note that the size and resolution of the rasterized artist is 
-controlled by its physical size and the value of the ``dpi`` kwarg 
-passed to `~.Figure.savefig`.  
+Individual artists can be rasterized for saving to a vector backend
+such as PDF, SVG, or PS as embedded images.  This can be useful to
+reduce the file size of large artists, while maintaining the
+advantages of vector graphics for other artists such as the axes
+and annotations.  For instance a complicated `~.Axes.pcolormesh` or
+`~.Axes.contourf` can be made significantly simpler by rasterizing.
+Note that the size and resolution of the rasterized artist is
+controlled by its physical size and the value of the ``dpi`` kwarg
+passed to `~.Figure.savefig`.
 """
 
 import numpy as np
