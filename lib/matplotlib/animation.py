@@ -554,7 +554,9 @@ class FFMpegBase:
     @property
     def output_args(self):
         args = []
-        if not Path(self.outfile).suffix == '.gif':
+        if Path(self.outfile).suffix == '.gif':
+            self.codec = 'gif'
+        else:
             args.extend(['-vcodec', self.codec])
         extra_args = (self.extra_args if self.extra_args is not None
                       else mpl.rcParams[self._args_key])
@@ -564,6 +566,11 @@ class FFMpegBase:
         # OSX). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
+        # For GIF, we're telling FFMPEG to split the video stream, to generate
+        # a palette, and then use it for encoding.
+        elif self.codec == 'gif' and '-filter_complex' not in extra_args:
+            args.extend(['-filter_complex',
+                         'split [a][b];[a] palettegen [p];[b][p] paletteuse'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
         args.extend(extra_args)
