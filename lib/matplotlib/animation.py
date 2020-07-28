@@ -1355,6 +1355,20 @@ class Animation:
         elif fmt == 'jshtml':
             return self.to_jshtml()
 
+    def pause(self):
+        """Pause the animation."""
+        self.event_source.stop()
+        if self._blit:
+            for artist in self._drawn_artists:
+                artist.set_animated(False)
+
+    def resume(self):
+        """Resume the animation."""
+        self.event_source.start()
+        if self._blit:
+            for artist in self._drawn_artists:
+                artist.set_animated(True)
+
 
 class TimedAnimation(Animation):
     """
