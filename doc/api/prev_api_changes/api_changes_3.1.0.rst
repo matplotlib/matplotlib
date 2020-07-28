@@ -531,7 +531,11 @@ The following miscellaneous API elements have been removed
 
     import logging
     logger = logging.getLogger('matplotlib')
-    logger.set_level(logging.INFO)
+    logger.setLevel(logging.INFO)
+    # configure log handling: Either include it into your ``logging`` hierarchy,
+    # e.g. by configuring a root looger using ``logging.basicConfig()``,
+    # or add a standalone handler to the matplotlib logger:
+    logger.addHandler(logging.StreamHandler())
 
 - ``__version__numpy__``
 - ``collections.CIRCLE_AREA_FACTOR``
