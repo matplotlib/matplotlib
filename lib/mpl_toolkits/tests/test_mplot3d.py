@@ -975,7 +975,7 @@ def test_minor_ticks():
     ax.set_zticklabels(["half"], minor=True)
 
 
-@mpl3d_image_comparison(['errorbar3d_errorevery.png'], tol=0.03)
+@mpl3d_image_comparison(['errorbar3d_errorevery.png'])
 def test_errorbar3d_errorevery():
     """Tests errorevery functionality for 3d errorbars."""
     t = np.arange(0, 2*np.pi+.1, 0.01)
@@ -993,7 +993,7 @@ def test_errorbar3d_errorevery():
                 errorevery=estep)
 
 
-@mpl3d_image_comparison(['errorbar3d.png'], tol=0.03)
+@mpl3d_image_comparison(['errorbar3d.png'])
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3d errorbars."""
     fig = plt.figure()

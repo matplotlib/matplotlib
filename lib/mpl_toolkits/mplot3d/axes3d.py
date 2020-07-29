@@ -3135,8 +3135,7 @@ pivot='tail', normalize=False, **kwargs)
                 low_err, high_err = err, err
 
             # for compatibility with the 2d errorbar function, when both upper
-            # and lower limits specified, we need to draw the markers / line -
-            # whether or not using both limits makes any sense (it doesn't)
+            # and lower limits specified, we need to draw the markers / line
             common_mask = (lomask == himask) & everymask
             _lomask = lomask | common_mask
             _himask = himask | common_mask
