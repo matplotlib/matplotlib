@@ -1624,7 +1624,8 @@ class Axes3D(Axes):
                 "Z contains NaN values. This may result in rendering "
                 "artifacts.")
 
-        mask = Z.mask if np.ma.isMaskedArray(Z) else np.zeros_like(Z, dtype=bool)
+        mask = (Z.mask if np.ma.isMaskedArray(Z)
+                else np.zeros_like(Z, dtype=bool))
         X, Y, Z, mask = np.broadcast_arrays(X, Y, Z, mask)
         rows, cols = Z.shape
 
