@@ -229,12 +229,13 @@ fig.canvas.draw()
 leg.set_in_layout(True)
 # we don't want the layout to change at this point.
 fig.set_constrained_layout(False)
-fig.savefig('CL01.png', bbox_inches='tight', dpi=100)
+fig.savefig('../../doc/_static/constrained_layout_1b.png',
+            bbox_inches='tight', dpi=100)
 
 #############################################
 # The saved file looks like:
 #
-# .. image:: /_static/constrained_layout/CL01.png
+# .. image:: /_static/constrained_layout_1b.png
 #    :align: center
 #
 # A better way to get around this awkwardness is to simply
@@ -245,12 +246,13 @@ lines = axs[1].plot(np.arange(10), label='This is a plot')
 labels = [l.get_label() for l in lines]
 leg = fig.legend(lines, labels, loc='center left',
                  bbox_to_anchor=(0.8, 0.5), bbox_transform=axs[1].transAxes)
-fig.savefig('CL02.png', bbox_inches='tight', dpi=100)
+fig.savefig('../../doc/_static/constrained_layout_2b.png',
+            bbox_inches='tight', dpi=100)
 
 #############################################
 # The saved file looks like:
 #
-# .. image:: /_static/constrained_layout/CL02.png
+# .. image:: /_static/constrained_layout_2b.png
 #    :align: center
 #
 
