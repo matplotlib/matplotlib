@@ -125,7 +125,13 @@ def test_noop_tight_bbox():
     ax.get_yaxis().set_visible(False)
 
     data = np.arange(x_size * y_size).reshape(y_size, x_size)
-    ax.imshow(data)
+    ax.imshow(data, rasterized=True)
+
+    # When a rasterized Artist is included, a mixed-mode renderer does
+    # additional bbox adjustment. It should also be a no-op, and not affect the
+    # next save.
+    fig.savefig(BytesIO(), bbox_inches='tight', pad_inches=0, format='pdf')
+
     out = BytesIO()
     fig.savefig(out, bbox_inches='tight', pad_inches=0)
     out.seek(0)
