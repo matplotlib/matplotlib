@@ -107,7 +107,7 @@ def test_multiple_keys():
 @image_comparison(['rgba_alpha.png'], remove_text=True,
                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_alpha_rgba():
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
     leg = plt.legend(['Longlabel that will go away'], loc='center')
     leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
@@ -116,7 +116,7 @@ def test_alpha_rgba():
 @image_comparison(['rcparam_alpha.png'], remove_text=True,
                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_alpha_rcparam():
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
     with mpl.rc_context(rc={'legend.framealpha': .75}):
         leg = plt.legend(['Longlabel that will go away'], loc='center')
@@ -228,26 +228,26 @@ def test_legend_remove():
 
 class TestLegendFunction:
     # Tests the legend function on the Axes and pyplot.
-    def test_legend_handle_label(self):
-        lines = plt.plot(range(10))
-        with mock.patch('matplotlib.legend.Legend') as Legend:
-            plt.legend(lines, ['hello world'])
-        Legend.assert_called_with(plt.gca(), lines, ['hello world'])
-
-    def test_legend_handles_only(self):
-        lines = plt.plot(range(10))
-        with pytest.raises(TypeError, match='but found an Artist'):
-            # a single arg is interpreted as labels
-            # it's a common error to just pass handles
-            plt.legend(lines)
-
     def test_legend_no_args(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend()
         Legend.assert_called_with(plt.gca(), lines, ['hello world'])
 
-    def test_legend_label_args(self):
+    def test_legend_positional_handles_labels(self):
+        lines = plt.plot(range(10))
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            plt.legend(lines, ['hello world'])
+        Legend.assert_called_with(plt.gca(), lines, ['hello world'])
+
+    def test_legend_positional_handles_only(self):
+        lines = plt.plot(range(10))
+        with pytest.raises(TypeError, match='but found an Artist'):
+            # a single arg is interpreted as labels
+            # it's a common error to just pass handles
+            plt.legend(lines)
+
+    def test_legend_positional_labels_only(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend(['foobar'])
@@ -267,20 +267,40 @@ class TestLegendFunction:
             plt.legend(handler_map={'1': 2})
         handles_labels.assert_called_with([plt.gca()], {'1': 2})
 
-    def test_kwargs(self):
-        fig, ax = plt.subplots(1, 1)
-        th = np.linspace(0, 2*np.pi, 1024)
-        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
-        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+    def test_legend_kwargs_handles_only(self):
+        fig, ax = plt.subplots()
+        x = np.linspace(0, 1, 11)
+        ln1, = ax.plot(x, x, label='x')
+        ln2, = ax.plot(x, 2*x, label='2x')
+        ln3, = ax.plot(x, 3*x, label='3x')
         with mock.patch('matplotlib.legend.Legend') as Legend:
+            ax.legend(handles=[ln3, ln2])  # reversed and not ln1
+        Legend.assert_called_with(ax, [ln3, ln2], ['3x', '2x'])
+
+    def test_legend_kwargs_labels_only(self):
+        fig, ax = plt.subplots()
+        x = np.linspace(0, 1, 11)
+        ln1, = ax.plot(x, x)
+        ln2, = ax.plot(x, 2*x)
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            ax.legend(labels=['x', '2x'])
+        Legend.assert_called_with(ax, [ln1, ln2], ['x', '2x'])
+
+    def test_legend_kwargs_handles_labels(self):
+        fig, ax = plt.subplots()
+        th = np.linspace(0, 2*np.pi, 1024)
+        lns, = ax.plot(th, np.sin(th), label='sin')
+        lnc, = ax.plot(th, np.cos(th), label='cos')
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            # labels of lns, lnc are overwritten with explict ('a', 'b')
             ax.legend(labels=('a', 'b'), handles=(lnc, lns))
         Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
 
-    def test_warn_args_kwargs(self):
-        fig, ax = plt.subplots(1, 1)
+    def test_warn_mixed_args_and_kwargs(self):
+        fig, ax = plt.subplots()
         th = np.linspace(0, 2*np.pi, 1024)
-        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
-        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+        lns, = ax.plot(th, np.sin(th), label='sin')
+        lnc, = ax.plot(th, np.cos(th), label='cos')
         with pytest.warns(UserWarning) as record:
             ax.legend((lnc, lns), labels=('a', 'b'))
         assert len(record) == 1
