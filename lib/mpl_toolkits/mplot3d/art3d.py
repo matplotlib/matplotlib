@@ -572,7 +572,7 @@ class Poly3DCollection(PolyCollection):
         Parameters
         ----------
         verts : list of array-like Nx3
-            Each element describes a polygon as a sequnce of ``N_i`` points
+            Each element describes a polygon as a sequence of ``N_i`` points
             ``(x, y, z)``.
         zsort : {'average', 'min', 'max'}, default: 'average'
             The calculation method for the z-order.
