@@ -28,7 +28,7 @@ xx = x*np.cos(theta) - y*np.sin(theta)  # rotate x by -theta
 yy = x*np.sin(theta) + y*np.cos(theta)  # rotate y by -theta
 
 # Plot the rasterized and non-rasterized plot
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, constrained_layout=True)
 
 # Create a pseudocolor non-rastertized plot with a non-regular rectangular grid
 ax1.set_aspect(1)
@@ -38,9 +38,7 @@ ax1.set_title("No Rasterization")
 # Create a pseudocolor rastertized plot with a non-regular rectangular grid
 ax2.set_aspect(1)
 ax2.set_title("Rasterization")
-m = ax2.pcolormesh(xx, yy, d)
-# Force rasterized drawing in vector backend output
-m.set_rasterized(True)
+m = ax2.pcolormesh(xx, yy, d, rasterized=True)
 
 # Create a pseudocolor non-rastertized plot with a non-regular rectangular
 # grid and an overlapped "Text"
@@ -53,10 +51,8 @@ ax3.set_title("No Rasterization")
 # Create a pseudocolor rastertized plot with a non-regular rectangular
 # grid and an overlapped "Text"
 ax4.set_aspect(1)
-m = ax4.pcolormesh(xx, yy, d)
-m.set_zorder(-20)
-ax4.text(0.5, 0.5, "Text", alpha=0.2,
-         zorder=-15,
+m = ax4.pcolormesh(xx, yy, d, zorder=-20)
+ax4.text(0.5, 0.5, "Text", alpha=0.2, zorder=-15,
          va="center", ha="center", size=50, transform=ax4.transAxes)
 # Set zorder value below which artists will be rasterized
 ax4.set_rasterization_zorder(-10)
