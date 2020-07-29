@@ -1624,8 +1624,8 @@ class Axes3D(Axes):
                 "Z contains NaN values. This may result in rendering "
                 "artifacts.")
 
-        # TODO: Support masked arrays
-        X, Y, Z = np.broadcast_arrays(X, Y, Z)
+        mask = Z.mask if np.ma.isMaskedArray(Z) else np.zeros_like(Z, dtype=bool)
+        X, Y, Z, mask = np.broadcast_arrays(X, Y, Z, mask)
         rows, cols = Z.shape
 
         has_stride = 'rstride' in kwargs or 'cstride' in kwargs
@@ -1678,8 +1678,10 @@ class Axes3D(Axes):
            fcolors is None:
             polys = np.stack(
                 [cbook._array_patch_perimeters(a, rstride, cstride)
-                 for a in (X, Y, Z)],
+                 for a in (X, Y, Z, mask)],
                 axis=-1)
+            masked = np.any(polys[..., 3], axis=1)
+            polys = polys[~masked, :, :3]
         else:
             # evenly spaced, and including both endpoints
             row_inds = list(range(0, rows-1, rstride)) + [rows-1]
@@ -1691,7 +1693,7 @@ class Axes3D(Axes):
                     ps = [
                         # +1 ensures we share edges between polygons
                         cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
-                        for a in (X, Y, Z)
+                        for a in (X, Y, Z, mask)
                     ]
                     # ps = np.stack(ps, axis=-1)
                     ps = np.array(ps).T
@@ -1699,6 +1701,9 @@ class Axes3D(Axes):
 
                     if fcolors is not None:
                         colset.append(fcolors[rs][cs])
+            # For the masking we have to loop because the polys may
+            # not be regularly shaped
+            polys = [p[:, :3] for p in polys if not np.any(p[:, 3])]
 
         # note that the striding causes some polygons to have more coordinates
         # than others
@@ -1730,7 +1735,7 @@ class Axes3D(Axes):
             polyc.set_facecolors(colset)
 
         self.add_collection(polyc)
-        self.auto_scale_xyz(X, Y, Z, had_data)
+        self.auto_scale_xyz(X, Y, Z[~mask], had_data)
 
         return polyc
 
