@@ -420,6 +420,19 @@ def test_surface3d_shaded():
     ax.set_zlim(-1.01, 1.01)
 
 
+@mpl3d_image_comparison(['surface3d_masked.png'])
+def test_surface3d_masked():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    X = np.arange(1, 10, 1)
+    Y = np.arange(1, 10, 1)
+    X, Y = np.meshgrid(X, Y)
+    Z = X**3 + Y**3 - 500
+    Z = np.ma.masked_array(Z, Z < 0)
+    ax.plot_surface(X, Y, Z, lw=0, antialiased=False)
+    ax.set_zlim(-1, 1000)
+
+
 @mpl3d_image_comparison(['text3d.png'], remove_text=False)
 def test_text3d():
     fig = plt.figure()
