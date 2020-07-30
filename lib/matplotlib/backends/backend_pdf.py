@@ -6,6 +6,7 @@ Author: Jouni K Seppänen <jks@iki.fi>
 import codecs
 import collections
 from datetime import datetime
+from enum import Enum
 from functools import total_ordering
 from io import BytesIO
 import itertools
@@ -398,44 +399,67 @@ class Verbatim:
 
 
 # PDF operators (not an exhaustive list)
-_pdfops = dict(
-    close_fill_stroke=b'b', fill_stroke=b'B', fill=b'f', closepath=b'h',
-    close_stroke=b's', stroke=b'S', endpath=b'n', begin_text=b'BT',
-    end_text=b'ET', curveto=b'c', rectangle=b're', lineto=b'l', moveto=b'm',
-    concat_matrix=b'cm', use_xobject=b'Do', setgray_stroke=b'G',
-    setgray_nonstroke=b'g', setrgb_stroke=b'RG', setrgb_nonstroke=b'rg',
-    setcolorspace_stroke=b'CS', setcolorspace_nonstroke=b'cs',
-    setcolor_stroke=b'SCN', setcolor_nonstroke=b'scn', setdash=b'd',
-    setlinejoin=b'j', setlinecap=b'J', setgstate=b'gs', gsave=b'q',
-    grestore=b'Q', textpos=b'Td', selectfont=b'Tf', textmatrix=b'Tm',
-    show=b'Tj', showkern=b'TJ', setlinewidth=b'w', clip=b'W', shading=b'sh')
+class Op(Operator, Enum):
+    close_fill_stroke = b'b'
+    fill_stroke = b'B'
+    fill = b'f'
+    closepath = b'h',
+    close_stroke = b's'
+    stroke = b'S'
+    endpath = b'n'
+    begin_text = b'BT',
+    end_text = b'ET'
+    curveto = b'c'
+    rectangle = b're'
+    lineto = b'l'
+    moveto = b'm',
+    concat_matrix = b'cm'
+    use_xobject = b'Do'
+    setgray_stroke = b'G',
+    setgray_nonstroke = b'g'
+    setrgb_stroke = b'RG'
+    setrgb_nonstroke = b'rg',
+    setcolorspace_stroke = b'CS'
+    setcolorspace_nonstroke = b'cs',
+    setcolor_stroke = b'SCN'
+    setcolor_nonstroke = b'scn'
+    setdash = b'd',
+    setlinejoin = b'j'
+    setlinecap = b'J'
+    setgstate = b'gs'
+    gsave = b'q',
+    grestore = b'Q'
+    textpos = b'Td'
+    selectfont = b'Tf'
+    textmatrix = b'Tm',
+    show = b'Tj'
+    showkern = b'TJ'
+    setlinewidth = b'w'
+    clip = b'W'
+    shading = b'sh'
 
-Op = types.SimpleNamespace(**{name: Operator(value)
-                              for name, value in _pdfops.items()})
+    @classmethod
+    def paint_path(cls, fill, stroke):
+        """
+        Return the PDF operator to paint a path.
 
-
-def _paint_path(fill, stroke):
-    """
-    Return the PDF operator to paint a path.
-
-    Parameters
-    ----------
-    fill: bool
-        Fill the path with the fill color.
-    stroke: bool
-        Stroke the outline of the path with the line color.
-    """
-    if stroke:
-        if fill:
-            return Op.fill_stroke
+        Parameters
+        ----------
+        fill: bool
+            Fill the path with the fill color.
+        stroke: bool
+            Stroke the outline of the path with the line color.
+        """
+        if stroke:
+            if fill:
+                return cls.fill_stroke
+            else:
+                return cls.stroke
         else:
-            return Op.stroke
-    else:
-        if fill:
-            return Op.fill
-        else:
-            return Op.endpath
-Op.paint_path = _paint_path
+            if fill:
+                return cls.fill
+            else:
+                return cls.endpath
 
 
 class Stream:
