@@ -325,6 +325,7 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     ],
     install_requires=[
         "cycler>=0.10",
+        "fonttools>=4.13.0,<5.0",
         "kiwisolver>=1.0.1",
         "numpy>=1.17",
         "packaging>=20.0",

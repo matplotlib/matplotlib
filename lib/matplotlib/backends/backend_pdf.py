@@ -15,11 +15,13 @@ import math
 import os
 import re
 import struct
+import tempfile
 import time
 import types
 import warnings
 import zlib
 
+from fontTools import subset
 import numpy as np
 from PIL import Image
 
@@ -36,7 +38,7 @@ from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, KERNING_UNFITTED)
+                                LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
@@ -1209,6 +1211,17 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
+            print(f"SUBSET {filename} characters: {''.join(chr(c) for c in characters)}")
+            fontdata = self.getSubset(filename, ''.join(chr(c) for c in characters))
+            print(f'SUBSET {filename} {os.stat(filename).st_size} -> {len(fontdata)}')
+
+            # reload the font object from the subset
+            # (all the necessary data could probably be obtained directly using fontLib.ttLib)
+            with tempfile.NamedTemporaryFile(suffix='.ttf') as tmp:
+                tmp.write(fontdata)
+                tmp.seek(0,0)
+                font = FT2Font(tmp.name)
+
             cidFontDict = {
                 'Type': Name('Font'),
                 'Subtype': Name('CIDFontType2'),
@@ -1233,21 +1246,12 @@ end"""
 
             # Make fontfile stream
             descriptor['FontFile2'] = fontfileObject
-            length1Object = self.reserveObject('decoded length of a font')
             self.beginStream(
                 fontfileObject.id,
                 self.reserveObject('length of font stream'),
-                {'Length1': length1Object})
-            with open(filename, 'rb') as fontfile:
-                length1 = 0
-                while True:
-                    data = fontfile.read(4096)
-                    if not data:
-                        break
-                    length1 += len(data)
-                    self.currentstream.write(data)
+                {'Length1': len(fontdata)})
+            self.currentstream.write(fontdata)
             self.endStream()
-            self.writeObject(length1Object, length1)
 
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
             # at the same time
@@ -1395,6 +1399,25 @@ end"""
             return embedTTFType3(font, characters, descriptor)
         elif fonttype == 42:
             return embedTTFType42(font, characters, descriptor)
+
+    @classmethod
+    def getSubset(self, fontfile, characters):
+        """Read TTF font from the given file and subset it for the given characters.
+
+        Returns a serialization of the subset font as bytes."""
+
+        options = subset.Options(glyph_names=True, recommended_glyphs=True)
+        options.drop_tables += ['FFTM']
+        font = subset.load_font(fontfile, options)
+        try:
+            subsetter = subset.Subsetter(options=options)
+            subsetter.populate(text=characters)
+            subsetter.subset(font)
+            fh = BytesIO()
+            font.save(fh, reorderTables=False)
+            return fh.getvalue()
+        finally:
+            font.close()
 
     def alphaState(self, alpha):
         """Return name of an ExtGState that sets alpha to the given value."""
