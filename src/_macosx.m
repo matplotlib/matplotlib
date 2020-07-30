@@ -18,6 +18,40 @@
 #define COMPILING_FOR_10_10
 #endif
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101200
+/* A lot of symbols were renamed in Sierra and cause deprecation warnings
+   so define macros for the new names if we are compiling on an older SDK */
+#define NSEventMaskAny                       NSAnyEventMask
+#define NSEventTypeApplicationDefined        NSApplicationDefined
+#define NSEventModifierFlagCommand           NSCommandKeyMask
+#define NSEventModifierFlagControl           NSControlKeyMask
+#define NSEventModifierFlagOption            NSAlternateKeyMask
+#define NSEventModifierFlagShift             NSShiftKeyMask
+#define NSEventTypeKeyUp                     NSKeyUp
+#define NSEventTypeKeyDown                   NSKeyDown
+#define NSEventTypeMouseMoved                NSMouseMoved
+#define NSEventTypeLeftMouseDown             NSLeftMouseDown
+#define NSEventTypeRightMouseDown            NSRightMouseDown
+#define NSEventTypeOtherMouseDown            NSOtherMouseDown
+#define NSEventTypeLeftMouseDragged          NSLeftMouseDragged
+#define NSEventTypeRightMouseDragged         NSRightMouseDragged
+#define NSEventTypeOtherMouseDragged         NSOtherMouseDragged
+#define NSEventTypeLeftMouseUp               NSLeftMouseUp
+#define NSEventTypeRightMouseUp              NSRightMouseUp
+#define NSEventTypeOtherMouseUp              NSOtherMouseUp
+#define NSWindowStyleMaskClosable            NSClosableWindowMask
+#define NSWindowStyleMaskMiniaturizable      NSMiniaturizableWindowMask
+#define NSWindowStyleMaskResizable           NSResizableWindowMask
+#define NSWindowStyleMaskTitled              NSTitledWindowMask
+#endif
+
+#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101400
+/* A few more deprecations in Mojave */
+#define NSButtonTypeMomentaryLight           NSMomentaryLightButton
+#define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
+#define NSBezelStyleShadowlessSquare         NSShadowlessSquareBezelStyle
+#define CGContext                            graphicsPort
+#endif
 
 /* CGFloat was defined in Mac OS X 10.5 */
 #ifndef CGFLOAT_DEFINED
