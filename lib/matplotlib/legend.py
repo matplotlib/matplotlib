@@ -1162,7 +1162,45 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     Get the handles and labels from the calls to either ``figure.legend``
     or ``axes.legend``.
 
-    ``axs`` is a list of axes (to get legend artists from)
+    The parser is a bit involved because we support::
+
+        legend()
+        legend(labels)
+        legend(handles, labels)
+        legend(labels=labels)
+        legend(handles=handles)
+        legend(handles=handles, labels=labels)
+
+    The behavior for a mixture of positional and keyword handles and labels
+    is undefined and issues a warning.
+
+    Parameters
+    ----------
+    axs : list of `.Axes`
+        If handles are not given explicitly, the artists in these Axes are
+        used as handles.
+    *args : tuple
+        Positional parameters passed to ``legend()``.
+    handles
+        The value of the keyword argument ``legend(handles=...)``, or *None*
+        if that keyword argument was not used.
+    labels
+        The value of the keyword argument ``legend(labels=...)``, or *None*
+        if that keyword argument was not used.
+    **kwargs
+        All other keyword arguments passed to ``legend()``.
+
+    Returns
+    -------
+    handles : list of `.Artist`
+        The legend handles.
+    labels : list of str
+        The legend labels.
+    extra_args : tuple
+        *args* with positional handles and labels removed.
+    kwargs : dict
+        *kwargs* with keywords handles and labels removed.
+
     """
     log = logging.getLogger(__name__)
 
