@@ -1723,13 +1723,13 @@ class FuncAnimation(TimedAnimation):
 
         if self._blit:
 
-            err = RuntimeError('The animation function must return a '
-                                   'sequence of Artist objects.')
+            err = RuntimeError('The animation function must return a sequence '
+                               'of Artist objects.')
             try:
                 # check if a sequence
                 iter(self._drawn_artists)
             except TypeError:
-                raise err
+                raise err from None
 
             # check each item if is artist
             for i in self._drawn_artists:

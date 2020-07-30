@@ -10,7 +10,6 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from matplotlib import artist
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
@@ -275,34 +274,32 @@ def test_funcanimation_cache_frame_data(cache_frame_data):
         assert (f() is None) != cache_frame_data
 
 
-def test_draw_frame():
+@pytest.mark.parametrize('return_value', [
+    # User forgot to return (returns None).
+    None,
+    # User returned a string.
+    'string',
+    # User returned an int.
+    1,
+    # User returns a sequence of other objects, e.g., string instead of Artist.
+    ('string', ),
+    # User forgot to return a sequence (handled in `animate` below.)
+    'artist',
+])
+def test_draw_frame(return_value):
     # test _draw_frame method
 
     fig, ax = plt.subplots()
     line, = ax.plot([])
 
-    def animate(i, arg):
+    def animate(i):
         # general update func
         line.set_data([0, 1], [0, i])
-        if arg:
-            return arg
+        if return_value == 'artist':
+            # *not* a sequence
+            return line
+        else:
+            return return_value
 
     with pytest.raises(RuntimeError):
-
-        # user forgot to return (returns None)
-        animation.FuncAnimation(fig, animate, blit=True, fargs=(None,))
-
-        # user (for some reason) returned a string...AttributeError is raised
-        animation.FuncAnimation(fig, animate, blit=True, fargs=('string', ))
-
-        # user (for some reason) returned a string...AttributeError is raised
-        animation.FuncAnimation(fig, animate, blit=True, fargs=(1, ))
-
-        # user returns a sequence of other objects
-        # e.g. a string instead of Artist
-        animation.FuncAnimation(fig, animate, blit=True, fargs=(('string',), ))
-
-        # user forgot to put comma or return a sequence
-        # TypeError will be raised (same with returning a number or bool)
-        artist_obj = artist.Artist()
-        animation.FuncAnimation(fig, animate, blit=True, fargs=(artist_obj, ))
+        animation.FuncAnimation(fig, animate, blit=True)
