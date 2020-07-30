@@ -10,6 +10,7 @@ import numpy as np
 
 import matplotlib.cbook as cbook
 
+
 # same algorithm as 3.8's math.comb
 @np.vectorize
 @lru_cache(maxsize=128)

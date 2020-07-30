@@ -28,7 +28,7 @@ import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
-from matplotlib.gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec  # noqa: F401
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
