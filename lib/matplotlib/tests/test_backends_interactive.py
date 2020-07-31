@@ -19,7 +19,7 @@ import matplotlib as mpl
 
 def _get_testable_interactive_backends():
     try:
-        from matplotlib.backends.qt_compat import QtGui
+        from matplotlib.backends.qt_compat import QtGui  # noqa
         have_qt5 = True
     except ImportError:
         have_qt5 = False
