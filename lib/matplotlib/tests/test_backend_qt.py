@@ -9,6 +9,12 @@ from matplotlib._pylab_helpers import Gcf
 import pytest
 
 
+try:
+    from matplotlib.backends.qt_compat import QtGui
+except ImportError:
+    pytestmark = pytest.mark.skip('No usable Qt5 bindings')
+
+
 @pytest.fixture
 def qt_core(request):
     backend, = request.node.get_closest_marker('backend').args
