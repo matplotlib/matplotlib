@@ -9,6 +9,15 @@ sudo ln -s /usr/local/bin/python3 /usr/local/bin/python
 hash -r
 echo travis_fold:end:Python
 
+echo travis_fold:start:Qt4.8
+curl -O https://download.qt.io/archive/qt/4.8/4.8.7/qt-opensource-mac-4.8.7.dmg
+hdiutil attach qt-opensource-mac-4.8.7.dmg
+sudo installer -package '/Volumes/Qt 4.8.7/packages/Qt_headers.pkg' -target /
+sudo installer -package '/Volumes/Qt 4.8.7/packages/Qt_imports.pkg' -target /
+sudo installer -package '/Volumes/Qt 4.8.7/packages/Qt_libraries.pkg' -target /
+hdiutil detach '/Volumes/Qt 4.8.7'
+echo travis_fold:end:Qt4.8
+
 echo travis_fold:start:ccache
 curl -O -L https://github.com/ccache/ccache/releases/download/v3.7.11/ccache-3.7.11.tar.xz
 tar xf ccache-3.7.11.tar.xz
