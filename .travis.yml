@@ -89,7 +89,7 @@ matrix:
     - os: osx
       osx_image: xcode9
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
-      #only: master
+      only: master
       cache:
         # As for now travis caches only "$HOME/.cache/pip"
         # https://docs.travis-ci.com/user/caching/#pip-cache
