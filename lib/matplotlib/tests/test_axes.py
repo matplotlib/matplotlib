@@ -6717,34 +6717,24 @@ def test_ytickcolor_is_not_markercolor():
         assert tick.tick1line.get_markeredgecolor() != 'white'
 
 
+@pytest.mark.parametrize('axis', ('x', 'y'))
 @pytest.mark.parametrize('auto', (True, False, None))
-def test_unautoscaley(auto):
-    fig, ax = plt.subplots()
-    x = np.arange(100)
-    y = np.linspace(-.1, .1, 100)
-    ax.scatter(x, y)
-
-    post_auto = ax.get_autoscaley_on() if auto is None else auto
-
-    ax.set_ylim((-.5, .5), auto=auto)
-    assert post_auto == ax.get_autoscaley_on()
-    fig.canvas.draw()
-    assert_array_equal(ax.get_ylim(), (-.5, .5))
-
-
-@pytest.mark.parametrize('auto', (True, False, None))
-def test_unautoscalex(auto):
+def test_unautoscale(axis, auto):
     fig, ax = plt.subplots()
     x = np.arange(100)
     y = np.linspace(-.1, .1, 100)
     ax.scatter(y, x)
 
-    post_auto = ax.get_autoscalex_on() if auto is None else auto
+    get_autoscale_on = getattr(ax, f'get_autoscale{axis}_on')
+    set_lim = getattr(ax, f'set_{axis}lim')
+    get_lim = getattr(ax, f'get_{axis}lim')
 
-    ax.set_xlim((-.5, .5), auto=auto)
-    assert post_auto == ax.get_autoscalex_on()
+    post_auto = get_autoscale_on() if auto is None else auto
+
+    set_lim((-0.5, 0.5), auto=auto)
+    assert post_auto == get_autoscale_on()
     fig.canvas.draw()
-    assert_array_equal(ax.get_xlim(), (-.5, .5))
+    assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
 @check_figures_equal(extensions=["png"])
