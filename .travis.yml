@@ -104,6 +104,7 @@ matrix:
 
 before_install:
 - |
+  # Install libraries and set up ccache
   case "$TRAVIS_OS_NAME" in
   linux)
     export PATH=/usr/lib/ccache:$PATH
