@@ -58,7 +58,11 @@ extensions = [
     'sphinx_copybutton',
 ]
 
-exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
+exclude_patterns = [
+    'api/prev_api_changes/api_changes_*/*',
+    # Be sure to update users/whats_new.rst:
+    'users/prev_whats_new/whats_new_3.3.0.rst',
+]
 
 
 def _check_dependencies():
