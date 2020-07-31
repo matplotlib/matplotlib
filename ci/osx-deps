@@ -2,23 +2,26 @@
 
 set -euo pipefail
 
-echo travis_fold:start:Python
+echo -e "travis_fold:start:Python\e[2K"
+echo "Install Python 3.8 from python.org"
 curl -O https://www.python.org/ftp/python/3.8.5/python-3.8.5-macosx10.9.pkg
 sudo installer -package python-3.8.5-macosx10.9.pkg -target /
 sudo ln -s /usr/local/bin/python3 /usr/local/bin/python
 hash -r
-echo travis_fold:end:Python
+echo -e "travis_fold:end:Python\e[2K"
 
-echo travis_fold:start:Qt4.8
+echo -e "travis_fold:start:Qt4.8\e[2K"
+echo "Install Qt 4.8 from qt.io"
 curl -O https://download.qt.io/archive/qt/4.8/4.8.7/qt-opensource-mac-4.8.7.dmg
 hdiutil attach qt-opensource-mac-4.8.7.dmg
 sudo installer -package '/Volumes/Qt 4.8.7/packages/Qt_headers.pkg' -target /
 sudo installer -package '/Volumes/Qt 4.8.7/packages/Qt_imports.pkg' -target /
 sudo installer -package '/Volumes/Qt 4.8.7/packages/Qt_libraries.pkg' -target /
 hdiutil detach '/Volumes/Qt 4.8.7'
-echo travis_fold:end:Qt4.8
+echo -e "travis_fold:end:Qt4.8\e[2K"
 
-echo travis_fold:start:ccache
+echo -e "travis_fold:start:ccache\e[2K"
+echo 'Install ccache (compile it ourselves)'
 curl -O -L https://github.com/ccache/ccache/releases/download/v3.7.11/ccache-3.7.11.tar.xz
 tar xf ccache-3.7.11.tar.xz
 pushd ccache-3.7.11
@@ -29,9 +32,10 @@ popd
 for compiler in clang clang++ cc gcc c++ g++; do
   ln -sf ccache /usr/local/bin/$compiler
 done
-echo travis_fold:end:ccache
+echo -e "travis_fold:end:ccache\e[2K"
 
-echo travis_fold:start:pkg-config
+echo -e "travis_fold:start:pkg-config\e[2K"
+echo 'Install pkg-config (compile it ourselves)'
 curl -O -L https://dl.bintray.com/homebrew/mirror/pkg-config-0.29.2.tar.gz
 tar xf pkg-config-0.29.2.tar.gz
 pushd pkg-config-0.29.2
@@ -41,9 +45,10 @@ pushd pkg-config-0.29.2
 make
 make install
 popd
-echo travis_fold:end:pkg-config
+echo -e "travis_fold:end:pkg-config\e[2K"
 
-echo travis_fold:start:libpng
+echo -e "travis_fold:start:libpng\e[2K"
+echo 'Install libpng (compile it ourselves)'
 curl -O -L https://downloads.sourceforge.net/libpng/libpng-1.6.37.tar.xz
 tar xf libpng-1.6.37.tar.xz
 pushd libpng-1.6.37
@@ -51,10 +56,11 @@ pushd libpng-1.6.37
 make
 make install
 popd
-echo travis_fold:end:libpng
+echo -e "travis_fold:end:libpng\e[2K"
 
-echo travis_fold:start:freetype
+echo -e "travis_fold:start:freetype\e[2K"
+echo 'Install libpng (just unpack into the build directory)'
 curl -O -L https://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.gz
 mkdir -p build
 tar -x -C build -f freetype-2.6.1.tar.gz
-echo travis_fold:end:freetype
+echo -e "travis_fold:end:freetype\e[2K"
