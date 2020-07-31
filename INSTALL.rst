@@ -55,7 +55,8 @@ To run the test suite:
   directories from the source distribution.
 * install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
   MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
-  <https://inkscape.org/>`_.
+  <https://inkscape.org/>`_. On MacOS, GhostScript and Inkscape are not
+  needed.
 * run ``python -mpytest``.
 
 Third-party distributions of Matplotlib

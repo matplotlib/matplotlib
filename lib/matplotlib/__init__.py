@@ -268,8 +268,8 @@ def _get_executable_info(name):
     ----------
     name : str
         The executable to query.  The following values are currently supported:
-        "dvipng", "gs", "inkscape", "magick", "pdftops".  This list is subject
-        to change without notice.
+        "dvipng", "gs", "inkscape", "magick", "pdftops", "qlmanage".  This list
+        is subject to change without notice.
 
     Returns
     -------
@@ -378,6 +378,19 @@ def _get_executable_info(name):
                 f"You have pdftops version {info.version} but the minimum "
                 f"version supported by Matplotlib is 3.0")
         return info
+    elif name == "qlmanage":
+        try:
+            subprocess.check_call(
+                ["qlmanage", "-h"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            # qlmanage has no version number, use the OS version
+            version = subprocess.check_output(["sw_vers", "-productVersion"])
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            raise ExecutableNotFoundError()
+        else:
+            return _ExecInfo("qlmanage", version)
     else:
         raise ValueError("Unknown executable: {!r}".format(name))
 
