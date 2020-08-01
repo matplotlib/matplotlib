@@ -1409,8 +1409,9 @@ end"""
     @classmethod
     def getSubset(self, fontfile, characters):
         """
-        Read TTF font from the given file and subset it for the given characters.
+        Subset a TTF font
 
+        Reads the named fontfile and restricts the font to the characters.
         Returns a serialization of the subset font as bytes.
         """
 
