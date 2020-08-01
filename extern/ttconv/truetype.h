@@ -42,11 +42,7 @@ typedef struct
     } Fixed;
 
 /* A 2.14 fixed point number */
-typedef struct
-    {
-    SHORT whole;
-    USHORT fraction;
-    } F2DOT14;
+typedef Fixed F2DOT14;
 
 /* This structure tells what we have found out about */
 /* the current font. */
