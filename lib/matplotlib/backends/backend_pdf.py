@@ -1211,15 +1211,21 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-            print(f"SUBSET {filename} characters: {''.join(chr(c) for c in characters)}")
-            fontdata = self.getSubset(filename, ''.join(chr(c) for c in characters))
-            print(f'SUBSET {filename} {os.stat(filename).st_size} -> {len(fontdata)}')
+            print(f"SUBSET {filename} characters: "
+                  f"{''.join(chr(c) for c in characters)}")
+            fontdata = self.getSubset(
+                filename,
+                ''.join(chr(c) for c in characters)
+            )
+            print(f'SUBSET {filename} {os.stat(filename).st_size}'
+                  f' ↦ {len(fontdata)}')
 
             # reload the font object from the subset
-            # (all the necessary data could probably be obtained directly using fontLib.ttLib)
+            # (all the necessary data could probably be obtained directly
+            # using fontLib.ttLib)
             with tempfile.NamedTemporaryFile(suffix='.ttf') as tmp:
                 tmp.write(fontdata)
-                tmp.seek(0,0)
+                tmp.seek(0, 0)
                 font = FT2Font(tmp.name)
 
             cidFontDict = {
@@ -1402,9 +1408,11 @@ end"""
 
     @classmethod
     def getSubset(self, fontfile, characters):
-        """Read TTF font from the given file and subset it for the given characters.
+        """
+        Read TTF font from the given file and subset it for the given characters.
 
-        Returns a serialization of the subset font as bytes."""
+        Returns a serialization of the subset font as bytes.
+        """
 
         options = subset.Options(glyph_names=True, recommended_glyphs=True)
         options.drop_tables += ['FFTM']
