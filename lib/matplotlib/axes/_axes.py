@@ -323,8 +323,8 @@ class Axes(_AxesBase):
             legend(labels)
             legend(handles, labels)
 
-        The call signatures correspond to three different ways how to use
-        this method.
+        The call signatures correspond to these three different ways to use
+        this method:
 
         **1. Automatic detection of elements to be shown in the legend**
 
@@ -335,7 +335,7 @@ class Axes(_AxesBase):
         them either at artist creation or by calling the
         :meth:`~.Artist.set_label` method on the artist::
 
-            line, = ax.plot([1, 2, 3], label='Inline label')
+            ax.plot([1, 2, 3], label='Inline label')
             ax.legend()
 
         or::
@@ -360,7 +360,7 @@ class Axes(_AxesBase):
             ax.plot([1, 2, 3])
             ax.legend(['A simple line'])
 
-        Note: This way of using is discouraged, because the relation between
+        Note: This call signature is discouraged, because the relation between
         plot elements and labels is only implicit by their order and can
         easily be mixed up.
 
@@ -371,7 +371,7 @@ class Axes(_AxesBase):
         to pass an iterable of legend artists followed by an iterable of
         legend labels respectively::
 
-            legend((line1, line2, line3), ('label1', 'label2', 'label3'))
+            ax.legend([line1, line2, line3], ['label1', 'label2', 'label3'])
 
         Parameters
         ----------
@@ -397,6 +397,10 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         %(_legend_kw_doc)s
+
+        See Also
+        --------
+        .Figure.legend
 
         Notes
         -----

@@ -1891,23 +1891,62 @@ default: 'top'
         """
         Place a legend on the figure.
 
-        To make a legend from existing artists on every axes::
+        Call signatures::
 
-          legend()
+            legend()
+            legend(labels)
+            legend(handles, labels)
 
-        To make a legend for a list of lines and labels::
+        The call signatures correspond to these three different ways to use
+        this method:
 
-          legend(
-              (line1, line2, line3),
-              ('label1', 'label2', 'label3'),
-              loc='upper right')
+        **1. Automatic detection of elements to be shown in the legend**
 
-        These can also be specified by keyword::
+        The elements to be added to the legend are automatically determined,
+        when you do not pass in any extra arguments.
 
-          legend(
-              handles=(line1, line2, line3),
-              labels=('label1', 'label2', 'label3'),
-              loc='upper right')
+        In this case, the labels are taken from the artist. You can specify
+        them either at artist creation or by calling the
+        :meth:`~.Artist.set_label` method on the artist::
+
+            ax.plot([1, 2, 3], label='Inline label')
+            fig.legend()
+
+        or::
+
+            line, = ax.plot([1, 2, 3])
+            line.set_label('Label via method')
+            fig.legend()
+
+        Specific lines can be excluded from the automatic legend element
+        selection by defining a label starting with an underscore.
+        This is default for all artists, so calling `.Figure.legend` without
+        any arguments and without setting the labels manually will result in
+        no legend being drawn.
+
+
+        **2. Labeling existing plot elements**
+
+        To make a legend for all artists on all Axes, call this function with
+        an iterable of strings, one for each legend item. For example::
+
+            fig, (ax1, ax2)  = plt.subplots(1, 2)
+            ax1.plot([1, 3, 5], color='blue')
+            ax2.plot([2, 4, 6], color='red')
+            fig.legend(['the blues', 'the reds'])
+
+        Note: This call signature is discouraged, because the relation between
+        plot elements and labels is only implicit by their order and can
+        easily be mixed up.
+
+
+        **3. Explicitly defining the elements in the legend**
+
+        For full control of which artists have a legend entry, it is possible
+        to pass an iterable of legend artists followed by an iterable of
+        legend labels respectively::
+
+            fig.legend([line1, line2, line3], ['label1', 'label2', 'label3'])
 
         Parameters
         ----------
@@ -1933,6 +1972,10 @@ default: 'top'
         Other Parameters
         ----------------
         %(_legend_kw_doc)s
+
+        See Also
+        --------
+        .Axes.legend
 
         Notes
         -----
