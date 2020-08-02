@@ -242,6 +242,30 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@check_figures_equal(extensions=['png'])
+def test_scatter3d_size(fig_ref, fig_test):
+    """Test that large markers in correct position (issue #18135)"""
+    x = np.arange(10)
+    x, y = np.meshgrid(x, x)
+    z = np.arange(100).reshape(10, 10)
+
+    s = np.full(z.shape, 5)
+    s[0, 0] = 100
+    s[-1, 0] = 100
+    s[0, -1] = 100
+    s[-1, -1] = 100
+
+    ax_ref = fig_ref.gca(projection='3d')
+    ax_test = fig_test.gca(projection='3d')
+
+    small = np.ma.masked_array(z, s == 100, dtype=float)
+    large = np.ma.masked_array(z, s != 100, dtype=float)
+
+    ax_ref.scatter(x, y, large, s=100, c="C0", alpha=1)
+    ax_ref.scatter(x, y, small, s=5, c="C0", alpha=1)
+    ax_test.scatter(x, y, z, s=s, c="C0", alpha=1)
+
+
 @pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first
 @check_figures_equal(extensions=['png'])
 def test_marker_draw_order_data_reversed(fig_test, fig_ref, azim):
