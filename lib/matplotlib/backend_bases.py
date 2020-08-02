@@ -2984,11 +2984,9 @@ class NavigationToolbar2:
         else:
             yield
 
-    def mouse_move(self, event):
-        self._update_cursor(event)
-
+    @staticmethod
+    def _mouse_event_to_message(event):
         if event.inaxes and event.inaxes.get_navigate():
-
             try:
                 s = event.inaxes.format_coord(event.xdata, event.ydata)
             except (ValueError, OverflowError):
@@ -3005,7 +3003,14 @@ class NavigationToolbar2:
                             data_str = a.format_cursor_data(data).rstrip()
                             if data_str:
                                 s = s + '\n' + data_str
-                self.set_message(s)
+                return s
+
+    def mouse_move(self, event):
+        self._update_cursor(event)
+
+        s = self._mouse_event_to_message(event)
+        if s is not None:
+            self.set_message(s)
         else:
             self.set_message(self.mode)
 
