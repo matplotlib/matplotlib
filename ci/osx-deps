@@ -25,7 +25,7 @@ cached_download() {
     shasum=$3
     path="$HOME/Downloads/$file"
     if [[ ! -f "$path"
-          || "$(shasum -a 256 "$HOME/Downloads/$file" | awk '{print $1}')" != "$shasum" ]]
+          || "$(shasum -a 256 "$path" | awk '{print $1}')" != "$shasum" ]]
     then
         curl -L -o "$path" "$url"
     fi
@@ -47,7 +47,7 @@ cached_download ccache-3.7.11.tar.xz \
 tar xf "$HOME"/Downloads/ccache-3.7.11.tar.xz
 pushd ccache-3.7.11
 ./configure --prefix=/usr/local
-make
+make -j2
 make install
 popd
 for compiler in clang clang++ cc gcc c++ g++; do
