@@ -512,6 +512,14 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                 if tooltip_text is not None:
                     ToolTip.createToolTip(button, tooltip_text)
 
+        # This filler item ensures the toolbar is always at least two text
+        # lines high. Otherwise the canvas gets redrawn as the mouse hovers
+        # over images because those use two-line messages which resize the
+        # toolbar.
+        label = tk.Label(master=self,
+                         text='\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}')
+        label.pack(side=tk.RIGHT)
+
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, textvariable=self.message)
         self._message_label.pack(side=tk.RIGHT)
