@@ -19,16 +19,32 @@ fold_end() {
     echo -e "travis_fold:end:$key\e[2K"
 }
 
+cached_download() {
+    file=$1
+    url=$2
+    shasum=$3
+    path="$HOME/Downloads/$file"
+    if [[ ! -f "$path"
+          || "$(shasum -a 256 "$HOME/Downloads/$file" | awk '{print $1}')" != "$shasum" ]]
+    then
+        curl -L -o "$path" "$url"
+    fi
+}
+
 fold_start Python "Install Python 3.8 from python.org"
-curl -O https://www.python.org/ftp/python/3.8.5/python-3.8.5-macosx10.9.pkg
-sudo installer -package python-3.8.5-macosx10.9.pkg -target /
+cached_download python-3.8.5-macosx10.9.pkg \
+                https://www.python.org/ftp/python/3.8.5/python-3.8.5-macosx10.9.pkg \
+                e27c5a510c10f830084fb9c60b9e9aa8719d92e4537a80e6b4252c02396f0d29
+sudo installer -package "$HOME"/Downloads/python-3.8.5-macosx10.9.pkg -target /
 sudo ln -s /usr/local/bin/python3 /usr/local/bin/python
 hash -r
 fold_end Python
 
 fold_start ccache 'Install ccache (compile it ourselves)'
-curl -O -L https://github.com/ccache/ccache/releases/download/v3.7.11/ccache-3.7.11.tar.xz
-tar xf ccache-3.7.11.tar.xz
+cached_download ccache-3.7.11.tar.xz \
+                https://github.com/ccache/ccache/releases/download/v3.7.11/ccache-3.7.11.tar.xz \
+                8d450208099a4d202bd7df87caaec81baee20ce9dd62da91e9ea7b95a9072f68
+tar xf "$HOME"/Downloads/ccache-3.7.11.tar.xz
 pushd ccache-3.7.11
 ./configure --prefix=/usr/local
 make
@@ -40,7 +56,9 @@ done
 fold_end ccache
 
 fold_start freetype 'Install freetype (just unpack into the build directory)'
-curl -O -L https://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.gz
+cached_download freetype-2.6.1.tar.gz \
+                https://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.gz \
+                0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014
 mkdir -p build
-tar -x -C build -f freetype-2.6.1.tar.gz
+tar -x -C build -f "$HOME"/Downloads/freetype-2.6.1.tar.gz
 fold_end freetype
