@@ -2666,7 +2666,7 @@ default: 'top'
 
     def align_xlabels(self, axs=None):
         """
-        Align the ylabels of subplots in the same subplot column if label
+        Align the xlabels of subplots in the same subplot column if label
         alignment is being done automatically (i.e. the label position is
         not manually set).
 
