@@ -15,7 +15,6 @@ cache:
   directories:
     - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
     - $HOME/.cache/matplotlib
-    - $HOME/Downloads
 
 addons:
   artifacts:
