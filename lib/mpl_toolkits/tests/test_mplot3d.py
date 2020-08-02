@@ -241,6 +241,7 @@ def test_scatter3d_color():
     ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
                color='b', marker='s')
 
+
 @mpl3d_image_comparison(['scatter3d_depthshade_false.png'])
 def test_scatter3d_depthshade_false():
     """
@@ -250,6 +251,7 @@ def test_scatter3d_depthshade_false():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.scatter(x, y, z, depthshade=False)
+
 
 @check_figures_equal(extensions=['png'])
 def test_scatter3d_size(fig_ref, fig_test):
