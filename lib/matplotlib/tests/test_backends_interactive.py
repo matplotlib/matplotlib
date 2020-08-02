@@ -18,6 +18,12 @@ import matplotlib as mpl
 # versions so we don't fail on missing backends.
 
 def _get_testable_interactive_backends():
+    try:
+        from matplotlib.backends.qt_compat import QtGui  # noqa
+        have_qt5 = True
+    except ImportError:
+        have_qt5 = False
+
     backends = []
     for deps, backend in [
             (["cairo", "gi"], "gtk3agg"),
@@ -39,6 +45,8 @@ def _get_testable_interactive_backends():
             reason = "{} cannot be imported".format(", ".join(missing))
         elif backend == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
+        elif 'qt5' in backend and not have_qt5:
+            reason = "no usable Qt5 bindings"
         if reason:
             backend = pytest.param(
                 backend,
