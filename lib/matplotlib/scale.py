@@ -20,7 +20,6 @@ from matplotlib.ticker import (
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
     SymmetricalLogLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
-from matplotlib.cbook import warn_deprecated
 
 
 class ScaleBase:
@@ -41,7 +40,7 @@ class ScaleBase:
 
     """
 
-    def __init__(self, axis, **kwargs):
+    def __init__(self, axis):
         r"""
         Construct a new scale.
 
@@ -54,14 +53,6 @@ class ScaleBase:
         be used: a single scale object should be usable by multiple
         `~matplotlib.axis.Axis`\es at the same time.
         """
-        if kwargs:
-            warn_deprecated(
-                '3.2', removal='3.4',
-                message=(
-                    f"ScaleBase got an unexpected keyword argument "
-                    f"{next(iter(kwargs))!r}. This will become an error "
-                    "%(removal)s.")
-            )
 
     def get_transform(self):
         """
@@ -95,13 +86,12 @@ class LinearScale(ScaleBase):
 
     name = 'linear'
 
-    def __init__(self, axis, **kwargs):
+    def __init__(self, axis):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
         # the docstring of Axis.set_scale.
         """
         """
-        super().__init__(axis, **kwargs)
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
@@ -480,15 +470,7 @@ class SymmetricalLogScale(ScaleBase):
         @cbook._rename_parameter("3.3", f"linthresh{axis_name}", "linthresh")
         @cbook._rename_parameter("3.3", f"subs{axis_name}", "subs")
         @cbook._rename_parameter("3.3", f"linscale{axis_name}", "linscale")
-        def __init__(*, base=10, linthresh=2, subs=None, linscale=1, **kwargs):
-            if kwargs:
-                warn_deprecated(
-                    '3.2', removal='3.4',
-                    message=(
-                        f"SymmetricalLogScale got an unexpected keyword "
-                        f"argument {next(iter(kwargs))!r}. This will become "
-                        "an error %(removal)s.")
-                )
+        def __init__(*, base=10, linthresh=2, subs=None, linscale=1):
             return base, linthresh, subs, linscale
 
         base, linthresh, subs, linscale = __init__(**kwargs)
