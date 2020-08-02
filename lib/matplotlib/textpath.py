@@ -65,8 +65,7 @@ class TextToPath:
         if ismath:
             prop = prop.copy()
             prop.set_size(self.FONT_SCALE)
-
-            width, height, descent, trash, used_characters = \
+            width, height, descent, *_ = \
                 self.mathtext_parser.parse(s, 72, prop)
             return width * scale, height * scale, descent * scale
 

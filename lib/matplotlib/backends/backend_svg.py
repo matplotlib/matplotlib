@@ -294,7 +294,6 @@ class RendererSVG(RendererBase):
         self._has_gouraud = False
         self._n_gradients = 0
         self._fonts = OrderedDict()
-        self.mathtext_parser = MathTextParser('SVG')
 
         RendererBase.__init__(self)
         self._glyph_map = dict()
@@ -311,6 +310,11 @@ class RendererSVG(RendererBase):
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
+
+    @cbook.deprecated("3.4")
+    @property
+    def mathtext_parser(self):
+        return MathTextParser('SVG')
 
     def finalize(self):
         self._write_clips()
@@ -1173,26 +1177,23 @@ class RendererSVG(RendererBase):
         else:
             writer.comment(s)
 
-            width, height, descent, svg_elements, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
-            svg_glyphs = svg_elements.svg_glyphs
-            svg_rects = svg_elements.svg_rects
-
-            attrib = {}
-            attrib['style'] = generate_css(style)
-            attrib['transform'] = generate_transform([
-                ('translate', (x, y)),
-                ('rotate', (-angle,))])
+            width, height, descent, glyphs, rects = \
+                self._text2path.mathtext_parser.parse(s, 72, prop)
 
             # Apply attributes to 'g', not 'text', because we likely have some
             # rectangles as well with the same style and transformation.
-            writer.start('g', attrib=attrib)
+            writer.start('g',
+                         style=generate_css(style),
+                         transform=generate_transform([
+                             ('translate', (x, y)),
+                             ('rotate', (-angle,))]),
+                         )
 
             writer.start('text')
 
             # Sort the characters by font, and output one tspan for each.
             spans = OrderedDict()
-            for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
+            for font, fontsize, thetext, new_x, new_y in glyphs:
                 style = generate_css({
                     'font-size': short_float_fmt(fontsize) + 'px',
                     'font-family': font.family_name,
@@ -1223,15 +1224,14 @@ class RendererSVG(RendererBase):
 
             writer.end('text')
 
-            if len(svg_rects):
-                for x, y, width, height in svg_rects:
-                    writer.element(
-                        'rect',
-                        x=short_float_fmt(x),
-                        y=short_float_fmt(-y + height),
-                        width=short_float_fmt(width),
-                        height=short_float_fmt(height)
-                        )
+            for x, y, width, height in rects:
+                writer.element(
+                    'rect',
+                    x=short_float_fmt(x),
+                    y=short_float_fmt(-y-1),
+                    width=short_float_fmt(width),
+                    height=short_float_fmt(height)
+                    )
 
             writer.end('g')
 

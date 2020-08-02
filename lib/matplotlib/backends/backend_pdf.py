@@ -1796,8 +1796,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         super().__init__(width, height)
         self.file = file
         self.gc = self.new_gc()
-        self.mathtext_parser = MathTextParser("Pdf")
         self.image_dpi = image_dpi
+
+    @cbook.deprecated("3.4")
+    @property
+    def mathtext_parser(self):
+        return MathTextParser("Pdf")
 
     def finalize(self):
         self.file.output(*self.gc.finalize())
@@ -2044,9 +2048,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
-        width, height, descent, glyphs, rects, used_characters = \
-            self.mathtext_parser.parse(s, 72, prop)
-        self.file._character_tracker.merge(used_characters)
+        width, height, descent, glyphs, rects = \
+            self._text2path.mathtext_parser.parse(s, 72, prop)
 
         # When using Type 3 fonts, we can't use character codes higher
         # than 255, so we use the "Do" command to render those
@@ -2064,7 +2067,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file.output(Op.begin_text)
         prev_font = None, None
         oldx, oldy = 0, 0
-        for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
+        for font, fontsize, num, ox, oy in glyphs:
+            self.file._character_tracker.track(font, chr(num))
+            fontname = font.fname
             if is_opentype_cff_font(fontname):
                 fonttype = 42
             else:
@@ -2084,7 +2089,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # If using Type 3 fonts, render all of the multi-byte characters
         # as XObjects using the 'Do' command.
         if global_fonttype == 3:
-            for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
+            for font, fontsize, num, ox, oy in glyphs:
+                fontname = font.fname
                 if is_opentype_cff_font(fontname):
                     fonttype = 42
                 else:
@@ -2096,6 +2102,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                                      0.001 * fontsize, 0,
                                      0, 0.001 * fontsize,
                                      ox, oy, Op.concat_matrix)
+                    symbol_name = font.get_glyph_name(font.get_char_index(num))
                     name = self.file._get_xobject_symbol_name(
                         fontname, symbol_name)
                     self.file.output(Name(name), Op.use_xobject)
