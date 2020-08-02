@@ -51,15 +51,6 @@ make install
 popd
 fold_end pkg-config
 
-fold_start libpng 'Install libpng (compile it ourselves)'
-curl -O -L https://downloads.sourceforge.net/libpng/libpng-1.6.37.tar.xz
-tar xf libpng-1.6.37.tar.xz
-pushd libpng-1.6.37
-./configure --disable-dependency-tracking --disable-silent-rules --prefix=/usr/local
-make
-make install
-popd
-fold_end libpng
 
 fold_start freetype 'Install freetype (just unpack into the build directory)'
 curl -O -L https://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.gz
