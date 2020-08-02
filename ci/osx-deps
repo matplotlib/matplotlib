@@ -39,19 +39,6 @@ for compiler in clang clang++ cc gcc c++ g++; do
 done
 fold_end ccache
 
-fold_start pkg-config 'Install pkg-config (compile it ourselves)'
-curl -O -L https://dl.bintray.com/homebrew/mirror/pkg-config-0.29.2.tar.gz
-tar xf pkg-config-0.29.2.tar.gz
-pushd pkg-config-0.29.2
-./configure --disable-debug --prefix=/usr/local --disable-host-tool \
-            --with-internal-glib --with-pc-path=/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/local/pkgconfig \
-            --with-system-include-path=/usr/include
-make
-make install
-popd
-fold_end pkg-config
-
-
 fold_start freetype 'Install freetype (just unpack into the build directory)'
 curl -O -L https://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.gz
 mkdir -p build
