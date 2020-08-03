@@ -242,15 +242,16 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
-@mpl3d_image_comparison(['scatter3d_depthshade_false.png'])
-def test_scatter3d_depthshade_false():
+@check_figures_equal(extensions=['png'])
+def test_scatter3d_depthshade_false(fig_ref, fig_test):
     """
-    Test that 3d scatter plot works with depthshade=False (issue #18037)
+    Test that 3d scatter plot doesn't throw IndexError with depthshade=False (issue #18037)
     """
     x = y = z = np.arange(16)
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.scatter(x, y, z, depthshade=False)
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_test.scatter(x, y, z, depthshade=False)
+    ax_ref.scatter(x, y, z, depthshade=False)
 
 
 @check_figures_equal(extensions=['png'])
