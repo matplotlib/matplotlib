@@ -242,6 +242,17 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+def test_scatter3d_depthshade_false():
+    """
+    Test that 3d scatter plot doesn't throw
+    IndexError with depthshade=False (issue #18037)
+    """
+    x = y = z = np.arange(16)
+    fig_test = plt.figure()
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.scatter(x, y, z, depthshade=False)
+
+
 @check_figures_equal(extensions=['png'])
 def test_scatter3d_size(fig_ref, fig_test):
     """Test that large markers in correct position (issue #18135)"""

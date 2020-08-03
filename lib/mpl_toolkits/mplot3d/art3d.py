@@ -508,8 +508,9 @@ class Path3DCollection(PathCollection):
         vzs = vzs[z_markers_idx]
         vxs = vxs[z_markers_idx]
         vys = vys[z_markers_idx]
-        fcs = fcs[z_markers_idx]
-        ecs = ecs[z_markers_idx]
+        if self._depthshade:
+            fcs = fcs[z_markers_idx]
+            ecs = ecs[z_markers_idx]
         if len(sizes) > 1:
             sizes = sizes[z_markers_idx]
         vps = np.column_stack((vxs, vys))
