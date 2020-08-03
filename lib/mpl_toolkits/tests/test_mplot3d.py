@@ -245,7 +245,8 @@ def test_scatter3d_color():
 @check_figures_equal(extensions=['png'])
 def test_scatter3d_depthshade_false(fig_ref, fig_test):
     """
-    Test that 3d scatter plot doesn't throw IndexError with depthshade=False (issue #18037)
+    Test that 3d scatter plot doesn't throw
+    IndexError with depthshade=False (issue #18037)
     """
     x = y = z = np.arange(16)
     ax_test = fig_test.add_subplot(projection='3d')
