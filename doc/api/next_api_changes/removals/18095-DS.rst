@@ -1,0 +1,5 @@
+`~matplotlib.scale` keyword arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.scale.ScaleBase`, `.scale.LinearScale` and `.scale.SymmetricalLogScale`
+now error if any unexpected keyword arguments are passed to their
+constructors.
