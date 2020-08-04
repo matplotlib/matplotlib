@@ -19,6 +19,7 @@ Provide a clear and concise description of the problem this feature will solve.
 For example:
 * I'm always frustrated when [...] because [...]
 * I would like it if [...] happened when I [...] because [...]
+* Here is a sample image of what I am asking for [...]
 -->
 
 ### Proposed Solution

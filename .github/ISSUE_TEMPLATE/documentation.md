@@ -26,4 +26,5 @@ If you have an idea to improve the documentation please suggest it here
 
 * This line should be be changed to say [...]
 * Include a paragraph explaining [...]
+* Add a figure showing [...]
 -->
