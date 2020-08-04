@@ -1,7 +1,7 @@
 ---
 name: Enhancement
 about: Help improve performance, usability and/or consistency.
-label: Enhancement
+label: maintenance
 ---
 
 ### Describe the issue
