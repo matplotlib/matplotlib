@@ -595,11 +595,12 @@ class DviFont:
                 result.append(0)
             else:
                 result.append(_mul2012(value, self._scale))
-        # cmsy10 glyph 0 ("minus") has a nonzero descent so that TeX aligns
-        # equations properly (https://tex.stackexchange.com/questions/526103/),
-        # but we actually care about the rasterization depth to align the
-        # dvipng-generated images.
-        if self.texname == b"cmsy10" and char == 0:
+        # cmsyXX (symbols font) glyph 0 ("minus") has a nonzero descent
+        # so that TeX aligns equations properly
+        # (https://tex.stackexchange.com/questions/526103/),
+        # but we actually care about the rasterization depth to align
+        # the dvipng-generated images.
+        if re.match(br'^cmsy\d+$', self.texname) and char == 0:
             result[-1] = 0
         return result
 
