@@ -1323,8 +1323,11 @@ def _check_1d(x):
                     "always",
                     category=Warning,
                     message='Support for multi-dimensional indexing')
-
-                ndim = x[:, None].ndim
+                try:
+                    ndim = x[:, None].ndim
+                except AssertionError:
+                    # catch https://github.com/pandas-dev/pandas/issues/35527
+                    return np.asanyarray(x)
                 # we have definitely hit a pandas index or series object
                 # cast to a numpy array.
                 if len(w) > 0:
