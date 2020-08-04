@@ -1,6 +1,5 @@
 import datetime
 from io import BytesIO
-import re
 import tempfile
 import xml.etree.ElementTree
 import xml.parsers.expat
@@ -211,11 +210,13 @@ def test_unicode_won():
 
     with BytesIO() as fd:
         fig.savefig(fd, format='svg')
-        buf = fd.getvalue().decode('ascii')
+        buf = fd.getvalue()
 
-    won_id = 'Computer_Modern_Sans_Serif-142'
-    assert re.search(r'<path d=(.|\s)*?id="{0}"/>'.format(won_id), buf)
-    assert re.search(r'<use[^/>]*? xlink:href="#{0}"/>'.format(won_id), buf)
+    tree = xml.etree.ElementTree.fromstring(buf)
+    ns = 'http://www.w3.org/2000/svg'
+    won_id = 'SFSS3583-8e'
+    assert len(tree.findall(f'.//{{{ns}}}path[@d][@id="{won_id}"]')) == 1
+    assert f'#{won_id}' in tree.find(f'.//{{{ns}}}use').attrib.values()
 
 
 def test_svgnone_with_data_coordinates():
