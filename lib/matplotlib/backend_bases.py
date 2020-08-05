@@ -2777,6 +2777,10 @@ class _Mode(str, Enum):
     def __str__(self):
         return self.value
 
+    @property
+    def _navigate_mode(self):
+        return self.name if self is not _Mode.NONE else None
+
 
 class NavigationToolbar2:
     """
@@ -3035,7 +3039,7 @@ class NavigationToolbar2:
             self.mode = _Mode.PAN
             self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self.mode)
+            a.set_navigate_mode(self.mode._navigate_mode)
         self.set_message(self.mode)
 
     def press_pan(self, event):
@@ -3105,7 +3109,7 @@ class NavigationToolbar2:
             self.mode = _Mode.ZOOM
             self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self.mode)
+            a.set_navigate_mode(self.mode._navigate_mode)
         self.set_message(self.mode)
 
     def press_zoom(self, event):
