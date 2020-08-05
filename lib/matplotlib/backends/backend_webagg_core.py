@@ -260,14 +260,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # off by 1
         button = event['button'] + 1
 
-        # The right mouse button pops up a context menu, which
-        # doesn't work very well, so use the middle mouse button
-        # instead.  It doesn't seem that it's possible to disable
-        # the context menu in recent versions of Chrome.  If this
-        # is resolved, please also adjust the docstring in MouseEvent.
-        if button == 2:
-            button = 3
-
         e_type = event['type']
         guiEvent = event.get('guiEvent', None)
         if e_type == 'button_press':
