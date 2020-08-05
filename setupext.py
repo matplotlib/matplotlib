@@ -592,7 +592,21 @@ class FreeType(SetupPackage):
                  "--with-png=no", "--with-harfbuzz=no", "--enable-static",
                  "--disable-shared"],
                 env=env, cwd=src_path)
-            subprocess.check_call(["make"], env=env, cwd=src_path)
+            if 'GNUMAKE' in env:
+                make = env['GNUMAKE']
+            elif 'MAKE' in env:
+                make = env['MAKE']
+            else:
+                try:
+                    output = subprocess.check_output(['make', '-v'],
+                                                     stderr=subprocess.DEVNULL)
+                except subprocess.CalledProcessError:
+                    output = b''
+                if b'GNU' not in output and b'makepp' not in output:
+                    make = 'gmake'
+                else:
+                    make = 'make'
+            subprocess.check_call([make], env=env, cwd=src_path)
         else:  # compilation on windows
             shutil.rmtree(src_path / "objs", ignore_errors=True)
             msbuild_platform = (
