@@ -17,7 +17,7 @@ def test_truetype_conversion(recwarn):
     ax.set_yticks([])
 
 
-@image_comparison(["ttconv_transforms"], extensions=["pdf"])
+@image_comparison(["ttconv_transforms.pdf"])
 def test_ttconv_transforms():
     matplotlib.rcParams['pdf.fonttype'] = 3
     fig, ax = plt.subplots()
