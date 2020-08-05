@@ -859,8 +859,7 @@ class UnicodeFonts(TruetypeFonts):
                 fname = g[0].family_name
                 if fname in list(BakomaFonts._fontmap.values()):
                     fname = "Computer Modern"
-                _log.warning("Substituting symbol {} "
-                             "from {}".format(sym, fname))
+                _log.info("Substituting symbol %s from %s", sym, fname)
                 return g
 
             else:
