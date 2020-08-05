@@ -1326,7 +1326,11 @@ def _check_1d(x):
             if ndim < 2:
                 return np.atleast_1d(x)
             return x
-        except (IndexError, TypeError):
+        # In pandas 1.1.0, multidimensional indexing leads to an
+        # AssertionError for some Series objects, but should be
+        # IndexError as described in
+        # https://github.com/pandas-dev/pandas/issues/35527
+        except (AssertionError, IndexError, TypeError):
             return np.atleast_1d(x)
 
 
