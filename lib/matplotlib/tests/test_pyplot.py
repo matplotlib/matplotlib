@@ -81,3 +81,27 @@ def test_nrows_error():
         plt.subplot(nrows=1)
     with pytest.raises(TypeError):
         plt.subplot(ncols=1)
+
+
+def test_ioff_context():
+    mpl.interactive(True)
+    with plt.ioff():
+        assert not mpl.is_interactive
+    assert mpl.is_interactive
+
+    mpl.interactive(False)
+    with plt.ioff():
+        assert not mpl.is_interactive
+    assert not mpl.is_interactive
+
+
+def test_ion_context():
+    mpl.interactive(False)
+    with plt.ioff():
+        assert mpl.is_interactive
+    assert not mpl.is_interactive
+
+    mpl.interactive(True)
+    with plt.ion():
+        assert not mpl.is_interactive
+    assert mpl.is_interactive
