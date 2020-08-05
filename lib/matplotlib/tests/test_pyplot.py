@@ -83,25 +83,29 @@ def test_nrows_error():
         plt.subplot(ncols=1)
 
 
-def test_ioff_context():
-    mpl.interactive(True)
+def test_ioff():
+    plt.ion()
+    assert mpl.is_interactive()
     with plt.ioff():
         assert not mpl.is_interactive()
     assert mpl.is_interactive()
 
-    mpl.interactive(False)
+    plt.ioff()
+    assert not mpl.is_interactive()
     with plt.ioff():
         assert not mpl.is_interactive()
     assert not mpl.is_interactive()
 
 
-def test_ion_context():
-    mpl.interactive(False)
+def test_ion():
+    plt.ioff()
+    assert not mpl.is_interactive()
     with plt.ion():
         assert mpl.is_interactive()
     assert not mpl.is_interactive()
 
-    mpl.interactive(True)
+    plt.ion()
+    assert mpl.is_interactive()
     with plt.ion():
         assert mpl.is_interactive()
     assert mpl.is_interactive()

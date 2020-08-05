@@ -2,6 +2,6 @@ ioff and ion can be used as context managers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``plt.ion()`` and ``plt.ioff()`` may now be used as context managers to create
-a context with interactive mode off, or on respectively. The old behavior of
+a context with interactive mode on, or off respectively. The old behavior of
 calling these functions was maintained. To use the new functionality
 call as ``with plt.ioff():``

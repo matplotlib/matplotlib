@@ -364,36 +364,35 @@ def isinteractive():
     return matplotlib.is_interactive()
 
 
-class _ioff():
-    def __call__(self):
+class _ioff:
+    def __init__(self):
+        self.wasinteractive = isinteractive()
         matplotlib.interactive(False)
         uninstall_repl_displayhook()
 
     def __enter__(self):
-        self.wasinteractive = isinteractive()
-        self.__call__()
+        pass
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.wasinteractive:
             matplotlib.interactive(True)
             install_repl_displayhook()
-        del self.wasinteractive
 
 
-class _ion():
-    def __call__(self):
+class _ion:
+    def __init__(self):
+        self.wasinteractive = isinteractive()
         matplotlib.interactive(True)
         install_repl_displayhook()
 
     def __enter__(self):
-        self.wasinteractive = isinteractive()
-        self.__call__()
+        pass
 
     def __exit__(self, exc_type, exc_value, traceback):
         if not self.wasinteractive:
             matplotlib.interactive(False)
             uninstall_repl_displayhook()
-        del self.wasinteractive
+        self._used
 
 
 def ioff():
