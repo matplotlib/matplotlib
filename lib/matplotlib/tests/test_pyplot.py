@@ -86,22 +86,22 @@ def test_nrows_error():
 def test_ioff_context():
     mpl.interactive(True)
     with plt.ioff():
-        assert not mpl.is_interactive
-    assert mpl.is_interactive
+        assert not mpl.is_interactive()
+    assert mpl.is_interactive()
 
     mpl.interactive(False)
     with plt.ioff():
-        assert not mpl.is_interactive
-    assert not mpl.is_interactive
+        assert not mpl.is_interactive()
+    assert not mpl.is_interactive()
 
 
 def test_ion_context():
     mpl.interactive(False)
-    with plt.ioff():
-        assert mpl.is_interactive
-    assert not mpl.is_interactive
+    with plt.ion():
+        assert mpl.is_interactive()
+    assert not mpl.is_interactive()
 
     mpl.interactive(True)
     with plt.ion():
-        assert not mpl.is_interactive
-    assert mpl.is_interactive
+        assert mpl.is_interactive()
+    assert mpl.is_interactive()
