@@ -140,7 +140,7 @@ F2DOT14 getF2DOT14(BYTE *s)
 */
 char* F2DOT14value(F2DOT14 f)
 {
-    const size_t maxlen = strlen("-1.234567") + 1;
+    const size_t maxlen = sizeof("-1.234567");
     char *value = (char*)calloc(sizeof(char), maxlen);
     if (value == NULL ||
         snprintf(value, maxlen, "%.6f", f.whole + (float)f.fraction/16384) < 0) {
