@@ -71,9 +71,10 @@ class Gcf:
     @classmethod
     def destroy_fig(cls, fig):
         """Destroy figure *fig*."""
-        canvas = getattr(fig, "canvas", None)
-        manager = getattr(canvas, "manager", None)
-        cls.destroy(manager)
+        num = next((manager.num for manager in cls.figs.values()
+                    if manager.canvas.figure == fig), None)
+        if num is not None:
+            cls.destroy(num)
 
     @classmethod
     def destroy_all(cls):
