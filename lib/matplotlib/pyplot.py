@@ -365,6 +365,14 @@ def isinteractive():
 
 
 class _ioff:
+    """
+    Context manager for `.ioff`.
+
+    The state is changed in ``__init__()`` instead of ``__enter__()``. The
+    latter is a no-op. This allows using `.ioff` both as a function and
+    as a context.
+    """
+
     def __init__(self):
         self.wasinteractive = isinteractive()
         matplotlib.interactive(False)
@@ -380,6 +388,14 @@ class _ioff:
 
 
 class _ion:
+    """
+    Context manager for `.ion`.
+
+    The state is changed in ``__init__()`` instead of ``__enter__()``. The
+    latter is a no-op. This allows using `.ion` both as a function and
+    as a context.
+    """
+
     def __init__(self):
         self.wasinteractive = isinteractive()
         matplotlib.interactive(True)
@@ -392,7 +408,6 @@ class _ion:
         if not self.wasinteractive:
             matplotlib.interactive(False)
             uninstall_repl_displayhook()
-        self._used
 
 
 def ioff():
@@ -409,8 +424,7 @@ def ioff():
 
     Notes
     -----
-    If you want the effects of this function to be temporary, it can
-    be used as a context manager, for example::
+    For a temporary change, this can be used as a context manager::
 
         with plt.ioff():
             # interactive mode will be off
@@ -420,6 +434,10 @@ def ioff():
 
         # This figure will be shown immediately
         fig2 = plt.figure()
+
+    The return value of `plt.ioff` is necessary to make the function work
+    as a context manager. It is not intended to be stored or accessed
+    by the user.
     """
     return _ioff()
 
@@ -438,8 +456,7 @@ def ion():
 
     Notes
     -----
-    If you want the effects of this function to be temporary, it can
-    be used as a context manager, for example::
+    For a temporary change, this can be used as a context manager::
 
         # if interactive mode is off
         # then figures will not be shown on creation
@@ -452,6 +469,10 @@ def ion():
             # figures will automatically be shown
             fig1 = plt.figure()
             # ...
+
+    The return value of `plt.ion` is necessary to make the function work
+    as a context manager. It is not intended to be stored or accessed
+    by the user.
     """
     return _ion()
 
