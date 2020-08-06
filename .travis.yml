@@ -152,6 +152,7 @@ install:
       python -c 'import wx' &&
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
+    python -m pip install --upgrade pyinstaller
 
   # Set flag in a delayed manner to avoid issues with installing other packages
   - |
@@ -178,6 +179,13 @@ script:
     # causes the Travis VM to run out of memory (since so many copies of
     # inkscape and ghostscript are running at the same time).
     python -mpytest -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n2 --log-level=DEBUG
+
+  - |
+    mkdir pyinstaller_test
+    cd pyinstaller_test
+    echo "import matplotlib.pyplot" > main.py
+    pyinstaller main.py
+    ./dist/main/main
 
 before_cache: |
   rm -rf $HOME/.cache/matplotlib/tex.cache
