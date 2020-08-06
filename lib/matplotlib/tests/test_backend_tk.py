@@ -42,9 +42,9 @@ def test_figuremanager_preserves_host_mainloop():
         plt.figure()
         plt.plot([1, 2], [3, 5])
         plt.close()
-        root.after(0, legitmate_quit)
+        root.after(0, legitimate_quit)
 
-    def legitmate_quit():
+    def legitimate_quit():
         root.quit()
         nonlocal success
         success = True
