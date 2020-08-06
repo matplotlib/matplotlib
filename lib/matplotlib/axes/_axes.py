@@ -2807,6 +2807,8 @@ class Axes(_AxesBase):
         if not 1 <= len(args) <= 5:
             raise TypeError('stem expected between 1 and 5 positional '
                             'arguments, got {}'.format(args))
+        cbook._check_in_list(['horizontal', 'vertical'],
+                             orientation=orientation)
 
         if len(args) == 1:
             y, = args
