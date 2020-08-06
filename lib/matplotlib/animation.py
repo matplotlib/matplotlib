@@ -441,6 +441,10 @@ class FileMovieWriter(MovieWriter):
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
 
+    def __del__(self):
+        if self._tmpdir:
+            self._tmpdir.cleanup()
+
     @cbook.deprecated("3.3")
     @property
     def clear_temp(self):
