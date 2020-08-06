@@ -1624,8 +1624,7 @@ class Axes3D(Axes):
                 "Z contains NaN values. This may result in rendering "
                 "artifacts.")
 
-        mask = (Z.mask if np.ma.isMaskedArray(Z)
-                else np.zeros_like(Z, dtype=bool))
+        mask = np.ma.getmaskarray(Z)
         X, Y, Z, mask = np.broadcast_arrays(X, Y, Z, mask)
         rows, cols = Z.shape
 
@@ -1679,10 +1678,12 @@ class Axes3D(Axes):
            fcolors is None:
             polys = np.stack(
                 [cbook._array_patch_perimeters(a, rstride, cstride)
-                 for a in (X, Y, Z, mask)],
+                 for a in (X, Y, Z)],
                 axis=-1)
-            masked = np.any(polys[..., 3], axis=1)
-            polys = polys[~masked, :, :3]
+            masked = np.any(
+                cbook._array_patch_perimeters(mask, rstride, cstride), axis=1
+            )
+            polys = polys[~masked]
         else:
             # evenly spaced, and including both endpoints
             row_inds = list(range(0, rows-1, rstride)) + [rows-1]
