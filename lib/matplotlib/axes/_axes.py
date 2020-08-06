@@ -2727,23 +2727,28 @@ class Axes(_AxesBase):
         """
         Create a stem plot.
 
-        A stem plot plots vertical lines at each *x* location from the baseline
-        to *y*, and places a marker there.
+        A stem plot draws lines perpendicular to a baseline at each location
+        *locs* from the baseline to *heads*, and places a marker there. For
+        horizontal stem plots (the default), the *locs* are *x* positions, and
+        the *heads* are *y* values. For vertical stem plots, the *locs* are
+        *y* positions, and the *heads* are *x* values.
 
         Call signature::
 
-          stem([x,] y, linefmt=None, markerfmt=None, basefmt=None)
+          stem([locs,] heads, linefmt=None, markerfmt=None, basefmt=None)
 
-        The x-positions are optional. The formats may be provided either as
-        positional or as keyword-arguments.
+        The *locs*-positions are optional. The formats may be provided either
+        as positional or as keyword-arguments.
 
         Parameters
         ----------
-        x : array-like, optional
-            The x-positions of the stems. Default: (0, 1, ..., len(y) - 1).
+        locs : array-like, default: (0, 1, ..., len(heads) - 1)
+            For horizontal stem plots, the x-positions of the stems.
+            For vertical stem plots, the y-positions of the stems.
 
-        y : array-like
-            The y-values of the stem heads.
+        heads : array-like
+            For horizontal stem plots, the y-values of the stem heads.
+            For vertical stem plots,  the x-values of the stem heads.
 
         linefmt : str, optional
             A string defining the properties of the vertical lines. Usually,
@@ -2774,7 +2779,7 @@ class Axes(_AxesBase):
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
 
-        orientation : string, optional (horizontal)
+        orientation : str, default: 'horizontal'
             If 'vertical', will produce a vertically-oriented stem plot,
             else it will produce a horizontally-oriented stem plot.
 
@@ -2811,15 +2816,20 @@ class Axes(_AxesBase):
                              orientation=orientation)
 
         if len(args) == 1:
-            y, = args
-            x = np.arange(len(y))
+            heads, = args
+            locs = np.arange(len(heads))
             args = ()
         else:
-            x, y, *args = args
+            locs, heads, *args = args
 
-        self._process_unit_info(xdata=x, ydata=y)
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
+        if orientation == 'horizontal':
+            self._process_unit_info(xdata=locs, ydata=heads)
+            locs = self.convert_xunits(locs)
+            heads = self.convert_yunits(heads)
+        else:
+            self._process_unit_info(xdata=heads, ydata=locs)
+            heads = self.convert_xunits(heads)
+            locs = self.convert_yunits(locs)
 
         # defaults for formats
         if linefmt is None:
@@ -2868,16 +2878,16 @@ class Axes(_AxesBase):
         else:
             basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
-        # Check if the user wants a vertical stem plot
-        if orientation == 'vertical':
-            x, y = y, x
-
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
             if orientation == 'vertical':
-                stemlines = [((bottom, yi), (xi, yi)) for xi, yi in zip(x, y)]
+                stemlines = [
+                    ((bottom, loc), (head, loc))
+                    for loc, head in zip(locs, heads)]
             else:
-                stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
+                stemlines = [
+                    ((loc, bottom), (loc, head))
+                    for loc, head in zip(locs, heads)]
             if linestyle is None:
                 linestyle = rcParams['lines.linestyle']
             stemlines = mcoll.LineCollection(stemlines, linestyles=linestyle,
@@ -2887,30 +2897,36 @@ class Axes(_AxesBase):
         # Old behaviour is to plot each of the lines individually
         else:
             stemlines = []
-            for xi, yi in zip(x, y):
+            for loc, head in zip(locs, heads):
                 if orientation == 'vertical':
-                    xs = [bottom, xi]
-                    ys = [yi, yi]
+                    xs = [bottom, head]
+                    ys = [loc, loc]
                 else:
-                    xs = [xi, xi]
-                    ys = [bottom, yi]
+                    xs = [loc, loc]
+                    ys = [bottom, head]
                 l, = self.plot(xs, ys,
                                color=linecolor, linestyle=linestyle,
                                marker=linemarker, label="_nolegend_")
                 stemlines.append(l)
 
-        markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
+        if orientation == 'vertical':
+            marker_x = heads
+            marker_y = locs
+            baseline_x = [bottom, bottom]
+            baseline_y = [np.min(locs), np.max(locs)]
+        else:
+            marker_x = locs
+            marker_y = heads
+            baseline_x = [np.min(locs), np.max(locs)]
+            baseline_y = [bottom, bottom]
+
+        markerline, = self.plot(marker_x, marker_y,
+                                color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
 
-        if orientation == 'vertical':
-            x, y = y, x
-            baseline, = self.plot([bottom, bottom], [np.min(x), np.max(x)],
-                                  color=basecolor, linestyle=basestyle,
-                                  marker=basemarker, label="_nolegend_")
-        else:
-            baseline, = self.plot([np.min(x), np.max(x)], [bottom, bottom],
-                                  color=basecolor, linestyle=basestyle,
-                                  marker=basemarker, label="_nolegend_")
+        baseline, = self.plot(baseline_x, baseline_y,
+                              color=basecolor, linestyle=basestyle,
+                              marker=basemarker, label="_nolegend_")
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
