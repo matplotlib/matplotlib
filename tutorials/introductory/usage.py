@@ -597,10 +597,16 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ``show()`` is called; this is more efficient than redrawing
 # the plot each time a line in the script adds a new feature.
 #
-# Prior to version 1.0, ``show()`` generally could not be called
-# more than once in a single script (although sometimes one
-# could get away with it); for version 1.0.1 and above, this
-# restriction is lifted, so one can write a script like this::
+
+#  
+# Attribute block is a boolean
+# In non-interactive mode, block defaults to True. In this case:
+#     All figures will display and show will not return until all windows are closed. 
+#     If there are no figures, return immediately.
+# In interactive mode block defaults to False. In this case:
+#     All of the figures are shown and this function immediately returns.
+#
+# One can write a script like this::
 #
 #     import numpy as np
 #     import matplotlib.pyplot as plt
