@@ -1475,7 +1475,8 @@ def imread(fname, format=None):
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
             # hide imports to speed initial import on systems with slow linkers
             from urllib import request
-            with request.urlopen(fname) as response:
+            with request.urlopen(fname,
+                                 context=mpl._get_ssl_context()) as response:
                 import io
                 try:
                     response.seek(0)
