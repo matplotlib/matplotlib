@@ -1,0 +1,10 @@
+ID attribute of XML tags in SVG files now based on SHA256 rather than MD5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Matplotlib generates unique ID attributes for various tags in SVG files.
+Matplotlib previously generated these unique IDs using the first 10
+characters of an MD5 hash. The MD5 hashing algorithm is not available in
+Python on systems with Federal Information Processing Standards (FIPS)
+enabled. Matplotlib now uses the first 10 characters of an SHA256 hash
+instead. SVG files that would otherwise match those saved with earlier
+versions of matplotlib, will have different ID attributes.
