@@ -596,7 +596,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # In addition, non-interactive mode delays all drawing until
 # ``show()`` is called; this is more efficient than redrawing
 # the plot each time a line in the script adds a new feature.
-#  
+
 # Attribute block is a boolean
 # In non-interactive mode, block defaults to True. In this case:
 # All figures will display and show will not return until all windows are closed. 
