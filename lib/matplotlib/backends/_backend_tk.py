@@ -398,6 +398,8 @@ class FigureManagerTk(FigureManagerBase):
         The tk.Window
     """
 
+    _owns_mainloop = False
+
     def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
         self.window = window
@@ -442,9 +444,8 @@ class FigureManagerTk(FigureManagerBase):
         with _restore_foreground_window_at_end():
             if not self._shown:
                 def destroy(*args):
-                    self.window = None
                     Gcf.destroy(self)
-                self.canvas._tkcanvas.bind("<Destroy>", destroy)
+                self.window.protocol("WM_DELETE_WINDOW", destroy)
                 self.window.deiconify()
             else:
                 self.canvas.draw_idle()
@@ -454,15 +455,13 @@ class FigureManagerTk(FigureManagerBase):
             self._shown = True
 
     def destroy(self, *args):
-        if self.window is not None:
-            #self.toolbar.destroy()
-            if self.canvas._idle_callback:
-                self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
-            self.window.destroy()
-        if Gcf.get_num_fig_managers() == 0:
-            if self.window is not None:
-                self.window.quit()
-        self.window = None
+        if self.canvas._idle_callback:
+            self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
+
+        self.window.destroy()
+
+        if self._owns_mainloop and not Gcf.get_num_fig_managers():
+            self.window.quit()
 
     def get_window_title(self):
         return self.window.wm_title()
@@ -890,4 +889,12 @@ class _BackendTk(_Backend):
     def mainloop():
         managers = Gcf.get_all_fig_managers()
         if managers:
-            managers[0].window.mainloop()
+            first_manager = managers[0]
+            manager_class = type(first_manager)
+            if manager_class._owns_mainloop:
+                return
+            manager_class._owns_mainloop = True
+            try:
+                first_manager.window.mainloop()
+            finally:
+                manager_class._owns_mainloop = False
