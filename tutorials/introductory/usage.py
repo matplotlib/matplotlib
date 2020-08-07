@@ -598,12 +598,12 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # the plot each time a line in the script adds a new feature.
 
 # Attribute block is a boolean
-# In non-interactive mode, block defaults to True. In this case:
-# All figures will display and show will not return until all windows are closed. 
+# In non-interactive mode, block defaults to True. 
+# In this case, all figures will display and show will not return until all windows are closed. 
 # If there are no figures, return immediately.
 #
-# In interactive mode block defaults to False. In this case:
-# All of the figures are shown and this function immediately returns.
+# In interactive mode block defaults to False. 
+# In this case, all of the figures are shown and this function immediately returns.
 #
 # One can write a script like this::
 #
