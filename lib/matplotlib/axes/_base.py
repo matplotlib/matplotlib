@@ -1231,7 +1231,6 @@ class _AxesBase(martist.Artist):
 
         self._gridOn = mpl.rcParams['axes.grid']
         self._children = []
-        self.texts = []
         self.tables = []
         self.artists = []
         self.images = []
@@ -1316,6 +1315,10 @@ class _AxesBase(martist.Artist):
     def patches(self):
         return tuple(a for a in self._children
                      if isinstance(a, mpatches.Patch))
+
+    @property
+    def texts(self):
+        return tuple(a for a in self._children if isinstance(a, mtext.Text))
 
     def clear(self):
         """Clear the axes."""
@@ -2122,11 +2125,11 @@ class _AxesBase(martist.Artist):
 
     def _add_text(self, txt):
         """
-        Add a `~.Text` to the axes' texts; return the text.
+        Add a `~.Text` to the Axes; return the text.
         """
         self._set_artist_props(txt)
-        self.texts.append(txt)
-        txt._remove_method = self.texts.remove
+        self._children.append(txt)
+        txt._remove_method = self._children.remove
         self.stale = True
         return txt
 
@@ -4336,7 +4339,6 @@ class _AxesBase(martist.Artist):
         return [
             *self.collections,
             *self._children,
-            *self.texts,
             *self.artists,
             *self.spines.values(),
             *self._get_axis_list(),
