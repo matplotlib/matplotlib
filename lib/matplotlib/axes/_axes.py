@@ -866,9 +866,9 @@ class Axes(_AxesBase):
         if line.get_clip_path() is None:
             line.set_clip_path(self.patch)
         if not line.get_label():
-            line.set_label(f"_line{len(self.lines)}")
-        self.lines.append(line)
-        line._remove_method = self.lines.remove
+            line.set_label(f"_child{len(self._children)}")
+        self._children.append(line)
+        line._remove_method = self._children.remove
         self.update_datalim(datalim)
 
         self._request_autoscale_view()

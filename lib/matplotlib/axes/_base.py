@@ -984,7 +984,9 @@ class _AxesBase(martist.Artist):
         self.transScale.set(
             mtransforms.blended_transform_factory(
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
-        for line in getattr(self, "lines", []):  # Not set during init.
+        for line in getattr(self, "_children", []):  # Not set during init.
+            if not isinstance(line, mlines.Line2D):
+                continue
             try:
                 line._transformed_path.invalidate()
             except AttributeError:
@@ -1228,7 +1230,7 @@ class _AxesBase(martist.Artist):
         self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
 
         self._gridOn = mpl.rcParams['axes.grid']
-        self.lines = []
+        self._children = []
         self.patches = []
         self.texts = []
         self.tables = []
@@ -1306,6 +1308,10 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    @property
+    def lines(self):
+        return tuple(a for a in self._children if isinstance(a, mlines.Line2D))
 
     def clear(self):
         """Clear the axes."""
@@ -2096,7 +2102,7 @@ class _AxesBase(martist.Artist):
 
     def add_line(self, line):
         """
-        Add a `.Line2D` to the axes' lines; return the line.
+        Add a `.Line2D` to the Axes; return the line.
         """
         self._set_artist_props(line)
         if line.get_clip_path() is None:
@@ -2104,9 +2110,9 @@ class _AxesBase(martist.Artist):
 
         self._update_line_limits(line)
         if not line.get_label():
-            line.set_label('_line%d' % len(self.lines))
-        self.lines.append(line)
-        line._remove_method = self.lines.remove
+            line.set_label(f'_child{len(self._children)}')
+        self._children.append(line)
+        line._remove_method = self._children.remove
         self.stale = True
         return line
 
@@ -2672,21 +2678,21 @@ class _AxesBase(martist.Artist):
         x_stickies = y_stickies = np.array([])
         if self.use_sticky_edges:
             # Only iterate over axes and artists if needed.  The check for
-            # ``hasattr(ax, "lines")`` is necessary because this can be called
-            # very early in the axes init process (e.g., for twin axes) when
-            # these attributes don't even exist yet, in which case
+            # ``hasattr(ax, "_children")`` is necessary because this can be
+            # called very early in the axes init process (e.g., for twin axes)
+            # when these attributes don't even exist yet, in which case
             # `get_children` would raise an AttributeError.
             if self._xmargin and scalex and self._autoscaleXon:
                 x_stickies = np.sort(np.concatenate([
                     artist.sticky_edges.x
                     for ax in self._shared_x_axes.get_siblings(self)
-                    if hasattr(ax, "lines")
+                    if hasattr(ax, "_children")
                     for artist in ax.get_children()]))
             if self._ymargin and scaley and self._autoscaleYon:
                 y_stickies = np.sort(np.concatenate([
                     artist.sticky_edges.y
                     for ax in self._shared_y_axes.get_siblings(self)
-                    if hasattr(ax, "lines")
+                    if hasattr(ax, "_children")
                     for artist in ax.get_children()]))
         if self.get_xscale() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
@@ -4326,7 +4332,7 @@ class _AxesBase(martist.Artist):
         return [
             *self.collections,
             *self.patches,
-            *self.lines,
+            *self._children,
             *self.texts,
             *self.artists,
             *self.spines.values(),
