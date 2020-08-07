@@ -61,7 +61,7 @@ class ColorButton(QtWidgets.QPushButton):
     colorChanged = QtCore.Signal(QtGui.QColor)
 
     def __init__(self, parent=None):
-        QtWidgets.QPushButton.__init__(self, parent)
+        super().__init__(parent)
         self.setFixedSize(20, 20)
         self.setIconSize(QtCore.QSize(12, 12))
         self.clicked.connect(self.choose_color)
@@ -104,7 +104,7 @@ def to_qcolor(color):
 class ColorLayout(QtWidgets.QHBoxLayout):
     """Color-specialized QLineEdit layout"""
     def __init__(self, color, parent=None):
-        QtWidgets.QHBoxLayout.__init__(self)
+        super().__init__()
         assert isinstance(color, QtGui.QColor)
         self.lineedit = QtWidgets.QLineEdit(
             mcolors.to_hex(color.getRgbF(), keep_alpha=True), parent)
@@ -161,7 +161,7 @@ def qfont_to_tuple(font):
 class FontLayout(QtWidgets.QGridLayout):
     """Font selection"""
     def __init__(self, value, parent=None):
-        QtWidgets.QGridLayout.__init__(self)
+        super().__init__()
         font = tuple_to_qfont(value)
         assert font is not None
 
@@ -228,7 +228,7 @@ class FormWidget(QtWidgets.QWidget):
         parent : QWidget or None
             The parent widget.
         """
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.data = copy.deepcopy(data)
         self.widgets = []
         self.formlayout = QtWidgets.QFormLayout(self)
@@ -356,7 +356,7 @@ class FormComboWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
 
     def __init__(self, datalist, comment="", parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
         self.combobox = QtWidgets.QComboBox()
@@ -386,7 +386,7 @@ class FormTabWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
 
     def __init__(self, datalist, comment="", parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         layout = QtWidgets.QVBoxLayout()
         self.tabwidget = QtWidgets.QTabWidget()
         layout.addWidget(self.tabwidget)
@@ -415,7 +415,7 @@ class FormDialog(QtWidgets.QDialog):
     """Form Dialog"""
     def __init__(self, data, title="", comment="",
                  icon=None, parent=None, apply=None):
-        QtWidgets.QDialog.__init__(self, parent)
+        super().__init__(parent)
 
         self.apply_callback = apply
 
@@ -471,11 +471,11 @@ class FormDialog(QtWidgets.QDialog):
 
     def accept(self):
         self.data = self.formwidget.get()
-        QtWidgets.QDialog.accept(self)
+        super().accept()
 
     def reject(self):
         self.data = None
-        QtWidgets.QDialog.reject(self)
+        super().reject()
 
     def apply(self):
         self.apply_callback(self.formwidget.get())

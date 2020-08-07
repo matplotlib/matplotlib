@@ -77,7 +77,7 @@ class TimerTk(TimerBase):
 
     def __init__(self, parent, *args, **kwargs):
         self._timer = None
-        TimerBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.parent = parent
 
     def _timer_start(self):
@@ -90,7 +90,7 @@ class TimerTk(TimerBase):
         self._timer = None
 
     def _on_timer(self):
-        TimerBase._on_timer(self)
+        super()._on_timer()
         # Tk after() is only a single shot, so we need to add code here to
         # reset the timer if we're not operating in single shot mode.  However,
         # if _timer is None, this means that _timer_stop has been called; so
@@ -263,13 +263,13 @@ class FigureCanvasTk(FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
-        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
+        super().motion_notify_event(x, y, guiEvent=event)
 
     def enter_notify_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
+        super().enter_notify_event(guiEvent=event, xy=(x, y))
 
     def button_press_event(self, event, dblclick=False):
         x = event.x
@@ -284,8 +284,8 @@ class FigureCanvasTk(FigureCanvasBase):
             elif num == 3:
                 num = 2
 
-        FigureCanvasBase.button_press_event(
-            self, x, y, num, dblclick=dblclick, guiEvent=event)
+        super().button_press_event(x, y, num,
+                                   dblclick=dblclick, guiEvent=event)
 
     def button_dblclick_event(self, event):
         self.button_press_event(event, dblclick=True)
@@ -304,14 +304,14 @@ class FigureCanvasTk(FigureCanvasBase):
             elif num == 3:
                 num = 2
 
-        FigureCanvasBase.button_release_event(self, x, y, num, guiEvent=event)
+        super().button_release_event(x, y, num, guiEvent=event)
 
     def scroll_event(self, event):
         x = event.x
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
         step = 1 if num == 4 else -1 if num == 5 else 0
-        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
+        super().scroll_event(x, y, step, guiEvent=event)
 
     def scroll_event_windows(self, event):
         """MouseWheel event processor"""
@@ -401,7 +401,7 @@ class FigureManagerTk(FigureManagerBase):
     _owns_mainloop = False
 
     def __init__(self, canvas, num, window):
-        FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
         self.window = window
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
@@ -803,7 +803,7 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
 
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
     def __init__(self, *args, **kwargs):
-        backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.window = None
 
     def trigger(self, *args):

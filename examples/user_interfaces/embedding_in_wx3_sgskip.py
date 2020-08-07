@@ -37,7 +37,7 @@ ERR_TOL = 1e-5  # floating point slop for peak-detection
 
 class PlotPanel(wx.Panel):
     def __init__(self, parent):
-        wx.Panel.__init__(self, parent, -1)
+        super().__init__(parent, -1)
 
         self.fig = Figure((5, 4), 75)
         self.canvas = FigureCanvas(self, -1, self.fig)

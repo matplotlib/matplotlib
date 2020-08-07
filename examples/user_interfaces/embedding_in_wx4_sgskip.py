@@ -21,7 +21,7 @@ class MyNavigationToolbar(NavigationToolbar):
     """Extend the default wx toolbar with your own event handlers."""
 
     def __init__(self, canvas):
-        NavigationToolbar.__init__(self, canvas)
+        super().__init__(canvas)
         # We use a stock wx bitmap, but you could also use your own image file.
         bmp = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_TOOLBAR)
         tool = self.AddTool(wx.ID_ANY, 'Click me', bmp,
@@ -41,8 +41,7 @@ class MyNavigationToolbar(NavigationToolbar):
 
 class CanvasFrame(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, None, -1,
-                          'CanvasFrame', size=(550, 350))
+        super().__init__(None, -1, 'CanvasFrame', size=(550, 350))
 
         self.figure = Figure(figsize=(5, 4), dpi=100)
         self.axes = self.figure.add_subplot(111)

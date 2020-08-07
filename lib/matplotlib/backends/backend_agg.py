@@ -85,7 +85,7 @@ class RendererAgg(RendererBase):
     lock = threading.RLock()
 
     def __init__(self, width, height, dpi):
-        RendererBase.__init__(self)
+        super().__init__()
 
         self.dpi = dpi
         self.width = width

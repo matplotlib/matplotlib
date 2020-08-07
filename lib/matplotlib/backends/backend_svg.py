@@ -295,7 +295,7 @@ class RendererSVG(RendererBase):
         self._n_gradients = 0
         self._fonts = OrderedDict()
 
-        RendererBase.__init__(self)
+        super().__init__()
         self._glyph_map = dict()
         str_height = short_float_fmt(height)
         str_width = short_float_fmt(width)
@@ -735,8 +735,8 @@ class RendererSVG(RendererBase):
         should_do_optimization = \
             len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
         if not should_do_optimization:
-            return RendererBase.draw_path_collection(
-                self, gc, master_transform, paths, all_transforms,
+            return super().draw_path_collection(
+                gc, master_transform, paths, all_transforms,
                 offsets, offsetTrans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)

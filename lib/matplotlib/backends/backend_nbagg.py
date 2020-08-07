@@ -75,7 +75,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def __init__(self, canvas, num):
         self._shown = False
-        FigureManagerWebAgg.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
