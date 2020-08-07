@@ -1231,7 +1231,6 @@ class _AxesBase(martist.Artist):
 
         self._gridOn = mpl.rcParams['axes.grid']
         self._children = []
-        self.patches = []
         self.texts = []
         self.tables = []
         self.artists = []
@@ -1312,6 +1311,11 @@ class _AxesBase(martist.Artist):
     @property
     def lines(self):
         return tuple(a for a in self._children if isinstance(a, mlines.Line2D))
+
+    @property
+    def patches(self):
+        return tuple(a for a in self._children
+                     if isinstance(a, mpatches.Patch))
 
     def clear(self):
         """Clear the axes."""
@@ -2172,14 +2176,14 @@ class _AxesBase(martist.Artist):
 
     def add_patch(self, p):
         """
-        Add a `~.Patch` to the axes' patches; return the patch.
+        Add a `~.Patch` to the Axes; return the patch.
         """
         self._set_artist_props(p)
         if p.get_clip_path() is None:
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
-        self.patches.append(p)
-        p._remove_method = self.patches.remove
+        self._children.append(p)
+        p._remove_method = self._children.remove
         return p
 
     def _update_patch_limits(self, patch):
@@ -4331,7 +4335,6 @@ class _AxesBase(martist.Artist):
         # docstring inherited.
         return [
             *self.collections,
-            *self.patches,
             *self._children,
             *self.texts,
             *self.artists,
