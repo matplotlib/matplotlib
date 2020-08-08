@@ -1233,7 +1233,6 @@ class _AxesBase(martist.Artist):
         self._gridOn = mpl.rcParams['axes.grid']
         self._children = []
         self.artists = []
-        self.images = []
         self._mouseover_set = _OrderedSet()
         self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
@@ -1306,6 +1305,11 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    @property
+    def images(self):
+        return tuple(a for a in self._children
+                     if isinstance(a, mimage.AxesImage))
 
     @property
     def lines(self):
@@ -2097,13 +2101,13 @@ class _AxesBase(martist.Artist):
 
     def add_image(self, image):
         """
-        Add an `~.AxesImage` to the axes' images; return the image.
+        Add an `~.AxesImage` to the Axes; return the image.
         """
         self._set_artist_props(image)
         if not image.get_label():
-            image.set_label('_image%d' % len(self.images))
-        self.images.append(image)
-        image._remove_method = self.images.remove
+            image.set_label(f'_child{len(self._children)}')
+        self._children.append(image)
+        image._remove_method = self._children.remove
         self.stale = True
         return image
 
@@ -2911,8 +2915,9 @@ class _AxesBase(martist.Artist):
             artists.remove(self._right_title)
 
         if not self.figure.canvas.is_saving():
-            artists = [a for a in artists
-                       if not a.get_animated() or a in self.images]
+            artists = [
+                a for a in artists
+                if not a.get_animated() or isinstance(a, mimage.AxesImage)]
         artists = sorted(artists, key=attrgetter('zorder'))
 
         # rasterize artists with negative zorder
@@ -4347,7 +4352,6 @@ class _AxesBase(martist.Artist):
             *self.spines.values(),
             *self._get_axis_list(),
             self.title, self._left_title, self._right_title,
-            *self.images,
             *self.child_axes,
             *([self.legend_] if self.legend_ is not None else []),
             self.patch,
