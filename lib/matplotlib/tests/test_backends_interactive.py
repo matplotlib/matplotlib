@@ -207,5 +207,4 @@ def test_never_update(monkeypatch):
     plt.show(block=False)
     fig = plt.gcf()
     fig.canvas.toolbar.configure_subplots()
-    # skirt monkeypatch
-    tkinter._default_root.tk.call('update')
+    plt.pause(1e-9)
