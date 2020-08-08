@@ -513,7 +513,7 @@ def test_add_collection3d_zs_array():
     x = r * np.sin(theta)
     y = r * np.cos(theta)
 
-    points = np.array([x, y, z]).T.reshape(-1, 1, 3)
+    points = np.column_stack([x, y, z]).reshape(-1, 1, 3)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
     fig = plt.figure()
@@ -541,7 +541,7 @@ def test_add_collection3d_zs_scalar():
     x = r * np.sin(theta)
     y = r * np.cos(theta)
 
-    points = np.array([x, y]).T.reshape(-1, 1, 2)
+    points = np.column_stack([x, y]).reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
     fig = plt.figure()
