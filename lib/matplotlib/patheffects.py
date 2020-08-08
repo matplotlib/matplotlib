@@ -26,8 +26,8 @@ class AbstractPathEffect:
         """
         Parameters
         ----------
-        offset : pair of floats
-            The offset to apply to the path, measured in points.
+        offset : (float, float), default: (0, 0)
+            The (x, y) offset to apply to the path, measured in points.
         """
         self._offset = offset
 
@@ -38,10 +38,10 @@ class AbstractPathEffect:
 
     def _update_gc(self, gc, new_gc_dict):
         """
-        Update the given GraphicsCollection with the given
-        dictionary of properties. The keys in the dictionary are used to
-        identify the appropriate set_ method on the gc.
+        Update the given GraphicsContext with the given dict of properties.
 
+        The keys in the dictionary are used to identify the appropriate
+        ``set_`` method on the *gc*.
         """
         new_gc_dict = new_gc_dict.copy()
 
@@ -61,7 +61,6 @@ class AbstractPathEffect:
         Derived should override this method. The arguments are the same
         as :meth:`matplotlib.backend_bases.RendererBase.draw_path`
         except the first argument is a renderer.
-
         """
         # Get the real renderer, not a PathEffectRenderer.
         if isinstance(renderer, PathEffectRenderer):
@@ -227,8 +226,8 @@ class SimplePatchShadow(AbstractPathEffect):
         """
         Parameters
         ----------
-        offset : pair of floats
-            The offset of the shadow in points.
+        offset : (float, float), default: (2, -2)
+            The (x, y) offset of the shadow in points.
         shadow_rgbFace : color
             The shadow color.
         alpha : float, default: 0.3
@@ -295,8 +294,8 @@ class SimpleLineShadow(AbstractPathEffect):
         """
         Parameters
         ----------
-        offset : pair of floats
-            The offset to apply to the path, in points.
+        offset : (float, float), default: (2, -2)
+            The (x, y) offset to apply to the path, in points.
         shadow_color : color, default: 'black'
             The shadow color.
             A value of ``None`` takes the original artist's color
@@ -354,8 +353,8 @@ class PathPatchEffect(AbstractPathEffect):
         """
         Parameters
         ----------
-        offset : pair of floats
-            The offset to apply to the path, in points.
+        offset : (float, float), default: (0, 0)
+            The (x, y) offset to apply to the path, in points.
         **kwargs
             All keyword arguments are passed through to the
             :class:`~matplotlib.patches.PathPatch` constructor. The
@@ -401,8 +400,8 @@ class TickedStroke(AbstractPathEffect):
         """
         Parameters
         ----------
-        offset : pair of floats, default: (0, 0)
-            The offset to apply to the path, in points.
+        offset : (float, float), default: (0, 0)
+            The (x, y) offset to apply to the path, in points.
         spacing : float, default: 10.0
             The spacing between ticks in points.
         angle : float, default: 45.0
@@ -430,9 +429,7 @@ class TickedStroke(AbstractPathEffect):
         self._gc = kwargs
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        """
-        Draw the path with updated gc.
-        """
+        """Draw the path with updated gc."""
         # Do not modify the input! Use copy instead.
         gc0 = renderer.new_gc()
         gc0.copy_properties(gc)
@@ -445,7 +442,7 @@ class TickedStroke(AbstractPathEffect):
                                  [np.sin(theta), np.cos(theta)]])
 
         # Convert spacing parameter to pixels.
-        spcpx = renderer.points_to_pixels(self._spacing)
+        spacing_px = renderer.points_to_pixels(self._spacing)
 
         # Transform before evaluation because to_polygons works at resolution
         # of one -- assuming it is working in pixel space.
@@ -469,11 +466,11 @@ class TickedStroke(AbstractPathEffect):
 
             # Build parametric coordinate along curve
             s = np.concatenate(([0.0], np.cumsum(ds)))
-            stot = s[-1]
+            s_total = s[-1]
 
-            num = int(np.ceil(stot / spcpx))-1
+            num = int(np.ceil(s_total / spacing_px)) - 1
             # Pick parameter values for ticks.
-            s_tick = np.linspace(spcpx/2, stot-spcpx/2, num)
+            s_tick = np.linspace(spacing_px/2, s_total - spacing_px/2, num)
 
             # Find points along the parameterized curve
             x_tick = np.interp(s_tick, s, x)
@@ -493,7 +490,7 @@ class TickedStroke(AbstractPathEffect):
             uv[mask] = np.array([0, 0]).T
 
             # Rotate and scale unit vector into tick vector
-            dxy = np.dot(uv, trans_matrix) * self._length * spcpx
+            dxy = np.dot(uv, trans_matrix) * self._length * spacing_px
 
             # Build tick endpoints
             x_end = x_tick + dxy[:, 0]
