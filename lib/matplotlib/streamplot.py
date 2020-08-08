@@ -210,7 +210,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         p = patches.FancyArrowPatch(
             arrow_tail, arrow_head, transform=transform, **arrow_kw)
-        axes.add_patch(p)
         arrows.append(p)
 
     lc = mcollections.LineCollection(
@@ -222,9 +221,13 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         lc.set_cmap(cmap)
         lc.set_norm(norm)
     axes.add_collection(lc)
-    axes.autoscale_view()
 
     ac = matplotlib.collections.PatchCollection(arrows)
+    # Adding the collection itself is broken; see #2341.
+    for p in arrows:
+        axes.add_patch(p)
+
+    axes.autoscale_view()
     stream_container = StreamplotSet(lc, ac)
     return stream_container
 

@@ -11,23 +11,23 @@ import types
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook
+from matplotlib import _api, cbook, docstring
+import matplotlib.artist as martist
+import matplotlib.axis as maxis
 from matplotlib.cbook import _OrderedSet, _check_1d, index_of
-from matplotlib import docstring
+import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
+import matplotlib.font_manager as font_manager
+import matplotlib.image as mimage
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
-import matplotlib.artist as martist
-import matplotlib.transforms as mtransforms
-import matplotlib.ticker as mticker
-import matplotlib.axis as maxis
-import matplotlib.spines as mspines
-import matplotlib.font_manager as font_manager
-import matplotlib.table as mtable
-import matplotlib.text as mtext
-import matplotlib.image as mimage
 import matplotlib.path as mpath
 from matplotlib.rcsetup import cycler, validate_axisbelow
+import matplotlib.spines as mspines
+import matplotlib.table as mtable
+import matplotlib.text as mtext
+import matplotlib.ticker as mticker
+import matplotlib.transforms as mtransforms
 
 _log = logging.getLogger(__name__)
 
@@ -1238,7 +1238,6 @@ class _AxesBase(martist.Artist):
         self._current_image = None  # strictly for pyplot via _sci, _gci
         self._projection_init = None  # strictly for pyplot.subplot
         self.legend_ = None
-        self.collections = []  # collection.Collection instances
         self.containers = []
 
         self.grid(False)  # Disable grid on init to use rcParameter
@@ -1305,6 +1304,11 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    @property
+    def collections(self):
+        return tuple(a for a in self._children
+                     if isinstance(a, mcoll.Collection))
 
     @property
     def images(self):
@@ -2069,13 +2073,13 @@ class _AxesBase(martist.Artist):
 
     def add_collection(self, collection, autolim=True):
         """
-        Add a `~.Collection` to the axes' collections; return the collection.
+        Add a `~.Collection` to the Axes; return the collection.
         """
         label = collection.get_label()
         if not label:
-            collection.set_label('_collection%d' % len(self.collections))
-        self.collections.append(collection)
-        collection._remove_method = self.collections.remove
+            collection.set_label(f'_child{len(self._children)}')
+        self._children.append(collection)
+        collection._remove_method = self._children.remove
         self._set_artist_props(collection)
 
         if collection.get_clip_path() is None:
@@ -4346,7 +4350,6 @@ class _AxesBase(martist.Artist):
     def get_children(self):
         # docstring inherited.
         return [
-            *self.collections,
             *self._children,
             *self.artists,
             *self.spines.values(),
