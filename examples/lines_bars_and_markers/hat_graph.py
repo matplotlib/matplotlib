@@ -2,7 +2,10 @@
 ===============================
 Hat Graph with labels
 ===============================
-This example shows a how to create a hat graph and how to annotate with labels.
+This example shows a how to create a hat graph
+and how to annotate with labels.
+Refer (https://doi.org/10.1186/s41235-019-0182-3)
+to know more about hat graph 
 """
 import matplotlib
 import numpy as np
