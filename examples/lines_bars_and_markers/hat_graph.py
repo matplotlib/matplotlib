@@ -19,6 +19,7 @@ rects1 = ax.bar(x - width/2, np.zeros_like(playerA), width,
                 bottom=playerA, label='Player A', fill=False)
 rects2 = ax.bar(x + width/2, playerB - playerA, width,
                 bottom=playerA, label='Player B', edgecolor='black')
+
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylim(0, 60)
 ax.set_ylabel('Score')
@@ -27,6 +28,7 @@ ax.set_xticks(x)
 ax.set_xticklabels(labels)
 ax.legend()
 ax.set_xlabel('Games')
+
 def Label(heights, rects):
     """Attach a text label on top of each bar."""
     i = 0
