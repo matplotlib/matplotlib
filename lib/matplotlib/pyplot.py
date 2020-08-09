@@ -364,7 +364,7 @@ def isinteractive():
     return matplotlib.is_interactive()
 
 
-class _ioff:
+class _IoffContext:
     """
     Context manager for `.ioff`.
 
@@ -387,7 +387,7 @@ class _ioff:
             install_repl_displayhook()
 
 
-class _ion:
+class _IonContext:
     """
     Context manager for `.ion`.
 
@@ -426,20 +426,23 @@ def ioff():
     -----
     For a temporary change, this can be used as a context manager::
 
+        # if interactive mode is on
+        # then figures will be shown on creation
+        plt.ion()
+        # This figure will be shown immediately
+        fig = plt.figure()
+
         with plt.ioff():
             # interactive mode will be off
             # figures will not automatically be shown
-            fig1 = plt.figure()
+            fig2 = plt.figure()
             # ...
 
-        # This figure will be shown immediately
-        fig2 = plt.figure()
-
-    The return value of `plt.ioff` is necessary to make the function work
-    as a context manager. It is not intended to be stored or accessed
-    by the user.
+    To enable usage as a context manager, this function returns an
+    ``_IoffContext`` object. The return value is not intended to be stored
+    or accessed by the user.
     """
-    return _ioff()
+    return _IoffContext()
 
 
 def ion():
@@ -448,7 +451,7 @@ def ion():
 
     See Also
     --------
-    ion : enable interactive mode
+    ioff : disable interactive mode
     isinteractive : query current state
 
     show : show windows (and maybe block)
@@ -462,19 +465,19 @@ def ion():
         # then figures will not be shown on creation
         plt.ioff()
         # This figure will not be shown immediately
-        fig2 = plt.figure()
+        fig = plt.figure()
 
         with plt.ion():
             # interactive mode will be on
             # figures will automatically be shown
-            fig1 = plt.figure()
+            fig2 = plt.figure()
             # ...
 
-    The return value of `plt.ion` is necessary to make the function work
-    as a context manager. It is not intended to be stored or accessed
-    by the user.
+    To enable usage as a context manager, this function returns an
+    ``_IonContext`` object. The return value is not intended to be stored
+    or accessed by the user.
     """
-    return _ion()
+    return _IonContext()
 
 
 def pause(interval):
