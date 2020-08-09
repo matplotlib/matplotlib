@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
+
 needs_usetex = pytest.mark.skipif(
     not mpl.checkdep_usetex(True),
     reason="This test needs a TeX installation")
