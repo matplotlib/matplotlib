@@ -28,11 +28,11 @@ ax.set_xticklabels(labels)
 ax.legend()
 ax.set_xlabel('Games')
 def Label(heights, rects):
-    """Attach a text label on top of each bar. """
-    i=0
+    """Attach a text label on top of each bar."""
+    i = 0
     for rect in rects:
-        height=int(heights[i])
-        i+=1
+        height = int(heights[i])
+        i += 1
         ax.annotate('{}'.format(height),
                     xy=(rect.get_x() + rect.get_width() / 2, height),
                     xytext=(0, 4),  # 4 points vertical offset.
