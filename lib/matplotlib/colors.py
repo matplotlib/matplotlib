@@ -726,31 +726,35 @@ class Colormap:
         """Generate an HTML representation of the Colormap."""
         png_bytes = self._repr_png_()
         png_base64 = base64.b64encode(png_bytes).decode('ascii')
-        def color_block(name, color):
+        def color_block(color):
             hex_color = to_hex(color, keep_alpha=True)
-            return ('<span style="margin-right: 0.8em;">' +
-                    '<span>' + name + ':</span> ' +
-                    '<div title="' + hex_color + '" ' +
+            return ('<div title="' + hex_color + '" ' +
                     'style="display: inline-block; ' +
                     'width: 1em; height: 1em; ' +
                     'margin: 0; ' +
                     'vertical-align: middle; ' +
                     'border: 1px solid #555; ' +
-                    'background-color: ' + hex_color + ';"></div>' +
-                    '</span>')
+                    'background-color: ' + hex_color + ';">' +
+                    '</div>')
 
         return ('<div style="vertical-align: middle;">' +
                 '<strong>' + self.name + '</strong> ' +
                 '</div>' +
-                '<div><img ' +
+                '<div class="cmap"><img ' +
                 'alt="' + self.name + ' color map" ' +
-                'title="' + self.name + '"' +
+                'title="' + self.name + '" ' +
                 'style="border: 1px solid #555;" ' +
                 'src="data:image/png;base64,' + png_base64 + '"></div>' +
-                '<div style="vertical-align: middle;">' +
-                color_block('under', self.get_under()) +
-                color_block('bad', self.get_bad()) +
-                color_block('over', self.get_over()) +
+                '<div style="vertical-align: middle; width: 402px; ' +
+                'display: flex; justify-content: space-between;">' +
+                '<div style="float: left;">' +
+                color_block(self.get_under()) + ' under' +
+                '</div>' +
+                '<div style="margin: 0 auto; display: inline-block;">' +
+                'bad ' + color_block(self.get_bad()) +
+                '</div>' +
+                '<div style="float: right;">' +
+                'over ' + color_block(self.get_over()) +
                 '</div>')
 
 
