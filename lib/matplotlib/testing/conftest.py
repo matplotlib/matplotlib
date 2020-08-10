@@ -17,7 +17,7 @@ def pytest_configure(config):
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
         ("markers", "network: Tests that reach out to the network."),
-        ("markers", "matplotlib_baseline_image_generation: Flag to generate matplotlib baseline images."),
+        ("markers", "generate_images: Flag to generate matplotlib baseline images."),
         ("filterwarnings", "error"),
     ]:
         config.addinivalue_line(key, value)
@@ -141,7 +141,7 @@ def pd():
 def pytest_addoption(parser):
     try:
         parser.addoption(
-            "--matplotlib_baseline_image_generation",
+            "--generate_images",
              action="store_true",
              default=False,
              help="run matplotlib baseline image generation tests"
@@ -151,8 +151,8 @@ def pytest_addoption(parser):
 
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--matplotlib_baseline_image_generation"):
+    if config.getoption("--generate_images"):
         skip_non_matplotlib_baseline_image_generation_tests = pytest.mark.skip(reason="No need to run non image generation tests")
         for item in items:
-           if "matplotlib_baseline_image_generation" not in item.keywords:
+           if "generate_images" not in item.keywords:
                item.add_marker(skip_non_matplotlib_baseline_image_generation_tests)
