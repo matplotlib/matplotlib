@@ -745,7 +745,7 @@ class Colormap:
                 'title="' + self.name + '" ' +
                 'style="border: 1px solid #555;" ' +
                 'src="data:image/png;base64,' + png_base64 + '"></div>' +
-                '<div style="vertical-align: middle; width: 402px; ' +
+                '<div style="vertical-align: middle; max-width: 402px; ' +
                 'display: flex; justify-content: space-between;">' +
                 '<div style="float: left;">' +
                 color_block(self.get_under()) + ' under' +
