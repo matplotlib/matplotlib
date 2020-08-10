@@ -2250,7 +2250,8 @@ class Axes3D(Axes):
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
 
-        super().add_collection(col)
+        collection = super().add_collection(col)
+        return collection
 
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
