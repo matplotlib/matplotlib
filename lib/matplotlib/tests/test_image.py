@@ -1111,3 +1111,9 @@ def test_exact_vmin():
 
     # check than the RBGA values are the same
     assert np.all(from_image == direct_computation)
+
+
+@pytest.mark.network
+@pytest.mark.flaky
+def test_https_imread_smoketest():
+    v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
