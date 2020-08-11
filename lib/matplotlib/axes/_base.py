@@ -2006,10 +2006,13 @@ class _AxesBase(martist.Artist):
         `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The
         current image is an attribute of the current axes.
         """
+        _api.check_isinstance(
+            (mpl.contour.ContourSet, mcoll.Collection, mimage.AxesImage),
+            im=im)
         if isinstance(im, mpl.contour.ContourSet):
-            if im.collections[0] not in self.collections:
+            if im.collections[0] not in self._children:
                 raise ValueError("ContourSet must be in current Axes")
-        elif im not in self.images and im not in self.collections:
+        elif im not in self._children:
             raise ValueError("Argument must be an image, collection, or "
                              "ContourSet in this Axes")
         self._current_image = im
@@ -2026,11 +2029,9 @@ class _AxesBase(martist.Artist):
         need to be updated, and may not actually be useful for
         anything.
         """
-        return (
-            len(self.collections) +
-            len(self.images) +
-            len(self.lines) +
-            len(self.patches)) > 0
+        return any(isinstance(a, (mcoll.Collection, mimage.AxesImage,
+                                  mlines.Line2D, mpatches.Patch))
+                   for a in self._children)
 
     def add_artist(self, a):
         """
@@ -2279,17 +2280,14 @@ class _AxesBase(martist.Artist):
         self.dataLim.set_points(mtransforms.Bbox.null().get_points())
         self.ignore_existing_data_limits = True
 
-        for line in self.lines:
-            if not visible_only or line.get_visible():
-                self._update_line_limits(line)
-
-        for p in self.patches:
-            if not visible_only or p.get_visible():
-                self._update_patch_limits(p)
-
-        for image in self.images:
-            if not visible_only or image.get_visible():
-                self._update_image_limits(image)
+        for artist in self._children:
+            if not visible_only or artist.get_visible():
+                if isinstance(artist, mlines.Line2D):
+                    self._update_line_limits(artist)
+                elif isinstance(artist, mpatches.Patch):
+                    self._update_patch_limits(artist)
+                elif isinstance(artist, mimage.AxesImage):
+                    self._update_image_limits(artist)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """

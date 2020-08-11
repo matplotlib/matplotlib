@@ -19,11 +19,14 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import _api, artist, cbook, docstring
+from matplotlib import _api, cbook, docstring
+import matplotlib.artist as martist
 import matplotlib.axes as maxes
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
+import matplotlib.image as mimage
 import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 import matplotlib.scale as mscale
 import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
@@ -417,7 +420,7 @@ class Axes3D(Axes):
         pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
         self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
 
-    @artist.allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer):
         self._unstale_viewLim()
 
@@ -479,26 +482,27 @@ class Axes3D(Axes):
                     "%(since)s and will be removed %(removal)s.")
                 return artist.do_3d_projection(renderer)
 
+            collections_and_patches = (
+                artist for artist in self._children
+                if isinstance(artist, (mcoll.Collection, mpatches.Patch)))
             if self.computed_zorder:
                 # Calculate projection of collections and patches and zorder
                 # them. Make sure they are drawn above the grids.
                 zorder_offset = max(axis.get_zorder()
                                     for axis in self._get_axis_list()) + 1
-                for i, col in enumerate(
-                        sorted(self.collections,
-                               key=do_3d_projection,
-                               reverse=True)):
-                    col.zorder = zorder_offset + i
-                for i, patch in enumerate(
-                        sorted(self.patches,
-                               key=do_3d_projection,
-                               reverse=True)):
-                    patch.zorder = zorder_offset + i
+                collection_zorder = patch_zorder = zorder_offset
+                for artist in sorted(collections_and_patches,
+                                     key=do_3d_projection,
+                                     reverse=True):
+                    if isinstance(artist, mcoll.Collection):
+                        artist.zorder = collection_zorder
+                        collection_zorder += 1
+                    elif isinstance(artist, mpatches.Patch):
+                        artist.zorder = patch_zorder
+                        patch_zorder += 1
             else:
-                for col in self.collections:
-                    col.do_3d_projection()
-                for patch in self.patches:
-                    patch.do_3d_projection()
+                for artist in collections_and_patches:
+                    artist.do_3d_projection()
 
             if self._axis3don:
                 # Draw panes first
@@ -731,10 +735,15 @@ class Axes3D(Axes):
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
         if tight is None:
-            # if image data only just use the datalim
-            _tight = self._tight or (
-                len(self.images) > 0
-                and len(self.lines) == len(self.patches) == 0)
+            _tight = self._tight
+            if not _tight:
+                # if image data only just use the datalim
+                for artist in self._children:
+                    if isinstance(artist, mimage.AxesImage):
+                        _tight = True
+                    elif isinstance(artist, (mlines.Line2D, mpatches.Patch)):
+                        _tight = False
+                        break
         else:
             _tight = self._tight = bool(tight)
 
@@ -3434,7 +3443,7 @@ pivot='tail', normalize=False, **kwargs)
     stem3D = stem
 
 
-docstring.interpd.update(Axes3D_kwdoc=artist.kwdoc(Axes3D))
+docstring.interpd.update(Axes3D_kwdoc=martist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
 
 
