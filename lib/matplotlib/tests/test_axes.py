@@ -3289,7 +3289,7 @@ def test_stem_orientation(use_line_collection):
                   use_line_collection=use_line_collection)
 
     fig, ax = plt.subplots()
-    ax.stem(*args, **kwargs, orientation='vertical')
+    ax.stem(*args, **kwargs, orientation='horizontal')
 
 
 @image_comparison(['hist_stacked_stepfilled_alpha'])

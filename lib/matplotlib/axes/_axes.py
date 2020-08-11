@@ -2723,14 +2723,14 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None, use_line_collection=True, orientation='horizontal'):
+             label=None, use_line_collection=True, orientation='vertical'):
         """
         Create a stem plot.
 
         A stem plot draws lines perpendicular to a baseline at each location
         *locs* from the baseline to *heads*, and places a marker there. For
-        horizontal stem plots (the default), the *locs* are *x* positions, and
-        the *heads* are *y* values. For vertical stem plots, the *locs* are
+        vertical stem plots (the default), the *locs* are *x* positions, and
+        the *heads* are *y* values. For horizontal stem plots, the *locs* are
         *y* positions, and the *heads* are *x* values.
 
         Call signature::
@@ -2743,12 +2743,12 @@ class Axes(_AxesBase):
         Parameters
         ----------
         locs : array-like, default: (0, 1, ..., len(heads) - 1)
-            For horizontal stem plots, the x-positions of the stems.
-            For vertical stem plots, the y-positions of the stems.
+            For vertical stem plots, the x-positions of the stems.
+            For horizontal stem plots, the y-positions of the stems.
 
         heads : array-like
-            For horizontal stem plots, the y-values of the stem heads.
-            For vertical stem plots,  the x-values of the stem heads.
+            For vertical stem plots, the y-values of the stem heads.
+            For horizontal stem plots, the x-values of the stem heads.
 
         linefmt : str, optional
             A string defining the properties of the vertical lines. Usually,
@@ -2779,12 +2779,12 @@ class Axes(_AxesBase):
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
 
-        orientation : str, default: 'horizontal'
-            If 'vertical', will produce a vertically-oriented stem plot,
-            else it will produce a horizontally-oriented stem plot.
+        orientation : str, default: 'vertical'
+            If 'vertical', will produce a plot with stems oriented vertically,
+            otherwise the stems will be oriented horizontally.
 
         bottom : float, default: 0
-            The y-position of the baseline.
+            The y/x-position of the baseline (depending on orientation).
 
         label : str, default: None
             The label to use for the stems in legends.
@@ -2822,7 +2822,7 @@ class Axes(_AxesBase):
         else:
             locs, heads, *args = args
 
-        if orientation == 'horizontal':
+        if orientation == 'vertical':
             self._process_unit_info(xdata=locs, ydata=heads)
             locs = self.convert_xunits(locs)
             heads = self.convert_yunits(heads)
@@ -2880,7 +2880,7 @@ class Axes(_AxesBase):
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
-            if orientation == 'vertical':
+            if orientation == 'horizontal':
                 stemlines = [
                     ((bottom, loc), (head, loc))
                     for loc, head in zip(locs, heads)]
@@ -2898,7 +2898,7 @@ class Axes(_AxesBase):
         else:
             stemlines = []
             for loc, head in zip(locs, heads):
-                if orientation == 'vertical':
+                if orientation == 'horizontal':
                     xs = [bottom, head]
                     ys = [loc, loc]
                 else:
@@ -2909,7 +2909,7 @@ class Axes(_AxesBase):
                                marker=linemarker, label="_nolegend_")
                 stemlines.append(l)
 
-        if orientation == 'vertical':
+        if orientation == 'horizontal':
             marker_x = heads
             marker_y = locs
             baseline_x = [bottom, bottom]
