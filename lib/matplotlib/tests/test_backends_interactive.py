@@ -223,4 +223,3 @@ def test_never_update(monkeypatch, capsys):
     # test framework doesn't see tkinter callback exceptions normally
     # see tkinter.Misc.report_callback_exception
     assert "Exception in Tkinter callback" not in capsys.readouterr().err
-
