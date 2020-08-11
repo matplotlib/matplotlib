@@ -199,3 +199,32 @@ def test_webagg():
     conn.close()
     proc.send_signal(signal.SIGINT)
     assert proc.wait(timeout=_test_timeout) == 0
+
+
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
+def test_never_update(monkeypatch, capsys):
+    import tkinter
+    monkeypatch.delattr(tkinter.Misc, 'update')
+    monkeypatch.delattr(tkinter.Misc, 'update_idletasks')
+
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    plt.show(block=False)
+
+    # regression test on FigureCanvasTkAgg
+    plt.draw()
+    # regression test on NavigationToolbar2Tk
+    fig.canvas.toolbar.configure_subplots()
+
+    # check for update() or update_idletasks() in the event queue
+    # functionally equivalent to tkinter.Misc.update
+    # must pause >= 1 ms to process tcl idle events plus
+    # extra time to avoid flaky tests on slow systems
+    plt.pause(0.1)
+
+    # regression test on FigureCanvasTk filter_destroy callback
+    plt.close(fig)
+
+    # test framework doesn't see tkinter callback exceptions normally
+    # see tkinter.Misc.report_callback_exception
+    assert "Exception in Tkinter callback" not in capsys.readouterr().err

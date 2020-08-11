@@ -209,7 +209,6 @@ class FigureCanvasTk(FigureCanvasBase):
         # to the window and filter.
         def filter_destroy(event):
             if event.widget is self._tkcanvas:
-                self._master.update_idletasks()
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")
 
@@ -233,7 +232,6 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.create_image(
             int(width / 2), int(height / 2), image=self._tkphoto)
         self.resize_event()
-        self.draw()
 
     def draw_idle(self):
         # docstring inherited
@@ -383,6 +381,16 @@ class FigureCanvasTk(FigureCanvasBase):
         # docstring inherited
         self._master.update()
 
+    def start_event_loop(self, timeout=0):
+        # docstring inherited
+        if timeout > 0:
+            self._master.after(int(1000*timeout), self.stop_event_loop)
+        self._master.mainloop()
+
+    def stop_event_loop(self):
+        # docstring inherited
+        self._master.quit()
+
 
 class FigureManagerTk(FigureManagerBase):
     """
@@ -527,10 +535,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if pack_toolbar:
             self.pack(side=tk.BOTTOM, fill=tk.X)
 
-    def destroy(self, *args):
-        del self.message
-        tk.Frame.destroy(self, *args)
-
     def set_message(self, s):
         self.message.set(s)
 
@@ -554,8 +558,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             window.configure(cursor=cursord[cursor])
         except tkinter.TclError:
             pass
-        else:
-            window.update_idletasks()
 
     def _Button(self, text, image_file, toggle, command):
         image = (tk.PhotoImage(master=self, file=image_file)

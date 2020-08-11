@@ -23,7 +23,6 @@ class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
         _backend_tk.blit(
             self._tkphoto, buf,
             (2, 1, 0, 3) if sys.byteorder == "little" else (1, 2, 3, 0))
-        self._master.update_idletasks()
 
 
 @_BackendTk.export
