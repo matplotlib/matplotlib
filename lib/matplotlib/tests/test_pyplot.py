@@ -109,3 +109,23 @@ def test_ion():
     with plt.ion():
         assert mpl.is_interactive()
     assert mpl.is_interactive()
+
+def test_nested_ion_ioff():
+    plt.ion()
+    with plt.ioff():
+        assert not mpl.is_interactive()
+        with plt.ion():
+            assert mpl.is_interactive()
+        assert not mpl.is_interactive()
+    assert mpl.is_interactive()
+
+    with plt.ioff():
+        with plt.ioff():
+            assert not mpl.is_interactive()
+    assert mpl.is_interactive()
+
+    plt.ioff()
+    with plt.ion():
+        with plt.ion():
+            assert mpl.is_interactive()
+    assert not mpl.is_interactive()
