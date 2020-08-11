@@ -761,11 +761,18 @@ def is_url(filename):
     return URL_REGEX.match(filename) is not None
 
 
+@functools.lru_cache()
+def _get_ssl_context():
+    import certifi
+    import ssl
+    return ssl.create_default_context(cafile=certifi.where())
+
+
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if not isinstance(fname, Path) and is_url(fname):
         import urllib.request
-        with urllib.request.urlopen(fname) as f:
+        with urllib.request.urlopen(fname, context=_get_ssl_context()) as f:
             yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)

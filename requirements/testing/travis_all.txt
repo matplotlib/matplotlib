@@ -1,5 +1,6 @@
 # pip requirements for all the travis builds
 
+certifi
 coverage
 pytest!=4.6.0,!=5.4.0
 pytest-cov
