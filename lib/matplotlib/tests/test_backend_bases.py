@@ -60,6 +60,15 @@ def test_get_default_filename(tmpdir):
     assert filename == 'image.png'
 
 
+def test_canvas_change():
+    fig = plt.figure()
+    # Replaces fig.canvas
+    canvas = FigureCanvasBase(fig)
+    # Should still work.
+    plt.close(fig)
+    assert not plt.fignum_exists(fig.number)
+
+
 @pytest.mark.backend('pdf')
 def test_non_gui_warning(monkeypatch):
     plt.subplots()

@@ -146,8 +146,13 @@ _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 @pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
 @pytest.mark.flaky(reruns=3)
 def test_interactive_backend(backend, toolbar):
-    if backend == "macosx" and toolbar == "toolmanager":
-        pytest.skip("toolmanager is not implemented for macosx.")
+    if backend == "macosx":
+        if toolbar == "toolmanager":
+            pytest.skip("toolmanager is not implemented for macosx.")
+        if toolbar == "toolbar2" and os.environ.get('TRAVIS'):
+            # See https://github.com/matplotlib/matplotlib/issues/18213
+            pytest.skip("toolbar2 for macosx is buggy on Travis.")
+
     proc = subprocess.run(
         [sys.executable, "-c", _test_script,
          json.dumps({"toolbar": toolbar})],
