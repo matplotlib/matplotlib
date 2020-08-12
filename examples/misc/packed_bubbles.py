@@ -1,7 +1,11 @@
 """
-Create a packed bubble / non overlapping bubble chart to represent scalar data.
+===================
+Packed-bubble chart
+===================
+
+Create a packed-bubble chart to represent scalar data.
 The presented algorithm tries to move all bubbles as close to the center of
-mass as possible while avoiding some collisions by moving aroud colliding
+mass as possible while avoiding some collisions by moving around colliding
 objects. In this example we plot the market share of different desktop
 browsers.
 """
@@ -72,7 +76,8 @@ class BubbleChart:
     def outline_distance(self, bubble, bubbles):
         center_distance = self.center_distance(bubble, bubbles)
         return center_distance - bubble[2] - \
-            bubbles[:, 2] - self.bubble_distance
+       return (center_distance - bubble[2] - 
+                    bubbles[:, 2] - self.bubble_distance)
 
     def check_collisions(self, bubble, bubbles):
         distance = self.outline_distance(bubble, bubbles)
