@@ -1,6 +1,9 @@
 """
 Create a packed bubble / non overlapping bubble chart to represent scalar data.
-In this example we plot the market share of different desktop browsers.
+The presented algorithm tries to move all bubbles as close to the center of
+mass as possible while avoiding some collisions by moving aroud colliding
+objects. In this example we plot the market share of different desktop
+browsers.
 """
 
 import numpy as np
@@ -15,13 +18,15 @@ browser_market_share = {
 
 class BubbleChart:
     def __init__(self, r=None, a=None, bubble_distance=0):
-        """setup for bubble collapse
+        """
+        setup for bubble collapse
 
         Args:
             r (list, optional): radius of the bubbles. Defaults to None.
             a (list, optional): area of the bubbles. Defaults to None.
             Note: If r or a is sorted, the results might look weird
-            bubble_distance (int, optional): minimal distance the bubbles should have after collapsing. Defaults to 0.
+            bubble_distance (int, optional): minimal distance the bubbles
+            should have after collapsing. Defaults to 0.
         """
         if r is None:
             r = np.sqrt(a / np.pi)
@@ -49,15 +54,18 @@ class BubbleChart:
         return self.n
 
     def center_of_mass(self):
-        return np.average(self.bubbles[:, :2], axis=0, weights=self.bubbles[:, 3])
+        return np.average(
+            self.bubbles[:, :2], axis=0, weights=self.bubbles[:, 3]
+        )
 
     def center_distance(self, bubble, bubbles):
-        return np.sqrt(np.power(bubble[0] - bubbles[:, 0], 2)
-                       + np.power(bubble[1] - bubbles[:, 1], 2))
+        return np.sqrt(np.power(bubble[0] - bubbles[:, 0], 2) +
+                       np.power(bubble[1] - bubbles[:, 1], 2))
 
     def outline_distance(self, bubble, bubbles):
         center_distance = self.center_distance(bubble, bubbles)
-        return center_distance - bubble[2] - bubbles[:, 2] - self.bubble_distance
+        return center_distance - bubble[2] - \
+            bubbles[:, 2] - self.bubble_distance
 
     def check_collisions(self, bubble, bubbles):
         distance = self.outline_distance(bubble, bubbles)
@@ -112,10 +120,10 @@ class BubbleChart:
 
         if moves / len(self) < 0.1:
             self.step_dist = self.step_dist / 2
-            print(self.step_dist)
 
     def plot(self, ax, labels, colors):
-        """draw the bubble plot
+        """
+        draw the bubble plot
 
         Args:
             ax (matplotlib.axes._subplots.AxesSubplot)
@@ -134,7 +142,8 @@ class BubbleChart:
 bubble_plot = BubbleChart(a=np.array(
     browser_market_share['market_share']), bubble_distance=1)
 
-# collapse plot 50 times. In some cases it might be useful to do this more or less often
+# collapse plot 50 times. In some cases it might be useful
+# to do this more or less often
 for i in range(50):
     bubble_plot.collapse()
 
