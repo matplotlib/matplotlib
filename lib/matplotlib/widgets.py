@@ -112,7 +112,12 @@ class AxesWidget(Widget):
     def __init__(self, ax):
         self.ax = ax
         self.canvas = ax.figure.canvas
-        self.cids = []
+        self._cids = []
+
+    @cbook.deprecated("3.4")
+    @property
+    def cids(self):
+        return self._cids
 
     def connect_event(self, event, callback):
         """
@@ -122,11 +127,11 @@ class AxesWidget(Widget):
         function stores callback ids for later clean up.
         """
         cid = self.canvas.mpl_connect(event, callback)
-        self.cids.append(cid)
+        self._cids.append(cid)
 
     def disconnect_events(self):
         """Disconnect all events created by this widget."""
-        for c in self.cids:
+        for c in self._cids:
             self.canvas.mpl_disconnect(c)
 
 
@@ -175,8 +180,8 @@ class Button(AxesWidget):
                              horizontalalignment='center',
                              transform=ax.transAxes)
 
-        self.cnt = 0
-        self.observers = {}
+        self._cnt = 0
+        self._observers = {}
 
         self.connect_event('button_press_event', self._click)
         self.connect_event('button_release_event', self._release)
@@ -187,6 +192,16 @@ class Button(AxesWidget):
         ax.set_yticks([])
         self.color = color
         self.hovercolor = hovercolor
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        return self._cnt
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers
 
     def _click(self, event):
         if (self.ignore(event)
@@ -204,7 +219,7 @@ class Button(AxesWidget):
         if (not self.eventson
                 or event.inaxes != self.ax):
             return
-        for cid, func in self.observers.items():
+        for cid, func in self._observers.items():
             func(event)
 
     def _motion(self, event):
@@ -222,15 +237,15 @@ class Button(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
+        cid = self._cnt
+        self._observers[cid] = func
+        self._cnt += 1
         return cid
 
     def disconnect(self, cid):
         """Remove the callback function with connection id *cid*."""
         try:
-            del self.observers[cid]
+            del self._observers[cid]
         except KeyError:
             pass
 
@@ -382,10 +397,20 @@ class Slider(AxesWidget):
                                    verticalalignment='center',
                                    horizontalalignment='left')
 
-        self.cnt = 0
-        self.observers = {}
+        self._cnt = 0
+        self._observers = {}
 
         self.set_val(valinit)
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        return self._cnt
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers
 
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
@@ -469,7 +494,7 @@ class Slider(AxesWidget):
         self.val = val
         if not self.eventson:
             return
-        for cid, func in self.observers.items():
+        for cid, func in self._observers.items():
             func(val)
 
     def on_changed(self, func):
@@ -488,9 +513,9 @@ class Slider(AxesWidget):
         int
             Connection id (which can be used to disconnect *func*)
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
+        cid = self._cnt
+        self._observers[cid] = func
+        self._cnt += 1
         return cid
 
     def disconnect(self, cid):
@@ -503,7 +528,7 @@ class Slider(AxesWidget):
             Connection id of the observer to be removed
         """
         try:
-            del self.observers[cid]
+            del self._observers[cid]
         except KeyError:
             pass
 
@@ -600,8 +625,18 @@ class CheckButtons(AxesWidget):
 
         self.connect_event('button_press_event', self._clicked)
 
-        self.cnt = 0
-        self.observers = {}
+        self._cnt = 0
+        self._observers = {}
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        return self._cnt
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -640,7 +675,7 @@ class CheckButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in self.observers.items():
+        for cid, func in self._observers.items():
             func(self.labels[index].get_text())
 
     def get_status(self):
@@ -655,15 +690,15 @@ class CheckButtons(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
+        cid = self._cnt
+        self._observers[cid] = func
+        self._cnt += 1
         return cid
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
         try:
-            del self.observers[cid]
+            del self._observers[cid]
         except KeyError:
             pass
 
@@ -725,9 +760,9 @@ class TextBox(AxesWidget):
             self.DIST_FROM_LEFT, 0.5, initial, transform=self.ax.transAxes,
             verticalalignment='center', horizontalalignment='left')
 
-        self.cnt = 0
-        self.change_observers = {}
-        self.submit_observers = {}
+        self._cnt = 0
+        self._change_observers = {}
+        self._submit_observers = {}
 
         ax.set(
             xlim=(0, 1), ylim=(0, 1),  # s.t. cursor appears from first click.
@@ -749,6 +784,21 @@ class TextBox(AxesWidget):
         self.hovercolor = hovercolor
 
         self.capturekeystrokes = False
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        return self._cnt
+
+    @cbook.deprecated("3.4")
+    @property
+    def change_observers(self):
+        return self._change_observers
+
+    @cbook.deprecated("3.4")
+    @property
+    def submit_observers(self):
+        return self._submit_observers
 
     @property
     def text(self):
@@ -780,7 +830,7 @@ class TextBox(AxesWidget):
 
     def _notify_submit_observers(self):
         if self.eventson:
-            for cid, func in self.submit_observers.items():
+            for cid, func in self._submit_observers.items():
                 func(self.text)
 
     def _release(self, event):
@@ -836,7 +886,7 @@ class TextBox(AxesWidget):
 
     def _notify_change_observers(self):
         if self.eventson:
-            for cid, func in self.change_observers.items():
+            for cid, func in self._change_observers.items():
                 func(self.text)
 
     def begin_typing(self, x):
@@ -918,9 +968,9 @@ class TextBox(AxesWidget):
 
         A connection id is returned which can be used to disconnect.
         """
-        cid = self.cnt
-        self.change_observers[cid] = func
-        self.cnt += 1
+        cid = self._cnt
+        self._change_observers[cid] = func
+        self._cnt += 1
         return cid
 
     def on_submit(self, func):
@@ -930,14 +980,14 @@ class TextBox(AxesWidget):
 
         A connection id is returned which can be used to disconnect.
         """
-        cid = self.cnt
-        self.submit_observers[cid] = func
-        self.cnt += 1
+        cid = self._cnt
+        self._submit_observers[cid] = func
+        self._cnt += 1
         return cid
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
-        for reg in [self.change_observers, self.submit_observers]:
+        for reg in [self._change_observers, self._submit_observers]:
             try:
                 del reg[cid]
             except KeyError:
@@ -1022,8 +1072,18 @@ class RadioButtons(AxesWidget):
 
         self.connect_event('button_press_event', self._clicked)
 
-        self.cnt = 0
-        self.observers = {}
+        self._cnt = 0
+        self._observers = {}
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        return self._cnt
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -1061,7 +1121,7 @@ class RadioButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in self.observers.items():
+        for cid, func in self._observers.items():
             func(self.labels[index].get_text())
 
     def on_clicked(self, func):
@@ -1070,15 +1130,15 @@ class RadioButtons(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
+        cid = self._cnt
+        self._observers[cid] = func
+        self._cnt += 1
         return cid
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
         try:
-            del self.observers[cid]
+            del self._observers[cid]
         except KeyError:
             pass
 
