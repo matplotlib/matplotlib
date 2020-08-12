@@ -32,7 +32,7 @@ jobs:
 
       - name: Build wheels
         run: |
-          python -m cibuildwheel --output-dir wheelhouse
+          python -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD: "cp3?-*"
           CIBW_SKIP: "cp35-* cp36-*"
@@ -44,4 +44,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: wheels
-          path: ./wheelhouse/*.whl
+          path: ./dist/*.whl
