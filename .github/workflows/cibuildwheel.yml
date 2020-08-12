@@ -37,6 +37,7 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
           CIBW_MANYLINUX_I686_IMAGE: manylinux1
           CIBW_MANYLINUX_PYPY_X86_64_IMAGE: manylinux1
+          CIBW_BEFORE_BUILD: pip install numpy==1.15
 
       - uses: actions/upload-artifact@v2
         with:
