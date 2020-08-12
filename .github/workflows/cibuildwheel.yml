@@ -28,6 +28,9 @@ jobs:
         env:
           CIBW_BUILD: "cp3?-*"
           CIBW_SKIP: "cp35-* cp36-*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
+          CIBW_MANYLINUX_I686_IMAGE: manylinux1
+          CIBW_MANYLINUX_PYPY_X86_64_IMAGE: manylinux1
 
       - uses: actions/upload-artifact@v2
         with:
