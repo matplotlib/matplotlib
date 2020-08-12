@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Suggest something to add to Matplotlib
-labels: New Feature
+labels: New feature
 ---
 
 <!--
