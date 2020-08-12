@@ -1,0 +1,13 @@
+Changes to ``twin*`` methods in `mpl_toolkits.axes_grid1`
+-----------------------------------------------------------
+
+Previously, calling `~mpl_toolkits.axes_grid1.parasite_axes.HostAxesBase.twin`,
+`~mpl_toolkits.axes_grid1.parasite_axes.HostAxesBase.twinx` or
+`~mpl_toolkits.axes_grid1.parasite_axes.HostAxesBase.twiny` on
+`mpl_toolkits.axes_grid1` host axes would hide the host axes' own axis
+lines so that there is no overdrawing with the twin/parasite axes' axis lines.
+This could lead to surprising behavior in certain cases
+(`#10748 <https://github.com/matplotlib/matplotlib/issues/10748>`_), so the
+logic has now been reversed, such that host axis lines are kept visible and
+twin/parasite axis lines are hidden. This may break code which relies on the
+specifics of host/parasite axis line visibility.
