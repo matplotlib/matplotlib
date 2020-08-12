@@ -1,7 +1,6 @@
-
 ---
 name: Documentation improvement
-about: Create a report to help us improve the documentation.
+about: Create a report to help us improve the documentation
 label: Documentation
 ---
 
