@@ -364,9 +364,61 @@ def isinteractive():
     return matplotlib.is_interactive()
 
 
+class _IoffContext:
+    """
+    Context manager for `.ioff`.
+
+    The state is changed in ``__init__()`` instead of ``__enter__()``. The
+    latter is a no-op. This allows using `.ioff` both as a function and
+    as a context.
+    """
+
+    def __init__(self):
+        self.wasinteractive = isinteractive()
+        matplotlib.interactive(False)
+        uninstall_repl_displayhook()
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.wasinteractive:
+            matplotlib.interactive(True)
+            install_repl_displayhook()
+        else:
+            matplotlib.interactive(False)
+            uninstall_repl_displayhook()
+
+
+class _IonContext:
+    """
+    Context manager for `.ion`.
+
+    The state is changed in ``__init__()`` instead of ``__enter__()``. The
+    latter is a no-op. This allows using `.ion` both as a function and
+    as a context.
+    """
+
+    def __init__(self):
+        self.wasinteractive = isinteractive()
+        matplotlib.interactive(True)
+        install_repl_displayhook()
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if not self.wasinteractive:
+            matplotlib.interactive(False)
+            uninstall_repl_displayhook()
+        else:
+            matplotlib.interactive(True)
+            install_repl_displayhook()
+
+
 def ioff():
     """
-    Turn the interactive mode off.
+    Turn interactive mode off.
 
     See Also
     --------
@@ -375,14 +427,33 @@ def ioff():
 
     show : show windows (and maybe block)
     pause : show windows, run GUI event loop, and block for a time
+
+    Notes
+    -----
+    For a temporary change, this can be used as a context manager::
+
+        # if interactive mode is on
+        # then figures will be shown on creation
+        plt.ion()
+        # This figure will be shown immediately
+        fig = plt.figure()
+
+        with plt.ioff():
+            # interactive mode will be off
+            # figures will not automatically be shown
+            fig2 = plt.figure()
+            # ...
+
+    To enable usage as a context manager, this function returns an
+    ``_IoffContext`` object. The return value is not intended to be stored
+    or accessed by the user.
     """
-    matplotlib.interactive(False)
-    uninstall_repl_displayhook()
+    return _IoffContext()
 
 
 def ion():
     """
-    Turn the interactive mode on.
+    Turn interactive mode on.
 
     See Also
     --------
@@ -391,9 +462,28 @@ def ion():
 
     show : show windows (and maybe block)
     pause : show windows, run GUI event loop, and block for a time
+
+    Notes
+    -----
+    For a temporary change, this can be used as a context manager::
+
+        # if interactive mode is off
+        # then figures will not be shown on creation
+        plt.ioff()
+        # This figure will not be shown immediately
+        fig = plt.figure()
+
+        with plt.ion():
+            # interactive mode will be on
+            # figures will automatically be shown
+            fig2 = plt.figure()
+            # ...
+
+    To enable usage as a context manager, this function returns an
+    ``_IonContext`` object. The return value is not intended to be stored
+    or accessed by the user.
     """
-    matplotlib.interactive(True)
-    install_repl_displayhook()
+    return _IonContext()
 
 
 def pause(interval):

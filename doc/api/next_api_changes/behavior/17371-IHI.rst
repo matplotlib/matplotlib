@@ -1,0 +1,7 @@
+ioff and ion can be used as context managers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`.pyplot.ion` and `.pyplot.ioff` may now be used as context managers to create
+a context with interactive mode on, or off respectively. The old behavior of
+calling these functions is maintained. To use the new functionality
+call as ``with plt.ioff():``
