@@ -204,22 +204,17 @@ class Button(AxesWidget):
         return self._observers.callbacks['clicked']
 
     def _click(self, event):
-        if (self.ignore(event)
-                or event.inaxes != self.ax
-                or not self.eventson):
+        if self.ignore(event) or event.inaxes != self.ax or not self.eventson:
             return
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
 
     def _release(self, event):
-        if (self.ignore(event)
-                or event.canvas.mouse_grabber != self.ax):
+        if self.ignore(event) or event.canvas.mouse_grabber != self.ax:
             return
         event.canvas.release_mouse(self.ax)
-        if (not self.eventson
-                or event.inaxes != self.ax):
-            return
-        self._observers.process('clicked', event)
+        if self.eventson and event.inaxes == self.ax:
+            self._observers.process('clicked', event)
 
     def _motion(self, event):
         if self.ignore(event):
@@ -485,9 +480,8 @@ class Slider(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
         self.val = val
-        if not self.eventson:
-            return
-        self._observers.process('changed', val)
+        if self.eventson:
+            self._observers.process('changed', val)
 
     def on_changed(self, func):
         """
@@ -659,9 +653,8 @@ class CheckButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
-        if not self.eventson:
-            return
-        self._observers.process('clicked', self.labels[index].get_text())
+        if self.eventson:
+            self._observers.process('clicked', self.labels[index].get_text())
 
     def get_status(self):
         """
@@ -1079,9 +1072,8 @@ class RadioButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
-        if not self.eventson:
-            return
-        self._observers.process('clicked', self.labels[index].get_text())
+        if self.eventson:
+            self._observers.process('clicked', self.labels[index].get_text())
 
     def on_clicked(self, func):
         """
