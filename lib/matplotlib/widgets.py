@@ -311,14 +311,13 @@ class Slider(AxesWidget):
         super().__init__(ax)
 
         if slidermin is not None and not hasattr(slidermin, 'val'):
-            raise ValueError("Argument slidermin ({}) has no 'val'"
-                             .format(type(slidermin)))
+            raise ValueError(
+                f"Argument slidermin ({type(slidermin)}) has no 'val'")
         if slidermax is not None and not hasattr(slidermax, 'val'):
-            raise ValueError("Argument slidermax ({}) has no 'val'"
-                             .format(type(slidermax)))
-        if orientation not in ['horizontal', 'vertical']:
-            raise ValueError("Argument orientation ({}) must be either"
-                             "'horizontal' or 'vertical'".format(orientation))
+            raise ValueError(
+                f"Argument slidermax ({type(slidermax)}) has no 'val'")
+        cbook._check_in_list(['horizontal', 'vertical'],
+                             orientation=orientation)
 
         self.orientation = orientation
         self.closedmin = closedmin
@@ -629,8 +628,8 @@ class CheckButtons(AxesWidget):
         ValueError
             If *index* is invalid.
         """
-        if not 0 <= index < len(self.labels):
-            raise ValueError("Invalid CheckButton index: %d" % index)
+        if index not in range(len(self.labels)):
+            raise ValueError(f'Invalid CheckButton index: {index}')
 
         l1, l2 = self.lines[index]
         l1.set_visible(not l1.get_visible())
@@ -1045,8 +1044,8 @@ class RadioButtons(AxesWidget):
 
         Callbacks will be triggered if :attr:`eventson` is True.
         """
-        if 0 > index >= len(self.labels):
-            raise ValueError("Invalid RadioButton index: %d" % index)
+        if index not in range(len(self.labels)):
+            raise ValueError(f'Invalid RadioButton index: {index}')
 
         self.value_selected = self.labels[index].get_text()
 
