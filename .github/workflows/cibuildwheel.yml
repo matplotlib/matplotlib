@@ -1,6 +1,12 @@
 name: Build CI wheels
 
-on: [push, tags]
+on:
+  push:
+    branches:
+      - master
+      - v[0-9]+.[0-9]+.x
+    tags:
+      - v*
 
 jobs:
   build_wheels:
