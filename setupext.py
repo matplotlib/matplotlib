@@ -42,6 +42,13 @@ def _get_hash(data):
     return hasher.hexdigest()
 
 
+@functools.lru_cache()
+def _get_ssl_context():
+    import certifi
+    import ssl
+    return ssl.create_default_context(cafile=certifi.where())
+
+
 def download_or_cache(url, sha):
     """
     Get bytes from the given url or local cache.
@@ -73,7 +80,8 @@ def download_or_cache(url, sha):
     # default User-Agent, but not (for example) wget; so I don't feel too
     # bad passing in an empty User-Agent.
     with urllib.request.urlopen(
-            urllib.request.Request(url, headers={"User-Agent": ""})) as req:
+            urllib.request.Request(url, headers={"User-Agent": ""}),
+            context=_get_ssl_context()) as req:
         data = req.read()
 
     file_sha = _get_hash(data)
