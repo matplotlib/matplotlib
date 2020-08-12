@@ -1108,7 +1108,7 @@ cursord = {
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
-    def __init__(self, canvas):
+    def __init__(self, canvas, coordinates=True):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
 
         if 'wxMac' in wx.PlatformInfo:
@@ -1130,9 +1130,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
                       id=self.wx_ids[text])
 
-        self.AddStretchableSpace()
-        self._label_text = wx.StaticText(self)
-        self.AddControl(self._label_text)
+        self._coordinates = coordinates
+        if self._coordinates:
+            self.AddStretchableSpace()
+            self._label_text = wx.StaticText(self)
+            self.AddControl(self._label_text)
 
         self.Realize()
 
@@ -1337,7 +1339,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return self.GetTopLevelParent().GetStatusBar()
 
     def set_message(self, s):
-        self._label_text.SetLabel(s)
+        if self._coordinates:
+            self._label_text.SetLabel(s)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
