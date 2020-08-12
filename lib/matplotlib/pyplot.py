@@ -385,6 +385,9 @@ class _IoffContext:
         if self.wasinteractive:
             matplotlib.interactive(True)
             install_repl_displayhook()
+        else:
+            matplotlib.interactive(False)
+            uninstall_repl_displayhook()
 
 
 class _IonContext:
@@ -408,6 +411,9 @@ class _IonContext:
         if not self.wasinteractive:
             matplotlib.interactive(False)
             uninstall_repl_displayhook()
+        else:
+            matplotlib.interactive(True)
+            install_repl_displayhook()
 
 
 def ioff():
