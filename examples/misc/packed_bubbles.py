@@ -21,12 +21,19 @@ class BubbleChart:
         """
         setup for bubble collapse
 
-        Args:
-            r (list, optional): radius of the bubbles. Defaults to None.
-            a (list, optional): area of the bubbles. Defaults to None.
-            Note: If r or a is sorted, the results might look weird
-            bubble_distance (int, optional): minimal distance the bubbles
-            should have after collapsing. Defaults to 0.
+        Parameters
+        ----------
+        r : list, optional
+            radius of the bubbles. Defaults to None.
+        a : list, optional
+            area of the bubbles. Defaults to None.
+        bubble_distance : int, optional
+            minimal distance the bubbles should
+            have after collapsing. Defaults to 0.
+
+        Notes
+        -----
+        If r or a is sorted, the results might look weird
         """
         if r is None:
             r = np.sqrt(a / np.pi)
@@ -59,8 +66,8 @@ class BubbleChart:
         )
 
     def center_distance(self, bubble, bubbles):
-        return np.sqrt(np.power(bubble[0] - bubbles[:, 0], 2) +
-                       np.power(bubble[1] - bubbles[:, 1], 2))
+        return np.hypot(bubble[0] - bubbles[:, 0],
+                        bubble[1] - bubbles[:, 1])
 
     def outline_distance(self, bubble, bubbles):
         center_distance = self.center_distance(bubble, bubbles)
@@ -76,59 +83,73 @@ class BubbleChart:
         idx_min = np.argmin(distance)
         return idx_min if type(idx_min) == np.ndarray else [idx_min]
 
-    def collapse(self):
-        moves = 0
-        for i in range(len(self)):
-            rest_bub = np.delete(self.bubbles, i, 0)
-            # try to move directly towoards the center of mass
-            # dir_vec from bubble to com
-            dir_vec = self.com - self.bubbles[i, :2]
+    def collapse(self, n_iterations=50):
+        """
+        Move bubbles to the center of mass
 
-            # shorten dir_vec to have length of 1
-            dir_vec = dir_vec / np.sqrt(dir_vec.dot(dir_vec))
+        Parameters
+        ----------
+        n_iterations :int, optional
+            number of moves to perform. Defaults to 50.
+        """
+        for _i in range(n_iterations):
+            moves = 0
+            for i in range(len(self)):
+                rest_bub = np.delete(self.bubbles, i, 0)
+                # try to move directly towoards the center of mass
+                # dir_vec from bubble to com
+                dir_vec = self.com - self.bubbles[i, :2]
 
-            # calculate new bubble position
-            new_point = self.bubbles[i, :2] + dir_vec * self.step_dist
-            new_bubble = np.append(new_point, self.bubbles[i, 2:4])
+                # shorten dir_vec to have length of 1
+                dir_vec = dir_vec / np.sqrt(dir_vec.dot(dir_vec))
 
-            # check whether new bubble collides with oder bubbles
-            if not self.check_collisions(new_bubble, rest_bub):
-                self.bubbles[i, :] = new_bubble
-                self.com = self.center_of_mass()
-                moves += 1
-            else:
-                # try to move around a bubble that you collide with
-                # find colliding bubble
-                for colliding in self.collides_with(new_bubble, rest_bub):
-                    # calculate dir vec
-                    dir_vec = rest_bub[colliding, :2] - self.bubbles[i, :2]
-                    dir_vec = dir_vec / np.sqrt(dir_vec.dot(dir_vec))
-                    # calculate orthagonal vec
-                    orth = np.array([dir_vec[1], -dir_vec[0]])
-                    # test which dir to go
-                    new_point1 = self.bubbles[i, :2] + orth * self.step_dist
-                    new_point2 = self.bubbles[i, :2] - orth * self.step_dist
-                    dist1 = self.center_distance(
-                        self.com, np.array([new_point1]))
-                    dist2 = self.center_distance(
-                        self.com, np.array([new_point2]))
-                    new_point = new_point1 if dist1 < dist2 else new_point2
-                    new_bubble = np.append(new_point, self.bubbles[i, 2:4])
-                    if not self.check_collisions(new_bubble, rest_bub):
-                        self.bubbles[i, :] = new_bubble
-                        self.com = self.center_of_mass()
+                # calculate new bubble position
+                new_point = self.bubbles[i, :2] + dir_vec * self.step_dist
+                new_bubble = np.append(new_point, self.bubbles[i, 2:4])
 
-        if moves / len(self) < 0.1:
-            self.step_dist = self.step_dist / 2
+                # check whether new bubble collides with other bubbles
+                if not self.check_collisions(new_bubble, rest_bub):
+                    self.bubbles[i, :] = new_bubble
+                    self.com = self.center_of_mass()
+                    moves += 1
+                else:
+                    # try to move around a bubble that you collide with
+                    # find colliding bubble
+                    for colliding in self.collides_with(new_bubble, rest_bub):
+                        # calculate dir vec
+                        dir_vec = rest_bub[colliding, :2] - self.bubbles[i, :2]
+                        dir_vec = dir_vec / np.sqrt(dir_vec.dot(dir_vec))
+                        # calculate orthagonal vec
+                        orth = np.array([dir_vec[1], -dir_vec[0]])
+                        # test which dir to go
+                        new_point1 = (self.bubbles[i, :2] + orth *
+                                      self.step_dist)
+                        new_point2 = (self.bubbles[i, :2] - orth *
+                                      self.step_dist)
+                        dist1 = self.center_distance(
+                            self.com, np.array([new_point1]))
+                        dist2 = self.center_distance(
+                            self.com, np.array([new_point2]))
+                        new_point = new_point1 if dist1 < dist2 else new_point2
+                        new_bubble = np.append(new_point, self.bubbles[i, 2:4])
+                        if not self.check_collisions(new_bubble, rest_bub):
+                            self.bubbles[i, :] = new_bubble
+                            self.com = self.center_of_mass()
+
+            if moves / len(self) < 0.1:
+                self.step_dist = self.step_dist / 2
 
     def plot(self, ax, labels, colors):
         """
         draw the bubble plot
 
-        Args:
-            ax (matplotlib.axes._subplots.AxesSubplot)
-            labels (list): labels of the bubbles
-            colors (list): colors of the bubbles
+        Parameters
+        ----------
+        ax : matplotlib.axes._subplots.AxesSubplot
+        labels : list
+            labels of the bubbles
+        colors : list
+            colors of the bubbles
         """
         for i in range(len(self)):
             circ = plt.Circle(
@@ -142,10 +163,7 @@ class BubbleChart:
 bubble_plot = BubbleChart(a=np.array(
     browser_market_share['market_share']), bubble_distance=1)
 
-# collapse plot 50 times. In some cases it might be useful
-# to do this more or less often
-for i in range(50):
-    bubble_plot.collapse()
+bubble_plot.collapse()
 
 fig, ax = plt.subplots(subplot_kw=dict(aspect="equal"))
 bubble_plot.plot(
