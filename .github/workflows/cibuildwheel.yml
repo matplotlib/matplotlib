@@ -30,7 +30,7 @@ jobs:
         run: |
           python -m pip install cibuildwheel==1.5.5
 
-      - name: Build wheels
+      - name: Build wheels for CPython
         run: |
           python -m cibuildwheel --output-dir dist
         env:
@@ -38,8 +38,18 @@ jobs:
           CIBW_SKIP: "cp35-* cp36-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
           CIBW_MANYLINUX_I686_IMAGE: manylinux1
-          CIBW_MANYLINUX_PYPY_X86_64_IMAGE: manylinux1
           CIBW_BEFORE_BUILD: pip install numpy==1.15
+
+      - name: Build wheels for PyPy
+        run: |
+          python -m cibuildwheel --output-dir dist
+        env:
+          CIBW_BUILD: "pp3?-*"
+          CIBW_BEFORE_BUILD: pip install numpy==1.15
+        if: >
+          runner.os != 'Windows' && (
+          startsWith(github.ref, 'refs/heads/v3.3') ||
+          startsWith(github.ref, 'refs/tags/v3.3') )
 
       - uses: actions/upload-artifact@v2
         with:
