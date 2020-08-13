@@ -26,3 +26,16 @@ def test_blit():
                       np.ones((4, 4, 4)),
                       (0, 1, 2, 3),
                       bad_boxes)
+
+
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
+def test_missing_back_button():
+    from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
+    class Toolbar(NavigationToolbar2Tk):
+        # only display the buttons we need
+        toolitems = [t for t in NavigationToolbar2Tk.toolitems if
+                     t[0] in ('Home', 'Pan', 'Zoom')]
+
+    fig = plt.figure()
+    # this should not raise
+    Toolbar(fig.canvas, fig.canvas.manager.window)
