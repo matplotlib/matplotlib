@@ -642,14 +642,15 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             tkinter.messagebox.showerror("Error saving file", str(e))
 
     def set_history_buttons(self):
-        if self._nav_stack._pos > 0:
-            self._buttons['Back']['state'] = tk.NORMAL
-        else:
-            self._buttons['Back']['state'] = tk.DISABLED
-        if self._nav_stack._pos < len(self._nav_stack._elements) - 1:
-            self._buttons['Forward']['state'] = tk.NORMAL
-        else:
-            self._buttons['Forward']['state'] = tk.DISABLED
+        state_map = {True: tk.NORMAL, False: tk.DISABLED}
+        can_back = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+
+        if "Back" in self._buttons:
+            self._buttons['Back']['state'] = state_map[can_back]
+
+        if "Forward" in self._buttons:
+            self._buttons['Forward']['state'] = state_map[can_forward]
 
 
 class ToolTip:
