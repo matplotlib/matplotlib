@@ -1,11 +1,13 @@
 Added *orientation* parameter for stem plots
 --------------------------------------------
-When creating stem plots, you can now pass in an *orientation* argument to
-`.Axes.stem` or `.pyplot.stem`.
 
-Currently, only ``'vertical'`` and ``'horizontal'`` orientations are supported,
-with ``'vertical'`` being the default.
+By default, stem lines are vertical. They can be changed to horizontal using
+the *orientation* parameter of `.Axes.stem` or `.pyplot.stem`:
 
-Example
-```````
-stem(x, x, orientation='horizontal')
+.. plot::
+
+    locs = np.linspace(0.1, 2 * np.pi, 25)
+    heads = np.cos(locs)
+
+    fig, ax = plt.subplots()
+    ax.stem(locs, heads, orientation='horizontal')

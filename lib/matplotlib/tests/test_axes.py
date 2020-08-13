@@ -3245,14 +3245,13 @@ def test_hist_stacked_weighted():
 @image_comparison(['stem.png'], style='mpl20', remove_text=True)
 def test_stem(use_line_collection):
     x = np.linspace(0.1, 2 * np.pi, 100)
-    args = (x, np.cos(x))
-    # Label is a single space to force a legend to be drawn, but to avoid any
-    # text being drawn
-    kwargs = dict(linefmt='C2-.', markerfmt='k+', basefmt='C1-.',
-                  label=' ', use_line_collection=use_line_collection)
 
     fig, ax = plt.subplots()
-    ax.stem(*args, **kwargs)
+    # Label is a single space to force a legend to be drawn, but to avoid any
+    # text being drawn
+    ax.stem(x, np.cos(x),
+            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
+            use_line_collection=use_line_collection)
 
     ax.legend()
 
@@ -3284,12 +3283,11 @@ def test_stem_dates():
 @image_comparison(['stem_orientation.png'], style='mpl20', remove_text=True)
 def test_stem_orientation(use_line_collection):
     x = np.linspace(0.1, 2*np.pi, 50)
-    args = (x, np.cos(x))
-    kwargs = dict(linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
-                  use_line_collection=use_line_collection)
 
     fig, ax = plt.subplots()
-    ax.stem(*args, **kwargs, orientation='horizontal')
+    ax.stem(x, np.cos(x),
+            linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
+            use_line_collection=use_line_collection, orientation='horizontal')
 
 
 @image_comparison(['hist_stacked_stepfilled_alpha'])
