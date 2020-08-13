@@ -1377,7 +1377,10 @@ def _reshape_2D(X, name):
     result = []
     is_1d = True
     for xi in X:
-        if isinstance(xi, collections.abc.Iterable):
+        # check if this is iterable, except for strings which we
+        # treat as singletons.
+        if (isinstance(xi, collections.abc.Iterable) and
+                not isinstance(xi, str)):
             is_1d = False
         xi = np.asanyarray(xi)
         nd = np.ndim(xi)
