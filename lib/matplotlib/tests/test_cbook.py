@@ -545,6 +545,12 @@ def test_reshape2d():
     assert len(xnew) == 1
     assert isinstance(xnew[0], ArraySubclass)
 
+    # check list of strings:
+    x = ['a', 'b', 'c', 'c', 'dd', 'e', 'f', 'ff', 'f']
+    xnew = cbook._reshape_2D(x, 'x')
+    assert len(xnew[0]) == len(x)
+    assert isinstance(xnew[0], np.ndarray)
+
 
 def test_contiguous_regions():
     a, b, c = 3, 4, 5
