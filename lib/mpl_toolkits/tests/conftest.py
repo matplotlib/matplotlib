@@ -4,4 +4,3 @@ from matplotlib.testing.conftest import (mpl_test_settings,
                                          pytest_unconfigure,
                                          pytest_collection_modifyitems,
                                          pytest_addoption)
-

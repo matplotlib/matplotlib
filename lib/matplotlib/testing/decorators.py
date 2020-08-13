@@ -6,15 +6,9 @@ import os
 from pathlib import Path
 import shutil
 import string
-import subprocess
 import sys
 import unittest
 import warnings
-import pytest
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py3.6.
 
 import matplotlib.style
 import matplotlib.units
@@ -205,7 +199,6 @@ class _ImageComparisonBase:
                 f"{orig_expected_path}") from err
         return expected_fname
 
-
     def create_baseline(self, baseline, extension):
         src_path = self.result_dir / baseline
         orig_src_path = src_path.with_suffix(f'.{extension}')
@@ -224,12 +217,11 @@ class _ImageComparisonBase:
             raise ValueError("Failed to put the image in the right place")
         return dest_path
 
-
-    def compare(self, idx, baseline, extension, *, _lock=False, generating=False):
+    def compare(self, idx, baseline, extension, *, _lock=False,
+                generating=False):
         __tracebackhide__ = True
         fignum = plt.get_fignums()[idx]
         fig = plt.figure(fignum)
-
         if self.remove_text:
             remove_ticks_and_titles(fig)
 
@@ -248,8 +240,8 @@ class _ImageComparisonBase:
                 self.create_baseline(baseline, extension)
             else:
                 expected_path = self.copy_baseline(baseline, extension)
-                _raise_on_image_difference(expected_path, actual_path, self.tol)
-
+                _raise_on_image_difference(expected_path, actual_path,
+                                           self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -307,7 +299,8 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 "Test generated {} images but there are {} baseline images"
                 .format(len(plt.get_fignums()), len(our_baseline_images)))
             for idx, baseline in enumerate(our_baseline_images):
-                img.compare(idx, baseline, extension, _lock=needs_lock, generating=generate_images)
+                img.compare(idx, baseline, extension, _lock=needs_lock,
+                            generating=generate_images)
 
         parameters = list(old_sig.parameters.values())
         if 'extension' not in old_sig.parameters:
@@ -515,9 +508,34 @@ def _image_directories(func):
     doesn't exist.
     """
     module_path = Path(sys.modules[func.__module__].__file__)
-    baseline_dir = (module_path.parent /
-                      "baseline_images" /
-                       module_path.stem)
+    if func.__module__.startswith("matplotlib."):
+        try:
+            import matplotlib_baseline_images
+            baseline_dir = (Path(matplotlib_baseline_images.__file__).parent /
+                            module_path.stem)
+        except:
+            if (Path(__file__).parent / 'baseline_images').exists():
+                baseline_dir = (module_path.parent /
+                                "baseline_images" /
+                                module_path.stem)
+            else:
+                raise ImportError("Not able to import"
+                                  "matplotlib_baseline_images")
+    elif func.__module__.startswith("mpl_toolkits."):
+        try:
+            import mpl_toolkits_baseline_images
+            baseline_file = mpl_toolkits_baseline_images.__file__
+            baseline_dir = (Path(baseline_file).parent /
+                            module_path.stem)
+        except:
+            if (Path(mpl_toolkits_baseline_images.__file__).parent /
+                            module_path.stem).exists():
+                baseline_dir = (module_path.parent /
+                                "baseline_images" /
+                                module_path.stem)
+            else:
+                raise ImportError("Not able to import "
+                                  "mpl_toolkits_baseline_images")
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
     return baseline_dir, result_dir
