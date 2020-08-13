@@ -7,10 +7,10 @@ GitHub stats for 2020/03/03 - 2020/07/16 (tag: v3.2.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 196 issues and merged 1066 pull requests.
+We closed 198 issues and merged 1066 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/48?closed=1>`__
 
-The following 144 authors contributed 3826 commits.
+The following 144 authors contributed 3829 commits.
 
 * Adam
 * Adam Paszke
@@ -1228,8 +1228,10 @@ Pull Requests (1066):
 * :ghpull:`15175`: Simplify pdf image output.
 * :ghpull:`7506`: [WIP] Add Axes method for drawing infinite lines.
 
-Issues (196):
+Issues (198):
 
+* :ghissue:`16501`: Setting a thetalim > 2pi gives odd results
+* :ghissue:`15035`: security exposure in the packaged jquery library
 * :ghissue:`10375`: Coordinate text wrapping in navigation toolbar
 * :ghissue:`10720`: Option to set the text color in legend to be same as the line
 * :ghissue:`17868`: plt.bar with nan input fails rendering in notebook using 3.3.0rc1
