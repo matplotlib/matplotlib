@@ -295,3 +295,10 @@ def test_overriding_units_in_plot(fig_test, fig_ref):
         # assert that we have not re-set the units attribute at all
         assert x_units is ax.xaxis.units
         assert y_units is ax.yaxis.units
+
+
+def test_hist():
+    fig, ax = plt.subplots()
+    n, bins, patches = ax.hist(['a', 'b', 'a', 'c', 'ff'])
+    assert n.shape == (10,)
+    np.testing.assert_allclose(n, [2., 0., 0., 1., 0., 0., 1., 0., 0., 1.])
