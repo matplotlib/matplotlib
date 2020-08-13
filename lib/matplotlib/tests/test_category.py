@@ -295,3 +295,7 @@ def test_overriding_units_in_plot(fig_test, fig_ref):
         # assert that we have not re-set the units attribute at all
         assert x_units is ax.xaxis.units
         assert y_units is ax.yaxis.units
+
+
+def test_category_hist():
+    
