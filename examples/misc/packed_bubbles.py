@@ -1,4 +1,8 @@
 """
+===================
+Packed-bubble chart
+===================
+
 Create a packed bubble / non overlapping bubble chart to represent scalar data.
 The presented algorithm tries to move all bubbles as close to the center of
 mass as possible while avoiding some collisions by moving aroud colliding
