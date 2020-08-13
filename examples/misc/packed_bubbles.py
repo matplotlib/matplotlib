@@ -3,7 +3,7 @@
 Packed-bubble chart
 ===================
 
-Create a packed bubble / non overlapping bubble chart to represent scalar data.
+Create a packed-bubble chart to represent scalar data.
 The presented algorithm tries to move all bubbles as close to the center of
 mass as possible while avoiding some collisions by moving aroud colliding
 objects. In this example we plot the market share of different desktop
