@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 browser_market_share = {
     'browsers': ['firefox', 'chrome', 'safari', 'edge', 'ie', 'opera'],
-    'market_share': np.array([7.83, 68.81, 3.71, 7.04, 5.87, 1.24]),
+    'market_share': [7.83, 68.81, 3.71, 7.04, 5.87, 1.24],
     'color': ['#5A69AF', '#579E65', '#F9C784', '#FC944A', '#F24C00', '#00B825']
 }
 
@@ -36,6 +36,7 @@ class BubbleChart:
         -----
         If a is sorted, the results might look weird.
         """
+        a = np.asarray(a)
         r = np.sqrt(a / np.pi)
 
         self.bubble_spacing = bubble_spacing
