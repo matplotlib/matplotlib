@@ -570,7 +570,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             # other near checkbuttons
             # https://bugs.python.org/issue29402
             # https://bugs.python.org/issue25684
-            var = tk.IntVar()
+            var = tk.IntVar(master=self)
             b = tk.Checkbutton(
                 master=self, text=text, image=image, command=command,
                 indicatoron=False, variable=var)
