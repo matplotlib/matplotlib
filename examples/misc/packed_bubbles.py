@@ -54,7 +54,6 @@ class BubbleChart:
 
         self.com = self.center_of_mass()
 
-
     def center_of_mass(self):
         return np.average(
             self.bubbles[:, :2], axis=0, weights=self.bubbles[:, 3]
