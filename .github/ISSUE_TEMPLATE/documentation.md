@@ -1,7 +1,7 @@
 ---
 name: Documentation improvement
 about: Create a report to help us improve the documentation
-label: Documentation
+labels: Documentation
 ---
 
 <!--To help us understand and resolve your issue, please fill out the form to the best of your ability.-->
