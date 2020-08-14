@@ -53,6 +53,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
         frameon : bool, default: True
             If True, draw a box around this artists.
+            If False, possibly allow image with proper transparency.
 
         **kwargs
             Keyworded arguments to pass to
