@@ -232,10 +232,26 @@ def switch_backend(newbackend):
     close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
+        current_framework = cbook._get_running_interactive_framework()
+        mapping = {'qt5': 'qt5agg',
+                   'qt4': 'qt4agg',
+                   'gtk3': 'gtk3agg',
+                   'wx': 'wxagg',
+                   'tk': 'tkagg',
+                   'macosx': 'macosx',
+                   'headless': 'agg'}
+
+        best_guess = mapping.get(current_framework, None)
+        if best_guess is not None:
+            candidates = [best_guess]
+        else:
+            candidates = []
+        candidates += ["macosx", "qt5agg", "gtk3agg", "tkagg", "wxagg"]
+
         # Don't try to fallback on the cairo-based backends as they each have
         # an additional dependency (pycairo) over the agg-based backend, and
         # are of worse quality.
-        for candidate in ["macosx", "qt5agg", "gtk3agg", "tkagg", "wxagg"]:
+        for candidate in candidates:
             try:
                 switch_backend(candidate)
             except ImportError:
