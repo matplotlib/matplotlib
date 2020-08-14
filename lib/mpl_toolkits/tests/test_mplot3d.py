@@ -1067,6 +1067,40 @@ def test_minor_ticks():
     ax.set_zticklabels(["half"], minor=True)
 
 
+@mpl3d_image_comparison(['errorbar3d_errorevery.png'])
+def test_errorbar3d_errorevery():
+    """Tests errorevery functionality for 3d errorbars."""
+    t = np.arange(0, 2*np.pi+.1, 0.01)
+    x, y, z = np.sin(t), np.cos(3*t), np.sin(5*t)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    estep = 15
+    i = np.arange(t.size)
+    zuplims = (i % estep == 0) & (i // estep % 3 == 0)
+    zlolims = (i % estep == 0) & (i // estep % 3 == 2)
+
+    ax.errorbar(x, y, z, 0.2, zuplims=zuplims, zlolims=zlolims,
+                errorevery=estep)
+
+
+@mpl3d_image_comparison(['errorbar3d.png'])
+def test_errorbar3d():
+    """Tests limits, color styling, and legend for 3d errorbars."""
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    d = [1, 2, 3, 4, 5]
+    e = [.5, .5, .5, .5, .5]
+    ax.errorbar(x=d, y=d, z=d, xerr=e, yerr=e, zerr=e, capsize=3,
+                zuplims=[False, True, False, True, True],
+                zlolims=[True, False, False, True, False],
+                yuplims=True,
+                ecolor='purple', label='Error lines')
+    ax.legend()
+
+
 @image_comparison(["equal_box_aspect.png"], style="mpl20")
 def test_equal_box_aspect():
     from itertools import product, combinations
