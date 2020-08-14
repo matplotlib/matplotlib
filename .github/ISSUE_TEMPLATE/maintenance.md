@@ -1,7 +1,7 @@
 ---
 name: Maintenance
 about: Help improve performance, usability and/or consistency.
-label: Maintenance
+labels: Maintenance
 ---
 
 ### Describe the issue
