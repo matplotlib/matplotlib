@@ -73,6 +73,7 @@ if success:
     else:
         assert proc.stdout.count("success") == 1
 
+
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 def test_figuremanager_cleans_own_mainloop():
@@ -151,18 +152,18 @@ plt.close(fig)
             env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
             timeout=_test_timeout,
             capture_output=True,
-            check=True,
             universal_newlines=True,
         )
-    except subprocess.CalledProcessError:
-        pytest.fail("Subprocess failed to test intended behavior")
+    except subprocess.TimeoutExpired:
+        pytest.fail("Subprocess timed out")
     else:
         # test framework doesn't see tkinter callback exceptions normally
         # see tkinter.Misc.report_callback_exception
         assert "Exception in Tkinter callback" not in proc.stderr
-    finally:
         # make sure we can see other issues
         print(proc.stderr, file=sys.stderr)
+        if proc.returncode:
+            pytest.fail("Subprocess failed to test intended behavior")
 
 
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
