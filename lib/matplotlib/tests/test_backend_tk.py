@@ -52,6 +52,7 @@ def test_figuremanager_preserves_host_mainloop():
     root = tkinter.Tk()
     root.after(0, do_plot)
     root.mainloop()
+    root.destroy()
 
     assert success
 
