@@ -61,7 +61,7 @@ if success:
 """
     try:
         proc = subprocess.run(
-            [sys.executable, "-c", script,],
+            [sys.executable, "-c", script],
             env={**os.environ,
                  "MPLBACKEND": "TkAgg",
                  "SOURCE_DATE_EPOCH": "0"},
@@ -150,7 +150,7 @@ plt.close(fig)
 """
     try:
         proc = subprocess.run(
-            [sys.executable, "-c", script,],
+            [sys.executable, "-c", script],
             env={**os.environ,
                  "MPLBACKEND": "TkAgg",
                  "SOURCE_DATE_EPOCH": "0"},
