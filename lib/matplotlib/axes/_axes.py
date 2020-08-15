@@ -3367,16 +3367,17 @@ class Axes(_AxesBase):
         if ecolor is None:
             ecolor = base_style['color']
 
-        # Make the style dict for the line collections (the bars), ejecting any
-        # marker information from format string.
-        eb_lines_style = dict(base_style)
-        eb_lines_style.pop('marker', None)
-        eb_lines_style.pop('markersize', None)
-        eb_lines_style.pop('markerfacecolor', None)
-        eb_lines_style.pop('markeredgewidth', None)
-        eb_lines_style.pop('markeredgecolor', None)
-        eb_lines_style.pop('linestyle', None)
-        eb_lines_style['color'] = ecolor
+        # Eject any marker information from line format string, as it's not
+        # needed for bars or caps.
+        base_style.pop('marker', None)
+        base_style.pop('markersize', None)
+        base_style.pop('markerfacecolor', None)
+        base_style.pop('markeredgewidth', None)
+        base_style.pop('markeredgecolor', None)
+        base_style.pop('linestyle', None)
+
+        # Make the style dict for the line collections (the bars).
+        eb_lines_style = {**base_style, 'color': ecolor}
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
@@ -3387,15 +3388,8 @@ class Axes(_AxesBase):
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
-        # Make the style dict for the caps, ejecting any marker information
-        # from format string.
-        eb_cap_style = dict(base_style)
-        eb_cap_style.pop('marker', None)
-        eb_cap_style.pop('markersize', None)
-        eb_cap_style.pop('markerfacecolor', None)
-        eb_cap_style.pop('markeredgewidth', None)
-        eb_cap_style.pop('markeredgecolor', None)
-        eb_cap_style['linestyle'] = 'none'
+        # Make the style dict for the caps.
+        eb_cap_style = {**base_style, 'linestyle': 'none'}
         if capsize is None:
             capsize = rcParams["errorbar.capsize"]
         if capsize > 0:
