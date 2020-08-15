@@ -62,7 +62,9 @@ if success:
     try:
         proc = subprocess.run(
             [sys.executable, "-c", script,],
-            env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+            env={**os.environ,
+                 "MPLBACKEND": "TkAgg",
+                 "SOURCE_DATE_EPOCH": "0"},
             timeout=_test_timeout,
             stdout=subprocess.PIPE,
             check=True,
@@ -149,7 +151,9 @@ plt.close(fig)
     try:
         proc = subprocess.run(
             [sys.executable, "-c", script,],
-            env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+            env={**os.environ,
+                 "MPLBACKEND": "TkAgg",
+                 "SOURCE_DATE_EPOCH": "0"},
             timeout=_test_timeout,
             capture_output=True,
             universal_newlines=True,
