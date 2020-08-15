@@ -600,7 +600,10 @@ class Path:
                 # as can the ends of the curve
                 xys.append(curve([0, *dzeros, 1]))
             xys = np.concatenate(xys)
-        return Bbox([xys.min(axis=0), xys.max(axis=0)])
+        if len(xys):
+            return Bbox([xys.min(axis=0), xys.max(axis=0)])
+        else:
+            return Bbox.null()
 
     def intersects_path(self, other, filled=True):
         """
