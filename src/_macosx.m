@@ -207,6 +207,7 @@ static int wait_for_stdin(void)
 }
 - (void)dealloc;
 - (void)drawRect:(NSRect)rect;
+- (void)updateScale:(double)scale;
 - (void)windowDidResize:(NSNotification*)notification;
 - (View*)initWithFrame:(NSRect)rect;
 - (void)setCanvas: (PyObject*)newCanvas;
@@ -680,6 +681,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
+    [view updateScale: [window backingScaleFactor]];
 
     return 0;
 }
@@ -1617,6 +1619,16 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     return 0;
 }
 
+- (void)updateScale:(double)scale
+{
+    if (device_scale != scale) {
+        device_scale = scale;
+        if (!PyObject_CallMethod(canvas, "_set_device_scale", "d", device_scale, NULL)) {
+            PyErr_Print();
+        }
+    }
+}
+
 -(void)drawRect:(NSRect)rect
 {
     PyObject* renderer = NULL;
@@ -1627,14 +1639,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     CGContextRef cr = [[NSGraphicsContext currentContext] graphicsPort];
 
     double new_device_scale = _get_device_scale(cr);
+    [self updateScale: new_device_scale];
 
-    if (device_scale != new_device_scale) {
-        device_scale = new_device_scale;
-        if (!PyObject_CallMethod(canvas, "_set_device_scale", "d", device_scale, NULL)) {
-            PyErr_Print();
-            goto exit;
-        }
-    }
     if (!(renderer = PyObject_CallMethod(canvas, "_draw", "", NULL))
         || !(renderer_buffer = PyObject_GetAttrString(renderer, "_renderer"))) {
         PyErr_Print();
