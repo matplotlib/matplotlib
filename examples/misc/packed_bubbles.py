@@ -5,9 +5,10 @@ Packed-bubble chart
 
 Create a packed-bubble chart to represent scalar data.
 The presented algorithm tries to move all bubbles as close to the center of
-mass as possible while avoiding some collisions by moving aroud colliding
+mass as possible while avoiding some collisions by moving around colliding
 objects. In this example we plot the market share of different desktop
 browsers.
+(source: https://gs.statcounter.com/browser-market-share/desktop/worldwidev)
 """
 
 import numpy as np
@@ -15,13 +16,13 @@ import matplotlib.pyplot as plt
 
 browser_market_share = {
     'browsers': ['firefox', 'chrome', 'safari', 'edge', 'ie', 'opera'],
-    'market_share': [7.83, 68.81, 3.71, 7.04, 5.87, 1.24],
+    'market_share': [8.61, 69.55, 8.36, 4.12, 2.76, 2.43],
     'color': ['#5A69AF', '#579E65', '#F9C784', '#FC944A', '#F24C00', '#00B825']
 }
 
 
 class BubbleChart:
-    def __init__(self, a, bubble_spacing=0):
+    def __init__(self, area, bubble_spacing=0):
         """
         Setup for bubble collapse.
 
@@ -36,19 +37,19 @@ class BubbleChart:
         -----
         If a is sorted, the results might look weird.
         """
-        a = np.asarray(a)
-        r = np.sqrt(a / np.pi)
+        area = np.asarray(area)
+        r = np.sqrt(area / np.pi)
 
         self.bubble_spacing = bubble_spacing
-        self.bubbles = np.ones((len(a), 4))
+        self.bubbles = np.ones((len(area), 4))
         self.bubbles[:, 2] = r
-        self.bubbles[:, 3] = a
+        self.bubbles[:, 3] = area
         self.maxstep = 2 * self.bubbles[:, 2].max() + self.bubble_spacing
         self.step_dist = self.maxstep / 2
 
         # calculate initial grid layout for bubbles
         length = np.ceil(np.sqrt(len(self.bubbles)))
-        grid = np.arange(0, length * self.maxstep, self.maxstep)
+        grid = np.arange(length) * self.maxstep
         gx, gy = np.meshgrid(grid, grid)
         self.bubbles[:, 0] = gx.flatten()[:len(self.bubbles)]
         self.bubbles[:, 1] = gy.flatten()[:len(self.bubbles)]
@@ -91,11 +92,11 @@ class BubbleChart:
             moves = 0
             for i in range(len(self.bubbles)):
                 rest_bub = np.delete(self.bubbles, i, 0)
-                # try to move directly towoards the center of mass
-                # dir_vec from bubble to com
+                # try to move directly towards the center of mass
+                # direction vector from bubble to the center of mass
                 dir_vec = self.com - self.bubbles[i, :2]
 
-                # shorten dir_vec to have length of 1
+                # shorten direction vector to have length of 1
                 dir_vec = dir_vec / np.sqrt(dir_vec.dot(dir_vec))
 
                 # calculate new bubble position
@@ -111,12 +112,12 @@ class BubbleChart:
                     # try to move around a bubble that you collide with
                     # find colliding bubble
                     for colliding in self.collides_with(new_bubble, rest_bub):
-                        # calculate dir vec
+                        # calculate direction vector
                         dir_vec = rest_bub[colliding, :2] - self.bubbles[i, :2]
                         dir_vec = dir_vec / np.sqrt(dir_vec.dot(dir_vec))
-                        # calculate orthagonal vec
+                        # calculate orthagonal vector
                         orth = np.array([dir_vec[1], -dir_vec[0]])
-                        # test which dir to go
+                        # test which direction to go
                         new_point1 = (self.bubbles[i, :2] + orth *
                                       self.step_dist)
                         new_point2 = (self.bubbles[i, :2] - orth *
@@ -154,8 +155,7 @@ class BubbleChart:
                     horizontalalignment='center', verticalalignment='center')
 
 
-# set market share of the browsers as area of the bubbles
-bubble_chart = BubbleChart(a=browser_market_share['market_share'],
+bubble_chart = BubbleChart(area=browser_market_share['market_share'],
                            bubble_spacing=0.1)
 
 bubble_chart.collapse()
