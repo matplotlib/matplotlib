@@ -3469,8 +3469,7 @@ class Axes(_AxesBase):
                     mlines.Line2D(lo, yo, marker='|', **eb_cap_style),
                     mlines.Line2D(ro, yo, marker='|', **eb_cap_style)])
             if xlolims.any():
-                xo, yo, lo, ro = apply_mask([x, y, left, right],
-                                            xlolims & everymask)
+                xo, yo, ro = apply_mask([x, y, right], xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
                 else:
@@ -3481,8 +3480,7 @@ class Axes(_AxesBase):
                     caplines.append(mlines.Line2D(
                         xo, yo, marker='|', **eb_cap_style))
             if xuplims.any():
-                xo, yo, lo, ro = apply_mask([x, y, left, right],
-                                            xuplims & everymask)
+                xo, yo, lo = apply_mask([x, y, left], xuplims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETRIGHTBASE
                 else:
@@ -3506,8 +3504,7 @@ class Axes(_AxesBase):
                     mlines.Line2D(xo, lo, marker='_', **eb_cap_style),
                     mlines.Line2D(xo, uo, marker='_', **eb_cap_style)])
             if lolims.any():
-                xo, yo, lo, uo = apply_mask([x, y, lower, upper],
-                                            lolims & everymask)
+                xo, yo, uo = apply_mask([x, y, upper], lolims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETDOWNBASE
                 else:
@@ -3518,8 +3515,7 @@ class Axes(_AxesBase):
                     caplines.append(mlines.Line2D(
                         xo, yo, marker='_', **eb_cap_style))
             if uplims.any():
-                xo, yo, lo, uo = apply_mask([x, y, lower, upper],
-                                            uplims & everymask)
+                xo, yo, lo = apply_mask([x, y, lower], uplims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETUPBASE
                 else:
