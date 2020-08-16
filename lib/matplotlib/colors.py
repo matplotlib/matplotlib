@@ -78,7 +78,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import cbook, docstring, scale
+from matplotlib import cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -479,13 +479,6 @@ def _create_lookup_table(N, data, gamma=1.0):
     return np.clip(lut, 0.0, 1.0)
 
 
-@cbook.deprecated("3.2",
-                  addendum='This is not considered public API any longer.')
-@docstring.copy(_create_lookup_table)
-def makeMappingArray(N, data, gamma=1.0):
-    return _create_lookup_table(N, data, gamma)
-
-
 def _warn_if_global_cmap_modified(cmap):
     if getattr(cmap, '_global', False):
         cbook.warn_deprecated(
@@ -763,9 +756,6 @@ class LinearSegmentedColormap(Colormap):
         LinearSegmentedColormap.from_list
             Static method; factory function for generating a smoothly-varying
             LinearSegmentedColormap.
-
-        makeMappingArray
-            For information about making a mapping array.
         """
         # True only if all colors in map are identical; needed for contouring.
         self.monochrome = False
@@ -1183,11 +1173,6 @@ class TwoSlopeNorm(Normalize):
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
-
-
-@cbook.deprecation.deprecated('3.2', alternative='TwoSlopeNorm')
-class DivergingNorm(TwoSlopeNorm):
-    ...
 
 
 def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
