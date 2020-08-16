@@ -702,7 +702,8 @@ class Colormap:
 
     def _repr_png_(self):
         """Generate a PNG representation of the Colormap."""
-        X = np.tile(np.linspace(0, 1, _REPR_PNG_SIZE[0]), (_REPR_PNG_SIZE[1], 1))
+        X = np.tile(np.linspace(0, 1, _REPR_PNG_SIZE[0]),
+                    (_REPR_PNG_SIZE[1], 1))
         pixels = self(X, bytes=True)
         png_bytes = io.BytesIO()
         title = self.name + ' color map'
