@@ -28,14 +28,14 @@ class BubbleChart:
 
         Parameters
         ----------
-        a : list
+        area : array-like
             Area of the bubbles.
         bubble_spacing : float, default: 0
             Minimal spacing between bubbles after collapsing.
 
         Notes
         -----
-        If a is sorted, the results might look weird.
+        If "area" is sorted, the results might look weird.
         """
         area = np.asarray(area)
         r = np.sqrt(area / np.pi)
