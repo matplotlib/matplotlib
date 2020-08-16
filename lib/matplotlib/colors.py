@@ -110,6 +110,8 @@ _colors_full_map.update({k.replace('gray', 'grey'): v
 _colors_full_map.update(BASE_COLORS)
 _colors_full_map = _ColorMapping(_colors_full_map)
 
+_REPR_PNG_SIZE = (512, 64)
+
 
 def get_named_colors_mapping():
     """Return the global mapping of names to named colors."""
@@ -700,8 +702,7 @@ class Colormap:
 
     def _repr_png_(self):
         """Generate a PNG representation of the Colormap."""
-        IMAGE_SIZE = (400, 50)
-        X = np.tile(np.linspace(0, 1, IMAGE_SIZE[0]), (IMAGE_SIZE[1], 1))
+        X = np.tile(np.linspace(0, 1, _REPR_PNG_SIZE[0]), (_REPR_PNG_SIZE[1], 1))
         pixels = self(X, bytes=True)
         png_bytes = io.BytesIO()
         title = self.name + ' color map'
@@ -736,7 +737,8 @@ class Colormap:
                 f'title="{self.name}" '
                 'style="border: 1px solid #555;" '
                 f'src="data:image/png;base64,{png_base64}"></div>'
-                '<div style="vertical-align: middle; max-width: 402px; '
+                '<div style="vertical-align: middle; '
+                f'max-width: {_REPR_PNG_SIZE[0]+2}px; '
                 'display: flex; justify-content: space-between;">'
                 '<div style="float: left;">'
                 f'{color_block(self.get_under())} under'
