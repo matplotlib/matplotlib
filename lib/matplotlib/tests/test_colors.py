@@ -1167,7 +1167,11 @@ def test_repr_html():
     cmap = plt.get_cmap('viridis')
     html = cmap._repr_html_()
     assert len(html) > 0
+    png = cmap._repr_png_()
+    assert len(html) > len(png)
     assert cmap.name in html
+    assert html.startswith('<div')
+    assert html.endswith('</div>')
 
 
 def test_get_under_over_bad():
