@@ -5,6 +5,7 @@ from io import BytesIO
 import numpy as np
 from PIL import Image
 import pytest
+import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
@@ -1168,7 +1169,7 @@ def test_repr_html():
     html = cmap._repr_html_()
     assert len(html) > 0
     png = cmap._repr_png_()
-    assert len(html) > len(png)
+    assert base64.b64encode(png).decode('ascii') in html
     assert cmap.name in html
     assert html.startswith('<div')
     assert html.endswith('</div>')
