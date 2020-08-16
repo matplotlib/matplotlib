@@ -628,34 +628,26 @@ class Colormap:
             self._set_extremes()
 
     def get_under(self):
-        """
-        Get the color for low out-of-range values.
-        """
+        """Get the color for low out-of-range values."""
         if not self._isinit:
             self._init()
         return self._lut[self._i_under]
 
     def set_under(self, color='k', alpha=None):
-        """
-        Set the color for low out-of-range values.
-        """
+        """Set the color for low out-of-range values."""
         _warn_if_global_cmap_modified(self)
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
     def get_over(self):
-        """
-        Get the color for high out-of-range values.
-        """
+        """Get the color for high out-of-range values."""
         if not self._isinit:
             self._init()
         return self._lut[self._i_over]
 
     def set_over(self, color='k', alpha=None):
-        """
-        Set the color for high out-of-range values.
-        """
+        """Set the color for high out-of-range values."""
         _warn_if_global_cmap_modified(self)
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
