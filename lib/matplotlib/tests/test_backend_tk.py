@@ -234,4 +234,3 @@ print("success")
         # Checking return code late so the stdout assertions happen first
         if proc.returncode:
             pytest.fail("Subprocess failed to test intended behavior")
-
