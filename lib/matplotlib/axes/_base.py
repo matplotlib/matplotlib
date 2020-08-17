@@ -2539,20 +2539,19 @@ class _AxesBase(martist.Artist):
                 return  # nothing to do...
 
             shared = shared_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in shared]
-            # ignore non-finite data limits if good limits exist
-            # issue 18137: The previous code would allow one subplot with
-            # inifinite data limits to 'clobber' other subplots with finite
-            # data limits.
+            # Base autoscaling on finite data limits when there is at least one
+            # finite data limit among all the shared_axes and intervals.
+            # Also, find the minimum minpos for use in the margin calculation.
             x_values = []
-            minpos_values = []
-            for d in dl:
-                x_values.extend(getattr(d, interval))
-                minpos_values.append(getattr(d, minpos))
-            x_values = np.sort(x_values).flatten()
-            finite_x_values = np.extract(np.isfinite(x_values), x_values)
-            if finite_x_values.size >= 1:
-                x0, x1 = (finite_x_values.min(), finite_x_values.max())
+            minimum_minpos = np.inf
+            for ax in shared:
+                x_values.extend(getattr(ax.dataLim, interval))
+                minimum_minpos = np.min(
+                    [minimum_minpos, getattr(ax.dataLim, minpos)]
+                )
+            x_values = np.extract(np.isfinite(x_values), x_values)
+            if x_values.size >= 1:
+                x0, x1 = (x_values.min(), x_values.max())
             else:
                 x0, x1 = (-np.inf, np.inf)
             # If x0 and x1 are non finite, use the locator to figure out
@@ -2575,10 +2574,9 @@ class _AxesBase(martist.Artist):
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
-            minpos = np.min(minpos_values)
             transform = axis.get_transform()
             inverse_trans = transform.inverted()
-            x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
+            x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minimum_minpos)
             x0t, x1t = transform.transform([x0, x1])
             delta = (x1t - x0t) * margin
             if not np.isfinite(delta):
