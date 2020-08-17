@@ -2541,27 +2541,15 @@ class _AxesBase(martist.Artist):
             shared = shared_axes.get_siblings(self)
             dl = [ax.dataLim for ax in shared]
             # ignore non-finite data limits if good limits exist
-            finite_dl = [d for d in dl if np.isfinite(d).all()]
-            if len(finite_dl):
-                # if finite limits exist for at least one axis (and the
-                # other is infinite), restore the finite limits
-                x_finite = [d for d in dl
-                            if (np.isfinite(d.intervalx).all() and
-                                (d not in finite_dl))]
-                y_finite = [d for d in dl
-                            if (np.isfinite(d.intervaly).all() and
-                                (d not in finite_dl))]
-
-                dl = finite_dl
-                dl.extend(x_finite)
-                dl.extend(y_finite)
-
-            bb = mtransforms.BboxBase.union(dl)
-            # Issue 18137
-            # bb can still have infinite limits, so instead compute
-            # finite limits for this 'axis'
-            x_values = [getattr(d, interval) for d in dl]
-            x_values = np.sort(np.unique(np.asarray(x_values).flatten()))
+            # issue 18137: The previous code would allow one subplot with
+            # inifinite data limits to 'clobber' other subplots with finite
+            # data limits.
+            x_values = []
+            minpos_values = []
+            for d in dl:
+                x_values.extend(getattr(d, interval))
+                minpos_values.append(getattr(d, minpos))
+            x_values = np.sort(x_values).flatten()
             finite_x_values = np.extract(np.isfinite(x_values), x_values)
             if finite_x_values.size >= 1:
                 x0, x1 = (finite_x_values.min(), finite_x_values.max())
@@ -2587,7 +2575,7 @@ class _AxesBase(martist.Artist):
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
-            minpos = getattr(bb, minpos)
+            minpos = np.min(minpos_values)
             transform = axis.get_transform()
             inverse_trans = transform.inverted()
             x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
