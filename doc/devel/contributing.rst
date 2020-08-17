@@ -12,6 +12,8 @@ The project is hosted on https://github.com/matplotlib/matplotlib
 
 .. _coc: http://www.python.org/psf/codeofconduct/
 
+.. _submitting-a-bug-report:
+
 Submitting a bug report
 =======================
 
@@ -296,24 +298,30 @@ besides which, we frequently underestimate how easy an issue is to solve!
 Contributing documentation
 ==========================
 
-Code is not the only way to contribute to Matplotlib. For instance,
-documentation is also a very important part of the project and often doesn't
-get as much attention as it deserves. If you find a typo in the documentation,
-or have made improvements, do not hesitate to send an email to the mailing
-list or submit a GitHub pull request.  To make a pull request, refer to the
-guidelines outlined in :ref:`how-to-contribute`.
+You as an end-user of Matplotlib can make a valuable contribution because you
+more clearly see the potential for improvement than a core developer. For example, you can:
 
-Full documentation can be found under the :file:`doc/`, :file:`tutorials/`,
-and :file:`examples/` directories.
+- Fix a typo
+- Clarify a docstring
+- Write or update an :ref:`example plot <gallery>`
+- Write or update a comprehensive :ref:`tutorial <tutorials>`
+
+The documentation source files live in the same GitHub repository as the code.
+Contributions are proposed and accepted through the pull request process.
+For details see :ref:`how-to-contribute`.
+
+If you have trouble getting started, you may instead open an `issue`_
+describing the intended improvement.
+
+.. _issue: https://github.com/matplotlib/matplotlib/issues
 
 .. seealso::
   * :ref:`documenting-matplotlib`
 
-
 .. _other_ways_to_contribute:
 
 Other ways to contribute
-=========================
+========================
 
 It also helps us if you spread the word: reference the project from your blog
 and articles or link to it from your website!  If Matplotlib contributes to a
