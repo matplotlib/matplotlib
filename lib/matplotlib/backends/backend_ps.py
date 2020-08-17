@@ -541,7 +541,6 @@ grestore
             scale = 0.001 * fontsize
 
             thisx = 0
-            thisy = font.get_str_bbox_and_descent(s)[4] * scale
             last_name = None
             lines = []
             for c in s:
@@ -558,7 +557,7 @@ grestore
                 last_name = name
                 thisx += kern * scale
 
-                lines.append('%f %f m /%s glyphshow' % (thisx, thisy, name))
+                lines.append('%f 0 m /%s glyphshow' % (thisx, name))
 
                 thisx += width * scale
 
