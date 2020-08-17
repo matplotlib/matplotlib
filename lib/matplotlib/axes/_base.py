@@ -2557,7 +2557,16 @@ class _AxesBase(martist.Artist):
                 dl.extend(y_finite)
 
             bb = mtransforms.BboxBase.union(dl)
-            x0, x1 = getattr(bb, interval)
+            # Issue 18137
+            # bb can still have infinite limits, so instead compute
+            # finite limits for this 'axis'
+            x_values = [getattr(d, interval) for d in dl]
+            x_values = np.sort(np.unique(np.asarray(x_values).flatten()))
+            finite_x_values = np.extract(np.isfinite(x_values), x_values)
+            if finite_x_values.size >= 1:
+                x0, x1 = (finite_x_values.min(), finite_x_values.max())
+            else:
+                x0, x1 = (-np.inf, np.inf)
             # If x0 and x1 are non finite, use the locator to figure out
             # default limits.
             locator = axis.get_major_locator()
