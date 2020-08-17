@@ -299,8 +299,8 @@ Contributing documentation
 ==========================
 
 You as an end-user of Matplotlib can a make valuable contribution because you
-more clearly see the potentials for improvement as compared to a core
-developer, e.g.
+more clearly see the potential for improvement than a core developer. 
+For example:
 
 - Fix a typo
 - Clarify a docstring
