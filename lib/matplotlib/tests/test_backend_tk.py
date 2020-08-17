@@ -51,6 +51,8 @@ for bad_box in bad_boxes:
             check=True,
             universal_newlines=True,
         )
+    except subprocess.TimeoutExpired:
+        pytest.fail("Subprocess timed out")
     except subprocess.CalledProcessError:
         pytest.fail("Likely regression on out-of-bounds data access"
                     " in _tkagg.cpp")
@@ -95,6 +97,8 @@ if success:
             check=True,
             universal_newlines=True,
         )
+    except subprocess.TimeoutExpired:
+        pytest.fail("Subprocess timed out")
     except subprocess.CalledProcessError:
         pytest.fail("Subprocess failed to test intended behavior")
     else:
@@ -191,6 +195,7 @@ plt.close(fig)
         assert "Exception in Tkinter callback" not in proc.stderr
         # make sure we can see other issues
         print(proc.stderr, file=sys.stderr)
+        # Checking return code late so the Tkinter assertion happens first
         if proc.returncode:
             pytest.fail("Subprocess failed to test intended behavior")
 
@@ -226,3 +231,7 @@ print("success")
     else:
         assert proc.stdout.count("setup complete") == 1
         assert proc.stdout.count("success") == 1
+        # Checking return code late so the stdout assertions happen first
+        if proc.returncode:
+            pytest.fail("Subprocess failed to test intended behavior")
+
