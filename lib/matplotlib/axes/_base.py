@@ -2663,7 +2663,7 @@ class _AxesBase(martist.Artist):
                     bb = ax.get_window_extent(renderer)
                 if bb is not None:
                     top = max(top, bb.ymax)
-            if top < 0 or top > 1:
+            if top < 0:
                 # the top of axes is not even on the figure, so don't try and
                 # automatically place it.
                 _log.debug('top of axes not in the figure, so title not moved')
