@@ -1103,6 +1103,7 @@ class SubplotTool(Widget):
             The figure instance to embed the subplot tool into.
         """
 
+        self.figure = toolfig
         self.targetfig = targetfig
         toolfig.subplots_adjust(left=0.2, right=0.9)
         toolfig.suptitle("Click on slider to adjust subplot param")
