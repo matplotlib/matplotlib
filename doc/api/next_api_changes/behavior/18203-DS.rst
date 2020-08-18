@@ -1,0 +1,5 @@
+Locators and formatters
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Axis locators and formatters must now be subclasses of
+`~matplotlib.ticker.Locator` and `~matplotlib.ticker.Formatter` respectively.
