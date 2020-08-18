@@ -499,36 +499,20 @@ def vpack(boxes, padding=0, strength='strong'):
         boxes[i].solver.addConstraint(c | strength)
 
 
-def match_heights(boxes, height_ratios=None, strength='medium'):
+def match_heights(boxes, height_ratios, strength='medium'):
     """Stack LayoutBox instances from top to bottom."""
-
-    if height_ratios is None:
-        height_ratios = np.ones(len(boxes))
     for i in range(1, len(boxes)):
         c = (boxes[i-1].height ==
              boxes[i].height*height_ratios[i-1]/height_ratios[i])
         boxes[i].solver.addConstraint(c | strength)
 
 
-def match_widths(boxes, width_ratios=None, strength='medium'):
+def match_widths(boxes, width_ratios, strength='medium'):
     """Stack LayoutBox instances from top to bottom."""
-
-    if width_ratios is None:
-        width_ratios = np.ones(len(boxes))
     for i in range(1, len(boxes)):
         c = (boxes[i-1].width ==
              boxes[i].width*width_ratios[i-1]/width_ratios[i])
         boxes[i].solver.addConstraint(c | strength)
-
-
-def vstackeq(boxes, padding=0, height_ratios=None):
-    vstack(boxes, padding=padding)
-    match_heights(boxes, height_ratios=height_ratios)
-
-
-def hstackeq(boxes, padding=0, width_ratios=None):
-    hstack(boxes, padding=padding)
-    match_widths(boxes, width_ratios=width_ratios)
 
 
 def align(boxes, attr, strength='strong'):

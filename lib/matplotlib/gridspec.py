@@ -56,9 +56,9 @@ class GridSpecBase:
 
     def __repr__(self):
         height_arg = (', height_ratios=%r' % (self._row_height_ratios,)
-                      if self._row_height_ratios is not None else '')
+                      if len(set(self._row_height_ratios)) != 1 else '')
         width_arg = (', width_ratios=%r' % (self._col_width_ratios,)
-                     if self._col_width_ratios is not None else '')
+                     if len(set(self._col_width_ratios)) != 1 else '')
         return '{clsname}({nrows}, {ncols}{optionals})'.format(
             clsname=self.__class__.__name__,
             nrows=self._nrows,
@@ -104,7 +104,9 @@ class GridSpecBase:
         *width_ratios* must be of length *ncols*. Each column gets a relative
         width of ``width_ratios[i] / sum(width_ratios)``.
         """
-        if width_ratios is not None and len(width_ratios) != self._ncols:
+        if width_ratios is None:
+            width_ratios = [1] * self._ncols
+        elif len(width_ratios) != self._ncols:
             raise ValueError('Expected the given number of width ratios to '
                              'match the number of columns of the grid')
         self._col_width_ratios = width_ratios
@@ -124,7 +126,9 @@ class GridSpecBase:
         *height_ratios* must be of length *nrows*. Each row gets a relative
         height of ``height_ratios[i] / sum(height_ratios)``.
         """
-        if height_ratios is not None and len(height_ratios) != self._nrows:
+        if height_ratios is None:
+            height_ratios = [1] * self._nrows
+        elif len(height_ratios) != self._nrows:
             raise ValueError('Expected the given number of height ratios to '
                              'match the number of rows of the grid')
         self._row_height_ratios = height_ratios
@@ -181,22 +185,16 @@ class GridSpecBase:
         # calculate accumulated heights of columns
         cell_h = tot_height / (nrows + hspace*(nrows-1))
         sep_h = hspace * cell_h
-        if self._row_height_ratios is not None:
-            norm = cell_h * nrows / sum(self._row_height_ratios)
-            cell_heights = [r * norm for r in self._row_height_ratios]
-        else:
-            cell_heights = [cell_h] * nrows
+        norm = cell_h * nrows / sum(self._row_height_ratios)
+        cell_heights = [r * norm for r in self._row_height_ratios]
         sep_heights = [0] + ([sep_h] * (nrows-1))
         cell_hs = np.cumsum(np.column_stack([sep_heights, cell_heights]).flat)
 
         # calculate accumulated widths of rows
         cell_w = tot_width / (ncols + wspace*(ncols-1))
         sep_w = wspace * cell_w
-        if self._col_width_ratios is not None:
-            norm = cell_w * ncols / sum(self._col_width_ratios)
-            cell_widths = [r * norm for r in self._col_width_ratios]
-        else:
-            cell_widths = [cell_w] * ncols
+        norm = cell_w * ncols / sum(self._col_width_ratios)
+        cell_widths = [r * norm for r in self._col_width_ratios]
         sep_widths = [0] + ([sep_w] * (ncols-1))
         cell_ws = np.cumsum(np.column_stack([sep_widths, cell_widths]).flat)
 
