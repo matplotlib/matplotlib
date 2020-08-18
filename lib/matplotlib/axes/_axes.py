@@ -3578,10 +3578,12 @@ class Axes(_AxesBase):
             The input data.
 
         notch : bool, default: False
-            Whether to draw a noteched box plot (`True`), or a rectangular box
+            Whether to draw a notched box plot (`True`), or a rectangular box
             plot (`False`).  The notches represent the confidence interval (CI)
             around the median.  The documentation for *bootstrap* describes how
-            the locations of the notches are computed.
+            the locations of the notches are computed by default, but their
+            locations may also be overridden by setting the *conf_intervals*
+            parameter.
 
             .. note::
 
