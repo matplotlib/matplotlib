@@ -2632,7 +2632,6 @@ class _AxesBase(martist.Artist):
         Update the title position based on the bounding box enclosing
         all the ticklabels and x-axis spine and xlabel...
         """
-
         if self._autotitlepos is not None and not self._autotitlepos:
             _log.debug('title position was updated manually, not adjusting')
             return
@@ -2655,7 +2654,7 @@ class _AxesBase(martist.Artist):
                     else:
                         ax.apply_aspect()
                     axs = axs + [ax]
-            top = 0
+            top = -np.Inf
             for ax in axs:
                 if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
                         or ax.xaxis.get_label_position() == 'top'):
@@ -2664,6 +2663,11 @@ class _AxesBase(martist.Artist):
                     bb = ax.get_window_extent(renderer)
                 if bb is not None:
                     top = max(top, bb.ymax)
+            if top < 0 or top > 1:
+                # the top of axes is not even on the figure, so don't try and
+                # automatically place it.
+                _log.debug('top of axes not in the figure, so title not moved')
+                return
             if title.get_window_extent(renderer).ymin < top:
                 _, y = self.transAxes.inverted().transform((0, top))
                 title.set_position((x, y))
