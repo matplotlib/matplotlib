@@ -96,7 +96,7 @@ class TimerTk(TimerBase):
         # if _timer is None, this means that _timer_stop has been called; so
         # don't recreate the timer in that case.
         if not self._single and self._timer:
-            if self._interval:
+            if self._interval > 0:
                 self._timer = self.parent.after(self._interval, self._on_timer)
             else:
                 # Edge case: Tcl after 0 *prepends* events to the queue
