@@ -2546,9 +2546,8 @@ class _AxesBase(martist.Artist):
             minimum_minpos = np.inf
             for ax in shared:
                 x_values.extend(getattr(ax.dataLim, interval))
-                minimum_minpos = np.min(
-                    [minimum_minpos, getattr(ax.dataLim, minpos)]
-                )
+                minimum_minpos = min(minimum_minpos,
+                                     getattr(ax.dataLim, minpos))
             x_values = np.extract(np.isfinite(x_values), x_values)
             if x_values.size >= 1:
                 x0, x1 = (x_values.min(), x_values.max())
