@@ -21,21 +21,16 @@ class MixedModeRenderer:
         ----------
         figure : `matplotlib.figure.Figure`
             The figure instance.
-
         width : scalar
             The width of the canvas in logical units
-
         height : scalar
             The height of the canvas in logical units
-
         dpi : float
             The dpi of the canvas
-
         vector_renderer : `matplotlib.backend_bases.RendererBase`
             An instance of a subclass of
             `~matplotlib.backend_bases.RendererBase` that will be used for the
             vector drawing.
-
         raster_renderer_class : `matplotlib.backend_bases.RendererBase`
             The renderer class to use for the raster drawing.  If not provided,
             this will use the Agg backend (which is currently the only viable

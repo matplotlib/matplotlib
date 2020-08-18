@@ -550,16 +550,13 @@ class FigureCanvasAgg(FigureCanvasBase):
             the JPEG compression algorithm, and results in large files
             with hardly any gain in image quality.  This parameter is
             deprecated.
-
         optimize : bool, default: False
             Whether the encoder should make an extra pass over the image
             in order to select optimal encoder settings.  This parameter is
             deprecated.
-
         progressive : bool, default: False
             Whether the image should be stored as a progressive JPEG file.
             This parameter is deprecated.
-
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.  These take

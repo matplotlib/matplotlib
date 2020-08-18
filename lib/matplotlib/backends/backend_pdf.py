@@ -150,6 +150,7 @@ def _create_pdf_info_dict(backend, metadata):
     ----------
     backend : str
         The name of the backend to use in the Producer value.
+
     metadata : Dict[str, Union[str, datetime, Name]]
         A dictionary of metadata supplied by the user with information
         following the PDF specification, also defined in
@@ -474,7 +475,6 @@ class Stream:
         """
         Parameters
         ----------
-
         id : int
             Object id of the stream.
         len : Reference or None
@@ -608,9 +608,9 @@ class PdfFile:
         """
         Parameters
         ----------
-
         filename : str or path-like or file-like
             Output target; if a string, a file will be opened for writing.
+
         metadata : dict from strings to strings and dates
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
@@ -2568,9 +2568,11 @@ class PdfPages:
             Plots using `PdfPages.savefig` will be written to a file at this
             location. The file is opened at once and any older file with the
             same name is overwritten.
+
         keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
             when closed.
+
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
