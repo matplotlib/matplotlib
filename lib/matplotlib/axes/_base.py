@@ -2539,25 +2539,20 @@ class _AxesBase(martist.Artist):
                 return  # nothing to do...
 
             shared = shared_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in shared]
-            # ignore non-finite data limits if good limits exist
-            finite_dl = [d for d in dl if np.isfinite(d).all()]
-            if len(finite_dl):
-                # if finite limits exist for at least one axis (and the
-                # other is infinite), restore the finite limits
-                x_finite = [d for d in dl
-                            if (np.isfinite(d.intervalx).all() and
-                                (d not in finite_dl))]
-                y_finite = [d for d in dl
-                            if (np.isfinite(d.intervaly).all() and
-                                (d not in finite_dl))]
-
-                dl = finite_dl
-                dl.extend(x_finite)
-                dl.extend(y_finite)
-
-            bb = mtransforms.BboxBase.union(dl)
-            x0, x1 = getattr(bb, interval)
+            # Base autoscaling on finite data limits when there is at least one
+            # finite data limit among all the shared_axes and intervals.
+            # Also, find the minimum minpos for use in the margin calculation.
+            x_values = []
+            minimum_minpos = np.inf
+            for ax in shared:
+                x_values.extend(getattr(ax.dataLim, interval))
+                minimum_minpos = min(minimum_minpos,
+                                     getattr(ax.dataLim, minpos))
+            x_values = np.extract(np.isfinite(x_values), x_values)
+            if x_values.size >= 1:
+                x0, x1 = (x_values.min(), x_values.max())
+            else:
+                x0, x1 = (-np.inf, np.inf)
             # If x0 and x1 are non finite, use the locator to figure out
             # default limits.
             locator = axis.get_major_locator()
@@ -2578,10 +2573,9 @@ class _AxesBase(martist.Artist):
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
-            minpos = getattr(bb, minpos)
             transform = axis.get_transform()
             inverse_trans = transform.inverted()
-            x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
+            x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minimum_minpos)
             x0t, x1t = transform.transform([x0, x1])
             delta = (x1t - x0t) * margin
             if not np.isfinite(delta):

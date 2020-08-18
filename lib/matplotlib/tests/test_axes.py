@@ -6480,3 +6480,12 @@ def test_relative_ticklabel_sizes(size):
     for name, axis in zip(['x', 'y'], [ax.xaxis, ax.yaxis]):
         for tick in axis.get_major_ticks():
             assert tick.label1.get_size() == axis._get_tick_label_size(name)
+
+
+def test_multiplot_autoscale():
+    fig = plt.figure()
+    ax1, ax2 = fig.subplots(2, 1, sharex='all')
+    ax1.scatter([1, 2, 3, 4], [2, 3, 2, 3])
+    ax2.axhspan(-5, 5)
+    xlim = ax1.get_xlim()
+    assert np.allclose(xlim, [0.5, 4.5])
