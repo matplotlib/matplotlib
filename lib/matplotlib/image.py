@@ -444,7 +444,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # of over numbers.
                 self.norm.autoscale_None(A)
                 dv = np.float64(self.norm.vmax) - np.float64(self.norm.vmin)
-                vmid = self.norm.vmin + dv / 2
+                vmid = np.float64(self.norm.vmin) + dv / 2
                 fact = 1e7 if scaled_dtype == np.float64 else 1e4
                 newmin = vmid - dv * fact
                 if newmin < a_min:
