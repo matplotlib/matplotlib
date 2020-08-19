@@ -496,12 +496,8 @@ class Path3DCollection(PathCollection):
 
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
-
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
-
         sizes = self._sizes3d
 
         # Sort the points based on z coordinates
