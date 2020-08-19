@@ -310,7 +310,7 @@ class _process_plot_var_args:
         default_dict = self._getdefaults(set(), kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
-        return seg
+        return seg, kw
 
     def _makefill(self, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
@@ -362,9 +362,9 @@ class _process_plot_var_args:
                                fill=kwargs.get('fill', True),
                                closed=kw['closed'])
         seg.set(**kwargs)
-        return seg
+        return seg, kwargs
 
-    def _plot_args(self, tup, kwargs):
+    def _plot_args(self, tup, kwargs, return_kwargs=False):
         if len(tup) > 1 and isinstance(tup[-1], str):
             linestyle, marker, color = _process_plot_format(tup[-1])
             tup = tup[:-1]
@@ -415,8 +415,12 @@ class _process_plot_var_args:
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
             raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
-        return [func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
-                for j in range(max(ncx, ncy))]
+        result = (func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
+                  for j in range(max(ncx, ncy)))
+        if return_kwargs:
+            return list(result)
+        else:
+            return [l[0] for l in result]
 
 
 @cbook._define_aliases({"facecolor": ["fc"]})
