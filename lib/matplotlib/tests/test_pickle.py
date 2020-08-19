@@ -1,6 +1,5 @@
 from io import BytesIO
 import pickle
-import platform
 
 import numpy as np
 import pytest
