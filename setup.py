@@ -249,6 +249,17 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     long_description=Path("README.rst").read_text(encoding="utf-8"),
     long_description_content_type="text/x-rst",
     license="PSF",
+    license_files=[
+        "LICENSE/LICENSE",
+        "LICENSE/LICENSE_AMSFONTS",
+        "LICENSE/LICENSE_BAKOMA",
+        "LICENSE/LICENSE_CARLOGO.txt",
+        "LICENSE/LICENSE_COLORBREWER",
+        "LICENSE/LICENSE_QT4_EDITOR",
+        "LICENSE/LICENSE_STIX",
+        "LICENSE/LICENSE_TORICK",
+        "LICENSE/Solarized.txt",
+    ],
     platforms="any",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
