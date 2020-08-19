@@ -3294,8 +3294,8 @@ class NavigationToolbar2:
 
     def configure_subplots(self, *args):
         plt = _safe_pyplot_import()
-        tool = plt.subplot_tool(self.canvas.figure)
-        tool.figure.canvas.manager.show()
+        self.subplot_tool = plt.subplot_tool(self.canvas.figure)
+        self.subplot_tool.figure.canvas.manager.show()
 
     def save_figure(self, *args):
         """Save the current figure."""
