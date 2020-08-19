@@ -1143,7 +1143,7 @@ class QuantityND(np.ndarray):
         units = getattr(self, "units", None)
         ret = super(QuantityND, self).__getitem__(item)
         if isinstance(ret, QuantityND) or units is not None:
-            return QuantityND(ret, units)
+            ret = QuantityND(ret, units)
         return ret
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
@@ -1180,9 +1180,26 @@ class QuantityND(np.ndarray):
             out_arr = QuantityND(out_arr, unit)
         return out_arr
 
+    @property
+    def v(self):
+        return self.view(np.ndarray)
+
+
+def test_quantitynd():
+    q = QuantityND([1, 2], "m")
+    q0, q1 = q[:]
+    assert np.all(q.v == np.asarray([1, 2]))
+    assert q.units == "m"
+    assert np.all((q0 + q1).v == np.asarray([3]))
+    assert (q0 * q1).units == "m*m"
+    assert (q1 / q0).units == "m/(m)"
+    with pytest.raises(ValueError):
+        q0 + QuantityND(1, "s")
+
+
 def test_imshow_quantitynd():
     # generate a dummy ndarray subclass
-    arr = QuantityND(np.ones((2,2)), "m")
+    arr = QuantityND(np.ones((2, 2)), "m")
     fig, ax = plt.subplots()
     ax.imshow(arr)
     # executing the draw should not raise an exception
