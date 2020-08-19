@@ -1,4 +1,5 @@
 import functools
+import itertools
 
 import pytest
 
@@ -254,27 +255,44 @@ def test_scatter3d_depthshade_false():
 
 
 @check_figures_equal(extensions=['png'])
-def test_scatter3d_size(fig_ref, fig_test):
-    """Test that large markers in correct position (issue #18135)"""
-    x = np.arange(10)
-    x, y = np.meshgrid(x, x)
-    z = np.arange(100).reshape(10, 10)
+def test_scatter3d_sorting(fig_ref, fig_test):
+    """Test that marker properties are correctly sorted."""
 
-    s = np.full(z.shape, 5)
-    s[0, 0] = 100
-    s[-1, 0] = 100
-    s[0, -1] = 100
-    s[-1, -1] = 100
+    y, x = np.mgrid[:10, :10]
+    z = np.arange(x.size).reshape(x.shape)
+
+    sizes = np.full(z.shape, 25)
+    sizes[0::2, 0::2] = 100
+    sizes[1::2, 1::2] = 100
+
+    facecolors = np.full(z.shape, 'C0')
+    facecolors[:5, :5] = 'C1'
+    facecolors[6:, :4] = 'C2'
+    facecolors[6:, 6:] = 'C3'
+
+    edgecolors = np.full(z.shape, 'C4')
+    edgecolors[1:5, 1:5] = 'C5'
+    edgecolors[5:9, 1:5] = 'C6'
+    edgecolors[5:9, 5:9] = 'C7'
+
+    x, y, z, sizes, facecolors, edgecolors = [
+        a.flatten()
+        for a in [x, y, z, sizes, facecolors, edgecolors]
+    ]
 
     ax_ref = fig_ref.gca(projection='3d')
+    sets = (np.unique(a) for a in [sizes, facecolors, edgecolors])
+    for s, fc, ec in itertools.product(*sets):
+        subset = (
+            (sizes != s) |
+            (facecolors != fc) |
+            (edgecolors != ec)
+        )
+        subset = np.ma.masked_array(z, subset, dtype=float)
+        ax_ref.scatter(x, y, subset, s=s, fc=fc, ec=ec, alpha=1)
+
     ax_test = fig_test.gca(projection='3d')
-
-    small = np.ma.masked_array(z, s == 100, dtype=float)
-    large = np.ma.masked_array(z, s != 100, dtype=float)
-
-    ax_ref.scatter(x, y, large, s=100, c="C0", alpha=1)
-    ax_ref.scatter(x, y, small, s=5, c="C0", alpha=1)
-    ax_test.scatter(x, y, z, s=s, c="C0", alpha=1)
+    ax_test.scatter(x, y, z, s=sizes, fc=facecolors, ec=edgecolors, alpha=1)
 
 
 @pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first
