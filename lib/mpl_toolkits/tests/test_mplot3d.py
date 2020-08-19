@@ -243,19 +243,9 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
-def test_scatter3d_depthshade_false():
-    """
-    Test that 3d scatter plot doesn't throw
-    IndexError with depthshade=False (issue #18037)
-    """
-    x = y = z = np.arange(16)
-    fig_test = plt.figure()
-    ax_test = fig_test.add_subplot(projection='3d')
-    ax_test.scatter(x, y, z, depthshade=False)
-
-
+@pytest.mark.parametrize('depthshade', [True, False])
 @check_figures_equal(extensions=['png'])
-def test_scatter3d_sorting(fig_ref, fig_test):
+def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
     """Test that marker properties are correctly sorted."""
 
     y, x = np.mgrid[:10, :10]
@@ -289,10 +279,19 @@ def test_scatter3d_sorting(fig_ref, fig_test):
             (edgecolors != ec)
         )
         subset = np.ma.masked_array(z, subset, dtype=float)
-        ax_ref.scatter(x, y, subset, s=s, fc=fc, ec=ec, alpha=1)
+
+        # When depth shading is disabled, the colors are passed through as
+        # single-item lists; this triggers single path optimization. The
+        # following reshaping is a hack to disable that, since the optimization
+        # would not occur for the full scatter which has multiple colors.
+        fc = np.repeat(fc, sum(~subset.mask))
+
+        ax_ref.scatter(x, y, subset, s=s, fc=fc, ec=ec, alpha=1,
+                       depthshade=depthshade)
 
     ax_test = fig_test.gca(projection='3d')
-    ax_test.scatter(x, y, z, s=sizes, fc=facecolors, ec=edgecolors, alpha=1)
+    ax_test.scatter(x, y, z, s=sizes, fc=facecolors, ec=edgecolors, alpha=1,
+                    depthshade=depthshade)
 
 
 @pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first
