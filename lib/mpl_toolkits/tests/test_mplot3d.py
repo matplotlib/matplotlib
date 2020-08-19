@@ -265,18 +265,23 @@ def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
     edgecolors[5:9, 1:5] = 'C6'
     edgecolors[5:9, 5:9] = 'C7'
 
-    x, y, z, sizes, facecolors, edgecolors = [
+    linewidths = np.full(z.shape, 2)
+    linewidths[0::2, 0::2] = 5
+    linewidths[1::2, 1::2] = 5
+
+    x, y, z, sizes, facecolors, edgecolors, linewidths = [
         a.flatten()
-        for a in [x, y, z, sizes, facecolors, edgecolors]
+        for a in [x, y, z, sizes, facecolors, edgecolors, linewidths]
     ]
 
     ax_ref = fig_ref.gca(projection='3d')
-    sets = (np.unique(a) for a in [sizes, facecolors, edgecolors])
-    for s, fc, ec in itertools.product(*sets):
+    sets = (np.unique(a) for a in [sizes, facecolors, edgecolors, linewidths])
+    for s, fc, ec, lw in itertools.product(*sets):
         subset = (
             (sizes != s) |
             (facecolors != fc) |
-            (edgecolors != ec)
+            (edgecolors != ec) |
+            (linewidths != lw)
         )
         subset = np.ma.masked_array(z, subset, dtype=float)
 
@@ -286,12 +291,12 @@ def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
         # would not occur for the full scatter which has multiple colors.
         fc = np.repeat(fc, sum(~subset.mask))
 
-        ax_ref.scatter(x, y, subset, s=s, fc=fc, ec=ec, alpha=1,
+        ax_ref.scatter(x, y, subset, s=s, fc=fc, ec=ec, lw=lw, alpha=1,
                        depthshade=depthshade)
 
     ax_test = fig_test.gca(projection='3d')
-    ax_test.scatter(x, y, z, s=sizes, fc=facecolors, ec=edgecolors, alpha=1,
-                    depthshade=depthshade)
+    ax_test.scatter(x, y, z, s=sizes, fc=facecolors, ec=edgecolors,
+                    lw=linewidths, alpha=1, depthshade=depthshade)
 
 
 @pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first

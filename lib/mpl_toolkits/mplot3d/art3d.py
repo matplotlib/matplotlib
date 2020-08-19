@@ -488,6 +488,7 @@ class Path3DCollection(PathCollection):
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self._sizes3d = self.get_sizes()
+        self._linewidth3d = self.get_linewidth()
         self.stale = True
 
     def do_3d_projection(self, renderer):
@@ -499,6 +500,7 @@ class Path3DCollection(PathCollection):
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         sizes = self._sizes3d
+        lws = self._linewidth3d
 
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
@@ -515,6 +517,8 @@ class Path3DCollection(PathCollection):
             ecs = ecs[z_markers_idx]
         if len(sizes) > 1:
             sizes = sizes[z_markers_idx]
+        if len(lws) > 1:
+            lws = lws[z_markers_idx]
         vps = np.column_stack((vxs, vys))
 
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
@@ -523,6 +527,7 @@ class Path3DCollection(PathCollection):
         self.set_edgecolors(ecs)
         self.set_facecolors(fcs)
         self.set_sizes(sizes)
+        self.set_linewidth(lws)
 
         PathCollection.set_offsets(self, vps)
 
