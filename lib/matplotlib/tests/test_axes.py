@@ -5430,6 +5430,19 @@ def test_title_xticks_top_both():
     assert ax.title.get_position()[1] > 1.04
 
 
+def test_title_no_move_off_page():
+    # If an axes is off the figure (ie. if it is cropped during a save)
+    # make sure that the automatic title repositioning does not get done.
+    mpl.rcParams['axes.titley'] = None
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, -0.5, 0.8, 0.2])
+    ax.tick_params(axis="x",
+                   bottom=True, top=True, labelbottom=True, labeltop=True)
+    tt = ax.set_title('Boo')
+    fig.canvas.draw()
+    assert tt.get_position()[1] == 1.0
+
+
 def test_offset_label_color():
     # Tests issue 6440
     fig = plt.figure()
