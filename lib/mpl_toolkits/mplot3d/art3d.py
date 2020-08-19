@@ -509,8 +509,9 @@ class Path3DCollection(PathCollection):
         vzs = vzs[z_markers_idx]
         vxs = vxs[z_markers_idx]
         vys = vys[z_markers_idx]
-        if self._depthshade:
+        if len(fcs) > 1:
             fcs = fcs[z_markers_idx]
+        if len(ecs) > 1:
             ecs = ecs[z_markers_idx]
         if len(sizes) > 1:
             sizes = sizes[z_markers_idx]
