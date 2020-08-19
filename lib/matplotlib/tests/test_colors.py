@@ -5,6 +5,7 @@ from io import BytesIO
 import numpy as np
 from PIL import Image
 import pytest
+import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
@@ -303,6 +304,9 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
 
+    assert mcolors.same_color(cmref.get_over(), 'black')
+    assert mcolors.same_color(cmref.get_under(), 'white')
+
     refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
     mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='both')
     assert mynorm.vmin == refnorm.vmin
@@ -323,6 +327,8 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
 
+    assert mcolors.same_color(cmref.get_under(), 'white')
+
     assert cmref.N == 2
     assert cmshould.N == 3
     refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
@@ -338,6 +344,8 @@ def test_BoundaryNorm():
     cmref = mcolors.ListedColormap(['blue', 'red'])
     cmref.set_over('black')
     cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
+
+    assert mcolors.same_color(cmref.get_over(), 'black')
 
     assert cmref.N == 2
     assert cmshould.N == 3
@@ -1155,4 +1163,15 @@ def test_repr_html():
     cmap = plt.get_cmap('viridis')
     html = cmap._repr_html_()
     assert len(html) > 0
+    png = cmap._repr_png_()
+    assert base64.b64encode(png).decode('ascii') in html
     assert cmap.name in html
+    assert html.startswith('<div')
+    assert html.endswith('</div>')
+
+
+def test_get_under_over_bad():
+    cmap = plt.get_cmap('viridis')
+    assert_array_equal(cmap.get_under(), cmap(-np.inf))
+    assert_array_equal(cmap.get_over(), cmap(np.inf))
+    assert_array_equal(cmap.get_bad(), cmap(np.nan))

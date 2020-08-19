@@ -110,6 +110,8 @@ _colors_full_map.update({k.replace('gray', 'grey'): v
 _colors_full_map.update(BASE_COLORS)
 _colors_full_map = _ColorMapping(_colors_full_map)
 
+_REPR_PNG_SIZE = (512, 64)
+
 
 def get_named_colors_mapping():
     """Return the global mapping of names to named colors."""
@@ -607,6 +609,12 @@ class Colormap:
         cmapobject._global = False
         return cmapobject
 
+    def get_bad(self):
+        """Get the color for masked values."""
+        if not self._isinit:
+            self._init()
+        return self._lut[self._i_bad]
+
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
         _warn_if_global_cmap_modified(self)
@@ -614,19 +622,27 @@ class Colormap:
         if self._isinit:
             self._set_extremes()
 
+    def get_under(self):
+        """Get the color for low out-of-range values."""
+        if not self._isinit:
+            self._init()
+        return self._lut[self._i_under]
+
     def set_under(self, color='k', alpha=None):
-        """
-        Set the color for low out-of-range values when ``norm.clip = False``.
-        """
+        """Set the color for low out-of-range values."""
         _warn_if_global_cmap_modified(self)
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
+    def get_over(self):
+        """Get the color for high out-of-range values."""
+        if not self._isinit:
+            self._init()
+        return self._lut[self._i_over]
+
     def set_over(self, color='k', alpha=None):
-        """
-        Set the color for high out-of-range values when ``norm.clip = False``.
-        """
+        """Set the color for high out-of-range values."""
         _warn_if_global_cmap_modified(self)
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
@@ -648,6 +664,7 @@ class Colormap:
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
+        """Return whether the color map is grayscale."""
         if not self._isinit:
             self._init()
         return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
@@ -678,8 +695,8 @@ class Colormap:
 
     def _repr_png_(self):
         """Generate a PNG representation of the Colormap."""
-        IMAGE_SIZE = (400, 50)
-        X = np.tile(np.linspace(0, 1, IMAGE_SIZE[0]), (IMAGE_SIZE[1], 1))
+        X = np.tile(np.linspace(0, 1, _REPR_PNG_SIZE[0]),
+                    (_REPR_PNG_SIZE[1], 1))
         pixels = self(X, bytes=True)
         png_bytes = io.BytesIO()
         title = self.name + ' color map'
@@ -696,12 +713,36 @@ class Colormap:
         """Generate an HTML representation of the Colormap."""
         png_bytes = self._repr_png_()
         png_base64 = base64.b64encode(png_bytes).decode('ascii')
-        return ('<strong>' + self.name + '</strong>' +
-                '<img ' +
-                'alt="' + self.name + ' color map" ' +
-                'title="' + self.name + '"' +
-                'style="border: 1px solid #555;" ' +
-                'src="data:image/png;base64,' + png_base64 + '">')
+        def color_block(color):
+            hex_color = to_hex(color, keep_alpha=True)
+            return (f'<div title="{hex_color}" '
+                    'style="display: inline-block; '
+                    'width: 1em; height: 1em; '
+                    'margin: 0; '
+                    'vertical-align: middle; '
+                    'border: 1px solid #555; '
+                    f'background-color: {hex_color};"></div>')
+
+        return ('<div style="vertical-align: middle;">'
+                f'<strong>{self.name}</strong> '
+                '</div>'
+                '<div class="cmap"><img '
+                f'alt="{self.name} color map" '
+                f'title="{self.name}" '
+                'style="border: 1px solid #555;" '
+                f'src="data:image/png;base64,{png_base64}"></div>'
+                '<div style="vertical-align: middle; '
+                f'max-width: {_REPR_PNG_SIZE[0]+2}px; '
+                'display: flex; justify-content: space-between;">'
+                '<div style="float: left;">'
+                f'{color_block(self.get_under())} under'
+                '</div>'
+                '<div style="margin: 0 auto; display: inline-block;">'
+                f'bad {color_block(self.get_bad())}'
+                '</div>'
+                '<div style="float: right;">'
+                f'over {color_block(self.get_over())}'
+                '</div>')
 
 
 class LinearSegmentedColormap(Colormap):
