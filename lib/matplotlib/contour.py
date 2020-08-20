@@ -1475,9 +1475,7 @@ class QuadContourSet(ContourSet):
         convert them to 2D using meshgrid.
         """
         x, y = args[:2]
-        kwargs = self.axes._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.axes.convert_xunits(x)
-        y = self.axes.convert_yunits(y)
+        x, y = self.axes._process_unit_info([("x", x), ("y", y)], kwargs)
 
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
