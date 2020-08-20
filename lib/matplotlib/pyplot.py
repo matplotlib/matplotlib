@@ -1546,7 +1546,8 @@ def subplot_tool(targetfig=None):
     """
     Launch a subplot tool window for a figure.
 
-    A `matplotlib.widgets.SubplotTool` instance is returned.
+    A `matplotlib.widgets.SubplotTool` instance is returned. You must maintain
+    a reference to the instance to keep the associated callbacks alive.
     """
     if targetfig is None:
         targetfig = gcf()
