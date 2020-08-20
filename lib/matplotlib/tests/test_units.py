@@ -172,3 +172,28 @@ def test_subclass(fig_test, fig_ref):
 
     fig_test.subplots().plot(subdate(2000, 1, 1), 0, "o")
     fig_ref.subplots().plot(datetime(2000, 1, 1), 0, "o")
+
+
+def test_set_xyunits(quantity_converter):
+    munits.registry[Quantity] = quantity_converter
+    x = Quantity(np.linspace(0, 1, 10), "hours")
+    y1 = Quantity(np.linspace(1, 2, 10), "feet")
+    y2 = Quantity(np.linspace(3, 4, 10), "feet")
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex='all', sharey='all')
+    ax1.plot(x, y1)
+    ax2.plot(x, y2)
+    assert ax1.xaxis.get_units() == ax2.xaxis.get_units() == "hours"
+    assert ax2.yaxis.get_units() == ax2.yaxis.get_units() == "feet"
+    ax1.set_xunits("seconds")
+    ax2.set_yunits("inches")
+    assert ax1.xaxis.get_units() == ax2.xaxis.get_units() == "seconds"
+    assert ax1.yaxis.get_units() == ax2.yaxis.get_units() == "inches"
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex='all', sharey='all')
+    ax1.plot(x, y1)
+    ax2.plot(x, y2)
+    ax1.set_xunits("seconds", emit=False)
+    ax2.set_yunits("inches", emit=False)
+    assert ax1.xaxis.get_units() == "seconds"
+    assert ax2.xaxis.get_units() == "hours"
+    assert ax1.yaxis.get_units() == "feet"
+    assert ax2.yaxis.get_units() == "inches"
