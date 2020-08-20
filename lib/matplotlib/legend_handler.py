@@ -302,6 +302,71 @@ class HandlerPatch(HandlerBase):
         return [p]
 
 
+class HandlerLinePatch(HandlerBase):
+    """
+    Handler for `.HistLine` instances.
+    """
+    def __init__(self, patch_func=None, **kw):
+        """
+        Parameters
+        ----------
+        patch_func : callable, optional
+            The function that creates the legend key artist.
+            *patch_func* should have the signature::
+
+                def patch_func(legend=legend, orig_handle=orig_handle,
+                               xdescent=xdescent, ydescent=ydescent,
+                               width=width, height=height, fontsize=fontsize)
+
+            Subsequently the created artist will have its ``update_prop``
+            method called and the appropriate transform will be applied.
+
+        Notes
+        -----
+        Any other keyword arguments are given to `HandlerBase`.
+        """
+        super().__init__(**kw)
+        self._patch_func = patch_func
+
+    def _create_patch(self, legend, orig_handle,
+                      xdescent, ydescent, width, height, fontsize):
+        if self._patch_func is None:
+            p = Rectangle(xy=(-xdescent, -ydescent), color=orig_handle.get_facecolor(),
+                          width=width, height=height)
+        else:
+            p = self._patch_func(legend=legend, orig_handle=orig_handle,
+                                 xdescent=xdescent, ydescent=ydescent,
+                                 width=width, height=height, fontsize=fontsize)
+        return p
+
+    def _create_line(self, legend, orig_handle,
+                     xdescent, ydescent, width, height, fontsize):
+
+        # Overwrite manually because patch and line properties don't mix
+        legline = Line2D([0, width], [height/2, height/2],
+                         color=orig_handle.get_edgecolor(),
+                         linestyle=orig_handle.get_linestyle(),
+                         linewidth=orig_handle.get_linewidth(),
+                         )
+
+        legline.set_drawstyle('default')
+        legline.set_marker("")
+        return legline
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        if orig_handle.get_fill():
+            p = self._create_patch(legend, orig_handle,
+                                   xdescent, ydescent, width, height, fontsize)
+            self.update_prop(p, orig_handle, legend)
+        else:
+            p = self._create_line(legend, orig_handle,
+                                  xdescent, ydescent, width, height, fontsize)
+        p.set_transform(trans)
+
+        return [p]
+
+
 class HandlerLineCollection(HandlerLine2D):
     """
     Handler for `.LineCollection` instances.

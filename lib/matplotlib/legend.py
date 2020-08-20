@@ -33,7 +33,7 @@ from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
+from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch, StepPatch
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
@@ -623,6 +623,7 @@ class Legend(Artist):
         ErrorbarContainer: legend_handler.HandlerErrorbar(),
         Line2D: legend_handler.HandlerLine2D(),
         Patch: legend_handler.HandlerPatch(),
+        StepPatch: legend_handler.HandlerLinePatch(),
         LineCollection: legend_handler.HandlerLineCollection(),
         RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
         CircleCollection: legend_handler.HandlerCircleCollection(),

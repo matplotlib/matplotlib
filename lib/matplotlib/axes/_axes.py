@@ -6871,6 +6871,34 @@ such objects
                           else "List[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
+    def histline(self, vals, bins=None, *,
+                 orientation='horizontal', baseline=0, fill=False, **kwargs):
+
+        if 'color' not in kwargs:
+            kwargs['color'] = self._get_lines.get_next_color()
+
+        if bins is None:
+            bins = np.arange(len(vals)+1)
+
+        patch = mpatches.StepPatch(vals,
+                                   bins,
+                                   baseline=baseline,
+                                   orientation=orientation,
+                                   fill=fill,
+                                   **kwargs)
+        self.add_patch(patch)
+
+        if baseline is None:
+            baseline = 0
+        if orientation == 'horizontal':
+            patch.sticky_edges.y.append(baseline)
+        else:
+            patch.sticky_edges.x.append(baseline)
+
+        self._request_autoscale_view()
+        return patch
+
+
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,

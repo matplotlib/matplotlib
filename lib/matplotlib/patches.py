@@ -989,6 +989,52 @@ class PathPatch(Patch):
         self._path = path
 
 
+class StepPatch(PathPatch):
+    def __init__(self, vals, bins=None, *,
+                 orientation='horizontal', baseline=0, **kwargs):
+        self.baseline = baseline
+        self.orientation = orientation
+        self._bins = bins
+        self._vals = vals
+        verts, codes = self._update_data()
+        path = Path(verts, codes)
+        super().__init__(path, **kwargs)
+
+    def _update_data(self):
+        if self._bins.size - 1 != self._vals.size:
+            raise ValueError('the length of the bins is wrong')
+        verts, codes = [], []
+        for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._vals)):
+            x = np.vstack((self._bins[idx0:idx1+1], 
+                           self._bins[idx0:idx1+1])).T.flatten()
+            y = np.vstack((self._vals[idx0:idx1], 
+                           self._vals[idx0:idx1])).T.flatten()
+            if self.baseline is not None:
+                y = np.hstack((self.baseline, y, self.baseline))
+            else:
+                y = np.hstack((y[0], y, y[-1]))
+            if self.orientation == 'horizontal':
+                xy = np.vstack([x, y]).T
+            else:
+                xy = np.vstack([y, x]).T
+            verts.append(xy)
+            codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
+        return np.vstack(verts), np.hstack(codes)
+
+    def set_bins(self, bins):
+        self._bins = bins
+        self._update_data()
+
+    def set_vals(self, vals):
+        self._vals = vals
+        self._update_data()
+
+    def set_vals_bins(self, vals, bins):
+        self._vals = vals
+        self._bins = bins
+        self._update_data()
+
+
 class Polygon(Patch):
     """A general polygon patch."""
 
@@ -1081,6 +1127,46 @@ class Polygon(Patch):
 
     xy = property(get_xy, set_xy,
                   doc='The vertices of the path as (N, 2) numpy array.')
+
+
+class HistLine(Polygon):
+
+    def __init__(self, vals, bins=None, *, fill=False,
+                 orientation='horizontal', baseline=0, **kwargs):
+        self.baseline = baseline
+        self.orientation = orientation
+        self._color = None
+        self._bins = bins
+        self._vals = vals
+        xy = self._update_data()
+        super(HistLine, self).__init__(xy, closed=False, fill=fill,  **kwargs)
+
+    def _update_data(self):
+        if self._bins.size - 1 != self._vals.size:
+            raise ValueError('the length of the bins is wrong')
+        x = np.vstack((self._bins, self._bins)).T.flatten()
+        y = np.vstack((self._vals, self._vals)).T.flatten()
+        if self.baseline is not None:
+            y = np.hstack((self.baseline, y, self.baseline))
+        else:
+            y = np.hstack((y[0], y, y[-1]))
+        if self.orientation == 'horizontal':
+            return np.vstack([x, y]).T
+        else:
+            return np.vstack([y, x]).T
+
+    def set_bins(self, bins):
+        self._bins = bins
+        self._update_data()
+
+    def set_vals(self, vals):
+        self._vals = vals
+        self._update_data()
+
+    def set_vals_bins(self, vals, bins):
+        self._vals = vals
+        self._bins = bins
+        self._update_data()
 
 
 class Wedge(Patch):
