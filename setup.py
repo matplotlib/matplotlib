@@ -249,7 +249,6 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     long_description=Path("README.rst").read_text(encoding="utf-8"),
     long_description_content_type="text/x-rst",
     license="PSF",
-    license_files=list(map(lambda p: str(p), Path("LICENSE").glob('*'))),
     platforms="any",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
