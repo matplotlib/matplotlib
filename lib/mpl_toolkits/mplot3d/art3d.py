@@ -894,13 +894,6 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def _get_colors(c, num):
-    """Stretch the color argument to provide the required number *num*."""
-    return np.broadcast_to(
-        mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
-        (num, 4))
-
-
 def _zalpha(colors, zs):
     """Modify the alphas of the color list according to depth."""
     # FIXME: This only works well if the points for *zs* are well-spaced
