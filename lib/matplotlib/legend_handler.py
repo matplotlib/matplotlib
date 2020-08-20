@@ -331,7 +331,8 @@ class HandlerLinePatch(HandlerBase):
     def _create_patch(self, legend, orig_handle,
                       xdescent, ydescent, width, height, fontsize):
         if self._patch_func is None:
-            p = Rectangle(xy=(-xdescent, -ydescent), color=orig_handle.get_facecolor(),
+            p = Rectangle(xy=(-xdescent, -ydescent),
+                          color=orig_handle.get_facecolor(),
                           width=width, height=height)
         else:
             p = self._patch_func(legend=legend, orig_handle=orig_handle,

@@ -6874,8 +6874,12 @@ such objects
     def histline(self, vals, bins=None, *,
                  orientation='horizontal', baseline=0, fill=False, **kwargs):
 
-        if 'color' not in kwargs:
-            kwargs['color'] = self._get_lines.get_next_color()
+        _color = self._get_lines.get_next_color()
+        if not fill:
+            kwargs.setdefault('edgecolor', _color)
+        else:
+            kwargs.setdefault('edgecolor', 'none')
+            kwargs.setdefault('facecolor', _color)
 
         if bins is None:
             bins = np.arange(len(vals)+1)
