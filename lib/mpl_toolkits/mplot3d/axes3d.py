@@ -399,36 +399,39 @@ class Axes3D(Axes):
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
-        renderer.M = self.M
-        renderer.vvec = self.vvec
-        renderer.eye = self.eye
-        renderer.get_axis_position = self.get_axis_position
+        props3d = {
+            name: cbook.deprecated('3.4', name=name,
+                                   alternative=f'self.axes.{name}')(
+                property(lambda self, _value=getattr(self, name): _value))
+            for name in ['M', 'vvec', 'eye', 'get_axis_position']
+        }
 
-        # Calculate projection of collections and patches and zorder them.
-        # Make sure they are drawn above the grids.
-        zorder_offset = max(axis.get_zorder()
-                            for axis in self._get_axis_list()) + 1
-        for i, col in enumerate(
-                sorted(self.collections,
-                       key=lambda col: col.do_3d_projection(renderer),
-                       reverse=True)):
-            col.zorder = zorder_offset + i
-        for i, patch in enumerate(
-                sorted(self.patches,
-                       key=lambda patch: patch.do_3d_projection(renderer),
-                       reverse=True)):
-            patch.zorder = zorder_offset + i
+        with cbook._setattr_cm(type(renderer), **props3d):
+            # Calculate projection of collections and patches and zorder them.
+            # Make sure they are drawn above the grids.
+            zorder_offset = max(axis.get_zorder()
+                                for axis in self._get_axis_list()) + 1
+            for i, col in enumerate(
+                    sorted(self.collections,
+                           key=lambda col: col.do_3d_projection(renderer),
+                           reverse=True)):
+                col.zorder = zorder_offset + i
+            for i, patch in enumerate(
+                    sorted(self.patches,
+                           key=lambda patch: patch.do_3d_projection(renderer),
+                           reverse=True)):
+                patch.zorder = zorder_offset + i
 
-        if self._axis3don:
-            # Draw panes first
-            for axis in self._get_axis_list():
-                axis.draw_pane(renderer)
-            # Then axes
-            for axis in self._get_axis_list():
-                axis.draw(renderer)
+            if self._axis3don:
+                # Draw panes first
+                for axis in self._get_axis_list():
+                    axis.draw_pane(renderer)
+                # Then axes
+                for axis in self._get_axis_list():
+                    axis.draw(renderer)
 
-        # Then rest
-        super().draw(renderer)
+            # Then rest
+            super().draw(renderer)
 
     def get_axis_position(self):
         vals = self.get_w_lims()

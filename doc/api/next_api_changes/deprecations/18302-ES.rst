@@ -1,0 +1,13 @@
+3D properties on renderers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The properties of the 3D Axes that were placed on the Renderer during draw are
+now deprecated:
+
+* ``renderer.M``
+* ``renderer.eye``
+* ``renderer.vvec``
+* ``renderer.get_axis_position``
+
+These attributes are all available via `.Axes3D`, which can be accessed via
+``self.axes`` on all `.Artist`\s.
