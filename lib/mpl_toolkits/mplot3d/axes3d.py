@@ -400,6 +400,15 @@ class Axes3D(Axes):
         # add the projection matrix to the renderer
         self.M = self.get_proj()
         props3d = {
+            # To raise a deprecation, we need to wrap the attribute in a
+            # function, but binding that to an instance does not work, as you
+            # would end up with an instance-specific method. Properties are
+            # class-level attributes which *are* functions, so we do that
+            # instead.
+            # This dictionary comprehension creates deprecated properties for
+            # the attributes listed below, and they are temporarily attached to
+            # the _class_ in the `_setattr_cm` call. These can both be removed
+            # once the deprecation expires
             name: cbook.deprecated('3.4', name=name,
                                    alternative=f'self.axes.{name}')(
                 property(lambda self, _value=getattr(self, name): _value))
@@ -408,8 +417,19 @@ class Axes3D(Axes):
 
         with cbook._setattr_cm(type(renderer), **props3d):
             def do_3d_projection(artist):
+                """
+                Call `do_3d_projection` on an *artist*, and warn if passing
+                *renderer*.
+
+                For our Artists, never pass *renderer*. For external Artists,
+                in lieu of more complicated signature parsing, always pass
+                *renderer* and raise a warning.
+                """
+
                 if artist.__module__ == 'mpl_toolkits.mplot3d.art3d':
-                    # Our 3D Artists have deprecated the renderer parameter.
+                    # Our 3D Artists have deprecated the renderer parameter, so
+                    # avoid passing it to them; call this directly once the
+                    # deprecation has expired.
                     return artist.do_3d_projection()
 
                 cbook.warn_deprecated(
