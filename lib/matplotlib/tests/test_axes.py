@@ -1815,7 +1815,7 @@ def test_histline_fill(fig_test, fig_ref):
     ref_axes[3].set_xlim(bs, None)
 
 
-@image_comparison(['test_histline_options.svg'], remove_text=True)
+@image_comparison(['test_histline_options.png'], remove_text=True)
 def test_histline_options():
     x, y = np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4]).astype(float)
     yn = y.copy()

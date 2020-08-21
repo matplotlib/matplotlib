@@ -6872,17 +6872,17 @@ such objects
             return tops, bins, cbook.silent_list(patch_type, patches)
 
     @_preprocess_data()
-    def histline(self, vals, bins=None, *,
+    def histline(self, values, bins=None, *,
                  orientation='vertical', baseline=0, fill=False, **kwargs):
         """
         A histogram-like line or filled plot.
 
         Parameters
         ----------
-        vals : array
+        values : array-like
             An array of y-values.
 
-        bins : array, default: ``range(len(vals)+1)``
+        bins : array-like, default: ``range(len(vals)+1)``
             A array of x-values, with ``len(bins) == len(vals) + 1``,
             between which the curve takes on vals values.
 
@@ -6890,18 +6890,18 @@ such objects
 
         baseline : float or None, default: 0
             Determines starting value of the bounding edges or when
-            "fill" == True, position of lower edge.
+            ``fill=True``, position of lower edge.
 
         fill : bool, default: False
 
         Returns
         -------
-        patch : `.StepPatch`
+        StepPatch : `.patches.StepPatch`
 
         Other Parameters
         ----------------
         **kwargs
-            `~matplotlib.patches.Patch` properties
+            `~.matplotlib.patches.StepPatch` properties
 
         """
 
@@ -6916,9 +6916,9 @@ such objects
             kwargs.setdefault('edgecolor', _color)
 
         if bins is None:
-            bins = np.arange(len(vals) + 1)
+            bins = np.arange(len(values) + 1)
 
-        patch = mpatches.StepPatch(vals,
+        patch = mpatches.StepPatch(values,
                                    bins,
                                    baseline=baseline,
                                    orientation=orientation,

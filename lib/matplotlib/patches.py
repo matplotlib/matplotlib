@@ -993,15 +993,15 @@ class StepPatch(PathPatch):
     """An unclosed stepline path patch."""
 
     @docstring.dedent_interpd
-    def __init__(self, vals, edges, *,
-                 orientation='horizontal', baseline=0, **kwargs):
+    def __init__(self, values, edges, *,
+                 orientation='vertical', baseline=0, **kwargs):
         """
         Parameters
         ----------
-        vals : array
+        values : array-like
             An array of y-values.
 
-        edges : array
+        edges : array-like
             A array of x-value edges, with ``len(edges) == len(vals) + 1``,
             between which the curve takes on vals values.
 
@@ -1009,7 +1009,7 @@ class StepPatch(PathPatch):
 
         baseline : float or None, default: 0
             Determines starting value of the bounding edges or when
-            "fill" == True, position of lower edge.
+            ``fill=True``, position of lower edge.
 
         Other valid keyword arguments are:
 
@@ -1018,20 +1018,24 @@ class StepPatch(PathPatch):
         self.baseline = baseline
         self.orientation = orientation
         self._edges = np.asarray(edges)
-        self._vals = np.asarray(vals)
+        self._values = np.asarray(values)
         verts, codes = self._update_data()
         path = Path(verts, codes)
         super().__init__(path, **kwargs)
 
     def _update_data(self):
-        if self._edges.size - 1 != self._vals.size:
-            raise ValueError('Size mismatch between "vals" and "edges"')
+        if self._edges.size - 1 != self._values.size:
+            raise ValueError('Size mismatch between "values" and "edges". '
+                             "Expected `len(values) + 1 == len(edges)`, but "
+                             "they are or lengths {} and {}".format(
+                                 self._edges.size, self._values.size)
+                             )
         verts, codes = [], []
-        for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._vals)):
+        for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._values)):
             x = np.vstack((self._edges[idx0:idx1+1],
                            self._edges[idx0:idx1+1])).T.flatten()
-            y = np.vstack((self._vals[idx0:idx1],
-                           self._vals[idx0:idx1])).T.flatten()
+            y = np.vstack((self._values[idx0:idx1],
+                           self._values[idx0:idx1])).T.flatten()
             if self.baseline is not None:
                 y = np.hstack((self.baseline, y, self.baseline))
             else:
@@ -1048,13 +1052,8 @@ class StepPatch(PathPatch):
         self._edges = np.asarray(edges)
         self._update_data()
 
-    def set_vals(self, vals):
-        self._vals = np.asarray(vals)
-        self._update_data()
-
-    def set_vals_edges(self, vals, edges):
-        self._vals = np.asarray(vals)
-        self._edegs = np.asarray(edges)
+    def set_values(self, values):
+        self._values = np.asarray(values)
         self._update_data()
 
 

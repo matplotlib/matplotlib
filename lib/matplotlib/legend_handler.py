@@ -304,7 +304,7 @@ class HandlerPatch(HandlerBase):
 
 class HandlerStepPatch(HandlerBase):
     """
-    Handler for `.StepPatch` instances.
+    Handler for `~.matplotlib.patches.StepPatch` instances.
     """
     def __init__(self, **kw):
         """
