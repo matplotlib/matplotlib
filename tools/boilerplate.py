@@ -215,6 +215,7 @@ def boilerplate_gen():
         'grid',
         'hexbin',
         'hist',
+        'histline',
         'hist2d',
         'hlines',
         'imshow',
