@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook, ticker
+from . import cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -211,7 +211,7 @@ class Button(AxesWidget):
         if self.ignore(event):
             return
         c = self.hovercolor if event.inaxes == self.ax else self.color
-        if c != self.ax.get_facecolor():
+        if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
                 self.ax.figure.canvas.draw()
@@ -908,7 +908,7 @@ class TextBox(AxesWidget):
         if self.ignore(event):
             return
         c = self.hovercolor if event.inaxes == self.ax else self.color
-        if c != self.ax.get_facecolor():
+        if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
                 self.ax.figure.canvas.draw()
