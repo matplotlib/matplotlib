@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook, ticker, colors
+from . import cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
