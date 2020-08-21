@@ -3288,7 +3288,7 @@ pivot='tail', normalize=False, **kwargs)
                     batch.append(axis_bb)
         return mtransforms.Bbox.union(batch)
 
-    def stem(self, x, y, z, *, linefmt='b-', markerfmt='bo', basefmt='r-',
+    def stem(self, x, y, z, *, linefmt='C0-', markerfmt='C0o', basefmt='C3-',
              bottom=0, label=None, zdir='z'):
         """
         Create a 3D stem plot.
