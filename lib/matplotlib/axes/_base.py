@@ -4305,37 +4305,3 @@ class _AxesBase(martist.Artist):
     def get_shared_y_axes(self):
         """Return a reference to the shared axes Grouper object for y axes."""
         return self._shared_y_axes
-
-    def set_xunits(self, units, emit=True):
-        """
-        Set the x-axis units.
-
-        Parameters
-        ----------
-        units : units tag
-
-        emit : bool, default: True
-            Whether to notify observers of units change.
-        """
-        if emit:
-            for ax in self._shared_x_axes.get_siblings(self):
-                ax.xaxis.set_units(units)
-        else:
-            self.xaxis.set_units(units)
-
-    def set_yunits(self, units, emit=True):
-        """
-        Set the y-axis units.
-
-        Parameters
-        ----------
-        units : units tag
-
-        emit : bool, default: True
-            Whether to notify observers of units change.
-        """
-        if emit:
-            for ax in self._shared_y_axes.get_siblings(self):
-                ax.yaxis.set_units(units)
-        else:
-            self.yaxis.set_units(units)
