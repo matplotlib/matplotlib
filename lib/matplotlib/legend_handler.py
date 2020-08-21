@@ -302,44 +302,24 @@ class HandlerPatch(HandlerBase):
         return [p]
 
 
-class HandlerLinePatch(HandlerBase):
+class HandlerStepPatch(HandlerBase):
     """
-    Handler for `.HistLine` instances.
+    Handler for `.StepPatch` instances.
     """
-    def __init__(self, patch_func=None, **kw):
+    def __init__(self, **kw):
         """
-        Parameters
-        ----------
-        patch_func : callable, optional
-            The function that creates the legend key artist.
-            *patch_func* should have the signature::
-
-                def patch_func(legend=legend, orig_handle=orig_handle,
-                               xdescent=xdescent, ydescent=ydescent,
-                               width=width, height=height, fontsize=fontsize)
-
-            Subsequently the created artist will have its ``update_prop``
-            method called and the appropriate transform will be applied.
-
-        Notes
-        -----
         Any other keyword arguments are given to `HandlerBase`.
         """
         super().__init__(**kw)
-        self._patch_func = patch_func
 
     def _create_patch(self, legend, orig_handle,
                       xdescent, ydescent, width, height, fontsize):
-        if self._patch_func is None:
-            p = Rectangle(xy=(-xdescent, -ydescent),
-                          color=orig_handle.get_facecolor(),
-                          width=width, height=height)
-        else:
-            p = self._patch_func(legend=legend, orig_handle=orig_handle,
-                                 xdescent=xdescent, ydescent=ydescent,
-                                 width=width, height=height, fontsize=fontsize)
+        p = Rectangle(xy=(-xdescent, -ydescent),
+                      color=orig_handle.get_facecolor(),
+                      width=width, height=height)
         return p
 
+    # Unfilled StepPatch should show as a line
     def _create_line(self, legend, orig_handle,
                      xdescent, ydescent, width, height, fontsize):
 
@@ -356,7 +336,7 @@ class HandlerLinePatch(HandlerBase):
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-        if orig_handle.get_fill():
+        if orig_handle.get_fill() or (orig_handle.get_hatch() is not None):
             p = self._create_patch(legend, orig_handle,
                                    xdescent, ydescent, width, height, fontsize)
             self.update_prop(p, orig_handle, legend)
@@ -364,7 +344,6 @@ class HandlerLinePatch(HandlerBase):
             p = self._create_line(legend, orig_handle,
                                   xdescent, ydescent, width, height, fontsize)
         p.set_transform(trans)
-
         return [p]
 
 

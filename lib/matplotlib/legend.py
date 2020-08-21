@@ -624,7 +624,7 @@ class Legend(Artist):
         ErrorbarContainer: legend_handler.HandlerErrorbar(),
         Line2D: legend_handler.HandlerLine2D(),
         Patch: legend_handler.HandlerPatch(),
-        StepPatch: legend_handler.HandlerLinePatch(),
+        StepPatch: legend_handler.HandlerStepPatch(),
         LineCollection: legend_handler.HandlerLineCollection(),
         RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
         CircleCollection: legend_handler.HandlerCircleCollection(),

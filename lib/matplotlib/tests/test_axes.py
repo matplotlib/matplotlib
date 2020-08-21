@@ -1744,6 +1744,97 @@ def test_hist_zorder(histtype, zorder):
         assert patch.get_zorder() == zorder
 
 
+@check_figures_equal()
+def test_histline(fig_test, fig_ref):
+    import matplotlib.lines as mlines
+    y = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
+    x = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
+
+    fig_test, test_axes = plt.subplots(3, 2)
+    test_axes = test_axes.flatten()
+    test_axes[0].histline(y, x, baseline=None)
+    test_axes[1].histline(y, x, baseline=None, orientation='horizontal')
+    test_axes[2].histline(y, x)
+    test_axes[3].histline(y, x, orientation='horizontal')
+    test_axes[4].histline(y, x)
+    test_axes[4].semilogy()
+    test_axes[5].histline(y, x, orientation='horizontal')
+    test_axes[5].semilogy()
+
+    fig_ref, ref_axes = plt.subplots(3, 2)
+    ref_axes = ref_axes.flatten()
+    ref_axes[0].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
+    ref_axes[1].plot(np.append(y[0], y), x, drawstyle='steps-post')
+
+    ref_axes[2].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
+    ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
+    ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+    ref_axes[2].set_ylim(0, None)
+
+    ref_axes[3].plot(np.append(y[0], y), x, drawstyle='steps-post')
+    ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
+    ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+    ref_axes[3].set_xlim(0, None)
+
+    ref_axes[4].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
+    ref_axes[4].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
+    ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+    ref_axes[4].semilogy()
+
+    ref_axes[5].plot(np.append(y[0], y), x, drawstyle='steps-post')
+    ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
+    ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+    ref_axes[5].semilogx()
+
+
+@check_figures_equal()
+def test_histline_fill(fig_test, fig_ref):
+    h, bins = [1, 2, 3, 4, 2], [0, 1, 2, 3, 4, 5]
+    bs = -2
+    # Test
+    fig_test, test_axes = plt.subplots(2, 2)
+    test_axes = test_axes.flatten()
+    test_axes[0].histline(h, bins, fill=True)
+    test_axes[1].histline(h, bins, orientation='horizontal', fill=True)
+    test_axes[2].histline(h, bins, baseline=bs, fill=True)
+    test_axes[3].histline(h, bins, baseline=bs, orientation='horizontal',
+                          fill=True)
+
+    # # Ref
+    fig_ref, ref_axes = plt.subplots(2, 2)
+    ref_axes = ref_axes.flatten()
+    ref_axes[0].fill_between(bins, np.append(h, h[-1]), step='post')
+    ref_axes[0].set_ylim(0, None)
+    ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), step='post')
+    ref_axes[1].set_xlim(0, None)
+    ref_axes[2].fill_between(bins, np.append(h, h[-1]),
+                             np.ones(len(h)+1)*bs, step='post')
+    ref_axes[2].set_ylim(bs, None)
+    ref_axes[3].fill_betweenx(bins, np.append(h, h[-1]),
+                              np.ones(len(h)+1)*bs, step='post')
+    ref_axes[3].set_xlim(bs, None)
+
+
+@image_comparison(['test_histline_options.svg'], remove_text=True)
+def test_histline_options():
+    x, y = np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4]).astype(float)
+    yn = y.copy()
+    yn[1] = np.nan
+
+    fig, ax = plt.subplots()
+    ax.histline(y*3, x, color='green', fill=True, label="A")
+    ax.histline(y, x*3-3, color='red', fill=True,
+                orientation='horizontal', label="B")
+    ax.histline(yn, x, color='orange', ls='--', lw=2, label="C")
+    ax.histline(yn/3, x*3-2, color='purple', ls='--', lw=2, baseline=0.5,
+                orientation='horizontal', label="D")
+    ax.histline(y[::-1]*3+12, x, color='red', ls='--', lw=2, baseline=None,
+                label="E")
+    ax.histline(y[:-1][::-1]*2+11, x[:-1]+0.5, color='blue', ls='--', lw=2,
+                baseline=12, hatch='//', label="F")
+    ax.legend(loc=0)
+
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)

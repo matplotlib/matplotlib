@@ -990,20 +990,20 @@ class PathPatch(Patch):
 
 
 class StepPatch(PathPatch):
-    """A stepline path patch."""
+    """An unclosed stepline path patch."""
 
     @docstring.dedent_interpd
-    def __init__(self, vals, bins=None, *,
+    def __init__(self, vals, edges, *,
                  orientation='horizontal', baseline=0, **kwargs):
         """
         Parameters
         ----------
-        vals : array, len N
+        vals : array
             An array of y-values.
 
-        bins : array, len N+1
-            A array of x-values, between which the curve takes on
-            vals values.
+        edges : array
+            A array of x-value edges, with ``len(edges) == len(vals) + 1``,
+            between which the curve takes on vals values.
 
         orientation : {'vertical', 'horizontal'}, default: 'vertical'
 
@@ -1011,33 +1011,32 @@ class StepPatch(PathPatch):
             Determines starting value of the bounding edges or when
             "fill" == True, position of lower edge.
 
-        **kwargs
-            `Patch` properties:
+        Other valid keyword arguments are:
 
-            %(Patch)s
+        %(Patch)s
         """
         self.baseline = baseline
         self.orientation = orientation
-        self._bins = bins
-        self._vals = vals
+        self._edges = np.asarray(edges)
+        self._vals = np.asarray(vals)
         verts, codes = self._update_data()
         path = Path(verts, codes)
         super().__init__(path, **kwargs)
 
     def _update_data(self):
-        if self._bins.size - 1 != self._vals.size:
-            raise ValueError('the length of the bins is wrong')
+        if self._edges.size - 1 != self._vals.size:
+            raise ValueError('Size mismatch between "vals" and "edges"')
         verts, codes = [], []
         for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._vals)):
-            x = np.vstack((self._bins[idx0:idx1+1],
-                           self._bins[idx0:idx1+1])).T.flatten()
+            x = np.vstack((self._edges[idx0:idx1+1],
+                           self._edges[idx0:idx1+1])).T.flatten()
             y = np.vstack((self._vals[idx0:idx1],
                            self._vals[idx0:idx1])).T.flatten()
             if self.baseline is not None:
                 y = np.hstack((self.baseline, y, self.baseline))
             else:
                 y = np.hstack((y[0], y, y[-1]))
-            if self.orientation == 'horizontal':
+            if self.orientation == 'vertical':
                 xy = np.vstack([x, y]).T
             else:
                 xy = np.vstack([y, x]).T
@@ -1045,17 +1044,17 @@ class StepPatch(PathPatch):
             codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
         return np.vstack(verts), np.hstack(codes)
 
-    def set_bins(self, bins):
-        self._bins = bins
+    def set_edges(self, edges):
+        self._edges = np.asarray(edges)
         self._update_data()
 
     def set_vals(self, vals):
-        self._vals = vals
+        self._vals = np.asarray(vals)
         self._update_data()
 
-    def set_vals_bins(self, vals, bins):
-        self._vals = vals
-        self._bins = bins
+    def set_vals_edges(self, vals, edges):
+        self._vals = np.asarray(vals)
+        self._edegs = np.asarray(edges)
         self._update_data()
 
 

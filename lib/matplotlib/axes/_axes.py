@@ -6871,18 +6871,52 @@ such objects
                           else "List[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
+    @_preprocess_data()
     def histline(self, vals, bins=None, *,
-                 orientation='horizontal', baseline=0, fill=False, **kwargs):
+                 orientation='vertical', baseline=0, fill=False, **kwargs):
+        """
+        A histogram-like line or filled plot.
 
-        _color = self._get_lines.get_next_color()
-        if not fill:
-            kwargs.setdefault('edgecolor', _color)
+        Parameters
+        ----------
+        vals : array
+            An array of y-values.
+
+        bins : array, default: ``range(len(vals)+1)``
+            A array of x-values, with ``len(bins) == len(vals) + 1``,
+            between which the curve takes on vals values.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+
+        baseline : float or None, default: 0
+            Determines starting value of the bounding edges or when
+            "fill" == True, position of lower edge.
+
+        fill : bool, default: False
+
+        Returns
+        -------
+        patch : `.StepPatch`
+
+        Other Parameters
+        ----------------
+        **kwargs
+            `~matplotlib.patches.Patch` properties
+
+        """
+
+        if 'color' in kwargs:
+            _color = kwargs.pop('color')
         else:
+            _color = self._get_lines.get_next_color()
+        if fill:
             kwargs.setdefault('edgecolor', 'none')
             kwargs.setdefault('facecolor', _color)
+        else:
+            kwargs.setdefault('edgecolor', _color)
 
         if bins is None:
-            bins = np.arange(len(vals)+1)
+            bins = np.arange(len(vals) + 1)
 
         patch = mpatches.StepPatch(vals,
                                    bins,
@@ -6891,17 +6925,14 @@ such objects
                                    fill=fill,
                                    **kwargs)
         self.add_patch(patch)
-
         if baseline is None:
             baseline = 0
-        if orientation == 'horizontal':
+        if orientation == 'vertical':
             patch.sticky_edges.y.append(baseline)
         else:
             patch.sticky_edges.x.append(baseline)
-
         self._request_autoscale_view()
         return patch
-
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @docstring.dedent_interpd
