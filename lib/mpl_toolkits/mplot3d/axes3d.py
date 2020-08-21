@@ -3293,26 +3293,61 @@ pivot='tail', normalize=False, **kwargs)
         """
         Create a 3D stem plot.
 
-        By default, stem plots vertical lines (using *linefmt*) in the z
-        direction at each *x* and *y* location from the baseline to *z*, and
-        places a marker there using *markerfmt*. By default, the baseline at
-        the xy-plane is plotted using *basefmt*.
+        A stem plot draws lines perpendicular to a baseline, and places markers
+        at the heads. By default, the baseline is defined by *x* and *y*, and
+        stems are drawn vertically from *bottom* to *z*.
 
-        *x*, *y, and *z* values are required and must be arrays of the same
-        length.
+        Parameters
+        ----------
+        x, y, z : array-like
+            The positions of the heads of the stems. The baseline is defined by
+            two of these positions and *bottom*, and stems are drawn from
+            *bottom* to the third position. By default, the *x* and *y*
+            positions are used for the baseline and *z* for the head position,
+            but this can be changed by *zdir*.
 
-        If no zdir value is provided, then it is set to default and no rotation
-        occurs.
+        linefmt : str, default: 'C0-'
+            A string defining the properties of the vertical lines. Usually,
+            this will be a color or a color and a linestyle:
 
-        Return value is a tuple (*markerline*, *stemlines*, *baseline*).
+            =========  =============
+            Character  Line Style
+            =========  =============
+            ``'-'``    solid line
+            ``'--'``   dashed line
+            ``'-.'``   dash-dot line
+            ``':'``    dotted line
+            =========  =============
 
-        .. seealso::
-            This `document
-            <http://www.mathworks.com/help/techdoc/ref/stem3.html>`_ for
-            details.
+            Note: While it is technically possible to specify valid formats
+            other than color or color and linestyle (e.g. 'rx' or '-.'), this
+            is beyond the intention of the method and will most likely not
+            result in a reasonable plot.
 
-        **Example:**
-        .. plot:: /mplot3d/stem3d_demo.py
+        markerfmt : str, default: 'C0o'
+            A string defining the properties of the markers at the stem heads.
+
+        basefmt : str, default: 'C3-'
+            A format string defining the properties of the baseline.
+
+        bottom : float, default: 0
+            The x/y/z-position of the baseline (depending on *zdir*).
+
+        label : str, default: None
+            The label to use for the stems in legends.
+
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The direction along which stems are drawn.
+
+        Returns
+        -------
+        `.StemContainer`
+            The container may be treated like a tuple
+            (*markerline*, *stemlines*, *baseline*)
+
+        Examples
+        --------
+        .. plot:: gallery/mplot3d/stem3d_demo.py
         """
 
         from matplotlib.container import StemContainer
