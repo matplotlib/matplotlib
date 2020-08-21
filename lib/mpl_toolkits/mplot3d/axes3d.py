@@ -3288,13 +3288,10 @@ pivot='tail', normalize=False, **kwargs)
                     batch.append(axis_bb)
         return mtransforms.Bbox.union(batch)
 
-    def stem(self, *args, **kwargs):
+    def stem(self, x, y, z, *, linefmt='b-', markerfmt='bo', basefmt='r-',
+             bottom=0, label=None, zdir='z'):
         """
         Create a 3D stem plot.
-
-        Call signatures::
-          stem3(x, y, z, linefmt='b-', markerfmt='bo', basefmt='r-',
-                zdir={'x'|'y'|'z'|'-x'|'-y'})
 
         By default, stem plots vertical lines (using *linefmt*) in the z
         direction at each *x* and *y* location from the baseline to *z*, and
@@ -3321,34 +3318,6 @@ pivot='tail', normalize=False, **kwargs)
         from matplotlib.container import StemContainer
 
         had_data = self.has_data()
-
-        # Extract the required values
-        x, y, z = [np.asarray(i) for i in args[:3]]
-        args = args[3:]
-
-        # Popping some defaults
-        try:
-            linefmt = kwargs.pop('linefmt', args[0])
-        except IndexError:
-            linefmt = kwargs.pop('linefmt', 'b-')
-        try:
-            markerfmt = kwargs.pop('markerfmt', args[1])
-        except IndexError:
-            markerfmt = kwargs.pop('markerfmt', 'bo')
-        try:
-            basefmt = kwargs.pop('basefmt', args[2])
-        except IndexError:
-            basefmt = kwargs.pop('basefmt', 'r-')
-        try:
-            zdir = kwargs.pop('zdir', args[3])
-        except IndexError:
-            zdir = kwargs.pop('zdir', 'z')
-
-        bottom = kwargs.pop('bottom', None)
-        label = kwargs.pop('label', None)
-
-        if bottom is None:
-            bottom = 0
 
         stemlines = []
         jx, jy, jz = art3d.juggle_axes(x, y, z, zdir)
