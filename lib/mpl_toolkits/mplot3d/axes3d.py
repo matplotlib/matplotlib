@@ -3319,25 +3319,31 @@ pivot='tail', normalize=False, **kwargs)
 
         had_data = self.has_data()
 
-        stemlines = []
         jx, jy, jz = art3d.juggle_axes(x, y, z, zdir)
 
-        # plot the baseline in the appropriate plane
-        for i in range(len(x)-1):
-            baseline, = Axes.plot(self, [x[i], x[i+1]], [y[i], y[i+1]],
-                                  basefmt, label="_nolegend_")
-            art3d.line_2d_to_3d(baseline, [bottom, bottom], zdir)
+        # Plot the baseline in the appropriate plane.
+        baseline, = self.plot(x, y, basefmt, zs=bottom, zdir=zdir,
+                              label='_nolegend_')
 
-        # plot the stemlines based on the value of rotate
-        for thisx, thisy, thisz in zip(x, y, z):
-            l, = Axes.plot(self, [thisx, thisx], [thisy, thisy], linefmt,
-                           label="_nolegend_")
-            art3d.line_2d_to_3d(l, [bottom, thisz], zdir)
+        # Plot the stemlines based on the value of zdir.
+        if zdir[-1:] == 'x':
+            lines = [[(bottom, thisy, thisz), (thisx, thisy, thisz)]
+                     for thisx, thisy, thisz in zip(jx, jy, jz)]
+        elif zdir[-1:] == 'y':
+            lines = [[(thisx, bottom, thisz), (thisx, thisy, thisz)]
+                     for thisx, thisy, thisz in zip(jx, jy, jz)]
+        else:
+            lines = [[(thisx, thisy, bottom), (thisx, thisy, thisz)]
+                     for thisx, thisy, thisz in zip(jx, jy, jz)]
+        linestyle, linemarker, linecolor = _process_plot_format(linefmt)
+        if linestyle is None:
+            linestyle = rcParams['lines.linestyle']
+        stemlines = art3d.Line3DCollection(
+            lines, linestyles=linestyle, colors=linecolor, label='_nolegend_')
+        self.add_collection(stemlines)
 
-            stemlines.append(l)
-
-        markerline, = Axes.plot(self, x, y, markerfmt, label="_nolegend_")
-        art3d.line_2d_to_3d(markerline, z, zdir)
+        markerline, = self.plot(x, y, z, markerfmt, zdir=zdir,
+                                label='_nolegend_')
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
