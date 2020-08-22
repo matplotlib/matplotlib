@@ -530,28 +530,29 @@ class ColorbarBase:
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
         """
-        # sets self._boundaries and self._values in real data units.
-        # takes into account extend values:
-        self._process_values()
-        # sets self.vmin and vmax in data units, but just for the part of the
-        # colorbar that is not part of the extend patch:
-        self._find_range()
-        # returns the X and Y mesh, *but* this was/is in normalized units:
-        X, Y = self._mesh()
-        C = self._values[:, np.newaxis]
-
         self._config_axis()  # Inline it after deprecation elapses.
+        # Set self._boundaries and self._values, including extensions.
+        self._process_values()
+        # Set self.vmin and self.vmax to first and last boundary, excluding
+        # extensions.
+        self.vmin, self.vmax = self._boundaries[self._inside][[0, -1]]
+        # Compute the X/Y mesh, assuming vertical orientation.
+        X, Y = self._mesh()
+        # Extract bounding polygon (the last entry's value (X[0, 1]) doesn't
+        # matter, it just matches the CLOSEPOLY code).
+        x = np.concatenate([X[[0, 1, -2, -1], 0], X[[-1, -2, 1, 0, 0], 1]])
+        y = np.concatenate([Y[[0, 1, -2, -1], 0], Y[[-1, -2, 1, 0, 0], 1]])
+        xy = (np.column_stack([x, y]) if self.orientation == 'vertical' else
+              np.column_stack([y, x]))  # Apply orientation.
         # Configure axes limits, patch, and outline.
-        xy = self._outline(X, Y)
         xmin, ymin = xy.min(axis=0)
         xmax, ymax = xy.max(axis=0)
         self.ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
         self.outline.set_xy(xy)
         self.patch.set_xy(xy)
         self.update_ticks()
-
         if self.filled:
-            self._add_solids(X, Y, C)
+            self._add_solids(X, Y, self._values[:, np.newaxis])
 
     @cbook.deprecated("3.3")
     def config_axis(self):
@@ -800,19 +801,6 @@ class ColorbarBase:
             self.ax.set_xlabel(label, **kwargs)
         self.stale = True
 
-    def _outline(self, X, Y):
-        """
-        Return *x*, *y* arrays of colorbar bounding polygon,
-        taking orientation into account.
-        """
-        N = X.shape[0]
-        ii = [0, 1, N - 2, N - 1, 2 * N - 1, 2 * N - 2, N + 1, N, 0]
-        x = X.T.reshape(-1)[ii]
-        y = Y.T.reshape(-1)[ii]
-        return (np.column_stack([y, x])
-                if self.orientation == 'horizontal' else
-                np.column_stack([x, y]))
-
     def _edges(self, X, Y):
         """Return the separator line segments; helper for _add_solids."""
         N = X.shape[0]
@@ -1008,24 +996,6 @@ class ColorbarBase:
                     b[-1] = b[-1] + 1
         self._process_values(b)
 
-    def _find_range(self):
-        """
-        Set :attr:`vmin` and :attr:`vmax` attributes to the first and
-        last boundary excluding extended end boundaries.
-        """
-        b = self._boundaries[self._inside]
-        self.vmin = b[0]
-        self.vmax = b[-1]
-
-    def _central_N(self):
-        """Return the number of boundaries excluding end extensions."""
-        nb = len(self._boundaries)
-        if self.extend == 'both':
-            nb -= 2
-        elif self.extend in ('min', 'max'):
-            nb -= 1
-        return nb
-
     def _get_extension_lengths(self, frac, automin, automax, default=0.05):
         """
         Return the lengths of colorbar extensions.
@@ -1132,7 +1102,8 @@ class ColorbarBase:
         norm.vmax = self.vmax
         x = np.array([0.0, 1.0])
         if self.spacing == 'uniform':
-            y = self._uniform_y(self._central_N())
+            n_boundaries_no_extensions = len(self._boundaries[self._inside])
+            y = self._uniform_y(n_boundaries_no_extensions)
         else:
             y = self._proportional_y()
         xmid = np.array([0.5])
