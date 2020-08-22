@@ -1124,3 +1124,83 @@ def test_exact_vmin():
 @pytest.mark.flaky
 def test_https_imread_smoketest():
     v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
+
+
+# A basic ndarray subclass that implements a quantity
+# It does not implement an entire unit system or all quantity math.
+# There is just enough implemented to test handling of ndarray
+# subclasses.
+class QuantityND(np.ndarray):
+    def __new__(cls, input_array, units):
+        obj = np.asarray(input_array).view(cls)
+        obj.units = units
+        return obj
+
+    def __array_finalize__(self, obj):
+        self.units = getattr(obj, "units", None)
+
+    def __getitem__(self, item):
+        units = getattr(self, "units", None)
+        ret = super(QuantityND, self).__getitem__(item)
+        if isinstance(ret, QuantityND) or units is not None:
+            ret = QuantityND(ret, units)
+        return ret
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        func = getattr(ufunc, method)
+        if "out" in kwargs:
+            raise NotImplementedError
+        if len(inputs) == 1:
+            i0 = inputs[0]
+            unit = getattr(i0, "units", "dimensionless")
+            out_arr = func(np.asarray(i0), **kwargs)
+        elif len(inputs) == 2:
+            i0 = inputs[0]
+            i1 = inputs[1]
+            u0 = getattr(i0, "units", "dimensionless")
+            u1 = getattr(i1, "units", "dimensionless")
+            u0 = u1 if u0 is None else u0
+            u1 = u0 if u1 is None else u1
+            if ufunc in [np.add, np.subtract]:
+                if u0 != u1:
+                    raise ValueError
+                unit = u0
+            elif ufunc == np.multiply:
+                unit = f"{u0}*{u1}"
+            elif ufunc == np.divide:
+                unit = f"{u0}/({u1})"
+            else:
+                raise NotImplementedError
+            out_arr = func(i0.view(np.ndarray), i1.view(np.ndarray), **kwargs)
+        else:
+            raise NotImplementedError
+        if unit is None:
+            out_arr = np.array(out_arr)
+        else:
+            out_arr = QuantityND(out_arr, unit)
+        return out_arr
+
+    @property
+    def v(self):
+        return self.view(np.ndarray)
+
+
+def test_quantitynd():
+    q = QuantityND([1, 2], "m")
+    q0, q1 = q[:]
+    assert np.all(q.v == np.asarray([1, 2]))
+    assert q.units == "m"
+    assert np.all((q0 + q1).v == np.asarray([3]))
+    assert (q0 * q1).units == "m*m"
+    assert (q1 / q0).units == "m/(m)"
+    with pytest.raises(ValueError):
+        q0 + QuantityND(1, "s")
+
+
+def test_imshow_quantitynd():
+    # generate a dummy ndarray subclass
+    arr = QuantityND(np.ones((2, 2)), "m")
+    fig, ax = plt.subplots()
+    ax.imshow(arr)
+    # executing the draw should not raise an exception
+    fig.canvas.draw()
