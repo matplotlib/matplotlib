@@ -29,7 +29,7 @@ from matplotlib import docstring
 
 _log = logging.getLogger(__name__)
 
-_make_axes_param_doc = """
+_make_axes_kw_doc = """
 location : None or {'left', 'right', 'top', 'bottom'}
     The location, relative to the parent axes, where the colorbar axes
     is created.  It also determines the *orientation* of the colorbar
@@ -47,8 +47,6 @@ shrink : float, default: 1.0
     Fraction by which to multiply the size of the colorbar.
 aspect : float, default: 20
     Ratio of long to short dimensions.
-"""
-_make_axes_other_param_doc = """
 pad : float, default: 0.05 if vertical, 0.15 if horizontal
     Fraction of original axes between colorbar and new image axes.
 anchor : (float, float), optional
@@ -162,7 +160,6 @@ Additional keyword arguments are of two kinds:
 
   axes properties:
 %s
-%s
   colorbar properties:
 %s
 
@@ -189,9 +186,7 @@ segments::
 However this has negative consequences in other circumstances, e.g. with
 semi-transparent images (alpha < 1) and colorbar extensions; therefore, this
 workaround is not used by default (see issue #1188).
-""" % (textwrap.indent(_make_axes_param_doc, "    "),
-       textwrap.indent(_make_axes_other_param_doc, "    "),
-       _colormap_kw_doc))
+""" % (textwrap.indent(_make_axes_kw_doc, "    "), _colormap_kw_doc))
 
 
 def _set_ticks_on_axis_warn(*args, **kwargs):
@@ -1364,7 +1359,7 @@ def _normalize_location_orientation(location, orientation):
     return loc_settings
 
 
-@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
+@docstring.Substitution(_make_axes_kw_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kwargs):
     """
@@ -1386,10 +1381,6 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
         instance.
-
-    Other Parameters
-    ----------------
-    %s
     """
     loc_settings = _normalize_location_orientation(location, orientation)
     # put appropriate values into the kwargs dict for passing back to
@@ -1470,7 +1461,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     return cax, kwargs
 
 
-@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
+@docstring.Substitution(_make_axes_kw_doc)
 def make_axes_gridspec(parent, *, location=None, orientation=None,
                        fraction=0.15, shrink=1.0, aspect=20, **kwargs):
     """
@@ -1505,10 +1496,6 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
         instance.
-
-    Other Parameters
-    ----------------
-    %s
     """
 
     loc_settings = _normalize_location_orientation(location, orientation)
