@@ -2380,7 +2380,7 @@ default: 'top'
         NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
                              'panchor']
         cb_kw = {k: v for k, v in kw.items() if k not in NON_COLORBAR_KEYS}
-        cb = cbar.colorbar_factory(cax, mappable, **cb_kw)
+        cb = cbar.Colorbar(cax, mappable, **cb_kw)
 
         self.sca(current_ax)
         self.stale = True
