@@ -45,6 +45,7 @@ import matplotlib.contour as contour
 import matplotlib.cm as cm
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
+import matplotlib.spines as mspines
 import matplotlib.ticker as ticker
 import matplotlib.transforms as mtransforms
 import matplotlib._layoutbox as layoutbox
@@ -321,6 +322,27 @@ class _ColorbarLogLocator(ticker.LogLocator):
         return ticks
 
 
+class _ColorbarSpine(mspines.Spine):
+    def __init__(self, axes):
+        super().__init__(axes, 'colorbar',
+                         mpath.Path(np.empty((0, 2)), closed=True))
+
+    def get_window_extent(self, renderer=None):
+        # This Spine has no Axis associated with it, and doesn't need to adjust
+        # its location, so we can directly get the window extent from the
+        # super-super-class.
+        return mpatches.Patch.get_window_extent(self, renderer=renderer)
+
+    def set_xy(self, xy):
+        self._path = mpath.Path(xy, closed=True)
+        self.stale = True
+
+    def draw(self, renderer):
+        ret = mpatches.Patch.draw(self, renderer)
+        self.stale = False
+        return ret
+
+
 class ColorbarBase:
     r"""
     Draw a colorbar in an existing axes.
@@ -427,7 +449,7 @@ class ColorbarBase:
         self.ax = ax
         # Bind some methods to the axes to warn users against using them.
         ax.set_xticks = ax.set_yticks = _set_ticks_on_axis_warn
-        ax.set(frame_on=False, navigate=False)
+        ax.set(navigate=False)
 
         if cmap is None:
             cmap = cm.get_cmap()
@@ -457,12 +479,9 @@ class ColorbarBase:
         self.solids = None
         self.lines = []
 
-        self.outline = mpatches.Polygon(
-            np.empty((0, 2)),
-            edgecolor=mpl.rcParams['axes.edgecolor'], facecolor='none',
-            linewidth=mpl.rcParams['axes.linewidth'], closed=True, zorder=2)
-        ax.add_artist(self.outline)
-        self.outline.set(clip_box=None, clip_path=None)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        self.outline = ax.spines['outline'] = _ColorbarSpine(ax)
 
         self.patch = mpatches.Polygon(
             np.empty((0, 2)),
@@ -1304,12 +1323,9 @@ class Colorbar(ColorbarBase):
         self.formatter = None
 
         # clearing the axes will delete outline, patch, solids, and lines:
-        self.outline = mpatches.Polygon(
-            np.empty((0, 2)),
-            edgecolor=mpl.rcParams['axes.edgecolor'], facecolor='none',
-            linewidth=mpl.rcParams['axes.linewidth'], closed=True, zorder=2)
-        self.ax.add_artist(self.outline)
-        self.outline.set(clip_box=None, clip_path=None)
+        for spine in self.ax.spines.values():
+            spine.set_visible(False)
+        self.outline = self.ax.spines['outline'] = _ColorbarSpine(self.ax)
         self.patch = mpatches.Polygon(
             np.empty((0, 2)),
             color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
