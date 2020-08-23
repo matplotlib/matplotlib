@@ -184,20 +184,12 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    @cbook.deprecated("3.1", alternative="xaxis", pending=True)
-    @property
-    def w_xaxis(self):
-        return self.xaxis
-
-    @cbook.deprecated("3.1", alternative="yaxis", pending=True)
-    @property
-    def w_yaxis(self):
-        return self.yaxis
-
-    @cbook.deprecated("3.1", alternative="zaxis", pending=True)
-    @property
-    def w_zaxis(self):
-        return self.zaxis
+    w_xaxis = cbook.deprecated("3.1", alternative="xaxis", pending=True)(
+        property(lambda self: self.xaxis))
+    w_yaxis = cbook.deprecated("3.1", alternative="yaxis", pending=True)(
+        property(lambda self: self.yaxis))
+    w_zaxis = cbook.deprecated("3.1", alternative="zaxis", pending=True)(
+        property(lambda self: self.zaxis))
 
     def _get_axis_list(self):
         return super()._get_axis_list() + (self.zaxis, )

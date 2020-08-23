@@ -709,6 +709,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     %(contour_set_attributes)s
     """
 
+    ax = cbook.deprecated("3.3")(property(lambda self: self.axes))
+
     def __init__(self, ax, *args,
                  levels=None, filled=False, linewidths=None, linestyles=None,
                  hatches=(None,), alpha=None, origin=None, extent=None,
@@ -906,11 +908,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             s = ", ".join(map(repr, kwargs))
             cbook._warn_external('The following kwargs were not used by '
                                  'contour: ' + s)
-
-    @cbook.deprecated("3.3")
-    @property
-    def ax(self):
-        return self.axes
 
     def get_transform(self):
         """

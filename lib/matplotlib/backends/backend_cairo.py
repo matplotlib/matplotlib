@@ -91,40 +91,40 @@ def _cairo_font_args_from_font_prop(prop):
     return name, slant, weight
 
 
-class RendererCairo(RendererBase):
-    @cbook.deprecated("3.3")
-    @property
-    def fontweights(self):
-        return {
-            100:          cairo.FONT_WEIGHT_NORMAL,
-            200:          cairo.FONT_WEIGHT_NORMAL,
-            300:          cairo.FONT_WEIGHT_NORMAL,
-            400:          cairo.FONT_WEIGHT_NORMAL,
-            500:          cairo.FONT_WEIGHT_NORMAL,
-            600:          cairo.FONT_WEIGHT_BOLD,
-            700:          cairo.FONT_WEIGHT_BOLD,
-            800:          cairo.FONT_WEIGHT_BOLD,
-            900:          cairo.FONT_WEIGHT_BOLD,
-            'ultralight': cairo.FONT_WEIGHT_NORMAL,
-            'light':      cairo.FONT_WEIGHT_NORMAL,
-            'normal':     cairo.FONT_WEIGHT_NORMAL,
-            'medium':     cairo.FONT_WEIGHT_NORMAL,
-            'regular':    cairo.FONT_WEIGHT_NORMAL,
-            'semibold':   cairo.FONT_WEIGHT_BOLD,
-            'bold':       cairo.FONT_WEIGHT_BOLD,
-            'heavy':      cairo.FONT_WEIGHT_BOLD,
-            'ultrabold':  cairo.FONT_WEIGHT_BOLD,
-            'black':      cairo.FONT_WEIGHT_BOLD,
-        }
+# Mappings used for deprecated properties in RendererCairo, see below.
+_f_weights = {
+    100:          cairo.FONT_WEIGHT_NORMAL,
+    200:          cairo.FONT_WEIGHT_NORMAL,
+    300:          cairo.FONT_WEIGHT_NORMAL,
+    400:          cairo.FONT_WEIGHT_NORMAL,
+    500:          cairo.FONT_WEIGHT_NORMAL,
+    600:          cairo.FONT_WEIGHT_BOLD,
+    700:          cairo.FONT_WEIGHT_BOLD,
+    800:          cairo.FONT_WEIGHT_BOLD,
+    900:          cairo.FONT_WEIGHT_BOLD,
+    'ultralight': cairo.FONT_WEIGHT_NORMAL,
+    'light':      cairo.FONT_WEIGHT_NORMAL,
+    'normal':     cairo.FONT_WEIGHT_NORMAL,
+    'medium':     cairo.FONT_WEIGHT_NORMAL,
+    'regular':    cairo.FONT_WEIGHT_NORMAL,
+    'semibold':   cairo.FONT_WEIGHT_BOLD,
+    'bold':       cairo.FONT_WEIGHT_BOLD,
+    'heavy':      cairo.FONT_WEIGHT_BOLD,
+    'ultrabold':  cairo.FONT_WEIGHT_BOLD,
+    'black':      cairo.FONT_WEIGHT_BOLD,
+}
+_f_angles = {
+    'italic':  cairo.FONT_SLANT_ITALIC,
+    'normal':  cairo.FONT_SLANT_NORMAL,
+    'oblique': cairo.FONT_SLANT_OBLIQUE,
+}
 
-    @cbook.deprecated("3.3")
-    @property
-    def fontangles(self):
-        return {
-            'italic':  cairo.FONT_SLANT_ITALIC,
-            'normal':  cairo.FONT_SLANT_NORMAL,
-            'oblique': cairo.FONT_SLANT_OBLIQUE,
-        }
+
+class RendererCairo(RendererBase):
+    fontweights = cbook.deprecated("3.3")(property(lambda self: {*_f_weights}))
+    fontangles = cbook.deprecated("3.3")(property(lambda self: {*_f_angles}))
+    mathtext_parser = cbook.deprecated("3.4")(
+        property(lambda self: MathTextParser('Cairo')))
 
     def __init__(self, dpi):
         self.dpi = dpi
@@ -132,11 +132,6 @@ class RendererCairo(RendererBase):
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
         super().__init__()
-
-    @cbook.deprecated("3.4")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser('Cairo')
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)

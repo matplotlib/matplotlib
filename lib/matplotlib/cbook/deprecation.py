@@ -192,21 +192,23 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
             class _deprecated_property(property):
                 def __get__(self, instance, owner):
                     if instance is not None:
-                        from . import _warn_external
-                        _warn_external(warning)
+                        emit_warning()
                     return super().__get__(instance, owner)
 
                 def __set__(self, instance, value):
                     if instance is not None:
-                        from . import _warn_external
-                        _warn_external(warning)
+                        emit_warning()
                     return super().__set__(instance, value)
 
                 def __delete__(self, instance):
                     if instance is not None:
-                        from . import _warn_external
-                        _warn_external(warning)
+                        emit_warning()
                     return super().__delete__(instance)
+
+                def __set_name__(self, owner, set_name):
+                    nonlocal name
+                    if name == "<lambda>":
+                        name = set_name
 
             def finalize(_, new_doc):
                 return _deprecated_property(
@@ -224,13 +226,14 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 wrapper.__doc__ = new_doc
                 return wrapper
 
-        warning = _generate_deprecation_warning(
-            since, message, name, alternative, pending, obj_type, addendum,
-            removal=removal)
+        def emit_warning():
+            warn_deprecated(
+                since, message=message, name=name, alternative=alternative,
+                pending=pending, obj_type=obj_type, addendum=addendum,
+                removal=removal)
 
         def wrapper(*args, **kwargs):
-            from . import _warn_external
-            _warn_external(warning)
+            emit_warning()
             return func(*args, **kwargs)
 
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')

@@ -2709,6 +2709,9 @@ class FigureManagerBase:
             figure.canvas.mpl_disconnect(
                 figure.canvas.manager.button_press_handler_id)
     """
+
+    statusbar = cbook.deprecated("3.3")(property(lambda self: None))
+
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
@@ -2734,11 +2737,6 @@ class FigureManagerBase:
             # Called whenever the current axes is changed.
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
-
-    @cbook.deprecated("3.3")
-    @property
-    def statusbar(self):
-        return None
 
     def show(self):
         """
