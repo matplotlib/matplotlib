@@ -1,5 +1,11 @@
+API Changes for 3.3.1
+=====================
+
+Deprecations
+------------
+
 Reverted deprecation of ``num2epoch`` and ``epoch2num``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These two functions were deprecated in 3.3.0, and did not return
 an accurate Matplotlib datenum relative to the new Matplotlib epoch
