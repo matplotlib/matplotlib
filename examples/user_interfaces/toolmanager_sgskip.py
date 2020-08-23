@@ -46,7 +46,7 @@ class ListTools(ToolBase):
 
 class GroupHideTool(ToolToggleBase):
     """Show lines with a given gid."""
-    default_keymap = 'G'
+    default_keymap = 'S'
     description = 'Show by gid'
     default_toggled = True
 
