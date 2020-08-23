@@ -359,15 +359,15 @@ def isinteractive():
 
     If in interactive mode then:
 
-      - newly created figures will be shown immediately
-      - figures will automatically redraw on change
-      - `.pyplot.show` will not block by default
+    - newly created figures will be shown immediately;
+    - figures will automatically redraw on change;
+    - `.pyplot.show` will not block by default.
 
     If not in interactive mode then:
 
-      - newly created figures and changes to figures will
-        not be reflected until explicitly asked to be
-      - `.pyplot.show` will block by default
+    - newly created figures and changes to figures will not be reflected until
+      explicitly asked to be;
+    - `.pyplot.show` will block by default.
 
     See Also
     --------
