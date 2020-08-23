@@ -916,7 +916,8 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
             self, name, group, position, image_file, description, toggle):
 
         button = QtWidgets.QToolButton(self)
-        button.setIcon(NavigationToolbar2QT._icon(self, image_file))
+        if image_file:
+            button.setIcon(NavigationToolbar2QT._icon(self, image_file))
         button.setText(name)
         if description:
             button.setToolTip(description)
