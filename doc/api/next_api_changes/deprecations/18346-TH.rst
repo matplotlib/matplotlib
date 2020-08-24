@@ -1,0 +1,9 @@
+``plot_date``
+~~~~~~~~~~~~~
+The use of `~.Axes.plot_date` is discouraged. This method exists for historic
+reasons and may be deprecated in the future.
+
+- ``datetime``-like data should directly be plotted using `~.Axes.plot`.
+- If you need to plot plain numeric data as :ref:`date-format` or
+  need to set a timezone, call ``ax.xaxis.axis_date`` / ``ax.yaxis.axis_date``
+  before `~.Axes.plot`. See `.Axis.axis_date`.

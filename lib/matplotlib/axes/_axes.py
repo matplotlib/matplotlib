@@ -1616,7 +1616,7 @@ class Axes(_AxesBase):
         """
         Plot co-ercing the axis to treat floats as dates.
 
-        .. note::
+        .. admonition:: Discouraged
 
             This method exists for historic reasons and will be deprecated in
             the future.
