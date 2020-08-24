@@ -3641,14 +3641,13 @@ class Axes(_AxesBase):
             parameters (e.g., *bootstrap*).
 
         positions : array-like, optional
-            Sets the positions of the boxes. The ticks and limits are
+            The positions of the boxes. The ticks and limits are
             automatically set to match the positions. Defaults to
             ``range(1, N+1)`` where N is the number of boxes to be drawn.
 
         widths : float or array-like
-            Sets the width of each box either with a scalar or a
-            sequence. The default is 0.5, or ``0.15*(distance between
-            extreme positions)``, if that is smaller.
+            The widths of the boxes.  The default is 0.5, or ``0.15*(distance
+            between extreme positions)``, if that is smaller.
 
         patch_artist : bool, default: False
             If `False` produces boxes with the Line2D artist. Otherwise,
@@ -3673,7 +3672,7 @@ class Axes(_AxesBase):
             True.  Otherwise, means will be shown as points.
 
         zorder : float, default: ``Line2D.zorder = 2``
-            Sets the zorder of the boxplot.
+            The zorder of the boxplot.
 
         Returns
         -------
@@ -3887,7 +3886,7 @@ class Axes(_AxesBase):
             this will be used a tick label for the boxplot
 
         positions : array-like, default: [1, 2, ..., n]
-          Sets the positions of the boxes. The ticks and limits
+          The positions of the boxes. The ticks and limits
           are automatically set to match the positions.
 
         widths : array-like, default: None
@@ -7832,7 +7831,7 @@ such objects
           The input data.
 
         positions : array-like, default: [1, 2, ..., n]
-          Sets the positions of the violins. The ticks and limits are
+          The positions of the violins. The ticks and limits are
           automatically set to match the positions.
 
         vert : bool, default: True.
@@ -7951,7 +7950,7 @@ such objects
             for this violin's dataset.
 
         positions : array-like, default: [1, 2, ..., n]
-          Sets the positions of the violins. The ticks and limits are
+          The positions of the violins. The ticks and limits are
           automatically set to match the positions.
 
         vert : bool, default: True.

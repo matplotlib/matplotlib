@@ -1882,7 +1882,7 @@ class Axis(martist.Artist):
 
     def axis_date(self, tz=None):
         """
-        Sets up axis ticks and labels to treat data along this Axis as dates.
+        Set up axis ticks and labels to treat data along this Axis as dates.
 
         Parameters
         ----------
