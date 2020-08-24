@@ -29,16 +29,9 @@ void _bin_indices_middle(
     }
 }
 
-void _bin_indices_middle_linear(float *arows,
-                                unsigned int *irows,
-                                int nrows,
-                                const float *y,
-                                unsigned long ny,
-                                float dy,
-                                float y_min)
+void _bin_indices_middle_linear(float *arows, unsigned int *irows, int nrows, const float *y, unsigned long ny, float dy, float y_min)
 {
-    int i;
-    int ii = 0;
+    int i, ii=0;
     int iilast = (int)ny - 1;
     float sc = 1 / dy;
     int iy0 = (int)floor(sc * (y[ii] - y_min));
@@ -92,7 +85,8 @@ void _bin_indices(int *irows, int nrows, const double *y, unsigned long ny, doub
         for (; i < nrows; i++) {
             irows[i] = -1;
         }
-    } else {
+    } 
+    else {
         int iilast = (int)ny - 1;
         int ii = iilast;
         int iy0 = (int)floor(sc * (y[ii] - offs));
