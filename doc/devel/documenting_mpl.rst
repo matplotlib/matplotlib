@@ -111,7 +111,7 @@ it, use
 .. code-block:: sh
 
    make SPHINXOPTS= html
-   
+
 On Windows the arguments must be at the end of the statement:
 
 .. code-block:: bat
@@ -131,8 +131,8 @@ On Windows, either use the format shown above or set options as environment vari
 
 .. code-block:: bat
 
-   set O=-W --keep-going -j4 
-   make html 
+   set O=-W --keep-going -j4
+   make html
 
 .. _writing-rest-pages:
 
@@ -358,9 +358,20 @@ blocks in source code that explain how the code works.
    you may see in the source code. Pull requests updating docstrings to
    the current style are very welcome.
 
-All new or edited docstrings should conform to the `numpydoc docstring guide`_.
+All new or edited docstrings should conform to the `numpydoc docstring guide`_,
+and to the guide below wherever the numpydoc guide is ambiguous.
+To quickly check that new docstrings conform to our style guide, run the
+following command on any changed files:
+
+.. code-block:: bash
+
+   $ flake8 --docstring-convention=all
+
+Note that this linter requires ``flake8-docstrings`` and ``pydocstyle<4`` to be
+installed.
+
 Much of the ReST_ syntax discussed above (:ref:`writing-rest-pages`) can be
-used for links and references.  These docstrings eventually populate the
+used for links and references. These docstrings eventually populate the
 :file:`doc/api` directory and form the reference documentation for the
 library.
 
