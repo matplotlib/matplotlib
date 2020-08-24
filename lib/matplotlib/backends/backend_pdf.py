@@ -2640,11 +2640,8 @@ class PdfPages:
 
         Parameters
         ----------
-        figure : `.Figure` or int, optional
-            Specifies what figure is saved to file. If not specified, the
-            active figure is saved. If a `.Figure` instance is provided, this
-            figure is saved. If an int is specified, the figure instance to
-            save is looked up by number.
+        figure : `.Figure` or int, default: the active figure
+            The figure, or index of the figure, that is saved to the file.
         """
         if not isinstance(figure, Figure):
             if figure is None:

@@ -406,7 +406,7 @@ class MarkerStyle:
 
     def _set_mathtext_path(self):
         """
-        Draws mathtext markers '$...$' using TextPath object.
+        Draw mathtext markers '$...$' using TextPath object.
 
         Submitted by tcb
         """

@@ -568,7 +568,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
 
 class SubplotSpec:
     """
-    Specifies the location of a subplot in a `GridSpec`.
+    The location of a subplot in a `GridSpec`.
 
     .. note::
 
