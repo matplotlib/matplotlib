@@ -513,29 +513,22 @@ def _image_directories(func):
             import matplotlib_baseline_images
             baseline_dir = (Path(matplotlib_baseline_images.__file__).parent /
                             module_path.stem)
-        except:
-            if (Path(__file__).parent / 'baseline_images').exists():
-                baseline_dir = (module_path.parent /
-                                "baseline_images" /
-                                module_path.stem)
-            else:
-                raise ImportError("Not able to import"
-                                  "matplotlib_baseline_images")
+        except ImportError:
+            baseline_dir = (module_path.parent /
+                            "baseline_images" /
+                            module_path.stem)
+
     elif func.__module__.startswith("mpl_toolkits."):
         try:
             import mpl_toolkits_baseline_images
             baseline_file = mpl_toolkits_baseline_images.__file__
             baseline_dir = (Path(baseline_file).parent /
                             module_path.stem)
-        except:
-            if (Path(mpl_toolkits_baseline_images.__file__).parent /
-                            module_path.stem).exists():
-                baseline_dir = (module_path.parent /
-                                "baseline_images" /
-                                module_path.stem)
-            else:
-                raise ImportError("Not able to import "
-                                  "mpl_toolkits_baseline_images")
+        except ImportError:
+            baseline_dir = (module_path.parent /
+                            "baseline_images" /
+                            module_path.stem)
+
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
     return baseline_dir, result_dir
