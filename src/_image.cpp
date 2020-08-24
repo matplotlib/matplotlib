@@ -31,7 +31,8 @@ void _bin_indices_middle(
 
 void _bin_indices_middle_linear(float *arows, unsigned int *irows, int nrows, const float *y, unsigned long ny, float dy, float y_min)
 {
-    int i, ii=0;
+    int i;
+    int ii=0;
     int iilast = (int)ny - 1;
     float sc = 1 / dy;
     int iy0 = (int)floor(sc * (y[ii] - y_min));
