@@ -128,12 +128,12 @@ def test_jpl_bar_units():
     units.register()
 
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
-    x = [0*units.km, 1*units.km, 2*units.km]
-    w = [1*day, 2*day, 3*day]
+    x = [0 * units.km, 1 * units.km, 2 * units.km]
+    w = [1 * day, 2 * day, 3 * day]
     b = units.Epoch("ET", dt=datetime(2009, 4, 25))
     fig, ax = plt.subplots()
     ax.bar(x, w, bottom=b)
-    ax.set_ylim([b-1*day, b+w[-1]+(1.001)*day])
+    ax.set_ylim([b - 1 * day, b + w[-1] + (1.001) * day])
 
 
 @image_comparison(['jpl_barh_units.png'],
@@ -143,13 +143,13 @@ def test_jpl_barh_units():
     units.register()
 
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
-    x = [0*units.km, 1*units.km, 2*units.km]
-    w = [1*day, 2*day, 3*day]
+    x = [0 * units.km, 1 * units.km, 2 * units.km]
+    w = [1 * day, 2 * day, 3 * day]
     b = units.Epoch("ET", dt=datetime(2009, 4, 25))
 
     fig, ax = plt.subplots()
     ax.barh(x, w, left=b)
-    ax.set_xlim([b-1*day, b+w[-1]+(1.001)*day])
+    ax.set_xlim([b - 1 * day, b + w[-1] + (1.001) * day])
 
 
 def test_empty_arrays():
@@ -175,7 +175,7 @@ def test_subclass(fig_test, fig_ref):
     fig_ref.subplots().plot(datetime(2000, 1, 1), 0, "o")
 
 
-def test_set_xyunits(quantity_converter):
+def test_shared_axis_quantity(quantity_converter):
     munits.registry[Quantity] = quantity_converter
     x = Quantity(np.linspace(0, 1, 10), "hours")
     y1 = Quantity(np.linspace(1, 2, 10), "feet")
@@ -189,6 +189,10 @@ def test_set_xyunits(quantity_converter):
     ax2.yaxis.set_units("inches")
     assert ax1.xaxis.get_units() == ax2.xaxis.get_units() == "seconds"
     assert ax1.yaxis.get_units() == ax2.yaxis.get_units() == "inches"
+
+
+def test_shared_axis_datetime():
+    # datetime uses dates.DateConverter
     y1 = [datetime(2020, i, 1, tzinfo=timezone.utc) for i in range(1, 13)]
     y2 = [datetime(2021, i, 1, tzinfo=timezone.utc) for i in range(1, 13)]
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
@@ -196,6 +200,10 @@ def test_set_xyunits(quantity_converter):
     ax2.plot(y2)
     ax1.yaxis.set_units(timezone(timedelta(hours=5)))
     assert ax2.yaxis.units == timezone(timedelta(hours=5))
+
+
+def test_shared_axis_categorical():
+    # str uses category.StrCategoryConverter
     d1 = {"a": 1, "b": 2}
     d2 = {"a": 3, "b": 4}
     fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
