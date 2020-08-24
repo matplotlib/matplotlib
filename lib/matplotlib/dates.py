@@ -85,7 +85,7 @@ objects and Matplotlib dates:
 All the Matplotlib date converters, tickers and formatters are timezone aware.
 If no explicit timezone is provided, :rc:`timezone` is assumed.  If you want to
 use a custom time zone, pass a `datetime.tzinfo` instance with the tz keyword
-argument to `num2date`, `~.Axes.plot_date`, and any custom date tickers or
+argument to `num2date`, `.Axis.axis_date`, and any custom date tickers or
 locators you create.
 
 A wide range of specific and general purpose date tick locators and
