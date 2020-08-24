@@ -173,7 +173,7 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     default font size. This argument is only used if *prop* is not specified.
 
 labelcolor : str or list
-    Sets the color of the text in the legend. Can be a valid color string
+    The color of the text in the legend. Either a valid color string
     (for example, 'red'), or a list of color strings. The labelcolor can
     also be made to match the color of the line or marker using 'linecolor',
     'markerfacecolor' (or 'mfc'), or 'markeredgecolor' (or 'mec').
