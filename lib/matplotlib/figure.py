@@ -35,7 +35,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
-import matplotlib._layoutbox as layoutbox
+import matplotlib._layoutgrid as layoutgrid
 
 _log = logging.getLogger(__name__)
 
@@ -346,16 +346,21 @@ class Figure(Artist):
             subplotpars = SubplotParams()
 
         self.subplotpars = subplotpars
+
         # constrained_layout:
-        self._layoutbox = None
-        # set in set_constrained_layout_pads()
-        self.set_constrained_layout(constrained_layout)
+        self._layoutgrid = None
+        self._constrained = False
 
         self.set_tight_layout(tight_layout)
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+
+        self.set_constrained_layout(constrained_layout)
+        # stub for subpanels:
+        self.panels = []
+        self.transPanel = self.transFigure
 
         # groupers to keep track of x and y labels we want to align.
         # see self.align_xlabels and self.align_ylabels and
@@ -515,6 +520,8 @@ class Figure(Artist):
         else:
             self.set_constrained_layout_pads()
 
+        self.init_layoutgrid()
+
         self.stale = True
 
     def set_constrained_layout_pads(self, **kwargs):
@@ -572,7 +579,7 @@ class Figure(Artist):
         hspace = self._constrained_layout_pads['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer0 = layoutbox.get_renderer(self)
+            renderer0 = layoutgrid.get_renderer(self)
             dpi = renderer0.dpi
             w_pad = w_pad * dpi / renderer0.width
             h_pad = h_pad * dpi / renderer0.height
@@ -731,22 +738,8 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
-            self._suptitle._layoutbox = None
-            if self._layoutbox is not None and not manual_position:
-                w_pad, h_pad, wspace, hspace =  \
-                        self.get_constrained_layout_pads(relative=True)
-                figlb = self._layoutbox
-                self._suptitle._layoutbox = layoutbox.LayoutBox(
-                        parent=figlb, artist=self._suptitle,
-                        name=figlb.name+'.suptitle')
-                # stack the suptitle on top of all the children.
-                # Some day this should be on top of all the children in the
-                # gridspec only.
-                for child in figlb.children:
-                    if child is not self._suptitle._layoutbox:
-                        layoutbox.vstack([self._suptitle._layoutbox,
-                                          child],
-                                         padding=h_pad*2., strength='required')
+        if manual_position:
+            self._suptitle.set_in_layout(False)
         self.stale = True
         return self._suptitle
 
@@ -1406,6 +1399,7 @@ default: 'top'
 
     def _add_axes_internal(self, key, ax):
         """Private helper for `add_axes` and `add_subplot`."""
+        #self._localaxes += [ax]
         self._axstack.add(key, ax)
         self.sca(ax)
         ax._remove_method = self.delaxes
@@ -1771,6 +1765,7 @@ default: 'top'
             return None
 
         self._axstack.remove(ax)
+        # self._localaxes.remove(ax)
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
 
@@ -1810,7 +1805,7 @@ default: 'top'
             self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
         if self.get_constrained_layout():
-            layoutbox.nonetree(self._layoutbox)
+            self.init_layoutgrid()
         self.stale = True
 
     def clear(self, keep_observers=False):
@@ -2169,12 +2164,9 @@ default: 'top'
                 in _pylab_helpers.Gcf.figs.values():
             state['_restore_to_pylab'] = True
 
-        # set all the layoutbox information to None.  kiwisolver objects can't
+        # set all the layoutgrid information to None.  kiwisolver objects can't
         # be pickled, so we lose the layout options at this point.
-        state.pop('_layoutbox', None)
-        # suptitle:
-        if self._suptitle is not None:
-            self._suptitle._layoutbox = None
+        state.pop('_layoutgrid', None)
 
         return state
 
@@ -2191,7 +2183,7 @@ default: 'top'
 
         # re-initialise some of the unstored state information
         FigureCanvasBase(self)  # Set self.canvas.
-        self._layoutbox = None
+        self._layoutgrid = None
 
         if restore_to_pylab:
             # lazy import to avoid circularity
@@ -2578,24 +2570,24 @@ default: 'top'
 
         return bbox_inches
 
-    def init_layoutbox(self):
-        """Initialize the layoutbox for use in constrained_layout."""
-        if self._layoutbox is None:
-            self._layoutbox = layoutbox.LayoutBox(
-                parent=None, name='figlb', artist=self)
-            self._layoutbox.constrain_geometry(0., 0., 1., 1.)
+    def init_layoutgrid(self):
+        """Initialize the layoutgrid for use in constrained_layout."""
+        del(self._layoutgrid)
+        self._layoutgrid = layoutgrid.LayoutGrid(
+            parent=None, name='figlb')
 
     def execute_constrained_layout(self, renderer=None):
         """
-        Use ``layoutbox`` to determine pos positions within axes.
+        Use ``layoutgrid`` to determine pos positions within axes.
 
         See also `.set_constrained_layout_pads`.
         """
 
         from matplotlib._constrained_layout import do_constrained_layout
+        from matplotlib.tight_layout import get_renderer
 
         _log.debug('Executing constrainedlayout')
-        if self._layoutbox is None:
+        if self._layoutgrid is None:
             cbook._warn_external("Calling figure.constrained_layout, but "
                                  "figure not setup to do constrained layout. "
                                  " You either called GridSpec without the "
@@ -2610,7 +2602,7 @@ default: 'top'
         w_pad = w_pad / width
         h_pad = h_pad / height
         if renderer is None:
-            renderer = layoutbox.get_renderer(fig)
+            renderer = get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
     @cbook._delete_parameter("3.2", "renderer")
