@@ -29,6 +29,13 @@ description of that system. In the ``Transformation Object`` column,
 |                |                             |is bottom left of the axes, and    |
 |                |                             |(1, 1) is top right of the axes.   |
 +----------------+-----------------------------+-----------------------------------+
+|"subfigure"     |``subfigure.transSubfigure`` |The coordinate system of the       |
+|                |                             |`.SubFigure`; (0, 0) is bottom left|
+|                |                             |of the subfigure, and (1, 1) is top|
+|                |                             |right of the subfigure.  If a      |
+|                |                             |figure has no subfigures, this is  |
+|                |                             |the same as ``transFigure``.       |
++----------------+-----------------------------+-----------------------------------+
 |"figure"        |``fig.transFigure``          |The coordinate system of the       |
 |                |                             |`.Figure`; (0, 0) is bottom left   |
 |                |                             |of the figure, and (1, 1) is top   |

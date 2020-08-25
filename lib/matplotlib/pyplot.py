@@ -1068,8 +1068,8 @@ def subplot(*args, **kwargs):
     """
     Add a subplot to the current figure.
 
-    Wrapper of `.Figure.add_subplot` with a difference in behavior
-    explained in the notes section.
+    Wrapper of `.Figure.add_subplot` with a difference in
+    behavior explained in the notes section.
 
     Call signatures::
 
@@ -1159,7 +1159,7 @@ def subplot(*args, **kwargs):
     two subplots that are otherwise identical to be added to the figure,
     make sure you give them unique labels.
 
-    In rare circumstances, `.add_subplot` may be called with a single
+    In rare circumstances, `.Figure.add_subplot` may be called with a single
     argument, a subplot axes instance already created in the
     present figure but not in the figure's list of axes.
 

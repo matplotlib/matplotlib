@@ -45,8 +45,8 @@ make_axes_kw_doc = '''
     *fraction*    0.15; fraction of original axes to use for colorbar
     *pad*         Defaults to 0.05 if vertical, 0.15 if horizontal; fraction
                   of original axes between colorbar and new image axes.
-                  Defaults to 0.05 for both if `.get_constrained_layout`
-                  is *True*.
+                  Defaults to 0.05 for both if
+                  `.Figure.get_constrained_layout` is *True*.
     *shrink*      1.0; fraction by which to shrink the colorbar
     *aspect*      20; ratio of long to short dimensions
     ============= ====================================================

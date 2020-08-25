@@ -371,7 +371,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     ax.view_init(elev=0, azim=azim - 180)  # view rotated by 180 degrees
 
 
-@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.01)
+@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.015)
 def test_plot_3d_from_2d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')

@@ -673,7 +673,7 @@ class _AxesBase(martist.Artist):
         super().set_figure(fig)
 
         self.bbox = mtransforms.TransformedBbox(self._position,
-                                                fig.transFigure)
+                                                fig.transSubfigure)
         # these will be updated later as data is added
         self.dataLim = mtransforms.Bbox.null()
         self._viewLim = mtransforms.Bbox.unit()
@@ -1652,8 +1652,10 @@ class _AxesBase(martist.Artist):
             self._set_position(position, which='active')
             return
 
-        fig_width, fig_height = self.get_figure().get_size_inches()
-        fig_aspect = fig_height / fig_width
+        trans = self.get_figure().transSubfigure
+        bb = mtransforms.Bbox.from_bounds(0, 0, 1, 1).transformed(trans)
+        # this is the physical aspect of the panel (or figure):
+        fig_aspect = bb.height / bb.width
 
         if self._adjustable == 'box':
             if self in self._twinned_axes:

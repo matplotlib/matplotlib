@@ -4276,34 +4276,43 @@ class ConnectionPatch(FancyArrowPatch):
         *coordsA* and *coordsB* are strings that indicate the
         coordinates of *xyA* and *xyB*.
 
-        =================  ===================================================
-        Property           Description
-        =================  ===================================================
-        'figure points'    points from the lower left corner of the figure
-        'figure pixels'    pixels from the lower left corner of the figure
-        'figure fraction'  0, 0 is lower left of figure and 1, 1 is upper right
-        'axes points'      points from lower left corner of axes
-        'axes pixels'      pixels from lower left corner of axes
-        'axes fraction'    0, 0 is lower left of axes and 1, 1 is upper right
-        'data'             use the coordinate system of the object being
-                           annotated (default)
-        'offset points'    offset (in points) from the *xy* value
-        'polar'            you can specify *theta*, *r* for the annotation,
-                           even in cartesian plots.  Note that if you are using
-                           a polar axes, you do not need to specify polar for
-                           the coordinate system since that is the native
-                           "data" coordinate system.
-        =================  ===================================================
+        ==================== ==================================================
+        Property             Description
+        ==================== ==================================================
+        'figure points'      points from the lower left corner of the figure
+        'figure pixels'      pixels from the lower left corner of the figure
+        'figure fraction'    0, 0 is lower left of figure and 1, 1 is upper
+                             right
+        'subfigure points'   points from the lower left corner of the subfigure
+        'subfigure pixels'   pixels from the lower left corner of the subfigure
+        'subfigure fraction' fraction of the subfigure, 0, 0 is lower left.
+        'axes points'        points from lower left corner of axes
+        'axes pixels'        pixels from lower left corner of axes
+        'axes fraction'      0, 0 is lower left of axes and 1, 1 is upper right
+        'data'               use the coordinate system of the object being
+                             annotated (default)
+        'offset points'      offset (in points) from the *xy* value
+        'polar'              you can specify *theta*, *r* for the annotation,
+                             even in cartesian plots.  Note that if you are
+                             using a polar axes, you do not need to specify
+                             polar for the coordinate system since that is the
+                             native "data" coordinate system.
+        ==================== ==================================================
 
         Alternatively they can be set to any valid
         `~matplotlib.transforms.Transform`.
+
+        Note that 'subfigure pixels' and 'figure pixels' are the same
+        for the parent figure, so users who want code that is usable in
+        a subfigure can use 'subfigure pixels'.
 
         .. note::
 
            Using `ConnectionPatch` across two `~.axes.Axes` instances
            is not directly compatible with :doc:`constrained layout
            </tutorials/intermediate/constrainedlayout_guide>`. Add the artist
-           directly to the `.Figure` instead of adding it to a specific Axes.
+           directly to the `.Figure` instead of adding it to a specific Axes,
+           or exclude it from the layout using ``con.set_in_layout(False)``.
 
            .. code-block:: default
 
@@ -4348,6 +4357,8 @@ class ConnectionPatch(FancyArrowPatch):
             s = s.replace("points", "pixels")
         elif s == "figure fraction":
             s = self.figure.transFigure
+        elif s == "subfigure fraction":
+            s = self.figure.transSubfigure
         elif s == "axes fraction":
             s = axes.transAxes
         x, y = xy
@@ -4370,6 +4381,12 @@ class ConnectionPatch(FancyArrowPatch):
             trans = axes.transData
             return trans.transform((x, y))
         elif s == 'figure pixels':
+            # pixels from the lower left corner of the figure
+            bb = self.figure.figbbox
+            x = bb.x0 + x if x >= 0 else bb.x1 + x
+            y = bb.y0 + y if y >= 0 else bb.y1 + y
+            return x, y
+        elif s == 'subfigure pixels':
             # pixels from the lower left corner of the figure
             bb = self.figure.bbox
             x = bb.x0 + x if x >= 0 else bb.x1 + x
