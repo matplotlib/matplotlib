@@ -1530,14 +1530,31 @@ class Axis(martist.Artist):
         Parameters
         ----------
         u : units tag
+
+        Notes
+        -----
+        The units of any shared axis will also be updated.
         """
         if u == self.units:
             return
-        self.units = u
-        self._update_axisinfo()
-        self.callbacks.process('units')
-        self.callbacks.process('units finalize')
-        self.stale = True
+        if self is self.axes.xaxis:
+            shared = [
+                ax.xaxis
+                for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
+            ]
+        elif self is self.axes.yaxis:
+            shared = [
+                ax.yaxis
+                for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
+            ]
+        else:
+            shared = [self]
+        for axis in shared:
+            axis.units = u
+            axis._update_axisinfo()
+            axis.callbacks.process('units')
+            axis.callbacks.process('units finalize')
+            axis.stale = True
 
     def get_units(self):
         """Return the units for axis."""
@@ -1865,7 +1882,7 @@ class Axis(martist.Artist):
 
     def axis_date(self, tz=None):
         """
-        Sets up axis ticks and labels to treat data along this Axis as dates.
+        Set up axis ticks and labels to treat data along this Axis as dates.
 
         Parameters
         ----------

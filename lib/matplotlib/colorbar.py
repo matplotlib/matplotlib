@@ -48,8 +48,6 @@ import matplotlib.path as mpath
 import matplotlib.spines as mspines
 import matplotlib.ticker as ticker
 import matplotlib.transforms as mtransforms
-import matplotlib._layoutbox as layoutbox
-import matplotlib._constrained_layout as constrained_layout
 from matplotlib import docstring
 
 _log = logging.getLogger(__name__)
@@ -1437,21 +1435,11 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
     parents = np.atleast_1d(parents).ravel()
+    fig = parents[0].get_figure()
 
-    # check if using constrained_layout:
-    try:
-        gs = parents[0].get_subplotspec().get_gridspec()
-        using_constrained_layout = (gs._layoutbox is not None)
-    except AttributeError:
-        using_constrained_layout = False
-
-    # defaults are not appropriate for constrained_layout:
-    pad0 = loc_settings['pad']
-    if using_constrained_layout:
-        pad0 = 0.02
+    pad0 = 0.05 if fig.get_constrained_layout() else loc_settings['pad']
     pad = kw.pop('pad', pad0)
 
-    fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
         raise ValueError('Unable to create a colorbar axes as not all '
                          'parents share the same figure.')
@@ -1490,31 +1478,20 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
             ax.set_anchor(parent_anchor)
 
     cax = fig.add_axes(pbcb, label="<colorbar>")
-
-    # OK, now make a layoutbox for the cb axis.  Later, we will use this
-    # to make the colorbar fit nicely.
-    if not using_constrained_layout:
-        # no layout boxes:
-        lb = None
-        lbpos = None
-        # and we need to set the aspect ratio by hand...
-        cax.set_aspect(aspect, anchor=anchor, adjustable='box')
-    else:
-        if not parents_iterable:
-            # this is a single axis...
-            ax = parents[0]
-            lb, lbpos = constrained_layout.layoutcolorbarsingle(
-                    ax, cax, shrink, aspect, location, pad=pad)
-        else:  # there is more than one parent, so lets use gridspec
-            # the colorbar will be a sibling of this gridspec, so the
-            # parent is the same parent as the gridspec.  Either the figure,
-            # or a subplotspec.
-
-            lb, lbpos = constrained_layout.layoutcolorbargridspec(
-                    parents, cax, shrink, aspect, location, pad)
-
-    cax._layoutbox = lb
-    cax._poslayoutbox = lbpos
+    for a in parents:
+        # tell the parent it has a colorbar
+        a._colorbars += [cax]
+    cax._colorbar_info = dict(
+        location=location,
+        parents=parents,
+        shrink=shrink,
+        anchor=anchor,
+        panchor=parent_anchor,
+        fraction=fraction,
+        aspect=aspect,
+        pad=pad)
+    # and we need to set the aspect ratio by hand...
+    cax.set_aspect(aspect, anchor=anchor, adjustable='box')
 
     return cax, kw
 
@@ -1571,9 +1548,6 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     pad_s = (1 - shrink) * 0.5
     wh_ratios = [pad_s, shrink, pad_s]
 
-    # we need to none the tree of layoutboxes because constrained_layout can't
-    # remove and replace the tree hierarchy w/o a segfault.
-    layoutbox.nonetree(parent.get_subplotspec().get_gridspec()._layoutbox)
     if location == "left":
         gs = parent.get_subplotspec().subgridspec(
             1, 2, wspace=wh_space, width_ratios=[fraction, 1-fraction-pad])

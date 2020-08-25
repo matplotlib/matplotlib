@@ -18,6 +18,40 @@
 #define COMPILING_FOR_10_10
 #endif
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101200
+/* A lot of symbols were renamed in Sierra and cause deprecation warnings
+   so define macros for the new names if we are compiling on an older SDK */
+#define NSEventMaskAny                       NSAnyEventMask
+#define NSEventTypeApplicationDefined        NSApplicationDefined
+#define NSEventModifierFlagCommand           NSCommandKeyMask
+#define NSEventModifierFlagControl           NSControlKeyMask
+#define NSEventModifierFlagOption            NSAlternateKeyMask
+#define NSEventModifierFlagShift             NSShiftKeyMask
+#define NSEventTypeKeyUp                     NSKeyUp
+#define NSEventTypeKeyDown                   NSKeyDown
+#define NSEventTypeMouseMoved                NSMouseMoved
+#define NSEventTypeLeftMouseDown             NSLeftMouseDown
+#define NSEventTypeRightMouseDown            NSRightMouseDown
+#define NSEventTypeOtherMouseDown            NSOtherMouseDown
+#define NSEventTypeLeftMouseDragged          NSLeftMouseDragged
+#define NSEventTypeRightMouseDragged         NSRightMouseDragged
+#define NSEventTypeOtherMouseDragged         NSOtherMouseDragged
+#define NSEventTypeLeftMouseUp               NSLeftMouseUp
+#define NSEventTypeRightMouseUp              NSRightMouseUp
+#define NSEventTypeOtherMouseUp              NSOtherMouseUp
+#define NSWindowStyleMaskClosable            NSClosableWindowMask
+#define NSWindowStyleMaskMiniaturizable      NSMiniaturizableWindowMask
+#define NSWindowStyleMaskResizable           NSResizableWindowMask
+#define NSWindowStyleMaskTitled              NSTitledWindowMask
+#endif
+
+#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101400
+/* A few more deprecations in Mojave */
+#define NSButtonTypeMomentaryLight           NSMomentaryLightButton
+#define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
+#define NSBezelStyleShadowlessSquare         NSShadowlessSquareBezelStyle
+#define CGContext                            graphicsPort
+#endif
 
 /* CGFloat was defined in Mac OS X 10.5 */
 #ifndef CGFLOAT_DEFINED
@@ -140,7 +174,7 @@ static int wait_for_stdin(void)
         NSEvent* event;
         while (true) {
             while (true) {
-                event = [NSApp nextEventMatchingMask: NSAnyEventMask
+                event = [NSApp nextEventMatchingMask: NSEventMaskAny
                                            untilDate: [NSDate distantPast]
                                               inMode: NSDefaultRunLoopMode
                                              dequeue: YES];
@@ -486,11 +520,11 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
         (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
                         : [NSDate distantFuture];
     while (true)
-    {   NSEvent* event = [NSApp nextEventMatchingMask: NSAnyEventMask
+    {   NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
                                             untilDate: date
                                                inMode: NSDefaultRunLoopMode
                                               dequeue: YES];
-       if (!event || [event type]==NSApplicationDefined) break;
+       if (!event || [event type]==NSEventTypeApplicationDefined) break;
        [NSApp sendEvent: event];
     }
 
@@ -506,7 +540,7 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
 static PyObject*
 FigureCanvas_stop_event_loop(FigureCanvas* self)
 {
-    NSEvent* event = [NSEvent otherEventWithType: NSApplicationDefined
+    NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
                                        timestamp: 0.0
@@ -666,10 +700,10 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     rect.size.width = width;
 
     self->window = [self->window initWithContentRect: rect
-                                         styleMask: NSTitledWindowMask
-                                                  | NSClosableWindowMask
-                                                  | NSResizableWindowMask
-                                                  | NSMiniaturizableWindowMask
+                                         styleMask: NSWindowStyleMaskTitled
+                                                  | NSWindowStyleMaskClosable
+                                                  | NSWindowStyleMaskResizable
+                                                  | NSWindowStyleMaskMiniaturizable
                                            backing: NSBackingStoreBuffered
                                              defer: YES
                                        withManager: (PyObject*)self];
@@ -1132,13 +1166,13 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
                       @selector(zoom:),
                       @selector(configure_subplots:),
                       @selector(save_figure:)};
-    NSButtonType buttontypes[7] = {NSMomentaryLightButton,
-                                   NSMomentaryLightButton,
-                                   NSMomentaryLightButton,
-                                   NSPushOnPushOffButton,
-                                   NSPushOnPushOffButton,
-                                   NSMomentaryLightButton,
-                                   NSMomentaryLightButton};
+    NSButtonType buttontypes[7] = {NSButtonTypeMomentaryLight,
+                                   NSButtonTypeMomentaryLight,
+                                   NSButtonTypeMomentaryLight,
+                                   NSButtonTypePushOnPushOff,
+                                   NSButtonTypePushOnPushOff,
+                                   NSButtonTypeMomentaryLight,
+                                   NSButtonTypeMomentaryLight};
 
     rect.origin.x = 0;
     rect.origin.y = 0;
@@ -1164,7 +1198,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
-        [buttons[i] setBezelStyle: NSShadowlessSquareBezelStyle];
+        [buttons[i] setBezelStyle: NSBezelStyleShadowlessSquare];
         [buttons[i] setButtonType: buttontypes[i]];
         [buttons[i] setImage: image];
         [buttons[i] scaleUnitSquareToSize: scale];
@@ -1494,10 +1528,10 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 - (ToolWindow*)initWithContentRect:(NSRect)rect master:(NSWindow*)window
 {
     [self initWithContentRect: rect
-                    styleMask: NSTitledWindowMask
-                             | NSClosableWindowMask
-                             | NSResizableWindowMask
-                             | NSMiniaturizableWindowMask
+                    styleMask: NSWindowStyleMaskTitled
+                             | NSWindowStyleMaskClosable
+                             | NSWindowStyleMaskResizable
+                             | NSWindowStyleMaskMiniaturizable
                       backing: NSBackingStoreBuffered
                         defer: YES];
     [self setTitle: @"Subplot Configuration Tool"];
@@ -1624,7 +1658,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     PyGILState_STATE gstate = PyGILState_Ensure();
 
-    CGContextRef cr = [[NSGraphicsContext currentContext] graphicsPort];
+    CGContextRef cr = [[NSGraphicsContext currentContext] CGContext];
 
     double new_device_scale = _get_device_scale(cr);
 
@@ -1694,7 +1728,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
     NSWindow* window = [self window];
-    NSEvent* event = [NSEvent otherEventWithType: NSApplicationDefined
+    NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
                                        timestamp: 0.0
@@ -1760,12 +1794,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     switch ([event type])
-    {    case NSLeftMouseDown:
+    {    case NSEventTypeLeftMouseDown:
          {   unsigned int modifier = [event modifierFlags];
-             if (modifier & NSControlKeyMask)
+             if (modifier & NSEventModifierFlagControl)
                  /* emulate a right-button click */
                  num = 3;
-             else if (modifier & NSAlternateKeyMask)
+             else if (modifier & NSEventModifierFlagOption)
                  /* emulate a middle-button click */
                  num = 2;
              else
@@ -1776,8 +1810,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
              }
              break;
          }
-         case NSOtherMouseDown: num = 2; break;
-         case NSRightMouseDown: num = 3; break;
+         case NSEventTypeOtherMouseDown: num = 2; break;
+         case NSEventTypeRightMouseDown: num = 3; break;
          default: return; /* Unknown mouse event */
     }
     if ([event clickCount] == 2) {
@@ -1804,13 +1838,13 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     switch ([event type])
-    {    case NSLeftMouseUp:
+    {    case NSEventTypeLeftMouseUp:
              num = 1;
              if ([NSCursor currentCursor]==[NSCursor closedHandCursor])
                  [[NSCursor openHandCursor] set];
              break;
-         case NSOtherMouseUp: num = 2; break;
-         case NSRightMouseUp: num = 3; break;
+         case NSEventTypeOtherMouseUp: num = 2; break;
+         case NSEventTypeRightMouseUp: num = 3; break;
          default: return; /* Unknown mouse event */
     }
     gstate = PyGILState_Ensure();
@@ -2039,17 +2073,17 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                         ];
 
     NSMutableString* returnkey = [NSMutableString string];
-    if ([event modifierFlags] & NSControlKeyMask)
+    if ([event modifierFlags] & NSEventModifierFlagControl)
         [returnkey appendString:@"ctrl+" ];
-    if ([event modifierFlags] & NSAlternateKeyMask)
+    if ([event modifierFlags] & NSEventModifierFlagOption)
         [returnkey appendString:@"alt+" ];
-    if ([event modifierFlags] & NSCommandKeyMask)
+    if ([event modifierFlags] & NSEventModifierFlagCommand)
         [returnkey appendString:@"cmd+" ];
 
     unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
     NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
     if (specialchar){
-        if ([event modifierFlags] & NSShiftKeyMask)
+        if ([event modifierFlags] & NSEventModifierFlagShift)
             [returnkey appendString:@"shift+" ];
         [returnkey appendString:specialchar];
     }

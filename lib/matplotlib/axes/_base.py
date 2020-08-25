@@ -500,7 +500,9 @@ class _AxesBase(martist.Artist):
         self.set_figure(fig)
         self.set_box_aspect(box_aspect)
         self._axes_locator = None  # Optionally set via update(kwargs).
-
+        # placeholder for any colorbars added that use this axes.
+        # (see colorbar.py):
+        self._colorbars = []
         self.spines = self._gen_axes_spines()
 
         # this call may differ for non-sep axes, e.g., polar
@@ -572,15 +574,10 @@ class _AxesBase(martist.Artist):
                         rcParams['ytick.major.right']),
             which='major')
 
-        self._layoutbox = None
-        self._poslayoutbox = None
-
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
         state = super().__getstate__()
-        for key in ['_layoutbox', '_poslayoutbox']:
-            state[key] = None
         # Prune the sharing & twinning info to only contain the current group.
         for grouper_name in [
                 '_shared_x_axes', '_shared_y_axes', '_twinned_axes']:
@@ -918,8 +915,6 @@ class _AxesBase(martist.Artist):
         self._set_position(pos, which=which)
         # because this is being called externally to the library we
         # zero the constrained layout parts.
-        self._layoutbox = None
-        self._poslayoutbox = None
 
     def _set_position(self, pos, which='both'):
         """

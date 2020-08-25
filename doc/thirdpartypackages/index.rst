@@ -239,6 +239,16 @@ MplDataCursor
 written by Joe Kington to provide interactive "data cursors" (clickable
 annotation boxes) for Matplotlib.
 
+mpl_interactions
+================
+`mpl_interactions <https://mpl-interactions.readthedocs.io/en/latest/>`_
+makes it easy to create interactive plots controlled by sliders and other
+widgets. It also provides several handy capabilties such as manual
+image segmentation, comparing cross-sections of arrays, and using the
+scroll wheel to zoom.
+
+.. image:: /_static/mpl-interactions-slider-animated.png
+
 Rendering backends
 ******************
 
@@ -284,9 +294,9 @@ border, and logo.
 
 figpager
 ========
-`figpager <https://pypi.org/project/figpager/>`_ provides 
-customizable figure elements such as text, lines and images
-and subplot layout control for single or multi page output.
+`figpager <https://pypi.org/project/figpager/>`_ provides customizable figure
+elements such as text, lines and images and subplot layout control for single
+or multi page output.
 
  .. image:: /_static/figpager.png
 
