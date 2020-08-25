@@ -1210,8 +1210,6 @@ class Axes(_AxesBase):
     def vlines(self, x, ymin, ymax, colors=None, linestyles='solid',
                label='', **kwargs):
         """
-        Plot vertical lines.
-
         Plot vertical lines at each *x* from *ymin* to *ymax*.
 
         Parameters
