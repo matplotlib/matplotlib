@@ -30,6 +30,10 @@ jobs:
         run: |
           python -m pip install cibuildwheel==1.5.5
 
+      - name: Copy setup.cfg to configure wheel
+        run: |
+          cp setup.cfg.template setup.cfg
+
       - name: Build wheels for CPython
         run: |
           python -m cibuildwheel --output-dir dist
