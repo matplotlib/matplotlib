@@ -213,7 +213,6 @@ class HostAxesBase:
 
     def draw(self, renderer):
 
-        orig_artists = list(self.artists)
         orig_children_len = len(self._children)
 
         if hasattr(self, "get_axes_locator"):
@@ -233,10 +232,9 @@ class HostAxesBase:
             ax.apply_aspect(rect)
             images, artists = ax.get_images_artists()
             self._children.extend(images)
-            self.artists.extend(artists)
+            self._children.extend(artists)
 
         super().draw(renderer)
-        self.artists = orig_artists
         self._children = self._children[:orig_children_len]
 
     def cla(self):
