@@ -3351,12 +3351,10 @@ class MathTextParser:
         # lru_cache can't decorate parse() directly because the ps.useafm and
         # mathtext.fontset rcParams also affect the parse (e.g. by affecting
         # the glyph metrics).
-        return self._parse_cached(s, dpi, prop, _force_standard_ps_fonts,
-                                  rcParams['mathtext.fontset'])
+        return self._parse_cached(s, dpi, prop, _force_standard_ps_fonts)
 
     @functools.lru_cache(50)
-    def _parse_cached(self, s, dpi, prop, force_standard_ps_fonts, fontset):
-
+    def _parse_cached(self, s, dpi, prop, force_standard_ps_fonts):
         if prop is None:
             prop = FontProperties()
 
@@ -3365,7 +3363,8 @@ class MathTextParser:
         else:
             backend = self._backend_mapping[self._output]()
             fontset_class = cbook._check_getitem(
-                self._font_type_mapping, fontset=fontset)
+                self._font_type_mapping,
+                fontset=prop.get_math_fontfamily())
             font_output = fontset_class(prop, backend)
 
         fontsize = prop.get_size_in_points()
