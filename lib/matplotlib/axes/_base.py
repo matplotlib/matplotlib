@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from collections.abc import MutableSequence
 from contextlib import ExitStack
 import functools
 import inspect
@@ -1304,40 +1305,149 @@ class _AxesBase(martist.Artist):
 
         self.stale = True
 
+    class ArtistList(MutableSequence):
+        """
+        A sublist of Axes children based on their type.
+
+        This exists solely to warn on modification. In the future, the
+        type-specific children sublists will be immutable tuples.
+        """
+        def __init__(self, axes, prop_name, add_name,
+                     valid_types=None, invalid_types=None):
+            """
+            Parameters
+            ----------
+            axes : .axes.Axes
+                The Axes from which this sublist will pull the children
+                Artists.
+            prop_name : str
+                The property name used to access this sublist from the Axes;
+                used to generate deprecation warnings.
+            add_name : str
+                The method name used to add Artists of this sublist's type to
+                the Axes; used to generate deprecation warnings.
+            valid_types : list of type, optional
+                A list of types that determine which children will be returned
+                by this sublist. If specified, then the Artists in the sublist
+                must be instances of any of these types. If unspecified, then
+                any type of Artist is valid (unless limited by
+                *invalid_types*.)
+            invalid_types : tuple, optional
+                A list of types that determine which children will *not* be
+                returned by this sublist. If specified, then Artists in the
+                sublist will never be an instance of these types. Otherwise, no
+                types will be excluded.
+            """
+            self._axes = axes
+            self._prop_name = prop_name
+            self._add_name = add_name
+            self._type_check = lambda artist: (
+                (not valid_types or isinstance(artist, valid_types)) and
+                (not invalid_types or not isinstance(artist, invalid_types))
+            )
+
+        def __repr__(self):
+            return f'<Axes.ArtistList of {self._prop_name}>'
+
+        def __len__(self):
+            return sum(self._type_check(artist)
+                       for artist in self._axes._children)
+
+        def __getitem__(self, key):
+            return [artist
+                    for artist in self._axes._children
+                    if self._type_check(artist)][key]
+
+        def insert(self, index, item):
+            _api.warn_deprecated(
+                '3.5',
+                name=f'modification of the Axes.{self._prop_name}',
+                obj_type='property',
+                alternative=f'Axes.{self._add_name}')
+            try:
+                index = self._axes._children.index(self[index])
+            except IndexError:
+                index = None
+            getattr(self._axes, self._add_name)(item)
+            if index is not None:
+                # Move new item to the specified index, if there's something to
+                # put it before.
+                self._axes._children[index:index] = self._axes._children[-1:]
+                del self._axes._children[-1]
+
+        def __setitem__(self, key, item):
+            _api.warn_deprecated(
+                '3.5',
+                name=f'modification of the Axes.{self._prop_name}',
+                obj_type='property',
+                alternative=f'Artist.remove() and Axes.f{self._add_name}')
+            del self[key]
+            if isinstance(key, slice):
+                key = key.start
+            if not np.iterable(item):
+                self.insert(key, item)
+                return
+
+            try:
+                index = self._axes._children.index(self[key])
+            except IndexError:
+                index = None
+            for i, artist in enumerate(item):
+                getattr(self._axes, self._add_name)(artist)
+            if index is not None:
+                # Move new items to the specified index, if there's something
+                # to put it before.
+                i = -(i + 1)
+                self._axes._children[index:index] = self._axes._children[i:]
+                del self._axes._children[i:]
+
+        def __delitem__(self, key):
+            _api.warn_deprecated(
+                '3.5',
+                name=f'modification of the Axes.{self._prop_name}',
+                obj_type='property',
+                alternative='Artist.remove()')
+            if isinstance(key, slice):
+                for artist in self[key]:
+                    artist.remove()
+            else:
+                self[key].remove()
+
     @property
     def artists(self):
-        return tuple(
-            a for a in self._children
-            if not isinstance(a, (
-                mcoll.Collection, mimage.AxesImage, mlines.Line2D,
-                mpatches.Patch, mtable.Table, mtext.Text)))
+        return self.ArtistList(self, 'artists', 'add_artist', invalid_types=(
+            mcoll.Collection, mimage.AxesImage, mlines.Line2D, mpatches.Patch,
+            mtable.Table, mtext.Text))
 
     @property
     def collections(self):
-        return tuple(a for a in self._children
-                     if isinstance(a, mcoll.Collection))
+        return self.ArtistList(self, 'collections', 'add_collection',
+                               valid_types=mcoll.Collection)
 
     @property
     def images(self):
-        return tuple(a for a in self._children
-                     if isinstance(a, mimage.AxesImage))
+        return self.ArtistList(self, 'images', 'add_image',
+                               valid_types=mimage.AxesImage)
 
     @property
     def lines(self):
-        return tuple(a for a in self._children if isinstance(a, mlines.Line2D))
+        return self.ArtistList(self, 'lines', 'add_line',
+                               valid_types=mlines.Line2D)
 
     @property
     def patches(self):
-        return tuple(a for a in self._children
-                     if isinstance(a, mpatches.Patch))
+        return self.ArtistList(self, 'patches', 'add_patch',
+                               valid_types=mpatches.Patch)
 
     @property
     def tables(self):
-        return tuple(a for a in self._children if isinstance(a, mtable.Table))
+        return self.ArtistList(self, 'tables', 'add_table',
+                               valid_types=mtable.Table)
 
     @property
     def texts(self):
-        return tuple(a for a in self._children if isinstance(a, mtext.Text))
+        return self.ArtistList(self, 'texts', 'add_text',
+                               valid_types=mtext.Text)
 
     def clear(self):
         """Clear the axes."""
