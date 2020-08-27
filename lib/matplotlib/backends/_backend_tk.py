@@ -123,6 +123,7 @@ class FigureCanvasTk(FigureCanvasBase):
             width=w, height=h, borderwidth=0, highlightthickness=0)
         self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
+        self._findphoto_name = self._tkcanvas.register(self._findphoto)
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
@@ -177,6 +178,37 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.create_image(
             int(width / 2), int(height / 2), image=self._tkphoto)
         self.resize_event()
+
+    def _findphoto(self):
+        return _tkagg.findphoto(self._tkphoto.tk.interpaddr(), str(self._tkphoto))
+
+    def blit(self, bbox=None):
+        """
+        Blit *aggimage* to *photoimage*.
+
+        *offsets* is a tuple describing how to fill the ``offset`` field of the
+        ``Tk_PhotoImageBlock`` struct: it should be (0, 1, 2, 3) for RGBA8888 data,
+        (2, 1, 0, 3) for little-endian ARBG32 (i.e. GBRA8888) data and (1, 2, 3, 0)
+        for big-endian ARGB32 (i.e. ARGB8888) data.
+
+        If *bbox* is passed, it defines the region that gets blitted.
+        """
+        data = np.asarray(self.renderer._renderer)
+        height, width = data.shape[:2]
+        dataptr = (height, width, data.ctypes.data)
+        if bbox is not None:
+            (x1, y1), (x2, y2) = bbox.__array__()
+            x1 = max(math.floor(x1), 0)
+            x2 = min(math.ceil(x2), width)
+            y1 = max(math.floor(y1), 0)
+            y2 = min(math.ceil(y2), height)
+            bboxptr = (x1, x2, y1, y2)
+        else:
+            self._tkphoto.blank()
+            bboxptr = (0, width, 0, height)
+        # photoptr = self._findphoto()  # Thread unsafe
+        photoptr = self._master.tk.call(self._findphoto_name)  # Thread safe
+        _tkagg.photoputblock(photoptr, dataptr, (0, 1, 2, 3), bboxptr)  # ???
 
     def draw_idle(self):
         # docstring inherited
