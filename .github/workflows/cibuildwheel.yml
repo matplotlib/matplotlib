@@ -67,6 +67,10 @@ jobs:
           startsWith(github.ref, 'refs/heads/v3.3') ||
           startsWith(github.ref, 'refs/tags/v3.3') )
 
+      - name: Validate that LICENSE files are included in wheels
+        run: |
+          python ./ci/check_wheel_licenses.py
+
       - uses: actions/upload-artifact@v2
         with:
           name: wheels
