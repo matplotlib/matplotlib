@@ -769,10 +769,11 @@ class DrawingArea(OffsetBox):
 
 class TextArea(OffsetBox):
     """
-    The TextArea is contains a single Text instance. The text is
-    placed at (0, 0) with baseline+left alignment. The width and height
-    of the TextArea instance is the width and height of the its child
-    text.
+    The TextArea is a container artist for a single Text instance.
+
+    The text is placed at (0, 0) with baseline+left alignment, by default. The
+    width and height of the TextArea instance is the width and height of its
+    child text.
     """
     def __init__(self, s,
                  textprops=None,
@@ -876,37 +877,43 @@ class TextArea(OffsetBox):
     def get_window_extent(self, renderer):
         """Return the bounding box in display space."""
         w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()  # w, h, xd, yd)
+        ox, oy = self.get_offset()
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
         _, h_, d_ = renderer.get_text_width_height_descent(
             "lp", self._text._fontproperties, ismath=False)
 
-        bbox, info, d = self._text._get_layout(renderer)
+        bbox, info, yd = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
 
         self._baseline_transform.clear()
 
         if len(info) > 1 and self._multilinebaseline:
-            d_new = 0.5 * h - 0.5 * (h_ - d_)
-            self._baseline_transform.translate(0, d - d_new)
-            d = d_new
+            yd_new = 0.5 * h - 0.5 * (h_ - d_)
+            self._baseline_transform.translate(0, yd - yd_new)
+            yd = yd_new
 
         else:  # single line
 
-            h_d = max(h_ - d_, h - d)
+            h_d = max(h_ - d_, h - yd)
 
             if self.get_minimumdescent():
-                ## to have a minimum descent, #i.e., "l" and "p" have same
-                ## descents.
-                d = max(d, d_)
-            #else:
-            #    d = d
+                # To have a minimum descent, i.e., "l" and "p" have same
+                # descents.
+                yd = max(yd, d_)
 
-            h = h_d + d
+            h = h_d + yd
 
-        return w, h, 0., d
+        ha = self._text.get_horizontalalignment()
+        if ha == 'left':
+            xd = 0
+        elif ha == 'center':
+            xd = w / 2
+        elif ha == 'right':
+            xd = w
+
+        return w, h, xd, yd
 
     def draw(self, renderer):
         # docstring inherited
@@ -1288,11 +1295,10 @@ class AnchoredText(AnchoredOffsetbox):
 
         if prop is None:
             prop = {}
-        badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
+        badkwargs = {'va', 'verticalalignment'}
         if badkwargs & set(prop):
             raise ValueError(
-                "Mixing horizontalalignment or verticalalignment with "
-                "AnchoredText is not supported.")
+                'Mixing verticalalignment with AnchoredText is not supported.')
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
