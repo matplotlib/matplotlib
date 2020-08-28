@@ -1788,8 +1788,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
+        list of `~.Line2D`
+            Objects representing the plotted data.
 
         Other Parameters
         ----------------
@@ -1858,8 +1858,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
+        list of `~.Line2D`
+            Objects representing the plotted data.
 
         Other Parameters
         ----------------
@@ -1911,8 +1911,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
+        list of `~.Line2D`
+            Objects representing the plotted data.
 
         Other Parameters
         ----------------
@@ -1960,8 +1960,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
+        list of `~.Line2D`
+            Objects representing the plotted data.
 
         Other Parameters
         ----------------
@@ -2202,8 +2202,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
+        list of `.Line2D`
+            Objects representing the plotted data.
 
         Other Parameters
         ----------------

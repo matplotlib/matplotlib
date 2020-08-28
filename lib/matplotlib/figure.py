@@ -696,8 +696,8 @@ default: 'top'
 
         Returns
         -------
-        text
-            The `.Text` instance of the title.
+        `.Text`
+            The instance of the title.
 
         Other Parameters
         ----------------
@@ -2865,7 +2865,7 @@ def figaspect(arg):
 
     Returns
     -------
-    width, height
+    width, height : float
         The figure size in inches.
 
     Notes
