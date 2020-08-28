@@ -643,11 +643,6 @@
     "Axis.units": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:77"
     ],
-    "Canvas": [
-      "doc/devel/MEP/MEP22.rst:56",
-      "doc/devel/MEP/MEP22.rst:60",
-      "doc/devel/MEP/MEP23.rst:70"
-    ],
     "ConnectionPatch": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:178"
     ],
@@ -661,15 +656,6 @@
     "FigureCanvas": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolBase:25"
     ],
-    "FigureManager": [
-      "doc/devel/MEP/MEP23.rst:25",
-      "doc/devel/MEP/MEP23.rst:62",
-      "doc/devel/MEP/MEP23.rst:63",
-      "doc/devel/MEP/MEP23.rst:65",
-      "doc/devel/MEP/MEP23.rst:78",
-      "doc/devel/MEP/MEP23.rst:85",
-      "doc/devel/MEP/MEP23.rst:87"
-    ],
     "Formatter.__call__": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1116",
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1122"
@@ -680,9 +666,6 @@
     ],
     "Glyph": [
       "doc/gallery/misc/ftface_props.rst:16"
-    ],
-    "GraphicsContext": [
-      "doc/devel/MEP/MEP26.rst:68"
     ],
     "Image": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"
@@ -709,14 +692,6 @@
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:51",
       "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:121"
     ],
-    "Navigation": [
-      "doc/devel/MEP/MEP22.rst:155",
-      "doc/devel/MEP/MEP22.rst:60"
-    ],
-    "NavigationBase": [
-      "doc/devel/MEP/MEP23.rst:90",
-      "doc/devel/MEP/MEP23.rst:93"
-    ],
     "NavigationToolbar2QT.adj_window": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:962"
     ],
@@ -730,9 +705,6 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contour:131",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contourf:131"
     ],
-    "Quit": [
-      "doc/devel/MEP/MEP22.rst:78"
-    ],
     "Quiver.pivot": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:44"
     ],
@@ -740,32 +712,9 @@
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:61",
       "lib/mpl_toolkits/axisartist/axes_grid.py:docstring of mpl_toolkits.axisartist.axes_grid.ImageGrid:61"
     ],
-    "Style": [
-      "doc/devel/MEP/MEP26.rst:68"
-    ],
-    "SubplotTool": [
-      "doc/devel/MEP/MEP22.rst:78"
-    ],
-    "TextFont": [
-      "doc/devel/MEP/MEP14.rst:267"
-    ],
-    "TextLayout": [
-      "doc/devel/MEP/MEP14.rst:267",
-      "doc/devel/MEP/MEP14.rst:376"
-    ],
-    "TextSpan": [
-      "doc/devel/MEP/MEP14.rst:267"
-    ],
-    "TextSpans": [
-      "doc/devel/MEP/MEP14.rst:267"
-    ],
     "Timer": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.FigureCanvasBase.new_timer:2",
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:14"
-    ],
-    "Tool": [
-      "doc/devel/MEP/MEP22.rst:60",
-      "doc/devel/MEP/MEP22.rst:96"
     ],
     "ToolContainer": [
       "doc/users/prev_whats_new/whats_new_1.5.rst:615",
@@ -775,18 +724,10 @@
     "ToolContainers": [
       "doc/users/prev_whats_new/whats_new_1.5.rst:615"
     ],
-    "Toolbar": [
-      "doc/devel/MEP/MEP22.rst:177",
-      "doc/devel/MEP/MEP22.rst:56",
-      "doc/devel/MEP/MEP22.rst:60",
-      "doc/devel/MEP/MEP23.rst:46"
-    ],
     "Toolbars": [
       "doc/users/prev_whats_new/whats_new_1.5.rst:615"
     ],
     "Tools": [
-      "doc/devel/MEP/MEP22.rst:40",
-      "doc/devel/MEP/MEP22.rst:56",
       "doc/users/prev_whats_new/whats_new_1.5.rst:608"
     ],
     "_read": [
@@ -794,9 +735,6 @@
     ],
     "active": [
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.AxesWidget:34"
-    ],
-    "add_canvas": [
-      "doc/devel/MEP/MEP23.rst:62"
     ],
     "add_subplot": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot2grid:23"
@@ -890,10 +828,6 @@
     "can_composite": [
       "lib/matplotlib/image.py:docstring of matplotlib.image.composite_images:9"
     ],
-    "canvas": [
-      "doc/devel/MEP/MEP22.rst:140",
-      "doc/devel/MEP/MEP23.rst:40"
-    ],
     "cbook._warn_external": [
       "doc/devel/contributing.rst:493",
       "doc/devel/contributing.rst:508",
@@ -947,21 +881,9 @@
     "gaussian_kde": [
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:32"
     ],
-    "get_active_canvas": [
-      "doc/devel/MEP/MEP23.rst:70"
-    ],
-    "get_canvas_title": [
-      "doc/devel/MEP/MEP23.rst:68"
-    ],
-    "get_ps": [
-      "doc/devel/MEP/MEP14.rst:376"
-    ],
     "get_size": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:223",
       "lib/mpl_toolkits/axes_grid1/axes_size.py:docstring of mpl_toolkits.axes_grid1.axes_size:1"
-    ],
-    "get_spans": [
-      "doc/devel/MEP/MEP14.rst:376"
     ],
     "get_xbound": [
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_xlim3d:22"
@@ -1420,22 +1342,12 @@
     "matplotlib.testing.conftest.mpl_test_settings": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:942"
     ],
-    "move_canvas": [
-      "doc/devel/MEP/MEP23.rst:65"
-    ],
     "mpl_toolkits.axes_grid.axes_divider.AxesLocator": [
       "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.HBoxDivider.new_locator:2",
       "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.VBoxDivider.new_locator:2"
     ],
     "mpl_toolkits.axislines.Axes": [
       "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:26"
-    ],
-    "new_figure_manager": [
-      "doc/devel/MEP/MEP23.rst:75"
-    ],
-    "new_figure_manager_given_figure": [
-      "doc/devel/MEP/MEP23.rst:78",
-      "doc/devel/MEP/MEP23.rst:82"
     ],
     "next_whats_new": [
       "doc/users/next_whats_new/README.rst:6"
@@ -1474,9 +1386,6 @@
     "pyplot.set_loglevel": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:377"
     ],
-    "remove_canvas": [
-      "doc/devel/MEP/MEP23.rst:63"
-    ],
     "rrulewrapper": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:121"
     ],
@@ -1489,12 +1398,6 @@
     ],
     "self.vertices": [
       "lib/matplotlib/path.py:docstring of matplotlib.path.Path.codes:2"
-    ],
-    "set_active_canvas": [
-      "doc/devel/MEP/MEP23.rst:70"
-    ],
-    "set_canvas_title": [
-      "doc/devel/MEP/MEP23.rst:66"
     ],
     "set_size": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:223"
@@ -1510,17 +1413,8 @@
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimplePatchShadow:38",
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withSimplePatchShadow:47"
     ],
-    "show": [
-      "doc/devel/MEP/MEP23.rst:70"
-    ],
     "size_vertical": [
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar:59"
-    ],
-    "sphinx-autogen": [
-      "doc/devel/MEP/MEP10.rst:162"
-    ],
-    "sphinx-quickstart": [
-      "doc/devel/MEP/MEP10.rst:170"
     ],
     "streamplot.Grid": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:479"
@@ -1545,9 +1439,6 @@
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.disable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.enable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ZoomPanBase.trigger:2"
-    ],
-    "tool_added_event": [
-      "doc/devel/MEP/MEP22.rst:171"
     ],
     "tool_removed_event": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:6"
