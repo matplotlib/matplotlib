@@ -1,10 +1,4 @@
 {
-  "c:var": {
-    "PyOS_InputHook": [
-      "doc/users/interactive_guide.rst:401",
-      "doc/users/interactive_guide.rst:411"
-    ]
-  },
   "py:attr": {
     "ax": [
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.ColorbarBase:23"
@@ -447,9 +441,6 @@
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimplePatchShadow:42",
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withSimplePatchShadow:51"
     ],
-    "Colormap.__call__": [
-      "lib/matplotlib/colors.py:docstring of matplotlib.colors.BoundaryNorm:44"
-    ],
     "FigureCanvasQTAgg.blit": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:199"
     ],
@@ -483,10 +474,6 @@
     ],
     "_make_barbs": [
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:9"
-    ],
-    "_process_colors": [
-      "lib/matplotlib/contour.py:docstring of matplotlib.contour.ContourSet:64",
-      "lib/matplotlib/contour.py:docstring of matplotlib.contour.QuadContourSet:30"
     ],
     "autoscale_view": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.margins:32"
@@ -593,9 +580,6 @@
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.PackerBase:23",
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.VPacker:44"
     ],
-    "Axes..set_inverted": [
-      "doc/users/prev_whats_new/whats_new_3.1.0.rst:247"
-    ],
     "Axes.dataLim": [
       "doc/api/axes_api.rst:302:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.update_datalim:2",
@@ -694,10 +678,6 @@
     ],
     "NavigationToolbar2QT.adj_window": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:962"
-    ],
-    "PolyCollection.get_offset": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hexbin:71",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:71"
     ],
     "QuadContourSet.changed()": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.contour:131",
@@ -1044,24 +1024,24 @@
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.ArtistAnimation.new_frame_seq": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:21:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.ArtistAnimation.new_saved_frame_seq": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:21:<autosummary>:1"
-    ],
-    "matplotlib.animation.ArtistAnimation.save": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:21:<autosummary>:1"
-    ],
-    "matplotlib.animation.ArtistAnimation.to_html5_video": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:21:<autosummary>:1"
-    ],
-    "matplotlib.animation.ArtistAnimation.to_jshtml": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:21:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.ArtistAnimation.pause": [
       "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.ArtistAnimation.resume": [
+      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
+    ],
+    "matplotlib.animation.ArtistAnimation.save": [
+      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
+    ],
+    "matplotlib.animation.ArtistAnimation.to_html5_video": [
+      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
+    ],
+    "matplotlib.animation.ArtistAnimation.to_jshtml": [
       "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegFileWriter.args_key": [
@@ -1154,6 +1134,12 @@
     "matplotlib.animation.FileMovieWriter.saving": [
       "doc/api/_as_gen/matplotlib.animation.FileMovieWriter.rst:28:<autosummary>:1"
     ],
+    "matplotlib.animation.FuncAnimation.pause": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FuncAnimation.new_frame_seq:1:<autosummary>:1"
+    ],
+    "matplotlib.animation.FuncAnimation.resume": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FuncAnimation.new_frame_seq:1:<autosummary>:1"
+    ],
     "matplotlib.animation.FuncAnimation.save": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.FuncAnimation.new_frame_seq:1:<autosummary>:1"
     ],
@@ -1162,12 +1148,6 @@
     ],
     "matplotlib.animation.FuncAnimation.to_jshtml": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.FuncAnimation.new_frame_seq:1:<autosummary>:1"
-    ],
-    "matplotlib.animation.FuncAnimation.pause": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
-    ],
-    "matplotlib.animation.FuncAnimation.resume": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.HTMLWriter.bin_path": [
       "doc/api/_as_gen/matplotlib.animation.HTMLWriter.rst:28:<autosummary>:1"
@@ -1281,25 +1261,25 @@
       "doc/api/_as_gen/matplotlib.animation.PillowWriter.rst:26:<autosummary>:1"
     ],
     "matplotlib.animation.TimedAnimation.new_frame_seq": [
-      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:21:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.TimedAnimation.new_saved_frame_seq": [
-      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:21:<autosummary>:1"
-    ],
-    "matplotlib.animation.TimedAnimation.save": [
-      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:21:<autosummary>:1"
-    ],
-    "matplotlib.animation.TimedAnimation.to_html5_video": [
-      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:21:<autosummary>:1"
-    ],
-    "matplotlib.animation.TimedAnimation.to_jshtml": [
-      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:21:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.TimedAnimation.pause": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.animation.TimedAnimation.resume": [
-      "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
+    ],
+    "matplotlib.animation.TimedAnimation.save": [
+      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
+    ],
+    "matplotlib.animation.TimedAnimation.to_html5_video": [
+      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
+    ],
+    "matplotlib.animation.TimedAnimation.to_jshtml": [
+      "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
     ],
     "matplotlib.cbook.ls_mapper": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:11",
@@ -1319,9 +1299,6 @@
     ],
     "matplotlib.docstring.dedent_interpd": [
       "doc/devel/documenting_mpl.rst:679"
-    ],
-    "matplotlib.patches.Patch.__init__": [
-      "doc/devel/documenting_mpl.rst:712"
     ],
     "matplotlib.sphinxext.mathmpl": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:225"
@@ -1356,7 +1333,6 @@
       "doc/api/prev_api_changes/api_changes_2.1.0.rst:95",
       "doc/faq/howto_faq.rst:18",
       "doc/faq/howto_faq.rst:21",
-      "doc/gallery/recipes/common_date_problems.rst:36",
       "doc/gallery/text_labels_and_annotations/date.rst:20",
       "doc/gallery/ticks_and_spines/date_precision_and_epochs.rst:16",
       "doc/gallery/ticks_and_spines/date_precision_and_epochs.rst:190",
