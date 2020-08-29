@@ -1353,6 +1353,11 @@ class _AxesBase(martist.Artist):
             return sum(self._type_check(artist)
                        for artist in self._axes._children)
 
+        def __iter__(self):
+            for artist in self._axes._children:
+                if self._type_check(artist):
+                    yield artist
+
         def __getitem__(self, key):
             return [artist
                     for artist in self._axes._children
