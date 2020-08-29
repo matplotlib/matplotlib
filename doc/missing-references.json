@@ -1273,9 +1273,6 @@
     "matplotlib.dates.rrulewrapper": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:121"
     ],
-    "matplotlib.docstring.dedent_interpd": [
-      "doc/devel/documenting_mpl.rst:679"
-    ],
     "matplotlib.sphinxext.mathmpl": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:225"
     ],
