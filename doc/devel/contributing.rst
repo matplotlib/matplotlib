@@ -514,7 +514,7 @@ There are five levels at which you can emit messages.
 
 - `logging.critical` and `logging.error` are really only there for errors that
   will end the use of the library but not kill the interpreter.
-- `logging.warning` and `cbook._warn_external` are used to warn the user,
+- `logging.warning` and `.cbook._warn_external` are used to warn the user,
   see below.
 - `logging.info` is for information that the user may want to know if the
   program behaves oddly. They are not displayed by default. For instance, if
@@ -529,18 +529,17 @@ There are five levels at which you can emit messages.
 By default, `logging` displays all log messages at levels higher than
 `logging.WARNING` to `sys.stderr`.
 
-The `logging tutorial`_ suggests that the difference
-between `logging.warning` and `cbook._warn_external` (which uses
-`warnings.warn`) is that `cbook._warn_external` should be used for things the
-user must change to stop the warning (typically in the source), whereas
-`logging.warning` can be more persistent.  Moreover, note that
-`cbook._warn_external` will by default only emit a given warning *once* for
-each line of user code, whereas `logging.warning` will display the message
-every time it is called.
+The `logging tutorial`_ suggests that the difference between `logging.warning`
+and `.cbook._warn_external` (which uses `warnings.warn`) is that
+`.cbook._warn_external` should be used for things the user must change to stop
+the warning (typically in the source), whereas `logging.warning` can be more
+persistent. Moreover, note that `.cbook._warn_external` will by default only
+emit a given warning *once* for each line of user code, whereas
+`logging.warning` will display the message every time it is called.
 
 By default, `warnings.warn` displays the line of code that has the `warn` call.
 This usually isn't more informative than the warning message itself. Therefore,
-Matplotlib uses `cbook._warn_external` which uses `warnings.warn`, but goes
+Matplotlib uses `.cbook._warn_external` which uses `warnings.warn`, but goes
 up the stack and displays the first line of code outside of Matplotlib.
 For example, for the module::
 
@@ -563,7 +562,7 @@ will display::
     UserWarning: Attempting to set identical bottom==top
     warnings.warn('Attempting to set identical bottom==top')
 
-Modifying the module to use `cbook._warn_external`::
+Modifying the module to use `.cbook._warn_external`::
 
     from matplotlib import cbook
 

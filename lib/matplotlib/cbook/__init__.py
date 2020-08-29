@@ -483,7 +483,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=False):
 
 def _get_data_path(*args):
     """
-    Return the `Path` to a resource file provided by Matplotlib.
+    Return the `pathlib.Path` to a resource file provided by Matplotlib.
 
     ``*args`` specify a path relative to the base data path.
     """
@@ -989,7 +989,7 @@ def _combine_masks(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2 and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2 and 4 if `numpy.isfinite`
     does not yield a Boolean array.  Category 3 is included to
     support RGB or RGBA ndarrays, which are assumed to have only
     valid values and which are passed through unchanged.
@@ -1243,9 +1243,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     return bxpstats
 
 
-# The ls_mapper maps short codes for line style to their full name used by
-# backends; the reverse mapper is for mapping full names to short ones.
+#: Maps short codes for line style to their full name used by backends.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
+#: Maps full names for line styles used by backends to their short codes.
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
@@ -1349,7 +1349,7 @@ def _reshape_2D(X, name):
     Use Fortran ordering to convert ndarrays and lists of iterables to lists of
     1D arrays.
 
-    Lists of iterables are converted by applying `np.asanyarray` to each of
+    Lists of iterables are converted by applying `numpy.asanyarray` to each of
     their elements.  1D ndarrays are returned in a singleton list containing
     them.  2D ndarrays are converted to the list of their *columns*.
 
@@ -2104,6 +2104,8 @@ def _warn_external(message, category=None):
     function back to `warnings.warn`, i.e. ``cbook._warn_external =
     warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
     etc.).
+
+    :meta public:
     """
     frame = sys._getframe()
     for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]

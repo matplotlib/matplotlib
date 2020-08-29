@@ -808,19 +808,6 @@
     "can_composite": [
       "lib/matplotlib/image.py:docstring of matplotlib.image.composite_images:9"
     ],
-    "cbook._warn_external": [
-      "doc/devel/contributing.rst:493",
-      "doc/devel/contributing.rst:508",
-      "doc/devel/contributing.rst:517",
-      "doc/devel/contributing.rst:542"
-    ],
-    "cbook.deprecated": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1074",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
-    ],
-    "cbook.warn_deprecated": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
-    ],
     "cleanup": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.setup:19"
     ],
@@ -914,13 +901,6 @@
     "logging.WARNING": [
       "doc/devel/contributing.rst:468",
       "doc/devel/contributing.rst:505"
-    ],
-    "ls_mapper": [
-      "doc/api/prev_api_changes/api_changes_1.5.0.rst:11"
-    ],
-    "ls_mapper_r": [
-      "doc/api/prev_api_changes/api_changes_1.5.0.rst:11",
-      "doc/api/prev_api_changes/api_changes_1.5.0.rst:8"
     ],
     "mainloop": [
       "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg.show:4"
@@ -1280,10 +1260,6 @@
     ],
     "matplotlib.animation.TimedAnimation.to_jshtml": [
       "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:23:<autosummary>:1"
-    ],
-    "matplotlib.cbook.ls_mapper": [
-      "doc/api/prev_api_changes/api_changes_1.5.0.rst:11",
-      "doc/api/prev_api_changes/api_changes_1.5.0.rst:8"
     ],
     "matplotlib.colorbar.ColorbarBase.set_clim": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
