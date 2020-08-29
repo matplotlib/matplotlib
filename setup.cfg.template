@@ -1,5 +1,8 @@
 # Rename this file to setup.cfg to modify Matplotlib's build options.
 
+[metadata]
+license_files = LICENSE/*
+
 [egg_info]
 
 [libs]
