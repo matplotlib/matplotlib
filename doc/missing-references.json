@@ -416,9 +416,6 @@
     ]
   },
   "py:func": {
-    "log.debug": [
-      "doc/devel/contributing.rst:450"
-    ],
     "matplotlib.Axis.set_ticks_position": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:141"
     ],
@@ -427,12 +424,6 @@
     ],
     "matplotlib.axis.Tick.label1On": [
       "doc/users/prev_whats_new/whats_new_2.1.0.rst:409"
-    ],
-    "matplotlib.test": [
-      "doc/devel/testing.rst:79"
-    ],
-    "matplotlib.testing.conftest.mpl_test_settings": [
-      "doc/devel/testing.rst:106"
     ]
   },
   "py:meth": {
@@ -502,10 +493,6 @@
     "matplotlib.patches.Rectangle.contains": [
       "doc/users/event_handling.rst:164"
     ],
-    "matplotlib.text.Text.__init__": [
-      "doc/devel/contributing.rst:400",
-      "doc/devel/contributing.rst:408"
-    ],
     "option_scale_image": [
       "lib/matplotlib/backends/backend_cairo.py:docstring of matplotlib.backends.backend_cairo.RendererCairo.draw_image:22",
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_image:22",
@@ -552,15 +539,9 @@
     ],
     "matplotlib.ft2font": [
       "doc/api/prev_api_changes/api_changes_0.91.0.rst:34"
-    ],
-    "matplotlib.tests.test_basic": [
-      "doc/devel/testing.rst:93"
     ]
   },
   "py:obj": {
-    "./gallery/index.html": [
-      "doc/devel/contributing.rst:562"
-    ],
     "Artist.stale_callback": [
       "doc/users/interactive_guide.rst:326"
     ],
@@ -897,10 +878,6 @@
     ],
     "load_char": [
       "doc/gallery/misc/ftface_props.rst:16"
-    ],
-    "logging.WARNING": [
-      "doc/devel/contributing.rst:468",
-      "doc/devel/contributing.rst:505"
     ],
     "mainloop": [
       "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg.show:4"
@@ -1402,9 +1379,6 @@
     ],
     "w_pad": [
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.set_constrained_layout:5"
-    ],
-    "warn": [
-      "doc/devel/contributing.rst:517"
     ],
     "whats_new.rst": [
       "doc/users/next_whats_new/README.rst:6"

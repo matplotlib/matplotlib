@@ -409,11 +409,10 @@ C/C++ extensions
 Keyword argument processing
 ---------------------------
 
-Matplotlib makes extensive use of ``**kwargs`` for pass-through
-customizations from one function to another.  A typical example is in
-:func:`matplotlib.pyplot.text`.  The definition of the pylab text
-function is a simple pass-through to
-:meth:`matplotlib.axes.Axes.text`::
+Matplotlib makes extensive use of ``**kwargs`` for pass-through customizations
+from one function to another. A typical example is in `matplotlib.pyplot.text`.
+The definition of the pylab text function is a simple pass-through to
+`matplotlib.axes.Axes.text`::
 
   # in pylab.py
   def text(*args, **kwargs):
@@ -421,17 +420,15 @@ function is a simple pass-through to
       draw_if_interactive()
       return ret
 
-:meth:`~matplotlib.axes.Axes.text` in simplified form looks like this,
-i.e., it just passes all ``args`` and ``kwargs`` on to
-:meth:`matplotlib.text.Text.__init__`::
+`~matplotlib.axes.Axes.text` in simplified form looks like this, i.e., it just
+passes all ``args`` and ``kwargs`` on to ``matplotlib.text.Text.__init__``::
 
   # in axes/_axes.py
   def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
       t = Text(x=x, y=y, text=s, **kwargs)
 
-and :meth:`~matplotlib.text.Text.__init__` (again with liberties for
-illustration) just passes them on to the
-:meth:`matplotlib.artist.Artist.update` method::
+and ``matplotlib.text.Text.__init__`` (again with liberties for illustration)
+just passes them on to the `matplotlib.artist.Artist.update` method::
 
   # in text.py
   def __init__(self, x=0, y=0, text='', **kwargs):
@@ -471,10 +468,10 @@ local arguments and the rest are passed on as
 Using logging for debug messages
 --------------------------------
 
-Matplotlib uses the standard python `logging` library to write verbose
-warnings, information, and
-debug messages.  Please use it!  In all those places you write :func:`print()`
-statements to do your debugging, try using :func:`log.debug()` instead!
+Matplotlib uses the standard Python `logging` library to write verbose
+warnings, information, and debug messages. Please use it! In all those places
+you write `print` calls to do your debugging, try using `logging.debug`
+instead!
 
 
 To include `logging` in your module, at the top of the module, you need to
@@ -489,8 +486,8 @@ To include `logging` in your module, at the top of the module, you need to
 
 will log to a logger named ``matplotlib.yourmodulename``.
 
-If an end-user of Matplotlib sets up `logging` to display at levels
-more verbose than `logging.WARNING` in their code with the Matplotlib-provided
+If an end-user of Matplotlib sets up `logging` to display at levels more
+verbose than ``logging.WARNING`` in their code with the Matplotlib-provided
 helper::
 
   plt.set_loglevel("debug")
@@ -527,7 +524,7 @@ There are five levels at which you can emit messages.
   steps of layouting or rendering) should only log at this level.
 
 By default, `logging` displays all log messages at levels higher than
-`logging.WARNING` to `sys.stderr`.
+``logging.WARNING`` to `sys.stderr`.
 
 The `logging tutorial`_ suggests that the difference between `logging.warning`
 and `.cbook._warn_external` (which uses `warnings.warn`) is that
@@ -537,11 +534,11 @@ persistent. Moreover, note that `.cbook._warn_external` will by default only
 emit a given warning *once* for each line of user code, whereas
 `logging.warning` will display the message every time it is called.
 
-By default, `warnings.warn` displays the line of code that has the `warn` call.
-This usually isn't more informative than the warning message itself. Therefore,
-Matplotlib uses `.cbook._warn_external` which uses `warnings.warn`, but goes
-up the stack and displays the first line of code outside of Matplotlib.
-For example, for the module::
+By default, `warnings.warn` displays the line of code that has the ``warn``
+call. This usually isn't more informative than the warning message itself.
+Therefore, Matplotlib uses `.cbook._warn_external` which uses `warnings.warn`,
+but goes up the stack and displays the first line of code outside of
+Matplotlib. For example, for the module::
 
     # in my_matplotlib_module.py
     import warnings
@@ -582,10 +579,9 @@ and running the same script will display::
 Writing examples
 ----------------
 
-We have hundreds of examples in subdirectories of
-:file:`matplotlib/examples`, and these are automatically generated
-when the website is built to show up in the `examples
-<../gallery/index.html>` section of the website.
+We have hundreds of examples in subdirectories of :file:`matplotlib/examples`,
+and these are automatically generated when the website is built to show up in
+the :ref:`examples <gallery>` section of the website.
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the
