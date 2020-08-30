@@ -240,10 +240,6 @@ class _BackendNbAgg(_Backend):
         return manager
 
     @staticmethod
-    def trigger_manager_draw(manager):
-        manager.show()
-
-    @staticmethod
     def show(block=None):
         ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf

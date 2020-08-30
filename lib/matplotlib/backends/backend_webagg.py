@@ -307,10 +307,6 @@ class _BackendWebAgg(_Backend):
     FigureManager = core.FigureManagerWebAgg
 
     @staticmethod
-    def trigger_manager_draw(manager):
-        manager.canvas.draw_idle()
-
-    @staticmethod
     def show():
         WebAggApplication.initialize()
 

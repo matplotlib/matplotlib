@@ -3514,12 +3514,9 @@ class _Backend:
     # For interactive backends, the `FigureManager` class must be overridden.
     FigureManager = FigureManagerBase
 
-    # The following methods must be left as None for non-interactive backends.
-    # For interactive backends, `trigger_manager_draw` should be a function
-    # taking a manager as argument and triggering a canvas draw, and `mainloop`
-    # should be a function taking no argument and starting the backend main
-    # loop.
-    trigger_manager_draw = None
+    # For interactive backends, `mainloop` should be a function taking no
+    # argument and starting the backend main loop.  It should be left as None
+    # for non-interactive backends.
     mainloop = None
 
     # The following methods will be automatically defined and exported, but
@@ -3543,10 +3540,10 @@ class _Backend:
 
     @classmethod
     def draw_if_interactive(cls):
-        if cls.trigger_manager_draw is not None and is_interactive():
+        if cls.mainloop is not None and is_interactive():
             manager = Gcf.get_active()
             if manager:
-                cls.trigger_manager_draw(manager)
+                manager.canvas.draw_idle()
 
     @classmethod
     def show(cls, *, block=None):
