@@ -33,6 +33,7 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk4"
     supports_blit = False
     _timer_cls = TimerGTK4
+    manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
     _context_is_scaled = False
 
     def __init__(self, figure=None):

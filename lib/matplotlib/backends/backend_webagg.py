@@ -48,12 +48,12 @@ class ServerThread(threading.Thread):
 webagg_server_thread = ServerThread()
 
 
-class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
-    pass
-
-
 class FigureManagerWebAgg(core.FigureManagerWebAgg):
     _toolbar2_class = core.NavigationToolbar2WebAgg
+
+
+class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
+    manager_class = FigureManagerWebAgg
 
 
 class WebAggApplication(tornado.web.Application):

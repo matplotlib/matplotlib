@@ -1,5 +1,5 @@
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib._pylab_helpers import Gcf
 from . import _macosx
 from .backend_agg import FigureCanvasAgg
@@ -25,6 +25,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     required_interactive_framework = "macosx"
     _timer_cls = TimerMac
+    manager_class = _api.classproperty(lambda cls: FigureManagerMac)
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
