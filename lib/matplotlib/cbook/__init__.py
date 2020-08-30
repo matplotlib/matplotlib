@@ -1345,6 +1345,17 @@ def _reshape_2D(X, name):
 
     *name* is used to generate the error message for invalid inputs.
     """
+
+    # unpack if we have a values or to_numpy method.
+    try:
+        X = X.to_numpy()
+    except AttributeError:
+        try:
+            if isinstance(X.values, np.ndarray):
+                X = X.values
+        except AttributeError:
+            pass
+
     # Iterate over columns for ndarrays.
     if isinstance(X, np.ndarray):
         X = X.T
