@@ -809,18 +809,18 @@ def _auto_draw_if_interactive(fig, val):
             fig.canvas.draw_idle()
 
 
-def gcf():
+def gcf(**kwargs):
     """
     Get the current figure.
 
     If no current figure exists, a new one is created using
-    `~.pyplot.figure()`.
+    `~.pyplot.figure(**kwargs)`.
     """
     manager = _pylab_helpers.Gcf.get_active()
     if manager is not None:
         return manager.canvas.figure
     else:
-        return figure()
+        return figure(**kwargs)
 
 
 def fignum_exists(num):
