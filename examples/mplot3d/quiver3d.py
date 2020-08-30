@@ -9,8 +9,7 @@ Demonstrates plotting directional arrows at points on a 3d meshgrid.
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 # Make the grid
 x, y, z = np.meshgrid(np.arange(-0.8, 1, 0.2),
