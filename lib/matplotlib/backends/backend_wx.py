@@ -63,6 +63,15 @@ def error_msg_wx(msg, parent=None):
     return None
 
 
+# lru_cache holds a reference to the App and prevents it from being gc'ed.
+@functools.lru_cache(1)
+def _create_wxapp():
+    wxapp = wx.App(False)
+    wxapp.SetExitOnFrameDelete(True)
+    cbook._setup_new_guiapp()
+    return wxapp
+
+
 class TimerWx(TimerBase):
     """Subclass of `.TimerBase` using wx.Timer events."""
 
@@ -527,6 +536,17 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
         self.SetBackgroundColour(wx.WHITE)
+
+    @classmethod
+    def new_manager(cls, figure, num):
+        # docstring inherited
+        wxapp = wx.GetApp() or _create_wxapp()
+        frame = FigureFrameWx(num, figure, canvas_class=cls)
+        figmgr = frame.get_figure_manager()
+        if mpl.is_interactive():
+            figmgr.frame.Show()
+            figure.canvas.draw_idle()
+        return figmgr
 
     def Copy_to_Clipboard(self, event=None):
         """Copy bitmap of canvas to system clipboard."""
@@ -1343,24 +1363,6 @@ FigureManagerWx._toolmanager_toolbar_class = ToolbarWx
 class _BackendWx(_Backend):
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
-
-    @classmethod
-    def new_figure_manager_given_figure(cls, num, figure):
-        # Create a wx.App instance if it has not been created so far.
-        wxapp = wx.GetApp()
-        if wxapp is None:
-            wxapp = wx.App()
-            wxapp.SetExitOnFrameDelete(True)
-            cbook._setup_new_guiapp()
-            # Retain a reference to the app object so that it does not get
-            # garbage collected.
-            _BackendWx._theWxApp = wxapp
-        # Attaches figure.canvas, figure.canvas.manager.
-        frame = FigureFrameWx(num, figure, canvas_class=cls.FigureCanvas)
-        if mpl.is_interactive():
-            frame.Show()
-            figure.canvas.draw_idle()
-        return figure.canvas.manager
 
     @staticmethod
     def mainloop():

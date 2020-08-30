@@ -115,6 +115,11 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
 
+    @classmethod
+    def new_manager(cls, figure, num):
+        # docstring inherited
+        return FigureManagerGTK3(cls(figure), num)
+
     def destroy(self):
         self.close_event()
 

@@ -49,7 +49,10 @@ webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
-    pass
+    @classmethod
+    def new_manager(cls, figure, num):
+        # docstring inherited
+        return core.FigureManagerWebAgg(cls(figure), num)
 
 
 class FigureManagerWebAgg(core.FigureManagerWebAgg):

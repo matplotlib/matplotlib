@@ -143,7 +143,20 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    pass
+    @classmethod
+    def new_manager(cls, figure, num):
+        canvas = cls(figure)
+        manager = FigureManagerNbAgg(canvas, num)
+        if is_interactive():
+            manager.show()
+            figure.canvas.draw_idle()
+
+        def destroy(event):
+            canvas.mpl_disconnect(cid)
+            Gcf.destroy(manager)
+
+        cid = canvas.mpl_connect('close_event', destroy)
+        return manager
 
 
 class CommSocket:
@@ -227,21 +240,6 @@ class CommSocket:
 class _BackendNbAgg(_Backend):
     FigureCanvas = FigureCanvasNbAgg
     FigureManager = FigureManagerNbAgg
-
-    @staticmethod
-    def new_figure_manager_given_figure(num, figure):
-        canvas = FigureCanvasNbAgg(figure)
-        manager = FigureManagerNbAgg(canvas, num)
-        if is_interactive():
-            manager.show()
-            figure.canvas.draw_idle()
-
-        def destroy(event):
-            canvas.mpl_disconnect(cid)
-            Gcf.destroy(manager)
-
-        cid = canvas.mpl_connect('close_event', destroy)
-        return manager
 
     @staticmethod
     def show(block=None):

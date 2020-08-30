@@ -1662,6 +1662,16 @@ class FigureCanvasBase:
             if _is_non_interactive_terminal_ipython(ip):
                 ip.enable_gui(backend2gui_rif)
 
+    @classmethod
+    def new_manager(cls, figure, num):
+        """
+        Create a new figure manager for *figure*, using this canvas class.
+
+        Backends should override this method to instantiate the correct figure
+        manager subclass, and perform any additional setup that may be needed.
+        """
+        return FigureManagerBase(cls(figure), num)
+
     @contextmanager
     def _idle_draw_cntx(self):
         self._is_idle_drawing = True
@@ -3225,11 +3235,10 @@ class NavigationToolbar2:
         if hasattr(self, "subplot_tool"):
             self.subplot_tool.figure.canvas.manager.show()
             return
-        plt = _safe_pyplot_import()
+        # This import needs to happen here due to circular imports.
+        from matplotlib.figure import Figure
         with mpl.rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
-            # Use new_figure_manager() instead of figure() so that the figure
-            # doesn't get registered with pyplot.
-            manager = plt.new_figure_manager(-1, (6, 3))
+            manager = type(self.canvas).new_manager(Figure(figsize=(6, 3)), -1)
         manager.set_window_title("Subplot configuration tool")
         tool_fig = manager.canvas.figure
         tool_fig.subplots_adjust(top=0.9)
@@ -3457,9 +3466,7 @@ class _Backend:
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):
         """Create a new figure manager instance for the given figure."""
-        canvas = cls.FigureCanvas(figure)
-        manager = cls.FigureManager(canvas, num)
-        return manager
+        return cls.FigureCanvas.new_manager(figure, num)
 
     @classmethod
     def draw_if_interactive(cls):

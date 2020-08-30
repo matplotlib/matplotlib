@@ -33,6 +33,11 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         self._draw_pending = False
         self._is_drawing = False
 
+    @classmethod
+    def new_manager(cls, figure, num):
+        # docstring inherited
+        return FigureManagerMac(cls(figure), num)
+
     def set_cursor(self, cursor):
         # docstring inherited
         _macosx.set_cursor(cursor)

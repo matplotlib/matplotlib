@@ -78,6 +78,11 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
 
+    @classmethod
+    def new_manager(cls, figure, num):
+        # docstring inherited
+        return FigureManagerGTK4(cls(figure), num)
+
     def pick(self, mouseevent):
         # GtkWidget defines pick in GTK4, so we need to override here to work
         # with the base implementation we want.
