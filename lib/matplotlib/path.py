@@ -30,19 +30,16 @@ Attributes
 ----------
 apex : Tuple[float,float]
     The position of the vertex.
-incidence_angle : float, in
-    For vertices with one incoming line, set to ``None``. For vertices that
-    form a corner, the angle swept out by the two lines that meet at the
-    vertex.
-corner_angle : float
-    the internal angle of the corner, where np.pi is a straight line, and 0
+incidence_angle : float, in [-pi, pi]
+    For vertices with one incoming line, the orientation of the tangent vector
+    to the line at its tip (as returned by `np.arctan2`). For corners (vertices
+    with two incoming lines) the orientation of the corner's bisector should be
+    used instead. All orientation angles should be computed assuming the line
+    or bisector "points" towards the corner's apex.
+corner_angle : float, in [0, pi]
+    The internal angle of the corner, where np.pi is a straight line, and 0
     is retracing exactly the way you came. None can be used to signify that
     the line ends there (i.e. no corner).
-
-Notes
------
-$\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
-are equivalent for `incidence_angle` by symmetry.
 """
 
 
@@ -726,7 +723,7 @@ class Path:
             typically defined in points, so it doesn't usually make sense to
             request the stroked extents of a path without transforming it.
         joinstyle : {'miter', 'bevel', 'round'}
-            How the corner is to be drawn.
+            How line corners are to be drawn.
         capstyle : {'butt', 'round', 'projecting'}
             How line ends are to be drawn.
         **kwargs
@@ -742,7 +739,7 @@ class Path:
         ----
         The approach used is simply to notice that the bbox with no marker edge
         must be defined by a corner (control point of the linear parts of path)
-        or a an extremal point on one of the curved parts of the path.
+        or an extremal point on one of the curved parts of the path.
 
         For a nonzero marker edge width, because the interior extrema will by
         definition be parallel to the bounding box, we need only check if the
@@ -1209,26 +1206,36 @@ def get_path_collection_extents(
 
 
 def _vertex_info_from_angles(angle_1, angle_2):
-    """
-    Gets VertexInfo from direction of lines making up a corner.
-
-    This function expects angle_1 and angle_2 (in radians) to be
-    the orientation of lines 1 and 2 (arbitrarily chosen to point
-    towards the corner where they meet) relative to the coordinate
-    system.
+    r"""
+    Gets `.VertexInfo` from direction of lines making up a corner.
 
     Helper function for `.iter_angles`.
+
+    Parameters
+    ----------
+    angle_1 : float in [-pi, pi]
+        Orientation of the tangent vector of the first line at the corner, if
+        the tangent vector is defined to be oriented pointing along the line
+        towards the corner's apex. See `Examples` for clarification.
+    angle_2 : float
+        Same as *angle_1* but for the other line forming the corner.
 
     Returns
     -------
     incidence_angle : float in [-pi, pi]
-        as described in VertexInfo docs
+        as described in `.VertexInfo` docs
     corner_angle : float in [0, pi]
-        as described in VertexInfo docs
+        as described in `.VertexInfo` docs
 
     Notes
     -----
     Is necessarily ambiguous if corner_angle is pi.
+
+    Examples
+    --------
+    The only corner in ``Path([[0, 0], [1, 1], [0, 1]])`` would have two lines,
+    (``Path([[0, 0], [1, 1]])`` and ``Path([[1, 1], [0, 1]])``), with angles
+    :math:`\pi/4` and :math:`0`, respectively.
     """
     # get "interior" angle between tangents to joined curves' tips
     corner_angle = np.abs(angle_1 - angle_2)
@@ -1248,11 +1255,12 @@ def _vertex_info_from_angles(angle_1, angle_2):
 
 
 def _stroke_x_overflow(width, phi, theta, joinstyle='miter', capstyle='butt'):
-    """
-    Computes how far right a stroke of *width* extends past x coordinate of
-    vertex.
+    r"""
+    Compute distance a stroke of *width* extends past x coordinate of vertex.
 
-    Assumes the incident lines are both coming from the left.
+    The formulas here only work for corners which "point" in the positive x
+    direction. That is, we assume the incident lines are both coming from the
+    left, and extension is only measured to the right.
 
     Parameters
     ----------
@@ -1269,7 +1277,7 @@ def _stroke_x_overflow(width, phi, theta, joinstyle='miter', capstyle='butt'):
         form a corner, the interior angle swept out by the two lines that meet
         at the vertex.
     joinstyle : {'miter', 'bevel', 'round'}
-        How the corner is to be drawn.
+        How line corners are to be drawn.
     capstyle : {'butt', 'round', 'projecting'}
         How line ends are to be drawn.
 
@@ -1277,6 +1285,15 @@ def _stroke_x_overflow(width, phi, theta, joinstyle='miter', capstyle='butt'):
     -------
     pad : float
         Amount of bbox overflow.
+
+    Notes
+    -----
+    $\pi$ and 0 are equivalent for *theta*. Both $\phi$ and $\pi - \phi$
+    are equivalent for *phi* by symmetry.
+
+    If and only if `.VertexInfo.incidence_angle` is in :math:`[-\pi, \pi]`,
+    then *phi* corresponds to `.VertexInfo.incidence_angle`. *theta* always
+    corresponds to `.VertexInfo.corner_angle`.
     """
     if theta is not None and (theta < 0 or theta > np.pi) \
             or phi < 0 or phi > np.pi:
@@ -1309,8 +1326,8 @@ def _stroke_x_overflow(width, phi, theta, joinstyle='miter', capstyle='butt'):
         else:
             raise ValueError(f"Unknown capstyle: {capstyle}.")
     # the two "same as straight line" cases are NaN limits in the miter formula
-    elif np.isclose(theta, 0) and np.isclose(phi, 0) \
-    or np.isclose(theta, np.pi) and np.isclose(phi, np.pi/2):
+    elif (np.isclose(theta, 0) and np.isclose(phi, 0)
+          or np.isclose(theta, np.pi) and np.isclose(phi, np.pi/2)):
         return width/2
     # to calculate the offset for _joinstyle == 'miter', imagine aligning the
     # corner so that one line comes in along the negative x-axis, and another
@@ -1318,7 +1335,7 @@ def _stroke_x_overflow(width, phi, theta, joinstyle='miter', capstyle='butt'):
     # the new corner created by the markeredge stroke will be at the point
     # where the two outer edge of the markeredge stroke intersect.  in the
     # orientation described above, the outer edge of the stroke aligned with
-    # the x axis will obviously have equation $y = -w/2$ where $w$ is the
+    # the x-axis will obviously have equation $y = -w/2$ where $w$ is the
     # markeredgewidth. WLOG, the stroke coming in from above at an angle
     # $\theta$ from the negative x-axis will have equation
     # $$-(\tan(\theta) x + \frac{w}{2\cos(\theta)}.$$
@@ -1361,7 +1378,7 @@ def _pad_extents_stroked_vertex(extents, vinfo, markeredgewidth, joinstyle,
 
     Parameters
     ----------
-    extents : 4*[float]
+    extents : (4,) array_like of float
         The extents (xmin, ymin, xmax, ymax) of the `~.transforms.Bbox` of the
         vertices. Modified in place so that the corner described by *vinfo*
         fits into the extents when stroked with a width of *markeredgewidth*.
@@ -1370,13 +1387,13 @@ def _pad_extents_stroked_vertex(extents, vinfo, markeredgewidth, joinstyle,
     markeredgewidth : `float`
         The width of the stroke being drawn.
     joinstyle : {'miter', 'bevel', 'round'}
-        How the corner is to be drawn.
+        How line corners are to be drawn.
     capstyle : {'butt', 'round', 'projecting'}
         How line ends are to be drawn.
 
     Notes
     -----
-    Implementing by wrapping `._stroke_x_overflow`. This function checks which
+    Implemented by wrapping `._stroke_x_overflow`. This function checks which
     direction the corner (or cap) is pointing, then for each side of *extents*
     that might need padding, it rotates the corner to point in the positive x
     direction and calls `._stroke_x_overflow` to get the padding.
