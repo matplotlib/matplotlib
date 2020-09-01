@@ -1457,8 +1457,8 @@ class ArtistAnimation(TimedAnimation):
     fig : `~matplotlib.figure.Figure`
         The figure object used to get needed events, such as draw or resize.
     artists : list
-        Each list entry is a collection of artists that are made visible on
-        the corresponding frame.  Other artists are made invisible.
+        Each list entry is a collection of `.Artist` objects that are made
+        visible on the corresponding frame.  Other artists are made invisible.
     interval : int, default: 200
         Delay between frames in milliseconds.
     repeat_delay : int, default: 0
