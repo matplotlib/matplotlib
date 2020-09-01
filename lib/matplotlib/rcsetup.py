@@ -1302,7 +1302,8 @@ _validators = {
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
     "xtick.major.top":     validate_bool,      # draw top major xticks
     "xtick.major.bottom":  validate_bool,      # draw bottom major xticks
-    "xtick.minor.ndivs": ['auto', validate_minor_tick_ndivs],  # default number of minor ticks to display between each pair of major ticks
+    "xtick.minor.ndivs": ['auto', validate_minor_tick_ndivs],
+    # default number of minor ticks to display between each pair of major ticks
     "xtick.labelsize":     validate_fontsize,  # fontsize of xtick labels
     "xtick.direction":     validate_string,    # direction of xticks
     "xtick.alignment":     ["center", "right", "left"],
@@ -1326,7 +1327,8 @@ _validators = {
     "ytick.major.left":    validate_bool,      # draw left major yticks
     "ytick.major.right":   validate_bool,      # draw right major yticks
     "ytick.labelsize":     validate_fontsize,  # fontsize of ytick labels
-    "ytick.minor.ndivs": ['auto', validate_minor_tick_ndivs],  # default number of minor ticks to display between each pair of major ticks
+    "ytick.minor.ndivs": ['auto', validate_minor_tick_ndivs],
+    # default number of minor ticks to display between each pair of major ticks
     "ytick.direction":     validate_string,    # direction of yticks
     "ytick.alignment":     [
         "center", "top", "bottom", "baseline", "center_baseline"],
