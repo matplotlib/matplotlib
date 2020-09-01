@@ -29,6 +29,7 @@ Classes
    FancyBboxPatch
    Patch
    PathPatch
+   LevelsPatch
    Polygon
    Rectangle
    RegularPolygon

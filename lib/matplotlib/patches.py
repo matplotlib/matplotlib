@@ -989,8 +989,8 @@ class PathPatch(Patch):
         self._path = path
 
 
-class StepPatch(PathPatch):
-    """An unclosed stepline path patch."""
+class LevelsPatch(PathPatch):
+    """An unclosed levels path patch."""
 
     @docstring.dedent_interpd
     def __init__(self, values, edges, *,
@@ -1024,6 +1024,8 @@ class StepPatch(PathPatch):
         super().__init__(path, **kwargs)
 
     def _update_data(self):
+        if np.isnan(np.sum(self._edges)):
+            raise ValueError('Nan values in "edges" are disallowed')
         if self._edges.size - 1 != self._values.size:
             raise ValueError('Size mismatch between "values" and "edges". '
                              "Expected `len(values) + 1 == len(edges)`, but "
@@ -1032,18 +1034,16 @@ class StepPatch(PathPatch):
                              )
         verts, codes = [], []
         for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._values)):
-            x = np.vstack((self._edges[idx0:idx1+1],
-                           self._edges[idx0:idx1+1])).T.flatten()
-            y = np.vstack((self._values[idx0:idx1],
-                           self._values[idx0:idx1])).T.flatten()
+            x = np.repeat(self._edges[idx0:idx1+1], 2)
+            y = np.repeat(self._values[idx0:idx1], 2)
             if self.baseline is not None:
                 y = np.hstack((self.baseline, y, self.baseline))
             else:
                 y = np.hstack((y[0], y, y[-1]))
             if self.orientation == 'vertical':
-                xy = np.vstack([x, y]).T
+                xy = np.column_stack([x, y])
             else:
-                xy = np.vstack([y, x]).T
+                xy = np.column_stack([y, x])
             verts.append(xy)
             codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
         return np.vstack(verts), np.hstack(codes)

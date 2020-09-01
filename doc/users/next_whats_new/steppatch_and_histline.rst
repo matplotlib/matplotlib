@@ -1,4 +1,4 @@
-New `~.matplotlib.patches.StepPatch` artist and a `.pyplot.histline` method
+New `~.matplotlib.patches.LevelsPatch` artist and a `.pyplot.levels` method
 ---------------------------------------------------------------------------
 These take inputs of asymmetric lengths with y-like values and 
 x-like edges, between which the values lie.
@@ -14,9 +14,9 @@ x-like edges, between which the values lie.
 
     fig, ax = plt.subplots(constrained_layout=True)
 
-    ax.histline(h, bins)
+    ax.levels(h, bins)
 
     plt.show()
 
-See :doc:`/gallery/lines_bars_and_markers/histline_demo`
+See :doc:`/gallery/lines_bars_and_markers/levels_demo`
 for examples.

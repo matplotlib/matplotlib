@@ -302,9 +302,9 @@ class HandlerPatch(HandlerBase):
         return [p]
 
 
-class HandlerStepPatch(HandlerBase):
+class HandlerLevelsPatch(HandlerBase):
     """
-    Handler for `~.matplotlib.patches.StepPatch` instances.
+    Handler for `~.matplotlib.patches.LevelsPatch` instances.
     """
     def __init__(self, **kw):
         """
@@ -319,7 +319,7 @@ class HandlerStepPatch(HandlerBase):
                       width=width, height=height)
         return p
 
-    # Unfilled StepPatch should show as a line
+    # Unfilled LevelsPatch should show as a line
     def _create_line(self, legend, orig_handle,
                      xdescent, ydescent, width, height, fontsize):
 

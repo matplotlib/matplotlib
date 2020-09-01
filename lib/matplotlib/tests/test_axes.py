@@ -1745,20 +1745,20 @@ def test_hist_zorder(histtype, zorder):
 
 
 @check_figures_equal()
-def test_histline(fig_test, fig_ref):
+def test_levels(fig_test, fig_ref):
     import matplotlib.lines as mlines
     y = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
     x = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
 
     fig_test, test_axes = plt.subplots(3, 2)
     test_axes = test_axes.flatten()
-    test_axes[0].histline(y, x, baseline=None)
-    test_axes[1].histline(y, x, baseline=None, orientation='horizontal')
-    test_axes[2].histline(y, x)
-    test_axes[3].histline(y, x, orientation='horizontal')
-    test_axes[4].histline(y, x)
+    test_axes[0].levels(y, x, baseline=None)
+    test_axes[1].levels(y, x, baseline=None, orientation='horizontal')
+    test_axes[2].levels(y, x)
+    test_axes[3].levels(y, x, orientation='horizontal')
+    test_axes[4].levels(y, x)
     test_axes[4].semilogy()
-    test_axes[5].histline(y, x, orientation='horizontal')
+    test_axes[5].levels(y, x, orientation='horizontal')
     test_axes[5].semilogy()
 
     fig_ref, ref_axes = plt.subplots(3, 2)
@@ -1788,16 +1788,16 @@ def test_histline(fig_test, fig_ref):
 
 
 @check_figures_equal()
-def test_histline_fill(fig_test, fig_ref):
+def test_levels_fill(fig_test, fig_ref):
     h, bins = [1, 2, 3, 4, 2], [0, 1, 2, 3, 4, 5]
     bs = -2
     # Test
     fig_test, test_axes = plt.subplots(2, 2)
     test_axes = test_axes.flatten()
-    test_axes[0].histline(h, bins, fill=True)
-    test_axes[1].histline(h, bins, orientation='horizontal', fill=True)
-    test_axes[2].histline(h, bins, baseline=bs, fill=True)
-    test_axes[3].histline(h, bins, baseline=bs, orientation='horizontal',
+    test_axes[0].levels(h, bins, fill=True)
+    test_axes[1].levels(h, bins, orientation='horizontal', fill=True)
+    test_axes[2].levels(h, bins, baseline=bs, fill=True)
+    test_axes[3].levels(h, bins, baseline=bs, orientation='horizontal',
                           fill=True)
 
     # # Ref
@@ -1815,22 +1815,22 @@ def test_histline_fill(fig_test, fig_ref):
     ref_axes[3].set_xlim(bs, None)
 
 
-@image_comparison(['test_histline_options.png'], remove_text=True)
-def test_histline_options():
+@image_comparison(['test_levels_options.png'], remove_text=True)
+def test_levels_options():
     x, y = np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4]).astype(float)
     yn = y.copy()
     yn[1] = np.nan
 
     fig, ax = plt.subplots()
-    ax.histline(y*3, x, color='green', fill=True, label="A")
-    ax.histline(y, x*3-3, color='red', fill=True,
+    ax.levels(y*3, x, color='green', fill=True, label="A")
+    ax.levels(y, x*3-3, color='red', fill=True,
                 orientation='horizontal', label="B")
-    ax.histline(yn, x, color='orange', ls='--', lw=2, label="C")
-    ax.histline(yn/3, x*3-2, color='purple', ls='--', lw=2, baseline=0.5,
+    ax.levels(yn, x, color='orange', ls='--', lw=2, label="C")
+    ax.levels(yn/3, x*3-2, color='purple', ls='--', lw=2, baseline=0.5,
                 orientation='horizontal', label="D")
-    ax.histline(y[::-1]*3+12, x, color='red', ls='--', lw=2, baseline=None,
+    ax.levels(y[::-1]*3+12, x, color='red', ls='--', lw=2, baseline=None,
                 label="E")
-    ax.histline(y[:-1][::-1]*2+11, x[:-1]+0.5, color='blue', ls='--', lw=2,
+    ax.levels(y[:-1][::-1]*2+11, x[:-1]+0.5, color='blue', ls='--', lw=2,
                 baseline=12, hatch='//', label="F")
     ax.legend(loc=0)
 
