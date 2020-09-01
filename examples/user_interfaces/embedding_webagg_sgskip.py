@@ -12,25 +12,26 @@ The framework being used must support web sockets.
 """
 
 import io
+import json
 import mimetypes
+from pathlib import Path
 
 try:
     import tornado
-except ImportError:
-    raise RuntimeError("This example requires tornado.")
+except ImportError as err:
+    raise RuntimeError("This example requires tornado.") from err
 import tornado.web
 import tornado.httpserver
 import tornado.ioloop
 import tornado.websocket
 
 
+import matplotlib as mpl
 from matplotlib.backends.backend_webagg_core import (
     FigureManagerWebAgg, new_figure_manager_given_figure)
 from matplotlib.figure import Figure
 
 import numpy as np
-
-import json
 
 
 def create_figure():
@@ -58,9 +59,7 @@ html_content = """
     <link rel="stylesheet" href="_static/css/boilerplate.css"
           type="text/css" />
     <link rel="stylesheet" href="_static/css/fbm.css" type="text/css" />
-    <link rel="stylesheet" href="_static/jquery-ui-1.12.1/jquery-ui.min.css" />
-    <script src="_static/jquery-ui-1.12.1/external/jquery/jquery.js"></script>
-    <script src="_static/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="_static/css/mpl.css" type="text/css">
     <script src="mpl.js"></script>
 
     <script>
@@ -71,7 +70,15 @@ html_content = """
         window.open('download.' + format, '_blank');
       };
 
-      $(document).ready(
+      function ready(fn) {
+        if (document.readyState != "loading") {
+          fn();
+        } else {
+          document.addEventListener("DOMContentLoaded", fn);
+        }
+      }
+
+      ready(
         function() {
           /* It is up to the application to provide a websocket that the figure
              will use to communicate to the server.  This websocket object can
@@ -89,7 +96,7 @@ html_content = """
               // A function called when a file type is selected for download
               ondownload,
               // The HTML element in which to place the figure
-              $('div#figure'));
+              document.getElementById("figure"));
         }
       );
     </script>
@@ -210,6 +217,11 @@ class MyApplication(tornado.web.Application):
             (r'/_static/(.*)',
              tornado.web.StaticFileHandler,
              {'path': FigureManagerWebAgg.get_static_file_path()}),
+
+            # Static images for the toolbar
+            (r'/_images/(.*)',
+             tornado.web.StaticFileHandler,
+             {'path': Path(mpl.get_data_path(), 'images')}),
 
             # The page that contains all of the pieces
             ('/', self.MainPage),

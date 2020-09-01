@@ -6,12 +6,13 @@ from matplotlib import cbook
 
 
 class Duration:
-    """Class Duration in development.
-    """
+    """Class Duration in development."""
+
     allowed = ["ET", "UTC"]
 
     def __init__(self, frame, seconds):
-        """Create a new Duration object.
+        """
+        Create a new Duration object.
 
         = ERROR CONDITIONS
         - If the input frame is not in the allowed list, an error is thrown.
@@ -62,7 +63,8 @@ class Duration:
         return self._cmp(rhs, operator.ge)
 
     def _cmp(self, rhs, op):
-        """Compare two Durations.
+        """
+        Compare two Durations.
 
         = INPUT VARIABLES
         - rhs     The Duration to compare against.
@@ -75,7 +77,8 @@ class Duration:
         return op(self._seconds, rhs._seconds)
 
     def __add__(self, rhs):
-        """Add two Durations.
+        """
+        Add two Durations.
 
         = ERROR CONDITIONS
         - If the input rhs is not in the same frame, an error is thrown.
@@ -96,7 +99,8 @@ class Duration:
         return Duration(self._frame, self._seconds + rhs._seconds)
 
     def __sub__(self, rhs):
-        """Subtract two Durations.
+        """
+        Subtract two Durations.
 
         = ERROR CONDITIONS
         - If the input rhs is not in the same frame, an error is thrown.
@@ -111,7 +115,8 @@ class Duration:
         return Duration(self._frame, self._seconds - rhs._seconds)
 
     def __mul__(self, rhs):
-        """Scale a UnitDbl by a value.
+        """
+        Scale a UnitDbl by a value.
 
         = INPUT VARIABLES
         - rhs     The scalar to multiply by.
@@ -122,7 +127,8 @@ class Duration:
         return Duration(self._frame, self._seconds * float(rhs))
 
     def __rmul__(self, lhs):
-        """Scale a Duration by a value.
+        """
+        Scale a Duration by a value.
 
         = INPUT VARIABLES
         - lhs     The scalar to multiply by.
@@ -141,7 +147,8 @@ class Duration:
         return "Duration('%s', %g)" % (self._frame, self._seconds)
 
     def checkSameFrame(self, rhs, func):
-        """Check to see if frames are the same.
+        """
+        Check to see if frames are the same.
 
         = ERROR CONDITIONS
         - If the frame of the rhs Duration is not the same as our frame,

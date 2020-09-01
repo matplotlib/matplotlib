@@ -115,16 +115,12 @@ class ConversionInterface:
 
     @staticmethod
     def axisinfo(unit, axis):
-        """
-        Return an `~units.AxisInfo` for the axis with the specified units.
-        """
+        """Return an `.AxisInfo` for the axis with the specified units."""
         return None
 
     @staticmethod
     def default_units(x, axis):
-        """
-        Return the default unit for *x* or ``None`` for the given axis.
-        """
+        """Return the default unit for *x* or ``None`` for the given axis."""
         return None
 
     @staticmethod

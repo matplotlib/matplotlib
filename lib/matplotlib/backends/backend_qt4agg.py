@@ -2,8 +2,12 @@
 Render to qt from agg
 """
 
+from .. import cbook
 from .backend_qt5agg import (
     _BackendQT5Agg, FigureCanvasQTAgg, FigureManagerQT, NavigationToolbar2QT)
+
+
+cbook.warn_deprecated("3.3", name=__name__, obj_type="backend")
 
 
 @_BackendQT5Agg.export

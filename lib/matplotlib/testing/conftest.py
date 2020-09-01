@@ -7,8 +7,8 @@ from matplotlib import cbook
 def pytest_configure(config):
     # config is initialized here rather than in pytest.ini so that `pytest
     # --pyargs matplotlib` (which would not find pytest.ini) works.  The only
-    # entries in pytest.ini set minversion (which is checked earlier) and
-    # testpaths/python_files, as they are required to properly find the tests.
+    # entries in pytest.ini set minversion (which is checked earlier),
+    # testpaths/python_files, as they are required to properly find the tests
     for key, value in [
         ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
         ("markers", "timeout: (Provided by pytest-timeout.)"),
@@ -16,6 +16,7 @@ def pytest_configure(config):
         ("markers", "style: Set alternate Matplotlib style temporarily."),
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
+        ("markers", "network: Tests that reach out to the network."),
         ("filterwarnings", "error"),
     ]:
         config.addinivalue_line(key, value)
@@ -78,21 +79,21 @@ def mpl_test_settings(request):
             style, = style_marker.args
 
         matplotlib.testing.setup()
-        if backend is not None:
-            # This import must come after setup() so it doesn't load the
-            # default backend prematurely.
-            import matplotlib.pyplot as plt
-            try:
-                plt.switch_backend(backend)
-            except ImportError as exc:
-                # Should only occur for the cairo backend tests, if neither
-                # pycairo nor cairocffi are installed.
-                if 'cairo' in backend.lower() or skip_on_importerror:
-                    pytest.skip("Failed to switch to backend {} ({})."
-                                .format(backend, exc))
-                else:
-                    raise
         with cbook._suppress_matplotlib_deprecation_warning():
+            if backend is not None:
+                # This import must come after setup() so it doesn't load the
+                # default backend prematurely.
+                import matplotlib.pyplot as plt
+                try:
+                    plt.switch_backend(backend)
+                except ImportError as exc:
+                    # Should only occur for the cairo backend tests, if neither
+                    # pycairo nor cairocffi are installed.
+                    if 'cairo' in backend.lower() or skip_on_importerror:
+                        pytest.skip("Failed to switch to backend {} ({})."
+                                    .format(backend, exc))
+                    else:
+                        raise
             matplotlib.style.use(style)
         try:
             yield

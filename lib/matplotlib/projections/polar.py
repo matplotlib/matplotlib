@@ -8,7 +8,7 @@ from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
-import matplotlib.path as mpath
+from matplotlib.path import Path
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.spines as mspines
@@ -25,7 +25,7 @@ class PolarTransform(mtransforms.Transform):
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):
-        mtransforms.Transform.__init__(self)
+        super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
@@ -50,11 +50,57 @@ class PolarTransform(mtransforms.Transform):
 
     def transform_path_non_affine(self, path):
         # docstring inherited
-        vertices = path.vertices
-        if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
-            return mpath.Path(self.transform(vertices), path.codes)
-        ipath = path.interpolated(path._interpolation_steps)
-        return mpath.Path(self.transform(ipath.vertices), ipath.codes)
+        if not len(path) or path._interpolation_steps == 1:
+            return Path(self.transform_non_affine(path.vertices), path.codes)
+        xys = []
+        codes = []
+        last_t = last_r = None
+        for trs, c in path.iter_segments():
+            trs = trs.reshape((-1, 2))
+            if c == Path.LINETO:
+                (t, r), = trs
+                if t == last_t:  # Same angle: draw a straight line.
+                    xys.extend(self.transform_non_affine(trs))
+                    codes.append(Path.LINETO)
+                elif r == last_r:  # Same radius: draw an arc.
+                    # The following is complicated by Path.arc() being
+                    # "helpful" and unwrapping the angles, but we don't want
+                    # that behavior here.
+                    last_td, td = np.rad2deg([last_t, t])
+                    if self._use_rmin and self._axis is not None:
+                        r = ((r - self._axis.get_rorigin())
+                             * self._axis.get_rsign())
+                    if last_td <= td:
+                        while td - last_td > 360:
+                            arc = Path.arc(last_td, last_td + 360)
+                            xys.extend(arc.vertices[1:] * r)
+                            codes.extend(arc.codes[1:])
+                            last_td += 360
+                        arc = Path.arc(last_td, td)
+                        xys.extend(arc.vertices[1:] * r)
+                        codes.extend(arc.codes[1:])
+                    else:
+                        # The reverse version also relies on the fact that all
+                        # codes but the first one are the same.
+                        while last_td - td > 360:
+                            arc = Path.arc(last_td - 360, last_td)
+                            xys.extend(arc.vertices[::-1][1:] * r)
+                            codes.extend(arc.codes[1:])
+                            last_td -= 360
+                        arc = Path.arc(td, last_td)
+                        xys.extend(arc.vertices[::-1][1:] * r)
+                        codes.extend(arc.codes[1:])
+                else:  # Interpolate.
+                    trs = cbook.simple_linear_interpolation(
+                        np.row_stack([(last_t, last_r), trs]),
+                        path._interpolation_steps)[1:]
+                    xys.extend(self.transform_non_affine(trs))
+                    codes.extend([Path.LINETO] * len(trs))
+            else:  # Not a straight line.
+                xys.extend(self.transform_non_affine(trs))
+                codes.extend([c] * len(trs))
+            last_t, last_r = trs[-1]
+        return Path(xys, codes)
 
     def inverted(self):
         # docstring inherited
@@ -73,7 +119,7 @@ class PolarAffine(mtransforms.Affine2DBase):
         its bounds that is used is the y limits (for the radius limits).
         The theta range is handled by the non-affine transform.
         """
-        mtransforms.Affine2DBase.__init__(self)
+        super().__init__()
         self._scale_transform = scale_transform
         self._limits = limits
         self.set_children(scale_transform, limits)
@@ -104,7 +150,7 @@ class InvertedPolarTransform(mtransforms.Transform):
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):
-        mtransforms.Transform.__init__(self)
+        super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
@@ -203,6 +249,7 @@ class ThetaLocator(mticker.Locator):
     def autoscale(self):
         return self.base.autoscale()
 
+    @cbook.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
@@ -214,6 +261,7 @@ class ThetaLocator(mticker.Locator):
         vmin, vmax = np.rad2deg((vmin, vmax))
         return np.deg2rad(self.base.view_limits(vmin, vmax))
 
+    @cbook.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
@@ -387,12 +435,15 @@ class RadialLocator(mticker.Locator):
     def autoscale(self):
         return self.base.autoscale()
 
+    @cbook.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
+    @cbook.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
+    @cbook.deprecated("3.3")
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
@@ -427,8 +478,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         of the axes, or using the rlabel position (``'rlabel'``).
     """
     def __init__(self, axes, pad, mode):
-        mtransforms.ScaledTranslation.__init__(self, pad, pad,
-                                               axes.figure.dpi_scale_trans)
+        super().__init__(pad, pad, axes.figure.dpi_scale_trans)
         self.set_children(axes._realViewLim)
         self.axes = axes
         self.mode = mode
@@ -458,7 +508,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
                 pady = np.sin(angle + np.pi / 2)
 
             self._t = (self.pad * padx / 72, self.pad * pady / 72)
-        return mtransforms.ScaledTranslation.get_matrix(self)
+        return super().get_matrix()
 
 
 class RadialTick(maxis.YTick):
@@ -680,7 +730,7 @@ class _WedgeBbox(mtransforms.Bbox):
         Bbox determining the origin for the wedge, if different from *viewLim*
     """
     def __init__(self, center, viewLim, originLim, **kwargs):
-        mtransforms.Bbox.__init__(self, [[0, 0], [1, 1]], **kwargs)
+        super().__init__([[0, 0], [1, 1]], **kwargs)
         self._center = center
         self._viewLim = viewLim
         self._originLim = originLim
@@ -743,7 +793,7 @@ class PolarAxes(Axes):
         self.cla()
 
     def cla(self):
-        Axes.cla(self)
+        super().cla()
 
         self.title.set_y(1.05)
 
@@ -895,12 +945,15 @@ class PolarAxes(Axes):
             pad_shift = _ThetaShift(self, pad, 'min')
         return self._yaxis_text_transform + pad_shift, 'center', halign
 
-    def draw(self, *args, **kwargs):
+    @cbook._delete_parameter("3.3", "args")
+    @cbook._delete_parameter("3.3", "kwargs")
+    def draw(self, renderer, *args, **kwargs):
+        self._unstale_viewLim()
         thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
         rmin, rmax = ((self._realViewLim.intervaly - self.get_rorigin()) *
-                        self.get_rsign())
+                      self.get_rsign())
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
             # patch to not be the Wedge that PolarAxes uses.
@@ -938,7 +991,7 @@ class PolarAxes(Axes):
             self.yaxis.reset_ticks()
             self.yaxis.set_clip_path(self.patch)
 
-        Axes.draw(self, *args, **kwargs)
+        super().draw(renderer, *args, **kwargs)
 
     def _gen_axes_patch(self):
         return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
@@ -987,13 +1040,30 @@ class PolarAxes(Axes):
         where minval and maxval are the minimum and maximum limits. Values are
         wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
-        an axes symmetric around 0.
+        an axes symmetric around 0. A ValueError is raised if the absolute
+        angle difference is larger than :math:`2\pi`.
         """
+        thetamin = None
+        thetamax = None
+        left = None
+        right = None
+
+        if len(args) == 2:
+            if args[0] is not None and args[1] is not None:
+                left, right = args
+                if abs(right - left) > 2 * np.pi:
+                    raise ValueError('The angle range must be <= 2 pi')
+
         if 'thetamin' in kwargs:
-            kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
+            thetamin = np.deg2rad(kwargs.pop('thetamin'))
         if 'thetamax' in kwargs:
-            kwargs['xmax'] = np.deg2rad(kwargs.pop('thetamax'))
-        return tuple(np.rad2deg(self.set_xlim(*args, **kwargs)))
+            thetamax = np.deg2rad(kwargs.pop('thetamax'))
+
+        if thetamin is not None and thetamax is not None:
+            if abs(thetamax - thetamin) > 2 * np.pi:
+                raise ValueError('The angle range must be <= 360 degrees')
+        return tuple(np.rad2deg(self.set_xlim(left=left, right=right,
+                                              xmin=thetamin, xmax=thetamax)))
 
     def set_theta_offset(self, offset):
         """
@@ -1011,13 +1081,15 @@ class PolarAxes(Axes):
 
     def set_theta_zero_location(self, loc, offset=0.0):
         """
-        Sets the location of theta's zero.  (Calls set_theta_offset
-        with the correct value in radians under the hood.)
+        Set the location of theta's zero.
 
+        This simply calls `set_theta_offset` with the correct value in radians.
+
+        Parameters
+        ----------
         loc : str
             May be one of "N", "NW", "W", "SW", "S", "SE", "E", or "NE".
-
-        offset : float, optional
+        offset : float, default: 0
             An offset in degrees to apply from the specified *loc*. **Note:**
             this offset is *always* applied counter-clockwise regardless of
             the direction setting.
@@ -1151,14 +1223,14 @@ class PolarAxes(Axes):
 
         Parameters
         ----------
-        bottom : scalar, optional
+        bottom : float, optional
             The bottom limit (default: None, which leaves the bottom
             limit unchanged).
             The bottom and top ylims may be passed as the tuple
             (*bottom*, *top*) as the first positional argument (or as
             the *bottom* keyword argument).
 
-        top : scalar, optional
+        top : float, optional
             The top limit (default: None, which leaves the top limit
             unchanged).
 
@@ -1169,7 +1241,7 @@ class PolarAxes(Axes):
             Whether to turn on autoscaling of the y-axis. True turns on,
             False turns off, None leaves unchanged.
 
-        ymin, ymax : scalar, optional
+        ymin, ymax : float, optional
             These arguments are deprecated and will be removed in a future
             version.  They are equivalent to *bottom* and *top* respectively,
             and it is an error to pass both *ymin* and *bottom* or
@@ -1206,7 +1278,8 @@ class PolarAxes(Axes):
         return np.rad2deg(self._r_label_position.get_matrix()[0, 2])
 
     def set_rlabel_position(self, value):
-        """Updates the theta position of the radius labels.
+        """
+        Update the theta position of the radius labels.
 
         Parameters
         ----------
@@ -1216,7 +1289,7 @@ class PolarAxes(Axes):
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
 
     def set_yscale(self, *args, **kwargs):
-        Axes.set_yscale(self, *args, **kwargs)
+        super().set_yscale(*args, **kwargs)
         self.yaxis.set_major_locator(
             self.RadialLocator(self.yaxis.get_major_locator(), self))
 
@@ -1246,8 +1319,11 @@ class PolarAxes(Axes):
 
         Returns
         -------
-        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-            *lines* are the theta gridlines and *labels* are the tick labels.
+        lines : list of `.lines.Line2D`
+            The theta gridlines.
+
+        labels : list of `.text.Text`
+            The tick labels.
 
         Other Parameters
         ----------------
@@ -1273,8 +1349,7 @@ class PolarAxes(Axes):
             t.update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
-    def set_rgrids(self, radii, labels=None, angle=None, fmt=None,
-                   **kwargs):
+    def set_rgrids(self, radii, labels=None, angle=None, fmt=None, **kwargs):
         """
         Set the radial gridlines on a polar plot.
 
@@ -1296,8 +1371,11 @@ class PolarAxes(Axes):
 
         Returns
         -------
-        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-            *lines* are the radial gridlines and *labels* are the tick labels.
+        lines : list of `.lines.Line2D`
+            The radial gridlines.
+
+        labels : list of `.text.Text`
+            The tick labels.
 
         Other Parameters
         ----------------

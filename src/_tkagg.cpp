@@ -1,16 +1,32 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-/*
- * This code is derived from The Python Imaging Library and is covered
- * by the PIL license.
- *
- * See LICENSE/LICENSE.PIL for details.
- *
- */
+// Where is PIL?
+//
+// Many years ago, Matplotlib used to include code from PIL (the Python Imaging
+// Library).  Since then, the code has changed a lot - the organizing principle
+// and methods of operation are now quite different.  Because our review of
+// the codebase showed that all the code that came from PIL was removed or
+// rewritten, we have removed the PIL licensing information.  If you want PIL,
+// you can get it at https://python-pillow.org/
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 #ifdef _WIN32
+#define WIN32_DLL
+#endif
+#ifdef __CYGWIN__
+/*
+ * Unfortunately cygwin's libdl inherits restrictions from the underlying
+ * Windows OS, at least currently. Therefore, a symbol may be loaded from a
+ * module by dlsym() only if it is really located in the given modile,
+ * dependencies are not included. So we have to use native WinAPI on Cygwin
+ * also.
+ */
+#define WIN32_DLL
+#endif
+
+#ifdef WIN32_DLL
 #include <windows.h>
 #define PSAPI_VERSION 1
 #include <psapi.h>  // Must be linked with 'psapi' library
@@ -73,38 +89,8 @@ exit:
     }
 }
 
-#ifdef _WIN32
-static PyObject *
-Win32_GetForegroundWindow(PyObject *module, PyObject *args)
-{
-    HWND handle = GetForegroundWindow();
-    if (!PyArg_ParseTuple(args, ":GetForegroundWindow")) {
-        return NULL;
-    }
-    return PyLong_FromSize_t((size_t)handle);
-}
-
-static PyObject *
-Win32_SetForegroundWindow(PyObject *module, PyObject *args)
-{
-    HWND handle;
-    if (!PyArg_ParseTuple(args, "n:SetForegroundWindow", &handle)) {
-        return NULL;
-    }
-    if (!SetForegroundWindow(handle)) {
-        return PyErr_Format(PyExc_RuntimeError, "Error setting window");
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-#endif
-
 static PyMethodDef functions[] = {
     { "blit", (PyCFunction)mpl_tk_blit, METH_VARARGS },
-#ifdef _WIN32
-    { "Win32_GetForegroundWindow", (PyCFunction)Win32_GetForegroundWindow, METH_VARARGS },
-    { "Win32_SetForegroundWindow", (PyCFunction)Win32_SetForegroundWindow, METH_VARARGS },
-#endif
     { NULL, NULL } /* sentinel */
 };
 
@@ -122,7 +108,7 @@ int load_tk(T lib)
             (Tk_PhotoPutBlock_NoComposite_t)dlsym(lib, "Tk_PhotoPutBlock_NoComposite"));
 }
 
-#ifdef _WIN32
+#ifdef WIN32_DLL
 
 /*
  * On Windows, we can't load the tkinter module to get the Tk symbols, because
@@ -161,7 +147,7 @@ void load_tkinter_funcs(void)
 void load_tkinter_funcs(void)
 {
     // Load tkinter global funcs from tkinter compiled module.
-    void *main_program, *tkinter_lib;
+    void *main_program = NULL, *tkinter_lib = NULL;
     PyObject *module = NULL, *py_path = NULL, *py_path_b = NULL;
     char *path;
 
@@ -190,11 +176,18 @@ void load_tkinter_funcs(void)
         PyErr_SetString(PyExc_RuntimeError, dlerror());
         goto exit;
     }
-    load_tk(tkinter_lib);
-    // dlclose is safe because tkinter has been imported.
-    dlclose(tkinter_lib);
-    goto exit;
+    if (load_tk(tkinter_lib)) {
+        goto exit;
+    }
+
 exit:
+    // We don't need to keep a reference open as the main program & tkinter
+    // have been imported.  Use a non-short-circuiting "or" to try closing both
+    // handles before handling errors.
+    if ((main_program && dlclose(main_program))
+        | (tkinter_lib && dlclose(tkinter_lib))) {
+        PyErr_SetString(PyExc_RuntimeError, dlerror());
+    }
     Py_XDECREF(module);
     Py_XDECREF(py_path);
     Py_XDECREF(py_path_b);
@@ -204,6 +197,8 @@ exit:
 static PyModuleDef _tkagg_module = {
     PyModuleDef_HEAD_INIT, "_tkagg", "", -1, functions, NULL, NULL, NULL, NULL
 };
+
+#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__tkagg(void)
 {
@@ -219,3 +214,5 @@ PyMODINIT_FUNC PyInit__tkagg(void)
     }
     return PyModule_Create(&_tkagg_module);
 }
+
+#pragma GCC visibility pop

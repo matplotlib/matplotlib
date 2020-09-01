@@ -40,7 +40,7 @@ functions = [
 
 class CanvasFrame(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, -1, title, size=(550, 350))
+        super().__init__(parent, -1, title, size=(550, 350))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -123,5 +123,7 @@ class MyApp(wx.App):
         frame.Show(True)
         return True
 
-app = MyApp()
-app.MainLoop()
+
+if __name__ == "__main__":
+    app = MyApp()
+    app.MainLoop()

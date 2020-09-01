@@ -34,7 +34,7 @@ plt.legend(loc='lower right')
 
 
 ##############################################################################
-# Similarly ``xuplims``and ``xlolims`` can be used on the horizontal ``xerr``
+# Similarly ``xuplims`` and ``xlolims`` can be used on the horizontal ``xerr``
 # errorbars.
 
 fig = plt.figure()

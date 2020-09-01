@@ -12,13 +12,15 @@ The project is hosted on https://github.com/matplotlib/matplotlib
 
 .. _coc: http://www.python.org/psf/codeofconduct/
 
+.. _submitting-a-bug-report:
+
 Submitting a bug report
 =======================
 
 If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
-`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also
-welcome to post feature requests or pull requests.
+`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are
+also welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
 
@@ -47,6 +49,17 @@ We have preloaded the issue creation page with a Markdown template that you can
 use to organize this information.
 
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
+
+Requesting a new feature
+========================
+
+Please post feature requests to the
+`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_.
+
+The Matplotlib developers will give feedback on the feature proposal. Since
+Matplotlib is an open source project with limited resources, we encourage
+users to then also
+:ref:`participate in the implementation <contributing-code>`.
 
 .. _installing_for_devs:
 
@@ -123,9 +136,12 @@ You can then run the tests to check your work environment is set up properly::
 
   * :ref:`testing`
 
+.. _contributing-code:
 
 Contributing code
 =================
+
+.. _how-to-contribute:
 
 How to contribute
 -----------------
@@ -175,7 +191,7 @@ want to consider sending an email to the mailing list for more visibility.
   * `Git documentation <https://git-scm.com/documentation>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
   * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
-  * :ref:`development-workflow`.
+  * :ref:`development-workflow`
   * :ref:`using-git`
 
 Contributing pull requests
@@ -225,8 +241,10 @@ rules before submitting a pull request:
   :file:`doc/users/next_whats_new/README.rst` for more information).
 
 * If you change the API in a backward-incompatible way, please document it in
-  :file:`doc/api/api_changes`, by adding to the relevant file
-  (see :file:`doc/api/api_changes.rst` for more information)
+  :file:`doc/api/next_api_changes/behavior`, by adding a new file with the
+  naming convention ``99999-ABC.rst`` where the pull request number is followed
+  by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
+  information)
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
@@ -274,21 +292,41 @@ This helps the contributor become familiar with the contribution
 workflow, and for the core devs to become acquainted with the contributor;
 besides which, we frequently underestimate how easy an issue is to solve!
 
+
+.. _contributing_documentation:
+
+Contributing documentation
+==========================
+
+You as an end-user of Matplotlib can make a valuable contribution because you
+more clearly see the potential for improvement than a core developer. For example, you can:
+
+- Fix a typo
+- Clarify a docstring
+- Write or update an :ref:`example plot <gallery>`
+- Write or update a comprehensive :ref:`tutorial <tutorials>`
+
+The documentation source files live in the same GitHub repository as the code.
+Contributions are proposed and accepted through the pull request process.
+For details see :ref:`how-to-contribute`.
+
+If you have trouble getting started, you may instead open an `issue`_
+describing the intended improvement.
+
+.. _issue: https://github.com/matplotlib/matplotlib/issues
+
+.. seealso::
+  * :ref:`documenting-matplotlib`
+
 .. _other_ways_to_contribute:
 
 Other ways to contribute
-=========================
-
-
-Code is not the only way to contribute to Matplotlib. For instance,
-documentation is also a very important part of the project and often doesn't
-get as much attention as it deserves. If you find a typo in the documentation,
-or have made improvements, do not hesitate to send an email to the mailing
-list or submit a GitHub pull request. Full documentation can be found under
-the doc/ directory.
+========================
 
 It also helps us if you spread the word: reference the project from your blog
-and articles or link to it from your website!
+and articles or link to it from your website!  If Matplotlib contributes to a
+project that leads to a scientific publication, please follow the
+:doc:`/citing` guidelines.
 
 .. _coding_guidelines:
 
@@ -301,8 +339,10 @@ API changes
 Changes to the public API must follow a standard deprecation procedure to
 prevent unexpected breaking of code that uses Matplotlib.
 
-- Deprecations must be announced via an entry in
-  :file:`doc/api/next_api_changes`.
+- Deprecations must be announced via a new file in
+  a new file in :file:`doc/api/next_api_changes/deprecations/` with
+  naming convention ``99999-ABC.rst`` where ``99999`` is the pull request
+  number and ``ABC`` are the contributor's initials.
 - Deprecations are targeted at the next point-release (i.e. 3.x.0).
 - The deprecated API should, to the maximum extent possible, remain fully
   functional during the deprecation period. In cases where this is not
@@ -311,7 +351,7 @@ prevent unexpected breaking of code that uses Matplotlib.
 - If possible, usage of an deprecated API should emit a
   `.MatplotlibDeprecationWarning`. There are a number of helper tools for this:
 
-  - Use `.cbook.warn_deprecated()` for general deprecation warnings.
+  - Use ``cbook.warn_deprecated()`` for general deprecation warnings.
   - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
     methods, or properties.
   - To warn on changes of the function signature, use the decorators
@@ -377,7 +417,7 @@ function is a simple pass-through to
 
   # in pylab.py
   def text(*args, **kwargs):
-      ret =  gca().text(*args, **kwargs)
+      ret = gca().text(*args, **kwargs)
       draw_if_interactive()
       return ret
 
@@ -395,7 +435,7 @@ illustration) just passes them on to the
 
   # in text.py
   def __init__(self, x=0, y=0, text='', **kwargs):
-      Artist.__init__(self)
+      super().__init__()
       self.update(kwargs)
 
 ``update`` does the work looking for methods named like

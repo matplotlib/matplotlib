@@ -3,7 +3,7 @@
  * Originally created by Armin Ronacher for Werkzeug, adapted by Georg Brandl.
  */
 
-/* Carlogo font (simmilar to Calibri in the MPL logo) */
+/* Carlogo font (similar to Calibri in the MPL logo) */
 @font-face {
     font-family: 'CarlogoRegular';
     font-style: normal;
@@ -188,10 +188,6 @@ div.documentwrapper {
     width: 100%;
 }
 */
-
-div.clearer {
-    clear: both;
-}
 
 div.related h3 {
     display: none;
@@ -926,6 +922,30 @@ figcaption {
 #unreleased-message a {
   color: #fff;
   text-decoration:underline;
+
+}
+
+/* top-banner style message. */
+#annc-banner {
+  box-sizing: border-box;
+  left: 0;
+  min-height: 3em;
+  padding: 0.7em;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+  background-image: linear-gradient(90deg, #440154, #482475, #414487, #355f8d, #2a788e, #21908d, #22a884, #42be71, #7ad151, #bddf26, #bddf26);
+  padding: 5px
+}
+
+#annc-banner a {
+    font-weight: bold;
+}
+
+#annc-banner p{
+    background-color: rgba(255, 255, 255, .8);
+    padding: 13px;
+    margin:0;
 }
 
 /* Fork me on GitHub "button" */
@@ -981,26 +1001,35 @@ figcaption {
   }
 }
 
+.mpl-button {
+    background: #11557C;
+    font-weight: normal;
+    display: inline-block;
+    padding: 0 1em;
+    line-height: 2.8;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    z-index: 1;
+    transition: background .25s ease;
+}
+
+.mpl-button:hover, .mpl-button:active, .mpl-button:focus {
+    background: #003c63;
+    outline-color: #003c63;
+}
+
 #sidebar-donations {
     margin-top: 40px;
 }
 
 .donate_button {
-    background:#11557C;
-    font-weight:normal;
     clear: both;
     display: block;
-    width:200px;
-    line-height:2.8;
-    font-size: 16px;
-    text-align: center;
-    cursor:pointer;
-    color:#fff;
-    text-decoration: none;
     margin: 30px auto 0;
-    border-radius: 6px;
-    z-index:1;
-    transition: background .25s ease;
 }
 
 .donate_button:last-of-type {
@@ -1008,12 +1037,6 @@ figcaption {
 
 
 }
-
-.donate_button:hover, .donate_button:active, .donate_button:focus {
-    background: #003c63;
-    outline-color: #003c63;
-}
-
 
 div.responsive_screenshots {
     /* Horizontally centered */
@@ -1077,10 +1100,6 @@ div.align-center {
 
 p.caption {
     font-weight: bold;
-}
-
-div#gallery.section, div#tutorials.section {
-    overflow: hidden;
 }
 
 .sphx-glr-multi-img{
@@ -1253,4 +1272,8 @@ div.bullet-box li {
     div.bullet-box {
         flex: 0 0 90%;
     }
+}
+
+div#gallery.section .sphx-glr-clear:first-of-type, div#tutorials.section .sphx-glr-clear:first-of-type{
+    display: none;
 }

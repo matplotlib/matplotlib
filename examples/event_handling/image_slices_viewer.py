@@ -10,6 +10,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 class IndexTracker:
     def __init__(self, ax, X):
         self.ax = ax

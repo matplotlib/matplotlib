@@ -1,8 +1,5 @@
-"""
-Tests specific to the collections module.
-"""
 import io
-import platform
+from types import SimpleNamespace
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -12,7 +9,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.transforms as mtransforms
-from matplotlib.collections import Collection, LineCollection, EventCollection
+from matplotlib.collections import (Collection, LineCollection,
+                                    EventCollection, PolyCollection)
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -77,7 +75,7 @@ def test__EventCollection__get_props():
     # check that the default lineoffset matches the input lineoffset
     assert props['lineoffset'] == coll.get_lineoffset()
     # check that the default linestyle matches the input linestyle
-    assert coll.get_linestyle() == [(None, None)]
+    assert coll.get_linestyle() == [(0, None)]
     # check that the default color matches the input color
     for color in [coll.get_color(), *coll.get_colors()]:
         np.testing.assert_array_equal(color, props['color'])
@@ -102,7 +100,9 @@ def test__EventCollection__add_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
                                props['extra_positions'][0]])
+    coll.switch_orientation()  # Test adding in the vertical orientation, too.
     coll.add_positions(props['extra_positions'][0])
+    coll.switch_orientation()
     np.testing.assert_array_equal(new_positions, coll.get_positions())
     check_segments(coll,
                    new_positions,
@@ -333,8 +333,7 @@ def test_barb_limits():
                               decimal=1)
 
 
-@image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+@image_comparison(['EllipseCollection_test_image.png'], remove_text=True)
 def test_EllipseCollection():
     # Test basic functionality
     fig, ax = plt.subplots()
@@ -429,8 +428,7 @@ def test_regularpolycollection_scale():
     fig, ax = plt.subplots()
 
     xy = [(0, 0)]
-    # Unit square has a half-diagonal of `1 / sqrt(2)`, so `pi * r**2`
-    # equals...
+    # Unit square has a half-diagonal of `1/sqrt(2)`, so `pi * r**2` equals...
     circle_areas = [np.pi / 2]
     squares = SquareCollection(sizes=circle_areas, offsets=xy,
                                transOffset=ax.transData)
@@ -442,14 +440,8 @@ def test_picking():
     fig, ax = plt.subplots()
     col = ax.scatter([0], [0], [1000], picker=True)
     fig.savefig(io.BytesIO(), dpi=fig.dpi)
-
-    class MouseEvent:
-        pass
-    event = MouseEvent()
-    event.x = 325
-    event.y = 240
-
-    found, indices = col.contains(event)
+    mouse_event = SimpleNamespace(x=325, y=240)
+    found, indices = col.contains(mouse_event)
     assert found
     assert_array_equal(indices['ind'], [0])
 
@@ -501,11 +493,11 @@ def test_lslw_bcast():
     col.set_linestyles(['-', '-'])
     col.set_linewidths([1, 2, 3])
 
-    assert col.get_linestyles() == [(None, None)] * 6
+    assert col.get_linestyles() == [(0, None)] * 6
     assert col.get_linewidths() == [1, 2, 3] * 2
 
     col.set_linestyles(['-', '-', '-'])
-    assert col.get_linestyles() == [(None, None)] * 3
+    assert col.get_linestyles() == [(0, None)] * 3
     assert (col.get_linewidths() == [1, 2, 3]).all()
 
 
@@ -612,3 +604,86 @@ def test_EventCollection_nosort():
     arr = np.array([3, 2, 1, 10])
     coll = EventCollection(arr)
     np.testing.assert_array_equal(arr, np.array([3, 2, 1, 10]))
+
+
+def test_collection_set_verts_array():
+    verts = np.arange(80, dtype=np.double).reshape(10, 4, 2)
+    col_arr = PolyCollection(verts)
+    col_list = PolyCollection(list(verts))
+    assert len(col_arr._paths) == len(col_list._paths)
+    for ap, lp in zip(col_arr._paths, col_list._paths):
+        assert np.array_equal(ap._vertices, lp._vertices)
+        assert np.array_equal(ap._codes, lp._codes)
+
+    verts_tuple = np.empty(10, dtype=object)
+    verts_tuple[:] = [tuple(tuple(y) for y in x) for x in verts]
+    col_arr_tuple = PolyCollection(verts_tuple)
+    assert len(col_arr._paths) == len(col_arr_tuple._paths)
+    for ap, atp in zip(col_arr._paths, col_arr_tuple._paths):
+        assert np.array_equal(ap._vertices, atp._vertices)
+        assert np.array_equal(ap._codes, atp._codes)
+
+
+def test_blended_collection_autolim():
+    a = [1, 2, 4]
+    height = .2
+
+    xy_pairs = np.column_stack([np.repeat(a, 2), np.tile([0, height], len(a))])
+    line_segs = xy_pairs.reshape([len(a), 2, 2])
+
+    f, ax = plt.subplots()
+    trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
+    ax.add_collection(LineCollection(line_segs, transform=trans))
+    ax.autoscale_view(scalex=True, scaley=False)
+    np.testing.assert_allclose(ax.get_xlim(), [1., 4.])
+
+
+def test_singleton_autolim():
+    fig, ax = plt.subplots()
+    ax.scatter(0, 0)
+    np.testing.assert_allclose(ax.get_ylim(), [-0.06, 0.06])
+    np.testing.assert_allclose(ax.get_xlim(), [-0.06, 0.06])
+
+
+def test_quadmesh_set_array():
+    x = np.arange(4)
+    y = np.arange(4)
+    z = np.arange(9).reshape((3, 3))
+    fig, ax = plt.subplots()
+    coll = ax.pcolormesh(x, y, np.ones(z.shape))
+    # Test that the collection is able to update with a 2d array
+    coll.set_array(z)
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_array(), z)
+
+    # Check that pre-flattened arrays work too
+    coll.set_array(np.ones(9))
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_array(), np.ones(9))
+
+
+def test_legend_inverse_size_label_relationship():
+    """
+    Ensure legend markers scale appropriately when label and size are
+    inversely related.
+    Here label = 5 / size
+    """
+
+    np.random.seed(19680801)
+    X = np.random.random(50)
+    Y = np.random.random(50)
+    C = 1 - np.random.random(50)
+    S = 5 / C
+
+    legend_sizes = [0.2, 0.4, 0.6, 0.8]
+    fig, ax = plt.subplots()
+    sc = ax.scatter(X, Y, s=S)
+    handles, labels = sc.legend_elements(
+      prop='sizes', num=legend_sizes, func=lambda s: 5 / s
+    )
+
+    # Convert markersize scale to 's' scale
+    handle_sizes = [x.get_markersize() for x in handles]
+    handle_sizes = [5 / x**2 for x in handle_sizes]
+
+    assert_array_almost_equal(handle_sizes, legend_sizes, decimal=1)

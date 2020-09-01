@@ -42,7 +42,7 @@ def main():
 
     canvas = FigureCanvas(figure)  # a Gtk.DrawingArea
     canvas.set_size_request(800, 600)
-    sw.add_with_viewport(canvas)
+    sw.add(canvas)
     # End of Matplotlib specific code
 
     window.show_all()

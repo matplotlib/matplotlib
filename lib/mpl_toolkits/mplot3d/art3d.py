@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
+    artist, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -44,6 +44,7 @@ def get_dir_vector(zdir):
     ----------
     zdir : {'x', 'y', 'z', None, 3-tuple}
         The direction. Possible values are:
+
         - 'x': equivalent to (1, 0, 0)
         - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
@@ -55,7 +56,6 @@ def get_dir_vector(zdir):
     x, y, z : array-like
         The direction vector. This is either a numpy.array or *zdir* itself if
         *zdir* is already a length-3 iterable.
-
     """
     if zdir == 'x':
         return np.array((1, 0, 0))
@@ -134,7 +134,7 @@ class Line3D(lines.Line2D):
         """
         Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         """
-        lines.Line2D.__init__(self, [], [], *args, **kwargs)
+        super().__init__([], [], *args, **kwargs)
         self._verts3d = xs, ys, zs
 
     def set_3d_properties(self, zs=0, zdir='z'):
@@ -173,8 +173,8 @@ class Line3D(lines.Line2D):
 
         Returns
         -------
-        verts3d : length-3 tuple or array-likes
-            The current data as a tuple or array-likes.
+        verts3d : length-3 tuple or array-like
+            The current data as a tuple or array-like.
         """
         return self._verts3d
 
@@ -183,7 +183,7 @@ class Line3D(lines.Line2D):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
         self.set_data(xs, ys)
-        lines.Line2D.draw(self, renderer)
+        super().draw(renderer)
         self.stale = False
 
 
@@ -207,7 +207,12 @@ def _path_to_3d_segment(path, zs=0, zdir='z'):
 def _paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
-    zs = np.broadcast_to(zs, len(paths))
+    if not np.iterable(zs):
+        zs = np.broadcast_to(zs, len(paths))
+    else:
+        if len(zs) != len(paths):
+            raise ValueError('Number of z-coordinates does not match paths.')
+
     segs = [_path_to_3d_segment(path, pathz, zdir)
             for path, pathz in zip(paths, zs)]
     return segs
@@ -257,8 +262,8 @@ class Line3DCollection(LineCollection):
         """
         Set 3D segments.
         """
-        self._segments3d = np.asanyarray(segments)
-        LineCollection.set_segments(self, [])
+        self._segments3d = segments
+        super().set_segments([])
 
     def do_3d_projection(self, renderer):
         """
@@ -280,7 +285,7 @@ class Line3DCollection(LineCollection):
     def draw(self, renderer, project=False):
         if project:
             self.do_3d_projection(renderer)
-        LineCollection.draw(self, renderer)
+        super().draw(renderer)
 
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
@@ -296,7 +301,7 @@ class Patch3D(Patch):
     """
 
     def __init__(self, *args, zs=(), zdir='z', **kwargs):
-        Patch.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
@@ -327,6 +332,7 @@ class PathPatch3D(Patch3D):
     """
 
     def __init__(self, path, *, zs=(), zdir='z', **kwargs):
+        # Not super().__init__!
         Patch.__init__(self, **kwargs)
         self.set_3d_properties(path, zs, zdir)
 
@@ -481,6 +487,8 @@ class Path3DCollection(PathCollection):
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
+        self._sizes3d = self.get_sizes()
+        self._linewidth3d = self.get_linewidth()
         self.stale = True
 
     def do_3d_projection(self, renderer):
@@ -489,14 +497,39 @@ class Path3DCollection(PathCollection):
 
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
-
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
+        sizes = self._sizes3d
+        lws = self._linewidth3d
+
+        # Sort the points based on z coordinates
+        # Performance optimization: Create a sorted index array and reorder
+        # points and point properties according to the index array
+        z_markers_idx = np.argsort(vzs)[::-1]
+
+        # Re-order items
+        vzs = vzs[z_markers_idx]
+        vxs = vxs[z_markers_idx]
+        vys = vys[z_markers_idx]
+        if len(fcs) > 1:
+            fcs = fcs[z_markers_idx]
+        if len(ecs) > 1:
+            ecs = ecs[z_markers_idx]
+        if len(sizes) > 1:
+            sizes = sizes[z_markers_idx]
+        if len(lws) > 1:
+            lws = lws[z_markers_idx]
+        vps = np.column_stack((vxs, vys))
+
+        fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
+
         self.set_edgecolors(ecs)
-        PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
+        self.set_facecolors(fcs)
+        self.set_sizes(sizes)
+        self.set_linewidth(lws)
+
+        PathCollection.set_offsets(self, vps)
 
         return np.min(vzs) if vzs.size else np.nan
 
@@ -530,17 +563,39 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
 class Poly3DCollection(PolyCollection):
     """
     A collection of 3D polygons.
+
+    .. note::
+        **Filling of 3D polygons**
+
+        There is no simple definition of the enclosed surface of a 3D polygon
+        unless the polygon is planar.
+
+        In practice, Matplotlib fills the 2D projection of the polygon. This
+        gives a correct filling appearance only for planar polygons. For all
+        other polygons, you'll find orientations in which the edges of the
+        polygon intersect in the projection. This will lead to an incorrect
+        visualization of the 3D area.
+
+        If you need filled areas, it is recommended to create them via
+        `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`, which creates a
+        triangulation and thus generates consistent surfaces.
     """
 
     def __init__(self, verts, *args, zsort='average', **kwargs):
         """
-        Create a Poly3DCollection.
+        Parameters
+        ----------
+        verts : list of array-like Nx3
+            Each element describes a polygon as a sequence of ``N_i`` points
+            ``(x, y, z)``.
+        zsort : {'average', 'min', 'max'}, default: 'average'
+            The calculation method for the z-order.
+            See `~.Poly3DCollection.set_zsort` for details.
+        *args, **kwargs
+            All other parameters are forwarded to `.PolyCollection`.
 
-        *verts* should contain 3D coordinates.
-
-        Keyword arguments:
-        zsort, see set_zsort for options.
-
+        Notes
+        -----
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         """
@@ -556,21 +611,14 @@ class Poly3DCollection(PolyCollection):
 
     def set_zsort(self, zsort):
         """
-        Sets the calculation method for the z-order.
+        Set the calculation method for the z-order.
 
         Parameters
         ----------
         zsort : {'average', 'min', 'max'}
             The function applied on the z-coordinates of the vertices in the
-            viewer's coordinate system, to determine the z-order.  *True* is
-            deprecated and equivalent to 'average'.
+            viewer's coordinate system, to determine the z-order.
         """
-        if zsort is True:
-            cbook.warn_deprecated(
-                "3.1", message="Passing True to mean 'average' for set_zsort "
-                "is deprecated and support will be removed in Matplotlib 3.3; "
-                "pass 'average' instead.")
-            zsort = 'average'
         self._zsortfunc = self._zsort_functions[zsort]
         self._sort_zpos = None
         self.stale = True
@@ -591,11 +639,11 @@ class Poly3DCollection(PolyCollection):
         """Set 3D vertices."""
         self.get_vector(verts)
         # 2D verts will be updated at draw time
-        PolyCollection.set_verts(self, [], False)
+        super().set_verts([], False)
         self._closed = closed
 
     def set_verts_and_codes(self, verts, codes):
-        """Sets 3D vertices with path codes."""
+        """Set 3D vertices with path codes."""
         # set vertices with closed=False to prevent PolyCollection from
         # setting path codes
         self.set_verts(verts, closed=False)
@@ -648,17 +696,16 @@ class Poly3DCollection(PolyCollection):
              in enumerate(zip(xyzlist, cface, cedge))),
             key=lambda x: x[0], reverse=True)
 
-        segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
+        zzs, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
+            zip(*z_segments_2d)
+
         if self._codes3d is not None:
-            codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
+            codes = [self._codes3d[idx] for idx in idxs]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
             PolyCollection.set_verts(self, segments_2d, self._closed)
 
-        self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
-        if len(self._edgecolors3d) == len(cface):
-            self._edgecolors2d = [ec for z, s, fc, ec, idx in z_segments_2d]
-        else:
+        if len(self._edgecolors3d) != len(cface):
             self._edgecolors2d = self._edgecolors3d
 
         # Return zorder value
@@ -675,11 +722,11 @@ class Poly3DCollection(PolyCollection):
             return np.nan
 
     def set_facecolor(self, colors):
-        PolyCollection.set_facecolor(self, colors)
+        super().set_facecolor(colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
 
     def set_edgecolor(self, colors):
-        PolyCollection.set_edgecolor(self, colors)
+        super().set_edgecolor(colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 
     def set_alpha(self, alpha):

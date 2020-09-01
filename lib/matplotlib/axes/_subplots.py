@@ -5,7 +5,6 @@ from matplotlib import cbook, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
-import matplotlib._layoutbox as layoutbox
 
 
 class SubplotBase:
@@ -30,6 +29,9 @@ class SubplotBase:
             If *nrows*, *ncols*, and *index* are all single digit numbers, then
             *args* can be passed as a single 3-digit number (e.g. 234 for
             (2, 3, 4)).
+
+        **kwargs
+            Keyword arguments are passed to the Axes (sub)class constructor.
         """
 
         self.figure = fig
@@ -37,23 +39,6 @@ class SubplotBase:
         self.update_params()
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
-        # add a layout box to this, for both the full axis, and the poss
-        # of the axis.  We need both because the axes may become smaller
-        # due to parasitic axes and hence no longer fill the subplotspec.
-        if self._subplotspec._layoutbox is None:
-            self._layoutbox = None
-            self._poslayoutbox = None
-        else:
-            name = self._subplotspec._layoutbox.name + '.ax'
-            name = name + layoutbox.seq_id()
-            self._layoutbox = layoutbox.LayoutBox(
-                    parent=self._subplotspec._layoutbox,
-                    name=name,
-                    artist=self)
-            self._poslayoutbox = layoutbox.LayoutBox(
-                    parent=self._layoutbox,
-                    name=self._layoutbox.name+'.pos',
-                    pos=True, subplot=True, artist=self)
 
     def __reduce__(self):
         # get the first axes class which does not inherit from a subplotbase
@@ -78,19 +63,19 @@ class SubplotBase:
         self.set_position(self.figbox)
 
     def get_subplotspec(self):
-        """get the SubplotSpec instance associated with the subplot"""
+        """Return the `.SubplotSpec` instance associated with the subplot."""
         return self._subplotspec
 
     def set_subplotspec(self, subplotspec):
-        """set the SubplotSpec instance associated with the subplot"""
+        """Set the `.SubplotSpec`. instance associated with the subplot."""
         self._subplotspec = subplotspec
 
     def get_gridspec(self):
-        """get the GridSpec instance associated with the subplot"""
+        """Return the `.GridSpec` instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
 
     def update_params(self):
-        """update the subplot position from fig.subplotpars"""
+        """Update the subplot position from ``self.figure.subplotpars``."""
         self.figbox, _, _, self.numRows, self.numCols = \
             self.get_subplotspec().get_position(self.figure,
                                                 return_all=True)
@@ -156,12 +141,25 @@ class SubplotBase:
             twin.set_label(real_label)
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
-        if self._layoutbox is not None and twin._layoutbox is not None:
-            # make the layout boxes be explicitly the same
-            twin._layoutbox.constrain_same(self._layoutbox)
-            twin._poslayoutbox.constrain_same(self._poslayoutbox)
         self._twinned_axes.join(self, twin)
         return twin
+
+    def __repr__(self):
+        fields = []
+        if self.get_label():
+            fields += [f"label={self.get_label()!r}"]
+        titles = []
+        for k in ["left", "center", "right"]:
+            title = self.get_title(loc=k)
+            if title:
+                titles.append(f"{k!r}:{title!r}")
+        if titles:
+            fields += ["title={" + ",".join(titles) + "}"]
+        if self.get_xlabel():
+            fields += [f"xlabel={self.get_xlabel()!r}"]
+        if self.get_ylabel():
+            fields += [f"ylabel={self.get_ylabel()!r}"]
+        return f"<{self.__class__.__name__}:" + ", ".join(fields) + ">"
 
 
 # this here to support cartopy which was using a private part of the
@@ -179,13 +177,17 @@ _subplot_classes = {}
 @functools.lru_cache(None)
 def subplot_class_factory(axes_class=None):
     """
-    This makes a new class that inherits from `.SubplotBase` and the
+    Make a new class that inherits from `.SubplotBase` and the
     given axes_class (which is assumed to be a subclass of `.axes.Axes`).
     This is perhaps a little bit roundabout to make a new class on
     the fly like this, but it means that a new Subplot class does
     not have to be created for every type of Axes.
     """
     if axes_class is None:
+        cbook.warn_deprecated(
+            "3.3", message="Support for passing None to subplot_class_factory "
+            "is deprecated since %(since)s; explicitly pass the default Axes "
+            "class instead. This will become an error %(removal)s.")
         axes_class = Axes
     try:
         # Avoid creating two different instances of GeoAxesSubplot...
@@ -199,14 +201,14 @@ def subplot_class_factory(axes_class=None):
                     {'_axes_class': axes_class})
 
 
-# This is provided for backward compatibility
-Subplot = subplot_class_factory()
+Subplot = subplot_class_factory(Axes)  # Provided for backward compatibility.
 
 
 def _picklable_subplot_class_constructor(axes_class):
     """
-    This stub class exists to return the appropriate subplot class when called
-    with an axes class. This is purely to allow pickling of Axes and Subplots.
+    Stub factory that returns an empty instance of the appropriate subplot
+    class when called with an axes class. This is purely to allow pickling of
+    Axes and Subplots.
     """
     subplot_class = subplot_class_factory(axes_class)
     return subplot_class.__new__(subplot_class)

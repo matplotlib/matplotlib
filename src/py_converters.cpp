@@ -54,9 +54,9 @@ int convert_from_method(PyObject *obj, const char *name, converter func, void *p
 {
     PyObject *value;
 
-    value = PyObject_CallMethod(obj, (char *)name, NULL);
+    value = PyObject_CallMethod(obj, name, NULL);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }
@@ -76,9 +76,9 @@ int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
 {
     PyObject *value;
 
-    value = PyObject_GetAttrString(obj, (char *)name);
+    value = PyObject_GetAttrString(obj, name);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }
@@ -226,7 +226,6 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
     PyObject *dash_offset_obj = NULL;
     double dash_offset = 0.0;
     PyObject *dashes_seq = NULL;
-    Py_ssize_t nentries;
 
     if (!PyArg_ParseTuple(dashobj, "OO:dashes", &dash_offset_obj, &dashes_seq)) {
         return 0;
@@ -235,6 +234,14 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
     if (dash_offset_obj != Py_None) {
         dash_offset = PyFloat_AsDouble(dash_offset_obj);
         if (PyErr_Occurred()) {
+            return 0;
+        }
+    } else {
+        if (PyErr_WarnEx(PyExc_FutureWarning,
+                         "Passing the dash offset as None is deprecated since "
+                         "Matplotlib 3.3 and will be removed in Matplotlib 3.5; "
+                         "pass it as zero instead.",
+                         1)) {
             return 0;
         }
     }
@@ -248,18 +255,17 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
         return 0;
     }
 
-    nentries = PySequence_Size(dashes_seq);
-    if (nentries % 2 != 0) {
-        PyErr_Format(PyExc_ValueError, "dashes sequence must have an even number of elements");
-        return 0;
-    }
+    Py_ssize_t nentries = PySequence_Size(dashes_seq);
+    // If the dashpattern has odd length, iterate through it twice (in
+    // accordance with the pdf/ps/svg specs).
+    Py_ssize_t dash_pattern_length = (nentries % 2) ? 2 * nentries : nentries;
 
-    for (Py_ssize_t i = 0; i < nentries; ++i) {
+    for (Py_ssize_t i = 0; i < dash_pattern_length; ++i) {
         PyObject *item;
         double length;
         double skip;
 
-        item = PySequence_GetItem(dashes_seq, i);
+        item = PySequence_GetItem(dashes_seq, i % nentries);
         if (item == NULL) {
             return 0;
         }
@@ -272,7 +278,7 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
 
         ++i;
 
-        item = PySequence_GetItem(dashes_seq, i);
+        item = PySequence_GetItem(dashes_seq, i % nentries);
         if (item == NULL) {
             return 0;
         }

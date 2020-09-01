@@ -11,7 +11,7 @@ of working by importing all functions into the global namespace. This is
 considered bad style nowadays.
 """
 
-from matplotlib.cbook import flatten, silent_list, iterable, dedent
+from matplotlib.cbook import flatten, silent_list
 
 import matplotlib as mpl
 

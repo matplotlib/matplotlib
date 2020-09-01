@@ -1,6 +1,6 @@
-==========
-Installing
-==========
+==================
+Installation Guide
+==================
 
 .. note::
 
@@ -18,12 +18,20 @@ Windows and Linux distributions::
   python -m pip install -U pip
   python -m pip install -U matplotlib
 
+If this command results in Matplotlib being compiled from source and
+there's trouble with the compilation, you can add ``--prefer-binary`` to
+select the newest version of Matplotlib for which there is a
+precompiled wheel for your OS and Python.
+
 .. note::
 
-   The following backends work out of the box: Agg, ps, pdf, svg and TkAgg.
+   The following backends work out of the box: Agg, ps, pdf, svg
+
+   Python is typically shipped with tk bindings which are used by
+   TkAgg.
 
    For support of other GUI frameworks, LaTeX rendering, saving
-   animations and a larger selection of file formats, you may need to
+   animations and a larger selection of file formats, you need to
    install :ref:`additional dependencies <install_requirements>`.
 
 Although not required, we suggest also installing ``IPython`` for
@@ -44,10 +52,10 @@ distribution, download the :file:`*.tar.gz` file and look in the
 To run the test suite:
 
 * extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
-  directories from the source distribution;
+  directories from the source distribution.
 * install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
   MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
-  <https://inkscape.org/>`_;
+  <https://inkscape.org/>`_.
 * run ``python -mpytest``.
 
 Third-party distributions of Matplotlib
@@ -83,17 +91,42 @@ Installing from source
 
 If you are interested in contributing to Matplotlib development,
 running the latest source code, or just like to build everything
-yourself, it is not difficult to build Matplotlib from source.  Grab
-the latest *tar.gz* release file from `the PyPI files page
-<https://pypi.org/project/matplotlib/>`_, or if you want to
-develop Matplotlib or just need the latest bugfixed version, grab the
-latest git version, and see :ref:`install-from-git`.
+yourself, it is not difficult to build Matplotlib from source.
 
-Matplotlib can be installed from the source directory with a simple ::
+The easiest way to get the latest development version to start contributing
+is to go to the git `repository <https://github.com/matplotlib/matplotlib>`_
+and run::
+
+  git clone https://github.com/matplotlib/matplotlib.git
+
+If you're developing, it's better to do it in editable mode. The reason why
+is that pytest's test discovery only works for Matplotlib
+if installation is done this way. Also, editable mode allows your code changes
+to be instantly propagated to your library code without reinstalling (though
+you will have to restart your python process / kernel)::
+
+  python -m pip install -e .
+
+If you're not developing, it can be installed from the source directory with
+a simple::
 
   python -m pip install .
 
-We provide a setup.cfg_ file which you can use to customize the build
+To run the tests you will need to install some additional dependencies::
+
+  python -m pip install -r requirements/dev/dev-requirements.txt
+
+.. warning::
+
+  The following instructions in this section are for very custom
+  installations of Matplotlib. Proceed with caution because these instructions
+  may result in your build producing unexpected behavior and/or causing
+  local testing to fail.
+
+If you would like to build from a tarball, grab the latest *tar.gz* release
+file from `the PyPI files page <https://pypi.org/project/matplotlib/>`_.
+
+We provide a `setup.cfg`_ file which you can use to customize the build
 process. For example, which default backend to use, whether some of the
 optional libraries that Matplotlib ships with are installed, and so on.  This
 file will be particularly useful to those packaging Matplotlib.
@@ -105,29 +138,32 @@ file will be particularly useful to those packaging Matplotlib.
 Dependencies
 ------------
 
+Matplotlib will automatically install dependencies when you install with
+``pip``, so this section is mostly for your reference.
+
 Matplotlib requires the following dependencies:
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.6)
-* `NumPy <http://www.numpy.org>`_ (>= 1.15)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.7)
+* `NumPy <https://numpy.org>`_ (>= 1.16)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
-* `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
-* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
-* `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
+* `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
+* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.7)
+* `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.0.3)
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.2.1)
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
-* Tk_ (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
-* PyQt4_ (>= 4.6) or PySide_ (>= 1.0.3) [#]_: for the Qt4-based backends;
-* PyQt5_ or PySide2_: for the Qt5-based backends;
-* PyGObject_: for the GTK3-based backends [#]_;
-* wxPython_ (>= 4) [#]_: for the wx-based backends;
+* Tk_ (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends.
+* PyQt4_ (>= 4.6) or PySide_ (>= 1.0.3) [#]_: for the Qt4-based backends.
+* PyQt5_ or PySide2_: for the Qt5-based backends.
+* PyGObject_: for the GTK3-based backends [#]_.
+* wxPython_ (>= 4) [#]_: for the wx-based backends.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK3 and/or cairo-based
-  backends;
-* Tornado_: for the WebAgg backend;
+  backends.
+* Tornado_: for the WebAgg backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt4: https://pypi.org/project/PyQt4
@@ -149,23 +185,26 @@ optional Matplotlib backends and the capabilities they provide.
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
 
-* `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies;
+* `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
-  animated gifs;
-* `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX;
+  animated gifs.
+* `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
+  <https://ctan.org/pkg/cm-super>`__ ) and `GhostScript (>=9.0)
+  <https://ghostscript.com/download/>`_ : for rendering text with
+  LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
 FreeType and Qhull
 ------------------
 
-Matplotlib depends on `FreeType <https://www.freetype.org/>`_ (>= 2.3), a
-font rendering library, and on `Qhull <http://www.qhull.org/>`_ (>= 2015.2),
-a library for computing triangulations.  By default, Matplotlib downloads and
-builds its own copy of FreeType (this is necessary to run the test suite,
-because different versions of FreeType rasterize characters differently), and
-uses its own copy of Qhull.
+Matplotlib depends on `FreeType <https://www.freetype.org/>`_ (>=
+2.3), a font rendering library, and on `Qhull
+<http://www.qhull.org/>`_ (>= 2015.2), a library for computing
+triangulations.  By default (except on AIX) Matplotlib downloads and
+builds its own copy of FreeType (this is necessary to run the test
+suite, because different versions of FreeType rasterize characters
+differently), and uses its own copy of Qhull.
 
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`setup.cfg` file with the following contents:
@@ -229,6 +268,11 @@ and on Windows:
 
   - ``Agg``: the Anti-Grain Geometry C++ rendering engine;
   - ``ttconv``: a TrueType font utility.
+
+If you go this route but need to reset and rebuild to change your settings,
+remember to clear your artifacts before re-building::
+
+  git clean -xfd
 
 Building on Windows
 -------------------

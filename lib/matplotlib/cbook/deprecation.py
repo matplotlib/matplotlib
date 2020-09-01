@@ -180,7 +180,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                     obj.__doc__ = new_doc
                 except AttributeError:  # Can't set on some extension objects.
                     pass
-                obj.__init__ = wrapper
+                obj.__init__ = functools.wraps(obj.__init__)(wrapper)
                 return obj
 
         elif isinstance(obj, property):
@@ -251,6 +251,29 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     return deprecate
 
 
+class _deprecate_privatize_attribute:
+    """
+    Helper to deprecate public access to an attribute.
+
+    This helper should only be used at class scope, as follows::
+
+        class Foo:
+            attr = _deprecate_privatize_attribute(*args, **kwargs)
+
+    where *all* parameters are forwarded to `deprecated`.  This form makes
+    ``attr`` a property which forwards access to ``self._attr`` (same name but
+    with a leading underscore), with a deprecation warning.  Note that the
+    attribute name is derived from *the name this helper is assigned to*.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.deprecator = deprecated(*args, **kwargs)
+
+    def __set_name__(self, owner, name):
+        setattr(owner, name, self.deprecator(
+            property(lambda self: getattr(self, f"_{name}")), name=name))
+
+
 def _rename_parameter(since, old, new, func=None):
     """
     Decorator indicating that parameter *old* of *func* is renamed to *new*.
@@ -307,18 +330,22 @@ class _deprecated_parameter_class:
 _deprecated_parameter = _deprecated_parameter_class()
 
 
-def _delete_parameter(since, name, func=None):
+def _delete_parameter(since, name, func=None, **kwargs):
     """
     Decorator indicating that parameter *name* of *func* is being deprecated.
 
     The actual implementation of *func* should keep the *name* parameter in its
-    signature.
+    signature, or accept a ``**kwargs`` argument (through which *name* would be
+    passed).
 
     Parameters that come after the deprecated parameter effectively become
     keyword-only (as they cannot be passed positionally without triggering the
     DeprecationWarning on the deprecated parameter), and should be marked as
     such after the deprecation period has passed and the deprecated parameter
     is removed.
+
+    Parameters other than *since*, *name*, and *func* are keyword-only and
+    forwarded to `.warn_deprecated`.
 
     Examples
     --------
@@ -329,29 +356,59 @@ def _delete_parameter(since, name, func=None):
     """
 
     if func is None:
-        return functools.partial(_delete_parameter, since, name)
+        return functools.partial(_delete_parameter, since, name, **kwargs)
 
     signature = inspect.signature(func)
-    assert name in signature.parameters, (
-        f"Matplotlib internal error: {name!r} must be a parameter for "
-        f"{func.__name__}()")
-    func.__signature__ = signature.replace(parameters=[
-        param.replace(default=_deprecated_parameter) if param.name == name
-        else param
-        for param in signature.parameters.values()])
+    # Name of `**kwargs` parameter of the decorated function, typically
+    # "kwargs" if such a parameter exists, or None if the decorated function
+    # doesn't accept `**kwargs`.
+    kwargs_name = next((param.name for param in signature.parameters.values()
+                        if param.kind == inspect.Parameter.VAR_KEYWORD), None)
+    if name in signature.parameters:
+        kind = signature.parameters[name].kind
+        is_varargs = kind is inspect.Parameter.VAR_POSITIONAL
+        is_varkwargs = kind is inspect.Parameter.VAR_KEYWORD
+        if not is_varargs and not is_varkwargs:
+            func.__signature__ = signature = signature.replace(parameters=[
+                param.replace(default=_deprecated_parameter)
+                if param.name == name else param
+                for param in signature.parameters.values()])
+    else:
+        is_varargs = is_varkwargs = False
+        assert kwargs_name, (
+            f"Matplotlib internal error: {name!r} must be a parameter for "
+            f"{func.__name__}()")
+
+    addendum = kwargs.pop('addendum', None)
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        arguments = func.__signature__.bind(*args, **kwargs).arguments
+    def wrapper(*inner_args, **inner_kwargs):
+        arguments = signature.bind(*inner_args, **inner_kwargs).arguments
+        if is_varargs and arguments.get(name):
+            warn_deprecated(
+                since, message=f"Additional positional arguments to "
+                f"{func.__name__}() are deprecated since %(since)s and "
+                f"support for them will be removed %(removal)s.")
+        elif is_varkwargs and arguments.get(name):
+            warn_deprecated(
+                since, message=f"Additional keyword arguments to "
+                f"{func.__name__}() are deprecated since %(since)s and "
+                f"support for them will be removed %(removal)s.")
         # We cannot just check `name not in arguments` because the pyplot
         # wrappers always pass all arguments explicitly.
-        if name in arguments and arguments[name] != _deprecated_parameter:
+        elif any(name in d and d[name] != _deprecated_parameter
+                 for d in [arguments, arguments.get(kwargs_name, {})]):
+            deprecation_addendum = (
+                f"If any parameter follows {name!r}, they should be passed as "
+                f"keyword, not positionally.")
             warn_deprecated(
-                since, message=f"The {name!r} parameter of {func.__name__}() "
-                f"is deprecated since Matplotlib {since} and will be removed "
-                f"%(removal)s.  If any parameter follows {name!r}, they "
-                f"should be pass as keyword, not positionally.")
-        return func(*args, **kwargs)
+                since,
+                name=repr(name),
+                obj_type=f"parameter of {func.__name__}()",
+                addendum=(addendum + " " + deprecation_addendum) if addendum
+                         else deprecation_addendum,
+                **kwargs)
+        return func(*inner_args, **inner_kwargs)
 
     return wrapper
 
@@ -360,11 +417,6 @@ def _make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
-
-    Note that this decorator **cannot** be applied to a function that has a
-    pyplot-level wrapper, as the wrapper always pass all arguments by keyword.
-    If it is used, users will see spurious DeprecationWarnings every time they
-    call the pyplot wrapper.
     """
 
     if func is None:
@@ -386,8 +438,11 @@ def _make_keyword_only(since, name, func=None):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        bound = signature.bind(*args, **kwargs)
-        if name in bound.arguments and name not in kwargs:
+        # Don't use signature.bind here, as it would fail when stacked with
+        # _rename_parameter and an "old" argument name is passed in
+        # (signature.bind would fail, but the actual call would succeed).
+        idx = [*func.__signature__.parameters].index(name)
+        if len(args) > idx:
             warn_deprecated(
                 since, message="Passing the %(name)s %(obj_type)s "
                 "positionally is deprecated since Matplotlib %(since)s; the "
@@ -396,6 +451,43 @@ def _make_keyword_only(since, name, func=None):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
+    """
+    Return ``obj.method`` with a deprecation if it was overridden, else None.
+
+    Parameters
+    ----------
+    method
+        An unbound method, i.e. an expression of the form
+        ``Class.method_name``.  Remember that within the body of a method, one
+        can always use ``__class__`` to refer to the class that is currently
+        being defined.
+    obj
+        An object of the class where *method* is defined.
+    allow_empty : bool, default: False
+        Whether to allow overrides by "empty" methods without emitting a
+        warning.
+    **kwargs
+        Additional parameters passed to `warn_deprecated` to generate the
+        deprecation warning; must at least include the "since" key.
+    """
+
+    def empty(): pass
+    def empty_with_docstring(): """doc"""
+
+    name = method.__name__
+    bound_method = getattr(obj, name)
+    if (bound_method != method.__get__(obj)
+            and (not allow_empty
+                 or (getattr(getattr(bound_method, "__code__", None),
+                             "co_code", None)
+                     not in [empty.__code__.co_code,
+                             empty_with_docstring.__code__.co_code]))):
+        warn_deprecated(**{"name": name, "obj_type": "method", **kwargs})
+        return bound_method
+    return None
 
 
 @contextlib.contextmanager

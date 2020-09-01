@@ -1,5 +1,5 @@
 """
-This is a fully functional do nothing backend to provide a template to backend
+A fully functional, do-nothing backend intended as a template for backend
 writers.  It is fully functional in that you can select it as a backend e.g.
 with ::
 
@@ -200,8 +200,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     # If the file type is not in the base set of filetypes,
     # you should add it to the class-scope filetypes dictionary as follows:
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['foo'] = 'My magic Foo format'
+    filetypes = {**FigureCanvasBase.filetypes, 'foo': 'My magic Foo format'}
 
     def print_foo(self, filename, *args, **kwargs):
         """
@@ -209,6 +208,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
         to their original values after this call, so you don't need to
         save and restore them.
         """
+        self.draw()
 
     def get_default_filetype(self):
         return 'foo'

@@ -121,7 +121,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     supports_blit = False
 
     def __init__(self, *args, **kwargs):
-        backend_agg.FigureCanvasAgg.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Set to True when the renderer contains data that is newer
         # than the PNG buffer.
@@ -206,11 +206,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             return buf.getvalue()
 
     def get_renderer(self, cleared=None):
-        # Mirrors super.get_renderer, but caches the old one
-        # so that we can do things such as produce a diff image
-        # in get_diff_image
-        _, _, w, h = self.figure.bbox.bounds
-        w, h = int(w), int(h)
+        # Mirrors super.get_renderer, but caches the old one so that we can do
+        # things such as produce a diff image in get_diff_image.
+        w, h = self.figure.bbox.size.astype(int)
         key = w, h, self.figure.dpi
         try:
             self._lastKey, self._renderer
@@ -262,14 +260,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # off by 1
         button = event['button'] + 1
 
-        # The right mouse button pops up a context menu, which
-        # doesn't work very well, so use the middle mouse button
-        # instead.  It doesn't seem that it's possible to disable
-        # the context menu in recent versions of Chrome.  If this
-        # is resolved, please also adjust the docstring in MouseEvent.
-        if button == 2:
-            button = 3
-
         e_type = event['type']
         guiEvent = event.get('guiEvent', None)
         if e_type == 'button_press':
@@ -308,6 +298,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             figure_label = "Figure {0}".format(self.manager.num)
         self.send_event('figure_label', label=figure_label)
         self._force_full = True
+        if self.toolbar:
+            # Normal toolbar init would refresh this, but it happens before the
+            # browser canvas is set up.
+            self.toolbar.set_history_buttons()
         self.draw_idle()
 
     def handle_resize(self, event):
@@ -316,13 +310,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         fig = self.figure
         # An attempt at approximating the figure size in pixels.
         fig.set_size_inches(x / fig.dpi, y / fig.dpi, forward=False)
-
-        _, _, w, h = self.figure.bbox.bounds
         # Acknowledge the resize, and force the viewer to update the
         # canvas size to the figure's new size (which is hopefully
         # identical or within a pixel or so).
         self._png_is_old = True
-        self.manager.resize(w, h)
+        self.manager.resize(*fig.bbox.size, forward=False)
         self.resize_event()
 
     def handle_send_image_mode(self, event):
@@ -341,33 +333,36 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.draw_idle()
 
     def send_event(self, event_type, **kwargs):
-        self.manager._send_event(event_type, **kwargs)
+        if self.manager:
+            self.manager._send_event(event_type, **kwargs)
 
 
-_JQUERY_ICON_CLASSES = {
-    'home': 'ui-icon ui-icon-home',
-    'back': 'ui-icon ui-icon-circle-arrow-w',
-    'forward': 'ui-icon ui-icon-circle-arrow-e',
-    'zoom_to_rect': 'ui-icon ui-icon-search',
-    'move': 'ui-icon ui-icon-arrow-4',
-    'download': 'ui-icon ui-icon-disk',
-    None: None,
+_ALLOWED_TOOL_ITEMS = {
+    'home',
+    'back',
+    'forward',
+    'pan',
+    'zoom',
+    'download',
+    None,
 }
 
 
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     # Use the standard toolbar items + download button
-    toolitems = [(text, tooltip_text, _JQUERY_ICON_CLASSES[image_file],
-                  name_of_method)
-                 for text, tooltip_text, image_file, name_of_method
-                 in (backend_bases.NavigationToolbar2.toolitems +
-                     (('Download', 'Download plot', 'download', 'download'),))
-                 if image_file in _JQUERY_ICON_CLASSES]
+    toolitems = [
+        (text, tooltip_text, image_file, name_of_method)
+        for text, tooltip_text, image_file, name_of_method
+        in (*backend_bases.NavigationToolbar2.toolitems,
+            ('Download', 'Download plot', 'filesave', 'download'))
+        if name_of_method in _ALLOWED_TOOL_ITEMS
+    ]
 
-    def _init_toolbar(self):
+    def __init__(self, canvas):
         self.message = ''
         self.cursor = 0
+        super().__init__(canvas)
 
     def set_message(self, message):
         if message != self.message:
@@ -384,7 +379,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
             "rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
 
     def release_zoom(self, event):
-        backend_bases.NavigationToolbar2.release_zoom(self, event)
+        super().release_zoom(event)
         self.canvas.send_event(
             "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
@@ -392,12 +387,26 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         """Save the current figure"""
         self.canvas.send_event('save')
 
+    def pan(self):
+        super().pan()
+        self.canvas.send_event('navigate_mode', mode=self.mode.name)
+
+    def zoom(self):
+        super().zoom()
+        self.canvas.send_event('navigate_mode', mode=self.mode.name)
+
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self.canvas.send_event('history_buttons',
+                               Back=can_backward, Forward=can_forward)
+
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
-        backend_bases.FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
         self.web_sockets = set()
 
@@ -410,10 +419,11 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         toolbar = self.ToolbarCls(canvas)
         return toolbar
 
-    def resize(self, w, h):
+    def resize(self, w, h, forward=True):
         self._send_event(
             'resize',
-            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio))
+            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio),
+            forward=forward)
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
@@ -423,11 +433,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     def add_web_socket(self, web_socket):
         assert hasattr(web_socket, 'send_binary')
         assert hasattr(web_socket, 'send_json')
-
         self.web_sockets.add(web_socket)
-
-        _, _, w, h = self.canvas.figure.bbox.bounds
-        self.resize(w, h)
+        self.resize(*self.canvas.figure.bbox.size)
         self._send_event('refresh')
 
     def remove_web_socket(self, web_socket):
@@ -488,6 +495,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
 
 class TimerTornado(backend_bases.TimerBase):
+    def __init__(self, *args, **kwargs):
+        self._timer = None
+        super().__init__(*args, **kwargs)
+
     def _timer_start(self):
         self._timer_stop()
         if self._single:
@@ -509,7 +520,6 @@ class TimerTornado(backend_bases.TimerBase):
             ioloop.remove_timeout(self._timer)
         else:
             self._timer.stop()
-
         self._timer = None
 
     def _timer_set_interval(self):

@@ -27,7 +27,7 @@ The following software is required to run the tests:
 
 - pytest_ (>=3.6)
 - Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (<1.0, to render SVG files)
+- Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
@@ -194,7 +194,7 @@ are in ``test_mathtext.py``.
 Using Travis CI
 ---------------
 
-`Travis CI <https://travis-ci.org/>`_ is a hosted CI system "in the
+`Travis CI <https://travis-ci.com/>`_ is a hosted CI system "in the
 cloud".
 
 Travis is configured to receive notifications of new commits to GitHub
@@ -206,7 +206,7 @@ project.
 Travis CI is already enabled for the `main Matplotlib GitHub
 repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
-<https://travis-ci.org/matplotlib/matplotlib>`_.
+<https://travis-ci.com/matplotlib/matplotlib>`_.
 
 If you want to enable Travis CI for your personal Matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
@@ -243,7 +243,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py36,py37
+    $ tox -e py37,py38
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,

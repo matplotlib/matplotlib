@@ -155,8 +155,8 @@ Toolkits
 ========
 
 Matplotlib ships with several add-on :doc:`toolkits <api/toolkits/index>`,
-including 3D plotting with `mplot3d`, axes helpers in `axes_grid1` and axis
-helpers in `axisartist`.
+including 3D plotting with `.mplot3d`, axes helpers in `.axes_grid1` and axis
+helpers in `.axisartist`.
 
 Third party packages
 ====================
@@ -187,7 +187,7 @@ Open source
 
 .. raw:: html
 
-   <a href="https://www.numfocus.org/">
+   <a href="https://numfocus.org/">
    <img src="_static/numfocus_badge.png"
     alt="A Fiscally Sponsored Project of NUMFocus"
     style="float:right; margin-left:20px" />
@@ -197,7 +197,7 @@ Open source
 Matplotlib is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit
 charity in the United States. NumFOCUS provides Matplotlib with
 fiscal, legal, and administrative support to help ensure the health
-and sustainability of the project. Visit `numfocus.org <nf>`_ for more
+and sustainability of the project. Visit `numfocus.org <nf_>`_ for more
 information.
 
 Donations to Matplotlib are managed by NumFOCUS. For donors in the
@@ -210,7 +210,7 @@ the NumFOCUS organization or to the `John Hunter Technology Fellowship
 <jdh-fellowship_>`_.
 
 .. _donating: https://numfocus.org/donate-to-matplotlib
-.. _jdh-fellowship: https://www.numfocus.org/programs/john-hunter-technology-fellowship/
+.. _jdh-fellowship: https://numfocus.org/programs/john-hunter-technology-fellowship/
 .. _nf: https://numfocus.org
 
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software

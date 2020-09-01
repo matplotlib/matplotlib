@@ -1,7 +1,4 @@
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py 3.6.
+from contextlib import nullcontext
 import re
 import itertools
 
@@ -422,9 +419,7 @@ class TestLogitLocator:
             else:
                 # subsample
                 _LogitHelper.assert_almost_equal(
-                    np.sort(np.concatenate((major_ticks, minor_ticks))),
-                    expected_ticks,
-                )
+                    sorted([*major_ticks, *minor_ticks]), expected_ticks)
 
     def test_minor_attr(self):
         loc = mticker.LogitLocator(nbins=100)
@@ -576,6 +571,14 @@ class TestScalarFormatter:
         (True, (6, 6), (-1e5, 1e5), 6, False),
     ]
 
+    cursor_data = [
+        [0., "0.000"],
+        [0.0123, "0.012"],
+        [0.123, "0.123"],
+        [1.23,  "1.230"],
+        [12.3, "12.300"],
+    ]
+
     @pytest.mark.parametrize('unicode_minus, result',
                              [(True, "\N{MINUS SIGN}1"), (False, "-1")])
     def test_unicode_minus(self, unicode_minus, result):
@@ -621,6 +624,22 @@ class TestScalarFormatter:
 
         tmp_form.set_locs(ax.yaxis.get_majorticklocs())
         assert orderOfMag == tmp_form.orderOfMagnitude
+
+    @pytest.mark.parametrize('data, expected', cursor_data)
+    def test_cursor_precision(self, data, expected):
+        fig, ax = plt.subplots()
+        ax.set_xlim(-1, 1)  # Pointing precision of 0.001.
+        fmt = ax.xaxis.get_major_formatter().format_data_short
+        assert fmt(data) == expected
+
+    @pytest.mark.parametrize('data, expected', cursor_data)
+    def test_cursor_dummy_axis(self, data, expected):
+        # Issue #17624
+        sf = mticker.ScalarFormatter()
+        sf.create_dummy_axis()
+        sf.set_bounds(0, 10)
+        fmt = sf.format_data_short
+        assert fmt(data) == expected
 
 
 class FakeAxis:
@@ -1155,10 +1174,12 @@ class TestEngFormatter:
         """
         Test the formatting of EngFormatter for various values of the 'places'
         argument, in several cases:
-            0. without a unit symbol but with a (default) space separator;
-            1. with both a unit symbol and a (default) space separator;
-            2. with both a unit symbol and some non default separators;
-            3. without a unit symbol but with some non default separators.
+
+        0. without a unit symbol but with a (default) space separator;
+        1. with both a unit symbol and a (default) space separator;
+        2. with both a unit symbol and some non default separators;
+        3. without a unit symbol but with some non default separators.
+
         Note that cases 2. and 3. are looped over several separator strings.
         """
 

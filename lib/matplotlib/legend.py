@@ -4,30 +4,31 @@ drawing legends associated with axes and/or figures.
 
 .. important::
 
-    It is unlikely that you would ever create a Legend instance
-    manually.  Most users would normally create a legend via the
-    :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
-    there is also a :doc:`legend guide </tutorials/intermediate/legend_guide>`.
+    It is unlikely that you would ever create a Legend instance manually.
+    Most users would normally create a legend via the `~.Axes.legend`
+    function. For more details on legends there is also a :doc:`legend guide
+    </tutorials/intermediate/legend_guide>`.
 
-The Legend class can be considered as a container of legend handles and
-legend texts. Creation of corresponding legend handles from the plot elements
-in the axes or figures (e.g., lines, patches, etc.) are specified by the
-handler map, which defines the mapping between the plot elements and the
-legend handlers to be used (the default legend handlers are defined in the
-:mod:`~matplotlib.legend_handler` module).  Note that not all kinds of
-artist are supported by the legend yet by default but it is possible to
-extend the legend handler's capabilities to support arbitrary objects. See
-the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
+The `Legend` class is a container of legend handles and legend texts.
+
+The legend handler map specifies how to create legend handles from artists
+(lines, patches, etc.) in the axes or figures. Default legend handlers are
+defined in the :mod:`~matplotlib.legend_handler` module. While not all artist
+types are covered by the default legend handlers, custom legend handlers can be
+defined to support arbitrary objects.
+
+See the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
 information.
 """
 
+import itertools
 import logging
 import time
 
 import numpy as np
 
-from matplotlib import rcParams
-from matplotlib import cbook, docstring
+import matplotlib as mpl
+from matplotlib import cbook, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -67,8 +68,7 @@ class DraggableLegend(DraggableOffsetBox):
         cbook._check_in_list(["loc", "bbox"], update=update)
         self._update = update
 
-        DraggableOffsetBox.__init__(self, legend, legend._legend_box,
-                                    use_blit=use_blit)
+        super().__init__(legend, legend._legend_box, use_blit=use_blit)
 
     def finalize_offset(self):
         if self._update == "loc":
@@ -162,7 +162,7 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
 ncol : int, default: 1
     The number of columns that the legend has.
 
-prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
+prop : None or `matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
     :data:`matplotlib.rcParams` will be used.
 
@@ -171,6 +171,12 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     The font size of the legend. If the value is numeric the size will be the
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
+
+labelcolor : str or list
+    The color of the text in the legend. Either a valid color string
+    (for example, 'red'), or a list of color strings. The labelcolor can
+    also be made to match the color of the line or marker using 'linecolor',
+    'markerfacecolor' (or 'mfc'), or 'markeredgecolor' (or 'mec').
 
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
@@ -222,7 +228,7 @@ mode : {"expand", None}
     expanded to fill the axes area (or *bbox_to_anchor* if defines
     the legend's size).
 
-bbox_transform : None or :class:`matplotlib.transforms.Transform`
+bbox_transform : None or `matplotlib.transforms.Transform`
     The transform for the bounding box (*bbox_to_anchor*). For a value
     of ``None`` (default) the Axes'
     :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
@@ -230,8 +236,9 @@ bbox_transform : None or :class:`matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
-title_fontsize: str or None
-    The fontsize of the legend's title.  Default is the default fontsize.
+title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
+'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
+    The font size of the legend's title.
 
 borderpad : float, default: :rc:`legend.borderpad`
     The fractional whitespace inside the legend border, in font-size units.
@@ -253,8 +260,8 @@ columnspacing : float, default: :rc:`legend.columnspacing`
 
 handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
-    handler. This `handler_map` updates the default handler map
-    found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
+    handler. This *handler_map* updates the default handler map
+    found at `matplotlib.legend.Legend.get_legend_handler_map`.
 """)
 
 
@@ -292,7 +299,8 @@ class Legend(Artist):
                  scatterpoints=None,    # number of scatter points
                  scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
-                 fontsize=None,        # keyword to set font size directly
+                 fontsize=None,      # keyword to set font size directly
+                 labelcolor=None,    # keyword to set the text color
 
                  # spacing & pad defined as a fraction of the font-size
                  borderpad=None,      # the whitespace inside the legend border
@@ -314,7 +322,7 @@ class Legend(Artist):
                                  # box, none use rc
                  shadow=None,
                  title=None,  # set a title for the legend
-                 title_fontsize=None,  # set to ax.fontsize if None
+                 title_fontsize=None,  # the font size for the title
                  framealpha=None,  # set frame alpha
                  edgecolor=None,  # frame patch edgecolor
                  facecolor=None,  # frame patch facecolor
@@ -347,7 +355,7 @@ class Legend(Artist):
         Users can specify any arbitrary location for the legend using the
         *bbox_to_anchor* keyword argument. *bbox_to_anchor* can be a
         `.BboxBase` (or derived therefrom) or a tuple of 2 or 4 floats.
-        See :meth:`set_bbox_to_anchor` for more detail.
+        See `set_bbox_to_anchor` for more detail.
 
         The legend location can be specified by setting *loc* with a tuple of
         2 floats, which is interpreted as the lower-left corner of the legend
@@ -357,17 +365,18 @@ class Legend(Artist):
         from matplotlib.axes import Axes
         from matplotlib.figure import Figure
 
-        Artist.__init__(self)
+        super().__init__()
 
         if prop is None:
             if fontsize is not None:
                 self.prop = FontProperties(size=fontsize)
             else:
-                self.prop = FontProperties(size=rcParams["legend.fontsize"])
+                self.prop = FontProperties(
+                    size=mpl.rcParams["legend.fontsize"])
         else:
             self.prop = FontProperties._from_any(prop)
             if isinstance(prop, dict) and "size" not in prop:
-                self.prop.set_size(rcParams["legend.fontsize"])
+                self.prop.set_size(mpl.rcParams["legend.fontsize"])
 
         self._fontsize = self.prop.get_size_in_points()
 
@@ -385,7 +394,7 @@ class Legend(Artist):
                      'labelspacing', 'handlelength', 'handletextpad',
                      'borderaxespad']:
             if locals_view[name] is None:
-                value = rcParams["legend." + name]
+                value = mpl.rcParams["legend." + name]
             else:
                 value = locals_view[name]
             setattr(self, name, value)
@@ -437,33 +446,20 @@ class Legend(Artist):
 
         self._loc_used_default = loc is None
         if loc is None:
-            loc = rcParams["legend.loc"]
+            loc = mpl.rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
         if isinstance(loc, str):
             if loc not in self.codes:
-                if self.isaxes:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'best'; valid locations are\n\t{}\n"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 0
-                else:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'upper right'; valid locations are\n\t{}\n'"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 1
+                raise ValueError(
+                    "Unrecognized location {!r}. Valid locations are\n\t{}\n"
+                    .format(loc, '\n\t'.join(self.codes)))
             else:
                 loc = self.codes[loc]
         if not self.isaxes and loc == 0:
-            cbook.warn_deprecated(
-                "3.1", message="Automatic legend placement (loc='best') not "
-                "implemented for figure legend. Falling back on 'upper "
-                "right'. This will raise an exception %(removal)s.")
-            loc = 1
+            raise ValueError(
+                "Automatic legend placement (loc='best') not implemented for "
+                "figure legend.")
 
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
@@ -472,53 +468,38 @@ class Legend(Artist):
         # and size of the box will be updated during the drawing time.
 
         if facecolor is None:
-            facecolor = rcParams["legend.facecolor"]
+            facecolor = mpl.rcParams["legend.facecolor"]
         if facecolor == 'inherit':
-            facecolor = rcParams["axes.facecolor"]
+            facecolor = mpl.rcParams["axes.facecolor"]
 
         if edgecolor is None:
-            edgecolor = rcParams["legend.edgecolor"]
+            edgecolor = mpl.rcParams["legend.edgecolor"]
         if edgecolor == 'inherit':
-            edgecolor = rcParams["axes.edgecolor"]
+            edgecolor = mpl.rcParams["axes.edgecolor"]
+
+        if fancybox is None:
+            fancybox = mpl.rcParams["legend.fancybox"]
 
         self.legendPatch = FancyBboxPatch(
-            xy=(0.0, 0.0), width=1., height=1.,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
+            xy=(0, 0), width=1, height=1,
+            facecolor=facecolor, edgecolor=edgecolor,
+            # If shadow is used, default to alpha=1 (#8943).
+            alpha=(framealpha if framealpha is not None
+                   else 1 if shadow
+                   else mpl.rcParams["legend.framealpha"]),
+            # The width and height of the legendPatch will be set (in draw())
+            # to the length that includes the padding. Thus we set pad=0 here.
+            boxstyle=("round,pad=0,rounding_size=0.2" if fancybox
+                      else "square,pad=0"),
             mutation_scale=self._fontsize,
-            snap=True
-            )
-
-        # The width and height of the legendPatch will be set (in the
-        # draw()) to the length that includes the padding. Thus we set
-        # pad=0 here.
-        if fancybox is None:
-            fancybox = rcParams["legend.fancybox"]
-
-        if fancybox:
-            self.legendPatch.set_boxstyle("round", pad=0,
-                                          rounding_size=0.2)
-        else:
-            self.legendPatch.set_boxstyle("square", pad=0)
-
+            snap=True,
+            visible=(frameon if frameon is not None
+                     else mpl.rcParams["legend.frameon"])
+        )
         self._set_artist_props(self.legendPatch)
-
-        self._drawFrame = frameon
-        if frameon is None:
-            self._drawFrame = rcParams["legend.frameon"]
 
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
-
-        # If shadow is activated use framealpha if not
-        # explicitly passed. See Issue 8943
-        if framealpha is None:
-            if shadow:
-                self.get_frame().set_alpha(1)
-            else:
-                self.get_frame().set_alpha(rcParams["legend.framealpha"])
-        else:
-            self.get_frame().set_alpha(framealpha)
 
         tmp = self._loc_used_default
         self._set_loc(loc)
@@ -526,10 +507,40 @@ class Legend(Artist):
 
         # figure out title fontsize:
         if title_fontsize is None:
-            title_fontsize = rcParams['legend.title_fontsize']
+            title_fontsize = mpl.rcParams['legend.title_fontsize']
         tprop = FontProperties(size=title_fontsize)
         self.set_title(title, prop=tprop)
         self._draggable = None
+
+        # set the text color
+
+        color_getters = {  # getter function depends on line or patch
+            'linecolor':       ['get_color',           'get_facecolor'],
+            'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
+            'mfc':             ['get_markerfacecolor', 'get_facecolor'],
+            'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
+            'mec':             ['get_markeredgecolor', 'get_edgecolor'],
+        }
+        if labelcolor is None:
+            pass
+        elif isinstance(labelcolor, str) and labelcolor in color_getters:
+            getter_names = color_getters[labelcolor]
+            for handle, text in zip(self.legendHandles, self.texts):
+                for getter_name in getter_names:
+                    try:
+                        color = getattr(handle, getter_name)()
+                        text.set_color(color)
+                        break
+                    except AttributeError:
+                        pass
+        elif np.iterable(labelcolor):
+            for text, color in zip(self.texts,
+                                   itertools.cycle(
+                                       colors.to_rgba_array(labelcolor))):
+                text.set_color(color)
+        else:
+            raise ValueError("Invalid argument for labelcolor : %s" %
+                             str(labelcolor))
 
     def _set_artist_props(self, a):
         """
@@ -592,17 +603,13 @@ class Legend(Artist):
         # update the location and size of the legend. This needs to
         # be done in any case to clip the figure right.
         bbox = self._legend_box.get_window_extent(renderer)
-        self.legendPatch.set_bounds(bbox.x0, bbox.y0,
-                                    bbox.width, bbox.height)
+        self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         self.legendPatch.set_mutation_scale(fontsize)
 
-        if self._drawFrame:
-            if self.shadow:
-                shadow = Shadow(self.legendPatch, 2, -2)
-                shadow.draw(renderer)
+        if self.shadow:
+            Shadow(self.legendPatch, 2, -2).draw(renderer)
 
-            self.legendPatch.draw(renderer)
-
+        self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)
 
         renderer.close_group('legend')
@@ -738,7 +745,7 @@ class Legend(Artist):
                 cbook._warn_external(
                     "Legend does not support {!r} instances.\nA proxy artist "
                     "may be used instead.\nSee: "
-                    "http://matplotlib.org/users/legend_guide.html"
+                    "https://matplotlib.org/users/legend_guide.html"
                     "#creating-artists-specifically-for-adding-to-the-legend-"
                     "aka-proxy-artists".format(orig_handle))
                 # We don't have a handle for this artist, so we just defer
@@ -900,13 +907,14 @@ class Legend(Artist):
 
         Returns
         -------
-        `.BboxBase` : containing the bounding box in figure pixel coordinates.
+        `.BboxBase`
+            The bounding box in figure pixel coordinates.
         """
         return self._legend_box.get_window_extent(renderer)
 
     def get_frame_on(self):
         """Get whether the legend box patch is drawn."""
-        return self._drawFrame
+        return self.legendPatch.get_visible()
 
     def set_frame_on(self, b):
         """
@@ -916,7 +924,7 @@ class Legend(Artist):
         ----------
         b : bool
         """
-        self._drawFrame = b
+        self.legendPatch.set_visible(b)
         self.stale = True
 
     draw_frame = set_frame_on  # Backcompat alias.
@@ -932,13 +940,21 @@ class Legend(Artist):
         """
         Set the bbox that the legend will be anchored to.
 
-        *bbox* can be
+        Parameters
+        ----------
+        bbox : `~matplotlib.transforms.BboxBase` or tuple
+            The bounding box can be specified in the following ways:
 
-        - A `.BboxBase` instance
-        - A tuple of ``(left, bottom, width, height)`` in the given transform
-          (normalized axes coordinate if None)
-        - A tuple of ``(left, bottom)`` where the width and height will be
-          assumed to be zero.
+            - A `.BboxBase` instance
+            - A tuple of ``(left, bottom, width, height)`` in the given
+              transform (normalized axes coordinate if None)
+            - A tuple of ``(left, bottom)`` where the width and height will be
+              assumed to be zero.
+            - *None*, to remove the bbox anchoring, and use the parent bbox.
+
+        transform : `~matplotlib.transforms.Transform`, optional
+            A transform to apply to the bounding box. If not specified, this
+            will use a transform to the bounding box of the parent.
         """
         if bbox is None:
             self._bbox_to_anchor = None
@@ -948,8 +964,9 @@ class Legend(Artist):
         else:
             try:
                 l = len(bbox)
-            except TypeError:
-                raise ValueError("Invalid argument for bbox : %s" % str(bbox))
+            except TypeError as err:
+                raise ValueError("Invalid argument for bbox : %s" %
+                                 str(bbox)) from err
 
             if l == 2:
                 bbox = [bbox[0], bbox[1], 0, 0]
@@ -968,13 +985,16 @@ class Legend(Artist):
         Place the *bbox* inside the *parentbbox* according to a given
         location code. Return the (x, y) coordinate of the bbox.
 
-        - loc: a location code in range(1, 11).
-          This corresponds to the possible values for self._loc, excluding
-          "best".
+        Parameters
+        ----------
+        loc : int
+            A location code in range(1, 11). This corresponds to the possible
+            values for ``self._loc``, excluding "best".
+        bbox : `~matplotlib.transforms.Bbox`
+            bbox to be placed, in display coordinates.
+        parentbbox : `~matplotlib.transforms.Bbox`
+            A parent box which will contain the bbox, in display coordinates.
 
-        - bbox: bbox to be placed, display coordinate units.
-        - parentbbox: a parent box which will contain the bbox. In
-            display coordinates.
         """
         assert loc in range(1, 11)  # called only internally
 
@@ -1069,8 +1089,9 @@ class Legend(Artist):
 
         Returns
         -------
-        If *state* is ``True`` this returns the `~.DraggableLegend` helper
-        instance. Otherwise this returns ``None``.
+        `.DraggableLegend` or *None*
+            If *state* is ``True`` this returns the `.DraggableLegend` helper
+            instance. Otherwise this returns *None*.
         """
         if state:
             if self._draggable is None:
@@ -1141,7 +1162,45 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     Get the handles and labels from the calls to either ``figure.legend``
     or ``axes.legend``.
 
-    ``axs`` is a list of axes (to get legend artists from)
+    The parser is a bit involved because we support::
+
+        legend()
+        legend(labels)
+        legend(handles, labels)
+        legend(labels=labels)
+        legend(handles=handles)
+        legend(handles=handles, labels=labels)
+
+    The behavior for a mixture of positional and keyword handles and labels
+    is undefined and issues a warning.
+
+    Parameters
+    ----------
+    axs : list of `.Axes`
+        If handles are not given explicitly, the artists in these Axes are
+        used as handles.
+    *args : tuple
+        Positional parameters passed to ``legend()``.
+    handles
+        The value of the keyword argument ``legend(handles=...)``, or *None*
+        if that keyword argument was not used.
+    labels
+        The value of the keyword argument ``legend(labels=...)``, or *None*
+        if that keyword argument was not used.
+    **kwargs
+        All other keyword arguments passed to ``legend()``.
+
+    Returns
+    -------
+    handles : list of `.Artist`
+        The legend handles.
+    labels : list of str
+        The legend labels.
+    extra_args : tuple
+        *args* with positional handles and labels removed.
+    kwargs : dict
+        *kwargs* with keywords handles and labels removed.
+
     """
     log = logging.getLogger(__name__)
 
@@ -1173,6 +1232,10 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     # One argument. User defined labels - automatic handle detection.
     elif len(args) == 1:
         labels, = args
+        if any(isinstance(l, Artist) for l in labels):
+            raise TypeError("A single argument passed to legend() must be a "
+                            "list of labels, but found an Artist in there.")
+
         # Get as many handles as there are labels.
         handles = [handle for handle, label
                    in zip(_get_legend_handles(axs, handlers), labels)]

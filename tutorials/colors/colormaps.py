@@ -179,17 +179,19 @@ cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
 # gist_earth and terrain. CMRmap was created to convert well to
 # grayscale, though it does appear to have some small kinks in
 # :math:`L^*`.  cubehelix was created to vary smoothly in both lightness
-# and hue, but appears to have a small hump in the green hue area.
+# and hue, but appears to have a small hump in the green hue area. turbo
+# was created to display depth and disparity data.
 #
 # The often-used jet colormap is included in this set of colormaps. We can see
 # that the :math:`L^*` values vary widely throughout the colormap, making it a
 # poor choice for representing data for viewers to see perceptually. See an
-# extension on this idea at [mycarta-jet]_.
+# extension on this idea at [mycarta-jet]_ and [turbo]_.
 
 cmaps['Miscellaneous'] = [
             'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
             'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
-            'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar']
+            'gist_rainbow', 'rainbow', 'jet', 'turbo', 'nipy_spectral',
+            'gist_ncar']
 
 ###############################################################################
 # .. _color-colormaps_reference:
@@ -225,7 +227,7 @@ for cmap_category, cmap_list in cmaps.items():
 plt.show()
 
 ###############################################################################
-# Lightness of matplotlib colormaps
+# Lightness of Matplotlib colormaps
 # =================================
 #
 # Here we examine the lightness values of the matplotlib colormaps.
@@ -308,10 +310,9 @@ for cmap_category, cmap_list in cmaps.items():
         formatter = mpl.ticker.FixedFormatter(cmap_list[i*dsub:(i+1)*dsub])
         ax.xaxis.set_major_formatter(formatter)
         ax.xaxis.set_tick_params(rotation=50)
+        ax.set_ylabel('Lightness $L^*$', fontsize=12)
 
     ax.set_xlabel(cmap_category + ' colormaps', fontsize=14)
-    fig.text(0.0, 0.55, 'Lightness $L^*$', fontsize=12,
-             transform=fig.transFigure, rotation=90)
 
     fig.tight_layout(h_pad=0.0, pad=1.5)
     plt.show()
@@ -349,8 +350,8 @@ for cmap_category, cmap_list in cmaps.items():
 # overlaid, labeled contours could help differentiate between one side of the
 # colormap vs. the other since color cannot be used once a plot is printed to
 # grayscale. Many of the Qualitative and Miscellaneous colormaps, such as
-# Accent, hsv, and jet, change from darker to lighter and back to darker gray
-# throughout the colormap. This would make it impossible for a viewer to
+# Accent, hsv, jet and turbo, change from darker to lighter and back to darker
+# grey throughout the colormap. This would make it impossible for a viewer to
 # interpret the information in a plot once it is printed in grayscale.
 
 mpl.rcParams.update({'font.size': 14})
@@ -423,3 +424,4 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [IBM] https://doi.org/10.1109/VISUAL.1995.480803
 # .. [palettable] https://jiffyclub.github.io/palettable/
+# .. [turbo] https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html

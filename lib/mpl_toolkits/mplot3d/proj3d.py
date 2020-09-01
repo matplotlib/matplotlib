@@ -7,7 +7,8 @@ import numpy.linalg as linalg
 
 
 def _line2d_seg_dist(p1, p2, p0):
-    """distance(s) from line defined by p1 - p2 to point(s) p0
+    """
+    Return the distance(s) from line defined by p1 - p2 to point(s) p0.
 
     p0[0] = x(s)
     p0[1] = y(s)
@@ -32,8 +33,8 @@ def world_transformation(xmin, xmax,
                          ymin, ymax,
                          zmin, zmax, pb_aspect=None):
     """
-    produce a matrix that scales homogenous coords in the specified ranges
-    to [0, 1], or [0, pb_aspect[i]] if the plotbox aspect ratio is specified
+    Produce a matrix that scales homogeneous coords in the specified ranges
+    to [0, 1], or [0, pb_aspect[i]] if the plotbox aspect ratio is specified.
     """
     dx = xmax - xmin
     dy = ymax - ymin

@@ -817,7 +817,7 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
 inline bool isclose(double a, double b)
 {
     // relative and absolute tolerance values are chosen empirically
-    // it looks the atol value matters here bacause of round-off errors
+    // it looks the atol value matters here because of round-off errors
     const double rtol = 1e-10;
     const double atol = 1e-13;
 
@@ -1089,35 +1089,38 @@ void quad2cubic(double x0, double y0,
 void __add_number(double val, char format_code, int precision,
                   std::string& buffer)
 {
-    char *str = PyOS_double_to_string(val, format_code, precision, 0, NULL);
-
-    // Delete trailing zeros and decimal point
-    char *q = str;
-    for (; *q != 0; ++q) {
-        // Find the end of the string
-    }
-
-    --q;
-    for (; q >= str && *q == '0'; --q) {
-        // Rewind through all the zeros
-    }
-
-    // If the end is a decimal point, delete that too
-    if (q >= str && *q == '.') {
-        --q;
-    }
-
-    // Truncate the string
-    ++q;
-    *q = 0;
-
-    try {
+    if (precision == -1) {
+        // Special-case for compat with old ttconv code, which *truncated*
+        // values with a cast to int instead of rounding them as printf
+        // would do.  The only point where non-integer values arise is from
+        // quad2cubic conversion (as we already perform a first truncation
+        // on Python's side), which can introduce additional floating point
+        // error (by adding 2/3 delta-x and then 1/3 delta-x), so compensate by
+        // first rounding to the closest 1/3 and then truncating.
+        char str[255];
+        PyOS_snprintf(str, 255, "%d", (int)(round(val * 3)) / 3);
         buffer += str;
-    } catch (std::bad_alloc& e) {
+    } else {
+        char *str = PyOS_double_to_string(
+          val, format_code, precision, Py_DTSF_ADD_DOT_0, NULL);
+        // Delete trailing zeros and decimal point
+        char *c = str + strlen(str) - 1;  // Start at last character.
+        // Rewind through all the zeros and, if present, the trailing decimal
+        // point.  Py_DTSF_ADD_DOT_0 ensures we won't go past the start of str.
+        while (*c == '0') {
+            --c;
+        }
+        if (*c == '.') {
+            --c;
+        }
+        try {
+            buffer.append(str, c + 1);
+        } catch (std::bad_alloc& e) {
+            PyMem_Free(str);
+            throw e;
+        }
         PyMem_Free(str);
-        throw e;
     }
-    PyMem_Free(str);
 }
 
 

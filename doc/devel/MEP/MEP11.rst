@@ -117,7 +117,7 @@ Implementation
 For installing from source, and assuming the user has all of the
 C-level compilers and dependencies, this can be accomplished fairly
 easily using distribute_ and following the instructions `here
-<https://pypi.python.org/pypi/distribute>`_.  The only anticipated
+<https://pypi.org/project/distribute>`_.  The only anticipated
 change to the matplotlib library code will be to import pyparsing_
 from the top-level namespace rather than from within matplotlib.  Note
 that distribute_ will also allow us to remove the direct dependency
@@ -127,21 +127,21 @@ dateutil_.
 For binary installations, there are a number of alternatives (here
 ordered from best/hardest to worst/easiest):
 
-    1. The distutils wininst installer allows a post-install script to
-       run.  It might be possible to get this script to run pip_ to
-       install the other dependencies.  (See `this thread
-       <http://grokbase.com/t/python/distutils-sig/109bdnfhp4/distutils-ann-setuptools-post-install-script-for-bdist-wininst>`_
-       for someone who has trod that ground before).
+1. The distutils wininst installer allows a post-install script to
+   run.  It might be possible to get this script to run pip_ to
+   install the other dependencies.  (See `this thread
+   <http://grokbase.com/t/python/distutils-sig/109bdnfhp4/distutils-ann-setuptools-post-install-script-for-bdist-wininst>`_
+   for someone who has trod that ground before).
 
-    2. Continue to ship dateutil_, pytz_, six_ and pyparsing_ in
-       our installer, but use the post-install-script to install them
-       *only* if they can not already be found.
+2. Continue to ship dateutil_, pytz_, six_ and pyparsing_ in
+   our installer, but use the post-install-script to install them
+   *only* if they can not already be found.
 
-    3. Move all of these packages inside a (new) ``matplotlib.extern``
-       namespace so it is clear for outside users that these are
-       external packages.  Add some conditional imports in the core
-       matplotlib codebase so dateutil_ (at the top-level) is tried
-       first, and failing that ``matplotlib.extern.dateutil`` is used.
+3. Move all of these packages inside a (new) ``matplotlib.extern``
+   namespace so it is clear for outside users that these are
+   external packages.  Add some conditional imports in the core
+   matplotlib codebase so dateutil_ (at the top-level) is tried
+   first, and failing that ``matplotlib.extern.dateutil`` is used.
 
 2 and 3 are undesirable as they still require maintaining copies of
 these packages in our tree -- and this is exacerbated by the fact that

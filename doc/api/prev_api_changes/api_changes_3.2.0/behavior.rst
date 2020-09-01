@@ -218,11 +218,11 @@ resampling the data in A for display (or saving to file) *if* the upsample
 rate is less than a factor of three, and not an integer; downsampled data is
 always smoothed at resampling.
 
-To get the old behavior, set :rc:`interpolation` to the old default "nearest"
+To get the old behavior, set :rc:`image.interpolation` to the old default "nearest"
 (or specify the ``interpolation`` kwarg of `.Axes.imshow`)
 
 To always get the anti-aliasing behavior, no matter what the up/down sample
-rate, set :rc:`interpolation` to "hanning" (or one of the other filters
+rate, set :rc:`image.interpolation` to "hanning" (or one of the other filters
 available).
 
 Note that the "hanning" filter was chosen because it has only a modest
@@ -293,7 +293,7 @@ Exception changes
 Various APIs that raised a `ValueError` for incorrectly typed inputs now raise
 `TypeError` instead: `.backend_bases.GraphicsContextBase.set_clip_path`,
 `.blocking_input.BlockingInput.__call__`, `.cm.register_cmap`, `.dviread.DviFont`,
-`.rcsetup.validate_hatch`, `.rcsetup.validate_animation_writer_path`, `.spines.Spine`,
+`.rcsetup.validate_hatch`, ``.rcsetup.validate_animation_writer_path``, `.spines.Spine`,
 many classes in the :mod:`matplotlib.transforms` module and :mod:`matplotlib.tri`
 package, and Axes methods that take a ``norm`` parameter.
 
@@ -307,3 +307,14 @@ mplot3d auto-registration
 longer necessary to import mplot3d to create 3d axes with ::
 
   ax = fig.add_subplot(111, projection="3d")
+
+`.SymLogNorm` now has a *base* parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, `.SymLogNorm` had no *base* keyword argument and the base was
+hard-coded to ``base=np.e``. This was inconsistent with the default behavior of
+`.SymmetricalLogScale` (which defaults to ``base=10``) and the use of the word
+"decade" in the documentation.
+
+In preparation for changing the default base to 10, calling `.SymLogNorm`
+without the new *base* keyword argument emits a deprecation warning.

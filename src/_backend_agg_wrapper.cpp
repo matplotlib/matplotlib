@@ -526,17 +526,6 @@ PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args, PyObje
     Py_RETURN_NONE;
 }
 
-static PyObject *
-PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject *kwds)
-{
-    agg::rect_i extents;
-
-    CALL_CPP("get_content_extents", (extents = self->x->get_content_extents()));
-
-    return Py_BuildValue(
-        "iiii", extents.x1, extents.y1, extents.x2 - extents.x1, extents.y2 - extents.y1);
-}
-
 int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
 {
     Py_INCREF(self);
@@ -627,7 +616,6 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
         {"draw_gouraud_triangle", (PyCFunction)PyRendererAgg_draw_gouraud_triangle, METH_VARARGS, NULL},
         {"draw_gouraud_triangles", (PyCFunction)PyRendererAgg_draw_gouraud_triangles, METH_VARARGS, NULL},
 
-        {"get_content_extents", (PyCFunction)PyRendererAgg_get_content_extents, METH_NOARGS, NULL},
         {"clear", (PyCFunction)PyRendererAgg_clear, METH_NOARGS, NULL},
 
         {"copy_from_bbox", (PyCFunction)PyRendererAgg_copy_from_bbox, METH_VARARGS, NULL},
@@ -672,6 +660,8 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC PyInit__backend_agg(void)
 {
     PyObject *m;
@@ -694,3 +684,5 @@ PyMODINIT_FUNC PyInit__backend_agg(void)
 
     return m;
 }
+
+#pragma GCC visibility pop

@@ -5,27 +5,18 @@
 
 strategy:
   matrix:
-    Linux_py36:
-      vmImage: 'ubuntu-16.04'
-      python.version: '3.6'
     Linux_py37:
       vmImage: 'ubuntu-16.04'
       python.version: '3.7'
     Linux_py38:
       vmImage: 'ubuntu-16.04'
       python.version: '3.8'
-    macOS_py36:
-      vmImage: 'macOS-10.14'
-      python.version: '3.6'
     macOS_py37:
       vmImage: 'macOS-10.15'
       python.version: '3.7'
     macOS_py38:
       vmImage: 'macOS-latest'
       python.version: '3.8'
-    Windows_py36:
-      vmImage: 'vs2017-win2016'
-      python.version: '3.6'
     Windows_py37:
       vmImage: 'vs2017-win2016'
       python.version: '3.7'
@@ -56,10 +47,11 @@ steps:
   condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
 - bash: |
+    set -e
     case "$(python -c 'import sys; print(sys.platform)')" in
     linux)
-      sudo apt-get update
-      sudo apt-get install \
+      sudo apt update
+      sudo apt install \
         cm-super \
         dvipng \
         ffmpeg \
@@ -68,7 +60,6 @@ steps:
         graphviz \
         inkscape \
         libcairo2 \
-        libgeos-dev \
         libgirepository-1.0.1 \
         lmodern \
         fonts-freefont-otf \
@@ -112,7 +103,7 @@ steps:
   displayName: 'pytest'
 
 - bash: |
-    bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
+    bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov
   displayName: 'Upload to codecov.io'
 
 - task: PublishTestResults@2
@@ -120,3 +111,7 @@ steps:
     testResultsFiles: '**/test-results.xml'
     testRunTitle: 'Python $(python.version)'
   condition: succeededOrFailed()
+
+- publish: $(System.DefaultWorkingDirectory)/result_images
+  artifact: $(Agent.JobName)-result_images
+  condition: and(failed(), ne(variables['python.version'], 'Pre'))

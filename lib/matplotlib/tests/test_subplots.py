@@ -1,10 +1,10 @@
 import itertools
 
-import numpy
+import numpy as np
+import pytest
+
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-
-import pytest
 
 
 def check_shared(axs, x_shared, y_shared):
@@ -38,14 +38,14 @@ def check_visible(axs, x_visible, y_visible):
 def test_shared():
     rdim = (4, 4, 2)
     share = {
-            'all': numpy.ones(rdim[:2], dtype=bool),
-            'none': numpy.zeros(rdim[:2], dtype=bool),
-            'row': numpy.array([
+            'all': np.ones(rdim[:2], dtype=bool),
+            'none': np.zeros(rdim[:2], dtype=bool),
+            'row': np.array([
                 [False, True, False, False],
                 [True, False, False, False],
                 [False, False, False, True],
                 [False, False, True, False]]),
-            'col': numpy.array([
+            'col': np.array([
                 [False, False, True, False],
                 [False, False, False, True],
                 [True, False, False, False],
@@ -151,8 +151,8 @@ def test_exceptions():
 
 @image_comparison(['subplots_offset_text'], remove_text=False)
 def test_subplots_offsettext():
-    x = numpy.arange(0, 1e10, 1e9)
-    y = numpy.arange(0, 100, 10)+1e4
+    x = np.arange(0, 1e10, 1e9)
+    y = np.arange(0, 100, 10)+1e4
     fig, axs = plt.subplots(2, 2, sharex='col', sharey='all')
     axs[0, 0].plot(x, x)
     axs[1, 0].plot(x, x)

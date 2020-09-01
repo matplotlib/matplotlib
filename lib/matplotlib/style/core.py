@@ -39,19 +39,19 @@ STYLE_BLACKLIST = {
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
     'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
     'figure.raise_window', 'savefig.directory', 'tk.window_focus',
-    'docstring.hardcopy'}
+    'docstring.hardcopy', 'date.epoch'}
 
 
 def _remove_blacklisted_style_params(d, warn=True):
     o = {}
-    for key, val in d.items():
+    for key in d:  # prevent triggering RcParams.__getitem__('backend')
         if key in STYLE_BLACKLIST:
             if warn:
                 cbook._warn_external(
                     "Style includes a parameter, '{0}', that is not related "
                     "to style.  Ignoring".format(key))
         else:
-            o[key] = val
+            o[key] = d[key]
     return o
 
 
@@ -66,10 +66,16 @@ def _apply_style(d, warn=True):
 
 
 def use(style):
-    """Use matplotlib style settings from a style specification.
+    """
+    Use Matplotlib style settings from a style specification.
 
     The style name of 'default' is reserved for reverting back to
     the default style settings.
+
+    .. note::
+
+       This updates the `.rcParams` with the settings from the style.
+       `.rcParams` not defined in the style are kept.
 
     Parameters
     ----------
@@ -114,16 +120,17 @@ def use(style):
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
                 _apply_style(rc)
-            except IOError:
+            except IOError as err:
                 raise IOError(
                     "{!r} not found in the style library and input is not a "
                     "valid URL or path; see `style.available` for list of "
-                    "available styles".format(style))
+                    "available styles".format(style)) from err
 
 
 @contextlib.contextmanager
 def context(style, after_reset=False):
-    """Context manager for using style settings temporarily.
+    """
+    Context manager for using style settings temporarily.
 
     Parameters
     ----------
@@ -168,7 +175,7 @@ def iter_user_libraries():
 
 
 def update_user_library(library):
-    """Update style library with user-defined rc files"""
+    """Update style library with user-defined rc files."""
     for stylelib_path in iter_user_libraries():
         styles = read_style_directory(stylelib_path)
         update_nested_dict(library, styles)
@@ -199,9 +206,10 @@ def read_style_directory(style_dir):
 
 
 def update_nested_dict(main_dict, new_dict):
-    """Update nested dict (only level of nesting) with new values.
+    """
+    Update nested dict (only level of nesting) with new values.
 
-    Unlike dict.update, this assumes that the values of the parent dict are
+    Unlike `dict.update`, this assumes that the values of the parent dict are
     dicts (or dict-like), so you shouldn't replace the nested dict if it
     already exists. Instead you should update the sub-dict.
     """
@@ -216,11 +224,12 @@ def update_nested_dict(main_dict, new_dict):
 _base_library = load_base_library()
 
 library = None
+
 available = []
 
 
 def reload_library():
-    """Reload style library."""
+    """Reload the style library."""
     global library
     library = update_user_library(_base_library)
     available[:] = sorted(library.keys())

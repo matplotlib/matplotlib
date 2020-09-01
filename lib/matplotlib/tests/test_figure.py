@@ -1,10 +1,13 @@
+from contextlib import nullcontext
 from datetime import datetime
+import io
 from pathlib import Path
 import platform
+from types import SimpleNamespace
 import warnings
 
 import matplotlib as mpl
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
@@ -15,8 +18,8 @@ import numpy as np
 import pytest
 
 
-@image_comparison(['figure_align_labels'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+@image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_labels():
     fig = plt.figure(tight_layout=True)
     gs = gridspec.GridSpec(3, 3)
@@ -146,7 +149,11 @@ def test_gca():
         # empty call to add_axes() will throw deprecation warning
         assert fig.add_axes() is None
 
-    ax1 = fig.add_axes([0, 0, 1, 1])
+    ax0 = fig.add_axes([0, 0, 1, 1])
+    assert fig.gca(projection='rectilinear') is ax0
+    assert fig.gca() is ax0
+
+    ax1 = fig.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
@@ -172,14 +179,36 @@ def test_gca():
 
 def test_add_subplot_invalid():
     fig = plt.figure()
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError,
+                       match='Number of columns must be a positive integer'):
         fig.add_subplot(2, 0, 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError,
+                       match='Number of rows must be a positive integer'):
         fig.add_subplot(0, 2, 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 0)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 5)
+
+    with pytest.raises(ValueError, match='must be a three-digit integer'):
+        fig.add_subplot(42)
+    with pytest.raises(ValueError, match='must be a three-digit integer'):
+        fig.add_subplot(1000)
+
+    with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
+                                        'but 2 were given'):
+        fig.add_subplot(2, 2)
+    with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
+                                        'but 4 were given'):
+        fig.add_subplot(1, 2, 3, 4)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match='Passing non-integers as three-element position '
+                            'specification is deprecated'):
+        fig.add_subplot('2', 2, 1)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match='Passing non-integers as three-element position '
+                            'specification is deprecated'):
+        fig.add_subplot(2.0, 2, 1)
 
 
 @image_comparison(['figure_suptitle'])
@@ -318,7 +347,9 @@ def test_autofmt_xdate(which):
             'FixedFormatter should only be used together with FixedLocator')
         ax.xaxis.set_minor_formatter(FixedFormatter(minors))
 
-    fig.autofmt_xdate(0.2, angle, 'right', which)
+    with (pytest.warns(mpl.MatplotlibDeprecationWarning) if which is None else
+          nullcontext()):
+        fig.autofmt_xdate(0.2, angle, 'right', which)
 
     if which in ('both', 'major', None):
         for label in fig.axes[0].get_xticklabels(False, 'major'):
@@ -343,7 +374,6 @@ def test_change_dpi():
 
 @pytest.mark.parametrize('width, height', [
     (1, np.nan),
-    (0, 1),
     (-1, 1),
     (np.inf, 1)
 ])
@@ -360,6 +390,9 @@ def test_invalid_figure_add_axes():
     fig = plt.figure()
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
+
+    with pytest.raises(TypeError, match="multiple values for argument 'rect'"):
+        fig.add_axes([0, 0, 1, 1], rect=[0, 0, 1, 1])
 
 
 def test_subplots_shareax_loglabels():
@@ -388,6 +421,14 @@ def test_savefig():
     msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
     with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
+
+
+def test_savefig_warns():
+    fig = plt.figure()
+    msg = r'savefig\(\) got unexpected keyword argument "non_existent_kwarg"'
+    for format in ['png', 'pdf', 'svg', 'tif', 'jpg']:
+        with pytest.warns(cbook.MatplotlibDeprecationWarning, match=msg):
+            fig.savefig(io.BytesIO(), format=format, non_existent_kwarg=True)
 
 
 def test_savefig_backend():
@@ -500,3 +541,259 @@ def test_removed_axis():
     fig, axs = plt.subplots(2, sharex=True)
     axs[0].remove()
     fig.canvas.draw()
+
+
+@pytest.mark.style('mpl20')
+def test_picking_does_not_stale():
+    fig, ax = plt.subplots()
+    col = ax.scatter([0], [0], [1000], picker=True)
+    fig.canvas.draw()
+    assert not fig.stale
+
+    mouse_event = SimpleNamespace(x=ax.bbox.x0 + ax.bbox.width / 2,
+                                  y=ax.bbox.y0 + ax.bbox.height / 2,
+                                  inaxes=ax, guiEvent=None)
+    fig.pick(mouse_event)
+    assert not fig.stale
+
+
+def test_add_subplot_twotuple():
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 2, (3, 5))
+    assert ax1.get_subplotspec().rowspan == range(1, 3)
+    assert ax1.get_subplotspec().colspan == range(0, 1)
+    ax2 = fig.add_subplot(3, 2, (4, 6))
+    assert ax2.get_subplotspec().rowspan == range(1, 3)
+    assert ax2.get_subplotspec().colspan == range(1, 2)
+    ax3 = fig.add_subplot(3, 2, (3, 6))
+    assert ax3.get_subplotspec().rowspan == range(1, 3)
+    assert ax3.get_subplotspec().colspan == range(0, 2)
+    ax4 = fig.add_subplot(3, 2, (4, 5))
+    assert ax4.get_subplotspec().rowspan == range(1, 3)
+    assert ax4.get_subplotspec().colspan == range(0, 2)
+    with pytest.raises(IndexError):
+        fig.add_subplot(3, 2, (6, 3))
+
+
+@image_comparison(['tightbbox_box_aspect.svg'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight',
+                                 'facecolor': 'teal'},
+                  remove_text=True)
+def test_tightbbox_box_aspect():
+    fig = plt.figure()
+    gs = fig.add_gridspec(1, 2)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1], projection='3d')
+    ax1.set_box_aspect(.5)
+    ax2.set_box_aspect((2, 1, 1))
+
+
+@check_figures_equal(extensions=["svg", "pdf", "eps", "png"])
+def test_animated_with_canvas_change(fig_test, fig_ref):
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot(range(5))
+
+    ax_test = fig_test.subplots()
+    ax_test.plot(range(5), animated=True)
+
+
+class TestSubplotMosaic:
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize(
+        "x", [[["A", "A", "B"], ["C", "D", "B"]], [[1, 1, 2], [3, 4, 2]]]
+    )
+    def test_basic(self, fig_test, fig_ref, x):
+        grid_axes = fig_test.subplot_mosaic(x)
+
+        for k, ax in grid_axes.items():
+            ax.set_title(k)
+
+        labels = sorted(np.unique(x))
+
+        assert len(labels) == len(grid_axes)
+
+        gs = fig_ref.add_gridspec(2, 3)
+        axA = fig_ref.add_subplot(gs[:1, :2])
+        axA.set_title(labels[0])
+
+        axB = fig_ref.add_subplot(gs[:, 2])
+        axB.set_title(labels[1])
+
+        axC = fig_ref.add_subplot(gs[1, 0])
+        axC.set_title(labels[2])
+
+        axD = fig_ref.add_subplot(gs[1, 1])
+        axD.set_title(labels[3])
+
+    @check_figures_equal(extensions=["png"])
+    def test_all_nested(self, fig_test, fig_ref):
+        x = [["A", "B"], ["C", "D"]]
+        y = [["E", "F"], ["G", "H"]]
+
+        fig_ref.set_constrained_layout(True)
+        fig_test.set_constrained_layout(True)
+
+        grid_axes = fig_test.subplot_mosaic([[x, y]])
+        for ax in grid_axes.values():
+            ax.set_title(ax.get_label())
+
+        gs = fig_ref.add_gridspec(1, 2)
+        gs_left = gs[0, 0].subgridspec(2, 2)
+        for j, r in enumerate(x):
+            for k, label in enumerate(r):
+                fig_ref.add_subplot(gs_left[j, k]).set_title(label)
+
+        gs_right = gs[0, 1].subgridspec(2, 2)
+        for j, r in enumerate(y):
+            for k, label in enumerate(r):
+                fig_ref.add_subplot(gs_right[j, k]).set_title(label)
+
+    @check_figures_equal(extensions=["png"])
+    def test_nested(self, fig_test, fig_ref):
+
+        fig_ref.set_constrained_layout(True)
+        fig_test.set_constrained_layout(True)
+
+        x = [["A", "B"], ["C", "D"]]
+
+        y = [["F"], [x]]
+
+        grid_axes = fig_test.subplot_mosaic(y)
+
+        for k, ax in grid_axes.items():
+            ax.set_title(k)
+
+        gs = fig_ref.add_gridspec(2, 1)
+
+        gs_n = gs[1, 0].subgridspec(2, 2)
+
+        axA = fig_ref.add_subplot(gs_n[0, 0])
+        axA.set_title("A")
+
+        axB = fig_ref.add_subplot(gs_n[0, 1])
+        axB.set_title("B")
+
+        axC = fig_ref.add_subplot(gs_n[1, 0])
+        axC.set_title("C")
+
+        axD = fig_ref.add_subplot(gs_n[1, 1])
+        axD.set_title("D")
+
+        axF = fig_ref.add_subplot(gs[0, 0])
+        axF.set_title("F")
+
+    @check_figures_equal(extensions=["png"])
+    def test_nested_tuple(self, fig_test, fig_ref):
+        x = [["A", "B", "B"], ["C", "C", "D"]]
+        xt = (("A", "B", "B"), ("C", "C", "D"))
+
+        fig_ref.subplot_mosaic([["F"], [x]])
+        fig_test.subplot_mosaic([["F"], [xt]])
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize(
+        "x, empty_sentinel",
+        [
+            ([["A", None], [None, "B"]], None),
+            ([["A", "."], [".", "B"]], "SKIP"),
+            ([["A", 0], [0, "B"]], 0),
+            ([[1, None], [None, 2]], None),
+            ([[1, "."], [".", 2]], "SKIP"),
+            ([[1, 0], [0, 2]], 0),
+        ],
+    )
+    def test_empty(self, fig_test, fig_ref, x, empty_sentinel):
+        if empty_sentinel != "SKIP":
+            kwargs = {"empty_sentinel": empty_sentinel}
+        else:
+            kwargs = {}
+        grid_axes = fig_test.subplot_mosaic(x, **kwargs)
+
+        for k, ax in grid_axes.items():
+            ax.set_title(k)
+
+        labels = sorted(
+            {name for row in x for name in row} - {empty_sentinel, "."}
+        )
+
+        assert len(labels) == len(grid_axes)
+
+        gs = fig_ref.add_gridspec(2, 2)
+        axA = fig_ref.add_subplot(gs[0, 0])
+        axA.set_title(labels[0])
+
+        axB = fig_ref.add_subplot(gs[1, 1])
+        axB.set_title(labels[1])
+
+    def test_fail_list_of_str(self):
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic(['foo', 'bar'])
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
+    def test_subplot_kw(self, fig_test, fig_ref, subplot_kw):
+        x = [[1, 2]]
+        grid_axes = fig_test.subplot_mosaic(x, subplot_kw=subplot_kw)
+        subplot_kw = subplot_kw or {}
+
+        gs = fig_ref.add_gridspec(1, 2)
+        axA = fig_ref.add_subplot(gs[0, 0], **subplot_kw)
+
+        axB = fig_ref.add_subplot(gs[0, 1], **subplot_kw)
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("str_pattern",
+                             ["AAA\nBBB", "\nAAA\nBBB\n", "ABC\nDEF"]
+                             )
+    def test_single_str_input(self, fig_test, fig_ref, str_pattern):
+        grid_axes = fig_test.subplot_mosaic(str_pattern)
+
+        grid_axes = fig_ref.subplot_mosaic(
+            [list(ln) for ln in str_pattern.strip().split("\n")]
+        )
+
+    @pytest.mark.parametrize(
+        "x,match",
+        [
+            (
+                [["A", "."], [".", "A"]],
+                (
+                    "(?m)we found that the label .A. specifies a "
+                    + "non-rectangular or non-contiguous area."
+                ),
+            ),
+            (
+                [["A", "B"], [None, [["A", "B"], ["C", "D"]]]],
+                "There are duplicate keys .* between the outer layout",
+            ),
+            ("AAA\nc\nBBB", "All of the rows must be the same length"),
+            (
+                [["A", [["B", "C"], ["D"]]], ["E", "E"]],
+                "All of the rows must be the same length",
+            ),
+        ],
+    )
+    def test_fail(self, x, match):
+        fig = plt.figure()
+        with pytest.raises(ValueError, match=match):
+            fig.subplot_mosaic(x)
+
+    @check_figures_equal(extensions=["png"])
+    def test_hashable_keys(self, fig_test, fig_ref):
+        fig_test.subplot_mosaic([[object(), object()]])
+        fig_ref.subplot_mosaic([["A", "B"]])
+
+
+def test_reused_gridspec():
+    """Test that these all use the same gridspec"""
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 2, (3, 5))
+    ax2 = fig.add_subplot(3, 2, 4)
+    ax3 = plt.subplot2grid((3, 2), (2, 1), colspan=2, fig=fig)
+
+    gs1 = ax1.get_subplotspec().get_gridspec()
+    gs2 = ax2.get_subplotspec().get_gridspec()
+    gs3 = ax3.get_subplotspec().get_gridspec()
+
+    assert gs1 == gs2
+    assert gs1 == gs3

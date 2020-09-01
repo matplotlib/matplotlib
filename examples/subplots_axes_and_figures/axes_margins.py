@@ -62,7 +62,7 @@ fig, (ax1, ax2) = plt.subplots(ncols=2)
 ax2.use_sticky_edges = False
 
 for ax, status in zip((ax1, ax2), ('Is', 'Is Not')):
-    cells = ax.pcolor(x, y, x+y, cmap='inferno')  # sticky
+    cells = ax.pcolor(x, y, x+y, cmap='inferno', shading='auto')  # sticky
     ax.add_patch(
         plt.Polygon(poly_coords, color='forestgreen', alpha=0.5)
     )  # not sticky

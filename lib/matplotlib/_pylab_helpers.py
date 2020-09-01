@@ -45,25 +45,35 @@ class Gcf:
     @classmethod
     def destroy(cls, num):
         """
-        Destroy figure number *num*.
+        Destroy manager *num* -- either a manager instance or a manager number.
 
         In the interactive backends, this is bound to the window "destroy" and
         "delete" events.
+
+        It is recommended to pass a manager instance, to avoid confusion when
+        two managers share the same number.
         """
-        if not cls.has_fignum(num):
-            return
-        manager = cls.figs.pop(num)
-        manager.canvas.mpl_disconnect(manager._cidgcf)
+        if all(hasattr(num, attr) for attr in ["num", "destroy"]):
+            manager = num
+            if cls.figs.get(manager.num) is manager:
+                cls.figs.pop(manager.num)
+        else:
+            try:
+                manager = cls.figs.pop(num)
+            except KeyError:
+                return
+        if hasattr(manager, "_cidgcf"):
+            manager.canvas.mpl_disconnect(manager._cidgcf)
         manager.destroy()
         gc.collect(1)
 
     @classmethod
     def destroy_fig(cls, fig):
         """Destroy figure *fig*."""
-        canvas = getattr(fig, "canvas", None)
-        manager = getattr(canvas, "manager", None)
-        num = getattr(manager, "num", None)
-        cls.destroy(num)
+        num = next((manager.num for manager in cls.figs.values()
+                    if manager.canvas.figure == fig), None)
+        if num is not None:
+            cls.destroy(num)
 
     @classmethod
     def destroy_all(cls):
@@ -96,6 +106,19 @@ class Gcf:
     def get_active(cls):
         """Return the active manager, or *None* if there is no manager."""
         return next(reversed(cls.figs.values())) if cls.figs else None
+
+    @classmethod
+    def _set_new_active_manager(cls, manager):
+        """Adopt *manager* into pyplot and make it the active manager."""
+        if not hasattr(manager, "_cidgcf"):
+            manager._cidgcf = manager.canvas.mpl_connect(
+                "button_press_event", lambda event: cls.set_active(manager))
+        fig = manager.canvas.figure
+        fig.number = manager.num
+        label = fig.get_label()
+        if label:
+            manager.set_window_title(label)
+        cls.set_active(manager)
 
     @classmethod
     def set_active(cls, manager):

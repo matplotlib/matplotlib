@@ -9,7 +9,7 @@ properties for multi-line plots.
 .. note::
 
     More complete documentation of the ``cycler`` API can be found
-    `here <http://matplotlib.org/cycler/>`_.
+    `here <https://matplotlib.org/cycler/>`_.
 
 This example demonstrates two different APIs:
 

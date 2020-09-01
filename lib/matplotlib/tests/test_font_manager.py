@@ -1,4 +1,4 @@
-from io import BytesIO
+from io import BytesIO, StringIO
 import multiprocessing
 import os
 from pathlib import Path
@@ -105,7 +105,7 @@ def test_utf16m_sfnt():
     else:
         # Check that we successfully read "semibold" from the font's sfnt table
         # and set its weight accordingly.
-        assert entry.weight == "semibold"
+        assert entry.weight == 600
 
 
 def test_find_ttc():
@@ -122,10 +122,27 @@ def test_find_ttc():
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
     fig.savefig(BytesIO(), format="raw")
     fig.savefig(BytesIO(), format="svg")
-    with pytest.raises(RuntimeError):
-        fig.savefig(BytesIO(), format="pdf")
+    fig.savefig(BytesIO(), format="pdf")
     with pytest.raises(RuntimeError):
         fig.savefig(BytesIO(), format="ps")
+
+
+def test_find_invalid(tmpdir):
+    tmp_path = Path(tmpdir)
+
+    with pytest.raises(FileNotFoundError):
+        get_font(tmp_path / 'non-existent-font-name.ttf')
+
+    with pytest.raises(FileNotFoundError):
+        get_font(str(tmp_path / 'non-existent-font-name.ttf'))
+
+    with pytest.raises(FileNotFoundError):
+        get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
+
+    # Not really public, but get_font doesn't expose non-filename constructor.
+    from matplotlib.ft2font import FT2Font
+    with pytest.raises(TypeError, match='path or binary-mode file'):
+        FT2Font(StringIO())
 
 
 @pytest.mark.skipif(sys.platform != 'linux', reason='Linux only')
@@ -156,10 +173,11 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
 def test_user_fonts_win32():
-    if not os.environ.get('APPVEYOR', False):
-        pytest.xfail("This test does only work on appveyor since user fonts "
-                     "are Windows specific and the developer's font directory "
-                     "should remain unchanged.")
+    if not (os.environ.get('APPVEYOR', False) or
+            os.environ.get('TF_BUILD', False)):
+        pytest.xfail("This test should only run on CI (appveyor or azure) "
+                     "as the developer's font directory should remain "
+                     "unchanged.")
 
     font_test_file = 'mpltest.ttf'
 

@@ -1,5 +1,28 @@
+import os
+import subprocess
+import sys
+
+import pytest
+
 import matplotlib
-import matplotlib.rcsetup
+
+
+@pytest.mark.skipif(
+    os.name == "nt", reason="chmod() doesn't work as is on Windows")
+@pytest.mark.skipif(os.name != "nt" and os.geteuid() == 0,
+                    reason="chmod() doesn't work as root")
+def test_tmpconfigdir_warning(tmpdir):
+    """Test that a warning is emitted if a temporary configdir must be used."""
+    mode = os.stat(tmpdir).st_mode
+    try:
+        os.chmod(tmpdir, 0)
+        proc = subprocess.run(
+            [sys.executable, "-c", "import matplotlib"],
+            env={**os.environ, "MPLCONFIGDIR": str(tmpdir)},
+            stderr=subprocess.PIPE, universal_newlines=True, check=True)
+        assert "set the MPLCONFIGDIR" in proc.stderr
+    finally:
+        os.chmod(tmpdir, mode)
 
 
 def test_use_doc_standard_backends():
@@ -19,3 +42,18 @@ def test_use_doc_standard_backends():
             set(matplotlib.rcsetup.interactive_bk))
     assert (set(parse('- non-interactive backends:\n')) ==
             set(matplotlib.rcsetup.non_interactive_bk))
+
+
+def test_importable_with__OO():
+    """
+    When using -OO or export PYTHONOPTIMIZE=2, docstrings are discarded,
+    this simple test may prevent something like issue #17970.
+    """
+    program = (
+        "import matplotlib as mpl; "
+        "import matplotlib.pyplot as plt; "
+        "import matplotlib.cbook as cbook; "
+        "import matplotlib.patches as mpatches"
+    )
+    cmd = [sys.executable, "-OO", "-c", program]
+    assert subprocess.call(cmd) == 0

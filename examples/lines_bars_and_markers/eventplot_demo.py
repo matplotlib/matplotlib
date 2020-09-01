@@ -38,7 +38,7 @@ axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
                     linelengths=linelengths1, orientation='vertical')
 
 # create another set of random data.
-# the gamma distribution is only used fo aesthetic purposes
+# the gamma distribution is only used for aesthetic purposes
 data2 = np.random.gamma(4, size=[60, 50])
 
 # use individual values for the parameters this time

@@ -106,12 +106,13 @@ plt.show()
 
 ###########################################################################
 # A final example translates np.datetime64 to yearday on the x axis and
-# from Celsius to Farenheit on the y axis:
-
+# from Celsius to Fahrenheit on the y axis.  Note the addition of a
+# third y axis, and that it can be placed using a float for the
+# location argument
 
 dates = [datetime.datetime(2018, 1, 1) + datetime.timedelta(hours=k * 6)
          for k in range(240)]
-temperature = np.random.randn(len(dates))
+temperature = np.random.randn(len(dates)) * 4 + 6.7
 fig, ax = plt.subplots(constrained_layout=True)
 
 ax.plot(dates, temperature)
@@ -146,6 +147,21 @@ def fahrenheit_to_celsius(x):
 secax_y = ax.secondary_yaxis(
     'right', functions=(celsius_to_fahrenheit, fahrenheit_to_celsius))
 secax_y.set_ylabel(r'$T\ [^oF]$')
+
+
+def celsius_to_anomaly(x):
+    return (x - np.mean(temperature))
+
+
+def anomaly_to_celsius(x):
+    return (x + np.mean(temperature))
+
+
+# use of a float for the position:
+secax_y2 = ax.secondary_yaxis(
+    1.2, functions=(celsius_to_anomaly, anomaly_to_celsius))
+secax_y2.set_ylabel(r'$T - \overline{T}\ [^oC]$')
+
 
 plt.show()
 

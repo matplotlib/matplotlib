@@ -1,3 +1,12 @@
+.. raw:: html
+
+   <style>
+   .checklist { list-style: none; padding: 0; margin: 0; }
+   .checklist li { margin-left: 24px; padding-left: 23px;  margin-right: 6px; }
+   .checklist li:before { content: "\2610\2001"; margin-left: -24px; }
+   .checklist li p {display: inline; }
+   </style>
+
 .. _pr-guidelines:
 
 ***********************
@@ -22,6 +31,8 @@ Summary for PR authors
      please ping us by posting a comment to your PR.
 
 When making a PR, pay attention to:
+
+.. rst-class:: checklist
 
 * :ref:`Target the master branch <pr-branch-selection>`.
 * Adhere to the :ref:`coding_guidelines`.
@@ -53,12 +64,16 @@ Summary for PR reviewers
 
 Content topics:
 
+.. rst-class:: checklist
+
 * Is the feature / bugfix reasonable?
 * Does the PR conform with the :ref:`coding_guidelines`?
 * Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
   what's new, API changes) updated?
 
 Organizational topics:
+
+.. rst-class:: checklist
 
 * Make sure all :ref:`automated tests <pr-automated-tests>` pass.
 * The PR should :ref:`target the master branch <pr-branch-selection>`.
@@ -95,7 +110,9 @@ Documentation
   :file:`doc/users/whats_new.rst`.
 
 * If you change the API in a backward-incompatible way, please
-  document it in the relevant file in :file:`doc/api/next_api_changes`.
+  document it by adding a file in the relevant subdirectory of
+  :file:`doc/api/next_api_changes/`, probably in the ``behavior/``
+  subdirectory.
 
 .. _pr-labels:
 
@@ -123,6 +140,9 @@ Milestones
 
   If multiple rules apply, choose the first matching from the above list.
 
+  Setting a milestone does not imply or guarantee that a PR will be merged for that
+  release, but if it were to be merged what release it would be in.
+
   All of these PRs should target the master branch. The milestone tag triggers
   an :ref:`automatic backport <automated-backports>` for milestones which have
   a corresponding branch.
@@ -144,9 +164,9 @@ Merging
   approve the review and if you think no more review is needed, merge
   the PR.
 
-  Ensure that all API changes are documented in the relevant file in
-  :file:`doc/api/next_api_changes` and significant new features have and
-  entry in :file:`doc/user/whats_new`.
+  Ensure that all API changes are documented in a file in one of the
+  subdirectories of :file:`doc/api/next_api_changes`, and significant new
+  features have an entry in :file:`doc/user/whats_new`.
 
   - If a PR already has a positive review, a core developer (e.g. the first
     reviewer, but not necessarily) may champion that PR for merging.  In order
@@ -160,24 +180,45 @@ Merging
     A core dev should only champion one PR at a time and we should try to keep
     the flow of championed PRs reasonable.
 
+* Do not self merge, except for 'small' patches to un-break the CI or
+  when another reviewer explicitly allows it (ex, "Approve modulo CI
+  passing, may self merge when green").
+
 .. _pr-automated-tests:
 
 Automated tests
 ---------------
 
-* Make sure the Travis, Appveyor, CircleCI, and codecov tests are passing
-  before merging.
+Whenever a pull request is created or updated, various automated test tools
+will run on all supported platforms and versions of Python.
 
-  - Whenever a pull request is created or updated, Travis and Appveyor
-    automatically runs the test suite on all versions of Python
-    supported by Matplotlib.  The tox_ support in Matplotlib may be
-    useful for testing locally.
+* Make sure the Linting, Travis, AppVeyor, CircleCI, and Azure pipelines are
+  passing before merging (All checks are listed at the bottom of the GitHub
+  page of your pull request). Here are some tips for finding the cause of the
+  test failure:
+
+  - If *Linting* fails, you have a code style issue, which will be listed
+    as annotations on the pull request's diff.
+  - If a Travis or AppVeyor run fails, search the log for ``FAILURES``. The
+    subsequent section will contain information on the failed tests.
+  - If CircleCI fails, likely you have some reStructuredText style issue in
+    the docs. Search the CircleCI log for ``WARNING``.
+  - If Azure pipelines fail with an image comparison error, you can find the
+    images as *artifacts* of the Azure job:
+
+    - Click *Details* on the check on the GitHub PR page.
+    - Click *View more details on Azure Pipelines* to go to Azure.
+    - On the overview page *artifacts* are listed in the section *Related*.
+
+
+* Codecov and LGTM are currently for information only. Their failure is not
+  necessarily a blocker.
+
+* tox_ is not used in the automated testing. It is supported for testing
+  locally.
 
   .. _tox: https://tox.readthedocs.io/
 
-* Do not self merge, except for 'small' patches to un-break the CI or
-  when another reviewer explicitly allows it (ex, "Approve modulo CI
-  passing, may self merge when green").
 
 .. _pr-squashing:
 
@@ -214,7 +255,7 @@ The current active branches are
 
 *master*
   The current development version. Future minor releases (*v3.N.0*) will be
-  branched from this. Supports Python 3.6+.
+  branched from this. Supports Python 3.7+.
 
 *v3.N.x*
   Maintenance branch for Matplotlib 3.N. Future patch releases will be

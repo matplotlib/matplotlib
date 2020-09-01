@@ -1,4 +1,5 @@
 import copy
+import re
 
 import numpy as np
 
@@ -18,6 +19,8 @@ def test_empty_closed_path():
     path = Path(np.zeros((0, 2)), closed=True)
     assert path.vertices.shape == (0, 2)
     assert path.codes is None
+    assert_array_equal(path.get_extents().extents,
+                       transforms.Bbox.null().extents)
 
 
 def test_readonly_path():
@@ -28,6 +31,25 @@ def test_readonly_path():
 
     with pytest.raises(AttributeError):
         modify_vertices()
+
+
+def test_path_exceptions():
+    bad_verts1 = np.arange(12).reshape(4, 3)
+    with pytest.raises(ValueError,
+                       match=re.escape(f'has shape {bad_verts1.shape}')):
+        Path(bad_verts1)
+
+    bad_verts2 = np.arange(12).reshape(2, 3, 2)
+    with pytest.raises(ValueError,
+                       match=re.escape(f'has shape {bad_verts2.shape}')):
+        Path(bad_verts2)
+
+    good_verts = np.arange(12).reshape(6, 2)
+    bad_codes = np.arange(2)
+    msg = re.escape(f"Your vertices have shape {good_verts.shape} "
+                    f"but your codes have shape {bad_codes.shape}")
+    with pytest.raises(ValueError, match=msg):
+        Path(good_verts, bad_codes)
 
 
 def test_point_in_path():
@@ -47,6 +69,37 @@ def test_contains_points_negative_radius():
     points = [(0.0, 0.0), (1.25, 0.0), (0.9, 0.9)]
     result = path.contains_points(points, radius=-0.5)
     np.testing.assert_equal(result, [True, False, False])
+
+
+_test_paths = [
+    # interior extrema determine extents and degenerate derivative
+    Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+           [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]),
+    # a quadratic curve
+    Path([[0, 0], [0, 1], [1, 0]], [Path.MOVETO, Path.CURVE3, Path.CURVE3]),
+    # a linear curve, degenerate vertically
+    Path([[0, 1], [1, 1]], [Path.MOVETO, Path.LINETO]),
+    # a point
+    Path([[1, 2]], [Path.MOVETO]),
+]
+
+
+_test_path_extents = [(0., 0., 0.75, 1.), (0., 0., 1., 0.5), (0., 1., 1., 1.),
+                      (1., 2., 1., 2.)]
+
+
+@pytest.mark.parametrize('path, extents', zip(_test_paths, _test_path_extents))
+def test_exact_extents(path, extents):
+    # notice that if we just looked at the control points to get the bounding
+    # box of each curve, we would get the wrong answers. For example, for
+    # hard_curve = Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+    #                   [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    # we would get that the extents area (0, 0, 1, 1). This code takes into
+    # account the curved part of the path, which does not typically extend all
+    # the way out to the control points.
+    # Note that counterintuitively, path.get_extents() returns a Bbox, so we
+    # have to get that Bbox's `.extents`.
+    assert np.all(path.get_extents().extents == extents)
 
 
 def test_point_in_path_nan():
@@ -145,6 +198,15 @@ def test_make_compound_path_empty():
     # This makes it easier to write generic path based code.
     r = Path.make_compound_path()
     assert r.vertices.shape == (0, 2)
+
+
+def test_make_compound_path_stops():
+    zero = [0, 0]
+    paths = 3*[Path([zero, zero], [Path.MOVETO, Path.STOP])]
+    compound_path = Path.make_compound_path(*paths)
+    # the choice to not preserve the terminal STOP is arbitrary, but
+    # documented, so we test that it is in fact respected here
+    assert np.sum(compound_path.codes == Path.STOP) == 0
 
 
 @image_comparison(['xkcd.png'], remove_text=True)
@@ -392,3 +454,26 @@ def test_intersect_zero_length_segment():
 
     assert outline_path.intersects_path(this_path)
     assert this_path.intersects_path(outline_path)
+
+
+def test_cleanup_closepoly():
+    # if the first connected component of a Path ends in a CLOSEPOLY, but that
+    # component contains a NaN, then Path.cleaned should ignore not just the
+    # control points but also the CLOSEPOLY, since it has nowhere valid to
+    # point.
+    paths = [
+        Path([[np.nan, np.nan], [np.nan, np.nan]],
+             [Path.MOVETO, Path.CLOSEPOLY]),
+        # we trigger a different path in the C++ code if we don't pass any
+        # codes explicitly, so we must also make sure that this works
+        Path([[np.nan, np.nan], [np.nan, np.nan]]),
+        # we should also make sure that this cleanup works if there's some
+        # multi-vertex curves
+        Path([[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan],
+              [np.nan, np.nan]],
+             [Path.MOVETO, Path.CURVE3, Path.CURVE3, Path.CLOSEPOLY])
+    ]
+    for p in paths:
+        cleaned = p.cleaned(remove_nans=True)
+        assert len(cleaned) == 1
+        assert cleaned.codes[0] == Path.STOP

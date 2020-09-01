@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from matplotlib import _preprocess_data
-
+from matplotlib.axes import Axes
+from matplotlib.testing.decorators import check_figures_equal
 
 # Notes on testing the plotting functions itself
 # *   the individual decorated plotting functions are tested in 'test_axes.py'
@@ -24,7 +25,7 @@ all_func_ids = ['plot_func']
 
 
 def test_compiletime_checks():
-    """test decorator invocations -> no replacements"""
+    """Test decorator invocations -> no replacements."""
 
     def func(ax, x, y): pass
     def func_args(ax, x, y, *args): pass
@@ -58,7 +59,7 @@ def test_compiletime_checks():
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_without_data(func):
-    """test without data -> no replacements"""
+    """Test without data -> no replacements."""
     assert (func(None, "x", "y") ==
             "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
     assert (func(None, x="x", y="y") ==
@@ -71,6 +72,14 @@ def test_function_call_without_data(func):
             "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
     assert (func(None, x="x", y="y", label="text") ==
             "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
+
+
+@pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
+def test_function_call_with_dict_input(func):
+    """Tests with dict input, unpacking via preprocess_pipeline"""
+    data = {'a': 1, 'b': 2}
+    assert(func(None, data.keys(), data.values()) ==
+            "x: ['a', 'b'], y: [1, 2], ls: x, w: xyz, label: None")
 
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
@@ -93,7 +102,7 @@ def test_function_call_with_dict_data(func):
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_with_dict_data_not_in_data(func):
-    """test the case that one var is not in data -> half replaces, half kept"""
+    """Test the case that one var is not in data -> half replaces, half kept"""
     data = {"a": [1, 2], "w": "NOT"}
     assert (func(None, "a", "b", data=data) ==
             "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
@@ -131,7 +140,7 @@ def test_function_call_with_pandas_data(func, pd):
 
 
 def test_function_call_replace_all():
-    """Test without a "replace_names" argument, all vars should be replaced"""
+    """Test without a "replace_names" argument, all vars should be replaced."""
     data = {"a": [1, 2], "b": [8, 9], "x": "xyz"}
 
     @_preprocess_data(label_namer="y")
@@ -157,7 +166,7 @@ def test_function_call_replace_all():
 
 
 def test_no_label_replacements():
-    """Test with "label_namer=None" -> no label replacement at all"""
+    """Test with "label_namer=None" -> no label replacement at all."""
 
     @_preprocess_data(replace_names=["x", "y"], label_namer=None)
     def func_no_label(ax, x, y, ls="x", label=None, w="xyz"):
@@ -215,3 +224,29 @@ def test_docstring_addition():
     assert not re.search(r"every other argument", funcy.__doc__)
     assert not re.search(r"the following arguments .*: \*x\*, \*t\*\.",
                          funcy.__doc__)
+
+
+class TestPlotTypes:
+
+    plotters = [Axes.scatter, Axes.bar, Axes.plot]
+
+    @pytest.mark.parametrize('plotter', plotters)
+    @check_figures_equal(extensions=['png'])
+    def test_dict_unpack(self, plotter, fig_test, fig_ref):
+        x = [1, 2, 3]
+        y = [4, 5, 6]
+        ddict = dict(zip(x, y))
+
+        plotter(fig_test.subplots(),
+                ddict.keys(), ddict.values())
+        plotter(fig_ref.subplots(), x, y)
+
+    @pytest.mark.parametrize('plotter', plotters)
+    @check_figures_equal(extensions=['png'])
+    def test_data_kwarg(self, plotter, fig_test, fig_ref):
+        x = [1, 2, 3]
+        y = [4, 5, 6]
+
+        plotter(fig_test.subplots(), 'xval', 'yval',
+                data={'xval': x, 'yval': y})
+        plotter(fig_ref.subplots(), x, y)

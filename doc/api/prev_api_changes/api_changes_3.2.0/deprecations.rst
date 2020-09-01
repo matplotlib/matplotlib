@@ -223,7 +223,7 @@ to a NumPy array with ``np.asarray`` before processing it.
 
 Colors
 ~~~~~~
-The function `matplotlib.colors.makeMappingArray` is not considered part of
+The function ``matplotlib.colors.makeMappingArray`` is not considered part of
 the public API any longer. Thus, it's deprecated.
 
 Using a string of single-character colors as a color sequence (e.g. "rgb") is
@@ -231,10 +231,11 @@ deprecated. Use an explicit list instead.
 
 Scales
 ~~~~~~
-Passing unsupported keyword arguments to `.ScaleBase` and its subclasses
-`.LinearScale`, and `.SymmetricalLogScale` is deprecated and will raise a `TypeError` in 3.3.
+Passing unsupported keyword arguments to `.ScaleBase`, and its subclasses
+`.LinearScale` and `.SymmetricalLogScale`, is deprecated and will raise a
+`TypeError` in 3.3.
 
-If extra kwargs are passed to `.LogScale`, `TypeError` will now be
+If extra keyword arguments are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.
 
 Testing
@@ -289,3 +290,10 @@ from the public API in future versions.
 
 ``style.core.is_style_file`` and ``style.core.iter_style_files``
 are deprecated.
+
+The ``datapath`` rcParam
+~~~~~~~~~~~~~~~~~~~~~~~~
+Use `.get_data_path` instead.  (The rcParam is deprecated because it cannot be
+meaningfully set by an end user.)  The rcParam had no effect from 3.2.0, but
+was deprecated only in 3.2.1.  In 3.2.1+ if ``'datapath'`` is set in a
+``matplotlibrc`` file it will be respected, but this behavior will be removed in 3.3.

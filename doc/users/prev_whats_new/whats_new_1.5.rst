@@ -113,7 +113,7 @@ on two or more property cycles.
 
 
 New Colormaps
---------------
+-------------
 
 All four of the colormaps proposed as the new default are available
 as ``'viridis'`` (the new default in 2.0), ``'magma'``, ``'plasma'``, and
@@ -174,7 +174,7 @@ wx backend has been updated
 ```````````````````````````
 
 The wx backend can now be used with both wxPython classic and
-`Phoenix <http://wxpython.org/Phoenix/docs/html/main.html>`__.
+`Phoenix <https://wxpython.org/Phoenix/docs/html/main.html>`__.
 
 wxPython classic has to be at least version 2.8.12 and works on Python 2.x. As
 of May 2015 no official release of wxPython Phoenix is available but a
@@ -509,12 +509,12 @@ which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 
-`.Axes.remove()` works as expected
-``````````````````````````````````
+``Axes.remove()`` works as expected
+```````````````````````````````````
 
 As with artists added to an :class:`~matplotlib.axes.Axes`,
 `~.axes.Axes` objects can be removed from their figure via
-:meth:`~matplotlib.axes.Axes.remove()`.
+`~.Artist.remove()`.
 
 
 API Consistency fix within Locators set_params() function
@@ -622,7 +622,7 @@ backends include a `ToolContainer` called `toolbar`
     be treated as experimental until further notice as API changes will occur.
     For the moment the `.ToolManager` works only with the GTK3 and Tk backends.
     Make sure you use one of those.
-    Port for the rest of the backends is comming soon.
+    Port for the rest of the backends is coming soon.
 
     To activate the `.ToolManager` include the following at the top of your file ::
 

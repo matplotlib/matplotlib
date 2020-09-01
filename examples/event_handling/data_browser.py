@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     fig, (ax, ax2) = plt.subplots(2, 1)
     ax.set_title('click on point to plot time series')
-    line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
+    line, = ax.plot(xs, ys, 'o', picker=True, pickradius=5)
 
     browser = PointBrowser()
 

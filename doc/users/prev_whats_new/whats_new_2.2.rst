@@ -37,14 +37,14 @@ Features include:
 Note the new API to access this:
 
 New ``plt.figure`` and ``plt.subplots`` kwarg: ``constrained_layout``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :meth:`~matplotlib.pyplot.figure` and :meth:`~matplotlib.pyplot.subplots`
 can now be called with ``constrained_layout=True`` kwarg to enable
 constrained_layout.
 
 New ``ax.set_position`` behaviour
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `.Axes.set_position` now makes the specified axis no
 longer responsive to ``constrained_layout``, consistent with the idea that the
@@ -79,7 +79,7 @@ Only labels that have the same subplot locations are aligned.  i.e. the
 ylabels are aligned only if the subplots are in the same column of the
 subplot layout.
 
-Alignemnt is persistent and automatic after these are called.
+Alignment is persistent and automatic after these are called.
 
 A convenience wrapper `.Figure.align_labels` calls both functions at once.
 
@@ -284,7 +284,7 @@ The binding selection rules are as follows:
 Thus, to force usage of PGI when both bindings are installed, import it first.
 
 .. _PGI: https://pgi.readthedocs.io/en/latest/
-.. _PyGObject: http://pygobject.readthedocs.io/en/latest/#
+.. _PyGObject: https://pygobject.readthedocs.io/en/latest/
 
 
 

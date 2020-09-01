@@ -32,7 +32,7 @@ class MenuItem(artist.Artist):
 
     def __init__(self, fig, labelstr, props=None, hoverprops=None,
                  on_select=None):
-        artist.Artist.__init__(self)
+        super().__init__()
 
         self.set_figure(fig)
         self.labelstr = labelstr

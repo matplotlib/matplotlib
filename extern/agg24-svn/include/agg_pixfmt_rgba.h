@@ -1515,13 +1515,12 @@ namespace agg
         typedef typename color_type::calc_type calc_type;
         enum 
         {
-            num_components = 4,
             pix_step = 4,
             pix_width = sizeof(value_type) * pix_step,
         };
         struct pixel_type
         {
-            value_type c[num_components];
+            value_type c[pix_step];
 
             void set(value_type r, value_type g, value_type b, value_type a)
             {
@@ -1555,22 +1554,22 @@ namespace agg
 
             pixel_type* next()
             {
-                return (pixel_type*)(c + pix_step);
+                return this + 1;
             }
 
             const pixel_type* next() const
             {
-                return (const pixel_type*)(c + pix_step);
+                return this + 1;
             }
 
             pixel_type* advance(int n)
             {
-                return (pixel_type*)(c + n * pix_step);
+                return this + n;
             }
 
             const pixel_type* advance(int n) const
             {
-                return (const pixel_type*)(c + n * pix_step);
+                return this + n;
             }
         };
 
@@ -2193,13 +2192,12 @@ namespace agg
         typedef typename color_type::calc_type calc_type;
         enum 
         {
-            num_components = 4,
             pix_step = 4,
             pix_width  = sizeof(value_type) * pix_step,
         };
         struct pixel_type
         {
-            value_type c[num_components];
+            value_type c[pix_step];
 
             void set(value_type r, value_type g, value_type b, value_type a)
             {
@@ -2233,22 +2231,22 @@ namespace agg
 
             pixel_type* next()
             {
-                return (pixel_type*)(c + pix_step);
+                return this + 1;
             }
 
             const pixel_type* next() const
             {
-                return (const pixel_type*)(c + pix_step);
+                return this + 1;
             }
 
             pixel_type* advance(int n)
             {
-                return (pixel_type*)(c + n * pix_step);
+                return this + n;
             }
 
             const pixel_type* advance(int n) const
             {
-                return (const pixel_type*)(c + n * pix_step);
+                return this + n;
             }
         };
 

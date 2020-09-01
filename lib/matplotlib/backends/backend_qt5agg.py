@@ -11,7 +11,7 @@ from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import (
     QtCore, QtGui, QtWidgets, _BackendQT5, FigureCanvasQT, FigureManagerQT,
     NavigationToolbar2QT, backend_version)
-from .qt_compat import QT_API
+from .qt_compat import QT_API, _setDevicePixelRatioF
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
@@ -38,57 +38,44 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             return
 
         painter = QtGui.QPainter(self)
+        try:
+            # See documentation of QRect: bottom() and right() are off
+            # by 1, so use left() + width() and top() + height().
+            rect = event.rect()
+            # scale rect dimensions using the screen dpi ratio to get
+            # correct values for the Figure coordinates (rather than
+            # QT5's coords)
+            width = rect.width() * self._dpi_ratio
+            height = rect.height() * self._dpi_ratio
+            left, top = self.mouseEventCoords(rect.topLeft())
+            # shift the "top" by the height of the image to get the
+            # correct corner for our coordinate system
+            bottom = top - height
+            # same with the right side of the image
+            right = left + width
+            # create a buffer using the image bounding box
+            bbox = Bbox([[left, bottom], [right, top]])
+            reg = self.copy_from_bbox(bbox)
+            buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
+                memoryview(reg))
 
-        # See documentation of QRect: bottom() and right() are off by 1, so use
-        # left() + width() and top() + height().
-        rect = event.rect()
-        # scale rect dimensions using the screen dpi ratio to get
-        # correct values for the Figure coordinates (rather than QT5's coords)
-        width = rect.width() * self._dpi_ratio
-        height = rect.height() * self._dpi_ratio
-        left, top = self.mouseEventCoords(rect.topLeft())
-        # shift the "top" by the height of the image to get the
-        # correct corner for our coordinate system
-        bottom = top - height
-        # same with the right side of the image
-        right = left + width
-        # create a buffer using the image bounding box
-        bbox = Bbox([[left, bottom], [right, top]])
-        reg = self.copy_from_bbox(bbox)
-        buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
-            memoryview(reg))
+            # clear the widget canvas
+            painter.eraseRect(rect)
 
-        # clear the widget canvas
-        painter.eraseRect(rect)
+            qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
+                                  QtGui.QImage.Format_ARGB32_Premultiplied)
+            _setDevicePixelRatioF(qimage, self._dpi_ratio)
+            # set origin using original QT coordinates
+            origin = QtCore.QPoint(rect.left(), rect.top())
+            painter.drawImage(origin, qimage)
+            # Adjust the buf reference count to work around a memory
+            # leak bug in QImage under PySide on Python 3.
+            if QT_API in ('PySide', 'PySide2'):
+                ctypes.c_long.from_address(id(buf)).value = 1
 
-        qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
-                              QtGui.QImage.Format_ARGB32_Premultiplied)
-        if hasattr(qimage, 'setDevicePixelRatio'):
-            # Not available on Qt4 or some older Qt5.
-            qimage.setDevicePixelRatio(self._dpi_ratio)
-        # set origin using original QT coordinates
-        origin = QtCore.QPoint(rect.left(), rect.top())
-        painter.drawImage(origin, qimage)
-        # Adjust the buf reference count to work around a memory
-        # leak bug in QImage under PySide on Python 3.
-        if QT_API in ('PySide', 'PySide2'):
-            ctypes.c_long.from_address(id(buf)).value = 1
-
-        self._draw_rect_callback(painter)
-
-        painter.end()
-
-    def blit(self, bbox=None):
-        # docstring inherited
-        # If bbox is None, blit the entire canvas. Otherwise
-        # blit only the area defined by the bbox.
-        if bbox is None and self.figure:
-            bbox = self.figure.bbox
-
-        # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
-        t = b + h
-        self.repaint(l, self.renderer.height / self._dpi_ratio - t, w, h)
+            self._draw_rect_callback(painter)
+        finally:
+            painter.end()
 
     def print_figure(self, *args, **kwargs):
         super().print_figure(*args, **kwargs)

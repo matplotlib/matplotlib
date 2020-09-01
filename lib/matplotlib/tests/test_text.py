@@ -6,16 +6,16 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-import matplotlib
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 needs_usetex = pytest.mark.skipif(
-    not matplotlib.checkdep_usetex(True),
+    not mpl.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
@@ -24,7 +24,7 @@ def test_font_styles():
 
     def find_matplotlib_font(**kw):
         prop = FontProperties(**kw)
-        path = findfont(prop, directory=matplotlib.get_data_path())
+        path = findfont(prop, directory=mpl.get_data_path())
         return FontProperties(fname=path)
 
     from matplotlib.font_manager import FontProperties, findfont
@@ -143,11 +143,12 @@ def test_multiline2():
     renderer = fig.canvas.get_renderer()
 
     def draw_box(ax, tt):
-        bb = tt.get_window_extent(renderer)
-        bbt = bb.inverse_transformed(ax.transAxes)
         r = mpatches.Rectangle((0, 0), 1, 1, clip_on=False,
                                transform=ax.transAxes)
-        r.set_bounds(bbt.bounds)
+        r.set_bounds(
+            tt.get_window_extent(renderer)
+            .transformed(ax.transAxes.inverted())
+            .bounds)
         ax.add_patch(r)
 
     horal = 'left'
@@ -181,7 +182,7 @@ def test_multiline2():
 
 @image_comparison(['antialiased.png'])
 def test_antialiasing():
-    matplotlib.rcParams['text.antialiased'] = True
+    mpl.rcParams['text.antialiased'] = True
 
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.75, "antialiased", horizontalalignment='center',
@@ -319,6 +320,22 @@ def test_set_position():
 
     for a, b in zip(init_pos.min, post_pos.min):
         assert a + shift_val == b
+
+
+@pytest.mark.parametrize('text', ['', 'O'], ids=['empty', 'non-empty'])
+def test_non_default_dpi(text):
+    fig, ax = plt.subplots()
+
+    t1 = ax.text(0.5, 0.5, text, ha='left', va='bottom')
+    fig.canvas.draw()
+    dpi = fig.dpi
+
+    bbox1 = t1.get_window_extent()
+    bbox2 = t1.get_window_extent(dpi=dpi * 10)
+    np.testing.assert_allclose(bbox2.get_points(), bbox1.get_points() * 10,
+                               rtol=5e-2)
+    # Text.get_window_extent should not permanently change dpi.
+    assert fig.dpi == dpi
 
 
 def test_get_rotation_string():
@@ -460,17 +477,17 @@ def test_agg_text_clip():
 
 
 def test_text_size_binding():
-    matplotlib.rcParams['font.size'] = 10
+    mpl.rcParams['font.size'] = 10
     fp = mpl.font_manager.FontProperties(size='large')
     sz1 = fp.get_size_in_points()
-    matplotlib.rcParams['font.size'] = 100
+    mpl.rcParams['font.size'] = 100
 
     assert sz1 == fp.get_size_in_points()
 
 
 @image_comparison(['font_scaling.pdf'])
 def test_font_scaling():
-    matplotlib.rcParams['pdf.fonttype'] = 42
+    mpl.rcParams['pdf.fonttype'] = 42
     fig, ax = plt.subplots(figsize=(6.4, 12.4))
     ax.xaxis.set_major_locator(plt.NullLocator())
     ax.yaxis.set_major_locator(plt.NullLocator())
@@ -542,9 +559,21 @@ def test_single_artist_usetex():
     # Check that a single artist marked with usetex does not get passed through
     # the mathtext parser at all (for the Agg backend) (the mathtext parser
     # currently fails to parse \frac12, requiring \frac{1}{2} instead).
-    fig, ax = plt.subplots()
-    ax.text(.5, .5, r"$\frac12$", usetex=True)
+    fig = plt.figure()
+    fig.text(.5, .5, r"$\frac12$", usetex=True)
     fig.canvas.draw()
+
+
+@pytest.mark.parametrize("fmt", ["png", "pdf", "svg"])
+def test_single_artist_usenotex(fmt):
+    # Check that a single artist can be marked as not-usetex even though the
+    # rcParam is on ("2_2_2" fails if passed to TeX).  This currently skips
+    # postscript output as the ps renderer doesn't support mixing usetex and
+    # non-usetex.
+    plt.rcParams["text.usetex"] = True
+    fig = plt.figure()
+    fig.text(.5, .5, "2_2_2", usetex=False)
+    fig.savefig(io.BytesIO(), format=fmt)
 
 
 @image_comparison(['text_as_path_opacity.svg'])
@@ -558,7 +587,7 @@ def test_text_as_path_opacity():
 
 @image_comparison(['text_as_text_opacity.svg'])
 def test_text_as_text_opacity():
-    matplotlib.rcParams['svg.fonttype'] = 'none'
+    mpl.rcParams['svg.fonttype'] = 'none'
     plt.figure()
     plt.gca().set_axis_off()
     plt.text(0.25, 0.25, '50% using `color`', color=(0, 0, 0, 0.5))
@@ -601,6 +630,7 @@ def test_annotation_units(fig_test, fig_ref):
 def test_large_subscript_title():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams['axes.titley'] = None
 
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
     ax = axs[0]
@@ -609,9 +639,7 @@ def test_large_subscript_title():
     ax.set_xticklabels('')
 
     ax = axs[1]
-    tt = ax.set_title(r'$\sum_{i} x_i$')
-    x, y = tt.get_position()
-    tt.set_position((x, 1.01))
+    tt = ax.set_title(r'$\sum_{i} x_i$', y=1.01)
     ax.set_title('Old Way', loc='left')
     ax.set_xticklabels('')
 
@@ -653,3 +681,21 @@ def test_buffer_size(fig_test, fig_ref):
     ax = fig_ref.add_subplot()
     ax.set_yticks([0, 1])
     ax.set_yticklabels(["€", ""])
+
+
+def test_fontproperties_kwarg_precedence():
+    """Test that kwargs take precedence over fontproperties defaults."""
+    plt.figure()
+    text1 = plt.xlabel("value", fontproperties='Times New Roman', size=40.0)
+    text2 = plt.ylabel("counts", size=40.0, fontproperties='Times New Roman')
+    assert text1.get_size() == 40.0
+    assert text2.get_size() == 40.0
+
+
+def test_transform_rotates_text():
+    ax = plt.gca()
+    transform = mtransforms.Affine2D().rotate_deg(30)
+    text = ax.text(0, 0, 'test', transform=transform,
+                   transform_rotates_text=True)
+    result = text.get_rotation()
+    assert_almost_equal(result, 30)

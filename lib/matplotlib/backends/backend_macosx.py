@@ -46,19 +46,19 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         FigureCanvasBase.__init__(self, figure)
         width, height = self.get_width_height()
         _macosx.FigureCanvas.__init__(self, width, height)
-        self._device_scale = 1.0
+        self._dpi_ratio = 1.0
 
     def _set_device_scale(self, value):
-        if self._device_scale != value:
-            self.figure.dpi = self.figure.dpi / self._device_scale * value
-            self._device_scale = value
+        if self._dpi_ratio != value:
+            # Need the new value in place before setting figure.dpi, which
+            # will trigger a resize
+            self._dpi_ratio, old_value = value, self._dpi_ratio
+            self.figure.dpi = self.figure.dpi / old_value * self._dpi_ratio
 
     def _draw(self):
         renderer = self.get_renderer(cleared=self.figure.stale)
-
         if self.figure.stale:
             self.figure.draw(renderer)
-
         return renderer
 
     def draw(self):
@@ -79,8 +79,8 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         dpi = self.figure.dpi
         width /= dpi
         height /= dpi
-        self.figure.set_size_inches(width * self._device_scale,
-                                    height * self._device_scale,
+        self.figure.set_size_inches(width * self._dpi_ratio,
+                                    height * self._dpi_ratio,
                                     forward=False)
         FigureCanvasBase.resize_event(self)
         self.draw_idle()
@@ -106,22 +106,27 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self.canvas.draw_idle()
 
     def close(self):
-        Gcf.destroy(self.num)
+        Gcf.destroy(self)
 
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
     def __init__(self, canvas):
-        NavigationToolbar2.__init__(self, canvas)
-
-    def _init_toolbar(self):
+        self.canvas = canvas  # Needed by the _macosx __init__.
+        data_path = cbook._get_data_path('images')
+        _, tooltips, image_names, _ = zip(*NavigationToolbar2.toolitems)
         _macosx.NavigationToolbar2.__init__(
-            self, str(cbook._get_data_path('images')))
+            self,
+            tuple(str(data_path / image_name) + ".pdf"
+                  for image_name in image_names if image_name is not None),
+            tuple(tooltip for tooltip in tooltips if tooltip is not None))
+        NavigationToolbar2.__init__(self, canvas)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.set_rubberband(int(x0), int(y0), int(x1), int(y1))
 
-    def release(self, event):
+    def release_zoom(self, event):
+        super().release_zoom(event)
         self.canvas.remove_rubberband()
 
     def set_cursor(self, cursor):

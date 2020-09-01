@@ -16,6 +16,9 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 @image_comparison(['imagegrid_cbar_mode.png'],
                   remove_text=True, style='mpl20', tol=0.3)
 def test_imagegrid_cbar_mode_edge(legacy_colorbar):
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     mpl.rcParams["mpl_toolkits.legacy_colorbar"] = legacy_colorbar
 
     X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))

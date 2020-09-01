@@ -3,8 +3,8 @@
 Adding API change notes
 =======================
 
-API change notes for future releases are collected in the directory
-:file:`next_api_changes`. They are divided into four categories:
+API change notes for future releases are collected in
+:file:`next_api_changes`. They are divided into four subdirectories:
 
 - **Deprecations**: Announcements of future changes. Typically, these will
   raise a deprecation warning and users of this API should change their code
@@ -16,15 +16,17 @@ API change notes for future releases are collected in the directory
   result.
 - **Development changes**: Changes to the build process, dependencies, etc.
 
-Please place new entries in the respective files in this directory. Typically,
-each change will get its own section, but you may also amend existing sections
-when suitable. The overall goal is a comprehensible documentation of the
-changes.
+Please place new entries in these directories with a new file named
+``99999-ABC.rst``, where ``99999`` would be the PR number, and ``ABC`` the
+author's initials. Typically, each change will get its own file, but you may
+also amend existing files when suitable. The overall goal is a comprehensible
+documentation of the changes.
 
-A typical entry could look like this::
+Please avoid using references in section titles, as it causes links to be
+confusing in the table of contents. Instead, ensure that a reference is
+included in the descriptive text. A typical entry could look like this::
 
-    Locators
-    ~~~~~~~~
-    The unused `Locator.autoscale()` method is deprecated (pass the axis
-    limits to `Locator.view_limits()` instead).
-
+   Locators
+   ~~~~~~~~
+   The unused `Locator.autoscale()` method is deprecated (pass the axis
+   limits to `Locator.view_limits()` instead).

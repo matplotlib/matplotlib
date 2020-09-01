@@ -5,14 +5,14 @@ The Lifecycle of a Plot
 
 This tutorial aims to show the beginning, middle, and end of a single
 visualization using Matplotlib. We'll begin with some raw data and
-end by saving a figure of a customized visualization. Along the way we'll try
+end by saving a figure of a customized visualization. Along the way we try
 to highlight some neat features and best-practices using Matplotlib.
 
 .. currentmodule:: matplotlib
 
 .. note::
 
-    This tutorial is based off of
+    This tutorial is based on
     `this excellent blog post <http://pbpython.com/effective-matplotlib.html>`_
     by Chris Moffitt. It was transformed into this tutorial by Chris Holdgraf.
 
@@ -53,7 +53,7 @@ It contains sales information for a number of companies.
 # sphinx_gallery_thumbnail_number = 10
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
+
 
 data = {'Barton LLC': 109438.50,
         'Frami, Hills and Schmidt': 103569.59,
@@ -74,7 +74,7 @@ group_mean = np.mean(group_data)
 # ===============
 #
 # This data is naturally visualized as a barplot, with one bar per
-# group. To do this with the object-oriented approach, we'll first generate
+# group. To do this with the object-oriented approach, we first generate
 # an instance of :class:`figure.Figure` and
 # :class:`axes.Axes`. The Figure is like a canvas, and the Axes
 # is a part of that canvas on which we will make a particular visualization.
@@ -143,7 +143,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 ###############################################################################
 # It looks like this cut off some of the labels on the bottom. We can
 # tell Matplotlib to automatically make room for elements in the figures
-# that we create. To do this we'll set the ``autolayout`` value of our
+# that we create. To do this we set the ``autolayout`` value of our
 # rcParams. For more information on controlling the style, layout, and
 # other features of plots with rcParams, see
 # :doc:`/tutorials/introductory/customizing`.
@@ -156,8 +156,8 @@ labels = ax.get_xticklabels()
 plt.setp(labels, rotation=45, horizontalalignment='right')
 
 ###############################################################################
-# Next, we'll add labels to the plot. To do this with the OO interface,
-# we can use the :meth:`axes.Axes.set` method to set properties of this
+# Next, we add labels to the plot. To do this with the OO interface,
+# we can use the :meth:`.Artist.set` method to set properties of this
 # Axes object.
 
 fig, ax = plt.subplots()
@@ -187,9 +187,14 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
 
 ###############################################################################
 # For labels, we can specify custom formatting guidelines in the form of
-# functions by using the :class:`ticker.FuncFormatter` class. Below we'll
-# define a function that takes an integer as input, and returns a string
-# as an output.
+# functions. Below we define a function that takes an integer as input, and
+# returns a string as an output. When used with `.Axis.set_major_formatter` or
+# `.Axis.set_minor_formatter`, they will automatically create and use a
+# :class:`ticker.FuncFormatter` class.
+#
+# For this function, the ``x`` argument is the original tick label and ``pos``
+# is the tick position.  We will only use ``x`` here but both arguments are
+# needed.
 
 
 def currency(x, pos):
@@ -200,11 +205,9 @@ def currency(x, pos):
         s = '${:1.0f}K'.format(x*1e-3)
     return s
 
-formatter = FuncFormatter(currency)
-
 ###############################################################################
-# We can then apply this formatter to the labels on our plot. To do this,
-# we'll use the ``xaxis`` attribute of our axis. This lets you perform
+# We can then apply this function to the labels on our plot. To do this,
+# we use the ``xaxis`` attribute of our axes. This lets you perform
 # actions on a specific axis on our plot.
 
 fig, ax = plt.subplots(figsize=(6, 8))
@@ -214,7 +217,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 
 ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
-ax.xaxis.set_major_formatter(formatter)
+ax.xaxis.set_major_formatter(currency)
 
 ###############################################################################
 # Combining multiple visualizations
@@ -237,12 +240,12 @@ for group in [3, 5, 8]:
     ax.text(145000, group, "New Company", fontsize=10,
             verticalalignment="center")
 
-# Now we'll move our title up since it's getting a little cramped
+# Now we move our title up since it's getting a little cramped
 ax.title.set(y=1.05)
 
 ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
-ax.xaxis.set_major_formatter(formatter)
+ax.xaxis.set_major_formatter(currency)
 ax.set_xticks([0, 25e3, 50e3, 75e3, 100e3, 125e3])
 fig.subplots_adjust(right=.1)
 
@@ -260,7 +263,7 @@ print(fig.canvas.get_supported_filetypes())
 
 ###############################################################################
 # We can then use the :meth:`figure.Figure.savefig` in order to save the figure
-# to disk. Note that there are several useful flags we'll show below:
+# to disk. Note that there are several useful flags we show below:
 #
 # * ``transparent=True`` makes the background of the saved figure transparent
 #   if the format supports it.

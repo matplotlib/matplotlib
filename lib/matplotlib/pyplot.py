@@ -38,7 +38,6 @@ import matplotlib.image
 from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
-from matplotlib.cbook import dedent, deprecated, silent_list, warn_deprecated
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase, MouseButton
 from matplotlib.figure import Figure, figaspect
@@ -49,7 +48,7 @@ from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for detrend_none, window_hanning
-from matplotlib.scale import get_scale_docs, get_scale_names
+from matplotlib.scale import get_scale_names
 
 from matplotlib import cm
 from matplotlib.cm import get_cmap, register_cmap
@@ -70,6 +69,36 @@ from .ticker import (
     LinearLocator, LogLocator, AutoLocator, MultipleLocator, MaxNLocator)
 
 _log = logging.getLogger(__name__)
+
+
+_code_objs = {
+    cbook._rename_parameter:
+        cbook._rename_parameter("", "old", "new", lambda new: None).__code__,
+    cbook._make_keyword_only:
+        cbook._make_keyword_only("", "p", lambda p: None).__code__,
+}
+
+
+def _copy_docstring_and_deprecators(method, func=None):
+    if func is None:
+        return functools.partial(_copy_docstring_and_deprecators, method)
+    decorators = [docstring.copy(method)]
+    # Check whether the definition of *method* includes _rename_parameter or
+    # _make_keyword_only decorators; if so, propagate them to the pyplot
+    # wrapper as well.
+    while getattr(method, "__wrapped__", None) is not None:
+        for decorator_maker, code in _code_objs.items():
+            if method.__code__ is code:
+                kwargs = {
+                    k: v.cell_contents
+                    for k, v in zip(code.co_freevars, method.__closure__)}
+                assert kwargs["func"] is method.__wrapped__
+                kwargs.pop("func")
+                decorators.append(decorator_maker(**kwargs))
+        method = method.__wrapped__
+    for decorator in decorators[::-1]:
+        func = decorator(func)
+    return func
 
 
 ## Global ##
@@ -155,9 +184,9 @@ def uninstall_repl_displayhook():
         ip = get_ipython()
         try:
             ip.events.unregister('post_execute', _IP_REGISTERED)
-        except AttributeError:
+        except AttributeError as err:
             raise NotImplementedError("Can not unregister events "
-                                      "in IPython < 2.0")
+                                      "in IPython < 2.0") from err
         _IP_REGISTERED = None
 
     if _INSTALL_FIG_OBSERVER:
@@ -172,7 +201,7 @@ def set_loglevel(*args, **kwargs):  # Ensure this appears in the pyplot docs.
     return matplotlib.set_loglevel(*args, **kwargs)
 
 
-@docstring.copy(Artist.findobj)
+@_copy_docstring_and_deprecators(Artist.findobj)
 def findobj(o=None, match=None, include_self=True):
     if o is None:
         o = gcf()
@@ -198,15 +227,31 @@ def switch_backend(newbackend):
         The name of the backend to use.
     """
     global _backend_mod
-
+    # make sure the init is pulled up so we can assign to it later
+    import matplotlib.backends
     close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
+        current_framework = cbook._get_running_interactive_framework()
+        mapping = {'qt5': 'qt5agg',
+                   'qt4': 'qt4agg',
+                   'gtk3': 'gtk3agg',
+                   'wx': 'wxagg',
+                   'tk': 'tkagg',
+                   'macosx': 'macosx',
+                   'headless': 'agg'}
+
+        best_guess = mapping.get(current_framework, None)
+        if best_guess is not None:
+            candidates = [best_guess]
+        else:
+            candidates = []
+        candidates += ["macosx", "qt5agg", "gtk3agg", "tkagg", "wxagg"]
+
         # Don't try to fallback on the cairo-based backends as they each have
         # an additional dependency (pycairo) over the agg-based backend, and
         # are of worse quality.
-        for candidate in [
-                "macosx", "qt5agg", "qt4agg", "gtk3agg", "tkagg", "wxagg"]:
+        for candidate in candidates:
             try:
                 switch_backend(candidate)
             except ImportError:
@@ -278,58 +323,201 @@ def draw_if_interactive(*args, **kwargs):
 # This function's signature is rewritten upon backend-load by switch_backend.
 def show(*args, **kwargs):
     """
-    Display all figures.
+    Display all open figures.
 
-    When running in ipython with its pylab mode, display all
-    figures and return to the ipython prompt.
+    In non-interactive mode, *block* defaults to True.  All figures
+    will display and show will not return until all windows are closed.
+    If there are no figures, return immediately.
 
-    In non-interactive mode, display all figures and block until
-    the figures have been closed; in interactive mode it has no
-    effect unless figures were created prior to a change from
-    non-interactive to interactive mode (not recommended).  In
-    that case it displays the figures but does not block.
+    In interactive mode *block* defaults to False.  This will ensure
+    that all of the figures are shown and this function immediately returns.
 
     Parameters
     ----------
     block : bool, optional
-        This is experimental, and may be set to ``True`` or ``False`` to
-        override the blocking behavior described above.
+
+        If `True` block and run the GUI main loop until all windows
+        are closed.
+
+        If `False` ensure that all windows are displayed and return
+        immediately.  In this case, you are responsible for ensuring
+        that the event loop is running to have responsive figures.
+
+    See Also
+    --------
+    ion : enable interactive mode
+    ioff : disable interactive mode
+
     """
     _warn_if_gui_out_of_main_thread()
     return _backend_mod.show(*args, **kwargs)
 
 
 def isinteractive():
-    """Return whether to redraw after every plotting command."""
+    """
+    Return if pyplot is in "interactive mode" or not.
+
+    If in interactive mode then:
+
+    - newly created figures will be shown immediately;
+    - figures will automatically redraw on change;
+    - `.pyplot.show` will not block by default.
+
+    If not in interactive mode then:
+
+    - newly created figures and changes to figures will not be reflected until
+      explicitly asked to be;
+    - `.pyplot.show` will block by default.
+
+    See Also
+    --------
+    ion : enable interactive mode
+    ioff : disable interactive mode
+
+    show : show windows (and maybe block)
+    pause : show windows, run GUI event loop, and block for a time
+    """
     return matplotlib.is_interactive()
 
 
+class _IoffContext:
+    """
+    Context manager for `.ioff`.
+
+    The state is changed in ``__init__()`` instead of ``__enter__()``. The
+    latter is a no-op. This allows using `.ioff` both as a function and
+    as a context.
+    """
+
+    def __init__(self):
+        self.wasinteractive = isinteractive()
+        matplotlib.interactive(False)
+        uninstall_repl_displayhook()
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.wasinteractive:
+            matplotlib.interactive(True)
+            install_repl_displayhook()
+        else:
+            matplotlib.interactive(False)
+            uninstall_repl_displayhook()
+
+
+class _IonContext:
+    """
+    Context manager for `.ion`.
+
+    The state is changed in ``__init__()`` instead of ``__enter__()``. The
+    latter is a no-op. This allows using `.ion` both as a function and
+    as a context.
+    """
+
+    def __init__(self):
+        self.wasinteractive = isinteractive()
+        matplotlib.interactive(True)
+        install_repl_displayhook()
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if not self.wasinteractive:
+            matplotlib.interactive(False)
+            uninstall_repl_displayhook()
+        else:
+            matplotlib.interactive(True)
+            install_repl_displayhook()
+
+
 def ioff():
-    """Turn the interactive mode off."""
-    matplotlib.interactive(False)
-    uninstall_repl_displayhook()
+    """
+    Turn interactive mode off.
+
+    See Also
+    --------
+    ion : enable interactive mode
+    isinteractive : query current state
+
+    show : show windows (and maybe block)
+    pause : show windows, run GUI event loop, and block for a time
+
+    Notes
+    -----
+    For a temporary change, this can be used as a context manager::
+
+        # if interactive mode is on
+        # then figures will be shown on creation
+        plt.ion()
+        # This figure will be shown immediately
+        fig = plt.figure()
+
+        with plt.ioff():
+            # interactive mode will be off
+            # figures will not automatically be shown
+            fig2 = plt.figure()
+            # ...
+
+    To enable usage as a context manager, this function returns an
+    ``_IoffContext`` object. The return value is not intended to be stored
+    or accessed by the user.
+    """
+    return _IoffContext()
 
 
 def ion():
-    """Turn the interactive mode on."""
-    matplotlib.interactive(True)
-    install_repl_displayhook()
+    """
+    Turn interactive mode on.
+
+    See Also
+    --------
+    ioff : disable interactive mode
+    isinteractive : query current state
+
+    show : show windows (and maybe block)
+    pause : show windows, run GUI event loop, and block for a time
+
+    Notes
+    -----
+    For a temporary change, this can be used as a context manager::
+
+        # if interactive mode is off
+        # then figures will not be shown on creation
+        plt.ioff()
+        # This figure will not be shown immediately
+        fig = plt.figure()
+
+        with plt.ion():
+            # interactive mode will be on
+            # figures will automatically be shown
+            fig2 = plt.figure()
+            # ...
+
+    To enable usage as a context manager, this function returns an
+    ``_IonContext`` object. The return value is not intended to be stored
+    or accessed by the user.
+    """
+    return _IonContext()
 
 
 def pause(interval):
     """
-    Pause for *interval* seconds.
+    Run the GUI event loop for *interval* seconds.
 
     If there is an active figure, it will be updated and displayed before the
     pause, and the GUI event loop (if any) will run during the pause.
 
-    This can be used for crude animation.  For more complex animation, see
+    This can be used for crude animation.  For more complex animation use
     :mod:`matplotlib.animation`.
 
-    Notes
-    -----
-    This function is experimental; its behavior may be changed or extended in a
-    future release.
+    If there is no active figure, sleep for *interval* seconds instead.
+
+    See Also
+    --------
+    matplotlib.animation : Complex animation
+    show : show figures and optional block forever
     """
     manager = _pylab_helpers.Gcf.get_active()
     if manager is not None:
@@ -342,17 +530,17 @@ def pause(interval):
         time.sleep(interval)
 
 
-@docstring.copy(matplotlib.rc)
+@_copy_docstring_and_deprecators(matplotlib.rc)
 def rc(group, **kwargs):
     matplotlib.rc(group, **kwargs)
 
 
-@docstring.copy(matplotlib.rc_context)
+@_copy_docstring_and_deprecators(matplotlib.rc_context)
 def rc_context(rc=None, fname=None):
     return matplotlib.rc_context(rc, fname)
 
 
-@docstring.copy(matplotlib.rcdefaults)
+@_copy_docstring_and_deprecators(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
     if matplotlib.is_interactive():
@@ -362,29 +550,28 @@ def rcdefaults():
 # getp/get/setp are explicitly reexported so that they show up in pyplot docs.
 
 
-@docstring.copy(matplotlib.artist.getp)
+@_copy_docstring_and_deprecators(matplotlib.artist.getp)
 def getp(obj, *args, **kwargs):
     return matplotlib.artist.getp(obj, *args, **kwargs)
 
 
-@docstring.copy(matplotlib.artist.get)
+@_copy_docstring_and_deprecators(matplotlib.artist.get)
 def get(obj, *args, **kwargs):
     return matplotlib.artist.get(obj, *args, **kwargs)
 
 
-@docstring.copy(matplotlib.artist.setp)
+@_copy_docstring_and_deprecators(matplotlib.artist.setp)
 def setp(obj, *args, **kwargs):
     return matplotlib.artist.setp(obj, *args, **kwargs)
 
 
 def xkcd(scale=1, length=100, randomness=2):
     """
-    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
-    This will only have effect on things drawn after this function is
-    called.
+    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.  This will
+    only have effect on things drawn after this function is called.
 
     For best results, the "Humor Sans" font should be installed: it is
-    not included with matplotlib.
+    not included with Matplotlib.
 
     Parameters
     ----------
@@ -411,29 +598,46 @@ def xkcd(scale=1, length=100, randomness=2):
         # This figure will be in regular style
         fig2 = plt.figure()
     """
-    if rcParams['text.usetex']:
-        raise RuntimeError(
-            "xkcd mode is not compatible with text.usetex = True")
+    return _xkcd(scale, length, randomness)
 
-    from matplotlib import patheffects
-    return rc_context({
-        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
-                        'Comic Sans MS'],
-        'font.size': 14.0,
-        'path.sketch': (scale, length, randomness),
-        'path.effects': [patheffects.withStroke(linewidth=4, foreground="w")],
-        'axes.linewidth': 1.5,
-        'lines.linewidth': 2.0,
-        'figure.facecolor': 'white',
-        'grid.linewidth': 0.0,
-        'axes.grid': False,
-        'axes.unicode_minus': False,
-        'axes.edgecolor': 'black',
-        'xtick.major.size': 8,
-        'xtick.major.width': 3,
-        'ytick.major.size': 8,
-        'ytick.major.width': 3,
-    })
+
+class _xkcd:
+    # This cannot be implemented in terms of rc_context() because this needs to
+    # work as a non-contextmanager too.
+
+    def __init__(self, scale, length, randomness):
+        self._orig = rcParams.copy()
+
+        if rcParams['text.usetex']:
+            raise RuntimeError(
+                "xkcd mode is not compatible with text.usetex = True")
+
+        from matplotlib import patheffects
+        rcParams.update({
+            'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
+                            'Comic Sans MS'],
+            'font.size': 14.0,
+            'path.sketch': (scale, length, randomness),
+            'path.effects': [
+                patheffects.withStroke(linewidth=4, foreground="w")],
+            'axes.linewidth': 1.5,
+            'lines.linewidth': 2.0,
+            'figure.facecolor': 'white',
+            'grid.linewidth': 0.0,
+            'axes.grid': False,
+            'axes.unicode_minus': False,
+            'axes.edgecolor': 'black',
+            'xtick.major.size': 8,
+            'xtick.major.width': 3,
+            'ytick.major.size': 8,
+            'ytick.major.width': 3,
+        })
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        dict.update(rcParams, self._orig)
 
 
 ## Figures ##
@@ -470,7 +674,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     figsize : (float, float), default: :rc:`figure.figsize`
         Width, height in inches.
 
-    dpi : int, default: :rc:`figure.dpi`
+    dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
 
     facecolor : color, default: :rc:`figure.facecolor`
@@ -488,9 +692,28 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
+    tight_layout : bool or dict, default: :rc:`figure.autolayout`
+        If ``False`` use *subplotpars*. If ``True`` adjust subplot
+        parameters using `.tight_layout` with default padding.
+        When providing a dict containing the keys ``pad``, ``w_pad``,
+        ``h_pad``, and ``rect``, the default `.tight_layout` paddings
+        will be overridden.
+
+    constrained_layout : bool, default: :rc:`figure.constrained_layout.use`
+        If ``True`` use constrained layout to adjust positioning of plot
+        elements.  Like ``tight_layout``, but designed to be more
+        flexible.  See
+        :doc:`/tutorials/intermediate/constrainedlayout_guide`
+        for examples.  (Note: does not work with `add_subplot` or
+        `~.pyplot.subplot2grid`.)
+
+
+    **kwargs : optional
+        See `~.matplotlib.figure.Figure` for other possible arguments.
+
     Returns
     -------
-    figure : `~matplotlib.figure.Figure`
+    `~matplotlib.figure.Figure`
         The `.Figure` instance returned will also be passed to
         new_figure_manager in the backends, which allows to hook custom
         `.Figure` classes into the pyplot interface. Additional kwargs will be
@@ -506,93 +729,68 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     in the matplotlibrc file.
     """
 
-    if figsize is None:
-        figsize = rcParams['figure.figsize']
-    if dpi is None:
-        dpi = rcParams['figure.dpi']
-    if facecolor is None:
-        facecolor = rcParams['figure.facecolor']
-    if edgecolor is None:
-        edgecolor = rcParams['figure.edgecolor']
-
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
-    figLabel = ''
+    fig_label = ''
     if num is None:
         num = next_num
     elif isinstance(num, str):
-        figLabel = num
-        allLabels = get_figlabels()
-        if figLabel not in allLabels:
-            if figLabel == 'all':
+        fig_label = num
+        all_labels = get_figlabels()
+        if fig_label not in all_labels:
+            if fig_label == 'all':
                 cbook._warn_external(
-                    "close('all') closes all existing figures")
+                    "close('all') closes all existing figures.")
             num = next_num
         else:
-            inum = allLabels.index(figLabel)
+            inum = all_labels.index(fig_label)
             num = allnums[inum]
     else:
         num = int(num)  # crude validation of num argument
 
-    figManager = _pylab_helpers.Gcf.get_fig_manager(num)
-    if figManager is None:
+    manager = _pylab_helpers.Gcf.get_fig_manager(num)
+    if manager is None:
         max_open_warning = rcParams['figure.max_open_warning']
-
         if len(allnums) == max_open_warning >= 1:
             cbook._warn_external(
-                "More than %d figures have been opened. Figures "
-                "created through the pyplot interface "
-                "(`matplotlib.pyplot.figure`) are retained until "
-                "explicitly closed and may consume too much memory. "
-                "(To control this warning, see the rcParam "
-                "`figure.max_open_warning`)." %
-                max_open_warning, RuntimeWarning)
+                f"More than {max_open_warning} figures have been opened. "
+                f"Figures created through the pyplot interface "
+                f"(`matplotlib.pyplot.figure`) are retained until explicitly "
+                f"closed and may consume too much memory. (To control this "
+                f"warning, see the rcParam `figure.max_open_warning`).",
+                RuntimeWarning)
 
         if get_backend().lower() == 'ps':
             dpi = 72
 
-        figManager = new_figure_manager(num, figsize=figsize,
-                                        dpi=dpi,
-                                        facecolor=facecolor,
-                                        edgecolor=edgecolor,
-                                        frameon=frameon,
-                                        FigureClass=FigureClass,
-                                        **kwargs)
+        manager = new_figure_manager(
+            num, figsize=figsize, dpi=dpi,
+            facecolor=facecolor, edgecolor=edgecolor, frameon=frameon,
+            FigureClass=FigureClass, **kwargs)
+        fig = manager.canvas.figure
+        if fig_label:
+            fig.set_label(fig_label)
 
-        if figLabel:
-            figManager.set_window_title(figLabel)
-            figManager.canvas.figure.set_label(figLabel)
-
-        # make this figure current on button press event
-        def make_active(event):
-            _pylab_helpers.Gcf.set_active(figManager)
-
-        cid = figManager.canvas.mpl_connect('button_press_event', make_active)
-        figManager._cidgcf = cid
-
-        _pylab_helpers.Gcf.set_active(figManager)
-        fig = figManager.canvas.figure
-        fig.number = num
+        _pylab_helpers.Gcf._set_new_active_manager(manager)
 
         # make sure backends (inline) that we don't ship that expect this
         # to be called in plotting commands to make the figure call show
         # still work.  There is probably a better way to do this in the
         # FigureManager base class.
-        if matplotlib.is_interactive():
-            draw_if_interactive()
+        draw_if_interactive()
 
         if _INSTALL_FIG_OBSERVER:
             fig.stale_callback = _auto_draw_if_interactive
 
     if clear:
-        figManager.canvas.figure.clear()
+        manager.canvas.figure.clear()
 
-    return figManager.canvas.figure
+    return manager.canvas.figure
 
 
 def _auto_draw_if_interactive(fig, val):
     """
-    This is an internal helper function for making sure that auto-redrawing
+    An internal helper function for making sure that auto-redrawing
     works as intended in the plain python repl.
 
     Parameters
@@ -618,9 +816,9 @@ def gcf():
     If no current figure exists, a new one is created using
     `~.pyplot.figure()`.
     """
-    figManager = _pylab_helpers.Gcf.get_active()
-    if figManager is not None:
-        return figManager.canvas.figure
+    manager = _pylab_helpers.Gcf.get_active()
+    if manager is not None:
+        return manager.canvas.figure
     else:
         return figure()
 
@@ -637,9 +835,9 @@ def get_fignums():
 
 def get_figlabels():
     """Return a list of existing figure labels."""
-    figManagers = _pylab_helpers.Gcf.get_all_fig_managers()
-    figManagers.sort(key=lambda m: m.num)
-    return [m.canvas.figure.get_label() for m in figManagers]
+    managers = _pylab_helpers.Gcf.get_all_fig_managers()
+    managers.sort(key=lambda m: m.num)
+    return [m.canvas.figure.get_label() for m in managers]
 
 
 def get_current_fig_manager():
@@ -654,17 +852,17 @@ def get_current_fig_manager():
 
     Returns
     -------
-    manager : `.FigureManagerBase` or backend-dependent subclass thereof
+    `.FigureManagerBase` or backend-dependent subclass thereof
     """
     return gcf().canvas.manager
 
 
-@docstring.copy(FigureCanvasBase.mpl_connect)
+@_copy_docstring_and_deprecators(FigureCanvasBase.mpl_connect)
 def connect(s, func):
     return gcf().canvas.mpl_connect(s, func)
 
 
-@docstring.copy(FigureCanvasBase.mpl_disconnect)
+@_copy_docstring_and_deprecators(FigureCanvasBase.mpl_disconnect)
 def disconnect(cid):
     return gcf().canvas.mpl_disconnect(cid)
 
@@ -686,11 +884,11 @@ def close(fig=None):
 
     """
     if fig is None:
-        figManager = _pylab_helpers.Gcf.get_active()
-        if figManager is None:
+        manager = _pylab_helpers.Gcf.get_active()
+        if manager is None:
             return
         else:
-            _pylab_helpers.Gcf.destroy(figManager.num)
+            _pylab_helpers.Gcf.destroy(manager)
     elif fig == 'all':
         _pylab_helpers.Gcf.destroy_all()
     elif isinstance(fig, int):
@@ -700,9 +898,9 @@ def close(fig=None):
         # can use its integer representation
         _pylab_helpers.Gcf.destroy(fig.int)
     elif isinstance(fig, str):
-        allLabels = get_figlabels()
-        if fig in allLabels:
-            num = get_fignums()[allLabels.index(fig)]
+        all_labels = get_figlabels()
+        if fig in all_labels:
+            num = get_fignums()[all_labels.index(fig)]
             _pylab_helpers.Gcf.destroy(num)
     elif isinstance(fig, Figure):
         _pylab_helpers.Gcf.destroy_fig(fig)
@@ -731,7 +929,7 @@ def draw():
     gcf().canvas.draw_idle()
 
 
-@docstring.copy(Figure.savefig)
+@_copy_docstring_and_deprecators(Figure.savefig)
 def savefig(*args, **kwargs):
     fig = gcf()
     res = fig.savefig(*args, **kwargs)
@@ -767,7 +965,7 @@ def axes(arg=None, **kwargs):
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
-          ``subplot(111, **kwargs)``
+          ``subplot(111, **kwargs)``.
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
@@ -789,6 +987,13 @@ def axes(arg=None, **kwargs):
     label : str
         A label for the returned axes.
 
+    Returns
+    -------
+    `~.axes.Axes`, or a subclass of `~.axes.Axes`
+        The returned axes class depends on the projection used. It is
+        `~.axes.Axes` if rectilinear projection is used and
+        `.projections.polar.PolarAxes` if polar projection is used.
+
     Other Parameters
     ----------------
     **kwargs
@@ -800,14 +1005,6 @@ def axes(arg=None, **kwargs):
         class.
 
         %(Axes)s
-
-    Returns
-    -------
-    axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
-        The returned axes class depends on the projection used. It is
-        `~.axes.Axes` if rectilinear projection are used and
-        `.projections.polar.PolarAxes` if polar projection
-        are used.
 
     Notes
     -----
@@ -883,19 +1080,21 @@ def subplot(*args, **kwargs):
 
     Parameters
     ----------
-    *args, default: (1, 1, 1)
-        Either a 3-digit integer or three separate integers
-        describing the position of the subplot. If the three
-        integers are *nrows*, *ncols*, and *index* in order, the
-        subplot will take the *index* position on a grid with *nrows*
-        rows and *ncols* columns. *index* starts at 1 in the upper left
-        corner and increases to the right.
+    *args : int, (int, int, *index*), or `.SubplotSpec`, default: (1, 1, 1)
+        The position of the subplot described by one of
 
-        *pos* is a three digit integer, where the first digit is the
-        number of rows, the second the number of columns, and the third
-        the index of the subplot. i.e. fig.add_subplot(235) is the same as
-        fig.add_subplot(2, 3, 5). Note that all integers must be less than
-        10 for this form to work.
+        - Three integers (*nrows*, *ncols*, *index*). The subplot will take the
+          *index* position on a grid with *nrows* rows and *ncols* columns.
+          *index* starts at 1 in the upper left corner and increases to the
+          right. *index* can also be a two-tuple specifying the (*first*,
+          *last*) indices (1-based, and including *last*) of the subplot, e.g.,
+          ``fig.add_subplot(3, 1, (1, 2))`` makes a subplot that spans the
+          upper 2/3 of the figure.
+        - A 3-digit integer. The digits are interpreted as if given separately
+          as three single-digit integers, i.e. ``fig.add_subplot(235)`` is the
+          same as ``fig.add_subplot(2, 3, 5)``. Note that this can only be used
+          if there are no more than 9 subplots.
+        - A `.SubplotSpec`.
 
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
@@ -914,6 +1113,16 @@ def subplot(*args, **kwargs):
     label : str
         A label for the returned axes.
 
+    Returns
+    -------
+    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+
+        The axes of the subplot. The returned axes base class depends on
+        the projection used. It is `~.axes.Axes` if rectilinear projection
+        is used and `.projections.polar.PolarAxes` if polar projection
+        is used. The returned axes is then a subplot subclass of the
+        base class.
+
     Other Parameters
     ----------------
     **kwargs
@@ -924,17 +1133,6 @@ def subplot(*args, **kwargs):
         arguments if another projection is used.
 
         %(Axes)s
-
-    Returns
-    -------
-    axes : an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass \
-    of `~.axes.Axes`)
-
-        The axes of the subplot. The returned axes base class depends on
-        the projection used. It is `~.axes.Axes` if rectilinear projection
-        are used and `.projections.polar.PolarAxes` if polar projection
-        are used. The returned axes is then a subplot subclass of the
-        base class.
 
     Notes
     -----
@@ -1014,7 +1212,7 @@ def subplot(*args, **kwargs):
     # Check for nrows and ncols, which are not valid subplot args:
     if 'nrows' in kwargs or 'ncols' in kwargs:
         raise TypeError("subplot() got an unexpected keyword argument 'ncols' "
-                         "and/or 'nrows'.  Did you intend to call subplots()?")
+                        "and/or 'nrows'.  Did you intend to call subplots()?")
 
     fig = gcf()
     ax = fig.add_subplot(*args, **kwargs)
@@ -1031,6 +1229,7 @@ def subplot(*args, **kwargs):
     return ax
 
 
+@cbook._make_keyword_only("3.3", "sharex")
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
              subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
@@ -1045,7 +1244,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         Number of rows/columns of the subplot grid.
 
     sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
-        Controls sharing of properties among x (`sharex`) or y (`sharey`)
+        Controls sharing of properties among x (*sharex*) or y (*sharey*)
         axes:
 
         - True or 'all': x- or y-axis will be shared among all subplots.
@@ -1112,6 +1311,14 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         because for the latter it's not clear if it refers to a single
         `~.axes.Axes` instance or a collection of these.
 
+    See Also
+    --------
+    .pyplot.figure
+    .pyplot.subplot
+    .pyplot.axes
+    .Figure.subplots
+    .Figure.add_subplot
+
     Examples
     --------
     ::
@@ -1152,14 +1359,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # and clears it if it already exists.
         fig, ax = plt.subplots(num=10, clear=True)
 
-    See Also
-    --------
-    .pyplot.figure
-    .pyplot.subplot
-    .pyplot.axes
-    .Figure.subplots
-    .Figure.add_subplot
-
     """
     fig = figure(**fig_kw)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
@@ -1168,9 +1367,90 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return fig, axs
 
 
+def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
+                   empty_sentinel='.', **fig_kw):
+    """
+    Build a layout of Axes based on ASCII art or nested lists.
+
+    This is a helper function to build complex GridSpec layouts visually.
+
+    .. note ::
+
+       This API is provisional and may be revised in the future based on
+       early user feedback.
+
+
+    Parameters
+    ----------
+    layout : list of list of {hashable or nested} or str
+
+        A visual layout of how you want your Axes to be arranged
+        labeled as strings.  For example ::
+
+           x = [['A panel', 'A panel', 'edge'],
+                ['C panel', '.',       'edge']]
+
+        Produces 4 axes:
+
+        - 'A panel' which is 1 row high and spans the first two columns
+        - 'edge' which is 2 rows high and is on the right edge
+        - 'C panel' which in 1 row and 1 column wide in the bottom left
+        - a blank space 1 row and 1 column wide in the bottom center
+
+        Any of the entries in the layout can be a list of lists
+        of the same form to create nested layouts.
+
+        If input is a str, then it must be of the form ::
+
+          '''
+          AAE
+          C.E
+          '''
+
+        where each character is a column and each line is a row.
+        This only allows only single character Axes labels and does
+        not allow nesting but is very terse.
+
+    subplot_kw : dict, optional
+        Dictionary with keywords passed to the `.Figure.add_subplot` call
+        used to create each subplot.
+
+    gridspec_kw : dict, optional
+        Dictionary with keywords passed to the `.GridSpec` constructor used
+        to create the grid the subplots are placed on.
+
+    empty_sentinel : object, optional
+        Entry in the layout to mean "leave this space empty".  Defaults
+        to ``'.'``. Note, if *layout* is a string, it is processed via
+        `inspect.cleandoc` to remove leading white space, which may
+        interfere with using white-space as the empty sentinel.
+
+    **fig_kw
+        All additional keyword arguments are passed to the
+        `.pyplot.figure` call.
+
+    Returns
+    -------
+    fig : `~.figure.Figure`
+       The new figure
+
+    dict[label, Axes]
+       A dictionary mapping the labels to the Axes objects.
+
+    """
+    fig = figure(**fig_kw)
+    ax_dict = fig.subplot_mosaic(
+        layout,
+        subplot_kw=subplot_kw,
+        gridspec_kw=gridspec_kw,
+        empty_sentinel=empty_sentinel
+    )
+    return fig, ax_dict
+
+
 def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
-    Create an axis at specific location inside a regular grid.
+    Create a subplot at a specific location inside a regular grid.
 
     Parameters
     ----------
@@ -1178,35 +1458,44 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
         Number of rows and of columns of the grid in which to place axis.
     loc : (int, int)
         Row number and column number of the axis location within the grid.
-    rowspan : int
-        Number of rows for the axis to span to the right.
-    colspan : int
-        Number of columns for the axis to span downwards.
+    rowspan : int, default: 1
+        Number of rows for the axis to span downwards.
+    colspan : int, default: 1
+        Number of columns for the axis to span to the right.
     fig : `.Figure`, optional
-        Figure to place axis in. Defaults to current figure.
+        Figure to place the subplot in. Defaults to the current figure.
     **kwargs
-        Additional keyword arguments are handed to `add_subplot`.
+        Additional keyword arguments are handed to `~.Figure.add_subplot`.
+
+    Returns
+    -------
+    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+
+        The axes of the subplot.  The returned axes base class depends on the
+        projection used.  It is `~.axes.Axes` if rectilinear projection is used
+        and `.projections.polar.PolarAxes` if polar projection is used.  The
+        returned axes is then a subplot subclass of the base class.
 
     Notes
     -----
     The following call ::
 
-        subplot2grid(shape, loc, rowspan=1, colspan=1)
+        ax = subplot2grid((nrows, ncols), (row, col), rowspan, colspan)
 
     is identical to ::
 
-        gridspec = GridSpec(shape[0], shape[1])
-        subplotspec = gridspec.new_subplotspec(loc, rowspan, colspan)
-        subplot(subplotspec)
+        fig = gcf()
+        gs = fig.add_gridspec(nrows, ncols)
+        ax = fig.add_subplot(gs[row:row+rowspan, col:col+colspan])
     """
 
     if fig is None:
         fig = gcf()
 
-    s1, s2 = shape
-    subplotspec = GridSpec(s1, s2).new_subplotspec(loc,
-                                                   rowspan=rowspan,
-                                                   colspan=colspan)
+    rows, cols = shape
+    gs = GridSpec._check_gridspec_exists(fig, rows, cols)
+
+    subplotspec = gs.new_subplotspec(loc, rowspan=rowspan, colspan=colspan)
     ax = fig.add_subplot(subplotspec, **kwargs)
     bbox = ax.bbox
     axes_to_delete = []
@@ -1253,63 +1542,43 @@ def twiny(ax=None):
     return ax1
 
 
-def subplots_adjust(left=None, bottom=None, right=None, top=None,
-                    wspace=None, hspace=None):
-    """
-    Tune the subplot layout.
-
-    The parameter meanings (and suggested defaults) are::
-
-      left = 0.125  # the left side of the subplots of the figure
-      right = 0.9   # the right side of the subplots of the figure
-      bottom = 0.1  # the bottom of the subplots of the figure
-      top = 0.9     # the top of the subplots of the figure
-      wspace = 0.2  # the amount of width reserved for space between subplots,
-                    # expressed as a fraction of the average axis width
-      hspace = 0.2  # the amount of height reserved for space between subplots,
-                    # expressed as a fraction of the average axis height
-
-    The actual defaults are controlled by the rc file
-    """
-    fig = gcf()
-    fig.subplots_adjust(left, bottom, right, top, wspace, hspace)
-
-
 def subplot_tool(targetfig=None):
     """
     Launch a subplot tool window for a figure.
 
-    A :class:`matplotlib.widgets.SubplotTool` instance is returned.
+    A `matplotlib.widgets.SubplotTool` instance is returned. You must maintain
+    a reference to the instance to keep the associated callbacks alive.
     """
     if targetfig is None:
         targetfig = gcf()
+    with rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
+        # Use new_figure_manager() instead of figure() so that the figure
+        # doesn't get registered with pyplot.
+        manager = new_figure_manager(-1, (6, 3))
+    manager.set_window_title("Subplot configuration tool")
+    tool_fig = manager.canvas.figure
+    tool_fig.subplots_adjust(top=0.9)
+    manager.show()
+    return SubplotTool(targetfig, tool_fig)
 
-    with rc_context({'toolbar': 'None'}):  # No nav toolbar for the toolfig.
-        toolfig = figure(figsize=(6, 3))
-    toolfig.subplots_adjust(top=0.9)
 
-    if hasattr(targetfig.canvas, "manager"):  # Restore the current figure.
-        _pylab_helpers.Gcf.set_active(targetfig.canvas.manager)
-
-    return SubplotTool(targetfig, toolfig)
-
-
+# After deprecation elapses, this can be autogenerated by boilerplate.py.
+@cbook._make_keyword_only("3.3", "pad")
 def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
-    Automatically adjust subplot parameters to give specified padding.
+    Adjust the padding between and around subplots.
 
     Parameters
     ----------
-    pad : float
+    pad : float, default: 1.08
         Padding between the figure edge and the edges of subplots,
         as a fraction of the font size.
-    h_pad, w_pad : float, optional
+    h_pad, w_pad : float, default: *pad*
         Padding (height/width) between edges of adjacent subplots,
-        as a fraction of the font size.  Defaults to *pad*.
+        as a fraction of the font size.
     rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1)
-        A rectangle (left, bottom, right, top) in the normalized
-        figure coordinate that the whole subplots area (including
-        labels) will fit into.
+        A rectangle in normalized figure coordinates into which the whole
+        subplots area (including labels) will fit.
     """
     gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
 
@@ -1480,7 +1749,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     Parameters
     ----------
     ticks : array-like, optional
-        The list of xtick locations.  Passing an empty list removes all xticks.
+        The list of ytick locations.  Passing an empty list removes all yticks.
     labels : array-like, optional
         The labels to place at the given *ticks* locations.  This argument can
         only be passed if *ticks* is passed as well.
@@ -1531,7 +1800,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     return locs, labels
 
 
-def rgrids(*args, **kwargs):
+def rgrids(radii=None, labels=None, angle=None, fmt=None, **kwargs):
     """
     Get or set the radial gridlines on the current polar plot.
 
@@ -1562,13 +1831,23 @@ def rgrids(*args, **kwargs):
 
     Returns
     -------
-    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-        *lines* are the radial gridlines and *labels* are the tick labels.
+    lines : list of `.lines.Line2D`
+        The radial gridlines.
+
+    labels : list of `.text.Text`
+        The tick labels.
 
     Other Parameters
     ----------------
     **kwargs
         *kwargs* are optional `~.Text` properties for the labels.
+
+    See Also
+    --------
+    .pyplot.thetagrids
+    .projections.polar.PolarAxes.set_rgrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
 
     Examples
     --------
@@ -1579,26 +1858,20 @@ def rgrids(*args, **kwargs):
 
       # set the locations and labels of the radial gridlines
       lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' ))
-
-    See Also
-    --------
-    .pyplot.thetagrids
-    .projections.polar.PolarAxes.set_rgrids
-    .Axis.get_gridlines
-    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
-    if len(args) == 0:
+    if all(p is None for p in [radii, labels, angle, fmt]) and not kwargs:
         lines = ax.yaxis.get_gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
-        lines, labels = ax.set_rgrids(*args, **kwargs)
+        lines, labels = ax.set_rgrids(
+            radii, labels=labels, angle=angle, fmt=fmt, **kwargs)
     return lines, labels
 
 
-def thetagrids(*args, **kwargs):
+def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     """
     Get or set the theta gridlines on the current polar plot.
 
@@ -1626,13 +1899,23 @@ def thetagrids(*args, **kwargs):
 
     Returns
     -------
-    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-        *lines* are the theta gridlines and *labels* are the tick labels.
+    lines : list of `.lines.Line2D`
+        The theta gridlines.
+
+    labels : list of `.text.Text`
+        The tick labels.
 
     Other Parameters
     ----------------
     **kwargs
         *kwargs* are optional `~.Text` properties for the labels.
+
+    See Also
+    --------
+    .pyplot.rgrids
+    .projections.polar.PolarAxes.set_thetagrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
 
     Examples
     --------
@@ -1643,22 +1926,16 @@ def thetagrids(*args, **kwargs):
 
       # set the locations and labels of the angular gridlines
       lines, labels = thetagrids(range(45, 360, 90), ('NE', 'NW', 'SW', 'SE'))
-
-    See Also
-    --------
-    .pyplot.rgrids
-    .projections.polar.PolarAxes.set_thetagrids
-    .Axis.get_gridlines
-    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('thetagrids only defined for polar axes')
-    if len(args) == 0:
+    if all(param is None for param in [angles, labels, fmt]) and not kwargs:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
     else:
-        lines, labels = ax.set_thetagrids(*args, **kwargs)
+        lines, labels = ax.set_thetagrids(angles,
+                                          labels=labels, fmt=fmt, **kwargs)
     return lines, labels
 
 
@@ -1739,7 +2016,7 @@ def colormaps():
       =========   ===================================================
 
     The following colormaps are based on the `ColorBrewer
-    <http://colorbrewer2.org>`_ color specifications and designs developed by
+    <https://colorbrewer2.org>`_ color specifications and designs developed by
     Cynthia Brewer:
 
     ColorBrewer Diverging (luminance is highest at the midpoint, and
@@ -1896,6 +2173,9 @@ def colormaps():
                     originally from the Neuroimaging in Python project
       terrain       mapmaker's colors, blue-green-yellow-brown-white,
                     originally from IGOR Pro
+      turbo         Spectral map (purple-blue-green-yellow-orange-red) with
+                    a bright center and darker endpoints. A smoother
+                    alternative to jet.
       ============= =======================================================
 
     The following colormaps are redundant and may be removed in future
@@ -1915,7 +2195,7 @@ def colormaps():
     .. [#] Rainbow colormaps, ``jet`` in particular, are considered a poor
       choice for scientific visualization by many researchers: `Rainbow Color
       Map (Still) Considered Harmful
-      <http://ieeexplore.ieee.org/document/4118486/?arnumber=4118486>`_
+      <https://ieeexplore.ieee.org/document/4118486/?arnumber=4118486>`_
 
     .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command
       Language. See `Color Table Gallery
@@ -1929,16 +2209,15 @@ def colormaps():
       <https://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
     """
-    return sorted(cm.cmap_d)
+    return sorted(cm._cmap_registry)
 
 
 def _setup_pyplot_info_docstrings():
     """
-    Generates the plotting docstring.
+    Setup the docstring of `plotting` and of the colormap-setting functions.
 
-    These must be done after the entire module is imported, so it is
-    called from the end of this module, which is generated by
-    boilerplate.py.
+    These must be done after the entire module is imported, so it is called
+    from the end of this module, which is generated by boilerplate.py.
     """
     commands = get_plot_commands()
 
@@ -1974,10 +2253,20 @@ def _setup_pyplot_info_docstrings():
     ]
     plotting.__doc__ = '\n'.join(lines)
 
+    for cm_name in colormaps():
+        if cm_name in globals():
+            globals()[cm_name].__doc__ = f"""
+    Set the colormap to {cm_name!r}.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+
 
 ## Plotting part 1: manually generated functions and wrappers ##
 
 
+@_copy_docstring_and_deprecators(Figure.colorbar)
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
@@ -1986,11 +2275,8 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
                                'creation. First define a mappable such as '
                                'an image (with imshow) or a contour set ('
                                'with contourf).')
-    if ax is None:
-        ax = gca()
     ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
     return ret
-colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
 
 def clim(vmin=None, vmax=None):
@@ -2038,12 +2324,12 @@ def set_cmap(cmap):
         im.set_cmap(cmap)
 
 
-@docstring.copy(matplotlib.image.imread)
+@_copy_docstring_and_deprecators(matplotlib.image.imread)
 def imread(fname, format=None):
     return matplotlib.image.imread(fname, format)
 
 
-@docstring.copy(matplotlib.image.imsave)
+@_copy_docstring_and_deprecators(matplotlib.image.imsave)
 def imsave(fname, arr, **kwargs):
     return matplotlib.image.imsave(fname, arr, **kwargs)
 
@@ -2080,7 +2366,7 @@ def matshow(A, fignum=None, **kwargs):
 
     Returns
     -------
-    image : `~matplotlib.image.AxesImage`
+    `~matplotlib.image.AxesImage`
 
     Other Parameters
     ----------------
@@ -2144,7 +2430,7 @@ install_repl_displayhook()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Figure.figimage)
+@_copy_docstring_and_deprecators(Figure.figimage)
 def figimage(
         X, xo=0, yo=0, alpha=None, norm=None, cmap=None, vmin=None,
         vmax=None, origin=None, resize=False, **kwargs):
@@ -2154,25 +2440,25 @@ def figimage(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Figure.text)
+@_copy_docstring_and_deprecators(Figure.text)
 def figtext(x, y, s, fontdict=None, **kwargs):
     return gcf().text(x, y, s, fontdict=fontdict, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Figure.gca)
+@_copy_docstring_and_deprecators(Figure.gca)
 def gca(**kwargs):
     return gcf().gca(**kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Figure._gci)
+@_copy_docstring_and_deprecators(Figure._gci)
 def gci():
     return gcf()._gci()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Figure.ginput)
+@_copy_docstring_and_deprecators(Figure.ginput)
 def ginput(
         n=1, timeout=30, show_clicks=True,
         mouse_add=MouseButton.LEFT, mouse_pop=MouseButton.RIGHT,
@@ -2184,26 +2470,36 @@ def ginput(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Figure.suptitle)
+@_copy_docstring_and_deprecators(Figure.subplots_adjust)
+def subplots_adjust(
+        left=None, bottom=None, right=None, top=None, wspace=None,
+        hspace=None):
+    return gcf().subplots_adjust(
+        left=left, bottom=bottom, right=right, top=top, wspace=wspace,
+        hspace=hspace)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@_copy_docstring_and_deprecators(Figure.suptitle)
 def suptitle(t, **kwargs):
     return gcf().suptitle(t, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Figure.waitforbuttonpress)
+@_copy_docstring_and_deprecators(Figure.waitforbuttonpress)
 def waitforbuttonpress(timeout=-1):
     return gcf().waitforbuttonpress(timeout=timeout)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.acorr)
+@_copy_docstring_and_deprecators(Axes.acorr)
 def acorr(x, *, data=None, **kwargs):
     return gca().acorr(
         x, **({"data": data} if data is not None else {}), **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.angle_spectrum)
+@_copy_docstring_and_deprecators(Axes.angle_spectrum)
 def angle_spectrum(
         x, Fs=None, Fc=None, window=None, pad_to=None, sides=None, *,
         data=None, **kwargs):
@@ -2213,61 +2509,61 @@ def angle_spectrum(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.annotate)
-def annotate(s, xy, *args, **kwargs):
-    return gca().annotate(s, xy, *args, **kwargs)
+@_copy_docstring_and_deprecators(Axes.annotate)
+def annotate(text, xy, *args, **kwargs):
+    return gca().annotate(text, xy, *args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.arrow)
+@_copy_docstring_and_deprecators(Axes.arrow)
 def arrow(x, y, dx, dy, **kwargs):
     return gca().arrow(x, y, dx, dy, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.autoscale)
+@_copy_docstring_and_deprecators(Axes.autoscale)
 def autoscale(enable=True, axis='both', tight=None):
     return gca().autoscale(enable=enable, axis=axis, tight=tight)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.axhline)
+@_copy_docstring_and_deprecators(Axes.axhline)
 def axhline(y=0, xmin=0, xmax=1, **kwargs):
     return gca().axhline(y=y, xmin=xmin, xmax=xmax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.axhspan)
+@_copy_docstring_and_deprecators(Axes.axhspan)
 def axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs):
     return gca().axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.axis)
+@_copy_docstring_and_deprecators(Axes.axis)
 def axis(*args, emit=True, **kwargs):
     return gca().axis(*args, emit=emit, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.axline)
-def axline(xy1, xy2, **kwargs):
-    return gca().axline(xy1, xy2, **kwargs)
+@_copy_docstring_and_deprecators(Axes.axline)
+def axline(xy1, xy2=None, *, slope=None, **kwargs):
+    return gca().axline(xy1, xy2=xy2, slope=slope, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.axvline)
+@_copy_docstring_and_deprecators(Axes.axvline)
 def axvline(x=0, ymin=0, ymax=1, **kwargs):
     return gca().axvline(x=x, ymin=ymin, ymax=ymax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.axvspan)
+@_copy_docstring_and_deprecators(Axes.axvspan)
 def axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs):
     return gca().axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.bar)
+@_copy_docstring_and_deprecators(Axes.bar)
 def bar(
         x, height, width=0.8, bottom=None, *, align='center',
         data=None, **kwargs):
@@ -2277,21 +2573,21 @@ def bar(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.barbs)
+@_copy_docstring_and_deprecators(Axes.barbs)
 def barbs(*args, data=None, **kw):
     return gca().barbs(
         *args, **({"data": data} if data is not None else {}), **kw)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.barh)
+@_copy_docstring_and_deprecators(Axes.barh)
 def barh(y, width, height=0.8, left=None, *, align='center', **kwargs):
     return gca().barh(
         y, width, height=height, left=left, align=align, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.boxplot)
+@_copy_docstring_and_deprecators(Axes.boxplot)
 def boxplot(
         x, notch=None, sym=None, vert=None, whis=None,
         positions=None, widths=None, patch_artist=None,
@@ -2316,7 +2612,7 @@ def boxplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.broken_barh)
+@_copy_docstring_and_deprecators(Axes.broken_barh)
 def broken_barh(xranges, yrange, *, data=None, **kwargs):
     return gca().broken_barh(
         xranges, yrange,
@@ -2324,19 +2620,19 @@ def broken_barh(xranges, yrange, *, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.cla)
+@_copy_docstring_and_deprecators(Axes.cla)
 def cla():
     return gca().cla()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.clabel)
-def clabel(CS, *args, **kwargs):
-    return gca().clabel(CS, *args, **kwargs)
+@_copy_docstring_and_deprecators(Axes.clabel)
+def clabel(CS, levels=None, **kwargs):
+    return gca().clabel(CS, levels=levels, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.cohere)
+@_copy_docstring_and_deprecators(Axes.cohere)
 def cohere(
         x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         window=mlab.window_hanning, noverlap=0, pad_to=None,
@@ -2349,7 +2645,7 @@ def cohere(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.contour)
+@_copy_docstring_and_deprecators(Axes.contour)
 def contour(*args, data=None, **kwargs):
     __ret = gca().contour(
         *args, **({"data": data} if data is not None else {}),
@@ -2359,7 +2655,7 @@ def contour(*args, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.contourf)
+@_copy_docstring_and_deprecators(Axes.contourf)
 def contourf(*args, data=None, **kwargs):
     __ret = gca().contourf(
         *args, **({"data": data} if data is not None else {}),
@@ -2369,7 +2665,7 @@ def contourf(*args, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.csd)
+@_copy_docstring_and_deprecators(Axes.csd)
 def csd(
         x, y, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
@@ -2382,7 +2678,7 @@ def csd(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.errorbar)
+@_copy_docstring_and_deprecators(Axes.errorbar)
 def errorbar(
         x, y, yerr=None, xerr=None, fmt='', ecolor=None,
         elinewidth=None, capsize=None, barsabove=False, lolims=False,
@@ -2397,7 +2693,7 @@ def errorbar(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.eventplot)
+@_copy_docstring_and_deprecators(Axes.eventplot)
 def eventplot(
         positions, orientation='horizontal', lineoffsets=1,
         linelengths=1, linewidths=None, colors=None,
@@ -2410,7 +2706,7 @@ def eventplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.fill)
+@_copy_docstring_and_deprecators(Axes.fill)
 def fill(*args, data=None, **kwargs):
     return gca().fill(
         *args, **({"data": data} if data is not None else {}),
@@ -2418,7 +2714,7 @@ def fill(*args, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.fill_between)
+@_copy_docstring_and_deprecators(Axes.fill_between)
 def fill_between(
         x, y1, y2=0, where=None, interpolate=False, step=None, *,
         data=None, **kwargs):
@@ -2428,7 +2724,7 @@ def fill_between(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.fill_betweenx)
+@_copy_docstring_and_deprecators(Axes.fill_betweenx)
 def fill_betweenx(
         y, x1, x2=0, where=None, step=None, interpolate=False, *,
         data=None, **kwargs):
@@ -2438,13 +2734,13 @@ def fill_betweenx(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.grid)
+@_copy_docstring_and_deprecators(Axes.grid)
 def grid(b=None, which='major', axis='both', **kwargs):
     return gca().grid(b=b, which=which, axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.hexbin)
+@_copy_docstring_and_deprecators(Axes.hexbin)
 def hexbin(
         x, y, C=None, gridsize=100, bins=None, xscale='linear',
         yscale='linear', extent=None, cmap=None, norm=None, vmin=None,
@@ -2463,7 +2759,7 @@ def hexbin(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.hist)
+@_copy_docstring_and_deprecators(Axes.hist)
 def hist(
         x, bins=None, range=None, density=False, weights=None,
         cumulative=False, bottom=None, histtype='bar', align='mid',
@@ -2478,7 +2774,7 @@ def hist(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.hist2d)
+@_copy_docstring_and_deprecators(Axes.hist2d)
 def hist2d(
         x, y, bins=10, range=None, density=False, weights=None,
         cmin=None, cmax=None, *, data=None, **kwargs):
@@ -2491,9 +2787,9 @@ def hist2d(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.hlines)
+@_copy_docstring_and_deprecators(Axes.hlines)
 def hlines(
-        y, xmin, xmax, colors='k', linestyles='solid', label='', *,
+        y, xmin, xmax, colors=None, linestyles='solid', label='', *,
         data=None, **kwargs):
     return gca().hlines(
         y, xmin, xmax, colors=colors, linestyles=linestyles,
@@ -2502,7 +2798,7 @@ def hlines(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.imshow)
+@_copy_docstring_and_deprecators(Axes.imshow)
 def imshow(
         X, cmap=None, norm=None, aspect=None, interpolation=None,
         alpha=None, vmin=None, vmax=None, origin=None, extent=None, *,
@@ -2520,25 +2816,25 @@ def imshow(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.legend)
+@_copy_docstring_and_deprecators(Axes.legend)
 def legend(*args, **kwargs):
     return gca().legend(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.locator_params)
+@_copy_docstring_and_deprecators(Axes.locator_params)
 def locator_params(axis='both', tight=None, **kwargs):
     return gca().locator_params(axis=axis, tight=tight, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.loglog)
+@_copy_docstring_and_deprecators(Axes.loglog)
 def loglog(*args, **kwargs):
     return gca().loglog(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.magnitude_spectrum)
+@_copy_docstring_and_deprecators(Axes.magnitude_spectrum)
 def magnitude_spectrum(
         x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
         scale=None, *, data=None, **kwargs):
@@ -2549,25 +2845,25 @@ def magnitude_spectrum(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.margins)
+@_copy_docstring_and_deprecators(Axes.margins)
 def margins(*margins, x=None, y=None, tight=True):
     return gca().margins(*margins, x=x, y=y, tight=tight)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.minorticks_off)
+@_copy_docstring_and_deprecators(Axes.minorticks_off)
 def minorticks_off():
     return gca().minorticks_off()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.minorticks_on)
+@_copy_docstring_and_deprecators(Axes.minorticks_on)
 def minorticks_on():
     return gca().minorticks_on()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.pcolor)
+@_copy_docstring_and_deprecators(Axes.pcolor)
 def pcolor(
         *args, shading=None, alpha=None, norm=None, cmap=None,
         vmin=None, vmax=None, data=None, **kwargs):
@@ -2580,7 +2876,7 @@ def pcolor(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.pcolormesh)
+@_copy_docstring_and_deprecators(Axes.pcolormesh)
 def pcolormesh(
         *args, alpha=None, norm=None, cmap=None, vmin=None,
         vmax=None, shading=None, antialiased=False, data=None,
@@ -2594,7 +2890,7 @@ def pcolormesh(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.phase_spectrum)
+@_copy_docstring_and_deprecators(Axes.phase_spectrum)
 def phase_spectrum(
         x, Fs=None, Fc=None, window=None, pad_to=None, sides=None, *,
         data=None, **kwargs):
@@ -2604,25 +2900,25 @@ def phase_spectrum(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.pie)
+@_copy_docstring_and_deprecators(Axes.pie)
 def pie(
         x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1,
-        startangle=None, radius=None, counterclock=True,
-        wedgeprops=None, textprops=None, center=(0, 0), frame=False,
-        rotatelabels=False, *, data=None):
+        startangle=0, radius=1, counterclock=True, wedgeprops=None,
+        textprops=None, center=(0, 0), frame=False,
+        rotatelabels=False, *, normalize=None, data=None):
     return gca().pie(
         x, explode=explode, labels=labels, colors=colors,
         autopct=autopct, pctdistance=pctdistance, shadow=shadow,
         labeldistance=labeldistance, startangle=startangle,
         radius=radius, counterclock=counterclock,
         wedgeprops=wedgeprops, textprops=textprops, center=center,
-        frame=frame, rotatelabels=rotatelabels,
+        frame=frame, rotatelabels=rotatelabels, normalize=normalize,
         **({"data": data} if data is not None else {}))
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.plot)
+@_copy_docstring_and_deprecators(Axes.plot)
 def plot(*args, scalex=True, scaley=True, data=None, **kwargs):
     return gca().plot(
         *args, scalex=scalex, scaley=scaley,
@@ -2630,7 +2926,7 @@ def plot(*args, scalex=True, scaley=True, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.plot_date)
+@_copy_docstring_and_deprecators(Axes.plot_date)
 def plot_date(
         x, y, fmt='o', tz=None, xdate=True, ydate=False, *,
         data=None, **kwargs):
@@ -2640,7 +2936,7 @@ def plot_date(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.psd)
+@_copy_docstring_and_deprecators(Axes.psd)
 def psd(
         x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
@@ -2653,7 +2949,7 @@ def psd(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.quiver)
+@_copy_docstring_and_deprecators(Axes.quiver)
 def quiver(*args, data=None, **kw):
     __ret = gca().quiver(
         *args, **({"data": data} if data is not None else {}), **kw)
@@ -2662,13 +2958,13 @@ def quiver(*args, data=None, **kw):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.quiverkey)
+@_copy_docstring_and_deprecators(Axes.quiverkey)
 def quiverkey(Q, X, Y, U, label, **kw):
     return gca().quiverkey(Q, X, Y, U, label, **kw)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.scatter)
+@_copy_docstring_and_deprecators(Axes.scatter)
 def scatter(
         x, y, s=None, c=None, marker=None, cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -2685,19 +2981,19 @@ def scatter(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.semilogx)
+@_copy_docstring_and_deprecators(Axes.semilogx)
 def semilogx(*args, **kwargs):
     return gca().semilogx(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.semilogy)
+@_copy_docstring_and_deprecators(Axes.semilogy)
 def semilogy(*args, **kwargs):
     return gca().semilogy(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.specgram)
+@_copy_docstring_and_deprecators(Axes.specgram)
 def specgram(
         x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
         noverlap=None, cmap=None, xextent=None, pad_to=None,
@@ -2714,7 +3010,7 @@ def specgram(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.spy)
+@_copy_docstring_and_deprecators(Axes.spy)
 def spy(
         Z, precision=0, marker=None, markersize=None, aspect='equal',
         origin='upper', **kwargs):
@@ -2726,7 +3022,7 @@ def spy(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.stackplot)
+@_copy_docstring_and_deprecators(Axes.stackplot)
 def stackplot(
         x, *args, labels=(), colors=None, baseline='zero', data=None,
         **kwargs):
@@ -2736,19 +3032,21 @@ def stackplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.stem)
+@_copy_docstring_and_deprecators(Axes.stem)
 def stem(
         *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-        label=None, use_line_collection=True, data=None):
+        label=None, use_line_collection=True, orientation='vertical',
+        data=None):
     return gca().stem(
         *args, linefmt=linefmt, markerfmt=markerfmt, basefmt=basefmt,
         bottom=bottom, label=label,
         use_line_collection=use_line_collection,
+        orientation=orientation,
         **({"data": data} if data is not None else {}))
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.step)
+@_copy_docstring_and_deprecators(Axes.step)
 def step(x, y, *args, where='pre', data=None, **kwargs):
     return gca().step(
         x, y, *args, where=where,
@@ -2756,7 +3054,7 @@ def step(x, y, *args, where='pre', data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.streamplot)
+@_copy_docstring_and_deprecators(Axes.streamplot)
 def streamplot(
         x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
         norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
@@ -2775,7 +3073,7 @@ def streamplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.table)
+@_copy_docstring_and_deprecators(Axes.table)
 def table(
         cellText=None, cellColours=None, cellLoc='right',
         colWidths=None, rowLabels=None, rowColours=None,
@@ -2791,19 +3089,19 @@ def table(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.text)
+@_copy_docstring_and_deprecators(Axes.text)
 def text(x, y, s, fontdict=None, **kwargs):
     return gca().text(x, y, s, fontdict=fontdict, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.tick_params)
+@_copy_docstring_and_deprecators(Axes.tick_params)
 def tick_params(axis='both', **kwargs):
     return gca().tick_params(axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.ticklabel_format)
+@_copy_docstring_and_deprecators(Axes.ticklabel_format)
 def ticklabel_format(
         *, axis='both', style='', scilimits=None, useOffset=None,
         useLocale=None, useMathText=None):
@@ -2814,7 +3112,7 @@ def ticklabel_format(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.tricontour)
+@_copy_docstring_and_deprecators(Axes.tricontour)
 def tricontour(*args, **kwargs):
     __ret = gca().tricontour(*args, **kwargs)
     if __ret._A is not None: sci(__ret)  # noqa
@@ -2822,7 +3120,7 @@ def tricontour(*args, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.tricontourf)
+@_copy_docstring_and_deprecators(Axes.tricontourf)
 def tricontourf(*args, **kwargs):
     __ret = gca().tricontourf(*args, **kwargs)
     if __ret._A is not None: sci(__ret)  # noqa
@@ -2830,7 +3128,7 @@ def tricontourf(*args, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.tripcolor)
+@_copy_docstring_and_deprecators(Axes.tripcolor)
 def tripcolor(
         *args, alpha=1.0, norm=None, cmap=None, vmin=None, vmax=None,
         shading='flat', facecolors=None, **kwargs):
@@ -2842,13 +3140,13 @@ def tripcolor(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.triplot)
+@_copy_docstring_and_deprecators(Axes.triplot)
 def triplot(*args, **kwargs):
     return gca().triplot(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.violinplot)
+@_copy_docstring_and_deprecators(Axes.violinplot)
 def violinplot(
         dataset, positions=None, vert=True, widths=0.5,
         showmeans=False, showextrema=True, showmedians=False,
@@ -2862,9 +3160,9 @@ def violinplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.vlines)
+@_copy_docstring_and_deprecators(Axes.vlines)
 def vlines(
-        x, ymin, ymax, colors='k', linestyles='solid', label='', *,
+        x, ymin, ymax, colors=None, linestyles='solid', label='', *,
         data=None, **kwargs):
     return gca().vlines(
         x, ymin, ymax, colors=colors, linestyles=linestyles,
@@ -2873,7 +3171,7 @@ def vlines(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.xcorr)
+@_copy_docstring_and_deprecators(Axes.xcorr)
 def xcorr(
         x, y, normed=True, detrend=mlab.detrend_none, usevlines=True,
         maxlags=10, *, data=None, **kwargs):
@@ -2884,20 +3182,20 @@ def xcorr(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes._sci)
+@_copy_docstring_and_deprecators(Axes._sci)
 def sci(im):
     return gca()._sci(im)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.set_title)
-def title(label, fontdict=None, loc=None, pad=None, **kwargs):
+@_copy_docstring_and_deprecators(Axes.set_title)
+def title(label, fontdict=None, loc=None, pad=None, *, y=None, **kwargs):
     return gca().set_title(
-        label, fontdict=fontdict, loc=loc, pad=pad, **kwargs)
+        label, fontdict=fontdict, loc=loc, pad=pad, y=y, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.set_xlabel)
+@_copy_docstring_and_deprecators(Axes.set_xlabel)
 def xlabel(xlabel, fontdict=None, labelpad=None, *, loc=None, **kwargs):
     return gca().set_xlabel(
         xlabel, fontdict=fontdict, labelpad=labelpad, loc=loc,
@@ -2905,7 +3203,7 @@ def xlabel(xlabel, fontdict=None, labelpad=None, *, loc=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.set_ylabel)
+@_copy_docstring_and_deprecators(Axes.set_ylabel)
 def ylabel(ylabel, fontdict=None, labelpad=None, *, loc=None, **kwargs):
     return gca().set_ylabel(
         ylabel, fontdict=fontdict, labelpad=labelpad, loc=loc,
@@ -2913,223 +3211,37 @@ def ylabel(ylabel, fontdict=None, labelpad=None, *, loc=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.set_xscale)
+@_copy_docstring_and_deprecators(Axes.set_xscale)
 def xscale(value, **kwargs):
     return gca().set_xscale(value, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy(Axes.set_yscale)
+@_copy_docstring_and_deprecators(Axes.set_yscale)
 def yscale(value, **kwargs):
     return gca().set_yscale(value, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def autumn():
-    """
-    Set the colormap to "autumn".
+def autumn(): set_cmap('autumn')
+def bone(): set_cmap('bone')
+def cool(): set_cmap('cool')
+def copper(): set_cmap('copper')
+def flag(): set_cmap('flag')
+def gray(): set_cmap('gray')
+def hot(): set_cmap('hot')
+def hsv(): set_cmap('hsv')
+def jet(): set_cmap('jet')
+def pink(): set_cmap('pink')
+def prism(): set_cmap('prism')
+def spring(): set_cmap('spring')
+def summer(): set_cmap('summer')
+def winter(): set_cmap('winter')
+def magma(): set_cmap('magma')
+def inferno(): set_cmap('inferno')
+def plasma(): set_cmap('plasma')
+def viridis(): set_cmap('viridis')
+def nipy_spectral(): set_cmap('nipy_spectral')
 
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("autumn")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def bone():
-    """
-    Set the colormap to "bone".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("bone")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def cool():
-    """
-    Set the colormap to "cool".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("cool")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def copper():
-    """
-    Set the colormap to "copper".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("copper")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def flag():
-    """
-    Set the colormap to "flag".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("flag")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def gray():
-    """
-    Set the colormap to "gray".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("gray")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def hot():
-    """
-    Set the colormap to "hot".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("hot")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def hsv():
-    """
-    Set the colormap to "hsv".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("hsv")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def jet():
-    """
-    Set the colormap to "jet".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("jet")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def pink():
-    """
-    Set the colormap to "pink".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("pink")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def prism():
-    """
-    Set the colormap to "prism".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("prism")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def spring():
-    """
-    Set the colormap to "spring".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("spring")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def summer():
-    """
-    Set the colormap to "summer".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("summer")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def winter():
-    """
-    Set the colormap to "winter".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("winter")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def magma():
-    """
-    Set the colormap to "magma".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("magma")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def inferno():
-    """
-    Set the colormap to "inferno".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("inferno")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def plasma():
-    """
-    Set the colormap to "plasma".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("plasma")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def viridis():
-    """
-    Set the colormap to "viridis".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("viridis")
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def nipy_spectral():
-    """
-    Set the colormap to "nipy_spectral".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("nipy_spectral")
 
 _setup_pyplot_info_docstrings()

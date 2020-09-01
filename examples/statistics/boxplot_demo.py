@@ -60,13 +60,11 @@ center = np.ones(25) * 40
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
 d2 = np.concatenate((spread, center, flier_high, flier_low))
-data.shape = (-1, 1)
-d2.shape = (-1, 1)
 # Making a 2-D array only works if all the columns are the
 # same length.  If they are not, then use a list instead.
 # This is actually more efficient because boxplot converts
 # a 2-D array into a list of vectors internally anyway.
-data = [data, d2, d2[::2, 0]]
+data = [data, d2, d2[::2]]
 
 # Multiple box plots on one Axes
 fig, ax = plt.subplots()
@@ -104,7 +102,7 @@ data = [
 ]
 
 fig, ax1 = plt.subplots(figsize=(10, 6))
-fig.canvas.set_window_title('A Boxplot Example')
+fig.canvas.manager.set_window_title('A Boxplot Example')
 fig.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
 bp = ax1.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)

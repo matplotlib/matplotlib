@@ -20,7 +20,7 @@ class ToolEvent:
 class ToolTriggerEvent(ToolEvent):
     """Event to inform that a tool has been triggered."""
     def __init__(self, name, sender, tool, canvasevent=None, data=None):
-        ToolEvent.__init__(self, name, sender, tool, data)
+        super().__init__(name, sender, tool, data)
         self.canvasevent = canvasevent
 
 
@@ -183,7 +183,8 @@ class ToolManager:
         for k in self.get_tool_keymap(name):
             del self._keys[k]
 
-    def update_keymap(self, name, *keys):
+    @cbook._delete_parameter("3.3", "args")
+    def update_keymap(self, name, key, *args):
         """
         Set the keymap to associate with the specified tool.
 
@@ -191,17 +192,23 @@ class ToolManager:
         ----------
         name : str
             Name of the Tool.
-        keys : list of str
+        keys : str or list of str
             Keys to associate with the tool.
         """
-
         if name not in self._tools:
             raise KeyError('%s not in Tools' % name)
-
         self._remove_keys(name)
-
-        for key in keys:
-            for k in validate_stringlist(key):
+        for key in [key, *args]:
+            if isinstance(key, str) and validate_stringlist(key) != [key]:
+                cbook.warn_deprecated(
+                    "3.3", message="Passing a list of keys as a single "
+                    "comma-separated string is deprecated since %(since)s and "
+                    "support will be removed %(removal)s; pass keys as a list "
+                    "of strings instead.")
+                key = validate_stringlist(key)
+            if isinstance(key, str):
+                key = [key]
+            for k in key:
                 if k in self._keys:
                     cbook._warn_external('Key %s changed from %s to %s' %
                                          (k, self._keys[k], name))
@@ -237,7 +244,7 @@ class ToolManager:
         Add *tool* to `ToolManager`.
 
         If successful, adds a new event ``tool_trigger_{name}`` where
-        ``{name}`` is the *name* of the tool; the event is fired everytime the
+        ``{name}`` is the *name* of the tool; the event is fired every time the
         tool is triggered.
 
         Parameters
@@ -424,7 +431,7 @@ class ToolManager:
 
         Returns
         -------
-        tool : `.ToolBase` or None
+        `.ToolBase` or None
             The tool or None if no tool with the given name exists.
         """
         if isinstance(name, tools.ToolBase) and name.name in self._tools:

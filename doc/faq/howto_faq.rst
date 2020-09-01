@@ -21,20 +21,12 @@ Plot `numpy.datetime64` values
 As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
 as `datetime.datetime` objects.
 
-If you prefer the pandas converters and locators, you can register their
-converter with the `matplotlib.units` module::
+If you prefer the pandas converters and locators, you can register them.  This
+is done automatically when calling a pandas plot function and may be
+unnecessary when using pandas instead of Matplotlib directly. ::
 
-  from pandas.tseries import converter as pdtc
-  pdtc.register()
-
-If you only want to use the `pandas` converter for `numpy.datetime64` values ::
-
-  from pandas.tseries import converter as pdtc
-  import matplotlib.units as munits
-  import numpy as np
-
-  munits.registry[np.datetime64] = pdtc.DatetimeConverter()
-
+  from pandas.plotting import register_matplotlib_converters
+  register_matplotlib_converters()
 
 
 .. _howto-figure-empty:
@@ -534,94 +526,6 @@ artists.
 You may be able to work on separate figures from separate threads.  However,
 you must in that case use a *non-interactive backend* (typically Agg), because
 most GUI backends *require* being run from the main thread as well.
-
-.. _howto-contribute:
-
-How-to: Contributing
-====================
-
-.. _how-to-request-feature:
-
-Request a new feature
----------------------
-
-Is there a feature you wish Matplotlib had?  Then ask!  The best
-way to get started is to email the developer `mailing
-list <matplotlib-devel@python.org>`_ for discussion.
-This is an open source project developed primarily in the
-contributors free time, so there is no guarantee that your
-feature will be added.  The *best* way to get the feature
-you need added is to contribute it your self.
-
-.. _how-to-submit-patch:
-
-Reporting a bug or submitting a patch
--------------------------------------
-
-The development of Matplotlib is organized through `github
-<https://github.com/matplotlib/matplotlib>`_.  If you would like
-to report a bug or submit a patch please use that interface.
-
-To report a bug `create an issue
-<https://github.com/matplotlib/matplotlib/issues/new>`_ on github
-(this requires having a github account).  Please include a `Short,
-Self Contained, Correct (Compilable), Example <http://sscce.org>`_
-demonstrating what the bug is.  Including a clear, easy to test
-example makes it easy for the developers to evaluate the bug.  Expect
-that the bug reports will be a conversation.  If you do not want to
-register with github, please email bug reports to the `mailing list
-<matplotlib-devel@python.org>`_.
-
-The easiest way to submit patches to Matplotlib is through pull
-requests on github.  Please see the :ref:`developers-guide-index` for
-the details.
-
-.. _how-to-contribute-docs:
-
-Contribute to Matplotlib documentation
---------------------------------------
-
-Matplotlib is a big library, which is used in many ways, and the
-documentation has only scratched the surface of everything it can
-do.  So far, the place most people have learned all these features are
-through studying the :ref:`examples-index`, which is a
-recommended and great way to learn, but it would be nice to have more
-official narrative documentation guiding people through all the dark
-corners.  This is where you come in.
-
-There is a good chance you know more about Matplotlib usage in some
-areas, the stuff you do every day, than many of the core developers
-who wrote most of the documentation.  Just pulled your hair out
-compiling Matplotlib for Windows?  Write a FAQ or a section for the
-:ref:`installing-faq` page.  Are you a digital signal processing wizard?
-Write a tutorial on the signal analysis plotting functions like
-:func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
-:func:`~matplotlib.pyplot.specgram`.  Do you use Matplotlib with
-`django <https://www.djangoproject.com/>`_ or other popular web
-application servers?  Write a FAQ or tutorial and we'll find a place
-for it in the :ref:`users-guide-index`.  And so on...  I think you get the
-idea.
-
-Matplotlib is documented using the `sphinx
-<http://www.sphinx-doc.org/en/stable/>`_ extensions to restructured text
-`(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
-extensible python framework for documentation projects which generates
-HTML and PDF, and is pretty easy to write; you can see the source for this
-document or any page on this site by clicking on the *Show Source* link
-at the end of the page in the sidebar.
-
-The sphinx website is a good resource for learning sphinx, but we have
-put together a cheat-sheet at :ref:`documenting-matplotlib` which
-shows you how to get started, and outlines the Matplotlib conventions
-and extensions, e.g., for including plots directly from external code in
-your documents.
-
-Once your documentation contributions are working (and hopefully
-tested by actually *building* the docs) you can submit them as a patch
-against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
-Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
-or look at the open issues on github.
-
 
 .. _howto-webapp:
 

@@ -8,7 +8,7 @@ This figure shows the name of several matplotlib elements composing a figure
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator, MultipleLocator, FuncFormatter
+from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 
 np.random.seed(19680801)
 
@@ -24,13 +24,14 @@ ax = fig.add_subplot(1, 1, 1, aspect=1)
 def minor_tick(x, pos):
     if not x % 1.0:
         return ""
-    return "%.2f" % x
+    return f"{x:.2f}"
 
 ax.xaxis.set_major_locator(MultipleLocator(1.000))
 ax.xaxis.set_minor_locator(AutoMinorLocator(4))
 ax.yaxis.set_major_locator(MultipleLocator(1.000))
 ax.yaxis.set_minor_locator(AutoMinorLocator(4))
-ax.xaxis.set_minor_formatter(FuncFormatter(minor_tick))
+# FuncFormatter is created and used automatically
+ax.xaxis.set_minor_formatter(minor_tick)
 
 ax.set_xlim(0, 4)
 ax.set_ylim(0, 4)
@@ -137,7 +138,28 @@ ax.annotate('', xy=(3.15, 0.0), xytext=(3.45, 0.45),
                             connectionstyle="arc3",
                             color=color))
 
-ax.text(4.0, -0.4, "Made with http://matplotlib.org",
+ax.text(4.0, -0.4, "Made with https://matplotlib.org",
         fontsize=10, ha="right", color='.5')
 
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.figure
+matplotlib.axes.Axes.text
+matplotlib.axis.Axis.set_minor_formatter
+matplotlib.axis.Axis.set_major_locator
+matplotlib.axis.Axis.set_minor_locator
+matplotlib.patches.Circle
+matplotlib.patheffects.withStroke
+matplotlib.ticker.FuncFormatter

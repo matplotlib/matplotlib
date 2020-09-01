@@ -1,8 +1,7 @@
 # Javascript template for HTMLWriter
 JS_INCLUDE = """
 <link rel="stylesheet"
-href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/
-css/font-awesome.min.css">
+href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <script language="javascript">
   function isInternetExplorer() {
     ua = navigator.userAgent;

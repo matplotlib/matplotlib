@@ -26,16 +26,14 @@ def on_draw(event):
         bbox = label.get_window_extent()
         # the figure transform goes from relative coords->pixels and we
         # want the inverse of that
-        bboxi = bbox.inverse_transformed(fig.transFigure)
+        bboxi = bbox.transformed(fig.transFigure.inverted())
         bboxes.append(bboxi)
-
-        # this is the bbox that bounds all the bboxes, again in relative
-        # figure coords
-        bbox = mtransforms.Bbox.union(bboxes)
-        if fig.subplotpars.left < bbox.width:
-            # we need to move it over
-            fig.subplots_adjust(left=1.1*bbox.width)  # pad a little
-            fig.canvas.draw()
+    # the bbox that bounds all the bboxes, again in relative figure coords
+    bbox = mtransforms.Bbox.union(bboxes)
+    if fig.subplotpars.left < bbox.width:
+        # we need to move it over
+        fig.subplots_adjust(left=1.1*bbox.width)  # pad a little
+        fig.canvas.draw()
 
 fig.canvas.mpl_connect('draw_event', on_draw)
 
@@ -54,8 +52,9 @@ plt.show()
 import matplotlib
 matplotlib.artist.Artist.get_window_extent
 matplotlib.transforms.Bbox
-matplotlib.transforms.Bbox.inverse_transformed
+matplotlib.transforms.Bbox.transformed
 matplotlib.transforms.Bbox.union
+matplotlib.transforms.Transform.inverted
 matplotlib.figure.Figure.subplots_adjust
 matplotlib.figure.SubplotParams
 matplotlib.backend_bases.FigureCanvasBase.mpl_connect

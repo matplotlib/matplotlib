@@ -52,8 +52,8 @@ def get_projection_class(projection=None):
 
     try:
         return projection_registry.get_projection_class(projection)
-    except KeyError:
-        raise ValueError("Unknown projection %r" % projection)
+    except KeyError as err:
+        raise ValueError("Unknown projection %r" % projection) from err
 
 
 get_projection_names = projection_registry.get_projection_names

@@ -28,10 +28,9 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
     norm : Normalize or None, optional
         Optional argument to normalize data into the [0.0, 1.0] range
 
-
     Notes
     -----
-    This function create the 17 segment model for the left ventricle according
+    This function creates the 17 segment model for the left ventricle according
     to the American Heart Association (AHA) [1]_
 
     References
@@ -79,7 +78,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         theta0 = theta[i * 128:i * 128 + 128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2)) * data[i]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 1 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[2], r[3]], '-k', lw=linewidth + 1)
@@ -93,7 +92,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         theta0 = theta[i * 128:i * 128 + 128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2)) * data[i + 6]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 7 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[1], r[2]], '-k', lw=linewidth + 1)
@@ -107,7 +106,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         theta0 = theta[i * 192:i * 192 + 192] + np.deg2rad(45)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((192, 2)) * data[i + 12]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 13 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[0], r[1]], '-k', lw=linewidth + 1)
@@ -119,7 +118,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         r0 = np.repeat(r0[:, np.newaxis], theta.size, axis=1).T
         theta0 = np.repeat(theta[:, np.newaxis], 2, axis=1)
         z = np.ones((theta.size, 2)) * data[16]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if 17 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
 
@@ -135,7 +134,7 @@ data = np.arange(17) + 1
 # Make a figure and axes with dimensions as desired.
 fig, ax = plt.subplots(figsize=(12, 8), nrows=1, ncols=3,
                        subplot_kw=dict(projection='polar'))
-fig.canvas.set_window_title('Left Ventricle Bulls Eyes (AHA)')
+fig.canvas.manager.set_window_title('Left Ventricle Bulls Eyes (AHA)')
 
 # Create the axis for the colorbars
 axl = fig.add_axes([0.14, 0.15, 0.2, 0.05])

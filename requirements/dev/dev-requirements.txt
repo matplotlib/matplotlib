@@ -1,0 +1,4 @@
+-r ../doc/doc-requirements.txt
+-r ../testing/travis_all.txt
+-r ../testing/travis_extra.txt
+-r ../testing/flake8.txt

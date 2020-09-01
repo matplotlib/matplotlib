@@ -28,9 +28,11 @@ import weakref
 import numpy as np
 
 import matplotlib
+from matplotlib import _c_internal_utils
 from .deprecation import (
     deprecated, warn_deprecated,
     _rename_parameter, _delete_parameter, _make_keyword_only,
+    _deprecate_method_override, _deprecate_privatize_attribute,
     _suppress_matplotlib_deprecation_warning,
     MatplotlibDeprecationWarning, mplDeprecation)
 
@@ -62,9 +64,10 @@ def _get_running_interactive_framework():
         return "wx"
     tkinter = sys.modules.get("tkinter")
     if tkinter:
+        codes = {tkinter.mainloop.__code__, tkinter.Misc.mainloop.__code__}
         for frame in sys._current_frames().values():
             while frame:
-                if frame.f_code == tkinter.mainloop.__code__:
+                if frame.f_code in codes:
                     return "tk"
                 frame = frame.f_back
     if 'matplotlib.backends._macosx' in sys.modules:
@@ -101,7 +104,8 @@ class _StrongRef:
 
 
 class CallbackRegistry:
-    """Handle registering and disconnecting for a set of signals and callbacks:
+    """
+    Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -150,9 +154,8 @@ class CallbackRegistry:
     """
 
     # We maintain two mappings:
-    #   callbacks: signal -> {cid -> callback}
-    #   _func_cid_map: signal -> {callback -> cid}
-    # (actually, callbacks are weakrefs to the actual callbacks).
+    #   callbacks: signal -> {cid -> weakref-to-callback}
+    #   _func_cid_map: signal -> {weakref-to-callback -> cid}
 
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
@@ -160,23 +163,12 @@ class CallbackRegistry:
         self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
-    # In general, callbacks may not be pickled; thus, we simply recreate an
-    # empty dictionary at unpickling.  In order to ensure that `__setstate__`
-    # (which just defers to `__init__`) is called, `__getstate__` must
-    # return a truthy value (for pickle protocol>=3, i.e. Py3, the
-    # *actual* behavior is that `__setstate__` will be called as long as
-    # `__getstate__` does not return `None`, but this is undocumented -- see
-    # http://bugs.python.org/issue12290).
-
     def __getstate__(self):
-        return {'exception_handler': self.exception_handler}
-
-    def __setstate__(self, state):
-        self.__init__(**state)
+        # In general, callbacks may not be pickled, so we just drop them.
+        return {**vars(self), "callbacks": {}, "_func_cid_map": {}}
 
     def connect(self, s, func):
-        """Register *func* to be called when signal *s* is generated.
-        """
+        """Register *func* to be called when signal *s* is generated."""
         self._func_cid_map.setdefault(s, {})
         try:
             proxy = weakref.WeakMethod(func, self._remove_proxy)
@@ -207,8 +199,7 @@ class CallbackRegistry:
                 del self._func_cid_map[signal]
 
     def disconnect(self, cid):
-        """Disconnect the callback registered with callback id *cid*.
-        """
+        """Disconnect the callback registered with callback id *cid*."""
         for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]
@@ -258,24 +249,22 @@ class silent_list(list):
     one will get ::
 
         <a list of 3 Line2D objects>
+
+    If ``self.type`` is None, the type name is obtained from the first item in
+    the list (if any).
     """
+
     def __init__(self, type, seq=None):
         self.type = type
         if seq is not None:
             self.extend(seq)
 
     def __repr__(self):
-        return '<a list of %d %s objects>' % (len(self), self.type)
-
-    __str__ = __repr__
-
-    def __getstate__(self):
-        # store a dictionary of this SilentList's state
-        return {'type': self.type, 'seq': self[:]}
-
-    def __setstate__(self, state):
-        self.type = state['type']
-        self.extend(state['seq'])
+        if self.type is not None or len(self) != 0:
+            tp = self.type if self.type is not None else type(self[0]).__name__
+            return f"<a list of {len(self)} {tp} objects>"
+        else:
+            return "<an empty list>"
 
 
 @deprecated("3.3")
@@ -314,7 +303,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Returns
     -------
-    out : any object
+    any object
         Either local_var or one of kwargs[key] for key in keys.
 
     Raises
@@ -363,26 +352,6 @@ def strip_math(s):
     return s
 
 
-@deprecated('3.1', alternative='np.iterable')
-def iterable(obj):
-    """return true if *obj* is iterable"""
-    try:
-        iter(obj)
-    except TypeError:
-        return False
-    return True
-
-
-@deprecated("3.1", alternative="isinstance(..., collections.abc.Hashable)")
-def is_hashable(obj):
-    """Returns true if *obj* can be hashed"""
-    try:
-        hash(obj)
-    except TypeError:
-        return False
-    return True
-
-
 def is_writable_file_like(obj):
     """Return whether *obj* looks like a file object with a *write* method."""
     return callable(getattr(obj, 'write', None))
@@ -410,7 +379,7 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
 
     Parameters
     ----------
-    fname : str or path-like or file-like object
+    fname : str or path-like or file-like
         If `str` or `os.PathLike`, the file is opened using the flags specified
         by *flag* and *encoding*.  If a file-like object, it is passed through.
     flag : str, default 'r'
@@ -474,7 +443,7 @@ def is_scalar_or_string(val):
     return isinstance(val, str) or not np.iterable(val)
 
 
-def get_sample_data(fname, asfileobj=True):
+def get_sample_data(fname, asfileobj=True, *, np_load=False):
     """
     Return a sample data file.  *fname* is a path relative to the
     :file:`mpl-data/sample_data` directory.  If *asfileobj* is `True`
@@ -483,13 +452,27 @@ def get_sample_data(fname, asfileobj=True):
     Sample data files are stored in the 'mpl-data/sample_data' directory within
     the Matplotlib package.
 
-    If the filename ends in .gz, the file is implicitly ungzipped.
+    If the filename ends in .gz, the file is implicitly ungzipped.  If the
+    filename ends with .npy or .npz, *asfileobj* is True, and *np_load* is
+    True, the file is loaded with `numpy.load`.  *np_load* currently defaults
+    to False but will default to True in a future release.
     """
-    path = Path(matplotlib._get_data_path(), 'sample_data', fname)
+    path = _get_data_path('sample_data', fname)
     if asfileobj:
         suffix = path.suffix.lower()
         if suffix == '.gz':
             return gzip.open(path)
+        elif suffix in ['.npy', '.npz']:
+            if np_load:
+                return np.load(path)
+            else:
+                warn_deprecated(
+                    "3.3", message="In a future release, get_sample_data "
+                    "will automatically load numpy arrays.  Set np_load to "
+                    "True to get the array and suppress this warning.  Set "
+                    "asfileobj to False to get the path to the data file and "
+                    "suppress this warning.")
+                return path.open('rb')
         elif suffix in ['.csv', '.xrc', '.txt']:
             return path.open('r')
         else:
@@ -544,47 +527,6 @@ def get_realpath_and_stat(path):
 _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 # A cache to hold the regexs that actually remove the indent.
 _dedent_regex = {}
-
-
-@deprecated("3.1", alternative="inspect.cleandoc")
-def dedent(s):
-    """
-    Remove excess indentation from docstring *s*.
-
-    Discards any leading blank lines, then removes up to n whitespace
-    characters from each line, where n is the number of leading
-    whitespace characters in the first line. It differs from
-    textwrap.dedent in its deletion of leading blank lines and its use
-    of the first non-blank line to determine the indentation.
-
-    It is also faster in most cases.
-    """
-    # This implementation has a somewhat obtuse use of regular
-    # expressions.  However, this function accounted for almost 30% of
-    # matplotlib startup time, so it is worthy of optimization at all
-    # costs.
-
-    if not s:      # includes case of s is None
-        return ''
-
-    match = _find_dedent_regex.match(s)
-    if match is None:
-        return s
-
-    # This is the number of spaces to remove from the left-hand side.
-    nshift = match.end(1) - match.start(1)
-    if nshift == 0:
-        return s
-
-    # Get a regex that will remove *up to* nshift spaces from the
-    # beginning of each line.  If it isn't in the cache, generate it.
-    unindent = _dedent_regex.get(nshift, None)
-    if unindent is None:
-        unindent = re.compile("\n\r? {0,%d}" % nshift)
-        _dedent_regex[nshift] = unindent
-
-    result = unindent.sub("\n", s).strip()
-    return result
 
 
 class maxdict(dict):
@@ -721,11 +663,11 @@ def report_memory(i=0):  # argument may go away
     def call(command, os_name):
         try:
             return subprocess.check_output(command)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as err:
             raise NotImplementedError(
                 "report_memory works on %s only if "
                 "the '%s' program is found" % (os_name, command[0])
-            )
+            ) from err
 
     pid = os.getpid()
     if sys.platform == 'sunos5':
@@ -744,19 +686,6 @@ def report_memory(i=0):  # argument may go away
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
     return mem
-
-
-_safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
-
-
-@deprecated("3.1")
-def safezip(*args):
-    """make sure *args* are equal len before zipping"""
-    Nx = len(args[0])
-    for i, arg in enumerate(args[1:]):
-        if len(arg) != Nx:
-            raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
-    return list(zip(*args))
 
 
 def safe_masked_invalid(x, copy=False):
@@ -844,9 +773,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
 class Grouper:
     """
-    This class provides a lightweight way to group arbitrary objects
-    together into disjoint sets when a full-blown graph data structure
-    would be overkill.
+    A disjoint-set data structure.
 
     Objects can be joined using :meth:`join`, tested for connectedness
     using :meth:`joined`, and all disjoint sets can be retrieved by
@@ -854,30 +781,30 @@ class Grouper:
 
     The objects being joined must be hashable and weak-referenceable.
 
-    For example:
-
-        >>> from matplotlib.cbook import Grouper
-        >>> class Foo:
-        ...     def __init__(self, s):
-        ...         self.s = s
-        ...     def __repr__(self):
-        ...         return self.s
-        ...
-        >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
-        >>> grp = Grouper()
-        >>> grp.join(a, b)
-        >>> grp.join(b, c)
-        >>> grp.join(d, e)
-        >>> sorted(map(tuple, grp))
-        [(a, b, c), (d, e)]
-        >>> grp.joined(a, b)
-        True
-        >>> grp.joined(a, c)
-        True
-        >>> grp.joined(a, d)
-        False
-
+    Examples
+    --------
+    >>> from matplotlib.cbook import Grouper
+    >>> class Foo:
+    ...     def __init__(self, s):
+    ...         self.s = s
+    ...     def __repr__(self):
+    ...         return self.s
+    ...
+    >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
+    >>> grp = Grouper()
+    >>> grp.join(a, b)
+    >>> grp.join(b, c)
+    >>> grp.join(d, e)
+    >>> sorted(map(tuple, grp))
+    [(a, b, c), (d, e)]
+    >>> grp.joined(a, b)
+    True
+    >>> grp.joined(a, c)
+    True
+    >>> grp.joined(a, d)
+    False
     """
+
     def __init__(self, init=()):
         self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 
@@ -1086,7 +1013,12 @@ def _combine_masks(*args):
         else:
             if isinstance(x, np.ma.MaskedArray) and x.ndim > 1:
                 raise ValueError("Masked arrays must be 1-D")
-            x = np.asanyarray(x)
+            try:
+                x = np.asanyarray(x)
+            except (np.VisibleDeprecationWarning, ValueError):
+                # NumPy 1.19 raises a warning about ragged arrays, but we want
+                # to accept basically anything here.
+                x = np.asanyarray(x, dtype=object)
             if x.ndim == 1:
                 x = safe_masked_invalid(x)
                 seqlist[i] = True
@@ -1148,7 +1080,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     Returns
     -------
-    bxpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column
         of data. Keys of each dictionary are the following:
 
@@ -1345,7 +1277,7 @@ def contiguous_regions(mask):
 
 def is_math_text(s):
     """
-    Returns whether the string *s* contains math expressions.
+    Return whether the string *s* contains math expressions.
 
     This is done by checking whether *s* contains an even number of
     non-escaped dollar signs.
@@ -1368,10 +1300,7 @@ def _to_unmasked_float_array(x):
 
 
 def _check_1d(x):
-    """
-    Converts a sequence of less than 1 dimension, to an array of 1
-    dimension; leaves everything else untouched.
-    """
+    """Convert scalars to 1d arrays; pass-through arrays as is."""
     if not hasattr(x, 'shape') or len(x.shape) < 1:
         return np.atleast_1d(x)
     else:
@@ -1393,7 +1322,7 @@ def _check_1d(x):
             with warnings.catch_warnings(record=True) as w:
                 warnings.filterwarnings(
                     "always",
-                    category=DeprecationWarning,
+                    category=Warning,
                     message='Support for multi-dimensional indexing')
 
                 ndim = x[:, None].ndim
@@ -1407,7 +1336,11 @@ def _check_1d(x):
             if ndim < 2:
                 return np.atleast_1d(x)
             return x
-        except (IndexError, TypeError):
+        # In pandas 1.1.0, multidimensional indexing leads to an
+        # AssertionError for some Series objects, but should be
+        # IndexError as described in
+        # https://github.com/pandas-dev/pandas/issues/35527
+        except (AssertionError, IndexError, TypeError):
             return np.atleast_1d(x)
 
 
@@ -1416,32 +1349,71 @@ def _reshape_2D(X, name):
     Use Fortran ordering to convert ndarrays and lists of iterables to lists of
     1D arrays.
 
-    Lists of iterables are converted by applying `np.asarray` to each of their
-    elements.  1D ndarrays are returned in a singleton list containing them.
-    2D ndarrays are converted to the list of their *columns*.
+    Lists of iterables are converted by applying `np.asanyarray` to each of
+    their elements.  1D ndarrays are returned in a singleton list containing
+    them.  2D ndarrays are converted to the list of their *columns*.
 
     *name* is used to generate the error message for invalid inputs.
     """
-    # Iterate over columns for ndarrays, over rows otherwise.
-    X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
+
+    # unpack if we have a values or to_numpy method.
+    try:
+        X = X.to_numpy()
+    except AttributeError:
+        try:
+            if isinstance(X.values, np.ndarray):
+                X = X.values
+        except AttributeError:
+            pass
+
+    # Iterate over columns for ndarrays.
+    if isinstance(X, np.ndarray):
+        X = X.T
+
+        if len(X) == 0:
+            return [[]]
+        elif X.ndim == 1 and np.ndim(X[0]) == 0:
+            # 1D array of scalars: directly return it.
+            return [X]
+        elif X.ndim in [1, 2]:
+            # 2D array, or 1D array of iterables: flatten them first.
+            return [np.reshape(x, -1) for x in X]
+        else:
+            raise ValueError(f'{name} must have 2 or fewer dimensions')
+
+    # Iterate over list of iterables.
     if len(X) == 0:
         return [[]]
-    elif X.ndim == 1 and np.ndim(X[0]) == 0:
+
+    result = []
+    is_1d = True
+    for xi in X:
+        # check if this is iterable, except for strings which we
+        # treat as singletons.
+        if (isinstance(xi, collections.abc.Iterable) and
+                not isinstance(xi, str)):
+            is_1d = False
+        xi = np.asanyarray(xi)
+        nd = np.ndim(xi)
+        if nd > 1:
+            raise ValueError(f'{name} must have 2 or fewer dimensions')
+        result.append(xi.reshape(-1))
+
+    if is_1d:
         # 1D array of scalars: directly return it.
-        return [X]
-    elif X.ndim in [1, 2]:
-        # 2D array, or 1D array of iterables: flatten them first.
-        return [np.reshape(x, -1) for x in X]
+        return [np.reshape(result, -1)]
     else:
-        raise ValueError("{} must have 2 or fewer dimensions".format(name))
+        # 2D array, or 1D array of iterables: use flattened version.
+        return result
 
 
 def violin_stats(X, method, points=100, quantiles=None):
     """
-    Returns a list of dictionaries of data which can be used to draw a series
+    Return a list of dictionaries of data which can be used to draw a series
     of violin plots.
 
-    See the Returns section below to view the required keys of the dictionary.
+    See the ``Returns`` section below to view the required keys of the
+    dictionary.
 
     Users can skip this function and pass a user-defined set of dictionaries
     with the same keys to `~.axes.Axes.violinplot` instead of using Matplotlib
@@ -1472,7 +1444,7 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     Returns
     -------
-    vpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column of data.
         The dictionaries contain at least the following:
 
@@ -1498,10 +1470,10 @@ def violin_stats(X, method, points=100, quantiles=None):
         quantiles = _reshape_2D(quantiles, "quantiles")
     # Else, mock quantiles if is none or empty
     else:
-        quantiles = [[]] * np.shape(X)[0]
+        quantiles = [[]] * len(X)
 
     # quantiles should has the same size as dataset
-    if np.shape(X)[:1] != np.shape(quantiles)[:1]:
+    if len(X) != len(quantiles):
         raise ValueError("List of violinplot statistics and quantiles values"
                          " must have the same length")
 
@@ -1551,7 +1523,7 @@ def pts_to_prestep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1589,7 +1561,7 @@ def pts_to_poststep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1626,7 +1598,7 @@ def pts_to_midstep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N``.
@@ -1666,7 +1638,7 @@ def index_of(y):
 
     Parameters
     ----------
-    y : scalar or array-like
+    y : float or array-like
 
     Returns
     -------
@@ -1676,8 +1648,15 @@ def index_of(y):
     try:
         return y.index.values, y.values
     except AttributeError:
+        pass
+    try:
         y = _check_1d(y)
+    except (np.VisibleDeprecationWarning, ValueError):
+        # NumPy 1.19 will warn on ragged input, and we can't actually use it.
+        pass
+    else:
         return np.arange(y.shape[0], dtype=float), y
+    raise ValueError('Input could not be cast to an at-least-1D NumPy array')
 
 
 def safe_first_element(obj):
@@ -1770,43 +1749,19 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
           or isinstance(alias_mapping, Artist)):
         alias_mapping = getattr(alias_mapping, "_alias_map", {})
 
-    # make a local so we can pop
-    kw = dict(kw)
-    # output dictionary
-    ret = dict()
+    to_canonical = {alias: canonical
+                    for canonical, alias_list in alias_mapping.items()
+                    for alias in alias_list}
+    canonical_to_seen = {}
+    ret = {}  # output dictionary
 
-    # hit all alias mappings
-    for canonical, alias_list in alias_mapping.items():
-
-        # the alias lists are ordered from lowest to highest priority
-        # so we know to use the last value in this list
-        tmp = []
-        seen = []
-        for a in alias_list:
-            try:
-                tmp.append(kw.pop(a))
-                seen.append(a)
-            except KeyError:
-                pass
-        # if canonical is not in the alias_list assume highest priority
-        if canonical not in alias_list:
-            try:
-                tmp.append(kw.pop(canonical))
-                seen.append(canonical)
-            except KeyError:
-                pass
-        # if we found anything in this set of aliases put it in the return
-        # dict
-        if tmp:
-            ret[canonical] = tmp[-1]
-            if len(tmp) > 1:
-                raise TypeError("Got the following keyword arguments which "
-                                "are aliases of one another: {}"
-                                .format(", ".join(map(repr, seen))))
-
-    # at this point we know that all keys which are aliased are removed, update
-    # the return dictionary from the cleaned local copy of the input
-    ret.update(kw)
+    for k, v in kw.items():
+        canonical = to_canonical.get(k, k)
+        if canonical in canonical_to_seen:
+            raise TypeError(f"Got both {canonical_to_seen[canonical]!r} and "
+                            f"{k!r}, which are aliases of one another")
+        canonical_to_seen[canonical] = k
+        ret[canonical] = v
 
     fail_keys = [k for k in required if k not in ret]
     if fail_keys:
@@ -1828,14 +1783,6 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                     keys=fail_keys, req=required, allow=allowed))
 
     return ret
-
-
-@deprecated("3.1")
-def get_label(y, default_name):
-    try:
-        return y.name
-    except AttributeError:
-        return default_name
 
 
 @contextlib.contextmanager
@@ -1880,7 +1827,8 @@ other Matplotlib process is running, remove this file and try again.""".format(
 def _topmost_artist(
         artists,
         _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
-    """Get the topmost artist of a list.
+    """
+    Get the topmost artist of a list.
 
     In case of a tie, return the *last* of the tied artists, as it will be
     drawn on top of the others. `max` returns the first maximum in case of
@@ -1890,7 +1838,8 @@ def _topmost_artist(
 
 
 def _str_equal(obj, s):
-    """Return whether *obj* is a string equal to string *s*.
+    """
+    Return whether *obj* is a string equal to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1900,7 +1849,8 @@ def _str_equal(obj, s):
 
 
 def _str_lower_equal(obj, s):
-    """Return whether *obj* is a string equal, when lowercased, to string *s*.
+    """
+    Return whether *obj* is a string equal, when lowercased, to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1910,7 +1860,8 @@ def _str_lower_equal(obj, s):
 
 
 def _define_aliases(alias_d, cls=None):
-    """Class decorator for defining property aliases.
+    """
+    Class decorator for defining property aliases.
 
     Use as ::
 
@@ -1965,16 +1916,16 @@ def _define_aliases(alias_d, cls=None):
 
 def _array_perimeter(arr):
     """
-    Get the elements on the perimeter of ``arr``,
+    Get the elements on the perimeter of *arr*.
 
     Parameters
     ----------
     arr : ndarray, shape (M, N)
-        The input array
+        The input array.
 
     Returns
     -------
-    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+    ndarray, shape (2*(M - 1) + 2*(N - 1),)
         The elements on the perimeter of the array::
 
            [arr[0, 0], ..., arr[0, -1], ..., arr[-1, -1], ..., arr[-1, 0], ...]
@@ -2002,18 +1953,143 @@ def _array_perimeter(arr):
     ))
 
 
+def _unfold(arr, axis, size, step):
+    """
+    Append an extra dimension containing sliding windows along *axis*.
+
+    All windows are of size *size* and begin with every *step* elements.
+
+    Parameters
+    ----------
+    arr : ndarray, shape (N_1, ..., N_k)
+        The input array
+    axis : int
+        Axis along which the windows are extracted
+    size : int
+        Size of the windows
+    step : int
+        Stride between first elements of subsequent windows.
+
+    Returns
+    -------
+    ndarray, shape (N_1, ..., 1 + (N_axis-size)/step, ..., N_k, size)
+
+    Examples
+    --------
+    >>> i, j = np.ogrid[:3,:7]
+    >>> a = i*10 + j
+    >>> a
+    array([[ 0,  1,  2,  3,  4,  5,  6],
+           [10, 11, 12, 13, 14, 15, 16],
+           [20, 21, 22, 23, 24, 25, 26]])
+    >>> _unfold(a, axis=1, size=3, step=2)
+    array([[[ 0,  1,  2],
+            [ 2,  3,  4],
+            [ 4,  5,  6]],
+           [[10, 11, 12],
+            [12, 13, 14],
+            [14, 15, 16]],
+           [[20, 21, 22],
+            [22, 23, 24],
+            [24, 25, 26]]])
+    """
+    new_shape = [*arr.shape, size]
+    new_strides = [*arr.strides, arr.strides[axis]]
+    new_shape[axis] = (new_shape[axis] - size) // step + 1
+    new_strides[axis] = new_strides[axis] * step
+    return np.lib.stride_tricks.as_strided(arr,
+                                           shape=new_shape,
+                                           strides=new_strides,
+                                           writeable=False)
+
+
+def _array_patch_perimeters(x, rstride, cstride):
+    """
+    Extract perimeters of patches from *arr*.
+
+    Extracted patches are of size (*rstride* + 1) x (*cstride* + 1) and
+    share perimeters with their neighbors. The ordering of the vertices matches
+    that returned by ``_array_perimeter``.
+
+    Parameters
+    ----------
+    x : ndarray, shape (N, M)
+        Input array
+    rstride : int
+        Vertical (row) stride between corresponding elements of each patch
+    cstride : int
+        Horizontal (column) stride between corresponding elements of each patch
+
+    Returns
+    -------
+    ndarray, shape (N/rstride * M/cstride, 2 * (rstride + cstride))
+    """
+    assert rstride > 0 and cstride > 0
+    assert (x.shape[0] - 1) % rstride == 0
+    assert (x.shape[1] - 1) % cstride == 0
+    # We build up each perimeter from four half-open intervals. Here is an
+    # illustrated explanation for rstride == cstride == 3
+    #
+    #       T T T R
+    #       L     R
+    #       L     R
+    #       L B B B
+    #
+    # where T means that this element will be in the top array, R for right,
+    # B for bottom and L for left. Each of the arrays below has a shape of:
+    #
+    #    (number of perimeters that can be extracted vertically,
+    #     number of perimeters that can be extracted horizontally,
+    #     cstride for top and bottom and rstride for left and right)
+    #
+    # Note that _unfold doesn't incur any memory copies, so the only costly
+    # operation here is the np.concatenate.
+    top = _unfold(x[:-1:rstride, :-1], 1, cstride, cstride)
+    bottom = _unfold(x[rstride::rstride, 1:], 1, cstride, cstride)[..., ::-1]
+    right = _unfold(x[:-1, cstride::cstride], 0, rstride, rstride)
+    left = _unfold(x[1:, :-1:cstride], 0, rstride, rstride)[..., ::-1]
+    return (np.concatenate((top, right, bottom, left), axis=2)
+              .reshape(-1, 2 * (rstride + cstride)))
+
+
 @contextlib.contextmanager
 def _setattr_cm(obj, **kwargs):
-    """Temporarily set some attributes; restore original state at context exit.
+    """
+    Temporarily set some attributes; restore original state at context exit.
     """
     sentinel = object()
-    origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
+    origs = {}
+    for attr in kwargs:
+        orig = getattr(obj, attr, sentinel)
+        if attr in obj.__dict__ or orig is sentinel:
+            # if we are pulling from the instance dict or the object
+            # does not have this attribute we can trust the above
+            origs[attr] = orig
+        else:
+            # if the attribute is not in the instance dict it must be
+            # from the class level
+            cls_orig = getattr(type(obj), attr)
+            # if we are dealing with a property (but not a general descriptor)
+            # we want to set the original value back.
+            if isinstance(cls_orig, property):
+                origs[attr] = orig
+            # otherwise this is _something_ we are going to shadow at
+            # the instance dict level from higher up in the MRO.  We
+            # are going to assume we can delattr(obj, attr) to clean
+            # up after ourselves.  It is possible that this code will
+            # fail if used with a non-property custom descriptor which
+            # implements __set__ (and __delete__ does not act like a
+            # stack).  However, this is an internal tool and we do not
+            # currently have any custom descriptors.
+            else:
+                origs[attr] = sentinel
+
     try:
         for attr, val in kwargs.items():
             setattr(obj, attr, val)
         yield
     finally:
-        for attr, orig in origs:
+        for attr, orig in origs.items():
             if orig is sentinel:
                 delattr(obj, attr)
             else:
@@ -2105,6 +2181,24 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
     return argb32
 
 
+def _get_nonzero_slices(buf):
+    """
+    Return the bounds of the nonzero region of a 2D array as a pair of slices.
+
+    ``buf[_get_nonzero_slices(buf)]`` is the smallest sub-rectangle in *buf*
+    that encloses all non-zero entries in *buf*.  If *buf* is fully zero, then
+    ``(slice(0, 0), slice(0, 0))`` is returned.
+    """
+    x_nz, = buf.any(axis=0).nonzero()
+    y_nz, = buf.any(axis=1).nonzero()
+    if len(x_nz) and len(y_nz):
+        l, r = x_nz[[0, -1]]
+        b, t = y_nz[[0, -1]]
+        return slice(b, t + 1), slice(l, r + 1)
+    else:
+        return slice(0, 0), slice(0, 0)
+
+
 def _pformat_subprocess(command):
     """Pretty-format a subprocess command for printing/logging purposes."""
     return (command if isinstance(command, str)
@@ -2125,15 +2219,23 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     proc = subprocess.run(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
     if proc.returncode:
+        stdout = proc.stdout
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode()
+        stderr = proc.stderr
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode()
         raise RuntimeError(
             f"The command\n"
             f"    {_pformat_subprocess(command)}\n"
             f"failed and generated the following output:\n"
-            f"{proc.stdout.decode('utf-8')}\n"
+            f"{stdout}\n"
             f"and the following error:\n"
-            f"{proc.stderr.decode('utf-8')}")
-    logger.debug("stdout:\n%s", proc.stdout)
-    logger.debug("stderr:\n%s", proc.stderr)
+            f"{stderr}")
+    if proc.stdout:
+        logger.debug("stdout:\n%s", proc.stdout)
+    if proc.stderr:
+        logger.debug("stderr:\n%s", proc.stderr)
     return proc.stdout
 
 
@@ -2177,21 +2279,77 @@ def _check_isinstance(_types, **kwargs):
                     type_name(type(v))))
 
 
-def _check_in_list(_values, **kwargs):
+def _check_in_list(_values, *, _print_supported_values=True, **kwargs):
     """
-    For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
-    if not, raise an appropriate ValueError.
+    For each *key, value* pair in *kwargs*, check that *value* is in *_values*.
+
+    Parameters
+    ----------
+    _values : iterable
+        Sequence of values to check on.
+    _print_supported_values : bool, default: True
+        Whether to print *_values* when raising ValueError.
+    **kwargs : dict
+        *key, value* pairs as keyword arguments to find in *_values*.
+
+    Raises
+    ------
+    ValueError
+        If any *value* in *kwargs* is not found in *_values*.
 
     Examples
     --------
     >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
     """
     values = _values
+    for key, val in kwargs.items():
+        if val not in values:
+            if _print_supported_values:
+                raise ValueError(
+                    f"{val!r} is not a valid value for {key}; "
+                    f"supported values are {', '.join(map(repr, values))}")
+            else:
+                raise ValueError(
+                    f"{val!r} is not a valid value for {key}")
+
+
+def _check_shape(_shape, **kwargs):
+    """
+    For each *key, value* pair in *kwargs*, check that *value* has the shape
+    *_shape*, if not, raise an appropriate ValueError.
+
+    *None* in the shape is treated as a "free" size that can have any length.
+    e.g. (None, 2) -> (N, 2)
+
+    The values checked must be numpy arrays.
+
+    Examples
+    --------
+    To check for (N, 2) shaped arrays
+
+    >>> cbook._check_in_list((None, 2), arg=arg, other_arg=other_arg)
+    """
+    target_shape = _shape
     for k, v in kwargs.items():
-        if v not in values:
+        data_shape = v.shape
+
+        if len(target_shape) != len(data_shape) or any(
+                t not in [s, None]
+                for t, s in zip(target_shape, data_shape)
+        ):
+            dim_labels = iter(itertools.chain(
+                'MNLIJKLH',
+                (f"D{i}" for i in itertools.count())))
+            text_shape = ", ".join((str(n)
+                                    if n is not None
+                                    else next(dim_labels)
+                                    for n in target_shape))
+
             raise ValueError(
-                "{!r} is not a valid value for {}; supported values are {}"
-                .format(v, k, ', '.join(map(repr, values))))
+                f"{k!r} must be {len(target_shape)}D "
+                f"with shape ({text_shape}). "
+                f"Your input has shape {v.shape}."
+            )
 
 
 def _check_getitem(_mapping, **kwargs):
@@ -2247,3 +2405,25 @@ def _backend_module_name(name):
     """
     return (name[9:] if name.startswith("module://")
             else "matplotlib.backends.backend_{}".format(name.lower()))
+
+
+def _setup_new_guiapp():
+    """
+    Perform OS-dependent setup when Matplotlib creates a new GUI application.
+    """
+    # Windows: If not explicit app user model id has been set yet (so we're not
+    # already embedded), then set it to "matplotlib", so that taskbar icons are
+    # correct.
+    try:
+        _c_internal_utils.Win32_GetCurrentProcessExplicitAppUserModelID()
+    except OSError:
+        _c_internal_utils.Win32_SetCurrentProcessExplicitAppUserModelID(
+            "matplotlib")
+
+
+def _format_approx(number, precision):
+    """
+    Format the number with at most the number of decimals given as precision.
+    Remove trailing zeros and possibly the decimal point.
+    """
+    return f'{number:.{precision}f}'.rstrip('0').rstrip('.') or '0'

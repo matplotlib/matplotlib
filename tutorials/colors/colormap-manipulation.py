@@ -37,7 +37,6 @@ from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 viridis = cm.get_cmap('viridis', 8)
-print(viridis)
 
 ##############################################################################
 # The object ``viridis`` is a callable, that when passed a float between
@@ -74,7 +73,6 @@ print('viridis(np.linspace(0, 1, 12))', viridis(np.linspace(0, 1, 12)))
 # float array between 0 and 1.
 
 copper = cm.get_cmap('copper', 8)
-print(copper)
 
 print('copper(range(8))', copper(range(8)))
 print('copper(np.linspace(0, 1, 8))', copper(np.linspace(0, 1, 8)))
@@ -138,8 +136,8 @@ plot_examples([viridis, newcmp])
 # middle 0.5 of the colormap.  However, we need to interpolate from a larger
 # colormap, otherwise the new colormap will have repeated values.
 
-viridisBig = cm.get_cmap('viridis', 512)
-newcmp = ListedColormap(viridisBig(np.linspace(0.25, 0.75, 256)))
+viridis_big = cm.get_cmap('viridis', 512)
+newcmp = ListedColormap(viridis_big(np.linspace(0.25, 0.75, 256)))
 plot_examples([viridis, newcmp])
 
 ##############################################################################
@@ -236,7 +234,7 @@ plot_linearmap(cdict)
 # Directly creating a segmented colormap from a list
 # --------------------------------------------------
 #
-# The above described is a very versatile approach, but admitedly a bit
+# The above described is a very versatile approach, but admittedly a bit
 # cumbersome to implement. For some basic cases, the use of
 # `.LinearSegmentedColormap.from_list` may be easier. This creates a segmented
 # colormap with equal spacings from a supplied list of colors.

@@ -22,7 +22,7 @@ def test_non_affine_caching():
         is_affine = False
 
         def __init__(self, *args, **kwargs):
-            mtransforms.Transform.__init__(self, *args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.raise_on_transform = False
             self.underlying_transform = mtransforms.Affine2D().scale(10, 10)
 
@@ -73,6 +73,10 @@ def test_pre_transform_plotting():
     # a catch-all for as many as possible plot layouts which handle
     # pre-transforming the data NOTE: The axis range is important in this
     # plot. It should be x10 what the data suggests it should be
+
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     ax = plt.axes()
     times10 = mtransforms.Affine2D().scale(10)
 
@@ -189,11 +193,8 @@ def test_affine_inverted_invalidated():
 
 def test_clipping_of_log():
     # issue 804
-    M, L, C = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
-    points = [(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)]
-    codes = [M, L, L, L, C]
-    path = Path(points, codes)
-
+    path = Path([(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)],
+                closed=True)
     # something like this happens in plotting logarithmic histograms
     trans = mtransforms.BlendedGenericTransform(
         mtransforms.Affine2D(), scale.LogTransform(10, 'clip'))
@@ -201,9 +202,8 @@ def test_clipping_of_log():
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
                                  simplify=False)
-
     tpoints, tcodes = zip(*result)
-    assert_allclose(tcodes, [M, L, L, L, C])
+    assert_allclose(tcodes, path.codes)
 
 
 class NonAffineForTest(mtransforms.Transform):
@@ -219,7 +219,7 @@ class NonAffineForTest(mtransforms.Transform):
 
     def __init__(self, real_trans, *args, **kwargs):
         self.real_trans = real_trans
-        mtransforms.Transform.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def transform_non_affine(self, values):
         return self.real_trans.transform(values)
@@ -627,8 +627,7 @@ def test_invalid_arguments():
 
 def test_transformed_path():
     points = [(0, 0), (1, 0), (1, 1), (0, 1)]
-    codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
-    path = Path(points, codes)
+    path = Path(points, closed=True)
 
     trans = mtransforms.Affine2D()
     trans_path = mtransforms.TransformedPath(path, trans)

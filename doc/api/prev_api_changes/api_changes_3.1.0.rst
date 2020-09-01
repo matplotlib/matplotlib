@@ -494,7 +494,7 @@ Classes and methods
   ``backend_bases.FigureManagerBase.show_popup`` (this never did anything)
 - ``backend_wx.SubplotToolWx`` (no replacement)
 - ``backend_wx.Toolbar`` (use ``backend_wx.NavigationToolbar2Wx`` instead)
-- ``cbook.align_iterators`` (no replacment)
+- ``cbook.align_iterators`` (no replacement)
 - ``contour.ContourLabeler.get_real_label_width`` (no replacement)
 - ``legend.Legend.draggable`` (use `legend.Legend.set_draggable()` instead)
 - ``texmanager.TexManager.postscriptd``, ``texmanager.TexManager.pscnt``,
@@ -531,7 +531,11 @@ The following miscellaneous API elements have been removed
 
     import logging
     logger = logging.getLogger('matplotlib')
-    logger.set_level(logging.INFO)
+    logger.setLevel(logging.INFO)
+    # configure log handling: Either include it into your ``logging`` hierarchy,
+    # e.g. by configuring a root looger using ``logging.basicConfig()``,
+    # or add a standalone handler to the matplotlib logger:
+    logger.addHandler(logging.StreamHandler())
 
 - ``__version__numpy__``
 - ``collections.CIRCLE_AREA_FACTOR``
@@ -849,8 +853,8 @@ Use the standard library's docstring manipulation tools instead, such as
 
 
 
-- `matplotlib.scale.get_scale_docs()`
-- `matplotlib.pyplot.get_scale_docs()`
+- ``matplotlib.scale.get_scale_docs()``
+- ``matplotlib.pyplot.get_scale_docs()``
 
 These are considered internal and will be removed from the public API in a
 future version.
@@ -860,11 +864,11 @@ future version.
 - ``backend_ps.PsBackendHelper``
 - ``backend_ps.ps_backend_helper``,
 
-- `.cbook.iterable`
-- `.cbook.get_label`
-- `.cbook.safezip`
+- ``cbook.iterable``
+- ``cbook.get_label``
+- ``cbook.safezip``
   Manually check the lengths of the inputs instead, or rely on NumPy to do it.
-- `.cbook.is_hashable`
+- ``cbook.is_hashable``
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
 - The ``.backend_bases.RendererBase.strip_math``.  Use
@@ -905,7 +909,8 @@ Font Handling
 - ``backend_pdf.RendererPdf.afm_font_cache``
 - ``backend_ps.RendererPS.afmfontd``
 - ``font_manager.OSXInstalledFonts``
-- `.TextToPath.glyph_to_path` (Instead call ``font.get_path()`` and manually transform the path.)
+- ``.TextToPath.glyph_to_path`` (Instead call ``font.get_path()`` and manually
+  transform the path.)
 
 
 Date related functions
@@ -1011,7 +1016,7 @@ Path tools
 
 Use `~.path.get_path_collection_extents` instead.
 
-- `.Path.has_nonfinite` attribute
+- ``.Path.has_nonfinite`` attribute
 
 Use ``not np.isfinite(path.vertices).all()`` instead.
 

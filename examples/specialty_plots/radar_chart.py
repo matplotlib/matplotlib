@@ -26,7 +26,8 @@ from matplotlib.transforms import Affine2D
 
 
 def radar_factory(num_vars, frame='circle'):
-    """Create a radar chart with `num_vars` axes.
+    """
+    Create a radar chart with `num_vars` axes.
 
     This function creates a RadarAxes projection and registers it.
 
@@ -66,8 +67,8 @@ def radar_factory(num_vars, frame='circle'):
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
-                x = np.concatenate((x, [x[0]]))
-                y = np.concatenate((y, [y[0]]))
+                x = np.append(x, x[0])
+                y = np.append(y, y[0])
                 line.set_data(x, y)
 
         def set_varlabels(self, labels):

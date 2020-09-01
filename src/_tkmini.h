@@ -67,7 +67,7 @@ extern "C" {
 #endif
 
 /*
- * Users of versions of Tcl >= 8.6 encouraged to tread Tcl_Interp as an opaque
+ * Users of versions of Tcl >= 8.6 encouraged to treat Tcl_Interp as an opaque
  * pointer.  The following definition results when TCL_NO_DEPRECATED defined.
  */
 typedef struct Tcl_Interp Tcl_Interp;

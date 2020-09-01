@@ -13,9 +13,9 @@ The actual positioning depends on the additional parameters
 ``horizontalalignment``, ``verticalalignment`` and ``rotation_mode``.
 ``rotation_mode`` determines the order of rotation and alignment:
 
-- ``roation_mode='default'`` (or None) first rotates the text and then aligns
+- ``rotation_mode='default'`` (or None) first rotates the text and then aligns
   the bounding box of the rotated text.
-- ``roation_mode='anchor'`` aligns the unrotated text and then rotates the
+- ``rotation_mode='anchor'`` aligns the unrotated text and then rotates the
   text around the point of alignment.
 
 """
@@ -64,7 +64,7 @@ def test_rotation_mode(fig, mode, subplot_location):
         # highlight bbox
         fig.canvas.draw()
         for ax, tx in zip(grid, texts):
-            bb = tx.get_window_extent().inverse_transformed(ax.transData)
+            bb = tx.get_window_extent().transformed(ax.transData.inverted())
             rect = plt.Rectangle((bb.x0, bb.y0), bb.width, bb.height,
                                  facecolor="C1", alpha=0.3, zorder=2)
             ax.add_patch(rect)

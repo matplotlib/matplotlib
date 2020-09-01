@@ -100,10 +100,7 @@ def test_clipping():
     exterior.vertices -= 2
     interior = mpath.Path.unit_circle().deepcopy()
     interior.vertices = interior.vertices[::-1]
-    clip_path = mpath.Path(vertices=np.concatenate([exterior.vertices,
-                                                    interior.vertices]),
-                           codes=np.concatenate([exterior.codes,
-                                                 interior.codes]))
+    clip_path = mpath.Path.make_compound_path(exterior, interior)
 
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6

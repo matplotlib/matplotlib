@@ -1,2 +1,0 @@
-Home/Forward/Backward buttons now work with 3D axes
----------------------------------------------------

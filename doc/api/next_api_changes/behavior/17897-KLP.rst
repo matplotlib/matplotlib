@@ -1,0 +1,11 @@
+pyplot.specgram always uses origin='upper'
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously if ``image.origin`` was set to something other than 'upper' or if the 
+``origin`` keyword argument was passed with a value other than 'upper', the spectrogram 
+itself would flip, but the axes would remain oriented for an origin value of 'upper', so 
+that the resulting plot was incorrectly labelled.
+
+Now, the ``origin`` keyword argument is not supported and the ``image.origin`` rcParam is 
+ignored. The function matplotlib.pyplot.specgram is forced to use ``origin='upper'``, so 
+that the axes are correct for the plotted spectrogram.

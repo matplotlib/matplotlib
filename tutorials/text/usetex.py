@@ -45,7 +45,7 @@ Computer Modern math fonts. See the PSNFSS_ documentation for more details.
 To use LaTeX and select Helvetica as the default font, without editing
 matplotlibrc use::
 
-  import matplotlib as mpl
+  import matplotlib.pyplot as plt
   plt.rcParams.update({
       "text.usetex": True,
       "font.family": "sans-serif",

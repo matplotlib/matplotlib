@@ -15,6 +15,7 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
   normalization.
 """
 
+from collections.abc import MutableMapping
 import functools
 
 import numpy as np
@@ -49,7 +50,7 @@ def revcmap(data):
 LUTSIZE = mpl.rcParams['image.lut']
 
 
-def _gen_cmap_d():
+def _gen_cmap_registry():
     """
     Generate a dict mapping standard colormap names to standard colormaps, as
     well as the reversed colormaps.
@@ -65,12 +66,56 @@ def _gen_cmap_d():
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
+        cmap._global = True
+        rmap._global = True
         cmap_d[rmap.name] = rmap
     return cmap_d
 
 
-cmap_d = _gen_cmap_d()
-locals().update(cmap_d)
+class _DeprecatedCmapDictWrapper(MutableMapping):
+    """Dictionary mapping for deprecated _cmap_d access."""
+
+    def __init__(self, cmap_registry):
+        self._cmap_registry = cmap_registry
+
+    def __delitem__(self, key):
+        self._warn_deprecated()
+        self._cmap_registry.__delitem__(key)
+
+    def __getitem__(self, key):
+        self._warn_deprecated()
+        return self._cmap_registry.__getitem__(key)
+
+    def __iter__(self):
+        self._warn_deprecated()
+        return self._cmap_registry.__iter__()
+
+    def __len__(self):
+        self._warn_deprecated()
+        return self._cmap_registry.__len__()
+
+    def __setitem__(self, key, val):
+        self._warn_deprecated()
+        self._cmap_registry.__setitem__(key, val)
+
+    def get(self, key, default=None):
+        self._warn_deprecated()
+        return self._cmap_registry.get(key, default)
+
+    def _warn_deprecated(self):
+        cbook.warn_deprecated(
+            "3.3",
+            message="The global colormaps dictionary is no longer "
+                    "considered public API.",
+            alternative="Please use register_cmap() and get_cmap() to "
+                        "access the contents of the dictionary."
+        )
+
+
+_cmap_registry = _gen_cmap_registry()
+locals().update(_cmap_registry)
+# This is no longer considered public API
+cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
 
 
 # Continue with definitions ...
@@ -95,28 +140,38 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     and the resulting colormap is registered. Instead of this implicit
     colormap creation, create a `.LinearSegmentedColormap` and use the first
     case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
+
+    Notes
+    -----
+    Registering a colormap stores a reference to the colormap object
+    which can currently be modified and inadvertantly change the global
+    colormap state. This behavior is deprecated and in Matplotlib 3.5
+    the registered colormap will be immutable.
     """
     cbook._check_isinstance((str, None), name=name)
     if name is None:
         try:
             name = cmap.name
-        except AttributeError:
-            raise ValueError("Arguments must include a name or a Colormap")
+        except AttributeError as err:
+            raise ValueError("Arguments must include a name or a "
+                             "Colormap") from err
     if isinstance(cmap, colors.Colormap):
-        cmap_d[name] = cmap
+        cmap._global = True
+        _cmap_registry[name] = cmap
         return
     if lut is not None or data is not None:
         cbook.warn_deprecated(
             "3.3",
             message="Passing raw data via parameters data and lut to "
-                    "register_cmap() is deprecated. Instead use: "
-                    "register_cmap("
+                    "register_cmap() is deprecated since %(since)s and will "
+                    "become an error %(removal)s. Instead use: register_cmap("
                     "cmap=LinearSegmentedColormap(name, data, lut))")
     # For the remainder, let exceptions propagate.
     if lut is None:
         lut = mpl.rcParams['image.lut']
     cmap = colors.LinearSegmentedColormap(name, data, lut)
-    cmap_d[name] = cmap
+    cmap._global = True
+    _cmap_registry[name] = cmap
 
 
 def get_cmap(name=None, lut=None):
@@ -126,11 +181,17 @@ def get_cmap(name=None, lut=None):
     Colormaps added with :func:`register_cmap` take precedence over
     built-in colormaps.
 
+    Notes
+    -----
+    Currently, this returns the global colormap object, which is deprecated.
+    In Matplotlib 3.5, you will no longer be able to modify the global
+    colormaps in-place.
+
     Parameters
     ----------
     name : `matplotlib.colors.Colormap` or str or None, default: None
-        If a `.Colormap` instance, it will be returned.  Otherwise, the name of
-        a colormap known to Matplotlib, which will be resampled by *lut*.  The
+        If a `.Colormap` instance, it will be returned. Otherwise, the name of
+        a colormap known to Matplotlib, which will be resampled by *lut*. The
         default, None, means :rc:`image.cmap`.
     lut : int or None, default: None
         If *name* is not already a Colormap instance and *lut* is not None, the
@@ -140,20 +201,21 @@ def get_cmap(name=None, lut=None):
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
         return name
-    cbook._check_in_list(sorted(cmap_d), name=name)
+    cbook._check_in_list(sorted(_cmap_registry), name=name)
     if lut is None:
-        return cmap_d[name]
+        return _cmap_registry[name]
     else:
-        return cmap_d[name]._resample(lut)
+        return _cmap_registry[name]._resample(lut)
 
 
 class ScalarMappable:
     """
-    This is a mixin class to support scalar data to RGBA mapping.
-    The ScalarMappable makes use of data normalization before returning
-    RGBA colors from the given colormap.
+    A mixin class to map scalar data to RGBA.
 
+    The ScalarMappable applies data normalization before returning RGBA colors
+    from the given colormap.
     """
+
     def __init__(self, norm=None, cmap=None):
         """
 
@@ -175,7 +237,7 @@ class ScalarMappable:
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.callbacksSM = cbook.CallbackRegistry()
-        self.update_dict = {'array': False}
+        self._update_dict = {'array': False}
 
     def _scale_norm(self, norm, vmin, vmax):
         """
@@ -193,10 +255,13 @@ class ScalarMappable:
                 cbook.warn_deprecated(
                     "3.3",
                     message="Passing parameters norm and vmin/vmax "
-                            "simultaneously is deprecated. Please pass "
+                            "simultaneously is deprecated since %(since)s and "
+                            "will become an error %(removal)s. Please pass "
                             "vmin/vmax directly to the norm when creating it.")
-        else:
-            self.autoscale_None()
+
+        # always resolve the autoscaling so we have concrete limits
+        # rather than deferring to draw time.
+        self.autoscale_None()
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
@@ -269,14 +334,15 @@ class ScalarMappable:
         return rgba
 
     def set_array(self, A):
-        """Set the image array from numpy array *A*.
+        """
+        Set the image array from numpy array *A*.
 
         Parameters
         ----------
         A : ndarray
         """
         self._A = A
-        self.update_dict['array'] = True
+        self._update_dict['array'] = True
 
     def get_array(self):
         """Return the data array."""
@@ -321,7 +387,7 @@ class ScalarMappable:
         """
         Returns
         -------
-        alpha : float
+        float
             Always returns 1.
         """
         # This method is intended to be overridden by Artist sub-classes
@@ -383,30 +449,36 @@ class ScalarMappable:
         self.norm.autoscale_None(self._A)
         self.changed()
 
-    def add_checker(self, checker):
+    def _add_checker(self, checker):
         """
         Add an entry to a dictionary of boolean flags
         that are set to True when the mappable is changed.
         """
-        self.update_dict[checker] = False
+        self._update_dict[checker] = False
 
-    def check_update(self, checker):
-        """
-        If mappable has changed since the last check,
-        return True; else return False
-        """
-        if self.update_dict[checker]:
-            self.update_dict[checker] = False
+    def _check_update(self, checker):
+        """Return whether mappable has changed since the last check."""
+        if self._update_dict[checker]:
+            self._update_dict[checker] = False
             return True
         return False
 
     def changed(self):
         """
         Call this whenever the mappable is changed to notify all the
-        callbackSM listeners to the 'changed' signal
+        callbackSM listeners to the 'changed' signal.
         """
         self.callbacksSM.process('changed', self)
-
-        for key in self.update_dict:
-            self.update_dict[key] = True
+        for key in self._update_dict:
+            self._update_dict[key] = True
         self.stale = True
+
+    update_dict = cbook._deprecate_privatize_attribute("3.3")
+
+    @cbook.deprecated("3.3")
+    def add_checker(self, checker):
+        return self._add_checker(checker)
+
+    @cbook.deprecated("3.3")
+    def check_update(self, checker):
+        return self._check_update(checker)

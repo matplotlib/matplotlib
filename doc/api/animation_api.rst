@@ -55,7 +55,7 @@ performance), to be non-blocking, not repeatedly start/stop the GUI
 event loop, handle repeats, multiple animated axes, and easily save
 the animation to a movie file.
 
-'Blitting' is a `old technique
+'Blitting' is a `standard technique
 <https://en.wikipedia.org/wiki/Bit_blit>`__ in computer graphics.  The
 general gist is to take an existing bit map (in our case a mostly
 rasterized figure) and then 'blit' one more artist on top.  Thus, by
@@ -135,7 +135,7 @@ Examples
 
    ../gallery/animation/animate_decay
    ../gallery/animation/bayes_update
-   ../gallery/animation/double_pendulum_sgskip
+   ../gallery/animation/double_pendulum
    ../gallery/animation/animated_histogram
    ../gallery/animation/rain
    ../gallery/animation/random_walk
@@ -212,9 +212,9 @@ at a time and ``finish()`` finalizes the movie and writes the output
 file to disk.  For example ::
 
    moviewriter = MovieWriter(...)
-   moviewriter.setup(fig=fig, 'my_movie.ext', dpi=100)
+   moviewriter.setup(fig, 'my_movie.ext', dpi=100)
    for j in range(n):
-       update_figure(n)
+       update_figure(j)
        moviewriter.grab_frame()
    moviewriter.finish()
 
@@ -223,7 +223,7 @@ strongly encouraged to use the `~MovieWriter.saving` context manager ::
 
   with moviewriter.saving(fig, 'myfile.mp4', dpi=100):
       for j in range(n):
-          update_figure(n)
+          update_figure(j)
           moviewriter.grab_frame()
 
 to ensures that setup and cleanup are performed as necessary.

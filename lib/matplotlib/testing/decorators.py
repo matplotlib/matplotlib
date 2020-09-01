@@ -5,11 +5,11 @@ import inspect
 import os
 from pathlib import Path
 import shutil
+import string
 import sys
 import unittest
 import warnings
 
-import matplotlib as mpl
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
@@ -17,7 +17,7 @@ from matplotlib import cbook
 from matplotlib import ft2font
 from matplotlib import pyplot as plt
 from matplotlib import ticker
-from . import is_called_from_pytest
+
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -129,11 +129,11 @@ def _raise_on_image_difference(expected, actual, tol):
 
     err = compare_images(expected, actual, tol, in_decorator=True)
     if err:
-        for key in ["actual", "expected"]:
+        for key in ["actual", "expected", "diff"]:
             err[key] = os.path.relpath(err[key])
         raise ImageComparisonFailure(
-            'images not close (RMS %(rms).3f):\n\t%(actual)s\n\t%(expected)s '
-             % err)
+            ('images not close (RMS %(rms).3f):'
+                '\n\t%(actual)s\n\t%(expected)s\n\t%(diff)s') % err)
 
 
 def _skip_if_format_is_uncomparable(extension):
@@ -192,13 +192,14 @@ class _ImageComparisonBase:
                 os.symlink(orig_expected_path, expected_fname)
             except OSError:  # On Windows, symlink *may* be unavailable.
                 shutil.copyfile(orig_expected_path, expected_fname)
-        except OSError:
+        except OSError as err:
             raise ImageComparisonFailure(
                 f"Missing baseline image {expected_fname} because the "
-                f"following file cannot be accessed: {orig_expected_path}")
+                f"following file cannot be accessed: "
+                f"{orig_expected_path}") from err
         return expected_fname
 
-    def compare(self, idx, baseline, extension):
+    def compare(self, idx, baseline, extension, *, _lock=False):
         __tracebackhide__ = True
         fignum = plt.get_fignums()[idx]
         fig = plt.figure(fignum)
@@ -212,10 +213,13 @@ class _ImageComparisonBase:
             kwargs.setdefault('metadata',
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
-        fig.savefig(actual_path, **kwargs)
 
-        expected_path = self.copy_baseline(baseline, extension)
-        _raise_on_image_difference(expected_path, actual_path, self.tol)
+        lock = (cbook._lock_path(actual_path)
+                if _lock else contextlib.nullcontext())
+        with lock:
+            fig.savefig(actual_path, **kwargs)
+            expected_path = self.copy_baseline(baseline, extension)
+            _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -225,43 +229,66 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     Decorate function with image comparison for pytest.
 
     This function creates a decorator that wraps a figure-generating function
-    with image comparison code. Pytest can become confused if we change the
-    signature of the function, so we indirectly pass anything we need via the
-    `mpl_image_comparison_parameters` fixture and extra markers.
+    with image comparison code.
     """
     import pytest
 
     extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
+    KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
 
     def decorator(func):
+        old_sig = inspect.signature(func)
+
         @functools.wraps(func)
-        # Parameter indirection; see docstring above and comment below.
-        @pytest.mark.usefixtures('mpl_image_comparison_parameters')
         @pytest.mark.parametrize('extension', extensions)
-        @pytest.mark.baseline_images(baseline_images)
-        # END Parameter indirection.
         @pytest.mark.style(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, extension, request, **kwargs):
             __tracebackhide__ = True
+            if 'extension' in old_sig.parameters:
+                kwargs['extension'] = extension
+            if 'request' in old_sig.parameters:
+                kwargs['request'] = request
+
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
             matplotlib.testing.set_font_settings_for_testing()
             func(*args, **kwargs)
 
-            # Parameter indirection:
-            # This is hacked on via the mpl_image_comparison_parameters fixture
-            # so that we don't need to modify the function's real signature for
-            # any parametrization. Modifying the signature is very very tricky
-            # and likely to confuse pytest.
-            baseline_images, extension = func.parameters
+            # If the test is parametrized in any way other than applied via
+            # this decorator, then we need to use a lock to prevent two
+            # processes from touching the same output file.
+            needs_lock = any(
+                marker.args[0] != 'extension'
+                for marker in request.node.iter_markers('parametrize'))
 
-            assert len(plt.get_fignums()) == len(baseline_images), (
+            if baseline_images is not None:
+                our_baseline_images = baseline_images
+            else:
+                # Allow baseline image list to be produced on the fly based on
+                # current parametrization.
+                our_baseline_images = request.getfixturevalue(
+                    'baseline_images')
+
+            assert len(plt.get_fignums()) == len(our_baseline_images), (
                 "Test generated {} images but there are {} baseline images"
-                .format(len(plt.get_fignums()), len(baseline_images)))
-            for idx, baseline in enumerate(baseline_images):
-                img.compare(idx, baseline, extension)
+                .format(len(plt.get_fignums()), len(our_baseline_images)))
+            for idx, baseline in enumerate(our_baseline_images):
+                img.compare(idx, baseline, extension, _lock=needs_lock)
+
+        parameters = list(old_sig.parameters.values())
+        if 'extension' not in old_sig.parameters:
+            parameters += [inspect.Parameter('extension', KEYWORD_ONLY)]
+        if 'request' not in old_sig.parameters:
+            parameters += [inspect.Parameter("request", KEYWORD_ONLY)]
+        new_sig = old_sig.replace(parameters=parameters)
+        wrapper.__signature__ = new_sig
+
+        # Reach a bit into pytest internals to hoist the marks from our wrapped
+        # function.
+        new_marks = getattr(func, 'pytestmark', []) + wrapper.pytestmark
+        wrapper.pytestmark = new_marks
 
         return wrapper
 
@@ -305,6 +332,9 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     tol : float, default: 0
         The RMS threshold above which the test is considered failed.
 
+        Due to expected small differences in floating-point calculations, on
+        32-bit systems an additional 0.06 is added to this threshold.
+
     freetype_version : str or tuple
         The expected freetype version or range of versions for this test to
         pass.
@@ -347,6 +377,8 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         extensions = ['png', 'pdf', 'svg']
     if savefig_kwarg is None:
         savefig_kwarg = dict()  # default no kwargs to savefig
+    if sys.maxsize <= 2**32:
+        tol += 0.06
     return _pytest_image_comparison(
         baseline_images=baseline_images, extensions=extensions, tol=tol,
         freetype_version=freetype_version, remove_text=remove_text,
@@ -357,9 +389,9 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     """
     Decorator for test cases that generate and compare two figures.
 
-    The decorated function must take two arguments, *fig_test* and *fig_ref*,
-    and draw the test and reference images on them.  After the function
-    returns, the figures are saved and compared.
+    The decorated function must take two keyword arguments, *fig_test*
+    and *fig_ref*, and draw the test and reference images on them.
+    After the function returns, the figures are saved and compared.
 
     This decorator should be preferred over `image_comparison` when possible in
     order to keep the size of the test suite from ballooning.
@@ -380,23 +412,36 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
         def test_plot(fig_test, fig_ref):
             fig_test.subplots().plot([1, 3, 5])
             fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
+
     """
-    POSITIONAL_OR_KEYWORD = inspect.Parameter.POSITIONAL_OR_KEYWORD
+    ALLOWED_CHARS = set(string.digits + string.ascii_letters + '_-[]()')
+    KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
     def decorator(func):
         import pytest
 
         _, result_dir = _image_directories(func)
+        old_sig = inspect.signature(func)
+
+        if not {"fig_test", "fig_ref"}.issubset(old_sig.parameters):
+            raise ValueError("The decorated function must have at least the "
+                             "parameters 'fig_ref' and 'fig_test', but your "
+                             f"function has the signature {old_sig}")
 
         @pytest.mark.parametrize("ext", extensions)
-        def wrapper(*args, ext, **kwargs):
+        def wrapper(*args, ext, request, **kwargs):
+            if 'ext' in old_sig.parameters:
+                kwargs['ext'] = ext
+            if 'request' in old_sig.parameters:
+                kwargs['request'] = request
+
+            file_name = "".join(c for c in request.node.name
+                                if c in ALLOWED_CHARS)
             try:
                 fig_test = plt.figure("test")
                 fig_ref = plt.figure("reference")
                 func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
-                test_image_path = result_dir / (func.__name__ + "." + ext)
-                ref_image_path = result_dir / (
-                    func.__name__ + "-expected." + ext
-                )
+                test_image_path = result_dir / (file_name + "." + ext)
+                ref_image_path = result_dir / (file_name + "-expected." + ext)
                 fig_test.savefig(test_image_path)
                 fig_ref.savefig(ref_image_path)
                 _raise_on_image_difference(
@@ -406,13 +451,16 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
                 plt.close(fig_test)
                 plt.close(fig_ref)
 
-        sig = inspect.signature(func)
-        new_sig = sig.replace(
-            parameters=([param
-                         for param in sig.parameters.values()
-                         if param.name not in {"fig_test", "fig_ref"}]
-                        + [inspect.Parameter("ext", POSITIONAL_OR_KEYWORD)])
-        )
+        parameters = [
+            param
+            for param in old_sig.parameters.values()
+            if param.name not in {"fig_test", "fig_ref"}
+        ]
+        if 'ext' not in old_sig.parameters:
+            parameters += [inspect.Parameter("ext", KEYWORD_ONLY)]
+        if 'request' not in old_sig.parameters:
+            parameters += [inspect.Parameter("request", KEYWORD_ONLY)]
+        new_sig = old_sig.replace(parameters=parameters)
         wrapper.__signature__ = new_sig
 
         # reach a bit into pytest internals to hoist the marks from
@@ -439,23 +487,3 @@ def _image_directories(func):
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
     return baseline_dir, result_dir
-
-
-@cbook.deprecated("3.1", alternative="pytest.mark.backend")
-def switch_backend(backend):
-
-    def switch_backend_decorator(func):
-
-        @functools.wraps(func)
-        def backend_switcher(*args, **kwargs):
-            try:
-                prev_backend = mpl.get_backend()
-                matplotlib.testing.setup()
-                plt.switch_backend(backend)
-                return func(*args, **kwargs)
-            finally:
-                plt.switch_backend(prev_backend)
-
-        return backend_switcher
-
-    return switch_backend_decorator

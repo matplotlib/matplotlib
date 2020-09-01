@@ -125,7 +125,7 @@ original location:
   `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere`, in cases
   where a shape (n, 1) array is returned, this is now converted to a (n, )
   array.  Previously, (n, m) arrays were averaged to an (n, ) array, but
-  (n, 1) arrays were returend unchanged.  This change makes the dimensions
+  (n, 1) arrays were returned unchanged.  This change makes the dimensions
   consistent in both cases.
 
 * Added the :rc:`axes.formatter.useoffset` to control the default value

@@ -35,7 +35,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     values : array
         A length n array of bin counts or values
 
-    bottoms : scalar or array, optional
+    bottoms : float or array, optional
         A length n array of the bottom of the bars.  If None, zero is used.
 
     orientation : {'v', 'h'}
@@ -92,7 +92,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     sty_cycle : Cycler or operable of dict
         Style to apply to each set
 
-    bottoms : array, optional, default: 0
+    bottoms : array, default: 0
         The initial positions of the bottoms.
 
     hist_func : callable, optional

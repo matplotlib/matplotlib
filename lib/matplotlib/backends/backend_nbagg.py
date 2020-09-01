@@ -75,7 +75,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def __init__(self, canvas, num):
         self._shown = False
-        FigureManagerWebAgg.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
@@ -164,9 +164,10 @@ class CommSocket:
         display(HTML("<div id=%r></div>" % self.uuid))
         try:
             self.comm = Comm('matplotlib', data={'id': self.uuid})
-        except AttributeError:
+        except AttributeError as err:
             raise RuntimeError('Unable to create an IPython notebook Comm '
-                               'instance. Are you in the IPython notebook?')
+                               'instance. Are you in the IPython '
+                               'notebook?') from err
         self.comm.on_msg(self.on_message)
 
         manager = self.manager
@@ -230,7 +231,12 @@ class _BackendNbAgg(_Backend):
         if is_interactive():
             manager.show()
             figure.canvas.draw_idle()
-        canvas.mpl_connect('close_event', lambda event: Gcf.destroy(num))
+
+        def destroy(event):
+            canvas.mpl_disconnect(cid)
+            Gcf.destroy(manager)
+
+        cid = canvas.mpl_connect('close_event', destroy)
         return manager
 
     @staticmethod
@@ -238,13 +244,7 @@ class _BackendNbAgg(_Backend):
         manager.show()
 
     @staticmethod
-    def show(*args, block=None, **kwargs):
-        if args or kwargs:
-            cbook.warn_deprecated(
-                "3.1", message="Passing arguments to show(), other than "
-                "passing 'block' by keyword, is deprecated %(since)s, and "
-                "support for it will be removed %(removal)s.")
-
+    def show(block=None):
         ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf
 

@@ -137,11 +137,9 @@ def _truncate_location(location):
     Cuts off anything after the first colon in location strings.
 
     This allows for easy comparison even when line numbers chagne
-    (as they do regularily).
+    (as they do regularly).
     """
-    if ":" in location:
-        return location.split(":", 1)[0]
-    return location
+    return location.split(":", 1)[0]
 
 
 def _warn_unused_missing_references(app):

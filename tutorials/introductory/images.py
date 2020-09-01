@@ -37,7 +37,7 @@ However, for other backends, such as Qt5, that open a separate window,
 cells below those that create the plot will change the plot - it is a
 live object in memory.
 
-This tutorial will use matplotlib's imperative-style plotting
+This tutorial will use Matplotlib's imperative-style plotting
 interface, pyplot.  This interface maintains global state, and is very
 useful for quickly and easily experimenting with various plot
 settings.  The alternative is the object-oriented interface, which is also
@@ -55,15 +55,11 @@ import matplotlib.image as mpimg
 # .. _importing_data:
 #
 # Importing image data into Numpy arrays
-# ===============================================
+# ======================================
 #
-# Loading image data is supported by the `Pillow
-# <https://pillow.readthedocs.io/en/latest/>`_ library.  Natively, Matplotlib
-# only supports PNG images.  The commands shown below fall back on Pillow if
-# the native read fails.
+# Matplotlib relies on the Pillow_ library to load image data.
 #
-# The image used in this example is a PNG file, but keep that Pillow
-# requirement in mind for your own data.
+# .. _Pillow: https://pillow.readthedocs.io/en/latest/
 #
 # Here's the image we're going to play with:
 #
@@ -72,9 +68,9 @@ import matplotlib.image as mpimg
 # It's a 24-bit RGB PNG image (8 bits for each of R, G, B).  Depending
 # on where you get your data, the other kinds of image that you'll most
 # likely encounter are RGBA images, which allow for transparency, or
-# single-channel grayscale (luminosity) images.  You can right click on
-# it and choose "Save image as" to download it to your computer for the
-# rest of this tutorial.
+# single-channel grayscale (luminosity) images.  Download `stinkbug.png
+# <https://raw.githubusercontent.com/matplotlib/matplotlib/master/doc/_static/stinkbug.png>`_
+# to your computer for the rest of this tutorial.
 #
 # And here we go...
 
@@ -98,8 +94,8 @@ print(img)
 # similar.  An RGBA (where A is alpha, or transparency), has 4 values
 # per inner list, and a simple luminance image just has one value (and
 # is thus only a 2-D array, not a 3-D array).  For RGB and RGBA images,
-# matplotlib supports float32 and uint8 data types.  For grayscale,
-# matplotlib supports only float32.  If your array data does not meet
+# Matplotlib supports float32 and uint8 data types.  For grayscale,
+# Matplotlib supports only float32.  If your array data does not meet
 # one of these descriptions, you need to rescale it.
 #
 # .. _plotting_data:

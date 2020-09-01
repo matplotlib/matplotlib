@@ -45,6 +45,7 @@ class CharacterTracker:
             fname = font.fname
         self.used.setdefault(fname, set()).update(map(ord, s))
 
+    # Not public, can be removed when pdf/ps merge_used_characters is removed.
     def merge(self, other):
         """Update self with a font path to character codepoints."""
         for fname, charset in other.items():
@@ -80,14 +81,19 @@ class RendererPDFPSBase(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
-        if mpl.rcParams["text.usetex"]:
+        if ismath == "TeX":
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
                 s, fontsize, renderer=self)
             return w, h, d
         elif ismath:
-            parse = self.mathtext_parser.parse(s, 72, prop)
+            # Circular import.
+            from matplotlib.backends.backend_ps import RendererPS
+            parse = self._text2path.mathtext_parser.parse(
+                s, 72, prop,
+                _force_standard_ps_fonts=(isinstance(self, RendererPS)
+                                          and mpl.rcParams["ps.useafm"]))
             return parse.width, parse.height, parse.depth
         elif mpl.rcParams[self._use_afm_rc_name]:
             font = self._get_font_afm(prop)

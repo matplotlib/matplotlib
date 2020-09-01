@@ -1,11 +1,8 @@
 import datetime
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py 3.6.
 
 import dateutil.tz
 import dateutil.rrule
+import functools
 import numpy as np
 import pytest
 
@@ -152,20 +149,31 @@ def test_too_many_date_ticks(caplog):
             'Attempting to set identical left == right' in str(rec[0].message)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    fig.canvas.draw()
+    v = ax.xaxis.get_major_locator()()
+    assert len(v) > 1000
     # The warning is emitted multiple times because the major locator is also
     # called both when placing the minor ticks (for overstriking detection) and
     # during tick label positioning.
     assert caplog.records and all(
         record.name == "matplotlib.ticker" and record.levelname == "WARNING"
         for record in caplog.records)
+    assert len(caplog.records) > 0
+
+
+def _new_epoch_decorator(thefunc):
+    @functools.wraps(thefunc)
+    def wrapper():
+        mdates._reset_epoch_test_example()
+        mdates.set_epoch('2000-01-01')
+        thefunc()
+        mdates._reset_epoch_test_example()
+    return wrapper
 
 
 @image_comparison(['RRuleLocator_bounds.png'])
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
     units.register()
-
     # This will cause the RRuleLocator to go out of bounds when it tries
     # to add padding to the limits, so we make sure it caps at the correct
     # boundary values.
@@ -292,19 +300,7 @@ def test_drange():
     assert mdates.num2date(daterange[-1]) == (end - delta)
 
 
-def test_empty_date_with_year_formatter():
-    # exposes sf bug 2861426:
-    # https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720
-
-    # update: I am no longer believe this is a bug, as I commented on
-    # the tracker.  The question is now: what to do with this test
-
-    fig, ax = plt.subplots()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
-    with pytest.raises(ValueError):
-        fig.canvas.draw()
-
-
+@_new_epoch_decorator
 def test_auto_date_locator():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator(interval_multiples=False)
@@ -365,18 +361,18 @@ def test_auto_date_locator():
                  '1990-01-01 00:00:00+00:00',
                  '1990-01-01 00:00:00.000500+00:00',
                  '1990-01-01 00:00:00.001000+00:00',
-                 '1990-01-01 00:00:00.001500+00:00']
+                 '1990-01-01 00:00:00.001500+00:00',
+                 '1990-01-01 00:00:00.002000+00:00']
                 ],
                )
 
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        with (pytest.warns(UserWarning) if t_delta.microseconds
-              else nullcontext()):
-            assert list(map(str, mdates.num2date(locator()))) == expected
+        assert list(map(str, mdates.num2date(locator()))) == expected
 
 
+@_new_epoch_decorator
 def test_auto_date_locator_intmult():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator(interval_multiples=True)
@@ -402,11 +398,11 @@ def test_auto_date_locator_intmult():
                  '1997-11-01 00:00:00+00:00', '1997-12-01 00:00:00+00:00']
                 ],
                [datetime.timedelta(days=141),
-                ['1997-01-01 00:00:00+00:00', '1997-01-22 00:00:00+00:00',
-                 '1997-02-01 00:00:00+00:00', '1997-02-22 00:00:00+00:00',
-                 '1997-03-01 00:00:00+00:00', '1997-03-22 00:00:00+00:00',
-                 '1997-04-01 00:00:00+00:00', '1997-04-22 00:00:00+00:00',
-                 '1997-05-01 00:00:00+00:00', '1997-05-22 00:00:00+00:00']
+                ['1997-01-01 00:00:00+00:00', '1997-01-15 00:00:00+00:00',
+                 '1997-02-01 00:00:00+00:00', '1997-02-15 00:00:00+00:00',
+                 '1997-03-01 00:00:00+00:00', '1997-03-15 00:00:00+00:00',
+                 '1997-04-01 00:00:00+00:00', '1997-04-15 00:00:00+00:00',
+                 '1997-05-01 00:00:00+00:00', '1997-05-15 00:00:00+00:00']
                 ],
                [datetime.timedelta(days=40),
                 ['1997-01-01 00:00:00+00:00', '1997-01-05 00:00:00+00:00',
@@ -441,7 +437,8 @@ def test_auto_date_locator_intmult():
                  '1997-01-01 00:00:00+00:00',
                  '1997-01-01 00:00:00.000500+00:00',
                  '1997-01-01 00:00:00.001000+00:00',
-                 '1997-01-01 00:00:00.001500+00:00']
+                 '1997-01-01 00:00:00.001500+00:00',
+                 '1997-01-01 00:00:00.002000+00:00']
                 ],
                )
 
@@ -449,9 +446,18 @@ def test_auto_date_locator_intmult():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        with (pytest.warns(UserWarning) if t_delta.microseconds
-              else nullcontext()):
-            assert list(map(str, mdates.num2date(locator()))) == expected
+        assert list(map(str, mdates.num2date(locator()))) == expected
+
+
+def test_concise_formatter_subsecond():
+    locator = mdates.AutoDateLocator(interval_multiples=True)
+    formatter = mdates.ConciseDateFormatter(locator)
+    year_1996 = 9861.0
+    strings = formatter.format_ticks([
+        year_1996,
+        year_1996 + 500 / mdates.MUSECONDS_PER_DAY,
+        year_1996 + 900 / mdates.MUSECONDS_PER_DAY])
+    assert strings == ['00:00', '00.0005', '00.0009']
 
 
 def test_concise_formatter():
@@ -476,8 +482,8 @@ def test_concise_formatter():
                  'Sep', 'Oct', 'Nov', 'Dec']
                 ],
                [datetime.timedelta(days=141),
-                ['Jan', '22', 'Feb', '22', 'Mar', '22', 'Apr', '22',
-                 'May', '22']
+                ['Jan', '15', 'Feb', '15', 'Mar', '15', 'Apr', '15',
+                 'May', '15']
                 ],
                [datetime.timedelta(days=40),
                 ['Jan', '05', '09', '13', '17', '21', '25', '29', 'Feb',
@@ -528,8 +534,8 @@ def test_concise_formatter_formats():
             '07/1997', '08/1997', '09/1997', '10/1997', '11/1997', '12/1997',
             ]],
         [datetime.timedelta(days=141), [
-            '01/1997', 'day: 22', '02/1997', 'day: 22', '03/1997', 'day: 22',
-            '04/1997', 'day: 22', '05/1997', 'day: 22',
+            '01/1997', 'day: 15', '02/1997', 'day: 15', '03/1997', 'day: 15',
+            '04/1997', 'day: 15', '05/1997', 'day: 15',
             ]],
         [datetime.timedelta(days=40), [
             '01/1997', 'day: 05', 'day: 09', 'day: 13', 'day: 17', 'day: 21',
@@ -583,8 +589,8 @@ def test_concise_formatter_zformats():
                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                 ],
                [datetime.timedelta(days=141),
-                ['January', '22', 'February', '22', 'March',
-                    '22', 'April', '22', 'May', '22']
+                ['January', '15', 'February', '15', 'March',
+                    '15', 'April', '15', 'May', '15']
                 ],
                [datetime.timedelta(days=40),
                 ['January', '05', '09', '13', '17', '21',
@@ -676,11 +682,11 @@ def test_auto_date_locator_intmult_tz():
                  '1997-11-01 00:00:00-08:00', '1997-12-01 00:00:00-08:00']
                 ],
                [datetime.timedelta(days=141),
-                ['1997-01-01 00:00:00-08:00', '1997-01-22 00:00:00-08:00',
-                 '1997-02-01 00:00:00-08:00', '1997-02-22 00:00:00-08:00',
-                 '1997-03-01 00:00:00-08:00', '1997-03-22 00:00:00-08:00',
-                 '1997-04-01 00:00:00-08:00', '1997-04-22 00:00:00-07:00',
-                 '1997-05-01 00:00:00-07:00', '1997-05-22 00:00:00-07:00']
+                ['1997-01-01 00:00:00-08:00', '1997-01-15 00:00:00-08:00',
+                 '1997-02-01 00:00:00-08:00', '1997-02-15 00:00:00-08:00',
+                 '1997-03-01 00:00:00-08:00', '1997-03-15 00:00:00-08:00',
+                 '1997-04-01 00:00:00-08:00', '1997-04-15 00:00:00-07:00',
+                 '1997-05-01 00:00:00-07:00', '1997-05-15 00:00:00-07:00']
                 ],
                [datetime.timedelta(days=40),
                 ['1997-01-01 00:00:00-08:00', '1997-01-05 00:00:00-08:00',
@@ -738,6 +744,7 @@ def test_date_inverted_limit():
 
 def _test_date2num_dst(date_range, tz_convert):
     # Timezones
+
     BRUSSELS = dateutil.tz.gettz('Europe/Brussels')
     UTC = mdates.UTC
 
@@ -750,8 +757,8 @@ def _test_date2num_dst(date_range, tz_convert):
 
     dt_utc = date_range(start=dtstart, freq=interval, periods=N)
     dt_bxl = tz_convert(dt_utc, BRUSSELS)
-
-    expected_ordinalf = [735322.0 + (i * interval_days) for i in range(N)]
+    t0 = 735322.0 + mdates.date2num(np.datetime64('0000-12-31'))
+    expected_ordinalf = [t0 + (i * interval_days) for i in range(N)]
     actual_ordinalf = list(mdates.date2num(dt_bxl))
 
     assert actual_ordinalf == expected_ordinalf
@@ -876,10 +883,11 @@ def test_yearlocator_pytz():
     locator.create_dummy_axis()
     locator.set_view_interval(mdates.date2num(x[0])-1.0,
                               mdates.date2num(x[-1])+1.0)
-
-    np.testing.assert_allclose([733408.208333, 733773.208333, 734138.208333,
-                                734503.208333, 734869.208333,
-                                735234.208333, 735599.208333], locator())
+    t = np.array([733408.208333, 733773.208333, 734138.208333,
+                  734503.208333, 734869.208333, 735234.208333, 735599.208333])
+    # convert to new epoch from old...
+    t = t + mdates.date2num(np.datetime64('0000-12-31'))
+    np.testing.assert_allclose(t, locator())
     expected = ['2009-01-01 00:00:00-05:00',
                 '2010-01-01 00:00:00-05:00', '2011-01-01 00:00:00-05:00',
                 '2012-01-01 00:00:00-05:00', '2013-01-01 00:00:00-05:00',
@@ -917,4 +925,113 @@ def test_num2timedelta(x, tdelta):
 def test_datetime64_in_list():
     dt = [np.datetime64('2000-01-01'), np.datetime64('2001-01-01')]
     dn = mdates.date2num(dt)
-    np.testing.assert_equal(dn, [730120.,  730486.])
+    # convert fixed values from old to new epoch
+    t = (np.array([730120.,  730486.]) +
+         mdates.date2num(np.datetime64('0000-12-31')))
+    np.testing.assert_equal(dn, t)
+
+
+def test_change_epoch():
+    date = np.datetime64('2000-01-01')
+
+    with pytest.raises(RuntimeError):
+        # this should fail here because there is a sentinel on the epoch
+        # if the epoch has been used then it cannot be set.
+        mdates.set_epoch('0000-01-01')
+
+    # use private method to clear the epoch and allow it to be set...
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01')
+    dt = (date - np.datetime64('1970-01-01')).astype('datetime64[D]')
+    dt = dt.astype('int')
+    np.testing.assert_equal(mdates.date2num(date), float(dt))
+
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('0000-12-31')
+    np.testing.assert_equal(mdates.date2num(date), 730120.0)
+
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01T01:00:00')
+    np.testing.assert_allclose(mdates.date2num(date), dt - 1./24.)
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01T00:00:00')
+    np.testing.assert_allclose(
+        mdates.date2num(np.datetime64('1970-01-01T12:00:00')),
+        0.5)
+
+
+def test_warn_notintervals():
+    dates = np.arange('2001-01-10', '2001-03-04', dtype='datetime64[D]')
+    locator = mdates.AutoDateLocator(interval_multiples=False)
+    locator.intervald[3] = [2]
+    locator.create_dummy_axis()
+    locator.set_view_interval(mdates.date2num(dates[0]),
+                              mdates.date2num(dates[-1]))
+    with pytest.warns(UserWarning, match="AutoDateLocator was unable") as rec:
+        locs = locator()
+
+
+def test_change_converter():
+    plt.rcParams['date.converter'] = 'concise'
+    dates = np.arange('2020-01-01', '2020-05-01', dtype='datetime64[D]')
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan'
+    assert ax.get_xticklabels()[1].get_text() == '15'
+
+    plt.rcParams['date.converter'] = 'auto'
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan 01 2020'
+    assert ax.get_xticklabels()[1].get_text() == 'Jan 15 2020'
+    with pytest.warns(UserWarning) as rec:
+        plt.rcParams['date.converter'] = 'boo'
+
+
+def test_change_interval_multiples():
+    plt.rcParams['date.interval_multiples'] = False
+    dates = np.arange('2020-01-10', '2020-05-01', dtype='datetime64[D]')
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan 10 2020'
+    assert ax.get_xticklabels()[1].get_text() == 'Jan 24 2020'
+
+    plt.rcParams['date.interval_multiples'] = 'True'
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == 'Jan 15 2020'
+    assert ax.get_xticklabels()[1].get_text() == 'Feb 01 2020'
+
+
+def test_epoch2num():
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('0000-12-31')
+    assert mdates.epoch2num(86400) == 719164.0
+    assert mdates.num2epoch(719165.0) == 86400 * 2
+    # set back to the default
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01T00:00:00')
+    assert mdates.epoch2num(86400) == 1.0
+    assert mdates.num2epoch(2.0) == 86400 * 2
+
+
+def test_julian2num():
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('0000-12-31')
+    # 2440587.5 is julian date for 1970-01-01T00:00:00
+    # https://en.wikipedia.org/wiki/Julian_day
+    assert mdates.julian2num(2440588.5) == 719164.0
+    assert mdates.num2julian(719165.0) == 2440589.5
+    # set back to the default
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01T00:00:00')
+    assert mdates.julian2num(2440588.5) == 1.0
+    assert mdates.num2julian(2.0) == 2440589.5

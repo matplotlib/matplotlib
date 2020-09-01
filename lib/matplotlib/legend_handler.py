@@ -1,5 +1,5 @@
 """
-This module defines default legend handlers.
+Default legend handlers.
 
 It is strongly encouraged to have read the :doc:`legend guide
 </tutorials/intermediate/legend_guide>` before this documentation.
@@ -21,13 +21,13 @@ This module includes definition of several legend handler classes
 derived from the base class (HandlerBase) with the following method::
 
     def legend_artist(self, legend, orig_handle, fontsize, handlebox)
-
 """
 
 from itertools import cycle
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
@@ -147,7 +147,7 @@ class HandlerNpoints(HandlerBase):
         -----
         Any other keyword arguments are given to `HandlerBase`.
         """
-        HandlerBase.__init__(self, **kw)
+        super().__init__(**kw)
 
         self._numpoints = numpoints
         self._marker_pad = marker_pad
@@ -176,7 +176,7 @@ class HandlerNpoints(HandlerBase):
 class HandlerNpointsYoffsets(HandlerNpoints):
     """
     A legend handler that shows *numpoints* in the legend, and allows them to
-    be individually offest in the y-direction.
+    be individually offset in the y-direction.
     """
     def __init__(self, numpoints=None, yoffsets=None, **kw):
         """
@@ -193,7 +193,7 @@ class HandlerNpointsYoffsets(HandlerNpoints):
         -----
         Any other keyword arguments are given to `HandlerNpoints`.
         """
-        HandlerNpoints.__init__(self, numpoints=numpoints, **kw)
+        super().__init__(numpoints=numpoints, **kw)
         self._yoffsets = yoffsets
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -223,8 +223,7 @@ class HandlerLine2D(HandlerNpoints):
         -----
         Any other keyword arguments are given to `HandlerNpoints`.
         """
-        HandlerNpoints.__init__(self, marker_pad=marker_pad,
-                                numpoints=numpoints, **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kw)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -280,7 +279,7 @@ class HandlerPatch(HandlerBase):
         -----
         Any other keyword arguments are given to `HandlerBase`.
         """
-        HandlerBase.__init__(self, **kw)
+        super().__init__(**kw)
         self._patch_func = patch_func
 
     def _create_patch(self, legend, orig_handle,
@@ -339,7 +338,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     r"""Handler for `.RegularPolyCollection`\s."""
 
     def __init__(self, yoffsets=None, sizes=None, **kw):
-        HandlerNpointsYoffsets.__init__(self, yoffsets=yoffsets, **kw)
+        super().__init__(yoffsets=yoffsets, **kw)
 
         self._sizes = sizes
 
@@ -439,8 +438,7 @@ class HandlerErrorbar(HandlerLine2D):
         self._xerr_size = xerr_size
         self._yerr_size = yerr_size
 
-        HandlerLine2D.__init__(self, marker_pad=marker_pad,
-                               numpoints=numpoints, **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kw)
 
     def get_err_size(self, legend, xdescent, ydescent,
                      width, height, fontsize):
@@ -564,10 +562,8 @@ class HandlerStem(HandlerNpointsYoffsets):
         Any other keyword arguments are given to `HandlerNpointsYoffsets`.
         """
 
-        HandlerNpointsYoffsets.__init__(self, marker_pad=marker_pad,
-                                        numpoints=numpoints,
-                                        yoffsets=yoffsets,
-                                        **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints,
+                         yoffsets=yoffsets, **kw)
         self._bottom = bottom
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -607,18 +603,14 @@ class HandlerStem(HandlerNpointsYoffsets):
         if using_linecoll:
             # change the function used by update_prop() from the default
             # to one that handles LineCollection
-            orig_update_func = self._update_prop_func
-            self._update_prop_func = self._copy_collection_props
-
-            for line in leg_stemlines:
-                self.update_prop(line, stemlines, legend)
+            with cbook._setattr_cm(
+                    self, _update_prop_func=self._copy_collection_props):
+                for line in leg_stemlines:
+                    self.update_prop(line, stemlines, legend)
 
         else:
             for lm, m in zip(leg_stemlines, stemlines):
                 self.update_prop(lm, m, legend)
-
-        if using_linecoll:
-            self._update_prop_func = orig_update_func
 
         leg_baseline = Line2D([np.min(xdata), np.max(xdata)],
                               [bottom, bottom])
@@ -631,8 +623,8 @@ class HandlerStem(HandlerNpointsYoffsets):
 
     def _copy_collection_props(self, legend_handle, orig_handle):
         """
-        Method to copy properties from a LineCollection (orig_handle) to a
-        Line2D (legend_handle).
+        Copy properties from the `.LineCollection` *orig_handle* to the
+        `.Line2D` *legend_handle*.
         """
         legend_handle.set_color(orig_handle.get_color()[0])
         legend_handle.set_linestyle(orig_handle.get_linestyle()[0])
@@ -656,7 +648,7 @@ class HandlerTuple(HandlerBase):
     def __init__(self, ndivide=1, pad=None, **kwargs):
         self._ndivide = ndivide
         self._pad = pad
-        HandlerBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,

@@ -2,16 +2,29 @@
 A module providing some utility functions regarding Bezier path manipulation.
 """
 
+from functools import lru_cache
 import math
+import warnings
 
 import numpy as np
 
 import matplotlib.cbook as cbook
-from matplotlib.path import Path
+
+
+# same algorithm as 3.8's math.comb
+@np.vectorize
+@lru_cache(maxsize=128)
+def _comb(n, k):
+    if k > n:
+        return 0
+    k = min(k, n - k)
+    i = np.arange(1, k + 1)
+    return np.prod((n + 1 - i)/i).astype(int)
 
 
 class NonIntersectingPathException(ValueError):
     pass
+
 
 # some functions
 
@@ -168,26 +181,127 @@ def find_bezier_t_intersecting_with_closedpath(
 
 class BezierSegment:
     """
-    A D-dimensional Bezier segment.
+    A d-dimensional Bezier segment.
 
     Parameters
     ----------
-    control_points : (N, D) array
+    control_points : (N, d) array
         Location of the *N* control points.
     """
 
     def __init__(self, control_points):
-        n = len(control_points)
-        self._orders = np.arange(n)
-        coeff = [math.factorial(n - 1)
-                 // (math.factorial(i) * math.factorial(n - 1 - i))
-                 for i in range(n)]
-        self._px = np.asarray(control_points).T * coeff
+        self._cpoints = np.asarray(control_points)
+        self._N, self._d = self._cpoints.shape
+        self._orders = np.arange(self._N)
+        coeff = [math.factorial(self._N - 1)
+                 // (math.factorial(i) * math.factorial(self._N - 1 - i))
+                 for i in range(self._N)]
+        self._px = (self._cpoints.T * coeff).T
+
+    def __call__(self, t):
+        """
+        Evaluate the Bezier curve at point(s) t in [0, 1].
+
+        Parameters
+        ----------
+        t : float (k,), array_like
+            Points at which to evaluate the curve.
+
+        Returns
+        -------
+        float (k, d), array_like
+            Value of the curve for each point in *t*.
+        """
+        t = np.asarray(t)
+        return (np.power.outer(1 - t, self._orders[::-1])
+                * np.power.outer(t, self._orders)) @ self._px
 
     def point_at_t(self, t):
-        """Return the point on the Bezier curve for parameter *t*."""
-        return tuple(
-            self._px @ (((1 - t) ** self._orders)[::-1] * t ** self._orders))
+        """Evaluate curve at a single point *t*. Returns a Tuple[float*d]."""
+        return tuple(self(t))
+
+    @property
+    def control_points(self):
+        """The control points of the curve."""
+        return self._cpoints
+
+    @property
+    def dimension(self):
+        """The dimension of the curve."""
+        return self._d
+
+    @property
+    def degree(self):
+        """Degree of the polynomial. One less the number of control points."""
+        return self._N - 1
+
+    @property
+    def polynomial_coefficients(self):
+        r"""
+        The polynomial coefficients of the Bezier curve.
+
+        .. warning:: Follows opposite convention from `numpy.polyval`.
+
+        Returns
+        -------
+        float, (n+1, d) array_like
+            Coefficients after expanding in polynomial basis, where :math:`n`
+            is the degree of the bezier curve and :math:`d` its dimension.
+            These are the numbers (:math:`C_j`) such that the curve can be
+            written :math:`\sum_{j=0}^n C_j t^j`.
+
+        Notes
+        -----
+        The coefficients are calculated as
+
+        .. math::
+
+            {n \choose j} \sum_{i=0}^j (-1)^{i+j} {j \choose i} P_i
+
+        where :math:`P_i` are the control points of the curve.
+        """
+        n = self.degree
+        # matplotlib uses n <= 4. overflow plausible starting around n = 15.
+        if n > 10:
+            warnings.warn("Polynomial coefficients formula unstable for high "
+                          "order Bezier curves!", RuntimeWarning)
+        P = self.control_points
+        j = np.arange(n+1)[:, None]
+        i = np.arange(n+1)[None, :]  # _comb is non-zero for i <= j
+        prefactor = (-1)**(i + j) * _comb(j, i)  # j on axis 0, i on axis 1
+        return _comb(n, j) * prefactor @ P  # j on axis 0, self.dimension on 1
+
+    def axis_aligned_extrema(self):
+        """
+        Return the dimension and location of the curve's interior extrema.
+
+        The extrema are the points along the curve where one of its partial
+        derivatives is zero.
+
+        Returns
+        -------
+        dims : int, array_like
+            Index :math:`i` of the partial derivative which is zero at each
+            interior extrema.
+        dzeros : float, array_like
+            Of same size as dims. The :math:`t` such that :math:`d/dx_i B(t) =
+            0`
+        """
+        n = self.degree
+        if n <= 1:
+            return np.array([]), np.array([])
+        Cj = self.polynomial_coefficients
+        dCj = np.arange(1, n+1)[:, None] * Cj[1:]
+        dims = []
+        roots = []
+        for i, pi in enumerate(dCj.T):
+            r = np.roots(pi[::-1])
+            roots.append(r)
+            dims.append(np.full_like(r, i))
+        roots = np.concatenate(roots)
+        dims = np.concatenate(dims)
+        in_range = np.isreal(roots) & (roots >= 0) & (roots <= 1)
+        return dims[in_range], np.real(roots)[in_range]
 
 
 def split_bezier_intersecting_with_closedpath(
@@ -230,14 +344,13 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     Divide a path into two segments at the point where ``inside(x, y)`` becomes
     False.
     """
+    from .path import Path
     path_iter = path.iter_segments()
 
     ctl_points, command = next(path_iter)
     begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
 
     ctl_points_old = ctl_points
-
-    concat = np.concatenate
 
     iold = 0
     i = 1
@@ -246,7 +359,7 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
         iold = i
         i += len(ctl_points) // 2
         if inside(ctl_points[-2:]) != begin_inside:
-            bezier_path = concat([ctl_points_old[-2:], ctl_points])
+            bezier_path = np.concatenate([ctl_points_old[-2:], ctl_points])
             break
         ctl_points_old = ctl_points
     else:
@@ -271,15 +384,15 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     verts_right = right[:]
 
     if path.codes is None:
-        path_in = Path(concat([path.vertices[:i], verts_left]))
-        path_out = Path(concat([verts_right, path.vertices[i:]]))
+        path_in = Path(np.concatenate([path.vertices[:i], verts_left]))
+        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]))
 
     else:
-        path_in = Path(concat([path.vertices[:iold], verts_left]),
-                       concat([path.codes[:iold], codes_left]))
+        path_in = Path(np.concatenate([path.vertices[:iold], verts_left]),
+                       np.concatenate([path.codes[:iold], codes_left]))
 
-        path_out = Path(concat([verts_right, path.vertices[i:]]),
-                        concat([codes_right, path.codes[i:]]))
+        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]),
+                        np.concatenate([codes_right, path.codes[i:]]))
 
     if reorder_inout and not begin_inside:
         path_in, path_out = path_out, path_in
@@ -389,23 +502,23 @@ def get_parallels(bezier2, width):
     # find cm_left which is the intersecting point of a line through
     # c1_left with angle t1 and a line through c2_left with angle
     # t2. Same with cm_right.
-    if parallel_test != 0:
-        # a special case for a straight line, i.e., angle between two
-        # lines are smaller than some (arbitrary) value.
+    try:
+        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
+                                              sin_t1, c2x_left, c2y_left,
+                                              cos_t2, sin_t2)
+        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
+                                                sin_t1, c2x_right, c2y_right,
+                                                cos_t2, sin_t2)
+    except ValueError:
+        # Special case straight lines, i.e., angle between two lines is
+        # less than the threshold used by get_intersection (we don't use
+        # check_if_parallel as the threshold is not the same).
         cmx_left, cmy_left = (
             0.5 * (c1x_left + c2x_left), 0.5 * (c1y_left + c2y_left)
         )
         cmx_right, cmy_right = (
             0.5 * (c1x_right + c2x_right), 0.5 * (c1y_right + c2y_right)
         )
-    else:
-        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
-                                              sin_t1, c2x_left, c2y_left,
-                                              cos_t2, sin_t2)
-
-        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
-                                                sin_t1, c2x_right, c2y_right,
-                                                cos_t2, sin_t2)
 
     # the parallel Bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
@@ -480,12 +593,15 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     return path_left, path_right
 
 
+@cbook.deprecated(
+    "3.3", alternative="Path.cleaned() and remove the final STOP if needed")
 def make_path_regular(p):
     """
     If the ``codes`` attribute of `.Path` *p* is None, return a copy of *p*
     with ``codes`` set to (MOVETO, LINETO, LINETO, ..., LINETO); otherwise
     return *p* itself.
     """
+    from .path import Path
     c = p.codes
     if c is None:
         c = np.full(len(p.vertices), Path.LINETO, dtype=Path.code_type)
@@ -495,8 +611,8 @@ def make_path_regular(p):
         return p
 
 
+@cbook.deprecated("3.3", alternative="Path.make_compound_path()")
 def concatenate_paths(paths):
     """Concatenate a list of paths into a single path."""
-    vertices = np.concatenate([p.vertices for p in paths])
-    codes = np.concatenate([make_path_regular(p).codes for p in paths])
-    return Path(vertices, codes)
+    from .path import Path
+    return Path.make_compound_path(*paths)

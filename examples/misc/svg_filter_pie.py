@@ -46,7 +46,7 @@ from io import BytesIO
 f = BytesIO()
 plt.savefig(f, format="svg")
 
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 
 
 # filter definition for shadow using a gaussian blur

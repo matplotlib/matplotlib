@@ -43,8 +43,10 @@ make_axes_kw_doc = '''
     ============= ====================================================
     *orientation* vertical or horizontal
     *fraction*    0.15; fraction of original axes to use for colorbar
-    *pad*         0.05 if vertical, 0.15 if horizontal; fraction
-                  of original axes between colorbar and new image axes
+    *pad*         Defaults to 0.05 if vertical, 0.15 if horizontal; fraction
+                  of original axes between colorbar and new image axes.
+                  Defaults to 0.05 for both if `.get_constrained_layout`
+                  is *True*.
     *shrink*      1.0; fraction by which to shrink the colorbar
     *aspect*      20; ratio of long to short dimensions
     ============= ====================================================
@@ -198,9 +200,7 @@ class CbarAxesLocator:
         self.orientation = orientation
 
     def get_original_position(self, axes, renderer):
-        """
-        get the original position of the axes.
-        """
+        """Return the original position of the axes."""
         if self._locator is None:
             bbox = axes.get_position(original=True)
         else:
@@ -209,7 +209,8 @@ class CbarAxesLocator:
 
     def get_end_vertices(self):
         """
-        return a tuple of two vertices for the colorbar extended ends.
+        Return a tuple of two vertices for the colorbar extended ends.
+
         The first vertices is for the minimum end, and the second is for
         the maximum end.
         """
@@ -246,24 +247,18 @@ class CbarAxesLocator:
         return bottom, top
 
     def get_path_patch(self):
-        """
-        get the path for axes patch
-        """
+        """Return the path for axes patch."""
         end1, end2 = self.get_end_vertices()
         verts = [] + end1 + end2 + end1[:1]
         return Path(verts)
 
     def get_path_ends(self):
-        """
-        get the paths for extended ends
-        """
+        """Return the paths for extended ends."""
         end1, end2 = self.get_end_vertices()
         return Path(end1), Path(end2)
 
     def __call__(self, axes, renderer):
-        """
-        Return the adjusted position of the axes
-        """
+        """Return the adjusted position of the axes."""
         bbox0 = self.get_original_position(axes, renderer)
         bbox = bbox0
 
@@ -341,7 +336,7 @@ class ColorbarBase(cm.ScalarMappable):
         if norm is None:
             norm = colors.Normalize()
         self.alpha = alpha
-        cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
+        super().__init__(cmap=cmap, norm=norm)
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
@@ -490,9 +485,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.ax.add_artist(self.extension_patch2)
 
     def _set_label_text(self):
-        """
-        set label.
-        """
+        """Set the colorbar label."""
         self.cbar_axis.set_label_text(self._label, **self._labelkw)
 
     def set_label_text(self, label, **kw):
@@ -657,9 +650,7 @@ class ColorbarBase(cm.ScalarMappable):
         return X, Y
 
     def set_alpha(self, alpha):
-        """
-        set alpha value.
-        """
+        """Set the alpha value for transparency."""
         self.alpha = alpha
 
 
@@ -682,11 +673,11 @@ class Colorbar(ColorbarBase):
             #kw['ticks'] = CS._levels
             kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
             kw['filled'] = CS.filled
-            ColorbarBase.__init__(self, ax, **kw)
+            super().__init__(ax, **kw)
             if not CS.filled:
                 self.add_lines(CS)
         else:
-            ColorbarBase.__init__(self, ax, **kw)
+            super().__init__(ax, **kw)
 
     def add_lines(self, CS):
         """Add the lines from a non-filled `.ContourSet` to the colorbar."""
@@ -701,7 +692,7 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
+        super().add_lines(CS.levels, tcolors, tlinewidths)
 
     def update_normal(self, mappable):
         """

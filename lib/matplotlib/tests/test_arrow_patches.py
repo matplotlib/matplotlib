@@ -42,10 +42,10 @@ def test_boxarrow():
 
     for i, stylename in enumerate(sorted(styles)):
         fig.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
-                  ha="center",
-                  size=fontsize,
-                  transform=fig.transFigure,
-                  bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+                 ha="center",
+                 size=fontsize,
+                 transform=fig.transFigure,
+                 bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
 def __prepare_fancyarrow_dpi_cor_test():
@@ -67,7 +67,7 @@ def __prepare_fancyarrow_dpi_cor_test():
 
 
 @image_comparison(['fancyarrow_dpi_cor_100dpi.png'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
+                  tol=0 if platform.machine() == 'x86_64' else 0.02,
                   savefig_kwarg=dict(dpi=100))
 def test_fancyarrow_dpi_cor_100dpi():
     """
@@ -82,7 +82,7 @@ def test_fancyarrow_dpi_cor_100dpi():
 
 
 @image_comparison(['fancyarrow_dpi_cor_200dpi.png'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
+                  tol=0 if platform.machine() == 'x86_64' else 0.02,
                   savefig_kwarg=dict(dpi=200))
 def test_fancyarrow_dpi_cor_200dpi():
     """

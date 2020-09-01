@@ -3,6 +3,11 @@
 Usetex Baseline Test
 ====================
 
+A test for :rc:`text.latex.preview`, a deprecated feature which relied
+on the preview.sty LaTeX package to properly align TeX baselines.  This
+feature has been deprecated as Matplotlib's dvi parser now computes baselines
+just as well as preview.sty; this example will be removed together with
+:rc:`text.latex.preview` after the deprecation elapses.
 """
 
 import matplotlib.pyplot as plt

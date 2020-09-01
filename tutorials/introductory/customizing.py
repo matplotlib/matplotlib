@@ -12,7 +12,8 @@ The :mod:`.style` package adds support for easy-to-switch plotting
 <customizing-with-matplotlibrc-files>` file (which is read at startup to
 configure Matplotlib).
 
-There are a number of pre-defined styles `provided by Matplotlib`_. For
+There are a number of pre-defined styles :doc:`provided by Matplotlib
+</gallery/style_sheets/style_sheets_reference>`. For
 example, there's a pre-defined style called "ggplot", which emulates the
 aesthetics of ggplot_ (a popular plotting package for R_). To use this style,
 just add:
@@ -35,20 +36,10 @@ print(plt.style.available)
 # -----------------------
 #
 # You can create custom styles and use them by calling `.style.use` with
-# the path or URL to the style sheet. Additionally, if you add your
-# ``<style-name>.mplstyle`` file to ``mpl_configdir/stylelib``, you can reuse
-# your custom style sheet with a call to ``style.use(<style-name>)``. By
-# default ``mpl_configdir`` should be ``~/.config/matplotlib``, but you can
-# check where yours is with `matplotlib.get_configdir()`; you may need to
-# create this directory. You also can change the directory where Matplotlib
-# looks for the stylelib/ folder by setting the :envvar:`MPLCONFIGDIR`
-# environment variable, see :ref:`locating-matplotlib-config-dir`.
-#
-# Note that a custom style sheet in ``mpl_configdir/stylelib`` will override a
-# style sheet defined by Matplotlib if the styles have the same name.
+# the path or URL to the style sheet.
 #
 # For example, you might want to create
-# ``mpl_configdir/stylelib/presentation.mplstyle`` with the following::
+# ``./images/presentation.mplstyle`` with the following::
 #
 #    axes.titlesize : 24
 #    axes.labelsize : 20
@@ -61,7 +52,26 @@ print(plt.style.available)
 # good in a presentation, you can just add::
 #
 #    >>> import matplotlib.pyplot as plt
-#    >>> plt.style.use('presentation')
+#    >>> plt.style.use('./images/presentation.mplstyle')
+#
+# Alternatively, you can make your style known to Matplotlib by placing
+# your ``<style-name>.mplstyle`` file into ``mpl_configdir/stylelib``.  You
+# can then load your custom style sheet with a call to
+# ``style.use(<style-name>)``.  By default ``mpl_configdir`` should be
+# ``~/.config/matplotlib``, but you can check where yours is with
+# `matplotlib.get_configdir()`; you may need to create this directory. You
+# also can change the directory where Matplotlib looks for the stylelib/
+# folder by setting the :envvar:`MPLCONFIGDIR` environment variable, see
+# :ref:`locating-matplotlib-config-dir`.
+#
+# Note that a custom style sheet in ``mpl_configdir/stylelib`` will override a
+# style sheet defined by Matplotlib if the styles have the same name.
+#
+# Once your ``<style-name>.mplstyle`` file is in the appropriate
+# ``mpl_configdir`` you can specify your style with::
+#
+#    >>> import matplotlib.pyplot as plt
+#    >>> plt.style.use(<style-name>)
 #
 #
 # Composing styles
@@ -112,8 +122,8 @@ mpl.rcParams['lines.linestyle'] = '--'
 plt.plot(data)
 
 ###############################################################################
-# Note, that in order to change the usual `plot` color you have to change the
-# *prop_cycle* property of *axes*:
+# Note, that in order to change the usual `~.Axes.plot` color you have to
+# change the *prop_cycle* property of *axes*:
 
 mpl.rcParams['axes.prop_cycle'] = cycler(color=['r', 'g', 'b', 'y'])
 plt.plot(data)  # first color is red
@@ -142,8 +152,9 @@ plt.plot(data)
 # kinds of properties, which we call 'rc settings' or 'rc parameters'. You can
 # control the defaults of almost every property in Matplotlib: figure size and
 # DPI, line width, color and style, axes, axis and grid properties, text and
-# font properties and so on. Matplotlib looks for :file:`matplotlibrc` in four
-# locations, in the following order:
+# font properties and so on. When a URL or path is not specified with a call to
+# ``style.use('<path>/<style-name>.mplstyle')``, Matplotlib looks for
+# :file:`matplotlibrc` in four locations, in the following order:
 #
 # 1. :file:`matplotlibrc` in the current working directory, usually used for
 #    specific customizations that you do not want to apply elsewhere.
@@ -192,4 +203,3 @@ plt.plot(data)
 #
 # .. _ggplot: https://ggplot2.tidyverse.org/
 # .. _R: https://www.r-project.org/
-# .. _provided by Matplotlib: https://github.com/matplotlib/matplotlib/tree/master/lib/matplotlib/mpl-data/stylelib

@@ -5,6 +5,7 @@
         <li><a href="{{ pathto('contents') }}">contents</a> &raquo;</li>
 {%- endblock %}
 
+
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
 {%- block relbar2 %}{% endblock %}
 
@@ -27,7 +28,15 @@
         Try searching for the released version of this page instead?
     </a>
 </div>
+
 {%- endif %}
+
+<!--
+<div id="annc-banner">
+
+</div>
+-->
+
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
     {%- if builder in ('htmlhelp', 'devhelp', 'latex') %}
     <a href="{{ pathto('index') }}">

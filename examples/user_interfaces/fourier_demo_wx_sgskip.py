@@ -104,7 +104,7 @@ class SliderGroup(Knob):
 
 class FourierDemoFrame(wx.Frame):
     def __init__(self, *args, **kwargs):
-        wx.Frame.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         panel = wx.Panel(self)
 
         # create the GUI elements
@@ -231,5 +231,7 @@ class App(wx.App):
         self.frame1.Show()
         return True
 
-app = App()
-app.MainLoop()
+
+if __name__ == "__main__":
+    app = App()
+    app.MainLoop()

@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
+from matplotlib.testing.decorators import check_figures_equal
 
 
 class TestUnitData:
@@ -59,7 +60,8 @@ class FakeAxis:
 
 
 class TestStrCategoryConverter:
-    """Based on the pandas conversion and factorization tests:
+    """
+    Based on the pandas conversion and factorization tests:
 
     ref: /pandas/tseries/tests/test_converter.py
          /pandas/tests/test_algos.py:TestFactorize
@@ -268,3 +270,35 @@ class TestPlotTypes:
         with pytest.raises(TypeError):
             plotter(ax, [0, 3], [1, 3])
             plotter(ax, xdata, [1, 2])
+
+
+@pytest.mark.style('default')
+@check_figures_equal(extensions=["png"])
+def test_overriding_units_in_plot(fig_test, fig_ref):
+    from datetime import datetime
+
+    t0 = datetime(2018, 3, 1)
+    t1 = datetime(2018, 3, 2)
+    t2 = datetime(2018, 3, 3)
+    t3 = datetime(2018, 3, 4)
+
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    for ax, kwargs in zip([ax_test, ax_ref],
+                          ({}, dict(xunits=None, yunits=None))):
+        # First call works
+        ax.plot([t0, t1], ["V1", "V2"], **kwargs)
+        x_units = ax.xaxis.units
+        y_units = ax.yaxis.units
+        # this should not raise
+        ax.plot([t2, t3], ["V1", "V2"], **kwargs)
+        # assert that we have not re-set the units attribute at all
+        assert x_units is ax.xaxis.units
+        assert y_units is ax.yaxis.units
+
+
+def test_hist():
+    fig, ax = plt.subplots()
+    n, bins, patches = ax.hist(['a', 'b', 'a', 'c', 'ff'])
+    assert n.shape == (10,)
+    np.testing.assert_allclose(n, [2., 0., 0., 1., 0., 0., 1., 0., 0., 1.])

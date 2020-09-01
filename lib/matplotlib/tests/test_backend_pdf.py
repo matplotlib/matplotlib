@@ -1,3 +1,4 @@
+import datetime
 import io
 import os
 from pathlib import Path
@@ -7,10 +8,10 @@ from tempfile import NamedTemporaryFile
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib.testing.compare import compare_images
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 needs_usetex = pytest.mark.skipif(
@@ -125,6 +126,78 @@ def test_composite_image():
         assert len(pdf._file._images) == 2
 
 
+def test_savefig_metadata(monkeypatch):
+    pikepdf = pytest.importorskip('pikepdf')
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    fig, ax = plt.subplots()
+    ax.plot(range(5))
+
+    md = {
+        'Author': 'me',
+        'Title': 'Multipage PDF',
+        'Subject': 'Test page',
+        'Keywords': 'test,pdf,multipage',
+        'ModDate': datetime.datetime(
+            1968, 8, 1, tzinfo=datetime.timezone(datetime.timedelta(0))),
+        'Trapped': 'True'
+    }
+    buf = io.BytesIO()
+    fig.savefig(buf, metadata=md, format='pdf')
+
+    with pikepdf.Pdf.open(buf) as pdf:
+        info = {k: str(v) for k, v in pdf.docinfo.items()}
+
+    assert info == {
+        '/Author': 'me',
+        '/CreationDate': 'D:19700101000000Z',
+        '/Creator': f'Matplotlib v{mpl.__version__}, https://matplotlib.org',
+        '/Keywords': 'test,pdf,multipage',
+        '/ModDate': 'D:19680801000000Z',
+        '/Producer': f'Matplotlib pdf backend v{mpl.__version__}',
+        '/Subject': 'Test page',
+        '/Title': 'Multipage PDF',
+        '/Trapped': '/True',
+    }
+
+
+def test_multipage_metadata(monkeypatch):
+    pikepdf = pytest.importorskip('pikepdf')
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    fig, ax = plt.subplots()
+    ax.plot(range(5))
+
+    md = {
+        'Author': 'me',
+        'Title': 'Multipage PDF',
+        'Subject': 'Test page',
+        'Keywords': 'test,pdf,multipage',
+        'ModDate': datetime.datetime(
+            1968, 8, 1, tzinfo=datetime.timezone(datetime.timedelta(0))),
+        'Trapped': 'True'
+    }
+    buf = io.BytesIO()
+    with PdfPages(buf, metadata=md) as pdf:
+        pdf.savefig(fig)
+        pdf.savefig(fig)
+
+    with pikepdf.Pdf.open(buf) as pdf:
+        info = {k: str(v) for k, v in pdf.docinfo.items()}
+
+    assert info == {
+        '/Author': 'me',
+        '/CreationDate': 'D:19700101000000Z',
+        '/Creator': f'Matplotlib v{mpl.__version__}, https://matplotlib.org',
+        '/Keywords': 'test,pdf,multipage',
+        '/ModDate': 'D:19680801000000Z',
+        '/Producer': f'Matplotlib pdf backend v{mpl.__version__}',
+        '/Subject': 'Test page',
+        '/Title': 'Multipage PDF',
+        '/Trapped': '/True',
+    }
+
+
 def test_pdfpages_fspath():
     with PdfPages(Path(os.devnull)) as pdf:
         pdf.savefig(plt.figure())
@@ -171,16 +244,13 @@ def test_missing_psfont(monkeypatch):
 
 
 @pytest.mark.style('default')
-def test_pdf_savefig_when_color_is_none(tmpdir):
-    fig, ax = plt.subplots()
-    plt.axis('off')
-    ax.plot(np.sin(np.linspace(-5, 5, 100)), 'v', c='none')
-    actual_image = tmpdir.join('figure.pdf')
-    expected_image = tmpdir.join('figure.eps')
-    fig.savefig(str(actual_image), format='pdf')
-    fig.savefig(str(expected_image), format='eps')
-    result = compare_images(str(actual_image), str(expected_image), 0)
-    assert result is None
+@check_figures_equal(extensions=["pdf", "eps"])
+def test_pdf_eps_savefig_when_color_is_none(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_test.set_axis_off()
+    ax_test.plot(np.sin(np.linspace(-5, 5, 100)), "v", c="none")
+    ax_ref = fig_ref.add_subplot()
+    ax_ref.set_axis_off()
 
 
 @needs_usetex

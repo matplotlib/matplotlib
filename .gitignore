@@ -79,6 +79,7 @@ examples/*/*.svgz
 examples/tests/*
 !examples/tests/backend_driver_sgskip.py
 result_images
+doc/_static/constrained_layout*.png
 
 # Nose/Pytest generated files #
 ###############################
@@ -102,5 +103,5 @@ lib/z.lib
 
 # Vendored dependencies #
 #########################
-
-jquery-ui-*/
+lib/matplotlib/backends/web_backend/node_modules/
+lib/matplotlib/backends/web_backend/package-lock.json

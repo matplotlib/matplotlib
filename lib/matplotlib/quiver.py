@@ -35,8 +35,8 @@ Call signature::
 
   quiver([X, Y], U, V, [C], **kw)
 
-Where *X*, *Y* define the arrow locations, *U*, *V* define the arrow
-directions, and *C* optionally sets the color.
+*X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
+*C* optionally sets the color.
 
 **Arrow size**
 
@@ -249,7 +249,7 @@ class QuiverKey(martist.Artist):
             Any additional keyword arguments are used to override vector
             properties taken from *Q*.
         """
-        martist.Artist.__init__(self)
+        super().__init__()
         self.Q = Q
         self.X = X
         self.Y = Y
@@ -259,7 +259,7 @@ class QuiverKey(martist.Artist):
         self.color = color
         self.label = label
         self._labelsep_inches = labelsep
-        self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
+        self.labelsep = (self._labelsep_inches * Q.axes.figure.dpi)
 
         # try to prevent closure over the real self
         weak_self = weakref.ref(self)
@@ -272,8 +272,8 @@ class QuiverKey(martist.Artist):
                 # the start of draw.
                 self_weakref._initialized = False
 
-        self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
-                                                  on_dpi_change)
+        self._cid = Q.axes.figure.callbacks.connect(
+            'dpi_changed', on_dpi_change)
 
         self.labelpos = labelpos
         self.labelcolor = labelcolor
@@ -293,31 +293,25 @@ class QuiverKey(martist.Artist):
         self.zorder = Q.zorder + 0.1
 
     def remove(self):
-        """
-        Overload the remove method
-        """
-        self.Q.ax.figure.callbacks.disconnect(self._cid)
+        # docstring inherited
+        self.Q.axes.figure.callbacks.disconnect(self._cid)
         self._cid = None
-        # pass the remove call up the stack
-        martist.Artist.remove(self)
+        super().remove()  # pass the remove call up the stack
 
     def _init(self):
         if True:  # not self._initialized:
             if not self.Q._initialized:
                 self.Q._init()
             self._set_transform()
-            _pivot = self.Q.pivot
-            self.Q.pivot = self.pivot[self.labelpos]
-            # Hack: save and restore the Umask
-            _mask = self.Q.Umask
-            self.Q.Umask = ma.nomask
-            u = self.U * np.cos(np.radians(self.angle))
-            v = self.U * np.sin(np.radians(self.angle))
-            angle = self.Q.angles if isinstance(self.Q.angles, str) else 'uv'
-            self.verts = self.Q._make_verts(
-                np.array([u]), np.array([v]), angle)
-            self.Q.Umask = _mask
-            self.Q.pivot = _pivot
+            with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
+                                   # Hack: save and restore the Umask
+                                   Umask=ma.nomask):
+                u = self.U * np.cos(np.radians(self.angle))
+                v = self.U * np.sin(np.radians(self.angle))
+                angle = (self.Q.angles if isinstance(self.Q.angles, str)
+                         else 'uv')
+                self.verts = self.Q._make_verts(
+                    np.array([u]), np.array([v]), angle)
             kw = self.Q.polykw
             kw.update(self.kw)
             self.vector = mcollections.PolyCollection(
@@ -358,19 +352,15 @@ class QuiverKey(martist.Artist):
         self.stale = False
 
     def _set_transform(self):
-        if self.coord == 'data':
-            self.set_transform(self.Q.ax.transData)
-        elif self.coord == 'axes':
-            self.set_transform(self.Q.ax.transAxes)
-        elif self.coord == 'figure':
-            self.set_transform(self.Q.ax.figure.transFigure)
-        elif self.coord == 'inches':
-            self.set_transform(self.Q.ax.figure.dpi_scale_trans)
-        else:
-            raise ValueError('unrecognized coordinates')
+        self.set_transform(cbook._check_getitem({
+            "data": self.Q.axes.transData,
+            "axes": self.Q.axes.transAxes,
+            "figure": self.Q.axes.figure.transFigure,
+            "inches": self.Q.axes.figure.dpi_scale_trans,
+        }, coordinates=self.coord))
 
     def set_figure(self, fig):
-        martist.Artist.set_figure(self, fig)
+        super().set_figure(fig)
         self.text.set_figure(fig)
 
     def contains(self, mouseevent):
@@ -480,7 +470,7 @@ class Quiver(mcollections.PolyCollection):
         by the following pyplot interface documentation:
         %s
         """
-        self.ax = ax
+        self._axes = ax  # The attr actually set by the Artist.axes property.
         X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
         self.X = X
         self.Y = Y
@@ -505,16 +495,13 @@ class Quiver(mcollections.PolyCollection):
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', color)
         kw.setdefault('linewidths', (0,))
-        mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                             transOffset=self.transform,
-                                             closed=False,
-                                             **kw)
+        super().__init__([], offsets=self.XY, transOffset=self.transform,
+                         closed=False, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
 
-        # try to prevent closure over the real self
-        weak_self = weakref.ref(self)
+        weak_self = weakref.ref(self)  # Prevent closure over the real self.
 
         def on_dpi_change(fig):
             self_weakref = weak_self()
@@ -525,18 +512,17 @@ class Quiver(mcollections.PolyCollection):
                 # the start of draw.
                 self_weakref._initialized = False
 
-        self._cid = self.ax.figure.callbacks.connect('dpi_changed',
-                                                     on_dpi_change)
+        self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+
+    @cbook.deprecated("3.3", alternative="axes")
+    def ax(self):
+        return self.axes
 
     def remove(self):
-        """
-        Overload the remove method
-        """
-        # disconnect the call back
-        self.ax.figure.callbacks.disconnect(self._cid)
+        # docstring inherited
+        self.axes.figure.callbacks.disconnect(self._cid)
         self._cid = None
-        # pass the remove call up the stack
-        mcollections.PolyCollection.remove(self)
+        super().remove()  # pass the remove call up the stack
 
     def _init(self):
         """
@@ -547,8 +533,7 @@ class Quiver(mcollections.PolyCollection):
         # available to have this work on an as-needed basis at present.
         if True:  # not self._initialized:
             trans = self._set_transform()
-            ax = self.ax
-            self.span = trans.inverted().transform_bbox(ax.bbox).width
+            self.span = trans.inverted().transform_bbox(self.axes.bbox).width
             if self.width is None:
                 sn = np.clip(math.sqrt(self.N), 8, 25)
                 self.width = 0.06 * self.span / sn
@@ -574,7 +559,7 @@ class Quiver(mcollections.PolyCollection):
         verts = self._make_verts(self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
         self._new_UV = False
-        mcollections.PolyCollection.draw(self, renderer)
+        super().draw(renderer)
         self.stale = False
 
     def set_UVC(self, U, V, C=None):
@@ -585,7 +570,7 @@ class Quiver(mcollections.PolyCollection):
         if C is not None:
             C = ma.masked_invalid(C, copy=True).ravel()
         for name, var in zip(('U', 'V', 'C'), (U, V, C)):
-            if var is not None and var.size != self.N:
+            if not (var is None or var.size == self.N or var.size == 1):
                 raise ValueError(f'Argument {name} has a size {var.size}'
                                  f' which does not match {self.N},'
                                  ' the number of arrow positions')
@@ -609,38 +594,37 @@ class Quiver(mcollections.PolyCollection):
         """
         Return a scale factor for converting from units to pixels
         """
-        ax = self.ax
         if units in ('x', 'y', 'xy'):
             if units == 'x':
-                dx0 = ax.viewLim.width
-                dx1 = ax.bbox.width
+                dx0 = self.axes.viewLim.width
+                dx1 = self.axes.bbox.width
             elif units == 'y':
-                dx0 = ax.viewLim.height
-                dx1 = ax.bbox.height
+                dx0 = self.axes.viewLim.height
+                dx1 = self.axes.bbox.height
             else:  # 'xy' is assumed
-                dxx0 = ax.viewLim.width
-                dxx1 = ax.bbox.width
-                dyy0 = ax.viewLim.height
-                dyy1 = ax.bbox.height
+                dxx0 = self.axes.viewLim.width
+                dxx1 = self.axes.bbox.width
+                dyy0 = self.axes.viewLim.height
+                dyy1 = self.axes.bbox.height
                 dx1 = np.hypot(dxx1, dyy1)
                 dx0 = np.hypot(dxx0, dyy0)
             dx = dx1 / dx0
         else:
             if units == 'width':
-                dx = ax.bbox.width
+                dx = self.axes.bbox.width
             elif units == 'height':
-                dx = ax.bbox.height
+                dx = self.axes.bbox.height
             elif units == 'dots':
                 dx = 1.0
             elif units == 'inches':
-                dx = ax.figure.dpi
+                dx = self.axes.figure.dpi
             else:
                 raise ValueError('unrecognized units')
         return dx
 
     def _set_transform(self):
         """
-        Sets the PolygonCollection transform to go
+        Set the PolyCollection transform to go
         from arrow width units to pixels.
         """
         dx = self._dots_per_unit(self.units)
@@ -650,9 +634,9 @@ class Quiver(mcollections.PolyCollection):
         return trans
 
     def _angles_lengths(self, U, V, eps=1):
-        xy = self.ax.transData.transform(self.XY)
+        xy = self.axes.transData.transform(self.XY)
         uv = np.column_stack((U, V))
-        xyp = self.ax.transData.transform(self.XY + eps * uv)
+        xyp = self.axes.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
         lengths = np.hypot(*dxy.T) / eps
@@ -670,7 +654,7 @@ class Quiver(mcollections.PolyCollection):
             # Calculate eps based on the extents of the plot
             # so that we don't end up with roundoff error from
             # adding a small number to a large.
-            eps = np.abs(self.ax.dataLim.extents).max() * 0.001
+            eps = np.abs(self.axes.dataLim.extents).max() * 0.001
             angles, lengths = self._angles_lengths(U, V, eps=eps)
         if str_angles and self.scale_units == 'xy':
             a = lengths
@@ -806,7 +790,6 @@ schematically below::
   :                /      \    \    \
   :               ------------------------------
 
-
 The largest increment is given by a triangle (or "flag"). After those
 come full lines (barbs). The smallest increment is a half line.  There
 is only, of course, ever at most 1 half line.  If the magnitude is
@@ -817,8 +800,6 @@ magnitude for the barb shown above would nominally be 65, using the
 standard increments of 50, 10, and 5.
 
 See also https://en.wikipedia.org/wiki/Wind_barb.
-
-
 
 Parameters
 ----------
@@ -988,9 +969,8 @@ class Barbs(mcollections.PolyCollection):
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
-        mcollections.PolyCollection.__init__(self, [], (barb_size,),
-                                             offsets=xy,
-                                             transOffset=transform, **kw)
+        super().__init__([], (barb_size,), offsets=xy, transOffset=transform,
+                         **kw)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
@@ -1030,48 +1010,48 @@ class Barbs(mcollections.PolyCollection):
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
                     pivot, sizes, fill_empty, flip):
         """
-        This function actually creates the wind barbs.  *u* and *v*
-        are components of the vector in the *x* and *y* directions,
-        respectively.
+        Create the wind barbs.
 
-        *nflags*, *nbarbs*, and *half_barb*, empty_flag* are,
-        *respectively, the number of flags, number of barbs, flag for
-        *half a barb, and flag for empty barb, ostensibly obtained
-        *from :meth:`_find_tails`.
+        Parameters
+        ----------
+        u, v
+            Components of the vector in the x and y directions, respectively.
 
-        *length* is the length of the barb staff in points.
+        nflags, nbarbs, half_barb, empty_flag
+            Respectively, the number of flags, number of barbs, flag for
+            half a barb, and flag for empty barb, ostensibly obtained from
+            :meth:`_find_tails`.
 
-        *pivot* specifies the point on the barb around which the
-        entire barb should be rotated.  Right now, valid options are
-        'tip' and 'middle'. Can also be a number, which shifts the start
-        of the barb that many points from the origin.
+        length
+            The length of the barb staff in points.
 
-        *sizes* is a dictionary of coefficients specifying the ratio
-        of a given feature to the length of the barb. These features
-        include:
+        pivot : {"tip", "middle"} or number
+            The point on the barb around which the entire barb should be
+            rotated.  If a number, the start of the barb is shifted by that
+            many points from the origin.
 
-            - *spacing*: space between features (flags, full/half
-               barbs)
+        sizes : dict
+            Coefficients specifying the ratio of a given feature to the length
+            of the barb. These features include:
 
-            - *height*: distance from shaft of top of a flag or full
-               barb
+            - *spacing*: space between features (flags, full/half barbs).
+            - *height*: distance from shaft of top of a flag or full barb.
+            - *width*: width of a flag, twice the width of a full barb.
+            - *emptybarb*: radius of the circle used for low magnitudes.
 
-            - *width* - width of a flag, twice the width of a full barb
+        fill_empty : bool
+            Whether the circle representing an empty barb should be filled or
+            not (this changes the drawing of the polygon).
 
-            - *emptybarb* - radius of the circle used for low
-               magnitudes
+        flip : list of bool
+            Whether the features should be flipped to the other side of the
+            barb (useful for winds in the southern hemisphere).
 
-        *fill_empty* specifies whether the circle representing an
-        empty barb should be filled or not (this changes the drawing
-        of the polygon).
-
-        *flip* is a flag indicating whether the features should be flipped to
-        the other side of the barb (useful for winds in the southern
-        hemisphere).
-
-        This function returns list of arrays of vertices, defining a polygon
-        for each of the wind barbs.  These polygons have been rotated to
-        properly align with the vector direction.
+        Returns
+        -------
+        list of arrays of vertices
+            Polygon vertices for each of the wind barbs.  These polygons have
+            been rotated to properly align with the vector direction.
         """
 
         # These control the spacing and size of barb elements relative to the
@@ -1230,7 +1210,7 @@ class Barbs(mcollections.PolyCollection):
             self.x.ravel(), self.y.ravel(), self.u, self.v)
         _check_consistent_shapes(x, y, u, v)
         xy = np.column_stack((x, y))
-        mcollections.PolyCollection.set_offsets(self, xy)
+        super().set_offsets(xy)
         self.stale = True
 
     barbs_doc = _barbs_doc

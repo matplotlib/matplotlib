@@ -1,4 +1,5 @@
 from numbers import Number
+import functools
 
 import numpy as np
 
@@ -19,6 +20,11 @@ def _tick_only(ax, bottom_on, left_on):
 
 
 class CbarAxesBase:
+    def __init__(self, *args, orientation, **kwargs):
+        self.orientation = orientation
+        self._default_label_on = True
+        self._locator = None  # deprecated.
+        super().__init__(*args, **kwargs)
 
     @cbook._rename_parameter("3.2", "locator", "ticks")
     def colorbar(self, mappable, *, ticks=None, **kwargs):
@@ -38,21 +44,25 @@ class CbarAxesBase:
             if ticks is None:
                 ticks = ticker.MaxNLocator(5)  # For backcompat.
             from .colorbar import Colorbar
+            cb = Colorbar(
+                self, mappable, orientation=orientation, ticks=ticks, **kwargs)
+            self._cbid = mappable.callbacksSM.connect(
+                'changed', cb.update_normal)
+            mappable.colorbar = cb
+            self._locator = cb.cbar_axis.get_major_locator()
         else:
-            from matplotlib.colorbar import Colorbar
-        cb = Colorbar(
-            self, mappable, orientation=orientation, ticks=ticks, **kwargs)
+            cb = mpl.colorbar.colorbar_factory(
+                self, mappable, orientation=orientation, ticks=ticks, **kwargs)
+            self._cbid = mappable.colorbar_cid  # deprecated.
+            self._locator = cb.locator  # deprecated.
+
         self._config_axes()
-
-        self.cbid = mappable.callbacksSM.connect('changed', cb.update_normal)
-        mappable.colorbar = cb
-
-        if mpl.rcParams["mpl_toolkits.legacy_colorbar"]:
-            self.locator = cb.cbar_axis.get_major_locator()
-        else:
-            self.locator = cb.locator
-
         return cb
+
+    cbid = cbook._deprecate_privatize_attribute(
+        "3.3", alternative="mappable.colorbar_cid")
+    locator = cbook._deprecate_privatize_attribute(
+        "3.3", alternative=".colorbar().locator")
 
     def _config_axes(self):
         """Make an axes patch and outline."""
@@ -67,17 +77,13 @@ class CbarAxesBase:
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
 
-
-class CbarAxes(CbarAxesBase, Axes):
-    def __init__(self, *args, orientation, **kwargs):
-        self.orientation = orientation
-        self._default_label_on = True
-        self.locator = None
-        super().__init__(*args, **kwargs)
-
     def cla(self):
         super().cla()
         self._config_axes()
+
+
+class CbarAxes(CbarAxesBase, Axes):
+    pass
 
 
 class Grid:
@@ -93,6 +99,7 @@ class Grid:
 
     _defaultAxesClass = Axes
 
+    @cbook._delete_parameter("3.3", "add_all")
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -128,6 +135,7 @@ class Grid:
             inches.
         add_all : bool, default: True
             Whether to add the axes to the figure using `.Figure.add_axes`.
+            This parameter is deprecated.
         share_all : bool, default: False
             Whether all axes share their x- and y-axis.  Overrides *share_x*
             and *share_y*.
@@ -166,6 +174,9 @@ class Grid:
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
+        elif isinstance(axes_class, (list, tuple)):
+            cls, kwargs = axes_class
+            axes_class = functools.partial(cls, **kwargs)
 
         kw = dict(horizontal=[], vertical=[], aspect=aspect)
         if isinstance(rect, (str, Number, SubplotSpec)):
@@ -335,14 +346,7 @@ class Grid:
         return self._divider.get_locator()
 
     def get_vsize_hsize(self):
-
         return self._divider.get_vsize_hsize()
-#         from axes_size import AddList
-
-#         vsize = AddList(self._divider.get_vertical())
-#         hsize = AddList(self._divider.get_horizontal())
-
-#         return vsize, hsize
 
 
 class ImageGrid(Grid):
@@ -350,6 +354,7 @@ class ImageGrid(Grid):
 
     _defaultCbarAxesClass = CbarAxes
 
+    @cbook._delete_parameter("3.3", "add_all")
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -388,6 +393,7 @@ class ImageGrid(Grid):
             inches.
         add_all : bool, default: True
             Whether to add the axes to the figure using `.Figure.add_axes`.
+            This parameter is deprecated.
         share_all : bool, default: False
             Whether all axes share their x- and y-axis.
         aspect : bool, default: True
@@ -422,11 +428,18 @@ class ImageGrid(Grid):
         self._colorbar_size = cbar_size
         # The colorbar axes are created in _init_locators().
 
-        super().__init__(
-            fig, rect, nrows_ncols, ngrids,
-            direction=direction, axes_pad=axes_pad, add_all=add_all,
-            share_all=share_all, share_x=True, share_y=True, aspect=aspect,
-            label_mode=label_mode, axes_class=axes_class)
+        if add_all:
+            super().__init__(
+                fig, rect, nrows_ncols, ngrids,
+                direction=direction, axes_pad=axes_pad,
+                share_all=share_all, share_x=True, share_y=True, aspect=aspect,
+                label_mode=label_mode, axes_class=axes_class)
+        else:  # Only show deprecation in that case.
+            super().__init__(
+                fig, rect, nrows_ncols, ngrids,
+                direction=direction, axes_pad=axes_pad, add_all=add_all,
+                share_all=share_all, share_x=True, share_y=True, aspect=aspect,
+                label_mode=label_mode, axes_class=axes_class)
 
         if add_all:
             for ax in self.cbar_axes:

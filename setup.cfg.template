@@ -1,8 +1,14 @@
 # Rename this file to setup.cfg to modify Matplotlib's build options.
 
+[metadata]
+license_files = LICENSE/*
+
 [egg_info]
 
 [libs]
+# By default, Matplotlib builds with LTO, which may be slow if you re-compile
+# often, and don't need the space saving/speedup.
+#enable_lto = True
 # By default, Matplotlib downloads and builds its own copy of FreeType, and
 # builds its own copy of Qhull.  You may set the following to True to instead
 # link against a system FreeType/Qhull.
@@ -18,18 +24,11 @@
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, known as backends.
-# The Mac OSX backend requires the Cocoa headers included with XCode.
+# The MacOSX backend requires the Cocoa headers included with XCode.
 # You can select whether to build it by uncommenting the following line.
-# Acceptable values are:
+# It is never built on Linux or Windows, regardless of the config value.
 #
-#     True: build the extension. Exits with a warning if the
-#           required dependencies are not available
-#     False: do not build the extension
-#     auto: build if the required dependencies are available,
-#           otherwise skip silently. This is the default
-#           behavior
-#
-#macosx = auto
+#macosx = True
 
 [rc_options]
 # User-configurable options

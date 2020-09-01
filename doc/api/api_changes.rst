@@ -14,19 +14,17 @@ For API changes in older versions see
    api_changes_old
 
 Changes for the latest version are listed below. For new features that were
-added to Matplotlib, see :ref:`whats-new`.
+added to Matplotlib, see :ref:`whats-new`
 
 .. ifconfig:: releaselevel == 'dev'
 
    .. note::
 
       The list below is a table of contents of individual files from the
-      'next_api_changes' folder.
+      most recent :file:`api_changes_X.Y` folder.
 
       When a release is made
 
-       - The files in 'next_api_changes/' should be moved to a new file in
-         'prev_api_changes/'.
        - The include directive below should be changed to point to the new file
          created in the previous step.
 
@@ -35,6 +33,10 @@ added to Matplotlib, see :ref:`whats-new`.
       :glob:
       :maxdepth: 1
 
-      next_api_changes/*
+      next_api_changes/behavior/*
+      next_api_changes/deprecations/*
+      next_api_changes/development/*
+      next_api_changes/removals/*
 
-.. include:: prev_api_changes/api_changes_3.2.0.rst
+.. include:: prev_api_changes/api_changes_3.3.1.rst
+.. include:: prev_api_changes/api_changes_3.3.0.rst

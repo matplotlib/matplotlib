@@ -1,10 +1,12 @@
 import numpy as np
 
+from matplotlib import cbook
 from .axes_divider import make_axes_locatable, Size
 from .mpl_axes import Axes
 
 
-def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
+@cbook._delete_parameter("3.3", "add_all")
+def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True, **kwargs):
     """
     Parameters
     ----------
@@ -32,9 +34,8 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
             axes_class = type(ax)
 
     for ny in [4, 2, 0]:
-        ax1 = axes_class(ax.get_figure(),
-                         ax.get_position(original=True),
-                         sharex=ax, sharey=ax)
+        ax1 = axes_class(ax.get_figure(), ax.get_position(original=True),
+                         sharex=ax, sharey=ax, **kwargs)
         locator = divider.new_locator(nx=2, ny=ny)
         ax1.set_axes_locator(locator)
         for t in ax1.yaxis.get_ticklabels() + ax1.xaxis.get_ticklabels():
@@ -55,24 +56,14 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     return ax_rgb
 
 
+@cbook.deprecated("3.3", alternative="ax.imshow(np.dstack([r, g, b]))")
 def imshow_rgb(ax, r, g, b, **kwargs):
-    ny, nx = r.shape
-    R = np.zeros((ny, nx, 3))
-    R[:, :, 0] = r
-    G = np.zeros_like(R)
-    G[:, :, 1] = g
-    B = np.zeros_like(R)
-    B[:, :, 2] = b
-
-    RGB = R + G + B
-
-    im_rgb = ax.imshow(RGB, **kwargs)
-
-    return im_rgb
+    return ax.imshow(np.dstack([r, g, b]), **kwargs)
 
 
-class RGBAxesBase:
-    """base class for a 4-panel imshow (RGB, R, G, B)
+class RGBAxes:
+    """
+    4-panel imshow (RGB, R, G, B).
 
     Layout:
     +---------------+-----+
@@ -83,20 +74,23 @@ class RGBAxesBase:
     |               |  B  |
     +---------------+-----+
 
+    Subclasses can override the ``_defaultAxesClass`` attribute.
+
     Attributes
     ----------
-    _defaultAxesClass : matplotlib.axes.Axes
-        defaults to 'Axes' in RGBAxes child class.
-        No default in abstract base class
-    RGB : _defaultAxesClass
-        The axes object for the three-channel imshow
-    R : _defaultAxesClass
-        The axes object for the red channel imshow
-    G : _defaultAxesClass
-        The axes object for the green channel imshow
-    B : _defaultAxesClass
-        The axes object for the blue channel imshow
+    RGB : ``_defaultAxesClass``
+        The axes object for the three-channel imshow.
+    R : ``_defaultAxesClass``
+        The axes object for the red channel imshow.
+    G : ``_defaultAxesClass``
+        The axes object for the green channel imshow.
+    B : ``_defaultAxesClass``
+        The axes object for the blue channel imshow.
     """
+
+    _defaultAxesClass = Axes
+
+    @cbook._delete_parameter("3.3", "add_all")
     def __init__(self, *args, pad=0, add_all=True, **kwargs):
         """
         Parameters
@@ -104,7 +98,8 @@ class RGBAxesBase:
         pad : float, default: 0
             fraction of the axes height to put as padding.
         add_all : bool, default: True
-            Whether to add the {rgb, r, g, b} axes to the figure
+            Whether to add the {rgb, r, g, b} axes to the figure.
+            This parameter is deprecated.
         axes_class : matplotlib.axes.Axes
 
         *args
@@ -112,70 +107,29 @@ class RGBAxesBase:
         **kwargs
             Unpacked into axes_class() init for RGB, R, G, B axes
         """
-        try:
-            axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
-        except AttributeError:
-            raise AttributeError(
-                'A subclass of RGBAxesBase must have a _defaultAxesClass '
-                'attribute. If you are not sure which axes class to use, '
-                'consider using mpl_toolkits.axes_grid1.mpl_axes.Axes.'
-            )
-
-        ax = axes_class(*args, **kwargs)
-
-        divider = make_axes_locatable(ax)
-
-        pad_size = pad * Size.AxesY(ax)
-
-        xsize = ((1-2*pad)/3) * Size.AxesX(ax)
-        ysize = ((1-2*pad)/3) * Size.AxesY(ax)
-
-        divider.set_horizontal([Size.AxesX(ax), pad_size, xsize])
-        divider.set_vertical([ysize, pad_size, ysize, pad_size, ysize])
-
-        ax.set_axes_locator(divider.new_locator(0, 0, ny1=-1))
-
-        ax_rgb = []
-        for ny in [4, 2, 0]:
-            ax1 = axes_class(ax.get_figure(),
-                             ax.get_position(original=True),
-                             sharex=ax, sharey=ax, **kwargs)
-            locator = divider.new_locator(nx=2, ny=ny)
-            ax1.set_axes_locator(locator)
-            ax1.axis[:].toggle(ticklabels=False)
-            ax_rgb.append(ax1)
-
-        self.RGB = ax
-        self.R, self.G, self.B = ax_rgb
-
+        axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
+        self.RGB = ax = axes_class(*args, **kwargs)
         if add_all:
-            fig = ax.get_figure()
-            fig.add_axes(ax)
-            self.add_RGB_to_figure()
-
-        self._config_axes()
-
-    def _config_axes(self, line_color='w', marker_edge_color='w'):
-        """Set the line color and ticks for the axes
-
-        Parameters
-        ----------
-        line_color : color
-        marker_edge_color : color
-        """
+            ax.get_figure().add_axes(ax)
+        else:
+            kwargs["add_all"] = add_all  # only show deprecation in that case
+        self.R, self.G, self.B = make_rgb_axes(
+            ax, pad=pad, axes_class=axes_class, **kwargs)
+        # Set the line color and ticks for the axes.
         for ax1 in [self.RGB, self.R, self.G, self.B]:
-            ax1.axis[:].line.set_color(line_color)
-            ax1.axis[:].major_ticks.set_markeredgecolor(marker_edge_color)
+            ax1.axis[:].line.set_color("w")
+            ax1.axis[:].major_ticks.set_markeredgecolor("w")
 
+    @cbook.deprecated("3.3")
     def add_RGB_to_figure(self):
-        """Add the red, green and blue axes to the RGB composite's axes figure
-        """
+        """Add red, green and blue axes to the RGB composite's axes figure."""
         self.RGB.get_figure().add_axes(self.R)
         self.RGB.get_figure().add_axes(self.G)
         self.RGB.get_figure().add_axes(self.B)
 
     def imshow_rgb(self, r, g, b, **kwargs):
-        """Create the four images {rgb, r, g, b}
+        """
+        Create the four images {rgb, r, g, b}.
 
         Parameters
         ----------
@@ -196,11 +150,8 @@ class RGBAxesBase:
         b : matplotlib.image.AxesImage
         """
         if not (r.shape == g.shape == b.shape):
-            raise ValueError('Input shapes do not match.'
-                             '\nr.shape = {}'
-                             '\ng.shape = {}'
-                             '\nb.shape = {}'
-                             .format(r.shape, g.shape, b.shape))
+            raise ValueError(
+                f'Input shapes ({r.shape}, {g.shape}, {b.shape}) do not match')
         RGB = np.dstack([r, g, b])
         R = np.zeros_like(RGB)
         R[:, :, 0] = r
@@ -208,14 +159,13 @@ class RGBAxesBase:
         G[:, :, 1] = g
         B = np.zeros_like(RGB)
         B[:, :, 2] = b
-
         im_rgb = self.RGB.imshow(RGB, **kwargs)
         im_r = self.R.imshow(R, **kwargs)
         im_g = self.G.imshow(G, **kwargs)
         im_b = self.B.imshow(B, **kwargs)
-
         return im_rgb, im_r, im_g, im_b
 
 
-class RGBAxes(RGBAxesBase):
-    _defaultAxesClass = Axes
+@cbook.deprecated("3.3", alternative="RGBAxes")
+class RGBAxesBase(RGBAxes):
+    pass

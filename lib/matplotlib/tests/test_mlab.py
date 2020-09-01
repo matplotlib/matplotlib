@@ -303,7 +303,7 @@ class TestWindow:
         assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
-    def test_apply_window_hanning_2D__els1_axis1(self):
+    def test_apply_window_hanning_2D_els1_axis1(self):
         x = np.random.standard_normal([10, 1000]) + 100.
         window = mlab.window_hanning(np.ones(x.shape[1]))
         window1 = mlab.window_hanning
@@ -1561,44 +1561,38 @@ class TestGaussianKDECustom:
             mlab.GaussianKDE([42])
 
     def test_silverman_multidim_dataset(self):
-        """Use a multi-dimensional array as the dataset and test silverman's
-        output"""
+        """Test silverman's for a multi-dimensional array."""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         with pytest.raises(np.linalg.LinAlgError):
             mlab.GaussianKDE(x1, "silverman")
 
     def test_silverman_singledim_dataset(self):
-        """Use a single dimension list as the dataset and test silverman's
-        output."""
+        """Test silverman's output for a single dimension list."""
         x1 = np.array([-7, -5, 1, 4, 5])
         mygauss = mlab.GaussianKDE(x1, "silverman")
         y_expected = 0.76770389927475502
         assert_almost_equal(mygauss.covariance_factor(), y_expected, 7)
 
     def test_scott_multidim_dataset(self):
-        """Use a multi-dimensional array as the dataset and test scott's output
-        """
+        """Test scott's output for a multi-dimensional array."""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         with pytest.raises(np.linalg.LinAlgError):
             mlab.GaussianKDE(x1, "scott")
 
     def test_scott_singledim_dataset(self):
-        """Use a single-dimensional array as the dataset and test scott's
-        output"""
+        """Test scott's output a single-dimensional array."""
         x1 = np.array([-7, -5, 1, 4, 5])
         mygauss = mlab.GaussianKDE(x1, "scott")
         y_expected = 0.72477966367769553
         assert_almost_equal(mygauss.covariance_factor(), y_expected, 7)
 
     def test_scalar_empty_dataset(self):
-        """Use an empty array as the dataset and test the scalar's cov factor
-        """
+        """Test the scalar's cov factor for an empty array."""
         with pytest.raises(ValueError):
             mlab.GaussianKDE([], bw_method=5)
 
     def test_scalar_covariance_dataset(self):
-        """Use a dataset and test a scalar's cov factor
-        """
+        """Test a scalar's cov factor."""
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
@@ -1607,8 +1601,7 @@ class TestGaussianKDECustom:
         assert kde.covariance_factor() == 0.5
 
     def test_callable_covariance_dataset(self):
-        """Use a multi-dimensional array as the dataset and test the callable's
-        cov factor"""
+        """Test the callable's cov factor for a multi-dimensional array."""
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
@@ -1619,8 +1612,7 @@ class TestGaussianKDECustom:
         assert kde.covariance_factor() == 0.55
 
     def test_callable_singledim_dataset(self):
-        """Use a single-dimensional array as the dataset and test the
-        callable's cov factor"""
+        """Test the callable's cov factor for a single-dimensional array."""
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = np.random.randn(n_basesample)

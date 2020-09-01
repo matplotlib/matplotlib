@@ -20,7 +20,6 @@ from matplotlib.ticker import (
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
     SymmetricalLogLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
-from matplotlib.cbook import warn_deprecated
 
 
 class ScaleBase:
@@ -41,7 +40,7 @@ class ScaleBase:
 
     """
 
-    def __init__(self, axis, **kwargs):
+    def __init__(self, axis):
         r"""
         Construct a new scale.
 
@@ -54,14 +53,6 @@ class ScaleBase:
         be used: a single scale object should be usable by multiple
         `~matplotlib.axis.Axis`\es at the same time.
         """
-        if kwargs:
-            warn_deprecated(
-                '3.2.0',
-                message=(
-                    f"ScaleBase got an unexpected keyword "
-                    f"argument {next(iter(kwargs))!r}. "
-                    'In the future this will raise TypeError')
-            )
 
     def get_transform(self):
         """
@@ -79,8 +70,8 @@ class ScaleBase:
 
     def limit_range_for_scale(self, vmin, vmax, minpos):
         """
-        Returns the range *vmin*, *vmax*, possibly limited to the
-        domain supported by this scale.
+        Return the range *vmin*, *vmax*, restricted to the
+        domain supported by this scale (if any).
 
         *minpos* should be the minimum positive value in the data.
         This is used by log scales to determine a minimum value.
@@ -95,13 +86,12 @@ class LinearScale(ScaleBase):
 
     name = 'linear'
 
-    def __init__(self, axis, **kwargs):
+    def __init__(self, axis):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
         # the docstring of Axis.set_scale.
         """
         """
-        super().__init__(axis, **kwargs)
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
@@ -109,8 +99,8 @@ class LinearScale(ScaleBase):
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_formatter(NullFormatter())
         # update the minor locator for x and y axis based on rcParams
-        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible']
-            or axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
+        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible'] or
+                axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
             axis.set_minor_locator(AutoMinorLocator())
         else:
             axis.set_minor_locator(NullLocator())
@@ -194,8 +184,8 @@ class FuncScale(ScaleBase):
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_formatter(NullFormatter())
         # update the minor locator for x and y axis based on rcParams
-        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible']
-            or axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
+        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible'] or
+                axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
             axis.set_minor_locator(AutoMinorLocator())
         else:
             axis.set_minor_locator(NullLocator())
@@ -206,7 +196,7 @@ class LogTransform(Transform):
 
     @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, base, nonpositive='clip'):
-        Transform.__init__(self)
+        super().__init__()
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
         self.base = base
@@ -247,7 +237,7 @@ class InvertedLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base):
-        Transform.__init__(self)
+        super().__init__()
         self.base = base
 
     def __str__(self):
@@ -373,7 +363,7 @@ class SymmetricalLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
-        Transform.__init__(self)
+        super().__init__()
         if base <= 1.0:
             raise ValueError("'base' must be larger than 1")
         if linthresh <= 0.0:
@@ -405,7 +395,7 @@ class InvertedSymmetricalLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
-        Transform.__init__(self)
+        super().__init__()
         symlog = SymmetricalLogTransform(base, linthresh, linscale)
         self.base = base
         self.linthresh = linthresh
@@ -480,15 +470,7 @@ class SymmetricalLogScale(ScaleBase):
         @cbook._rename_parameter("3.3", f"linthresh{axis_name}", "linthresh")
         @cbook._rename_parameter("3.3", f"subs{axis_name}", "subs")
         @cbook._rename_parameter("3.3", f"linscale{axis_name}", "linscale")
-        def __init__(*, base=10, linthresh=2, subs=None, linscale=1, **kwargs):
-            if kwargs:
-                warn_deprecated(
-                    "3.2.0",
-                    message=(
-                        f"SymmetricalLogScale got an unexpected keyword "
-                        f"argument {next(iter(kwargs))!r}; in the future, "
-                        f"this will raise a TypeError")
-                )
+        def __init__(*, base=10, linthresh=2, subs=None, linscale=1):
             return base, linthresh, subs, linscale
 
         base, linthresh, subs, linscale = __init__(**kwargs)
@@ -517,7 +499,7 @@ class LogitTransform(Transform):
 
     @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
-        Transform.__init__(self)
+        super().__init__()
         cbook._check_in_list(['mask', 'clip'], nonpositive=nonpositive)
         self._nonpositive = nonpositive
         self._clip = {"clip": True, "mask": False}[nonpositive]
@@ -543,7 +525,7 @@ class LogisticTransform(Transform):
 
     @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
-        Transform.__init__(self)
+        super().__init__()
         self._nonpositive = nonpositive
 
     def transform_non_affine(self, a):
@@ -665,16 +647,6 @@ def register_scale(scale_class):
         The scale to register.
     """
     _scale_mapping[scale_class.name] = scale_class
-
-
-@cbook.deprecated(
-    '3.1', message='get_scale_docs() is considered private API since '
-                   '3.1 and will be removed from the public API in 3.3.')
-def get_scale_docs():
-    """
-    Helper function for generating docstrings related to scales.
-    """
-    return _get_scale_docs()
 
 
 def _get_scale_docs():

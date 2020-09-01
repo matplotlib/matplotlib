@@ -85,8 +85,8 @@ New plotting features
 ``````````````````````````````
 To give your plots a sense of authority that they may be missing,
 Michael Droettboom (inspired by the work of many others in
-:ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`__ sketch
-plotting mode.  To use it, simply call :func:`matplotlib.pyplot.xkcd`
+:ghpull:`1329`) has added an `xkcd-style <https://xkcd.com/>`__ sketch
+plotting mode.  To use it, simply call `matplotlib.pyplot.xkcd`
 before creating your plot. For really fine control, it is also possible
 to modify each artist's sketch parameters individually with
 :meth:`matplotlib.artist.Artist.set_sketch_params`.

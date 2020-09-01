@@ -1,6 +1,8 @@
 """Contains classes for generating hatch patterns."""
 
 import numpy as np
+
+from matplotlib import cbook
 from matplotlib.path import Path
 
 
@@ -128,7 +130,7 @@ class Circles(Shapes):
         path = Path.unit_circle()
         self.shape_vertices = path.vertices
         self.shape_codes = path.codes
-        Shapes.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
 class SmallCircles(Circles):
@@ -136,7 +138,7 @@ class SmallCircles(Circles):
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('o')) * density
-        Circles.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
 class LargeCircles(Circles):
@@ -144,15 +146,18 @@ class LargeCircles(Circles):
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('O')) * density
-        Circles.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
+# TODO: __init__ and class attributes override all attributes set by
+# SmallCircles. Should this class derive from Circles instead?
 class SmallFilledCircles(SmallCircles):
     size = 0.1
     filled = True
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('.')) * density
+        # Not super().__init__!
         Circles.__init__(self, hatch, density)
 
 
@@ -167,7 +172,7 @@ class Stars(Shapes):
         self.shape_codes = np.full(len(self.shape_vertices), Path.LINETO,
                                    dtype=Path.code_type)
         self.shape_codes[0] = Path.MOVETO
-        Shapes.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 _hatch_types = [
     HorizontalHatch,
@@ -179,6 +184,22 @@ _hatch_types = [
     SmallFilledCircles,
     Stars
     ]
+
+
+def _validate_hatch_pattern(hatch):
+    valid_hatch_patterns = set(r'-+|/\xXoO.*')
+    if hatch is not None:
+        invalids = set(hatch).difference(valid_hatch_patterns)
+        if invalids:
+            valid = ''.join(sorted(valid_hatch_patterns))
+            invalids = ''.join(sorted(invalids))
+            cbook.warn_deprecated(
+                '3.4',
+                message=f'hatch must consist of a string of "{valid}" or '
+                        'None, but found the following invalid values '
+                        f'"{invalids}". Passing invalid values is deprecated '
+                        'since %(since)s and will become an error %(removal)s.'
+            )
 
 
 def get_path(hatchpattern, density=6):

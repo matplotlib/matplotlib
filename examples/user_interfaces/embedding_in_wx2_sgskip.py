@@ -20,8 +20,7 @@ import wx.lib.mixins.inspection as WIT
 
 class CanvasFrame(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, None, -1,
-                          'CanvasFrame', size=(550, 350))
+        super().__init__(None, -1, 'CanvasFrame', size=(550, 350))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -59,5 +58,7 @@ class App(WIT.InspectableApp):
 
         return True
 
-app = App(0)
-app.MainLoop()
+
+if __name__ == "__main__":
+    app = App()
+    app.MainLoop()

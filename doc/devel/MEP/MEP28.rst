@@ -146,7 +146,7 @@ These transformations can then be added to the call signature of
 ``Axes.boxplot`` with little impact to that method's complexity. This is
 because they can be directly passed to ``cbook.boxplot_stats``.
 Alternatively, ``Axes.boxplot`` could be modified to accept an optional
-statistical function kwarg and a dictionary of parameters to be direcly
+statistical function kwarg and a dictionary of parameters to be directly
 passed to it.
 
 At this point in the implementation users and external libraries like

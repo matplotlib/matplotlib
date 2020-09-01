@@ -3,35 +3,8 @@ import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
-import matplotlib.transforms as mtransforms
+from matplotlib.axes import _axes
 from matplotlib.axes._base import _AxesBase
-
-
-def _make_secondary_locator(rect, parent):
-    """
-    Helper function to locate the secondary axes.
-
-    A locator gets used in `Axes.set_aspect` to override the default
-    locations...  It is a function that takes an axes object and
-    a renderer and tells `set_aspect` where it is to be placed.
-
-    This locator make the transform be in axes-relative co-coordinates
-    because that is how we specify the "location" of the secondary axes.
-
-    Here *rect* is a rectangle [l, b, w, h] that specifies the
-    location for the axes in the transform given by *trans* on the
-    *parent*.
-    """
-    _rect = mtransforms.Bbox.from_bounds(*rect)
-    def secondary_locator(ax, renderer):
-        # delay evaluating transform until draw time because the
-        # parent transform may have changed (i.e. if window reesized)
-        bb = mtransforms.TransformedBbox(_rect, parent.transAxes)
-        tr = parent.figure.transFigure.inverted()
-        bb = mtransforms.TransformedBbox(bb, tr)
-        return bb
-
-    return secondary_locator
 
 
 class SecondaryAxis(_AxesBase):
@@ -39,8 +12,7 @@ class SecondaryAxis(_AxesBase):
     General class to hold a Secondary_X/Yaxis.
     """
 
-    def __init__(self, parent, orientation,
-                  location, functions, **kwargs):
+    def __init__(self, parent, orientation, location, functions, **kwargs):
         """
         See `.secondary_xaxis` and `.secondary_yaxis` for the doc string.
         While there is no need for this to be private, it should really be
@@ -64,8 +36,6 @@ class SecondaryAxis(_AxesBase):
             self._otherstrings = ['top', 'bottom']
         self._parentscale = None
         # this gets positioned w/o constrained_layout so exclude:
-        self._layoutbox = None
-        self._poslayoutbox = None
 
         self.set_location(location)
         self.set_functions(functions)
@@ -138,11 +108,13 @@ class SecondaryAxis(_AxesBase):
         self._loc = location
 
         if self._orientation == 'x':
+            # An x-secondary axes is like an inset axes from x = 0 to x = 1 and
+            # from y = pos to y = pos + eps, in the parent's transAxes coords.
             bounds = [0, self._pos, 1., 1e-10]
         else:
             bounds = [self._pos, 0, 1e-10, 1]
 
-        secondary_locator = _make_secondary_locator(bounds, self._parent)
+        secondary_locator = _axes._InsetLocator(bounds, self._parent.transAxes)
 
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
@@ -190,7 +162,7 @@ class SecondaryAxis(_AxesBase):
             inverse.
         """
         if (isinstance(functions, tuple) and len(functions) == 2 and
-            callable(functions[0]) and callable(functions[1])):
+                callable(functions[0]) and callable(functions[1])):
             # make an arbitrary convert from a two-tuple of functions
             # forward and inverse.
             self._functions = functions
@@ -203,7 +175,9 @@ class SecondaryAxis(_AxesBase):
                              'and the second being the inverse')
         self._set_scale()
 
-    def draw(self, renderer=None, inframe=False):
+    # Should be changed to draw(self, renderer) once the deprecation of
+    # renderer=None and of inframe expires.
+    def draw(self, *args, **kwargs):
         """
         Draw the secondary axes.
 
@@ -215,7 +189,7 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         # this sets the scale in case the parent has set its scale.
         self._set_scale()
-        super().draw(renderer=renderer, inframe=inframe)
+        super().draw(*args, **kwargs)
 
     def _set_scale(self):
         """
@@ -293,7 +267,7 @@ class SecondaryAxis(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """
@@ -310,7 +284,7 @@ class SecondaryAxis(_AxesBase):
         ylabel : str
             The label text.
 
-        labelpad : scalar, default: ``self.yaxis.labelpad``
+        labelpad : float, default: ``self.yaxis.labelpad``
             Spacing in points between the label and the y-axis.
 
         Other Parameters
@@ -318,7 +292,7 @@ class SecondaryAxis(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """
@@ -373,14 +347,13 @@ functions : 2-tuple of func, or Transform with an inverse
     See :doc:`/gallery/subplots_axes_and_figures/secondary_axis`
     for examples of making these conversions.
 
+Returns
+-------
+ax : axes._secondary_axes.SecondaryAxis
 
 Other Parameters
 ----------------
 **kwargs : `~matplotlib.axes.Axes` properties.
     Other miscellaneous axes parameters.
-
-Returns
--------
-ax : axes._secondary_axes.SecondaryAxis
 '''
 docstring.interpd.update(_secax_docstring=_secax_docstring)

@@ -7,12 +7,23 @@ import timeit
 
 from cycler import cycler
 import numpy as np
+from numpy.testing import assert_array_equal
 import pytest
 
 import matplotlib
 import matplotlib.lines as mlines
+from matplotlib.markers import MarkerStyle
+from matplotlib.path import Path
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+
+
+def test_segment_hits():
+    """Test a problematic case."""
+    cx, cy = 553, 902
+    x, y = np.array([553., 553.]), np.array([95., 947.])
+    radius = 6.94
+    assert_array_equal(mlines.segment_hits(cx, cy, x, y, radius), [0])
 
 
 # Runtimes on a loaded system are inherently flaky. Not so much that a rerun
@@ -87,6 +98,12 @@ def test_line_colors():
     ax.plot(range(10), color=(1, 0, 0, 1))
     ax.plot(range(10), color=(1, 0, 0))
     fig.canvas.draw()
+
+
+def test_valid_colors():
+    line = mlines.Line2D([], [])
+    with pytest.raises(ValueError):
+        line.set_color("foobar")
 
 
 def test_linestyle_variants():
@@ -172,6 +189,14 @@ def test_marker_fill_styles():
     ax.set_xlim([-5, 155])
 
 
+def test_markerfacecolor_fillstyle():
+    """Test that markerfacecolor does not override fillstyle='none'."""
+    l, = plt.plot([1, 3, 2], marker=MarkerStyle('o', fillstyle='none'),
+                  markerfacecolor='red')
+    assert l.get_fillstyle() == 'none'
+    assert l.get_markerfacecolor() == 'none'
+
+
 @image_comparison(['scaled_lines'], style='default')
 def test_lw_scaling():
     th = np.linspace(0, 32)
@@ -194,3 +219,53 @@ def test_nan_is_sorted():
 def test_step_markers(fig_test, fig_ref):
     fig_test.subplots().step([0, 1], "-o")
     fig_ref.subplots().plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
+
+
+@check_figures_equal(extensions=('png',))
+def test_markevery(fig_test, fig_ref):
+    np.random.seed(42)
+    t = np.linspace(0, 3, 14)
+    y = np.random.rand(len(t))
+
+    casesA = [None, 4, (2, 5), [1, 5, 11],
+              [0, -1], slice(5, 10, 2), 0.3, (0.3, 0.4),
+              np.arange(len(t))[y > 0.5]]
+    casesB = ["11111111111111", "10001000100010", "00100001000010",
+              "01000100000100", "10000000000001", "00000101010000",
+              "11011011011110", "01010011011101", "01110001110110"]
+
+    axsA = fig_ref.subplots(3, 3)
+    axsB = fig_test.subplots(3, 3)
+
+    for ax, case in zip(axsA.flat, casesA):
+        ax.plot(t, y, "-gD", markevery=case)
+
+    for ax, case in zip(axsB.flat, casesB):
+        me = np.array(list(case)).astype(int).astype(bool)
+        ax.plot(t, y, "-gD", markevery=me)
+
+
+def test_marker_as_markerstyle():
+    fig, ax = plt.subplots()
+    line, = ax.plot([2, 4, 3], marker=MarkerStyle("D"))
+    fig.canvas.draw()
+    assert line.get_marker() == "D"
+
+    # continue with smoke tests:
+    line.set_marker("s")
+    fig.canvas.draw()
+    line.set_marker(MarkerStyle("o"))
+    fig.canvas.draw()
+    # test Path roundtrip
+    triangle1 = Path([[-1., -1.], [1., -1.], [0., 2.], [0., 0.]], closed=True)
+    line2, = ax.plot([1, 3, 2], marker=MarkerStyle(triangle1), ms=22)
+    line3, = ax.plot([0, 2, 1], marker=triangle1, ms=22)
+
+    assert_array_equal(line2.get_marker().vertices, triangle1.vertices)
+    assert_array_equal(line3.get_marker().vertices, triangle1.vertices)
+
+
+@check_figures_equal()
+def test_odd_dashes(fig_test, fig_ref):
+    fig_test.add_subplot().plot([1, 2], dashes=[1, 2, 3])
+    fig_ref.add_subplot().plot([1, 2], dashes=[1, 2, 3, 1, 2, 3])

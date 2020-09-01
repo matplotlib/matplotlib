@@ -122,7 +122,6 @@ text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURE
                            # beware of package collisions: color, geometry, graphicx,
                            # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
                            # may also be loaded, depending on your font settings
-text.latex.preview : False
 
 text.hinting : auto   # May be one of the following:
                       #   'none': Perform no hinting
@@ -155,7 +154,7 @@ mathtext.sf  : sans\-serif
 mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                       # 'stixsans' or 'custom'
 mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
-                       # 'stixsans'] when a symbol can not be found in one of the 
+                       # 'stixsans'] when a symbol can not be found in one of the
                        # custom math fonts. Select 'None' to not perform fallback
                        # and replace the missing character by a dummy.
 
@@ -175,6 +174,7 @@ axes.grid           : False   # display grid or not
 axes.grid.which     : major
 axes.grid.axis      : both
 axes.titlesize      : large   # fontsize of the axes title
+axes.titley         : 1.0     # at the top, no autopositioning.
 axes.titlepad       : 5.0     # pad between axes and title in points
 axes.titleweight    : normal  # font weight for axes title
 axes.labelsize      : medium  # fontsize of the x any y labels
@@ -416,11 +416,9 @@ savefig.edgecolor   : w        # figure edgecolor when saving
 savefig.format      : png      # png, ps, pdf, svg
 savefig.bbox        : standard # 'tight' or 'standard'.
                                # 'tight' is incompatible with pipe-based animation
-                               # backends but will workd with temporary file based ones:
-                               # e.g. setting animation.writer to ffmpeg will not work,
-                               # use ffmpeg_file instead
+                               # backends (e.g. 'ffmpeg') but will work with those
+                               # based on temporary files (e.g. 'ffmpeg_file')
 savefig.pad_inches  : 0.1      # Padding to be used when bbox is set to 'tight'
-savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
 savefig.transparent : False    # setting that controls whether figures are saved with a
                                # transparent background by default
 savefig.orientation : portrait

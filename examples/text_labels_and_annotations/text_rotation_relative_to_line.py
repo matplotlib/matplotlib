@@ -10,8 +10,8 @@ are changed).  However, at times one wants to rotate text with respect
 to something on the plot.  In this case, the correct angle won't be
 the angle of that object in the plot coordinate system, but the angle
 that that object APPEARS in the screen coordinate system.  This angle
-is found by transforming the angle from the plot to the screen
-coordinate system, as shown in the example below.
+can be determined automatically by setting the parameter
+*transform_rotates_text*, as shown in the example below.
 """
 
 import matplotlib.pyplot as plt
@@ -31,12 +31,12 @@ l2 = np.array((5, 5))
 
 # Rotate angle
 angle = 45
-trans_angle = ax.transData.transform_angles([45], l2.reshape((1, 2)))[0]
 
 # Plot text
 th1 = ax.text(*l1, 'text not rotated correctly', fontsize=16,
               rotation=angle, rotation_mode='anchor')
 th2 = ax.text(*l2, 'text rotated correctly', fontsize=16,
-              rotation=trans_angle, rotation_mode='anchor')
+              rotation=angle, rotation_mode='anchor',
+              transform_rotates_text=True)
 
 plt.show()

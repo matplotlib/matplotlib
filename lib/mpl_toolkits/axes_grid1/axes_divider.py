@@ -1,13 +1,5 @@
 """
-The axes_divider module provides helper classes to adjust the positions of
-multiple axes at drawing time.
-
- Divider: this is the class that is used to calculate the axes
-    position. It divides the given rectangular area into several sub
-    rectangles. You initialize the divider by setting the horizontal
-    and vertical lists of sizes that the division will be based on. You
-    then use the new_locator method, whose return value is a callable
-    object that can be used to set the axes_locator of the axes.
+Helper classes to adjust the positions of multiple axes at drawing time.
 """
 
 import numpy as np
@@ -21,14 +13,14 @@ from . import axes_size as Size
 
 class Divider:
     """
-    This class calculates the axes position. It
-    divides the given rectangular area into several
-    sub-rectangles. You initialize the divider by setting the
-    horizontal and vertical lists of sizes
-    (:mod:`mpl_toolkits.axes_grid1.axes_size`) that the division will
-    be based on. You then use the new_locator method to create a
-    callable object that can be used as the axes_locator of the
-    axes.
+    An Axes positioning class.
+
+    The divider is initialized with lists of horizontal and vertical sizes
+    (:mod:`mpl_toolkits.axes_grid1.axes_size`) based on which a given
+    rectangular area will be divided.
+
+    The `new_locator` method then creates a callable object
+    that can be used as the *axes_locator* of the axes.
     """
 
     def __init__(self, fig, pos, horizontal, vertical,
@@ -38,17 +30,16 @@ class Divider:
         ----------
         fig : Figure
         pos : tuple of 4 floats
-            position of the rectangle that will be divided
+            Position of the rectangle that will be divided.
         horizontal : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
-            sizes for horizontal division
+            Sizes for horizontal division.
         vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
-            sizes for vertical division
+            Sizes for vertical division.
         aspect : bool
-            if True, the overall rectangular area is reduced
-            so that the relative part of the horizontal and
-            vertical scales have the same scale.
+            Whether overall rectangular area is reduced so that the relative
+            part of the horizontal and vertical scales have the same scale.
         anchor : {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W'}
-            placement of the reduced rectangle when *aspect* is True
+            Placement of the reduced rectangle, when *aspect* is True.
         """
 
         self._fig = fig
@@ -68,12 +59,8 @@ class Divider:
         return [s.get_size(renderer) for s in self.get_vertical()]
 
     def get_vsize_hsize(self):
-
-        from .axes_size import AddList
-
-        vsize = AddList(self.get_vertical())
-        hsize = AddList(self.get_horizontal())
-
+        vsize = Size.AddList(self.get_vertical())
+        hsize = Size.AddList(self.get_horizontal())
         return vsize, hsize
 
     @staticmethod
@@ -245,7 +232,7 @@ class Divider:
 
     def new_locator(self, nx, ny, nx1=None, ny1=None):
         """
-        Returns a new `AxesLocator` for specified cell.
+        Return a new `AxesLocator` for the specified cell.
 
         Parameters
         ----------
@@ -362,7 +349,7 @@ class SubplotDivider(Divider):
         self.figure = fig
         self._subplotspec = SubplotSpec._from_subplot_args(fig, args)
         self.update_params()  # sets self.figbox
-        Divider.__init__(self, fig, pos=self.figbox.bounds,
+        super().__init__(fig, pos=self.figbox.bounds,
                          horizontal=horizontal or [], vertical=vertical or [],
                          aspect=aspect, anchor=anchor)
 
@@ -419,7 +406,7 @@ class AxesDivider(Divider):
         else:
             self._yref = yref
 
-        Divider.__init__(self, fig=axes.get_figure(), pos=None,
+        super().__init__(fig=axes.get_figure(), pos=None,
                          horizontal=[self._xref], vertical=[self._yref],
                          aspect=None, anchor="C")
 

@@ -1,14 +1,18 @@
 import copy
 import signal
-import sys
 from unittest import mock
 
 import matplotlib
 from matplotlib import pyplot as plt
-from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 
 import pytest
+
+
+try:
+    from matplotlib.backends.qt_compat import QtGui
+except ImportError:
+    pytestmark = pytest.mark.skip('No usable Qt5 bindings')
 
 
 @pytest.fixture
@@ -215,6 +219,29 @@ def test_dpi_ratio_change():
         assert qt_canvas.get_width_height() == (600, 240)
         assert (fig.get_size_inches() == (5, 2)).all()
 
+        p.return_value = 1.5
+
+        assert qt_canvas._dpi_ratio == 1.5
+
+        qt_canvas.draw()
+        qApp.processEvents()
+        # this second processEvents is required to fully run the draw.
+        # On `update` we notice the DPI has changed and trigger a
+        # resize event to refresh, the second processEvents is
+        # required to process that and fully update the window sizes.
+        qApp.processEvents()
+
+        # The DPI and the renderer width/height change
+        assert fig.dpi == 180
+        assert qt_canvas.renderer.width == 900
+        assert qt_canvas.renderer.height == 360
+
+        # The actual widget size and figure physical size don't change
+        assert size.width() == 600
+        assert size.height() == 240
+        assert qt_canvas.get_width_height() == (600, 240)
+        assert (fig.get_size_inches() == (5, 2)).all()
+
 
 @pytest.mark.backend('Qt5Agg')
 def test_subplottool():
@@ -246,8 +273,8 @@ def test_double_resize():
 
     w, h = 3, 2
     fig.set_size_inches(w, h)
-    assert fig.canvas.width() == w * rcParams['figure.dpi']
-    assert fig.canvas.height() == h * rcParams['figure.dpi']
+    assert fig.canvas.width() == w * matplotlib.rcParams['figure.dpi']
+    assert fig.canvas.height() == h * matplotlib.rcParams['figure.dpi']
 
     old_width = window.width()
     old_height = window.height()
@@ -272,4 +299,5 @@ def test_canvas_reinit():
     fig.stale_callback = crashing_callback
     # this should not raise
     canvas = FigureCanvasQTAgg(fig)
+    fig.stale = True
     assert called

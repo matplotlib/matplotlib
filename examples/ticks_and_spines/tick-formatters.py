@@ -10,7 +10,7 @@ This example illustrates the usage and effect of the most common formatters.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+from matplotlib import ticker
 
 
 def setup(ax, title):
@@ -34,46 +34,105 @@ def setup(ax, title):
             fontsize=14, fontname='Monospace', color='tab:blue')
 
 
-fig, axs = plt.subplots(7, 1, figsize=(8, 6))
+# Tick formatters can be set in one of two ways, either by passing a ``str``
+# or function to `~.Axis.set_major_formatter` or `~.Axis.set_minor_formatter`,
+# or by creating an instance of one of the various `~.ticker.Formatter` classes
+# and providing that to `~.Axis.set_major_formatter` or
+# `~.Axis.set_minor_formatter`.
+
+# The first two examples directly pass a ``str`` or function.
+
+fig0, axs0 = plt.subplots(2, 1, figsize=(8, 2))
+fig0.suptitle('Simple Formatting')
+
+# A ``str``, using format string function syntax, can be used directly as a
+# formatter.  The variable ``x`` is the tick value and the variable ``pos`` is
+# tick position.  This creates a StrMethodFormatter automatically.
+setup(axs0[0], title="'{x} km'")
+axs0[0].xaxis.set_major_formatter('{x} km')
+
+# A function can also be used directly as a formatter. The function must take
+# two arguments: ``x`` for the tick value and ``pos`` for the tick position,
+# and must return a ``str``  This creates a FuncFormatter automatically.
+setup(axs0[1], title="lambda x, pos: str(x-5)")
+axs0[1].xaxis.set_major_formatter(lambda x, pos: str(x-5))
+
+fig0.tight_layout()
+
+
+# The remaining examples use Formatter objects.
+
+fig1, axs1 = plt.subplots(7, 1, figsize=(8, 6))
+fig1.suptitle('Formatter Object Formatting')
 
 # Null formatter
-setup(axs[0], title="NullFormatter()")
-axs[0].xaxis.set_major_formatter(ticker.NullFormatter())
+setup(axs1[0], title="NullFormatter()")
+axs1[0].xaxis.set_major_formatter(ticker.NullFormatter())
 
-# Fixed formatter
-setup(axs[1], title="FixedFormatter(['A', 'B', 'C', ...])")
-# FixedFormatter should only be used together with FixedLocator.
-# Otherwise, one cannot be sure where the labels will end up.
-positions = [0, 1, 2, 3, 4, 5]
-labels = ['A', 'B', 'C', 'D', 'E', 'F']
-axs[1].xaxis.set_major_locator(ticker.FixedLocator(positions))
-axs[1].xaxis.set_major_formatter(ticker.FixedFormatter(labels))
+# StrMethod formatter
+setup(axs1[1], title="StrMethodFormatter('{x:.3f}')")
+axs1[1].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.3f}"))
 
 
 # FuncFormatter can be used as a decorator
 @ticker.FuncFormatter
 def major_formatter(x, pos):
-    return "[%.2f]" % x
+    return f'[{x:.2f}]'
 
 
-setup(axs[2], title='FuncFormatter(lambda x, pos: "[%.2f]" % x)')
-axs[2].xaxis.set_major_formatter(major_formatter)
+setup(axs1[2], title='FuncFormatter("[{:.2f}]".format')
+axs1[2].xaxis.set_major_formatter(major_formatter)
 
-# FormatStr formatter
-setup(axs[3], title="FormatStrFormatter('#%d')")
-axs[3].xaxis.set_major_formatter(ticker.FormatStrFormatter("#%d"))
+# Fixed formatter
+setup(axs1[3], title="FixedFormatter(['A', 'B', 'C', ...])")
+# FixedFormatter should only be used together with FixedLocator.
+# Otherwise, one cannot be sure where the labels will end up.
+positions = [0, 1, 2, 3, 4, 5]
+labels = ['A', 'B', 'C', 'D', 'E', 'F']
+axs1[3].xaxis.set_major_locator(ticker.FixedLocator(positions))
+axs1[3].xaxis.set_major_formatter(ticker.FixedFormatter(labels))
 
 # Scalar formatter
-setup(axs[4], title="ScalarFormatter()")
-axs[4].xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+setup(axs1[4], title="ScalarFormatter()")
+axs1[4].xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
 
-# StrMethod formatter
-setup(axs[5], title="StrMethodFormatter('{x:.3f}')")
-axs[5].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.3f}"))
+# FormatStr formatter
+setup(axs1[5], title="FormatStrFormatter('#%d')")
+axs1[5].xaxis.set_major_formatter(ticker.FormatStrFormatter("#%d"))
 
 # Percent formatter
-setup(axs[6], title="PercentFormatter(xmax=5)")
-axs[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
+setup(axs1[6], title="PercentFormatter(xmax=5)")
+axs1[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
 
-plt.tight_layout()
+fig1.tight_layout()
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplots
+matplotlib.axes.Axes.text
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.axis.Axis.set_major_locator
+matplotlib.axis.Axis.set_minor_locator
+matplotlib.axis.XAxis.set_ticks_position
+matplotlib.axis.YAxis.set_ticks_position
+matplotlib.ticker.FixedFormatter
+matplotlib.ticker.FixedLocator
+matplotlib.ticker.FormatStrFormatter
+matplotlib.ticker.FuncFormatter
+matplotlib.ticker.MultipleLocator
+matplotlib.ticker.NullFormatter
+matplotlib.ticker.NullLocator
+matplotlib.ticker.PercentFormatter
+matplotlib.ticker.ScalarFormatter
+matplotlib.ticker.StrMethodFormatter

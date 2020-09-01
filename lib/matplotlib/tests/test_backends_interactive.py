@@ -1,5 +1,6 @@
 import importlib
 import importlib.util
+import json
 import os
 import signal
 import subprocess
@@ -13,10 +14,16 @@ import matplotlib as mpl
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
-# PyPI-installable on Travis.  They are not available for all tested Python
+# PyPI-installable on CI.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
 
 def _get_testable_interactive_backends():
+    try:
+        from matplotlib.backends.qt_compat import QtGui  # noqa
+        have_qt5 = True
+    except ImportError:
+        have_qt5 = False
+
     backends = []
     for deps, backend in [
             (["cairo", "gi"], "gtk3agg"),
@@ -28,18 +35,28 @@ def _get_testable_interactive_backends():
             (["tkinter"], "tkagg"),
             (["wx"], "wx"),
             (["wx"], "wxagg"),
+            (["matplotlib.backends._macosx"], "macosx"),
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if not os.environ.get("DISPLAY"):
+        if sys.platform == "linux" and not os.environ.get("DISPLAY"):
             reason = "$DISPLAY is unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
+        elif backend == 'macosx' and os.environ.get('TF_BUILD'):
+            reason = "macosx backend fails on Azure"
+        elif 'qt5' in backend and not have_qt5:
+            reason = "no usable Qt5 bindings"
         if reason:
             backend = pytest.param(
                 backend,
                 marks=pytest.mark.skip(
                     reason=f"Skipping {backend} because {reason}"))
+        elif backend.startswith('wx') and sys.platform == 'darwin':
+            # ignore on OSX because that's currently broken (github #16849)
+            backend = pytest.param(
+                backend,
+                marks=pytest.mark.xfail(reason='github #16849'))
         backends.append(backend)
     return backends
 
@@ -52,6 +69,8 @@ def _get_testable_interactive_backends():
 _test_script = """\
 import importlib
 import importlib.util
+import io
+import json
 import sys
 from unittest import TestCase
 
@@ -62,6 +81,8 @@ rcParams.update({
     "webagg.open_in_browser": False,
     "webagg.port_retries": 1,
 })
+if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
+    rcParams.update(json.loads(sys.argv[1]))
 backend = plt.rcParams["backend"].lower()
 assert_equal = TestCase().assertEqual
 assert_raises = TestCase().assertRaises
@@ -102,34 +123,64 @@ assert_equal(
 
 ax.plot([0, 1], [2, 3])
 
-timer = fig.canvas.new_timer(1)
+timer = fig.canvas.new_timer(1.)  # Test that floats are cast to int as needed.
 timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
 # Trigger quitting upon draw.
 fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
+fig.canvas.mpl_connect("close_event", print)
+
+result = io.BytesIO()
+fig.savefig(result, format='png')
 
 plt.show()
+
+# Ensure that the window is really closed.
+plt.pause(0.5)
+
+# Test that saving works after interactive window is closed, but the figure is
+# not deleted.
+result_after = io.BytesIO()
+fig.savefig(result_after, format='png')
+
+if not backend.startswith('qt5') and sys.platform == 'darwin':
+    # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS to
+    # not resize incorrectly.
+    assert_equal(result.getvalue(), result_after.getvalue())
 """
 _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 
 
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
+@pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
 @pytest.mark.flaky(reruns=3)
-def test_interactive_backend(backend):
-    proc = subprocess.run([sys.executable, "-c", _test_script],
-                          env={**os.environ, "MPLBACKEND": backend},
-                          timeout=_test_timeout)
+def test_interactive_backend(backend, toolbar):
+    if backend == "macosx":
+        if toolbar == "toolmanager":
+            pytest.skip("toolmanager is not implemented for macosx.")
+        if toolbar == "toolbar2" and os.environ.get('TRAVIS'):
+            # See https://github.com/matplotlib/matplotlib/issues/18213
+            pytest.skip("toolbar2 for macosx is buggy on Travis.")
+
+    proc = subprocess.run(
+        [sys.executable, "-c", _test_script,
+         json.dumps({"toolbar": toolbar})],
+        env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout,
+        stdout=subprocess.PIPE, universal_newlines=True)
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")
+    assert proc.stdout.count("CloseEvent") == 1
 
 
-@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
+@pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
     proc = subprocess.Popen([sys.executable, "-c", _test_script],
-                            env={**os.environ, "MPLBACKEND": "webagg"})
+                            env={**os.environ, "MPLBACKEND": "webagg",
+                                 "SOURCE_DATE_EPOCH": "0"})
     url = "http://{}:{}".format(
         mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
     timeout = time.perf_counter() + _test_timeout
@@ -148,3 +199,37 @@ def test_webagg():
     conn.close()
     proc.send_signal(signal.SIGINT)
     assert proc.wait(timeout=_test_timeout) == 0
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_lazy_linux_headless():
+    test_script = """
+import os
+import sys
+
+# make it look headless
+del os.environ['DISPLAY']
+
+# we should fast-track to Agg
+import matplotlib.pyplot as plt
+plt.get_backend() == 'agg'
+assert 'PyQt5' not in sys.modules
+
+# make sure we really have pyqt installed
+import PyQt5
+assert 'PyQt5' in sys.modules
+
+# try to switch and make sure we fail with ImportError
+try:
+    plt.switch_backend('qt5agg')
+except ImportError:
+    ...
+else:
+    sys.exit(1)
+
+"""
+    proc = subprocess.run([sys.executable, "-c", test_script])
+    if proc.returncode:
+        pytest.fail("The subprocess returned with non-zero exit status "
+                    f"{proc.returncode}.")

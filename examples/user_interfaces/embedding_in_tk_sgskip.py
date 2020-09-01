@@ -31,12 +31,9 @@ toolbar = NavigationToolbar2Tk(canvas, root, pack_toolbar=False)
 toolbar.update()
 
 
-def on_key_press(event):
-    print("you pressed {}".format(event.key))
-    key_press_handler(event, canvas, toolbar)
-
-
-canvas.mpl_connect("key_press_event", on_key_press)
+canvas.mpl_connect(
+    "key_press_event", lambda event: print(f"you pressed {event.key}"))
+canvas.mpl_connect("key_press_event", key_press_handler)
 
 button = tkinter.Button(master=root, text="Quit", command=root.quit)
 

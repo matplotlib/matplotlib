@@ -91,10 +91,10 @@ returned by the ``line, = ax.plot...`` call:
 .. sourcecode:: ipython
 
     In [101]: ax.lines[0]
-    Out[101]: <matplotlib.lines.Line2D instance at 0x19a95710>
+    Out[101]: <matplotlib.lines.Line2D at 0x19a95710>
 
     In [102]: line
-    Out[102]: <matplotlib.lines.Line2D instance at 0x19a95710>
+    Out[102]: <matplotlib.lines.Line2D at 0x19a95710>
 
 If you make subsequent calls to ``ax.plot`` (and the hold state is "on"
 which is the default) then additional lines will be added to the list.
@@ -107,7 +107,7 @@ of these will work::
 The Axes also has helper methods to configure and decorate the x-axis
 and y-axis tick, tick labels and axis labels::
 
-    xtext = ax.set_xlabel('my xdata') # returns a Text instance
+    xtext = ax.set_xlabel('my xdata')  # returns a Text instance
     ytext = ax.set_ylabel('my ydata')
 
 When you call :meth:`ax.set_xlabel <matplotlib.axes.Axes.set_xlabel>`,
@@ -149,20 +149,20 @@ plt.show()
 # Customizing your objects
 # ========================
 #
-# Every element in the figure is represented by a matplotlib
+# Every element in the figure is represented by a Matplotlib
 # :class:`~matplotlib.artist.Artist`, and each has an extensive list of
 # properties to configure its appearance.  The figure itself contains a
 # :class:`~matplotlib.patches.Rectangle` exactly the size of the figure,
 # which you can use to set the background color and transparency of the
 # figures.  Likewise, each :class:`~matplotlib.axes.Axes` bounding box
-# (the standard white box with black edges in the typical matplotlib
+# (the standard white box with black edges in the typical Matplotlib
 # plot, has a ``Rectangle`` instance that determines the color,
 # transparency, and other properties of the Axes.  These instances are
 # stored as member variables :attr:`Figure.patch
 # <matplotlib.figure.Figure.patch>` and :attr:`Axes.patch
 # <matplotlib.axes.Axes.patch>` ("Patch" is a name inherited from
 # MATLAB, and is a 2D "patch" of color on the figure, e.g., rectangles,
-# circles and polygons).  Every matplotlib ``Artist`` has the following
+# circles and polygons).  Every Matplotlib ``Artist`` has the following
 # properties
 #
 # ==========  =================================================================
@@ -210,31 +210,49 @@ plt.show()
 # .. sourcecode:: ipython
 #
 #     In [149]: matplotlib.artist.getp(fig.patch)
-# 	alpha = 1.0
-# 	animated = False
-# 	antialiased or aa = True
-# 	axes = None
-# 	clip_box = None
-# 	clip_on = False
-# 	clip_path = None
-# 	contains = None
-# 	edgecolor or ec = w
-# 	facecolor or fc = 0.75
-# 	figure = Figure(8.125x6.125)
-# 	fill = 1
-# 	hatch = None
-# 	height = 1
-# 	label =
-# 	linewidth or lw = 1.0
-# 	picker = None
-# 	transform = <Affine object at 0x134cca84>
-# 	verts = ((0, 0), (0, 1), (1, 1), (1, 0))
-# 	visible = True
-# 	width = 1
-# 	window_extent = <Bbox object at 0x134acbcc>
-# 	x = 0
-# 	y = 0
-# 	zorder = 1
+#       agg_filter = None
+#       alpha = None
+#       animated = False
+#       antialiased or aa = False
+#       bbox = Bbox(x0=0.0, y0=0.0, x1=1.0, y1=1.0)
+#       capstyle = butt
+#       children = []
+#       clip_box = None
+#       clip_on = True
+#       clip_path = None
+#       contains = None
+#       data_transform = BboxTransformTo(     TransformedBbox(         Bbox...
+#       edgecolor or ec = (1.0, 1.0, 1.0, 1.0)
+#       extents = Bbox(x0=0.0, y0=0.0, x1=640.0, y1=480.0)
+#       facecolor or fc = (1.0, 1.0, 1.0, 1.0)
+#       figure = Figure(640x480)
+#       fill = True
+#       gid = None
+#       hatch = None
+#       height = 1
+#       in_layout = False
+#       joinstyle = miter
+#       label =
+#       linestyle or ls = solid
+#       linewidth or lw = 0.0
+#       patch_transform = CompositeGenericTransform(     BboxTransformTo(   ...
+#       path = Path(array([[0., 0.],        [1., 0.],        [1.,...
+#       path_effects = []
+#       picker = None
+#       rasterized = None
+#       sketch_params = None
+#       snap = None
+#       transform = CompositeGenericTransform(     CompositeGenericTra...
+#       transformed_clip_path_and_affine = (None, None)
+#       url = None
+#       verts = [[  0.   0.]  [640.   0.]  [640. 480.]  [  0. 480....
+#       visible = True
+#       width = 1
+#       window_extent = Bbox(x0=0.0, y0=0.0, x1=640.0, y1=480.0)
+#       x = 0
+#       xy = (0, 0)
+#       y = 0
+#       zorder = 1
 #
 # The docstrings for all of the classes also contain the ``Artist``
 # properties, so you can consult the interactive "help" or the
@@ -284,11 +302,10 @@ plt.show()
 #     In [158]: ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.3])
 #
 #     In [159]: ax1
-#     Out[159]: <matplotlib.axes.Subplot instance at 0xd54b26c>
+#     Out[159]: <AxesSubplot:>
 #
 #     In [160]: print(fig.axes)
-#     [<matplotlib.axes.Subplot instance at 0xd54b26c>,
-#     <matplotlib.axes.Axes instance at 0xd3f0b2c>]
+#     [<AxesSubplot:>, <matplotlib.axes._axes.Axes object at 0x7f0768702be0>]
 #
 # Because the figure maintains the concept of the "current axes" (see
 # :meth:`Figure.gca <matplotlib.figure.Figure.gca>` and
@@ -354,7 +371,7 @@ plt.show()
 # Axes container
 # --------------
 #
-# The :class:`matplotlib.axes.Axes` is the center of the matplotlib
+# The :class:`matplotlib.axes.Axes` is the center of the Matplotlib
 # universe -- it contains the vast majority of all the ``Artists`` used
 # in a figure with many helper methods to create and add these
 # ``Artists`` to itself, as well as helper methods to access and
@@ -391,7 +408,7 @@ plt.show()
 # .. sourcecode:: ipython
 #
 #     In [229]: print(ax.lines)
-#     [<matplotlib.lines.Line2D instance at 0xd378b0c>]
+#     [<matplotlib.lines.Line2D at 0xd378b0c>]
 #
 # Similarly, methods that create patches, like
 # :meth:`~matplotlib.axes.Axes.bar` creates a list of rectangles, will
@@ -403,9 +420,10 @@ plt.show()
 #     In [233]: n, bins, rectangles = ax.hist(np.random.randn(1000), 50)
 #
 #     In [234]: rectangles
-#     Out[234]: <a list of 50 Patch objects>
+#     Out[234]: <BarContainer object of 50 artists>
 #
 #     In [235]: print(len(ax.patches))
+#     Out[235]: 50
 #
 # You should not add objects directly to the ``Axes.lines`` or
 # ``Axes.patches`` lists unless you know exactly what you are doing,
@@ -433,8 +451,8 @@ plt.show()
 #     None
 #
 #     # and the transformation instance is set to the "identity transform"
-#     In [265]: print(rect.get_transform())
-#     <Affine object at 0x13695544>
+#     In [265]: print(rect.get_data_transform())
+#     IdentityTransform()
 #
 #     # now we add the Rectangle to the Axes
 #     In [266]: ax.add_patch(rect)
@@ -445,12 +463,56 @@ plt.show()
 #     Axes(0.125,0.1;0.775x0.8)
 #
 #     # and the transformation has been set too
-#     In [268]: print(rect.get_transform())
-#     <Affine object at 0x15009ca4>
+#     In [268]: print(rect.get_data_transform())
+#     CompositeGenericTransform(
+#         TransformWrapper(
+#             BlendedAffine2D(
+#                 IdentityTransform(),
+#                 IdentityTransform())),
+#         CompositeGenericTransform(
+#             BboxTransformFrom(
+#                 TransformedBbox(
+#                     Bbox(x0=0.0, y0=0.0, x1=1.0, y1=1.0),
+#                     TransformWrapper(
+#                         BlendedAffine2D(
+#                             IdentityTransform(),
+#                             IdentityTransform())))),
+#             BboxTransformTo(
+#                 TransformedBbox(
+#                     Bbox(x0=0.125, y0=0.10999999999999999, x1=0.9, y1=0.88),
+#                     BboxTransformTo(
+#                         TransformedBbox(
+#                             Bbox(x0=0.0, y0=0.0, x1=6.4, y1=4.8),
+#                             Affine2D(
+#                                 [[100.   0.   0.]
+#                                  [  0. 100.   0.]
+#                                  [  0.   0.   1.]])))))))
 #
 #     # the default axes transformation is ax.transData
 #     In [269]: print(ax.transData)
-#     <Affine object at 0x15009ca4>
+#     CompositeGenericTransform(
+#         TransformWrapper(
+#             BlendedAffine2D(
+#                 IdentityTransform(),
+#                 IdentityTransform())),
+#         CompositeGenericTransform(
+#             BboxTransformFrom(
+#                 TransformedBbox(
+#                     Bbox(x0=0.0, y0=0.0, x1=1.0, y1=1.0),
+#                     TransformWrapper(
+#                         BlendedAffine2D(
+#                             IdentityTransform(),
+#                             IdentityTransform())))),
+#             BboxTransformTo(
+#                 TransformedBbox(
+#                     Bbox(x0=0.125, y0=0.10999999999999999, x1=0.9, y1=0.88),
+#                     BboxTransformTo(
+#                         TransformedBbox(
+#                             Bbox(x0=0.0, y0=0.0, x1=6.4, y1=4.8),
+#                             Affine2D(
+#                                 [[100.   0.   0.]
+#                                  [  0. 100.   0.]
+#                                  [  0.   0.   1.]])))))))
 #
 #     # notice that the xlimits of the Axes have not been changed
 #     In [270]: print(ax.get_xlim())
@@ -463,12 +525,12 @@ plt.show()
 #     # we can manually invoke the auto-scaling machinery
 #     In [272]: ax.autoscale_view()
 #
-#     # and now the xlim are updated to encompass the rectangle
+#     # and now the xlim are updated to encompass the rectangle, plus margins
 #     In [273]: print(ax.get_xlim())
-#     (1.0, 6.0)
+#     (0.75, 6.25)
 #
 #     # we have to manually force a figure draw
-#     In [274]: ax.figure.canvas.draw()
+#     In [274]: fig.canvas.draw()
 #
 #
 # There are many, many ``Axes`` helper methods for creating primitive
@@ -650,22 +712,9 @@ plt.show()
 # ==============   ==========================================================
 #
 # Here is an example which sets the formatter for the right side ticks with
-# dollar signs and colors them green on the right side of the yaxis
-
-import matplotlib.ticker as ticker
-
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-fig, ax = plt.subplots()
-ax.plot(100*np.random.rand(20))
-
-formatter = ticker.FormatStrFormatter('$%1.2f')
-ax.yaxis.set_major_formatter(formatter)
-
-for tick in ax.yaxis.get_major_ticks():
-    tick.label1.set_visible(False)
-    tick.label2.set_visible(True)
-    tick.label2.set_color('green')
-
-plt.show()
+# dollar signs and colors them green on the right side of the yaxis.
+#
+#
+# .. include:: ../../gallery/pyplots/dollar_ticks.rst
+#    :start-after: y axis labels.
+#    :end-before: -------

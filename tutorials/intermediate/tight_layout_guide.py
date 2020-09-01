@@ -152,18 +152,17 @@ plt.tight_layout()
 # Caveats
 # =======
 #
-#  * :func:`~matplotlib.pyplot.tight_layout` only considers ticklabels, axis
-#    labels, and titles. Thus, other artists may be clipped and also may
-#    overlap.
+# * `~matplotlib.pyplot.tight_layout` considers all artists on the axes by
+#   default.  To remove an artist from the layout calculation you can call
+#   `.Artist.set_in_layout`.
 #
-#  * It assumes that the extra space needed for ticklabels, axis labels,
-#    and titles is independent of original location of axes. This is
-#    often true, but there are rare cases where it is not.
+# * ``tight_layout`` assumes that the extra space needed for artists is
+#   independent of the original location of axes. This is often true, but there
+#   are rare cases where it is not.
 #
-#  * pad=0 clips some of the texts by a few pixels. This may be a bug or
-#    a limitation of the current algorithm and it is not clear why it
-#    happens. Meanwhile, use of pad at least larger than 0.3 is
-#    recommended.
+# * ``pad=0`` can clip some texts by a few pixels. This may be a bug or
+#   a limitation of the current algorithm and it is not clear why it
+#   happens. Meanwhile, use of pad larger than 0.3 is recommended.
 #
 # Use with GridSpec
 # =================
@@ -289,7 +288,7 @@ gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
 # Pre Matplotlib 2.2, legends and annotations were excluded from the bounding
 # box calculations that decide the layout.  Subsequently these artists were
 # added to the calculation, but sometimes it is undesirable to include them.
-# For instance in this case it might be good to have the axes shring a bit
+# For instance in this case it might be good to have the axes shrink a bit
 # to make room for the legend:
 
 fig, ax = plt.subplots(figsize=(4, 3))
@@ -349,8 +348,8 @@ plt.colorbar(im)
 plt.tight_layout()
 
 ###############################################################################
-# Another option is to use AxesGrid1 toolkit to
-# explicitly create an axes for colorbar.
+# Another option is to use the AxesGrid1 toolkit to
+# explicitly create an axes for the colorbar.
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 

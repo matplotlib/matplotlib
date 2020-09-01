@@ -4,18 +4,15 @@ Zoom region inset axes
 ======================
 
 Example of an inset axes and a rectangle showing where the zoom is located.
-
 """
 
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 def get_demo_image():
-    from matplotlib.cbook import get_sample_data
-    import numpy as np
-    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-    z = np.load(f)
+    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     # z is a numpy array of 15x15
     return z, (-3, 4, -4, 3)
 

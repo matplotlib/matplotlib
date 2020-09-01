@@ -21,7 +21,8 @@ class Epoch:
         }
 
     def __init__(self, frame, sec=None, jd=None, daynum=None, dt=None):
-        """Create a new Epoch object.
+        """
+        Create a new Epoch object.
 
         Build an epoch 1 of 2 ways:
 
@@ -124,7 +125,8 @@ class Epoch:
         return self._cmp(rhs, operator.ge)
 
     def _cmp(self, rhs, op):
-        """Compare two Epoch's.
+        """
+        Compare two Epoch's.
 
         = INPUT VARIABLES
         - rhs     The Epoch to compare against.
@@ -143,7 +145,8 @@ class Epoch:
         return op(t._seconds, rhs._seconds)
 
     def __add__(self, rhs):
-        """Add a duration to an Epoch.
+        """
+        Add a duration to an Epoch.
 
         = INPUT VARIABLES
         - rhs     The Epoch to subtract.
@@ -160,7 +163,8 @@ class Epoch:
         return Epoch(t._frame, sec, t._jd)
 
     def __sub__(self, rhs):
-        """Subtract two Epoch's or a Duration from an Epoch.
+        """
+        Subtract two Epoch's or a Duration from an Epoch.
 
         Valid:
         Duration = Epoch - Epoch
@@ -199,7 +203,8 @@ class Epoch:
 
     @staticmethod
     def range(start, stop, step):
-        """Generate a range of Epoch objects.
+        """
+        Generate a range of Epoch objects.
 
         Similar to the Python range() method.  Returns the range [
         start, stop) at the requested step.  Each element will be a
