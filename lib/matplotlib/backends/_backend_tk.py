@@ -546,11 +546,12 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
-        # Tk Checkbuttons only need to be switched off manually
-        # if mode was changed by some other button
         for text, mode in [('Zoom', _Mode.ZOOM), ('Pan', _Mode.PAN)]:
-            if self.mode != mode:
-                self._buttons[text].deselect()
+            if text in self._buttons:
+                if self.mode == mode:
+                    self._buttons[text].select()  # NOT .invoke()
+                else:
+                    self._buttons[text].deselect()
 
     def pan(self, *args):
         super().pan(*args)
