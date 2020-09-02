@@ -494,8 +494,8 @@ class _AxesBase(martist.Artist):
         self._anchor = 'C'
         self._stale_viewlim_x = False
         self._stale_viewlim_y = False
-        self._sharex = None
-        self._sharey = None
+        self._sharex = sharex
+        self._sharey = sharey
         self.set_label(label)
         self.set_figure(fig)
         self.set_box_aspect(box_aspect)
@@ -515,11 +515,6 @@ class _AxesBase(martist.Artist):
 
         self._rasterization_zorder = None
         self.cla()
-
-        if sharex is not None:
-            self.sharex(sharex)
-        if sharey is not None:
-            self.sharey(sharey)
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
