@@ -250,56 +250,6 @@ class SecondaryAxis(_AxesBase):
         """
         cbook._warn_external("Secondary axes can't set the aspect ratio")
 
-    def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
-        """
-        Set the label for the x-axis.
-
-        Parameters
-        ----------
-        xlabel : str
-            The label text.
-
-        labelpad : float, default: ``self.xaxis.labelpad``
-            Spacing in points between the label and the x-axis.
-
-        Other Parameters
-        ----------------
-        **kwargs : `.Text` properties
-            `.Text` properties control the appearance of the label.
-
-        See Also
-        --------
-        text : Documents the properties supported by `.Text`.
-        """
-        if labelpad is not None:
-            self.xaxis.labelpad = labelpad
-        return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
-
-    def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
-        """
-        Set the label for the y-axis.
-
-        Parameters
-        ----------
-        ylabel : str
-            The label text.
-
-        labelpad : float, default: ``self.yaxis.labelpad``
-            Spacing in points between the label and the y-axis.
-
-        Other Parameters
-        ----------------
-        **kwargs : `.Text` properties
-            `.Text` properties control the appearance of the label.
-
-        See Also
-        --------
-        text : Documents the properties supported by `.Text`.
-        """
-        if labelpad is not None:
-            self.yaxis.labelpad = labelpad
-        return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
-
     def set_color(self, color):
         """
         Change the color of the secondary axes and all decorators.
