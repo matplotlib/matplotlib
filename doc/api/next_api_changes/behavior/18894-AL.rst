@@ -1,0 +1,3 @@
+``RendererPS.set_font`` is no longer a no-op in AFM mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It now sets the current PostScript font in all cases.
