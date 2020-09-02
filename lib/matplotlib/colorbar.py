@@ -33,6 +33,7 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
 
 import copy
 import logging
+import textwrap
 
 import numpy as np
 
@@ -53,35 +54,34 @@ from matplotlib import docstring
 _log = logging.getLogger(__name__)
 
 _make_axes_param_doc = """
-    location : None or {'left', 'right', 'top', 'bottom'}
-        The location, relative to the parent axes, where the colorbar axes
-        is created.  It also determines the *orientation* of the colorbar
-        (colorbars on the left and right are vertical, colorbars at the top
-        and bottom are horizontal).  If None, the location will come from the
-        *orientation* if it is set (vertical colorbars on the right, horizontal
-        ones at the bottom), or default to 'right' if *orientation* is unset.
-    orientation : None or {'vertical', 'horizontal'}
-        The orientation of the colorbar.  It is preferrable to set the
-        *location* of the colorbar, as that also determines the *orientation*;
-        passing incompatible values for *location* and *orientation* raises an
-        exception.
-    fraction : float, default: 0.15
-        Fraction of original axes to use for colorbar.
-    shrink : float, default: 1.0
-        Fraction by which to multiply the size of the colorbar.
-    aspect : float, default: 20
-        Ratio of long to short dimensions.
+location : None or {'left', 'right', 'top', 'bottom'}
+    The location, relative to the parent axes, where the colorbar axes
+    is created.  It also determines the *orientation* of the colorbar
+    (colorbars on the left and right are vertical, colorbars at the top
+    and bottom are horizontal).  If None, the location will come from the
+    *orientation* if it is set (vertical colorbars on the right, horizontal
+    ones at the bottom), or default to 'right' if *orientation* is unset.
+orientation : None or {'vertical', 'horizontal'}
+    The orientation of the colorbar.  It is preferrable to set the *location*
+    of the colorbar, as that also determines the *orientation*; passing
+    incompatible values for *location* and *orientation* raises an exception.
+fraction : float, default: 0.15
+    Fraction of original axes to use for colorbar.
+shrink : float, default: 1.0
+    Fraction by which to multiply the size of the colorbar.
+aspect : float, default: 20
+    Ratio of long to short dimensions.
 """
 _make_axes_other_param_doc = """
-    pad : float, default: 0.05 if vertical, 0.15 if horizontal
-        Fraction of original axes between colorbar and new image axes.
-    anchor : (float, float), optional
-        The anchor point of the colorbar axes.
-        Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
-    panchor : (float, float), or *False*, optional
-        The anchor point of the colorbar parent axes. If *False*, the parent
-        axes' anchor will be unchanged.
-        Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
+pad : float, default: 0.05 if vertical, 0.15 if horizontal
+    Fraction of original axes between colorbar and new image axes.
+anchor : (float, float), optional
+    The anchor point of the colorbar axes.
+    Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
+panchor : (float, float), or *False*, optional
+    The anchor point of the colorbar parent axes. If *False*, the parent
+    axes' anchor will be unchanged.
+    Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
 """
 
 _colormap_kw_doc = """
@@ -214,7 +214,9 @@ segments::
 However this has negative consequences in other circumstances, e.g. with
 semi-transparent images (alpha < 1) and colorbar extensions; therefore, this
 workaround is not used by default (see issue #1188).
-""" % (_make_axes_param_doc, _make_axes_other_param_doc, _colormap_kw_doc))
+""" % (textwrap.indent(_make_axes_param_doc, "    "),
+       textwrap.indent(_make_axes_other_param_doc, "    "),
+       _colormap_kw_doc))
 
 # Deprecated since 3.4.
 colorbar_doc = docstring.interpd.params["colorbar_doc"]
