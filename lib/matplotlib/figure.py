@@ -2591,7 +2591,7 @@ default: 'top'
             cbook._warn_external("Calling figure.constrained_layout, but "
                                  "figure not setup to do constrained layout. "
                                  " You either called GridSpec without the "
-                                 "fig keyword, you are using plt.subplot, "
+                                 "figure keyword, you are using plt.subplot, "
                                  "or you need to call figure or subplots "
                                  "with the constrained_layout=True kwarg.")
             return
