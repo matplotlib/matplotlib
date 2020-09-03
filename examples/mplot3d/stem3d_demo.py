@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 theta = np.linspace(0, 2*np.pi)
-x = np.cos(theta)
-y = np.sin(theta)
+x = np.cos(theta - np.pi/2)
+y = np.sin(theta - np.pi/2)
 z = theta
 
 fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
@@ -32,5 +32,20 @@ fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
 markerline, stemlines, baseline = ax.stem(
     x, y, z, linefmt='grey', markerfmt='D', bottom=np.pi)
 markerline.set_markerfacecolor('none')
+
+plt.show()
+
+#############################################################################
+#
+# The orientation of the stems and baseline can be changed using *orientation*.
+# This determines in which direction the stems are projected from the head
+# points, towards the *bottom* baseline.
+#
+# For examples, by setting ``orientation='x'``, the stems are projected along
+# the *x*-direction, and the baseline is in the *yz*-plane.
+
+fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+markerline, stemlines, baseline = ax.stem(x, y, z, bottom=-1, orientation='x')
+ax.set(xlabel='x', ylabel='y', zlabel='z')
 
 plt.show()
