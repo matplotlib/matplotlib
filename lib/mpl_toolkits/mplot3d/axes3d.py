@@ -3289,7 +3289,7 @@ pivot='tail', normalize=False, **kwargs)
         return mtransforms.Bbox.union(batch)
 
     def stem(self, x, y, z, *, linefmt='C0-', markerfmt='C0o', basefmt='C3-',
-             bottom=0, label=None, zdir='z'):
+             bottom=0, label=None, orientation='z'):
         """
         Create a 3D stem plot.
 
@@ -3300,11 +3300,11 @@ pivot='tail', normalize=False, **kwargs)
         Parameters
         ----------
         x, y, z : array-like
-            The positions of the heads of the stems. The baseline is defined by
-            two of these positions and *bottom*, and stems are drawn from
-            *bottom* to the third position. By default, the *x* and *y*
+            The positions of the heads of the stems. The stems are drawn along
+            the *orientation*-direction from the baseline at *bottom* (in the
+            *orientation*-coordinate) to the heads. By default, the *x* and *y*
             positions are used for the baseline and *z* for the head position,
-            but this can be changed by *zdir*.
+            but this can be changed by *orientation*.
 
         linefmt : str, default: 'C0-'
             A string defining the properties of the vertical lines. Usually,
@@ -3331,12 +3331,12 @@ pivot='tail', normalize=False, **kwargs)
             A format string defining the properties of the baseline.
 
         bottom : float, default: 0
-            The x/y/z-position of the baseline (depending on *zdir*).
+            The position of the baseline, in *orientation*-coordinates.
 
         label : str, default: None
             The label to use for the stems in legends.
 
-        zdir : {'x', 'y', 'z'}, default: 'z'
+        orientation : {'x', 'y', 'z'}, default: 'z'
             The direction along which stems are drawn.
 
         Returns
@@ -3354,37 +3354,50 @@ pivot='tail', normalize=False, **kwargs)
 
         had_data = self.has_data()
 
-        jx, jy, jz = art3d.juggle_axes(x, y, z, zdir)
+        _api.check_in_list(['x', 'y', 'z'], orientation=orientation)
 
-        # Plot the baseline in the appropriate plane.
-        baseline, = self.plot(x, y, basefmt, zs=bottom, zdir=zdir,
-                              label='_nolegend_')
+        xlim = (np.min(x), np.max(x))
+        ylim = (np.min(y), np.max(y))
+        zlim = (np.min(z), np.max(z))
 
-        # Plot the stemlines based on the value of zdir.
-        if zdir[-1:] == 'x':
+        # Determine the appropriate plane for the baseline and the direction of
+        # stemlines based on the value of orientation.
+        if orientation == 'x':
+            basex, basexlim = y, ylim
+            basey, baseylim = z, zlim
             lines = [[(bottom, thisy, thisz), (thisx, thisy, thisz)]
-                     for thisx, thisy, thisz in zip(jx, jy, jz)]
-        elif zdir[-1:] == 'y':
+                     for thisx, thisy, thisz in zip(x, y, z)]
+        elif orientation == 'y':
+            basex, basexlim = x, xlim
+            basey, baseylim = z, zlim
             lines = [[(thisx, bottom, thisz), (thisx, thisy, thisz)]
-                     for thisx, thisy, thisz in zip(jx, jy, jz)]
+                     for thisx, thisy, thisz in zip(x, y, z)]
         else:
+            basex, basexlim = x, xlim
+            basey, baseylim = y, ylim
             lines = [[(thisx, thisy, bottom), (thisx, thisy, thisz)]
-                     for thisx, thisy, thisz in zip(jx, jy, jz)]
+                     for thisx, thisy, thisz in zip(x, y, z)]
+
+        # Determine style for stem lines.
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
         if linestyle is None:
             linestyle = rcParams['lines.linestyle']
+
+        # Plot everything in required order.
+        baseline, = self.plot(basex, basey, basefmt, zs=bottom,
+                              zdir=orientation, label='_nolegend_')
         stemlines = art3d.Line3DCollection(
             lines, linestyles=linestyle, colors=linecolor, label='_nolegend_')
         self.add_collection(stemlines)
-
-        markerline, = self.plot(x, y, z, markerfmt, zdir=zdir,
-                                label='_nolegend_')
+        markerline, = self.plot(x, y, z, markerfmt, label='_nolegend_')
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
         self.add_container(stem_container)
 
-        self.auto_scale_xyz(jx, jy, jz, had_data)
+        jx, jy, jz = art3d.juggle_axes(basexlim, baseylim, [bottom, bottom],
+                                       orientation)
+        self.auto_scale_xyz([*jx, *xlim], [*jy, *ylim], [*jz, *zlim], had_data)
 
         return stem_container
 
