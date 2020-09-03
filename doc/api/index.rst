@@ -87,6 +87,7 @@ Matplotlib consists of the following submodules:
    container_api.rst
    contour_api.rst
    dates_api.rst
+   docstring_api.rst
    dviread.rst
    figure_api.rst
    font_manager_api.rst
