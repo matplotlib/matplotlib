@@ -23,7 +23,7 @@ from matplotlib import _text_layout
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    GraphicsContextBase, RendererBase, _no_output_draw)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE
@@ -1129,6 +1129,9 @@ showpage
 
             _move_path_to_path_or_stream(tmpfile, outfile)
 
+    def draw(self):
+        _no_output_draw(self.figure)
+        return super().draw()
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paper_width, paper_height, orientation):

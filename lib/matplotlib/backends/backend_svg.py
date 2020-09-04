@@ -17,7 +17,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
      _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-     RendererBase)
+     RendererBase, _no_output_draw)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
@@ -1363,6 +1363,9 @@ class FigureCanvasSVG(FigureCanvasBase):
     def get_default_filetype(self):
         return 'svg'
 
+    def draw(self):
+        _no_output_draw(self.figure)
+        return super().draw()
 
 FigureManagerSVG = FigureManagerBase
 
