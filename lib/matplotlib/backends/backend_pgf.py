@@ -870,6 +870,12 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\makeatother")
         writeln(fh, r"\endgroup")
 
+
+    def draw(self):
+        # docstring inherited
+        self.figure.draw(self.get_renderer())
+
+
     def print_pgf(self, fname_or_fh, *args, **kwargs):
         """
         Output pgf macros for drawing the figure so it can be included and

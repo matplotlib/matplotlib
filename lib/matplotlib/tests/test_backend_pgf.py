@@ -324,3 +324,16 @@ def test_bbox_inches_tight(tmpdir):
     ax.imshow([[0, 1], [2, 3]])
     fig.savefig(os.path.join(tmpdir, "test.pdf"), backend="pgf",
                 bbox_inches="tight")
+
+
+@needs_pdflatex
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
+def test_draw():
+    mpl.rcParams['pgf.texsystem'] =  'pdflatex'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10))
+    old_Nticks = len(ax.yaxis.majorTicks)
+    fig.canvas.draw()
+    new_Nticks = len(ax.yaxis.majorTicks)
+    assert old_Nticks != new_Nticks
