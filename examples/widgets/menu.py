@@ -4,13 +4,11 @@ Menu
 ====
 
 """
-import numpy as np
+
 import matplotlib.artist as artist
-import matplotlib.colors as colors
-import matplotlib.image as image
-import matplotlib.mathtext as mathtext
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+from matplotlib.transforms import IdentityTransform
 
 
 class ItemProperties:
@@ -23,7 +21,6 @@ class ItemProperties:
 
 
 class MenuItem(artist.Artist):
-    parser = mathtext.MathTextParser("Bitmap")
     padx = 5
     pady = 5
 
@@ -43,15 +40,12 @@ class MenuItem(artist.Artist):
 
         self.on_select = on_select
 
-        x, self.depth = self.parser.to_mask(
-            labelstr, fontsize=props.fontsize, dpi=fig.dpi)
-
-        self.labelwidth = x.shape[1]
-        self.labelheight = x.shape[0]
-
-        mask = np.zeros((*x.shape, 4))
-        mask[:, :, -1] = x / 255
-        self.label = image.FigureImage(fig, origin='upper', array=mask)
+        # Setting the transform to IdentityTransform() lets us specify
+        # coordinates directly in pixels.
+        self.label = fig.text(0, 0, labelstr, transform=IdentityTransform(),
+                              size=props.fontsize)
+        self.text_bbox = self.label.get_window_extent(
+            fig.canvas.get_renderer())
 
         self.rect = patches.Rectangle((0, 0), 1, 1)  # Will be updated later.
 
@@ -66,10 +60,9 @@ class MenuItem(artist.Artist):
         if self.on_select is not None:
             self.on_select(self)
 
-    def set_extent(self, x, y, w, h):
+    def set_extent(self, x, y, w, h, depth):
         self.rect.set(x=x, y=y, width=w, height=h)
-        self.label.ox = x + self.padx
-        self.label.oy = y - self.depth + self.pady/2
+        self.label.set(position=(x + self.padx, y + depth + self.pady/2))
         self.hover = False
 
     def draw(self, renderer):
@@ -78,7 +71,7 @@ class MenuItem(artist.Artist):
 
     def set_hover_props(self, b):
         props = self.hoverprops if b else self.props
-        self.label.get_array()[..., :3] = colors.to_rgb(props.labelcolor)
+        self.label.set(color=props.labelcolor)
         self.rect.set(facecolor=props.bgcolor, alpha=props.alpha)
 
     def set_hover(self, event):
@@ -99,8 +92,9 @@ class Menu:
 
         self.menuitems = menuitems
 
-        maxw = max(item.labelwidth for item in menuitems)
-        maxh = max(item.labelheight for item in menuitems)
+        maxw = max(item.text_bbox.width for item in menuitems)
+        maxh = max(item.text_bbox.height for item in menuitems)
+        depth = max(-item.text_bbox.y0 for item in menuitems)
 
         x0 = 100
         y0 = 400
@@ -112,7 +106,7 @@ class Menu:
             left = x0
             bottom = y0 - maxh - MenuItem.pady
 
-            item.set_extent(left, bottom, width, height)
+            item.set_extent(left, bottom, width, height, depth)
 
             fig.artists.append(item)
             y0 -= maxh + MenuItem.pady
