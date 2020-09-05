@@ -22,6 +22,7 @@ from matplotlib import _api, artist, cbook, docstring
 import matplotlib.axes as maxes
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
+import matplotlib.lines as mlines
 import matplotlib.scale as mscale
 import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
@@ -3101,6 +3102,35 @@ pivot='tail', normalize=False, **kwargs)
         """
         had_data = self.has_data()
 
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
+        # anything that comes in as 'None', drop so the default thing
+        # happens down stream
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+        kwargs.setdefault('zorder', 2)
+
+        try:
+            offset, errorevery = errorevery
+        except TypeError:
+            offset = 0
+
+        if errorevery < 1 or int(errorevery) != errorevery:
+            raise ValueError(
+                'errorevery must be positive integer or tuple of integers')
+        if int(offset) != offset:
+            raise ValueError("errorevery's starting index must be an integer")
+
+        self._process_unit_info([("x", x), ("y", y), ("z", z)], kwargs,
+                                convert=False)
+
+        # make sure all the args are iterable; use lists not arrays to
+        # preserve units
+        x = x if np.iterable(x) else [x]
+        y = y if np.iterable(y) else [y]
+        z = z if np.iterable(z) else [z]
+
+        if not len(x) == len(y) == len(z):
+            raise ValueError("'x', 'y', and 'z' must have the same size")
+
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
 
@@ -3130,18 +3160,7 @@ pivot='tail', normalize=False, **kwargs)
         if ecolor is None:
             ecolor = base_style['color']
 
-        # make sure all the args are iterable; use lists not arrays to
-        # preserve units
-        x = x if np.iterable(x) else [x]
-        y = y if np.iterable(y) else [y]
-        z = z if np.iterable(z) else [z]
-
-        if not len(x) == len(y) == len(z):
-            raise ValueError("'x', 'y', and 'z' must have the same size")
-
         # make the style dict for the 'normal' plot line
-        if 'zorder' not in kwargs:
-            kwargs['zorder'] = 2
         plot_line_style = {
             **base_style,
             **kwargs,
@@ -3149,14 +3168,17 @@ pivot='tail', normalize=False, **kwargs)
                        kwargs['zorder'] + .1),
         }
 
-        # make the style dict for the line collections (the bars)
-        eb_lines_style = dict(base_style)
-        eb_lines_style.pop('marker', None)
-        eb_lines_style.pop('markerfacecolor', None)
-        eb_lines_style.pop('markeredgewidth', None)
-        eb_lines_style.pop('markeredgecolor', None)
-        eb_lines_style.pop('linestyle', None)
-        eb_lines_style['color'] = ecolor
+        # Eject any marker information from line format string, as it's not
+        # needed for bars or caps.
+        base_style.pop('marker', None)
+        base_style.pop('markersize', None)
+        base_style.pop('markerfacecolor', None)
+        base_style.pop('markeredgewidth', None)
+        base_style.pop('markeredgecolor', None)
+        base_style.pop('linestyle', None)
+
+        # Make the style dict for the line collections (the bars).
+        eb_lines_style = {**base_style, 'color': ecolor}
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
@@ -3167,34 +3189,20 @@ pivot='tail', normalize=False, **kwargs)
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
-        # make the style dict for cap collections (the "hats")
-        eb_cap_style = dict(base_style)
-        # eject any marker information from format string
-        eb_cap_style.pop('marker', None)
-        eb_cap_style.pop('ls', None)
-        eb_cap_style['linestyle'] = 'none'
+        # Make the style dict for caps (the "hats").
+        eb_cap_style = {**base_style, 'linestyle': 'none'}
         if capsize is None:
-            capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
+            capsize = rcParams["errorbar.capsize"]
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
             eb_cap_style['markeredgewidth'] = capthick
         eb_cap_style['color'] = ecolor
 
+        data_line = None
         if plot_line:
             data_line = art3d.Line3D(x, y, z, **plot_line_style)
             self.add_line(data_line)
-
-        try:
-            offset, errorevery = errorevery
-        except TypeError:
-            offset = 0
-
-        if errorevery < 1 or int(errorevery) != errorevery:
-            raise ValueError(
-                'errorevery must be positive integer or tuple of integers')
-        if int(offset) != offset:
-            raise ValueError("errorevery's starting index must be an integer")
 
         everymask = np.zeros(len(x), bool)
         everymask[offset::errorevery] = True
