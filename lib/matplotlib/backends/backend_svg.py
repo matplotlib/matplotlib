@@ -475,12 +475,17 @@ class RendererSVG(RendererBase):
         """
         Create a new hatch pattern
         """
+        forced_alpha = gc.get_forced_alpha()
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
+            if forced_alpha:  # reset alpha if forced
+                rgbFace = rgbFace[:3] + (1.0,)
         edge = gc.get_hatch_color()
         if edge is not None:
             edge = tuple(edge)
-        dictkey = (gc.get_hatch(), rgbFace, edge)
+            if forced_alpha:  # reset alpha if forced
+                edge = edge[:3] + (1.0,)
+        dictkey = (gc.get_hatch(), rgbFace, edge, gc.get_forced_alpha())
         oid = self._hatchd.get(dictkey)
         if oid is None:
             oid = self._make_id('h', dictkey)
@@ -523,8 +528,8 @@ class RendererSVG(RendererBase):
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     }
-            if stroke[3] < 1:
-                hatch_style['stroke-opacity'] = str(stroke[3])
+            if stroke[3] != 1.0:
+                hatch_style['stroke-opacity'] = short_float_fmt(stroke[3])
             writer.element(
                 'path',
                 d=path_data,

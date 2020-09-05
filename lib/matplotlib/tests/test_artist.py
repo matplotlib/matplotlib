@@ -105,16 +105,24 @@ def test_clipping():
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
 
+    base_rect = mpatches.Rectangle((-2.5, -1.5), 5, 1.5,
+                                   facecolor=(0.4, 0.4, 0.4), zorder=-1)
+
     ax1 = plt.subplot(121)
     col = mcollections.PathCollection([star], lw=5, edgecolor='blue',
-                                      facecolor='red', alpha=0.7, hatch='*')
+                                      facecolor='red', alpha=0.4, hatch='*')
     col.set_clip_path(clip_path, ax1.transData)
+    ax1.add_patch(base_rect)
     ax1.add_collection(col)
 
     ax2 = plt.subplot(122, sharex=ax1, sharey=ax1)
     patch = mpatches.PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
-                               alpha=0.7, hatch='*')
+                               alpha=0.4, hatch='*')
     patch.set_clip_path(clip_path, ax2.transData)
+
+    base_rect = mpatches.Rectangle((-2.5, -1.5), 5, 1.5,
+                                   facecolor=(0.4, 0.4, 0.4), zorder=-1)
+    ax2.add_patch(base_rect)
     ax2.add_patch(patch)
 
     ax1.set_xlim([-3, 3])
@@ -140,30 +148,54 @@ def test_cull_markers():
 
 @image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
+    plt.rcParams['hatch.linewidth'] = 9
     fig, ax = plt.subplots(1, 1)
 
     # Default hatch color.
-    rect1 = mpatches.Rectangle((0, 0), 3, 4, hatch='/')
+    rect1 = mpatches.Rectangle((0, 0), 3, 4, hatch='/', lw=4)
     ax.add_patch(rect1)
 
     rect2 = mcollections.RegularPolyCollection(4, sizes=[16000],
-                                               offsets=[(1.5, 6.5)],
+                                               offsets=[(1.5, 5.5)],
                                                transOffset=ax.transData,
-                                               hatch='/')
+                                               hatch='/',
+                                               lw=4)
     ax.add_collection(rect2)
 
-    # Ensure edge color is not applied to hatching.
-    rect3 = mpatches.Rectangle((4, 0), 3, 4, hatch='/', edgecolor='C1')
+    rect3 = mpatches.Rectangle((2, 0), 3, 4, hatch='/', edgecolor='C3', lw=4)
     ax.add_patch(rect3)
 
     rect4 = mcollections.RegularPolyCollection(4, sizes=[16000],
-                                               offsets=[(5.5, 6.5)],
+                                               offsets=[(3.5, 5.5)],
                                                transOffset=ax.transData,
-                                               hatch='/', edgecolor='C1')
+                                               hatch='/',
+                                               edgecolor='C3',
+                                               lw=4)
     ax.add_collection(rect4)
 
+    # Ensure transparency works, where available
+    #  (the two shapes have different behavior; the rect has 0.5 alpha on the
+    #   entire object, the polygon on the edgecolor only)
+    edge_c = (0.1, 0.1, 0.1)
+    edge_c_half = edge_c + (0.5,)
+    rect5 = mpatches.Rectangle((4, 0), 3, 4, hatch='/', edgecolor=edge_c, lw=4,
+                               facecolor='C1', alpha=0.5)
+    ax.add_patch(rect5)
+
+    # we force the polygon to be on top because it seems collections are drawn
+    #  first, regardless of addition order.
+    rect6 = mcollections.RegularPolyCollection(4, sizes=[16000],
+                                               offsets=[(5.5, 5.5)],
+                                               transOffset=ax.transData,
+                                               hatch='/',
+                                               edgecolor=edge_c_half,
+                                               lw=4,
+                                               facecolor='C1',
+                                               zorder=2)
+    ax.add_collection(rect6)
+
     ax.set_xlim(0, 7)
-    ax.set_ylim(0, 9)
+    ax.set_ylim(0, 8)
 
 
 def test_remove():

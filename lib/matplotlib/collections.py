@@ -350,6 +350,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_snap(self.get_snap())
+        gc.set_alpha(self._alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)

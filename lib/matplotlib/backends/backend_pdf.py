@@ -1425,14 +1425,18 @@ end"""
             self.output(*content)
             self.endStream()
 
-    def hatchPattern(self, hatch_style):
+    def hatchPattern(self, hatch_style, forced_alpha):
         # The colors may come in as numpy arrays, which aren't hashable
         if hatch_style is not None:
             edge, face, hatch = hatch_style
             if edge is not None:
                 edge = tuple(edge)
+                if forced_alpha:  # reset alpha if forced
+                    edge = edge[:3] + (1.0,)
             if face is not None:
                 face = tuple(face)
+                if forced_alpha:  # reset alpha if forced
+                    face = face[:3] + (1.0,)
             hatch_style = (edge, face, hatch)
 
         pattern = self.hatchPatterns.get(hatch_style, None)
@@ -1447,10 +1451,14 @@ end"""
         hatchDict = dict()
         sidelen = 72.0
         for hatch_style, name in self.hatchPatterns.items():
+            stroke_rgb, fill_rgb, path = hatch_style
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = {'Procsets':
                    [Name(x) for x in "PDF Text ImageB ImageC ImageI".split()]}
+            if stroke_rgb[3] != 1.0:
+                res['ExtGState'] = self._extGStateObject
+
             self.beginStream(
                 ob.id, None,
                 {'Type': Name('Pattern'),
@@ -1461,7 +1469,9 @@ end"""
                  # Change origin to match Agg at top-left.
                  'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
-            stroke_rgb, fill_rgb, path = hatch_style
+            if stroke_rgb[3] != 1.0:
+                gstate = self.alphaState((stroke_rgb[3], fill_rgb[3]))
+                self.output(gstate, Op.setgstate)
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:
@@ -2402,7 +2412,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
-    def hatch_cmd(self, hatch, hatch_color):
+    def hatch_cmd(self, hatch, hatch_color, forced_alpha):
         if not hatch:
             if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
@@ -2410,7 +2420,7 @@ class GraphicsContextPdf(GraphicsContextBase):
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
             hatch_style = (hatch_color, self._fillcolor, hatch)
-            name = self.file.hatchPattern(hatch_style)
+            name = self.file.hatchPattern(hatch_style, forced_alpha)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
 
@@ -2468,13 +2478,15 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_cliprect', '_clippath'), clip_cmd),
         (('_alpha', '_forced_alpha', '_effective_alphas'), alpha_cmd),
         (('_capstyle',), capstyle_cmd),
+        # If you change the next line also fix the check in delta
         (('_fillcolor',), fillcolor_cmd),
         (('_joinstyle',), joinstyle_cmd),
         (('_linewidth',), linewidth_cmd),
         (('_dashes',), dash_cmd),
         (('_rgb',), rgb_cmd),
         # must come after fillcolor and rgb
-        (('_hatch', '_hatch_color'), hatch_cmd),
+        # If you change the next line also fix the check in delta
+        (('_hatch', '_hatch_color', '_forced_alpha'), hatch_cmd),
         )
 
     def delta(self, other):
@@ -2503,7 +2515,8 @@ class GraphicsContextPdf(GraphicsContextBase):
                     break
 
             # Need to update hatching if we also updated fillcolor
-            if params == ('_hatch', '_hatch_color') and fill_performed:
+            if (params == ('_hatch', '_hatch_color', '_forced_alpha')
+                    and fill_performed):
                 different = True
 
             if different:
