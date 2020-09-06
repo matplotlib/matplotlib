@@ -265,6 +265,10 @@ def _to_rgba_no_colorcycle(c, alpha=None):
                     f"Value must be within 0-1 range")
             return c, c, c, alpha if alpha is not None else 1.
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
+    # turn 2-D array into 1-D array
+    if isinstance(c, np.ndarray):
+        if c.ndim == 2 and c.shape[0] == 1:
+            c = c.reshape((-1))
     # tuple color.
     if not np.iterable(c):
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
