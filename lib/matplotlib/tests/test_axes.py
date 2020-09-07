@@ -1815,6 +1815,29 @@ def test_stairs_fill(fig_test, fig_ref):
     ref_axes[3].set_xlim(bs, None)
 
 
+@check_figures_equal()
+def test_stairs_update(fig_test, fig_ref):
+    # Test
+    fig_test, test_ax = plt.subplots()
+    h = test_ax.stairs([1, 2])
+    h.set_values([2, 1])
+    h.set_edges([0, 1, 1.5])
+
+    # # Ref
+    fig_ref, ref_ax = plt.subplots()
+    h = ref_ax.stairs([2, 1], [0, 1, 1.5])
+
+
+@pytest.mark.xfail
+def test_stairs_invalid_nan():
+    plt.stairs([1, 2], [0, np.nan, 1])
+
+
+@pytest.mark.xfail
+def test_stairs_invalid_mismatch():
+    plt.stairs([1, 2], [0, 1])
+
+
 @image_comparison(['test_stairs_options.png'], remove_text=True)
 def test_stairs_options():
     x, y = np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4]).astype(float)
@@ -1824,14 +1847,14 @@ def test_stairs_options():
     fig, ax = plt.subplots()
     ax.stairs(y*3, x, color='green', fill=True, label="A")
     ax.stairs(y, x*3-3, color='red', fill=True,
-                orientation='horizontal', label="B")
+              orientation='horizontal', label="B")
     ax.stairs(yn, x, color='orange', ls='--', lw=2, label="C")
-    ax.stairs(yn/3, x*3-2, color='purple', ls='--', lw=2, baseline=0.5,
-                orientation='horizontal', label="D")
+    ax.stairs(yn/3, x*3-2, ls='--', lw=2, baseline=0.5,
+              orientation='horizontal', label="D")
     ax.stairs(y[::-1]*3+12, x, color='red', ls='--', lw=2, baseline=None,
-                label="E")
-    ax.stairs(y[:-1][::-1]*2+11, x[:-1]+0.5, color='blue', ls='--', lw=2,
-                baseline=12, hatch='//', label="F")
+              label="E")
+    ax.stairs(y[:-1][::-1]*2+11, x[:-1]+0.5, color='black', ls='--', lw=2,
+              baseline=12, hatch='//', label="F")
     ax.legend(loc=0)
 
 

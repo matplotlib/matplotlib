@@ -1050,11 +1050,15 @@ class StepPatch(PathPatch):
 
     def set_edges(self, edges):
         self._edges = np.asarray(edges)
-        self._update_data()
+        verts, codes = self._update_data()
+        self.set_path(Path(verts, codes))
+        self.stale = True
 
     def set_values(self, values):
         self._values = np.asarray(values)
-        self._update_data()
+        verts, codes = self._update_data()
+        self.set_path(Path(verts, codes))
+        self.stale = True
 
 
 class Polygon(Patch):
