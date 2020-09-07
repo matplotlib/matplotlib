@@ -417,11 +417,6 @@ class Legend(Artist):
 
         self.scatteryoffsets = scatteryoffsets
 
-        # _legend_box is a VPacker instance that contains all
-        # legend items and will be initialized from _init_legend_box()
-        # method.
-        self._legend_box = None
-
         if isinstance(parent, Axes):
             self.isaxes = True
             self.axes = parent
@@ -432,23 +427,6 @@ class Legend(Artist):
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
-
-        self._loc_used_default = loc is None
-        if loc is None:
-            loc = mpl.rcParams["legend.loc"]
-            if not self.isaxes and loc in [0, 'best']:
-                loc = 'upper right'
-        if isinstance(loc, str):
-            if loc not in self.codes:
-                raise ValueError(
-                    "Unrecognized location {!r}. Valid locations are\n\t{}\n"
-                    .format(loc, '\n\t'.join(self.codes)))
-            else:
-                loc = self.codes[loc]
-        if not self.isaxes and loc == 0:
-            raise ValueError(
-                "Automatic legend placement (loc='best') not implemented for "
-                "figure legend.")
 
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
@@ -487,18 +465,46 @@ class Legend(Artist):
         )
         self._set_artist_props(self.legendPatch)
 
+        # _legend_box is a VPacker instance that contains all
+        # legend items and will be initialized from _init_legend_box()
+        # method.
+        self._legend_box = None
+
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
 
-        tmp = self._loc_used_default
-        self._set_loc(loc)
-        self._loc_used_default = tmp  # ignore changes done by _set_loc
-
+        self.loc = loc
         self.title = title
         self.title_fontsize = title_fontsize
+        self.labelcolor = labelcolor
         self._draggable = None
 
-        self.labelcolor = labelcolor
+    @property
+    def loc(self):
+        return self._loc
+
+    @loc.setter
+    def loc(self, loc):
+        self._loc_used_default = loc is None
+        if loc is None:
+            loc = mpl.rcParams["legend.loc"]
+            if not self.isaxes and loc in [0, 'best']:
+                loc = 'upper right'
+        if isinstance(loc, str):
+            if loc not in self.codes:
+                raise ValueError(
+                    "Unrecognized location {!r}. Valid locations are\n\t{}\n"
+                    .format(loc, '\n\t'.join(self.codes)))
+            else:
+                loc = self.codes[loc]
+        if not self.isaxes and loc == 0:
+            raise ValueError(
+                "Automatic legend placement (loc='best') not implemented for "
+                "figure legend.")
+
+        self._loc = loc
+        self.stale = True
+        self._legend_box.set_offset(self._findoffset)
 
     @property
     def scatteryoffsets(self):
@@ -575,23 +581,8 @@ class Legend(Artist):
 
         a.set_transform(self.get_transform())
 
-    def _set_loc(self, loc):
-        # find_offset function will be provided to _legend_box and
-        # _legend_box will draw itself at the location of the return
-        # value of the find_offset.
-        self._loc_used_default = False
-        self._loc_real = loc
-        self.stale = True
-        self._legend_box.set_offset(self._findoffset)
-
-    def _get_loc(self):
-        return self._loc_real
-
-    _loc = property(_get_loc, _set_loc)
-
     def _findoffset(self, width, height, xdescent, ydescent, renderer):
         """Helper function to locate the legend."""
-
         if self._loc == 0:  # "best".
             x, y = self._find_best_position(width, height, renderer)
         elif self._loc in Legend.codes.values():  # Fixed location.
