@@ -86,10 +86,6 @@ class DraggableLegend(DraggableOffsetBox):
         _bbox_transform = BboxTransformFrom(bbox)
         self.legend._loc = tuple(_bbox_transform.transform(loc_in_canvas))
 
-    def _update_bbox_to_anchor(self, loc_in_canvas):
-        loc_in_bbox = self.legend.axes.transAxes.transform(loc_in_canvas)
-        self.legend.set_bbox_to_anchor(loc_in_bbox)
-
 
 docstring.interpd.update(_legend_kw_doc="""
 loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
