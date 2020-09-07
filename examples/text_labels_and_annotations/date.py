@@ -12,7 +12,7 @@ days since an epoch (by default 1970-01-01T00:00:00). The
 :mod:`matplotlib.dates` module provides the converter functions `.date2num`
 and `.num2date`, which convert `datetime.datetime` and `numpy.datetime64`
 objects to and from Matplotlib's internal representation.  These data
-types are "registered" with with the unit conversion mechanism described in
+types are registered with with the unit conversion mechanism described in
 :mod:`matplotlib.units`, so the conversion happens automatically for the user.
 The registration process also sets the default tick ``locator`` and
 ``formatter`` for the axis to be `~.matplotlib.dates.AutoDateLocator` and
