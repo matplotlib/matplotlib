@@ -494,11 +494,8 @@ class Legend(Artist):
         self._set_loc(loc)
         self._loc_used_default = tmp  # ignore changes done by _set_loc
 
-        # figure out title fontsize:
-        if title_fontsize is None:
-            title_fontsize = mpl.rcParams['legend.title_fontsize']
-        tprop = FontProperties(size=title_fontsize)
-        self.set_title(title, prop=tprop)
+        self.title = title
+        self.title_fontsize = title_fontsize
         self._draggable = None
 
         # set the text color
@@ -545,6 +542,19 @@ class Legend(Artist):
         reps = self.scatterpoints // len(self._scatteryoffsets) + 1
         self._scatteryoffsets = np.tile(self._scatteryoffsets,
                                         reps)[:self.scatterpoints]
+
+    @property
+    def title_fontsize(self):
+        return self._title_fontsize
+
+    @title_fontsize.setter
+    def title_fontsize(self, title_fontsize):
+        # figure out title fontsize:
+        if title_fontsize is None:
+            title_fontsize = mpl.rcParams['legend.title_fontsize']
+        tprop = FontProperties(size=title_fontsize)
+        self._title_fontsize = title_fontsize
+        self.set_title(self.title, prop=tprop)
 
     def _set_artist_props(self, a):
         """
