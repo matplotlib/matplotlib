@@ -2339,7 +2339,6 @@ class YAxis(Axis):
         position : {'left', 'right'}
         """
         self.label.set_rotation_mode('anchor')
-        self.label.set_horizontalalignment('center')
         self.label.set_verticalalignment(_api.check_getitem({
             'left': 'bottom', 'right': 'top',
         }, position=position))
