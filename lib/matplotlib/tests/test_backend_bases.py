@@ -1,5 +1,6 @@
 import re
 
+from matplotlib.testing import check_for_pgf
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
@@ -12,6 +13,9 @@ import matplotlib.path as path
 
 import numpy as np
 import pytest
+
+needs_xelatex = pytest.mark.skipif(not check_for_pgf('xelatex'),
+                                   reason='xelatex + pgf is required')
 
 
 def test_uses_per_path():
@@ -189,7 +193,9 @@ def test_toolbar_zoompan():
     assert ax.get_navigate_mode() == "PAN"
 
 
-@pytest.mark.parametrize("backend", ['svg', 'pgf', 'ps', 'pdf'])
+@pytest.mark.parametrize(
+    "backend", ['svg', 'ps', 'pdf', pytest.param('pgf', marks=needs_xelatex)]
+)
 def test_draw(backend):
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvas

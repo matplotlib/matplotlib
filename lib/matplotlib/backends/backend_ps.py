@@ -1133,6 +1133,7 @@ showpage
         _no_output_draw(self.figure)
         return super().draw()
 
+
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paper_width, paper_height, orientation):
     """
