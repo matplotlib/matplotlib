@@ -415,14 +415,7 @@ class Legend(Artist):
         if self.numpoints <= 0:
             raise ValueError("numpoints must be > 0; it was %d" % numpoints)
 
-        # introduce y-offset for handles of the scatter plot
-        if scatteryoffsets is None:
-            self._scatteryoffsets = np.array([3. / 8., 4. / 8., 2.5 / 8.])
-        else:
-            self._scatteryoffsets = np.asarray(scatteryoffsets)
-        reps = self.scatterpoints // len(self._scatteryoffsets) + 1
-        self._scatteryoffsets = np.tile(self._scatteryoffsets,
-                                        reps)[:self.scatterpoints]
+        self.scatteryoffsets = scatteryoffsets
 
         # _legend_box is a VPacker instance that contains all
         # legend items and will be initialized from _init_legend_box()
@@ -537,6 +530,21 @@ class Legend(Artist):
         else:
             raise ValueError("Invalid argument for labelcolor : %s" %
                              str(labelcolor))
+
+    @property
+    def scatteryoffsets(self):
+        return self._scatteryoffsets
+
+    @scatteryoffsets.setter
+    def scatteryoffsets(self, scatteryoffsets):
+        # introduce y-offset for handles of the scatter plot
+        if scatteryoffsets is None:
+            self._scatteryoffsets = np.array([3. / 8., 4. / 8., 2.5 / 8.])
+        else:
+            self._scatteryoffsets = np.asarray(scatteryoffsets)
+        reps = self.scatterpoints // len(self._scatteryoffsets) + 1
+        self._scatteryoffsets = np.tile(self._scatteryoffsets,
+                                        reps)[:self.scatterpoints]
 
     def _set_artist_props(self, a):
         """
