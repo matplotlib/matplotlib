@@ -498,35 +498,7 @@ class Legend(Artist):
         self.title_fontsize = title_fontsize
         self._draggable = None
 
-        # set the text color
-
-        color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color',           'get_facecolor'],
-            'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
-            'mfc':             ['get_markerfacecolor', 'get_facecolor'],
-            'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
-            'mec':             ['get_markeredgecolor', 'get_edgecolor'],
-        }
-        if labelcolor is None:
-            pass
-        elif isinstance(labelcolor, str) and labelcolor in color_getters:
-            getter_names = color_getters[labelcolor]
-            for handle, text in zip(self.legendHandles, self.texts):
-                for getter_name in getter_names:
-                    try:
-                        color = getattr(handle, getter_name)()
-                        text.set_color(color)
-                        break
-                    except AttributeError:
-                        pass
-        elif np.iterable(labelcolor):
-            for text, color in zip(self.texts,
-                                   itertools.cycle(
-                                       colors.to_rgba_array(labelcolor))):
-                text.set_color(color)
-        else:
-            raise ValueError("Invalid argument for labelcolor : %s" %
-                             str(labelcolor))
+        self.labelcolor = labelcolor
 
     @property
     def scatteryoffsets(self):
@@ -555,6 +527,42 @@ class Legend(Artist):
         tprop = FontProperties(size=title_fontsize)
         self._title_fontsize = title_fontsize
         self.set_title(self.title, prop=tprop)
+
+    @property
+    def label_color(self):
+        return self._labelcolor
+
+    @label_color.setter
+    def labelcolor(self, labelcolor):
+        # set the text color
+        color_getters = {  # getter function depends on line or patch
+            'linecolor':       ['get_color',           'get_facecolor'],
+            'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
+            'mfc':             ['get_markerfacecolor', 'get_facecolor'],
+            'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
+            'mec':             ['get_markeredgecolor', 'get_edgecolor'],
+        }
+        if labelcolor is None:
+            pass
+        elif isinstance(labelcolor, str) and labelcolor in color_getters:
+            getter_names = color_getters[labelcolor]
+            for handle, text in zip(self.legendHandles, self.texts):
+                for getter_name in getter_names:
+                    try:
+                        color = getattr(handle, getter_name)()
+                        text.set_color(color)
+                        break
+                    except AttributeError:
+                        pass
+        elif np.iterable(labelcolor):
+            for text, color in zip(self.texts,
+                                   itertools.cycle(
+                                       colors.to_rgba_array(labelcolor))):
+                text.set_color(color)
+        else:
+            raise ValueError("Invalid argument for labelcolor : %s" %
+                             str(labelcolor))
+        self._labelcolor = labelcolor
 
     def _set_artist_props(self, a):
         """
