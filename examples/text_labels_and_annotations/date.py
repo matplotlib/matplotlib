@@ -7,16 +7,22 @@ Show how to make date plots in Matplotlib using date tick locators and
 formatters.  See :doc:`/gallery/ticks_and_spines/major_minor_demo` for more
 information on controlling major and minor ticks.
 
-All Matplotlib date plotting is done by converting date instances into
-days since 0001-01-01 00:00:00 UTC plus one day (for historical reasons).
-The conversion, tick locating and formatting is done behind the scenes
-so this is most transparent to you.  The :mod:`matplotlib.dates` module
-provides the converter functions `.date2num` and `.num2date`, which convert
-`datetime.datetime` and `numpy.datetime64` objects to and from Matplotlib's
-internal representation.
+Matplotlib date plotting is done by converting date instances into
+days since an epoch (by default 1970-01-01T00:00:00). The
+:mod:`matplotlib.dates` module provides the converter functions `.date2num`
+and `.num2date`, which convert `datetime.datetime` and `numpy.datetime64`
+objects to and from Matplotlib's internal representation.  These data
+types are "registered" with with the unit conversion mechanism described in
+:mod:`matplotlib.units`, so the conversion happens automatically for the user.
+The registration process also sets the default tick ``locator`` and
+``formatter`` for the axis to be `~.matplotlib.dates.AutoDateLocator` and
+`~.matplotlib.dates.AutoDateFormatter`.  These can be changed manually with
+`.axis.set_major_locator` and `.axis.set_major_formatter`; see for example
+:doc:`/gallery/ticks_and_spines/date_demo_convert`.
 
-An alternative way of displaying dates can be seen at
-:doc:`/gallery/ticks_and_spines/date_concise_formatter`.
+An alternative formatter is the `~.matplotlib.dates.ConciseDateFormatter`
+as described at :doc:`/gallery/ticks_and_spines/date_concise_formatter`,
+which often removes the need to rotate the tick labels.
 """
 
 import numpy as np
