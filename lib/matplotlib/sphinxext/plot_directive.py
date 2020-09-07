@@ -71,6 +71,11 @@ The ``plot`` directive supports the following options:
         If specified, the code block will be run, but no figures will be
         inserted.  This is usually useful with the ``:context:`` option.
 
+    caption : str
+        If specified, the option's argument will be used as a caption for the
+        figure. This overwrites the caption given in the content, when the plot
+        is generated from a file.
+
 Additionally, this directive supports all of the options of the `image`
 directive, except for *target* (since plot will add its own target).  These
 include *alt*, *height*, *width*, *scale*, *align* and *class*.
@@ -240,6 +245,7 @@ class PlotDirective(Directive):
         'context': _option_context,
         'nofigs': directives.flag,
         'encoding': directives.encoding,
+        'caption': directives.unchanged,
         }
 
     def run(self):
@@ -633,8 +639,9 @@ def run(arguments, content, options, state_machine, state, lineno):
             source_file_name = os.path.join(setup.confdir, config.plot_basedir,
                                             directives.uri(arguments[0]))
 
-        # If there is content, it will be passed as a caption.
-        caption = '\n'.join(content)
+        # If there is content, it will be passed as a caption, if the caption
+        # option is not present.
+        caption = options.get("caption", '\n'.join(content))
 
         # If the optional function name is provided, use it
         if len(arguments) == 2:
@@ -652,7 +659,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         base, ext = os.path.splitext(os.path.basename(source_file_name))
         output_base = '%s-%d.py' % (base, counter)
         function_name = None
-        caption = ''
+        caption = options.get('caption', '')
 
     base, source_ext = os.path.splitext(output_base)
     if source_ext in ('.py', '.rst', '.txt'):

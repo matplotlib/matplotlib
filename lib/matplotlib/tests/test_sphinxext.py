@@ -21,6 +21,7 @@ def test_tinypages(tmpdir):
            str(Path(__file__).parent / 'tinypages'), str(html_dir)]
     proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     out, err = proc.communicate()
+
     assert proc.returncode == 0, \
         "sphinx build failed with stdout:\n{}\nstderr:\n{}\n".format(out, err)
     if err:
@@ -52,3 +53,7 @@ def test_tinypages(tmpdir):
     assert filecmp.cmp(range_6, html_dir / 'range6.png')
     # check if figure caption made it into html file
     assert b'This is the caption for plot 15.' in html_contents
+    # check if figure caption usin :caption: made it into html file
+    assert b'Plot 17 uses the caption option.' in html_contents
+    # check if figure caption made it into html file
+    assert b'This is the actual caption for plot 18.' in html_contents
