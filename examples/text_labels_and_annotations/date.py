@@ -17,7 +17,7 @@ types are "registered" with with the unit conversion mechanism described in
 The registration process also sets the default tick ``locator`` and
 ``formatter`` for the axis to be `~.matplotlib.dates.AutoDateLocator` and
 `~.matplotlib.dates.AutoDateFormatter`.  These can be changed manually with
-`.axis.set_major_locator` and `.axis.set_major_formatter`; see for example
+`.Axis.set_major_locator` and `.Axis.set_major_formatter`; see for example
 :doc:`/gallery/ticks_and_spines/date_demo_convert`.
 
 An alternative formatter is the `~.matplotlib.dates.ConciseDateFormatter`
