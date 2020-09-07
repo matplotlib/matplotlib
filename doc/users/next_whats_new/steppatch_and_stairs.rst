@@ -1,5 +1,5 @@
-New `~.matplotlib.patches.LevelsPatch` artist and a `.pyplot.levels` method
----------------------------------------------------------------------------
+New `~.matplotlib.patches.StepPatch` artist and a `.pyplot.stairs` method
+-------------------------------------------------------------------------
 These take inputs of asymmetric lengths with y-like values and 
 x-like edges, between which the values lie.
 
@@ -14,9 +14,9 @@ x-like edges, between which the values lie.
 
     fig, ax = plt.subplots(constrained_layout=True)
 
-    ax.levels(h, bins)
+    ax.stairs(h, bins)
 
     plt.show()
 
-See :doc:`/gallery/lines_bars_and_markers/levels_demo`
+See :doc:`/gallery/lines_bars_and_markers/stairs_demo`
 for examples.

@@ -6872,7 +6872,7 @@ such objects
             return tops, bins, cbook.silent_list(patch_type, patches)
 
     @_preprocess_data()
-    def levels(self, values, edges=None, *,
+    def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
         """
         A histogram-like line or filled plot.
@@ -6896,12 +6896,12 @@ such objects
 
         Returns
         -------
-        LevelsPatch : `matplotlib.patches.LevelsPatch`
+        StepPatch : `matplotlib.patches.StepPatch`
 
         Other Parameters
         ----------------
         **kwargs
-            `~matplotlib.patches.LevelsPatch` properties
+            `~matplotlib.patches.StepPatch` properties
 
         """
 
@@ -6918,12 +6918,12 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
-        patch = mpatches.LevelsPatch(values,
-                                     edges,
-                                     baseline=baseline,
-                                     orientation=orientation,
-                                     fill=fill,
-                                     **kwargs)
+        patch = mpatches.StepPatch(values,
+                                   edges,
+                                   baseline=baseline,
+                                   orientation=orientation,
+                                   fill=fill,
+                                   **kwargs)
         self.add_patch(patch)
         if baseline is None:
             baseline = 0

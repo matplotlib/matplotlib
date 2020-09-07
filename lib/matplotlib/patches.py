@@ -989,8 +989,8 @@ class PathPatch(Patch):
         self._path = path
 
 
-class LevelsPatch(PathPatch):
-    """An unclosed levels path patch."""
+class StepPatch(PathPatch):
+    """An unclosed step path patch."""
 
     @docstring.dedent_interpd
     def __init__(self, values, edges, *,
