@@ -140,6 +140,4 @@ Plot 18 uses an external file with the plot commands and a caption
 the using :caption: option:
 
 .. plot:: range4.py
-   :caption: This is the actual caption for plot 18.
-
-   This is the caption for plot 18.
+   :caption: This is the caption for plot 18.

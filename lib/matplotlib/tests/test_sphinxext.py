@@ -56,4 +56,4 @@ def test_tinypages(tmpdir):
     # check if figure caption usin :caption: made it into html file
     assert b'Plot 17 uses the caption option.' in html_contents
     # check if figure caption made it into html file
-    assert b'This is the actual caption for plot 18.' in html_contents
+    assert b'This is the caption for plot 18.' in html_contents

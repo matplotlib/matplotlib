@@ -639,9 +639,19 @@ def run(arguments, content, options, state_machine, state, lineno):
             source_file_name = os.path.join(setup.confdir, config.plot_basedir,
                                             directives.uri(arguments[0]))
 
-        # If there is content, it will be passed as a caption, if the caption
-        # option is not present.
-        caption = options.get("caption", '\n'.join(content))
+        # If there is content, it will be passed as a caption.
+        caption = '\n'.join(content)
+
+        # Enforce unambiguous use of captions.
+        if "caption" in options:
+            if caption:
+                raise ValueError(
+                    'Caption specified twice: In content and options.'
+                    + ' Please remove ambiguity.'
+                )
+            else:
+                # Use caption option
+                caption = options["caption"]
 
         # If the optional function name is provided, use it
         if len(arguments) == 2:
