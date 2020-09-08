@@ -39,10 +39,8 @@ needs_usetex = pytest.mark.skipif(
     'eps afm',
     'eps with usetex'
 ])
-def test_savefig_to_stringio(format, use_log, rcParams, orientation,
-                             monkeypatch):
+def test_savefig_to_stringio(format, use_log, rcParams, orientation):
     mpl.rcParams.update(rcParams)
-    monkeypatch.setenv("SOURCE_DATE_EPOCH", "0")  # For reproducibility.
 
     fig, ax = plt.subplots()
 
@@ -70,12 +68,11 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation,
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
 
-        if rcParams.get("ps.usedistiller") or rcParams.get("text.usetex"):
-            # Strip out CreationDate betcase ghostscript doesn't obey
-            # SOURCE_DATE_EPOCH.  Note that in usetex mode, we *always* call
-            # gs_distill, even if ps.usedistiller is unset.
-            s_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", s_val)
-            b_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", b_val)
+        # Strip out CreationDate: ghostscript and cairo don't obey
+        # SOURCE_DATE_EPOCH, and that environment variable is already tested in
+        # test_determinism.
+        s_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", s_val)
+        b_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", b_val)
 
         assert s_val == b_val.replace(b'\r\n', b'\n')
 
