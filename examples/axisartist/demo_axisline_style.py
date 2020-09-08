@@ -11,24 +11,19 @@ rather check out the
 :doc:`/gallery/ticks_and_spines/centered_spines_with_arrows` example.
 """
 
-from mpl_toolkits.axisartist.axislines import SubplotZero
+from mpl_toolkits.axisartist.axislines import Subplot
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 fig = plt.figure()
-ax = SubplotZero(fig, 111)
+ax = Subplot(fig, 111)
 fig.add_subplot(ax)
 
-for direction in ["xzero", "yzero"]:
-    # adds arrows at the ends of each axis
+for direction in ["bottom", "left"]:  # Add arrows for bottom and left axes.
     ax.axis[direction].set_axisline_style("-|>")
 
-    # adds X and Y-axis from the origin
-    ax.axis[direction].set_visible(True)
-
-for direction in ["left", "right", "bottom", "top"]:
-    # hides borders
+for direction in ["top", "right"]:  # Hide top and right axes.
     ax.axis[direction].set_visible(False)
 
 x = np.linspace(-0.5, 1., 100)

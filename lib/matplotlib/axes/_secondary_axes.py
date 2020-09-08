@@ -37,6 +37,10 @@ class SecondaryAxis(_AxesBase):
         self._parentscale = None
         # this gets positioned w/o constrained_layout so exclude:
 
+        # Make this axes always follow the parent axes' position.
+        self.set_axes_locator(
+            _axes._InsetLocator([0, 0, 1, 1], self._parent.transAxes))
+
         self.set_location(location)
         self.set_functions(functions)
 
@@ -49,6 +53,7 @@ class SecondaryAxis(_AxesBase):
         otheraxis.set_major_locator(mticker.NullLocator())
         otheraxis.set_ticks_position('none')
 
+        self.patch.set_visible(False)
         for st in self._otherstrings:
             self.spines[st].set_visible(False)
         for st in self._locstrings:
@@ -92,8 +97,7 @@ class SecondaryAxis(_AxesBase):
             parent axes to put the new axes, 0.0 being the bottom (or left)
             and 1.0 being the top (or right).
         """
-
-        # This puts the rectangle into figure-relative coordinates.
+        # Put the spine into axes-relative coordinates.
         if isinstance(location, str):
             if location in ['top', 'right']:
                 self._pos = 1.
@@ -105,22 +109,8 @@ class SecondaryAxis(_AxesBase):
                     f"{self._locstrings[1]!r}, or a float, not {location!r}")
         else:
             self._pos = location
-        self._loc = location
-
-        if self._orientation == 'x':
-            # An x-secondary axes is like an inset axes from x = 0 to x = 1 and
-            # from y = pos to y = pos + eps, in the parent's transAxes coords.
-            bounds = [0, self._pos, 1., 1e-10]
-        else:
-            bounds = [self._pos, 0, 1e-10, 1]
-
-        secondary_locator = _axes._InsetLocator(bounds, self._parent.transAxes)
-
-        # this locator lets the axes move in the parent axes coordinates.
-        # so it never needs to know where the parent is explicitly in
-        # figure coordinates.
-        # it gets called in `ax.apply_aspect() (of all places)
-        self.set_axes_locator(secondary_locator)
+        for loc in self._locstrings:
+            self.spines[loc].set_position(('axes', self._pos))
 
     def apply_aspect(self, position=None):
         # docstring inherited.
@@ -232,9 +222,11 @@ class SecondaryAxis(_AxesBase):
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
             set_lim = self.set_xlim
+            self.set_ylim(self._parent.get_ylim())
         if self._orientation == 'y':
             lims = self._parent.get_ylim()
             set_lim = self.set_ylim
+            self.set_xlim(self._parent.get_xlim())
         order = lims[0] < lims[1]
         lims = self._functions[0](np.array(lims))
         neworder = lims[0] < lims[1]

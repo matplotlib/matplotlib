@@ -34,4 +34,25 @@ ax.axis["right2"] = ax.new_fixed_axis(loc="right", offset=(20, 0))
 ax.axis["right2"].label.set_text("Label Y2")
 
 ax.plot([-2, 3, 2])
+
+###############################################################################
+# Or, without axisartist, one can use secondary axes to add the additional
+# axes:
+
+fig, ax = plt.subplots()
+fig.subplots_adjust(right=0.85)
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+ax1 = ax.secondary_xaxis(0)
+ax1.spines["bottom"].set_position(("data", 0))
+ax1.set_xlabel("Axis Zero")
+
+ax2 = ax.secondary_yaxis(1)
+ax2.spines["right"].set_position(("outward", 20))
+ax2.set_ylabel("Label Y2")
+
+ax.plot([-2, 3, 2])
+
 plt.show()
