@@ -1877,6 +1877,15 @@ def test_stairs_options():
     ax.legend(loc=0)
 
 
+@image_comparison(['test_stairs_datetime.png'])
+def test_stairs_datetime():
+    f, ax = plt.subplots(constrained_layout=True)
+    ax.stairs(np.arange(36),
+              np.arange(np.datetime64('2001-12-27'),
+                        np.datetime64('2002-02-02')))
+    plt.xticks(rotation=30)
+
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)
