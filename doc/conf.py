@@ -276,7 +276,7 @@ html_sidebars = {
         # 'sidebar_announcement.html',
         'sidebar_versions.html',
         'donate_sidebar.html'],
-    '**': ['localtoc.html', 'relations.html', 'pagesource.html']
+    '**': ['localtoc.html', 'pagesource.html']
 }
 
 # If false, no module index is generated.
