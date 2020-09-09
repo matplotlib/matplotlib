@@ -615,20 +615,20 @@ class Colormap:
         if alpha is not None:
             if np.iterable(alpha):
                 alpha = np.asarray(alpha)
-                if not (alpha.shape == xa.shape):
-                    raise ValueError("alpha is array-like but it's shape"
+                if alpha.shape != xa.shape:
+                    raise ValueError("alpha is array-like but its shape"
                                      " %s doesn't match that of X %s" %
                                      (alpha.shape, xa.shape))
-
             alpha = np.clip(alpha, 0, 1)
             if bytes:
                 alpha = (alpha * 255).astype(np.uint8)
             rgba[..., -1] = alpha
 
-            if (lut[-1] == 0).all() and mask_bad is not None:
-                if mask_bad.shape == xa.shape:
+            # If the "bad" color is all zeros, then ignore alpha input.
+            if (lut[-1] == 0).all() and np.any(mask_bad):
+                if np.iterable(mask_bad) and mask_bad.shape == xa.shape:
                     rgba[mask_bad] = (0, 0, 0, 0)
-                elif mask_bad:
+                else:
                     rgba[..., :] = (0, 0, 0, 0)
 
         if not np.iterable(X):

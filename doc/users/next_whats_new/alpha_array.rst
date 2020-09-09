@@ -1,7 +1,7 @@
 Transparency (alpha) can be set as an array in collections
 ----------------------------------------------------------
 Previously, the alpha value controlling tranparency in collections could be
-specified only as a scalar which was applied to all elements in the collection.
+specified only as a scalar applied to all elements in the collection.
 For example, all the markers in a `~.Axes.scatter` plot, or all the
 quadrilaterals in a `~.Axes.pcolormesh` plot, would have the same alpha value.
 

@@ -274,7 +274,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        alpha : float or 2-d array or None
+        alpha : float or 2D array-like or None
         """
         martist.Artist._set_alpha_for_array(self, alpha)
         if np.ndim(alpha) not in (0, 2):

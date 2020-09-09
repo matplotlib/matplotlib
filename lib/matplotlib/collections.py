@@ -837,9 +837,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        alpha: float or array of float
+        alpha: float or array of float or None
             If not None, *alpha* values must be between 0 and 1, inclusive.
-            If an array is provided, it's length must match the number of
+            If an array is provided, its length must match the number of
             elements in the collection.  Masked values and nans are not
             supported.
         """
@@ -867,13 +867,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
             return
         if np.iterable(self._alpha):
             if self._alpha.size != self._A.size:
-                # This can occur with the deprecated behavior of 'flat'
-                # pcolormesh shading.  If we bring the current change in
-                # before that deprecated behavior is removed, we need to
-                # add the explanation to the message below.
                 raise ValueError(f'Data array shape, {self._A.shape} '
                                  'is incompatible with alpha array shape, '
-                                 f'{self._alpha.shape}.')
+                                 f'{self._alpha.shape}. '
+                                 'This can occur with the deprecated '
+                                 'behavior of the "flat" shading option, '
+                                 'in which a row and/or column of the data '
+                                 'array is dropped.')
             # pcolormesh, scatter, maybe others flatten their _A
             self._alpha = self._alpha.reshape(self._A.shape)
 

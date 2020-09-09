@@ -1189,8 +1189,25 @@ def test_get_under_over_bad():
 
 def test_colormap_alpha_array():
     cmap = plt.get_cmap('viridis')
+    vals = [-1, 0.5, 2]  # under, valid, over
     with pytest.raises(ValueError, match="alpha is array-like but"):
-        cmap([1, 2, 3], alpha=[1, 1, 1, 1])
-    alpha = [0.1, 0.2, 0.3]
-    c = cmap([1, 2, 3], alpha=alpha)
+        cmap(vals, alpha=[1, 1, 1, 1])
+    alpha = np.array([0.1, 0.2, 0.3])
+    c = cmap(vals, alpha=alpha)
     assert_array_equal(c[:, -1], alpha)
+    c = cmap(vals, alpha=alpha, bytes=True)
+    assert_array_equal(c[:, -1], (alpha * 255).astype(np.uint8))
+
+
+def test_colormap_bad_data_with_alpha():
+    cmap = plt.get_cmap('viridis')
+    c = cmap(np.nan, alpha=0.5)
+    assert c == (0, 0, 0, 0)
+    c = cmap([0.5, np.nan], alpha=0.5)
+    assert_array_equal(c[1], (0, 0, 0, 0))
+    c = cmap([0.5, np.nan], alpha=[0.1, 0.2])
+    assert_array_equal(c[1], (0, 0, 0, 0))
+    c = cmap([[np.nan, 0.5], [0, 0]], alpha=0.5)
+    assert_array_equal(c[0, 0], (0, 0, 0, 0))
+    c = cmap([[np.nan, 0.5], [0, 0]], alpha=np.full((2, 2), 0.5))
+    assert_array_equal(c[0, 0], (0, 0, 0, 0))

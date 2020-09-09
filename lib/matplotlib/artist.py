@@ -982,7 +982,7 @@ class Artist:
             Artist.set_alpha(self, alpha)
             return
         alpha = np.asarray(alpha)
-        if not (alpha.min() >= 0 and alpha.max() <= 1):
+        if not (0 <= alpha.min() and alpha.max() <= 1):
             raise ValueError('alpha must be between 0 and 1, inclusive, '
                              f'but min is {alpha.min()}, max is {alpha.max()}')
         self._alpha = alpha
