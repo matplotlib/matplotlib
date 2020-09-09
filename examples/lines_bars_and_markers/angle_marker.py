@@ -69,7 +69,7 @@ class AngleMarker(Arc):
     Draws an arc between two vectors which appears circular in display space.
     """
     def __init__(self, xy, p1, p2, size=75, unit="points", ax=None,
-                 text="", textposition="inside", text_kw={}, **kwargs):
+                 text="", textposition="inside", text_kw=None, **kwargs):
         """
         Parameters
         ----------
@@ -124,11 +124,11 @@ class AngleMarker(Arc):
         self.ax.add_patch(self)
 
         self.kw = dict(ha="center", va="center",
-                       xycoords=IdentityTransform(), xytext=(0, 0),
-                       textcoords="offset points")
-        self.kw.update(text_kw)
-        self.text = ax.annotate(text, xy=self._center,
-                                **self.kw)
+                       xycoords=IdentityTransform(),
+                       xytext=(0, 0), textcoords="offset points",
+                       annotation_clip=True)
+        self.kw.update(text_kw or {})
+        self.text = ax.annotate(text, xy=self._center, **self.kw)
 
     def get_size(self):
         factor = 1.
@@ -280,7 +280,8 @@ ax2.annotate("textposition", xy=(.02, 1), xycoords="axes fraction",
 for x, text in zip([2.0, 3.5, 5.0, 6.5], ['"inside"', '"outside"', '"edge"',
                                           '"edge", custom arrow']):
     ax2.annotate(text, xy=(x, 0), xycoords=ax2.get_xaxis_transform(),
-                 bbox=dict(boxstyle="round", fc="w"), ha="left", fontsize=8)
+                 bbox=dict(boxstyle="round", fc="w"), ha="left", fontsize=8,
+                 annotation_clip=True)
 
 #### SUBPLOT 3 ####
 # Showcase different size units. The effect of this can best be observed
@@ -297,7 +298,8 @@ ax3.annotate("unit", xy=(.02, 1), xycoords="axes fraction",
 for x, text in zip([2.0, 3.5, 5.0, 6.5], ['"pixels"', '"points"',
                                           '"axes min"', '"axes max"']):
     ax3.annotate(text, xy=(x, 0), xycoords=ax3.get_xaxis_transform(),
-                 bbox=dict(boxstyle="round", fc="w"), ha="left", fontsize=8)
+                 bbox=dict(boxstyle="round", fc="w"), ha="left", fontsize=8,
+                 annotation_clip=True)
 
 plt.show()
 
