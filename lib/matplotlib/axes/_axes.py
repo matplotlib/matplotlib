@@ -6918,6 +6918,10 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
+        self._process_unit_info(xdata=edges, ydata=values, kwargs=kwargs)
+        edges = self.convert_xunits(edges)
+        values = self.convert_yunits(values)
+
         patch = mpatches.StepPatch(values,
                                    edges,
                                    baseline=baseline,

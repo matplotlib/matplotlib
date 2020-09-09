@@ -1,7 +1,7 @@
 New `~.matplotlib.patches.StepPatch` artist and a `.pyplot.stairs` method
 -------------------------------------------------------------------------
-These take inputs of asymmetric lengths with y-like values and 
-x-like edges, between which the values lie.
+For both the artist and the function, the x-like edges input is one 
+longer than the y-like values input
 
   .. plot::
 

@@ -1819,13 +1819,14 @@ def test_stairs_fill(fig_test, fig_ref):
 def test_stairs_update(fig_test, fig_ref):
     # Test
     fig_test, test_ax = plt.subplots()
-    h = test_ax.stairs([1, 2])
-    h.set_values([2, 1])
-    h.set_edges([0, 1, 1.5])
-
+    h = test_ax.stairs([1, 2, 3])
+    h.set_values([3, 2, 1])
+    h.set_data([1, 2, 1], np.arange(4)/2)
+    h.set_data([1, 2, 3])
+    h.set_data(None, np.arange(4))
     # # Ref
     fig_ref, ref_ax = plt.subplots()
-    h = ref_ax.stairs([2, 1], [0, 1, 1.5])
+    h = ref_ax.stairs([1, 2, 3])
 
 
 @pytest.mark.xfail

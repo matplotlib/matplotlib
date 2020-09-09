@@ -1019,11 +1019,10 @@ class StepPatch(PathPatch):
         self.orientation = orientation
         self._edges = np.asarray(edges)
         self._values = np.asarray(values)
-        verts, codes = self._update_data()
-        path = Path(verts, codes)
-        super().__init__(path, **kwargs)
+        self._update_path()
+        super().__init__(self._path, **kwargs)
 
-    def _update_data(self):
+    def _update_path(self):
         if np.isnan(np.sum(self._edges)):
             raise ValueError('Nan values in "edges" are disallowed')
         if self._edges.size - 1 != self._values.size:
@@ -1046,18 +1045,24 @@ class StepPatch(PathPatch):
                 xy = np.column_stack([y, x])
             verts.append(xy)
             codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
-        return np.vstack(verts), np.hstack(codes)
+            self._path = Path(np.vstack(verts), np.hstack(codes))
 
-    def set_edges(self, edges):
-        self._edges = np.asarray(edges)
-        verts, codes = self._update_data()
-        self.set_path(Path(verts, codes))
-        self.stale = True
+    def set_data(self, values, edges=None):
+        """
+        Set the values and optionally edges of the
+        StepPatch artist.
 
-    def set_values(self, values):
-        self._values = np.asarray(values)
-        verts, codes = self._update_data()
-        self.set_path(Path(verts, codes))
+        Parameters
+        ----------
+        values : 1D array-like or None
+            Will not update values, if passing None
+        edges : 1D array-like, optional
+        """
+        if values is not None:
+            self._values = np.asarray(values)
+        if edges is not None:
+            self._edges = np.asarray(edges)
+        self._update_path()
         self.stale = True
 
 

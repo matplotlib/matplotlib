@@ -1,12 +1,15 @@
 """
-=============
-Histline Demo
-=============
+===========
+Stairs Demo
+===========
 
 This example demonstrates the use of `~.matplotlib.pyplot.stairs`
 for histogram and histogram-like data visualization and an associated
-underlying `.StepPatch` artist, which is
-a contrained version of `.PathPatch` specified by its bins and edges.
+underlying `.StepPatch` artist, which is a specialized version of
+`.PathPatch` specified by its bins and edges.
+
+The primary difference to `~.matplotlib.pyplot.step` is that ``stairs``
+x-like edges input is one longer than its y-like values input.
 """
 
 import numpy as np
@@ -19,12 +22,12 @@ h, bins = np.histogram(np.random.normal(5, 3, 5000),
 
 fig, axs = plt.subplots(3, 1, figsize=(7, 15))
 axs[0].stairs(h, bins, label='Simple histogram')
-axs[0].stairs(h, bins+5, baseline=50, label='--//-- w/ modified baseline')
-axs[0].stairs(h, bins+10, baseline=None, label='--//-- w/ no edges')
+axs[0].stairs(h, bins+5, baseline=50, label='Modified baseline')
+axs[0].stairs(h, bins+10, baseline=None, label='No edges')
 axs[0].set_title("Step Histograms")
 
 axs[1].stairs(np.arange(1, 6, 1), fill=True,
-              label='Filled histogram\nw/ automatatic edges')
+              label='Filled histogram\nw/ automatic edges')
 axs[1].stairs(np.arange(1, 6, 1)*0.3, np.arange(2, 8, 1),
               orientation='horizontal', hatch='//',
               label='Hatched histogram\nw/ horizontal orientation')
@@ -43,6 +46,24 @@ for ax in axs:
     ax.legend()
 plt.show()
 
+#############################################################################
+# Comparison of `.pyplot.step` and `.pyplot.stairs`.
+
+bins = np.arange(14)
+centers = bins[:-1] + np.diff(bins)/2
+y = np.sin(centers / 2)
+
+plt.step(bins[:-1], y, where='post', label='Step(where="post")')
+plt.plot(bins[:-1], y, 'o--', color='grey', alpha=0.3)
+
+plt.stairs(y - 1, bins, baseline=None, label='Stairs')
+plt.plot(centers, y - 1, 'o--', color='grey', alpha=0.3)
+plt.plot(np.repeat(bins, 2), np.hstack([y[0], np.repeat(y, 2), y[-1]]) - 1,
+         'o', color='red', alpha=0.2)
+
+plt.legend()
+plt.title('plt.step vs plt.stairs')
+plt.show()
 
 #############################################################################
 #
