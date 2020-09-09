@@ -1047,10 +1047,13 @@ class StepPatch(PathPatch):
             codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
             self._path = Path(np.vstack(verts), np.hstack(codes))
 
+    def get_data(self):
+        """Get `.StepPatch` values and edges."""
+        return self._values, self._edges
+
     def set_data(self, values, edges=None):
         """
-        Set the values and optionally edges of the
-        StepPatch artist.
+        Set `.StepPatch` values and optionally edges.
 
         Parameters
         ----------
@@ -1062,6 +1065,42 @@ class StepPatch(PathPatch):
             self._values = np.asarray(values)
         if edges is not None:
             self._edges = np.asarray(edges)
+        self._update_path()
+        self.stale = True
+
+    def set_values(self, values):
+        """
+        Set `.StepPatch` values.
+
+        Parameters
+        ----------
+        values : 1D array-like
+        """
+        self.set_data(values, edges=None)
+
+    def set_edges(self, edges):
+        """
+        Set `.StepPatch` edges.
+
+        Parameters
+        ----------
+        edges : 1D array-like
+        """
+        self.set_data(None, edges=edges)
+
+    def get_baseline(self):
+        """Get `.StepPatch` baseline value."""
+        return self.baseline
+
+    def set_baseline(self, baseline):
+        """
+        Set `.StepPatch` baseline value.
+
+        Parameters
+        ----------
+        baseline : float or None
+        """
+        self.baseline = baseline
         self._update_path()
         self.stale = True
 

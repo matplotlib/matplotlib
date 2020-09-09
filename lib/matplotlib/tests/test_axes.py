@@ -1821,12 +1821,18 @@ def test_stairs_update(fig_test, fig_ref):
     fig_test, test_ax = plt.subplots()
     h = test_ax.stairs([1, 2, 3])
     h.set_values([3, 2, 1])
+    h.set_edges(np.arange(4)+2)
     h.set_data([1, 2, 1], np.arange(4)/2)
     h.set_data([1, 2, 3])
     h.set_data(None, np.arange(4))
+    assert np.allclose(h.get_data()[0], np.arange(1, 4))
+    assert np.allclose(h.get_data()[1], np.arange(4))
+    h.set_baseline(-2)
+    assert h.get_baseline() == -2
+
     # # Ref
     fig_ref, ref_ax = plt.subplots()
-    h = ref_ax.stairs([1, 2, 3])
+    h = ref_ax.stairs([1, 2, 3], baseline=-2)
 
 
 @pytest.mark.xfail
@@ -1837,6 +1843,18 @@ def test_stairs_invalid_nan():
 @pytest.mark.xfail
 def test_stairs_invalid_mismatch():
     plt.stairs([1, 2], [0, 1])
+
+
+@pytest.mark.xfail
+def test_stairs_invalid_update():
+    h = plt.stairs([1, 2], [0, 1])
+    h.set_edges(np.arange(5))
+
+
+@pytest.mark.xfail
+def test_stairs_invalid_update2():
+    h = plt.stairs([1, 2], [0, 1])
+    h.set_edges([1, np.nan, 2])
 
 
 @image_comparison(['test_stairs_options.png'], remove_text=True)
