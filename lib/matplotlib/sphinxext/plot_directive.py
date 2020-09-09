@@ -250,8 +250,11 @@ class PlotDirective(Directive):
 
     def run(self):
         """Run the plot directive."""
-        return run(self.arguments, self.content, self.options,
-                   self.state_machine, self.state, self.lineno)
+        try:
+            return run(self.arguments, self.content, self.options,
+                       self.state_machine, self.state, self.lineno)
+        except Exception as e:
+            raise self.error(str(e))
 
 
 def setup(app):
@@ -649,9 +652,8 @@ def run(arguments, content, options, state_machine, state, lineno):
                     'Caption specified in both content and options.'
                     ' Please remove ambiguity.'
                 )
-            else:
-                # Use caption option
-                caption = options["caption"]
+            # Use caption option
+            caption = options["caption"]
 
         # If the optional function name is provided, use it
         if len(arguments) == 2:
