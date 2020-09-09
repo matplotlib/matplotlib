@@ -137,7 +137,7 @@ Plot 17 gets a caption specified by the :caption: option:
 
 
 Plot 18 uses an external file with the plot commands and a caption
-the using :caption: option:
+using the :caption: option:
 
 .. plot:: range4.py
    :caption: This is the caption for plot 18.
