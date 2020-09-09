@@ -14,7 +14,7 @@ import matplotlib as mpl
 from matplotlib import backend_tools, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    StatusbarBase, TimerBase, ToolContainerBase, cursors)
+    StatusbarBase, TimerBase, ToolContainerBase, cursors, _Mode)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
@@ -537,6 +537,23 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     def destroy(self, *args):
         del self.message
         tk.Frame.destroy(self, *args)
+
+    def _update_buttons_checked(self):
+        # sync button checkstates to match active mode
+        for text, mode in [('Zoom', _Mode.ZOOM), ('Pan', _Mode.PAN)]:
+            if text in self._buttons:
+                if self.mode == mode:
+                    self._buttons[text].select()  # NOT .invoke()
+                else:
+                    self._buttons[text].deselect()
+
+    def pan(self, *args):
+        super().pan(*args)
+        self._update_buttons_checked()
+
+    def zoom(self, *args):
+        super().zoom(*args)
+        self._update_buttons_checked()
 
     def set_message(self, s):
         self.message.set(s)
