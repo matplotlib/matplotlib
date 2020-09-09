@@ -1,28 +1,28 @@
 """
-=============================
+============================
 Scale invariant angle marker
-=============================
+============================
 
-This example shows how to create a scale invariant angle marker.
-It is often useful to mark angles between lines or inside shapes with a
-circular arc. While matplotlib provides an `~.patches.Arc`, an inherent problem
-when directly using it for such purpose is that an arc being circular in
-data space is not necessarily circular in display space. Also, the arc's radius
-is often best defined in a coordinate system which is independent on the actual
-data coordinates - at least if you want to be able to freely zoom into your
-plot without the marker growing to infinity.
+This example shows how to create a scale invariant angle marker.  It is often
+useful to mark angles between lines or inside shapes with a circular arc. While
+Matplotlib provides an `~.patches.Arc`, an inherent problem when directly using
+it for such purposes is that an arc being circular in data space is not
+necessarily circular in display space. Also, the arc's radius is often best
+defined in a coordinate system which is independent of the actual data
+coordinates - at least if you want to be able to freely zoom into your plot
+without the marker growing to infinity.
 
-This calls for a solution where the arc's center is defined in data space,
-but its radius in a physical unit like points or pixels, or as a ratio of the
-axes dimension. The following ``AngleMarker`` class provides such solution.
+This calls for a solution where the arc's center is defined in data space, but
+its radius in a physical unit like points or pixels, or as a ratio of the Axes
+dimension. The following ``AngleMarker`` class provides such solution.
 
 The example below serves two purposes:
 
-* It provides a read-to-use solution for the problem of easily drawing angles
+* It provides a ready-to-use solution for the problem of easily drawing angles
   in graphs.
-* It shows how to subclass a matplotlib artist to enhance its functionality, as
-  well as giving a hands-on example on how to use matplotlib's
-  :doc:`transform system </tutorials/advanced/transforms_tutorial>`.
+* It shows how to subclass a Matplotlib artist to enhance its functionality, as
+  well as giving a hands-on example on how to use Matplotlib's :doc:`transform
+  system </tutorials/advanced/transforms_tutorial>`.
 
 If mainly interested in the former, you may copy the below class and jump to
 the :ref:`angle-marker-usage` section.
@@ -32,28 +32,28 @@ the :ref:`angle-marker-usage` section.
 # AngleMarker class
 # ~~~~~~~~~~~~~~~~~
 # The essential idea here is to subclass `~.patches.Arc` and set its transform
-# to the `~.transforms.IdentityTransform`. The parameters of the arc are hence
+# to the `~.transforms.IdentityTransform`, making the parameters of the arc
 # defined in pixel space.
-# We then override the ``Arc``'s attributes ``_center``,
-# ``theta1``,  ``theta2``, ``width`` and ``height`` and make them properties.
-# They are coupled to internal methods that calculate the respective
-# parameters each time the attribute is accessed and thereby ensure that the
-# arc in pixel space stays synchronized with the input points and size.
-# For example, each time the arc's drawing method would query its
-# ``_center`` attribute, instead of receiving the same number all over again,
-# it will instead receive the result of the ``get_center_in_pixels`` method we
-# defined in the subclass. This method transforms the center in data
-# coordinates to pixels via the axes transform ``ax.transData``. The
-# size and the angles are calculated in a similar fashion, such that the arc
-# changes its shape automatically when e.g. zooming or panning interactively.
+# We then override the ``Arc``'s attributes ``_center``, ``theta1``,
+# ``theta2``, ``width`` and ``height`` and make them properties, coupling to
+# internal methods that calculate the respective parameters each time the
+# attribute is accessed and thereby ensuring that the arc in pixel space stays
+# synchronized with the input points and size.
+# For example, each time the arc's drawing method would query its ``_center``
+# attribute, instead of receiving the same number all over again, it will
+# instead receive the result of the ``get_center_in_pixels`` method we defined
+# in the subclass. This method transforms the center in data coordinates to
+# pixels via the Axes transform ``ax.transData``. The size and the angles are
+# calculated in a similar fashion, such that the arc changes its shape
+# automatically when e.g. zooming or panning interactively.
 #
 # The functionality of this class allows to annotate the arc with a text. This
-# text is a `~.text.Annotation` stored in an attribute ``text``.
-# Since the arc's position and radius are defined only at draw time, we need to
-# update the text's position accordingly. This is done by reimplementing the
-# ``Arc``'s ``draw()`` method to let it call an updating method for the text.
+# text is a `~.text.Annotation` stored in an attribute ``text``. Since the
+# arc's position and radius are defined only at draw time, we need to update
+# the text's position accordingly. This is done by reimplementing the ``Arc``'s
+# ``draw()`` method to let it call an updating method for the text.
 #
-# The arc and the text will be added to the provided axes at instantiation: it
+# The arc and the text will be added to the provided Axes at instantiation: it
 # is hence not strictly necessary to keep a reference to it.
 
 
@@ -71,40 +71,40 @@ class AngleMarker(Arc):
     def __init__(self, xy, p1, p2, size=75, unit="points", ax=None,
                  text="", textposition="inside", text_kw={}, **kwargs):
         """
-        Params
-        ------
+        Parameters
+        ----------
         xy, p1, p2 : tuple or array of two floats
-            center position and two points. Angle marker is drawn between the
-            two vectors connecting p1 and p2 with xy, respectively. Units
+            Center position and two points. Angle marker is drawn between the
+            two vectors connecting *p1* and *p2* with *xy*, respectively. Units
             are data coordinates.
 
         size : float
-            diameter of the angle marker in units specified by ``unit``.
+            Diameter of the angle marker in units specified by *unit*.
 
         unit : string
-            One of the following strings to specify the unit of ``size``:
-                * "pixels" : pixels
-                * "points" : points, use points instead of pixels to not have a
-                             dependence of the dpi
-                * "axes width", "axes height" : relative units of axes
-                  width, height
-                * "axes min", "axes max" : minimum or maximum of relative axes
-                  width, height
+            One of the following strings to specify the unit of *size*:
+
+            * "pixels": pixels
+            * "points": points, use points instead of pixels to not have a
+              dependence on the DPI
+            * "axes width", "axes height": relative units of Axes width, height
+            * "axes min", "axes max": minimum or maximum of relative Axes
+              width, height
 
         ax : `matplotlib.axes.Axes`
-            The axes to add the angle marker to
+            The Axes to add the angle marker to.
 
         text : string
             The text to mark the angle with.
 
-        textposition : ["inside", "outside", "edge"]
+        textposition : {"inside", "outside", "edge"}
             Whether to show the text in- or outside the arc. "edge" can be used
             for custom positions anchored at the arc's edge.
 
         text_kw : dict
             Dictionary of arguments passed to the Annotation.
 
-        kwargs :
+        **kwargs
             Further parameters are passed to `matplotlib.patches.Arc`. Use this
             to specify, color, linewidth etc. of the arc.
 
@@ -218,14 +218,13 @@ class AngleMarker(Arc):
 # Usage
 # ~~~~~
 #
-# Required arguments to ``AngleMarker`` are the center of the arc, ``xy``,
-# and two points, such that the arc spans between the two vectors
-# connecting p1 and p2 with xy, respectively. Those are given in data
-# coordinates.
-# Further arguments are the ``size`` of the arc and its ``unit``.
-# Additionally, a ``text`` can be specified, that will be drawn either in- or
-# outside of the arc, according to the value of ``textposition``.
-# Usage of those arguments is shown below.
+# Required arguments to ``AngleMarker`` are the center of the arc, *xy*, and
+# two points, such that the arc spans between the two vectors connecting *p1*
+# and *p2* with *xy*, respectively. Those are given in data coordinates.
+# Further arguments are the *size* of the arc and its *unit*. Additionally, a
+# *text* can be specified, that will be drawn either in- or outside of the arc,
+# according to the value of *textposition*. Usage of those arguments is shown
+# below.
 
 fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize=(7, 7),
                                     gridspec_kw=dict(height_ratios=(3, 1, 1)))
@@ -249,7 +248,7 @@ am3 = AngleMarker(center, p1[0], p2[0], ax=ax1, size=75, text=r"$\gamma$")
 am4 = AngleMarker(center, p2[0], p1[1], ax=ax1, size=35, text=r"$\theta$")
 
 
-# Showcase some styling options for the angle arc, as well as the text
+# Showcase some styling options for the angle arc, as well as the text.
 p = [(6.0, 400), (5.3, 410), (5.6, 300)]
 ax1.plot(*zip(*p))
 am5 = AngleMarker(p[1], p[0], p[2], ax=ax1, size=40, text=r"$\Phi$",
@@ -258,14 +257,14 @@ am5 = AngleMarker(p[1], p[0], p[2], ax=ax1, size=40, text=r"$\Phi$",
 
 
 #### SUBPLOT 2 ####
-# Helper function to draw angle easily
+# Helper function to draw angle easily.
 def plot_angle(ax, pos, angle, length=0.95, acol="C0", **kwargs):
     vec2 = np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle))])
     xy = np.c_[[length, 0], [0, 0], vec2*length].T + np.array(pos)
     ax.plot(*xy.T, color=acol)
     return AngleMarker(pos, xy[0], xy[2], ax=ax, **kwargs)
 
-# Showcase different textpositions
+# Showcase different text positions.
 kw = dict(size=75, unit="points", text=r"$60°$")
 
 am6 = plot_angle(ax2, (2.0, 0), 60, textposition="inside", **kw)
@@ -276,8 +275,8 @@ am9 = plot_angle(ax2, (6.5, 0), 60, textposition="edge",
                  text_kw=dict(xytext=(30, 20), arrowprops=dict(arrowstyle="->",
                               connectionstyle="arc3,rad=-0.2")), **kw)
 
-ax2.annotate("textpostion", xy=(.02, .9), xycoords="axes fraction",
-                 bbox=dict(boxstyle="round", fc="w"), ha="left")
+ax2.annotate("textposition", xy=(.02, 1), xycoords="axes fraction",
+             bbox=dict(boxstyle="round", fc="w"), ha="left", va="center")
 for x, text in zip([2.0, 3.5, 5.0, 6.5], ['"inside"', '"outside"', '"edge"',
                                           '"edge", custom arrow']):
     ax2.annotate(text, xy=(x, 0), xycoords=ax2.get_xaxis_transform(),
@@ -293,14 +292,13 @@ am11 = plot_angle(ax3, (3.5, 0), 60, size=50, unit="points", **kw)
 am12 = plot_angle(ax3, (5.0, 0), 60, size=0.25, unit="axes min", **kw)
 am13 = plot_angle(ax3, (6.5, 0), 60, size=0.25, unit="axes max", **kw)
 
-ax3.annotate("unit", xy=(.02, .9), xycoords="axes fraction",
-                 bbox=dict(boxstyle="round", fc="w"), ha="left")
+ax3.annotate("unit", xy=(.02, 1), xycoords="axes fraction",
+             bbox=dict(boxstyle="round", fc="w"), ha="left", va="center")
 for x, text in zip([2.0, 3.5, 5.0, 6.5], ['"pixels"', '"points"',
                                           '"axes min"', '"axes max"']):
     ax3.annotate(text, xy=(x, 0), xycoords=ax3.get_xaxis_transform(),
                  bbox=dict(boxstyle="round", fc="w"), ha="left", fontsize=8)
 
-fig.tight_layout()
 plt.show()
 
 
