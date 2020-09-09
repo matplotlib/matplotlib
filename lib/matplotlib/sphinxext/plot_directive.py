@@ -646,8 +646,8 @@ def run(arguments, content, options, state_machine, state, lineno):
         if "caption" in options:
             if caption:
                 raise ValueError(
-                    'Caption specified twice: In content and options.'
-                    + ' Please remove ambiguity.'
+                    'Caption specified in both content and options.'
+                    ' Please remove ambiguity.'
                 )
             else:
                 # Use caption option
