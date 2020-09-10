@@ -207,17 +207,9 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.draw_idle()
 
     def _get_key(self, event):
-        key = chr(Gdk.keyval_to_unicode(event.keyval))
-        if not key.isprintable():
-            key = Gdk.keyval_name(event.keyval).lower()
-            if key.startswith("kp_"):  # keypad_x (including kp_enter).
-                key = key[3:]
-            if key.startswith("page_"):  # page_{up,down}
-                key = key.replace("page_", "page")
-            if key.endswith(("_l", "_r")):  # alt_l, ctrl_l, shift_l.
-                key = key[:-2]
-            if key == "enter":
-                key = "return"
+        key = cbook._unikey_or_keysym_to_mplkey(
+            chr(Gdk.keyval_to_unicode(event.keyval)),
+            Gdk.keyval_name(event.keyval))
         modifiers = [
                      (Gdk.ModifierType.MOD4_MASK, 'super'),
                      (Gdk.ModifierType.MOD1_MASK, 'alt'),

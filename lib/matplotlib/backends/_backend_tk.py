@@ -113,70 +113,6 @@ class TimerTk(TimerBase):
 class FigureCanvasTk(FigureCanvasBase):
     required_interactive_framework = "tk"
 
-    keyvald = {65507: 'control',
-               65505: 'shift',
-               65513: 'alt',
-               65515: 'super',
-               65508: 'control',
-               65506: 'shift',
-               65514: 'alt',
-               65361: 'left',
-               65362: 'up',
-               65363: 'right',
-               65364: 'down',
-               65307: 'escape',
-               65470: 'f1',
-               65471: 'f2',
-               65472: 'f3',
-               65473: 'f4',
-               65474: 'f5',
-               65475: 'f6',
-               65476: 'f7',
-               65477: 'f8',
-               65478: 'f9',
-               65479: 'f10',
-               65480: 'f11',
-               65481: 'f12',
-               65300: 'scroll_lock',
-               65299: 'break',
-               65288: 'backspace',
-               65293: 'enter',
-               65379: 'insert',
-               65535: 'delete',
-               65360: 'home',
-               65367: 'end',
-               65365: 'pageup',
-               65366: 'pagedown',
-               65438: '0',
-               65436: '1',
-               65433: '2',
-               65435: '3',
-               65430: '4',
-               65437: '5',
-               65432: '6',
-               65429: '7',
-               65431: '8',
-               65434: '9',
-               65451: '+',
-               65453: '-',
-               65450: '*',
-               65455: '/',
-               65439: 'dec',
-               65421: 'enter',
-               }
-
-    _keycode_lookup = {
-                       262145: 'control',
-                       524320: 'alt',
-                       524352: 'alt',
-                       1048584: 'super',
-                       1048592: 'super',
-                       131074: 'shift',
-                       131076: 'shift',
-                       }
-    """_keycode_lookup is used for badly mapped (i.e. no event.key_sym set)
-       keys on apple keyboards."""
-
     def __init__(self, figure, master=None, resize_callback=None):
         super().__init__(figure)
         self._idle = True
@@ -332,16 +268,7 @@ class FigureCanvasTk(FigureCanvasBase):
             FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
     def _get_key(self, event):
-        val = event.keysym_num
-        if val in self.keyvald:
-            key = self.keyvald[val]
-        elif (val == 0 and sys.platform == 'darwin'
-              and event.keycode in self._keycode_lookup):
-            key = self._keycode_lookup[event.keycode]
-        elif val < 256:
-            key = chr(val)
-        else:
-            key = None
+        key = cbook._unikey_or_keysym_to_mplkey(event.char, event.keysym)
 
         # add modifier keys to the key string. Bit details originate from
         # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm

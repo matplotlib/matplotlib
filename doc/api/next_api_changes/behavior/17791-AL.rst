@@ -1,9 +1,9 @@
-GTK key name changes
-~~~~~~~~~~~~~~~~~~~~
+GTK/Tk key name changes
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The handling of non-ASCII keypresses (as reported in the KeyEvent passed to
-``key_press_event``-handlers) in the GTK backends now correctly reports Unicode
-characters (e.g., €), and respects NumLock on the numpad.
+``key_press_event``-handlers) in the GTK and Tk backends now correctly reports
+Unicode characters (e.g., €), and better respects NumLock on the numpad.
 
 The following key names have changed; the new names are consistent with those
 reported by the Qt backends:
