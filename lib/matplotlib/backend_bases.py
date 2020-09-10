@@ -1411,9 +1411,6 @@ class MouseEvent(LocationEvent):
     ----------
     button : None or `MouseButton` or {'up', 'down'}
         The button pressed. 'up' and 'down' are used for scroll events.
-        Note that in the nbagg backend, both the middle and right clicks
-        return RIGHT since right clicking will bring up the context menu in
-        some browsers.
         Note that LEFT and RIGHT actually refer to the "primary" and
         "secondary" buttons, i.e. if the user inverts their left and right
         buttons ("left-handed setting") then the LEFT button will be the one
