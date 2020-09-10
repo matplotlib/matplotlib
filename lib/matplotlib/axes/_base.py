@@ -85,6 +85,31 @@ class _axis_method_wrapper:
         setattr(owner, name, wrapper)
 
 
+class _TransformedBoundsLocator:
+    """
+    Axes locator for `.Axes.inset_axes` and similarly positioned axes.
+
+    The locator is a callable object used in `.Axes.set_aspect` to compute the
+    axes location depending on the renderer.
+    """
+
+    def __init__(self, bounds, transform):
+        """
+        *bounds* (a ``[l, b, w, h]`` rectangle) and *transform* together
+        specify the position of the inset axes.
+        """
+        self._bounds = bounds
+        self._transform = transform
+
+    def __call__(self, ax, renderer):
+        # Subtracting transFigure will typically rely on inverted(), freezing
+        # the transform; thus, this needs to be delayed until draw time as
+        # transFigure may otherwise change after this is evaluated.
+        return mtransforms.TransformedBbox(
+            mtransforms.Bbox.from_bounds(*self._bounds),
+            self._transform - ax.figure.transFigure)
+
+
 def _process_plot_format(fmt):
     """
     Convert a MATLAB style color/line style format string to a (*linestyle*,
@@ -4336,7 +4361,10 @@ class _AxesBase(martist.Artist):
         # Typically, SubplotBase._make_twin_axes is called instead of this.
         if 'sharex' in kwargs and 'sharey' in kwargs:
             raise ValueError("Twinned Axes may share only one axis")
-        ax2 = self.figure.add_axes(self.get_position(True), *args, **kwargs)
+        ax2 = self.figure.add_axes(
+            self.get_position(True), *args, **kwargs,
+            axes_locator=_TransformedBoundsLocator(
+                [0, 0, 1, 1], self.transAxes))
         self.set_adjustable('datalim')
         ax2.set_adjustable('datalim')
         self._twinned_axes.join(self, ax2)

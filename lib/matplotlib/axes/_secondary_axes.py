@@ -3,8 +3,7 @@ import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
-from matplotlib.axes import _axes
-from matplotlib.axes._base import _AxesBase
+from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
 
 
 class SecondaryAxis(_AxesBase):
@@ -114,13 +113,12 @@ class SecondaryAxis(_AxesBase):
         else:
             bounds = [self._pos, 0, 1e-10, 1]
 
-        secondary_locator = _axes._InsetLocator(bounds, self._parent.transAxes)
-
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
         # figure coordinates.
-        # it gets called in `ax.apply_aspect() (of all places)
-        self.set_axes_locator(secondary_locator)
+        # it gets called in ax.apply_aspect() (of all places)
+        self.set_axes_locator(
+            _TransformedBoundsLocator(bounds, self._parent.transAxes))
 
     def apply_aspect(self, position=None):
         # docstring inherited.
