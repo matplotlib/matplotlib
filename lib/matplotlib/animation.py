@@ -28,6 +28,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 import uuid
+import warnings
 
 import numpy as np
 
@@ -907,6 +908,8 @@ class Animation:
     """
 
     def __init__(self, fig, event_source=None, blit=False):
+        self._draw_was_started = False
+
         self._fig = fig
         # Disables blitting for backends that don't support it.  This
         # allows users to request it if available, but still have a
@@ -930,6 +933,14 @@ class Animation:
                                                       self._stop)
         if self._blit:
             self._setup_blit()
+
+    def __del__(self):
+        if not getattr(self, '_draw_was_started', True):
+            warnings.warn(
+                'Animation was deleted without rendering anything. This is '
+                'most likely unintended. To prevent deletion, assign the '
+                'Animation to a variable that exists for as long as you need '
+                'the Animation.')
 
     def _start(self, *args):
         """
@@ -1166,7 +1177,7 @@ class Animation:
     def _init_draw(self):
         # Initial draw to clear the frame. Also used by the blitting code
         # when a clean base is required.
-        pass
+        self._draw_was_started = True
 
     def _pre_draw(self, framedata, blit):
         # Perform any cleaning or whatnot before the drawing of the frame.
@@ -1484,6 +1495,7 @@ class ArtistAnimation(TimedAnimation):
         super().__init__(fig, *args, **kwargs)
 
     def _init_draw(self):
+        super()._init_draw()
         # Make all the artists involved in *any* frame invisible
         figs = set()
         for f in self.new_frame_seq():
@@ -1695,6 +1707,7 @@ class FuncAnimation(TimedAnimation):
                 return gen()
 
     def _init_draw(self):
+        super()._init_draw()
         # Initialize the drawing either using the given init_func or by
         # calling the draw function with the first item of the frame sequence.
         # For blitting, the init_func should return a sequence of modified

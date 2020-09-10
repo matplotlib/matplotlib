@@ -1,3 +1,4 @@
+import gc
 import os
 from pathlib import Path
 import subprocess
@@ -73,6 +74,14 @@ def test_null_movie_writer():
     assert writer.args == ()
     assert writer.savefig_kwargs == savefig_kwargs
     assert writer._count == num_frames
+
+
+def test_animation_delete():
+    anim = make_animation(frames=5)
+
+    with pytest.warns(Warning, match='Animation was deleted'):
+        del anim
+        gc.collect()
 
 
 def test_movie_writer_dpi_default():
