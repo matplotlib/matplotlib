@@ -607,7 +607,7 @@ class Figure(Artist):
                 "3.3", message="Support for passing which=None to mean "
                 "which='major' is deprecated since %(since)s and will be "
                 "removed %(removal)s.")
-        allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
+        allsubplots = all(hasattr(ax, 'get_subplotspec') for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
@@ -615,7 +615,7 @@ class Figure(Artist):
         else:
             if allsubplots:
                 for ax in self.get_axes():
-                    if ax.is_last_row():
+                    if ax.get_subplotspec().is_last_row():
                         for label in ax.get_xticklabels(which=which):
                             label.set_ha(ha)
                             label.set_rotation(rotation)
@@ -2420,8 +2420,7 @@ default: 'top'
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
             if isinstance(ax, SubplotBase):
-                ax.update_params()
-                ax.set_position(ax.figbox)
+                ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
     def ginput(self, n=1, timeout=30, show_clicks=True,

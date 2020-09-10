@@ -131,8 +131,6 @@ class Axes3D(Axes):
         pseudo_bbox = self.transLimits.inverted().transform([(0, 0), (1, 1)])
         self._pseudo_w, self._pseudo_h = pseudo_bbox[1] - pseudo_bbox[0]
 
-        self.figure.add_axes(self)
-
         # mplot3d currently manages its own spines and needs these turned off
         # for bounding box calculations
         for k in self.spines.keys():

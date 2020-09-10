@@ -365,7 +365,7 @@ def test_polycollection_close():
         [[3., 0.], [3., 1.], [4., 1.], [4., 0.]]]
 
     fig = plt.figure()
-    ax = Axes3D(fig)
+    ax = fig.add_axes(Axes3D(fig))
 
     colors = ['r', 'g', 'b', 'y', 'k']
     zpos = list(range(5))
