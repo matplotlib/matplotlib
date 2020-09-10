@@ -3288,8 +3288,8 @@ class NavigationToolbar2:
         for ax, (view, (pos_orig, pos_active)) in items:
             ax._set_view(view)
             # Restore both the original and modified positions
-            ax._set_position(pos_orig, 'original')
-            ax._set_position(pos_active, 'active')
+            ax.set_position(pos_orig, 'original')
+            ax.set_position(pos_active, 'active')
         self.canvas.draw_idle()
 
     def configure_subplots(self, *args):

@@ -475,7 +475,7 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
 
         # transform from figure to panel for set_position:
         newbbox = trans_fig_to_panel.transform_bbox(bbox)
-        ax._set_position(newbbox)
+        ax.set_position(newbbox)
 
         # move the colorbars:
         # we need to keep track of oldw and oldh if there is more than
@@ -563,7 +563,7 @@ def _reposition_colorbar(cbax, renderer, *, offset=None):
 
     pbcb = trans_fig_to_panel.transform_bbox(pbcb)
     cbax.set_transform(fig.transPanel)
-    cbax._set_position(pbcb)
+    cbax.set_position(pbcb)
     cbax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return offset
 

@@ -1367,7 +1367,7 @@ class Colorbar(ColorbarBase):
         except AttributeError:
             # use_gridspec was False
             pos = ax.get_position(original=True)
-            ax._set_position(pos)
+            ax.set_position(pos)
         else:
             # use_gridspec was True
             ax.set_subplotspec(subplotspec)
@@ -1473,7 +1473,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position(original=True))
         new_posn = mtransforms.Bbox(new_posn)
-        ax._set_position(new_posn)
+        ax.set_position(new_posn)
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
 
@@ -1573,7 +1573,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
 
     parent.set_subplotspec(ss_main)
     parent.update_params()
-    parent._set_position(parent.figbox)
+    parent.set_position(parent.figbox)
     parent.set_anchor(loc_settings["panchor"])
 
     fig = parent.get_figure()

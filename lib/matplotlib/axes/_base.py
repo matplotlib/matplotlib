@@ -912,17 +912,6 @@ class _AxesBase(martist.Artist):
         matplotlib.transforms.Bbox.from_bounds
         matplotlib.transforms.Bbox.from_extents
         """
-        self._set_position(pos, which=which)
-        # because this is being called externally to the library we
-        # zero the constrained layout parts.
-
-    def _set_position(self, pos, which='both'):
-        """
-        Private version of set_position.
-
-        Call this internally to get the same functionality of `get_position`,
-        but not to take the axis out of the constrained_layout hierarchy.
-        """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
         for ax in self._twinned_axes.get_siblings(self):
@@ -1604,7 +1593,7 @@ class _AxesBase(martist.Artist):
         aspect = self.get_aspect()
 
         if aspect == 'auto' and self._box_aspect is None:
-            self._set_position(position, which='active')
+            self.set_position(position, which='active')
             return
 
         fig_width, fig_height = self.get_figure().get_size_inches()
@@ -1617,21 +1606,21 @@ class _AxesBase(martist.Artist):
             box_aspect = aspect * self.get_data_ratio()
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
-            self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+            self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
 
         # The following is only seen if self._adjustable == 'datalim'
         if self._box_aspect is not None:
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(self._box_aspect, pb, fig_aspect)
-            self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+            self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             if aspect == "auto":
                 return
 
         # reset active to original in case it had been changed by prior use
         # of 'box'
         if self._box_aspect is None:
-            self._set_position(position, which='active')
+            self.set_position(position, which='active')
         else:
             position = pb1.anchored(self.get_anchor(), pb)
 

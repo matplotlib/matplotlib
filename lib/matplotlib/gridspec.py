@@ -492,16 +492,16 @@ class GridSpec(GridSpecBase):
                     if isinstance(ax._sharex, mpl.axes.SubplotBase):
                         if ax._sharex.get_subplotspec().get_gridspec() == self:
                             ax._sharex.update_params()
-                            ax._set_position(ax._sharex.figbox)
+                            ax.set_position(ax._sharex.figbox)
                     elif isinstance(ax._sharey, mpl.axes.SubplotBase):
                         if ax._sharey.get_subplotspec().get_gridspec() == self:
                             ax._sharey.update_params()
-                            ax._set_position(ax._sharey.figbox)
+                            ax.set_position(ax._sharey.figbox)
                 else:
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
                         ax.update_params()
-                        ax._set_position(ax.figbox)
+                        ax.set_position(ax.figbox)
 
     def get_subplot_params(self, figure=None):
         """
