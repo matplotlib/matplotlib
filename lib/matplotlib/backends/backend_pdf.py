@@ -183,36 +183,39 @@ def _create_pdf_info_dict(backend, metadata):
     info = {k: v for (k, v) in info.items() if v is not None}
 
     def is_string_like(x):
+        """an instance of str"""
         return isinstance(x, str)
 
     def is_date(x):
+        """an instance of datetime.datetime"""
         return isinstance(x, datetime)
 
     def check_trapped(x):
+        """one of {"True", "False", "Unknown"}"""
         if isinstance(x, Name):
             return x.name in (b'True', b'False', b'Unknown')
         else:
             return x in ('True', 'False', 'Unknown')
 
     keywords = {
-        'Title': (is_string_like, 'an instance of str'),
-        'Author': (is_string_like, 'an instance of str'),
-        'Subject': (is_string_like, 'an instance of str'),
-        'Keywords': (is_string_like, 'an instance of str'),
-        'Creator': (is_string_like, 'an instance of  str'),
-        'Producer': (is_string_like, 'an instance of str'),
-        'CreationDate': (is_date, 'an instance of datetime.datetime'),
-        'ModDate': (is_date, 'an instance of datetime.datetime'),
-        'Trapped': (check_trapped, 'one of {"True", "False", "Unknown"}'),
+        'Title': is_string_like,
+        'Author': is_string_like,
+        'Subject': is_string_like,
+        'Keywords': is_string_like,
+        'Creator': is_string_like,
+        'Producer': is_string_like,
+        'CreationDate': is_date,
+        'ModDate': is_date,
+        'Trapped': check_trapped,
     }
     for k in info:
         if k not in keywords:
             cbook._warn_external(f'Unknown infodict keyword: {k!r}. '
                                  f'Must be one of {set(keywords)!r}.')
-        elif not keywords[k][0](info[k]):
+        elif not keywords[k](info[k]):
             cbook._warn_external(f'Bad value for infodict keyword {k}. '
                                  f'Got {info[k]!r} which is not '
-                                 f'{keywords[k][1]}.')
+                                 f'{keywords[k].__doc__}.')
     if 'Trapped' in info:
         info['Trapped'] = Name(info['Trapped'])
 
