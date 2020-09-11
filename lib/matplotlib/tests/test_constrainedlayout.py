@@ -487,3 +487,19 @@ def test_colorbars_no_overlapH():
         ax.tick_params(axis='both', direction='in')
         im = ax.imshow([[1, 2], [3, 4]])
         fig.colorbar(im, ax=ax, orientation="horizontal")
+
+
+def test_manually_set_position():
+    fig, axs = plt.subplots(1, 2, constrained_layout=True)
+    axs[0].set_position([0.2, 0.2, 0.3, 0.3])
+    fig.canvas.draw()
+    pp = axs[0].get_position()
+    np.testing.assert_allclose(pp, [[0.2, 0.2], [0.5, 0.5]])
+
+    fig, axs = plt.subplots(1, 2, constrained_layout=True)
+    axs[0].set_position([0.2, 0.2, 0.3, 0.3])
+    pc = axs[0].pcolormesh(np.random.rand(20, 20))
+    fig.colorbar(pc, ax=axs[0])
+    fig.canvas.draw()
+    pp = axs[0].get_position()
+    np.testing.assert_allclose(pp, [[0.2, 0.2], [0.44, 0.5]])
