@@ -226,37 +226,41 @@ class AngleAnnotation(Arc):
 # according to the value of *textposition*. Usage of those arguments is shown
 # below.
 
-fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize=(7, 7),
-                                    gridspec_kw=dict(height_ratios=(3, 1, 1)))
-ax2.margins(y=0.4)
-ax3.margins(y=0.4)
+fig, ax = plt.subplots()
 fig.canvas.draw()  # Need to draw the figure to define renderer
+ax.set_title("AngleLabel example")
 
-#### SUBPLOT 1 ####
 # Plot two crossing lines and label each angle between them with the above
 # ``AngleAnnotation`` tool.
 center = (4.5, 650)
 p1 = [(2.5, 710), (6.0, 605)]
 p2 = [(3.0, 275), (5.5, 900)]
-line1, = ax1.plot(*zip(*p1))
-line2, = ax1.plot(*zip(*p2))
-point, = ax1.plot(*center, marker="o")
+line1, = ax.plot(*zip(*p1))
+line2, = ax.plot(*zip(*p2))
+point, = ax.plot(*center, marker="o")
 
-am1 = AngleAnnotation(center, p1[1], p2[1], ax=ax1, size=75, text=r"$\alpha$")
-am2 = AngleAnnotation(center, p2[1], p1[0], ax=ax1, size=35, text=r"$\beta$")
-am3 = AngleAnnotation(center, p1[0], p2[0], ax=ax1, size=75, text=r"$\gamma$")
-am4 = AngleAnnotation(center, p2[0], p1[1], ax=ax1, size=35, text=r"$\theta$")
+am1 = AngleAnnotation(center, p1[1], p2[1], ax=ax, size=75, text=r"$\alpha$")
+am2 = AngleAnnotation(center, p2[1], p1[0], ax=ax, size=35, text=r"$\beta$")
+am3 = AngleAnnotation(center, p1[0], p2[0], ax=ax, size=75, text=r"$\gamma$")
+am4 = AngleAnnotation(center, p2[0], p1[1], ax=ax, size=35, text=r"$\theta$")
 
 
 # Showcase some styling options for the angle arc, as well as the text.
 p = [(6.0, 400), (5.3, 410), (5.6, 300)]
-ax1.plot(*zip(*p))
-am5 = AngleAnnotation(p[1], p[0], p[2], ax=ax1, size=40, text=r"$\Phi$",
+ax.plot(*zip(*p))
+am5 = AngleAnnotation(p[1], p[0], p[2], ax=ax, size=40, text=r"$\Phi$",
                       linestyle="--", color="gray", textposition="outside",
                       text_kw=dict(fontsize=16, color="gray"))
 
 
-#### SUBPLOT 2 ####
+#########################################################################
+# ``AngleLabel`` options
+# ~~~~~~~~~~~~~~~~~~~~~~
+#
+# The *textposition* and *unit* keyword arguments may be used to modify the
+# location of the text label, as shown below:
+
+
 # Helper function to draw angle easily.
 def plot_angle(ax, pos, angle, length=0.95, acol="C0", **kwargs):
     vec2 = np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle))])
@@ -264,40 +268,44 @@ def plot_angle(ax, pos, angle, length=0.95, acol="C0", **kwargs):
     ax.plot(*xy.T, color=acol)
     return AngleAnnotation(pos, xy[0], xy[2], ax=ax, **kwargs)
 
+
+fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
+fig.suptitle("AngleLabel keyword arguments")
+fig.canvas.draw()  # Need to draw the figure to define renderer
+
 # Showcase different text positions.
+ax1.margins(y=0.4)
+ax1.set_title("textposition")
 kw = dict(size=75, unit="points", text=r"$60°$")
 
-am6 = plot_angle(ax2, (2.0, 0), 60, textposition="inside", **kw)
-am7 = plot_angle(ax2, (3.5, 0), 60, textposition="outside", **kw)
-am8 = plot_angle(ax2, (5.0, 0), 60, textposition="edge",
+am6 = plot_angle(ax1, (2.0, 0), 60, textposition="inside", **kw)
+am7 = plot_angle(ax1, (3.5, 0), 60, textposition="outside", **kw)
+am8 = plot_angle(ax1, (5.0, 0), 60, textposition="edge",
                  text_kw=dict(bbox=dict(boxstyle="round", fc="w")), **kw)
-am9 = plot_angle(ax2, (6.5, 0), 60, textposition="edge",
+am9 = plot_angle(ax1, (6.5, 0), 60, textposition="edge",
                  text_kw=dict(xytext=(30, 20), arrowprops=dict(arrowstyle="->",
                               connectionstyle="arc3,rad=-0.2")), **kw)
 
-ax2.annotate("textposition", xy=(.02, 1), xycoords="axes fraction",
-             bbox=dict(boxstyle="round", fc="w"), ha="left", va="center")
 for x, text in zip([2.0, 3.5, 5.0, 6.5], ['"inside"', '"outside"', '"edge"',
                                           '"edge", custom arrow']):
-    ax2.annotate(text, xy=(x, 0), xycoords=ax2.get_xaxis_transform(),
+    ax1.annotate(text, xy=(x, 0), xycoords=ax1.get_xaxis_transform(),
                  bbox=dict(boxstyle="round", fc="w"), ha="left", fontsize=8,
                  annotation_clip=True)
 
-#### SUBPLOT 3 ####
 # Showcase different size units. The effect of this can best be observed
 # by interactively changing the figure size
+ax2.margins(y=0.4)
+ax2.set_title("unit")
 kw = dict(text=r"$60°$", textposition="outside")
 
-am10 = plot_angle(ax3, (2.0, 0), 60, size=50, unit="pixels", **kw)
-am11 = plot_angle(ax3, (3.5, 0), 60, size=50, unit="points", **kw)
-am12 = plot_angle(ax3, (5.0, 0), 60, size=0.25, unit="axes min", **kw)
-am13 = plot_angle(ax3, (6.5, 0), 60, size=0.25, unit="axes max", **kw)
+am10 = plot_angle(ax2, (2.0, 0), 60, size=50, unit="pixels", **kw)
+am11 = plot_angle(ax2, (3.5, 0), 60, size=50, unit="points", **kw)
+am12 = plot_angle(ax2, (5.0, 0), 60, size=0.25, unit="axes min", **kw)
+am13 = plot_angle(ax2, (6.5, 0), 60, size=0.25, unit="axes max", **kw)
 
-ax3.annotate("unit", xy=(.02, 1), xycoords="axes fraction",
-             bbox=dict(boxstyle="round", fc="w"), ha="left", va="center")
 for x, text in zip([2.0, 3.5, 5.0, 6.5], ['"pixels"', '"points"',
                                           '"axes min"', '"axes max"']):
-    ax3.annotate(text, xy=(x, 0), xycoords=ax3.get_xaxis_transform(),
+    ax2.annotate(text, xy=(x, 0), xycoords=ax2.get_xaxis_transform(),
                  bbox=dict(boxstyle="round", fc="w"), ha="left", fontsize=8,
                  annotation_clip=True)
 
