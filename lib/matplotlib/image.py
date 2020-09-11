@@ -534,9 +534,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 resampled_masked = np.ma.masked_array(A_resampled, out_mask)
                 # we have re-set the vmin/vmax to account for small errors
                 # that may have moved input values in/out of range
+                s_vmin, s_vmax = vrange
+                if isinstance(self.norm, mcolors.LogNorm):
+                    if s_vmin < 0:
+                        s_vmin = max(s_vmin, np.finfo(scaled_dtype).eps)
                 with cbook._setattr_cm(self.norm,
-                                       vmin=vrange[0],
-                                       vmax=vrange[1],
+                                       vmin=s_vmin,
+                                       vmax=s_vmax,
                                        ):
                     output = self.norm(resampled_masked)
             else:
