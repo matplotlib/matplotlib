@@ -1251,7 +1251,6 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                 **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
             self._scale = scale_cls(axis=None, **ba.arguments)
             self._trf = self._scale.get_transform()
-            self._inv_trf = self._trf.inverted()
 
         def __call__(self, value, clip=None):
             value, is_scalar = self.process_value(value)
@@ -1283,7 +1282,10 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                 raise ValueError("Invalid vmin or vmax")
             rescaled = value * (t_vmax - t_vmin)
             rescaled += t_vmin
-            return self._inv_trf.transform(rescaled).reshape(np.shape(value))
+            return (self._trf
+                    .inverted()
+                    .transform(rescaled)
+                    .reshape(np.shape(value)))
 
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
