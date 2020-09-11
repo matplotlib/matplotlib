@@ -81,7 +81,7 @@ class AngleMarker(Arc):
         size : float
             Diameter of the angle marker in units specified by *unit*.
 
-        unit : string
+        unit : str
             One of the following strings to specify the unit of *size*:
 
             * "pixels": pixels
@@ -94,7 +94,7 @@ class AngleMarker(Arc):
         ax : `matplotlib.axes.Axes`
             The Axes to add the angle marker to.
 
-        text : string
+        text : str
             The text to mark the angle with.
 
         textposition : {"inside", "outside", "edge"}
