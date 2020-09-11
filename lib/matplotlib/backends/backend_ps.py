@@ -910,7 +910,7 @@ class FigureCanvasPS(FigureCanvasBase):
                       end="", file=fh)
             print(f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
-                  f"%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
+                  f"{get_bbox_header(bbox)[0]}\n"
                   f"%%EndComments\n",
                   end="", file=fh)
 
@@ -1056,7 +1056,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
 {dsc_comments}
-%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}
+{get_bbox_header(bbox)[0]}
 %%EndComments
 %%BeginProlog
 /mpldict {len(psDefs)} dict def
