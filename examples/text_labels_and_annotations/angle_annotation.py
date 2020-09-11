@@ -3,14 +3,14 @@
 Scale invariant angle label
 ===========================
 
-This example shows how to create a scale invariant angle marker.  It is often
-useful to mark angles between lines or inside shapes with a circular arc. While
-Matplotlib provides an `~.patches.Arc`, an inherent problem when directly using
-it for such purposes is that an arc being circular in data space is not
+This example shows how to create a scale invariant angle annotation. It is
+often useful to mark angles between lines or inside shapes with a circular arc.
+While Matplotlib provides an `~.patches.Arc`, an inherent problem when directly
+using it for such purposes is that an arc being circular in data space is not
 necessarily circular in display space. Also, the arc's radius is often best
 defined in a coordinate system which is independent of the actual data
 coordinates - at least if you want to be able to freely zoom into your plot
-without the marker growing to infinity.
+without the annotation growing to infinity.
 
 This calls for a solution where the arc's center is defined in data space, but
 its radius in a physical unit like points or pixels, or as a ratio of the Axes
@@ -25,7 +25,7 @@ The example below serves two purposes:
   system </tutorials/advanced/transforms_tutorial>`.
 
 If mainly interested in the former, you may copy the below class and jump to
-the :ref:`angle-marker-usage` section.
+the :ref:`angle-annotation-usage` section.
 """
 
 #########################################################################
@@ -74,12 +74,12 @@ class AngleAnnotation(Arc):
         Parameters
         ----------
         xy, p1, p2 : tuple or array of two floats
-            Center position and two points. Angle marker is drawn between the
-            two vectors connecting *p1* and *p2* with *xy*, respectively. Units
-            are data coordinates.
+            Center position and two points. Angle annotation is drawn between
+            the two vectors connecting *p1* and *p2* with *xy*, respectively.
+            Units are data coordinates.
 
         size : float
-            Diameter of the angle marker in units specified by *unit*.
+            Diameter of the angle annotation in units specified by *unit*.
 
         unit : str
             One of the following strings to specify the unit of *size*:
@@ -92,7 +92,7 @@ class AngleAnnotation(Arc):
               width, height
 
         ax : `matplotlib.axes.Axes`
-            The Axes to add the angle marker to.
+            The Axes to add the angle annotation to.
 
         text : str
             The text to mark the angle with.
@@ -213,7 +213,7 @@ class AngleAnnotation(Arc):
 
 
 #########################################################################
-# .. _angle-marker-usage:
+# .. _angle-annotation-usage:
 #
 # Usage
 # ~~~~~
