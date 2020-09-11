@@ -1855,9 +1855,11 @@ class ToolHandles:
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
         self.ax = ax
-        props = dict(marker=marker, markersize=7, mfc='w', ls='none',
-                     alpha=0.5, visible=False, label='_nolegend_')
-        props.update(marker_props if marker_props is not None else {})
+        props = dict(marker=marker, markersize=7, markerfacecolor='w',
+                     linestyle='none', alpha=0.5, visible=False,
+                     label='_nolegend_')
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
+                     if marker_props is not None else {})
         self._markers = Line2D(x, y, animated=useblit, **props)
         self.ax.add_line(self._markers)
         self.artist = self._markers
@@ -2024,9 +2026,11 @@ class RectangleSelector(_SelectorWidget):
         self.maxdist = maxdist
 
         if rectprops is None:
-            props = dict(mec='r')
+            props = dict(markeredgecolor='r')
         else:
-            props = dict(mec=rectprops.get('edgecolor', 'r'))
+            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
+                     if marker_props is not None else {})
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
@@ -2503,7 +2507,8 @@ class PolygonSelector(_SelectorWidget):
         self.ax.add_line(self.line)
 
         if markerprops is None:
-            markerprops = dict(mec='k', mfc=lineprops.get('color', 'k'))
+            markerprops = dict(markeredgecolor='k',
+                               markerfacecolor=lineprops.get('color', 'k'))
         self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
                                             useblit=self.useblit,
                                             marker_props=markerprops)
