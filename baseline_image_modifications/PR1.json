@@ -1,0 +1,15 @@
+{
+  "files_added": [{"file" : "test_arrow_patches.py",
+                  "test" : "test_boxarrow",
+                  "img_names":  ["a.png", "b.png"]}],
+  "files_deleted": [{"file" : "test_arrow_patches.py",
+                  "test" : "test_boxarrow",
+                  "img_names":  ["a.png", "b.png"]}],
+  "files_modified": [{"prev_file" : "test_arrow_patches.py",
+                  "prev_test" : "test_boxarrow",
+                  "prev_img_names":  ["a.png", "b.png"],
+                  "new_file" : "test_arrow_patches.py",
+                  "new_test" : "test_boxarrow",
+                  "new_img_names":  ["a.png", "b.png"]
+                  }]
+}
