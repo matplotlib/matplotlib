@@ -1,7 +1,7 @@
 """
-============================
-Scale invariant angle marker
-============================
+===========================
+Scale invariant angle label
+===========================
 
 This example shows how to create a scale invariant angle marker.  It is often
 useful to mark angles between lines or inside shapes with a circular arc. While
@@ -14,7 +14,7 @@ without the marker growing to infinity.
 
 This calls for a solution where the arc's center is defined in data space, but
 its radius in a physical unit like points or pixels, or as a ratio of the Axes
-dimension. The following ``AngleMarker`` class provides such solution.
+dimension. The following ``AngleAnnotation`` class provides such solution.
 
 The example below serves two purposes:
 
@@ -29,8 +29,8 @@ the :ref:`angle-marker-usage` section.
 """
 
 #########################################################################
-# AngleMarker class
-# ~~~~~~~~~~~~~~~~~
+# AngleAnnotation class
+# ~~~~~~~~~~~~~~~~~~~~~
 # The essential idea here is to subclass `~.patches.Arc` and set its transform
 # to the `~.transforms.IdentityTransform`, making the parameters of the arc
 # defined in pixel space.
@@ -64,7 +64,7 @@ from matplotlib.patches import Arc
 from matplotlib.transforms import IdentityTransform, TransformedBbox, Bbox
 
 
-class AngleMarker(Arc):
+class AngleAnnotation(Arc):
     """
     Draws an arc between two vectors which appears circular in display space.
     """
@@ -218,9 +218,9 @@ class AngleMarker(Arc):
 # Usage
 # ~~~~~
 #
-# Required arguments to ``AngleMarker`` are the center of the arc, *xy*, and
-# two points, such that the arc spans between the two vectors connecting *p1*
-# and *p2* with *xy*, respectively. Those are given in data coordinates.
+# Required arguments to ``AngleAnnotation`` are the center of the arc, *xy*,
+# and two points, such that the arc spans between the two vectors connecting
+# *p1* and *p2* with *xy*, respectively. Those are given in data coordinates.
 # Further arguments are the *size* of the arc and its *unit*. Additionally, a
 # *text* can be specified, that will be drawn either in- or outside of the arc,
 # according to the value of *textposition*. Usage of those arguments is shown
@@ -233,8 +233,8 @@ ax3.margins(y=0.4)
 fig.canvas.draw()  # Need to draw the figure to define renderer
 
 #### SUBPLOT 1 ####
-# Plot two crossing lines and label each angle between them with the
-# above `AngleMarker`tool.
+# Plot two crossing lines and label each angle between them with the above
+# ``AngleAnnotation`` tool.
 center = (4.5, 650)
 p1 = [(2.5, 710), (6.0, 605)]
 p2 = [(3.0, 275), (5.5, 900)]
@@ -242,18 +242,18 @@ line1, = ax1.plot(*zip(*p1))
 line2, = ax1.plot(*zip(*p2))
 point, = ax1.plot(*center, marker="o")
 
-am1 = AngleMarker(center, p1[1], p2[1], ax=ax1, size=75, text=r"$\alpha$")
-am2 = AngleMarker(center, p2[1], p1[0], ax=ax1, size=35, text=r"$\beta$")
-am3 = AngleMarker(center, p1[0], p2[0], ax=ax1, size=75, text=r"$\gamma$")
-am4 = AngleMarker(center, p2[0], p1[1], ax=ax1, size=35, text=r"$\theta$")
+am1 = AngleAnnotation(center, p1[1], p2[1], ax=ax1, size=75, text=r"$\alpha$")
+am2 = AngleAnnotation(center, p2[1], p1[0], ax=ax1, size=35, text=r"$\beta$")
+am3 = AngleAnnotation(center, p1[0], p2[0], ax=ax1, size=75, text=r"$\gamma$")
+am4 = AngleAnnotation(center, p2[0], p1[1], ax=ax1, size=35, text=r"$\theta$")
 
 
 # Showcase some styling options for the angle arc, as well as the text.
 p = [(6.0, 400), (5.3, 410), (5.6, 300)]
 ax1.plot(*zip(*p))
-am5 = AngleMarker(p[1], p[0], p[2], ax=ax1, size=40, text=r"$\Phi$",
-                  linestyle="--", color="gray", textposition="outside",
-                  text_kw=dict(fontsize=16, color="gray"))
+am5 = AngleAnnotation(p[1], p[0], p[2], ax=ax1, size=40, text=r"$\Phi$",
+                      linestyle="--", color="gray", textposition="outside",
+                      text_kw=dict(fontsize=16, color="gray"))
 
 
 #### SUBPLOT 2 ####
@@ -262,7 +262,7 @@ def plot_angle(ax, pos, angle, length=0.95, acol="C0", **kwargs):
     vec2 = np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle))])
     xy = np.c_[[length, 0], [0, 0], vec2*length].T + np.array(pos)
     ax.plot(*xy.T, color=acol)
-    return AngleMarker(pos, xy[0], xy[2], ax=ax, **kwargs)
+    return AngleAnnotation(pos, xy[0], xy[2], ax=ax, **kwargs)
 
 # Showcase different text positions.
 kw = dict(size=75, unit="points", text=r"$60°$")
