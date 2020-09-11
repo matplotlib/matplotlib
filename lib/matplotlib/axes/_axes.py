@@ -7393,9 +7393,8 @@ such objects
             spectrum.  'angle' returns the phase spectrum without unwrapping.
             'phase' returns the phase spectrum with unwrapping.
 
-        noverlap : int
-            The number of points of overlap between blocks.  The
-            default value is 128.
+        noverlap : int, default: 128
+            The number of points of overlap between blocks.
 
         scale : {'default', 'linear', 'dB'}
             The scaling of the values in the *spec*.  'linear' is no scaling.

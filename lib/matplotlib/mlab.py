@@ -293,14 +293,10 @@ def stride_windows(x, n, noverlap=None, axis=0):
     ----------
     x : 1D array or sequence
         Array or sequence containing the data.
-
     n : int
         The number of data points in each window.
-
-    noverlap : int
+    noverlap : int, default: 0 (no overlap)
         The overlap between adjacent windows.
-        Default is 0 (no overlap)
-
     axis : int
         The axis along which the windows will run.
 
@@ -629,7 +625,7 @@ NFFT : int, default: 256
     most efficient.  This should *NOT* be used to get zero padding, or the
     scaling of the result will be incorrect; use *pad_to* for this instead.
 
-detrend : {'none', 'mean', 'linear'} or callable, default 'none'
+detrend : {'none', 'mean', 'linear'} or callable, default: 'none'
     The function applied to each segment before fft-ing, designed to remove
     the mean or linear trend.  Unlike in MATLAB, where the *detrend* parameter
     is a vector, in Matplotlib is it a function.  The :mod:`~matplotlib.mlab`
@@ -669,9 +665,8 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     %(PSD)s
 
-    noverlap : int
+    noverlap : int, default: 0 (no overlap)
         The number of points of overlap between segments.
-        The default value is 0 (no overlap).
 
     Returns
     -------
@@ -729,9 +724,8 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
 
     %(PSD)s
 
-    noverlap : int
+    noverlap : int, default: 0 (no overlap)
         The number of points of overlap between segments.
-        The default value is 0 (no overlap).
 
     Returns
     -------
@@ -845,9 +839,8 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     %(PSD)s
 
-    noverlap : int, optional
-        The number of points of overlap between blocks.  The default
-        value is 128.
+    noverlap : int, default: 128
+        The number of points of overlap between blocks.
     mode : str, default: 'psd'
         What sort of spectrum to use:
             'psd'
@@ -928,9 +921,8 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
-    noverlap : int
-        The number of points of overlap between blocks.  The default value
-        is 0 (no overlap).
+    noverlap : int, default: 0 (no overlap)
+        The number of points of overlap between segments.
 
     Returns
     -------

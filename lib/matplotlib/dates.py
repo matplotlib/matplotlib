@@ -499,8 +499,8 @@ def num2date(x, tz=None):
         Number of days (fraction part represents hours, minutes, seconds)
         since the epoch.  See `.get_epoch` for the
         epoch, which can be changed by :rc:`date.epoch` or `.set_epoch`.
-    tz : str, optional
-        Timezone of *x* (defaults to :rc:`timezone`).
+    tz : str, default: :rc:`timezone`
+        Timezone of *x*.
 
     Returns
     -------

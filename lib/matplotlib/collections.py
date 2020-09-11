@@ -990,7 +990,7 @@ class PathCollection(_CollectionWithSizes):
             the collection. If "sizes", the legend will show the different
             sizes. To set both, use *kwargs* to directly edit the `.Line2D`
             properties.
-        num : int, None, "auto" (default), array-like, or `~.ticker.Locator`,
+        num : int, None, "auto" (default), array-like, or `~.ticker.Locator`
             Target number of elements to create.
             If None, use all unique elements of the mappable array. If an
             integer, target to use *num* elements in the normed range.
@@ -1004,7 +1004,7 @@ class PathCollection(_CollectionWithSizes):
             The format or formatter to use for the labels. If a string must be
             a valid input for a `~.StrMethodFormatter`. If None (the default),
             use a `~.ScalarFormatter`.
-        func : function, default *lambda x: x*
+        func : function, default: ``lambda x: x``
             Function to calculate the labels.  Often the size (or color)
             argument to `~.Axes.scatter` will have been pre-processed by the
             user using a function ``s = f(x)`` to make the markers visible;
