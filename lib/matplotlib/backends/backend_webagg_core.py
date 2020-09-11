@@ -264,6 +264,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         guiEvent = event.get('guiEvent', None)
         if e_type == 'button_press':
             self.button_press_event(x, y, button, guiEvent=guiEvent)
+        elif e_type == 'dblclick':
+            self.button_press_event(x, y, button, dblclick=True,
+                                    guiEvent=guiEvent)
         elif e_type == 'button_release':
             self.button_release_event(x, y, button, guiEvent=guiEvent)
         elif e_type == 'motion_notify':
@@ -274,9 +277,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.leave_notify_event()
         elif e_type == 'scroll':
             self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
-    handle_button_press = handle_button_release = handle_motion_notify = \
-        handle_figure_enter = handle_figure_leave = handle_scroll = \
-        _handle_mouse
+    handle_button_press = handle_button_release = handle_dblclick = \
+        handle_figure_enter = handle_figure_leave = handle_motion_notify = \
+        handle_scroll = _handle_mouse
 
     def _handle_key(self, event):
         key = _handle_key(event['key'])
