@@ -6665,7 +6665,7 @@ such objects
                                  color=c, **{bottom_kwarg: bottom})
                 patches.append(patch)
                 if stacked:
-                    bottom[:] = m
+                    bottom = m
                 boffset += dw
 
         elif histtype.startswith('step'):
