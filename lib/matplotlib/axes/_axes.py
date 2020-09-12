@@ -6613,14 +6613,6 @@ such objects
 
         patches = []
 
-        # Save autoscale state for later restoration; turn autoscaling
-        # off so we can do it all a single time at the end, instead
-        # of having it done by bar or fill and then having to be redone.
-        _saved_autoscalex = self.get_autoscalex_on()
-        _saved_autoscaley = self.get_autoscaley_on()
-        self.set_autoscalex_on(False)
-        self.set_autoscaley_on(False)
-
         if histtype.startswith('bar'):
 
             totwidth = np.diff(bins)
@@ -6740,10 +6732,6 @@ such objects
 
             # we return patches, so put it back in the expected order
             patches.reverse()
-
-        self.set_autoscalex_on(_saved_autoscalex)
-        self.set_autoscaley_on(_saved_autoscaley)
-        self._request_autoscale_view()
 
         # If None, make all labels None (via zip_longest below); otherwise,
         # cast each element to str, but keep a single str as it.
