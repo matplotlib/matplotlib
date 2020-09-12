@@ -331,6 +331,48 @@ def test_define_aliases_invalid():
         cbook._define_aliases({'prop': ['alias1', 'alias2']})(Invalid)
 
 
+def test_define_aliases_subclass():
+    @cbook._define_aliases({'prop': ['alias']})
+    class Base:
+        def __init__(self):
+            self.call_count = {'Base:set_prop': 0}
+
+        def set_prop(self):
+            self.call_count['Base:set_prop'] += 1
+
+    class Derived(Base):
+        def __init__(self):
+            super().__init__()
+            self.call_count['Derived:set_prop'] = 0
+
+        def set_prop(self):
+            self.call_count['Derived:set_prop'] += 1
+
+    # Calling original or alias should run the same method.
+    b = Base()
+    b.set_prop()
+    assert b.call_count['Base:set_prop'] == 1
+    b.set_alias()
+    assert b.call_count['Base:set_prop'] == 2
+
+    d = Derived()
+    # Calling original or alias should run the same derived method.
+    d.set_prop()
+    assert d.call_count['Base:set_prop'] == 0
+    assert d.call_count['Derived:set_prop'] == 1
+    d.set_alias()
+    assert d.call_count['Base:set_prop'] == 0
+    assert d.call_count['Derived:set_prop'] == 2
+
+    # Calling original or alias should run the same base method.
+    Base.set_prop(d)
+    assert d.call_count['Base:set_prop'] == 1
+    assert d.call_count['Derived:set_prop'] == 2
+    Base.set_alias(d)
+    assert d.call_count['Base:set_prop'] == 2
+    assert d.call_count['Derived:set_prop'] == 2
+
+
 fail_mapping = (
     ({'a': 1}, {'forbidden': ('a')}),
     ({'a': 1}, {'required': ('b')}),
