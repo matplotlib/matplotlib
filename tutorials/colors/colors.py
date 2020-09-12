@@ -14,7 +14,7 @@ Matplotlib recognizes the following formats to specify a color:
   to ``'#aabbcc'``, or ``'#abcd'``, equivalent to ``'#aabbccdd'``;
   case-insensitive);
 * a string representation of a float value in ``[0, 1]`` inclusive for gray
-  level (e.g., ``'0.5'``);
+  level (e.g., ``'0.8'`` for light gray);
 * one of the characters ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``, which
   are short-hand notations for shades of blue, green, red, cyan, magenta,
   yellow, black, and white. Note that the colors ``'g', 'c', 'm', 'y'`` do not
