@@ -6660,13 +6660,19 @@ such objects
                     height = m - bottom
                 else:
                     height = m
-                patch = _barfunc(bins[:-1]+boffset, height, width,
-                                 align='center', log=log,
-                                 color=c, **{bottom_kwarg: bottom})
-                patches.append(patch)
+                bars = _barfunc(bins[:-1]+boffset, height, width,
+                                align='center', log=log,
+                                color=c, **{bottom_kwarg: bottom})
+                patches.append(bars)
                 if stacked:
                     bottom[:] = m
                 boffset += dw
+            # Remove stickies from all bars but the lowest ones, as otherwise
+            # margin expansion would be unable to cross the stickies in the
+            # middle of the bars.
+            for bars in patches[1:]:
+                for patch in bars:
+                    patch.sticky_edges.x[:] = patch.sticky_edges.y[:] = []
 
         elif histtype.startswith('step'):
             # these define the perimeter of the polygon
