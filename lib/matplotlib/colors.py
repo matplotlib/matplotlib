@@ -289,18 +289,40 @@ def to_rgba_array(c, alpha=None):
     """
     Convert *c* to a (n, 4) array of RGBA colors.
 
-    If *alpha* is not ``None``, it forces the alpha value.  If *c* is
-    ``"none"`` (case-insensitive) or an empty list, an empty array is returned.
-    If *c* is a masked array, an ndarray is returned with a (0, 0, 0, 0)
-    row for each masked value or row in *c*.
+    Parameters
+    ----------
+    c : Matplotlib color or array of colors
+        If *c* is a masked array, an ndarray is returned with a (0, 0, 0, 0)
+        row for each masked value or row in *c*.
+
+    alpha : float or sequence of floats, optional
+        If *alpha* is not ``None``, it forces the alpha value, except if *c* is
+        ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+        If *alpha* is a sequence and *c* is a single color, *c* will be
+        repeated to match the length of *alpha*.
+
+    Returns
+    -------
+    array
+        (n, 4) array of RGBA colors.
+
     """
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
+    if np.iterable(alpha):
+        alpha = np.asarray(alpha).ravel()
     if (isinstance(c, np.ndarray) and c.dtype.kind in "if"
             and c.ndim == 2 and c.shape[1] in [3, 4]):
         mask = c.mask.any(axis=1) if np.ma.is_masked(c) else None
         c = np.ma.getdata(c)
+        if np.iterable(alpha):
+            if c.shape[0] == 1 and alpha.shape[0] > 1:
+                c = np.tile(c, (alpha.shape[0], 1))
+            elif c.shape[0] != alpha.shape[0]:
+                raise ValueError("The number of colors must match the number"
+                                 " of alpha values if there are more than one"
+                                 " of each.")
         if c.shape[1] == 3:
             result = np.column_stack([c, np.zeros(len(c))])
             result[:, -1] = alpha if alpha is not None else 1.
@@ -320,7 +342,10 @@ def to_rgba_array(c, alpha=None):
     if cbook._str_lower_equal(c, "none"):
         return np.zeros((0, 4), float)
     try:
-        return np.array([to_rgba(c, alpha)], float)
+        if np.iterable(alpha):
+            return np.array([to_rgba(c, a) for a in alpha], float)
+        else:
+            return np.array([to_rgba(c, alpha)], float)
     except (ValueError, TypeError):
         pass
 
@@ -332,7 +357,10 @@ def to_rgba_array(c, alpha=None):
     if len(c) == 0:
         return np.zeros((0, 4), float)
     else:
-        return np.array([to_rgba(cc, alpha) for cc in c])
+        if np.iterable(alpha):
+            return np.array([to_rgba(cc, aa) for cc, aa in zip(c, alpha)])
+        else:
+            return np.array([to_rgba(cc, alpha) for cc in c])
 
 
 def to_rgb(c):
@@ -539,8 +567,9 @@ class Colormap:
             return the RGBA values ``X*100`` percent along the Colormap line.
             For integers, X should be in the interval ``[0, Colormap.N)`` to
             return RGBA values *indexed* from the Colormap with index ``X``.
-        alpha : float, None
-            Alpha must be a scalar between 0 and 1, or None.
+        alpha : float, array-like, None
+            Alpha must be a scalar between 0 and 1, a sequence of such
+            floats with shape matching X, or None.
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be uint8s in the interval
@@ -580,23 +609,29 @@ class Colormap:
         else:
             lut = self._lut.copy()  # Don't let alpha modify original _lut.
 
+        rgba = np.empty(shape=xa.shape + (4,), dtype=lut.dtype)
+        lut.take(xa, axis=0, mode='clip', out=rgba)
+
         if alpha is not None:
+            if np.iterable(alpha):
+                alpha = np.asarray(alpha)
+                if alpha.shape != xa.shape:
+                    raise ValueError("alpha is array-like but its shape"
+                                     " %s doesn't match that of X %s" %
+                                     (alpha.shape, xa.shape))
             alpha = np.clip(alpha, 0, 1)
             if bytes:
-                alpha = int(alpha * 255)
-            if (lut[-1] == 0).all():
-                lut[:-1, -1] = alpha
-                # All zeros is taken as a flag for the default bad
-                # color, which is no color--fully transparent.  We
-                # don't want to override this.
-            else:
-                lut[:, -1] = alpha
-                # If the bad value is set to have a color, then we
-                # override its alpha just as for any other value.
+                alpha = (alpha * 255).astype(np.uint8)
+            rgba[..., -1] = alpha
 
-        rgba = lut[xa]
+            # If the "bad" color is all zeros, then ignore alpha input.
+            if (lut[-1] == 0).all() and np.any(mask_bad):
+                if np.iterable(mask_bad) and mask_bad.shape == xa.shape:
+                    rgba[mask_bad] = (0, 0, 0, 0)
+                else:
+                    rgba[..., :] = (0, 0, 0, 0)
+
         if not np.iterable(X):
-            # Return a tuple if the input was a scalar
             rgba = tuple(rgba)
         return rgba
 

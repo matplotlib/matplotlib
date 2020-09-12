@@ -832,11 +832,23 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._set_edgecolor(c)
 
     def set_alpha(self, alpha):
-        # docstring inherited
-        super().set_alpha(alpha)
+        """
+        Set the transparency of the collection.
+
+        Parameters
+        ----------
+        alpha: float or array of float or None
+            If not None, *alpha* values must be between 0 and 1, inclusive.
+            If an array is provided, its length must match the number of
+            elements in the collection.  Masked values and nans are not
+            supported.
+        """
+        artist.Artist._set_alpha_for_array(self, alpha)
         self._update_dict['array'] = True
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+
+    set_alpha.__doc__ = artist.Artist._set_alpha_for_array.__doc__
 
     def get_linewidth(self):
         return self._linewidths
@@ -848,11 +860,23 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """Update colors from the scalar mappable array, if it is not None."""
         if self._A is None:
             return
-        # QuadMesh can map 2d arrays
+        # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
         if self._A.ndim > 1 and not isinstance(self, QuadMesh):
             raise ValueError('Collections can only map rank 1 arrays')
         if not self._check_update("array"):
             return
+        if np.iterable(self._alpha):
+            if self._alpha.size != self._A.size:
+                raise ValueError(f'Data array shape, {self._A.shape} '
+                                 'is incompatible with alpha array shape, '
+                                 f'{self._alpha.shape}. '
+                                 'This can occur with the deprecated '
+                                 'behavior of the "flat" shading option, '
+                                 'in which a row and/or column of the data '
+                                 'array is dropped.')
+            # pcolormesh, scatter, maybe others flatten their _A
+            self._alpha = self._alpha.reshape(self._A.shape)
+
         if self._is_filled:
             self._facecolors = self.to_rgba(self._A, self._alpha)
         elif self._is_stroked:

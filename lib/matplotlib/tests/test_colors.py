@@ -1072,6 +1072,16 @@ def test_to_rgba_array_single_str():
         array = mcolors.to_rgba_array("rgb")
 
 
+def test_to_rgba_array_alpha_array():
+    with pytest.raises(ValueError, match="The number of colors must match"):
+        mcolors.to_rgba_array(np.ones((5, 3), float), alpha=np.ones((2,)))
+    alpha = [0.5, 0.6]
+    c = mcolors.to_rgba_array(np.ones((2, 3), float), alpha=alpha)
+    assert_array_equal(c[:, 3], alpha)
+    c = mcolors.to_rgba_array(['r', 'g'], alpha=alpha)
+    assert_array_equal(c[:, 3], alpha)
+
+
 def test_failed_conversions():
     with pytest.raises(ValueError):
         mcolors.to_rgba('5')
@@ -1175,3 +1185,29 @@ def test_get_under_over_bad():
     assert_array_equal(cmap.get_under(), cmap(-np.inf))
     assert_array_equal(cmap.get_over(), cmap(np.inf))
     assert_array_equal(cmap.get_bad(), cmap(np.nan))
+
+
+def test_colormap_alpha_array():
+    cmap = plt.get_cmap('viridis')
+    vals = [-1, 0.5, 2]  # under, valid, over
+    with pytest.raises(ValueError, match="alpha is array-like but"):
+        cmap(vals, alpha=[1, 1, 1, 1])
+    alpha = np.array([0.1, 0.2, 0.3])
+    c = cmap(vals, alpha=alpha)
+    assert_array_equal(c[:, -1], alpha)
+    c = cmap(vals, alpha=alpha, bytes=True)
+    assert_array_equal(c[:, -1], (alpha * 255).astype(np.uint8))
+
+
+def test_colormap_bad_data_with_alpha():
+    cmap = plt.get_cmap('viridis')
+    c = cmap(np.nan, alpha=0.5)
+    assert c == (0, 0, 0, 0)
+    c = cmap([0.5, np.nan], alpha=0.5)
+    assert_array_equal(c[1], (0, 0, 0, 0))
+    c = cmap([0.5, np.nan], alpha=[0.1, 0.2])
+    assert_array_equal(c[1], (0, 0, 0, 0))
+    c = cmap([[np.nan, 0.5], [0, 0]], alpha=0.5)
+    assert_array_equal(c[0, 0], (0, 0, 0, 0))
+    c = cmap([[np.nan, 0.5], [0, 0]], alpha=np.full((2, 2), 0.5))
+    assert_array_equal(c[0, 0], (0, 0, 0, 0))

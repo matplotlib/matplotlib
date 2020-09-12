@@ -274,16 +274,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        alpha : float
+        alpha : float or 2D array-like or None
         """
-        if alpha is not None and not isinstance(alpha, Number):
-            alpha = np.asarray(alpha)
-            if alpha.ndim != 2:
-                raise TypeError('alpha must be a float, two-dimensional '
-                                'array, or None')
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        martist.Artist._set_alpha_for_array(self, alpha)
+        if np.ndim(alpha) not in (0, 2):
+            raise TypeError('alpha must be a float, two-dimensional '
+                            'array, or None')
         self._imcache = None
 
     def _get_scalar_alpha(self):
