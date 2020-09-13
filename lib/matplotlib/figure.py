@@ -673,10 +673,10 @@ class Figure(Artist):
         t : str
             The title text.
 
-        x : float, default 0.5
+        x : float, default: 0.5
             The x location of the text in figure coordinates.
 
-        y : float, default 0.98
+        y : float, default: 0.98
             The y location of the text in figure coordinates.
 
         horizontalalignment, ha : {'center', 'left', right'}, default: 'center'

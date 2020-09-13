@@ -382,14 +382,14 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     fname : str or path-like or file-like
         If `str` or `os.PathLike`, the file is opened using the flags specified
         by *flag* and *encoding*.  If a file-like object, it is passed through.
-    flag : str, default 'r'
+    flag : str, default: 'r'
         Passed as the *mode* argument to `open` when *fname* is `str` or
         `os.PathLike`; ignored if *fname* is file-like.
-    return_opened : bool, default False
+    return_opened : bool, default: False
         If True, return both the file object and a boolean indicating whether
         this was a new file (that the caller needs to close).  If False, return
         only the new file.
-    encoding : str or None, default None
+    encoding : str or None, default: None
         Passed as the *mode* argument to `open` when *fname* is `str` or
         `os.PathLike`; ignored if *fname* is file-like.
 

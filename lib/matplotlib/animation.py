@@ -411,10 +411,9 @@ class FileMovieWriter(MovieWriter):
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
-        dpi : float, optional
+        dpi : float, default: ``fig.dpi``
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
-            Default is ``fig.dpi``.
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  If None (the
             default), files are written to a temporary directory which is
@@ -1006,7 +1005,7 @@ class Animation:
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
 
-        metadata : Dict[str, str], default {}
+        metadata : Dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
             the output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
