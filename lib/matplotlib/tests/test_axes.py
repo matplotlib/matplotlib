@@ -3532,6 +3532,12 @@ def test_hist_stacked_bar():
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1)
 
 
+def test_hist_barstacked_bottom_unchanged():
+    b = np.array([10, 20])
+    plt.hist([[0, 1], [0, 1]], 2, histtype="barstacked", bottom=b)
+    assert b.tolist() == [10, 20]
+
+
 def test_hist_emptydata():
     fig = plt.figure()
     ax = fig.add_subplot(111)
