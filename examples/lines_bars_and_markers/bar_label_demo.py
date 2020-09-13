@@ -30,27 +30,6 @@ ind = np.arange(N)    # the x locations for the groups
 width = 0.35       # the width of the bars: can also be len(x) sequence
 
 ###############################################################################
-# Grouped bar chart
-
-fig, ax = plt.subplots()
-
-rects1 = ax.bar(ind - width/2, menMeans, width, label='Men')
-rects2 = ax.bar(ind + width/2, womenMeans, width, label='Women')
-
-ax.axhline(0, color='grey', linewidth=0.8)
-ax.set_ylabel('Scores')
-ax.set_title('Scores by group and gender')
-ax.set_xticks(ind)
-ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
-ax.legend()
-
-# Basic labels
-ax.bar_label(rects1)
-ax.bar_label(rects2)
-
-plt.show()
-
-###############################################################################
 # Stacked bar plot with error bars
 
 fig, ax = plt.subplots()

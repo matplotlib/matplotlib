@@ -30,20 +30,8 @@ ax.set_xticks(x)
 ax.set_xticklabels(labels)
 ax.legend()
 
-
-def autolabel(rects):
-    """Attach a text label above each bar in *rects*, displaying its height."""
-    for rect in rects:
-        height = rect.get_height()
-        ax.annotate('{}'.format(height),
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 3),  # 3 points vertical offset
-                    textcoords="offset points",
-                    ha='center', va='bottom')
-
-
-autolabel(rects1)
-autolabel(rects2)
+ax.bar_label(rects1, padding=3)
+ax.bar_label(rects2, padding=3)
 
 fig.tight_layout()
 
@@ -61,5 +49,5 @@ plt.show()
 
 matplotlib.axes.Axes.bar
 matplotlib.pyplot.bar
-matplotlib.axes.Axes.annotate
-matplotlib.pyplot.annotate
+matplotlib.axes.Axes.bar_label
+matplotlib.pyplot.bar_label
