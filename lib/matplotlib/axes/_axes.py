@@ -2381,7 +2381,12 @@ class Axes(_AxesBase):
 
         self._request_autoscale_view()
 
-        bar_container = BarContainer(patches, errorbar,
+        if orientation == 'vertical':
+            datavalues = height
+        elif orientation == 'horizontal':
+            datavalues = width
+
+        bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
                                      orientation=orientation, label=label)
         self.add_container(bar_container)
 
@@ -2509,7 +2514,8 @@ class Axes(_AxesBase):
         Parameters
         ----------
         container : `.BarContainer`
-            Container with all the bars and optionally errorbars.
+            Container with all the bars and optionally errorbars, likely
+            returned from `.bar` or `.barh`.
 
         labels : array-like, optional
             A list of label texts, that should be displayed. If not given, the
@@ -2519,7 +2525,7 @@ class Axes(_AxesBase):
             A format string for the label.
 
         label_type : {'edge', 'center'}, default: 'edge'
-            The label type, Possible values:
+            The label type. Possible values:
 
             - 'edge': label placed at the end-point of the bar segment, and the
               value displayed will be the position of that end-point.
@@ -2535,7 +2541,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        annotations
+        list of `.Text`
             A list of `.Text` instances for the labels.
         """
 
@@ -2548,28 +2554,34 @@ class Axes(_AxesBase):
 
         bars = container.patches
         errorbar = container.errorbar
+        datavalues = container.datavalues
         orientation = container.orientation
 
         if errorbar:
-            lines = errorbar.lines
-            barlinecols = lines[2]
-            barlinecol = barlinecols[0]
+            # check "ErrorbarContainer" for the definition of these elements
+            lines = errorbar.lines  # attribute of "ErrorbarContainer" (tuple)
+            barlinecols = lines[2]  # 0: data_line, 1: caplines, 2: barlinecols
+            barlinecol = barlinecols[0]  # the "LineCollection" of error bars
             errs = barlinecol.get_segments()
         else:
             errs = []
-        lbls = [] if labels is None else labels
+
+        if labels is None:
+            labels = []
 
         annotations = []
-        for bar, err, lbl in itertools.zip_longest(bars, errs, lbls):
 
+        for bar, err, dat, lbl in itertools.zip_longest(
+            bars, errs, datavalues, labels
+        ):
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
 
             if orientation == "vertical":
-                extrema = max(y0, y1) if yc >= 0 else min(y0, y1)
+                extrema = max(y0, y1) if dat >= 0 else min(y0, y1)
                 length = abs(y0 - y1)
             elif orientation == "horizontal":
-                extrema = max(x0, x1) if xc >= 0 else min(x0, x1)
+                extrema = max(x0, x1) if dat >= 0 else min(x0, x1)
                 length = abs(x0 - x1)
 
             if err is None:
