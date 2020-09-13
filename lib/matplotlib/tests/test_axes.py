@@ -1679,6 +1679,16 @@ def test_hist_log_2(fig_test, fig_ref):
             ax.hist(1, 1, log=True, histtype=histtype)
 
 
+def test_hist_log_barstacked():
+    fig, axs = plt.subplots(2)
+    axs[0].hist([[0], [0, 1]], 2, histtype="barstacked")
+    axs[0].set_yscale("log")
+    axs[1].hist([0, 0, 1], 2, histtype="barstacked")
+    axs[1].set_yscale("log")
+    fig.canvas.draw()
+    assert axs[0].get_ylim() == axs[1].get_ylim()
+
+
 @image_comparison(['hist_bar_empty.png'], remove_text=True)
 def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
