@@ -1080,7 +1080,7 @@ def find_tex_file(filename, format=None):
     cmd += [filename]
     try:
         result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
-    except RuntimeError:
+    except (FileNotFoundError, RuntimeError):
         return ''
     return result.rstrip('\n')
 
