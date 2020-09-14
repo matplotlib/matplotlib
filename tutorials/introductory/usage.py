@@ -19,7 +19,7 @@ import numpy as np
 # Matplotlib graphs your data on `~.figure.Figure`\s (i.e., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes` (i.e., an
 # area where points can be specified in terms of x-y coordinates (or theta-r
-# in a polar plot, or x-y-z in a 3D plot, etc.).  The most simple way of
+# in a polar plot, or x-y-z in a 3D plot, etc.).  The simplest way of
 # creating a figure with an axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the axes:
 
@@ -39,7 +39,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 # In fact, you can do the same in Matplotlib: for each `~.axes.Axes` graphing
 # method, there is a corresponding function in the :mod:`matplotlib.pyplot`
 # module that performs that plot on the "current" axes, creating that axes (and
-# its parent figure) if they don't exist yet.  So the previous example can be
+# its parent figure) if they don't exist yet.  So, the previous example can be
 # written more shortly as
 
 plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
@@ -108,7 +108,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # :class:`~matplotlib.artist.Artist`
 # ----------------------------------
 #
-# Basically everything you can see on the figure is an artist (even the
+# Basically, everything you can see on the figure is an artist (even the
 # `.Figure`, `Axes <.axes.Axes>`, and `~.axis.Axis` objects).  This includes
 # `.Text` objects, `.Line2D` objects, :mod:`.collections` objects, `.Patch`
 # objects ... (you get the idea).  When the figure is rendered, all of the
@@ -175,7 +175,7 @@ plt.title("Simple Plot")
 plt.legend()
 
 ###############################################################################
-# Actually there is a third approach, for the case where you are embedding
+# In addition, there is a third approach, for the case when embedding
 # Matplotlib in a GUI application, which completely drops pyplot, even for
 # figure creation.  We won't discuss it here; see the corresponding section in
 # the gallery for more info (:ref:`user_interfaces`).
@@ -200,7 +200,7 @@ plt.legend()
 #       ...
 #
 #    for an even more MATLAB-like style.  This approach is strongly discouraged
-#    nowadays and deprecated; it is only mentioned here because you may still
+#    nowadays and deprecated. It is only mentioned here because you may still
 #    encounter it in the wild.
 #
 # Typically one finds oneself making the same plots over and over
@@ -266,17 +266,17 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # A lot of documentation on the website and in the mailing lists refers
 # to the "backend" and many new users are confused by this term.
-# matplotlib targets many different use cases and output formats.  Some
-# people use matplotlib interactively from the python shell and have
+# Matplotlib targets many different use cases and output formats.  Some
+# people use Matplotlib interactively from the python shell and have
 # plotting windows pop up when they type commands.  Some people run
 # `Jupyter <https://jupyter.org>`_ notebooks and draw inline plots for
-# quick data analysis. Others embed matplotlib into graphical user
+# quick data analysis. Others embed Matplotlib into graphical user
 # interfaces like wxpython or pygtk to build rich applications.  Some
-# people use matplotlib in batch scripts to generate postscript images
+# people use Matplotlib in batch scripts to generate postscript images
 # from numerical simulations, and still others run web application
 # servers to dynamically serve up graphs.
 #
-# To support all of these use cases, matplotlib can target different
+# To support all of these use cases, Matplotlib can target different
 # outputs, and each of these capabilities is called a backend; the
 # "frontend" is the user facing code, i.e., the plotting code, whereas the
 # "backend" does all the hard work behind-the-scenes to make the figure.
@@ -343,7 +343,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #       import matplotlib
 #       matplotlib.use('qt5agg')
 #
-#    This should be done before any figure is created; otherwise Matplotlib may
+#    This should be done before any figure is created, otherwise Matplotlib may
 #    fail to switch the backend and raise an ImportError.
 #
 #    Using `~matplotlib.use` will require changes in your code if users want to
@@ -357,16 +357,16 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # By default, Matplotlib should automatically select a default backend which
 # allows both interactive work and plotting from scripts, with output to the
-# screen and/or to a file, so at least initially you will not need to worry
+# screen and/or to a file, so at least initially, you will not need to worry
 # about the backend.  The most common exception is if your Python distribution
-# comes without :mod:`tkinter` and you have no other GUI toolkit installed;
-# this happens on certain Linux distributions, where you need to install a
+# comes without :mod:`tkinter` and you have no other GUI toolkit installed.
+# This happens on certain Linux distributions, where you need to install a
 # Linux package named ``python-tk`` (or similar).
 #
 # If, however, you want to write graphical user interfaces, or a web
 # application server (:ref:`howto-webapp`), or need a better
 # understanding of what is going on, read on. To make things a little
-# more customizable for graphical user interfaces, matplotlib separates
+# more customizable for graphical user interfaces, Matplotlib separates
 # the concept of the renderer (the thing that actually does the drawing)
 # from the canvas (the place where the drawing goes).  The canonical
 # renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
@@ -383,7 +383,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # generate a pixel representation of the line whose accuracy depends on a
 # DPI setting.
 #
-# Here is a summary of the matplotlib renderers (there is an eponymous
+# Here is a summary of the Matplotlib renderers (there is an eponymous
 # backend for each; these are *non-interactive backends*, capable of
 # writing to a file):
 #
@@ -484,7 +484,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ``pyside`` to use ``PyQt4`` or ``PySide``, respectively.
 #
 # Since the default value for the bindings to be used is ``PyQt4``, Matplotlib
-# first tries to import it, if the import fails, it tries to import ``PySide``.
+# first tries to import it. If the import fails, it tries to import ``PySide``.
 #
 # Using non-builtin backends
 # --------------------------
@@ -505,20 +505,20 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # and whether a script or shell session continues after a plot
 # is drawn on the screen, depends on the functions and methods
 # that are called, and on a state variable that determines whether
-# matplotlib is in "interactive mode".  The default Boolean value is set
+# Matplotlib is in "interactive mode".  The default Boolean value is set
 # by the :file:`matplotlibrc` file, and may be customized like any other
 # configuration parameter (see :doc:`/tutorials/introductory/customizing`).  It
 # may also be set via :func:`matplotlib.interactive`, and its
 # value may be queried via :func:`matplotlib.is_interactive`.  Turning
 # interactive mode on and off in the middle of a stream of plotting
 # commands, whether in a script or in a shell, is rarely needed
-# and potentially confusing, so in the following we will assume all
+# and potentially confusing. In the following, we will assume all
 # plotting is done with interactive mode either on or off.
 #
 # .. note::
 #    Major changes related to interactivity, and in particular the
 #    role and behavior of :func:`~matplotlib.pyplot.show`, were made in the
-#    transition to matplotlib version 1.0, and bugs were fixed in
+#    transition to Matplotlib version 1.0, and bugs were fixed in
 #    1.0.1.  Here we describe the version 1.0.1 behavior for the
 #    primary interactive backends, with the partial exception of
 #    *macosx*.
@@ -558,7 +558,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     ax.plot([3.1, 2.2])
 #
 # If you are using certain backends (like ``macosx``), or an older version
-# of matplotlib, you may not see the new line added to the plot immediately.
+# of Matplotlib, you may not see the new line added to the plot immediately.
 # In this case, you need to explicitly call :func:`~matplotlib.pyplot.draw`
 # in order to update the plot::
 #
@@ -610,7 +610,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #         plt.plot(np.random.rand(10))
 #         plt.show()
 #
-# which makes three plots, one at a time. I.e. the second plot will show up,
+# This makes three plots, one at a time. I.e., the second plot will show up
 # once the first plot is closed.
 #
 # Summary
@@ -714,7 +714,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 #   plt.plot(x, y, markevery=10)
 #
-# The markevery argument allows for naive subsampling, or an
+# The ``markevery`` argument allows for naive subsampling, or an
 # attempt at evenly spaced (along the *x* axis) sampling. See the
 # :doc:`/gallery/lines_bars_and_markers/markevery_demo`
 # for more information.
@@ -776,7 +776,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #   import matplotlib.style as mplstyle
 #   mplstyle.use('fast')
 #
-# It is very light weight, so it plays nicely with other
+# It is very lightweight, so it plays nicely with other
 # styles, just make sure the fast style is applied last
 # so that other styles do not overwrite the settings::
 #
