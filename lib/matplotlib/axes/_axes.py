@@ -6154,7 +6154,7 @@ default: :rc:`scatter.edgecolors`
         if shading is None:
             shading = rcParams['pcolor.shading']
         shading = shading.lower()
-        kwargs.setdefault('edgecolors', 'None')
+        kwargs.setdefault('edgecolors', 'none')
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
                                             shading=shading, kwargs=kwargs)
