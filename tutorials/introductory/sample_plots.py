@@ -243,7 +243,7 @@ GUI widgets
 Matplotlib has basic GUI widgets that are independent of the graphical
 user interface you are using, allowing you to write cross GUI figures
 and widgets.  See :mod:`matplotlib.widgets` and the
-`widget examples <../../gallery/index.html>`_.
+`widget examples <../../gallery/index.html#widgets>`_.
 
 .. figure:: ../../gallery/widgets/images/sphx_glr_slider_demo_001.png
    :target: ../../gallery/widgets/slider_demo.html
