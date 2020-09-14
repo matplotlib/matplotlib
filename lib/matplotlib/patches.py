@@ -4145,9 +4145,6 @@ default: 'arc3'
             self.get_linewidth() * dpi_cor,
             self.get_mutation_aspect())
 
-        # if not fillable:
-        #    self._fill = False
-
         return _path, fillable
 
     def draw(self, renderer):

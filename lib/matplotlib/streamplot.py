@@ -117,7 +117,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         line_colors = []
         color = np.ma.masked_invalid(color)
     else:
-        line_kw['color'] = color
+        line_kw['colors'] = color
         arrow_kw['color'] = color
 
     if isinstance(linewidth, np.ndarray):

@@ -168,7 +168,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
         self._linewidths = [0]
-        self._is_filled = True  # May be modified by set_facecolor().
+        # Flags: do colors come from mapping an array?
+        self._face_is_mapped = True
+        self._edge_is_mapped = False
 
         self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
@@ -757,12 +759,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = mpl.rcParams['patch.facecolor']
 
-        self._is_filled = True
-        try:
-            if c.lower() == 'none':
-                self._is_filled = False
-        except AttributeError:
-            pass
         self._facecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
 
@@ -778,6 +774,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         c : color or list of colors
         """
+        if isinstance(c, str) and c.lower() in ("none", "face"):
+            c = c.lower()
         self._original_facecolor = c
         self._set_facecolor(c)
 
@@ -790,35 +788,28 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._edgecolors
 
-    def _set_edgecolor(self, c):
+    def _set_edgecolor(self, c, default=None):
         set_hatch_color = True
         if c is None:
-            if (mpl.rcParams['patch.force_edgecolor'] or
-                    not self._is_filled or self._edge_default):
-                c = mpl.rcParams['patch.edgecolor']
+            if default is None:
+                if (mpl.rcParams['patch.force_edgecolor'] or
+                        not self._face_is_mapped or self._edge_default):
+                    c = mpl.rcParams['patch.edgecolor']
+                else:
+                    c = 'none'
+                    set_hatch_color = False
             else:
-                c = 'none'
-                set_hatch_color = False
-
-        self._is_stroked = True
-        try:
-            if c.lower() == 'none':
-                self._is_stroked = False
-        except AttributeError:
-            pass
-
-        try:
-            if c.lower() == 'face':   # Special case: lookup in "get" method.
-                self._edgecolors = 'face'
-                return
-        except AttributeError:
-            pass
+                c = default
+        if isinstance(c, str) and c == 'face':
+            self._edgecolors = 'face'
+            self.stale = True
+            return
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
         if set_hatch_color and len(self._edgecolors):
             self._hatch_color = tuple(self._edgecolors[0])
         self.stale = True
 
-    def set_edgecolor(self, c):
+    def set_edgecolor(self, c, default=None):
         """
         Set the edgecolor(s) of the collection.
 
@@ -828,8 +819,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
             The collection edgecolor(s).  If a sequence, the patches cycle
             through it.  If 'face', match the facecolor.
         """
+        # We pass through a default value for use in LineCollection.
+        # This allows us to maintain None as the default indicator in
+        # _original_edgecolor.
+        if isinstance(c, str) and c.lower() in ("none", "face"):
+            c = c.lower()
         self._original_edgecolor = c
-        self._set_edgecolor(c)
+        self._set_edgecolor(c, default=default)
 
     def set_alpha(self, alpha):
         """
@@ -856,9 +852,36 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_linestyle(self):
         return self._linestyles
 
-    def update_scalarmappable(self):
-        """Update colors from the scalar mappable array, if it is not None."""
+    def _set_mappable_flags(self):
         if self._A is None:
+            self._edge_is_mapped = False
+            self._face_is_mapped = False
+            return False  # Nothing to map
+
+        # Typical mapping: centers, not edges.
+        self._face_is_mapped = True
+        self._edge_is_mapped = False
+
+        # Make the colors None or a string. (If None, it is a default.)
+        fc = self._original_facecolor
+        if not (fc is None or isinstance(fc, str)):
+            fc = 'array'
+        ec = self._original_edgecolor
+        if not(ec is None or isinstance(ec, str)):
+            ec = 'array'
+
+        # Handle special cases.
+        if fc == 'none':
+            self._face_is_mapped = False
+            if ec in ('face', 'none', None):
+                self._edge_is_mapped = True
+        if ec == 'face':
+            self._edge_is_mapped = self._face_is_mapped
+        return self._face_is_mapped or self._edge_is_mapped
+
+    def update_scalarmappable(self):
+        """Update colors from the scalar mappable array, if any."""
+        if not self._set_mappable_flags():
             return
         # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
         if self._A.ndim > 1 and not isinstance(self, QuadMesh):
@@ -877,15 +900,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # pcolormesh, scatter, maybe others flatten their _A
             self._alpha = self._alpha.reshape(self._A.shape)
 
-        if self._is_filled:
+        if self._face_is_mapped:
             self._facecolors = self.to_rgba(self._A, self._alpha)
-        elif self._is_stroked:
+        if self._edge_is_mapped:
             self._edgecolors = self.to_rgba(self._A, self._alpha)
         self.stale = True
 
+    @cbook.deprecated("3.4")
     def get_fill(self):
-        """Return whether fill is set."""
-        return self._is_filled
+        """Return whether facecolor is currently mapped."""
+        return self._face_is_mapped
 
     def update_from(self, other):
         """Copy properties from other to self."""
@@ -1396,30 +1420,31 @@ class LineCollection(Collection):
            "interior" can be specified by appropriate usage of
            `~.path.Path.CLOSEPOLY`.
         **kwargs
-            Forwareded to `.Collection`.
+            Forwarded to `.Collection`.
         """
-        if colors is None:
-            colors = mpl.rcParams['lines.color']
-        if linewidths is None:
-            linewidths = (mpl.rcParams['lines.linewidth'],)
-        if antialiaseds is None:
-            antialiaseds = (mpl.rcParams['lines.antialiased'],)
+        kw_plural = dict(linewidths=linewidths,
+                         colors=colors,
+                         facecolors=facecolors,
+                         antialiaseds=antialiaseds,
+                         linestyles=linestyles,)
 
-        colors = mcolors.to_rgba_array(colors)
+        kw = {k: kwargs.pop(k[:-1], val) for k, val in kw_plural.items()}
+        kw.update(kwargs)
+        colors = kw.pop('colors')
+        if kw['linewidths'] is None:
+            kw['linewidths'] = (mpl.rcParams['lines.linewidth'],)
+        if kw['antialiaseds'] is None:
+            kw['antialiaseds'] = (mpl.rcParams['lines.antialiased'],)
+
         super().__init__(
-            edgecolors=colors,
-            facecolors=facecolors,
-            linewidths=linewidths,
-            linestyles=linestyles,
-            antialiaseds=antialiaseds,
             offsets=offsets,
             transOffset=transOffset,
             norm=norm,
             cmap=cmap,
             zorder=zorder,
-            **kwargs)
-
+            **kw)
         self.set_segments(segments)
+        self.set_color(colors)  # sets edgecolors, including default
 
     def set_segments(self, segments):
         if segments is None:
@@ -1477,12 +1502,11 @@ class LineCollection(Collection):
         Parameters
         ----------
         c : color or list of colors
-            Single color (all patches have same color), or a
-            sequence of rgba tuples; if it is a sequence the patches will
+            Single color (all lines have same color), or a
+            sequence of rgba tuples; if it is a sequence the lines will
             cycle through the sequence.
         """
-        self.set_edgecolor(c)
-        self.stale = True
+        self.set_edgecolor(c, default=mpl.rcParams['lines.color'])
 
     def get_color(self):
         return self._edgecolors
@@ -1857,7 +1881,7 @@ class TriMesh(Collection):
         super().__init__(**kwargs)
         self._triangulation = triangulation
         self._shading = 'gouraud'
-        self._is_filled = True
+        self._face_is_mapped = True
 
         self._bbox = transforms.Bbox.unit()
 
