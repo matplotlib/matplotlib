@@ -2048,6 +2048,16 @@ class QuadMesh(Collection):
     def get_datalim(self, transData):
         return (self.get_transform() - transData).transform_bbox(self._bbox)
 
+    def get_coordinates(self):
+        """
+        Return the vertices of the mesh as an (M+1, N+1, 2) array.
+
+        M, N are the number of quadrilaterals in the rows / columns of the
+        mesh, corresponding to (M+1, N+1) vertices.
+        The last dimension specifies the components (x, y).
+        """
+        return self._coordinates
+
     @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         """
