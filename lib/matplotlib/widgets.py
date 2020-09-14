@@ -1997,13 +1997,18 @@ class RectangleSelector(_SelectorWidget):
             drawtype = 'line'
             self.visible = False
 
+        lim = ax.dataLim
+        if np.isfinite([lim.x0, lim.y0, lim.width, lim.height]).all():
+            xy = lim.x0 + lim.width / 2., lim.y0 + lim.height / 2.
+        else:
+            xy = 0, 0
         if drawtype == 'box':
             if rectprops is None:
                 rectprops = dict(facecolor='red', edgecolor='black',
                                  alpha=0.2, fill=True)
             rectprops['animated'] = self.useblit
             self.rectprops = rectprops
-            self.to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
+            self.to_draw = self._shape_klass(xy, 0, 0, visible=False,
                                              **self.rectprops)
             self.ax.add_patch(self.to_draw)
         if drawtype == 'line':
@@ -2012,7 +2017,7 @@ class RectangleSelector(_SelectorWidget):
                                  linewidth=2, alpha=0.5)
             lineprops['animated'] = self.useblit
             self.lineprops = lineprops
-            self.to_draw = Line2D([0, 0], [0, 0], visible=False,
+            self.to_draw = Line2D(xy, xy, visible=False,
                                   **self.lineprops)
             self.ax.add_line(self.to_draw)
 

@@ -44,6 +44,20 @@ def test_rectangle_selector():
     check_rectangle(rectprops=dict(fill=True))
 
 
+def test_rectangle_selector_limits():
+    fig, ax = plt.subplots(1, 1)
+    xlim, ylim = [-4, -3], [-2, -1]
+    ax.plot(xlim, ylim)
+    ax.set_aspect(1.0)
+    ax.figure.canvas.draw()
+    ax.autoscale_view()
+    assert_allclose(ax.get_xlim(), xlim)
+    assert_allclose(ax.get_ylim(), ylim)
+    _ = widgets.RectangleSelector(ax, lambda a, b: None)
+    assert_allclose(ax.get_xlim(), xlim)
+    assert_allclose(ax.get_ylim(), ylim)
+
+
 def test_ellipse():
     """For ellipse, test out the key modifiers"""
     ax = get_ax()
