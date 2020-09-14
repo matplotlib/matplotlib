@@ -5630,6 +5630,15 @@ default: :rc:`scatter.edgecolors`
                     # helper for below
                     if np.shape(X)[1] > 1:
                         dX = np.diff(X, axis=1)/2.
+                        if not (np.all(dX >= 0) or np.all(dX <= 0)):
+                            cbook._warn_external(
+                                f"The input coordinates to {funcname} are "
+                                "not all either increasing or decreasing, "
+                                "the automatically computed edges can "
+                                "produce misleading results in this case. "
+                                "It is recommended to supply the "
+                                f"quadrilateral edges to {funcname}"
+                                f" yourself. See help({funcname}).")
                         X = np.hstack((X[:, [0]] - dX[:, [0]],
                                        X[:, :-1] + dX,
                                        X[:, [-1]] + dX[:, [-1]]))
