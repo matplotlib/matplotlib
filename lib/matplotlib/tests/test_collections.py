@@ -777,3 +777,18 @@ def test_color_logic(pcfunc):
     pc.update_scalarmappable()
     assert pc.get_facecolor().shape == (12, 4)  # color-mapped
     assert pc.get_edgecolor().shape == (1, 4)  # not color-mapped
+    # Give color via tuple rather than string.
+    pc = pcfunc(z, edgecolors=(1, 0, 0), facecolors=(0, 1, 0))
+    assert_array_equal(pc.get_facecolor(), [[0, 1, 0, 1]])
+    assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 1]])
+
+
+def test_array_wrong_dimensions():
+    z = np.arange(12).reshape(3, 4)
+    pc = plt.pcolor(z)
+    with pytest.raises(ValueError, match="^Collections can only map"):
+        pc.set_array(z)
+        pc.update_scalarmappable()
+    pc = plt.pcolormesh(z)
+    pc.set_array(z)  # 2D is OK for Quadmesh
+    pc.update_scalarmappable()

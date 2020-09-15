@@ -788,18 +788,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._edgecolors
 
-    def _set_edgecolor(self, c, default=None):
+    def _get_default_edgecolor(self):
+        return mpl.rcParams['patch.edgecolor']
+
+    def _set_edgecolor(self, c):
         set_hatch_color = True
         if c is None:
-            if default is None:
-                if (mpl.rcParams['patch.force_edgecolor'] or
-                        not self._face_is_mapped or self._edge_default):
-                    c = mpl.rcParams['patch.edgecolor']
-                else:
-                    c = 'none'
-                    set_hatch_color = False
+            if (mpl.rcParams['patch.force_edgecolor'] or self._edge_default):
+                c = self._get_default_edgecolor()
             else:
-                c = default
+                c = 'none'
+                set_hatch_color = False
         if isinstance(c, str) and c == 'face':
             self._edgecolors = 'face'
             self.stale = True
@@ -809,7 +808,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._hatch_color = tuple(self._edgecolors[0])
         self.stale = True
 
-    def set_edgecolor(self, c, default=None):
+    def set_edgecolor(self, c):
         """
         Set the edgecolor(s) of the collection.
 
@@ -825,7 +824,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if isinstance(c, str) and c.lower() in ("none", "face"):
             c = c.lower()
         self._original_edgecolor = c
-        self._set_edgecolor(c, default=default)
+        self._set_edgecolor(c)
 
     def set_alpha(self, alpha):
         """
@@ -1512,6 +1511,9 @@ class LineCollection(Collection):
                 segs[i] = segs[i] + offsets[io:io + 1]
         return segs
 
+    def _get_default_edgecolor(self):
+        return mpl.rcParams['lines.color']
+
     def set_color(self, c):
         """
         Set the color(s) of the LineCollection.
@@ -1523,7 +1525,7 @@ class LineCollection(Collection):
             sequence of rgba tuples; if it is a sequence the lines will
             cycle through the sequence.
         """
-        self.set_edgecolor(c, default=mpl.rcParams['lines.color'])
+        self.set_edgecolor(c)
 
     def get_color(self):
         return self._edgecolors
