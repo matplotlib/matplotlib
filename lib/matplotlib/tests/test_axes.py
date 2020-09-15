@@ -1180,7 +1180,8 @@ def test_pcolorargs():
     y = [-10, 10]
     X, Y = np.meshgrid(x, y)
     Z = np.zeros(X.shape)
-    with pytest.warns(UserWarning, match="The input coordinates"):
+    with pytest.warns(UserWarning,
+                      match='are not monotonically increasing or decreasing'):
         ax.pcolormesh(X, Y, Z, shading='auto')
 
 
