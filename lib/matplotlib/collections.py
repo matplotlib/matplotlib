@@ -171,7 +171,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Flags: do colors come from mapping an array?
         self._face_is_mapped = True
         self._edge_is_mapped = False
-
+        self._mapped_colors = None  # Calculated in update_scalarmappable
         self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
@@ -853,57 +853,74 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._linestyles
 
     def _set_mappable_flags(self):
+        edge0 = self._edge_is_mapped
+        face0 = self._face_is_mapped
         if self._A is None:
             self._edge_is_mapped = False
             self._face_is_mapped = False
-            return False  # Nothing to map
+            # return False  # Nothing to map
+        else:
+            # Typical mapping: centers, not edges.
+            self._face_is_mapped = True
+            self._edge_is_mapped = False
 
-        # Typical mapping: centers, not edges.
-        self._face_is_mapped = True
-        self._edge_is_mapped = False
+            # Make the colors None or a string. (If None, it is a default.)
+            fc = self._original_facecolor
+            if not (fc is None or isinstance(fc, str)):
+                fc = 'array'
+            ec = self._original_edgecolor
+            if not (ec is None or isinstance(ec, str)):
+                ec = 'array'
 
-        # Make the colors None or a string. (If None, it is a default.)
-        fc = self._original_facecolor
-        if not (fc is None or isinstance(fc, str)):
-            fc = 'array'
-        ec = self._original_edgecolor
-        if not(ec is None or isinstance(ec, str)):
-            ec = 'array'
+            # Handle special cases.
+            if fc == 'none':
+                self._face_is_mapped = False
+                if ec in ('face', 'none', None):
+                    self._edge_is_mapped = True
+            if ec == 'face':
+                self._edge_is_mapped = self._face_is_mapped
 
-        # Handle special cases.
-        if fc == 'none':
-            self._face_is_mapped = False
-            if ec in ('face', 'none', None):
-                self._edge_is_mapped = True
-        if ec == 'face':
-            self._edge_is_mapped = self._face_is_mapped
-        return self._face_is_mapped or self._edge_is_mapped
+        mapped = self._face_is_mapped or self._edge_is_mapped
+        changed = (self._edge_is_mapped != edge0
+                   or self._face_is_mapped != face0)
+        return mapped or changed
 
     def update_scalarmappable(self):
-        """Update colors from the scalar mappable array, if any."""
+        """
+        Update colors from the scalar mappable array, if any.
+
+        Assign colors to edges and faces based on the array and/or
+        colors that were directly set, as appropriate.
+        """
         if not self._set_mappable_flags():
             return
-        # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
-        if self._A.ndim > 1 and not isinstance(self, QuadMesh):
-            raise ValueError('Collections can only map rank 1 arrays')
-        if not self._check_update("array"):
-            return
-        if np.iterable(self._alpha):
-            if self._alpha.size != self._A.size:
-                raise ValueError(f'Data array shape, {self._A.shape} '
-                                 'is incompatible with alpha array shape, '
-                                 f'{self._alpha.shape}. '
-                                 'This can occur with the deprecated '
-                                 'behavior of the "flat" shading option, '
-                                 'in which a row and/or column of the data '
-                                 'array is dropped.')
-            # pcolormesh, scatter, maybe others flatten their _A
-            self._alpha = self._alpha.reshape(self._A.shape)
+        # Allow possibility to call 'self.set_array(None)'.
+        if self._check_update("array") and self._A is not None:
+            # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
+            if self._A.ndim > 1 and not isinstance(self, QuadMesh):
+                raise ValueError('Collections can only map rank 1 arrays')
+            if np.iterable(self._alpha):
+                if self._alpha.size != self._A.size:
+                    raise ValueError(
+                        f'Data array shape, {self._A.shape} '
+                        'is incompatible with alpha array shape, '
+                        f'{self._alpha.shape}. '
+                        'This can occur with the deprecated '
+                        'behavior of the "flat" shading option, '
+                        'in which a row and/or column of the data '
+                        'array is dropped.')
+                # pcolormesh, scatter, maybe others flatten their _A
+                self._alpha = self._alpha.reshape(self._A.shape)
+            self._mapped_colors = self.to_rgba(self._A, self._alpha)
 
         if self._face_is_mapped:
-            self._facecolors = self.to_rgba(self._A, self._alpha)
+            self._facecolors = self._mapped_colors
+        else:
+            self._set_facecolor(self._original_facecolor)
         if self._edge_is_mapped:
-            self._edgecolors = self.to_rgba(self._A, self._alpha)
+            self._edgecolors = self._mapped_colors
+        else:
+            self._set_edgecolor(self._original_edgecolor)
         self.stale = True
 
     @cbook.deprecated("3.4")
@@ -1881,7 +1898,6 @@ class TriMesh(Collection):
         super().__init__(**kwargs)
         self._triangulation = triangulation
         self._shading = 'gouraud'
-        self._face_is_mapped = True
 
         self._bbox = transforms.Bbox.unit()
 

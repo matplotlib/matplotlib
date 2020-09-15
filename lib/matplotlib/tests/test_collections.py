@@ -747,3 +747,33 @@ def test_legend_inverse_size_label_relationship():
     handle_sizes = [5 / x**2 for x in handle_sizes]
 
     assert_array_almost_equal(handle_sizes, legend_sizes, decimal=1)
+
+
+@pytest.mark.parametrize('pcfunc', [plt.pcolor, plt.pcolormesh])
+def test_color_logic(pcfunc):
+    z = np.arange(12).reshape(3, 4)
+    pc = pcfunc(z, edgecolors='red', facecolors='none')
+    assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 1]])
+    # Check setting attributes after initialization:
+    pc = pcfunc(z)
+    pc.set_facecolor('none')
+    pc.set_edgecolor('red')
+    assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 1]])
+    pc.set_alpha(0.5)
+    assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 0.5]])
+    pc.set_edgecolor(None)
+    pc.update_scalarmappable()
+    assert pc.get_edgecolor().shape == (12, 4)  # color-mapped
+    pc.set_facecolor(None)
+    pc.update_scalarmappable()
+    assert pc.get_facecolor().shape == (12, 4)  # color-mapped
+    assert pc.get_edgecolor().shape == (1, 4)  # no longer color-mapped
+    # Turn off colormapping entirely:
+    pc.set_array(None)
+    pc.update_scalarmappable()
+    assert pc.get_facecolor().shape == (1, 4)  # no longer color-mapped
+    # Turn it back on by restoring the array (must be 1D!):
+    pc.set_array(z.ravel())
+    pc.update_scalarmappable()
+    assert pc.get_facecolor().shape == (12, 4)  # color-mapped
+    assert pc.get_edgecolor().shape == (1, 4)  # not color-mapped
