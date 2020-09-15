@@ -5633,12 +5633,11 @@ default: :rc:`scatter.edgecolors`
                         if not (np.all(dX >= 0) or np.all(dX <= 0)):
                             cbook._warn_external(
                                 f"The input coordinates to {funcname} are "
-                                "not all either increasing or decreasing, "
-                                "the automatically computed edges can "
-                                "produce misleading results in this case. "
-                                "It is recommended to supply the "
-                                f"quadrilateral edges to {funcname}"
-                                f" yourself. See help({funcname}).")
+                                "interpreted as cell centers, but are not "
+                                "monotonically increasing or decreasing. "
+                                "This may lead to incorrectly calculated cell "
+                                "edges, in which case, please supply "
+                                f"explicit cell edges to {funcname}.")
                         X = np.hstack((X[:, [0]] - dX[:, [0]],
                                        X[:, :-1] + dX,
                                        X[:, [-1]] + dX[:, [-1]]))
