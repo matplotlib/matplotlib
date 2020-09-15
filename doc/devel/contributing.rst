@@ -89,13 +89,13 @@ use on a preexisting environment!
 
 A new environment can be set up with ::
 
-   python3 -mvenv /path/to/devel/env
+   python3 -mvenv <file folder location>
 
 and activated with one of the following::
 
-   source /path/to/devel/env/bin/activate  # Linux/macOS
-   /path/to/devel/env/Scripts/activate.bat  # Windows cmd.exe
-   /path/to/devel/env/Scripts/Activate.ps1  # Windows PowerShell
+   source <file folder location>/bin/activate  # Linux/macOS
+   <file folder location>\Scripts\activate.bat  # Windows cmd.exe
+   <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
 
 Whenever you plan to work on Matplotlib, remember to activate the development
 environment in your shell!
