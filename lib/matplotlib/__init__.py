@@ -104,7 +104,7 @@ import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import cbook, rcsetup
+from . import cbook, docstring, rcsetup
 from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import validate_backend, cycler
@@ -635,12 +635,17 @@ _deprecated_remain_as_none = {
 _all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
+@docstring.Substitution("\n".join(map("- {}".format, rcsetup._validators)))
 class RcParams(MutableMapping, dict):
     """
     A dictionary object including validation.
 
     Validating functions are defined and associated with rc parameters in
     :mod:`matplotlib.rcsetup`.
+
+    The list of rcParams is:
+
+    %s
 
     See Also
     --------
