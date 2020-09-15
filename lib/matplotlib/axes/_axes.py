@@ -31,36 +31,12 @@ import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
 from matplotlib import _preprocess_data, rcParams
-from matplotlib.axes._base import _AxesBase, _process_plot_format
+from matplotlib.axes._base import (
+    _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 _log = logging.getLogger(__name__)
-
-
-class _InsetLocator:
-    """
-    Axes locator for `.Axes.inset_axes`.
-
-    The locater is a callable object used in `.Axes.set_aspect` to compute the
-    axes location depending on the renderer.
-    """
-
-    def __init__(self, bounds, transform):
-        """
-        *bounds* (a ``[l, b, w, h]`` rectangle) and *transform* together
-        specify the position of the inset axes.
-        """
-        self._bounds = bounds
-        self._transform = transform
-
-    def __call__(self, ax, renderer):
-        # Subtracting transFigure will typically rely on inverted(), freezing
-        # the transform; thus, this needs to be delayed until draw time as
-        # transFigure may otherwise change after this is evaluated.
-        return mtransforms.TransformedBbox(
-            mtransforms.Bbox.from_bounds(*self._bounds),
-            self._transform - ax.figure.transFigure)
 
 
 # The axes module contains all the wrappers to plotting functions.
@@ -365,7 +341,7 @@ class Axes(_AxesBase):
         kwargs.setdefault('label', 'inset_axes')
 
         # This puts the rectangle into figure-relative coordinates.
-        inset_locator = _InsetLocator(bounds, transform)
+        inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
         inset_ax = Axes(self.figure, bounds, zorder=zorder, **kwargs)
         # this locator lets the axes move if in data coordinates.
