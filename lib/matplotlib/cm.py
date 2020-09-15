@@ -22,8 +22,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-import matplotlib.colors as colors
-import matplotlib.cbook as cbook
+from matplotlib import _api, colors, cbook
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
@@ -201,7 +200,7 @@ def get_cmap(name=None, lut=None):
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
         return name
-    cbook._check_in_list(sorted(_cmap_registry), name=name)
+    _api.check_in_list(sorted(_cmap_registry), name=name)
     if lut is None:
         return _cmap_registry[name]
     else:

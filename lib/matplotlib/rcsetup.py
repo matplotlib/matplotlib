@@ -22,7 +22,7 @@ import re
 
 import numpy as np
 
-from matplotlib import animation, cbook
+from matplotlib import _api, animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
@@ -590,13 +590,13 @@ def _deprecate_case_insensitive_join_cap(s):
 
 def validate_joinstyle(s):
     s = _deprecate_case_insensitive_join_cap(s)
-    cbook._check_in_list(['miter', 'round', 'bevel'], joinstyle=s)
+    _api.check_in_list(['miter', 'round', 'bevel'], joinstyle=s)
     return s
 
 
 def validate_capstyle(s):
     s = _deprecate_case_insensitive_join_cap(s)
-    cbook._check_in_list(['butt', 'round', 'projecting'], capstyle=s)
+    _api.check_in_list(['butt', 'round', 'projecting'], capstyle=s)
     return s
 
 

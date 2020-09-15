@@ -11,7 +11,7 @@ import types
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.cbook import _OrderedSet, _check_1d, index_of
 from matplotlib import docstring
 import matplotlib.colors as mcolors
@@ -1443,7 +1443,7 @@ class _AxesBase(martist.Artist):
         which the adjustments for aspect ratios are done sequentially
         and independently on each Axes as it is drawn.
         """
-        cbook._check_in_list(["box", "datalim"], adjustable=adjustable)
+        _api.check_in_list(["box", "datalim"], adjustable=adjustable)
         if share:
             axs = {*self._shared_x_axes.get_siblings(self),
                    *self._shared_y_axes.get_siblings(self)}
@@ -2941,7 +2941,7 @@ class _AxesBase(martist.Artist):
         """
         if len(kwargs):
             b = True
-        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
             self.xaxis.grid(b, which=which, **kwargs)
         if axis in ['y', 'both']:
@@ -3055,7 +3055,7 @@ class _AxesBase(martist.Artist):
             ax.locator_params(tight=True, nbins=4)
 
         """
-        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'both'], axis=axis)
         update_x = axis in ['x', 'both']
         update_y = axis in ['y', 'both']
         if update_x:
@@ -3129,7 +3129,7 @@ class _AxesBase(martist.Artist):
         also be red.  Gridlines will be red and translucent.
 
         """
-        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
             xkw.pop('left', None)
@@ -3212,7 +3212,7 @@ class _AxesBase(martist.Artist):
         else:
             loc = (loc if loc is not None
                    else mpl.rcParams['xaxis.labellocation'])
-        cbook._check_in_list(('left', 'center', 'right'), loc=loc)
+        _api.check_in_list(('left', 'center', 'right'), loc=loc)
         if loc == 'left':
             kwargs.update(x=0, horizontalalignment='left')
         elif loc == 'right':
@@ -3555,7 +3555,7 @@ class _AxesBase(martist.Artist):
         else:
             loc = (loc if loc is not None
                    else mpl.rcParams['yaxis.labellocation'])
-        cbook._check_in_list(('bottom', 'center', 'top'), loc=loc)
+        _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
         if loc == 'bottom':
             kwargs.update(y=0, horizontalalignment='left')
         elif loc == 'top':

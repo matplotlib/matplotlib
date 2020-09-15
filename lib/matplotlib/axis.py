@@ -9,6 +9,7 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.artist as martist
 import matplotlib.cbook as cbook
 import matplotlib.lines as mlines
@@ -206,7 +207,7 @@ class Tick(martist.Artist):
         else:
             mode = 'default'
             angle = labelrotation
-        cbook._check_in_list(['auto', 'default'], labelrotation=mode)
+        _api.check_in_list(['auto', 'default'], labelrotation=mode)
         self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
@@ -456,7 +457,7 @@ class XTick(Tick):
         """Set tick direction. Valid values are 'in', 'out', 'inout'."""
         if tickdir is None:
             tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
-        cbook._check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
+        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
@@ -819,7 +820,7 @@ class Axis(martist.Artist):
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
-        cbook._check_in_list(['major', 'minor', 'both'], which=which)
+        _api.check_in_list(['major', 'minor', 'both'], which=which)
         kwtrans = self._translate_tick_kw(kw)
 
         # the kwargs are stored in self._major/minor_tick_kw so that any
@@ -1249,7 +1250,7 @@ class Axis(martist.Artist):
             elif which == 'both':
                 return self.get_majorticklabels() + self.get_minorticklabels()
             else:
-                cbook._check_in_list(['major', 'minor', 'both'], which=which)
+                _api.check_in_list(['major', 'minor', 'both'], which=which)
         if minor:
             return self.get_minorticklabels()
         return self.get_majorticklabels()
@@ -1429,7 +1430,7 @@ class Axis(martist.Artist):
                                      'grid will be enabled.')
             b = True
         which = which.lower()
-        cbook._check_in_list(['major', 'minor', 'both'], which=which)
+        _api.check_in_list(['major', 'minor', 'both'], which=which)
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
 
         if which in ['minor', 'both']:
@@ -2174,8 +2175,8 @@ class XAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        cbook._check_in_list(['top', 'bottom', 'both', 'default', 'none'],
-                             position=position)
+        _api.check_in_list(['top', 'bottom', 'both', 'default', 'none'],
+                           position=position)
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
@@ -2461,8 +2462,8 @@ class YAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        cbook._check_in_list(['left', 'right', 'both', 'default', 'none'],
-                             position=position)
+        _api.check_in_list(['left', 'right', 'both', 'default', 'none'],
+                           position=position)
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)

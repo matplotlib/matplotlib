@@ -35,7 +35,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
-from matplotlib import cbook
+from matplotlib import _api, cbook
 
 
 _log = logging.getLogger(__name__)
@@ -797,8 +797,8 @@ class HTMLWriter(FileMovieWriter):
         extra_args = ()  # Don't lookup nonexistent rcParam[args_key].
         self.embed_frames = embed_frames
         self.default_mode = default_mode.lower()
-        cbook._check_in_list(['loop', 'once', 'reflect'],
-                             default_mode=self.default_mode)
+        _api.check_in_list(['loop', 'once', 'reflect'],
+                           default_mode=self.default_mode)
 
         # Save embed limit, which is given in MB
         if embed_limit is None:
@@ -812,8 +812,7 @@ class HTMLWriter(FileMovieWriter):
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
         outfile = Path(outfile)
-        cbook._check_in_list(['.html', '.htm'],
-                             outfile_extension=outfile.suffix)
+        _api.check_in_list(['.html', '.htm'], outfile_extension=outfile.suffix)
 
         self._saved_frames = []
         self._total_bytes = 0

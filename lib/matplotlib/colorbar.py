@@ -38,16 +38,11 @@ import textwrap
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
 import matplotlib.artist as martist
-import matplotlib.cbook as cbook
-import matplotlib.collections as collections
-import matplotlib.colors as colors
-import matplotlib.contour as contour
-import matplotlib.cm as cm
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.spines as mspines
-import matplotlib.ticker as ticker
 import matplotlib.transforms as mtransforms
 from matplotlib import docstring
 
@@ -438,12 +433,12 @@ class ColorbarBase:
                  label='',
                  ):
         cbook._check_isinstance([colors.Colormap, None], cmap=cmap)
-        cbook._check_in_list(
+        _api.check_in_list(
             ['vertical', 'horizontal'], orientation=orientation)
-        cbook._check_in_list(
+        _api.check_in_list(
             ['auto', 'left', 'right', 'top', 'bottom'],
             ticklocation=ticklocation)
-        cbook._check_in_list(
+        _api.check_in_list(
             ['uniform', 'proportional'], spacing=spacing)
 
         self.ax = ax
@@ -785,9 +780,9 @@ class ColorbarBase:
             if loc is None:
                 loc = mpl.rcParams['%saxis.labellocation' % _pos_xy]
         if self.orientation == 'vertical':
-            cbook._check_in_list(('bottom', 'center', 'top'), loc=loc)
+            _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
         else:
-            cbook._check_in_list(('left', 'center', 'right'), loc=loc)
+            _api.check_in_list(('left', 'center', 'right'), loc=loc)
         if loc in ['right', 'top']:
             kwargs[_pos_xy] = 1.
             kwargs['horizontalalignment'] = 'right'
@@ -1035,7 +1030,7 @@ class ColorbarBase:
         # Set the default value.
         extendlength = np.array([default, default])
         if isinstance(frac, str):
-            cbook._check_in_list(['auto'], extendfrac=frac.lower())
+            _api.check_in_list(['auto'], extendfrac=frac.lower())
             # Use the provided values when 'auto' is required.
             extendlength[:] = [automin, automax]
         elif frac is not None:

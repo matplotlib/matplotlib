@@ -78,7 +78,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import cbook, scale
+from matplotlib import _api, cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -2160,7 +2160,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
         'max': slice(0, -1),
         'neither': slice(0, None),
     }
-    cbook._check_in_list(slice_map, extend=extend)
+    _api.check_in_list(slice_map, extend=extend)
     color_slice = slice_map[extend]
 
     n_data_colors = len(levels) - 1

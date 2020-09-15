@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _pylab_helpers, cbook, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, cbook, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutgrid as layoutgrid
 
@@ -342,8 +342,8 @@ class GridSpecBase:
             cbook._warn_external(
                 "sharex argument to subplots() was an integer.  Did you "
                 "intend to use subplot() (without 's')?")
-        cbook._check_in_list(["all", "row", "col", "none"],
-                             sharex=sharex, sharey=sharey)
+        _api.check_in_list(["all", "row", "col", "none"],
+                           sharex=sharex, sharey=sharey)
         if subplot_kw is None:
             subplot_kw = {}
         # don't mutate kwargs passed by user...

@@ -9,7 +9,7 @@ import weakref
 
 import numpy as np
 
-from . import artist, cbook, docstring, rcParams
+from . import _api, artist, cbook, docstring, rcParams
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -256,7 +256,7 @@ class Text(Artist):
             aligned according to their horizontal and vertical alignments.  If
             ``"anchor"``, then alignment occurs before rotation.
         """
-        cbook._check_in_list(["anchor", "default", None], rotation_mode=m)
+        _api.check_in_list(["anchor", "default", None], rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 
@@ -956,7 +956,7 @@ class Text(Artist):
         ----------
         align : {'center', 'right', 'left'}
         """
-        cbook._check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
         self.stale = True
 
@@ -972,7 +972,7 @@ class Text(Artist):
         ----------
         align : {'left', 'right', 'center'}
         """
-        cbook._check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(['center', 'right', 'left'], align=align)
         self._multialignment = align
         self.stale = True
 
@@ -1194,7 +1194,7 @@ class Text(Artist):
         ----------
         align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
         """
-        cbook._check_in_list(
+        _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
             align=align)
         self._verticalalignment = align
@@ -1327,7 +1327,7 @@ class OffsetFrom:
         ----------
         unit : {'points', 'pixels'}
         """
-        cbook._check_in_list(["points", "pixels"], unit=unit)
+        _api.check_in_list(["points", "pixels"], unit=unit)
         self._unit = unit
 
     def get_unit(self):
