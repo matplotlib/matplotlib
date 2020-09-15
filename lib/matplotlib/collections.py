@@ -922,10 +922,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._set_edgecolor(self._original_edgecolor)
         self.stale = True
 
-    @cbook.deprecated("3.4")
     def get_fill(self):
-        """Return whether facecolor is currently mapped."""
-        return self._face_is_mapped
+        """Return whether face is colored."""
+        fill = not (isinstance(self._original_facecolor, str)
+                    and self._original_facecolor == "none")
+        return fill
 
     def update_from(self, other):
         """Copy properties from other to self."""

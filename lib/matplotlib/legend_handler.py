@@ -707,10 +707,8 @@ class HandlerPolyCollection(HandlerBase):
         legend_handle.set_edgecolor(first_color(edgecolor))
         facecolor = getattr(orig_handle, '_original_facecolor',
                             orig_handle.get_facecolor())
-        fillcolor = first_color(facecolor)
-        legend_handle.set_facecolor(fillcolor)
-        fill = not (isinstance(fillcolor, str) and fillcolor == "none")
-        legend_handle.set_fill(fill)
+        legend_handle.set_facecolor(first_color(facecolor))
+        legend_handle.set_fill(orig_handle.get_fill())
         legend_handle.set_hatch(orig_handle.get_hatch())
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))

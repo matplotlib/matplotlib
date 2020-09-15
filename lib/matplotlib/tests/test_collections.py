@@ -781,6 +781,14 @@ def test_color_logic(pcfunc):
     pc = pcfunc(z, edgecolors=(1, 0, 0), facecolors=(0, 1, 0))
     assert_array_equal(pc.get_facecolor(), [[0, 1, 0, 1]])
     assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 1]])
+    # Provide an RGB array.
+    pc = pcfunc(z, edgecolors=(1, 0, 0), facecolors=np.ones((12, 3)))
+    assert_array_equal(pc.get_facecolor(), np.ones((12, 4)))
+    assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 1]])
+    # And an RGBA array.
+    pc = pcfunc(z, edgecolors=(1, 0, 0), facecolors=np.ones((12, 4)))
+    assert_array_equal(pc.get_facecolor(), np.ones((12, 4)))
+    assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 1]])
 
 
 def test_array_wrong_dimensions():
