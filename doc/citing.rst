@@ -8,22 +8,11 @@ please acknowledge this fact by citing `J. D. Hunter, "Matplotlib: A 2D
 Graphics Environment", Computing in Science & Engineering, vol. 9, no. 3,
 pp. 90-95, 2007 <https://doi.org/10.1109/MCSE.2007.55>`_.
 
-.. code-block:: bibtex
+.. literalinclude:: MCSE.2007.55.bib
 
-   @Article{Hunter:2007,
-     Author    = {Hunter, J. D.},
-     Title     = {Matplotlib: A 2D graphics environment},
-     Journal   = {Computing in Science \& Engineering},
-     Volume    = {9},
-     Number    = {3},
-     Pages     = {90--95},
-     abstract  = {Matplotlib is a 2D graphics package used for Python for
-     application development, interactive scripting, and publication-quality
-     image generation across user interfaces and operating systems.},
-     publisher = {IEEE COMPUTER SOC},
-     doi       = {10.1109/MCSE.2007.55},
-     year      = 2007
-   }
+.. container:: sphx-glr-download
+
+   :download:`Download BibTeX bibliography file: MCSE.2007.55.bib <MCSE.2007.55.bib>`
 
 DOIs
 ----
