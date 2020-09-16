@@ -16,7 +16,6 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 """
 
 from collections.abc import MutableMapping
-import functools
 
 import numpy as np
 from numpy import ma
@@ -26,25 +25,6 @@ import matplotlib.colors as colors
 import matplotlib.cbook as cbook
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
-
-
-def _reverser(f, x):  # Deprecated, remove this at the same time as revcmap.
-    return f(1 - x)  # Toplevel helper for revcmap ensuring cmap picklability.
-
-
-@cbook.deprecated("3.2", alternative="Colormap.reversed()")
-def revcmap(data):
-    """Can only handle specification *data* in dictionary format."""
-    data_r = {}
-    for key, val in data.items():
-        if callable(val):
-            # Return a partial object so that the result is picklable.
-            valnew = functools.partial(_reverser, val)
-        else:
-            # Flip x and exchange the y values facing x = 0 and x = 1.
-            valnew = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(val)]
-        data_r[key] = valnew
-    return data_r
 
 
 LUTSIZE = mpl.rcParams['image.lut']
