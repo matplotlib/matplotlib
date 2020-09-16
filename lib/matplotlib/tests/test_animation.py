@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, rc_context
 from matplotlib import animation
 
 
@@ -136,26 +136,13 @@ WRITER_OUTPUT += [
     (writer, Path(output)) for writer, output in WRITER_OUTPUT]
 
 
-# Smoke test for saving animations.  In the future, we should probably
-# design more sophisticated tests which compare resulting frames a-la
-# matplotlib.testing.image_comparison
-@pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
-def test_save_animation_smoketest(tmpdir, writer, output):
-    if not animation.writers.is_available(writer):
-        pytest.skip("writer '%s' not available on this system" % writer)
+@pytest.fixture()
+def simple_animation():
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
     ax.set_xlim(0, 10)
     ax.set_ylim(-1, 1)
-
-    dpi = None
-    codec = None
-    if writer == 'ffmpeg':
-        # Issue #8253
-        fig.set_size_inches((10.85, 9.21))
-        dpi = 100.
-        codec = 'h264'
 
     def init():
         line.set_data([], [])
@@ -167,12 +154,57 @@ def test_save_animation_smoketest(tmpdir, writer, output):
         line.set_data(x, y)
         return line,
 
+    return dict(fig=fig, func=animate, init_func=init, frames=5)
+
+
+# Smoke test for saving animations.  In the future, we should probably
+# design more sophisticated tests which compare resulting frames a-la
+# matplotlib.testing.image_comparison
+@pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
+def test_save_animation_smoketest(tmpdir, writer, output, simple_animation):
+    if not animation.writers.is_available(writer):
+        pytest.skip("writer '%s' not available on this system" % writer)
+
+    dpi = None
+    codec = None
+    if writer == 'ffmpeg':
+        # Issue #8253
+        simple_animation['fig'].set_size_inches((10.85, 9.21))
+        dpi = 100.
+        codec = 'h264'
+
     # Use temporary directory for the file-based writers, which produce a file
     # per frame with known names.
     with tmpdir.as_cwd():
-        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
+        anim = animation.FuncAnimation(**simple_animation)
         anim.save(output, fps=30, writer=writer, bitrate=500, dpi=dpi,
                   codec=codec)
+
+
+@pytest.mark.parametrize('writer', [
+    pytest.param('ffmpeg',
+        marks=pytest.mark.skipif(
+            not animation.FFMpegWriter.isAvailable(),
+            reason='Requires FFMpeg')),
+    pytest.param('imagemagick',
+        marks=pytest.mark.skipif(
+            not animation.ImageMagickWriter.isAvailable(),
+            reason='Requires ImageMagick')),
+])
+@pytest.mark.parametrize('html, want', [
+    ('none', None),
+    ('html5', '<video width'),
+    ('jshtml', '<script ')
+])
+def test_animation_repr_html(writer, html, want, simple_animation):
+    anim = animation.FuncAnimation(**simple_animation)
+    with plt.rc_context({'animation.writer': writer,
+                         'animation.html': html}):
+        html = anim._repr_html_()
+    if want is None:
+        assert html is None
+    else:
+        assert want in html
 
 
 def test_no_length_frames():
