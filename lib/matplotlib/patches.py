@@ -1028,9 +1028,8 @@ class StepPatch(PathPatch):
         if self._edges.size - 1 != self._values.size:
             raise ValueError('Size mismatch between "values" and "edges". '
                              "Expected `len(values) + 1 == len(edges)`, but "
-                             "they are or lengths {} and {}".format(
-                                 self._edges.size, self._values.size)
-                             )
+                             f"`len(values) = {self._values.size}` and "
+                             f"`len(edges) = {self._edges.size}`.")
         verts, codes = [], []
         for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._values)):
             x = np.repeat(self._edges[idx0:idx1+1], 2)

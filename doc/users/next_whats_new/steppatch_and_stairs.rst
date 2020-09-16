@@ -1,5 +1,6 @@
-New `~.matplotlib.patches.StepPatch` artist and a `.pyplot.stairs` method
--------------------------------------------------------------------------
+New StepPatch artist and a stairs method
+----------------------------------------
+New `~.matplotlib.patches.StepPatch` artist and  `.pyplot.stairs` method.
 For both the artist and the function, the x-like edges input is one 
 longer than the y-like values input
 

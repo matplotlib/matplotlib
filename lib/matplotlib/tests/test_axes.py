@@ -1847,14 +1847,14 @@ def test_stairs_invalid_mismatch():
 
 @pytest.mark.xfail
 def test_stairs_invalid_update():
-    h = plt.stairs([1, 2], [0, 1])
-    h.set_edges(np.arange(5))
+    h = plt.stairs([1, 2], [0, 1, 2])
+    h.set_edges([1, np.nan, 2])
 
 
 @pytest.mark.xfail
 def test_stairs_invalid_update2():
-    h = plt.stairs([1, 2], [0, 1])
-    h.set_edges([1, np.nan, 2])
+    h = plt.stairs([1, 2], [0, 1, 2])
+    h.set_edges(np.arange(5))
 
 
 @image_comparison(['test_stairs_options.png'], remove_text=True)
