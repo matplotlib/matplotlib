@@ -752,7 +752,7 @@ class ZoomPanBase(ToolToggleBase):
         super().trigger(sender, event, data)
         new_navigate_mode = self.name.upper() if self.toggled else None
         for ax in self.figure.axes:
-            ax._navigate_mode = new_navigate_mode
+            ax.set_navigate_mode(new_navigate_mode)
 
     def scroll_zoom(self, event):
         # https://gist.github.com/tacaswell/3144287
