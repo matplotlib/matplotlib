@@ -440,13 +440,13 @@ class Patch3DCollection(PatchCollection):
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        super().set_facecolor(fcs)
 
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
-        PatchCollection.set_offsets(self, np.column_stack([vxs, vys]))
+        super().set_edgecolor(ecs)
+        super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
@@ -544,8 +544,8 @@ class Path3DCollection(PathCollection):
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
 
-        self.set_edgecolors(ecs)
-        self.set_facecolors(fcs)
+        super().set_edgecolor(ecs)
+        super().set_facecolor(fcs)
         self.set_sizes(sizes)
         self.set_linewidth(lws)
 
