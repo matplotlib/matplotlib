@@ -268,7 +268,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     # turn 2-D array into 1-D array
     if isinstance(c, np.ndarray):
         if c.ndim == 2 and c.shape[0] == 1:
-            c = c.reshape((-1))
+            c = c.reshape(-1)
     # tuple color.
     if not np.iterable(c):
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")

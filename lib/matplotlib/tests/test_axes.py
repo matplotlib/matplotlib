@@ -6590,7 +6590,7 @@ def test_sharing_does_not_link_positions():
     init_pos = ax1.get_position()
     fig.subplots_adjust(left=0)
     assert (ax1.get_position().get_points() == init_pos.get_points()).all()
-    
+
 
 @check_figures_equal(extensions=["pdf"])
 def test_2dcolor_plot(fig_test, fig_ref):

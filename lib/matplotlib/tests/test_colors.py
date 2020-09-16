@@ -1211,8 +1211,8 @@ def test_colormap_bad_data_with_alpha():
     assert_array_equal(c[0, 0], (0, 0, 0, 0))
     c = cmap([[np.nan, 0.5], [0, 0]], alpha=np.full((2, 2), 0.5))
     assert_array_equal(c[0, 0], (0, 0, 0, 0))
-    
-    
+
+
 def test_2d_to_rgba():
     color = np.array([0.1, 0.2, 0.3])
     rgba_1d = mcolors.to_rgba(color.reshape(-1))
