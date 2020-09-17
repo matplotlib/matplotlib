@@ -846,6 +846,14 @@ def test_mask_image():
     ax2.imshow(A, interpolation='nearest')
 
 
+def test_mask_image_all():
+    # Test behavior with an image that is entirely masked does not warn
+    data = np.full((2, 2), np.nan)
+    fig, ax = plt.subplots()
+    ax.imshow(data)
+    fig.canvas.draw_idle()  # would emit a warning
+
+
 @image_comparison(['imshow_endianess.png'], remove_text=True)
 def test_imshow_endianess():
     x = np.arange(10)
