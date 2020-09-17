@@ -2587,12 +2587,12 @@ class Axes(_AxesBase):
             if err is None:
                 endpt = extrema
             elif orientation == "vertical":
-                endpt = err[:, 1].max() if yc >= 0 else err[:, 1].min()
+                endpt = err[:, 1].max() if dat >= 0 else err[:, 1].min()
             elif orientation == "horizontal":
-                endpt = err[:, 0].max() if xc >= 0 else err[:, 0].min()
+                endpt = err[:, 0].max() if dat >= 0 else err[:, 0].min()
 
             if label_type == "center":
-                value = sign(extrema) * length
+                value = sign(dat) * length
             elif label_type == "edge":
                 value = extrema
 
@@ -2604,20 +2604,20 @@ class Axes(_AxesBase):
                 xy = endpt, yc
 
             if orientation == "vertical":
-                xytext = 0, sign(extrema) * padding
+                xytext = 0, sign(dat) * padding
             else:
-                xytext = sign(extrema) * padding, 0
+                xytext = sign(dat) * padding, 0
 
             if label_type == "center":
                 ha, va = "center", "center"
             elif label_type == "edge":
-                if orientation == "vertical" and yc >= 0:
+                if orientation == "vertical" and dat >= 0:
                     ha, va = "center", "bottom"
-                elif orientation == "vertical" and yc < 0:
+                elif orientation == "vertical" and dat < 0:
                     ha, va = "center", "top"
-                elif orientation == "horizontal" and xc >= 0:
+                elif orientation == "horizontal" and dat >= 0:
                     ha, va = "left", "center"
-                elif orientation == "horizontal" and xc < 0:
+                elif orientation == "horizontal" and dat < 0:
                     ha, va = "right", "center"
 
             annotation = self.annotate(fmt % value if lbl is None else lbl,
