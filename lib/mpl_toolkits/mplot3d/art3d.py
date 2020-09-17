@@ -511,6 +511,16 @@ class Path3DCollection(PathCollection):
         super().set_edgecolor(c)
         self._edgecolor3d = self.get_edgecolor()
 
+    def set_sizes(self, sizes, dpi=72.0):
+        # docstring inherited
+        super().set_sizes(sizes, dpi=dpi)
+        self._sizes3d = self.get_sizes()
+
+    def set_linewidth(self, lw):
+        # docstring inherited
+        super().set_linewidth(lw)
+        self._linewidth3d = self.get_linewidth()
+
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
@@ -546,8 +556,8 @@ class Path3DCollection(PathCollection):
 
         super().set_edgecolor(ecs)
         super().set_facecolor(fcs)
-        self.set_sizes(sizes)
-        self.set_linewidth(lws)
+        super().set_sizes(sizes)
+        super().set_linewidth(lws)
 
         PathCollection.set_offsets(self, vps)
 

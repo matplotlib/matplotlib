@@ -251,10 +251,12 @@ def test_scatter3d_modification(fig_ref, fig_test):
                         marker='o')
     c.set_facecolor('C1')
     c.set_edgecolor('C2')
+    c.set_sizes(np.full(10, 75))
+    c.set_linewidths(3)
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     ax_ref.scatter(np.arange(10), np.arange(10), np.arange(10), marker='o',
-                   facecolor='C1', edgecolor='C2')
+                   facecolor='C1', edgecolor='C2', s=75, linewidths=3)
 
 
 @pytest.mark.parametrize('depthshade', [True, False])
