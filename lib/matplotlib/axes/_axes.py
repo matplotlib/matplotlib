@@ -6740,6 +6740,73 @@ such objects
                           else "List[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
+    @_preprocess_data()
+    def stairs(self, values, edges=None, *,
+               orientation='vertical', baseline=0, fill=False, **kwargs):
+        """
+        A histogram-like line or filled plot.
+
+        Parameters
+        ----------
+        values : array-like
+            An array of y-values.
+
+        edges : array-like, default: ``range(len(vals)+1)``
+            A array of x-values, with ``len(edges) == len(vals) + 1``,
+            between which the curve takes on vals values.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+
+        baseline : float or None, default: 0
+            Determines starting value of the bounding edges or when
+            ``fill=True``, position of lower edge.
+
+        fill : bool, default: False
+
+        Returns
+        -------
+        StepPatch : `matplotlib.patches.StepPatch`
+
+        Other Parameters
+        ----------------
+        **kwargs
+            `~matplotlib.patches.StepPatch` properties
+
+        """
+
+        if 'color' in kwargs:
+            _color = kwargs.pop('color')
+        else:
+            _color = self._get_lines.get_next_color()
+        if fill:
+            kwargs.setdefault('edgecolor', 'none')
+            kwargs.setdefault('facecolor', _color)
+        else:
+            kwargs.setdefault('edgecolor', _color)
+
+        if edges is None:
+            edges = np.arange(len(values) + 1)
+
+        self._process_unit_info(xdata=edges, ydata=values, kwargs=kwargs)
+        edges = self.convert_xunits(edges)
+        values = self.convert_yunits(values)
+
+        patch = mpatches.StepPatch(values,
+                                   edges,
+                                   baseline=baseline,
+                                   orientation=orientation,
+                                   fill=fill,
+                                   **kwargs)
+        self.add_patch(patch)
+        if baseline is None:
+            baseline = 0
+        if orientation == 'vertical':
+            patch.sticky_edges.y.append(baseline)
+        else:
+            patch.sticky_edges.x.append(baseline)
+        self._request_autoscale_view()
+        return patch
+
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
