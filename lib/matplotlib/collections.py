@@ -1619,7 +1619,7 @@ class EventCollection(LineCollection):
         orientation : {'horizontal', 'vertical'}
         """
         try:
-            is_horizontal = cbook._check_getitem(
+            is_horizontal = _api.check_getitem(
                 {"horizontal": True, "vertical": False},
                 orientation=orientation)
         except ValueError:

@@ -24,7 +24,7 @@ except ImportError:
             "cairo backend requires that pycairo>=1.11.0 or cairocffi "
             "is installed") from err
 
-from .. import cbook, font_manager
+from .. import _api, cbook, font_manager
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
     GraphicsContextBase, RendererBase)
@@ -358,7 +358,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         # one for False.
 
     def set_capstyle(self, cs):
-        self.ctx.set_line_cap(cbook._check_getitem(self._capd, capstyle=cs))
+        self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))
         self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
@@ -401,7 +401,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         return self.ctx.get_source().get_rgba()[:3]
 
     def set_joinstyle(self, js):
-        self.ctx.set_line_join(cbook._check_getitem(self._joind, joinstyle=js))
+        self.ctx.set_line_join(_api.check_getitem(self._joind, joinstyle=js))
         self._joinstyle = js
 
     def set_linewidth(self, w):

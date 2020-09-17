@@ -1015,7 +1015,7 @@ class Axes3D(Axes):
         ----------
         proj_type : {'persp', 'ortho'}
         """
-        self._projection = cbook._check_getitem({
+        self._projection = _api.check_getitem({
             'persp': proj3d.persp_transformation,
             'ortho': proj3d.ortho_transformation,
         }, proj_type=proj_type)

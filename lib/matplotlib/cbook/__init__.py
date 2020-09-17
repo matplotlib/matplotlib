@@ -2281,28 +2281,6 @@ def _check_isinstance(_types, **kwargs):
                     type_name(type(v))))
 
 
-def _check_getitem(_mapping, **kwargs):
-    """
-    *kwargs* must consist of a single *key, value* pair.  If *key* is in
-    *_mapping*, return ``_mapping[value]``; else, raise an appropriate
-    ValueError.
-
-    Examples
-    --------
-    >>> cbook._check_getitem({"foo": "bar"}, arg=arg)
-    """
-    mapping = _mapping
-    if len(kwargs) != 1:
-        raise ValueError("_check_getitem takes a single keyword argument")
-    (k, v), = kwargs.items()
-    try:
-        return mapping[v]
-    except KeyError:
-        raise ValueError(
-            "{!r} is not a valid value for {}; supported values are {}"
-            .format(v, k, ', '.join(map(repr, mapping)))) from None
-
-
 class _classproperty:
     """
     Like `property`, but also triggers on access via the class, and it is the

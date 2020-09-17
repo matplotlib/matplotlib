@@ -2,7 +2,7 @@
 
 import operator
 
-from matplotlib import cbook
+from matplotlib import _api
 
 
 class UnitDbl:
@@ -48,7 +48,7 @@ class UnitDbl:
         - value     The numeric value of the UnitDbl.
         - units     The string name of the units the value is in.
         """
-        data = cbook._check_getitem(self.allowed, units=units)
+        data = _api.check_getitem(self.allowed, units=units)
         self._value = float(value * data[0])
         self._units = data[1]
 
@@ -68,7 +68,7 @@ class UnitDbl:
         """
         if self._units == units:
             return self._value
-        data = cbook._check_getitem(self.allowed, units=units)
+        data = _api.check_getitem(self.allowed, units=units)
         if self._units != data[1]:
             raise ValueError(f"Error trying to convert to different units.\n"
                              f"    Invalid conversion requested.\n"

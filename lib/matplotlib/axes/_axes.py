@@ -86,7 +86,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        title = cbook._check_getitem(titles, loc=loc.lower())
+        title = _api.check_getitem(titles, loc=loc.lower())
         return title.get_text()
 
     def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None,
@@ -149,7 +149,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        title = cbook._check_getitem(titles, loc=loc.lower())
+        title = _api.check_getitem(titles, loc=loc.lower())
         default = {
             'fontsize': rcParams['axes.titlesize'],
             'fontweight': rcParams['axes.titleweight'],
@@ -7195,7 +7195,7 @@ such objects
                                               pad_to=pad_to, sides=sides)
         freqs += Fc
 
-        yunits = cbook._check_getitem(
+        yunits = _api.check_getitem(
             {None: 'energy', 'default': 'energy', 'linear': 'energy',
              'dB': 'dB'},
             scale=scale)

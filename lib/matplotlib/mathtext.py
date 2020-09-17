@@ -24,7 +24,7 @@ import types
 import numpy as np
 from PIL import Image
 
-from matplotlib import cbook, colors as mcolors, rcParams, _mathtext
+from matplotlib import _api, cbook, colors as mcolors, rcParams, _mathtext
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
 # Backcompat imports, all are deprecated as of 3.4.
@@ -444,7 +444,7 @@ class MathTextParser:
 
         fontset_class = (
             _mathtext.StandardPsFonts if force_standard_ps_fonts
-            else cbook._check_getitem(
+            else _api.check_getitem(
                 self._font_type_mapping, fontset=prop.get_math_fontfamily()))
         backend = self._backend_mapping[self._output]()
         font_output = fontset_class(prop, backend)

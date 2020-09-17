@@ -3002,10 +3002,10 @@ class _AxesBase(martist.Artist):
                 raise ValueError("scilimits must be a sequence of 2 integers"
                                  ) from err
         STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None}
-        is_sci_style = cbook._check_getitem(STYLES, style=style)
+        is_sci_style = _api.check_getitem(STYLES, style=style)
         axis_map = {**{k: [v] for k, v in self._get_axis_map().items()},
                     'both': self._get_axis_list()}
-        axises = cbook._check_getitem(axis_map, axis=axis)
+        axises = _api.check_getitem(axis_map, axis=axis)
         try:
             for axis in axises:
                 if is_sci_style is not None:
