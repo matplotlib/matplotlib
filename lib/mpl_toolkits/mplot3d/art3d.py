@@ -809,7 +809,7 @@ def _zalpha(colors, zs):
     #        in all three dimensions. Otherwise, at certain orientations,
     #        the min and max zs are very close together.
     #        Should really normalize against the viewing depth.
-    if len(zs) == 0:
+    if len(colors) == 0 or len(zs) == 0:
         return np.zeros((0, 4))
     norm = Normalize(min(zs), max(zs))
     sats = 1 - norm(zs) * 0.7
