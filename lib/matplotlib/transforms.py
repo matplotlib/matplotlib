@@ -41,7 +41,7 @@ import math
 import numpy as np
 from numpy.linalg import inv
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
 from .path import Path
@@ -2920,5 +2920,5 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     elif units == 'inches':
         pass
     else:
-        cbook._check_in_list(['dots', 'points', 'inches'], units=units)
+        _api.check_in_list(['dots', 'points', 'inches'], units=units)
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)

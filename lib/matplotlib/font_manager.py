@@ -38,7 +38,7 @@ except ImportError:
     from dummy_threading import Timer
 
 import matplotlib as mpl
-from matplotlib import afm, cbook, ft2font, rcParams
+from matplotlib import _api, afm, cbook, ft2font, rcParams
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 from matplotlib.rcsetup import _validators
@@ -851,7 +851,7 @@ class FontProperties:
         """
         if style is None:
             style = rcParams['font.style']
-        cbook._check_in_list(['normal', 'italic', 'oblique'], style=style)
+        _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
     set_slant = set_style
 
@@ -861,7 +861,7 @@ class FontProperties:
         """
         if variant is None:
             variant = rcParams['font.variant']
-        cbook._check_in_list(['normal', 'small-caps'], variant=variant)
+        _api.check_in_list(['normal', 'small-caps'], variant=variant)
         self._variant = variant
 
     def set_weight(self, weight):
@@ -981,7 +981,7 @@ class FontProperties:
         valid_fonts = _validators['mathtext.fontset'].valid.values()
         # _check_in_list() Validates the parameter math_fontfamily as
         # if it were passed to rcParams['mathtext.fontset']
-        cbook._check_in_list(valid_fonts, math_fontfamily=fontfamily)
+        _api.check_in_list(valid_fonts, math_fontfamily=fontfamily)
         self._math_fontfamily = fontfamily
 
     def copy(self):

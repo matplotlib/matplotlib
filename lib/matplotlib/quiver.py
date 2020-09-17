@@ -20,7 +20,7 @@ import weakref
 import numpy as np
 from numpy import ma
 
-from matplotlib import cbook, docstring, font_manager
+from matplotlib import _api, cbook, docstring, font_manager
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
@@ -490,7 +490,7 @@ class Quiver(mcollections.PolyCollection):
         if pivot.lower() == 'mid':
             pivot = 'middle'
         self.pivot = pivot.lower()
-        cbook._check_in_list(self._PIVOT_VALS, pivot=self.pivot)
+        _api.check_in_list(self._PIVOT_VALS, pivot=self.pivot)
 
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', color)
@@ -744,7 +744,7 @@ class Quiver(mcollections.PolyCollection):
             # float first, as with 'mid'.
             X = X - X[:, 3, np.newaxis]
         elif self.pivot != 'tail':
-            cbook._check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
+            _api.check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
 
         tooshort = length < self.minlength
         if tooshort.any():

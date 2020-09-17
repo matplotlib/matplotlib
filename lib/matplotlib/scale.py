@@ -14,7 +14,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-from matplotlib import cbook, docstring
+from matplotlib import _api, cbook, docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
@@ -500,7 +500,7 @@ class LogitTransform(Transform):
     @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
         super().__init__()
-        cbook._check_in_list(['mask', 'clip'], nonpositive=nonpositive)
+        _api.check_in_list(['mask', 'clip'], nonpositive=nonpositive)
         self._nonpositive = nonpositive
         self._clip = {"clip": True, "mask": False}[nonpositive]
 
@@ -628,7 +628,7 @@ def scale_factory(scale, axis, **kwargs):
     axis : `matplotlib.axis.Axis`
     """
     scale = scale.lower()
-    cbook._check_in_list(_scale_mapping, scale=scale)
+    _api.check_in_list(_scale_mapping, scale=scale)
     return _scale_mapping[scale](axis, **kwargs)
 
 

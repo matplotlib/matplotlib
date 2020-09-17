@@ -30,7 +30,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
-from matplotlib import _preprocess_data, rcParams
+from matplotlib import _api, _preprocess_data, rcParams
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
@@ -2084,7 +2084,7 @@ class Axes(_AxesBase):
         -----
         .. [notes section required to get data note injection right]
         """
-        cbook._check_in_list(('pre', 'post', 'mid'), where=where)
+        _api.check_in_list(('pre', 'post', 'mid'), where=where)
         kwargs['drawstyle'] = 'steps-' + where
         return self.plot(x, y, *args, data=data, **kwargs)
 
@@ -2269,8 +2269,7 @@ class Axes(_AxesBase):
         # logic and drawing to bar(). It is considered internal and is
         # intentionally not mentioned in the docstring.
         orientation = kwargs.pop('orientation', 'vertical')
-        cbook._check_in_list(['vertical', 'horizontal'],
-                             orientation=orientation)
+        _api.check_in_list(['vertical', 'horizontal'], orientation=orientation)
         log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
         tick_labels = kwargs.pop('tick_label', None)
@@ -2334,7 +2333,7 @@ class Axes(_AxesBase):
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
-        cbook._check_in_list(['center', 'edge'], align=align)
+        _api.check_in_list(['center', 'edge'], align=align)
         if align == 'center':
             if orientation == 'vertical':
                 try:
@@ -2680,8 +2679,7 @@ class Axes(_AxesBase):
         if not 1 <= len(args) <= 5:
             raise TypeError('stem expected between 1 and 5 positional '
                             'arguments, got {}'.format(args))
-        cbook._check_in_list(['horizontal', 'vertical'],
-                             orientation=orientation)
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if len(args) == 1:
             heads, = args
@@ -5467,7 +5465,7 @@ default: :rc:`scatter.edgecolors`
 
         _valid_shading = ['gouraud', 'nearest', 'flat', 'auto']
         try:
-            cbook._check_in_list(_valid_shading, shading=shading)
+            _api.check_in_list(_valid_shading, shading=shading)
         except ValueError as err:
             cbook._warn_external(f"shading value '{shading}' not in list of "
                                  f"valid values {_valid_shading}. Setting "
@@ -6487,11 +6485,10 @@ such objects
             bins = rcParams['hist.bins']
 
         # Validate string inputs here to avoid cluttering subsequent code.
-        cbook._check_in_list(['bar', 'barstacked', 'step', 'stepfilled'],
-                             histtype=histtype)
-        cbook._check_in_list(['left', 'mid', 'right'], align=align)
-        cbook._check_in_list(['horizontal', 'vertical'],
-                             orientation=orientation)
+        _api.check_in_list(['bar', 'barstacked', 'step', 'stepfilled'],
+                           histtype=histtype)
+        _api.check_in_list(['left', 'mid', 'right'], align=align)
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if histtype == 'barstacked' and not stacked:
             stacked = True
@@ -7574,7 +7571,7 @@ such objects
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
-        cbook._check_in_list(["upper", "lower"], origin=origin)
+        _api.check_in_list(["upper", "lower"], origin=origin)
         if marker is None and markersize is None:
             Z = np.asarray(Z)
             mask = np.abs(Z) > precision

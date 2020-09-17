@@ -162,7 +162,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib import transforms as mtransforms
 
 _log = logging.getLogger(__name__)
@@ -2193,7 +2193,7 @@ class MaxNLocator(Locator):
             self._symmetric = kwargs.pop('symmetric')
         if 'prune' in kwargs:
             prune = kwargs.pop('prune')
-            cbook._check_in_list(['upper', 'lower', 'both', None], prune=prune)
+            _api.check_in_list(['upper', 'lower', 'both', None], prune=prune)
             self._prune = prune
         if 'min_n_ticks' in kwargs:
             self._min_n_ticks = max(1, kwargs.pop('min_n_ticks'))
@@ -2428,7 +2428,7 @@ class LogLocator(Locator):
         if subs is None:  # consistency with previous bad API
             self._subs = 'auto'
         elif isinstance(subs, str):
-            cbook._check_in_list(('all', 'auto'), subs=subs)
+            _api.check_in_list(('all', 'auto'), subs=subs)
             self._subs = subs
         else:
             try:

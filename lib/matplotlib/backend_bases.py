@@ -43,7 +43,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    backend_tools as tools, cbook, colors, textpath, tight_bbox,
+    _api, backend_tools as tools, cbook, colors, textpath, tight_bbox,
     transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
@@ -914,7 +914,7 @@ class GraphicsContextBase:
 
     def set_capstyle(self, cs):
         """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
-        cbook._check_in_list(['butt', 'round', 'projecting'], cs=cs)
+        _api.check_in_list(['butt', 'round', 'projecting'], cs=cs)
         self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
@@ -982,7 +982,7 @@ class GraphicsContextBase:
 
     def set_joinstyle(self, js):
         """Set the join style to be one of ('miter', 'round', 'bevel')."""
-        cbook._check_in_list(['miter', 'round', 'bevel'], js=js)
+        _api.check_in_list(['miter', 'round', 'bevel'], js=js)
         self._joinstyle = js
 
     def set_linewidth(self, w):

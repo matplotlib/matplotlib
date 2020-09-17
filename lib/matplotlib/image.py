@@ -13,6 +13,7 @@ import numpy as np
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -243,7 +244,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         if origin is None:
             origin = mpl.rcParams['image.origin']
-        cbook._check_in_list(["upper", "lower"], origin=origin)
+        _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
@@ -767,7 +768,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if s is None:
             s = mpl.rcParams['image.interpolation']
         s = s.lower()
-        cbook._check_in_list(_interpd_, interpolation=s)
+        _api.check_in_list(_interpd_, interpolation=s)
         self._interpolation = s
         self.stale = True
 

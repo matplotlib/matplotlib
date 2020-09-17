@@ -19,6 +19,7 @@ import textwrap
 import numpy as np
 
 from matplotlib import artist
+from matplotlib import _api
 import matplotlib.axes as maxes
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
@@ -1358,7 +1359,7 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
         """
-        cbook._check_in_list(['x', 'y', 'z', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
             super().tick_params(axis, **kwargs)
         if axis in ['z', 'both']:
@@ -2650,7 +2651,7 @@ pivot='tail', normalize=False, **kwargs)
         shaft_dt = np.array([0., length], dtype=float)
         arrow_dt = shaft_dt * arrow_length_ratio
 
-        cbook._check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
+        _api.check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
         if pivot == 'tail':
             shaft_dt -= length
         elif pivot == 'middle':

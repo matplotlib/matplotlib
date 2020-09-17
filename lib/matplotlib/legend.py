@@ -28,7 +28,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, docstring, colors
+from matplotlib import _api, cbook, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -65,7 +65,7 @@ class DraggableLegend(DraggableOffsetBox):
         """
         self.legend = legend
 
-        cbook._check_in_list(["loc", "bbox"], update=update)
+        _api.check_in_list(["loc", "bbox"], update=update)
         self._update = update
 
         super().__init__(legend, legend._legend_box, use_blit=use_blit)

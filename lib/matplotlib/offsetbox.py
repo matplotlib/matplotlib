@@ -24,7 +24,7 @@ Container classes for `.Artist`\s.
 
 import numpy as np
 
-from matplotlib import cbook, docstring, rcParams
+from matplotlib import _api, cbook, docstring, rcParams
 import matplotlib.artist as martist
 import matplotlib.path as mpath
 import matplotlib.text as mtext
@@ -99,7 +99,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         The left offsets of the boxes.
     """
     w_list, d_list = zip(*wd_list)  # d_list is currently not used.
-    cbook._check_in_list(["fixed", "expand", "equal"], mode=mode)
+    _api.check_in_list(["fixed", "expand", "equal"], mode=mode)
 
     if mode == "fixed":
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
@@ -155,7 +155,7 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
 
     if height is None:
         height = max(h for h, d in hd_list)
-    cbook._check_in_list(
+    _api.check_in_list(
         ["baseline", "left", "top", "right", "bottom", "center"], align=align)
 
     if align == "baseline":

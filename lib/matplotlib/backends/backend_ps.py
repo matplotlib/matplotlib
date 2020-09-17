@@ -18,7 +18,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, _path
+from matplotlib import _api, cbook, _path
 from matplotlib import _text_layout
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
@@ -815,7 +815,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        cbook._check_in_list(['auto', *papersize], papertype=papertype)
+        _api.check_in_list(['auto', *papersize], papertype=papertype)
 
         orientation = cbook._check_getitem(
             _Orientation, orientation=orientation.lower())

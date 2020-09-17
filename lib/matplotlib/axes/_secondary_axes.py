@@ -1,5 +1,6 @@
 import numpy as np
 
+from matplotlib import _api
 import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
@@ -69,7 +70,7 @@ class SecondaryAxis(_AxesBase):
             either 'top' or 'bottom' for orientation='x' or
             'left' or 'right' for orientation='y' axis.
         """
-        cbook._check_in_list(self._locstrings, align=align)
+        _api.check_in_list(self._locstrings, align=align)
         if align == self._locstrings[1]:  # Need to change the orientation.
             self._locstrings = self._locstrings[::-1]
         self.spines[self._locstrings[0]].set_visible(True)

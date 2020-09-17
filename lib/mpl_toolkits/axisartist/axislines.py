@@ -41,7 +41,7 @@ from the axis as some gridlines can never pass any axis.
 
 import numpy as np
 
-from matplotlib import cbook, rcParams
+from matplotlib import _api, cbook, rcParams
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
@@ -117,7 +117,7 @@ class AxisArtistHelper:
             nth_coord = along which coordinate value varies
             in 2d, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
             """
-            cbook._check_in_list(["left", "right", "bottom", "top"], loc=loc)
+            _api.check_in_list(["left", "right", "bottom", "top"], loc=loc)
             self._loc = loc
 
             if nth_coord is None:
