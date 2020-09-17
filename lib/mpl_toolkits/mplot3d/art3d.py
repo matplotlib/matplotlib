@@ -403,6 +403,22 @@ class Patch3DCollection(PatchCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
+    def get_depthshade(self):
+        return self._depthshade
+
+    def set_depthshade(self, depthshade):
+        """
+        Set whether depth shading is performed on collection members.
+
+        Parameters
+        ----------
+        depthshade : bool
+            Whether to shade the patches in order to give the appearance of
+            depth.
+        """
+        self._depthshade = depthshade
+        self.stale = True
+
     def set_facecolor(self, c):
         # docstring inherited
         super().set_facecolor(c)
@@ -499,6 +515,22 @@ class Path3DCollection(PathCollection):
         self._edgecolor3d = self.get_edgecolor()
         self._sizes3d = self.get_sizes()
         self._linewidth3d = self.get_linewidth()
+        self.stale = True
+
+    def get_depthshade(self):
+        return self._depthshade
+
+    def set_depthshade(self, depthshade):
+        """
+        Set whether depth shading is performed on collection members.
+
+        Parameters
+        ----------
+        depthshade : bool
+            Whether to shade the patches in order to give the appearance of
+            depth.
+        """
+        self._depthshade = depthshade
         self.stale = True
 
     def set_facecolor(self, c):

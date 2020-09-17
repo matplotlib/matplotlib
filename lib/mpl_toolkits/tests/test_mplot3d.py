@@ -251,12 +251,15 @@ def test_scatter3d_modification(fig_ref, fig_test):
                         marker='o')
     c.set_facecolor('C1')
     c.set_edgecolor('C2')
+    c.set_alpha([0.3, 0.7] * 5)
+    c.set_depthshade(False)
     c.set_sizes(np.full(10, 75))
     c.set_linewidths(3)
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     ax_ref.scatter(np.arange(10), np.arange(10), np.arange(10), marker='o',
-                   facecolor='C1', edgecolor='C2', s=75, linewidths=3)
+                   facecolor='C1', edgecolor='C2', alpha=[0.3, 0.7] * 5,
+                   depthshade=False, s=75, linewidths=3)
 
 
 @pytest.mark.parametrize('depthshade', [True, False])
@@ -552,10 +555,13 @@ def test_patch_collection_modification(fig_test, fig_ref):
     ax_test.add_collection3d(c)
     c.set_edgecolor('C2')
     c.set_facecolor('C3')
+    c.set_alpha(0.7)
+    c.set_depthshade(False)
 
     patch = Circle((0, 0), 0.05)
     c = art3d.Patch3DCollection([patch], linewidths=3,
-                                edgecolor='C2', facecolor='C3')
+                                edgecolor='C2', facecolor='C3', alpha=0.7,
+                                depthshade=False)
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     ax_ref.add_collection3d(c)
