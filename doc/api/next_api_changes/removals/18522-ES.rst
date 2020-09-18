@@ -1,3 +1,16 @@
 ``matplotlib.mlab``
 ~~~~~~~~~~~~~~~~~~~
 ``mlab.apply_window`` and ``mlab.stride_repeat`` have been removed.
+
+axisartist
+~~~~~~~~~~
+``mpl_toolkits.axisartist.grid_finder.GridFinderBase`` has been removed; use
+`.GridFinder` instead.
+
+``axisartist.axis_artist.BezierPath`` has been removed; use
+`.patches.PathPatch` instead.
+
+Returning a factor equal to None from axisartist Locators (which are **not**
+the same as "standard" tick Locators), or passing a factor equal to None
+to axisartist Formatters (which are **not** the same as "standard" tick
+Formatters) is no longer supported. Pass a factor equal to 1 instead.
