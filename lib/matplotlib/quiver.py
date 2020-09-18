@@ -352,7 +352,7 @@ class QuiverKey(martist.Artist):
         self.stale = False
 
     def _set_transform(self):
-        self.set_transform(cbook._check_getitem({
+        self.set_transform(_api.check_getitem({
             "data": self.Q.axes.transData,
             "axes": self.Q.axes.transAxes,
             "figure": self.Q.axes.figure.transFigure,

@@ -461,7 +461,7 @@ class ColorbarBase:
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
-        self._inside = cbook._check_getitem(
+        self._inside = _api.check_getitem(
             {'neither': slice(0, None), 'both': slice(1, -1),
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
@@ -1372,10 +1372,10 @@ class Colorbar(ColorbarBase):
 
 def _normalize_location_orientation(location, orientation):
     if location is None:
-        location = cbook._check_getitem(
+        location = _api.check_getitem(
             {None: "right", "vertical": "right", "horizontal": "bottom"},
             orientation=orientation)
-    loc_settings = cbook._check_getitem({
+    loc_settings = _api.check_getitem({
         "left":   {"location": "left", "orientation": "vertical",
                    "anchor": (1.0, 0.5), "panchor": (0.0, 0.5), "pad": 0.10},
         "right":  {"location": "right", "orientation": "vertical",
