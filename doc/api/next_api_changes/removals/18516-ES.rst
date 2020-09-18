@@ -3,7 +3,7 @@ Fonts
 ``font_manager.JSONEncoder`` has been removed. Use `.font_manager.json_dump` to
 dump a `.FontManager` instance.
 
-``font_manager.createFontList`` has been. `.font_manager.FontManager.addfont`
+``font_manager.createFontList`` has been removed. `.font_manager.FontManager.addfont`
 is now available to register a font at a given path.
 
 The ``as_str``, ``as_rgba_str``, ``as_array``, ``get_width`` and ``get_height``
