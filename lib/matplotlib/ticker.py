@@ -608,6 +608,13 @@ class ScalarFormatter(Formatter):
 
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
 
+    def _format_maybe_minus_and_locale(self, fmt, arg):
+        """
+        Format *arg* with *fmt*, applying unicode minus and locale if desired.
+        """
+        return self.fix_minus(locale.format_string(fmt, (arg,))
+                              if self._useLocale else fmt % arg)
+
     def get_useMathText(self):
         """
         Return whether to use fancy math formatting.
@@ -646,11 +653,7 @@ class ScalarFormatter(Formatter):
             xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
             if abs(xp) < 1e-8:
                 xp = 0
-            if self._useLocale:
-                s = locale.format_string(self.format, (xp,))
-            else:
-                s = self.format % xp
-            return self.fix_minus(s)
+            return self._format_maybe_minus_and_locale(self.format, xp)
 
     def set_scientific(self, b):
         """
@@ -730,19 +733,23 @@ class ScalarFormatter(Formatter):
                 (math.floor(math.log10(abs(value))) + 1 if value else 1)
                 - math.floor(math.log10(delta)))
             fmt = f"%-#.{sig_digits}g"
-        return (
-            self.fix_minus(
-                locale.format_string(fmt, (value,)) if self._useLocale else
-                fmt % value))
+        return self._format_maybe_minus_and_locale(fmt, value)
 
     def format_data(self, value):
         # docstring inherited
-        if self._useLocale:
-            s = locale.format_string('%1.10e', (value,))
+        e = math.floor(math.log10(abs(value)))
+        s = round(value / 10**e, 10)
+        exponent = self._format_maybe_minus_and_locale("%d", e)
+        significand = self._format_maybe_minus_and_locale(
+            "%d" if s % 1 == 0 else "%1.10f", s)
+        if e == 0:
+            return significand
+        elif self._useMathText or self._usetex:
+            exponent = "10^{%s}" % exponent
+            return (exponent if s == 1  # reformat 1x10^y as 10^y
+                    else rf"{significand} \times {exponent}")
         else:
-            s = '%1.10e' % value
-        s = self._formatSciNotation(s)
-        return self.fix_minus(s)
+            return f"{significand}e{exponent}"
 
     def get_offset(self):
         """
@@ -889,35 +896,6 @@ class ScalarFormatter(Formatter):
         self.format = '%1.' + str(sigfigs) + 'f'
         if self._usetex or self._useMathText:
             self.format = r'$\mathdefault{%s}$' % self.format
-
-    def _formatSciNotation(self, s):
-        # transform 1e+004 into 1e4, for example
-        if self._useLocale:
-            decimal_point = locale.localeconv()['decimal_point']
-            positive_sign = locale.localeconv()['positive_sign']
-        else:
-            decimal_point = '.'
-            positive_sign = '+'
-        tup = s.split('e')
-        try:
-            significand = tup[0].rstrip('0').rstrip(decimal_point)
-            sign = tup[1][0].replace(positive_sign, '')
-            exponent = tup[1][1:].lstrip('0')
-            if self._useMathText or self._usetex:
-                if significand == '1' and exponent != '':
-                    # reformat 1x10^y as 10^y
-                    significand = ''
-                if exponent:
-                    exponent = '10^{%s%s}' % (sign, exponent)
-                if significand and exponent:
-                    return r'%s{\times}%s' % (significand, exponent)
-                else:
-                    return r'%s%s' % (significand, exponent)
-            else:
-                s = ('%se%s%s' % (significand, sign, exponent)).rstrip('e')
-                return s
-        except IndexError:
-            return s
 
 
 class LogFormatter(Formatter):
