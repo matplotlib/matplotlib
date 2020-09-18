@@ -148,3 +148,12 @@ def test_partial_usetex(caplog):
     plt.savefig(io.BytesIO(), format="ps")
     assert caplog.records and all("as if usetex=False" in record.getMessage()
                                   for record in caplog.records)
+
+
+@image_comparison(["useafm.eps"])
+def test_useafm():
+    mpl.rcParams["ps.useafm"] = True
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+    ax.axhline(.5)
+    ax.text(.5, .5, "qk")
