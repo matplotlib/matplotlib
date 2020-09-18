@@ -567,60 +567,6 @@ def afmFontProperty(fontpath, font):
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
-@cbook.deprecated("3.2", alternative="FontManager.addfont")
-def createFontList(fontfiles, fontext='ttf'):
-    """
-    Create a font lookup list.  The default is to create
-    a list of TrueType fonts.  An AFM font list can optionally be
-    created.
-    """
-
-    fontlist = []
-    #  Add fonts from list of known font files.
-    seen = set()
-    for fpath in fontfiles:
-        _log.debug('createFontDict: %s', fpath)
-        fname = os.path.split(fpath)[1]
-        if fname in seen:
-            continue
-        if fontext == 'afm':
-            try:
-                with open(fpath, 'rb') as fh:
-                    font = afm.AFM(fh)
-            except EnvironmentError:
-                _log.info("Could not open font file %s", fpath)
-                continue
-            except RuntimeError:
-                _log.info("Could not parse font file %s", fpath)
-                continue
-            try:
-                prop = afmFontProperty(fpath, font)
-            except KeyError as exc:
-                _log.info("Could not extract properties for %s: %s",
-                          fpath, exc)
-                continue
-        else:
-            try:
-                font = ft2font.FT2Font(fpath)
-            except (OSError, RuntimeError) as exc:
-                _log.info("Could not open font file %s: %s", fpath, exc)
-                continue
-            except UnicodeError:
-                _log.info("Cannot handle unicode filenames")
-                continue
-            try:
-                prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError,
-                    NotImplementedError) as exc:
-                _log.info("Could not extract properties for %s: %s",
-                          fpath, exc)
-                continue
-
-        fontlist.append(prop)
-        seen.add(fname)
-    return fontlist
-
-
 class FontProperties:
     """
     A class for storing and manipulating font properties.
@@ -1007,11 +953,6 @@ class _JSONEncoder(json.JSONEncoder):
             return d
         else:
             return super().default(o)
-
-
-@cbook.deprecated("3.2", alternative="json_dump")
-class JSONEncoder(_JSONEncoder):
-    pass
 
 
 def _json_decode(o):

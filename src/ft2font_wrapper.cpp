@@ -99,103 +99,6 @@ static PyObject *PyFT2Image_draw_rect_filled(PyFT2Image *self, PyObject *args, P
     Py_RETURN_NONE;
 }
 
-const char *PyFT2Image_as_str__doc__ =
-    "s = image.as_str()\n"
-    "\n"
-    "[*Deprecated*]\n"
-    "Return the image buffer as a string\n"
-    "\n";
-
-static PyObject *PyFT2Image_as_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    if (PyErr_WarnEx(PyExc_FutureWarning,
-                     "FT2Image.as_str is deprecated since Matplotlib 3.2 and "
-                     "will be removed in Matplotlib 3.4; convert the FT2Image "
-                     "to a NumPy array with np.asarray instead.",
-                     1)) {
-        return NULL;
-    }
-    return PyBytes_FromStringAndSize((const char *)self->x->get_buffer(),
-                                     self->x->get_width() * self->x->get_height());
-}
-
-const char *PyFT2Image_as_rgba_str__doc__ =
-    "s = image.as_rgba_str()\n"
-    "\n"
-    "[*Deprecated*]\n"
-    "Return the image buffer as a RGBA string\n"
-    "\n";
-
-static PyObject *PyFT2Image_as_rgba_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    if (PyErr_WarnEx(PyExc_FutureWarning,
-                     "FT2Image.as_rgba_str is deprecated since Matplotlib 3.2 and "
-                     "will be removed in Matplotlib 3.4; convert the FT2Image "
-                     "to a NumPy array with np.asarray instead.",
-                     1)) {
-        return NULL;
-    }
-    npy_intp dims[] = {(npy_intp)self->x->get_height(), (npy_intp)self->x->get_width(), 4 };
-    numpy::array_view<unsigned char, 3> result(dims);
-
-    unsigned char *src = self->x->get_buffer();
-    unsigned char *end = src + (self->x->get_width() * self->x->get_height());
-    unsigned char *dst = result.data();
-
-    while (src != end) {
-        *dst++ = 0;
-        *dst++ = 0;
-        *dst++ = 0;
-        *dst++ = *src++;
-    }
-
-    return result.pyobj();
-}
-
-const char *PyFT2Image_as_array__doc__ =
-    "x = image.as_array()\n"
-    "\n"
-    "[*Deprecated*]\n"
-    "Return the image buffer as a width x height numpy array of ubyte \n"
-    "\n";
-
-static PyObject *PyFT2Image_as_array(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    if (PyErr_WarnEx(PyExc_FutureWarning,
-                     "FT2Image.as_array is deprecated since Matplotlib 3.2 and "
-                     "will be removed in Matplotlib 3.4; convert the FT2Image "
-                     "to a NumPy array with np.asarray instead.",
-                     1)) {
-        return NULL;
-    }
-    npy_intp dims[] = {(npy_intp)self->x->get_height(), (npy_intp)self->x->get_width() };
-    return PyArray_SimpleNewFromData(2, dims, NPY_UBYTE, self->x->get_buffer());
-}
-
-static PyObject *PyFT2Image_get_width(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    if (PyErr_WarnEx(PyExc_FutureWarning,
-                     "FT2Image.get_width is deprecated since Matplotlib 3.2 and "
-                     "will be removed in Matplotlib 3.4; convert the FT2Image "
-                     "to a NumPy array with np.asarray instead.",
-                     1)) {
-        return NULL;
-    }
-    return PyLong_FromLong(self->x->get_width());
-}
-
-static PyObject *PyFT2Image_get_height(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    if (PyErr_WarnEx(PyExc_FutureWarning,
-                     "FT2Image.get_height is deprecated since Matplotlib 3.2 and "
-                     "will be removed in Matplotlib 3.4; convert the FT2Image "
-                     "to a NumPy array with np.asarray instead.",
-                     1)) {
-        return NULL;
-    }
-    return PyLong_FromLong(self->x->get_height());
-}
-
 static int PyFT2Image_get_buffer(PyFT2Image *self, Py_buffer *buf, int flags)
 {
     FT2Image *im = self->x;
@@ -227,11 +130,6 @@ static PyTypeObject *PyFT2Image_init_type(PyObject *m, PyTypeObject *type)
     static PyMethodDef methods[] = {
         {"draw_rect", (PyCFunction)PyFT2Image_draw_rect, METH_VARARGS, PyFT2Image_draw_rect__doc__},
         {"draw_rect_filled", (PyCFunction)PyFT2Image_draw_rect_filled, METH_VARARGS, PyFT2Image_draw_rect_filled__doc__},
-        {"as_str", (PyCFunction)PyFT2Image_as_str, METH_NOARGS, PyFT2Image_as_str__doc__},
-        {"as_rgba_str", (PyCFunction)PyFT2Image_as_rgba_str, METH_NOARGS, PyFT2Image_as_rgba_str__doc__},
-        {"as_array", (PyCFunction)PyFT2Image_as_array, METH_NOARGS, PyFT2Image_as_array__doc__},
-        {"get_width", (PyCFunction)PyFT2Image_get_width, METH_NOARGS, NULL},
-        {"get_height", (PyCFunction)PyFT2Image_get_height, METH_NOARGS, NULL},
         {NULL}
     };
 

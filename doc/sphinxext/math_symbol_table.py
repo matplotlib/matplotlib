@@ -1,7 +1,6 @@
 from docutils.parsers.rst import Directive
 
 from matplotlib import mathtext
-from matplotlib import cbook
 
 
 symbols = [
@@ -138,13 +137,6 @@ def run(state_machine):
 
     state_machine.insert_input(lines, "Symbol table")
     return []
-
-
-@cbook.deprecated("3.2", alternative="MathSymbolTableDirective")
-def math_symbol_table_directive(
-        name, arguments, options, content, lineno,
-        content_offset, block_text, state, state_machine):
-    return run(state_machine)
 
 
 class MathSymbolTableDirective(Directive):
