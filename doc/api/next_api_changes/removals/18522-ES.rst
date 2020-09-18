@@ -1,0 +1,3 @@
+``matplotlib.mlab``
+~~~~~~~~~~~~~~~~~~~
+``mlab.apply_window`` and ``mlab.stride_repeat`` have been removed.
