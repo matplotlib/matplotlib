@@ -827,11 +827,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 orientation=orientation, papertype=papertype, **kwargs)
 
     @_check_savefig_extra_args
-    @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None):
+            bbox_inches_restore=None):
         """
         Render the figure to a filesystem path or a file-like object.
 
@@ -879,14 +878,7 @@ class FigureCanvasPS(FigureCanvasBase):
             rotation = 90
         bbox = (llx, lly, urx, ury)
 
-        if dryrun:
-            class NullWriter:
-                def write(self, *args, **kwargs):
-                    pass
-
-            self._pswriter = NullWriter()
-        else:
-            self._pswriter = StringIO()
+        self._pswriter = StringIO()
 
         # mixed mode rendering
         ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
@@ -895,9 +887,6 @@ class FigureCanvasPS(FigureCanvasBase):
             bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
-
-        if dryrun:  # return immediately if dryrun (tightbbox=True)
-            return
 
         def print_figure_impl(fh):
             # write the PostScript headers
@@ -1005,11 +994,10 @@ class FigureCanvasPS(FigureCanvasBase):
                     print_figure_impl(fh)
 
     @_check_savefig_extra_args
-    @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure_tex(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None):
+            bbox_inches_restore=None):
         """
         If :rc:`text.usetex` is True, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
@@ -1029,14 +1017,7 @@ class FigureCanvasPS(FigureCanvasBase):
         ury = lly + self.figure.bbox.height
         bbox = (llx, lly, urx, ury)
 
-        if dryrun:
-            class NullWriter:
-                def write(self, *args, **kwargs):
-                    pass
-
-            self._pswriter = NullWriter()
-        else:
-            self._pswriter = StringIO()
+        self._pswriter = StringIO()
 
         # mixed mode rendering
         ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
@@ -1045,9 +1026,6 @@ class FigureCanvasPS(FigureCanvasBase):
                                      bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
-
-        if dryrun:  # return immediately if dryrun (tightbbox=True)
-            return
 
         # write to a temp file, we'll move it to outfile when done
         with TemporaryDirectory() as tmpdir:
