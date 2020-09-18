@@ -1753,11 +1753,6 @@ class Locator(TickHelper):
         """
         return mtransforms.nonsingular(vmin, vmax)
 
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """Autoscale the view limits."""
-        return self.view_limits(*self.axis.get_view_interval())
-
     @cbook.deprecated("3.3")
     def pan(self, numsteps):
         """Pan numticks (can be positive or negative)"""
