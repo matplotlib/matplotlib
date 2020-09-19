@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    artist, colors as mcolors, lines, text as mtext, path as mpath)
+    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -49,13 +49,12 @@ def get_dir_vector(zdir):
         - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
         - *None*: equivalent to (0, 0, 0)
-        - an iterable (x, y, z) is returned unchanged.
+        - an iterable (x, y, z) is converted to a NumPy array, if not already
 
     Returns
     -------
     x, y, z : array-like
-        The direction vector. This is either a numpy.array or *zdir* itself if
-        *zdir* is already a length-3 iterable.
+        The direction vector.
     """
     if zdir == 'x':
         return np.array((1, 0, 0))
@@ -66,7 +65,7 @@ def get_dir_vector(zdir):
     elif zdir is None:
         return np.array((0, 0, 0))
     elif np.iterable(zdir) and len(zdir) == 3:
-        return zdir
+        return np.array(zdir)
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
 
@@ -96,21 +95,22 @@ class Text3D(mtext.Text):
         self.set_3d_properties(z, zdir)
 
     def set_3d_properties(self, z=0, zdir='z'):
-        x, y = self.get_position()
-        self._position3d = np.array((x, y, z))
+        self._z = z
         self._dir_vec = get_dir_vector(zdir)
         self.stale = True
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        position3d = np.array((self._x, self._y, self._z))
         proj = proj3d.proj_trans_points(
-            [self._position3d, self._position3d + self._dir_vec], renderer.M)
+            [position3d, position3d + self._dir_vec],
+            renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
-        self.set_position((proj[0][0], proj[1][0]))
-        self.set_rotation(_norm_text_angle(angle))
-        mtext.Text.draw(self, renderer)
+        with cbook._setattr_cm(self, _x=proj[0][0], _y=proj[1][0],
+                               _rotation=_norm_text_angle(angle)):
+            mtext.Text.draw(self, renderer)
         self.stale = False
 
     def get_tightbbox(self, renderer):
