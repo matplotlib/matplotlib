@@ -272,23 +272,15 @@ class OffsetBox(martist.Artist):
         self._offset = xy
         self.stale = True
 
-    def get_offset(self, width, height, xdescent, ydescent, renderer):
+    def get_offset(self, *args, **kwargs):
         """
-        Return the offset as a tuple (x, y).
+        Return the (x, y) offset.
 
-        The extent parameters have to be provided to handle the case where the
-        offset is dynamically determined by a callable (see
-        `~.OffsetBox.set_offset`).
-
-        Parameters
-        ----------
-        width, height, xdescent, ydescent
-            Extent parameters.
-        renderer : `.RendererBase` subclass
-
+        Parameters must be passed if the offset is dynamically determined by a
+        callable (see `~.OffsetBox.set_offset`), and are forwarded to that
+        callable.
         """
-        return (self._offset(width, height, xdescent, ydescent, renderer)
-                if callable(self._offset)
+        return (self._offset(*args, **kwargs) if callable(self._offset)
                 else self._offset)
 
     def set_width(self, width):
@@ -347,7 +339,7 @@ class OffsetBox(martist.Artist):
 
     def get_window_extent(self, renderer):
         # docstring inherited
-        w, h, xd, yd, offsets = self.get_extent_offsets(renderer)
+        w, h, xd, yd = self.get_extent(renderer)
         px, py = self.get_offset(w, h, xd, yd, renderer)
         return mtransforms.Bbox.from_bounds(px - xd, py - yd, w, h)
 
@@ -622,21 +614,9 @@ class DrawingArea(OffsetBox):
         xy : (float, float)
             The (x, y) coordinates of the offset in display units.
         """
-        self._offset = xy
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
-        self.stale = True
-
-    def get_offset(self):
-        """Return offset of the container."""
-        return self._offset
-
-    def get_window_extent(self, renderer):
-        # docstring inherited
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()  # w, h, xd, yd)
-
-        return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
+        super().set_offset(xy)
 
     def get_extent(self, renderer):
         """Return width, height, xdescent, ydescent of box."""
@@ -782,20 +762,9 @@ class TextArea(OffsetBox):
         xy : (float, float)
             The (x, y) coordinates of the offset in display units.
         """
-        self._offset = xy
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
-        self.stale = True
-
-    def get_offset(self):
-        """Return offset of the container."""
-        return self._offset
-
-    def get_window_extent(self, renderer):
-        # docstring inherited
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()
-        return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
+        super().set_offset(xy)
 
     def get_extent(self, renderer):
         _, h_, d_ = renderer.get_text_width_height_descent(
@@ -883,20 +852,9 @@ class AuxTransformBox(OffsetBox):
         xy : (float, float)
             The (x, y) coordinates of the offset in display units.
         """
-        self._offset = xy
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
-        self.stale = True
-
-    def get_offset(self):
-        """Return offset of the container."""
-        return self._offset
-
-    def get_window_extent(self, renderer):
-        # docstring inherited
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()  # w, h, xd, yd)
-        return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
+        super().set_offset(xy)
 
     def get_extent(self, renderer):
         # clear the offset transforms
@@ -1077,9 +1035,7 @@ class AnchoredOffsetbox(OffsetBox):
     def get_window_extent(self, renderer):
         # docstring inherited
         self._update_offset_func(renderer)
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset(w, h, xd, yd, renderer)
-        return Bbox.from_bounds(ox - xd, oy - yd, w, h)
+        return super().get_window_extent(renderer)
 
     def _update_offset_func(self, renderer, fontsize=None):
         """
@@ -1229,10 +1185,6 @@ class OffsetImage(OffsetBox):
 
     def get_zoom(self):
         return self._zoom
-
-    def get_offset(self):
-        """Return offset of the container."""
-        return self._offset
 
     def get_children(self):
         return [self.image]
