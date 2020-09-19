@@ -21,4 +21,19 @@ Formatters) is no longer supported. Pass a factor equal to 1 instead.
 
 Misc
 ~~~~
+``matplotlib.get_home`` has been removed; use standard library instead.
+
+``matplotlib.compare_versions`` has been removed; use comparison of
+``distutils.version.LooseVersion``\s instead.
+
+``matplotlib.checkdep_ps_distiller`` has been removed.
+
+``matplotlib.figure.AxesStack`` has been removed.
+
 ``BboxBase.is_unit`` has been removed; check the `.Bbox` extents if needed.
+
+``Affine2DBase.matrix_from_values(...)`` has been removed; use (for example)
+``Affine2D.from_values(...).get_matrix()`` instead.
+
+``style.core.is_style_file`` and ``style.core.iter_style_files`` have been
+removed.
