@@ -802,7 +802,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 filename.encode("ascii", "replace").decode("ascii")
         dsc_comments["Creator"] = (metadata or {}).get(
             "Creator",
-            f"matplotlib version {mpl.__version__}, http://matplotlib.org/")
+            f"Matplotlib v{mpl.__version__}, https://matplotlib.org/")
         # See https://reproducible-builds.org/specs/source-date-epoch/
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         dsc_comments["CreationDate"] = (
