@@ -797,8 +797,9 @@ class FigureCanvasPS(FigureCanvasBase):
 
         dsc_comments = {}
         if isinstance(outfile, (str, os.PathLike)):
+            filename = pathlib.Path(outfile).name
             dsc_comments["Title"] = \
-                os.fspath(outfile).encode("ascii", "replace").decode("ascii")
+                filename.encode("ascii", "replace").decode("ascii")
         dsc_comments["Creator"] = (metadata or {}).get(
             "Creator",
             f"matplotlib version {mpl.__version__}, http://matplotlib.org/")
