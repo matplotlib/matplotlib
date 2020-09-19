@@ -26,7 +26,7 @@ xy = (0.5, 0.7)
 ax.plot(xy[0], xy[1], ".r")
 
 # Annotate the 1st position with a text box ('Test 1')
-offsetbox = TextArea("Test 1", minimumdescent=False)
+offsetbox = TextArea("Test 1")
 
 ab = AnnotationBbox(offsetbox, xy,
                     xybox=(-20, 40),
@@ -36,7 +36,7 @@ ab = AnnotationBbox(offsetbox, xy,
 ax.add_artist(ab)
 
 # Annotate the 1st position with another text box ('Test')
-offsetbox = TextArea("Test", minimumdescent=False)
+offsetbox = TextArea("Test")
 
 ab = AnnotationBbox(offsetbox, xy,
                     xybox=(1.02, xy[1]),
