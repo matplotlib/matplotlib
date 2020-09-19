@@ -94,6 +94,38 @@ class Text3D(mtext.Text):
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir)
 
+    def get_position_3d(self):
+        """Return the (x, y, z) position of the text."""
+        return self._x, self._y, self._z
+
+    def set_position_3d(self, xyz, zdir=None):
+        """
+        Set the (*x*, *y*, *z*) position of the text.
+
+        Parameters
+        ----------
+        xyz : (float, float, float)
+            The position in 3D space.
+        zdir : {'x', 'y', 'z', None, 3-tuple}
+            The direction of the text. If unspecified, the zdir will not be
+            changed.
+        """
+        super().set_position(xyz[:2])
+        self.set_z(xyz[2])
+        if zdir is not None:
+            self._dir_vec = get_dir_vector(zdir)
+
+    def set_z(self, z):
+        """
+        Set the *z* position of the text.
+
+        Parameters
+        ----------
+        z : float
+        """
+        self._z = z
+        self.stale = True
+
     def set_3d_properties(self, z=0, zdir='z'):
         self._z = z
         self._dir_vec = get_dir_vector(zdir)
