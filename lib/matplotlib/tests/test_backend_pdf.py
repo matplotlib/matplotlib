@@ -271,3 +271,11 @@ def test_empty_rasterized():
     fig, ax = plt.subplots()
     ax.plot([], [], rasterized=True)
     fig.savefig(io.BytesIO(), format="pdf")
+
+
+@image_comparison(['kerning.pdf'])
+def test_kerning():
+    fig = plt.figure()
+    s = "AVAVAVAVAVAVAVAV€AAVV"
+    fig.text(0, .25, s, size=5)
+    fig.text(0, .75, s, size=20)

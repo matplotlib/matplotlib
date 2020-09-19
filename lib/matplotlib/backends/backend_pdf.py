@@ -2281,21 +2281,23 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # complication is avoided, but of course, those fonts can not be
         # subsetted.)
         else:
-            singlebyte_chunks = []  # List of (start_x, list-of-1-byte-chars).
-            multibyte_glyphs = []  # List of (start_x, glyph_index).
-            prev_was_singlebyte = False
-            for char, (glyph_idx, glyph_x) in zip(
-                    s,
-                    _text_layout.layout(s, font, kern_mode=KERNING_UNFITTED)):
-                if ord(char) <= 255:
-                    if prev_was_singlebyte:
-                        singlebyte_chunks[-1][1].append(char)
-                    else:
-                        singlebyte_chunks.append((glyph_x, [char]))
-                    prev_was_singlebyte = True
+            # List of (start_x, [prev_kern, char, char, ...]), w/o zero kerns.
+            singlebyte_chunks = []
+            # List of (start_x, glyph_index).
+            multibyte_glyphs = []
+            prev_was_multibyte = True
+            for item in _text_layout.layout(
+                    s, font, kern_mode=KERNING_UNFITTED):
+                if ord(item.char) <= 255:
+                    if prev_was_multibyte:
+                        singlebyte_chunks.append((item.x, []))
+                    if item.prev_kern:
+                        singlebyte_chunks[-1][1].append(item.prev_kern)
+                    singlebyte_chunks[-1][1].append(item.char)
+                    prev_was_multibyte = False
                 else:
-                    multibyte_glyphs.append((glyph_x, glyph_idx))
-                    prev_was_singlebyte = False
+                    multibyte_glyphs.append((item.x, item.glyph_idx))
+                    prev_was_multibyte = True
             # Do the rotation and global translation as a single matrix
             # concatenation up front
             self.file.output(Op.gsave)
@@ -2307,10 +2309,15 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self.file.output(Op.begin_text,
                              self.file.fontName(prop), fontsize, Op.selectfont)
             prev_start_x = 0
-            for start_x, chars in singlebyte_chunks:
+            for start_x, kerns_or_chars in singlebyte_chunks:
                 self._setup_textpos(start_x, 0, 0, prev_start_x, 0, 0)
-                self.file.output(self.encode_string(''.join(chars), fonttype),
-                                 Op.show)
+                self.file.output(
+                    # See pdf spec "Text space details" for the 1000/fontsize
+                    # (aka. 1000/T_fs) factor.
+                    [-1000 * next(group) / fontsize if tp == float  # a kern
+                     else self.encode_string("".join(group), fonttype)
+                     for tp, group in itertools.groupby(kerns_or_chars, type)],
+                    Op.showkern)
                 prev_start_x = start_x
             self.file.output(Op.end_text)
             # Then emit all the multibyte characters, one at a time.

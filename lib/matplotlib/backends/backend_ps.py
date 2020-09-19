@@ -584,8 +584,9 @@ grestore
             self.set_font(ps_name, prop.get_size_in_points())
 
             thetext = '\n'.join(
-                '%f 0 m /%s glyphshow' % (x, font.get_glyph_name(glyph_idx))
-                for glyph_idx, x in _text_layout.layout(s, font))
+                '{:f} 0 m /{:s} glyphshow'
+                .format(item.x, font.get_glyph_name(item.glyph_idx))
+                for item in _text_layout.layout(s, font))
             self._pswriter.write(f"""\
 gsave
 {x:f} {y:f} translate
