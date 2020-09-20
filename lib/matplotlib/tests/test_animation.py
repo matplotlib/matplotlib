@@ -58,7 +58,7 @@ def test_null_movie_writer(anim):
     assert writer._count == anim.save_count
 
 
-@pytest.mark.parametrize('anim', [dict(fixture=dict)], indirect=['anim'])
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_animation_delete(anim):
     anim = animation.FuncAnimation(**anim)
     with pytest.warns(Warning, match='Animation was deleted'):
@@ -136,19 +136,19 @@ def anim(request):
         line.set_data(x, y)
         return line,
 
-    # "fixture" can be passed to determine the class returned by the fixture
+    # "klass" can be passed to determine the class returned by the fixture
     kwargs = dict(getattr(request, 'param', {}))  # make a copy
-    fixture = kwargs.pop('fixture', animation.FuncAnimation)
+    klass = kwargs.pop('klass', animation.FuncAnimation)
     if 'frames' not in kwargs:
         kwargs['frames'] = 5
-    return fixture(fig=fig, func=animate, init_func=init, **kwargs)
+    return klass(fig=fig, func=animate, init_func=init, **kwargs)
 
 
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
 @pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
-@pytest.mark.parametrize('anim', [dict(fixture=dict)], indirect=['anim'])
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_save_animation_smoketest(tmpdir, writer, output, anim):
     if not animation.writers.is_available(writer):
         pytest.skip("writer '%s' not available on this system" % writer)
@@ -186,7 +186,7 @@ def test_save_animation_smoketest(tmpdir, writer, output, anim):
     ('html5', '<video width'),
     ('jshtml', '<script ')
 ])
-@pytest.mark.parametrize('anim', [dict(fixture=dict)], indirect=['anim'])
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_animation_repr_html(writer, html, want, anim):
     # create here rather than in the fixture otherwise we get __del__ warnings
     # about producing no output
