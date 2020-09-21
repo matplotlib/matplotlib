@@ -152,11 +152,6 @@ class _AxesStack(cbook.Stack):
         return a in self.as_list()
 
 
-@cbook.deprecated("3.2")
-class AxesStack(_AxesStack):
-    pass
-
-
 class SubplotParams:
     """
     A class to hold the parameters for a subplot.

@@ -99,81 +99,12 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 from matplotlib.transforms import (
-    Affine2D, Bbox, IdentityTransform, ScaledTranslation, TransformedPath)
+    Affine2D, Bbox, IdentityTransform, ScaledTranslation)
 
 from .axisline_style import AxislineStyle
 
 
-@cbook.deprecated("3.2", alternative="matplotlib.patches.PathPatch")
-class BezierPath(Line2D):
-
-    def __init__(self, path, *args, **kwargs):
-        """
-        Parameters
-        ----------
-        path : `~.path.Path`
-            The path to draw.
-        **kwargs
-            All remaining keyword arguments are passed to `.Line2D`.
-        """
-        super().__init__([], [], *args, **kwargs)
-        self._path = path
-        self._invalid = False
-
-    def recache(self):
-        self._transformed_path = TransformedPath(
-            self._path, self.get_transform())
-        self._invalid = False
-
-    def set_path(self, path):
-        self._path = path
-        self._invalid = True
-
-    def draw(self, renderer):
-        if self._invalid:
-            self.recache()
-
-        if not self._visible:
-            return
-        renderer.open_group('line2d', gid=self.get_gid())
-
-        gc = renderer.new_gc()
-        self._set_gc_clip(gc)
-
-        gc.set_foreground(self._color)
-        gc.set_antialiased(self._antialiased)
-        gc.set_linewidth(self._linewidth)
-        gc.set_alpha(self._alpha)
-        if self.is_dashed():
-            cap = self._dashcapstyle
-            join = self._dashjoinstyle
-        else:
-            cap = self._solidcapstyle
-            join = self._solidjoinstyle
-        gc.set_joinstyle(join)
-        gc.set_capstyle(cap)
-        gc.set_dashes(self._dashOffset, self._dashSeq)
-
-        if self._lineStyles[self._linestyle] != '_draw_nothing':
-            tpath, affine = (
-                self._transformed_path.get_transformed_path_and_affine())
-            renderer.draw_path(gc, tpath, affine.frozen())
-
-        gc.restore()
-        renderer.close_group('line2d')
-
-
 class AttributeCopier:
-    @cbook.deprecated("3.2")
-    def __init__(self, ref_artist, klass=martist.Artist):
-        self._klass = klass
-        self._ref_artist = ref_artist
-        super().__init__()
-
-    @cbook.deprecated("3.2")
-    def set_ref_artist(self, artist):
-        self._ref_artist = artist
-
     def get_ref_artist(self):
         """
         Return the underlying artist that actually defines some properties
@@ -181,8 +112,7 @@ class AttributeCopier:
         """
         raise RuntimeError("get_ref_artist must overridden")
 
-    @cbook._delete_parameter("3.2", "default_value")
-    def get_attribute_from_ref_artist(self, attr_name, default_value=None):
+    def get_attribute_from_ref_artist(self, attr_name):
         getter = methodcaller("get_" + attr_name)
         prop = getter(super())
         return getter(self.get_ref_artist()) if prop == "auto" else prop

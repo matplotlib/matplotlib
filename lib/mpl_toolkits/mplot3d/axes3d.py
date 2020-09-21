@@ -38,12 +38,6 @@ from . import proj3d
 from . import axis3d
 
 
-@cbook.deprecated("3.2", alternative="Bbox.unit()")
-def unit_bbox():
-    box = Bbox(np.array([[0, 0], [1, 1]]))
-    return box
-
-
 @cbook._define_aliases({
     "xlim3d": ["xlim"], "ylim3d": ["ylim"], "zlim3d": ["zlim"]})
 class Axes3D(Axes):
