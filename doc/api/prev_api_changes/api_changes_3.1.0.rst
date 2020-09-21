@@ -727,7 +727,7 @@ Mathtext changes
 
 Deprecations
 ~~~~~~~~~~~~
-- The ``\stackrel`` mathtext command hsa been deprecated (it behaved differently
+- The ``\stackrel`` mathtext command has been deprecated (it behaved differently
   from LaTeX's ``\stackrel``.  To stack two mathtext expressions, use
   ``\genfrac{left-delim}{right-delim}{fraction-bar-thickness}{}{top}{bottom}``.
 - The ``\mathcircled`` mathtext command (which is not a real TeX command)

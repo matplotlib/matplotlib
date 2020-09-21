@@ -2396,7 +2396,6 @@ class Parser:
         p.accentprefixed   = Forward()
         p.space            = Forward()
         p.sqrt             = Forward()
-        p.stackrel         = Forward()
         p.start_group      = Forward()
         p.subsuper         = Forward()
         p.subsuperop       = Forward()
@@ -2481,12 +2480,6 @@ class Parser:
                | Error(r"Expected \dfrac{num}{den}"))
         )
 
-        p.stackrel      <<= Group(
-            Suppress(Literal(r"\stackrel"))
-            - ((p.required_group + p.required_group)
-               | Error(r"Expected \stackrel{num}{den}"))
-        )
-
         p.binom         <<= Group(
             Suppress(Literal(r"\binom"))
             - ((p.required_group + p.required_group)
@@ -2543,7 +2536,6 @@ class Parser:
             | p.group
             | p.frac
             | p.dfrac
-            | p.stackrel
             | p.binom
             | p.genfrac
             | p.sqrt
