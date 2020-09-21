@@ -2089,9 +2089,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         width, height, descent, glyphs, rects = \
             self._text2path.mathtext_parser.parse(s, 72, prop)
 
-        # When using Type 3 fonts, we can't use character codes higher
-        # than 255, so we use the "Do" command to render those
-        # instead.
         global_fonttype = mpl.rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
@@ -2102,18 +2099,21 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                          x, y, Op.concat_matrix)
 
         self.check_gc(gc, gc._rgb)
-        self.file.output(Op.begin_text)
         prev_font = None, None
         oldx, oldy = 0, 0
+        type3_multibytes = []
+
+        self.file.output(Op.begin_text)
         for font, fontsize, num, ox, oy in glyphs:
             self.file._character_tracker.track(font, chr(num))
             fontname = font.fname
-            if is_opentype_cff_font(fontname):
-                fonttype = 42
+            fonttype = (
+                42 if is_opentype_cff_font(fontname) else global_fonttype)
+            if fonttype == 3 and num > 255:
+                # For Type3 fonts, multibyte characters must be emitted
+                # separately (below).
+                type3_multibytes.append((font, fontsize, ox, oy, num))
             else:
-                fonttype = global_fonttype
-
-            if fonttype == 42 or num <= 255:
                 self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
                 if (fontname, fontsize) != prev_font:
@@ -2124,27 +2124,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                                  Op.show)
         self.file.output(Op.end_text)
 
-        # If using Type 3 fonts, render all of the multi-byte characters
-        # as XObjects using the 'Do' command.
-        if global_fonttype == 3:
-            for font, fontsize, num, ox, oy in glyphs:
-                fontname = font.fname
-                if is_opentype_cff_font(fontname):
-                    fonttype = 42
-                else:
-                    fonttype = global_fonttype
-
-                if fonttype == 3 and num > 255:
-                    self.file.fontName(fontname)
-                    self.file.output(Op.gsave,
-                                     0.001 * fontsize, 0,
-                                     0, 0.001 * fontsize,
-                                     ox, oy, Op.concat_matrix)
-                    symbol_name = font.get_glyph_name(font.get_char_index(num))
-                    name = self.file._get_xobject_symbol_name(
-                        fontname, symbol_name)
-                    self.file.output(Name(name), Op.use_xobject)
-                    self.file.output(Op.grestore)
+        for font, fontsize, ox, oy, num in type3_multibytes:
+            self._draw_xobject_glyph(
+                font, fontsize, font.get_char_index(num), ox, oy)
 
         # Draw any horizontal lines in the math layout
         for ox, oy, width, height in rects:
@@ -2322,16 +2304,19 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self.file.output(Op.end_text)
             # Then emit all the multibyte characters, one at a time.
             for start_x, glyph_idx in multibyte_glyphs:
-                glyph_name = font.get_glyph_name(glyph_idx)
-                self.file.output(Op.gsave)
-                self.file.output(0.001 * fontsize, 0,
-                                 0, 0.001 * fontsize,
-                                 start_x, 0, Op.concat_matrix)
-                name = self.file._get_xobject_symbol_name(
-                    font.fname, glyph_name)
-                self.file.output(Name(name), Op.use_xobject)
-                self.file.output(Op.grestore)
+                self._draw_xobject_glyph(font, fontsize, glyph_idx, start_x, 0)
             self.file.output(Op.grestore)
+
+    def _draw_xobject_glyph(self, font, fontsize, glyph_idx, x, y):
+        """Draw a multibyte character from a Type 3 font as an XObject."""
+        symbol_name = font.get_glyph_name(glyph_idx)
+        name = self.file._get_xobject_symbol_name(font.fname, symbol_name)
+        self.file.output(
+            Op.gsave,
+            0.001 * fontsize, 0, 0, 0.001 * fontsize, x, y, Op.concat_matrix,
+            Name(name), Op.use_xobject,
+            Op.grestore,
+        )
 
     def new_gc(self):
         # docstring inherited
