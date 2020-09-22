@@ -32,6 +32,7 @@ from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
+from matplotlib._types import JoinStyle, CapStyle
 
 
 backend_version = cairo.version
@@ -321,15 +322,15 @@ class RendererCairo(RendererBase):
 
 class GraphicsContextCairo(GraphicsContextBase):
     _joind = {
-        'bevel':  cairo.LINE_JOIN_BEVEL,
-        'miter':  cairo.LINE_JOIN_MITER,
-        'round':  cairo.LINE_JOIN_ROUND,
+        JoinStyle.bevel:  cairo.LINE_JOIN_BEVEL,
+        JoinStyle.miter:  cairo.LINE_JOIN_MITER,
+        JoinStyle.round:  cairo.LINE_JOIN_ROUND,
     }
 
     _capd = {
-        'butt':        cairo.LINE_CAP_BUTT,
-        'projecting':  cairo.LINE_CAP_SQUARE,
-        'round':       cairo.LINE_CAP_ROUND,
+        CapStyle.butt:        cairo.LINE_CAP_BUTT,
+        CapStyle.projecting:  cairo.LINE_CAP_SQUARE,
+        CapStyle.round:       cairo.LINE_CAP_ROUND,
     }
 
     def __init__(self, renderer):
@@ -353,8 +354,8 @@ class GraphicsContextCairo(GraphicsContextBase):
         # one for False.
 
     def set_capstyle(self, cs):
-        self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))
-        self._capstyle = cs
+        super().set_capstyle(cs)
+        self.ctx.set_line_cap(self._capd[self.get_capstyle()])
 
     def set_clip_rectangle(self, rectangle):
         if not rectangle:
@@ -396,8 +397,8 @@ class GraphicsContextCairo(GraphicsContextBase):
         return self.ctx.get_source().get_rgba()[:3]
 
     def set_joinstyle(self, js):
-        self.ctx.set_line_join(_api.check_getitem(self._joind, joinstyle=js))
-        self._joinstyle = js
+        super().set_joinstyle(js)
+        self.ctx.set_line_join(self._joind[self.get_joinstyle()])
 
     def set_linewidth(self, w):
         self._linewidth = float(w)

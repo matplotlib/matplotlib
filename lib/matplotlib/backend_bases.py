@@ -50,8 +50,8 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
 from matplotlib.path import Path
-from matplotlib.rcsetup import validate_joinstyle, validate_capstyle
 from matplotlib.transforms import Affine2D
+from matplotlib._types import JoinStyle, CapStyle
 
 
 _log = logging.getLogger(__name__)
@@ -765,11 +765,11 @@ class GraphicsContextBase:
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
         self._antialiased = 1  # use 0, 1 not True, False for extension code
-        self._capstyle = 'butt'
+        self._capstyle = CapStyle('butt')
         self._cliprect = None
         self._clippath = None
         self._dashes = 0, None
-        self._joinstyle = 'round'
+        self._joinstyle = JoinStyle('round')
         self._linestyle = 'solid'
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
@@ -820,9 +820,7 @@ class GraphicsContextBase:
         return self._antialiased
 
     def get_capstyle(self):
-        """
-        Return the capstyle as a string in ('butt', 'round', 'projecting').
-        """
+        """Return the `.CapStyle`."""
         return self._capstyle
 
     def get_clip_rectangle(self):
@@ -867,7 +865,7 @@ class GraphicsContextBase:
         return self._forced_alpha
 
     def get_joinstyle(self):
-        """Return the line join style as one of ('miter', 'round', 'bevel')."""
+        """Return the `.JoinStyle`."""
         return self._joinstyle
 
     def get_linewidth(self):
@@ -920,9 +918,14 @@ class GraphicsContextBase:
         self._antialiased = int(bool(b))
 
     def set_capstyle(self, cs):
-        """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
-        validate_capstyle(cs)
-        self._capstyle = cs
+        """
+        Set how to draw endpoints of lines.
+
+        Parameters
+        ----------
+        cs : `.CapStyle` or {'butt', 'round', 'projecting'}
+        """
+        self._capstyle = CapStyle(cs)
 
     def set_clip_rectangle(self, rectangle):
         """Set the clip rectangle to a `.Bbox` or None."""
@@ -980,9 +983,14 @@ class GraphicsContextBase:
             self._rgb = colors.to_rgba(fg)
 
     def set_joinstyle(self, js):
-        """Set the join style to be one of ('miter', 'round', 'bevel')."""
-        validate_joinstyle(js)
-        self._joinstyle = js
+        """
+        Set how to draw connections between line segments.
+
+        Parameters
+        ----------
+        js : `.JoinStyle` or {'miter', 'round', 'bevel'}.
+        """
+        self._joinstyle = JoinStyle(js)
 
     def set_linewidth(self, w):
         """Set the linewidth in points."""

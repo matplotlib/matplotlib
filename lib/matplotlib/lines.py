@@ -18,6 +18,7 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import (
     Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath)
+from ._types import JoinStyle, CapStyle
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -1311,35 +1312,33 @@ class Line2D(Artist):
 
     def set_dash_joinstyle(self, s):
         """
-        Set the join style for dashed lines.
+        How to join segments of the line if it `~Line2D.is dashed`.
 
         Parameters
         ----------
-        s : {'miter', 'round', 'bevel'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.JoinStyle` or {'miter', 'round', 'bevel'}
         """
-        mpl.rcsetup.validate_joinstyle(s)
-        if self._dashjoinstyle != s:
+        js = JoinStyle(s)
+        if self._dashjoinstyle != js:
             self.stale = True
-        self._dashjoinstyle = s
+        self._dashjoinstyle = js
 
     def set_solid_joinstyle(self, s):
         """
-        Set the join style for solid lines.
+        How to join segments if the line is solid (not `~Line2D.is_dashed`).
 
         Parameters
         ----------
-        s : {'miter', 'round', 'bevel'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.JoinStyle` or {'miter', 'round', 'bevel'}
         """
-        mpl.rcsetup.validate_joinstyle(s)
-        if self._solidjoinstyle != s:
+        js = JoinStyle(s)
+        if self._solidjoinstyle != js:
             self.stale = True
-        self._solidjoinstyle = s
+        self._solidjoinstyle = js
 
     def get_dash_joinstyle(self):
         """
-        Return the join style for dashed lines.
+        Return the `.JoinStyle` for dashed lines.
 
         See also `~.Line2D.set_dash_joinstyle`.
         """
@@ -1347,7 +1346,7 @@ class Line2D(Artist):
 
     def get_solid_joinstyle(self):
         """
-        Return the join style for solid lines.
+        Return the `.JoinStyle` for solid lines.
 
         See also `~.Line2D.set_solid_joinstyle`.
         """
@@ -1355,35 +1354,33 @@ class Line2D(Artist):
 
     def set_dash_capstyle(self, s):
         """
-        Set the cap style for dashed lines.
+        How to draw the end caps if the line is `~Line2D.is_dashed`.
 
         Parameters
         ----------
-        s : {'butt', 'round', 'projecting'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.CapStyle` or {'butt', 'round', 'projecting'}
         """
-        mpl.rcsetup.validate_capstyle(s)
-        if self._dashcapstyle != s:
+        cs = CapStyle(s)
+        if self._dashcapstyle != cs:
             self.stale = True
-        self._dashcapstyle = s
+        self._dashcapstyle = cs
 
     def set_solid_capstyle(self, s):
         """
-        Set the cap style for solid lines.
+        How to draw the end caps if the line is solid (not `~Line2D.is_dashed`)
 
         Parameters
         ----------
-        s : {'butt', 'round', 'projecting'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.CapStyle` or {'butt', 'round', 'projecting'}
         """
-        mpl.rcsetup.validate_capstyle(s)
-        if self._solidcapstyle != s:
+        cs = CapStyle(s)
+        if self._solidcapstyle != cs:
             self.stale = True
-        self._solidcapstyle = s
+        self._solidcapstyle = cs
 
     def get_dash_capstyle(self):
         """
-        Return the cap style for dashed lines.
+        Return the `.CapStyle` for dashed lines.
 
         See also `~.Line2D.set_dash_capstyle`.
         """
@@ -1391,7 +1388,7 @@ class Line2D(Artist):
 
     def get_solid_capstyle(self):
         """
-        Return the cap style for solid lines.
+        Return the `.CapStyle` for solid lines.
 
         See also `~.Line2D.set_solid_capstyle`.
         """
@@ -1399,7 +1396,8 @@ class Line2D(Artist):
 
     def is_dashed(self):
         """
-        Return whether line has a dashed linestyle.
+        Return whether line has a dashed linestyle. A custom linestyle is
+        assumed to be dashed, we do not inspect the ``onoffseq`` directly.
 
         See also `~.Line2D.set_linestyle`.
         """

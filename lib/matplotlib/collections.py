@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
+from ._types import JoinStyle, CapStyle
 import warnings
 
 
@@ -110,14 +111,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             where *onoffseq* is an even length tuple of on and off ink lengths
             in points. For examples, see
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
-        capstyle : str, default: :rc:`patch.capstyle`
+        capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
             Style to use for capping lines for all paths in the collection.
-            See :doc:`/gallery/lines_bars_and_markers/joinstyle` for
-            a demonstration of each of the allowed values.
-        joinstyle : str, default: :rc:`patch.joinstyle`
+        joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
             Style to use for joining lines for all paths in the collection.
-            See :doc:`/gallery/lines_bars_and_markers/joinstyle` for
-            a demonstration of each of the allowed values.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
             Whether each patch in the collection should be drawn with
             antialiasing.
@@ -657,30 +654,28 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_capstyle(self, cs):
         """
-        Set the capstyle for the collection (for all its elements).
+        Set the `.CapStyle` for the collection (for all its elements).
 
         Parameters
         ----------
-        cs : {'butt', 'round', 'projecting'}
+        cs : `.CapStyle` or {'butt', 'round', 'projecting'}
             The capstyle.
         """
-        mpl.rcsetup.validate_capstyle(cs)
-        self._capstyle = cs
+        self._capstyle = CapStyle(cs)
 
     def get_capstyle(self):
         return self._capstyle
 
     def set_joinstyle(self, js):
         """
-        Set the joinstyle for the collection (for all its elements).
+        Set the `.JoinStyle` for the collection (for all its elements).
 
         Parameters
         ----------
-        js : {'miter', 'round', 'bevel'}
+        js : `.JoinStyle` or {'miter', 'round', 'bevel'}
             The joinstyle.
         """
-        mpl.rcsetup.validate_joinstyle(js)
-        self._joinstyle = js
+        self._joinstyle = JoinStyle(js)
 
     def get_joinstyle(self):
         return self._joinstyle

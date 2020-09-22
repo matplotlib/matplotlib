@@ -124,6 +124,7 @@ Matplotlib consists of the following submodules:
    transformations.rst
    tri_api.rst
    type1font.rst
+   _types.rst
    units_api.rst
    widgets_api.rst
    _api_api.rst

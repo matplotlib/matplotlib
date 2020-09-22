@@ -16,6 +16,7 @@ from .bezier import (
     get_parallels, inside_circle, make_wedged_bezier2,
     split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
+from ._types import JoinStyle, CapStyle
 
 
 @cbook._define_aliases({
@@ -74,9 +75,9 @@ class Patch(artist.Artist):
         if linestyle is None:
             linestyle = "solid"
         if capstyle is None:
-            capstyle = 'butt'
+            capstyle = CapStyle.butt
         if joinstyle is None:
-            joinstyle = 'miter'
+            joinstyle = JoinStyle.miter
         if antialiased is None:
             antialiased = mpl.rcParams['patch.antialiased']
 
@@ -473,14 +474,14 @@ class Patch(artist.Artist):
 
     def set_capstyle(self, s):
         """
-        Set the capstyle.
+        Set the `.CapStyle`.
 
         Parameters
         ----------
-        s : {'butt', 'round', 'projecting'}
+        s : `.CapStyle` or {'butt', 'round', 'projecting'}
         """
-        mpl.rcsetup.validate_capstyle(s)
-        self._capstyle = s
+        cs = CapStyle(s)
+        self._capstyle = cs
         self.stale = True
 
     def get_capstyle(self):
@@ -489,14 +490,14 @@ class Patch(artist.Artist):
 
     def set_joinstyle(self, s):
         """
-        Set the joinstyle.
+        Set the `.JoinStyle`.
 
         Parameters
         ----------
-        s : {'miter', 'round', 'bevel'}
+        s : `.JoinStyle` or {'miter', 'round', 'bevel'}
         """
-        mpl.rcsetup.validate_joinstyle(s)
-        self._joinstyle = s
+        js = JoinStyle(s)
+        self._joinstyle = js
         self.stale = True
 
     def get_joinstyle(self):
@@ -3970,8 +3971,8 @@ default: 'arc3'
             ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
         # Traditionally, the cap- and joinstyle for FancyArrowPatch are round
-        kwargs.setdefault("joinstyle", "round")
-        kwargs.setdefault("capstyle", "round")
+        kwargs.setdefault("joinstyle", JoinStyle.round)
+        kwargs.setdefault("capstyle", CapStyle.round)
 
         super().__init__(**kwargs)
 
