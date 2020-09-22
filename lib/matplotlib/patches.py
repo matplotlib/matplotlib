@@ -990,7 +990,11 @@ class PathPatch(Patch):
 
 
 class StepPatch(PathPatch):
-    """An unclosed step path patch."""
+    """
+    A path patch describing a stepwise constant function.
+
+    The path is unclosed. It starts and stops at baseline.
+    """
 
     @docstring.dedent_interpd
     def __init__(self, values, edges, *,
@@ -999,13 +1003,15 @@ class StepPatch(PathPatch):
         Parameters
         ----------
         values : array-like
-            An array of y-values.
+            The step heights.
 
         edges : array-like
-            A array of x-value edges, with ``len(edges) == len(vals) + 1``,
+            The edge positions, with ``len(edges) == len(vals) + 1``,
             between which the curve takes on vals values.
 
         orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            The direction of the steps. Vertical means that *values* are along
+            the y-axis, and edges are along the x-axis.
 
         baseline : float or None, default: 0
             Determines starting value of the bounding edges or when

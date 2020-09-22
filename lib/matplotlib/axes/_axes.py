@@ -6744,24 +6744,27 @@ such objects
     def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
         """
-        A histogram-like line or filled plot.
+        A stepwise constant line or filled plot.
 
         Parameters
         ----------
         values : array-like
-            An array of y-values.
+            The step heights.
 
-        edges : array-like, default: ``range(len(vals)+1)``
-            A array of x-values, with ``len(edges) == len(vals) + 1``,
+        edges : array-like
+            The edge positions, with ``len(edges) == len(vals) + 1``,
             between which the curve takes on vals values.
 
         orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            The direction of the steps. Vertical means that *values* are along
+            the y-axis, and edges are along the x-axis.
 
         baseline : float or None, default: 0
             Determines starting value of the bounding edges or when
             ``fill=True``, position of lower edge.
 
         fill : bool, default: False
+            Whether the area under the step curve should be filled.
 
         Returns
         -------
