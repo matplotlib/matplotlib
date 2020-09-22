@@ -708,10 +708,8 @@ class Axes(_AxesBase):
                              "argument; axhline generates its own transform.")
         ymin, ymax = self.get_ybound()
 
-        # We need to strip away the units for comparison with
-        # non-unitized bounds
-        self._process_unit_info(ydata=y, kwargs=kwargs)
-        yy = self.convert_yunits(y)
+        # Strip away the units for comparison with non-unitized bounds.
+        yy, = self._process_unit_info([("y", y)], kwargs)
         scaley = (yy < ymin) or (yy > ymax)
 
         trans = self.get_yaxis_transform(which='grid')
@@ -777,10 +775,8 @@ class Axes(_AxesBase):
                              "argument; axvline generates its own transform.")
         xmin, xmax = self.get_xbound()
 
-        # We need to strip away the units for comparison with
-        # non-unitized bounds
-        self._process_unit_info(xdata=x, kwargs=kwargs)
-        xx = self.convert_xunits(x)
+        # Strip away the units for comparison with non-unitized bounds.
+        xx, = self._process_unit_info([("x", x)], kwargs)
         scalex = (xx < xmin) or (xx > xmax)
 
         trans = self.get_xaxis_transform(which='grid')
@@ -917,19 +913,13 @@ class Axes(_AxesBase):
         --------
         axvspan : Add a vertical span across the axes.
         """
+        # Strip units away.
         self._check_no_units([xmin, xmax], ['xmin', 'xmax'])
-        trans = self.get_yaxis_transform(which='grid')
-
-        # process the unit information
-        self._process_unit_info([xmin, xmax], [ymin, ymax], kwargs=kwargs)
-
-        # first we need to strip away the units
-        xmin, xmax = self.convert_xunits([xmin, xmax])
-        ymin, ymax = self.convert_yunits([ymin, ymax])
+        (ymin, ymax), = self._process_unit_info([("y", [ymin, ymax])], kwargs)
 
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
-        p.set_transform(trans)
+        p.set_transform(self.get_yaxis_transform(which="grid"))
         self.add_patch(p)
         self._request_autoscale_view(scalex=False)
         return p
@@ -978,19 +968,13 @@ class Axes(_AxesBase):
         >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 
         """
+        # Strip units away.
         self._check_no_units([ymin, ymax], ['ymin', 'ymax'])
-        trans = self.get_xaxis_transform(which='grid')
-
-        # process the unit information
-        self._process_unit_info([xmin, xmax], [ymin, ymax], kwargs=kwargs)
-
-        # first we need to strip away the units
-        xmin, xmax = self.convert_xunits([xmin, xmax])
-        ymin, ymax = self.convert_yunits([ymin, ymax])
+        (xmin, xmax), = self._process_unit_info([("x", [xmin, xmax])], kwargs)
 
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
-        p.set_transform(trans)
+        p.set_transform(self.get_xaxis_transform(which="grid"))
         self.add_patch(p)
         self._request_autoscale_view(scaley=False)
         return p
@@ -1032,11 +1016,8 @@ class Axes(_AxesBase):
         """
 
         # We do the conversion first since not all unitized data is uniform
-        # process the unit information
-        self._process_unit_info([xmin, xmax], y, kwargs=kwargs)
-        y = self.convert_yunits(y)
-        xmin = self.convert_xunits(xmin)
-        xmax = self.convert_xunits(xmax)
+        xmin, xmax, y = self._process_unit_info(
+            [("x", xmin), ("x", xmax), ("y", y)], kwargs)
 
         if not np.iterable(y):
             y = [y]
@@ -1111,12 +1092,9 @@ class Axes(_AxesBase):
         axvline: vertical line across the axes
         """
 
-        self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
-
         # We do the conversion first since not all unitized data is uniform
-        x = self.convert_xunits(x)
-        ymin = self.convert_yunits(ymin)
-        ymax = self.convert_yunits(ymax)
+        x, ymin, ymax = self._process_unit_info(
+            [("x", x), ("y", ymin), ("y", ymax)], kwargs)
 
         if not np.iterable(x):
             x = [x]
@@ -1254,14 +1232,9 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/lines_bars_and_markers/eventplot_demo.py
         """
-        self._process_unit_info(xdata=positions,
-                                ydata=[lineoffsets, linelengths],
-                                kwargs=kwargs)
-
         # We do the conversion first since not all unitized data is uniform
-        positions = self.convert_xunits(positions)
-        lineoffsets = self.convert_yunits(lineoffsets)
-        linelengths = self.convert_yunits(linelengths)
+        positions, lineoffsets, linelengths = self._process_unit_info(
+            [("x", positions), ("y", lineoffsets), ("y", linelengths)], kwargs)
 
         if not np.iterable(positions):
             positions = [positions]
@@ -2283,11 +2256,13 @@ class Axes(_AxesBase):
                 x = 0
 
         if orientation == 'vertical':
-            self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
+            self._process_unit_info(
+                [("x", x), ("y", height)], kwargs, convert=False)
             if log:
                 self.set_yscale('log', nonpositive='clip')
         elif orientation == 'horizontal':
-            self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
+            self._process_unit_info(
+                [("x", width), ("y", y)], kwargs, convert=False)
             if log:
                 self.set_xscale('log', nonpositive='clip')
 
@@ -2567,9 +2542,8 @@ class Axes(_AxesBase):
             ydata = cbook.safe_first_element(yrange)
         else:
             ydata = None
-        self._process_unit_info(xdata=xdata,
-                                ydata=ydata,
-                                kwargs=kwargs)
+        self._process_unit_info(
+            [("x", xdata), ("y", ydata)], kwargs, convert=False)
         xranges_conv = []
         for xr in xranges:
             if len(xr) != 2:
@@ -2689,13 +2663,9 @@ class Axes(_AxesBase):
             locs, heads, *args = args
 
         if orientation == 'vertical':
-            self._process_unit_info(xdata=locs, ydata=heads)
-            locs = self.convert_xunits(locs)
-            heads = self.convert_yunits(heads)
+            locs, heads = self._process_unit_info([("x", locs), ("y", heads)])
         else:
-            self._process_unit_info(xdata=heads, ydata=locs)
-            heads = self.convert_xunits(heads)
-            locs = self.convert_yunits(locs)
+            heads, locs = self._process_unit_info([("x", heads), ("y", locs)])
 
         # defaults for formats
         if linefmt is None:
@@ -3179,7 +3149,7 @@ class Axes(_AxesBase):
         if int(offset) != offset:
             raise ValueError("errorevery's starting index must be an integer")
 
-        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+        self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
 
         # Make sure all the args are iterable; use lists not arrays to preserve
         # units.
@@ -4346,9 +4316,7 @@ default: :rc:`scatter.edgecolors`
         """
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
 
-        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
+        x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
@@ -4577,7 +4545,7 @@ default: :rc:`scatter.edgecolors`
             %(PolyCollection)s
 
         """
-        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+        self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
 
         x, y, C = cbook.delete_masked_points(x, y, C)
 
@@ -4926,9 +4894,7 @@ default: :rc:`scatter.edgecolors`
     def _quiver_units(self, args, kw):
         if len(args) > 3:
             x, y = args[0:2]
-            self._process_unit_info(xdata=x, ydata=y, kwargs=kw)
-            x = self.convert_xunits(x)
-            y = self.convert_yunits(y)
+            x, y = self._process_unit_info([("x", x), ("y", y)], kw)
             return (x, y) + args[2:]
         return args
 
@@ -5114,17 +5080,9 @@ default: :rc:`scatter.edgecolors`
                     self._get_patches_for_fill.get_next_color()
 
         # Handle united data, such as dates
-        self._process_unit_info(
-            **{f"{ind_dir}data": ind, f"{dep_dir}data": dep1}, kwargs=kwargs)
-        self._process_unit_info(
-            **{f"{dep_dir}data": dep2})
-
-        # Convert the arrays so we can work with them
-        ind = ma.masked_invalid(getattr(self, f"convert_{ind_dir}units")(ind))
-        dep1 = ma.masked_invalid(
-            getattr(self, f"convert_{dep_dir}units")(dep1))
-        dep2 = ma.masked_invalid(
-            getattr(self, f"convert_{dep_dir}units")(dep2))
+        ind, dep1, dep2 = map(
+            ma.masked_invalid, self._process_unit_info(
+                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
 
         for name, array in [
                 (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
@@ -5739,9 +5697,7 @@ default: :rc:`scatter.edgecolors`
         Ny, Nx = X.shape
 
         # unit conversion allows e.g. datetime objects as axis values
-        self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
-        X = self.convert_xunits(X)
-        Y = self.convert_yunits(Y)
+        X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
 
         # convert to MA, if necessary.
         C = ma.asarray(C)
@@ -6016,9 +5972,7 @@ default: :rc:`scatter.edgecolors`
         X = X.ravel()
         Y = Y.ravel()
         # unit conversion allows e.g. datetime objects as axis values
-        self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
-        X = self.convert_xunits(X)
-        Y = self.convert_yunits(Y)
+        X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
 
         # convert to one dimensional arrays
         C = C.ravel()
@@ -6497,16 +6451,23 @@ such objects
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
-        # Process unit information
-        # Unit conversion is done individually on each dataset
-        self._process_unit_info(xdata=x[0], kwargs=kwargs)
-        x = [self.convert_xunits(xi) for xi in x]
+        # Process unit information.  _process_unit_info sets the unit and
+        # converts the first dataset; then we convert each following dataset
+        # one at a time.
+        if orientation == "vertical":
+            convert_units = self.convert_xunits
+            x = [*self._process_unit_info([("x", x[0])], kwargs),
+                 *map(convert_units, x[1:])]
+        else:  # horizontal
+            convert_units = self.convert_yunits
+            x = [*self._process_unit_info([("y", x[0])], kwargs),
+                 *map(convert_units, x[1:])]
 
         if bin_range is not None:
-            bin_range = self.convert_xunits(bin_range)
+            bin_range = convert_units(bin_range)
 
         if not cbook.is_scalar_or_string(bins):
-            bins = self.convert_xunits(bins)
+            bins = convert_units(bins)
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
@@ -6787,9 +6748,8 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
-        self._process_unit_info(xdata=edges, ydata=values, kwargs=kwargs)
-        edges = self.convert_xunits(edges)
-        values = self.convert_yunits(values)
+        edges, values = self._process_unit_info(
+            [("x", edges), ("y", values)], kwargs)
 
         patch = mpatches.StepPatch(values,
                                    edges,
