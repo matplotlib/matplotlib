@@ -26,6 +26,7 @@ from matplotlib.backends.backend_pdf import (
 from matplotlib.path import Path
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
+from matplotlib._types import JoinStyle, CapStyle
 
 _log = logging.getLogger(__name__)
 
@@ -515,15 +516,15 @@ class RendererPgf(RendererBase):
 
     def _print_pgf_path_styles(self, gc, rgbFace):
         # cap style
-        capstyles = {"butt": r"\pgfsetbuttcap",
-                     "round": r"\pgfsetroundcap",
-                     "projecting": r"\pgfsetrectcap"}
+        capstyles = {CapStyle.butt: r"\pgfsetbuttcap",
+                     CapStyle.round: r"\pgfsetroundcap",
+                     CapStyle.projecting: r"\pgfsetrectcap"}
         writeln(self.fh, capstyles[gc.get_capstyle()])
 
         # join style
-        joinstyles = {"miter": r"\pgfsetmiterjoin",
-                      "round": r"\pgfsetroundjoin",
-                      "bevel": r"\pgfsetbeveljoin"}
+        joinstyles = {JoinStyle.miter: r"\pgfsetmiterjoin",
+                      JoinStyle.round: r"\pgfsetroundjoin",
+                      JoinStyle.bevel: r"\pgfsetbeveljoin"}
         writeln(self.fh, joinstyles[gc.get_joinstyle()])
 
         # filling
