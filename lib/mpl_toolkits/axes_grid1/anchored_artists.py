@@ -337,10 +337,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         else:
             textprops = {'color': color, 'fontproperties': fontproperties}
 
-        self.txt_label = TextArea(
-            label,
-            minimumdescent=False,
-            textprops=textprops)
+        self.txt_label = TextArea(label, textprops=textprops)
 
         if label_top:
             _box_children = [self.txt_label, self.size_bar]

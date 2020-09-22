@@ -775,6 +775,8 @@ class TextArea(OffsetBox):
     width and height of the TextArea instance is the width and height of its
     child text.
     """
+
+    @cbook._delete_parameter("3.4", "minimumdescent")
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=None,
@@ -794,8 +796,9 @@ class TextArea(OffsetBox):
             If `True`, baseline for multiline text is adjusted so that it is
             (approximately) center-aligned with singleline text.
 
-        minimumdescent : bool, optional
-            If `True`, the box has a minimum descent of "p".
+        minimumdescent : bool, default: True
+            If `True`, the box has a minimum descent of "p".  This is now
+            effectively always True.
         """
         if textprops is None:
             textprops = {}
@@ -835,16 +838,20 @@ class TextArea(OffsetBox):
         """
         return self._multilinebaseline
 
+    @cbook.deprecated("3.4")
     def set_minimumdescent(self, t):
         """
         Set minimumdescent.
 
         If True, extent of the single line text is adjusted so that
-        it has minimum descent of "p"
+        its descent is at least the one of the glyph "p".
         """
+        # The current implementation of Text._get_layout always behaves as if
+        # this is True.
         self._minimumdescent = t
         self.stale = True
 
+    @cbook.deprecated("3.4")
     def get_minimumdescent(self):
         """
         Get minimumdescent.
@@ -894,16 +901,8 @@ class TextArea(OffsetBox):
             yd_new = 0.5 * h - 0.5 * (h_ - d_)
             self._baseline_transform.translate(0, yd - yd_new)
             yd = yd_new
-
         else:  # single line
-
             h_d = max(h_ - d_, h - yd)
-
-            if self.get_minimumdescent():
-                # To have a minimum descent, i.e., "l" and "p" have same
-                # descents.
-                yd = max(yd, d_)
-
             h = h_d + yd
 
         ha = self._text.get_horizontalalignment()
@@ -1301,7 +1300,7 @@ class AnchoredText(AnchoredOffsetbox):
             raise ValueError(
                 'Mixing verticalalignment with AnchoredText is not supported.')
 
-        self.txt = TextArea(s, textprops=prop, minimumdescent=False)
+        self.txt = TextArea(s, textprops=prop)
         fp = self.txt._text.get_fontproperties()
         super().__init__(
             loc, pad=pad, borderpad=borderpad, child=self.txt, prop=fp,
