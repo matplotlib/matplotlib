@@ -2828,7 +2828,7 @@ class _AxesBase(martist.Artist):
         with ExitStack() as stack:
             for artist in [*self._get_axis_list(),
                            self.title, self._left_title, self._right_title]:
-                stack.push(artist.set_visible, artist.get_visible())
+                stack.callback(artist.set_visible, artist.get_visible())
                 artist.set_visible(False)
             self.draw(self.figure._cachedRenderer)
 
