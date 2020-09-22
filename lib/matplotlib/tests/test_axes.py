@@ -6612,6 +6612,13 @@ def test_bbox_aspect_axes_init():
     assert_allclose(sizes, sizes[0])
 
 
+def test_redraw_in_frame():
+    fig, ax = plt.subplots(1, 1)
+    ax.plot([1, 2, 3])
+    fig.canvas.draw()
+    ax.redraw_in_frame()
+
+
 def test_invisible_axes():
     # invisible axes should not respond to events...
     fig, ax = plt.subplots()
