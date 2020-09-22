@@ -43,13 +43,14 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, backend_tools as tools, cbook, colors, textpath, tight_bbox,
+    backend_tools as tools, cbook, colors, textpath, tight_bbox,
     transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
-from matplotlib.transforms import Affine2D
-from matplotlib.path import Path
 from matplotlib.cbook import _setattr_cm
+from matplotlib.path import Path
+from matplotlib.rcsetup import validate_joinstyle, validate_capstyle
+from matplotlib.transforms import Affine2D
 
 
 _log = logging.getLogger(__name__)
@@ -914,7 +915,7 @@ class GraphicsContextBase:
 
     def set_capstyle(self, cs):
         """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
-        _api.check_in_list(['butt', 'round', 'projecting'], cs=cs)
+        validate_capstyle(cs)
         self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
@@ -982,7 +983,7 @@ class GraphicsContextBase:
 
     def set_joinstyle(self, js):
         """Set the join style to be one of ('miter', 'round', 'bevel')."""
-        _api.check_in_list(['miter', 'round', 'bevel'], js=js)
+        validate_joinstyle(js)
         self._joinstyle = js
 
     def set_linewidth(self, w):
