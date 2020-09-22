@@ -3,13 +3,10 @@
 Stairs Demo
 ===========
 
-This example demonstrates the use of `~.matplotlib.pyplot.stairs`
-for histogram and histogram-like data visualization and an associated
-underlying `.StepPatch` artist, which is a specialized version of
-`.PathPatch` specified by its bins and edges.
+This example demonstrates the use of `~.matplotlib.pyplot.stairs` for stepwise
+constant functions. A common use case is histogram and histogram-like data
+visualization.
 
-The primary difference to `~.matplotlib.pyplot.step` is that ``stairs``
-x-like edges input is one longer than its y-like values input.
 """
 
 import numpy as np
@@ -17,13 +14,13 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import StepPatch
 
 np.random.seed(0)
-h, bins = np.histogram(np.random.normal(5, 3, 5000),
-                       bins=np.linspace(0, 10, 20))
+h, edges = np.histogram(np.random.normal(5, 3, 5000),
+                        bins=np.linspace(0, 10, 20))
 
 fig, axs = plt.subplots(3, 1, figsize=(7, 15))
-axs[0].stairs(h, bins, label='Simple histogram')
-axs[0].stairs(h, bins+5, baseline=50, label='Modified baseline')
-axs[0].stairs(h, bins+10, baseline=None, label='No edges')
+axs[0].stairs(h, edges, label='Simple histogram')
+axs[0].stairs(h, edges + 5, baseline=50, label='Modified baseline')
+axs[0].stairs(h, edges + 10, baseline=None, label='No edges')
 axs[0].set_title("Step Histograms")
 
 axs[1].stairs(np.arange(1, 6, 1), fill=True,
@@ -47,22 +44,30 @@ for ax in axs:
 plt.show()
 
 #############################################################################
-# Comparison of `.pyplot.step` and `.pyplot.stairs`.
+# Comparison of `.pyplot.step` and `.pyplot.stairs`
+# -------------------------------------------------
+#
+# `.pyplot.step` defines the positions of the steps as single values. The steps
+# extend left/right/both ways from these reference values depending on the
+# parameter *where*. The number of *x* and *y* values is the same.
+#
+# In contrast, `.pyplot.stairs` defines the positions of the steps via their
+# bounds *edges*, which is one element longer than the step values.
 
 bins = np.arange(14)
-centers = bins[:-1] + np.diff(bins)/2
+centers = bins[:-1] + np.diff(bins) / 2
 y = np.sin(centers / 2)
 
-plt.step(bins[:-1], y, where='post', label='Step(where="post")')
+plt.step(bins[:-1], y, where='post', label='step(where="post")')
 plt.plot(bins[:-1], y, 'o--', color='grey', alpha=0.3)
 
-plt.stairs(y - 1, bins, baseline=None, label='Stairs')
+plt.stairs(y - 1, bins, baseline=None, label='stairs()')
 plt.plot(centers, y - 1, 'o--', color='grey', alpha=0.3)
 plt.plot(np.repeat(bins, 2), np.hstack([y[0], np.repeat(y, 2), y[-1]]) - 1,
          'o', color='red', alpha=0.2)
 
 plt.legend()
-plt.title('plt.step vs plt.stairs')
+plt.title('step() vs. stairs()')
 plt.show()
 
 #############################################################################

@@ -2036,6 +2036,15 @@ class Axes(_AxesBase):
         formatting options. Most of the concepts and parameters of plot can be
         used here as well.
 
+        .. note::
+
+            This method uses a standard plot with a step drawstyle: The *x*
+            values are the reference positions and steps extend left/right/both
+            directions depending on *where*.
+
+            For the common case where you know the values and edges of the
+            steps, use `~.Axes.stairs` instead.
+
         Parameters
         ----------
         x : array-like
