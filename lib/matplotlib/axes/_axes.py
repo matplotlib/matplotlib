@@ -5535,8 +5535,7 @@ default: :rc:`scatter.edgecolors`
         self.add_image(im)
         return im
 
-    @staticmethod
-    def _pcolorargs(funcname, *args, shading='flat'):
+    def _pcolorargs(self, funcname, *args, shading='flat', **kwargs):
         # - create X and Y if not present;
         # - reshape X and Y as needed if they are 1-D;
         # - check for proper sizes based on `shading` kwarg;
@@ -5567,6 +5566,10 @@ default: :rc:`scatter.edgecolors`
             # Check x and y for bad data...
             C = np.asanyarray(args[2])
             X, Y = [cbook.safe_masked_invalid(a) for a in args[:2]]
+            # unit conversion allows e.g. datetime objects as axis values
+            self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
+            X = self.convert_xunits(X)
+            Y = self.convert_yunits(Y)
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
                     raise ValueError(
@@ -5815,13 +5818,9 @@ default: :rc:`scatter.edgecolors`
         if shading is None:
             shading = rcParams['pcolor.shading']
         shading = shading.lower()
-        X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading)
+        X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
+                                            kwargs=kwargs)
         Ny, Nx = X.shape
-
-        # unit conversion allows e.g. datetime objects as axis values
-        self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
-        X = self.convert_xunits(X)
-        Y = self.convert_yunits(Y)
 
         # convert to MA, if necessary.
         C = ma.asarray(C)
@@ -6091,14 +6090,10 @@ default: :rc:`scatter.edgecolors`
         kwargs.setdefault('edgecolors', 'None')
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
-                                            shading=shading)
+                                            shading=shading, kwargs=kwargs)
         Ny, Nx = X.shape
         X = X.ravel()
         Y = Y.ravel()
-        # unit conversion allows e.g. datetime objects as axis values
-        self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
-        X = self.convert_xunits(X)
-        Y = self.convert_yunits(Y)
 
         # convert to one dimensional arrays
         C = C.ravel()
