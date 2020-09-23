@@ -157,3 +157,14 @@ def test_interactive_zoom():
 
     tb.zoom()
     assert ax.get_navigate_mode() is None
+
+
+def test_toolbar_zoompan():
+    plt.rcParams['toolbar'] = 'toolmanager'
+    ax = plt.gca()
+    assert ax.get_navigate_mode() is None
+    tb = NavigationToolbar2(ax.figure.canvas)
+    tb.zoom()
+    assert ax.get_navigate_mode() == "ZOOM"
+    tb.pan()
+    assert ax.get_navigate_mode() == "PAN"
