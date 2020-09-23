@@ -18,7 +18,7 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 
 from mpl_toolkits.axisartist import (
-    angle_helper, Subplot, SubplotHost, ParasiteAxesAuxTrans)
+    angle_helper, Axes, HostAxes, ParasiteAxesAuxTrans)
 from mpl_toolkits.axisartist.grid_helper_curvelinear import (
     GridHelperCurveLinear)
 
@@ -38,13 +38,11 @@ def curvelinear_test1(fig):
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
-    ax1 = Subplot(fig, 1, 2, 1, grid_helper=grid_helper)
+    ax1 = fig.add_subplot(1, 2, 1, axes_class=Axes, grid_helper=grid_helper)
     # ax1 will have a ticks and gridlines defined by the given
     # transform (+ transData of the Axes). Note that the transform of
     # the Axes itself (i.e., transData) is not affected by the given
     # transform.
-
-    fig.add_subplot(ax1)
 
     xx, yy = tr([3, 6], [5, 10])
     ax1.plot(xx, yy, linewidth=2.0)
@@ -84,7 +82,8 @@ def curvelinear_test2(fig):
     grid_helper = GridHelperCurveLinear(
         tr, extreme_finder=extreme_finder,
         grid_locator1=grid_locator1, tick_formatter1=tick_formatter1)
-    ax1 = SubplotHost(fig, 1, 2, 2, grid_helper=grid_helper)
+    ax1 = fig.add_subplot(
+        1, 2, 2, axes_class=HostAxes, grid_helper=grid_helper)
 
     # make ticklabels of right and top axis visible.
     ax1.axis["right"].major_ticklabels.set_visible(True)
@@ -93,8 +92,6 @@ def curvelinear_test2(fig):
     ax1.axis["right"].get_helper().nth_coord_ticks = 0
     # let bottom axis shows ticklabels for 2nd coordinate (radius)
     ax1.axis["bottom"].get_helper().nth_coord_ticks = 1
-
-    fig.add_subplot(ax1)
 
     ax1.set_aspect(1)
     ax1.set_xlim(-5, 12)

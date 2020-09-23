@@ -52,13 +52,13 @@ To create an axes, ::
 
   import mpl_toolkits.axisartist as AA
   fig = plt.figure()
-  ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
-  fig.add_axes(ax)
+  fig.add_axes([0.1, 0.1, 0.8, 0.8], axes_class=AA.Axes)
 
 or to create a subplot ::
 
-  ax = AA.Subplot(fig, 111)
-  fig.add_subplot(ax)
+  fig.add_subplot(111, axes_class=AA.Axes)
+  # Given that 111 is the default, one can also do
+  fig.add_subplot(axes_class=AA.Axes)
 
 For example, you can hide the right and top spines using::
 
@@ -493,7 +493,7 @@ transform of the axes itself (ax.transData) is still rectilinear
 
     from mpl_toolkits.axisartist.grid_helper_curvelinear \
          import GridHelperCurveLinear
-    from mpl_toolkits.axisartist import Subplot
+    from mpl_toolkits.axisartist import Axes
 
     # from curved coordinate to rectlinear coordinate.
     def tr(x, y):
@@ -507,9 +507,7 @@ transform of the axes itself (ax.transData) is still rectilinear
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
-    ax1 = Subplot(fig, 1, 1, 1, grid_helper=grid_helper)
-
-    fig.add_subplot(ax1)
+    fig.add_subplot(axes_class=Axes, grid_helper=grid_helper)
 
 You may use Matplotlib's Transform instance instead (but a
 inverse transformation must be defined). Often, coordinate range in a
