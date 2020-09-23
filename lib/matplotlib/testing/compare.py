@@ -36,7 +36,7 @@ def get_cache_dir():
     return str(cache_dir)
 
 
-def get_file_hash(path, block_size=2 ** 20):
+def get_file_hash(path, block_size=2 ** 20, converter=None):
     md5 = hashlib.md5()
     with open(path, 'rb') as fd:
         while True:
@@ -45,11 +45,13 @@ def get_file_hash(path, block_size=2 ** 20):
                 break
             md5.update(data)
 
-    if Path(path).suffix == '.pdf':
-        md5.update(str(mpl._get_executable_info("gs").version)
+    if converter is not None:
+        md5.update(str(converter._version).encode('utf-8'))
+    elif Path(path).suffix == '.pdf':
+        md5.update(str(mpl._get_executable_info("gs")._version)
                    .encode('utf-8'))
     elif Path(path).suffix == '.svg':
-        md5.update(str(mpl._get_executable_info("inkscape").version)
+        md5.update(str(mpl._get_executable_info("inkscape")._version)
                    .encode('utf-8'))
 
     return md5.hexdigest()
@@ -118,7 +120,34 @@ class _Converter:
                 return bytes(buf[:-len(terminator)])
 
 
+class _QLConverter(_Converter):
+    def __init__(self):
+        super().__init__()
+        self._proc = None
+        self._tmpdir = TemporaryDirectory()
+        self._tmppath = Path(self._tmpdir.name)
+        self._version = mpl._get_executable_info("qlmanage").version
+
+    def __call__(self, orig, dest):
+        try:
+            # qlmanage does not follow symlinks so copy the file
+            copied = str(self._tmppath / orig.name)
+            shutil.copy(orig, copied)
+            subprocess.check_call(
+                ["qlmanage", "-t", "-f4", "-o", self._tmpdir.name, copied],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            (self._tmppath / (orig.name + ".png")).rename(dest)
+        except Exception as e:
+            raise _ConverterError(e)
+
+
 class _GSConverter(_Converter):
+    def __init__(self):
+        super().__init__()
+        self._version = mpl._get_executable_info("gs").version
+
     def __call__(self, orig, dest):
         if not self._proc:
             self._proc = subprocess.Popen(
@@ -157,8 +186,12 @@ class _GSConverter(_Converter):
 
 
 class _SVGConverter(_Converter):
+    def __init__(self):
+        super().__init__()
+        self._version = mpl._get_executable_info("inkscape").version
+
     def __call__(self, orig, dest):
-        old_inkscape = mpl._get_executable_info("inkscape").version < "1"
+        old_inkscape = self._version < "1"
         terminator = b"\n>" if old_inkscape else b"> "
         if not hasattr(self, "_tmpdir"):
             self._tmpdir = TemporaryDirectory()
@@ -227,17 +260,25 @@ class _SVGConverter(_Converter):
 
 def _update_converter():
     try:
+        mpl._get_executable_info("qlmanage")
+    except mpl.ExecutableNotFoundError:
+        pass
+    else:
+        converter['pdf'] = converter['svg'] = _QLConverter()
+    try:
         mpl._get_executable_info("gs")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        converter['pdf'] = converter['eps'] = _GSConverter()
+        conv = _GSConverter()
+        converter.setdefault('eps', conv)
+        converter.setdefault('pdf', conv)
     try:
         mpl._get_executable_info("inkscape")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        converter['svg'] = _SVGConverter()
+        converter.setdefault('svg', _SVGConverter())
 
 
 #: A dictionary that maps filename extensions to functions which
@@ -283,15 +324,16 @@ def convert(filename, cache):
     # is out of date.
     if not newpath.exists() or newpath.stat().st_mtime < path.stat().st_mtime:
         cache_dir = Path(get_cache_dir()) if cache else None
+        cvt = converter[path.suffix[1:]]
 
         if cache_dir is not None:
-            hash_value = get_file_hash(path)
+            hash_value = get_file_hash(path, converter=cvt)
             cached_path = cache_dir / (hash_value + newpath.suffix)
             if cached_path.exists():
                 shutil.copyfile(cached_path, newpath)
                 return str(newpath)
 
-        converter[path.suffix[1:]](path, newpath)
+        cvt(path, newpath)
 
         if cache_dir is not None:
             shutil.copyfile(newpath, cached_path)
