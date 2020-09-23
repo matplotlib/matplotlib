@@ -17,7 +17,7 @@ if not mpl.checkdep_usetex(True):
 def test_usetex():
     mpl.rcParams['text.usetex'] = True
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     kwargs = {"verticalalignment": "baseline", "size": 24,
               "bbox": dict(pad=0, edgecolor="k", facecolor="none")}
     ax.text(0.2, 0.7,

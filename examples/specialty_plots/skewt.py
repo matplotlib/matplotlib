@@ -79,8 +79,7 @@ class SkewSpine(mspines.Spine):
 # spines and axes instances as appropriate.
 class SkewXAxes(Axes):
     # The projection must specify a name.  This will be used be the
-    # user to select the projection, i.e. ``subplot(111,
-    # projection='skewx')``.
+    # user to select the projection, i.e. ``subplot(projection='skewx')``.
     name = 'skewx'
 
     def _init_axis(self):
@@ -236,7 +235,7 @@ if __name__ == '__main__':
 
     # Create a new figure. The dimensions here give a good aspect ratio
     fig = plt.figure(figsize=(6.5875, 6.2125))
-    ax = fig.add_subplot(111, projection='skewx')
+    ax = fig.add_subplot(projection='skewx')
 
     plt.grid(True)
 

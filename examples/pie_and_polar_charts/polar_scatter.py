@@ -21,7 +21,7 @@ area = 200 * r**2
 colors = theta
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='polar')
+ax = fig.add_subplot(projection='polar')
 c = ax.scatter(theta, r, c=colors, s=area, cmap='hsv', alpha=0.75)
 
 ###############################################################################
@@ -33,7 +33,7 @@ c = ax.scatter(theta, r, c=colors, s=area, cmap='hsv', alpha=0.75)
 # rotate the plot.
 
 fig = plt.figure()
-ax = fig.add_subplot(111, polar=True)
+ax = fig.add_subplot(polar=True)
 c = ax.scatter(theta, r, c=colors, s=area, cmap='hsv', alpha=0.75)
 
 ax.set_rorigin(-2.5)
@@ -47,7 +47,7 @@ ax.set_theta_zero_location('W', offset=10)
 # theta start and end limits, producing a sector instead of a full circle.
 
 fig = plt.figure()
-ax = fig.add_subplot(111, polar=True)
+ax = fig.add_subplot(polar=True)
 c = ax.scatter(theta, r, c=colors, s=area, cmap='hsv', alpha=0.75)
 
 ax.set_thetamin(45)

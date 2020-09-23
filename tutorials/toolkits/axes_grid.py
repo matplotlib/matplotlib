@@ -128,7 +128,7 @@ scatter_hist.py with AxesDivider
 The :doc:`/gallery/lines_bars_and_markers/scatter_hist` example can be
 rewritten using `~.axes_grid1.axes_divider.make_axes_locatable`::
 
-    axScatter = subplot(111)
+    axScatter = plt.subplot()
     axScatter.scatter(x, y)
     axScatter.set_aspect(1.)
 

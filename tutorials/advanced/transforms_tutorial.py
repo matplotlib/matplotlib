@@ -492,7 +492,7 @@ plt.show()
 #
 # .. sourcecode:: ipython
 #
-#     In [80]: ax = subplot(111)
+#     In [80]: ax = plt.subplot()
 #
 #     In [81]: ax.set_xlim(0, 10)
 #     Out[81]: (0, 10)

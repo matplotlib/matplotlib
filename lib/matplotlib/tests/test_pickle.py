@@ -138,7 +138,7 @@ def test_image():
 
 
 def test_polar():
-    plt.subplot(111, polar=True)
+    plt.subplot(polar=True)
     fig = plt.gcf()
     pf = pickle.dumps(fig)
     pickle.loads(pf)

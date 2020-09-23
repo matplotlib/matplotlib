@@ -20,7 +20,7 @@ mpl3d_image_comparison = functools.partial(
 
 def test_aspect_equal_error():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     with pytest.raises(NotImplementedError):
         ax.set_aspect('equal')
 
@@ -28,7 +28,7 @@ def test_aspect_equal_error():
 @mpl3d_image_comparison(['bar3d.png'])
 def test_bar3d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     for c, z in zip(['r', 'g', 'b', 'y'], [30, 20, 10, 0]):
         xs = np.arange(20)
         ys = np.arange(20)
@@ -39,7 +39,7 @@ def test_bar3d():
 
 def test_bar3d_colors():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     for c in ['red', 'green', 'blue', 'yellow']:
         xs = np.arange(len(c))
         ys = np.zeros_like(xs)
@@ -72,7 +72,7 @@ def test_bar3d_shaded():
 @mpl3d_image_comparison(['bar3d_notshaded.png'])
 def test_bar3d_notshaded():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     x = np.arange(4)
     y = np.arange(5)
     x2d, y2d = np.meshgrid(x, y)
@@ -225,7 +225,7 @@ def test_tight_layout_text(fig_test, fig_ref):
 @mpl3d_image_comparison(['scatter3d.png'])
 def test_scatter3d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
                c='r', marker='o')
     x = y = z = np.arange(10, 20)
@@ -236,7 +236,7 @@ def test_scatter3d():
 @mpl3d_image_comparison(['scatter3d_color.png'])
 def test_scatter3d_color():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     # Check that 'none' color works; these two should overlay to produce the
     # same as setting just `color`.
@@ -353,7 +353,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
 @mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.01)
 def test_plot_3d_from_2d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     xs = np.arange(0, 5)
     ys = np.arange(5, 10)
     ax.plot(xs, ys, zs=0, zdir='x')
@@ -480,7 +480,7 @@ def test_trisurf3d_shaded():
 @mpl3d_image_comparison(['wireframe3d.png'])
 def test_wireframe3d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
 
@@ -488,7 +488,7 @@ def test_wireframe3d():
 @mpl3d_image_comparison(['wireframe3dzerocstride.png'])
 def test_wireframe3dzerocstride():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=0)
 
@@ -496,14 +496,14 @@ def test_wireframe3dzerocstride():
 @mpl3d_image_comparison(['wireframe3dzerorstride.png'])
 def test_wireframe3dzerorstride():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
 
 
 def test_wireframe3dzerostrideraises():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     with pytest.raises(ValueError):
         ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
@@ -511,7 +511,7 @@ def test_wireframe3dzerostrideraises():
 
 def test_mixedsamplesraises():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     with pytest.raises(ValueError):
         ax.plot_wireframe(X, Y, Z, rstride=10, ccount=50)
@@ -865,7 +865,7 @@ def test_axes3d_ortho():
 def test_invalid_axes_limits(setter, side, value):
     limit = {side: value}
     fig = plt.figure()
-    obj = fig.add_subplot(111, projection='3d')
+    obj = fig.add_subplot(projection='3d')
     with pytest.raises(ValueError):
         getattr(obj, setter)(**limit)
 
@@ -996,7 +996,7 @@ def test_line3d_set_get_data_3d():
     x, y, z = [0, 1], [2, 3], [4, 5]
     x2, y2, z2 = [6, 7], [8, 9], [10, 11]
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     lines = ax.plot(x, y, z)
     line = lines[0]
     np.testing.assert_array_equal((x, y, z), line.get_data_3d())
@@ -1159,7 +1159,7 @@ def test_equal_box_aspect():
     from itertools import product, combinations
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    ax = fig.add_subplot(projection="3d")
 
     # Make data
     u = np.linspace(0, 2 * np.pi, 100)

@@ -25,7 +25,7 @@ def test_polar_annotations():
     theta = 2.0 * 2.0 * np.pi * r
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, polar=True)
+    ax = fig.add_subplot(polar=True)
     line, = ax.plot(theta, r, color='#ee8d18', lw=3)
     line, = ax.plot((0, 0), (0, 1), color="#0000ff", lw=1)
 
@@ -52,7 +52,7 @@ def test_polar_coord_annotations():
     el = mpl.patches.Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, aspect='equal')
+    ax = fig.add_subplot(aspect='equal')
 
     ax.add_artist(el)
     el.set_clip_box(ax.bbox)
@@ -217,7 +217,7 @@ def test_polar_theta_position():
 @image_comparison(['polar_rlabel_position'], style='default')
 def test_polar_rlabel_position():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='polar')
+    ax = fig.add_subplot(projection='polar')
     ax.set_rlabel_position(315)
     ax.tick_params(rotation='auto')
 
@@ -299,7 +299,7 @@ def test_polar_not_datalim_adjustable():
 
 def test_polar_gridlines():
     fig = plt.figure()
-    ax = fig.add_subplot(111, polar=True)
+    ax = fig.add_subplot(polar=True)
     # make all major grid lines lighter, only x grid lines set in 2.1.0
     ax.grid(alpha=0.2)
     # hide y tick labels, no effect in 2.1.0

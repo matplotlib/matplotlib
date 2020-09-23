@@ -181,7 +181,7 @@ def test_RRuleLocator():
     tf = datetime.datetime(6000, 1, 1)
 
     fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.subplot()
     ax.set_autoscale_on(True)
     ax.plot([t0, tf], [0.0, 1.0], marker='o')
 
@@ -214,7 +214,7 @@ def test_DateFormatter():
     tf = datetime.datetime(2001, 1, 1, 0, 0, 1)
 
     fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.subplot()
     ax.set_autoscale_on(True)
     ax.plot([t0, tf], [0.0, 1.0], marker='o')
 

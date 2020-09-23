@@ -370,7 +370,7 @@ class HammerAxes(GeoAxes):
 
     # The projection must specify a name. This will be used by the
     # user to select the projection,
-    # i.e. ``subplot(111, projection='custom_hammer')``.
+    # i.e. ``subplot(projection='custom_hammer')``.
     name = 'custom_hammer'
 
     class HammerTransform(Transform):
@@ -441,7 +441,7 @@ register_projection(HammerAxes)
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     # Now make a simple example using the custom projection.
-    plt.subplot(111, projection="custom_hammer")
+    plt.subplot(projection="custom_hammer")
     p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
     plt.grid(True)
 
