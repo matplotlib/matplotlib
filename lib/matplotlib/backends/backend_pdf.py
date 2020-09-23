@@ -183,19 +183,19 @@ def _create_pdf_info_dict(backend, metadata):
     info = {k: v for (k, v) in info.items() if v is not None}
 
     def is_string_like(x):
-        """an instance of str"""
         return isinstance(x, str)
+    is_string_like.text_for_warning = "an instance of str"
 
     def is_date(x):
-        """an instance of datetime.datetime"""
         return isinstance(x, datetime)
+    is_date.text_for_warning = "an instance of datetime.datetime"
 
     def check_trapped(x):
-        """one of {"True", "False", "Unknown"}"""
         if isinstance(x, Name):
             return x.name in (b'True', b'False', b'Unknown')
         else:
             return x in ('True', 'False', 'Unknown')
+    check_trapped.text_for_warning = 'one of {"True", "False", "Unknown"}'
 
     keywords = {
         'Title': is_string_like,
@@ -215,7 +215,7 @@ def _create_pdf_info_dict(backend, metadata):
         elif not keywords[k](info[k]):
             cbook._warn_external(f'Bad value for infodict keyword {k}. '
                                  f'Got {info[k]!r} which is not '
-                                 f'{keywords[k].__doc__}.')
+                                 f'{keywords[k].text_for_warning}.')
     if 'Trapped' in info:
         info['Trapped'] = Name(info['Trapped'])
 
