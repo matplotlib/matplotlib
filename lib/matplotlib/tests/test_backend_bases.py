@@ -3,6 +3,8 @@ import re
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
+from matplotlib.backend_tools import (ToolZoom, ToolPan,
+                                      ToolViewsPositions, _views_positions)
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
@@ -163,8 +165,20 @@ def test_toolbar_zoompan():
     plt.rcParams['toolbar'] = 'toolmanager'
     ax = plt.gca()
     assert ax.get_navigate_mode() is None
-    tb = NavigationToolbar2(ax.figure.canvas)
-    tb.zoom()
-    assert ax.get_navigate_mode() == "ZOOM"
-    tb.pan()
-    assert ax.get_navigate_mode() == "PAN"
+    with pytest.warns(UserWarning) as rec:
+        ax.figure.canvas.manager.toolmanager.add_tool(name="zoom",
+                                                      tool=ToolZoom)
+        ax.figure.canvas.manager.toolmanager.add_tool(name="pan",
+                                                      tool=ToolPan)
+        ax.figure.canvas.manager.toolmanager.add_tool(name=_views_positions,
+                                                      tool=ToolViewsPositions)
+        ax.figure.canvas.manager.toolmanager.trigger_tool('zoom')
+        assert ax.get_navigate_mode() == "ZOOM"
+        ax.figure.canvas.manager.toolmanager.trigger_tool('pan')
+        assert ax.get_navigate_mode() == "PAN"
+        assert(len(rec) == 4)
+        for r in rec[:-1]:
+            assert("The new Tool classes introduced in v1.5 are experimental"
+                   in str(r.message))
+        assert("ToolManager does not control tool rubberband"
+               in str(rec[-1].message))
