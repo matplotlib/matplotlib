@@ -23,6 +23,7 @@ from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
+from matplotlib.figure import Figure
 import matplotlib.font_manager as mfont_manager
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
@@ -6774,3 +6775,12 @@ def test_2dcolor_plot(fig_test, fig_ref):
     axs[2].step([1, 2], [1, 2], c=color.reshape((1, -1)))
     axs[3].hist(np.arange(10), color=color.reshape((1, -1)))
     axs[4].bar(np.arange(10), np.arange(10), color=color.reshape((1, -1)))
+
+
+@pytest.mark.parametrize('ha', ['left', 'center', 'right'])
+def test_ylabel_ha_with_position(ha):
+    fig = Figure()
+    ax = fig.subplots()
+    ax.set_ylabel("test", y=1, ha=ha)
+    ax.yaxis.set_label_position("right")
+    assert ax.yaxis.get_label().get_ha() == ha
