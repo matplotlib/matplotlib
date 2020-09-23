@@ -252,7 +252,9 @@ def test_scatter3d_modification(fig_ref, fig_test):
     c.set_facecolor('C1')
     c.set_edgecolor('C2')
     c.set_alpha([0.3, 0.7] * 5)
+    assert c.get_depthshade()
     c.set_depthshade(False)
+    assert not c.get_depthshade()
     c.set_sizes(np.full(10, 75))
     c.set_linewidths(3)
 
@@ -556,7 +558,9 @@ def test_patch_collection_modification(fig_test, fig_ref):
     c.set_edgecolor('C2')
     c.set_facecolor('C3')
     c.set_alpha(0.7)
+    assert c.get_depthshade()
     c.set_depthshade(False)
+    assert not c.get_depthshade()
 
     patch = Circle((0, 0), 0.05)
     c = art3d.Patch3DCollection([patch], linewidths=3,
