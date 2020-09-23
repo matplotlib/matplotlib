@@ -1,4 +1,3 @@
-from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 from matplotlib.scale import (
     LogTransform, InvertedLogTransform,
@@ -106,17 +105,12 @@ def test_logscale_mask():
     ax.set(yscale="log")
 
 
-def test_extra_kwargs_raise_or_warn():
+def test_extra_kwargs_raise():
     fig, ax = plt.subplots()
 
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.set_yscale('linear', foo='mask')
-
-    with pytest.raises(TypeError):
-        ax.set_yscale('log', foo='mask')
-
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.set_yscale('symlog', foo='mask')
+    for scale in ['linear', 'log', 'symlog']:
+        with pytest.raises(TypeError):
+            ax.set_yscale(scale, foo='mask')
 
 
 def test_logscale_invert_transform():

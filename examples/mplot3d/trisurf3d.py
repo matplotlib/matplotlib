@@ -26,8 +26,7 @@ y = np.append(0, (radii*np.sin(angles)).flatten())
 # Compute z to make the pringle surface.
 z = np.sin(-x*y)
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 ax.plot_trisurf(x, y, z, linewidth=0.2, antialiased=True)
 

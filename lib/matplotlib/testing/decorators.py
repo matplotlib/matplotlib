@@ -9,12 +9,7 @@ import string
 import sys
 import unittest
 import warnings
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py3.6.
 
-import matplotlib as mpl
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
@@ -219,7 +214,8 @@ class _ImageComparisonBase:
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
 
-        lock = cbook._lock_path(actual_path) if _lock else nullcontext()
+        lock = (cbook._lock_path(actual_path)
+                if _lock else contextlib.nullcontext())
         with lock:
             fig.savefig(actual_path, **kwargs)
             expected_path = self.copy_baseline(baseline, extension)
@@ -336,6 +332,9 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     tol : float, default: 0
         The RMS threshold above which the test is considered failed.
 
+        Due to expected small differences in floating-point calculations, on
+        32-bit systems an additional 0.06 is added to this threshold.
+
     freetype_version : str or tuple
         The expected freetype version or range of versions for this test to
         pass.
@@ -378,6 +377,8 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         extensions = ['png', 'pdf', 'svg']
     if savefig_kwarg is None:
         savefig_kwarg = dict()  # default no kwargs to savefig
+    if sys.maxsize <= 2**32:
+        tol += 0.06
     return _pytest_image_comparison(
         baseline_images=baseline_images, extensions=extensions, tol=tol,
         freetype_version=freetype_version, remove_text=remove_text,

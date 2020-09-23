@@ -1,5 +1,6 @@
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.tight_bbox import process_figure_for_rasterizing
 
@@ -20,21 +21,16 @@ class MixedModeRenderer:
         ----------
         figure : `matplotlib.figure.Figure`
             The figure instance.
-
         width : scalar
             The width of the canvas in logical units
-
         height : scalar
             The height of the canvas in logical units
-
         dpi : float
             The dpi of the canvas
-
         vector_renderer : `matplotlib.backend_bases.RendererBase`
             An instance of a subclass of
             `~matplotlib.backend_bases.RendererBase` that will be used for the
             vector drawing.
-
         raster_renderer_class : `matplotlib.backend_bases.RendererBase`
             The renderer class to use for the raster drawing.  If not provided,
             this will use the Agg backend (which is currently the only viable
@@ -52,7 +48,6 @@ class MixedModeRenderer:
         self._vector_renderer = vector_renderer
 
         self._raster_renderer = None
-        self._rasterizing = 0
 
         # A reference to the figure is needed as we need to change
         # the figure dpi before and after the rasterization. Although
@@ -84,47 +79,38 @@ class MixedModeRenderer:
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore)
             self._bbox_inches_restore = r
-        if self._rasterizing == 0:
-            self._raster_renderer = self._raster_renderer_class(
-                self._width*self.dpi, self._height*self.dpi, self.dpi)
-            self._renderer = self._raster_renderer
-        self._rasterizing += 1
+
+        self._raster_renderer = self._raster_renderer_class(
+            self._width*self.dpi, self._height*self.dpi, self.dpi)
+        self._renderer = self._raster_renderer
 
     def stop_rasterizing(self):
         """
         Exit "raster" mode.  All of the drawing that was done since
         the last `start_rasterizing` call will be copied to the
         vector backend by calling draw_image.
-
-        If `start_rasterizing` has been called multiple times,
-        `stop_rasterizing` must be called the same number of times before
-        "raster" mode is exited.
         """
-        self._rasterizing -= 1
-        if self._rasterizing == 0:
-            self._renderer = self._vector_renderer
 
-            height = self._height * self.dpi
-            buffer, bounds = self._raster_renderer.tostring_rgba_minimized()
-            l, b, w, h = bounds
-            if w > 0 and h > 0:
-                image = np.frombuffer(buffer, dtype=np.uint8)
-                image = image.reshape((h, w, 4))
-                image = image[::-1]
-                gc = self._renderer.new_gc()
-                # TODO: If the mixedmode resolution differs from the figure's
-                #       dpi, the image must be scaled (dpi->_figdpi). Not all
-                #       backends support this.
-                self._renderer.draw_image(
-                    gc,
-                    l * self._figdpi / self.dpi,
-                    (height-b-h) * self._figdpi / self.dpi,
-                    image)
-            self._raster_renderer = None
-            self._rasterizing = False
+        self._renderer = self._vector_renderer
 
-            # restore the figure dpi.
-            self.figure.set_dpi(self._figdpi)
+        height = self._height * self.dpi
+        img = np.asarray(self._raster_renderer.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(img[..., 3])
+        cropped_img = img[slice_y, slice_x]
+        if cropped_img.size:
+            gc = self._renderer.new_gc()
+            # TODO: If the mixedmode resolution differs from the figure's
+            #       dpi, the image must be scaled (dpi->_figdpi). Not all
+            #       backends support this.
+            self._renderer.draw_image(
+                gc,
+                slice_x.start * self._figdpi / self.dpi,
+                (height - slice_y.stop) * self._figdpi / self.dpi,
+                cropped_img[::-1])
+        self._raster_renderer = None
+
+        # restore the figure dpi.
+        self.figure.set_dpi(self._figdpi)
 
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,

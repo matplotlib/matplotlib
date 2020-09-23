@@ -1,0 +1,5 @@
+``matplotlib.cm`` removals
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``matplotlib.cm.revcmap()`` has been removed. Use ``Colormap.reversed()``
+  instead.

@@ -9,7 +9,7 @@ import weakref
 
 import numpy as np
 
-from . import artist, cbook, docstring, rcParams
+from . import _api, artist, cbook, docstring, rcParams
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -136,6 +136,7 @@ class Text(Artist):
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
+                 transform_rotates_text=False,
                  **kwargs
                  ):
         """
@@ -145,7 +146,7 @@ class Text(Artist):
 
         %(Text)s
         """
-        Artist.__init__(self)
+        super().__init__()
         self._x, self._y = x, y
         self._text = ''
         self.set_text(text)
@@ -157,6 +158,7 @@ class Text(Artist):
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
         self._rotation = rotation
+        self._transform_rotates_text = transform_rotates_text
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
@@ -228,7 +230,20 @@ class Text(Artist):
 
     def get_rotation(self):
         """Return the text angle in degrees between 0 and 360."""
-        return get_rotation(self._rotation)  # string_or_number -> number
+        if self.get_transform_rotates_text():
+            angle = get_rotation(self._rotation)
+            x, y = self.get_unitless_position()
+            angles = [angle, ]
+            pts = [[x, y]]
+            return self.get_transform().transform_angles(angles, pts).item(0)
+        else:
+            return get_rotation(self._rotation)  # string_or_number -> number
+
+    def get_transform_rotates_text(self):
+        """
+        Return whether rotations of the transform affect the text direction.
+        """
+        return self._transform_rotates_text
 
     def set_rotation_mode(self, m):
         """
@@ -241,7 +256,7 @@ class Text(Artist):
             aligned according to their horizontal and vertical alignments.  If
             ``"anchor"``, then alignment occurs before rotation.
         """
-        cbook._check_in_list(["anchor", "default", None], rotation_mode=m)
+        _api.check_in_list(["anchor", "default", None], rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 
@@ -251,7 +266,7 @@ class Text(Artist):
 
     def update_from(self, other):
         # docstring inherited
-        Artist.update_from(self, other)
+        super().update_from(other)
         self._color = other._color
         self._multialignment = other._multialignment
         self._verticalalignment = other._verticalalignment
@@ -259,6 +274,7 @@ class Text(Artist):
         self._fontproperties = other._fontproperties.copy()
         self._usetex = other._usetex
         self._rotation = other._rotation
+        self._transform_rotates_text = other._transform_rotates_text
         self._picker = other._picker
         self._linespacing = other._linespacing
         self.stale = True
@@ -449,20 +465,12 @@ class Text(Artist):
             else:
                 if pad is None:
                     pad = 0.3
-
             # boxstyle could be a callable or a string
             if isinstance(boxstyle, str) and "pad" not in boxstyle:
                 boxstyle += ",pad=%0.2f" % pad
-
-            bbox_transmuter = props.pop("bbox_transmuter", None)
-
             self._bbox_patch = FancyBboxPatch(
-                                    (0., 0.),
-                                    1., 1.,
-                                    boxstyle=boxstyle,
-                                    bbox_transmuter=bbox_transmuter,
-                                    transform=IdentityTransform(),
-                                    **props)
+                (0, 0), 1, 1,
+                boxstyle=boxstyle, transform=IdentityTransform(), **props)
         else:
             self._bbox_patch = None
 
@@ -843,6 +851,7 @@ class Text(Artist):
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties),
                 self._rotation, self._rotation_mode,
+                self._transform_rotates_text,
                 self.figure.dpi, weakref.ref(renderer),
                 self._linespacing
                 )
@@ -947,7 +956,7 @@ class Text(Artist):
         ----------
         align : {'center', 'right', 'left'}
         """
-        cbook._check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
         self.stale = True
 
@@ -963,7 +972,7 @@ class Text(Artist):
         ----------
         align : {'left', 'right', 'center'}
         """
-        cbook._check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(['center', 'right', 'left'], align=align)
         self._multialignment = align
         self.stale = True
 
@@ -1052,6 +1061,40 @@ class Text(Artist):
         self._fontproperties.set_size(fontsize)
         self.stale = True
 
+    def get_math_fontfamily(self):
+        """
+        Return the font family name for math text rendered by Matplotlib.
+
+        The default value is :rc:`mathtext.fontset`.
+
+        See Also
+        --------
+        set_math_fontfamily
+        """
+        return self._fontproperties.get_math_fontfamily()
+
+    def set_math_fontfamily(self, fontfamily):
+        """
+        Set the font family for math text rendered by Matplotlib.
+
+        This does only affect Matplotlib's own math renderer. It has no effect
+        when rendering with TeX (``usetex=True``).
+
+        Parameters
+        ----------
+        fontfamily : str
+            The name of the font family.
+
+            Available font families are defined in the
+            :ref:`matplotlibrc.template file
+            <customizing-with-matplotlibrc-files>`.
+
+        See Also
+        --------
+        get_math_fontfamily
+        """
+        self._fontproperties.set_math_fontfamily(fontfamily)
+
     def set_fontweight(self, weight):
         """
         Set the font weight.
@@ -1132,6 +1175,17 @@ class Text(Artist):
         self._rotation = s
         self.stale = True
 
+    def set_transform_rotates_text(self, t):
+        """
+        Whether rotations of the transform affect the text direction.
+
+        Parameters
+        ----------
+        t : bool
+        """
+        self._transform_rotates_text = t
+        self.stale = True
+
     def set_verticalalignment(self, align):
         """
         Set the vertical alignment.
@@ -1140,7 +1194,7 @@ class Text(Artist):
         ----------
         align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
         """
-        cbook._check_in_list(
+        _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
             align=align)
         self._verticalalignment = align
@@ -1273,7 +1327,7 @@ class OffsetFrom:
         ----------
         unit : {'points', 'pixels'}
         """
-        cbook._check_in_list(["points", "pixels"], unit=unit)
+        _api.check_in_list(["points", "pixels"], unit=unit)
         self._unit = unit
 
     def get_unit(self):

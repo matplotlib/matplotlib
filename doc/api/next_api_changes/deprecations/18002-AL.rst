@@ -1,0 +1,11 @@
+Deprecation of various mathtext helpers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``MathtextBackendPdf``, ``MathtextBackendPs``, ``MathtextBackendSvg``,
+and ``MathtextBackendCairo`` classes from the :mod:`.mathtext` module, as
+well as the corresponding ``.mathtext_parser`` attributes on ``RendererPdf``,
+``RendererPS``, ``RendererSVG``, and ``RendererCairo``, are deprecated.  The
+``MathtextBackendPath`` class can be used to obtain a list of glyphs and
+rectangles in a mathtext expression, and renderer-specific logic should be
+directly implemented in the renderer.
+
+``StandardPsFonts.pswriter`` is unused and deprecated.

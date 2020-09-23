@@ -127,3 +127,17 @@ Plot 16 uses a specific function in a file with plot commands:
 .. plot:: range6.py range6
 
 
+Plot 17 gets a caption specified by the :caption: option:
+
+.. plot::
+   :caption: Plot 17 uses the caption option.
+
+   plt.figure()
+   plt.plot(range(6))
+
+
+Plot 18 uses an external file with the plot commands and a caption
+using the :caption: option:
+
+.. plot:: range4.py
+   :caption: This is the caption for plot 18.

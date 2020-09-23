@@ -43,8 +43,10 @@ make_axes_kw_doc = '''
     ============= ====================================================
     *orientation* vertical or horizontal
     *fraction*    0.15; fraction of original axes to use for colorbar
-    *pad*         0.05 if vertical, 0.15 if horizontal; fraction
-                  of original axes between colorbar and new image axes
+    *pad*         Defaults to 0.05 if vertical, 0.15 if horizontal; fraction
+                  of original axes between colorbar and new image axes.
+                  Defaults to 0.05 for both if `.get_constrained_layout`
+                  is *True*.
     *shrink*      1.0; fraction by which to shrink the colorbar
     *aspect*      20; ratio of long to short dimensions
     ============= ====================================================
@@ -334,7 +336,7 @@ class ColorbarBase(cm.ScalarMappable):
         if norm is None:
             norm = colors.Normalize()
         self.alpha = alpha
-        cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
+        super().__init__(cmap=cmap, norm=norm)
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
@@ -671,11 +673,11 @@ class Colorbar(ColorbarBase):
             #kw['ticks'] = CS._levels
             kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
             kw['filled'] = CS.filled
-            ColorbarBase.__init__(self, ax, **kw)
+            super().__init__(ax, **kw)
             if not CS.filled:
                 self.add_lines(CS)
         else:
-            ColorbarBase.__init__(self, ax, **kw)
+            super().__init__(ax, **kw)
 
     def add_lines(self, CS):
         """Add the lines from a non-filled `.ContourSet` to the colorbar."""
@@ -690,7 +692,7 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
+        super().add_lines(CS.levels, tcolors, tlinewidths)
 
     def update_normal(self, mappable):
         """

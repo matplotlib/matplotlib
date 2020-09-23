@@ -41,7 +41,8 @@ def run_memleak_test(bench, iterations, report):
         print("{0: 4d}: pymalloc {1: 10d}, rss {2: 10d}, nobjs {3: 10d}, "
               "garbage {4: 4d}, files: {5: 4d}".format(
                   i, malloc, rss, nobjs, garbage, open_files))
-
+        if i == starti:
+            print('{:-^86s}'.format(' warmup done '))
         malloc_arr[i] = malloc
         rss_arr[i] = rss
         if rss > rss_peak:
@@ -55,18 +56,25 @@ def run_memleak_test(bench, iterations, report):
         np.sum(rss_peaks[starti+1:] - rss_peaks[starti:-1]) / (endi - starti)))
 
     from matplotlib import pyplot as plt
+    from matplotlib.ticker import EngFormatter
+    bytes_formatter = EngFormatter(unit='B')
     fig, (ax1, ax2, ax3) = plt.subplots(3)
+    for ax in (ax1, ax2, ax3):
+        ax.axvline(starti, linestyle='--', color='k')
     ax1b = ax1.twinx()
-    ax1.plot(malloc_arr, 'r')
-    ax1b.plot(rss_arr, 'b')
-    ax1.set_ylabel('pymalloc', color='r')
-    ax1b.set_ylabel('rss', color='b')
+    ax1b.yaxis.set_major_formatter(bytes_formatter)
+    ax1.plot(malloc_arr, 'C0')
+    ax1b.plot(rss_arr, 'C1', label='rss')
+    ax1b.plot(rss_peaks, 'C1', linestyle='--', label='rss max')
+    ax1.set_ylabel('pymalloc', color='C0')
+    ax1b.set_ylabel('rss', color='C1')
+    ax1b.legend()
 
     ax2b = ax2.twinx()
-    ax2.plot(nobjs_arr, 'r')
-    ax2b.plot(garbage_arr, 'b')
-    ax2.set_ylabel('total objects', color='r')
-    ax2b.set_ylabel('garbage objects', color='b')
+    ax2.plot(nobjs_arr, 'C0')
+    ax2b.plot(garbage_arr, 'C1')
+    ax2.set_ylabel('total objects', color='C0')
+    ax2b.set_ylabel('garbage objects', color='C1')
 
     ax3.plot(open_files_arr)
     ax3.set_ylabel('open file handles')
@@ -107,6 +115,7 @@ class MemleakTest:
             ax.pcolor(10 * np.random.rand(50, 50))
 
         fig.savefig(BytesIO(), dpi=75)
+        fig.canvas.flush_events()
         plt.close(1)
 
 

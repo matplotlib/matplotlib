@@ -12,33 +12,30 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 from functools import reduce
+from itertools import compress
 import math
 import textwrap
 
 import numpy as np
 
 from matplotlib import artist
+from matplotlib import _api
 import matplotlib.axes as maxes
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
+import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
-from matplotlib.axes._base import _axis_method_wrapper
+from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
 
 from . import art3d
 from . import proj3d
 from . import axis3d
-
-
-@cbook.deprecated("3.2", alternative="Bbox.unit()")
-def unit_bbox():
-    box = Bbox(np.array([[0, 0], [1, 1]]))
-    return box
 
 
 @cbook._define_aliases({
@@ -158,29 +155,6 @@ class Axes3D(Axes):
 
         """
         return self.zaxis.convert_units(z)
-
-    def _process_unit_info(self, xdata=None, ydata=None, zdata=None,
-                           kwargs=None):
-        """Update the axis instances based on unit *kwargs* if given."""
-        super()._process_unit_info(xdata=xdata, ydata=ydata, kwargs=kwargs)
-
-        if self.xaxis is None or self.yaxis is None or self.zaxis is None:
-            return
-
-        if zdata is not None:
-            # we only need to update if there is nothing set yet.
-            if not self.zaxis.have_units():
-                self.zaxis.update_units(xdata)
-
-        # process kwargs 2nd since these will override default units
-        if kwargs is not None:
-            zunits = kwargs.pop('zunits', self.zaxis.units)
-            if zunits != self.zaxis.units:
-                self.zaxis.set_units(zunits)
-                # If the units being set imply a different converter,
-                # we need to update.
-                if zdata is not None:
-                    self.zaxis.update_units(zdata)
 
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
@@ -410,7 +384,7 @@ class Axes3D(Axes):
         box_aspect = 1
         pb = position.frozen()
         pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
-        self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+        self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -744,7 +718,7 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
 
-        self._process_unit_info(xdata=(left, right))
+        self._process_unit_info([("x", (left, right))], convert=False)
         left = self._validate_converted_limits(left, self.convert_xunits)
         right = self._validate_converted_limits(right, self.convert_xunits)
 
@@ -798,7 +772,7 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
 
-        self._process_unit_info(ydata=(bottom, top))
+        self._process_unit_info([("y", (bottom, top))], convert=False)
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)
 
@@ -853,7 +827,7 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `zmax` and `top`')
             top = zmax
 
-        self._process_unit_info(zdata=(bottom, top))
+        self._process_unit_info([("z", (bottom, top))], convert=False)
         bottom = self._validate_converted_limits(bottom, self.convert_zunits)
         top = self._validate_converted_limits(top, self.convert_zunits)
 
@@ -1012,7 +986,7 @@ class Axes3D(Axes):
         ----------
         proj_type : {'persp', 'ortho'}
         """
-        self._projection = cbook._check_getitem({
+        self._projection = _api.check_getitem({
             'persp': proj3d.persp_transformation,
             'ortho': proj3d.ortho_transformation,
         }, proj_type=proj_type)
@@ -1356,7 +1330,7 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
         """
-        cbook._check_in_list(['x', 'y', 'z', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
             super().tick_params(axis, **kwargs)
         if axis in ['z', 'both']:
@@ -2228,9 +2202,10 @@ class Axes3D(Axes):
         modifying the object and adding z coordinate information.
 
         Supported are:
-            - PolyCollection
-            - LineCollection
-            - PatchCollection
+
+        - PolyCollection
+        - LineCollection
+        - PatchCollection
         """
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
@@ -2249,7 +2224,8 @@ class Axes3D(Axes):
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
 
-        super().add_collection(col)
+        collection = super().add_collection(col)
+        return collection
 
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
@@ -2404,12 +2380,12 @@ class Axes3D(Axes):
             When coloring the faces of the boxes specifically, this is
             the order of the coloring:
 
-              1. -Z (bottom of box)
-              2. +Z (top of box)
-              3. -Y
-              4. +Y
-              5. -X
-              6. +X
+            1. -Z (bottom of box)
+            2. +Z (top of box)
+            3. -Y
+            4. +Y
+            5. -X
+            6. +X
 
         zsort : str, optional
             The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
@@ -2646,7 +2622,7 @@ pivot='tail', normalize=False, **kwargs)
         shaft_dt = np.array([0., length], dtype=float)
         arrow_dt = shaft_dt * arrow_length_ratio
 
-        cbook._check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
+        _api.check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
         if pivot == 'tail':
             shaft_dt -= length
         elif pivot == 'middle':
@@ -2724,16 +2700,16 @@ pivot='tail', normalize=False, **kwargs)
         facecolors, edgecolors : array-like, optional
             The color to draw the faces and edges of the voxels. Can only be
             passed as keyword arguments.
-            This parameter can be:
+            These parameters can be:
 
-              - A single color value, to color all voxels the same color. This
-                can be either a string, or a 1D rgb/rgba array
-              - ``None``, the default, to use a single color for the faces, and
-                the style default for the edges.
-              - A 3D ndarray of color names, with each item the color for the
-                corresponding voxel. The size must match the voxels.
-              - A 4D ndarray of rgb/rgba data, with the components along the
-                last axis.
+            - A single color value, to color all voxels the same color. This
+              can be either a string, or a 1D rgb/rgba array
+            - ``None``, the default, to use a single color for the faces, and
+              the style default for the edges.
+            - A 3D ndarray of color names, with each item the color for the
+              corresponding voxel. The size must match the voxels.
+            - A 4D ndarray of rgb/rgba data, with the components along the
+              last axis.
 
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
@@ -2912,6 +2888,342 @@ pivot='tail', normalize=False, **kwargs)
             polygons[coord] = poly
 
         return polygons
+
+    def errorbar(self, x, y, z, zerr=None, yerr=None, xerr=None, fmt='',
+                 barsabove=False, errorevery=1, ecolor=None, elinewidth=None,
+                 capsize=None, capthick=None, xlolims=False, xuplims=False,
+                 ylolims=False, yuplims=False, zlolims=False, zuplims=False,
+                 arrow_length_ratio=.4, **kwargs):
+        """
+        Plot lines and/or markers with errorbars around them.
+
+        *x*/*y*/*z* define the data locations, and *xerr*/*yerr*/*zerr* define
+        the errorbar sizes. By default, this draws the data markers/lines as
+        well the errorbars. Use fmt='none' to draw errorbars only.
+
+        Parameters
+        ----------
+        x, y, z : float or array-like
+            The data positions.
+
+        xerr, yerr, zerr : float or array-like, shape (N,) or (2, N), optional
+            The errorbar sizes:
+
+            - scalar: Symmetric +/- values for all data points.
+            - shape(N,): Symmetric +/-values for each data point.
+            - shape(2, N): Separate - and + values for each bar. First row
+              contains the lower errors, the second row contains the upper
+              errors.
+            - *None*: No errorbar.
+
+            Note that all error arrays should have *positive* values.
+
+        fmt : str, default: ''
+            The format for the data points / data lines. See `.plot` for
+            details.
+
+            Use 'none' (case insensitive) to plot errorbars without any data
+            markers.
+
+        ecolor : color, default: None
+            The color of the errorbar lines.  If None, use the color of the
+            line connecting the markers.
+
+        elinewidth : float, default: None
+            The linewidth of the errorbar lines. If None, the linewidth of
+            the current style is used.
+
+        capsize : float, default: :rc:`errorbar.capsize`
+            The length of the error bar caps in points.
+
+        capthick : float, default: None
+            An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
+            This setting is a more sensible name for the property that
+            controls the thickness of the error bar cap in points. For
+            backwards compatibility, if *mew* or *markeredgewidth* are given,
+            then they will over-ride *capthick*. This may change in future
+            releases.
+
+        barsabove : bool, default: False
+            If True, will plot the errorbars above the plot
+            symbols. Default is below.
+
+        xlolims, ylolims, zlolims : bool, default: False
+            These arguments can be used to indicate that a value gives only
+            lower limits. In that case a caret symbol is used to indicate
+            this. *lims*-arguments may be scalars, or array-likes of the same
+            length as the errors. To use limits with inverted axes,
+            `~.Axes.set_xlim` or `~.Axes.set_ylim` must be called before
+            :meth:`errorbar`. Note the tricky parameter names: setting e.g.
+            *ylolims* to True means that the y-value is a *lower* limit of the
+            True value, so, only an *upward*-pointing arrow will be drawn!
+
+        xuplims, yuplims, zuplims : bool, default: False
+            Same as above, but for controlling the upper limits.
+
+        errorevery : int or (int, int), default: 1
+            draws error bars on a subset of the data. *errorevery* =N draws
+            error bars on the points (x[::N], y[::N], z[::N]).
+            *errorevery* =(start, N) draws error bars on the points
+            (x[start::N], y[start::N], z[start::N]). e.g. errorevery=(6, 3)
+            adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
+            Used to avoid overlapping error bars when two series share x-axis
+            values.
+
+        arrow_length_ratio : float, default: 0.4
+            Passed to :meth:`quiver`, the ratio of the arrow head with respect
+            to the quiver.
+
+        Returns
+        -------
+        errlines : list
+            List of `~mpl_toolkits.mplot3d.art3d.Line3DCollection` instances
+            each containing an errorbar line.
+        caplines : list
+            List of `~mpl_toolkits.mplot3d.art3d.Line3D` instances each
+            containing a capline object.
+        limmarks : list
+            List of `~mpl_toolkits.mplot3d.art3d.Line3D` instances each
+            containing a marker with an upper or lower limit.
+
+        Other Parameters
+        ----------------
+        **kwargs
+            All other keyword arguments for styling errorbar lines are passed
+            `~mpl_toolkits.mplot3d.art3d.Line3DCollection`.
+
+        Examples
+        --------
+        .. plot:: gallery/mplot3d/errorbar3d.py
+        """
+        had_data = self.has_data()
+
+        plot_line = (fmt.lower() != 'none')
+        label = kwargs.pop("label", None)
+
+        if fmt == '':
+            fmt_style_kwargs = {}
+        else:
+            fmt_style_kwargs = {k: v for k, v in
+                                zip(('linestyle', 'marker', 'color'),
+                                    _process_plot_format(fmt))
+                                if v is not None}
+
+        if fmt == 'none':
+            # Remove alpha=0 color that _process_plot_format returns
+            fmt_style_kwargs.pop('color')
+
+        if ('color' in kwargs or 'color' in fmt_style_kwargs):
+            base_style = {}
+            if 'color' in kwargs:
+                base_style['color'] = kwargs.pop('color')
+        else:
+            base_style = next(self._get_lines.prop_cycler)
+
+        base_style['label'] = '_nolegend_'
+        base_style.update(fmt_style_kwargs)
+        if 'color' not in base_style:
+            base_style['color'] = 'C0'
+        if ecolor is None:
+            ecolor = base_style['color']
+
+        # make sure all the args are iterable; use lists not arrays to
+        # preserve units
+        x = x if np.iterable(x) else [x]
+        y = y if np.iterable(y) else [y]
+        z = z if np.iterable(z) else [z]
+
+        if not len(x) == len(y) == len(z):
+            raise ValueError("'x', 'y', and 'z' must have the same size")
+
+        # make the style dict for the 'normal' plot line
+        if 'zorder' not in kwargs:
+            kwargs['zorder'] = 2
+        plot_line_style = {
+            **base_style,
+            **kwargs,
+            'zorder': (kwargs['zorder'] - .1 if barsabove else
+                       kwargs['zorder'] + .1),
+        }
+
+        # make the style dict for the line collections (the bars)
+        eb_lines_style = dict(base_style)
+        eb_lines_style.pop('marker', None)
+        eb_lines_style.pop('markerfacecolor', None)
+        eb_lines_style.pop('markeredgewidth', None)
+        eb_lines_style.pop('markeredgecolor', None)
+        eb_lines_style.pop('linestyle', None)
+        eb_lines_style['color'] = ecolor
+
+        if elinewidth:
+            eb_lines_style['linewidth'] = elinewidth
+        elif 'linewidth' in kwargs:
+            eb_lines_style['linewidth'] = kwargs['linewidth']
+
+        for key in ('transform', 'alpha', 'zorder', 'rasterized'):
+            if key in kwargs:
+                eb_lines_style[key] = kwargs[key]
+
+        # make the style dict for cap collections (the "hats")
+        eb_cap_style = dict(base_style)
+        # eject any marker information from format string
+        eb_cap_style.pop('marker', None)
+        eb_cap_style.pop('ls', None)
+        eb_cap_style['linestyle'] = 'none'
+        if capsize is None:
+            capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
+        if capsize > 0:
+            eb_cap_style['markersize'] = 2. * capsize
+        if capthick is not None:
+            eb_cap_style['markeredgewidth'] = capthick
+        eb_cap_style['color'] = ecolor
+
+        if plot_line:
+            data_line = art3d.Line3D(x, y, z, **plot_line_style)
+            self.add_line(data_line)
+
+        try:
+            offset, errorevery = errorevery
+        except TypeError:
+            offset = 0
+
+        if errorevery < 1 or int(errorevery) != errorevery:
+            raise ValueError(
+                'errorevery must be positive integer or tuple of integers')
+        if int(offset) != offset:
+            raise ValueError("errorevery's starting index must be an integer")
+
+        everymask = np.zeros(len(x), bool)
+        everymask[offset::errorevery] = True
+
+        def _apply_mask(arrays, mask):
+            # Return, for each array in *arrays*, the elements for which *mask*
+            # is True, without using fancy indexing.
+            return [[*compress(array, mask)] for array in arrays]
+
+        def _extract_errs(err, data, lomask, himask):
+            # For separate +/- error values we need to unpack err
+            if len(err.shape) == 2:
+                low_err, high_err = err
+            else:
+                low_err, high_err = err, err
+
+            # for compatibility with the 2d errorbar function, when both upper
+            # and lower limits specified, we need to draw the markers / line
+            common_mask = (lomask == himask) & everymask
+            _lomask = lomask | common_mask
+            _himask = himask | common_mask
+
+            lows = np.where(_lomask, data - low_err, data)
+            highs = np.where(_himask, data + high_err, data)
+
+            return lows, highs
+
+        # collect drawn items while looping over the three coordinates
+        errlines, caplines, limmarks = [], [], []
+
+        # list of endpoint coordinates, used for auto-scaling
+        coorderrs = []
+
+        # define the markers used for errorbar caps and limits below
+        # the dictionary key is mapped by the `i_xyz` helper dictionary
+        capmarker = {0: '|', 1: '|', 2: '_'}
+        i_xyz = {'x': 0, 'y': 1, 'z': 2}
+
+        # loop over x-, y-, and z-direction and draw relevant elements
+        for zdir, data, err, lolims, uplims in zip(
+                ['x', 'y', 'z'], [x, y, z], [xerr, yerr, zerr],
+                [xlolims, ylolims, zlolims], [xuplims, yuplims, zuplims]):
+
+            dir_vector = art3d.get_dir_vector(zdir)
+            i_zdir = i_xyz[zdir]
+
+            if err is None:
+                continue
+
+            if not np.iterable(err):
+                err = [err] * len(data)
+
+            err = np.atleast_1d(err)
+
+            # arrays fine here, they are booleans and hence not units
+            lolims = np.broadcast_to(lolims, len(data)).astype(bool)
+            uplims = np.broadcast_to(uplims, len(data)).astype(bool)
+
+            nolims = ~(lolims | uplims)
+
+            # a nested list structure that expands to (xl,xh),(yl,yh),(zl,zh),
+            # where x/y/z and l/h correspond to dimensions and low/high
+            # positions of errorbars in a dimension we're looping over
+            coorderr = [
+                _extract_errs(err * dir_vector[i], coord,
+                              ~lolims & everymask, ~uplims & everymask)
+                for i, coord in enumerate([x, y, z])]
+            (xl, xh), (yl, yh), (zl, zh) = coorderr
+
+            # draws capmarkers - flat caps orthogonal to the error bars
+            if nolims.any() and capsize > 0:
+                lo_caps_xyz = _apply_mask([xl, yl, zl], nolims & everymask)
+                hi_caps_xyz = _apply_mask([xh, yh, zh], nolims & everymask)
+
+                # setting '_' for z-caps and '|' for x- and y-caps;
+                # these markers will rotate as the viewing angle changes
+                cap_lo = art3d.Line3D(*lo_caps_xyz, ls='',
+                                      marker=capmarker[i_zdir],
+                                      **eb_cap_style)
+                cap_hi = art3d.Line3D(*hi_caps_xyz, ls='',
+                                      marker=capmarker[i_zdir],
+                                      **eb_cap_style)
+                self.add_line(cap_lo)
+                self.add_line(cap_hi)
+                caplines.append(cap_lo)
+                caplines.append(cap_hi)
+
+            if (lolims | uplims).any():
+                limits = [
+                    _extract_errs(err*dir_vector[i], coord, uplims, lolims)
+                    for i, coord in enumerate([x, y, z])]
+
+                (xlo, xup), (ylo, yup), (zlo, zup) = limits
+                lomask = lolims & everymask
+                upmask = uplims & everymask
+                lolims_xyz = np.array(_apply_mask([xlo, ylo, zlo], upmask))
+                uplims_xyz = np.array(_apply_mask([xup, yup, zup], lomask))
+                lo_xyz = np.array(_apply_mask([x, y, z], upmask))
+                up_xyz = np.array(_apply_mask([x, y, z], lomask))
+                x0, y0, z0 = np.concatenate([lo_xyz, up_xyz], axis=-1)
+                dx, dy, dz = np.concatenate([lolims_xyz - lo_xyz,
+                                             uplims_xyz - up_xyz], axis=-1)
+                self.quiver(x0, y0, z0, dx, dy, dz,
+                            arrow_length_ratio=arrow_length_ratio,
+                            **eb_lines_style)
+
+            errline = art3d.Line3DCollection(np.array(coorderr).T,
+                                             **eb_lines_style)
+            self.add_collection(errline)
+            errlines.append(errline)
+            coorderrs.append(coorderr)
+
+        coorderrs = np.array(coorderrs)
+
+        def _digout_minmax(err_arr, coord_label):
+            return (np.nanmin(err_arr[:, i_xyz[coord_label], :, :]),
+                    np.nanmax(err_arr[:, i_xyz[coord_label], :, :]))
+
+        minx, maxx = _digout_minmax(coorderrs, 'x')
+        miny, maxy = _digout_minmax(coorderrs, 'y')
+        minz, maxz = _digout_minmax(coorderrs, 'z')
+        self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
+
+        # Adapting errorbar containers for 3d case, assuming z-axis points "up"
+        errorbar_container = mcontainer.ErrorbarContainer(
+            (data_line, tuple(caplines), tuple(errlines)),
+            has_xerr=(xerr is not None or yerr is not None),
+            has_yerr=(zerr is not None),
+            label=label)
+        self.containers.append(errorbar_container)
+
+        return errlines, caplines, limmarks
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):

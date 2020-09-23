@@ -273,7 +273,7 @@ latex_to_standard = {
     r'\gamma'                    : ('psyr', 103),
     r'\eta'                      : ('psyr', 104),
     r'\iota'                     : ('psyr', 105),
-    r'\varpsi'                   : ('psyr', 106),
+    r'\varphi'                   : ('psyr', 106),
     r'\kappa'                    : ('psyr', 108),
     r'\nu'                       : ('psyr', 110),
     r'\pi'                       : ('psyr', 112),
@@ -360,7 +360,7 @@ latex_to_standard = {
     r'\prime'                    : ('psyr', 0o242),
     r'\sharp'                    : ('psyr', 0o43),
     r'\slash'                    : ('psyr', 0o57),
-    r'\Lamda'                    : ('psyr', 0o114),
+    r'\Lambda'                   : ('psyr', 0o114),
     r'\neg'                      : ('psyr', 0o330),
     r'\Upsilon'                  : ('psyr', 0o241),
     r'\rightbrace'               : ('psyr', 0o175),
@@ -1286,19 +1286,6 @@ stix_virtual_fonts = {
     'frak':
         {
         'rm':
-            [
-            (0x0041, 0x0042, 'rm', 0x1d504), # A-B
-            (0x0043, 0x0043, 'rm', 0x212d),  # C
-            (0x0044, 0x0047, 'rm', 0x1d507), # D-G
-            (0x0048, 0x0048, 'rm', 0x210c),  # H
-            (0x0049, 0x0049, 'rm', 0x2111),  # I
-            (0x004a, 0x0051, 'rm', 0x1d50d), # J-Q
-            (0x0052, 0x0052, 'rm', 0x211c),  # R
-            (0x0053, 0x0059, 'rm', 0x1d516), # S-Y
-            (0x005a, 0x005a, 'rm', 0x2128),  # Z
-            (0x0061, 0x007a, 'rm', 0x1d51e), # a-z
-            ],
-        'it':
             [
             (0x0041, 0x0042, 'rm', 0x1d504), # A-B
             (0x0043, 0x0043, 'rm', 0x212d),  # C

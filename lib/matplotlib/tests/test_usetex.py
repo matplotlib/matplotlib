@@ -61,11 +61,13 @@ def test_mathdefault():
     fig.canvas.draw()
 
 
-def test_minus_no_descent():
+@pytest.mark.parametrize("fontsize", [8, 10, 12])
+def test_minus_no_descent(fontsize):
     # Test special-casing of minus descent in DviFont._height_depth_of, by
     # checking that overdrawing a 1 and a -1 results in an overall height
     # equivalent to drawing either of them separately.
     mpl.style.use("mpl20")
+    mpl.rcParams['font.size'] = fontsize
     heights = {}
     fig = plt.figure()
     for vals in [(1,), (-1,), (-1, 1)]:
@@ -77,3 +79,10 @@ def test_minus_no_descent():
         heights[vals] = ((np.array(fig.canvas.buffer_rgba())[..., 0] != 255)
                          .any(axis=1).sum())
     assert len({*heights.values()}) == 1
+
+
+def test_textcomp_full():
+    plt.rcParams["text.latex.preamble"] = r"\usepackage[full]{textcomp}"
+    fig = plt.figure()
+    fig.text(.5, .5, "hello, world", usetex=True)
+    fig.canvas.draw()

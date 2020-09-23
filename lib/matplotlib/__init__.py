@@ -104,7 +104,7 @@ import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import cbook, rcsetup
+from . import cbook, docstring, rcsetup
 from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import validate_backend, cycler
@@ -133,23 +133,6 @@ __bibtex__ = r"""@Article{Hunter:2007,
   publisher = {IEEE COMPUTER SOC},
   year      = 2007
 }"""
-
-
-@cbook.deprecated("3.2")
-def compare_versions(a, b):
-    """Return whether version *a* is greater than or equal to version *b*."""
-    if isinstance(a, bytes):
-        cbook.warn_deprecated(
-            "3.0", message="compare_versions arguments should be strs.")
-        a = a.decode('ascii')
-    if isinstance(b, bytes):
-        cbook.warn_deprecated(
-            "3.0", message="compare_versions arguments should be strs.")
-        b = b.decode('ascii')
-    if a:
-        return LooseVersion(a) >= LooseVersion(b)
-    else:
-        return False
 
 
 def _check_versions():
@@ -273,9 +256,10 @@ def _get_executable_info(name):
 
     Returns
     -------
-    If the executable is found, a namedtuple with fields ``executable`` (`str`)
-    and ``version`` (`distutils.version.LooseVersion`, or ``None`` if the
-    version cannot be determined).
+    tuple
+        A namedtuple with fields ``executable`` (`str`) and ``version``
+        (`distutils.version.LooseVersion`, or ``None`` if the version cannot be
+        determined).
 
     Raises
     ------
@@ -381,26 +365,6 @@ def _get_executable_info(name):
         raise ValueError("Unknown executable: {!r}".format(name))
 
 
-@cbook.deprecated("3.2")
-def checkdep_ps_distiller(s):
-    if not s:
-        return False
-    try:
-        _get_executable_info("gs")
-    except ExecutableNotFoundError:
-        _log.warning(
-            "Setting rcParams['ps.usedistiller'] requires ghostscript.")
-        return False
-    if s == "xpdf":
-        try:
-            _get_executable_info("pdftops")
-        except ExecutableNotFoundError:
-            _log.warning(
-                "Setting rcParams['ps.usedistiller'] to 'xpdf' requires xpdf.")
-            return False
-    return s
-
-
 def checkdep_usetex(s):
     if not s:
         return False
@@ -418,20 +382,6 @@ def checkdep_usetex(s):
         _log.warning("usetex mode requires ghostscript.")
         return False
     return True
-
-
-@cbook.deprecated("3.2", alternative="os.path.expanduser('~')")
-@_logged_cached('$HOME=%s')
-def get_home():
-    """
-    Return the user's home directory.
-
-    If the user's home directory cannot be found, return None.
-    """
-    try:
-        return str(Path.home())
-    except Exception:
-        return None
 
 
 def _get_xdg_config_dir():
@@ -479,7 +429,7 @@ def _get_config_or_cache_dir(xdg_base):
         "recommended to set the MPLCONFIGDIR environment variable to a "
         "writable directory, in particular to speed up the import of "
         "Matplotlib and to better support multiprocessing.",
-        configdir, tmpdir)
+        tmpdir, configdir)
     return tmpdir
 
 
@@ -634,12 +584,17 @@ _deprecated_remain_as_none = {
 _all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
+@docstring.Substitution("\n".join(map("- {}".format, rcsetup._validators)))
 class RcParams(MutableMapping, dict):
     """
     A dictionary object including validation.
 
     Validating functions are defined and associated with rc parameters in
     :mod:`matplotlib.rcsetup`.
+
+    The list of rcParams is:
+
+    %s
 
     See Also
     --------
@@ -760,11 +715,18 @@ def is_url(filename):
     return URL_REGEX.match(filename) is not None
 
 
+@functools.lru_cache()
+def _get_ssl_context():
+    import certifi
+    import ssl
+    return ssl.create_default_context(cafile=certifi.where())
+
+
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if not isinstance(fname, Path) and is_url(fname):
         import urllib.request
-        with urllib.request.urlopen(fname) as f:
+        with urllib.request.urlopen(fname, context=_get_ssl_context()) as f:
             yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
@@ -1136,16 +1098,34 @@ def use(backend, *, force=True):
     matplotlib.get_backend
     """
     name = validate_backend(backend)
+    # we need to use the base-class method here to avoid (prematurely)
+    # resolving the "auto" backend setting
     if dict.__getitem__(rcParams, 'backend') == name:
         # Nothing to do if the requested backend is already set
         pass
     else:
-        try:
-            from matplotlib import pyplot as plt
-            plt.switch_backend(name)
-        except ImportError:
-            if force:
-                raise
+        # if pyplot is not already imported, do not import it.  Doing
+        # so may trigger a `plt.switch_backend` to the _default_ backend
+        # before we get a chance to change to the one the user just requested
+        plt = sys.modules.get('matplotlib.pyplot')
+        # if pyplot is imported, then try to change backends
+        if plt is not None:
+            try:
+                # we need this import check here to re-raise if the
+                # user does not have the libraries to support their
+                # chosen backend installed.
+                plt.switch_backend(name)
+            except ImportError:
+                if force:
+                    raise
+        # if we have not imported pyplot, then we can set the rcParam
+        # value which will be respected when the user finally imports
+        # pyplot
+        else:
+            rcParams['backend'] = backend
+    # if the user has asked for a given backend, do not helpfully
+    # fallback
+    rcParams['backend_fallback'] = False
 
 
 if os.environ.get('MPLBACKEND'):

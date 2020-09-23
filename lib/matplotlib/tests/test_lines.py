@@ -100,6 +100,12 @@ def test_line_colors():
     fig.canvas.draw()
 
 
+def test_valid_colors():
+    line = mlines.Line2D([], [])
+    with pytest.raises(ValueError):
+        line.set_color("foobar")
+
+
 def test_linestyle_variants():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)

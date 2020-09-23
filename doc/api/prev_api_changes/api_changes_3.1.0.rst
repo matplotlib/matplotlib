@@ -531,7 +531,11 @@ The following miscellaneous API elements have been removed
 
     import logging
     logger = logging.getLogger('matplotlib')
-    logger.set_level(logging.INFO)
+    logger.setLevel(logging.INFO)
+    # configure log handling: Either include it into your ``logging`` hierarchy,
+    # e.g. by configuring a root looger using ``logging.basicConfig()``,
+    # or add a standalone handler to the matplotlib logger:
+    logger.addHandler(logging.StreamHandler())
 
 - ``__version__numpy__``
 - ``collections.CIRCLE_AREA_FACTOR``
@@ -723,7 +727,7 @@ Mathtext changes
 
 Deprecations
 ~~~~~~~~~~~~
-- The ``\stackrel`` mathtext command hsa been deprecated (it behaved differently
+- The ``\stackrel`` mathtext command has been deprecated (it behaved differently
   from LaTeX's ``\stackrel``.  To stack two mathtext expressions, use
   ``\genfrac{left-delim}{right-delim}{fraction-bar-thickness}{}{top}{bottom}``.
 - The ``\mathcircled`` mathtext command (which is not a real TeX command)
@@ -763,11 +767,12 @@ The following signature related behaviours are deprecated:
   keyword.
 - The *interp_at_native* parameter to `.BboxImage`, which has had no effect
   since Matplotlib 2.0, is deprecated.
-- All arguments to the `.cbook.deprecated` decorator and `.cbook.warn_deprecated`
-  function, except the first one (the version where the deprecation occurred),
-  are now keyword-only.  The goal is to avoid accidentally setting the "message"
-  argument when the "name" (or "alternative") argument was intended, as this has
-  repeatedly occurred in the past.
+- All arguments to the `~.cbook.deprecation.deprecated` decorator and
+  `~.cbook.deprecation.warn_deprecated` function, except the first one (the
+  version where the deprecation occurred), are now keyword-only.  The goal is
+  to avoid accidentally setting the "message" argument when the "name" (or
+  "alternative") argument was intended, as this has repeatedly occurred in the
+  past.
 - The arguments of `matplotlib.testing.compare.calculate_rms` have been renamed
   from ``expectedImage, actualImage``, to ``expected_image, actual_image``.
 - Passing positional arguments to `.Axis.set_ticklabels` beyond *ticklabels*
@@ -1069,11 +1074,12 @@ This only served as a helper to the private `.Axis._update_ticks`
 
 Undeprecations
 --------------
-The following API elements have bee un-deprecated:
+The following API elements have been un-deprecated:
 
-- The *obj_type* kwarg to the `.cbook.deprecated` decorator.
-- *xmin*, *xmax* kwargs to `.Axes.set_xlim` and *ymin*, *ymax* kwargs
-  to `.Axes.set_ylim`
+- The *obj_type* keyword argument to the `~.cbook.deprecation.deprecated`
+  decorator.
+- *xmin*, *xmax* keyword arguments to `.Axes.set_xlim` and *ymin*, *ymax*
+  keyword arguments to `.Axes.set_ylim`
 
 
 New features

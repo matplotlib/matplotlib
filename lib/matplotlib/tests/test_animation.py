@@ -1,3 +1,4 @@
+import gc
 import os
 from pathlib import Path
 import subprocess
@@ -10,6 +11,33 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
+
+
+@pytest.fixture()
+def anim(request):
+    """Create a simple animation (with options)."""
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    ax.set_xlim(0, 10)
+    ax.set_ylim(-1, 1)
+
+    def init():
+        line.set_data([], [])
+        return line,
+
+    def animate(i):
+        x = np.linspace(0, 10, 100)
+        y = np.sin(x + i)
+        line.set_data(x, y)
+        return line,
+
+    # "klass" can be passed to determine the class returned by the fixture
+    kwargs = dict(getattr(request, 'param', {}))  # make a copy
+    klass = kwargs.pop('klass', animation.FuncAnimation)
+    if 'frames' not in kwargs:
+        kwargs['frames'] = 5
+    return klass(fig=fig, func=animate, init_func=init, **kwargs)
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
@@ -39,26 +67,8 @@ class NullMovieWriter(animation.AbstractMovieWriter):
         pass
 
 
-def make_animation(**kwargs):
-    fig, ax = plt.subplots()
-    line, = ax.plot([])
-
-    def init():
-        pass
-
-    def animate(i):
-        line.set_data([0, 1], [0, i])
-        return line,
-
-    return animation.FuncAnimation(fig, animate, **kwargs)
-
-
-def test_null_movie_writer():
+def test_null_movie_writer(anim):
     # Test running an animation with NullMovieWriter.
-
-    num_frames = 5
-    anim = make_animation(frames=num_frames)
-
     filename = "unused.null"
     dpi = 50
     savefig_kwargs = dict(foo=0)
@@ -67,12 +77,20 @@ def test_null_movie_writer():
     anim.save(filename, dpi=dpi, writer=writer,
               savefig_kwargs=savefig_kwargs)
 
-    assert writer.fig == plt.figure(1)  # The figure used by make_animation.
+    assert writer.fig == plt.figure(1)  # The figure used by anim fixture
     assert writer.outfile == filename
     assert writer.dpi == dpi
     assert writer.args == ()
     assert writer.savefig_kwargs == savefig_kwargs
-    assert writer._count == num_frames
+    assert writer._count == anim.save_count
+
+
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
+def test_animation_delete(anim):
+    anim = animation.FuncAnimation(**anim)
+    with pytest.warns(Warning, match='Animation was deleted'):
+        del anim
+        gc.collect()
 
 
 def test_movie_writer_dpi_default():
@@ -131,44 +149,62 @@ WRITER_OUTPUT += [
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
 @pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
-def test_save_animation_smoketest(tmpdir, writer, output):
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
+def test_save_animation_smoketest(tmpdir, writer, output, anim):
     if not animation.writers.is_available(writer):
         pytest.skip("writer '%s' not available on this system" % writer)
-    fig, ax = plt.subplots()
-    line, = ax.plot([], [])
 
-    ax.set_xlim(0, 10)
-    ax.set_ylim(-1, 1)
-
+    anim = animation.FuncAnimation(**anim)
     dpi = None
     codec = None
     if writer == 'ffmpeg':
         # Issue #8253
-        fig.set_size_inches((10.85, 9.21))
+        anim._fig.set_size_inches((10.85, 9.21))
         dpi = 100.
         codec = 'h264'
-
-    def init():
-        line.set_data([], [])
-        return line,
-
-    def animate(i):
-        x = np.linspace(0, 10, 100)
-        y = np.sin(x + i)
-        line.set_data(x, y)
-        return line,
 
     # Use temporary directory for the file-based writers, which produce a file
     # per frame with known names.
     with tmpdir.as_cwd():
-        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
         anim.save(output, fps=30, writer=writer, bitrate=500, dpi=dpi,
                   codec=codec)
+    with pytest.warns(None):
+        del anim
 
 
-def test_no_length_frames():
-    (make_animation(frames=iter(range(5)))
-     .save('unused.null', writer=NullMovieWriter()))
+@pytest.mark.parametrize('writer', [
+    pytest.param(
+        'ffmpeg', marks=pytest.mark.skipif(
+            not animation.FFMpegWriter.isAvailable(),
+            reason='Requires FFMpeg')),
+    pytest.param(
+        'imagemagick', marks=pytest.mark.skipif(
+            not animation.ImageMagickWriter.isAvailable(),
+            reason='Requires ImageMagick')),
+])
+@pytest.mark.parametrize('html, want', [
+    ('none', None),
+    ('html5', '<video width'),
+    ('jshtml', '<script ')
+])
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
+def test_animation_repr_html(writer, html, want, anim):
+    # create here rather than in the fixture otherwise we get __del__ warnings
+    # about producing no output
+    anim = animation.FuncAnimation(**anim)
+    with plt.rc_context({'animation.writer': writer,
+                         'animation.html': html}):
+        html = anim._repr_html_()
+    if want is None:
+        assert html is None
+    else:
+        assert want in html
+
+
+@pytest.mark.parametrize('anim', [dict(frames=iter(range(5)))],
+                         indirect=['anim'])
+def test_no_length_frames(anim):
+    anim.save('unused.null', writer=NullMovieWriter())
 
 
 def test_movie_writer_registry():
@@ -187,11 +223,12 @@ def test_movie_writer_registry():
         not animation.writers.is_available(mpl.rcParams["animation.writer"]),
         reason="animation writer not installed")),
      "to_jshtml"])
-def test_embed_limit(method_name, caplog, tmpdir):
+@pytest.mark.parametrize('anim', [dict(frames=1)], indirect=['anim'])
+def test_embed_limit(method_name, caplog, tmpdir, anim):
     caplog.set_level("WARNING")
     with tmpdir.as_cwd():
         with mpl.rc_context({"animation.embed_limit": 1e-6}):  # ~1 byte.
-            getattr(make_animation(frames=1), method_name)()
+            getattr(anim, method_name)()
     assert len(caplog.records) == 1
     record, = caplog.records
     assert (record.name == "matplotlib.animation"
@@ -204,14 +241,15 @@ def test_embed_limit(method_name, caplog, tmpdir):
         not animation.writers.is_available(mpl.rcParams["animation.writer"]),
         reason="animation writer not installed")),
      "to_jshtml"])
-def test_cleanup_temporaries(method_name, tmpdir):
+@pytest.mark.parametrize('anim', [dict(frames=1)], indirect=['anim'])
+def test_cleanup_temporaries(method_name, tmpdir, anim):
     with tmpdir.as_cwd():
-        getattr(make_animation(frames=1), method_name)()
+        getattr(anim, method_name)()
         assert list(Path(str(tmpdir)).iterdir()) == []
 
 
 @pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
-def test_failing_ffmpeg(tmpdir, monkeypatch):
+def test_failing_ffmpeg(tmpdir, monkeypatch, anim):
     """
     Test that we correctly raise a CalledProcessError when ffmpeg fails.
 
@@ -226,7 +264,7 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
                             "[[ $@ -eq 0 ]]\n")
         os.chmod(str(exe_path), 0o755)
         with pytest.raises(subprocess.CalledProcessError):
-            make_animation().save("test.mpeg")
+            anim.save("test.mpeg")
 
 
 @pytest.mark.parametrize("cache_frame_data", [False, True])
@@ -272,3 +310,34 @@ def test_funcanimation_cache_frame_data(cache_frame_data):
         # If cache_frame_data is True, then the weakref should be alive;
         # if cache_frame_data is False, then the weakref should be dead (None).
         assert (f() is None) != cache_frame_data
+
+
+@pytest.mark.parametrize('return_value', [
+    # User forgot to return (returns None).
+    None,
+    # User returned a string.
+    'string',
+    # User returned an int.
+    1,
+    # User returns a sequence of other objects, e.g., string instead of Artist.
+    ('string', ),
+    # User forgot to return a sequence (handled in `animate` below.)
+    'artist',
+])
+def test_draw_frame(return_value):
+    # test _draw_frame method
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([])
+
+    def animate(i):
+        # general update func
+        line.set_data([0, 1], [0, i])
+        if return_value == 'artist':
+            # *not* a sequence
+            return line
+        else:
+            return return_value
+
+    with pytest.raises(RuntimeError):
+        animation.FuncAnimation(fig, animate, blit=True)

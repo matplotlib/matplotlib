@@ -1,8 +1,14 @@
 # Rename this file to setup.cfg to modify Matplotlib's build options.
 
+[metadata]
+license_files = LICENSE/*
+
 [egg_info]
 
 [libs]
+# By default, Matplotlib builds with LTO, which may be slow if you re-compile
+# often, and don't need the space saving/speedup.
+#enable_lto = True
 # By default, Matplotlib downloads and builds its own copy of FreeType, and
 # builds its own copy of Qhull.  You may set the following to True to instead
 # link against a system FreeType/Qhull.

@@ -19,7 +19,8 @@ from matplotlib import docstring, projections
 from matplotlib import __version__ as _mpl_version
 
 import matplotlib.artist as martist
-from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.artist import (
+    Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
     FigureCanvasBase, NonGuiException, MouseButton)
 import matplotlib.cbook as cbook
@@ -28,13 +29,13 @@ import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
-from matplotlib.gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
-import matplotlib._layoutbox as layoutbox
+import matplotlib._layoutgrid as layoutgrid
 
 _log = logging.getLogger(__name__)
 
@@ -149,11 +150,6 @@ class _AxesStack(cbook.Stack):
 
     def __contains__(self, a):
         return a in self.as_list()
-
-
-@cbook.deprecated("3.2")
-class AxesStack(_AxesStack):
-    pass
 
 
 class SubplotParams:
@@ -345,16 +341,21 @@ class Figure(Artist):
             subplotpars = SubplotParams()
 
         self.subplotpars = subplotpars
+
         # constrained_layout:
-        self._layoutbox = None
-        # set in set_constrained_layout_pads()
-        self.set_constrained_layout(constrained_layout)
+        self._layoutgrid = None
+        self._constrained = False
 
         self.set_tight_layout(tight_layout)
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+
+        self.set_constrained_layout(constrained_layout)
+        # stub for subpanels:
+        self.panels = []
+        self.transPanel = self.transFigure
 
         # groupers to keep track of x and y labels we want to align.
         # see self.align_xlabels and self.align_ylabels and
@@ -514,6 +515,8 @@ class Figure(Artist):
         else:
             self.set_constrained_layout_pads()
 
+        self.init_layoutgrid()
+
         self.stale = True
 
     def set_constrained_layout_pads(self, **kwargs):
@@ -571,7 +574,7 @@ class Figure(Artist):
         hspace = self._constrained_layout_pads['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer0 = layoutbox.get_renderer(self)
+            renderer0 = layoutgrid.get_renderer(self)
             dpi = renderer0.dpi
             w_pad = w_pad * dpi / renderer0.width
             h_pad = h_pad * dpi / renderer0.height
@@ -665,10 +668,10 @@ class Figure(Artist):
         t : str
             The title text.
 
-        x : float, default 0.5
+        x : float, default: 0.5
             The x location of the text in figure coordinates.
 
-        y : float, default 0.98
+        y : float, default: 0.98
             The y location of the text in figure coordinates.
 
         horizontalalignment, ha : {'center', 'left', right'}, default: 'center'
@@ -688,8 +691,8 @@ default: 'top'
 
         Returns
         -------
-        text
-            The `.Text` instance of the title.
+        `.Text`
+            The instance of the title.
 
         Other Parameters
         ----------------
@@ -730,22 +733,8 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
-            self._suptitle._layoutbox = None
-            if self._layoutbox is not None and not manual_position:
-                w_pad, h_pad, wspace, hspace =  \
-                        self.get_constrained_layout_pads(relative=True)
-                figlb = self._layoutbox
-                self._suptitle._layoutbox = layoutbox.LayoutBox(
-                        parent=figlb, artist=self._suptitle,
-                        name=figlb.name+'.suptitle')
-                # stack the suptitle on top of all the children.
-                # Some day this should be on top of all the children in the
-                # gridspec only.
-                for child in figlb.children:
-                    if child is not self._suptitle._layoutbox:
-                        layoutbox.vstack([self._suptitle._layoutbox,
-                                          child],
-                                         padding=h_pad*2., strength='required')
+        if manual_position:
+            self._suptitle.set_in_layout(False)
         self.stale = True
         return self._suptitle
 
@@ -1405,6 +1394,7 @@ default: 'top'
 
     def _add_axes_internal(self, key, ax):
         """Private helper for `add_axes` and `add_subplot`."""
+        #self._localaxes += [ax]
         self._axstack.add(key, ax)
         self.sca(ax)
         ax._remove_method = self.delaxes
@@ -1614,6 +1604,8 @@ default: 'top'
             """
             r0, *rest = inp
             for j, r in enumerate(rest, start=1):
+                if isinstance(r, str):
+                    raise ValueError('List layout specification must be 2D')
                 if len(r0) != len(r):
                     raise ValueError(
                         "All of the rows must be the same length, however "
@@ -1768,6 +1760,7 @@ default: 'top'
             return None
 
         self._axstack.remove(ax)
+        # self._localaxes.remove(ax)
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
 
@@ -1807,13 +1800,14 @@ default: 'top'
             self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
         if self.get_constrained_layout():
-            layoutbox.nonetree(self._layoutbox)
+            self.init_layoutgrid()
         self.stale = True
 
     def clear(self, keep_observers=False):
         """Clear the figure -- synonym for `clf`."""
         self.clf(keep_observers=keep_observers)
 
+    @_finalize_rasterization
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
@@ -1887,23 +1881,62 @@ default: 'top'
         """
         Place a legend on the figure.
 
-        To make a legend from existing artists on every axes::
+        Call signatures::
 
-          legend()
+            legend()
+            legend(labels)
+            legend(handles, labels)
 
-        To make a legend for a list of lines and labels::
+        The call signatures correspond to these three different ways to use
+        this method:
 
-          legend(
-              (line1, line2, line3),
-              ('label1', 'label2', 'label3'),
-              loc='upper right')
+        **1. Automatic detection of elements to be shown in the legend**
 
-        These can also be specified by keyword::
+        The elements to be added to the legend are automatically determined,
+        when you do not pass in any extra arguments.
 
-          legend(
-              handles=(line1, line2, line3),
-              labels=('label1', 'label2', 'label3'),
-              loc='upper right')
+        In this case, the labels are taken from the artist. You can specify
+        them either at artist creation or by calling the
+        :meth:`~.Artist.set_label` method on the artist::
+
+            ax.plot([1, 2, 3], label='Inline label')
+            fig.legend()
+
+        or::
+
+            line, = ax.plot([1, 2, 3])
+            line.set_label('Label via method')
+            fig.legend()
+
+        Specific lines can be excluded from the automatic legend element
+        selection by defining a label starting with an underscore.
+        This is default for all artists, so calling `.Figure.legend` without
+        any arguments and without setting the labels manually will result in
+        no legend being drawn.
+
+
+        **2. Labeling existing plot elements**
+
+        To make a legend for all artists on all Axes, call this function with
+        an iterable of strings, one for each legend item. For example::
+
+            fig, (ax1, ax2)  = plt.subplots(1, 2)
+            ax1.plot([1, 3, 5], color='blue')
+            ax2.plot([2, 4, 6], color='red')
+            fig.legend(['the blues', 'the reds'])
+
+        Note: This call signature is discouraged, because the relation between
+        plot elements and labels is only implicit by their order and can
+        easily be mixed up.
+
+
+        **3. Explicitly defining the elements in the legend**
+
+        For full control of which artists have a legend entry, it is possible
+        to pass an iterable of legend artists followed by an iterable of
+        legend labels respectively::
+
+            fig.legend([line1, line2, line3], ['label1', 'label2', 'label3'])
 
         Parameters
         ----------
@@ -1929,6 +1962,10 @@ default: 'top'
         Other Parameters
         ----------------
         %(_legend_kw_doc)s
+
+        See Also
+        --------
+        .Axes.legend
 
         Notes
         -----
@@ -2108,8 +2145,10 @@ default: 'top'
         # The canvas cannot currently be pickled, but this has the benefit
         # of meaning that a figure can be detached from one canvas, and
         # re-attached to another.
-        for attr_to_pop in ('canvas', '_cachedRenderer'):
-            state.pop(attr_to_pop, None)
+        state.pop("canvas")
+
+        # Set cached renderer to None -- it can't be pickled.
+        state["_cachedRenderer"] = None
 
         # add version information to the state
         state['__mpl_version__'] = _mpl_version
@@ -2120,12 +2159,9 @@ default: 'top'
                 in _pylab_helpers.Gcf.figs.values():
             state['_restore_to_pylab'] = True
 
-        # set all the layoutbox information to None.  kiwisolver objects can't
+        # set all the layoutgrid information to None.  kiwisolver objects can't
         # be pickled, so we lose the layout options at this point.
-        state.pop('_layoutbox', None)
-        # suptitle:
-        if self._suptitle is not None:
-            self._suptitle._layoutbox = None
+        state.pop('_layoutgrid', None)
 
         return state
 
@@ -2142,7 +2178,7 @@ default: 'top'
 
         # re-initialise some of the unstored state information
         FigureCanvasBase(self)  # Set self.canvas.
-        self._layoutbox = None
+        self._layoutgrid = None
 
         if restore_to_pylab:
             # lazy import to avoid circularity
@@ -2313,21 +2349,24 @@ default: 'top'
 
     @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
-        """
-        Create a colorbar for a ScalarMappable instance, *mappable*.
-
-        Documentation for the pyplot thin wrapper:
-        %(colorbar_doc)s
-        """
+        """%(colorbar_doc)s"""
         if ax is None:
             ax = self.gca()
+            if (hasattr(mappable, "axes") and ax is not mappable.axes
+                    and cax is None):
+                cbook.warn_deprecated(
+                    "3.4", message="Starting from Matplotlib 3.6, colorbar() "
+                    "will steal space from the mappable's axes, rather than "
+                    "from the current axes, to place the colorbar.  To "
+                    "silence this warning, explicitly pass the 'ax' argument "
+                    "to colorbar().")
 
         # Store the value of gca so that we can set it back later on.
         current_ax = self.gca()
 
         if cax is None:
-            if use_gridspec and isinstance(ax, SubplotBase)  \
-                     and (not self.get_constrained_layout()):
+            if (use_gridspec and isinstance(ax, SubplotBase)
+                    and not self.get_constrained_layout()):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
@@ -2380,15 +2419,7 @@ default: 'top'
                                  "constrained_layout==False. ")
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
-            if not isinstance(ax, SubplotBase):
-                # Check if sharing a subplots axis
-                if isinstance(ax._sharex, SubplotBase):
-                    ax._sharex.update_params()
-                    ax.set_position(ax._sharex.figbox)
-                elif isinstance(ax._sharey, SubplotBase):
-                    ax._sharey.update_params()
-                    ax.set_position(ax._sharey.figbox)
-            else:
+            if isinstance(ax, SubplotBase):
                 ax.update_params()
                 ax.set_position(ax.figbox)
         self.stale = True
@@ -2526,28 +2557,28 @@ default: 'top'
 
         return bbox_inches
 
-    def init_layoutbox(self):
-        """Initialize the layoutbox for use in constrained_layout."""
-        if self._layoutbox is None:
-            self._layoutbox = layoutbox.LayoutBox(
-                parent=None, name='figlb', artist=self)
-            self._layoutbox.constrain_geometry(0., 0., 1., 1.)
+    def init_layoutgrid(self):
+        """Initialize the layoutgrid for use in constrained_layout."""
+        del(self._layoutgrid)
+        self._layoutgrid = layoutgrid.LayoutGrid(
+            parent=None, name='figlb')
 
     def execute_constrained_layout(self, renderer=None):
         """
-        Use ``layoutbox`` to determine pos positions within axes.
+        Use ``layoutgrid`` to determine pos positions within axes.
 
         See also `.set_constrained_layout_pads`.
         """
 
         from matplotlib._constrained_layout import do_constrained_layout
+        from matplotlib.tight_layout import get_renderer
 
         _log.debug('Executing constrainedlayout')
-        if self._layoutbox is None:
+        if self._layoutgrid is None:
             cbook._warn_external("Calling figure.constrained_layout, but "
                                  "figure not setup to do constrained layout. "
                                  " You either called GridSpec without the "
-                                 "fig keyword, you are using plt.subplot, "
+                                 "figure keyword, you are using plt.subplot, "
                                  "or you need to call figure or subplots "
                                  "with the constrained_layout=True kwarg.")
             return
@@ -2558,7 +2589,7 @@ default: 'top'
         w_pad = w_pad / width
         h_pad = h_pad / height
         if renderer is None:
-            renderer = layoutbox.get_renderer(fig)
+            renderer = get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
     @cbook._delete_parameter("3.2", "renderer")
@@ -2614,7 +2645,7 @@ default: 'top'
 
     def align_xlabels(self, axs=None):
         """
-        Align the ylabels of subplots in the same subplot column if label
+        Align the xlabels of subplots in the same subplot column if label
         alignment is being done automatically (i.e. the label position is
         not manually set).
 
@@ -2821,7 +2852,7 @@ def figaspect(arg):
 
     Returns
     -------
-    width, height
+    width, height : float
         The figure size in inches.
 
     Notes

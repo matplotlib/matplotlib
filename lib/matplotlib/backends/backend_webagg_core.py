@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image
 import tornado
 
-from matplotlib import backend_bases, cbook
+from matplotlib import _api, backend_bases
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
 
@@ -121,7 +121,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     supports_blit = False
 
     def __init__(self, *args, **kwargs):
-        backend_agg.FigureCanvasAgg.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Set to True when the renderer contains data that is newer
         # than the PNG buffer.
@@ -165,7 +165,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         draw this mode may be changed if the resulting image has any
         transparent component.
         """
-        cbook._check_in_list(['full', 'diff'], mode=mode)
+        _api.check_in_list(['full', 'diff'], mode=mode)
         if self._current_image_mode != mode:
             self._current_image_mode = mode
             self.handle_send_image_mode(None)
@@ -260,18 +260,13 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # off by 1
         button = event['button'] + 1
 
-        # The right mouse button pops up a context menu, which
-        # doesn't work very well, so use the middle mouse button
-        # instead.  It doesn't seem that it's possible to disable
-        # the context menu in recent versions of Chrome.  If this
-        # is resolved, please also adjust the docstring in MouseEvent.
-        if button == 2:
-            button = 3
-
         e_type = event['type']
         guiEvent = event.get('guiEvent', None)
         if e_type == 'button_press':
             self.button_press_event(x, y, button, guiEvent=guiEvent)
+        elif e_type == 'dblclick':
+            self.button_press_event(x, y, button, dblclick=True,
+                                    guiEvent=guiEvent)
         elif e_type == 'button_release':
             self.button_release_event(x, y, button, guiEvent=guiEvent)
         elif e_type == 'motion_notify':
@@ -282,9 +277,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.leave_notify_event()
         elif e_type == 'scroll':
             self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
-    handle_button_press = handle_button_release = handle_motion_notify = \
-        handle_figure_enter = handle_figure_leave = handle_scroll = \
-        _handle_mouse
+    handle_button_press = handle_button_release = handle_dblclick = \
+        handle_figure_enter = handle_figure_leave = handle_motion_notify = \
+        handle_scroll = _handle_mouse
 
     def _handle_key(self, event):
         key = _handle_key(event['key'])
@@ -387,7 +382,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
             "rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
 
     def release_zoom(self, event):
-        backend_bases.NavigationToolbar2.release_zoom(self, event)
+        super().release_zoom(event)
         self.canvas.send_event(
             "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
@@ -414,7 +409,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
-        backend_bases.FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
         self.web_sockets = set()
 

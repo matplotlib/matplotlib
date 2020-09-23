@@ -60,6 +60,15 @@ def test_get_default_filename(tmpdir):
     assert filename == 'image.png'
 
 
+def test_canvas_change():
+    fig = plt.figure()
+    # Replaces fig.canvas
+    canvas = FigureCanvasBase(fig)
+    # Should still work.
+    plt.close(fig)
+    assert not plt.fignum_exists(fig.number)
+
+
 @pytest.mark.backend('pdf')
 def test_non_gui_warning(monkeypatch):
     plt.subplots()
@@ -107,9 +116,11 @@ def test_location_event_position(x, y):
 def test_interactive_zoom():
     fig, ax = plt.subplots()
     ax.set(xscale="logit")
+    assert ax.get_navigate_mode() is None
 
     tb = NavigationToolbar2(fig.canvas)
     tb.zoom()
+    assert ax.get_navigate_mode() == 'ZOOM'
 
     xlim0 = ax.get_xlim()
     ylim0 = ax.get_ylim()
@@ -143,3 +154,6 @@ def test_interactive_zoom():
     # Absolute tolerance much less than original xmin (1e-7).
     assert ax.get_xlim() == pytest.approx(xlim0, rel=0, abs=1e-10)
     assert ax.get_ylim() == pytest.approx(ylim0, rel=0, abs=1e-10)
+
+    tb.zoom()
+    assert ax.get_navigate_mode() is None

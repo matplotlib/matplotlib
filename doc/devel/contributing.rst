@@ -12,13 +12,15 @@ The project is hosted on https://github.com/matplotlib/matplotlib
 
 .. _coc: http://www.python.org/psf/codeofconduct/
 
+.. _submitting-a-bug-report:
+
 Submitting a bug report
 =======================
 
 If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
-`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also
-welcome to post feature requests or pull requests.
+`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are
+also welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
 
@@ -48,6 +50,17 @@ use to organize this information.
 
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
 
+Requesting a new feature
+========================
+
+Please post feature requests to the
+`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_.
+
+The Matplotlib developers will give feedback on the feature proposal. Since
+Matplotlib is an open source project with limited resources, we encourage
+users to then also
+:ref:`participate in the implementation <contributing-code>`.
+
 .. _installing_for_devs:
 
 Retrieving and installing the latest version of the code
@@ -76,13 +89,13 @@ use on a preexisting environment!
 
 A new environment can be set up with ::
 
-   python3 -mvenv /path/to/devel/env
+   python3 -mvenv <file folder location>
 
 and activated with one of the following::
 
-   source /path/to/devel/env/bin/activate  # Linux/macOS
-   /path/to/devel/env/Scripts/activate.bat  # Windows cmd.exe
-   /path/to/devel/env/Scripts/Activate.ps1  # Windows PowerShell
+   source <file folder location>/bin/activate  # Linux/macOS
+   <file folder location>\Scripts\activate.bat  # Windows cmd.exe
+   <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
 
 Whenever you plan to work on Matplotlib, remember to activate the development
 environment in your shell!
@@ -123,6 +136,7 @@ You can then run the tests to check your work environment is set up properly::
 
   * :ref:`testing`
 
+.. _contributing-code:
 
 Contributing code
 =================
@@ -227,8 +241,10 @@ rules before submitting a pull request:
   :file:`doc/users/next_whats_new/README.rst` for more information).
 
 * If you change the API in a backward-incompatible way, please document it in
-  :file:`doc/api/api_changes`, by adding to the relevant file
-  (see :file:`doc/api/api_changes.rst` for more information)
+  :file:`doc/api/next_api_changes/behavior`, by adding a new file with the
+  naming convention ``99999-ABC.rst`` where the pull request number is followed
+  by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
+  information)
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
@@ -282,24 +298,30 @@ besides which, we frequently underestimate how easy an issue is to solve!
 Contributing documentation
 ==========================
 
-Code is not the only way to contribute to Matplotlib. For instance,
-documentation is also a very important part of the project and often doesn't
-get as much attention as it deserves. If you find a typo in the documentation,
-or have made improvements, do not hesitate to send an email to the mailing
-list or submit a GitHub pull request.  To make a pull request, refer to the
-guidelines outlined in :ref:`how-to-contribute`.
+You as an end-user of Matplotlib can make a valuable contribution because you
+more clearly see the potential for improvement than a core developer. For example, you can:
 
-Full documentation can be found under the :file:`doc/`, :file:`tutorials/`,
-and :file:`examples/` directories.
+- Fix a typo
+- Clarify a docstring
+- Write or update an :ref:`example plot <gallery>`
+- Write or update a comprehensive :ref:`tutorial <tutorials>`
+
+The documentation source files live in the same GitHub repository as the code.
+Contributions are proposed and accepted through the pull request process.
+For details see :ref:`how-to-contribute`.
+
+If you have trouble getting started, you may instead open an `issue`_
+describing the intended improvement.
+
+.. _issue: https://github.com/matplotlib/matplotlib/issues
 
 .. seealso::
   * :ref:`documenting-matplotlib`
 
-
 .. _other_ways_to_contribute:
 
 Other ways to contribute
-=========================
+========================
 
 It also helps us if you spread the word: reference the project from your blog
 and articles or link to it from your website!  If Matplotlib contributes to a
@@ -317,8 +339,10 @@ API changes
 Changes to the public API must follow a standard deprecation procedure to
 prevent unexpected breaking of code that uses Matplotlib.
 
-- Deprecations must be announced via an entry in
-  the most recent :file:`doc/api/api_changes_X.Y`
+- Deprecations must be announced via a new file in
+  a new file in :file:`doc/api/next_api_changes/deprecations/` with
+  naming convention ``99999-ABC.rst`` where ``99999`` is the pull request
+  number and ``ABC`` are the contributor's initials.
 - Deprecations are targeted at the next point-release (i.e. 3.x.0).
 - The deprecated API should, to the maximum extent possible, remain fully
   functional during the deprecation period. In cases where this is not
@@ -385,33 +409,30 @@ C/C++ extensions
 Keyword argument processing
 ---------------------------
 
-Matplotlib makes extensive use of ``**kwargs`` for pass-through
-customizations from one function to another.  A typical example is in
-:func:`matplotlib.pyplot.text`.  The definition of the pylab text
-function is a simple pass-through to
-:meth:`matplotlib.axes.Axes.text`::
+Matplotlib makes extensive use of ``**kwargs`` for pass-through customizations
+from one function to another. A typical example is in `matplotlib.pyplot.text`.
+The definition of the pylab text function is a simple pass-through to
+`matplotlib.axes.Axes.text`::
 
   # in pylab.py
   def text(*args, **kwargs):
-      ret =  gca().text(*args, **kwargs)
+      ret = gca().text(*args, **kwargs)
       draw_if_interactive()
       return ret
 
-:meth:`~matplotlib.axes.Axes.text` in simplified form looks like this,
-i.e., it just passes all ``args`` and ``kwargs`` on to
-:meth:`matplotlib.text.Text.__init__`::
+`~matplotlib.axes.Axes.text` in simplified form looks like this, i.e., it just
+passes all ``args`` and ``kwargs`` on to ``matplotlib.text.Text.__init__``::
 
   # in axes/_axes.py
   def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
       t = Text(x=x, y=y, text=s, **kwargs)
 
-and :meth:`~matplotlib.text.Text.__init__` (again with liberties for
-illustration) just passes them on to the
-:meth:`matplotlib.artist.Artist.update` method::
+and ``matplotlib.text.Text.__init__`` (again with liberties for illustration)
+just passes them on to the `matplotlib.artist.Artist.update` method::
 
   # in text.py
   def __init__(self, x=0, y=0, text='', **kwargs):
-      Artist.__init__(self)
+      super().__init__()
       self.update(kwargs)
 
 ``update`` does the work looking for methods named like
@@ -447,10 +468,10 @@ local arguments and the rest are passed on as
 Using logging for debug messages
 --------------------------------
 
-Matplotlib uses the standard python `logging` library to write verbose
-warnings, information, and
-debug messages.  Please use it!  In all those places you write :func:`print()`
-statements to do your debugging, try using :func:`log.debug()` instead!
+Matplotlib uses the standard Python `logging` library to write verbose
+warnings, information, and debug messages. Please use it! In all those places
+you write `print` calls to do your debugging, try using `logging.debug`
+instead!
 
 
 To include `logging` in your module, at the top of the module, you need to
@@ -465,8 +486,8 @@ To include `logging` in your module, at the top of the module, you need to
 
 will log to a logger named ``matplotlib.yourmodulename``.
 
-If an end-user of Matplotlib sets up `logging` to display at levels
-more verbose than `logging.WARNING` in their code with the Matplotlib-provided
+If an end-user of Matplotlib sets up `logging` to display at levels more
+verbose than ``logging.WARNING`` in their code with the Matplotlib-provided
 helper::
 
   plt.set_loglevel("debug")
@@ -490,7 +511,7 @@ There are five levels at which you can emit messages.
 
 - `logging.critical` and `logging.error` are really only there for errors that
   will end the use of the library but not kill the interpreter.
-- `logging.warning` and `cbook._warn_external` are used to warn the user,
+- `logging.warning` and `.cbook._warn_external` are used to warn the user,
   see below.
 - `logging.info` is for information that the user may want to know if the
   program behaves oddly. They are not displayed by default. For instance, if
@@ -503,22 +524,21 @@ There are five levels at which you can emit messages.
   steps of layouting or rendering) should only log at this level.
 
 By default, `logging` displays all log messages at levels higher than
-`logging.WARNING` to `sys.stderr`.
+``logging.WARNING`` to `sys.stderr`.
 
-The `logging tutorial`_ suggests that the difference
-between `logging.warning` and `cbook._warn_external` (which uses
-`warnings.warn`) is that `cbook._warn_external` should be used for things the
-user must change to stop the warning (typically in the source), whereas
-`logging.warning` can be more persistent.  Moreover, note that
-`cbook._warn_external` will by default only emit a given warning *once* for
-each line of user code, whereas `logging.warning` will display the message
-every time it is called.
+The `logging tutorial`_ suggests that the difference between `logging.warning`
+and `.cbook._warn_external` (which uses `warnings.warn`) is that
+`.cbook._warn_external` should be used for things the user must change to stop
+the warning (typically in the source), whereas `logging.warning` can be more
+persistent. Moreover, note that `.cbook._warn_external` will by default only
+emit a given warning *once* for each line of user code, whereas
+`logging.warning` will display the message every time it is called.
 
-By default, `warnings.warn` displays the line of code that has the `warn` call.
-This usually isn't more informative than the warning message itself. Therefore,
-Matplotlib uses `cbook._warn_external` which uses `warnings.warn`, but goes
-up the stack and displays the first line of code outside of Matplotlib.
-For example, for the module::
+By default, `warnings.warn` displays the line of code that has the ``warn``
+call. This usually isn't more informative than the warning message itself.
+Therefore, Matplotlib uses `.cbook._warn_external` which uses `warnings.warn`,
+but goes up the stack and displays the first line of code outside of
+Matplotlib. For example, for the module::
 
     # in my_matplotlib_module.py
     import warnings
@@ -539,7 +559,7 @@ will display::
     UserWarning: Attempting to set identical bottom==top
     warnings.warn('Attempting to set identical bottom==top')
 
-Modifying the module to use `cbook._warn_external`::
+Modifying the module to use `.cbook._warn_external`::
 
     from matplotlib import cbook
 
@@ -559,10 +579,9 @@ and running the same script will display::
 Writing examples
 ----------------
 
-We have hundreds of examples in subdirectories of
-:file:`matplotlib/examples`, and these are automatically generated
-when the website is built to show up in the `examples
-<../gallery/index.html>` section of the website.
+We have hundreds of examples in subdirectories of :file:`matplotlib/examples`,
+and these are automatically generated when the website is built to show up in
+the :ref:`examples <gallery>` section of the website.
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the

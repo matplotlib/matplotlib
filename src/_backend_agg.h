@@ -1160,13 +1160,6 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     array::scalar<double, 1> linewidths(gc.linewidth);
     array::scalar<uint8_t, 1> antialiaseds(antialiased);
     DashesVector linestyles;
-    ColorArray *edgecolors_ptr = &edgecolors;
-
-    if (edgecolors.size() == 0) {
-        if (antialiased) {
-            edgecolors_ptr = &facecolors;
-        }
-    }
 
     _draw_path_collection_generic(gc,
                                   master_transform,
@@ -1178,12 +1171,12 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   offsets,
                                   offset_trans,
                                   facecolors,
-                                  *edgecolors_ptr,
+                                  edgecolors,
                                   linewidths,
                                   linestyles,
                                   antialiaseds,
                                   OFFSET_POSITION_FIGURE,
-                                  false,
+                                  true, // check_snap
                                   false);
 }
 

@@ -22,7 +22,7 @@ def test_non_affine_caching():
         is_affine = False
 
         def __init__(self, *args, **kwargs):
-            mtransforms.Transform.__init__(self, *args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.raise_on_transform = False
             self.underlying_transform = mtransforms.Affine2D().scale(10, 10)
 
@@ -73,6 +73,10 @@ def test_pre_transform_plotting():
     # a catch-all for as many as possible plot layouts which handle
     # pre-transforming the data NOTE: The axis range is important in this
     # plot. It should be x10 what the data suggests it should be
+
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     ax = plt.axes()
     times10 = mtransforms.Affine2D().scale(10)
 
@@ -215,7 +219,7 @@ class NonAffineForTest(mtransforms.Transform):
 
     def __init__(self, real_trans, *args, **kwargs):
         self.real_trans = real_trans
-        mtransforms.Transform.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def transform_non_affine(self, values):
         return self.real_trans.transform(values)

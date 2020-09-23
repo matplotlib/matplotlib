@@ -26,11 +26,11 @@ with continental and political boundaries.
 
 Cartopy
 =======
-`Cartopy <https://scitools.org.uk/cartopy/docs/latest>`_ builds on top
+`Cartopy <https://scitools.org.uk/cartopy/docs/latest/>`_ builds on top
 of Matplotlib to provide object oriented map projection definitions
 and close integration with Shapely for powerful yet easy-to-use vector
 data processing tools. An example plot from the `Cartopy gallery
-<https://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
+<https://scitools.org.uk/cartopy/docs/latest/gallery/index.html>`_:
 
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
@@ -239,6 +239,16 @@ MplDataCursor
 written by Joe Kington to provide interactive "data cursors" (clickable
 annotation boxes) for Matplotlib.
 
+mpl_interactions
+================
+`mpl_interactions <https://mpl-interactions.readthedocs.io/en/latest/>`_
+makes it easy to create interactive plots controlled by sliders and other
+widgets. It also provides several handy capabilties such as manual
+image segmentation, comparing cross-sections of arrays, and using the
+scroll wheel to zoom.
+
+.. image:: /_static/mpl-interactions-slider-animated.png
+
 Rendering backends
 ******************
 
@@ -281,6 +291,14 @@ border, and logo.
 
 .. image:: /_static/mpl_template_example.png
     :height: 330px
+
+figpager
+========
+`figpager <https://pypi.org/project/figpager/>`_ provides customizable figure
+elements such as text, lines and images and subplot layout control for single
+or multi page output.
+
+ .. image:: /_static/figpager.png
 
 blume
 =====

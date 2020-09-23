@@ -53,27 +53,27 @@ class Gcf:
         It is recommended to pass a manager instance, to avoid confusion when
         two managers share the same number.
         """
-        if all(hasattr(num, attr) for attr in ["num", "_cidgcf", "destroy"]):
+        if all(hasattr(num, attr) for attr in ["num", "destroy"]):
             manager = num
             if cls.figs.get(manager.num) is manager:
                 cls.figs.pop(manager.num)
-            else:
-                return
         else:
             try:
                 manager = cls.figs.pop(num)
             except KeyError:
                 return
-        manager.canvas.mpl_disconnect(manager._cidgcf)
+        if hasattr(manager, "_cidgcf"):
+            manager.canvas.mpl_disconnect(manager._cidgcf)
         manager.destroy()
         gc.collect(1)
 
     @classmethod
     def destroy_fig(cls, fig):
         """Destroy figure *fig*."""
-        canvas = getattr(fig, "canvas", None)
-        manager = getattr(canvas, "manager", None)
-        cls.destroy(manager)
+        num = next((manager.num for manager in cls.figs.values()
+                    if manager.canvas.figure == fig), None)
+        if num is not None:
+            cls.destroy(num)
 
     @classmethod
     def destroy_all(cls):

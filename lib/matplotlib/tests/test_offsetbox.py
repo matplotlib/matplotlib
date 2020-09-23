@@ -12,8 +12,8 @@ import matplotlib.lines as mlines
 from matplotlib.backend_bases import MouseButton
 
 from matplotlib.offsetbox import (
-        AnchoredOffsetbox, AnnotationBbox, DrawingArea, OffsetImage, TextArea,
-        _get_packed_offsets)
+        AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea,
+        OffsetImage, TextArea, _get_packed_offsets)
 
 
 @image_comparison(['offsetbox_clipping'], remove_text=True)
@@ -239,6 +239,21 @@ def test_picking(child_type, boxcoords):
     calls.clear()
     fig.canvas.button_press_event(x, y, MouseButton.LEFT)
     assert len(calls) == 0
+
+
+@image_comparison(['anchoredtext_align.png'], remove_text=True, style='mpl20')
+def test_anchoredtext_horizontal_alignment():
+    fig, ax = plt.subplots()
+
+    text0 = AnchoredText("test\ntest long text", loc="center left",
+                         pad=0.2, prop={"ha": "left"})
+    ax.add_artist(text0)
+    text1 = AnchoredText("test\ntest long text", loc="center",
+                         pad=0.2, prop={"ha": "center"})
+    ax.add_artist(text1)
+    text2 = AnchoredText("test\ntest long text", loc="center right",
+                         pad=0.2, prop={"ha": "right"})
+    ax.add_artist(text2)
 
 
 def test_annotationbbox_extents():

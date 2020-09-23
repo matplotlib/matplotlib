@@ -105,7 +105,7 @@ the form of wheels.
 pip is installed by default with python.org and Homebrew Python, but needs to
 be manually installed on Macports with ::
 
-   sudo port install py36-pip
+   sudo port install py38-pip
 
 Once pip is installed, you can install Matplotlib and all its dependencies with
 from the Terminal.app command line::

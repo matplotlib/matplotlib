@@ -25,10 +25,7 @@ try:
     import threading
 except ImportError:
     import dummy_threading as threading
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py 3.6.
+from contextlib import nullcontext
 from math import radians, cos, sin
 
 import numpy as np
@@ -38,7 +35,8 @@ import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    RendererBase)
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
                                 LOAD_DEFAULT, LOAD_NO_AUTOHINT)
@@ -87,7 +85,7 @@ class RendererAgg(RendererBase):
     lock = threading.RLock()
 
     def __init__(self, width, height, dpi):
-        RendererBase.__init__(self)
+        super().__init__()
 
         self.dpi = dpi
         self.width = width
@@ -118,8 +116,15 @@ class RendererAgg(RendererBase):
         # self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
-        self.get_content_extents = self._renderer.get_content_extents
 
+    @cbook.deprecated("3.4")
+    def get_content_extents(self):
+        orig_img = np.asarray(self.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+        return (slice_x.start, slice_y.start,
+                slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
+
+    @cbook.deprecated("3.4")
     def tostring_rgba_minimized(self):
         extents = self.get_content_extents()
         bbox = [[extents[0], self.height - (extents[1] + extents[3])],
@@ -366,23 +371,21 @@ class RendererAgg(RendererBase):
         The saved renderer is restored and the returned image from
         post_processing is plotted (using draw_image) on it.
         """
-
-        width, height = int(self.width), int(self.height)
-
-        buffer, (l, b, w, h) = self.tostring_rgba_minimized()
+        orig_img = np.asarray(self.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+        cropped_img = orig_img[slice_y, slice_x]
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
 
-        if w > 0 and h > 0:
-            img = np.frombuffer(buffer, np.uint8)
-            img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
-                                          self.dpi)
+        if cropped_img.size:
+            img, ox, oy = post_processing(cropped_img / 255, self.dpi)
             gc = self.new_gc()
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
-            img = img[::-1]
-            self._renderer.draw_image(gc, l + ox, height - b - h + oy, img)
+            self._renderer.draw_image(
+                gc, slice_x.start + ox, int(self.height) - slice_y.stop + oy,
+                img[::-1])
 
 
 class FigureCanvasAgg(FigureCanvasBase):
@@ -447,7 +450,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         return self.renderer.buffer_rgba()
 
-    def print_raw(self, filename_or_obj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_raw(self, filename_or_obj, *args):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         with cbook.open_file_cm(filename_or_obj, "wb") as fh:
@@ -455,9 +459,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_rgba = print_raw
 
+    @_check_savefig_extra_args
     def print_png(self, filename_or_obj, *args,
-                  metadata=None, pil_kwargs=None,
-                  **kwargs):
+                  metadata=None, pil_kwargs=None):
         """
         Write the figure to a PNG file.
 
@@ -519,6 +523,8 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
+    @_check_savefig_extra_args(
+        extra_kwargs=["quality", "optimize", "progressive"])
     @cbook._delete_parameter("3.2", "dryrun")
     @cbook._delete_parameter("3.3", "quality",
                              alternative="pil_kwargs={'quality': ...}")
@@ -544,16 +550,13 @@ class FigureCanvasAgg(FigureCanvasBase):
             the JPEG compression algorithm, and results in large files
             with hardly any gain in image quality.  This parameter is
             deprecated.
-
         optimize : bool, default: False
             Whether the encoder should make an extra pass over the image
             in order to select optimal encoder settings.  This parameter is
             deprecated.
-
         progressive : bool, default: False
             Whether the image should be stored as a progressive JPEG file.
             This parameter is deprecated.
-
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.  These take
@@ -572,7 +575,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             pil_kwargs = {}
         for k in ["quality", "optimize", "progressive"]:
             if k in kwargs:
-                pil_kwargs.setdefault(k, kwargs[k])
+                pil_kwargs.setdefault(k, kwargs.pop(k))
         if "quality" not in pil_kwargs:
             quality = pil_kwargs["quality"] = \
                 dict.__getitem__(mpl.rcParams, "savefig.jpeg_quality")
@@ -590,9 +593,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_jpeg = print_jpg
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
-    def print_tif(self, filename_or_obj, *args, dryrun=False, pil_kwargs=None,
-                  **kwargs):
+    def print_tif(self, filename_or_obj, *, dryrun=False, pil_kwargs=None):
         FigureCanvasAgg.draw(self)
         if dryrun:
             return

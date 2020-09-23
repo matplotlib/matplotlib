@@ -9,6 +9,7 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.artist as martist
 import matplotlib.cbook as cbook
 import matplotlib.lines as mlines
@@ -82,7 +83,7 @@ class Tick(martist.Artist):
         loc is the tick location in data coords
         size is the tick size in points
         """
-        martist.Artist.__init__(self)
+        super().__init__()
 
         if gridOn is None:
             if major and (mpl.rcParams['axes.grid.which']
@@ -120,6 +121,10 @@ class Tick(martist.Artist):
         self._base_pad = pad
 
         if labelcolor is None:
+            labelcolor = mpl.rcParams[f"{name}.labelcolor"]
+
+        if labelcolor == 'inherit':
+            # inherit from tick color
             labelcolor = mpl.rcParams[f"{name}.color"]
 
         if labelsize is None:
@@ -202,7 +207,7 @@ class Tick(martist.Artist):
         else:
             mode = 'default'
             angle = labelrotation
-        cbook._check_in_list(['auto', 'default'], labelrotation=mode)
+        _api.check_in_list(['auto', 'default'], labelrotation=mode)
         self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
@@ -227,7 +232,7 @@ class Tick(martist.Artist):
 
     def set_clip_path(self, clippath, transform=None):
         # docstring inherited
-        martist.Artist.set_clip_path(self, clippath, transform)
+        super().set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
         self.stale = True
 
@@ -452,7 +457,7 @@ class XTick(Tick):
         """Set tick direction. Valid values are 'in', 'out', 'inout'."""
         if tickdir is None:
             tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
-        cbook._check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
+        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
@@ -573,10 +578,8 @@ class Ticker:
     @locator.setter
     def locator(self, locator):
         if not isinstance(locator, mticker.Locator):
-            cbook.warn_deprecated(
-                "3.2", message="Support for locators that do not subclass "
-                "matplotlib.ticker.Locator is deprecated since %(since)s and "
-                "support for them will be removed %(removal)s.")
+            raise TypeError('locator must be a subclass of '
+                            'matplotlib.ticker.Locator')
         self._locator = locator
 
     @property
@@ -586,10 +589,8 @@ class Ticker:
     @formatter.setter
     def formatter(self, formatter):
         if not isinstance(formatter, mticker.Formatter):
-            cbook.warn_deprecated(
-                "3.2", message="Support for formatters that do not subclass "
-                "matplotlib.ticker.Formatter is deprecated since %(since)s "
-                "and support for them will be removed %(removal)s.")
+            raise TypeError('formatter must be a subclass of '
+                            'matplotlib.ticker.Formatter')
         self._formatter = formatter
 
 
@@ -671,7 +672,7 @@ class Axis(martist.Artist):
             The acceptance radius for containment tests. See also
             `.Axis.contains`.
         """
-        martist.Artist.__init__(self)
+        super().__init__()
         self._remove_overlapping_locs = True
 
         self.set_figure(axes.figure)
@@ -819,7 +820,7 @@ class Axis(martist.Artist):
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
-        cbook._check_in_list(['major', 'minor', 'both'], which=which)
+        _api.check_in_list(['major', 'minor', 'both'], which=which)
         kwtrans = self._translate_tick_kw(kw)
 
         # the kwargs are stored in self._major/minor_tick_kw so that any
@@ -897,7 +898,7 @@ class Axis(martist.Artist):
         return kwtrans
 
     def set_clip_path(self, clippath, transform=None):
-        martist.Artist.set_clip_path(self, clippath, transform)
+        super().set_clip_path(clippath, transform)
         for child in self.majorTicks + self.minorTicks:
             child.set_clip_path(clippath, transform)
         self.stale = True
@@ -1249,7 +1250,7 @@ class Axis(martist.Artist):
             elif which == 'both':
                 return self.get_majorticklabels() + self.get_minorticklabels()
             else:
-                cbook._check_in_list(['major', 'minor', 'both'], which=which)
+                _api.check_in_list(['major', 'minor', 'both'], which=which)
         if minor:
             return self.get_minorticklabels()
         return self.get_majorticklabels()
@@ -1340,7 +1341,7 @@ class Axis(martist.Artist):
         tick_kw = self._major_tick_kw
         size = tick_kw.get('labelsize',
                            mpl.rcParams[f'{axis_name}tick.labelsize'])
-        return mtext.FontProperties(size).get_size_in_points()
+        return mtext.FontProperties(size=size).get_size_in_points()
 
     def _copy_tick_props(self, src, dest):
         """Copy the properties from *src* tick to *dest* tick."""
@@ -1429,7 +1430,7 @@ class Axis(martist.Artist):
                                      'grid will be enabled.')
             b = True
         which = which.lower()
-        cbook._check_in_list(['major', 'minor', 'both'], which=which)
+        _api.check_in_list(['major', 'minor', 'both'], which=which)
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
 
         if which in ['minor', 'both']:
@@ -1530,14 +1531,31 @@ class Axis(martist.Artist):
         Parameters
         ----------
         u : units tag
+
+        Notes
+        -----
+        The units of any shared axis will also be updated.
         """
         if u == self.units:
             return
-        self.units = u
-        self._update_axisinfo()
-        self.callbacks.process('units')
-        self.callbacks.process('units finalize')
-        self.stale = True
+        if self is self.axes.xaxis:
+            shared = [
+                ax.xaxis
+                for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
+            ]
+        elif self is self.axes.yaxis:
+            shared = [
+                ax.yaxis
+                for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
+            ]
+        else:
+            shared = [self]
+        for axis in shared:
+            axis.units = u
+            axis._update_axisinfo()
+            axis.callbacks.process('units')
+            axis.callbacks.process('units finalize')
+            axis.stale = True
 
     def get_units(self):
         """Return the units for axis."""
@@ -1708,7 +1726,9 @@ class Axis(martist.Artist):
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
-            if len(locator.locs) != len(ticklabels):
+            # Passing [] as a list of ticklabels is often used as a way to
+            # remove all tick labels, so only error for > 0 ticklabels
+            if len(locator.locs) != len(ticklabels) and len(ticklabels) != 0:
                 raise ValueError(
                     "The number of FixedLocator locations"
                     f" ({len(locator.locs)}), usually from a call to"
@@ -1795,12 +1815,22 @@ class Axis(martist.Artist):
         """
         Set this Axis' tick locations.
 
+        If necessary, the view limits of the Axis are expanded so that all
+        given ticks are visible.
+
         Parameters
         ----------
         ticks : list of floats
             List of tick locations.
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
+
+        Notes
+        -----
+        The mandatory expansion of the view limits is an intentional design
+        choice to prevent the surprise of a non-visible tick. If you need
+        other limits, you should set the limits explicitly after setting the
+        ticks.
         """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
@@ -1853,7 +1883,7 @@ class Axis(martist.Artist):
 
     def axis_date(self, tz=None):
         """
-        Sets up axis ticks and labels to treat data along this Axis as dates.
+        Set up axis ticks and labels to treat data along this Axis as dates.
 
         Parameters
         ----------
@@ -2018,7 +2048,7 @@ class XAxis(Axis):
         ----------
         position : {'top', 'bottom'}
         """
-        self.label.set_verticalalignment(cbook._check_getitem({
+        self.label.set_verticalalignment(_api.check_getitem({
             'top': 'baseline', 'bottom': 'top',
         }, position=position))
         self.label_position = position
@@ -2145,8 +2175,8 @@ class XAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        cbook._check_in_list(['top', 'bottom', 'both', 'default', 'none'],
-                             position=position)
+        _api.check_in_list(['top', 'bottom', 'both', 'default', 'none'],
+                           position=position)
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
@@ -2310,7 +2340,7 @@ class YAxis(Axis):
         """
         self.label.set_rotation_mode('anchor')
         self.label.set_horizontalalignment('center')
-        self.label.set_verticalalignment(cbook._check_getitem({
+        self.label.set_verticalalignment(_api.check_getitem({
             'left': 'bottom', 'right': 'top',
         }, position=position))
         self.label_position = position
@@ -2395,7 +2425,7 @@ class YAxis(Axis):
         position : {'left', 'right'}
         """
         x, y = self.offsetText.get_position()
-        x = cbook._check_getitem({'left': 0, 'right': 1}, position=position)
+        x = _api.check_getitem({'left': 0, 'right': 1}, position=position)
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))
@@ -2432,8 +2462,8 @@ class YAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        cbook._check_in_list(['left', 'right', 'both', 'default', 'none'],
-                             position=position)
+        _api.check_in_list(['left', 'right', 'both', 'default', 'none'],
+                           position=position)
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)

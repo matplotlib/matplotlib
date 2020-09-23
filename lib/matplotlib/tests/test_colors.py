@@ -1,8 +1,11 @@
 import copy
 import itertools
 
+from io import BytesIO
 import numpy as np
+from PIL import Image
 import pytest
+import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
@@ -207,6 +210,11 @@ def test_BoundaryNorm():
     bn = mcolors.BoundaryNorm(boundaries, ncolors)
     assert_array_equal(bn(vals), expected)
 
+    # with a single region and interpolation
+    expected = [-1, 1, 1, 1, 3, 3]
+    bn = mcolors.BoundaryNorm([0, 2.2], ncolors)
+    assert_array_equal(bn(vals), expected)
+
     # more boundaries for a third color
     boundaries = [0, 1, 2, 3]
     vals = [-1, 0.1, 1.1, 2.2, 4]
@@ -296,6 +304,9 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
 
+    assert mcolors.same_color(cmref.get_over(), 'black')
+    assert mcolors.same_color(cmref.get_under(), 'white')
+
     refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
     mynorm = mcolors.BoundaryNorm(bounds, cmshould.N, extend='both')
     assert mynorm.vmin == refnorm.vmin
@@ -316,6 +327,8 @@ def test_BoundaryNorm():
     cmref.set_under('white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
 
+    assert mcolors.same_color(cmref.get_under(), 'white')
+
     assert cmref.N == 2
     assert cmshould.N == 3
     refnorm = mcolors.BoundaryNorm(bounds, cmref.N)
@@ -331,6 +344,8 @@ def test_BoundaryNorm():
     cmref = mcolors.ListedColormap(['blue', 'red'])
     cmref.set_over('black')
     cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
+
+    assert mcolors.same_color(cmref.get_over(), 'black')
 
     assert cmref.N == 2
     assert cmshould.N == 3
@@ -601,6 +616,9 @@ def _mask_tester(norm_instance, vals):
 
 @image_comparison(['levels_and_colors.png'])
 def test_cmap_and_norm_from_levels_and_colors():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     data = np.linspace(-2, 4, 49).reshape(7, 7)
     levels = [-1, 2, 2.5, 3]
     colors = ['red', 'green', 'blue', 'yellow', 'black']
@@ -618,6 +636,8 @@ def test_cmap_and_norm_from_levels_and_colors():
 @image_comparison(baseline_images=['boundarynorm_and_colorbar'],
                   extensions=['png'])
 def test_boundarynorm_and_colorbarbase():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
 
     # Make a figure and axes with dimensions as desired.
     fig = plt.figure()
@@ -1045,17 +1065,21 @@ def test_to_rgba_array_single_str():
     # single color name is valid
     assert_array_equal(mcolors.to_rgba_array("red"), [(1, 0, 0, 1)])
 
-    # single char color sequence is deprecated
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match="Using a string of single character colors as a "
-                            "color sequence is deprecated"):
-        array = mcolors.to_rgba_array("rgb")
-    assert_array_equal(array, [(1, 0, 0, 1), (0, 0.5, 0, 1), (0, 0, 1, 1)])
-
+    # single char color sequence is invalid
     with pytest.raises(ValueError,
-                       match="neither a valid single color nor a color "
-                             "sequence"):
-        mcolors.to_rgba_array("rgbx")
+                       match="Using a string of single character colors as "
+                             "a color sequence is not supported."):
+        array = mcolors.to_rgba_array("rgb")
+
+
+def test_to_rgba_array_alpha_array():
+    with pytest.raises(ValueError, match="The number of colors must match"):
+        mcolors.to_rgba_array(np.ones((5, 3), float), alpha=np.ones((2,)))
+    alpha = [0.5, 0.6]
+    c = mcolors.to_rgba_array(np.ones((2, 3), float), alpha=alpha)
+    assert_array_equal(c[:, 3], alpha)
+    c = mcolors.to_rgba_array(['r', 'g'], alpha=alpha)
+    assert_array_equal(c[:, 3], alpha)
 
 
 def test_failed_conversions():
@@ -1132,6 +1156,65 @@ def test_hex_shorthand_notation():
     assert mcolors.same_color("#123a", "#112233aa")
 
 
-def test_DivergingNorm_deprecated():
-    with pytest.warns(cbook.MatplotlibDeprecationWarning):
-        norm = mcolors.DivergingNorm(vcenter=0)
+def test_repr_png():
+    cmap = plt.get_cmap('viridis')
+    png = cmap._repr_png_()
+    assert len(png) > 0
+    img = Image.open(BytesIO(png))
+    assert img.width > 0
+    assert img.height > 0
+    assert 'Title' in img.text
+    assert 'Description' in img.text
+    assert 'Author' in img.text
+    assert 'Software' in img.text
+
+
+def test_repr_html():
+    cmap = plt.get_cmap('viridis')
+    html = cmap._repr_html_()
+    assert len(html) > 0
+    png = cmap._repr_png_()
+    assert base64.b64encode(png).decode('ascii') in html
+    assert cmap.name in html
+    assert html.startswith('<div')
+    assert html.endswith('</div>')
+
+
+def test_get_under_over_bad():
+    cmap = plt.get_cmap('viridis')
+    assert_array_equal(cmap.get_under(), cmap(-np.inf))
+    assert_array_equal(cmap.get_over(), cmap(np.inf))
+    assert_array_equal(cmap.get_bad(), cmap(np.nan))
+
+
+def test_colormap_alpha_array():
+    cmap = plt.get_cmap('viridis')
+    vals = [-1, 0.5, 2]  # under, valid, over
+    with pytest.raises(ValueError, match="alpha is array-like but"):
+        cmap(vals, alpha=[1, 1, 1, 1])
+    alpha = np.array([0.1, 0.2, 0.3])
+    c = cmap(vals, alpha=alpha)
+    assert_array_equal(c[:, -1], alpha)
+    c = cmap(vals, alpha=alpha, bytes=True)
+    assert_array_equal(c[:, -1], (alpha * 255).astype(np.uint8))
+
+
+def test_colormap_bad_data_with_alpha():
+    cmap = plt.get_cmap('viridis')
+    c = cmap(np.nan, alpha=0.5)
+    assert c == (0, 0, 0, 0)
+    c = cmap([0.5, np.nan], alpha=0.5)
+    assert_array_equal(c[1], (0, 0, 0, 0))
+    c = cmap([0.5, np.nan], alpha=[0.1, 0.2])
+    assert_array_equal(c[1], (0, 0, 0, 0))
+    c = cmap([[np.nan, 0.5], [0, 0]], alpha=0.5)
+    assert_array_equal(c[0, 0], (0, 0, 0, 0))
+    c = cmap([[np.nan, 0.5], [0, 0]], alpha=np.full((2, 2), 0.5))
+    assert_array_equal(c[0, 0], (0, 0, 0, 0))
+
+
+def test_2d_to_rgba():
+    color = np.array([0.1, 0.2, 0.3])
+    rgba_1d = mcolors.to_rgba(color.reshape(-1))
+    rgba_2d = mcolors.to_rgba(color.reshape((1, -1)))
+    assert rgba_1d == rgba_2d

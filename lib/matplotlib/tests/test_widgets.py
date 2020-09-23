@@ -1,3 +1,4 @@
+import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
@@ -105,7 +106,9 @@ def test_rectangle_handles():
         pass
 
     tool = widgets.RectangleSelector(ax, onselect=onselect,
-                                     maxdist=10, interactive=True)
+                                     maxdist=10, interactive=True,
+                                     marker_props={'markerfacecolor': 'r',
+                                                   'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
 
     assert tool.corners == (
@@ -132,6 +135,12 @@ def test_rectangle_handles():
     do_event(tool, 'onmove', xdata=100, ydata=100)
     do_event(tool, 'release', xdata=100, ydata=100)
     assert tool.extents == (10, 100, 10, 100)
+
+    # Check that marker_props worked.
+    assert mcolors.same_color(
+        tool._corner_handles.artist.get_markerfacecolor(), 'r')
+    assert mcolors.same_color(
+        tool._corner_handles.artist.get_markeredgecolor(), 'b')
 
 
 def check_span(*args, **kwargs):

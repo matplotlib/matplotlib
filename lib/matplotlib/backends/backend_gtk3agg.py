@@ -67,8 +67,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         self.queue_draw_area(x, y, width, height)
 
     def draw(self):
-        if self.get_visible() and self.get_mapped():
-            backend_agg.FigureCanvasAgg.draw(self)
+        backend_agg.FigureCanvasAgg.draw(self)
         super().draw()
 
     def print_png(self, filename, *args, **kwargs):

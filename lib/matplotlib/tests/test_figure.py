@@ -1,12 +1,10 @@
+from contextlib import nullcontext
 from datetime import datetime
+import io
 from pathlib import Path
 import platform
 from types import SimpleNamespace
 import warnings
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py3.6
 
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
@@ -20,8 +18,8 @@ import numpy as np
 import pytest
 
 
-@image_comparison(['figure_align_labels'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+@image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_labels():
     fig = plt.figure(tight_layout=True)
     gs = gridspec.GridSpec(3, 3)
@@ -181,9 +179,11 @@ def test_gca():
 
 def test_add_subplot_invalid():
     fig = plt.figure()
-    with pytest.raises(ValueError, match='Number of columns must be > 0'):
+    with pytest.raises(ValueError,
+                       match='Number of columns must be a positive integer'):
         fig.add_subplot(2, 0, 1)
-    with pytest.raises(ValueError, match='Number of rows must be > 0'):
+    with pytest.raises(ValueError,
+                       match='Number of rows must be a positive integer'):
         fig.add_subplot(0, 2, 1)
     with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 0)
@@ -421,6 +421,14 @@ def test_savefig():
     msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
     with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
+
+
+def test_savefig_warns():
+    fig = plt.figure()
+    msg = r'savefig\(\) got unexpected keyword argument "non_existent_kwarg"'
+    for format in ['png', 'pdf', 'svg', 'tif', 'jpg']:
+        with pytest.warns(cbook.MatplotlibDeprecationWarning, match=msg):
+            fig.savefig(io.BytesIO(), format=format, non_existent_kwarg=True)
 
 
 def test_savefig_backend():
@@ -717,6 +725,10 @@ class TestSubplotMosaic:
         axB = fig_ref.add_subplot(gs[1, 1])
         axB.set_title(labels[1])
 
+    def test_fail_list_of_str(self):
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic(['foo', 'bar'])
+
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
     def test_subplot_kw(self, fig_test, fig_ref, subplot_kw):
@@ -770,3 +782,18 @@ class TestSubplotMosaic:
     def test_hashable_keys(self, fig_test, fig_ref):
         fig_test.subplot_mosaic([[object(), object()]])
         fig_ref.subplot_mosaic([["A", "B"]])
+
+
+def test_reused_gridspec():
+    """Test that these all use the same gridspec"""
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 2, (3, 5))
+    ax2 = fig.add_subplot(3, 2, 4)
+    ax3 = plt.subplot2grid((3, 2), (2, 1), colspan=2, fig=fig)
+
+    gs1 = ax1.get_subplotspec().get_gridspec()
+    gs2 = ax2.get_subplotspec().get_gridspec()
+    gs3 = ax3.get_subplotspec().get_gridspec()
+
+    assert gs1 == gs2
+    assert gs1 == gs3

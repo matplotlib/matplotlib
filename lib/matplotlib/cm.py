@@ -16,35 +16,14 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 """
 
 from collections.abc import MutableMapping
-import functools
 
 import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-import matplotlib.colors as colors
-import matplotlib.cbook as cbook
+from matplotlib import _api, colors, cbook
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
-
-
-def _reverser(f, x):  # Deprecated, remove this at the same time as revcmap.
-    return f(1 - x)  # Toplevel helper for revcmap ensuring cmap picklability.
-
-
-@cbook.deprecated("3.2", alternative="Colormap.reversed()")
-def revcmap(data):
-    """Can only handle specification *data* in dictionary format."""
-    data_r = {}
-    for key, val in data.items():
-        if callable(val):
-            # Return a partial object so that the result is picklable.
-            valnew = functools.partial(_reverser, val)
-        else:
-            # Flip x and exchange the y values facing x = 0 and x = 1.
-            valnew = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(val)]
-        data_r[key] = valnew
-    return data_r
 
 
 LUTSIZE = mpl.rcParams['image.lut']
@@ -201,7 +180,7 @@ def get_cmap(name=None, lut=None):
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
         return name
-    cbook._check_in_list(sorted(_cmap_registry), name=name)
+    _api.check_in_list(sorted(_cmap_registry), name=name)
     if lut is None:
         return _cmap_registry[name]
     else:
@@ -258,8 +237,10 @@ class ScalarMappable:
                             "simultaneously is deprecated since %(since)s and "
                             "will become an error %(removal)s. Please pass "
                             "vmin/vmax directly to the norm when creating it.")
-        else:
-            self.autoscale_None()
+
+        # always resolve the autoscaling so we have concrete limits
+        # rather than deferring to draw time.
+        self.autoscale_None()
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """

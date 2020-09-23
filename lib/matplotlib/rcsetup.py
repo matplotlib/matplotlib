@@ -18,12 +18,11 @@ from functools import lru_cache, reduce
 import logging
 from numbers import Number
 import operator
-import os
 import re
 
 import numpy as np
 
-from matplotlib import animation, cbook
+from matplotlib import _api, animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
@@ -136,17 +135,6 @@ def _validate_date(s):
             f'{s!r} should be a string that can be parsed by numpy.datetime64')
 
 
-@cbook.deprecated("3.2", alternative="os.path.exists")
-def validate_path_exists(s):
-    """If s is a path, return s, else False"""
-    if s is None:
-        return None
-    if os.path.exists(s):
-        return s
-    else:
-        raise RuntimeError('"%s" should be a path but it does not exist' % s)
-
-
 def validate_bool(b):
     """Convert b to ``bool`` or raise."""
     if isinstance(b, str):
@@ -172,6 +160,27 @@ def validate_bool_maybe_none(b):
         return False
     else:
         raise ValueError('Could not convert "%s" to bool' % b)
+
+
+def _validate_date_converter(s):
+    if s is None:
+        return
+    s = validate_string(s)
+    if s not in ['auto', 'concise']:
+        cbook._warn_external(f'date.converter string must be "auto" '
+                             f'or "concise", not "{s}".  Check your '
+                             'matplotlibrc')
+        return
+    import matplotlib.dates as mdates
+    mdates._rcParam_helper.set_converter(s)
+
+
+def _validate_date_int_mult(s):
+    if s is None:
+        return
+    s = validate_bool(s)
+    import matplotlib.dates as mdates
+    mdates._rcParam_helper.set_int_mult(s)
 
 
 def _validate_tex_preamble(s):
@@ -485,49 +494,14 @@ _validate_alignment = ValidateInStrings(
 
 
 def validate_whiskers(s):
-    if s == 'range':
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the boxplot.whiskers rcParam "
-            "to 'range' is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to 0, 100 instead.")
-        return 'range'
-    else:
+    try:
+        return _listify_validator(validate_float, n=2)(s)
+    except (TypeError, ValueError):
         try:
-            return _listify_validator(validate_float, n=2)(s)
-        except (TypeError, ValueError):
-            try:
-                return float(s)
-            except ValueError as e:
-                raise ValueError("Not a valid whisker value ['range', float, "
-                                 "(float, float)]") from e
-
-
-@cbook.deprecated("3.2")
-def update_savefig_format(value):
-    # The old savefig.extension could also have a value of "auto", but
-    # the new savefig.format does not.  We need to fix this here.
-    value = validate_string(value)
-    if value == 'auto':
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the 'savefig.format' rcParam "
-            "to 'auto' is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to 'png' instead.")
-        value = 'png'
-    return value
-
-
-# Replace by validate_string once deprecation period passes.
-def _update_savefig_format(value):
-    # The old savefig.extension could also have a value of "auto", but
-    # the new savefig.format does not.  We need to fix this here.
-    value = validate_string(value)
-    if value == 'auto':
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the 'savefig.format' rcParam "
-            "to 'auto' is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to 'png' instead.")
-        value = 'png'
-    return value
+            return float(s)
+        except ValueError as e:
+            raise ValueError("Not a valid whisker value ['range', float, "
+                             "(float, float)]") from e
 
 
 validate_ps_papersize = ValidateInStrings(
@@ -616,13 +590,13 @@ def _deprecate_case_insensitive_join_cap(s):
 
 def validate_joinstyle(s):
     s = _deprecate_case_insensitive_join_cap(s)
-    cbook._check_in_list(['miter', 'round', 'bevel'], joinstyle=s)
+    _api.check_in_list(['miter', 'round', 'bevel'], joinstyle=s)
     return s
 
 
 def validate_capstyle(s):
     s = _deprecate_case_insensitive_join_cap(s)
-    cbook._check_in_list(['butt', 'round', 'projecting'], capstyle=s)
+    _api.check_in_list(['butt', 'round', 'projecting'], capstyle=s)
     return s
 
 
@@ -698,18 +672,11 @@ def validate_hinting(s):
 
 
 # Replace by plain list in _prop_validators after deprecation period.
-def _validate_hinting(s):
-    if s in (True, False):
-        cbook.warn_deprecated(
-            "3.2", message="Support for setting the text.hinting rcParam to "
-            "True or False is deprecated since %(since)s and will be removed "
-            "%(removal)s; set it to its synonyms 'auto' or 'none' instead.")
-        return s
-    return ValidateInStrings(
-        'text.hinting',
-        ['default', 'no_autohint', 'force_autohint', 'no_hinting',
-         'auto', 'native', 'either', 'none'],
-        ignorecase=True)(s)
+_validate_hinting = ValidateInStrings(
+    'text.hinting',
+    ['default', 'no_autohint', 'force_autohint', 'no_hinting',
+     'auto', 'native', 'either', 'none'],
+    ignorecase=True)
 
 
 validate_pgf_texsystem = ValidateInStrings(
@@ -729,7 +696,8 @@ def validate_movie_writer(s):
 
 
 validate_movie_frame_fmt = ValidateInStrings(
-    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba'],
+    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba', 'ppm',
+                               'sgi', 'bmp', 'pbm', 'svg'],
     _deprecated_since="3.3")
 validate_axis_locator = ValidateInStrings(
     'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
@@ -1003,22 +971,6 @@ def validate_hist_bins(s):
                      " a sequence of floats".format(valid_strs))
 
 
-@cbook.deprecated("3.2")
-def validate_animation_writer_path(p):
-    # Make sure it's a string and then figure out if the animations
-    # are already loaded and reset the writers (which will validate
-    # the path on next call)
-    cbook._check_isinstance(str, path=p)
-    from sys import modules
-    # set dirty, so that the next call to the registry will re-evaluate
-    # the state.
-    # only set dirty if already loaded. If not loaded, the load will
-    # trigger the checks.
-    if "matplotlib.animation" in modules:
-        modules["matplotlib.animation"].writers.set_dirty()
-    return p
-
-
 @cbook.deprecated("3.3")
 def validate_webagg_address(s):
     if s is not None:
@@ -1090,6 +1042,7 @@ _validators = {
 
     ## pcolor(mesh) props:
     "pcolor.shading": ["auto", "flat", "nearest", "gouraud"],
+    "pcolormesh.snap": validate_bool,
 
     ## patch props
     "patch.linewidth":       validate_float,  # line width in points
@@ -1271,6 +1224,11 @@ _validators = {
     "date.autoformatter.second":      validate_string,
     "date.autoformatter.microsecond": validate_string,
 
+    # 'auto', 'concise', 'auto-noninterval'
+    'date.converter': _validate_date_converter,
+    # for auto date locator, choose interval_multiples
+    'date.interval_multiples': _validate_date_int_mult,
+
     # legend properties
     "legend.fancybox": validate_bool,
     "legend.loc": _ignorecase([
@@ -1278,6 +1236,7 @@ _validators = {
         "upper right", "upper left", "lower left", "lower right", "right",
         "center left", "center right", "lower center", "upper center",
         "center"]),
+
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
     # the number of points in the legend line for scatter
@@ -1320,7 +1279,9 @@ _validators = {
     "xtick.minor.width":   validate_float,     # minor xtick width in points
     "xtick.major.pad":     validate_float,     # distance to label in points
     "xtick.minor.pad":     validate_float,     # distance to label in points
-    "xtick.color":         validate_color,     # color of xtick labels
+    "xtick.color":         validate_color,     # color of xticks
+    "xtick.labelcolor":    validate_color_or_inherit,
+    # color of xtick labels
     "xtick.minor.visible": validate_bool,      # visibility of minor xticks
     "xtick.minor.top":     validate_bool,      # draw top minor xticks
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
@@ -1340,7 +1301,9 @@ _validators = {
     "ytick.minor.width":   validate_float,     # minor ytick width in points
     "ytick.major.pad":     validate_float,     # distance to label in points
     "ytick.minor.pad":     validate_float,     # distance to label in points
-    "ytick.color":         validate_color,     # color of ytick labels
+    "ytick.color":         validate_color,     # color of yticks
+    "ytick.labelcolor":    validate_color_or_inherit,
+    # color of ytick labels
     "ytick.minor.visible": validate_bool,      # visibility of minor yticks
     "ytick.minor.left":    validate_bool,      # draw left minor yticks
     "ytick.minor.right":   validate_bool,      # draw right minor yticks
@@ -1393,7 +1356,7 @@ _validators = {
     'savefig.edgecolor':    validate_color_or_auto,
     'savefig.orientation':  ['landscape', 'portrait'],
     'savefig.jpeg_quality': validate_int,
-    "savefig.format":       _update_savefig_format,
+    "savefig.format":       validate_string,
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
     # default directory in savefig dialog box
@@ -1463,7 +1426,8 @@ _validators = {
     "animation.codec":        validate_string,
     "animation.bitrate":      validate_int,
     # Controls image format when frames are written to disk
-    "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba"],
+    "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba", "ppm",
+                               "sgi", "bmp", "pbm", "svg"],
     # Additional arguments for HTML writer
     "animation.html_args":    validate_stringlist,
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.

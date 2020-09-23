@@ -17,7 +17,7 @@ from matplotlib.backends.backend_wxagg import (
 
 class Plot(wx.Panel):
     def __init__(self, parent, id=-1, dpi=None, **kwargs):
-        wx.Panel.__init__(self, parent, id=id, **kwargs)
+        super().__init__(parent, id=id, **kwargs)
         self.figure = mpl.figure.Figure(dpi=dpi, figsize=(2, 2))
         self.canvas = FigureCanvas(self, -1, self.figure)
         self.toolbar = NavigationToolbar(self.canvas)
@@ -31,7 +31,7 @@ class Plot(wx.Panel):
 
 class PlotNotebook(wx.Panel):
     def __init__(self, parent, id=-1):
-        wx.Panel.__init__(self, parent, id=id)
+        super().__init__(parent, id=id)
         self.nb = aui.AuiNotebook(self)
         sizer = wx.BoxSizer()
         sizer.Add(self.nb, 1, wx.EXPAND)

@@ -10,10 +10,11 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
-from . import artist, cbook, colors as mcolors, docstring, rcParams
+from . import _api, artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
+from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import (
@@ -300,7 +301,7 @@ class Line2D(Artist):
         :meth:`set_drawstyle` for a description of the draw styles.
 
         """
-        Artist.__init__(self)
+        super().__init__()
 
         #convert sequences to numpy arrays
         if not np.iterable(xdata):
@@ -721,7 +722,7 @@ class Line2D(Artist):
         ----------
         t : `matplotlib.transforms.Transform`
         """
-        Artist.set_transform(self, t)
+        super().set_transform(t)
         self._invalidx = True
         self._invalidy = True
         self.stale = True
@@ -1039,6 +1040,9 @@ class Line2D(Artist):
         ----------
         color : color
         """
+        if not is_color_like(color) and color != 'auto':
+            _api.check_in_list(get_named_colors_mapping(),
+                               _print_supported_values=False, color=color)
         self._color = color
         self.stale = True
 
@@ -1070,7 +1074,7 @@ class Line2D(Artist):
         """
         if drawstyle is None:
             drawstyle = 'default'
-        cbook._check_in_list(self.drawStyles, drawstyle=drawstyle)
+        _api.check_in_list(self.drawStyles, drawstyle=drawstyle)
         if self._drawstyle != drawstyle:
             self.stale = True
             # invalidate to trigger a recache of the path
@@ -1130,7 +1134,7 @@ class Line2D(Artist):
             if ls in [' ', '', 'none']:
                 ls = 'None'
 
-            cbook._check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
+            _api.check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
             if ls not in self._lineStyles:
                 ls = ls_mapper_r[ls]
             self._linestyle = ls
@@ -1276,7 +1280,7 @@ class Line2D(Artist):
 
     def update_from(self, other):
         """Copy properties from *other* to self."""
-        Artist.update_from(self, other)
+        super().update_from(other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
         self._color = other._color
@@ -1493,8 +1497,12 @@ class VertexSelector:
         Default "do nothing" implementation of the
         :meth:`process_selected` method.
 
-        *ind* are the indices of the selected vertices.  *xs* and *ys*
-        are the coordinates of the selected vertices.
+        Parameters
+        ----------
+        ind : list of int
+            The indices of the selected vertices.
+        xs, ys : array-like
+            The coordinates of the selected vertices.
         """
         pass
 

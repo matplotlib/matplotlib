@@ -54,7 +54,7 @@ class TimerGTK3(TimerBase):
 
     def __init__(self, *args, **kwargs):
         self._timer = None
-        TimerBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
@@ -74,7 +74,7 @@ class TimerGTK3(TimerBase):
             self._timer_start()
 
     def _on_timer(self):
-        TimerBase._on_timer(self)
+        super()._on_timer()
 
         # Gtk timeout_add() requires that the callback returns True if it
         # is to be called again.
@@ -159,12 +159,14 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         self._idle_draw_id = 0
         self._lastCursor = None
+        self._rubberband_rect = None
 
         self.connect('scroll_event',         self.scroll_event)
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
         self.connect('configure_event',      self.configure_event)
         self.connect('draw',                 self.on_draw_event)
+        self.connect('draw',                 self._post_draw)
         self.connect('key_press_event',      self.key_press_event)
         self.connect('key_release_event',    self.key_release_event)
         self.connect('motion_notify_event',  self.motion_notify_event)
@@ -286,6 +288,40 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_size_inches(w / dpi, h / dpi, forward=False)
         return False  # finish event propagation?
 
+    def _draw_rubberband(self, rect):
+        self._rubberband_rect = rect
+        # TODO: Only update the rubberband area.
+        self.queue_draw()
+
+    def _post_draw(self, widget, ctx):
+        if self._rubberband_rect is None:
+            return
+
+        x0, y0, w, h = self._rubberband_rect
+        x1 = x0 + w
+        y1 = y0 + h
+
+        # Draw the lines from x0, y0 towards x1, y1 so that the
+        # dashes don't "jump" when moving the zoom box.
+        ctx.move_to(x0, y0)
+        ctx.line_to(x0, y1)
+        ctx.move_to(x0, y0)
+        ctx.line_to(x1, y0)
+        ctx.move_to(x0, y1)
+        ctx.line_to(x1, y1)
+        ctx.move_to(x1, y0)
+        ctx.line_to(x1, y1)
+
+        ctx.set_antialias(1)
+        ctx.set_line_width(1)
+        ctx.set_dash((3, 3), 0)
+        ctx.set_source_rgb(0, 0, 0)
+        ctx.stroke_preserve()
+
+        ctx.set_dash((3, 3), 3)
+        ctx.set_source_rgb(1, 1, 1)
+        ctx.stroke()
+
     def on_draw_event(self, widget, ctx):
         # to be overwritten by GTK3Agg or GTK3Cairo
         pass
@@ -333,7 +369,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
-        FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
         self.window = Gtk.Window()
         self.window.set_wmclass("matplotlib", "Matplotlib")
@@ -485,6 +521,17 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         toolitem.set_draw(False)
         toolitem.set_expand(True)
 
+        # This filler item ensures the toolbar is always at least two text
+        # lines high. Otherwise the canvas gets redrawn as the mouse hovers
+        # over images because those use two-line messages which resize the
+        # toolbar.
+        toolitem = Gtk.ToolItem()
+        self.insert(toolitem, -1)
+        label = Gtk.Label()
+        label.set_markup(
+            '<small>\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}</small>')
+        toolitem.add(label)
+
         toolitem = Gtk.ToolItem()
         self.insert(toolitem, -1)
         self.message = Gtk.Label()
@@ -500,33 +547,24 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         return self.canvas.get_property("window").cairo_create()
 
     def set_message(self, s):
-        self.message.set_label(s)
+        escaped = GLib.markup_escape_text(s)
+        self.message.set_markup(f'<small>{escaped}</small>')
 
     def set_cursor(self, cursor):
-        self.canvas.get_property("window").set_cursor(cursord[cursor])
-        Gtk.main_iteration()
+        window = self.canvas.get_property("window")
+        if window is not None:
+            window.set_cursor(cursord[cursor])
+            Gtk.main_iteration()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        # adapted from
-        # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
-        self.ctx = self.canvas.get_property("window").cairo_create()
-
-        # todo: instead of redrawing the entire figure, copy the part of
-        # the figure that was covered by the previous rubberband rectangle
-        self.canvas.draw()
-
         height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
+        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
+        self.canvas._draw_rubberband(rect)
 
-        self.ctx.new_path()
-        self.ctx.set_line_width(0.5)
-        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
-        self.ctx.set_source_rgb(0, 0, 0)
-        self.ctx.stroke()
+    def remove_rubberband(self):
+        self.canvas._draw_rubberband(None)
 
     def _update_buttons_checked(self):
         for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
@@ -586,34 +624,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             self.canvas.figure.savefig(fname, format=fmt)
         except Exception as e:
             error_msg_gtk(str(e), parent=self)
-
-    def configure_subplots(self, button):
-        toolfig = Figure(figsize=(6, 3))
-        canvas = type(self.canvas)(toolfig)
-        toolfig.subplots_adjust(top=0.9)
-        # Need to keep a reference to the tool.
-        _tool = SubplotTool(self.canvas.figure, toolfig)
-
-        w = int(toolfig.bbox.width)
-        h = int(toolfig.bbox.height)
-
-        window = Gtk.Window()
-        try:
-            window.set_icon_from_file(window_icon)
-        except Exception:
-            # we presumably already logged a message on the
-            # failure of the main plot, don't keep reporting
-            pass
-        window.set_title("Subplot Configuration Tool")
-        window.set_default_size(w, h)
-        vbox = Gtk.Box()
-        vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
-        window.add(vbox)
-        vbox.show()
-
-        canvas.show()
-        vbox.pack_start(canvas, True, True, 0)
-        window.show()
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
@@ -720,6 +730,10 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
         NavigationToolbar2GTK3.draw_rubberband(
             self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
+
+    def remove_rubberband(self):
+        NavigationToolbar2GTK3.remove_rubberband(
+            self._make_classic_style_pseudo_toolbar())
 
 
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
@@ -935,4 +949,5 @@ class _BackendGTK3(_Backend):
     @staticmethod
     def mainloop():
         if Gtk.main_level() == 0:
+            cbook._setup_new_guiapp()
             Gtk.main()

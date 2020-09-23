@@ -1,6 +1,5 @@
 import itertools
 import pickle
-import re
 
 from weakref import ref
 from unittest.mock import patch, Mock
@@ -226,16 +225,23 @@ class Test_callback_registry:
                        "callbacks")
 
 
-def test_callbackregistry_default_exception_handler(monkeypatch):
+def test_callbackregistry_default_exception_handler(capsys, monkeypatch):
     cb = cbook.CallbackRegistry()
     cb.connect("foo", lambda: None)
+
     monkeypatch.setattr(
         cbook, "_get_running_interactive_framework", lambda: None)
     with pytest.raises(TypeError):
         cb.process("foo", "argument mismatch")
+    outerr = capsys.readouterr()
+    assert outerr.out == outerr.err == ""
+
     monkeypatch.setattr(
         cbook, "_get_running_interactive_framework", lambda: "not-none")
     cb.process("foo", "argument mismatch")  # No error in that case.
+    outerr = capsys.readouterr()
+    assert outerr.out == ""
+    assert "takes 0 positional arguments but 1 was given" in outerr.err
 
 
 def raising_cb_reg(func):
@@ -502,6 +508,14 @@ def test_reshape2d():
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (5, 3)
 
+    # Test a list of lists which are all of length 1
+    x = [[1], [2], [3]]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert isinstance(xnew, list)
+    assert isinstance(xnew[0], np.ndarray) and xnew[0].shape == (1,)
+    assert isinstance(xnew[1], np.ndarray) and xnew[1].shape == (1,)
+    assert isinstance(xnew[2], np.ndarray) and xnew[2].shape == (1,)
+
     # Now test with a list of lists with different lengths, which means the
     # array will internally be converted to a 1D object array of lists
     x = [[1, 2, 3], [3, 4], [2]]
@@ -536,6 +550,29 @@ def test_reshape2d():
     # ArraySubclass, which is what used to happen due to a bug in _reshape_2D
     assert len(xnew) == 1
     assert isinstance(xnew[0], ArraySubclass)
+
+    # check list of strings:
+    x = ['a', 'b', 'c', 'c', 'dd', 'e', 'f', 'ff', 'f']
+    xnew = cbook._reshape_2D(x, 'x')
+    assert len(xnew[0]) == len(x)
+    assert isinstance(xnew[0], np.ndarray)
+
+
+def test_reshape2d_pandas(pd):
+    # seperate to allow the rest of the tests to run if no pandas...
+    X = np.arange(30).reshape(10, 3)
+    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    Xnew = cbook._reshape_2D(x, 'x')
+    # Need to check each row because _reshape_2D returns a list of arrays:
+    for x, xnew in zip(X.T, Xnew):
+        np.testing.assert_array_equal(x, xnew)
+
+    X = np.arange(30).reshape(10, 3)
+    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    Xnew = cbook._reshape_2D(x, 'x')
+    # Need to check each row because _reshape_2D returns a list of arrays:
+    for x, xnew in zip(X.T, Xnew):
+        np.testing.assert_array_equal(x, xnew)
 
 
 def test_contiguous_regions():
@@ -637,22 +674,6 @@ def test_array_patch_perimeters():
             check(x, rstride=rstride, cstride=cstride)
 
 
-@pytest.mark.parametrize('target,test_shape',
-                         [((None, ), (1, 3)),
-                          ((None, 3), (1,)),
-                          ((None, 3), (1, 2)),
-                          ((1, 5), (1, 9)),
-                          ((None, 2, None), (1, 3, 1))
-                          ])
-def test_check_shape(target, test_shape):
-    error_pattern = (f"^'aardvark' must be {len(target)}D.*" +
-                     re.escape(f'has shape {test_shape}'))
-    data = np.zeros(test_shape)
-    with pytest.raises(ValueError,
-                       match=error_pattern):
-        cbook._check_shape(target, aardvark=data)
-
-
 def test_setattr_cm():
     class A:
 
@@ -664,6 +685,14 @@ def test_setattr_cm():
             self._p = 'p'
 
         def meth(self):
+            ...
+
+        @classmethod
+        def classy(klass):
+            ...
+
+        @staticmethod
+        def static():
             ...
 
         @property
@@ -696,6 +725,10 @@ def test_setattr_cm():
         assert not hasattr(obj, 'extra')
         assert obj.prop == 'p'
         assert obj.monkey == other.meth
+        assert obj.cls_level is A.cls_level
+        assert 'cls_level' not in obj.__dict__
+        assert 'classy' not in obj.__dict__
+        assert 'static' not in obj.__dict__
 
     a = B()
 
@@ -705,7 +738,8 @@ def test_setattr_cm():
             a, prop='squirrel',
             aardvark='moose', meth=lambda: None,
             override='boo', extra='extra',
-            monkey=lambda: None):
+            monkey=lambda: None, cls_level='bob',
+            classy='classy', static='static'):
         # because we have set a lambda, it is normal attribute access
         # and the same every time
         assert a.meth is a.meth
@@ -715,9 +749,20 @@ def test_setattr_cm():
         assert a.extra == 'extra'
         assert a.prop == 'squirrel'
         assert a.monkey != other.meth
+        assert a.cls_level == 'bob'
+        assert a.classy == 'classy'
+        assert a.static == 'static'
 
     verify_pre_post_state(a)
 
-    with pytest.raises(ValueError):
-        with cbook._setattr_cm(a, cls_level='bob'):
-            pass
+
+def test_format_approx():
+    f = cbook._format_approx
+    assert f(0, 1) == '0'
+    assert f(0, 2) == '0'
+    assert f(0, 3) == '0'
+    assert f(-0.0123, 1) == '-0'
+    assert f(1e-7, 5) == '0'
+    assert f(0.0012345600001, 5) == '0.00123'
+    assert f(-0.0012345600001, 5) == '-0.00123'
+    assert f(0.0012345600001, 8) == f(0.0012345600001, 10) == '0.00123456'

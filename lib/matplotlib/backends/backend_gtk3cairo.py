@@ -1,11 +1,7 @@
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py 3.6.
+from contextlib import nullcontext
 
 from . import backend_cairo, backend_gtk3
 from .backend_gtk3 import Gtk, _BackendGTK3
-from matplotlib.backend_bases import cursors
 
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):

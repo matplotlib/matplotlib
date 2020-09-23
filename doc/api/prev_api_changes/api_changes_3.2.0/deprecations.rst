@@ -113,7 +113,7 @@ Deprecation of the constructor means that classes inheriting from
 
 Locators
 ~~~~~~~~
-The unused `.Locator.autoscale` method is deprecated (pass the axis limits to
+The unused ``Locator.autoscale`` method is deprecated (pass the axis limits to
 `.Locator.view_limits` instead).
 
 Animation
@@ -223,7 +223,7 @@ to a NumPy array with ``np.asarray`` before processing it.
 
 Colors
 ~~~~~~
-The function `matplotlib.colors.makeMappingArray` is not considered part of
+The function ``matplotlib.colors.makeMappingArray`` is not considered part of
 the public API any longer. Thus, it's deprecated.
 
 Using a string of single-character colors as a color sequence (e.g. "rgb") is

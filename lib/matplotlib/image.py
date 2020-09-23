@@ -8,12 +8,12 @@ import os
 import logging
 from numbers import Number
 from pathlib import Path
-import urllib.parse
 
 import numpy as np
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -244,7 +244,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         if origin is None:
             origin = mpl.rcParams['image.origin']
-        cbook._check_in_list(["upper", "lower"], origin=origin)
+        _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
@@ -275,16 +275,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        alpha : float
+        alpha : float or 2D array-like or None
         """
-        if alpha is not None and not isinstance(alpha, Number):
-            alpha = np.asarray(alpha)
-            if alpha.ndim != 2:
-                raise TypeError('alpha must be a float, two-dimensional '
-                                'array, or None')
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        martist.Artist._set_alpha_for_array(self, alpha)
+        if np.ndim(alpha) not in (0, 2):
+            raise TypeError('alpha must be a float, two-dimensional '
+                            'array, or None')
         self._imcache = None
 
     def _get_scalar_alpha(self):
@@ -445,7 +441,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # of over numbers.
                 self.norm.autoscale_None(A)
                 dv = np.float64(self.norm.vmax) - np.float64(self.norm.vmin)
-                vmid = self.norm.vmin + dv / 2
+                vmid = np.float64(self.norm.vmin) + dv / 2
                 fact = 1e7 if scaled_dtype == np.float64 else 1e4
                 newmin = vmid - dv * fact
                 if newmin < a_min:
@@ -460,15 +456,38 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if newmax is not None or newmin is not None:
                     np.clip(A_scaled, newmin, newmax, out=A_scaled)
 
+                # used to rescale the raw data to [offset, 1-offset]
+                # so that the resampling code will run cleanly.  Using
+                # dyadic numbers here could reduce the error, but
+                # would not full eliminate it and breaks a number of
+                # tests (due to the slightly different error bouncing
+                # some pixels across a boundary in the (very
+                # quantized) color mapping step).
+                offset = .1
+                frac = .8
+                # we need to run the vmin/vmax through the same rescaling
+                # that we run the raw data through because there are small
+                # errors in the round-trip due to float precision.  If we
+                # do not run the vmin/vmax through the same pipeline we can
+                # have values close or equal to the boundaries end up on the
+                # wrong side.
+                vmin, vmax = self.norm.vmin, self.norm.vmax
+                if vmin is np.ma.masked:
+                    vmin, vmax = a_min, a_max
+                vrange = np.array([vmin, vmax], dtype=scaled_dtype)
+
                 A_scaled -= a_min
+                vrange -= a_min
                 # a_min and a_max might be ndarray subclasses so use
                 # item to avoid errors
                 a_min = a_min.astype(scaled_dtype).item()
                 a_max = a_max.astype(scaled_dtype).item()
 
                 if a_min != a_max:
-                    A_scaled /= ((a_max - a_min) / 0.8)
-                A_scaled += 0.1
+                    A_scaled /= ((a_max - a_min) / frac)
+                    vrange /= ((a_max - a_min) / frac)
+                A_scaled += offset
+                vrange += offset
                 # resample the input data to the correct resolution and shape
                 A_resampled = _resample(self, A_scaled, out_shape, t)
                 # done with A_scaled now, remove from namespace to be sure!
@@ -478,10 +497,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # below the original min/max will still be above /
                 # below, but possibly clipped in the case of higher order
                 # interpolation + drastically changing data.
-                A_resampled -= 0.1
+                A_resampled -= offset
+                vrange -= offset
                 if a_min != a_max:
-                    A_resampled *= ((a_max - a_min) / 0.8)
+                    A_resampled *= ((a_max - a_min) / frac)
+                    vrange *= ((a_max - a_min) / frac)
                 A_resampled += a_min
+                vrange += a_min
                 # if using NoNorm, cast back to the original datatype
                 if isinstance(self.norm, mcolors.NoNorm):
                     A_resampled = A_resampled.astype(A.dtype)
@@ -508,7 +530,18 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     out_alpha *= _resample(self, alpha, out_shape,
                                            t, resample=True)
                 # mask and run through the norm
-                output = self.norm(np.ma.masked_array(A_resampled, out_mask))
+                resampled_masked = np.ma.masked_array(A_resampled, out_mask)
+                # we have re-set the vmin/vmax to account for small errors
+                # that may have moved input values in/out of range
+                s_vmin, s_vmax = vrange
+                if isinstance(self.norm, mcolors.LogNorm):
+                    if s_vmin < 0:
+                        s_vmin = max(s_vmin, np.finfo(scaled_dtype).eps)
+                with cbook._setattr_cm(self.norm,
+                                       vmin=s_vmin,
+                                       vmax=s_vmax,
+                                       ):
+                    output = self.norm(resampled_masked)
             else:
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
@@ -737,7 +770,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if s is None:
             s = mpl.rcParams['image.interpolation']
         s = s.lower()
-        cbook._check_in_list(_interpd_, interpolation=s)
+        _api.check_in_list(_interpd_, interpolation=s)
         self._interpolation = s
         self.stale = True
 
@@ -1073,7 +1106,7 @@ class NonUniformImage(AxesImage):
         if s is not None and s not in ('nearest', 'bilinear'):
             raise NotImplementedError('Only nearest neighbor and '
                                       'bilinear interpolations are supported')
-        AxesImage.set_interpolation(self, s)
+        super().set_interpolation(s)
 
     def get_extent(self):
         if self._A is None:
@@ -1412,9 +1445,12 @@ def imread(fname, format=None):
         - (M, N, 3) for RGB images.
         - (M, N, 4) for RGBA images.
     """
+    # hide imports to speed initial import on systems with slow linkers
+    from urllib import parse
+
     if format is None:
         if isinstance(fname, str):
-            parsed = urllib.parse.urlparse(fname)
+            parsed = parse.urlparse(fname)
             # If the string is a URL (Windows paths appear as if they have a
             # length-1 scheme), assume png.
             if len(parsed.scheme) > 1:
@@ -1437,10 +1473,18 @@ def imread(fname, format=None):
     img_open = (
         PIL.PngImagePlugin.PngImageFile if ext == 'png' else PIL.Image.open)
     if isinstance(fname, str):
-        parsed = urllib.parse.urlparse(fname)
+
+        parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
+            # hide imports to speed initial import on systems with slow linkers
             from urllib import request
-            with urllib.request.urlopen(fname) as response:
+            with request.urlopen(fname,
+                                 context=mpl._get_ssl_context()) as response:
+                import io
+                try:
+                    response.seek(0)
+                except (AttributeError, io.UnsupportedOperation):
+                    response = io.BytesIO(response.read())
                 return imread(response, format=ext)
     with img_open(fname) as image:
         return (_pil_png_to_float_array(image)

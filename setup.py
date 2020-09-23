@@ -8,7 +8,7 @@ setup.cfg.template for more information.
 # and/or pip.
 import sys
 
-min_version = (3, 6)
+min_version = (3, 7)
 
 if sys.version_info < min_version:
     error = """
@@ -103,6 +103,8 @@ class BuildExtraLibraries(BuildExtCommand):
         """
 
         env = os.environ.copy()
+        if not setupext.config.getboolean('libs', 'enable_lto', fallback=True):
+            return env
         if sys.platform == 'win32':
             return env
 
@@ -167,6 +169,14 @@ class BuildExtraLibraries(BuildExtCommand):
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
         except (ValueError, AttributeError):
             pass
+        if (self.compiler.compiler_type == 'msvc' and
+                os.environ.get('MPL_DISABLE_FH4')):
+            # Disable FH4 Exception Handling implementation so that we don't
+            # require VCRUNTIME140_1.dll. For more details, see:
+            # https://devblogs.microsoft.com/cppblog/making-cpp-exception-handling-smaller-x64/
+            # https://github.com/joerick/cibuildwheel/issues/423#issuecomment-677763904
+            for ext in self.extensions:
+                ext.extra_compile_args.append('/d2FH4-')
 
         env = self.add_optimization_flags()
         for package in good_packages:
@@ -256,9 +266,9 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         'License :: OSI Approved :: Python Software Foundation License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering :: Visualization',
     ],
 
@@ -273,15 +283,17 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
 
     python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
     setup_requires=[
+        "certifi>=2020.06.20",
         "numpy>=1.15",
     ],
     install_requires=[
+        "certifi>=2020.06.20",
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
-        "numpy>=1.15",
+        "numpy>=1.16",
         "pillow>=6.2.0",
-        "pyparsing>=2.0.3,!=2.0.4,!=2.1.2,!=2.1.6",
-        "python-dateutil>=2.1",
+        "pyparsing>=2.2.1",
+        "python-dateutil>=2.7",
     ],
 
     cmdclass=cmdclass,

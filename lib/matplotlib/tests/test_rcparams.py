@@ -204,6 +204,15 @@ def test_Issue_1713(tmpdir):
     assert rc.get('timezone') == 'UTC'
 
 
+def test_animation_frame_formats():
+    # Animation frame_format should allow any of the following
+    # if any of these are not allowed, an exception will be raised
+    # test for gh issue #17908
+    for fmt in ['png', 'jpeg', 'tiff', 'raw', 'rgba', 'ppm',
+                'sgi', 'bmp', 'pbm', 'svg']:
+        mpl.rcParams['animation.frame_format'] = fmt
+
+
 def generate_validator_testcases(valid):
     validation_tests = (
         {'validator': validate_bool,
@@ -473,7 +482,10 @@ def test_backend_fallback_headless(tmpdir):
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.run(
             [sys.executable, "-c",
-             "import matplotlib; matplotlib.use('tkagg')"],
+             ("import matplotlib;" +
+              "matplotlib.use('tkagg');" +
+              "import matplotlib.pyplot")
+             ],
             env=env, check=True)
 
 

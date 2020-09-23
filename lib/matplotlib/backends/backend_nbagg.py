@@ -75,7 +75,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def __init__(self, canvas, num):
         self._shown = False
-        FigureManagerWebAgg.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
@@ -231,7 +231,12 @@ class _BackendNbAgg(_Backend):
         if is_interactive():
             manager.show()
             figure.canvas.draw_idle()
-        canvas.mpl_connect('close_event', lambda event: Gcf.destroy(manager))
+
+        def destroy(event):
+            canvas.mpl_disconnect(cid)
+            Gcf.destroy(manager)
+
+        cid = canvas.mpl_connect('close_event', destroy)
         return manager
 
     @staticmethod

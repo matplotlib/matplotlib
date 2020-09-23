@@ -21,13 +21,13 @@ except ImportError:
         import cairocffi as cairo
     except ImportError as err:
         raise ImportError(
-            "cairo backend requires that pycairo>=1.11.0 or cairocffi"
+            "cairo backend requires that pycairo>=1.11.0 or cairocffi "
             "is installed") from err
 
-from .. import cbook, font_manager
+from .. import _api, cbook, font_manager
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, RendererBase)
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -131,8 +131,12 @@ class RendererCairo(RendererBase):
         self.gc = GraphicsContextCairo(renderer=self)
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
-        self.mathtext_parser = MathTextParser('Cairo')
-        RendererBase.__init__(self)
+        super().__init__()
+
+    @cbook.deprecated("3.4")
+    @property
+    def mathtext_parser(self):
+        return MathTextParser('Cairo')
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
@@ -254,26 +258,25 @@ class RendererCairo(RendererBase):
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         ctx = gc.ctx
-        width, height, descent, glyphs, rects = self.mathtext_parser.parse(
-            s, self.dpi, prop)
+        width, height, descent, glyphs, rects = \
+            self._text2path.mathtext_parser.parse(s, self.dpi, prop)
 
         ctx.save()
         ctx.translate(x, y)
         if angle:
             ctx.rotate(np.deg2rad(-angle))
 
-        for font, fontsize, s, ox, oy in glyphs:
+        for font, fontsize, idx, ox, oy in glyphs:
             ctx.new_path()
-            ctx.move_to(ox, oy)
-
+            ctx.move_to(ox, -oy)
             ctx.select_font_face(
                 *_cairo_font_args_from_font_prop(ttfFontProperty(font)))
             ctx.set_font_size(fontsize * self.dpi / 72)
-            ctx.show_text(s)
+            ctx.show_text(chr(idx))
 
         for ox, oy, w, h in rects:
             ctx.new_path()
-            ctx.rectangle(ox, oy, w, h)
+            ctx.rectangle(ox, -oy, w, -h)
             ctx.set_source_rgb(0, 0, 0)
             ctx.fill_preserve()
 
@@ -286,9 +289,12 @@ class RendererCairo(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
 
+        if ismath == 'TeX':
+            return super().get_text_width_height_descent(s, prop, ismath)
+
         if ismath:
-            width, height, descent, fonts, used_characters = \
-                self.mathtext_parser.parse(s, self.dpi, prop)
+            width, height, descent, *_ = \
+                self._text2path.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
         ctx = self.text_ctx
@@ -332,14 +338,14 @@ class GraphicsContextCairo(GraphicsContextBase):
     }
 
     def __init__(self, renderer):
-        GraphicsContextBase.__init__(self)
+        super().__init__()
         self.renderer = renderer
 
     def restore(self):
         self.ctx.restore()
 
     def set_alpha(self, alpha):
-        GraphicsContextBase.set_alpha(self, alpha)
+        super().set_alpha(alpha)
         _alpha = self.get_alpha()
         rgb = self._rgb
         if self.get_forced_alpha():
@@ -352,7 +358,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         # one for False.
 
     def set_capstyle(self, cs):
-        self.ctx.set_line_cap(cbook._check_getitem(self._capd, capstyle=cs))
+        self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))
         self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
@@ -385,7 +391,7 @@ class GraphicsContextCairo(GraphicsContextBase):
                 offset)
 
     def set_foreground(self, fg, isRGBA=None):
-        GraphicsContextBase.set_foreground(self, fg, isRGBA)
+        super().set_foreground(fg, isRGBA)
         if len(self._rgb) == 3:
             self.ctx.set_source_rgb(*self._rgb)
         else:
@@ -395,7 +401,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         return self.ctx.get_source().get_rgba()[:3]
 
     def set_joinstyle(self, js):
-        self.ctx.set_line_join(cbook._check_getitem(self._joind, joinstyle=js))
+        self.ctx.set_line_join(_api.check_getitem(self._joind, joinstyle=js))
         self._joinstyle = js
 
     def set_linewidth(self, w):
@@ -444,10 +450,12 @@ class FigureCanvasCairo(FigureCanvasBase):
         surface.mark_dirty_rectangle(
             slx.start, sly.start, slx.stop - slx.start, sly.stop - sly.start)
 
-    def print_png(self, fobj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_png(self, fobj):
         self._get_printed_image_surface().write_to_png(fobj)
 
-    def print_rgba(self, fobj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_rgba(self, fobj):
         width, height = self.get_width_height()
         buf = self._get_printed_image_surface().get_data()
         fobj.write(cbook._premultiplied_argb32_to_unmultiplied_rgba8888(
@@ -476,7 +484,8 @@ class FigureCanvasCairo(FigureCanvasBase):
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
 
-    def _save(self, fo, fmt, *, orientation='portrait', **kwargs):
+    @_check_savefig_extra_args
+    def _save(self, fo, fmt, *, orientation='portrait'):
         # save PDF/PS/SVG
 
         dpi = 72

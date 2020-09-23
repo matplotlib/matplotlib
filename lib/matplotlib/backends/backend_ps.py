@@ -18,11 +18,12 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, _path
+from matplotlib import _api, cbook, _path
 from matplotlib import _text_layout
+from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import is_opentype_cff_font, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING
@@ -167,7 +168,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._path_collection_id = 0
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
-        self.mathtext_parser = MathTextParser("PS")
+
+    @cbook.deprecated("3.3")
+    @property
+    def mathtext_parser(self):
+        return MathTextParser("PS")
 
     @cbook.deprecated("3.3")
     @property
@@ -536,7 +541,6 @@ grestore
             scale = 0.001 * fontsize
 
             thisx = 0
-            thisy = font.get_str_bbox_and_descent(s)[4] * scale
             last_name = None
             lines = []
             for c in s:
@@ -553,7 +557,7 @@ grestore
                 last_name = name
                 thisx += kern * scale
 
-                lines.append('%f %f m /%s glyphshow' % (thisx, thisy, name))
+                lines.append('%f 0 m /%s glyphshow' % (thisx, name))
 
                 thisx += width * scale
 
@@ -580,8 +584,9 @@ grestore
             self.set_font(ps_name, prop.get_size_in_points())
 
             thetext = '\n'.join(
-                '%f 0 m /%s glyphshow' % (x, font.get_glyph_name(glyph_idx))
-                for glyph_idx, x in _text_layout.layout(s, font))
+                '{:f} 0 m /{:s} glyphshow'
+                .format(item.x, font.get_glyph_name(item.glyph_idx))
+                for item in _text_layout.layout(s, font))
             self._pswriter.write(f"""\
 gsave
 {x:f} {y:f} translate
@@ -599,18 +604,33 @@ grestore
         if debugPS:
             self._pswriter.write("% mathtext\n")
 
-        width, height, descent, pswriter, used_characters = \
-            self.mathtext_parser.parse(s, 72, prop)
-        self._character_tracker.merge(used_characters)
+        width, height, descent, glyphs, rects = \
+            self._text2path.mathtext_parser.parse(
+                s, 72, prop,
+                _force_standard_ps_fonts=mpl.rcParams["ps.useafm"])
         self.set_color(*gc.get_rgb())
-        thetext = pswriter.getvalue()
-        self._pswriter.write(f"""\
-gsave
-{x:f} {y:f} translate
-{angle:f} rotate
-{thetext}
-grestore
-""")
+        self._pswriter.write(
+            f"gsave\n"
+            f"{x:f} {y:f} translate\n"
+            f"{angle:f} rotate\n")
+        lastfont = None
+        for font, fontsize, num, ox, oy in glyphs:
+            self._character_tracker.track(font, chr(num))
+            if (font.postscript_name, fontsize) != lastfont:
+                lastfont = font.postscript_name, fontsize
+                self._pswriter.write(
+                    f"/{font.postscript_name} findfont\n"
+                    f"{fontsize} scalefont\n"
+                    f"setfont\n")
+            symbol_name = (
+                font.get_name_char(chr(num)) if isinstance(font, AFM) else
+                font.get_glyph_name(font.get_char_index(num)))
+            self._pswriter.write(
+                f"{ox:f} {oy:f} moveto\n"
+                f"/{symbol_name} glyphshow\n")
+        for ox, oy, w, h in rects:
+            self._pswriter.write(f"{ox} {oy} {w} {h} rectfill\n")
+        self._pswriter.write("grestore\n")
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
@@ -741,12 +761,10 @@ def _is_transparent(rgb_or_rgba):
 
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
-        return {'butt': 0, 'round': 1, 'projecting': 2}[
-            GraphicsContextBase.get_capstyle(self)]
+        return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]
 
     def get_joinstyle(self):
-        return {'miter': 0, 'round': 1, 'bevel': 2}[
-            GraphicsContextBase.get_joinstyle(self)]
+        return {'miter': 0, 'round': 1, 'bevel': 2}[super().get_joinstyle()]
 
 
 class _Orientation(Enum):
@@ -779,11 +797,12 @@ class FigureCanvasPS(FigureCanvasBase):
 
         dsc_comments = {}
         if isinstance(outfile, (str, os.PathLike)):
+            filename = pathlib.Path(outfile).name
             dsc_comments["Title"] = \
-                os.fspath(outfile).encode("ascii", "replace").decode("ascii")
+                filename.encode("ascii", "replace").decode("ascii")
         dsc_comments["Creator"] = (metadata or {}).get(
             "Creator",
-            f"matplotlib version {mpl.__version__}, http://matplotlib.org/")
+            f"Matplotlib v{mpl.__version__}, https://matplotlib.org/")
         # See https://reproducible-builds.org/specs/source-date-epoch/
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         dsc_comments["CreationDate"] = (
@@ -797,9 +816,9 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        cbook._check_in_list(['auto', *papersize], papertype=papertype)
+        _api.check_in_list(['auto', *papersize], papertype=papertype)
 
-        orientation = cbook._check_getitem(
+        orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())
 
         printer = (self._print_figure_tex
@@ -808,11 +827,12 @@ class FigureCanvasPS(FigureCanvasBase):
         printer(outfile, format, dpi=dpi, dsc_comments=dsc_comments,
                 orientation=orientation, papertype=papertype, **kwargs)
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None, **kwargs):
+            dryrun=False, bbox_inches_restore=None):
         """
         Render the figure to a filesystem path or a file-like object.
 
@@ -841,7 +861,7 @@ class FigureCanvasPS(FigureCanvasBase):
             # distillers improperly clip eps files if pagesize is too small
             if width > paper_width or height > paper_height:
                 papertype = _get_papertype(
-                    *orientation.swap_if_landscape(width, height))
+                    *orientation.swap_if_landscape((width, height)))
                 paper_width, paper_height = orientation.swap_if_landscape(
                     papersize[papertype])
 
@@ -891,7 +911,7 @@ class FigureCanvasPS(FigureCanvasBase):
                       end="", file=fh)
             print(f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
-                  f"%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
+                  f"{get_bbox_header(bbox)[0]}\n"
                   f"%%EndComments\n",
                   end="", file=fh)
 
@@ -985,11 +1005,12 @@ class FigureCanvasPS(FigureCanvasBase):
                 with open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure_tex(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None, **kwargs):
+            dryrun=False, bbox_inches_restore=None):
         """
         If :rc:`text.usetex` is True, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
@@ -1036,7 +1057,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
 {dsc_comments}
-%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}
+{get_bbox_header(bbox)[0]}
 %%EndComments
 %%BeginProlog
 /mpldict {len(psDefs)} dict def
@@ -1105,8 +1126,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
             mpl.rcParams["text.latex.preamble"] +
             r"\usepackage{psfrag,color}""\n"
             r"\usepackage[dvips]{graphicx}""\n"
-            r"\geometry{papersize={%(width)sin,%(height)sin},"
-            r"body={%(width)sin,%(height)sin},margin=0in}"
+            r"\geometry{papersize={%(width)sin,%(height)sin},margin=0in}"
             % {"width": paper_width, "height": paper_height}
     }):
         dvifile = TexManager().make_dvi(

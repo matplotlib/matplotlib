@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook, ticker
+from . import _api, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -112,7 +112,12 @@ class AxesWidget(Widget):
     def __init__(self, ax):
         self.ax = ax
         self.canvas = ax.figure.canvas
-        self.cids = []
+        self._cids = []
+
+    @cbook.deprecated("3.4")
+    @property
+    def cids(self):
+        return self._cids
 
     def connect_event(self, event, callback):
         """
@@ -122,11 +127,11 @@ class AxesWidget(Widget):
         function stores callback ids for later clean up.
         """
         cid = self.canvas.mpl_connect(event, callback)
-        self.cids.append(cid)
+        self._cids.append(cid)
 
     def disconnect_events(self):
         """Disconnect all events created by this widget."""
-        for c in self.cids:
+        for c in self._cids:
             self.canvas.mpl_disconnect(c)
 
 
@@ -166,7 +171,7 @@ class Button(AxesWidget):
         hovercolor : color
             The color of the button when the mouse is over it.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         if image is not None:
             ax.imshow(image)
@@ -175,8 +180,7 @@ class Button(AxesWidget):
                              horizontalalignment='center',
                              transform=ax.transAxes)
 
-        self.cnt = 0
-        self.observers = {}
+        self._observers = cbook.CallbackRegistry()
 
         self.connect_event('button_press_event', self._click)
         self.connect_event('button_release_event', self._release)
@@ -188,30 +192,35 @@ class Button(AxesWidget):
         self.color = color
         self.hovercolor = hovercolor
 
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        # Not real, but close enough.
+        return len(self._observers.callbacks['clicked'])
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers.callbacks['clicked']
+
     def _click(self, event):
-        if (self.ignore(event)
-                or event.inaxes != self.ax
-                or not self.eventson):
+        if self.ignore(event) or event.inaxes != self.ax or not self.eventson:
             return
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
 
     def _release(self, event):
-        if (self.ignore(event)
-                or event.canvas.mouse_grabber != self.ax):
+        if self.ignore(event) or event.canvas.mouse_grabber != self.ax:
             return
         event.canvas.release_mouse(self.ax)
-        if (not self.eventson
-                or event.inaxes != self.ax):
-            return
-        for cid, func in self.observers.items():
-            func(event)
+        if self.eventson and event.inaxes == self.ax:
+            self._observers.process('clicked', event)
 
     def _motion(self, event):
         if self.ignore(event):
             return
         c = self.hovercolor if event.inaxes == self.ax else self.color
-        if c != self.ax.get_facecolor():
+        if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
                 self.ax.figure.canvas.draw()
@@ -222,17 +231,11 @@ class Button(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
-        return cid
+        return self._observers.connect('clicked', func)
 
     def disconnect(self, cid):
         """Remove the callback function with connection id *cid*."""
-        try:
-            del self.observers[cid]
-        except KeyError:
-            pass
+        self._observers.disconnect(cid)
 
 
 class Slider(AxesWidget):
@@ -308,17 +311,15 @@ class Slider(AxesWidget):
         if ax.name == '3d':
             raise ValueError('Sliders cannot be added to 3D Axes')
 
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         if slidermin is not None and not hasattr(slidermin, 'val'):
-            raise ValueError("Argument slidermin ({}) has no 'val'"
-                             .format(type(slidermin)))
+            raise ValueError(
+                f"Argument slidermin ({type(slidermin)}) has no 'val'")
         if slidermax is not None and not hasattr(slidermax, 'val'):
-            raise ValueError("Argument slidermax ({}) has no 'val'"
-                             .format(type(slidermax)))
-        if orientation not in ['horizontal', 'vertical']:
-            raise ValueError("Argument orientation ({}) must be either"
-                             "'horizontal' or 'vertical'".format(orientation))
+            raise ValueError(
+                f"Argument slidermax ({type(slidermax)}) has no 'val'")
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         self.orientation = orientation
         self.closedmin = closedmin
@@ -383,10 +384,20 @@ class Slider(AxesWidget):
                                    verticalalignment='center',
                                    horizontalalignment='left')
 
-        self.cnt = 0
-        self.observers = {}
+        self._observers = cbook.CallbackRegistry()
 
         self.set_val(valinit)
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        # Not real, but close enough.
+        return len(self._observers.callbacks['changed'])
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers.callbacks['changed']
 
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
@@ -468,10 +479,8 @@ class Slider(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
         self.val = val
-        if not self.eventson:
-            return
-        for cid, func in self.observers.items():
-            func(val)
+        if self.eventson:
+            self._observers.process('changed', val)
 
     def on_changed(self, func):
         """
@@ -489,10 +498,7 @@ class Slider(AxesWidget):
         int
             Connection id (which can be used to disconnect *func*)
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
-        return cid
+        return self._observers.connect('changed', func)
 
     def disconnect(self, cid):
         """
@@ -503,10 +509,7 @@ class Slider(AxesWidget):
         cid : int
             Connection id of the observer to be removed
         """
-        try:
-            del self.observers[cid]
-        except KeyError:
-            pass
+        self._observers.disconnect(cid)
 
     def reset(self):
         """Reset the slider to the initial value"""
@@ -552,7 +555,7 @@ class CheckButtons(AxesWidget):
             The initial check states of the buttons. The list must have the
             same length as *labels*. If not given, all buttons are unchecked.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -601,8 +604,18 @@ class CheckButtons(AxesWidget):
 
         self.connect_event('button_press_event', self._clicked)
 
-        self.cnt = 0
-        self.observers = {}
+        self._observers = cbook.CallbackRegistry()
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        # Not real, but close enough.
+        return len(self._observers.callbacks['clicked'])
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers.callbacks['clicked']
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -629,8 +642,8 @@ class CheckButtons(AxesWidget):
         ValueError
             If *index* is invalid.
         """
-        if not 0 <= index < len(self.labels):
-            raise ValueError("Invalid CheckButton index: %d" % index)
+        if index not in range(len(self.labels)):
+            raise ValueError(f'Invalid CheckButton index: {index}')
 
         l1, l2 = self.lines[index]
         l1.set_visible(not l1.get_visible())
@@ -639,10 +652,8 @@ class CheckButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
-        if not self.eventson:
-            return
-        for cid, func in self.observers.items():
-            func(self.labels[index].get_text())
+        if self.eventson:
+            self._observers.process('clicked', self.labels[index].get_text())
 
     def get_status(self):
         """
@@ -656,17 +667,11 @@ class CheckButtons(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
-        return cid
+        return self._observers.connect('clicked', func)
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
-        try:
-            del self.observers[cid]
-        except KeyError:
-            pass
+        self._observers.disconnect(cid)
 
 
 class TextBox(AxesWidget):
@@ -715,7 +720,7 @@ class TextBox(AxesWidget):
         label_pad : float
             The distance between the label and the right side of the textbox.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.DIST_FROM_LEFT = .05
 
@@ -726,9 +731,7 @@ class TextBox(AxesWidget):
             self.DIST_FROM_LEFT, 0.5, initial, transform=self.ax.transAxes,
             verticalalignment='center', horizontalalignment='left')
 
-        self.cnt = 0
-        self.change_observers = {}
-        self.submit_observers = {}
+        self._observers = cbook.CallbackRegistry()
 
         ax.set(
             xlim=(0, 1), ylim=(0, 1),  # s.t. cursor appears from first click.
@@ -750,6 +753,22 @@ class TextBox(AxesWidget):
         self.hovercolor = hovercolor
 
         self.capturekeystrokes = False
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        # Not real, but close enough.
+        return sum(len(d) for d in self._observers.callbacks.values())
+
+    @cbook.deprecated("3.4")
+    @property
+    def change_observers(self):
+        return self._observers.callbacks['change']
+
+    @cbook.deprecated("3.4")
+    @property
+    def submit_observers(self):
+        return self._observers.callbacks['submit']
 
     @property
     def text(self):
@@ -778,11 +797,6 @@ class TextBox(AxesWidget):
         self.text_disp.set_text(text)
 
         self.ax.figure.canvas.draw()
-
-    def _notify_submit_observers(self):
-        if self.eventson:
-            for cid, func in self.submit_observers.items():
-                func(self.text)
 
     def _release(self, event):
         if self.ignore(event):
@@ -822,9 +836,10 @@ class TextBox(AxesWidget):
                             text[self.cursor_index + 1:])
             self.text_disp.set_text(text)
             self._rendercursor()
-            self._notify_change_observers()
-            if key == "enter":
-                self._notify_submit_observers()
+            if self.eventson:
+                self._observers.process('change', self.text)
+                if key == "enter":
+                    self._observers.process('submit', self.text)
 
     def set_val(self, val):
         newval = str(val)
@@ -832,13 +847,9 @@ class TextBox(AxesWidget):
             return
         self.text_disp.set_text(newval)
         self._rendercursor()
-        self._notify_change_observers()
-        self._notify_submit_observers()
-
-    def _notify_change_observers(self):
         if self.eventson:
-            for cid, func in self.change_observers.items():
-                func(self.text)
+            self._observers.process('change', self.text)
+            self._observers.process('submit', self.text)
 
     def begin_typing(self, x):
         self.capturekeystrokes = True
@@ -871,10 +882,10 @@ class TextBox(AxesWidget):
         self.capturekeystrokes = False
         self.cursor.set_visible(False)
         self.ax.figure.canvas.draw()
-        if notifysubmit:
-            # Because _notify_submit_observers might throw an error in the
-            # user's code, only call it once we've already done our cleanup.
-            self._notify_submit_observers()
+        if notifysubmit and self.eventson:
+            # Because process() might throw an error in the user's code, only
+            # call it once we've already done our cleanup.
+            self._observers.process('submit', self.text)
 
     def position_cursor(self, x):
         # now, we have to figure out where the cursor goes.
@@ -908,7 +919,7 @@ class TextBox(AxesWidget):
         if self.ignore(event):
             return
         c = self.hovercolor if event.inaxes == self.ax else self.color
-        if c != self.ax.get_facecolor():
+        if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
                 self.ax.figure.canvas.draw()
@@ -919,10 +930,7 @@ class TextBox(AxesWidget):
 
         A connection id is returned which can be used to disconnect.
         """
-        cid = self.cnt
-        self.change_observers[cid] = func
-        self.cnt += 1
-        return cid
+        return self._observers.connect('change', func)
 
     def on_submit(self, func):
         """
@@ -931,18 +939,11 @@ class TextBox(AxesWidget):
 
         A connection id is returned which can be used to disconnect.
         """
-        cid = self.cnt
-        self.submit_observers[cid] = func
-        self.cnt += 1
-        return cid
+        return self._observers.connect('submit', func)
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
-        for reg in [self.change_observers, self.submit_observers]:
-            try:
-                del reg[cid]
-            except KeyError:
-                pass
+        self._observers.disconnect(cid)
 
 
 class RadioButtons(AxesWidget):
@@ -983,7 +984,7 @@ class RadioButtons(AxesWidget):
         activecolor : color
             The color of the selected button.
         """
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
         self.activecolor = activecolor
         self.value_selected = None
 
@@ -1023,8 +1024,18 @@ class RadioButtons(AxesWidget):
 
         self.connect_event('button_press_event', self._clicked)
 
-        self.cnt = 0
-        self.observers = {}
+        self._observers = cbook.CallbackRegistry()
+
+    @cbook.deprecated("3.4")
+    @property
+    def cnt(self):
+        # Not real, but close enough.
+        return len(self._observers.callbacks['clicked'])
+
+    @cbook.deprecated("3.4")
+    @property
+    def observers(self):
+        return self._observers.callbacks['clicked']
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -1045,8 +1056,8 @@ class RadioButtons(AxesWidget):
 
         Callbacks will be triggered if :attr:`eventson` is True.
         """
-        if 0 > index >= len(self.labels):
-            raise ValueError("Invalid RadioButton index: %d" % index)
+        if index not in range(len(self.labels)):
+            raise ValueError(f'Invalid RadioButton index: {index}')
 
         self.value_selected = self.labels[index].get_text()
 
@@ -1060,10 +1071,8 @@ class RadioButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
-        if not self.eventson:
-            return
-        for cid, func in self.observers.items():
-            func(self.labels[index].get_text())
+        if self.eventson:
+            self._observers.process('clicked', self.labels[index].get_text())
 
     def on_clicked(self, func):
         """
@@ -1071,17 +1080,11 @@ class RadioButtons(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        cid = self.cnt
-        self.observers[cid] = func
-        self.cnt += 1
-        return cid
+        return self._observers.connect('clicked', func)
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
-        try:
-            del self.observers[cid]
-        except KeyError:
-            pass
+        self._observers.disconnect(cid)
 
 
 class SubplotTool(Widget):
@@ -1099,6 +1102,7 @@ class SubplotTool(Widget):
             The figure instance to embed the subplot tool into.
         """
 
+        self.figure = toolfig
         self.targetfig = targetfig
         toolfig.subplots_adjust(left=0.2, right=0.9)
         toolfig.suptitle("Click on slider to adjust subplot param")
@@ -1236,7 +1240,7 @@ class Cursor(AxesWidget):
 
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.connect_event('motion_notify_event', self.onmove)
         self.connect_event('draw_event', self.clear)
@@ -1418,7 +1422,7 @@ class _SelectorWidget(AxesWidget):
 
     def __init__(self, ax, onselect, useblit=False, button=None,
                  state_modifier_keys=None):
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.visible = True
         self.onselect = onselect
@@ -1445,7 +1449,7 @@ class _SelectorWidget(AxesWidget):
         self.state = set()
 
     def set_active(self, active):
-        AxesWidget.set_active(self, active)
+        super().set_active(active)
         if active:
             self.update_background(None)
 
@@ -1676,15 +1680,14 @@ class SpanSelector(_SelectorWidget):
                  rectprops=None, onmove_callback=None, span_stays=False,
                  button=None):
 
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 button=button)
+        super().__init__(ax, onselect, useblit=useblit, button=button)
 
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
 
         rectprops['animated'] = self.useblit
 
-        cbook._check_in_list(['horizontal', 'vertical'], direction=direction)
+        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
         self.direction = direction
 
         self.rect = None
@@ -1737,7 +1740,7 @@ class SpanSelector(_SelectorWidget):
 
     def ignore(self, event):
         # docstring inherited
-        return _SelectorWidget.ignore(self, event) or not self.visible
+        return super().ignore(event) or not self.visible
 
     def _press(self, event):
         """on button press event"""
@@ -1851,9 +1854,11 @@ class ToolHandles:
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
         self.ax = ax
-        props = dict(marker=marker, markersize=7, mfc='w', ls='none',
-                     alpha=0.5, visible=False, label='_nolegend_')
-        props.update(marker_props if marker_props is not None else {})
+        props = dict(marker=marker, markersize=7, markerfacecolor='w',
+                     linestyle='none', alpha=0.5, visible=False,
+                     label='_nolegend_')
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
+                     if marker_props is not None else {})
         self._markers = Line2D(x, y, animated=useblit, **props)
         self.ax.add_line(self._markers)
         self.artist = self._markers
@@ -1980,9 +1985,8 @@ class RectangleSelector(_SelectorWidget):
 
             "square" and "center" can be combined.
         """
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 button=button,
-                                 state_modifier_keys=state_modifier_keys)
+        super().__init__(ax, onselect, useblit=useblit, button=button,
+                         state_modifier_keys=state_modifier_keys)
 
         self.to_draw = None
         self.visible = True
@@ -2014,16 +2018,18 @@ class RectangleSelector(_SelectorWidget):
         self.minspanx = minspanx
         self.minspany = minspany
 
-        cbook._check_in_list(['data', 'pixels'], spancoords=spancoords)
+        _api.check_in_list(['data', 'pixels'], spancoords=spancoords)
         self.spancoords = spancoords
         self.drawtype = drawtype
 
         self.maxdist = maxdist
 
         if rectprops is None:
-            props = dict(mec='r')
+            props = dict(markeredgecolor='r')
         else:
-            props = dict(mec=rectprops.get('edgecolor', 'r'))
+            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
+                     if marker_props is not None else {})
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
@@ -2096,8 +2102,8 @@ class RectangleSelector(_SelectorWidget):
             spanx = abs(self.eventpress.x - self.eventrelease.x)
             spany = abs(self.eventpress.y - self.eventrelease.y)
         else:
-            cbook._check_in_list(['data', 'pixels'],
-                                 spancoords=self.spancoords)
+            _api.check_in_list(['data', 'pixels'],
+                               spancoords=self.spancoords)
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
         if (self.drawtype != 'none'
@@ -2401,8 +2407,7 @@ class LassoSelector(_SelectorWidget):
 
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
                  button=None):
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 button=button)
+        super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
         if lineprops is None:
             lineprops = dict()
@@ -2488,8 +2493,8 @@ class PolygonSelector(_SelectorWidget):
                                    move_all='shift', move='not-applicable',
                                    square='not-applicable',
                                    center='not-applicable')
-        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 state_modifier_keys=state_modifier_keys)
+        super().__init__(ax, onselect, useblit=useblit,
+                         state_modifier_keys=state_modifier_keys)
 
         self._xs, self._ys = [0], [0]
         self._polygon_completed = False
@@ -2501,7 +2506,8 @@ class PolygonSelector(_SelectorWidget):
         self.ax.add_line(self.line)
 
         if markerprops is None:
-            markerprops = dict(mec='k', mfc=lineprops.get('color', 'k'))
+            markerprops = dict(markeredgecolor='k',
+                               markerfacecolor=lineprops.get('color', 'k'))
         self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
                                             useblit=self.useblit,
                                             marker_props=markerprops)
@@ -2666,7 +2672,7 @@ class Lasso(AxesWidget):
     """
 
     def __init__(self, ax, xy, callback=None, useblit=True):
-        AxesWidget.__init__(self, ax)
+        super().__init__(ax)
 
         self.useblit = useblit and self.canvas.supports_blit
         if self.useblit:

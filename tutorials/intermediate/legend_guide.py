@@ -166,13 +166,12 @@ plt.show()
 # appropriate :class:`~matplotlib.legend_handler.HandlerBase` subclass.
 # The choice of handler subclass is determined by the following rules:
 #
-#     1. Update :func:`~matplotlib.legend.Legend.get_legend_handler_map`
-#        with the value in the ``handler_map`` keyword.
-#     2. Check if the ``handle`` is in the newly created ``handler_map``.
-#     3. Check if the type of ``handle`` is in the newly created
-#        ``handler_map``.
-#     4. Check if any of the types in the ``handle``'s mro is in the newly
-#        created ``handler_map``.
+# 1. Update :func:`~matplotlib.legend.Legend.get_legend_handler_map`
+#    with the value in the ``handler_map`` keyword.
+# 2. Check if the ``handle`` is in the newly created ``handler_map``.
+# 3. Check if the type of ``handle`` is in the newly created ``handler_map``.
+# 4. Check if any of the types in the ``handle``'s mro is in the newly
+#    created ``handler_map``.
 #
 # For completeness, this logic is mostly implemented in
 # :func:`~matplotlib.legend.Legend.get_legend_handler`.

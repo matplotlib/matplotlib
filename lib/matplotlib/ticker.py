@@ -2,29 +2,12 @@
 Tick locating and formatting
 ============================
 
-This module contains classes to support completely configurable tick
-locating and formatting. Although the locators know nothing about major
-or minor ticks, they are used by the Axis class to support major and
-minor tick locating and formatting. Generic tick locators and
-formatters are provided, as well as domain specific custom ones.
+This module contains classes for configuring tick locating and formatting.
+Generic tick locators and formatters are provided, as well as domain specific
+custom ones.
 
-Default Formatter
------------------
-
-The default formatter identifies when the x-data being plotted is a
-small range on top of a large offset. To reduce the chances that the
-ticklabels overlap, the ticks are labeled as deltas from a fixed offset.
-For example::
-
-   ax.plot(np.arange(2000, 2010), range(10))
-
-will have tick of 0-9 with an offset of +2e3. If this is not desired
-turn off the use of the offset on the default formatter::
-
-   ax.get_xaxis().get_major_formatter().set_useOffset(False)
-
-Set :rc:`axes.formatter.useoffset` to turn it off
-globally, or set a different formatter.
+Although the locators know nothing about major or minor ticks, they are used
+by the Axis class to support major and minor tick locating and formatting.
 
 Tick locating
 -------------
@@ -142,10 +125,10 @@ operates on a single tick value and returns a string to the axis.
     Probability formatter.
 
 :class:`EngFormatter`
-    Format labels in engineering notation
+    Format labels in engineering notation.
 
 :class:`PercentFormatter`
-    Format labels as a percentage
+    Format labels as a percentage.
 
 You can derive your own formatter from the Formatter base class by
 simply overriding the ``__call__`` method. The formatter class has
@@ -179,7 +162,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib import transforms as mtransforms
 
 _log = logging.getLogger(__name__)
@@ -198,6 +181,8 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
 
 
 class _DummyAxis:
+    __name__ = "dummy"
+
     def __init__(self, minpos=0):
         self.dataLim = mtransforms.Bbox.unit()
         self.viewLim = mtransforms.Bbox.unit()
@@ -499,13 +484,38 @@ class ScalarFormatter(Formatter):
     In addition to the parameters above, the formatting of scientific vs.
     floating point representation can be configured via `.set_scientific`
     and `.set_powerlimits`).
+
+    **Offset notation and scientific notation**
+
+    Offset notation and scientific notation look quite similar at first sight.
+    Both split some information from the formatted tick values and display it
+    at the end of the axis.
+
+    - The scientific notation splits up the order of magnitude, i.e. a
+      multiplicative scaling factor, e.g. ``1e6``.
+
+    - The offset notation separates an additive constant, e.g. ``+1e6``. The
+      offset notation label is always prefixed with a ``+`` or ``-`` sign
+      and is thus distinguishable from the order of magnitude label.
+
+    The following plot with x limits ``1_000_000`` to ``1_000_010`` illustrates
+    the different formatting. Note the labels at the right edge of the x axis.
+
+    .. plot::
+
+        lim = (1_000_000, 1_000_010)
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, gridspec_kw={'hspace': 2})
+        ax1.set(title='offset_notation', xlim=lim)
+        ax2.set(title='scientific notation', xlim=lim)
+        ax2.xaxis.get_major_formatter().set_useOffset(False)
+        ax3.set(title='floating point notation', xlim=lim)
+        ax3.xaxis.get_major_formatter().set_useOffset(False)
+        ax3.xaxis.get_major_formatter().set_scientific(False)
+
     """
 
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
-        # useOffset allows plotting small data ranges with large offsets: for
-        # example: [1+1e-9, 1+2e-9, 1+3e-9] useMathText will render the offset
-        # and scientific notation in mathtext
-
         if useOffset is None:
             useOffset = mpl.rcParams['axes.formatter.useoffset']
         self._offset_threshold = \
@@ -598,6 +608,13 @@ class ScalarFormatter(Formatter):
 
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
 
+    def _format_maybe_minus_and_locale(self, fmt, arg):
+        """
+        Format *arg* with *fmt*, applying unicode minus and locale if desired.
+        """
+        return self.fix_minus(locale.format_string(fmt, (arg,))
+                              if self._useLocale else fmt % arg)
+
     def get_useMathText(self):
         """
         Return whether to use fancy math formatting.
@@ -636,11 +653,7 @@ class ScalarFormatter(Formatter):
             xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
             if abs(xp) < 1e-8:
                 xp = 0
-            if self._useLocale:
-                s = locale.format_string(self.format, (xp,))
-            else:
-                s = self.format % xp
-            return self.fix_minus(s)
+            return self._format_maybe_minus_and_locale(self.format, xp)
 
     def set_scientific(self, b):
         """
@@ -693,7 +706,7 @@ class ScalarFormatter(Formatter):
         if isinstance(value, Integral):
             fmt = "%d"
         else:
-            if self.axis.__name__ in ["xaxis", "yaxis"]:
+            if getattr(self.axis, "__name__", "") in ["xaxis", "yaxis"]:
                 if self.axis.__name__ == "xaxis":
                     axis_trf = self.axis.axes.get_xaxis_transform()
                     axis_inv_trf = axis_trf.inverted()
@@ -708,8 +721,8 @@ class ScalarFormatter(Formatter):
                         screen_xy + [[0, -1], [0, +1]])[:, 1]
                 delta = abs(neighbor_values - value).max()
             else:
-                # Rough approximation: no more than 1e4 pixels.
-                delta = self.axis.get_view_interval() / 1e4
+                # Rough approximation: no more than 1e4 divisions.
+                delta = np.diff(self.axis.get_view_interval()) / 1e4
             # If e.g. value = 45.67 and delta = 0.02, then we want to round to
             # 2 digits after the decimal point (floor(log10(0.02)) = -2);
             # 45.67 contributes 2 digits before the decimal point
@@ -720,19 +733,23 @@ class ScalarFormatter(Formatter):
                 (math.floor(math.log10(abs(value))) + 1 if value else 1)
                 - math.floor(math.log10(delta)))
             fmt = f"%-#.{sig_digits}g"
-        return (
-            self.fix_minus(
-                locale.format_string(fmt, (value,)) if self._useLocale else
-                fmt % value))
+        return self._format_maybe_minus_and_locale(fmt, value)
 
     def format_data(self, value):
         # docstring inherited
-        if self._useLocale:
-            s = locale.format_string('%1.10e', (value,))
+        e = math.floor(math.log10(abs(value)))
+        s = round(value / 10**e, 10)
+        exponent = self._format_maybe_minus_and_locale("%d", e)
+        significand = self._format_maybe_minus_and_locale(
+            "%d" if s % 1 == 0 else "%1.10f", s)
+        if e == 0:
+            return significand
+        elif self._useMathText or self._usetex:
+            exponent = "10^{%s}" % exponent
+            return (exponent if s == 1  # reformat 1x10^y as 10^y
+                    else rf"{significand} \times {exponent}")
         else:
-            s = '%1.10e' % value
-        s = self._formatSciNotation(s)
-        return self.fix_minus(s)
+            return f"{significand}e{exponent}"
 
     def get_offset(self):
         """
@@ -879,35 +896,6 @@ class ScalarFormatter(Formatter):
         self.format = '%1.' + str(sigfigs) + 'f'
         if self._usetex or self._useMathText:
             self.format = r'$\mathdefault{%s}$' % self.format
-
-    def _formatSciNotation(self, s):
-        # transform 1e+004 into 1e4, for example
-        if self._useLocale:
-            decimal_point = locale.localeconv()['decimal_point']
-            positive_sign = locale.localeconv()['positive_sign']
-        else:
-            decimal_point = '.'
-            positive_sign = '+'
-        tup = s.split('e')
-        try:
-            significand = tup[0].rstrip('0').rstrip(decimal_point)
-            sign = tup[1][0].replace(positive_sign, '')
-            exponent = tup[1][1:].lstrip('0')
-            if self._useMathText or self._usetex:
-                if significand == '1' and exponent != '':
-                    # reformat 1x10^y as 10^y
-                    significand = ''
-                if exponent:
-                    exponent = '10^{%s%s}' % (sign, exponent)
-                if significand and exponent:
-                    return r'%s{\times}%s' % (significand, exponent)
-                else:
-                    return r'%s%s' % (significand, exponent)
-            else:
-                s = ('%se%s%s' % (significand, sign, exponent)).rstrip('e')
-                return s
-        except IndexError:
-            return s
 
 
 class LogFormatter(Formatter):
@@ -1765,11 +1753,6 @@ class Locator(TickHelper):
         """
         return mtransforms.nonsingular(vmin, vmax)
 
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """Autoscale the view limits."""
-        return self.view_limits(*self.axis.get_view_interval())
-
     @cbook.deprecated("3.3")
     def pan(self, numsteps):
         """Pan numticks (can be positive or negative)"""
@@ -2183,7 +2166,7 @@ class MaxNLocator(Locator):
             self._symmetric = kwargs.pop('symmetric')
         if 'prune' in kwargs:
             prune = kwargs.pop('prune')
-            cbook._check_in_list(['upper', 'lower', 'both', None], prune=prune)
+            _api.check_in_list(['upper', 'lower', 'both', None], prune=prune)
             self._prune = prune
         if 'min_n_ticks' in kwargs:
             self._min_n_ticks = max(1, kwargs.pop('min_n_ticks'))
@@ -2418,7 +2401,7 @@ class LogLocator(Locator):
         if subs is None:  # consistency with previous bad API
             self._subs = 'auto'
         elif isinstance(subs, str):
-            cbook._check_in_list(('all', 'auto'), subs=subs)
+            _api.check_in_list(('all', 'auto'), subs=subs)
             self._subs = subs
         else:
             try:
@@ -2740,13 +2723,13 @@ class LogitLocator(MaxNLocator):
         """
 
         self._minor = minor
-        MaxNLocator.__init__(self, nbins=nbins, steps=[1, 2, 5, 10])
+        super().__init__(nbins=nbins, steps=[1, 2, 5, 10])
 
     def set_params(self, minor=None, **kwargs):
         """Set parameters within this locator."""
         if minor is not None:
             self._minor = minor
-        MaxNLocator.set_params(self, **kwargs)
+        super().set_params(**kwargs)
 
     @property
     def minor(self):
@@ -2831,7 +2814,7 @@ class LogitLocator(MaxNLocator):
         # the scale is zoomed so same ticks as linear scale can be used
         if self._minor:
             return []
-        return MaxNLocator.tick_values(self, vmin, vmax)
+        return super().tick_values(vmin, vmax)
 
     def nonsingular(self, vmin, vmax):
         standard_minpos = 1e-7
@@ -2887,7 +2870,7 @@ class AutoLocator(MaxNLocator):
         else:
             nbins = 'auto'
             steps = [1, 2, 2.5, 5, 10]
-        MaxNLocator.__init__(self, nbins=nbins, steps=steps)
+        super().__init__(nbins=nbins, steps=steps)
 
 
 class AutoMinorLocator(Locator):

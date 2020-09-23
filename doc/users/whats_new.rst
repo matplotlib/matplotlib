@@ -1,8 +1,8 @@
 .. _whats-new:
 
-==========
-What's New
-==========
+===========
+What's new?
+===========
 
 .. ifconfig:: releaselevel == 'dev'
 
@@ -25,4 +25,5 @@ What's New
 
       next_whats_new/*
 
+.. Be sure to update the version in `exclude_patterns` in conf.py.
 .. include:: prev_whats_new/whats_new_3.3.0.rst

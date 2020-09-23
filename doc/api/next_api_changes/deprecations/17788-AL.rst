@@ -1,0 +1,3 @@
+``RendererAgg.get_content_extents``, ``RendererAgg.tostring_rgba_minimized``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.

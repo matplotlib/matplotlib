@@ -8,7 +8,8 @@ import textwrap
 import numpy as np
 
 import matplotlib as mpl
-from . import artist, cbook, colors, docstring, lines as mlines, transforms
+from . import (artist, cbook, colors, docstring, hatch as mhatch,
+               lines as mlines, transforms)
 from .bezier import (
     NonIntersectingPathException, get_cos_sin, get_intersection,
     get_parallels, inside_circle, make_wedged_bezier2,
@@ -55,7 +56,7 @@ class Patch(artist.Artist):
 
         %(Patch)s
         """
-        artist.Artist.__init__(self)
+        super().__init__()
 
         if linewidth is None:
             linewidth = mpl.rcParams['patch.linewidth']
@@ -231,7 +232,7 @@ class Patch(artist.Artist):
 
     def update_from(self, other):
         # docstring inherited.
-        artist.Artist.update_from(self, other)
+        super().update_from(other)
         # For some properties we don't need or don't want to go through the
         # getters/setters, so we just copy them directly.
         self._edgecolor = other._edgecolor
@@ -513,6 +514,8 @@ class Patch(artist.Artist):
         ----------
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
+        # Use validate_hatch(list) after deprecation.
+        mhatch._validate_hatch_pattern(hatch)
         self._hatch = hatch
         self.stale = True
 
@@ -641,11 +644,18 @@ class Shadow(Patch):
 
             %(Patch)s
         """
-        Patch.__init__(self)
+        super().__init__()
         self.patch = patch
         # Note: when removing props, we can directly pass kwargs to _update()
         # and remove self._props
-        self._props = {**(props if props is not None else {}), **kwargs}
+        if props is None:
+            color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+            props = {
+                'facecolor': color,
+                'edgecolor': color,
+                'alpha': 0.5,
+            }
+        self._props = {**props, **kwargs}
         self._ox, self._oy = ox, oy
         self._shadow_transform = transforms.Affine2D()
         self._update()
@@ -658,30 +668,12 @@ class Shadow(Patch):
         # Place the shadow patch directly behind the inherited patch.
         self.set_zorder(np.nextafter(self.patch.zorder, -np.inf))
 
-        if self._props:
-            self.update(self._props)
-        else:
-            color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
-            self.set_facecolor(color)
-            self.set_edgecolor(color)
-            self.set_alpha(0.5)
+        self.update(self._props)
 
     def _update_transform(self, renderer):
         ox = renderer.points_to_pixels(self._ox)
         oy = renderer.points_to_pixels(self._oy)
         self._shadow_transform.clear().translate(ox, oy)
-
-    def _get_ox(self):
-        return self._ox
-
-    def _set_ox(self, ox):
-        self._ox = ox
-
-    def _get_oy(self):
-        return self._oy
-
-    def _set_oy(self, oy):
-        self._oy = oy
 
     def get_path(self):
         return self.patch.get_path()
@@ -691,7 +683,7 @@ class Shadow(Patch):
 
     def draw(self, renderer):
         self._update_transform(renderer)
-        Patch.draw(self, renderer)
+        super().draw(renderer)
 
 
 class Rectangle(Patch):
@@ -738,7 +730,7 @@ class Rectangle(Patch):
             %(Patch)s
         """
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._x0 = xy[0]
         self._y0 = xy[1]
@@ -918,7 +910,7 @@ class RegularPolygon(Patch):
         self._poly_transform = transforms.Affine2D()
         self._update_transform()
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def _update_transform(self):
         self._poly_transform.clear() \
@@ -987,7 +979,7 @@ class PathPatch(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._path = path
 
     def get_path(self):
@@ -995,6 +987,127 @@ class PathPatch(Patch):
 
     def set_path(self, path):
         self._path = path
+
+
+class StepPatch(PathPatch):
+    """
+    A path patch describing a stepwise constant function.
+
+    The path is unclosed. It starts and stops at baseline.
+    """
+
+    @docstring.dedent_interpd
+    def __init__(self, values, edges, *,
+                 orientation='vertical', baseline=0, **kwargs):
+        """
+        Parameters
+        ----------
+        values : array-like
+            The step heights.
+
+        edges : array-like
+            The edge positions, with ``len(edges) == len(vals) + 1``,
+            between which the curve takes on vals values.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            The direction of the steps. Vertical means that *values* are along
+            the y-axis, and edges are along the x-axis.
+
+        baseline : float or None, default: 0
+            Determines starting value of the bounding edges or when
+            ``fill=True``, position of lower edge.
+
+        Other valid keyword arguments are:
+
+        %(Patch)s
+        """
+        self.baseline = baseline
+        self.orientation = orientation
+        self._edges = np.asarray(edges)
+        self._values = np.asarray(values)
+        self._update_path()
+        super().__init__(self._path, **kwargs)
+
+    def _update_path(self):
+        if np.isnan(np.sum(self._edges)):
+            raise ValueError('Nan values in "edges" are disallowed')
+        if self._edges.size - 1 != self._values.size:
+            raise ValueError('Size mismatch between "values" and "edges". '
+                             "Expected `len(values) + 1 == len(edges)`, but "
+                             f"`len(values) = {self._values.size}` and "
+                             f"`len(edges) = {self._edges.size}`.")
+        verts, codes = [], []
+        for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._values)):
+            x = np.repeat(self._edges[idx0:idx1+1], 2)
+            y = np.repeat(self._values[idx0:idx1], 2)
+            if self.baseline is not None:
+                y = np.hstack((self.baseline, y, self.baseline))
+            else:
+                y = np.hstack((y[0], y, y[-1]))
+            if self.orientation == 'vertical':
+                xy = np.column_stack([x, y])
+            else:
+                xy = np.column_stack([y, x])
+            verts.append(xy)
+            codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
+            self._path = Path(np.vstack(verts), np.hstack(codes))
+
+    def get_data(self):
+        """Get `.StepPatch` values and edges."""
+        return self._values, self._edges
+
+    def set_data(self, values, edges=None):
+        """
+        Set `.StepPatch` values and optionally edges.
+
+        Parameters
+        ----------
+        values : 1D array-like or None
+            Will not update values, if passing None
+        edges : 1D array-like, optional
+        """
+        if values is not None:
+            self._values = np.asarray(values)
+        if edges is not None:
+            self._edges = np.asarray(edges)
+        self._update_path()
+        self.stale = True
+
+    def set_values(self, values):
+        """
+        Set `.StepPatch` values.
+
+        Parameters
+        ----------
+        values : 1D array-like
+        """
+        self.set_data(values, edges=None)
+
+    def set_edges(self, edges):
+        """
+        Set `.StepPatch` edges.
+
+        Parameters
+        ----------
+        edges : 1D array-like
+        """
+        self.set_data(None, edges=edges)
+
+    def get_baseline(self):
+        """Get `.StepPatch` baseline value."""
+        return self.baseline
+
+    def set_baseline(self, baseline):
+        """
+        Set `.StepPatch` baseline value.
+
+        Parameters
+        ----------
+        baseline : float or None
+        """
+        self.baseline = baseline
+        self._update_path()
+        self.stale = True
 
 
 class Polygon(Patch):
@@ -1016,7 +1129,7 @@ class Polygon(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._closed = closed
         self.set_xy(xy)
 
@@ -1062,13 +1175,27 @@ class Polygon(Patch):
         ----------
         xy : (N, 2) array-like
             The coordinates of the vertices.
+
+        Notes
+        -----
+        Unlike `~.path.Path`, we do not ignore the last input vertex. If the
+        polygon is meant to be closed, and the last point of the polygon is not
+        equal to the first, we assume that the user has not explicitly passed a
+        ``CLOSEPOLY`` vertex, and add it ourselves.
         """
         xy = np.asarray(xy)
+        nverts, _ = xy.shape
         if self._closed:
-            if len(xy) and (xy[0] != xy[-1]).any():
+            # if the first and last vertex are the "same", then we assume that
+            # the user explicitly passed the CLOSEPOLY vertex. Otherwise, we
+            # have to append one since the last vertex will be "ignored" by
+            # Path
+            if nverts == 1 or nverts > 1 and (xy[0] != xy[-1]).any():
                 xy = np.concatenate([xy, [xy[0]]])
         else:
-            if len(xy) > 2 and (xy[0] == xy[-1]).all():
+            # if we aren't closed, and the last vertex matches the first, then
+            # we assume we have an unecessary CLOSEPOLY vertex and remove it
+            if nverts > 2 and (xy[0] == xy[-1]).all():
                 xy = xy[:-1]
         self._path = Path(xy, closed=self._closed)
         self.stale = True
@@ -1098,7 +1225,7 @@ class Wedge(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.center = center
         self.r, self.width = r, width
         self.theta1, self.theta2 = theta1, theta2
@@ -1350,11 +1477,7 @@ class CirclePolygon(RegularPolygon):
 
         %(Patch)s
         """
-        RegularPolygon.__init__(self, xy,
-                                resolution,
-                                radius,
-                                orientation=0,
-                                **kwargs)
+        super().__init__(xy, resolution, radius, orientation=0, **kwargs)
 
 
 class Ellipse(Patch):
@@ -1386,7 +1509,7 @@ class Ellipse(Patch):
 
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._center = xy
         self._width, self._height = width, height
@@ -1512,7 +1635,7 @@ class Circle(Ellipse):
 
         %(Patch)s
         """
-        Ellipse.__init__(self, xy, radius * 2, radius * 2, **kwargs)
+        super().__init__(xy, radius * 2, radius * 2, **kwargs)
         self.radius = radius
 
     def set_radius(self, radius):
@@ -1593,7 +1716,7 @@ class Arc(Ellipse):
         if fill:
             raise ValueError("Arc objects can not be filled")
 
-        Ellipse.__init__(self, xy, width, height, angle, **kwargs)
+        super().__init__(xy, width, height, angle, **kwargs)
 
         self.theta1 = theta1
         self.theta2 = theta2
@@ -1647,6 +1770,8 @@ class Arc(Ellipse):
         """
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
+        if not self.get_visible():
+            return
 
         self._recompute_transform()
 
@@ -1659,14 +1784,40 @@ class Arc(Ellipse):
             theta = np.deg2rad(theta)
             x = np.cos(theta)
             y = np.sin(theta)
-            return np.rad2deg(np.arctan2(scale * y, x))
-        theta1 = theta_stretch(self.theta1, width / height)
-        theta2 = theta_stretch(self.theta2, width / height)
+            stheta = np.rad2deg(np.arctan2(scale * y, x))
+            # arctan2 has the range [-pi, pi], we expect [0, 2*pi]
+            return (stheta + 360) % 360
 
-        # Get width and height in pixels
-        width, height = self.get_transform().transform((width, height))
+        theta1 = self.theta1
+        theta2 = self.theta2
+
+        if (
+            # if we need to stretch the angles because we are distorted
+            width != height
+            # and we are not doing a full circle.
+            #
+            # 0 and 360 do not exactly round-trip through the angle
+            # stretching (due to both float precision limitations and
+            # the difference between the range of arctan2 [-pi, pi] and
+            # this method [0, 360]) so avoid doing it if we don't have to.
+            and not (theta1 != theta2 and theta1 % 360 == theta2 % 360)
+        ):
+            theta1 = theta_stretch(self.theta1, width / height)
+            theta2 = theta_stretch(self.theta2, width / height)
+
+        # Get width and height in pixels we need to use
+        # `self.get_data_transform` rather than `self.get_transform`
+        # because we want the transform from dataspace to the
+        # screen space to estimate how big the arc will be in physical
+        # units when rendered (the transform that we get via
+        # `self.get_transform()` goes from an idealized unit-radius
+        # space to screen space).
+        data_to_screen_trans = self.get_data_transform()
+        pwidth, pheight = (data_to_screen_trans.transform((width, height)) -
+                           data_to_screen_trans.transform((0, 0)))
         inv_error = (1.0 / 1.89818e-6) * 0.5
-        if width < inv_error and height < inv_error:
+
+        if pwidth < inv_error and pheight < inv_error:
             self._path = Path.arc(theta1, theta2)
             return Patch.draw(self, renderer)
 
@@ -1700,29 +1851,32 @@ class Arc(Ellipse):
                 y0e, y1e = y0, y1
             xys = line_circle_intersect(x0, y0, x1, y1)
             xs, ys = xys.T
-            return xys[(x0e - epsilon < xs) & (xs < x1e + epsilon)
-                       & (y0e - epsilon < ys) & (ys < y1e + epsilon)]
+            return xys[
+                (x0e - epsilon < xs) & (xs < x1e + epsilon)
+                & (y0e - epsilon < ys) & (ys < y1e + epsilon)
+            ]
 
         # Transforms the axes box_path so that it is relative to the unit
         # circle in the same way that it is relative to the desired ellipse.
-        box_path = Path.unit_rectangle()
         box_path_transform = (transforms.BboxTransformTo(self.axes.bbox)
                               + self.get_transform().inverted())
-        box_path = box_path.transformed(box_path_transform)
+        box_path = Path.unit_rectangle().transformed(box_path_transform)
 
         thetas = set()
         # For each of the point pairs, there is a line segment
         for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):
             xy = segment_circle_intersect(*p0, *p1)
             x, y = xy.T
-            theta = np.rad2deg(np.arctan2(y, x))
+            # arctan2 return [-pi, pi), the rest of our angles are in
+            # [0, 360], adjust as needed.
+            theta = (np.rad2deg(np.arctan2(y, x)) + 360) % 360
             thetas.update(theta[(theta1 < theta) & (theta < theta2)])
         thetas = sorted(thetas) + [theta2]
-
         last_theta = theta1
         theta1_rad = np.deg2rad(theta1)
-        inside = box_path.contains_point((np.cos(theta1_rad),
-                                          np.sin(theta1_rad)))
+        inside = box_path.contains_point(
+            (np.cos(theta1_rad), np.sin(theta1_rad))
+        )
 
         # save original path
         path_original = self._path
@@ -2860,11 +3014,11 @@ class ArrowStyle(_Style):
                 path_shrunk = Path(vertices, path.codes)
                 # call transmute method with squeezed height.
                 path_mutated, fillable = self.transmute(path_shrunk,
-                                                        linewidth,
-                                                        mutation_size)
+                                                        mutation_size,
+                                                        linewidth)
                 if np.iterable(fillable):
                     path_list = []
-                    for p in zip(path_mutated):
+                    for p in path_mutated:
                         # Restore the height
                         path_list.append(
                             Path(p.vertices * [1, aspect_ratio], p.codes))
@@ -3532,11 +3686,10 @@ class FancyBboxPatch(Patch):
         return s % (self._x, self._y, self._width, self._height)
 
     @docstring.dedent_interpd
+    @cbook._delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
     def __init__(self, xy, width, height,
-                 boxstyle="round",
-                 bbox_transmuter=None,
-                 mutation_scale=1.,
-                 mutation_aspect=None,
+                 boxstyle="round", bbox_transmuter=None,
+                 mutation_scale=1, mutation_aspect=1,
                  **kwargs):
         """
         Parameters
@@ -3565,7 +3718,7 @@ class FancyBboxPatch(Patch):
             Scaling factor applied to the attributes of the box style
             (e.g. pad or rounding_size).
 
-        mutation_aspect : float, optional
+        mutation_aspect : float, default: 1
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it. For example, this allows different horizontal and vertical
@@ -3578,7 +3731,7 @@ class FancyBboxPatch(Patch):
         %(Patch)s
         """
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self._x = xy[0]
         self._y = xy[1]
@@ -3586,6 +3739,10 @@ class FancyBboxPatch(Patch):
         self._height = height
 
         if boxstyle == "custom":
+            cbook._warn_deprecated(
+                "3.4", message="Support for boxstyle='custom' is deprecated "
+                "since %(since)s and will be removed %(removal)s; directly "
+                "pass a boxstyle instance as the boxstyle parameter instead.")
             if bbox_transmuter is None:
                 raise ValueError("bbox_transmuter argument is needed with "
                                  "custom boxstyle")
@@ -3611,10 +3768,12 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str
-            The name of the box style. Optionally, followed by a comma and a
-            comma-separated list of attributes. The attributes may
-            alternatively be passed separately as keyword arguments.
+        boxstyle : str or `matplotlib.patches.BoxStyle`
+            The style of the fancy box. This can either be a `.BoxStyle`
+            instance or a string of the style name and optionally comma
+            seprarated attributes (e.g. "Round, pad=0.2"). This string is
+            passed to `.BoxStyle` to construct a `.BoxStyle` object. See
+            there for a full documentation.
 
             The following box styles are available:
 
@@ -3671,7 +3830,8 @@ class FancyBboxPatch(Patch):
 
     def get_mutation_aspect(self):
         """Return the aspect ratio of the bbox mutation."""
-        return self._mutation_aspect
+        return (self._mutation_aspect if self._mutation_aspect is not None
+                else 1)  # backcompat.
 
     def get_boxstyle(self):
         """Return the boxstyle object."""
@@ -3797,16 +3957,12 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @docstring.dedent_interpd
-    def __init__(self, posA=None, posB=None,
-                 path=None,
-                 arrowstyle="simple",
-                 connectionstyle="arc3",
-                 patchA=None,
-                 patchB=None,
-                 shrinkA=2,
-                 shrinkB=2,
-                 mutation_scale=1,
-                 mutation_aspect=None,
+    @cbook._delete_parameter("3.4", "dpi_cor")
+    def __init__(self, posA=None, posB=None, path=None,
+                 arrowstyle="simple", connectionstyle="arc3",
+                 patchA=None, patchB=None,
+                 shrinkA=2, shrinkB=2,
+                 mutation_scale=1, mutation_aspect=1,
                  dpi_cor=1,
                  **kwargs):
         """
@@ -3865,7 +4021,7 @@ default: 'arc3'
 
         dpi_cor : float, default: 1
             dpi_cor is currently used for linewidth-related things and shrink
-            factor. Mutation scale is affected by this.
+            factor. Mutation scale is affected by this.  Deprecated.
 
         Other Parameters
         ----------------
@@ -3881,7 +4037,7 @@ default: 'arc3'
         kwargs.setdefault("joinstyle", "round")
         kwargs.setdefault("capstyle", "round")
 
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         if posA is not None and posB is not None and path is None:
             self._posA_posB = [posA, posB]
@@ -3907,8 +4063,9 @@ default: 'arc3'
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
 
-        self.set_dpi_cor(dpi_cor)
+        self._dpi_cor = dpi_cor
 
+    @cbook.deprecated("3.4")
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -3921,6 +4078,7 @@ default: 'arc3'
         self._dpi_cor = dpi_cor
         self.stale = True
 
+    @cbook.deprecated("3.4")
     def get_dpi_cor(self):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -4071,7 +4229,8 @@ default: 'arc3'
 
     def get_mutation_aspect(self):
         """Return the aspect ratio of the bbox mutation."""
-        return self._mutation_aspect
+        return (self._mutation_aspect if self._mutation_aspect is not None
+                else 1)  # backcompat.
 
     def get_path(self):
         """
@@ -4086,7 +4245,7 @@ default: 'arc3'
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-        dpi_cor = self.get_dpi_cor()
+        dpi_cor = self._dpi_cor
 
         if self._posA_posB is not None:
             posA = self._convert_xy_units(self._posA_posB[0])
@@ -4119,8 +4278,10 @@ default: 'arc3'
         with self._bind_draw_path_function(renderer) as draw_path:
 
             # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
-            # could be room for improvement.
-            self.set_dpi_cor(renderer.points_to_pixels(1.))
+            # could be room for improvement.  Maybe get_path_in_displaycoord
+            # could take a renderer argument, but get_path should be adapted
+            # too.
+            self._dpi_cor = renderer.points_to_pixels(1.)
             path, fillable = self.get_path_in_displaycoord()
 
             if not np.iterable(fillable):
@@ -4143,6 +4304,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @docstring.dedent_interpd
+    @cbook._delete_parameter("3.4", "dpi_cor")
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
@@ -4226,19 +4388,16 @@ class ConnectionPatch(FancyArrowPatch):
         self.axesA = axesA
         self.axesB = axesB
 
-        FancyArrowPatch.__init__(self,
-                                 posA=(0, 0), posB=(1, 1),
-                                 arrowstyle=arrowstyle,
-                                 connectionstyle=connectionstyle,
-                                 patchA=patchA,
-                                 patchB=patchB,
-                                 shrinkA=shrinkA,
-                                 shrinkB=shrinkB,
-                                 mutation_scale=mutation_scale,
-                                 mutation_aspect=mutation_aspect,
-                                 clip_on=clip_on,
-                                 dpi_cor=dpi_cor,
-                                 **kwargs)
+        super().__init__(posA=(0, 0), posB=(1, 1),
+                         arrowstyle=arrowstyle,
+                         connectionstyle=connectionstyle,
+                         patchA=patchA, patchB=patchB,
+                         shrinkA=shrinkA, shrinkB=shrinkB,
+                         mutation_scale=mutation_scale,
+                         mutation_aspect=mutation_aspect,
+                         clip_on=clip_on,
+                         **kwargs)
+        self._dpi_cor = dpi_cor
 
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
@@ -4320,7 +4479,7 @@ class ConnectionPatch(FancyArrowPatch):
 
     def get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
-        dpi_cor = self.get_dpi_cor()
+        dpi_cor = self._dpi_cor
         posA = self._get_xy(self.xy1, self.coords1, self.axesA)
         posB = self._get_xy(self.xy2, self.coords2, self.axesB)
         path = self.get_connectionstyle()(
@@ -4366,4 +4525,4 @@ class ConnectionPatch(FancyArrowPatch):
             self._renderer = renderer
         if not self.get_visible() or not self._check_xy(renderer):
             return
-        FancyArrowPatch.draw(self, renderer)
+        super().draw(renderer)

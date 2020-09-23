@@ -34,7 +34,17 @@ def allow_rasterization(draw):
     def draw_wrapper(artist, renderer, *args, **kwargs):
         try:
             if artist.get_rasterized():
-                renderer.start_rasterizing()
+                if renderer._raster_depth == 0 and not renderer._rasterizing:
+                    renderer.start_rasterizing()
+                    renderer._rasterizing = True
+                renderer._raster_depth += 1
+            else:
+                if renderer._raster_depth == 0 and renderer._rasterizing:
+                    # Only stop when we are not in a rasterized parent
+                    # and something has be rasterized since last stop
+                    renderer.stop_rasterizing()
+                    renderer._rasterizing = False
+
             if artist.get_agg_filter() is not None:
                 renderer.start_filter()
 
@@ -43,9 +53,29 @@ def allow_rasterization(draw):
             if artist.get_agg_filter() is not None:
                 renderer.stop_filter(artist.get_agg_filter())
             if artist.get_rasterized():
+                renderer._raster_depth -= 1
+            if (renderer._rasterizing and artist.figure and
+                    artist.figure.suppressComposite):
+                # restart rasterizing to prevent merging
                 renderer.stop_rasterizing()
+                renderer.start_rasterizing()
 
     draw_wrapper._supports_rasterization = True
+    return draw_wrapper
+
+
+def _finalize_rasterization(draw):
+    """
+    Decorator for Artist.draw method. Needed on the outermost artist, i.e.
+    Figure, to finish up if the render is still in rasterized mode.
+    """
+    @wraps(draw)
+    def draw_wrapper(artist, renderer, *args, **kwargs):
+        result = draw(artist, renderer, *args, **kwargs)
+        if renderer._rasterizing:
+            renderer.stop_rasterizing()
+            renderer._rasterizing = False
+        return result
     return draw_wrapper
 
 
@@ -643,7 +673,7 @@ class Artist:
 
     def set_sketch_params(self, scale=None, length=None, randomness=None):
         """
-        Sets the sketch parameters.
+        Set the sketch parameters.
 
         Parameters
         ----------
@@ -924,10 +954,37 @@ class Artist:
 
         Parameters
         ----------
-        alpha : float or None
+        alpha : scalar or None
+            *alpha* must be within the 0-1 range, inclusive.
         """
         if alpha is not None and not isinstance(alpha, Number):
-            raise TypeError('alpha must be a float or None')
+            raise TypeError(
+                f'alpha must be numeric or None, not {type(alpha)}')
+        if alpha is not None and not (0 <= alpha <= 1):
+            raise ValueError(f'alpha ({alpha}) is outside 0-1 range')
+        self._alpha = alpha
+        self.pchanged()
+        self.stale = True
+
+    def _set_alpha_for_array(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on all backends.
+
+        Parameters
+        ----------
+        alpha : array-like or scalar or None
+            All values must be within the 0-1 range, inclusive.
+            Masked values and nans are not supported.
+        """
+        if isinstance(alpha, str):
+            raise TypeError("alpha must be numeric or None, not a string")
+        if not np.iterable(alpha):
+            Artist.set_alpha(self, alpha)
+            return
+        alpha = np.asarray(alpha)
+        if not (0 <= alpha.min() and alpha.max() <= 1):
+            raise ValueError('alpha must be between 0 and 1, inclusive, '
+                             f'but min is {alpha.min()}, max is {alpha.max()}')
         self._alpha = alpha
         self.pchanged()
         self.stale = True

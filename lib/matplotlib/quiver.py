@@ -20,7 +20,7 @@ import weakref
 import numpy as np
 from numpy import ma
 
-from matplotlib import cbook, docstring, font_manager
+from matplotlib import _api, cbook, docstring, font_manager
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
@@ -249,7 +249,7 @@ class QuiverKey(martist.Artist):
             Any additional keyword arguments are used to override vector
             properties taken from *Q*.
         """
-        martist.Artist.__init__(self)
+        super().__init__()
         self.Q = Q
         self.X = X
         self.Y = Y
@@ -352,7 +352,7 @@ class QuiverKey(martist.Artist):
         self.stale = False
 
     def _set_transform(self):
-        self.set_transform(cbook._check_getitem({
+        self.set_transform(_api.check_getitem({
             "data": self.Q.axes.transData,
             "axes": self.Q.axes.transAxes,
             "figure": self.Q.axes.figure.transFigure,
@@ -360,7 +360,7 @@ class QuiverKey(martist.Artist):
         }, coordinates=self.coord))
 
     def set_figure(self, fig):
-        martist.Artist.set_figure(self, fig)
+        super().set_figure(fig)
         self.text.set_figure(fig)
 
     def contains(self, mouseevent):
@@ -490,15 +490,13 @@ class Quiver(mcollections.PolyCollection):
         if pivot.lower() == 'mid':
             pivot = 'middle'
         self.pivot = pivot.lower()
-        cbook._check_in_list(self._PIVOT_VALS, pivot=self.pivot)
+        _api.check_in_list(self._PIVOT_VALS, pivot=self.pivot)
 
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', color)
         kw.setdefault('linewidths', (0,))
-        mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                             transOffset=self.transform,
-                                             closed=False,
-                                             **kw)
+        super().__init__([], offsets=self.XY, transOffset=self.transform,
+                         closed=False, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -561,7 +559,7 @@ class Quiver(mcollections.PolyCollection):
         verts = self._make_verts(self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
         self._new_UV = False
-        mcollections.PolyCollection.draw(self, renderer)
+        super().draw(renderer)
         self.stale = False
 
     def set_UVC(self, U, V, C=None):
@@ -746,7 +744,7 @@ class Quiver(mcollections.PolyCollection):
             # float first, as with 'mid'.
             X = X - X[:, 3, np.newaxis]
         elif self.pivot != 'tail':
-            cbook._check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
+            _api.check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
 
         tooshort = length < self.minlength
         if tooshort.any():
@@ -971,9 +969,8 @@ class Barbs(mcollections.PolyCollection):
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
-        mcollections.PolyCollection.__init__(self, [], (barb_size,),
-                                             offsets=xy,
-                                             transOffset=transform, **kw)
+        super().__init__([], (barb_size,), offsets=xy, transOffset=transform,
+                         **kw)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
@@ -1213,7 +1210,7 @@ class Barbs(mcollections.PolyCollection):
             self.x.ravel(), self.y.ravel(), self.u, self.v)
         _check_consistent_shapes(x, y, u, v)
         xy = np.column_stack((x, y))
-        mcollections.PolyCollection.set_offsets(self, xy)
+        super().set_offsets(xy)
         self.stale = True
 
     barbs_doc = _barbs_doc

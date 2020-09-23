@@ -18,8 +18,8 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import cbook, font_manager as fm
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
     _create_pdf_info_dict, _datetime_to_pdf)
@@ -420,7 +420,7 @@ class RendererPgf(RendererBase):
             File handle for the output of the drawing commands.
         """
 
-        RendererBase.__init__(self)
+        super().__init__()
         self.dpi = figure.dpi
         self.fh = fh
         self.figure = figure
@@ -802,9 +802,11 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
+    @_check_savefig_extra_args
     @cbook._delete_parameter("3.2", "dryrun")
-    def _print_pgf_to_fh(self, fh, *args,
-                         dryrun=False, bbox_inches_restore=None, **kwargs):
+    def _print_pgf_to_fh(self, fh, *,
+                         dryrun=False, bbox_inches_restore=None):
+
         if dryrun:
             renderer = RendererPgf(self.figure, None, dummy=True)
             self.figure.draw(renderer)
@@ -1022,9 +1024,11 @@ class PdfPages:
         filename : str or path-like
             Plots using `PdfPages.savefig` will be written to a file at this
             location. Any older file with the same name is overwritten.
+
         keep_empty : bool, default: True
             If set to False, then empty pdf files will be deleted automatically
             when closed.
+
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:

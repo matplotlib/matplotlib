@@ -145,6 +145,9 @@ ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
 
 xdata, ydata = 5, 0
+# This computing the transform now, if anything
+# (figure size, dpi, axes placement, data limits, scales..)
+# changes re-calling transform will get a different value.
 xdisplay, ydisplay = ax.transData.transform((xdata, ydata))
 
 bbox = dict(boxstyle="round", fc="0.8")
@@ -166,7 +169,7 @@ disp = ax.annotate('display = (%.1f, %.1f)' % (xdisplay, ydisplay),
 plt.show()
 
 ###############################################################################
-# .. note::
+# .. warning::
 #
 #   If you run the source code in the example above in a GUI backend,
 #   you may also find that the two arrows for the *data* and *display*

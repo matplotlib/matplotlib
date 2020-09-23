@@ -1,0 +1,5 @@
+Invalid hatch pattern characters are no longer ignored
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When specifying hatching patterns, characters that are not recognized will
+raise a DeprecationWarning. In the future, this will become a hard error.

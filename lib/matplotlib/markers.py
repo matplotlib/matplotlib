@@ -130,7 +130,7 @@ from collections.abc import Sized
 
 import numpy as np
 
-from . import cbook, rcParams
+from . import _api, cbook, rcParams
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
 
@@ -264,7 +264,7 @@ class MarkerStyle:
         """
         if fillstyle is None:
             fillstyle = rcParams['markers.fillstyle']
-        cbook._check_in_list(self.fillstyles, fillstyle=fillstyle)
+        _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
         self._recache()
 

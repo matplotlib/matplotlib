@@ -8,6 +8,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
@@ -23,6 +24,7 @@ import matplotlib.transforms as mtransforms
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
+from matplotlib import docstring
 
 # We can't use a single line collection for contour because a line
 # collection can have only a single line style, and we want to be able to have
@@ -41,7 +43,7 @@ class ClabelText(text.Text):
 
     def get_rotation(self):
         new_angle, = self.get_transform().transform_angles(
-            [text.Text.get_rotation(self)], [self.get_position()])
+            [super().get_rotation()], [self.get_position()])
         return new_angle
 
 
@@ -598,75 +600,72 @@ class ContourLabeler:
                 paths[:] = additions
 
 
-def _find_closest_point_on_leg(p1, p2, p0):
-    """Find the closest point to p0 on line segment connecting p1 and p2."""
-
-    # handle degenerate case
-    if np.all(p2 == p1):
-        d = np.sum((p0 - p1)**2)
-        return d, p1
-
-    d21 = p2 - p1
-    d01 = p0 - p1
-
-    # project on to line segment to find closest point
-    proj = np.dot(d01, d21) / np.dot(d21, d21)
-    if proj < 0:
-        proj = 0
-    if proj > 1:
-        proj = 1
-    pc = p1 + proj * d21
-
-    # find squared distance
-    d = np.sum((pc-p0)**2)
-
-    return d, pc
-
-
 def _is_closed_polygon(X):
     """
     Return whether first and last object in a sequence are the same. These are
     presumably coordinates on a polygonal curve, in which case this function
     tests if that curve is closed.
     """
-    return np.all(X[0] == X[-1])
+    return np.allclose(X[0], X[-1], rtol=1e-10, atol=1e-13)
 
 
-def _find_closest_point_on_path(lc, point):
+def _find_closest_point_on_path(xys, p):
     """
     Parameters
     ----------
-    lc : coordinates of vertices
-    point : coordinates of test point
+    xys : (N, 2) array-like
+        Coordinates of vertices.
+    p : (float, float)
+        Coordinates of point.
+
+    Returns
+    -------
+    d2min : float
+        Minimum square distance of *p* to *xys*.
+    proj : (float, float)
+        Projection of *p* onto *xys*.
+    imin : (int, int)
+        Consecutive indices of vertices of segment in *xys* where *proj* is.
+        Segments are considered as including their end-points; i.e if the
+        closest point on the path is a node in *xys* with index *i*, this
+        returns ``(i-1, i)``.  For the special case where *xys* is a single
+        point, this returns ``(0, 0)``.
     """
-
-    # find index of closest vertex for this segment
-    ds = np.sum((lc - point[None, :])**2, 1)
-    imin = np.argmin(ds)
-
-    dmin = np.inf
-    xcmin = None
-    legmin = (None, None)
-
-    closed = _is_closed_polygon(lc)
-
-    # build list of legs before and after this vertex
-    legs = []
-    if imin > 0 or closed:
-        legs.append(((imin-1) % len(lc), imin))
-    if imin < len(lc) - 1 or closed:
-        legs.append((imin, (imin+1) % len(lc)))
-
-    for leg in legs:
-        d, xc = _find_closest_point_on_leg(lc[leg[0]], lc[leg[1]], point)
-        if d < dmin:
-            dmin = d
-            xcmin = xc
-            legmin = leg
-
-    return (dmin, xcmin, legmin)
+    if len(xys) == 1:
+        return (((p - xys[0]) ** 2).sum(), xys[0], (0, 0))
+    dxys = xys[1:] - xys[:-1]  # Individual segment vectors.
+    norms = (dxys ** 2).sum(axis=1)
+    norms[norms == 0] = 1  # For zero-length segment, replace 0/0 by 0/1.
+    rel_projs = np.clip(  # Project onto each segment in relative 0-1 coords.
+        ((p - xys[:-1]) * dxys).sum(axis=1) / norms,
+        0, 1)[:, None]
+    projs = xys[:-1] + rel_projs * dxys  # Projs. onto each segment, in (x, y).
+    d2s = ((projs - p) ** 2).sum(axis=1)  # Squared distances.
+    imin = np.argmin(d2s)
+    return (d2s[imin], projs[imin], (imin, imin+1))
 
 
+docstring.interpd.update(contour_set_attributes=r"""
+Attributes
+----------
+ax : `~matplotlib.axes.Axes`
+    The Axes object in which the contours are drawn.
+
+collections : `.silent_list` of `.LineCollection`\s or `.PathCollection`\s
+    The `.Artist`\s representing the contour. This is a list of
+    `.LineCollection`\s for line contours and a list of `.PathCollection`\s
+    for filled contours.
+
+levels : array
+    The values of the contour levels.
+
+layers : array
+    Same as levels for line contours; half-way between
+    levels for filled contours.  See ``ContourSet._process_colors``.
+""")
+
+
+@docstring.dedent_interpd
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.
@@ -707,20 +706,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Keyword arguments are as described in the docstring of
         `~.Axes.contour`.
 
-    Attributes
-    ----------
-    ax
-        The axes object in which the contours are drawn.
-
-    collections
-        A silent_list of LineCollections or PolyCollections.
-
-    levels
-        Contour levels.
-
-    layers
-        Same as levels for line contours; half-way between
-        levels for filled contours.  See :meth:`_process_colors`.
+    %(contour_set_attributes)s
     """
 
     def __init__(self, ax, *args,
@@ -802,7 +788,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             self.logscale = False
 
-        cbook._check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
+        _api.check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
         if self.extent is not None and len(self.extent) != 4:
             raise ValueError(
                 "If given, 'extent' must be None or (x0, x1, y0, y1)")
@@ -845,10 +831,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if extend_max:
                     cmap.set_over(self.colors[-1])
 
-        if self.filled:
-            self.collections = cbook.silent_list('mcoll.PathCollection')
-        else:
-            self.collections = cbook.silent_list('mcoll.LineCollection')
+        self.collections = cbook.silent_list(None)
+
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -869,53 +853,48 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.filled:
             if self.linewidths is not None:
                 cbook._warn_external('linewidths is ignored by contourf')
-
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
-
             # Ensure allkinds can be zipped below.
             if self.allkinds is None:
                 self.allkinds = [None] * len(self.allsegs)
-
             # Default zorder taken from Collection
             self._contour_zorder = kwargs.pop('zorder', 1)
-            for level, level_upper, segs, kinds in \
-                    zip(lowers, uppers, self.allsegs, self.allkinds):
-                paths = self._make_paths(segs, kinds)
 
-                col = mcoll.PathCollection(
-                    paths,
+            self.collections[:] = [
+                mcoll.PathCollection(
+                    self._make_paths(segs, kinds),
                     antialiaseds=(self.antialiased,),
                     edgecolors='none',
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=self._contour_zorder)
-                self.axes.add_collection(col, autolim=False)
-                self.collections.append(col)
+                for level, level_upper, segs, kinds
+                in zip(lowers, uppers, self.allsegs, self.allkinds)]
         else:
-            tlinewidths = self._process_linewidths()
-            self.tlinewidths = tlinewidths
+            self.tlinewidths = tlinewidths = self._process_linewidths()
             tlinestyles = self._process_linestyles()
             aa = self.antialiased
             if aa is not None:
                 aa = (self.antialiased,)
             # Default zorder taken from LineCollection
             self._contour_zorder = kwargs.pop('zorder', 2)
-            for level, width, lstyle, segs in \
-                    zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
-                col = mcoll.LineCollection(
+
+            self.collections[:] = [
+                mcoll.LineCollection(
                     segs,
                     antialiaseds=aa,
                     linewidths=width,
                     linestyles=[lstyle],
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=self._contour_zorder)
-                col.set_label('_nolegend_')
-                self.axes.add_collection(col, autolim=False)
-                self.collections.append(col)
+                    zorder=self._contour_zorder,
+                    label='_nolegend_')
+                for level, width, lstyle, segs
+                in zip(self.levels, tlinewidths, tlinestyles, self.allsegs)]
 
         for col in self.collections:
+            self.axes.add_collection(col, autolim=False)
             col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
             col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
         self.axes.update_datalim([self._mins, self._maxs])
@@ -1339,8 +1318,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             ``(x, y)``.
         xmin, ymin : float
             The point in the contour plot that is closest to ``(x, y)``.
-        d : float
-            The distance from ``(xmin, ymin)`` to ``(x, y)``.
+        d2 : float
+            The squared distance from ``(xmin, ymin)`` to ``(x, y)``.
         """
 
         # This function uses a method that is probably quite
@@ -1354,7 +1333,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if indices is None:
             indices = list(range(len(self.levels)))
 
-        dmin = np.inf
+        d2min = np.inf
         conmin = None
         segmin = None
         xmin = None
@@ -1373,38 +1352,27 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if pixel:
                     lc = trans.transform(lc)
 
-                d, xc, leg = _find_closest_point_on_path(lc, point)
-                if d < dmin:
-                    dmin = d
+                d2, xc, leg = _find_closest_point_on_path(lc, point)
+                if d2 < d2min:
+                    d2min = d2
                     conmin = icon
                     segmin = segNum
                     imin = leg[1]
                     xmin = xc[0]
                     ymin = xc[1]
 
-        return (conmin, segmin, imin, xmin, ymin, dmin)
+        return (conmin, segmin, imin, xmin, ymin, d2min)
 
 
+@docstring.dedent_interpd
 class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: `~.Axes.clabel`
+    This class is typically not instantiated directly by the user but by
+    `~.Axes.contour` and `~.Axes.contourf`.
 
-    Attributes
-    ----------
-    ax
-        The axes object in which the contours are drawn.
-
-    collections
-        A silent_list of LineCollections or PolyCollections.
-
-    levels
-        Contour levels.
-
-    layers
-        Same as levels for line contours; half-way between
-        levels for filled contours. See :meth:`_process_colors` method.
+    %(contour_set_attributes)s
     """
 
     def _process_args(self, *args, corner_mask=None, **kwargs):
@@ -1507,9 +1475,7 @@ class QuadContourSet(ContourSet):
         convert them to 2D using meshgrid.
         """
         x, y = args[:2]
-        kwargs = self.axes._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.axes.convert_xunits(x)
-        y = self.axes.convert_yunits(y)
+        x, y = self.axes._process_unit_info([("x", x), ("y", y)], kwargs)
 
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
@@ -1653,7 +1619,7 @@ class QuadContourSet(ContourSet):
             By default (value *None*), the colormap specified by *cmap*
             will be used.
 
-        alpha : float, optional
+        alpha : float, default: 1
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         cmap : str or `.Colormap`, default: :rc:`image.cmap`
@@ -1707,7 +1673,7 @@ class QuadContourSet(ContourSet):
             and above the *levels* range.
 
             Values below ``min(levels)`` and above ``max(levels)`` are mapped
-            to the under/over values of the `.Colormap`. Note, that most
+            to the under/over values of the `.Colormap`. Note that most
             colormaps do not have dedicated colors for these by default, so
             that the over and under values are the edge values of the colormap.
             You may want to set these values explicitly using

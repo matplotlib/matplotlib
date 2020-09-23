@@ -1,6 +1,5 @@
 import datetime
 from io import BytesIO
-import re
 import tempfile
 import xml.etree.ElementTree
 import xml.parsers.expat
@@ -12,7 +11,7 @@ import matplotlib as mpl
 from matplotlib import dviread
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 needs_usetex = pytest.mark.skipif(
@@ -91,6 +90,101 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_title('bold-title', fontweight='bold')
 
 
+@check_figures_equal(tol=20)
+def test_rasterized(fig_test, fig_ref):
+    t = np.arange(0, 100) * (2.3)
+    x = np.cos(t)
+    y = np.sin(t)
+
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot(x, y, "-", c="r", lw=10)
+    ax_ref.plot(x+1, y, "-", c="b", lw=10)
+
+    ax_test = fig_test.subplots()
+    ax_test.plot(x, y, "-", c="r", lw=10, rasterized=True)
+    ax_test.plot(x+1, y, "-", c="b", lw=10, rasterized=True)
+
+
+@check_figures_equal()
+def test_rasterized_ordering(fig_test, fig_ref):
+    t = np.arange(0, 100) * (2.3)
+    x = np.cos(t)
+    y = np.sin(t)
+
+    ax_ref = fig_ref.subplots()
+    ax_ref.set_xlim(0, 3)
+    ax_ref.set_ylim(-1.1, 1.1)
+    ax_ref.plot(x, y, "-", c="r", lw=10, rasterized=True)
+    ax_ref.plot(x+1, y, "-", c="b", lw=10, rasterized=False)
+    ax_ref.plot(x+2, y, "-", c="g", lw=10, rasterized=True)
+    ax_ref.plot(x+3, y, "-", c="m", lw=10, rasterized=True)
+
+    ax_test = fig_test.subplots()
+    ax_test.set_xlim(0, 3)
+    ax_test.set_ylim(-1.1, 1.1)
+    ax_test.plot(x, y, "-", c="r", lw=10, rasterized=True, zorder=1.1)
+    ax_test.plot(x+2, y, "-", c="g", lw=10, rasterized=True, zorder=1.3)
+    ax_test.plot(x+3, y, "-", c="m", lw=10, rasterized=True, zorder=1.4)
+    ax_test.plot(x+1, y, "-", c="b", lw=10, rasterized=False, zorder=1.2)
+
+
+def test_count_bitmaps():
+    def count_tag(fig, tag):
+        with BytesIO() as fd:
+            fig.savefig(fd, format='svg')
+            buf = fd.getvalue().decode()
+        return buf.count(f"<{tag}")
+
+    # No rasterized elements
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1.set_axis_off()
+    for n in range(5):
+        ax1.plot([0, 20], [0, n], "b-", rasterized=False)
+    assert count_tag(fig1, "image") == 0
+    assert count_tag(fig1, "path") == 6  # axis patch plus lines
+
+    # rasterized can be merged
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(1, 1, 1)
+    ax2.set_axis_off()
+    for n in range(5):
+        ax2.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig2, "image") == 1
+    assert count_tag(fig2, "path") == 1  # axis patch
+
+    # rasterized can't be merged without affecting draw order
+    fig3 = plt.figure()
+    ax3 = fig3.add_subplot(1, 1, 1)
+    ax3.set_axis_off()
+    for n in range(5):
+        ax3.plot([0, 20], [n, 0], "b-", rasterized=False)
+        ax3.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig3, "image") == 5
+    assert count_tag(fig3, "path") == 6
+
+    # rasterized whole axes
+    fig4 = plt.figure()
+    ax4 = fig4.add_subplot(1, 1, 1)
+    ax4.set_axis_off()
+    ax4.set_rasterized(True)
+    for n in range(5):
+        ax4.plot([0, 20], [n, 0], "b-", rasterized=False)
+        ax4.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig4, "image") == 1
+    assert count_tag(fig4, "path") == 1
+
+    # rasterized can be merged, but inhibited by suppressComposite
+    fig5 = plt.figure()
+    fig5.suppressComposite = True
+    ax5 = fig5.add_subplot(1, 1, 1)
+    ax5.set_axis_off()
+    for n in range(5):
+        ax5.plot([0, 20], [0, n], "b-", rasterized=True)
+    assert count_tag(fig5, "image") == 5
+    assert count_tag(fig5, "path") == 1  # axis patch
+
+
 @needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
@@ -116,11 +210,13 @@ def test_unicode_won():
 
     with BytesIO() as fd:
         fig.savefig(fd, format='svg')
-        buf = fd.getvalue().decode('ascii')
+        buf = fd.getvalue()
 
-    won_id = 'Computer_Modern_Sans_Serif-142'
-    assert re.search(r'<path d=(.|\s)*?id="{0}"/>'.format(won_id), buf)
-    assert re.search(r'<use[^/>]*? xlink:href="#{0}"/>'.format(won_id), buf)
+    tree = xml.etree.ElementTree.fromstring(buf)
+    ns = 'http://www.w3.org/2000/svg'
+    won_id = 'SFSS3583-8e'
+    assert len(tree.findall(f'.//{{{ns}}}path[@d][@id="{won_id}"]')) == 1
+    assert f'#{won_id}' in tree.find(f'.//{{{ns}}}use').attrib.values()
 
 
 def test_svgnone_with_data_coordinates():
@@ -275,6 +371,70 @@ def test_svg_default_metadata(monkeypatch):
     assert 'image/svg+xml' in buf
     # Type
     assert 'StillImage' in buf
+
+    # Now make sure all the default metadata can be cleared.
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg', metadata={'Date': None, 'Creator': None,
+                                                'Format': None, 'Type': None})
+        buf = fd.getvalue().decode()
+
+    # Creator
+    assert mpl.__version__ not in buf
+    # Date
+    assert '1970-08-16' not in buf
+    # Format
+    assert 'image/svg+xml' not in buf
+    # Type
+    assert 'StillImage' not in buf
+
+
+def test_svg_clear_default_metadata(monkeypatch):
+    # Makes sure that setting a default metadata to `None`
+    # removes the corresponding tag from the metadata.
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '19680801')
+
+    metadata_contains = {'creator': mpl.__version__, 'date': '1970-08-16',
+                         'format': 'image/svg+xml', 'type': 'StillImage'}
+
+    SVGNS = '{http://www.w3.org/2000/svg}'
+    RDFNS = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
+    CCNS = '{http://creativecommons.org/ns#}'
+    DCNS = '{http://purl.org/dc/elements/1.1/}'
+
+    fig, ax = plt.subplots()
+    for name in metadata_contains:
+        with BytesIO() as fd:
+            fig.savefig(fd, format='svg', metadata={name.title(): None})
+            buf = fd.getvalue().decode()
+
+        root = xml.etree.ElementTree.fromstring(buf)
+        work, = root.findall(f'./{SVGNS}metadata/{RDFNS}RDF/{CCNS}Work')
+        for key in metadata_contains:
+            data = work.findall(f'./{DCNS}{key}')
+            if key == name:
+                # The one we cleared is not there
+                assert not data
+                continue
+            # Everything else should be there
+            data, = data
+            xmlstr = xml.etree.ElementTree.tostring(data, encoding="unicode")
+            assert metadata_contains[key] in xmlstr
+
+
+def test_svg_clear_all_metadata():
+    # Makes sure that setting all default metadata to `None`
+    # removes the metadata tag from the output.
+
+    fig, ax = plt.subplots()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg', metadata={'Date': None, 'Creator': None,
+                                                'Format': None, 'Type': None})
+        buf = fd.getvalue().decode()
+
+    SVGNS = '{http://www.w3.org/2000/svg}'
+
+    root = xml.etree.ElementTree.fromstring(buf)
+    assert not root.findall(f'./{SVGNS}metadata')
 
 
 def test_svg_metadata():

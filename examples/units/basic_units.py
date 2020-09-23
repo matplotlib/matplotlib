@@ -43,7 +43,7 @@ class PassThroughProxy:
 
 class ConvertArgsProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
@@ -54,23 +54,23 @@ class ConvertArgsProxy(PassThroughProxy):
             except AttributeError:
                 converted_args.append(TaggedValue(a, self.unit))
         converted_args = tuple([c.get_value() for c in converted_args])
-        return PassThroughProxy.__call__(self, *converted_args)
+        return super().__call__(*converted_args)
 
 
 class ConvertReturnProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
-        ret = PassThroughProxy.__call__(self, *args)
+        ret = super().__call__(*args)
         return (NotImplemented if ret is NotImplemented
                 else TaggedValue(ret, self.unit))
 
 
 class ConvertAllProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
@@ -96,7 +96,7 @@ class ConvertAllProxy(PassThroughProxy):
                 else:
                     arg_units.append(None)
         converted_args = tuple(converted_args)
-        ret = PassThroughProxy.__call__(self, *converted_args)
+        ret = super().__call__(*converted_args)
         if ret is NotImplemented:
             return NotImplemented
         ret_unit = unit_resolver(self.fn_name, arg_units)

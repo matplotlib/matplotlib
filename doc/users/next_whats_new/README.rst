@@ -1,7 +1,7 @@
 :orphan:
 
-What's new in unreleased Matplotlib?
-====================================
+Instructions for writing "What's new" entries
+=============================================
 
 Please place new portions of `whats_new.rst` in the `next_whats_new` directory.
 
@@ -9,7 +9,11 @@ When adding an entry please look at the currently existing files to
 see if you can extend any of them.  If you create a file, name it
 something like :file:`cool_new_feature.rst` if you have added a brand new
 feature or something like :file:`updated_feature.rst` for extensions of
-existing features.  Include contents of the form: ::
+existing features.
+
+Please avoid using references in section titles, as it causes links to be
+confusing in the table of contents.  Instead, ensure that a reference is
+included in the descriptive text.  Include contents of the form: ::
 
     Section Title for Feature
     -------------------------

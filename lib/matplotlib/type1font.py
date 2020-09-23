@@ -29,6 +29,8 @@ import struct
 
 import numpy as np
 
+from matplotlib.cbook import _format_approx
+
 
 # token types
 _TokenType = enum.Enum('_TokenType',
@@ -251,7 +253,10 @@ class Type1Font:
             return result
 
         def italicangle(angle):
-            return b'%a' % (float(angle) - np.arctan(slant) / np.pi * 180)
+            return b'%a' % round(
+                float(angle) - np.arctan(slant) / np.pi * 180,
+                5
+            )
 
         def fontmatrix(array):
             array = array.lstrip(b'[').rstrip(b']').split()
@@ -265,10 +270,9 @@ class Type1Font:
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
-            # Not directly using `b'%a' % x for x in array` for now as that
-            # produces longer reprs on numpy<1.14, causing test failures.
-            as_string = '[' + ' '.join(str(x) for x in array) + ']'
-            return as_string.encode('latin-1')
+            return (
+                '[%s]' % ' '.join(_format_approx(x, 6) for x in array)
+            ).encode('ascii')
 
         def replace(fun):
             def replacer(tokens):

@@ -146,11 +146,9 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
         """
         self.drawing_area = AuxTransformBox(transform)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self.drawing_area,
-                                   prop=prop,
-                                   frameon=frameon,
-                                   **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad,
+                         child=self.drawing_area, prop=prop, frameon=frameon,
+                         **kwargs)
 
 
 class AnchoredEllipse(AnchoredOffsetbox):
@@ -212,10 +210,8 @@ class AnchoredEllipse(AnchoredOffsetbox):
         self.ellipse = Ellipse((0, 0), width, height, angle)
         self._box.add_artist(self.ellipse)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self._box,
-                                   prop=prop,
-                                   frameon=frameon, **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad, child=self._box,
+                         prop=prop, frameon=frameon, **kwargs)
 
 
 class AnchoredSizeBar(AnchoredOffsetbox):
@@ -341,10 +337,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         else:
             textprops = {'color': color, 'fontproperties': fontproperties}
 
-        self.txt_label = TextArea(
-            label,
-            minimumdescent=False,
-            textprops=textprops)
+        self.txt_label = TextArea(label, textprops=textprops)
 
         if label_top:
             _box_children = [self.txt_label, self.size_bar]
@@ -355,10 +348,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
                             align="center",
                             pad=0, sep=sep)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self._box,
-                                   prop=fontproperties,
-                                   frameon=frameon, **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad, child=self._box,
+                         prop=fontproperties, frameon=frameon, **kwargs)
 
 
 class AnchoredDirectionArrows(AnchoredOffsetbox):
@@ -559,6 +550,5 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         self.p_y = PathPatch(text_path_y, **text_props)
         self.box.add_artist(self.p_y)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self.box,
-                                   frameon=frameon, **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad, child=self.box,
+                         frameon=frameon, **kwargs)

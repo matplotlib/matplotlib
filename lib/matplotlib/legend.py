@@ -28,12 +28,13 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, docstring, colors
+from matplotlib import _api, cbook, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
+from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
+                                StepPatch)
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
@@ -65,11 +66,10 @@ class DraggableLegend(DraggableOffsetBox):
         """
         self.legend = legend
 
-        cbook._check_in_list(["loc", "bbox"], update=update)
+        _api.check_in_list(["loc", "bbox"], update=update)
         self._update = update
 
-        DraggableOffsetBox.__init__(self, legend, legend._legend_box,
-                                    use_blit=use_blit)
+        super().__init__(legend, legend._legend_box, use_blit=use_blit)
 
     def finalize_offset(self):
         if self._update == "loc":
@@ -174,7 +174,7 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     default font size. This argument is only used if *prop* is not specified.
 
 labelcolor : str or list
-    Sets the color of the text in the legend. Can be a valid color string
+    The color of the text in the legend. Either a valid color string
     (for example, 'red'), or a list of color strings. The labelcolor can
     also be made to match the color of the line or marker using 'linecolor',
     'markerfacecolor' (or 'mfc'), or 'markeredgecolor' (or 'mec').
@@ -366,7 +366,7 @@ class Legend(Artist):
         from matplotlib.axes import Axes
         from matplotlib.figure import Figure
 
-        Artist.__init__(self)
+        super().__init__()
 
         if prop is None:
             if fontsize is not None:
@@ -624,6 +624,7 @@ class Legend(Artist):
         ErrorbarContainer: legend_handler.HandlerErrorbar(),
         Line2D: legend_handler.HandlerLine2D(),
         Patch: legend_handler.HandlerPatch(),
+        StepPatch: legend_handler.HandlerStepPatch(),
         LineCollection: legend_handler.HandlerLineCollection(),
         RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
         CircleCollection: legend_handler.HandlerCircleCollection(),
@@ -754,8 +755,7 @@ class Legend(Artist):
                 handle_list.append(None)
             else:
                 textbox = TextArea(lab, textprops=label_prop,
-                                   multilinebaseline=True,
-                                   minimumdescent=True)
+                                   multilinebaseline=True)
                 handlebox = DrawingArea(width=self.handlelength * fontsize,
                                         height=height,
                                         xdescent=0., ydescent=descent)
@@ -789,12 +789,6 @@ class Legend(Artist):
                                  children=[h, t] if markerfirst else [t, h],
                                  align="baseline")
                          for h, t in handles_and_labels[i0:i0 + di]]
-            # minimumdescent=False for the text of the last row of the column
-            if markerfirst:
-                itemBoxes[-1].get_children()[1].set_minimumdescent(False)
-            else:
-                itemBoxes[-1].get_children()[0].set_minimumdescent(False)
-
             # pack columnBox
             alignment = "baseline" if markerfirst else "right"
             columnbox.append(VPacker(pad=0,
@@ -941,13 +935,21 @@ class Legend(Artist):
         """
         Set the bbox that the legend will be anchored to.
 
-        *bbox* can be
+        Parameters
+        ----------
+        bbox : `~matplotlib.transforms.BboxBase` or tuple
+            The bounding box can be specified in the following ways:
 
-        - A `.BboxBase` instance
-        - A tuple of ``(left, bottom, width, height)`` in the given transform
-          (normalized axes coordinate if None)
-        - A tuple of ``(left, bottom)`` where the width and height will be
-          assumed to be zero.
+            - A `.BboxBase` instance
+            - A tuple of ``(left, bottom, width, height)`` in the given
+              transform (normalized axes coordinate if None)
+            - A tuple of ``(left, bottom)`` where the width and height will be
+              assumed to be zero.
+            - *None*, to remove the bbox anchoring, and use the parent bbox.
+
+        transform : `~matplotlib.transforms.Transform`, optional
+            A transform to apply to the bounding box. If not specified, this
+            will use a transform to the bounding box of the parent.
         """
         if bbox is None:
             self._bbox_to_anchor = None
@@ -978,13 +980,16 @@ class Legend(Artist):
         Place the *bbox* inside the *parentbbox* according to a given
         location code. Return the (x, y) coordinate of the bbox.
 
-        - loc: a location code in range(1, 11).
-          This corresponds to the possible values for self._loc, excluding
-          "best".
+        Parameters
+        ----------
+        loc : int
+            A location code in range(1, 11). This corresponds to the possible
+            values for ``self._loc``, excluding "best".
+        bbox : `~matplotlib.transforms.Bbox`
+            bbox to be placed, in display coordinates.
+        parentbbox : `~matplotlib.transforms.Bbox`
+            A parent box which will contain the bbox, in display coordinates.
 
-        - bbox: bbox to be placed, display coordinate units.
-        - parentbbox: a parent box which will contain the bbox. In
-            display coordinates.
         """
         assert loc in range(1, 11)  # called only internally
 
@@ -1079,8 +1084,9 @@ class Legend(Artist):
 
         Returns
         -------
-        If *state* is ``True`` this returns the `~.DraggableLegend` helper
-        instance. Otherwise this returns ``None``.
+        `.DraggableLegend` or *None*
+            If *state* is ``True`` this returns the `.DraggableLegend` helper
+            instance. Otherwise this returns *None*.
         """
         if state:
             if self._draggable is None:
@@ -1151,7 +1157,45 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     Get the handles and labels from the calls to either ``figure.legend``
     or ``axes.legend``.
 
-    ``axs`` is a list of axes (to get legend artists from)
+    The parser is a bit involved because we support::
+
+        legend()
+        legend(labels)
+        legend(handles, labels)
+        legend(labels=labels)
+        legend(handles=handles)
+        legend(handles=handles, labels=labels)
+
+    The behavior for a mixture of positional and keyword handles and labels
+    is undefined and issues a warning.
+
+    Parameters
+    ----------
+    axs : list of `.Axes`
+        If handles are not given explicitly, the artists in these Axes are
+        used as handles.
+    *args : tuple
+        Positional parameters passed to ``legend()``.
+    handles
+        The value of the keyword argument ``legend(handles=...)``, or *None*
+        if that keyword argument was not used.
+    labels
+        The value of the keyword argument ``legend(labels=...)``, or *None*
+        if that keyword argument was not used.
+    **kwargs
+        All other keyword arguments passed to ``legend()``.
+
+    Returns
+    -------
+    handles : list of `.Artist`
+        The legend handles.
+    labels : list of str
+        The legend labels.
+    extra_args : tuple
+        *args* with positional handles and labels removed.
+    kwargs : dict
+        *kwargs* with keywords handles and labels removed.
+
     """
     log = logging.getLogger(__name__)
 

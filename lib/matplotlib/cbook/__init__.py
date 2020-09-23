@@ -28,6 +28,7 @@ import weakref
 import numpy as np
 
 import matplotlib
+from matplotlib import _c_internal_utils
 from .deprecation import (
     deprecated, warn_deprecated,
     _rename_parameter, _delete_parameter, _make_keyword_only,
@@ -63,9 +64,10 @@ def _get_running_interactive_framework():
         return "wx"
     tkinter = sys.modules.get("tkinter")
     if tkinter:
+        codes = {tkinter.mainloop.__code__, tkinter.Misc.mainloop.__code__}
         for frame in sys._current_frames().values():
             while frame:
-                if frame.f_code == tkinter.mainloop.__code__:
+                if frame.f_code in codes:
                     return "tk"
                 frame = frame.f_back
     if 'matplotlib.backends._macosx' in sys.modules:
@@ -247,14 +249,22 @@ class silent_list(list):
     one will get ::
 
         <a list of 3 Line2D objects>
+
+    If ``self.type`` is None, the type name is obtained from the first item in
+    the list (if any).
     """
+
     def __init__(self, type, seq=None):
         self.type = type
         if seq is not None:
             self.extend(seq)
 
     def __repr__(self):
-        return '<a list of %d %s objects>' % (len(self), self.type)
+        if self.type is not None or len(self) != 0:
+            tp = self.type if self.type is not None else type(self[0]).__name__
+            return f"<a list of {len(self)} {tp} objects>"
+        else:
+            return "<an empty list>"
 
 
 @deprecated("3.3")
@@ -372,14 +382,14 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     fname : str or path-like or file-like
         If `str` or `os.PathLike`, the file is opened using the flags specified
         by *flag* and *encoding*.  If a file-like object, it is passed through.
-    flag : str, default 'r'
+    flag : str, default: 'r'
         Passed as the *mode* argument to `open` when *fname* is `str` or
         `os.PathLike`; ignored if *fname* is file-like.
-    return_opened : bool, default False
+    return_opened : bool, default: False
         If True, return both the file object and a boolean indicating whether
         this was a new file (that the caller needs to close).  If False, return
         only the new file.
-    encoding : str or None, default None
+    encoding : str or None, default: None
         Passed as the *mode* argument to `open` when *fname* is `str` or
         `os.PathLike`; ignored if *fname* is file-like.
 
@@ -473,7 +483,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=False):
 
 def _get_data_path(*args):
     """
-    Return the `Path` to a resource file provided by Matplotlib.
+    Return the `pathlib.Path` to a resource file provided by Matplotlib.
 
     ``*args`` specify a path relative to the base data path.
     """
@@ -979,7 +989,7 @@ def _combine_masks(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2 and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2 and 4 if `numpy.isfinite`
     does not yield a Boolean array.  Category 3 is included to
     support RGB or RGBA ndarrays, which are assumed to have only
     valid values and which are passed through unchanged.
@@ -1233,9 +1243,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     return bxpstats
 
 
-# The ls_mapper maps short codes for line style to their full name used by
-# backends; the reverse mapper is for mapping full names to short ones.
+#: Maps short codes for line style to their full name used by backends.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
+#: Maps full names for line styles used by backends to their short codes.
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
@@ -1312,7 +1322,7 @@ def _check_1d(x):
             with warnings.catch_warnings(record=True) as w:
                 warnings.filterwarnings(
                     "always",
-                    category=DeprecationWarning,
+                    category=Warning,
                     message='Support for multi-dimensional indexing')
 
                 ndim = x[:, None].ndim
@@ -1326,7 +1336,11 @@ def _check_1d(x):
             if ndim < 2:
                 return np.atleast_1d(x)
             return x
-        except (IndexError, TypeError):
+        # In pandas 1.1.0, multidimensional indexing leads to an
+        # AssertionError for some Series objects, but should be
+        # IndexError as described in
+        # https://github.com/pandas-dev/pandas/issues/35527
+        except (AssertionError, IndexError, TypeError):
             return np.atleast_1d(x)
 
 
@@ -1335,12 +1349,23 @@ def _reshape_2D(X, name):
     Use Fortran ordering to convert ndarrays and lists of iterables to lists of
     1D arrays.
 
-    Lists of iterables are converted by applying `np.asanyarray` to each of
+    Lists of iterables are converted by applying `numpy.asanyarray` to each of
     their elements.  1D ndarrays are returned in a singleton list containing
     them.  2D ndarrays are converted to the list of their *columns*.
 
     *name* is used to generate the error message for invalid inputs.
     """
+
+    # unpack if we have a values or to_numpy method.
+    try:
+        X = X.to_numpy()
+    except AttributeError:
+        try:
+            if isinstance(X.values, np.ndarray):
+                X = X.values
+        except AttributeError:
+            pass
+
     # Iterate over columns for ndarrays.
     if isinstance(X, np.ndarray):
         X = X.T
@@ -1363,12 +1388,15 @@ def _reshape_2D(X, name):
     result = []
     is_1d = True
     for xi in X:
+        # check if this is iterable, except for strings which we
+        # treat as singletons.
+        if (isinstance(xi, collections.abc.Iterable) and
+                not isinstance(xi, str)):
+            is_1d = False
         xi = np.asanyarray(xi)
         nd = np.ndim(xi)
         if nd > 1:
             raise ValueError(f'{name} must have 2 or fewer dimensions')
-        elif nd == 1 and len(xi) != 1:
-            is_1d = False
         result.append(xi.reshape(-1))
 
     if is_1d:
@@ -1958,11 +1986,9 @@ def _unfold(arr, axis, size, step):
     array([[[ 0,  1,  2],
             [ 2,  3,  4],
             [ 4,  5,  6]],
-
            [[10, 11, 12],
             [12, 13, 14],
             [14, 15, 16]],
-
            [[20, 21, 22],
             [22, 23, 24],
             [24, 25, 26]]])
@@ -2035,20 +2061,28 @@ def _setattr_cm(obj, **kwargs):
     origs = {}
     for attr in kwargs:
         orig = getattr(obj, attr, sentinel)
-
         if attr in obj.__dict__ or orig is sentinel:
+            # if we are pulling from the instance dict or the object
+            # does not have this attribute we can trust the above
             origs[attr] = orig
         else:
+            # if the attribute is not in the instance dict it must be
+            # from the class level
             cls_orig = getattr(type(obj), attr)
+            # if we are dealing with a property (but not a general descriptor)
+            # we want to set the original value back.
             if isinstance(cls_orig, property):
                 origs[attr] = orig
-            elif isinstance(cls_orig, types.FunctionType):
-                origs[attr] = sentinel
+            # otherwise this is _something_ we are going to shadow at
+            # the instance dict level from higher up in the MRO.  We
+            # are going to assume we can delattr(obj, attr) to clean
+            # up after ourselves.  It is possible that this code will
+            # fail if used with a non-property custom descriptor which
+            # implements __set__ (and __delete__ does not act like a
+            # stack).  However, this is an internal tool and we do not
+            # currently have any custom descriptors.
             else:
-                raise ValueError(
-                    f"trying to set {attr} which is not a method, "
-                    "property, or instance level attribute"
-                )
+                origs[attr] = sentinel
 
     try:
         for attr, val in kwargs.items():
@@ -2070,6 +2104,8 @@ def _warn_external(message, category=None):
     function back to `warnings.warn`, i.e. ``cbook._warn_external =
     warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
     etc.).
+
+    :meta public:
     """
     frame = sys._getframe()
     for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
@@ -2145,6 +2181,24 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
     if alpha8.min() != 0xff:
         np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
     return argb32
+
+
+def _get_nonzero_slices(buf):
+    """
+    Return the bounds of the nonzero region of a 2D array as a pair of slices.
+
+    ``buf[_get_nonzero_slices(buf)]`` is the smallest sub-rectangle in *buf*
+    that encloses all non-zero entries in *buf*.  If *buf* is fully zero, then
+    ``(slice(0, 0), slice(0, 0))`` is returned.
+    """
+    x_nz, = buf.any(axis=0).nonzero()
+    y_nz, = buf.any(axis=1).nonzero()
+    if len(x_nz) and len(y_nz):
+        l, r = x_nz[[0, -1]]
+        b, t = y_nz[[0, -1]]
+        return slice(b, t + 1), slice(l, r + 1)
+    else:
+        return slice(0, 0), slice(0, 0)
 
 
 def _pformat_subprocess(command):
@@ -2227,84 +2281,6 @@ def _check_isinstance(_types, **kwargs):
                     type_name(type(v))))
 
 
-def _check_in_list(_values, **kwargs):
-    """
-    For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
-    if not, raise an appropriate ValueError.
-
-    Examples
-    --------
-    >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
-    """
-    values = _values
-    for k, v in kwargs.items():
-        if v not in values:
-            raise ValueError(
-                "{!r} is not a valid value for {}; supported values are {}"
-                .format(v, k, ', '.join(map(repr, values))))
-
-
-def _check_shape(_shape, **kwargs):
-    """
-    For each *key, value* pair in *kwargs*, check that *value* has the shape
-    *_shape*, if not, raise an appropriate ValueError.
-
-    *None* in the shape is treated as a "free" size that can have any length.
-    e.g. (None, 2) -> (N, 2)
-
-    The values checked must be numpy arrays.
-
-    Examples
-    --------
-    To check for (N, 2) shaped arrays
-
-    >>> cbook._check_in_list((None, 2), arg=arg, other_arg=other_arg)
-    """
-    target_shape = _shape
-    for k, v in kwargs.items():
-        data_shape = v.shape
-
-        if len(target_shape) != len(data_shape) or any(
-                t not in [s, None]
-                for t, s in zip(target_shape, data_shape)
-        ):
-            dim_labels = iter(itertools.chain(
-                'MNLIJKLH',
-                (f"D{i}" for i in itertools.count())))
-            text_shape = ", ".join((str(n)
-                                    if n is not None
-                                    else next(dim_labels)
-                                    for n in target_shape))
-
-            raise ValueError(
-                f"{k!r} must be {len(target_shape)}D "
-                f"with shape ({text_shape}). "
-                f"Your input has shape {v.shape}."
-            )
-
-
-def _check_getitem(_mapping, **kwargs):
-    """
-    *kwargs* must consist of a single *key, value* pair.  If *key* is in
-    *_mapping*, return ``_mapping[value]``; else, raise an appropriate
-    ValueError.
-
-    Examples
-    --------
-    >>> cbook._check_getitem({"foo": "bar"}, arg=arg)
-    """
-    mapping = _mapping
-    if len(kwargs) != 1:
-        raise ValueError("_check_getitem takes a single keyword argument")
-    (k, v), = kwargs.items()
-    try:
-        return mapping[v]
-    except KeyError:
-        raise ValueError(
-            "{!r} is not a valid value for {}; supported values are {}"
-            .format(v, k, ', '.join(map(repr, mapping)))) from None
-
-
 class _classproperty:
     """
     Like `property`, but also triggers on access via the class, and it is the
@@ -2336,3 +2312,25 @@ def _backend_module_name(name):
     """
     return (name[9:] if name.startswith("module://")
             else "matplotlib.backends.backend_{}".format(name.lower()))
+
+
+def _setup_new_guiapp():
+    """
+    Perform OS-dependent setup when Matplotlib creates a new GUI application.
+    """
+    # Windows: If not explicit app user model id has been set yet (so we're not
+    # already embedded), then set it to "matplotlib", so that taskbar icons are
+    # correct.
+    try:
+        _c_internal_utils.Win32_GetCurrentProcessExplicitAppUserModelID()
+    except OSError:
+        _c_internal_utils.Win32_SetCurrentProcessExplicitAppUserModelID(
+            "matplotlib")
+
+
+def _format_approx(number, precision):
+    """
+    Format the number with at most the number of decimals given as precision.
+    Remove trailing zeros and possibly the decimal point.
+    """
+    return f'{number:.{precision}f}'.rstrip('0').rstrip('.') or '0'

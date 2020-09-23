@@ -2,7 +2,7 @@
 
 import operator
 
-from matplotlib import cbook
+from matplotlib import _api
 
 
 class UnitDbl:
@@ -48,7 +48,7 @@ class UnitDbl:
         - value     The numeric value of the UnitDbl.
         - units     The string name of the units the value is in.
         """
-        data = cbook._check_getitem(self.allowed, units=units)
+        data = _api.check_getitem(self.allowed, units=units)
         self._value = float(value * data[0])
         self._units = data[1]
 
@@ -68,7 +68,7 @@ class UnitDbl:
         """
         if self._units == units:
             return self._value
-        data = cbook._check_getitem(self.allowed, units=units)
+        data = _api.check_getitem(self.allowed, units=units)
         if self._units != data[1]:
             raise ValueError(f"Error trying to convert to different units.\n"
                              f"    Invalid conversion requested.\n"
@@ -227,22 +227,6 @@ class UnitDbl:
             i += 1
 
         return elems
-
-    @cbook.deprecated("3.2")
-    def checkUnits(self, units):
-        """
-        Check to see if some units are valid.
-
-        = ERROR CONDITIONS
-        - If the input units are not in the allowed list, an error is thrown.
-
-        = INPUT VARIABLES
-        - units     The string name of the units to check.
-        """
-        if units not in self.allowed:
-            raise ValueError("Input units '%s' are not one of the supported "
-                             "types of %s" % (
-                                units, list(self.allowed.keys())))
 
     def checkSameUnits(self, rhs, func):
         """

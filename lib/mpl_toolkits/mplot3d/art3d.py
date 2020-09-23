@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    artist, colors as mcolors, lines, text as mtext, path as mpath)
+    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -44,18 +44,17 @@ def get_dir_vector(zdir):
     ----------
     zdir : {'x', 'y', 'z', None, 3-tuple}
         The direction. Possible values are:
+
         - 'x': equivalent to (1, 0, 0)
         - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
         - *None*: equivalent to (0, 0, 0)
-        - an iterable (x, y, z) is returned unchanged.
+        - an iterable (x, y, z) is converted to a NumPy array, if not already
 
     Returns
     -------
     x, y, z : array-like
-        The direction vector. This is either a numpy.array or *zdir* itself if
-        *zdir* is already a length-3 iterable.
-
+        The direction vector.
     """
     if zdir == 'x':
         return np.array((1, 0, 0))
@@ -66,7 +65,7 @@ def get_dir_vector(zdir):
     elif zdir is None:
         return np.array((0, 0, 0))
     elif np.iterable(zdir) and len(zdir) == 3:
-        return zdir
+        return np.array(zdir)
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
 
@@ -95,22 +94,55 @@ class Text3D(mtext.Text):
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir)
 
+    def get_position_3d(self):
+        """Return the (x, y, z) position of the text."""
+        return self._x, self._y, self._z
+
+    def set_position_3d(self, xyz, zdir=None):
+        """
+        Set the (*x*, *y*, *z*) position of the text.
+
+        Parameters
+        ----------
+        xyz : (float, float, float)
+            The position in 3D space.
+        zdir : {'x', 'y', 'z', None, 3-tuple}
+            The direction of the text. If unspecified, the zdir will not be
+            changed.
+        """
+        super().set_position(xyz[:2])
+        self.set_z(xyz[2])
+        if zdir is not None:
+            self._dir_vec = get_dir_vector(zdir)
+
+    def set_z(self, z):
+        """
+        Set the *z* position of the text.
+
+        Parameters
+        ----------
+        z : float
+        """
+        self._z = z
+        self.stale = True
+
     def set_3d_properties(self, z=0, zdir='z'):
-        x, y = self.get_position()
-        self._position3d = np.array((x, y, z))
+        self._z = z
         self._dir_vec = get_dir_vector(zdir)
         self.stale = True
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        position3d = np.array((self._x, self._y, self._z))
         proj = proj3d.proj_trans_points(
-            [self._position3d, self._position3d + self._dir_vec], renderer.M)
+            [position3d, position3d + self._dir_vec],
+            renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
-        self.set_position((proj[0][0], proj[1][0]))
-        self.set_rotation(_norm_text_angle(angle))
-        mtext.Text.draw(self, renderer)
+        with cbook._setattr_cm(self, _x=proj[0][0], _y=proj[1][0],
+                               _rotation=_norm_text_angle(angle)):
+            mtext.Text.draw(self, renderer)
         self.stale = False
 
     def get_tightbbox(self, renderer):
@@ -134,7 +166,7 @@ class Line3D(lines.Line2D):
         """
         Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         """
-        lines.Line2D.__init__(self, [], [], *args, **kwargs)
+        super().__init__([], [], *args, **kwargs)
         self._verts3d = xs, ys, zs
 
     def set_3d_properties(self, zs=0, zdir='z'):
@@ -183,7 +215,7 @@ class Line3D(lines.Line2D):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
         self.set_data(xs, ys)
-        lines.Line2D.draw(self, renderer)
+        super().draw(renderer)
         self.stale = False
 
 
@@ -207,7 +239,12 @@ def _path_to_3d_segment(path, zs=0, zdir='z'):
 def _paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
-    zs = np.broadcast_to(zs, len(paths))
+    if not np.iterable(zs):
+        zs = np.broadcast_to(zs, len(paths))
+    else:
+        if len(zs) != len(paths):
+            raise ValueError('Number of z-coordinates does not match paths.')
+
     segs = [_path_to_3d_segment(path, pathz, zdir)
             for path, pathz in zip(paths, zs)]
     return segs
@@ -258,7 +295,7 @@ class Line3DCollection(LineCollection):
         Set 3D segments.
         """
         self._segments3d = segments
-        LineCollection.set_segments(self, [])
+        super().set_segments([])
 
     def do_3d_projection(self, renderer):
         """
@@ -280,7 +317,7 @@ class Line3DCollection(LineCollection):
     def draw(self, renderer, project=False):
         if project:
             self.do_3d_projection(renderer)
-        LineCollection.draw(self, renderer)
+        super().draw(renderer)
 
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
@@ -296,7 +333,7 @@ class Patch3D(Patch):
     """
 
     def __init__(self, *args, zs=(), zdir='z', **kwargs):
-        Patch.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
@@ -327,6 +364,7 @@ class PathPatch3D(Patch3D):
     """
 
     def __init__(self, path, *, zs=(), zdir='z', **kwargs):
+        # Not super().__init__!
         Patch.__init__(self, **kwargs)
         self.set_3d_properties(path, zs, zdir)
 
@@ -388,7 +426,7 @@ class Patch3DCollection(PatchCollection):
         :class:`~matplotlib.collections.PatchCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        Also, the keyword argument "depthshade" is available to
+        Also, the keyword argument *depthshade* is available to
         indicate whether or not to shade the patches in order to
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
@@ -454,7 +492,7 @@ class Path3DCollection(PathCollection):
         :class:`~matplotlib.collections.PathCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        Also, the keyword argument "depthshade" is available to
+        Also, the keyword argument *depthshade* is available to
         indicate whether or not to shade the patches in order to
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
@@ -481,6 +519,8 @@ class Path3DCollection(PathCollection):
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
+        self._sizes3d = self.get_sizes()
+        self._linewidth3d = self.get_linewidth()
         self.stale = True
 
     def do_3d_projection(self, renderer):
@@ -489,11 +529,10 @@ class Path3DCollection(PathCollection):
 
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
-
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
+        sizes = self._sizes3d
+        lws = self._linewidth3d
 
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
@@ -504,8 +543,14 @@ class Path3DCollection(PathCollection):
         vzs = vzs[z_markers_idx]
         vxs = vxs[z_markers_idx]
         vys = vys[z_markers_idx]
-        fcs = fcs[z_markers_idx]
-        ecs = ecs[z_markers_idx]
+        if len(fcs) > 1:
+            fcs = fcs[z_markers_idx]
+        if len(ecs) > 1:
+            ecs = ecs[z_markers_idx]
+        if len(sizes) > 1:
+            sizes = sizes[z_markers_idx]
+        if len(lws) > 1:
+            lws = lws[z_markers_idx]
         vps = np.column_stack((vxs, vys))
 
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
@@ -513,6 +558,8 @@ class Path3DCollection(PathCollection):
 
         self.set_edgecolors(ecs)
         self.set_facecolors(fcs)
+        self.set_sizes(sizes)
+        self.set_linewidth(lws)
 
         PathCollection.set_offsets(self, vps)
 
@@ -571,7 +618,7 @@ class Poly3DCollection(PolyCollection):
         Parameters
         ----------
         verts : list of array-like Nx3
-            Each element describes a polygon as a sequnce of ``N_i`` points
+            Each element describes a polygon as a sequence of ``N_i`` points
             ``(x, y, z)``.
         zsort : {'average', 'min', 'max'}, default: 'average'
             The calculation method for the z-order.
@@ -624,7 +671,7 @@ class Poly3DCollection(PolyCollection):
         """Set 3D vertices."""
         self.get_vector(verts)
         # 2D verts will be updated at draw time
-        PolyCollection.set_verts(self, [], False)
+        super().set_verts([], False)
         self._closed = closed
 
     def set_verts_and_codes(self, verts, codes):
@@ -707,11 +754,11 @@ class Poly3DCollection(PolyCollection):
             return np.nan
 
     def set_facecolor(self, colors):
-        PolyCollection.set_facecolor(self, colors)
+        super().set_facecolor(colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
 
     def set_edgecolor(self, colors):
-        PolyCollection.set_edgecolor(self, colors)
+        super().set_edgecolor(colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 
     def set_alpha(self, alpha):
@@ -794,7 +841,7 @@ def _zalpha(colors, zs):
     #        in all three dimensions. Otherwise, at certain orientations,
     #        the min and max zs are very close together.
     #        Should really normalize against the viewing depth.
-    if len(zs) == 0:
+    if len(colors) == 0 or len(zs) == 0:
         return np.zeros((0, 4))
     norm = Normalize(min(zs), max(zs))
     sats = 1 - norm(zs) * 0.7

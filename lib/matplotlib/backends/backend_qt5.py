@@ -17,7 +17,9 @@ import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
+    QtCore, QtGui, QtWidgets, __version__, QT_API,
+    _devicePixelRatioF, _isdeleted, _setDevicePixelRatioF,
+)
 
 backend_version = __version__
 
@@ -123,6 +125,7 @@ def _create_qApp():
                 pass
             qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
+            cbook._setup_new_guiapp()
         else:
             qApp = app
 
@@ -179,7 +182,7 @@ class TimerQT(TimerBase):
         # _on_timer method.
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._on_timer)
-        TimerBase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __del__(self):
         # The check for deletedness is needed to avoid an error at animation
@@ -247,7 +250,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     @property
     def _dpi_ratio(self):
-        return qt_compat._devicePixelRatio(self)
+        return _devicePixelRatioF(self)
 
     def _update_dpi(self):
         # As described in __init__ above, we need to be careful in cases with
@@ -427,7 +430,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
         if timeout > 0:
-            timer = QtCore.QTimer.singleShot(timeout * 1000, event_loop.quit)
+            timer = QtCore.QTimer.singleShot(int(timeout * 1000),
+                                             event_loop.quit)
         event_loop.exec_()
 
     def stop_event_loop(self, event=None):
@@ -462,7 +466,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if bbox is None and self.figure:
             bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
+        l, b, w, h = [int(pt / self._dpi_ratio) for pt in bbox.bounds]
         t = b + h
         self.repaint(l, self.rect().height() - t, w, h)
 
@@ -512,7 +516,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         self.closing.emit()
-        QtWidgets.QMainWindow.closeEvent(self, event)
+        super().closeEvent(event)
 
 
 class FigureManagerQT(FigureManagerBase):
@@ -530,7 +534,7 @@ class FigureManagerQT(FigureManagerBase):
     """
 
     def __init__(self, canvas, num):
-        FigureManagerBase.__init__(self, canvas, num)
+        super().__init__(canvas, num)
         self.window = MainWindow()
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
@@ -538,13 +542,6 @@ class FigureManagerQT(FigureManagerBase):
         self.window.setWindowTitle("Figure %d" % num)
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
-
-        # Give the keyboard focus to the figure instead of the manager:
-        # StrongFocus accepts both tab and click to focus and will enable the
-        # canvas to process event without clicking.
-        # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
-        self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.canvas.setFocus()
 
         self.window._destroying = False
 
@@ -573,6 +570,13 @@ class FigureManagerQT(FigureManagerBase):
         if matplotlib.is_interactive():
             self.window.show()
             self.canvas.draw_idle()
+
+        # Give the keyboard focus to the figure instead of the manager:
+        # StrongFocus accepts both tab and click to focus and will enable the
+        # canvas to process event without clicking.
+        # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
+        self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.canvas.setFocus()
 
         self.window.raise_()
 
@@ -707,7 +711,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if QtCore.qVersion() >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
-        qt_compat._setDevicePixelRatio(pm, qt_compat._devicePixelRatio(self))
+        _setDevicePixelRatioF(pm, _devicePixelRatioF(self))
         if self.palette().color(self.backgroundRole()).value() < 128:
             icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
@@ -827,7 +831,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(UiSubplotTool):
     def __init__(self, targetfig, parent):
-        UiSubplotTool.__init__(self, None)
+        super().__init__(None)
 
         self._figure = targetfig
 
@@ -913,7 +917,8 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
             self, name, group, position, image_file, description, toggle):
 
         button = QtWidgets.QToolButton(self)
-        button.setIcon(NavigationToolbar2QT._icon(self, image_file))
+        if image_file:
+            button.setIcon(NavigationToolbar2QT._icon(self, image_file))
         button.setText(name)
         if description:
             button.setToolTip(description)

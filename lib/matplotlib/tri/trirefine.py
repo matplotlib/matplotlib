@@ -59,7 +59,7 @@ class UniformTriRefiner(TriRefiner):
 #    :class:`~matplotlib.tri.TriAnalyzer`.
 #    """
     def __init__(self, triangulation):
-        TriRefiner.__init__(self, triangulation)
+        super().__init__(triangulation)
 
     def refine_triangulation(self, return_tri_index=False, subdiv=3):
         """

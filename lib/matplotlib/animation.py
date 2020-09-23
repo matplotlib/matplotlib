@@ -28,13 +28,14 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 import uuid
+import warnings
 
 import numpy as np
 
 import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
-from matplotlib import cbook
+from matplotlib import _api, cbook
 
 
 _log = logging.getLogger(__name__)
@@ -99,10 +100,6 @@ class MovieWriterRegistry:
     def __init__(self):
         self._registered = dict()
 
-    @cbook.deprecated("3.2")
-    def set_dirty(self):
-        """Sets a flag to re-setup the writers."""
-
     def register(self, name):
         """
         Decorator for registering a class under a name.
@@ -117,19 +114,6 @@ class MovieWriterRegistry:
             self._registered[name] = writer_cls
             return writer_cls
         return wrapper
-
-    @cbook.deprecated("3.2")
-    def ensure_not_dirty(self):
-        """If dirty, reasks the writers if they are available"""
-
-    @cbook.deprecated("3.2")
-    def reset_available_writers(self):
-        """Reset the available state of all registered writers"""
-
-    @cbook.deprecated("3.2")
-    @property
-    def avail(self):
-        return {name: self._registered[name] for name in self.list()}
 
     def is_available(self, name):
         """
@@ -310,7 +294,8 @@ class MovieWriter(AbstractMovieWriter):
                 'MovieWriter cannot be instantiated directly. Please use one '
                 'of its subclasses.')
 
-        super().__init__(fps=fps, metadata=metadata)
+        super().__init__(fps=fps, metadata=metadata, codec=codec,
+                         bitrate=bitrate)
 
         self.frame_format = 'rgba'
         self.extra_args = extra_args
@@ -411,7 +396,7 @@ class FileMovieWriter(MovieWriter):
     This must be sub-classed to be useful.
     """
     def __init__(self, *args, **kwargs):
-        MovieWriter.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
     @cbook._delete_parameter("3.3", "clear_temp")
@@ -426,10 +411,9 @@ class FileMovieWriter(MovieWriter):
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
-        dpi : float, optional
+        dpi : float, default: ``fig.dpi``
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
-            Default is ``fig.dpi``.
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  If None (the
             default), files are written to a temporary directory which is
@@ -456,6 +440,10 @@ class FileMovieWriter(MovieWriter):
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
+
+    def __del__(self):
+        if self._tmpdir:
+            self._tmpdir.cleanup()
 
     @cbook.deprecated("3.3")
     @property
@@ -515,10 +503,10 @@ class FileMovieWriter(MovieWriter):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter.finish(self)  # Will call clean-up
+        super().finish()  # Will call clean-up
 
     def cleanup(self):
-        MovieWriter.cleanup(self)
+        super().cleanup()
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
@@ -571,7 +559,9 @@ class FFMpegBase:
     @property
     def output_args(self):
         args = []
-        if not Path(self.outfile).suffix == '.gif':
+        if Path(self.outfile).suffix == '.gif':
+            self.codec = 'gif'
+        else:
             args.extend(['-vcodec', self.codec])
         extra_args = (self.extra_args if self.extra_args is not None
                       else mpl.rcParams[self._args_key])
@@ -581,6 +571,11 @@ class FFMpegBase:
         # OSX). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
+        # For GIF, we're telling FFMPEG to split the video stream, to generate
+        # a palette, and then use it for encoding.
+        elif self.codec == 'gif' and '-filter_complex' not in extra_args:
+            args.extend(['-filter_complex',
+                         'split [a][b];[a] palettegen [p];[b][p] paletteuse'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
         args.extend(extra_args)
@@ -597,7 +592,8 @@ class FFMpegBase:
             # NOTE: when removed, remove the same method in AVConvBase.
             and b'LibAv' not in subprocess.run(
                 [cls.bin_path()], creationflags=subprocess_creation_flags,
-                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr)
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE).stderr)
 
 
 # Combine FFMpeg options with pipe-based writing
@@ -801,8 +797,8 @@ class HTMLWriter(FileMovieWriter):
         extra_args = ()  # Don't lookup nonexistent rcParam[args_key].
         self.embed_frames = embed_frames
         self.default_mode = default_mode.lower()
-        cbook._check_in_list(['loop', 'once', 'reflect'],
-                             default_mode=self.default_mode)
+        _api.check_in_list(['loop', 'once', 'reflect'],
+                           default_mode=self.default_mode)
 
         # Save embed limit, which is given in MB
         if embed_limit is None:
@@ -816,8 +812,7 @@ class HTMLWriter(FileMovieWriter):
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
         outfile = Path(outfile)
-        cbook._check_in_list(['.html', '.htm'],
-                             outfile_extension=outfile.suffix)
+        _api.check_in_list(['.html', '.htm'], outfile_extension=outfile.suffix)
 
         self._saved_frames = []
         self._total_bytes = 0
@@ -911,6 +906,8 @@ class Animation:
     """
 
     def __init__(self, fig, event_source=None, blit=False):
+        self._draw_was_started = False
+
         self._fig = fig
         # Disables blitting for backends that don't support it.  This
         # allows users to request it if available, but still have a
@@ -934,6 +931,14 @@ class Animation:
                                                       self._stop)
         if self._blit:
             self._setup_blit()
+
+    def __del__(self):
+        if not getattr(self, '_draw_was_started', True):
+            warnings.warn(
+                'Animation was deleted without rendering anything. This is '
+                'most likely unintended. To prevent deletion, assign the '
+                'Animation to a variable that exists for as long as you need '
+                'the Animation.')
 
     def _start(self, *args):
         """
@@ -999,7 +1004,7 @@ class Animation:
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
 
-        metadata : Dict[str, str], default {}
+        metadata : Dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
             the output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -1170,7 +1175,7 @@ class Animation:
     def _init_draw(self):
         # Initial draw to clear the frame. Also used by the blitting code
         # when a clean base is required.
-        pass
+        self._draw_was_started = True
 
     def _pre_draw(self, framedata, blit):
         # Perform any cleaning or whatnot before the drawing of the frame.
@@ -1371,6 +1376,20 @@ class Animation:
         elif fmt == 'jshtml':
             return self.to_jshtml()
 
+    def pause(self):
+        """Pause the animation."""
+        self.event_source.stop()
+        if self._blit:
+            for artist in self._drawn_artists:
+                artist.set_animated(False)
+
+    def resume(self):
+        """Resume the animation."""
+        self.event_source.start()
+        if self._blit:
+            for artist in self._drawn_artists:
+                artist.set_animated(True)
+
 
 class TimedAnimation(Animation):
     """
@@ -1403,8 +1422,7 @@ class TimedAnimation(Animation):
         # sharing timers between animation objects for syncing animations.
         if event_source is None:
             event_source = fig.canvas.new_timer(interval=self._interval)
-        Animation.__init__(self, fig, event_source=event_source,
-                           *args, **kwargs)
+        super().__init__(fig, event_source=event_source, *args, **kwargs)
 
     def _step(self, *args):
         """Handler for getting events."""
@@ -1414,7 +1432,7 @@ class TimedAnimation(Animation):
         # _repeat_delay is set, change the event_source's interval to our loop
         # delay and set the callback to one which will then set the interval
         # back.
-        still_going = Animation._step(self, *args)
+        still_going = super()._step(*args)
         if not still_going and self.repeat:
             self._init_draw()
             self.frame_seq = self.new_frame_seq()
@@ -1430,7 +1448,7 @@ class TimedAnimation(Animation):
         # given the potential pause here), remove the loop_delay callback as
         # well.
         self.event_source.remove_callback(self._loop_delay)
-        Animation._stop(self)
+        super()._stop()
 
     def _loop_delay(self, *args):
         # Reset the interval and change callbacks after the delay.
@@ -1452,8 +1470,8 @@ class ArtistAnimation(TimedAnimation):
     fig : `~matplotlib.figure.Figure`
         The figure object used to get needed events, such as draw or resize.
     artists : list
-        Each list entry is a collection of artists that are made visible on
-        the corresponding frame.  Other artists are made invisible.
+        Each list entry is a collection of `.Artist` objects that are made
+        visible on the corresponding frame.  Other artists are made invisible.
     interval : int, default: 200
         Delay between frames in milliseconds.
     repeat_delay : int, default: 0
@@ -1472,9 +1490,10 @@ class ArtistAnimation(TimedAnimation):
         # Use the list of artists as the framedata, which will be iterated
         # over by the machinery.
         self._framedata = artists
-        TimedAnimation.__init__(self, fig, *args, **kwargs)
+        super().__init__(fig, *args, **kwargs)
 
     def _init_draw(self):
+        super()._init_draw()
         # Make all the artists involved in *any* frame invisible
         figs = set()
         for f in self.new_frame_seq():
@@ -1644,7 +1663,7 @@ class FuncAnimation(TimedAnimation):
         # Needs to be initialized so the draw functions work without checking
         self._save_seq = []
 
-        TimedAnimation.__init__(self, fig, **kwargs)
+        super().__init__(fig, **kwargs)
 
         # Need to reset the saved seq, since right now it will contain data
         # for a single frame from init, which is not what we want.
@@ -1686,6 +1705,7 @@ class FuncAnimation(TimedAnimation):
                 return gen()
 
     def _init_draw(self):
+        super()._init_draw()
         # Initialize the drawing either using the given init_func or by
         # calling the draw function with the first item of the frame sequence.
         # For blitting, the init_func should return a sequence of modified
@@ -1715,10 +1735,22 @@ class FuncAnimation(TimedAnimation):
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
         self._drawn_artists = self._func(framedata, *self._args)
+
         if self._blit:
-            if self._drawn_artists is None:
-                raise RuntimeError('The animation function must return a '
-                                   'sequence of Artist objects.')
+
+            err = RuntimeError('The animation function must return a sequence '
+                               'of Artist objects.')
+            try:
+                # check if a sequence
+                iter(self._drawn_artists)
+            except TypeError:
+                raise err from None
+
+            # check each item if is artist
+            for i in self._drawn_artists:
+                if not isinstance(i, mpl.artist.Artist):
+                    raise err
+
             self._drawn_artists = sorted(self._drawn_artists,
                                          key=lambda x: x.get_zorder())
 

@@ -44,7 +44,7 @@ plt.show()
 
 
 ###############################################################################
-# The arguments *bbox_to_anchor* and *bbox_transfrom* can be used for a more
+# The parameters *bbox_to_anchor* and *bbox_transform* can be used for a more
 # fine grained control over the inset position and size or even to position
 # the inset at completely arbitrary positions.
 # The *bbox_to_anchor* sets the bounding box in coordinates according to the

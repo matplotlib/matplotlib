@@ -1,0 +1,4 @@
+*facename* parameter of ``mathtext.Fonts.render_glyph``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This parameter was renamed to *font* for consistency with the rest of the
+``Fonts`` API.

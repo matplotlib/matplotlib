@@ -41,7 +41,7 @@ import math
 import numpy as np
 from numpy.linalg import inv
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
 from .path import Path
@@ -240,11 +240,6 @@ class BboxBase(TransformNode):
 
     def __array__(self, *args, **kwargs):
         return self.get_points()
-
-    @cbook.deprecated("3.2")
-    def is_unit(self):
-        """Return whether this is the unit box (from (0, 0) to (1, 1))."""
-        return self.get_points().tolist() == [[0., 0.], [1., 1.]]
 
     @property
     def x0(self):
@@ -770,7 +765,7 @@ class Bbox(BboxBase):
         points : ndarray
             A 2x2 numpy array of the form ``[[x0, y0], [x1, y1]]``.
         """
-        BboxBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         points = np.asarray(points, float)
         if points.shape != (2, 2):
             raise ValueError('Bbox points must be of the form '
@@ -791,7 +786,7 @@ class Bbox(BboxBase):
 
         def invalidate(self):
             self._check(self._points)
-            TransformNode.invalidate(self)
+            super().invalidate()
 
     @staticmethod
     def unit():
@@ -1030,7 +1025,7 @@ class TransformedBbox(BboxBase):
             raise ValueError(
                 "The input and output dimensions of 'transform' must be 2")
 
-        BboxBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._bbox = bbox
         self._transform = transform
         self.set_children(bbox, transform)
@@ -1107,7 +1102,7 @@ class LockableBbox(BboxBase):
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
 
-        BboxBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._bbox = bbox
         self.set_children(bbox)
         self._points = None
@@ -1700,7 +1695,7 @@ class AffineBase(Transform):
     is_affine = True
 
     def __init__(self, *args, **kwargs):
-        Transform.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._inverted = None
 
     def __array__(self, *args, **kwargs):
@@ -1778,19 +1773,6 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
-    @staticmethod
-    @cbook.deprecated(
-        "3.2", alternative="Affine2D.from_values(...).get_matrix()")
-    def matrix_from_values(a, b, c, d, e, f):
-        """
-        Create a new transformation matrix as a 3x3 numpy array of the form::
-
-          a c e
-          b d f
-          0 0 1
-        """
-        return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], float)
-
     def transform_affine(self, points):
         mtx = self.get_matrix()
         if isinstance(points, np.ma.MaskedArray):
@@ -1839,7 +1821,7 @@ class Affine2D(Affine2DBase):
 
         If *matrix* is None, initialize with the identity transform.
         """
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         if matrix is None:
             # A bit faster than np.identity(3).
             matrix = IdentityTransform._mtx.copy()
@@ -2288,7 +2270,7 @@ class CompositeGenericTransform(Transform):
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
-        Transform.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
@@ -2314,8 +2296,8 @@ class CompositeGenericTransform(Transform):
                 (not self._a.is_affine or invalidating_node is self._a)):
             value = Transform.INVALID
 
-        Transform._invalidate_internal(self, value=value,
-                                       invalidating_node=invalidating_node)
+        super()._invalidate_internal(value=value,
+                                     invalidating_node=invalidating_node)
 
     def __eq__(self, other):
         if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
@@ -2401,7 +2383,7 @@ class CompositeAffine2D(Affine2DBase):
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
@@ -2472,7 +2454,7 @@ class BboxTransform(Affine2DBase):
         if not boxin.is_bbox or not boxout.is_bbox:
             raise ValueError("'boxin' and 'boxout' must be bbox")
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._boxin = boxin
         self._boxout = boxout
         self.set_children(boxin, boxout)
@@ -2516,7 +2498,7 @@ class BboxTransformTo(Affine2DBase):
         if not boxout.is_bbox:
             raise ValueError("'boxout' must be bbox")
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._boxout = boxout
         self.set_children(boxout)
         self._mtx = None
@@ -2570,7 +2552,7 @@ class BboxTransformFrom(Affine2DBase):
         if not boxin.is_bbox:
             raise ValueError("'boxin' must be bbox")
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._boxin = boxin
         self.set_children(boxin)
         self._mtx = None
@@ -2601,7 +2583,7 @@ class ScaledTranslation(Affine2DBase):
     have been transformed by *scale_trans*.
     """
     def __init__(self, xt, yt, scale_trans, **kwargs):
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._t = (xt, yt)
         self._scale_trans = scale_trans
         self.set_children(scale_trans)
@@ -2671,7 +2653,7 @@ class TransformedPath(TransformNode):
         transform : `Transform`
         """
         cbook._check_isinstance(Transform, transform=transform)
-        TransformNode.__init__(self)
+        super().__init__()
         self._path = path
         self._transform = transform
         self.set_children(transform)
@@ -2920,5 +2902,5 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     elif units == 'inches':
         pass
     else:
-        cbook._check_in_list(['dots', 'points', 'inches'], units=units)
+        _api.check_in_list(['dots', 'points', 'inches'], units=units)
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)

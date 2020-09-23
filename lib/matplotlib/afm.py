@@ -469,6 +469,10 @@ class AFM:
         """Return the font name, e.g., 'Times-Roman'."""
         return self._header[b'FontName']
 
+    @property
+    def postscript_name(self):  # For consistency with FT2Font.
+        return self.get_fontname()
+
     def get_fullname(self):
         """Return the font full name, e.g., 'Times-Roman'."""
         name = self._header.get(b'FullName')

@@ -197,7 +197,13 @@ def _get_rc_timezone():
 Time-related constants.
 """
 EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1).toordinal())
-JULIAN_OFFSET = 1721424.5                         # Julian date at 0001-01-01
+# EPOCH_OFFSET is not used by matplotlib
+JULIAN_OFFSET = 1721424.5  # Julian date at 0000-12-31
+# note that the Julian day epoch is achievable w/
+# np.datetime64('-4713-11-24T12:00:00'); datetime64 is proleptic
+# Gregorian and BC has a one-year offset.  So
+# np.datetime64('0000-12-31') - np.datetime64('-4713-11-24T12:00') = 1721424.5
+# Ref: https://en.wikipedia.org/wiki/Julian_day
 MICROSECONDLY = SECONDLY + 1
 HOURS_PER_DAY = 24.
 MIN_PER_HOUR = 60.
@@ -445,14 +451,20 @@ def julian2num(j):
     Parameters
     ----------
     j : float or sequence of floats
-        Julian date(s)
+        Julian dates (days relative to 4713 BC Jan 1, 12:00:00 Julian
+        calendar or 4714 BC Nov 24, 12:00:00, proleptic Gregorian calendar).
 
     Returns
     -------
     float or sequence of floats
-        Matplotlib date(s)
+        Matplotlib dates (days relative to `.get_epoch`).
     """
-    return np.subtract(j, JULIAN_OFFSET)  # Handles both scalar & nonscalar j.
+    ep = np.datetime64(get_epoch(), 'h').astype(float) / 24.
+    ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
+    # Julian offset defined above is relative to 0000-12-31, but we need
+    # relative to our current epoch:
+    dt = JULIAN_OFFSET - ep0 + ep
+    return np.subtract(j, dt)  # Handles both scalar & nonscalar j.
 
 
 def num2julian(n):
@@ -462,14 +474,19 @@ def num2julian(n):
     Parameters
     ----------
     n : float or sequence of floats
-        Matplotlib date(s)
+        Matplotlib dates (days relative to `.get_epoch`).
 
     Returns
     -------
     float or sequence of floats
-        Julian date(s)
+        Julian dates (days relative to 4713 BC Jan 1, 12:00:00).
     """
-    return np.add(n, JULIAN_OFFSET)  # Handles both scalar & nonscalar j.
+    ep = np.datetime64(get_epoch(), 'h').astype(float) / 24.
+    ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
+    # Julian offset defined above is relative to 0000-12-31, but we need
+    # relative to our current epoch:
+    dt = JULIAN_OFFSET - ep0 + ep
+    return np.add(n, dt)  # Handles both scalar & nonscalar j.
 
 
 def num2date(x, tz=None):
@@ -482,8 +499,8 @@ def num2date(x, tz=None):
         Number of days (fraction part represents hours, minutes, seconds)
         since the epoch.  See `.get_epoch` for the
         epoch, which can be changed by :rc:`date.epoch` or `.set_epoch`.
-    tz : str, optional
-        Timezone of *x* (defaults to :rc:`timezone`).
+    tz : str, default: :rc:`timezone`
+        Timezone of *x*.
 
     Returns
     -------
@@ -607,8 +624,12 @@ class IndexDateFormatter(ticker.Formatter):
 
     def __init__(self, t, fmt, tz=None):
         """
-        *t* is a sequence of dates (floating point days).  *fmt* is a
-        `~datetime.datetime.strftime` format string.
+        Parameters
+        ----------
+        t : list of float
+            A sequence of dates (floating point days).
+        fmt : str
+            A `~datetime.datetime.strftime` format string.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -775,6 +796,10 @@ class ConciseDateFormatter(ticker.Formatter):
         for level in range(5, -1, -1):
             if len(np.unique(tickdate[:, level])) > 1:
                 break
+            elif level == 0:
+                # all tickdate are the same, so only micros might be different
+                # set to the most precise (6: microseconds doesn't exist...)
+                level = 5
 
         # level is the basic level we will label at.
         # now loop through and decide the actual ticklabels
@@ -1104,7 +1129,7 @@ class RRuleLocator(DateLocator):
     # use the dateutil rrule instance
 
     def __init__(self, o, tz=None):
-        DateLocator.__init__(self, tz)
+        super().__init__(tz)
         self.rule = o
 
     def __call__(self):
@@ -1169,42 +1194,6 @@ class RRuleLocator(DateLocator):
     def _get_interval(self):
         return self.rule._rrule._interval
 
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """
-        Set the view limits to include the data range.
-        """
-        dmin, dmax = self.datalim_to_dt()
-        delta = relativedelta(dmax, dmin)
-
-        # We need to cap at the endpoints of valid datetime
-        try:
-            start = dmin - delta
-        except ValueError:
-            start = _from_ordinalf(1.0)
-
-        try:
-            stop = dmax + delta
-        except ValueError:
-            # The magic number!
-            stop = _from_ordinalf(3652059.9999999)
-
-        self.rule.set(dtstart=start, until=stop)
-        dmin, dmax = self.datalim_to_dt()
-
-        vmin = self.rule.before(dmin, True)
-        if not vmin:
-            vmin = dmin
-
-        vmax = self.rule.after(dmax, True)
-        if not vmax:
-            vmax = dmax
-
-        vmin = date2num(vmin)
-        vmax = date2num(vmax)
-
-        return self.nonsingular(vmin, vmax)
-
 
 class AutoDateLocator(DateLocator):
     """
@@ -1215,14 +1204,14 @@ class AutoDateLocator(DateLocator):
     ----------
     intervald : dict
 
-        Mapping of tick frequencies (a constant from dateutil.rrule) to
-        multiples allowed for that ticking.  The default looks like this::
+        Mapping of tick frequencies to multiples allowed for that ticking.
+        The default is ::
 
             self.intervald = {
                 YEARLY  : [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
                            1000, 2000, 4000, 5000, 10000],
                 MONTHLY : [1, 2, 3, 4, 6],
-                DAILY   : [1, 2, 3, 7, 14],
+                DAILY   : [1, 2, 3, 7, 14, 21],
                 HOURLY  : [1, 2, 3, 4, 6, 12],
                 MINUTELY: [1, 5, 10, 15, 30],
                 SECONDLY: [1, 5, 10, 15, 30],
@@ -1231,10 +1220,16 @@ class AutoDateLocator(DateLocator):
                                 100000, 200000, 500000, 1000000],
             }
 
+        where the keys are defined in `dateutil.rrule`.
+
         The interval is used to specify multiples that are appropriate for
         the frequency of ticking. For instance, every 7 days is sensible
         for daily ticks, but for minutes/seconds, 15 or 30 make sense.
-        You can customize this dictionary by doing::
+
+        When customizing, you should only modify the values for the existing
+        keys. You should not add or delete entries.
+
+        Example for forcing ticks every 3 hours::
 
             locator = AutoDateLocator()
             locator.intervald[HOURLY] = [3]  # only show every 3 hours
@@ -1265,7 +1260,7 @@ class AutoDateLocator(DateLocator):
             the ticks to be at hours 0, 6, 12, 18 when hourly ticking is done
             at 6 hour intervals.
         """
-        DateLocator.__init__(self, tz)
+        super().__init__(tz)
         self._freq = YEARLY
         self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
                        SECONDLY, MICROSECONDLY]
@@ -1298,7 +1293,7 @@ class AutoDateLocator(DateLocator):
             # Swap "3" for "4" in the DAILY list; If we use 3 we get bad
             # tick loc for months w/ 31 days: 1, 4, ..., 28, 31, 1
             # If we use 4 then we get: 1, 5, ... 25, 29, 1
-            self.intervald[DAILY] = [1, 2, 4, 7, 14, 21]
+            self.intervald[DAILY] = [1, 2, 4, 7, 14]
 
         self._byranges = [None, range(1, 13), range(1, 32),
                           range(0, 24), range(0, 60), range(0, 60), None]
@@ -1332,12 +1327,6 @@ class AutoDateLocator(DateLocator):
         else:
             return RRuleLocator.get_unit_generic(self._freq)
 
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """Try to choose the view limits intelligently."""
-        dmin, dmax = self.datalim_to_dt()
-        return self.get_locator(dmin, dmax).autoscale()
-
     def get_locator(self, dmin, dmax):
         """Pick the best locator based on a distance."""
         delta = relativedelta(dmax, dmin)
@@ -1347,7 +1336,6 @@ class AutoDateLocator(DateLocator):
         if dmin > dmax:
             delta = -delta
             tdelta = -tdelta
-
         # The following uses a mix of calls to relativedelta and timedelta
         # methods because there is incomplete overlap in the functionality of
         # these similar functions, and it's best to avoid doing our own math
@@ -1390,13 +1378,12 @@ class AutoDateLocator(DateLocator):
                 if num <= interval * (self.maxticks[freq] - 1):
                     break
             else:
-                # We went through the whole loop without breaking, default to
-                # the last interval in the list and raise a warning
-                cbook._warn_external(
-                    f"AutoDateLocator was unable to pick an appropriate "
-                    f"interval for this date range. It may be necessary to "
-                    f"add an interval value to the AutoDateLocator's "
-                    f"intervald dictionary. Defaulting to {interval}.")
+                if not (self.interval_multiples and freq == DAILY):
+                    cbook._warn_external(
+                        f"AutoDateLocator was unable to pick an appropriate "
+                        f"interval for this date range. It may be necessary "
+                        f"to add an interval value to the AutoDateLocator's "
+                        f"intervald dictionary. Defaulting to {interval}.")
 
             # Set some parameters as appropriate
             self._freq = freq
@@ -1462,7 +1449,7 @@ class YearLocator(DateLocator):
         Mark years that are multiple of base on a given month and day
         (default jan 1).
         """
-        DateLocator.__init__(self, tz)
+        super().__init__(tz)
         self.base = ticker._Edge_integer(base, 0)
         self.replaced = {'month':  month,
                          'day':    day,
@@ -1509,24 +1496,6 @@ class YearLocator(DateLocator):
 
             ticks.append(dt)
 
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """
-        Set the view limits to include the data range.
-        """
-        dmin, dmax = self.datalim_to_dt()
-
-        ymin = self.base.le(dmin.year)
-        ymax = self.base.ge(dmax.year)
-        vmin = dmin.replace(year=ymin, **self.replaced)
-        vmin = vmin.astimezone(self.tz)
-        vmax = dmax.replace(year=ymax, **self.replaced)
-        vmax = vmax.astimezone(self.tz)
-
-        vmin = date2num(vmin)
-        vmax = date2num(vmax)
-        return self.nonsingular(vmin, vmax)
-
 
 class MonthLocator(RRuleLocator):
     """
@@ -1550,7 +1519,7 @@ class MonthLocator(RRuleLocator):
 
         rule = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class WeekdayLocator(RRuleLocator):
@@ -1578,7 +1547,7 @@ class WeekdayLocator(RRuleLocator):
 
         rule = rrulewrapper(DAILY, byweekday=byweekday,
                             interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class DayLocator(RRuleLocator):
@@ -1604,7 +1573,7 @@ class DayLocator(RRuleLocator):
 
         rule = rrulewrapper(DAILY, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class HourLocator(RRuleLocator):
@@ -1624,7 +1593,7 @@ class HourLocator(RRuleLocator):
 
         rule = rrulewrapper(HOURLY, byhour=byhour, interval=interval,
                             byminute=0, bysecond=0)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class MinuteLocator(RRuleLocator):
@@ -1644,7 +1613,7 @@ class MinuteLocator(RRuleLocator):
 
         rule = rrulewrapper(MINUTELY, byminute=byminute, interval=interval,
                             bysecond=0)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class SecondLocator(RRuleLocator):
@@ -1664,7 +1633,7 @@ class SecondLocator(RRuleLocator):
             bysecond = range(60)
 
         rule = rrulewrapper(SECONDLY, bysecond=bysecond, interval=interval)
-        RRuleLocator.__init__(self, rule, tz)
+        super().__init__(rule, tz)
 
 
 class MicrosecondLocator(DateLocator):
@@ -1701,15 +1670,15 @@ class MicrosecondLocator(DateLocator):
 
     def set_axis(self, axis):
         self._wrapped_locator.set_axis(axis)
-        return DateLocator.set_axis(self, axis)
+        return super().set_axis(axis)
 
     def set_view_interval(self, vmin, vmax):
         self._wrapped_locator.set_view_interval(vmin, vmax)
-        return DateLocator.set_view_interval(self, vmin, vmax)
+        return super().set_view_interval(vmin, vmax)
 
     def set_data_interval(self, vmin, vmax):
         self._wrapped_locator.set_data_interval(vmin, vmax)
-        return DateLocator.set_data_interval(self, vmin, vmax)
+        return super().set_data_interval(vmin, vmax)
 
     def __call__(self):
         # if no data have been set, this will tank with a ValueError
@@ -1742,21 +1711,45 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
-@cbook.deprecated("3.3")
 def epoch2num(e):
     """
-    Convert an epoch or sequence of epochs to the new date format,
-    that is days since 0001.
+    Convert UNIX time to days since Matplotlib epoch.
+
+    Parameters
+    ----------
+    e : list of floats
+        Time in seconds since 1970-01-01.
+
+    Returns
+    -------
+    `numpy.array`
+        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
     """
-    return EPOCH_OFFSET + np.asarray(e) / SEC_PER_DAY
+
+    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
+          np.datetime64(get_epoch(), 's')).astype(float)
+
+    return (dt + np.asarray(e)) / SEC_PER_DAY
 
 
-@cbook.deprecated("3.3")
 def num2epoch(d):
     """
-    Convert days since 0001 to epoch.  *d* can be a number or sequence.
+    Convert days since Matplotlib epoch to UNIX time.
+
+    Parameters
+    ----------
+    d : list of floats
+        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
+
+    Returns
+    -------
+    `numpy.array`
+        Time in seconds since 1970-01-01.
     """
-    return (np.asarray(d) - EPOCH_OFFSET) * SEC_PER_DAY
+    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
+          np.datetime64(get_epoch(), 's')).astype(float)
+
+    return np.asarray(d) * SEC_PER_DAY - dt
 
 
 @cbook.deprecated("3.2")
@@ -1826,8 +1819,11 @@ class DateConverter(units.ConversionInterface):
     The 'unit' tag for such data is None or a tzinfo instance.
     """
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    def __init__(self, *, interval_multiples=True):
+        self._interval_multiples = interval_multiples
+        super().__init__()
+
+    def axisinfo(self, unit, axis):
         """
         Return the `~matplotlib.units.AxisInfo` for *unit*.
 
@@ -1836,7 +1832,8 @@ class DateConverter(units.ConversionInterface):
         """
         tz = unit
 
-        majloc = AutoDateLocator(tz=tz)
+        majloc = AutoDateLocator(tz=tz,
+                                 interval_multiples=self._interval_multiples)
         majfmt = AutoDateFormatter(majloc, tz=tz)
         datemin = datetime.date(2000, 1, 1)
         datemax = datetime.date(2010, 1, 1)
@@ -1878,17 +1875,19 @@ class ConciseDateConverter(DateConverter):
     # docstring inherited
 
     def __init__(self, formats=None, zero_formats=None, offset_formats=None,
-                 show_offset=True):
+                 show_offset=True, *, interval_multiples=True):
         self._formats = formats
         self._zero_formats = zero_formats
         self._offset_formats = offset_formats
         self._show_offset = show_offset
+        self._interval_multiples = interval_multiples
         super().__init__()
 
     def axisinfo(self, unit, axis):
         # docstring inherited
         tz = unit
-        majloc = AutoDateLocator(tz=tz)
+        majloc = AutoDateLocator(tz=tz,
+                                 interval_multiples=self._interval_multiples)
         majfmt = ConciseDateFormatter(majloc, tz=tz, formats=self._formats,
                                       zero_formats=self._zero_formats,
                                       offset_formats=self._offset_formats,
@@ -1899,6 +1898,44 @@ class ConciseDateConverter(DateConverter):
                               default_limits=(datemin, datemax))
 
 
-units.registry[np.datetime64] = DateConverter()
-units.registry[datetime.date] = DateConverter()
-units.registry[datetime.datetime] = DateConverter()
+class _rcParam_helper:
+    """
+    This helper class is so that we can set the converter for dates
+    via the validator for the rcParams `date.converter` and
+    `date.interval_multiples`.  Never instatiated.
+    """
+
+    conv_st = 'auto'
+    int_mult = True
+
+    @classmethod
+    def set_converter(cls, s):
+        """Called by validator for rcParams date.converter"""
+        if s not in ['concise', 'auto']:
+            raise ValueError('Converter must be one of "concise" or "auto"')
+        cls.conv_st = s
+        cls.register_converters()
+
+    @classmethod
+    def set_int_mult(cls, b):
+        """Called by validator for rcParams date.interval_multiples"""
+        cls.int_mult = b
+        cls.register_converters()
+
+    @classmethod
+    def register_converters(cls):
+        """
+        Helper to register the date converters when rcParams `date.converter`
+        and `date.interval_multiples` are changed.  Called by the helpers
+        above.
+        """
+        if cls.conv_st == 'concise':
+            converter = ConciseDateConverter
+        else:
+            converter = DateConverter
+
+        interval_multiples = cls.int_mult
+        convert = converter(interval_multiples=interval_multiples)
+        units.registry[np.datetime64] = convert
+        units.registry[datetime.date] = convert
+        units.registry[datetime.datetime] = convert

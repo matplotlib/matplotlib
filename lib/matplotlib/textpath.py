@@ -41,15 +41,7 @@ class TextToPath:
         """
         Return a unique id for the given font and character-code set.
         """
-        return urllib.parse.quote('{}-{}'.format(font.postscript_name, ccode))
-
-    def _get_char_id_ps(self, font, ccode):
-        """
-        Return a unique id for the given font and character-code set (for tex).
-        """
-        ps_name = font.get_ps_font_info()[2]
-        char_id = urllib.parse.quote('%s-%d' % (ps_name, ccode))
-        return char_id
+        return urllib.parse.quote(f"{font.postscript_name}-{ccode:x}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath == "TeX":
@@ -65,8 +57,7 @@ class TextToPath:
         if ismath:
             prop = prop.copy()
             prop.set_size(self.FONT_SCALE)
-
-            width, height, descent, trash, used_characters = \
+            width, height, descent, *_ = \
                 self.mathtext_parser.parse(s, 72, prop)
             return width * scale, height * scale, descent * scale
 
@@ -158,10 +149,10 @@ class TextToPath:
 
         xpositions = []
         glyph_ids = []
-        for char, (_, x) in zip(s, _text_layout.layout(s, font)):
-            char_id = self._get_char_id(font, ord(char))
+        for item in _text_layout.layout(s, font):
+            char_id = self._get_char_id(font, ord(item.char))
             glyph_ids.append(char_id)
-            xpositions.append(x)
+            xpositions.append(item.x)
             if char_id not in glyph_map:
                 glyph_map_new[char_id] = font.get_path()
 
@@ -254,7 +245,7 @@ class TextToPath:
         # characters into strings.
         for x1, y1, dvifont, glyph, width in page.text:
             font, enc = self._get_ps_font_and_encoding(dvifont.texname)
-            char_id = self._get_char_id_ps(font, glyph)
+            char_id = self._get_char_id(font, glyph)
 
             if char_id not in glyph_map:
                 font.clear()

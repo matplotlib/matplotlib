@@ -175,12 +175,11 @@ changed.
 `.ConnectionPatch` accepts arbitrary transforms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Alternatively to strings like ``"data"`` or ``"axes fraction"``
-`ConnectionPatch` now accepts any `~matplotlib.transforms.Transform`
-as input for the ``coordsA`` and ``coordsB`` argument. This allows to
-draw lines between points defined in different user defined coordinate
-systems. Also see the :doc:`Connect Simple01 example
-</gallery/userdemo/connect_simple01>`.
+Alternatively to strings like ``"data"`` or ``"axes fraction"``,
+`ConnectionPatch` now accepts any `~matplotlib.transforms.Transform` as input
+for the *coordsA* and *coordsB* arguments. This allows to draw lines between
+points defined in different user defined coordinate systems. Also see the
+:doc:`Connect Simple01 example </gallery/userdemo/connect_simple01>`.
 
 
 mplot3d Line3D now allows {set,get}_data_3d
@@ -244,11 +243,10 @@ The `.Axis.get_inverted` and `.Axis.set_inverted` methods query and set whether
 the axis uses "inverted" orientation (i.e. increasing to the left for the
 x-axis and to the bottom for the y-axis).
 
-They perform tasks similar to `.Axes.xaxis_inverted`,
-`.Axes.yaxis_inverted`, `.Axes.invert_xaxis`, and
-`.Axes.invert_yaxis`, with the specific difference that
-`.Axes..set_inverted` makes it easier to set the invertedness of an
-axis regardless of whether it had previously been inverted before.
+They perform tasks similar to `.Axes.xaxis_inverted`, `.Axes.yaxis_inverted`,
+`.Axes.invert_xaxis`, and `.Axes.invert_yaxis`, with the specific difference
+that `.Axis.set_inverted` makes it easier to set the inversion of an axis
+regardless of whether it had previously been inverted before.
 
 Adjust default minor tick spacing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -260,18 +258,17 @@ Default minor tick spacing was changed from 0.625 to 0.5 for major ticks spaced
 `.EngFormatter` now accepts *usetex*, *useMathText* as keyword only arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A public API has been added to `.EngFormatter` to control how the
-numbers in the ticklabels will be rendered. By default,
-``useMathText`` evaluates to
-:rc:`axes.formatter.use_mathtext'` and ``usetex`` evaluates
-to :rc:`'text.usetex'`.
+A public API has been added to `.EngFormatter` to control how the numbers in
+the ticklabels will be rendered. By default, *useMathText* evaluates to
+:rc:`axes.formatter.use_mathtext'` and *usetex* evaluates to
+:rc:`'text.usetex'`.
 
 If either is `True` then the numbers will be encapsulated by ``$``
 signs.  When using ``TeX`` this implies that the numbers will be shown
 in TeX's math font. When using mathtext, the ``$`` signs around
-numbers will ensure unicode rendering (as implied by mathtext). This
+numbers will ensure Unicode rendering (as implied by mathtext). This
 will make sure that the minus signs in the ticks are rendered as the
-unicode=minus (U+2212) when using mathtext (without relying on the
+Unicode minus (U+2212) when using mathtext (without relying on the
 `~.Formatter.fix_minus` method).
 
 
@@ -311,9 +308,9 @@ caching; thereby, this new argument provides a fix for issue
 Endless Looping GIFs with PillowWriter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We acknowledge that most people want to watch a gif more than
-once. Saving an animation as a gif with PillowWriter now produces an
-endless looping gif.
+We acknowledge that most people want to watch a GIF more than
+once. Saving an animation as a GIF with PillowWriter now produces an
+endless looping GIF.
 
 
 Adjusted `.matplotlib.widgets.Slider` to have vertical orientation

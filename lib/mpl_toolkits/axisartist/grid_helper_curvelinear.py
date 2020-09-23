@@ -9,7 +9,7 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, IdentityTransform
 from .axislines import AxisArtistHelper, GridHelperBase
 from .axis_artist import AxisArtist
-from .grid_finder import GridFinder, _deprecate_factor_none
+from .grid_finder import GridFinder
 
 
 class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
@@ -131,12 +131,12 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         self.grid_info = {
             "extremes": (lon_min, lon_max, lat_min, lat_max),
-            "lon_info": (lon_levs, lon_n, _deprecate_factor_none(lon_factor)),
-            "lat_info": (lat_levs, lat_n, _deprecate_factor_none(lat_factor)),
+            "lon_info": (lon_levs, lon_n, lon_factor),
+            "lat_info": (lat_levs, lat_n, lat_factor),
             "lon_labels": grid_finder.tick_formatter1(
-                "bottom", _deprecate_factor_none(lon_factor), lon_levs),
+                "bottom", lon_factor, lon_levs),
             "lat_labels": grid_finder.tick_formatter2(
-                "bottom", _deprecate_factor_none(lat_factor), lat_levs),
+                "bottom", lat_factor, lat_levs),
             "line_xy": (xx, yy),
         }
 
@@ -182,13 +182,13 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         lat_levs, lat_n, lat_factor = self.grid_info["lat_info"]
         lat_levs = np.asarray(lat_levs)
-        yy0 = lat_levs / _deprecate_factor_none(lat_factor)
-        dy = 0.01 / _deprecate_factor_none(lat_factor)
+        yy0 = lat_levs / lat_factor
+        dy = 0.01 / lat_factor
 
         lon_levs, lon_n, lon_factor = self.grid_info["lon_info"]
         lon_levs = np.asarray(lon_levs)
-        xx0 = lon_levs / _deprecate_factor_none(lon_factor)
-        dx = 0.01 / _deprecate_factor_none(lon_factor)
+        xx0 = lon_levs / lon_factor
+        dx = 0.01 / lon_factor
 
         if None in self._extremes:
             e0, e1 = self._extremes

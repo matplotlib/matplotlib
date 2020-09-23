@@ -81,7 +81,7 @@ number of other projects:
 .. _pango: https://www.pango.org/
 .. _harfbuzz: https://www.freedesktop.org/wiki/Software/HarfBuzz/
 .. _QtTextLayout: https://doc.qt.io/archives/qt-4.8/qtextlayout.html
-.. _Microsoft DirectWrite: https://msdn.microsoft.com/en-us/library/windows/desktop/dd371554(v=vs.85).aspx
+.. _Microsoft DirectWrite: https://docs.microsoft.com/en-ca/windows/win32/directwrite/introducing-directwrite
 .. _Apple Core Text: https://developer.apple.com/library/content/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html
 
 Of the above options, it should be noted that harfbuzz_ is designed
@@ -265,16 +265,16 @@ Implementation
 ==============
 
 A concept of a "text engine" will be introduced.  Each text engine
-will implement a number of abstract classes.  The `TextFont` interface
+will implement a number of abstract classes.  The ``TextFont`` interface
 will represent text for a given set of font properties.  It isn't
 necessarily limited to a single font file -- if the layout engine
 supports rich text, it may handle a number of font files in a family.
-Given a `TextFont` instance, the user can get a `TextLayout` instance,
+Given a ``TextFont`` instance, the user can get a ``TextLayout`` instance,
 which represents the layout for a given string of text in a given
-font.  From a `TextLayout`, an iterator over `TextSpans` is returned
+font.  From a ``TextLayout``, an iterator over ``TextSpan``\ s is returned
 so the engine can output raw editable text using as few spans as
 possible.  If the engine would rather get individual characters, they
-can be obtained from the `TextSpan` instance::
+can be obtained from the ``TextSpan`` instance::
 
 
   class TextFont(TextFontBase):
@@ -376,10 +376,10 @@ copy of the path for each character will be stored in the file.
 Special casing: The "usetex" functionality currently is able to get
 Postscript directly from TeX to insert directly in a Postscript file,
 but for other backends, parses a DVI file and generates something more
-abstract.  For a case like this, `TextLayout` would implement
-`get_spans` for most backends, but add `get_ps` for the Postscript
+abstract.  For a case like this, ``TextLayout`` would implement
+``get_spans`` for most backends, but add ``get_ps`` for the Postscript
 backend, which would look for the presence of this method and use it
-if available, or fall back to `get_spans`.  This kind of special
+if available, or fall back to ``get_spans``.  This kind of special
 casing may also be necessary, for example, when the graphics backend
 and text engine belong to the same ecosystem, e.g. Cairo and Pango, or
 MacOSX and CoreText.

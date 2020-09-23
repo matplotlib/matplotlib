@@ -36,7 +36,7 @@ class SkewXTick(maxis.XTick):
                 self.tick2line.get_visible() and needs_upper)
             self.label2.set_visible(
                 self.label2.get_visible() and needs_upper)
-            super(SkewXTick, self).draw(renderer)
+            super().draw(renderer)
 
     def get_view_interval(self):
         return self.axes.xaxis.get_view_interval()
@@ -97,7 +97,7 @@ class SkewXAxes(Axes):
         rot = 30
 
         # Get the standard transform setup from the Axes base class
-        Axes._set_lim_and_transforms(self)
+        super()._set_lim_and_transforms()
 
         # Need to put the skew in the middle, after the scale and limits,
         # but before the transAxes. This way, the skew is done in Axes

@@ -173,7 +173,7 @@ def _warn_unused_missing_references(app):
                 msg = (f"Reference {domain_type} {target} for "
                        f"{ignored_reference_location} can be removed"
                        f" from {app.config.missing_references_filename}."
-                        "It is no longer a missing reference in the docs.")
+                        " It is no longer a missing reference in the docs.")
                 logger.warning(msg,
                                location=ignored_reference_location,
                                type='ref',

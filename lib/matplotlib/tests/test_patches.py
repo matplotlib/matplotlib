@@ -5,12 +5,13 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
+from matplotlib.patches import Patch, Polygon, Rectangle, FancyArrowPatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
-    path as mpath, style as mstyle, transforms as mtransforms)
+    path as mpath, style as mstyle, transforms as mtransforms, rcParams)
 
 import sys
 on_win = (sys.platform == 'win32')
@@ -503,7 +504,102 @@ def test_fancyarrow_units():
 
 @image_comparison(["large_arc.svg"], style="mpl20")
 def test_large_arc():
-    ax = plt.figure().add_subplot()
-    ax.set_axis_off()
-    # A large arc that crosses the axes view limits.
-    ax.add_patch(mpatches.Arc((-100, 0), 201, 201))
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    x = 210
+    y = -2115
+    diameter = 4261
+    for ax in [ax1, ax2]:
+        a = mpatches.Arc((x, y), diameter, diameter, lw=2, color='k')
+        ax.add_patch(a)
+        ax.set_axis_off()
+        ax.set_aspect('equal')
+    # force the high accuracy case
+    ax1.set_xlim(7, 8)
+    ax1.set_ylim(5, 6)
+
+    # force the low accuracy case
+    ax2.set_xlim(-25000, 18000)
+    ax2.set_ylim(-20000, 6600)
+
+
+@image_comparison(["all_quadrants_arcs.svg"], style="mpl20")
+def test_rotated_arcs():
+    fig, ax_arr = plt.subplots(2, 2, squeeze=False, figsize=(10, 10))
+
+    scale = 10_000_000
+    diag_centers = ((-1, -1), (-1, 1), (1, 1), (1, -1))
+    on_axis_centers = ((0, 1), (1, 0), (0, -1), (-1, 0))
+    skews = ((2, 2), (2, 1/10), (2,  1/100), (2, 1/1000))
+
+    for ax, (sx, sy) in zip(ax_arr.ravel(), skews):
+        k = 0
+        for prescale, centers in zip((1 - .0001, (1 - .0001) / np.sqrt(2)),
+                                      (on_axis_centers, diag_centers)):
+            for j, (x_sign, y_sign) in enumerate(centers, start=k):
+                a = mpatches.Arc(
+                    (x_sign * scale * prescale,
+                     y_sign * scale * prescale),
+                    scale * sx,
+                    scale * sy,
+                    lw=4,
+                    color=f"C{j}",
+                    zorder=1 + j,
+                    angle=np.rad2deg(np.arctan2(y_sign, x_sign)) % 360,
+                    label=f'big {j}',
+                    gid=f'big {j}'
+                )
+                ax.add_patch(a)
+
+            k = j+1
+        ax.set_xlim(-scale / 4000, scale / 4000)
+        ax.set_ylim(-scale / 4000, scale / 4000)
+        ax.axhline(0, color="k")
+        ax.axvline(0, color="k")
+        ax.set_axis_off()
+        ax.set_aspect("equal")
+
+
+def test_degenerate_polygon():
+    point = [0, 0]
+    correct_extents = Bbox([point, point]).extents
+    assert np.all(Polygon([point]).get_extents().extents == correct_extents)
+
+
+@pytest.mark.parametrize('kwarg', ('edgecolor', 'facecolor'))
+def test_color_override_warning(kwarg):
+    with pytest.warns(UserWarning,
+                      match="Setting the 'color' property will override "
+                            "the edgecolor or facecolor properties."):
+        Patch(color='black', **{kwarg: 'black'})
+
+
+def test_empty_verts():
+    poly = Polygon(np.zeros((0, 2)))
+    assert poly.get_verts() == []
+
+
+def test_default_antialiased():
+    patch = Patch()
+
+    patch.set_antialiased(not rcParams['patch.antialiased'])
+    assert patch.get_antialiased() == (not rcParams['patch.antialiased'])
+    # Check that None resets the state
+    patch.set_antialiased(None)
+    assert patch.get_antialiased() == rcParams['patch.antialiased']
+
+
+def test_default_linestyle():
+    patch = Patch()
+    patch.set_linestyle('--')
+    patch.set_linestyle(None)
+    assert patch.get_linestyle() == 'solid'
+
+
+def test_default_capstyle():
+    patch = Patch()
+    assert patch.get_capstyle() == 'butt'
+
+
+def test_default_joinstyle():
+    patch = Patch()
+    assert patch.get_joinstyle() == 'miter'

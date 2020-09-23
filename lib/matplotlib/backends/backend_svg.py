@@ -16,7 +16,8 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib.backend_bases import (
-     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
@@ -197,7 +198,7 @@ class XMLWriter:
         tag
             Element tag.  If given, the tag must match the start tag.  If
             omitted, the current element is closed.
-       """
+        """
         if tag:
             assert self.__tags, "unbalanced end(%s)" % tag
             assert escape_cdata(tag) == self.__tags[-1], \
@@ -293,9 +294,8 @@ class RendererSVG(RendererBase):
         self._has_gouraud = False
         self._n_gradients = 0
         self._fonts = OrderedDict()
-        self.mathtext_parser = MathTextParser('SVG')
 
-        RendererBase.__init__(self)
+        super().__init__()
         self._glyph_map = dict()
         str_height = short_float_fmt(height)
         str_width = short_float_fmt(width)
@@ -310,6 +310,11 @@ class RendererSVG(RendererBase):
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
+
+    @cbook.deprecated("3.4")
+    @property
+    def mathtext_parser(self):
+        return MathTextParser('SVG')
 
     def finalize(self):
         self._write_clips()
@@ -333,7 +338,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
 
         if 'Title' in metadata:
-            writer.element('title', text=metadata['Title'], indent=False)
+            writer.element('title', text=metadata['Title'])
 
         # Special handling.
         date = metadata.get('Date', None)
@@ -359,7 +364,8 @@ class RendererSVG(RendererBase):
                                  'Expected str, date, datetime, or iterable '
                                  'of the same, not {!r}.'.format(type(date)))
             metadata['Date'] = '/'.join(dates)
-        else:
+        elif 'Date' not in metadata:
+            # Do not add `Date` if the user explicitly set `Date` to `None`
             # Get source date from SOURCE_DATE_EPOCH, if set.
             # See https://reproducible-builds.org/specs/source-date-epoch/
             date = os.getenv("SOURCE_DATE_EPOCH")
@@ -369,16 +375,22 @@ class RendererSVG(RendererBase):
             else:
                 metadata['Date'] = datetime.datetime.today().isoformat()
 
-        mid = writer.start('metadata')
-        writer.start('rdf:RDF', attrib={
+        mid = None
+        def ensure_metadata(mid):
+            if mid is not None:
+                return mid
+            mid = writer.start('metadata')
+            writer.start('rdf:RDF', attrib={
                 'xmlns:dc': "http://purl.org/dc/elements/1.1/",
                 'xmlns:cc': "http://creativecommons.org/ns#",
                 'xmlns:rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             })
-        writer.start('cc:Work')
+            writer.start('cc:Work')
+            return mid
 
         uri = metadata.pop('Type', None)
         if uri is not None:
+            mid = ensure_metadata(mid)
             writer.element('dc:type', attrib={'rdf:resource': uri})
 
         # Single value only.
@@ -386,7 +398,8 @@ class RendererSVG(RendererBase):
                     'identifier', 'language', 'relation', 'source']:
             info = metadata.pop(key.title(), None)
             if info is not None:
-                writer.element(f'dc:{key}', text=info, indent=False)
+                mid = ensure_metadata(mid)
+                writer.element(f'dc:{key}', text=info)
 
         # Multiple Agent values.
         for key in ['creator', 'contributor', 'publisher', 'rights']:
@@ -397,10 +410,11 @@ class RendererSVG(RendererBase):
             if isinstance(agents, str):
                 agents = [agents]
 
+            mid = ensure_metadata(mid)
             writer.start(f'dc:{key}')
             for agent in agents:
                 writer.start('cc:Agent')
-                writer.element('dc:title', text=agent, indent=False)
+                writer.element('dc:title', text=agent)
                 writer.end('cc:Agent')
             writer.end(f'dc:{key}')
 
@@ -410,14 +424,16 @@ class RendererSVG(RendererBase):
             if isinstance(keywords, str):
                 keywords = [keywords]
 
+            mid = ensure_metadata(mid)
             writer.start('dc:subject')
             writer.start('rdf:Bag')
             for keyword in keywords:
-                writer.element('rdf:li', text=keyword, indent=False)
+                writer.element('rdf:li', text=keyword)
             writer.end('rdf:Bag')
             writer.end('dc:subject')
 
-        writer.close(mid)
+        if mid is not None:
+            writer.close(mid)
 
         if metadata:
             raise ValueError('Unknown metadata key(s) passed to SVG writer: ' +
@@ -429,16 +445,14 @@ class RendererSVG(RendererBase):
             'stroke-linejoin': 'round',
             'stroke-linecap': 'butt'})
         writer.start('defs')
-        writer.start('style', type='text/css')
-        writer.data('*{%s}\n' % default_style)
-        writer.end('style')
+        writer.element('style', type='text/css', text='*{%s}' % default_style)
         writer.end('defs')
 
     def _make_id(self, type, content):
         salt = mpl.rcParams['svg.hashsalt']
         if salt is None:
             salt = str(uuid.uuid4())
-        m = hashlib.md5()
+        m = hashlib.sha256()
         m.update(salt.encode('utf8'))
         m.update(str(content).encode('utf8'))
         return '%s%s' % (type, m.hexdigest()[:10])
@@ -721,8 +735,8 @@ class RendererSVG(RendererBase):
         should_do_optimization = \
             len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
         if not should_do_optimization:
-            return RendererBase.draw_path_collection(
-                self, gc, master_transform, paths, all_transforms,
+            return super().draw_path_collection(
+                gc, master_transform, paths, all_transforms,
                 offsets, offsetTrans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
@@ -1008,9 +1022,12 @@ class RendererSVG(RendererBase):
             writer.start('defs')
             for char_id, (vertices, codes) in glyph_map_new.items():
                 char_id = self._adjust_char_id(char_id)
+                # x64 to go back to FreeType's internal (integral) units.
                 path_data = self._convert_path(
-                    Path(vertices, codes), simplify=False)
-                writer.element('path', id=char_id, d=path_data)
+                    Path(vertices * 64, codes), simplify=False)
+                writer.element(
+                    'path', id=char_id, d=path_data,
+                    transform=generate_transform([('scale', (1 / 64,))]))
             writer.end('defs')
             self._glyph_map.update(glyph_map_new)
 
@@ -1024,11 +1041,11 @@ class RendererSVG(RendererBase):
         Parameters
         ----------
         s : str
-          text to be converted
+            text to be converted
         prop : `matplotlib.font_manager.FontProperties`
-          font property
+            font property
         ismath : bool
-          If True, use mathtext parser. If "TeX", use *usetex* mode.
+            If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
         writer = self.writer
 
@@ -1163,26 +1180,23 @@ class RendererSVG(RendererBase):
         else:
             writer.comment(s)
 
-            width, height, descent, svg_elements, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
-            svg_glyphs = svg_elements.svg_glyphs
-            svg_rects = svg_elements.svg_rects
-
-            attrib = {}
-            attrib['style'] = generate_css(style)
-            attrib['transform'] = generate_transform([
-                ('translate', (x, y)),
-                ('rotate', (-angle,))])
+            width, height, descent, glyphs, rects = \
+                self._text2path.mathtext_parser.parse(s, 72, prop)
 
             # Apply attributes to 'g', not 'text', because we likely have some
             # rectangles as well with the same style and transformation.
-            writer.start('g', attrib=attrib)
+            writer.start('g',
+                         style=generate_css(style),
+                         transform=generate_transform([
+                             ('translate', (x, y)),
+                             ('rotate', (-angle,))]),
+                         )
 
             writer.start('text')
 
             # Sort the characters by font, and output one tspan for each.
             spans = OrderedDict()
-            for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
+            for font, fontsize, thetext, new_x, new_y in glyphs:
                 style = generate_css({
                     'font-size': short_float_fmt(fontsize) + 'px',
                     'font-family': font.family_name,
@@ -1213,15 +1227,14 @@ class RendererSVG(RendererBase):
 
             writer.end('text')
 
-            if len(svg_rects):
-                for x, y, width, height in svg_rects:
-                    writer.element(
-                        'rect',
-                        x=short_float_fmt(x),
-                        y=short_float_fmt(-y + height),
-                        width=short_float_fmt(width),
-                        height=short_float_fmt(height)
-                        )
+            for x, y, width, height in rects:
+                writer.element(
+                    'rect',
+                    x=short_float_fmt(x),
+                    y=short_float_fmt(-y-1),
+                    width=short_float_fmt(width),
+                    height=short_float_fmt(height)
+                    )
 
             writer.end('g')
 
@@ -1279,6 +1292,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         ----------
         filename : str or path-like or file-like
             Output target; if a string, a file will be opened for writing.
+
         metadata : Dict[str, Any], optional
             Metadata in the SVG file defined as key-value pairs of strings,
             datetimes, or lists of strings, e.g., ``{'Creator': 'My software',
@@ -1328,8 +1342,9 @@ class FigureCanvasSVG(FigureCanvasBase):
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
             return self.print_svg(gzipwriter)
 
+    @_check_savefig_extra_args
     def _print_svg(self, filename, fh, *, dpi=72, bbox_inches_restore=None,
-                   metadata=None, **kwargs):
+                   metadata=None):
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
         w, h = width * 72, height * 72
@@ -1353,7 +1368,6 @@ svgProlog = """\
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (https://matplotlib.org/) -->
 """
 
 

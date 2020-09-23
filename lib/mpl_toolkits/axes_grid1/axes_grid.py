@@ -4,8 +4,7 @@ import functools
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook
-import matplotlib.ticker as ticker
+from matplotlib import _api, cbook, ticker
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
@@ -169,7 +168,7 @@ class Grid:
         self._horiz_pad_size, self._vert_pad_size = map(
             Size.Fixed, np.broadcast_to(axes_pad, 2))
 
-        cbook._check_in_list(["column", "row"], direction=direction)
+        _api.check_in_list(["column", "row"], direction=direction)
         self._direction = direction
 
         if axes_class is None:

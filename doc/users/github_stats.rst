@@ -3,99 +3,91 @@
 GitHub Stats
 ============
 
-GitHub stats for 2020/03/03 - 2020/03/17 (tag: v3.2.0)
+GitHub stats for 2020/08/14 - 2020/09/15 (tag: v3.3.1)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 11 issues and merged 52 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/49?closed=1>`__
-and `on GitHub <https://github.com/matplotlib/matplotlib/milestone/51?closed=1>`__
+We closed 15 issues and merged 39 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/57?closed=1>`__
 
-The following 12 authors contributed 154 commits.
+The following 14 authors contributed 61 commits.
 
-* Amy Roberts
 * Antony Lee
+* Bruno Beltran
+* David Stansby
+* David Young
 * Elliott Sales de Andrade
-* hannah
-* Hugo van Kemenade
+* Greg Lucas
 * Jody Klymak
-* Kyle Sunden
-* MarcoGorelli
-* Maximilian Nöthe
-* Sandro Tosi
+* johnthagen
+* Jouni K. Seppänen
+* Richard Sheridan
+* richardsheridan
+* Ryan May
 * Thomas A Caswell
 * Tim Hoffmann
 
 GitHub issues and pull requests:
 
-Pull Requests (52):
+Pull Requests (39):
 
-* :ghpull:`15199`: MNT/TST: generalize check_figures_equal to work with pytest.marks
-* :ghpull:`15685`: Avoid a RuntimeError at animation shutdown with PySide2.
-* :ghpull:`15969`: Restart pgf's latex instance after bad latex inputs.
-* :ghpull:`16640`: ci: Fix Azure on v3.2.x
-* :ghpull:`16648`: Document filling of Poly3DCollection
-* :ghpull:`16649`: Fix typo in docs
-* :ghpull:`16650`: Backport PR #16649 on branch v3.2.x (Fix typo in docs)
-* :ghpull:`16651`: Docs: Change Python 2 note to past tense
-* :ghpull:`16654`: Backport PR #16651 on branch v3.2.0-doc (Docs: Change Python 2 note to past tense)
-* :ghpull:`16656`: Make test_imagegrid_cbar_mode_edge less flaky.
-* :ghpull:`16661`: added Framework :: Matplotlib  to setup
-* :ghpull:`16665`: Backport PR #16661 on branch v3.2.x (added Framework :: Matplotlib  to setup)
-* :ghpull:`16671`: Fix some readme bits
-* :ghpull:`16672`: Update CircleCI and add direct artifact link
-* :ghpull:`16682`: Avoid floating point rounding causing bezier.get_parallels to fail
-* :ghpull:`16690`: Backport PR #16682 on branch v3.2.x (Avoid floating point rounding causing bezier.get_parallels to fail)
-* :ghpull:`16693`: TST: use pytest name in naming files for check_figures_equal
-* :ghpull:`16695`: Restart pgf's latex instance after bad latex inputs.
-* :ghpull:`16705`: Backport PR #16656 on branch v3.2.x (Make test_imagegrid_cbar_mode_edge less flaky.)
-* :ghpull:`16708`: Backport PR #16671: Fix some readme bits
-* :ghpull:`16709`: Fix saving PNGs to file objects in some places
-* :ghpull:`16722`: Deprecate rcParams["datapath"] in favor of mpl.get_data_path().
-* :ghpull:`16725`: TST/CI: also try to run test_user_fonts_win32 on azure
-* :ghpull:`16734`: Disable draw_foo methods on renderer used to estimate tight extents.
-* :ghpull:`16735`: Make test_stem less flaky.
-* :ghpull:`16736`: xpdf: Set AutoRotatePages to None, not false.
-* :ghpull:`16742`: nbagg: Don't send events if manager is disconnected.
-* :ghpull:`16745`: Allow numbers to set uvc for all arrows in quiver.set_UVC, fixes #16743
-* :ghpull:`16751`: Backport PR #16742 on branch v3.2.x (nbagg: Don't send events if manager is disconnected.)
-* :ghpull:`16752`: ci: Disallow pytest 5.4.0, which is crashing.
-* :ghpull:`16753`: Backport #16752 to v3.2.x
-* :ghpull:`16760`: Backport PR #16735 on branch v3.2.x (Make test_stem less flaky.)
-* :ghpull:`16761`: Backport PR #16745 on branch v3.2.x (Allow numbers to set uvc for all arrows in quiver.set_UVC, fixes #16743)
-* :ghpull:`16763`: Backport PR #16648 on branch v3.2.x (Document filling of Poly3DCollection)
-* :ghpull:`16764`: Backport PR #16672 on branch v3.2.0-doc
-* :ghpull:`16765`: Backport PR #16736 on branch v3.2.x (xpdf: Set AutoRotatePages to None, not false.)
-* :ghpull:`16766`: Backport PR #16734 on branch v3.2.x (Disable draw_foo methods on renderer used to estimate tight extents.)
-* :ghpull:`16767`: Backport PR #15685 on branch v3.2.x (Avoid a RuntimeError at animation shutdown with PySide2.)
-* :ghpull:`16768`: Backport PR #16725 on branch v3.2.x (TST/CI: also try to run test_user_fonts_win32 on azure)
-* :ghpull:`16770`: Fix tuple markers
-* :ghpull:`16779`: Documentation: make instructions for documentation contributions easier to find, add to requirements for building docs
-* :ghpull:`16784`: Update CircleCI URL for downloading humor-sans.ttf.
-* :ghpull:`16790`: Backport PR #16784 on branch v3.2.x (Update CircleCI URL for downloading humor-sans.ttf.)
-* :ghpull:`16791`: Backport PR #16770 on branch v3.2.x (Fix tuple markers)
-* :ghpull:`16794`: DOC: Don't mention drawstyle in ``set_linestyle`` docs.
-* :ghpull:`16795`: Backport PR #15199 on branch v3.2.x (MNT/TST: generalize check_figures_equal to work with pytest.marks)
-* :ghpull:`16797`: Backport #15589 and #16693, fixes for check_figures_equal
-* :ghpull:`16799`: Backport PR #16794 on branch v3.2.0-doc (DOC: Don't mention drawstyle in ``set_linestyle`` docs.)
-* :ghpull:`16800`: Fix check_figures_equal for tests that use its fixtures.
-* :ghpull:`16803`: Fix some doc issues
-* :ghpull:`16806`: Backport PR #16803 on branch v3.2.0-doc (Fix some doc issues)
-* :ghpull:`16809`: Backport PR #16779 on branch v3.2.0-doc (Documentation: make instructions for documentation contributions easier to find, add to requirements for building docs)
+* :ghpull:`18488`: Backport PR #18483 on branch v3.3.x (DOC: reword non-monotonic cell center warning)
+* :ghpull:`18483`: DOC: reword non-monotonic cell center warning
+* :ghpull:`18485`: Backport PR #18475 on branch v3.3.x (BF: ensure exception caught if no kpeswitch)
+* :ghpull:`18482`: Backport PR #18398 on branch v3.3.x (Warn on non-increasing/decreasing pcolor coords)
+* :ghpull:`18484`: Backport PR #18458: Fix huge imshow range
+* :ghpull:`18475`: BF: ensure exception caught if no kpeswitch
+* :ghpull:`18458`: Fix huge imshow range
+* :ghpull:`18398`: Warn on non-increasing/decreasing pcolor coords
+* :ghpull:`18479`: Nbagg backports
+* :ghpull:`18454`: nbagg: Use OutputArea event to trigger figure close.
+* :ghpull:`18469`: Backport PR #18464 on branch v3.3.x (Remove extra stickies in barstacked histogram.)
+* :ghpull:`18464`: Remove extra stickies in barstacked histogram.
+* :ghpull:`18459`: Backport PR #18393 on branch v3.3.x (Fix Axis scale on twinned Axes.)
+* :ghpull:`18393`: Fix Axis scale on twinned Axes.
+* :ghpull:`18441`: Backport PR #18395: TkAgg bugfix: deselect buttons that are not the current _Mode
+* :ghpull:`18395`: TkAgg bugfix: deselect buttons that are not the current _Mode
+* :ghpull:`18380`: Backport PR #18374 on branch v3.3.x (FIX: make _reshape_2D accept pandas df with string indices)
+* :ghpull:`18374`: FIX: make _reshape_2D accept pandas df with string indices
+* :ghpull:`18376`: Backport PR #18298 on branch v3.3.x (Include license files in built distribution)
+* :ghpull:`18375`: Backport PR #18293 on branch v3.3.x (Fix scatter3d color/linewidth re-projection)
+* :ghpull:`18298`: Include license files in built distribution
+* :ghpull:`18293`: Fix scatter3d color/linewidth re-projection
+* :ghpull:`18361`: nbagg: Store DPI ratio on figure instead of window.
+* :ghpull:`18354`: Backport PR #18352 on branch v3.3.x (Avoid triggering backend resolution during qt initial import.)
+* :ghpull:`18352`: Avoid triggering backend resolution during qt initial import.
+* :ghpull:`18335`: Backport PR #18322 on branch v3.3.x (Disable FH4 so that we don't require VCRUNTIME140_1.dll.)
+* :ghpull:`18322`: Disable FH4 so that we don't require VCRUNTIME140_1.dll.
+* :ghpull:`18333`: Backport PR #18328 on branch v3.3.x (Add missing check for None in Qt toolmanager.)
+* :ghpull:`18328`: Add missing check for None in Qt toolmanager.
+* :ghpull:`18309`: Backport PR #18304 on branch v3.3.x (Fix canvas redraws during motion in figures with a Button or TextBox)
+* :ghpull:`18304`: Fix canvas redraws during motion in figures with a Button or TextBox
+* :ghpull:`18297`: Backport PR #18288 on branch v3.3.x (FIX: check if axes is off page before repositioning title)
+* :ghpull:`18288`: FIX: check if axes is off page before repositioning title
+* :ghpull:`18269`: Backport PR #18266 on branch v3.3.x (Fix Path.get_extents for empty paths.)
+* :ghpull:`18266`: Fix Path.get_extents for empty paths.
+* :ghpull:`18263`: Backport PR #18260 on branch v3.3.x (Add parent widget to IntVar)
+* :ghpull:`18260`: Add parent widget to IntVar
+* :ghpull:`18253`: Backport PR #18245 on branch v3.3.x
+* :ghpull:`18245`: MNT: do a better job guessing the GUI framework in use
 
-Issues (11):
+Issues (15):
 
-* :ghissue:`12820`: [Annotations] ValueError: lines do not intersect when computing tight bounding box containing arrow with filled paths
-* :ghissue:`16538`: xpdf distiller seems broken
-* :ghissue:`16624`: Azure pipelines are broken on v3.2.x
-* :ghissue:`16633`: Wrong drawing Poly3DCollection
-* :ghissue:`16645`: Minor typo in API document of patches.ConnectionPatch
-* :ghissue:`16670`: BLD: ascii codec decode on 3.2.0 in non-UTF8 locales
-* :ghissue:`16704`: 3.2.0: ``setup.py clean`` fails with ``NameError: name 'long_description' is not defined``
-* :ghissue:`16721`: nbAgg backend does not allow saving figures as png
-* :ghissue:`16731`: PGF backend + savefig.bbox results in I/O error in 3.2
-* :ghissue:`16743`: Breaking change in 3.2: quiver.set_UVC does not support single numbers any more
-* :ghissue:`16801`: Doc: figure for colormaps off
+* :ghissue:`18415`: imshow with LogNorm crashes with certain inputs
+* :ghissue:`18447`: nbagg: Closing a figure from the notebook does not close the python figure
+* :ghissue:`18470`: interactive plots slow with matplotlib 3.3.1
+* :ghissue:`18457`: Incorrect log y-scale for histogram with partitioned and barstacked data
+* :ghissue:`18385`: twinx not respecting log-scale
+* :ghissue:`18371`: Plotting a pandas DataFrame with string MultiIndex
+* :ghissue:`18296`: LICENSE file(s) not included in published PyPI package
+* :ghissue:`18287`: scatter3D assigns wrong color to points for some plot orientations
+* :ghissue:`18292`: ImportError: DLL load failed with Matplotlib 3.3.1 on Windows
+* :ghissue:`18327`: Tool Manager: adding buttons to toolbar fails with matplotlib version 3.3.1 using Qt backend
+* :ghissue:`18324`:  Poor UI responsiveness  of 3.3.1 compared with 3.2.2 for interactive mode UI using widgets
+* :ghissue:`18303`: Canvas redraws during any motion when Button is present
+* :ghissue:`18283`: Automatic title placement wrong if parent axes is off the page
+* :ghissue:`18254`: scatter(..., marker='') raises on drawing with mpl3.3.1
+* :ghissue:`18259`: New IntVar needs a parent widget
 
 
 Previous GitHub Stats

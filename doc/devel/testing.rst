@@ -91,7 +91,7 @@ Writing a simple test
 ---------------------
 
 Many elements of Matplotlib can be tested using standard tests. For
-example, here is a test from :mod:`matplotlib.tests.test_basic`::
+example, here is a test from :file:`matplotlib/tests/test_basic.py`::
 
   def test_simple():
       """
@@ -105,7 +105,7 @@ begin with ``"test_"`` and then within those files for functions beginning with
 
 Some tests have internal side effects that need to be cleaned up after their
 execution (such as created figures or modified `.rcParams`). The pytest fixture
-:func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
+``matplotlib.testing.conftest.mpl_test_settings`` will automatically clean
 these up; there is no need to do anything further.
 
 Random data in tests
@@ -243,7 +243,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py36,py37
+    $ tox -e py37,py38
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,

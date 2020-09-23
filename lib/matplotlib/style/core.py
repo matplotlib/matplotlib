@@ -55,12 +55,6 @@ def _remove_blacklisted_style_params(d, warn=True):
     return o
 
 
-@cbook.deprecated("3.2")
-def is_style_file(filename):
-    """Return True if the filename looks like a style file."""
-    return STYLE_FILE_PATTERN.match(filename) is not None
-
-
 def _apply_style(d, warn=True):
     mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
@@ -180,17 +174,6 @@ def update_user_library(library):
         styles = read_style_directory(stylelib_path)
         update_nested_dict(library, styles)
     return library
-
-
-@cbook.deprecated("3.2")
-def iter_style_files(style_dir):
-    """Yield file path and name of styles in the given directory."""
-    for path in os.listdir(style_dir):
-        filename = os.path.basename(path)
-        if is_style_file(filename):
-            match = STYLE_FILE_PATTERN.match(filename)
-            path = os.path.abspath(os.path.join(style_dir, path))
-            yield path, match.group(1)
 
 
 def read_style_directory(style_dir):

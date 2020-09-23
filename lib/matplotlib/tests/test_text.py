@@ -10,6 +10,7 @@ import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
@@ -598,8 +599,7 @@ def test_text_as_text_opacity():
 def test_text_repr():
     # smoketest to make sure text repr doesn't error for category
     plt.plot(['A', 'B'], [1, 2])
-    txt = plt.text(['A'], 0.5, 'Boo')
-    print(txt)
+    repr(plt.text(['A'], 0.5, 'Boo'))
 
 
 def test_annotation_update():
@@ -689,3 +689,12 @@ def test_fontproperties_kwarg_precedence():
     text2 = plt.ylabel("counts", size=40.0, fontproperties='Times New Roman')
     assert text1.get_size() == 40.0
     assert text2.get_size() == 40.0
+
+
+def test_transform_rotates_text():
+    ax = plt.gca()
+    transform = mtransforms.Affine2D().rotate_deg(30)
+    text = ax.text(0, 0, 'test', transform=transform,
+                   transform_rotates_text=True)
+    result = text.get_rotation()
+    assert_almost_equal(result, 30)
