@@ -8,12 +8,13 @@ Introduction
 This code of conduct applies to all spaces managed by the Matplotlib project,
 including all public and private mailing lists, issue trackers, wikis, blogs,
 Twitter, and any other communication channel used by our community.  The
-Matplotlib project does not organise in-person events, however events related
-to our community should have a code of conduct similar in spirit to this one.
+Matplotlib project does not currently organise in-person events, however events
+related to our community should have a code of conduct similar in spirit to
+this one.
 
 This code of conduct should be honored by everyone who participates in
-the Matplotlib community formally or informally, or claims any affiliation with the
-project, in any project-related activities and especially when representing the
+the Matplotlib community formally or informally, or claims any affiliation with
+the project, in any project-related activities and when representing the
 project, in any role.
 
 This code is not exhaustive nor complete. It serves to distill our common
@@ -59,21 +60,25 @@ We strive to:
     - Violent threats or language directed against another person.
     - Sexist, racist, or otherwise discriminatory jokes and language.
     - Posting sexually explicit or violent material.
-    - Posting (or threatening to post) other people's personally identifying information ("doxing").
+    - Posting (or threatening to post) other people's personally identifying
+      information ("doxing").
     - Sharing private content, such as emails sent privately or non-publicly,
-      or unlogged forums such as IRC channel history, without the sender's consent.
+      or unlogged forums such as IRC channel history, without the sender's
+      consent.
     - Personal insults, especially those using racist or sexist terms.
     - Unwelcome sexual attention.
-    - Excessive profanity. Please avoid swearwords; people differ greatly in their sensitivity to swearing.
-    - Repeated harassment of others. In general, if someone asks you to stop, then stop.
+    - Excessive profanity. Please avoid swearwords; people differ greatly in
+      their sensitivity to swearing.
+    - Repeated harassment of others. In general, if someone asks you to stop,
+      then stop.
     - Advocating for, or encouraging, any of the above behaviour.
 
 
 Diversity Statement
 -------------------
 
-The Matplotlib project welcomes and encourages participation by everyone. We are
-committed to being a community that everyone enjoys being part of. Although
+The Matplotlib project welcomes and encourages participation by everyone. We
+are committed to being a community that everyone enjoys being part of. Although
 we may not always be able to accommodate each individual's preferences, we try
 our best to treat everyone kindly.
 
@@ -109,11 +114,10 @@ report to the Code of Conduct Committee directly, or ask the Committee for
 advice, in confidence.
 
 You can report issues to the Matplotlib Code of Conduct committee, at
-Matplotlib@numfocus.org. Currently, the committee consists of:
+matplotlib@numfocus.org. Currently, the committee consists of:
 
-- Stefan van der Walt
-- Melissa Weber Mendonça
-- Anirudh Subramanian
+- Thomas Caswell
+- Hannah Aizenman
 
 If your report involves any members of the committee, or if they feel they have
 a conflict of interest in handling it, then they will recuse themselves from
@@ -129,14 +133,14 @@ Incident reporting resolution & Code of Conduct enforcement
 *This section summarizes the most important points, more details can be found
 in* :ref:`CoC_reporting_manual`.
 
-We will investigate and respond to all complaints. The Matplotlib Code of Conduct
-Committee and the Matplotlib Steering Committee (if involved) will protect the
-identity of the reporter, and treat the content of complaints as confidential
-(unless the reporter agrees otherwise).
+We will investigate and respond to all complaints. The Matplotlib Code of
+Conduct Committee and the Matplotlib Steering Committee (if involved) will
+protect the identity of the reporter, and treat the content of complaints as
+confidential (unless the reporter agrees otherwise).
 
 In case of severe and obvious breaches, e.g. personal threat or violent, sexist
-or racist language, we will immediately disconnect the originator from Matplotlib
-communication channels; please see the manual for details.
+or racist language, we will immediately disconnect the originator from
+Matplotlib communication channels; please see the manual for details.
 
 In cases not involving clear severe and obvious breaches of this code of
 conduct, the process for acting on any received code of conduct violation
@@ -144,7 +148,8 @@ report will be:
 
 1. acknowledge report is received
 2. reasonable discussion/feedback
-3. mediation (if feedback didn't help, and only if both reporter and reportee agree to this)
+3. mediation (if feedback didn't help, and only if both reporter and reportee
+   agree to this)
 4. enforcement via transparent decision (see :ref:`CoC_resolutions`) by the
    Code of Conduct Committee
 

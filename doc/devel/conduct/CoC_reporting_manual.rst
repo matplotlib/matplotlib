@@ -3,10 +3,10 @@
 .. _CoC_reporting_manual:
 
 Matplotlib Code of Conduct - How to follow up on a report
-----------------------------------------------------
+---------------------------------------------------------
 
-This is the manual followed by Matplotlib's Code of Conduct Committee. It's used
-when we respond to an issue to make sure we're consistent and fair.
+This is the manual followed by Matplotlib's Code of Conduct Committee. It's
+used when we respond to an issue to make sure we're consistent and fair.
 
 Enforcing the Code of Conduct impacts our community today and for the future.
 It's an action that we do not take lightly. When reviewing enforcement
@@ -100,15 +100,16 @@ severe breaches like personal threats, violent, sexist or racist language.
 When a member of the Code of Conduct committee becomes aware of a clear and
 severe breach, they will do the following:
 
-* Immediately disconnect the originator from all Matplotlib communication channels.
+* Immediately disconnect the originator from all Matplotlib communication
+  channels.
 * Reply to the reporter that their report has been received and that the
   originator has been disconnected.
 * In every case, the moderator should make a reasonable effort to contact the
   originator, and tell them specifically how their language or actions
   qualify as a "clear and severe breach".  The moderator should also say
   that, if the originator believes this is unfair or they want to be
-  reconnected to Matplotlib, they have the right to ask for a review, as below, by
-  the Code of Conduct Committee.
+  reconnected to Matplotlib, they have the right to ask for a review, as below,
+  by the Code of Conduct Committee.
   The moderator should copy this explanation to the Code of Conduct Committee.
 * The Code of Conduct Committee will formally review and sign off on all cases
   where this mechanism has been applied to make sure it is not being used to
@@ -149,10 +150,10 @@ justified request. If the Committee finds the need to use off-list
 communications (e.g. phone calls for early/rapid response), it should in all
 cases summarize these back to the list so there's a good record of the process.
 
-The Code of Conduct Committee should aim to have a resolution agreed upon within
-two weeks. In the event that a resolution can't be determined in that time, the
-committee will respond to the reporter(s) with an update and projected timeline
-for resolution.
+The Code of Conduct Committee should aim to have a resolution agreed upon
+within two weeks. In the event that a resolution can't be determined in that
+time, the committee will respond to the reporter(s) with an update and
+projected timeline for resolution.
 
 
 .. _CoC_resolutions:
@@ -169,8 +170,9 @@ Possible responses may include:
 
 * Taking no further action
 
-  - if we determine no violations have occurred.
-  - if the matter has been resolved publicly while the committee was considering responses.
+  - if it is determined no violations have occurred.
+  - if the matter has been resolved publicly while the committee was
+    considering responses.
 
 * Coordinating voluntary mediation: if all involved parties agree, the
   Committee may facilitate a mediation process as detailed above.
@@ -195,22 +197,22 @@ Possible responses may include:
   temporarily refrain from community participation. If the individual chooses
   not to take a temporary break voluntarily, the committee may issue a
   "mandatory cooling off period".
-* A permanent or temporary ban from some or all Matplotlib spaces (mailing lists,
-  gitter.im, etc.). The group will maintain records of all such bans so that
-  they may be reviewed in the future or otherwise maintained.
+* A permanent or temporary ban from some or all Matplotlib spaces (mailing
+  lists, forums, chat rooms, etc.). The group will maintain records of all
+  such bans so that they may be reviewed in the future or otherwise maintained.
 
 Once a resolution is agreed upon, but before it is enacted, the committee will
 contact the original reporter and any other affected parties and explain the
 proposed resolution. The committee will ask if this resolution is acceptable,
 and must note feedback for the record.
 
-Finally, the committee will make a report to the Matplotlib Steering Council (as
-well as the Matplotlib core team in the event of an ongoing resolution, such as a
-ban).
+Finally, the committee will make a report to the Matplotlib Steering Council
+(as well as the Matplotlib core team in the event of an ongoing resolution,
+such as a ban).
 
 The committee will never publicly discuss the issue; all public statements will
-be made by the chair of the Code of Conduct Committee or the Matplotlib Steering
-Council.
+be made by the chair of the Code of Conduct Committee or the Matplotlib
+Steering Council.
 
 
 Conflicts of Interest
