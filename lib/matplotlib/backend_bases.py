@@ -841,7 +841,7 @@ class GraphicsContextBase:
             if np.all(np.isfinite(tpath.vertices)):
                 return tpath, tr
             else:
-                warnings.warn("Ill-defined clip_path detected. Returning None.")
+                _log.warning("Ill-defined clip_path detected. Returning None.")
                 return None, None
         return None, None
 
