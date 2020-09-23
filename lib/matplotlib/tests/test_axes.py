@@ -3390,7 +3390,7 @@ def test_errorbar_with_prop_cycle(fig_test, fig_ref):
 
 
 @check_figures_equal()
-def test_errorbar_offsets(fig_test, fig_ref):
+def test_errorbar_every(fig_test, fig_ref):
     x = np.linspace(0, 1, 15)
     y = x * (1-x)
     yerr = y/6
@@ -3410,6 +3410,11 @@ def test_errorbar_offsets(fig_test, fig_ref):
         ax_ref.plot(x, y, c=color, zorder=2.1)
         ax_ref.errorbar(x[shift::4], y[shift::4], yerr[shift::4],
                         capsize=4, c=color, fmt='none')
+
+    # Check that markevery is propagated to line, without affecting errorbars.
+    ax_test.errorbar(x, y + 0.1, yerr, markevery=(1, 4), capsize=4, fmt='o')
+    ax_ref.plot(x[1::4], y[1::4] + 0.1, 'o', zorder=2.1)
+    ax_ref.errorbar(x, y + 0.1, yerr, capsize=4, fmt='none')
 
 
 @image_comparison(['hist_stacked_stepfilled', 'hist_stacked_stepfilled'])

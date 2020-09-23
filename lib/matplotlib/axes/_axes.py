@@ -3219,6 +3219,7 @@ class Axes(_AxesBase):
         base_style.pop('markerfacecolor', None)
         base_style.pop('markeredgewidth', None)
         base_style.pop('markeredgecolor', None)
+        base_style.pop('markevery', None)
         base_style.pop('linestyle', None)
 
         # Make the style dict for the line collections (the bars).
