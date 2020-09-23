@@ -2035,13 +2035,6 @@ class FigureCanvasBase:
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
 
-    @cbook.deprecated("3.2")
-    def draw_cursor(self, event):
-        """
-        Draw a cursor in the event.axes if inaxes is not None.  Use
-        native GUI drawing for efficiency if possible
-        """
-
     def get_width_height(self):
         """
         Return the figure width and height in points or pixels
