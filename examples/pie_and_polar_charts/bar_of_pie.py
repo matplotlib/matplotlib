@@ -15,9 +15,7 @@ from matplotlib.patches import ConnectionPatch
 import numpy as np
 
 # make figure and assign axis objects
-fig = plt.figure(figsize=(9, 5))
-ax1 = fig.add_subplot(121)
-ax2 = fig.add_subplot(122)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 5))
 fig.subplots_adjust(wspace=0)
 
 # pie chart parameters
