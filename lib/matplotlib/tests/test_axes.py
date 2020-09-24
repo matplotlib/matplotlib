@@ -2425,8 +2425,7 @@ def test_pyplot_axes():
 
 @image_comparison(['log_scales'])
 def test_log_scales():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', base=5.5)
     ax.invert_yaxis()
@@ -2441,8 +2440,7 @@ def test_log_scales_no_data():
 
 
 def test_log_scales_invalid():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.set_xscale('log')
     with pytest.warns(UserWarning, match='Attempted to set non-positive'):
         ax.set_xlim(-1, 10)
@@ -2465,8 +2463,7 @@ def test_stackplot():
 
     # Reuse testcase from above for a labeled data test
     data = {"x": x, "y1": y1, "y2": y2, "y3": y3}
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.stackplot("x", "y1", "y2", "y3", data=data)
     ax.set_xlim((0, 10))
     ax.set_ylim((0, 70))
@@ -3317,27 +3314,26 @@ def test_errorbar_limits():
     yerr = 0.2
     ls = 'dotted'
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
 
     # standard error bars
-    plt.errorbar(x, y, xerr=xerr, yerr=yerr, ls=ls, color='blue')
+    ax.errorbar(x, y, xerr=xerr, yerr=yerr, ls=ls, color='blue')
 
     # including upper limits
     uplims = np.zeros_like(x)
     uplims[[1, 5, 9]] = True
-    plt.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
-                 color='green')
+    ax.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
+                color='green')
 
     # including lower limits
     lolims = np.zeros_like(x)
     lolims[[2, 4, 8]] = True
-    plt.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
-                 color='red')
+    ax.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
+                color='red')
 
     # including upper and lower limits
-    plt.errorbar(x, y+1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
-                 lolims=lolims, uplims=uplims, ls=ls, color='magenta')
+    ax.errorbar(x, y+1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
+                lolims=lolims, uplims=uplims, ls=ls, color='magenta')
 
     # including xlower and xupper limits
     xerr = 0.2
@@ -3349,10 +3345,10 @@ def test_errorbar_limits():
     uplims = np.zeros_like(x)
     lolims[[6]] = True
     uplims[[3]] = True
-    plt.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
-                 xlolims=xlolims, xuplims=xuplims, uplims=uplims,
-                 lolims=lolims, ls='none', mec='blue', capsize=0,
-                 color='cyan')
+    ax.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
+                xlolims=xlolims, xuplims=xuplims, uplims=uplims,
+                lolims=lolims, ls='none', mec='blue', capsize=0,
+                color='cyan')
     ax.set_xlim((0, 5.5))
     ax.set_title('Errorbar upper and lower limits')
 
@@ -3484,13 +3480,11 @@ def test_stem(use_line_collection):
     ax.stem(x, np.cos(x),
             linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
             use_line_collection=use_line_collection)
-
     ax.legend()
 
 
 def test_stem_args():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
 
     x = list(range(10))
     y = list(range(10))
@@ -4229,8 +4223,7 @@ def test_step_linestyle():
 @image_comparison(['mixed_collection'], remove_text=True)
 def test_mixed_collection():
     # First illustrate basic pyplot interface, using defaults where possible.
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
 
     c = mpatches.Circle((8, 8), radius=4, facecolor='none', edgecolor='green')
 
@@ -4571,8 +4564,7 @@ def test_rcparam_grid_minor():
 
     for locator, result in values:
         matplotlib.rcParams['axes.grid.which'] = locator
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
+        fig, ax = plt.subplots()
         assert (ax.xaxis._gridOnMajor, ax.xaxis._gridOnMinor) == result
 
     matplotlib.rcParams['axes.grid'] = orig_grid
@@ -5786,16 +5778,14 @@ def test_title_no_move_off_page():
 
 def test_offset_label_color():
     # Tests issue 6440
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.plot([1.01e9, 1.02e9, 1.03e9])
     ax.yaxis.set_tick_params(labelcolor='red')
     assert ax.yaxis.get_offset_text().get_color() == 'red'
 
 
 def test_offset_text_visible():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.plot([1.01e9, 1.02e9, 1.03e9])
     ax.yaxis.set_tick_params(label1On=False, label2On=True)
     assert ax.yaxis.get_offset_text().get_visible()
