@@ -19,7 +19,7 @@ keyword argument to `.Figure.add_subplot`::
 
    import matplotlib.pyplot as plt
    fig = plt.figure()
-   ax = fig.add_subplot(111, projection='3d')
+   ax = fig.add_subplot(projection='3d')
 
 .. versionchanged:: 1.0.0
    Prior to Matplotlib 1.0.0, `.Axes3D` needed to be directly instantiated with

@@ -69,7 +69,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 fig.subplots_adjust(top=0.85)
 
 # Set titles for the figure and the subplot respectively

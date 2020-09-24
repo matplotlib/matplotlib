@@ -37,7 +37,7 @@ def test_legend_ordereddict():
 def test_legend_auto1():
     """Test automatic legend placement"""
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     x = np.arange(100)
     ax.plot(x, 50 - x, 'o', label='y=1')
     ax.plot(x, x - 50, 'o', label='y=-1')
@@ -48,7 +48,7 @@ def test_legend_auto1():
 def test_legend_auto2():
     """Test automatic legend placement"""
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     x = np.arange(100)
     b1 = ax.bar(x, x, align='edge', color='m')
     b2 = ax.bar(x, x[::-1], align='edge', color='g')
@@ -59,7 +59,7 @@ def test_legend_auto2():
 def test_legend_auto3():
     """Test automatic legend placement"""
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
     y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
     ax.plot(x, y, 'o-', label='line')
@@ -83,7 +83,7 @@ def test_various_labels():
 def test_labels_first():
     # test labels to left of markers
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     ax.plot(np.arange(10), '-o', label=1)
     ax.plot(np.ones(10)*5, ':x', label="x")
     ax.plot(np.arange(20, 10, -1), 'd', label="diamond")
@@ -94,7 +94,7 @@ def test_labels_first():
 def test_multiple_keys():
     # test legend entries with multiple keys
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     p1, = ax.plot([1, 2, 3], '-o')
     p2, = ax.plot([2, 3, 4], '-x')
     p3, = ax.plot([3, 4, 5], '-d')
@@ -391,7 +391,7 @@ def test_legend_stackplot():
     """Test legend for PolyCollection using stackplot."""
     # related to #1341, #1943, and PR #3303
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     x = np.linspace(0, 10, 10)
     y1 = 1.0 * x
     y2 = 2.0 * x + 1

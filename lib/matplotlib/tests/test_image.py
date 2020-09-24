@@ -1090,10 +1090,10 @@ def test_image_array_alpha(fig_test, fig_ref):
     alpha = zz / zz.max()
 
     cmap = plt.get_cmap('viridis')
-    ax = fig_test.add_subplot(111)
+    ax = fig_test.add_subplot()
     ax.imshow(zz, alpha=alpha, cmap=cmap, interpolation='nearest')
 
-    ax = fig_ref.add_subplot(111)
+    ax = fig_ref.add_subplot()
     rgba = cmap(colors.Normalize()(zz))
     rgba[..., -1] = alpha
     ax.imshow(rgba, interpolation='nearest')
