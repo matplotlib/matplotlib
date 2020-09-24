@@ -162,7 +162,7 @@ import dateutil.parser
 import dateutil.tz
 import numpy as np
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
@@ -187,7 +187,7 @@ UTC = datetime.timezone.utc
 
 def _get_rc_timezone():
     """Retrieve the preferred timezone from the rcParams dictionary."""
-    s = matplotlib.rcParams['timezone']
+    s = mpl.rcParams['timezone']
     if s == 'UTC':
         return UTC
     return dateutil.tz.gettz(s)
@@ -281,7 +281,7 @@ def get_epoch():
     global _epoch
 
     if _epoch is None:
-        _epoch = matplotlib.rcParams['date.epoch']
+        _epoch = mpl.rcParams['date.epoch']
     return _epoch
 
 
@@ -913,7 +913,7 @@ class AutoDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
-        rcParams = matplotlib.rcParams
+        rcParams = mpl.rcParams
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
             DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
