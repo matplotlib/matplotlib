@@ -124,6 +124,8 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
         self._findphoto_name = self._tkcanvas.register(self._findphoto)
+        self._photoputblock_name = self._tkcanvas.register(self._photoputblock)
+        self._tkpointers = None
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
@@ -182,6 +184,10 @@ class FigureCanvasTk(FigureCanvasBase):
     def _findphoto(self):
         return _tkagg.findphoto(self._tkphoto.tk.interpaddr(), str(self._tkphoto))
 
+    def _photoputblock(self):
+        photoptr, dataptr, bboxptr = self._tkpointers
+        _tkagg.photoputblock(photoptr, dataptr, (0, 1, 2, 3), bboxptr)
+
     def blit(self, bbox=None):
         """
         Blit *aggimage* to *photoimage*.
@@ -206,9 +212,9 @@ class FigureCanvasTk(FigureCanvasBase):
         else:
             self._tkphoto.blank()
             bboxptr = (0, width, 0, height)
-        # photoptr = self._findphoto()  # Thread unsafe
-        photoptr = self._master.tk.call(self._findphoto_name)  # Thread safe
-        _tkagg.photoputblock(photoptr, dataptr, (0, 1, 2, 3), bboxptr)  # ???
+        photoptr = self._master.tk.call(self._findphoto_name)
+        self._tkpointers = photoptr, dataptr, bboxptr
+        self._master.tk.call(self._photoputblock_name)
 
     def draw_idle(self):
         # docstring inherited
