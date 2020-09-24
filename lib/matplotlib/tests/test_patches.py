@@ -226,8 +226,7 @@ def test_patch_linestyle_accents():
     linestyles = ["-", "--", "-.", ":",
                   "solid", "dashed", "dashdot", "dotted"]
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     for i, ls in enumerate(linestyles):
         star = mpath.Path(verts + i, codes)
         patch = mpatches.PathPatch(star,

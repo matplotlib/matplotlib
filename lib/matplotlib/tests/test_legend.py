@@ -215,8 +215,7 @@ def test_hatching():
 
 
 def test_legend_remove():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     lines = ax.plot(range(10))
     leg = fig.legend(lines, "test")
     leg.remove()
