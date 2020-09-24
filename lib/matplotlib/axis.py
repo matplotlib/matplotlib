@@ -1834,18 +1834,30 @@ class Axis(martist.Artist):
         """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
-        try:
-            axis_name, = [
-                k for k, v in self.axes._get_axis_map().items() if v is self]
-        except ValueError:
-            if len(ticks) > 1:
-                xleft, xright = self.get_view_interval()
-                if xright > xleft:
-                    self.set_view_interval(min(ticks), max(ticks))
-                else:
-                    self.set_view_interval(max(ticks), min(ticks))
+        if self is self.axes.xaxis:
+            shared = [
+                ax.xaxis
+                for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
+            ]
+        elif self is self.axes.yaxis:
+            shared = [
+                ax.yaxis
+                for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
+            ]
+        elif hasattr(self.axes, "zaxis") and self is self.axes.zaxis:
+            shared = [
+                ax.zaxis
+                for ax in self.axes._shared_z_axes.get_siblings(self.axes)
+            ]
         else:
-            getattr(self.axes, f"set_{axis_name}bound")(min(ticks), max(ticks))
+            shared = [self]
+        for axis in shared:
+            if len(ticks) > 1:
+                xleft, xright = axis.get_view_interval()
+                if xright > xleft:
+                    axis.set_view_interval(min(ticks), max(ticks))
+                else:
+                    axis.set_view_interval(max(ticks), min(ticks))
         self.axes.stale = True
         if minor:
             self.set_minor_locator(mticker.FixedLocator(ticks))
