@@ -23,7 +23,7 @@ def generate(X, Y, phi):
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 # Make the X, Y meshgrid.
 xs = np.linspace(-1, 1, 50)

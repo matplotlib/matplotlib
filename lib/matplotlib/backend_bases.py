@@ -43,13 +43,14 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, backend_tools as tools, cbook, colors, textpath, tight_bbox,
+    backend_tools as tools, cbook, colors, textpath, tight_bbox,
     transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
-from matplotlib.transforms import Affine2D
-from matplotlib.path import Path
 from matplotlib.cbook import _setattr_cm
+from matplotlib.path import Path
+from matplotlib.rcsetup import validate_joinstyle, validate_capstyle
+from matplotlib.transforms import Affine2D
 
 
 _log = logging.getLogger(__name__)
@@ -836,7 +837,12 @@ class GraphicsContextBase:
         an affine transform to apply to the path before clipping.
         """
         if self._clippath is not None:
-            return self._clippath.get_transformed_path_and_affine()
+            tpath, tr = self._clippath.get_transformed_path_and_affine()
+            if np.all(np.isfinite(tpath.vertices)):
+                return tpath, tr
+            else:
+                _log.warning("Ill-defined clip_path detected. Returning None.")
+                return None, None
         return None, None
 
     def get_dashes(self):
@@ -914,7 +920,7 @@ class GraphicsContextBase:
 
     def set_capstyle(self, cs):
         """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
-        _api.check_in_list(['butt', 'round', 'projecting'], cs=cs)
+        validate_capstyle(cs)
         self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
@@ -982,7 +988,7 @@ class GraphicsContextBase:
 
     def set_joinstyle(self, js):
         """Set the join style to be one of ('miter', 'round', 'bevel')."""
-        _api.check_in_list(['miter', 'round', 'bevel'], js=js)
+        validate_joinstyle(js)
         self._joinstyle = js
 
     def set_linewidth(self, w):
@@ -2033,13 +2039,6 @@ class FigureCanvasBase:
         if not self._is_idle_drawing:
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
-
-    @cbook.deprecated("3.2")
-    def draw_cursor(self, event):
-        """
-        Draw a cursor in the event.axes if inaxes is not None.  Use
-        native GUI drawing for efficiency if possible
-        """
 
     def get_width_height(self):
         """

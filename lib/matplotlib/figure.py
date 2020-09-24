@@ -152,11 +152,6 @@ class _AxesStack(cbook.Stack):
         return a in self.as_list()
 
 
-@cbook.deprecated("3.2")
-class AxesStack(_AxesStack):
-    pass
-
-
 class SubplotParams:
     """
     A class to hold the parameters for a subplot.
@@ -1373,7 +1368,7 @@ default: 'top'
             if not args:
                 args = (1, 1, 1)
             # Normalize correct ijk values to (i, j, k) here so that
-            # add_subplot(111) == add_subplot(1, 1, 1).  Invalid values will
+            # add_subplot(211) == add_subplot(2, 1, 1).  Invalid values will
             # trigger errors later (via SubplotSpec._from_subplot_args).
             if (len(args) == 1 and isinstance(args[0], Integral)
                     and 100 <= args[0] <= 999):

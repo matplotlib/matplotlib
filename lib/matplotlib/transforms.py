@@ -241,11 +241,6 @@ class BboxBase(TransformNode):
     def __array__(self, *args, **kwargs):
         return self.get_points()
 
-    @cbook.deprecated("3.2")
-    def is_unit(self):
-        """Return whether this is the unit box (from (0, 0) to (1, 1))."""
-        return self.get_points().tolist() == [[0., 0.], [1., 1.]]
-
     @property
     def x0(self):
         """
@@ -1777,19 +1772,6 @@ class Affine2DBase(AffineBase):
         """
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
-
-    @staticmethod
-    @cbook.deprecated(
-        "3.2", alternative="Affine2D.from_values(...).get_matrix()")
-    def matrix_from_values(a, b, c, d, e, f):
-        """
-        Create a new transformation matrix as a 3x3 numpy array of the form::
-
-          a c e
-          b d f
-          0 0 1
-        """
-        return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], float)
 
     def transform_affine(self, points):
         mtx = self.get_matrix()

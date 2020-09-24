@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    artist, colors as mcolors, lines, text as mtext, path as mpath)
+    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -49,13 +49,12 @@ def get_dir_vector(zdir):
         - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
         - *None*: equivalent to (0, 0, 0)
-        - an iterable (x, y, z) is returned unchanged.
+        - an iterable (x, y, z) is converted to a NumPy array, if not already
 
     Returns
     -------
     x, y, z : array-like
-        The direction vector. This is either a numpy.array or *zdir* itself if
-        *zdir* is already a length-3 iterable.
+        The direction vector.
     """
     if zdir == 'x':
         return np.array((1, 0, 0))
@@ -66,7 +65,7 @@ def get_dir_vector(zdir):
     elif zdir is None:
         return np.array((0, 0, 0))
     elif np.iterable(zdir) and len(zdir) == 3:
-        return zdir
+        return np.array(zdir)
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
 
@@ -95,22 +94,55 @@ class Text3D(mtext.Text):
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir)
 
+    def get_position_3d(self):
+        """Return the (x, y, z) position of the text."""
+        return self._x, self._y, self._z
+
+    def set_position_3d(self, xyz, zdir=None):
+        """
+        Set the (*x*, *y*, *z*) position of the text.
+
+        Parameters
+        ----------
+        xyz : (float, float, float)
+            The position in 3D space.
+        zdir : {'x', 'y', 'z', None, 3-tuple}
+            The direction of the text. If unspecified, the zdir will not be
+            changed.
+        """
+        super().set_position(xyz[:2])
+        self.set_z(xyz[2])
+        if zdir is not None:
+            self._dir_vec = get_dir_vector(zdir)
+
+    def set_z(self, z):
+        """
+        Set the *z* position of the text.
+
+        Parameters
+        ----------
+        z : float
+        """
+        self._z = z
+        self.stale = True
+
     def set_3d_properties(self, z=0, zdir='z'):
-        x, y = self.get_position()
-        self._position3d = np.array((x, y, z))
+        self._z = z
         self._dir_vec = get_dir_vector(zdir)
         self.stale = True
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        position3d = np.array((self._x, self._y, self._z))
         proj = proj3d.proj_trans_points(
-            [self._position3d, self._position3d + self._dir_vec], renderer.M)
+            [position3d, position3d + self._dir_vec],
+            renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
-        self.set_position((proj[0][0], proj[1][0]))
-        self.set_rotation(_norm_text_angle(angle))
-        mtext.Text.draw(self, renderer)
+        with cbook._setattr_cm(self, _x=proj[0][0], _y=proj[1][0],
+                               _rotation=_norm_text_angle(angle)):
+            mtext.Text.draw(self, renderer)
         self.stale = False
 
     def get_tightbbox(self, renderer):
@@ -403,6 +435,32 @@ class Patch3DCollection(PatchCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
+    def get_depthshade(self):
+        return self._depthshade
+
+    def set_depthshade(self, depthshade):
+        """
+        Set whether depth shading is performed on collection members.
+
+        Parameters
+        ----------
+        depthshade : bool
+            Whether to shade the patches in order to give the appearance of
+            depth.
+        """
+        self._depthshade = depthshade
+        self.stale = True
+
+    def set_facecolor(self, c):
+        # docstring inherited
+        super().set_facecolor(c)
+        self._facecolor3d = self.get_facecolor()
+
+    def set_edgecolor(self, c):
+        # docstring inherited
+        super().set_edgecolor(c)
+        self._edgecolor3d = self.get_edgecolor()
+
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
@@ -430,13 +488,13 @@ class Patch3DCollection(PatchCollection):
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        super().set_facecolor(fcs)
 
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
-        PatchCollection.set_offsets(self, np.column_stack([vxs, vys]))
+        super().set_edgecolor(ecs)
+        super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
@@ -491,6 +549,42 @@ class Path3DCollection(PathCollection):
         self._linewidth3d = self.get_linewidth()
         self.stale = True
 
+    def get_depthshade(self):
+        return self._depthshade
+
+    def set_depthshade(self, depthshade):
+        """
+        Set whether depth shading is performed on collection members.
+
+        Parameters
+        ----------
+        depthshade : bool
+            Whether to shade the patches in order to give the appearance of
+            depth.
+        """
+        self._depthshade = depthshade
+        self.stale = True
+
+    def set_facecolor(self, c):
+        # docstring inherited
+        super().set_facecolor(c)
+        self._facecolor3d = self.get_facecolor()
+
+    def set_edgecolor(self, c):
+        # docstring inherited
+        super().set_edgecolor(c)
+        self._edgecolor3d = self.get_edgecolor()
+
+    def set_sizes(self, sizes, dpi=72.0):
+        # docstring inherited
+        super().set_sizes(sizes, dpi=dpi)
+        self._sizes3d = self.get_sizes()
+
+    def set_linewidth(self, lw):
+        # docstring inherited
+        super().set_linewidth(lw)
+        self._linewidth3d = self.get_linewidth()
+
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
@@ -524,10 +618,10 @@ class Path3DCollection(PathCollection):
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
 
-        self.set_edgecolors(ecs)
-        self.set_facecolors(fcs)
-        self.set_sizes(sizes)
-        self.set_linewidth(lws)
+        super().set_edgecolor(ecs)
+        super().set_facecolor(fcs)
+        super().set_sizes(sizes)
+        super().set_linewidth(lws)
 
         PathCollection.set_offsets(self, vps)
 
@@ -722,10 +816,12 @@ class Poly3DCollection(PolyCollection):
             return np.nan
 
     def set_facecolor(self, colors):
+        # docstring inherited
         super().set_facecolor(colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
 
     def set_edgecolor(self, colors):
+        # docstring inherited
         super().set_edgecolor(colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 

@@ -77,16 +77,6 @@ NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
 re_mathsep = re.compile(NO_ESCAPE + r"\$")
 
 
-@cbook.deprecated("3.2")
-def repl_escapetext(m):
-    return "\\" + m.group(1)
-
-
-@cbook.deprecated("3.2")
-def repl_mathdefault(m):
-    return m.group(0)[:-len(m.group(1))]
-
-
 _replace_escapetext = functools.partial(
     # When the next character is _, ^, $, or % (not preceded by an escape),
     # insert a backslash.
@@ -426,15 +416,11 @@ class RendererPgf(RendererBase):
         self.figure = figure
         self.image_counter = 0
 
-        self._latexManager = LatexManager._get_cached_or_new()  # deprecated
-
         if dummy:
             # dummy==True deactivate all methods
             for m in RendererPgf.__dict__:
                 if m.startswith("draw_"):
                     self.__dict__[m] = lambda *args, **kwargs: None
-
-    latexManager = cbook._deprecate_privatize_attribute("3.2")
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
@@ -803,14 +789,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         return 'pdf'
 
     @_check_savefig_extra_args
-    @cbook._delete_parameter("3.2", "dryrun")
-    def _print_pgf_to_fh(self, fh, *,
-                         dryrun=False, bbox_inches_restore=None):
-
-        if dryrun:
-            renderer = RendererPgf(self.figure, None, dummy=True)
-            self.figure.draw(renderer)
-            return
+    def _print_pgf_to_fh(self, fh, *, bbox_inches_restore=None):
 
         header_text = """%% Creator: Matplotlib, PGF backend
 %%
@@ -875,9 +854,6 @@ class FigureCanvasPgf(FigureCanvasBase):
         Output pgf macros for drawing the figure so it can be included and
         rendered in latex documents.
         """
-        if kwargs.get("dryrun", False):
-            self._print_pgf_to_fh(None, *args, **kwargs)
-            return
         with cbook.open_file_cm(fname_or_fh, "w", encoding="utf-8") as file:
             if not cbook.file_requires_unicode(file):
                 file = codecs.getwriter("utf-8")(file)
@@ -933,9 +909,6 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def print_pdf(self, fname_or_fh, *args, **kwargs):
         """Use LaTeX to compile a Pgf generated figure to PDF."""
-        if kwargs.get("dryrun", False):
-            self._print_pgf_to_fh(None, *args, **kwargs)
-            return
         with cbook.open_file_cm(fname_or_fh, "wb") as file:
             self._print_pdf_to_fh(file, *args, **kwargs)
 
@@ -961,9 +934,6 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def print_png(self, fname_or_fh, *args, **kwargs):
         """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
-        if kwargs.get("dryrun", False):
-            self._print_pgf_to_fh(None, *args, **kwargs)
-            return
         with cbook.open_file_cm(fname_or_fh, "wb") as file:
             self._print_png_to_fh(file, *args, **kwargs)
 

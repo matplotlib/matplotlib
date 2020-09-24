@@ -1,0 +1,33 @@
+GTK
+~~~
+
+The following methods and properties have been removed:
+
+* ``ConfigureSubplotsGTK3.destroy`` method
+* ``ConfigureSubplotsGTK3.init_window`` method
+* ``ConfigureSubplotsGTK3.window`` property
+
+WX
+~~
+``FigureFrameWx.statusbar``, ``NavigationToolbar2Wx.set_status_bar``, and
+``NavigationToolbar2Wx.statbar`` have been removed. The status bar can be
+retrieved by calling standard wx methods (``frame.GetStatusBar()`` and
+``toolbar.GetTopLevelParent().GetStatusBar()``).
+
+``backend_wx.ConfigureSubplotsWx.configure_subplots`` and
+``backend_wx.ConfigureSubplotsWx.get_canvas`` have been removed.
+
+PGF
+~~~
+``backend_pgf.repl_escapetext`` and ``backend_pgf.repl_mathdefault`` have been
+removed.
+
+``RendererPgf.latexManager`` has been removed.
+
+FigureCanvas
+~~~~~~~~~~~~
+``FigureCanvasBase.draw_cursor`` and ``FigureCanvasMac.invalidate`` have been
+removed.
+
+The ``dryrun`` parameter to the various ``FigureCanvasFoo.print_foo`` methods
+has been removed.

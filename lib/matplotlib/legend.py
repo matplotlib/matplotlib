@@ -755,8 +755,7 @@ class Legend(Artist):
                 handle_list.append(None)
             else:
                 textbox = TextArea(lab, textprops=label_prop,
-                                   multilinebaseline=True,
-                                   minimumdescent=True)
+                                   multilinebaseline=True)
                 handlebox = DrawingArea(width=self.handlelength * fontsize,
                                         height=height,
                                         xdescent=0., ydescent=descent)
@@ -790,12 +789,6 @@ class Legend(Artist):
                                  children=[h, t] if markerfirst else [t, h],
                                  align="baseline")
                          for h, t in handles_and_labels[i0:i0 + di]]
-            # minimumdescent=False for the text of the last row of the column
-            if markerfirst:
-                itemBoxes[-1].get_children()[1].set_minimumdescent(False)
-            else:
-                itemBoxes[-1].get_children()[0].set_minimumdescent(False)
-
             # pack columnBox
             alignment = "baseline" if markerfirst else "right"
             columnbox.append(VPacker(pad=0,

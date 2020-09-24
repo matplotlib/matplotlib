@@ -57,7 +57,7 @@ def __prepare_fancyarrow_dpi_cor_test():
     NB: this function *is not* a test in itself!
     """
     fig2 = plt.figure("fancyarrow_dpi_cor_test", figsize=(4, 3), dpi=50)
-    ax = fig2.add_subplot(111)
+    ax = fig2.add_subplot()
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1])
     ax.add_patch(mpatches.FancyArrowPatch(posA=(0.3, 0.4), posB=(0.8, 0.6),

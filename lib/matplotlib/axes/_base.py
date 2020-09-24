@@ -2208,47 +2208,64 @@ class _AxesBase(martist.Artist):
         """
         self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
-    def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
+    def _process_unit_info(self, datasets=None, kwargs=None, *, convert=True):
         """
-        Look for unit *kwargs* and update the axis instances as necessary
+        Set axis units based on *datasets* and *kwargs*, and optionally apply
+        unit conversions to *datasets*.
 
+        Parameters
+        ----------
+        datasets : list
+            List of (axis_name, dataset) pairs (where the axis name is defined
+            as in `._get_axis_map`.
+        kwargs : dict
+            Other parameters from which unit info (i.e., the *xunits*,
+            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
+            polar axes) entries) is popped, if present.  Note that this dict is
+            mutated in-place!
+        convert : bool, default: True
+            Whether to return the original datasets or the converted ones.
 
-        .. warning ::
-
-           This method may mutate the dictionary passed in an kwargs and
-           the Axis instances attached to this Axes.
+        Returns
+        -------
+        list
+            Either the original datasets if *convert* is False, or the
+            converted ones if *convert* is True (the default).
         """
-
-        def _process_single_axis(data, axis, unit_name, kwargs):
-            # Return if there's no axis set
+        # The API makes datasets a list of pairs rather than an axis_name to
+        # dataset mapping because it is sometimes necessary to process multiple
+        # datasets for a single axis, and concatenating them may be tricky
+        # (e.g. if some are scalars, etc.).
+        datasets = datasets or []
+        kwargs = kwargs or {}
+        axis_map = self._get_axis_map()
+        for axis_name, data in datasets:
+            try:
+                axis = axis_map[axis_name]
+            except KeyError:
+                raise ValueError(f"Invalid axis name: {axis_name!r}") from None
+            # Update from data if axis is already set but no unit is set yet.
+            if axis is not None and data is not None and not axis.have_units():
+                axis.update_units(data)
+        for axis_name, axis in axis_map.items():
+            # Return if no axis is set.
             if axis is None:
-                return kwargs
-
-            if data is not None:
-                # We only need to update if there is nothing set yet.
-                if not axis.have_units():
-                    axis.update_units(data)
-
-            # Check for units in the kwargs, and if present update axis
-            if kwargs is not None:
-                units = kwargs.pop(unit_name, axis.units)
-                if self.name == 'polar':
-                    # handle special casing to allow the kwargs
-                    # thetaunits and runits to be used with polar
-                    polar_units = {'xunits': 'thetaunits', 'yunits': 'runits'}
-                    units = kwargs.pop(polar_units[unit_name], units)
-
-                if units != axis.units and units is not None:
-                    axis.set_units(units)
-                    # If the units being set imply a different converter,
-                    # we need to update.
-                    if data is not None:
+                continue
+            # Check for units in the kwargs, and if present update axis.
+            units = kwargs.pop(f"{axis_name}units", axis.units)
+            if self.name == "polar":
+                # Special case: polar supports "thetaunits"/"runits".
+                polar_units = {"x": "thetaunits", "y": "runits"}
+                units = kwargs.pop(polar_units[axis_name], units)
+            if units != axis.units and units is not None:
+                axis.set_units(units)
+                # If the units being set imply a different converter,
+                # we need to update again.
+                for dataset_axis_name, data in datasets:
+                    if dataset_axis_name == axis_name and data is not None:
                         axis.update_units(data)
-            return kwargs
-
-        kwargs = _process_single_axis(xdata, self.xaxis, 'xunits', kwargs)
-        kwargs = _process_single_axis(ydata, self.yaxis, 'yunits', kwargs)
-        return kwargs
+        return [axis_map[axis_name].convert_units(data) if convert else data
+                for axis_name, data in datasets]
 
     def in_axes(self, mouseevent):
         """
@@ -2828,7 +2845,7 @@ class _AxesBase(martist.Artist):
         with ExitStack() as stack:
             for artist in [*self._get_axis_list(),
                            self.title, self._left_title, self._right_title]:
-                stack.push(artist.set_visible, artist.get_visible())
+                stack.callback(artist.set_visible, artist.get_visible())
                 artist.set_visible(False)
             self.draw(self.figure._cachedRenderer)
 
@@ -3400,7 +3417,7 @@ class _AxesBase(martist.Artist):
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
 
-        self._process_unit_info(xdata=(left, right))
+        self._process_unit_info([("x", (left, right))], convert=False)
         left = self._validate_converted_limits(left, self.convert_xunits)
         right = self._validate_converted_limits(right, self.convert_xunits)
 
@@ -3725,7 +3742,7 @@ class _AxesBase(martist.Artist):
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
 
-        self._process_unit_info(ydata=(bottom, top))
+        self._process_unit_info([("y", (bottom, top))], convert=False)
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)
 

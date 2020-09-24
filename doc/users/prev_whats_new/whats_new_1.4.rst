@@ -114,13 +114,13 @@ Support for detrending and windowing 2D arrays in mlab
 Todd Jennings added support for 2D arrays in the
 :func:`~matplotlib.mlab.detrend_mean`, :func:`~matplotlib.mlab.detrend_none`,
 and :func:`~matplotlib.mlab.detrend`, as well as adding
-:func:`~matplotlib.mlab.apply_window` which support windowing 2D arrays.
+``matplotlib.mlab.apply_window`` which support windowing 2D arrays.
 
 Support for strides in mlab
 ```````````````````````````
-Todd Jennings added some functions to mlab to make it easier to use numpy
+Todd Jennings added some functions to mlab to make it easier to use NumPy
 strides to create memory-efficient 2D arrays.  This includes
-:func:`~matplotlib.mlab.stride_repeat`, which repeats an array to create a 2D
+``matplotlib.mlab.stride_repeat``, which repeats an array to create a 2D
 array, and :func:`~matplotlib.mlab.stride_windows`, which uses a moving window
 to create a 2D array from a 1D array.
 

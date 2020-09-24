@@ -88,7 +88,7 @@ def test_negative_rect():
 def test_clip_to_bbox():
     fig = plt.figure()
 
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     ax.set_xlim([-18, 20])
     ax.set_ylim([-150, 100])
 
@@ -226,8 +226,7 @@ def test_patch_linestyle_accents():
     linestyles = ["-", "--", "-.", ":",
                   "solid", "dashed", "dashdot", "dotted"]
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     for i, ls in enumerate(linestyles):
         star = mpath.Path(verts + i, codes)
         patch = mpatches.PathPatch(star,

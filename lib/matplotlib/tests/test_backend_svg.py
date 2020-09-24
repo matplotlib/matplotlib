@@ -40,8 +40,7 @@ def test_visibility():
 
 @image_comparison(['fill_black_with_alpha.svg'], remove_text=True)
 def test_fill_black_with_alpha():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.scatter(x=[0, 0.1, 1], y=[0, 0, 0], c='k', alpha=0.1, s=10000)
 
 
@@ -50,8 +49,7 @@ def test_noscale():
     X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
     Z = np.sin(Y ** 2)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.imshow(Z, cmap='gray', interpolation='none')
 
 
@@ -71,8 +69,7 @@ def test_text_urls():
 
 @image_comparison(['bold_font_output.svg'])
 def test_bold_font_output():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.plot(np.arange(10), np.arange(10))
     ax.set_xlabel('nonbold-xlabel')
     ax.set_ylabel('bold-ylabel', fontweight='bold')
@@ -82,8 +79,7 @@ def test_bold_font_output():
 @image_comparison(['bold_font_output_with_none_fonttype.svg'])
 def test_bold_font_output_with_none_fonttype():
     plt.rcParams['svg.fonttype'] = 'none'
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.plot(np.arange(10), np.arange(10))
     ax.set_xlabel('nonbold-xlabel')
     ax.set_ylabel('bold-ylabel', fontweight='bold')

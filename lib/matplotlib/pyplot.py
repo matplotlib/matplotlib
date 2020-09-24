@@ -965,7 +965,7 @@ def axes(arg=None, **kwargs):
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
-          ``subplot(111, **kwargs)``.
+          ``subplot(**kwargs)``.
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
@@ -1037,7 +1037,7 @@ def axes(arg=None, **kwargs):
     """
 
     if arg is None:
-        return subplot(111, **kwargs)
+        return subplot(**kwargs)
     else:
         return gcf().add_axes(arg, **kwargs)
 

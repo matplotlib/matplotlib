@@ -21,7 +21,7 @@ root.wm_title("Embedding in Tk")
 
 fig = Figure(figsize=(5, 4), dpi=100)
 t = np.arange(0, 3, .01)
-fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
+fig.add_subplot().plot(t, 2 * np.sin(2 * np.pi * t))
 
 canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
 canvas.draw()

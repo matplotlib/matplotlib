@@ -30,7 +30,7 @@ fig = Figure(figsize=(5, 4), dpi=100)
 canvas = FigureCanvasAgg(fig)
 
 # Do some plotting.
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 ax.plot([1, 2, 3])
 
 # Option 1: Save the figure to a file; can also be a file-like object (BytesIO,

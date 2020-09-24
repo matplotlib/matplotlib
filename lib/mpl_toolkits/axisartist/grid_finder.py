@@ -5,17 +5,6 @@ from matplotlib.transforms import Bbox, Transform
 from .clip_path import clip_line_to_rect
 
 
-def _deprecate_factor_none(factor):
-    # After the deprecation period, calls to _deprecate_factor_none can just be
-    # removed.
-    if factor is None:
-        cbook.warn_deprecated(
-            "3.2", message="factor=None is deprecated since %(since)s and "
-            "support will be removed %(removal)s; use/return factor=1 instead")
-        factor = 1
-    return factor
-
-
 class ExtremeFinderSimple:
     """
     A helper class to figure out the range of grid lines that need to be drawn.
@@ -110,8 +99,8 @@ class GridFinder:
         lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
         lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
 
-        lon_values = lon_levs[:lon_n] / _deprecate_factor_none(lon_factor)
-        lat_values = lat_levs[:lat_n] / _deprecate_factor_none(lat_factor)
+        lon_values = lon_levs[:lon_n] / lon_factor
+        lat_values = lat_levs[:lat_n] / lat_factor
 
         lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
                                                         lat_values,
@@ -218,19 +207,6 @@ class GridFinder:
                 raise ValueError("Unknown update property '%s'" % k)
 
 
-@cbook.deprecated("3.2")
-class GridFinderBase(GridFinder):
-    def __init__(self,
-                 extreme_finder,
-                 grid_locator1=None,
-                 grid_locator2=None,
-                 tick_formatter1=None,
-                 tick_formatter2=None):
-        super().__init__((None, None), extreme_finder,
-                         grid_locator1, grid_locator2,
-                         tick_formatter1, tick_formatter2)
-
-
 class MaxNLocator(mticker.MaxNLocator):
     def __init__(self, nbins=10, steps=None,
                  trim=True,
@@ -250,7 +226,7 @@ class MaxNLocator(mticker.MaxNLocator):
 
     @cbook.deprecated("3.3")
     def set_factor(self, f):
-        self._factor = _deprecate_factor_none(f)
+        self._factor = f
 
 
 class FixedLocator:
@@ -265,7 +241,7 @@ class FixedLocator:
 
     @cbook.deprecated("3.3")
     def set_factor(self, f):
-        self._factor = _deprecate_factor_none(f)
+        self._factor = f
 
 
 # Tick Formatter
