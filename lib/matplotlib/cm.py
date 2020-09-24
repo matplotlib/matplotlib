@@ -100,25 +100,27 @@ cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
 # Continue with definitions ...
 
 
-def register_cmap(name=None, cmap=None, data=None, lut=None):
+def register_cmap(name=None, cmap=None):
     """
     Add a colormap to the set recognized by :func:`get_cmap`.
 
-    It can be used in two ways::
+    Register a new colormap to be accessed by name ::
 
-        register_cmap(name='swirly', cmap=swirly_cmap)
+        LinearSegmentedColormap('swirly', data, lut)
+        register_cmap(cmap=swirly_cmap)
 
-        register_cmap(name='choppy', data=choppydata, lut=128)
+    Parameters
+    ----------
+    name : str, optional
+       The name that can be used in :func:`get_cmap` or :rc:`image.cmap`
 
-    In the first case, *cmap* must be a :class:`matplotlib.colors.Colormap`
-    instance.  The *name* is optional; if absent, the name will
-    be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
+       If absent, the name will be the :attr:`~matplotlib.colors.Colormap.name`
+       attribute of the *cmap*.
 
-    The second case is deprecated. Here, the three arguments are passed to
-    the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
-    and the resulting colormap is registered. Instead of this implicit
-    colormap creation, create a `.LinearSegmentedColormap` and use the first
-    case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
+    cmap : matplotlib.colors.Colormap
+       Despite being the second argument and having a default value, this
+       is a required argument.
+
 
     Notes
     -----
@@ -134,23 +136,13 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         except AttributeError as err:
             raise ValueError("Arguments must include a name or a "
                              "Colormap") from err
-    if isinstance(cmap, colors.Colormap):
-        cmap._global = True
-        _cmap_registry[name] = cmap
-        return
-    if lut is not None or data is not None:
-        cbook.warn_deprecated(
-            "3.3",
-            message="Passing raw data via parameters data and lut to "
-                    "register_cmap() is deprecated since %(since)s and will "
-                    "become an error %(removal)s. Instead use: register_cmap("
-                    "cmap=LinearSegmentedColormap(name, data, lut))")
-    # For the remainder, let exceptions propagate.
-    if lut is None:
-        lut = mpl.rcParams['image.lut']
-    cmap = colors.LinearSegmentedColormap(name, data, lut)
+
+    if not isinstance(cmap, colors.Colormap):
+        raise ValueError("You must pass a Colormap instance. "
+                         f"You passed {cmap} a {type(cmap)} object.")
     cmap._global = True
     _cmap_registry[name] = cmap
+    return
 
 
 def get_cmap(name=None, lut=None):

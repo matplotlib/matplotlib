@@ -72,6 +72,9 @@ def test_register_cmap():
                        match='Arguments must include a name or a Colormap'):
         cm.register_cmap()
 
+    with pytest.raises(ValueError, match="You must pass a Colormap instance."):
+        cm.register_cmap('nome', cmap='not a cmap')
+
 
 def test_colormap_global_set_warn():
     new_cm = plt.get_cmap('viridis')
