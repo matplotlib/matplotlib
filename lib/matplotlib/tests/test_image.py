@@ -260,19 +260,13 @@ def test_imsave_pil_kwargs_tiff():
 
 @image_comparison(['image_alpha'], remove_text=True)
 def test_image_alpha():
-    plt.figure()
-
     np.random.seed(0)
     Z = np.random.rand(6, 6)
 
-    plt.subplot(131)
-    plt.imshow(Z, alpha=1.0, interpolation='none')
-
-    plt.subplot(132)
-    plt.imshow(Z, alpha=0.5, interpolation='none')
-
-    plt.subplot(133)
-    plt.imshow(Z, alpha=0.5, interpolation='nearest')
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    ax1.imshow(Z, alpha=1.0, interpolation='none')
+    ax2.imshow(Z, alpha=0.5, interpolation='none')
+    ax3.imshow(Z, alpha=0.5, interpolation='nearest')
 
 
 def test_cursor_data():
