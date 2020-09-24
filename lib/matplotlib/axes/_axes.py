@@ -2,7 +2,7 @@ import functools
 import itertools
 import logging
 import math
-from numbers import Number
+from numbers import Integral, Number
 
 import numpy as np
 from numpy import ma
@@ -3147,17 +3147,6 @@ class Axes(_AxesBase):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
-        try:
-            offset, errorevery = errorevery
-        except TypeError:
-            offset = 0
-
-        if errorevery < 1 or int(errorevery) != errorevery:
-            raise ValueError(
-                'errorevery must be positive integer or tuple of integers')
-        if int(offset) != offset:
-            raise ValueError("errorevery's starting index must be an integer")
-
         self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
 
         # Make sure all the args are iterable; use lists not arrays to preserve
@@ -3178,6 +3167,33 @@ class Axes(_AxesBase):
         if yerr is not None:
             if not np.iterable(yerr):
                 yerr = [yerr] * len(y)
+
+        if isinstance(errorevery, Integral):
+            errorevery = (0, errorevery)
+        if isinstance(errorevery, tuple):
+            if (len(errorevery) == 2 and
+                    isinstance(errorevery[0], Integral) and
+                    isinstance(errorevery[1], Integral)):
+                errorevery = slice(errorevery[0], None, errorevery[1])
+            else:
+                raise ValueError(
+                    f'errorevery={errorevery!r} is a not a tuple of two '
+                    f'integers')
+
+        elif isinstance(errorevery, slice):
+            pass
+
+        elif not isinstance(errorevery, str) and np.iterable(errorevery):
+            # fancy indexing
+            try:
+                x[errorevery]
+            except (ValueError, IndexError) as err:
+                raise ValueError(
+                    f"errorevery={errorevery!r} is iterable but not a valid "
+                    f"NumPy fancy index to match 'xerr'/'yerr'") from err
+        else:
+            raise ValueError(
+                f"errorevery={errorevery!r} is not a recognized value")
 
         label = kwargs.pop("label", None)
         kwargs['label'] = '_nolegend_'
@@ -3261,7 +3277,7 @@ class Axes(_AxesBase):
         xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
         everymask = np.zeros(len(x), bool)
-        everymask[offset::errorevery] = True
+        everymask[errorevery] = True
 
         def apply_mask(arrays, mask):
             # Return, for each array in *arrays*, the elements for which *mask*
