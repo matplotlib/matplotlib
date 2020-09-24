@@ -905,9 +905,19 @@ class AutoDateFormatter(ticker.Formatter):
 
     def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d'):
         """
-        Autoformat the date labels.  The default format is the one to use
-        if none of the values in ``self.scaled`` are greater than the unit
-        returned by ``locator._get_unit()``.
+        Autoformat the date labels.
+
+        Parameters
+        ----------
+        locator : `.ticker.Locator`
+            Locator that this axis is using.
+
+        tz : str, optional
+            Passed to `.dates.date2num`.
+
+        defaultfmt : str
+            The default format to use if none of the values in ``self.scaled``
+            are greater than the unit returned by ``locator._get_unit()``.
         """
         self._locator = locator
         self._tz = tz
