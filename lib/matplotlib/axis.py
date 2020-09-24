@@ -1834,12 +1834,18 @@ class Axis(martist.Artist):
         """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
-        if len(ticks) > 1:
-            xleft, xright = self.get_view_interval()
-            if xright > xleft:
-                self.set_view_interval(min(ticks), max(ticks))
-            else:
-                self.set_view_interval(max(ticks), min(ticks))
+        try:
+            axis_name, = [
+                k for k, v in self.axes._get_axis_map().items() if v is self]
+        except ValueError:
+            if len(ticks) > 1:
+                xleft, xright = self.get_view_interval()
+                if xright > xleft:
+                    self.set_view_interval(min(ticks), max(ticks))
+                else:
+                    self.set_view_interval(max(ticks), min(ticks))
+        else:
+            getattr(self.axes, f"set_{axis_name}bound")(min(ticks), max(ticks))
         self.axes.stale = True
         if minor:
             self.set_minor_locator(mticker.FixedLocator(ticks))
