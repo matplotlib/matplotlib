@@ -249,6 +249,27 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@check_figures_equal(extensions=['png'])
+def test_scatter3d_modification(fig_ref, fig_test):
+    # Changing Path3DCollection properties post-creation should work correctly.
+    ax_test = fig_test.add_subplot(projection='3d')
+    c = ax_test.scatter(np.arange(10), np.arange(10), np.arange(10),
+                        marker='o')
+    c.set_facecolor('C1')
+    c.set_edgecolor('C2')
+    c.set_alpha([0.3, 0.7] * 5)
+    assert c.get_depthshade()
+    c.set_depthshade(False)
+    assert not c.get_depthshade()
+    c.set_sizes(np.full(10, 75))
+    c.set_linewidths(3)
+
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.scatter(np.arange(10), np.arange(10), np.arange(10), marker='o',
+                   facecolor='C1', edgecolor='C2', alpha=[0.3, 0.7] * 5,
+                   depthshade=False, s=75, linewidths=3)
+
+
 @pytest.mark.parametrize('depthshade', [True, False])
 @check_figures_equal(extensions=['png'])
 def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
@@ -557,6 +578,30 @@ def test_quiver3d_masked():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
+@check_figures_equal(extensions=['png'])
+def test_patch_collection_modification(fig_test, fig_ref):
+    # Test that modifying Patch3DCollection properties after creation works.
+    patch = Circle((0, 0), 0.05)
+    c = art3d.Patch3DCollection([patch], linewidths=3)
+
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.add_collection3d(c)
+    c.set_edgecolor('C2')
+    c.set_facecolor('C3')
+    c.set_alpha(0.7)
+    assert c.get_depthshade()
+    c.set_depthshade(False)
+    assert not c.get_depthshade()
+
+    patch = Circle((0, 0), 0.05)
+    c = art3d.Patch3DCollection([patch], linewidths=3,
+                                edgecolor='C2', facecolor='C3', alpha=0.7,
+                                depthshade=False)
+
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.add_collection3d(c)
+
+
 @mpl3d_image_comparison(['poly3dcollection_closed.png'])
 def test_poly3dcollection_closed():
     fig = plt.figure()
@@ -589,8 +634,10 @@ def test_poly3dcollection_alpha():
     c1 = art3d.Poly3DCollection([poly1], linewidths=3, edgecolor='k',
                                 facecolor=(0.5, 0.5, 1), closed=True)
     c1.set_alpha(0.5)
-    c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
-                                facecolor=(1, 0.5, 0.5), closed=False)
+    c2 = art3d.Poly3DCollection([poly2], linewidths=3, closed=False)
+    # Post-creation modification should work.
+    c2.set_facecolor((1, 0.5, 0.5))
+    c2.set_edgecolor('k')
     c2.set_alpha(0.5)
     ax.add_collection3d(c1)
     ax.add_collection3d(c2)

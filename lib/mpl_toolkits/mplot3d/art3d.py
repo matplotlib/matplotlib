@@ -435,6 +435,32 @@ class Patch3DCollection(PatchCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
+    def get_depthshade(self):
+        return self._depthshade
+
+    def set_depthshade(self, depthshade):
+        """
+        Set whether depth shading is performed on collection members.
+
+        Parameters
+        ----------
+        depthshade : bool
+            Whether to shade the patches in order to give the appearance of
+            depth.
+        """
+        self._depthshade = depthshade
+        self.stale = True
+
+    def set_facecolor(self, c):
+        # docstring inherited
+        super().set_facecolor(c)
+        self._facecolor3d = self.get_facecolor()
+
+    def set_edgecolor(self, c):
+        # docstring inherited
+        super().set_edgecolor(c)
+        self._edgecolor3d = self.get_edgecolor()
+
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
@@ -462,13 +488,13 @@ class Patch3DCollection(PatchCollection):
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        super().set_facecolor(fcs)
 
         ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
-        PatchCollection.set_offsets(self, np.column_stack([vxs, vys]))
+        super().set_edgecolor(ecs)
+        super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
@@ -523,6 +549,42 @@ class Path3DCollection(PathCollection):
         self._linewidth3d = self.get_linewidth()
         self.stale = True
 
+    def get_depthshade(self):
+        return self._depthshade
+
+    def set_depthshade(self, depthshade):
+        """
+        Set whether depth shading is performed on collection members.
+
+        Parameters
+        ----------
+        depthshade : bool
+            Whether to shade the patches in order to give the appearance of
+            depth.
+        """
+        self._depthshade = depthshade
+        self.stale = True
+
+    def set_facecolor(self, c):
+        # docstring inherited
+        super().set_facecolor(c)
+        self._facecolor3d = self.get_facecolor()
+
+    def set_edgecolor(self, c):
+        # docstring inherited
+        super().set_edgecolor(c)
+        self._edgecolor3d = self.get_edgecolor()
+
+    def set_sizes(self, sizes, dpi=72.0):
+        # docstring inherited
+        super().set_sizes(sizes, dpi=dpi)
+        self._sizes3d = self.get_sizes()
+
+    def set_linewidth(self, lw):
+        # docstring inherited
+        super().set_linewidth(lw)
+        self._linewidth3d = self.get_linewidth()
+
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
@@ -556,10 +618,10 @@ class Path3DCollection(PathCollection):
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
 
-        self.set_edgecolors(ecs)
-        self.set_facecolors(fcs)
-        self.set_sizes(sizes)
-        self.set_linewidth(lws)
+        super().set_edgecolor(ecs)
+        super().set_facecolor(fcs)
+        super().set_sizes(sizes)
+        super().set_linewidth(lws)
 
         PathCollection.set_offsets(self, vps)
 
@@ -754,10 +816,12 @@ class Poly3DCollection(PolyCollection):
             return np.nan
 
     def set_facecolor(self, colors):
+        # docstring inherited
         super().set_facecolor(colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
 
     def set_edgecolor(self, colors):
+        # docstring inherited
         super().set_edgecolor(colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 
