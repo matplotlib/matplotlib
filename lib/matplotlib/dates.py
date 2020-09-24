@@ -583,6 +583,12 @@ def drange(dstart, dend, delta):
     f2 = date2num(dinterval_end)  # new float-endpoint
     return np.linspace(f1, f2, num + 1)
 
+
+def _wrap_in_tex(text):
+    # Braces ensure dashes are not spaced like binary operators.
+    return '$\\mathdefault{' + text.replace('-', '{-}') + '}$'
+
+
 ## date tickers and formatters ###
 
 
@@ -597,7 +603,7 @@ class DateFormatter(ticker.Formatter):
     def illegal_s(self):
         return re.compile(r"((^|[^%])(%%)*%s)")
 
-    def __init__(self, fmt, tz=None):
+    def __init__(self, fmt, tz=None, *, usetex=None):
         """
         Parameters
         ----------
@@ -605,14 +611,20 @@ class DateFormatter(ticker.Formatter):
             `~datetime.datetime.strftime` format string
         tz : `datetime.tzinfo`, default: :rc:`timezone`
             Ticks timezone.
+        usetex : bool, default: :rc:`text.usetex`
+            To enable/disable the use of TeX's math mode for rendering the
+            results of the formatter.
         """
         if tz is None:
             tz = _get_rc_timezone()
         self.fmt = fmt
         self.tz = tz
+        self._usetex = (usetex if usetex is not None else
+                        mpl.rcParams['text.usetex'])
 
     def __call__(self, x, pos=0):
-        return num2date(x, self.tz).strftime(self.fmt)
+        result = num2date(x, self.tz).strftime(self.fmt)
+        return _wrap_in_tex(result) if self._usetex else result
 
     def set_tzinfo(self, tz):
         self.tz = tz
@@ -685,6 +697,10 @@ class ConciseDateFormatter(ticker.Formatter):
     show_offset : bool, default: True
         Whether to show the offset or not.
 
+    usetex : bool, default: :rc:`text.usetex`
+        To enable/disable the use of TeX's math mode for rendering the results
+        of the formatter.
+
     Examples
     --------
     See :doc:`/gallery/ticks_and_spines/date_concise_formatter`
@@ -713,7 +729,7 @@ class ConciseDateFormatter(ticker.Formatter):
     """
 
     def __init__(self, locator, tz=None, formats=None, offset_formats=None,
-                 zero_formats=None, show_offset=True):
+                 zero_formats=None, show_offset=True, *, usetex=None):
         """
         Autoformat the date labels.  The default format is used to form an
         initial string, and then redundant elements are removed.
@@ -768,9 +784,12 @@ class ConciseDateFormatter(ticker.Formatter):
                                    '%Y-%b-%d %H:%M']
         self.offset_string = ''
         self.show_offset = show_offset
+        self._usetex = (usetex if usetex is not None else
+                        mpl.rcParams['text.usetex'])
 
     def __call__(self, x, pos=None):
-        formatter = DateFormatter(self.defaultfmt, self._tz)
+        formatter = DateFormatter(self.defaultfmt, self._tz,
+                                  usetex=self._usetex)
         return formatter(x, pos=pos)
 
     def format_ticks(self, values):
@@ -837,8 +856,13 @@ class ConciseDateFormatter(ticker.Formatter):
         if self.show_offset:
             # set the offset string:
             self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
+            if self._usetex:
+                self.offset_string = _wrap_in_tex(self.offset_string)
 
-        return labels
+        if self._usetex:
+            return [_wrap_in_tex(l) for l in labels]
+        else:
+            return labels
 
     def get_offset(self):
         return self.offset_string
@@ -903,7 +927,8 @@ class AutoDateFormatter(ticker.Formatter):
     # Or more simply, perhaps just a format string for each
     # possibility...
 
-    def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d'):
+    def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d', *,
+                 usetex=None):
         """
         Autoformat the date labels.
 
@@ -918,12 +943,20 @@ class AutoDateFormatter(ticker.Formatter):
         defaultfmt : str
             The default format to use if none of the values in ``self.scaled``
             are greater than the unit returned by ``locator._get_unit()``.
+
+        usetex : bool, default: :rc:`text.usetex`
+            To enable/disable the use of TeX's math mode for rendering the
+            results of the formatter. If any entries in ``self.scaled`` are set
+            as functions, then it is up to the customized function to enable or
+            disable TeX's math mode itself.
         """
         self._locator = locator
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
         rcParams = mpl.rcParams
+        self._usetex = (usetex if usetex is not None else
+                        mpl.rcParams['text.usetex'])
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
             DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
@@ -948,7 +981,7 @@ class AutoDateFormatter(ticker.Formatter):
                    self.defaultfmt)
 
         if isinstance(fmt, str):
-            self._formatter = DateFormatter(fmt, self._tz)
+            self._formatter = DateFormatter(fmt, self._tz, usetex=self._usetex)
             result = self._formatter(x, pos)
         elif callable(fmt):
             result = fmt(x, pos)

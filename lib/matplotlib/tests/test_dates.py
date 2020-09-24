@@ -266,6 +266,26 @@ def test_date_formatter_callable():
     assert formatter([datetime.datetime(2014, 12, 25)]) == ['25-12//2014']
 
 
+@pytest.mark.parametrize('delta, expected', [
+    (datetime.timedelta(weeks=52 * 200),
+     [r'$\mathdefault{%d}$' % (year,) for year in range(1990, 2171, 20)]),
+    (datetime.timedelta(days=30),
+     [r'$\mathdefault{Jan %02d 1990}$' % (day,) for day in range(1, 32, 3)]),
+    (datetime.timedelta(hours=20),
+     [r'$\mathdefault{%02d:00:00}$' % (hour,) for hour in range(0, 21, 2)]),
+])
+def test_date_formatter_usetex(delta, expected):
+    d1 = datetime.datetime(1990, 1, 1)
+    d2 = d1 + delta
+
+    locator = mdates.AutoDateLocator(interval_multiples=False)
+    locator.create_dummy_axis()
+    locator.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
+
+    formatter = mdates.AutoDateFormatter(locator, usetex=True)
+    assert [formatter(loc) for loc in locator()] == expected
+
+
 def test_drange():
     """
     This test should check if drange works as expected, and if all the
@@ -501,6 +521,39 @@ def test_concise_formatter():
         d2 = d1 + t_delta
         strings = _create_auto_date_locator(d1, d2)
         assert strings == expected
+
+
+@pytest.mark.parametrize('t_delta, expected', [
+    (datetime.timedelta(weeks=52 * 200),
+     ['$\\mathdefault{%d}$' % (t, ) for t in range(1980, 2201, 20)]),
+    (datetime.timedelta(days=40),
+     ['$\\mathdefault{Jan}$', '$\\mathdefault{05}$', '$\\mathdefault{09}$',
+      '$\\mathdefault{13}$', '$\\mathdefault{17}$', '$\\mathdefault{21}$',
+      '$\\mathdefault{25}$', '$\\mathdefault{29}$', '$\\mathdefault{Feb}$',
+      '$\\mathdefault{05}$', '$\\mathdefault{09}$']),
+    (datetime.timedelta(hours=40),
+     ['$\\mathdefault{Jan{-}01}$', '$\\mathdefault{04:00}$',
+      '$\\mathdefault{08:00}$', '$\\mathdefault{12:00}$',
+      '$\\mathdefault{16:00}$', '$\\mathdefault{20:00}$',
+      '$\\mathdefault{Jan{-}02}$', '$\\mathdefault{04:00}$',
+      '$\\mathdefault{08:00}$', '$\\mathdefault{12:00}$',
+      '$\\mathdefault{16:00}$']),
+    (datetime.timedelta(seconds=2),
+     ['$\\mathdefault{59.5}$', '$\\mathdefault{00:00}$',
+      '$\\mathdefault{00.5}$', '$\\mathdefault{01.0}$',
+      '$\\mathdefault{01.5}$', '$\\mathdefault{02.0}$',
+      '$\\mathdefault{02.5}$']),
+])
+def test_concise_formatter_usetex(t_delta, expected):
+    d1 = datetime.datetime(1997, 1, 1)
+    d2 = d1 + t_delta
+
+    locator = mdates.AutoDateLocator(interval_multiples=True)
+    locator.create_dummy_axis()
+    locator.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
+
+    formatter = mdates.ConciseDateFormatter(locator, usetex=True)
+    assert formatter.format_ticks(locator()) == expected
 
 
 def test_concise_formatter_formats():
