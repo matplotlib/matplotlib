@@ -109,6 +109,11 @@ def curvelinear_test2(fig):
     ax1.parasites.append(ax2)
     ax2.plot(np.linspace(0, 30, 51), np.linspace(10, 10, 51), linewidth=2)
 
+    ax2.pcolor(np.linspace(0, 90, 4), np.linspace(0, 10, 4),
+               np.arange(9).reshape((3, 3)))
+    ax2.contour(np.linspace(0, 90, 4), np.linspace(0, 10, 4),
+                np.arange(16).reshape((4, 4)), colors="k")
+
 
 if __name__ == "__main__":
     fig = plt.figure(figsize=(7, 4))

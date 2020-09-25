@@ -7,8 +7,6 @@ from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
 
-import numpy as np
-
 
 class ParasiteAxesBase:
 
@@ -107,72 +105,6 @@ class ParasiteAxesAuxTransBase:
                 viewlim.transformed(self.transAux.inverted()))
         else:
             _api.check_in_list([None, "equal", "transform"], mode=mode)
-
-    def _pcolor(self, super_pcolor, *XYC, **kwargs):
-        if len(XYC) == 1:
-            C = XYC[0]
-            ny, nx = C.shape
-
-            gx = np.arange(-0.5, nx)
-            gy = np.arange(-0.5, ny)
-
-            X, Y = np.meshgrid(gx, gy)
-        else:
-            X, Y, C = XYC
-
-        if "transform" in kwargs:
-            mesh = super_pcolor(X, Y, C, **kwargs)
-        else:
-            orig_shape = X.shape
-            xyt = np.column_stack([X.flat, Y.flat])
-            wxy = self.transAux.transform(xyt)
-            gx = wxy[:, 0].reshape(orig_shape)
-            gy = wxy[:, 1].reshape(orig_shape)
-            mesh = super_pcolor(gx, gy, C, **kwargs)
-            mesh.set_transform(self._parent_axes.transData)
-
-        return mesh
-
-    def pcolormesh(self, *XYC, **kwargs):
-        return self._pcolor(super().pcolormesh, *XYC, **kwargs)
-
-    def pcolor(self, *XYC, **kwargs):
-        return self._pcolor(super().pcolor, *XYC, **kwargs)
-
-    def _contour(self, super_contour, *XYCL, **kwargs):
-
-        if len(XYCL) <= 2:
-            C = XYCL[0]
-            ny, nx = C.shape
-
-            gx = np.arange(0., nx)
-            gy = np.arange(0., ny)
-
-            X, Y = np.meshgrid(gx, gy)
-            CL = XYCL
-        else:
-            X, Y = XYCL[:2]
-            CL = XYCL[2:]
-
-        if "transform" in kwargs:
-            cont = super_contour(X, Y, *CL, **kwargs)
-        else:
-            orig_shape = X.shape
-            xyt = np.column_stack([X.flat, Y.flat])
-            wxy = self.transAux.transform(xyt)
-            gx = wxy[:, 0].reshape(orig_shape)
-            gy = wxy[:, 1].reshape(orig_shape)
-            cont = super_contour(gx, gy, *CL, **kwargs)
-            for c in cont.collections:
-                c.set_transform(self._parent_axes.transData)
-
-        return cont
-
-    def contour(self, *XYCL, **kwargs):
-        return self._contour(super().contour, *XYCL, **kwargs)
-
-    def contourf(self, *XYCL, **kwargs):
-        return self._contour(super().contourf, *XYCL, **kwargs)
 
     def apply_aspect(self, position=None):
         self.update_viewlim()
