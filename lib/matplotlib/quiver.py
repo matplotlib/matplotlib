@@ -480,7 +480,8 @@ class Quiver(mcollections.PolyCollection):
         %s
         """
         self.ax = ax
-        # modified quiver to allow for positioning of the arrowheads on the shaft
+        # modified quiver to allow for positioning of the arrowheads on the
+        # shaft
         X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
         self.X = X
         self.Y = Y
@@ -498,7 +499,7 @@ class Quiver(mcollections.PolyCollection):
         self.width = width
 
         # Checks the boundaries of mid_scale if outside range default of 0.5
-        if (head_pos == 0.0)or (head_pos == "tail"):
+        if (head_pos == 0.0) or (head_pos == "tail"):
             self.head_pos = 0.0
         elif (head_pos == 1.0) or (head_pos == "tip"):
             self.head_pos = 1.0
