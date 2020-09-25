@@ -197,11 +197,14 @@ class CommSocket:
         self.comm.send({'data': json.dumps(content)})
 
     def send_binary(self, blob):
-        # The comm is ascii, so we always send the image in base64
-        # encoded data URL form.
-        data = b64encode(blob).decode('ascii')
-        data_uri = "data:image/png;base64,{0}".format(data)
-        self.comm.send({'data': data_uri})
+        if self.supports_binary:
+            self.comm.send({'blob': 'image/png'}, buffers=[blob])
+        else:
+            # The comm is ASCII, so we send the image in base64 encoded data
+            # URL form.
+            data = b64encode(blob).decode('ascii')
+            data_uri = "data:image/png;base64,{0}".format(data)
+            self.comm.send({'data': data_uri})
 
     def on_message(self, message):
         # The 'supports_binary' message is relevant to the
