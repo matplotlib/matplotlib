@@ -2961,7 +2961,7 @@ def test_boxplot_mod_artist_after_plotting():
 def test_vert_violinplot_baseline():
     # First 9 digits of frac(sqrt(2))
     np.random.seed(414213562)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax = plt.axes()
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0)
@@ -2969,7 +2969,6 @@ def test_vert_violinplot_baseline():
     # Reuse testcase from above for a labeled data test
     data = {"d": data}
     fig, ax = plt.subplots()
-    ax = plt.axes()
     ax.violinplot("d", positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, data=data)
 
@@ -2979,7 +2978,7 @@ def test_vert_violinplot_showmeans():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(3))
     np.random.seed(732050807)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=0,
                   showmedians=0)
 
@@ -2989,7 +2988,7 @@ def test_vert_violinplot_showextrema():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(5))
     np.random.seed(236067977)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=1,
                   showmedians=0)
 
@@ -2999,7 +2998,7 @@ def test_vert_violinplot_showmedians():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(7))
     np.random.seed(645751311)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=1)
 
@@ -3009,7 +3008,7 @@ def test_vert_violinplot_showall():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(11))
     np.random.seed(316624790)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
                   showmedians=1,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
@@ -3020,7 +3019,7 @@ def test_vert_violinplot_custompoints_10():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(13))
     np.random.seed(605551275)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, points=10)
 
@@ -3030,7 +3029,7 @@ def test_vert_violinplot_custompoints_200():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(17))
     np.random.seed(123105625)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, points=200)
 
@@ -3040,7 +3039,7 @@ def test_horiz_violinplot_baseline():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(19))
     np.random.seed(358898943)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0)
 
@@ -3050,7 +3049,7 @@ def test_horiz_violinplot_showmedians():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(23))
     np.random.seed(795831523)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=1)
 
@@ -3060,7 +3059,7 @@ def test_horiz_violinplot_showmeans():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(29))
     np.random.seed(385164807)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=0, showmedians=0)
 
@@ -3070,7 +3069,7 @@ def test_horiz_violinplot_showextrema():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(31))
     np.random.seed(567764362)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=1, showmedians=0)
 
@@ -3080,7 +3079,7 @@ def test_horiz_violinplot_showall():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(37))
     np.random.seed(82762530)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=1, showmedians=1,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
@@ -3091,7 +3090,7 @@ def test_horiz_violinplot_custompoints_10():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(41))
     np.random.seed(403124237)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0, points=10)
 
@@ -3101,7 +3100,7 @@ def test_horiz_violinplot_custompoints_200():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(43))
     np.random.seed(557438524)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0, points=200)
 
@@ -3110,7 +3109,7 @@ def test_violinplot_bad_positions():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(47))
     np.random.seed(855654600)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     with pytest.raises(ValueError):
         ax.violinplot(data, positions=range(5))
 
@@ -3119,7 +3118,7 @@ def test_violinplot_bad_widths():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(53))
     np.random.seed(280109889)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     with pytest.raises(ValueError):
         ax.violinplot(data, positions=range(4), widths=[1, 2, 3])
 
@@ -3718,16 +3717,16 @@ def test_hist_emptydata():
 def test_hist_labels():
     # test singleton labels OK
     fig, ax = plt.subplots()
-    l = ax.hist([0, 1], label=0)
-    assert l[2][0].get_label() == '0'
-    l = ax.hist([0, 1], label=[0])
-    assert l[2][0].get_label() == '0'
-    l = ax.hist([0, 1], label=None)
-    assert l[2][0].get_label() == '_nolegend_'
-    l = ax.hist([0, 1], label='0')
-    assert l[2][0].get_label() == '0'
-    l = ax.hist([0, 1], label='00')
-    assert l[2][0].get_label() == '00'
+    _, _, bars = ax.hist([0, 1], label=0)
+    assert bars[0].get_label() == '0'
+    _, _, bars = ax.hist([0, 1], label=[0])
+    assert bars[0].get_label() == '0'
+    _, _, bars = ax.hist([0, 1], label=None)
+    assert bars[0].get_label() == '_nolegend_'
+    _, _, bars = ax.hist([0, 1], label='0')
+    assert bars[0].get_label() == '0'
+    _, _, bars = ax.hist([0, 1], label='00')
+    assert bars[0].get_label() == '00'
 
 
 @image_comparison(['transparent_markers'], remove_text=True)
@@ -3908,7 +3907,7 @@ def test_eventplot_defaults():
 ])
 def test_eventplot_colors(colors):
     """Test the *colors* parameter of eventplot. Inspired by issue #8193."""
-    data = [[i] for i in range(4)]  # 4 successive events of different nature
+    data = [[0], [1], [2], [3]]  # 4 successive events of different nature
 
     # Build the list of the expected colors
     expected = [c if c is not None else 'C0' for c in colors]
@@ -4557,9 +4556,9 @@ def test_rcparam_grid_minor():
     matplotlib.rcParams['axes.grid'] = True
 
     values = (
-        (('both'), (True, True)),
-        (('major'), (True, False)),
-        (('minor'), (False, True))
+        ('both', (True, True)),
+        ('major', (True, False)),
+        ('minor', (False, True))
         )
 
     for locator, result in values:
@@ -4576,7 +4575,6 @@ def test_vline_limit():
     ax = fig.gca()
     ax.axvline(0.5)
     ax.plot([-0.1, 0, 0.2, 0.1])
-    (ymin, ymax) = ax.get_ylim()
     assert_allclose(ax.get_ylim(), (-.1, .2))
 
 
@@ -4674,10 +4672,10 @@ def test_relim_visible_only():
     ax.plot(x1, y1)
     assert ax.get_xlim() == x1
     assert ax.get_ylim() == y1
-    l = ax.plot(x2, y2)
+    line, = ax.plot(x2, y2)
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
-    l[0].set_visible(False)
+    line.set_visible(False)
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
 
@@ -5109,7 +5107,7 @@ def test_rc_spines():
         'axes.spines.top': False,
         'axes.spines.bottom': False}
     with matplotlib.rc_context(rc_dict):
-        fig, ax = plt.subplots()
+        plt.subplots()  # create a figure and axes with the spine properties
 
 
 @image_comparison(['rc_grid.png'], savefig_kwarg={'dpi': 40})
@@ -5484,7 +5482,7 @@ def test_adjust_numtick_aspect():
 @image_comparison(["auto_numticks.png"], style='default')
 def test_auto_numticks():
     # Make tiny, empty subplots, verify that there are only 3 ticks.
-    fig, axs = plt.subplots(4, 4)
+    plt.subplots(4, 4)
 
 
 @image_comparison(["auto_numticks_log.png"], style='default')
@@ -6121,7 +6119,7 @@ def test_cartopy_backcompat():
     assert DummySubplot is FactoryDummySubplot
 
 
-def test_gettightbbox_ignoreNaN():
+def test_gettightbbox_ignore_nan():
     fig, ax = plt.subplots()
     remove_ticks_and_titles(fig)
     ax.text(np.NaN, 1, 'Boo')
@@ -6196,6 +6194,7 @@ def test_secondary_fail():
 def test_secondary_resize():
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(np.arange(2, 11), np.arange(2, 11))
+
     def invert(x):
         with np.errstate(divide='ignore'):
             return 1 / x
@@ -6209,6 +6208,7 @@ def test_secondary_resize():
 def test_secondary_minorloc():
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(np.arange(2, 11), np.arange(2, 11))
+
     def invert(x):
         with np.errstate(divide='ignore'):
             return 1 / x
@@ -6332,10 +6332,6 @@ def test_nodecorator():
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
 
     # test the axis bboxes
-    target = [
-        None,
-        None
-    ]
     for nn, b in enumerate(bbaxis):
         assert b is None
 
@@ -6366,14 +6362,15 @@ def test_displaced_spine():
         fig.canvas.draw()
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
 
-    target = [
+    targets = [
         [150., 24., 930., 11.111111],
         [150.0, 1080.0, 930.0, 0.0],
         [150.0, 119.9999, 11.111, 960.0],
         [1068.8888, 119.9999, 11.111, 960.0]
     ]
-    for nn, b in enumerate(bbspines):
-        targetbb = mtransforms.Bbox.from_bounds(*target[nn])
+    for target, bbspine in zip(targets, bbspines):
+        targetbb = mtransforms.Bbox.from_bounds(*target)
+        assert_allclose(bbspine.bounds, targetbb.bounds, atol=1e-2)
 
     target = [150.0, 119.99999999999997, 930.0, 960.0]
     targetbb = mtransforms.Bbox.from_bounds(*target)
