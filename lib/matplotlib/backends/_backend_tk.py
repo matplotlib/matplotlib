@@ -84,7 +84,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
     args = (
         photoimage.tk.interpaddr(), str(photoimage), dataptr, offsets, bboxptr)
-    argsid = str(id)
+    argsid = repr(id(args))
     _blit_args[argsid] = args
 
     global _blit_tcl_name
