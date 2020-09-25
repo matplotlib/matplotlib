@@ -602,26 +602,21 @@ def test_fill_units():
     dt = np.arange('2009-04-27', '2009-04-29', dtype='datetime64[D]')
     dtn = mdates.date2num(dt)
 
-    fig = plt.figure()
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
-    # Top-Left
-    ax1 = fig.add_subplot(221)
     ax1.plot([t], [value], yunits='deg', color='red')
     ind = [0, 0, 1, 1]
     ax1.fill(dtn[ind], [0.0, 0.0, 90.0, 0.0], 'b')
-    # Top-Right
-    ax2 = fig.add_subplot(222)
+
     ax2.plot([t], [value], yunits='deg', color='red')
     ax2.fill([t, t, t + day, t + day],
              [0.0, 0.0, 90.0, 0.0], 'b')
-    # Bottom-Left
-    ax3 = fig.add_subplot(223)
+
     ax3.plot([t], [value], yunits='deg', color='red')
     ax3.fill(dtn[ind],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
              'b')
-    # Bottom-Right
-    ax4 = fig.add_subplot(224)
+
     ax4.plot([t], [value], yunits='deg', color='red')
     ax4.fill([t, t, t + day, t + day],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
@@ -635,22 +630,16 @@ def test_single_point():
     matplotlib.rcParams['lines.marker'] = 'o'
     matplotlib.rcParams['axes.grid'] = True
 
-    plt.figure()
-    plt.subplot(211)
-    plt.plot([0], [0], 'o')
-
-    plt.subplot(212)
-    plt.plot([1], [1], 'o')
+    fig, (ax1, ax2) = plt.subplots(2)
+    ax1.plot([0], [0], 'o')
+    ax2.plot([1], [1], 'o')
 
     # Reuse testcase from above for a labeled data test
     data = {'a': [0], 'b': [1]}
 
-    plt.figure()
-    plt.subplot(211)
-    plt.plot('a', 'a', 'o', data=data)
-
-    plt.subplot(212)
-    plt.plot('b', 'b', 'o', data=data)
+    fig, (ax1, ax2) = plt.subplots(2)
+    ax1.plot('a', 'a', 'o', data=data)
+    ax2.plot('b', 'b', 'o', data=data)
 
 
 @image_comparison(['single_date.png'], style='mpl20')
@@ -721,7 +710,7 @@ def test_axvspan_epoch():
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
-    plt.axvspan(t0, tf, facecolor="blue", alpha=0.25)
+    ax.axvspan(t0, tf, facecolor="blue", alpha=0.25)
     ax.set_xlim(t0 - 5.0*dt, tf + 5.0*dt)
 
 
