@@ -1540,8 +1540,6 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
         aspect = 1 / aspect
 
     parent.set_subplotspec(ss_main)
-    parent.update_params()
-    parent._set_position(parent.figbox)
     parent.set_anchor(loc_settings["panchor"])
 
     fig = parent.get_figure()
