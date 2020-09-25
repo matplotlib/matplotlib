@@ -22,7 +22,7 @@ guidelines in mind:
 
 * Emphasize empathy for individuals rather than judging behavior, avoiding
   binary labels of "good" and "bad/evil". Overt, clear-cut aggression and
-  harassment exists and we will be address that firmly.  But many scenarios
+  harassment exists and we will address that firmly.  But many scenarios
   that can prove challenging to resolve are those where normal disagreements
   devolve into unhelpful or harmful behavior from multiple parties.
   Understanding the full context and finding a path that re-engages all is
@@ -48,8 +48,7 @@ guidelines in mind:
   and resources that can lead to positive change on these points.
 
 * Be mindful of the needs of new members: provide them with explicit support
-  and consideration, with the aim of increasing participation from
-  underrepresented groups in particular.
+  and consideration.
 
 * Individuals come from different cultural backgrounds and native languages.
   Try to identify any honest misunderstandings caused by a non-native speaker
@@ -177,16 +176,16 @@ Possible responses may include:
 * Coordinating voluntary mediation: if all involved parties agree, the
   Committee may facilitate a mediation process as detailed above.
 * Remind publicly, and point out that some behavior/actions/language have been
-  judged inappropriate and why in the current context, or can but hurtful to
+  judged inappropriate and why in the current context, or can be hurtful to
   some people, requesting the community to self-adjust.
 * A private reprimand from the committee to the individual(s) involved. In this
   case, the group chair will deliver that reprimand to the individual(s) over
   email, cc'ing the group.
 * A public reprimand. In this case, the committee chair will deliver that
   reprimand in the same venue that the violation occurred, within the limits of
-  practicality. E.g., the original mailing list for an email violation, but
-  for a chat room discussion where the person/context may be gone, they can be
-  reached by other means. The group may choose to publish this message
+  practicality. For example, the original mailing list for an email violation,
+  but for a chat room discussion where the person/context may be gone, they can
+  be reached by other means. The group may choose to publish this message
   elsewhere for documentation purposes.
 * A request for a public or private apology, assuming the reporter agrees to
   this idea: they may at their discretion refuse further contact with the
