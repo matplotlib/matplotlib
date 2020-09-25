@@ -862,8 +862,7 @@ def test_imshow():
 
     # Reuse testcase from above for a labeled data test
     data = {"r": r}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.imshow("r", data=data)
 
 
@@ -1335,8 +1334,7 @@ def test_markevery():
     y = np.sin(x) * np.sqrt(x/10 + 0.5)
 
     # check marker only plot
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(x, y, 'o', label='default')
     ax.plot(x, y, 'd', markevery=None, label='mark all')
     ax.plot(x, y, 's', markevery=10, label='mark every 10')
@@ -1350,8 +1348,7 @@ def test_markevery_line():
     y = np.sin(x) * np.sqrt(x/10 + 0.5)
 
     # check line/marker combos
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(x, y, '-o', label='default')
     ax.plot(x, y, '-d', markevery=None, label='mark all')
     ax.plot(x, y, '-s', markevery=10, label='mark every 10')
@@ -1465,8 +1462,7 @@ def test_markevery_polar():
 @image_comparison(['marker_edges'], remove_text=True)
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
     ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
     ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
@@ -1480,8 +1476,7 @@ def test_bar_tick_label_single():
 
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax = plt.gca()
     ax.bar("a", "b", align='edge', tick_label='0', data=data)
 
@@ -1683,8 +1678,7 @@ def test_pandas_minimal_plot(pd):
 def test_hist_log():
     data0 = np.linspace(0, 1, 200)**3
     data = np.concatenate([1 - data0, 1 + data0])
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(data, fill=False, log=True)
 
 
@@ -1975,8 +1969,7 @@ def contour_dat():
 @image_comparison(['contour_hatching'], remove_text=True, style='mpl20')
 def test_contour_hatching():
     x, y, z = contour_dat()
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
                 cmap=plt.get_cmap('gray'),
                 extend='both', alpha=0.5)
@@ -1989,8 +1982,7 @@ def test_contour_colorbar():
 
     x, y, z = contour_dat()
 
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     cs = ax.contourf(x, y, z, levels=np.arange(-1.8, 1.801, 0.2),
                      cmap=plt.get_cmap('RdBu'),
                      vmin=-0.6,
@@ -2017,14 +2009,12 @@ def test_hist2d():
     # make it not symmetric in case we switch x and y axis
     x = np.random.randn(100)*2+5
     y = np.random.randn(100)-2
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist2d(x, y, bins=10, rasterized=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": x, "y": y}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist2d("x", "y", bins=10, data=data, rasterized=True)
 
 
@@ -2038,8 +2028,7 @@ def test_hist2d_transpose():
     # passing to pcolorfast
     x = np.array([5]*100)
     y = np.random.randn(100)-2
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist2d(x, y, bins=10, rasterized=True)
 
 
@@ -2877,8 +2866,7 @@ def test_boxplot_with_CIarray():
 
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     CIs = np.array([[-1.5, 3.], [-1., 3.5]])
 
     # show a boxplot with Matplotlib medians and confidence intervals, and
@@ -3413,14 +3401,12 @@ def test_hist_stacked_stepfilled():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="stepfilled", stacked=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": (d1, d2)}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist("x", histtype="stepfilled", stacked=True, data=data)
 
 
@@ -3429,8 +3415,7 @@ def test_hist_offset():
     # make some data
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d1, bottom=5)
     ax.hist(d2, bottom=15)
 
@@ -3439,8 +3424,7 @@ def test_hist_offset():
 def test_hist_step():
     # make some data
     d1 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d1, histtype="step")
     ax.set_ylim(0, 10)
     ax.set_xlim(-1, 5)
@@ -3451,8 +3435,7 @@ def test_hist_step_horiz():
     # make some data
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="step", orientation="horizontal")
 
 
@@ -3463,8 +3446,7 @@ def test_hist_stacked_weighted():
     d2 = np.linspace(1, 3, 20)
     w1 = np.linspace(0.01, 3.5, 50)
     w2 = np.linspace(0.05, 2., 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), weights=(w1, w2), histtype="stepfilled", stacked=True)
 
 
@@ -3521,8 +3503,7 @@ def test_hist_stacked_stepfilled_alpha():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="stepfilled", stacked=True, alpha=0.5)
 
 
@@ -3531,8 +3512,7 @@ def test_hist_stacked_step():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="step", stacked=True)
 
 
@@ -3549,8 +3529,7 @@ def test_hist_stacked_density():
 def test_hist_step_bottom():
     # make some data
     d1 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d1, bottom=np.arange(10), histtype="stepfilled")
 
 
@@ -3696,8 +3675,7 @@ def test_hist_stacked_bar():
               (0.0, 1.0, 0.6549834156005998), (0.0, 0.6569064625276622, 1.0),
               (0.28302699607823545, 0.0, 1.0), (0.6849123462299822, 0.0, 1.0)]
     labels = ['green', 'orange', ' yellow', 'magenta', 'black']
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors,
             label=labels)
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1)
@@ -3710,8 +3688,7 @@ def test_hist_barstacked_bottom_unchanged():
 
 
 def test_hist_emptydata():
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist([[], range(10), range(10)], histtype="step")
 
 
@@ -3735,8 +3712,7 @@ def test_transparent_markers():
     np.random.seed(0)
     data = np.random.random(50)
 
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(data, 'D', mfc='none', markersize=100)
 
 
@@ -3814,8 +3790,7 @@ def test_alpha():
     np.random.seed(0)
     data = np.random.random(50)
 
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
 
     # alpha=.5 markers, solid line
     ax.plot(data, '-D', color=[1, 0, 0], mfc=[1, 0, 0, .5],
@@ -3978,8 +3953,7 @@ def test_eventplot_orientation(data, orientation):
 
 @image_comparison(['marker_styles.png'], remove_text=True)
 def test_marker_styles():
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     for y, marker in enumerate(sorted(matplotlib.markers.MarkerStyle.markers,
                                       key=lambda x: str(type(x))+str(x))):
         ax.plot((y % 2)*5 + np.arange(10)*10, np.ones(10)*10*y, linestyle='',
@@ -4001,8 +3975,7 @@ def test_vertex_markers():
     data = list(range(10))
     marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
     marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(data, linestyle='', marker=marker_as_tuple, mfc='k')
     ax.plot(data[::-1], linestyle='', marker=marker_as_list, mfc='b')
     ax.set_xlim([-1, 10])

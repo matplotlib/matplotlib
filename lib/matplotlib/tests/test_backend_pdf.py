@@ -42,8 +42,7 @@ and containing some French characters and the euro symbol:
 def test_type42():
     rcParams['pdf.fonttype'] = 42
 
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
     fig.savefig(io.BytesIO())
 
@@ -51,8 +50,7 @@ def test_type42():
 def test_multipage_pagecount():
     with PdfPages(io.BytesIO()) as pdf:
         assert pdf.get_pagecount() == 0
-        fig = plt.figure()
-        ax = fig.add_subplot()
+        fig, ax = plt.subplots()
         ax.plot([1, 2, 3])
         fig.savefig(pdf, format="pdf")
         assert pdf.get_pagecount() == 1
@@ -64,8 +62,7 @@ def test_multipage_properfinalize():
     pdfio = io.BytesIO()
     with PdfPages(pdfio) as pdf:
         for i in range(10):
-            fig = plt.figure()
-            ax = fig.add_subplot()
+            fig, ax = plt.subplots()
             ax.set_title('This is a long title')
             fig.savefig(pdf, format="pdf")
     pdfio.seek(0)
@@ -86,8 +83,7 @@ def test_multipage_keep_empty():
         pass
     assert not os.path.exists(filename)
     # test pdf files with content, they should never be deleted
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
     # test that a non-empty pdf is left behind with keep_empty=True (default)
     with NamedTemporaryFile(delete=False) as tmp:

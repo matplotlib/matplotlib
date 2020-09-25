@@ -86,9 +86,7 @@ def test_negative_rect():
 
 @image_comparison(['clip_to_bbox'])
 def test_clip_to_bbox():
-    fig = plt.figure()
-
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.set_xlim([-18, 20])
     ax.set_ylim([-150, 100])
 

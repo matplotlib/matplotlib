@@ -34,8 +34,7 @@ def test_font_styles():
         UserWarning,
         module='matplotlib.font_manager')
 
-    plt.figure()
-    ax = plt.subplot(1, 1, 1)
+    fig, ax = plt.subplots()
 
     normalFont = find_matplotlib_font(
         family="sans-serif",
