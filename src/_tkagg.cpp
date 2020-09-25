@@ -89,71 +89,8 @@ exit:
     }
 }
 
-static PyObject *mpl_tk_findphoto(PyObject *self, PyObject *args)
-{
-    Tcl_Interp *interp;
-    char const *photo_name;
-    Tk_PhotoHandle photo;
-    if (!PyArg_ParseTuple(args, "O&s:findphoto",convert_voidptr, &interp, &photo_name)) {
-        goto exit;
-    }
-    if (!(photo = TK_FIND_PHOTO(interp, photo_name))) {
-        PyErr_SetString(PyExc_ValueError, "Failed to extract Tk_PhotoHandle");
-        goto exit;
-    }
-exit:
-    if (PyErr_Occurred()) {
-        return NULL;
-    } else {
-        return PyLong_FromVoidPtr((void *)photo);
-    }
-}
-
-static PyObject *mpl_tk_photoputblock(PyObject *self, PyObject *args)
-{
-    int height, width;
-    unsigned char *data_ptr;
-    int o0, o1, o2, o3;
-    int x1, x2, y1, y2;
-    Tk_PhotoHandle photo;
-    Tk_PhotoImageBlock block;
-    if (!PyArg_ParseTuple(args, "O&(iiO&)(iiii)(iiii):photoputblock",
-                          convert_voidptr, &photo,
-                          &height, &width, convert_voidptr, &data_ptr,
-                          &o0, &o1, &o2, &o3,
-                          &x1, &x2, &y1, &y2)) {
-        goto exit;
-    }
-    if (0 > y1 || y1 > y2 || y2 > height || 0 > x1 || x1 > x2 || x2 > width) {
-        PyErr_SetString(PyExc_ValueError, "Attempting to draw out of bounds");
-        goto exit;
-    }
-
-    Py_BEGIN_ALLOW_THREADS
-    block.pixelPtr = data_ptr + 4 * ((height - y2) * width + x1);
-    block.width = x2 - x1;
-    block.height = y2 - y1;
-    block.pitch = 4 * width;
-    block.pixelSize = 4;
-    block.offset[0] = o0;
-    block.offset[1] = o1;
-    block.offset[2] = o2;
-    block.offset[3] = o3;
-    TK_PHOTO_PUT_BLOCK_NO_COMPOSITE(
-        photo, &block, x1, height - y2, x2 - x1, y2 - y1);
-    Py_END_ALLOW_THREADS
-exit:
-    if (PyErr_Occurred()) {
-        return NULL;
-    } else {
-        Py_RETURN_NONE;
-    }
-}
-
 static PyMethodDef functions[] = {
     { "blit", (PyCFunction)mpl_tk_blit, METH_VARARGS },
-    { "findphoto", (PyCFunction)mpl_tk_findphoto, METH_VARARGS },
-    { "photoputblock", (PyCFunction)mpl_tk_photoputblock, METH_VARARGS },
     { NULL, NULL } /* sentinel */
 };
 
