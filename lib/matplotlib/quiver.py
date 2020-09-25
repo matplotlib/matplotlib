@@ -479,12 +479,8 @@ class Quiver(mcollections.PolyCollection):
         by the following pyplot interface documentation:
         %s
         """
-<<<<<<< HEAD
-        self._axes = ax  # The attr actually set by the Artist.axes property.
-=======
-
         self.ax = ax
->>>>>>> modified quiver to allow for positioning of the arrowheads on the shaft
+        # modified quiver to allow for positioning of the arrowheads on the shaft
         X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
         self.X = X
         self.Y = Y
