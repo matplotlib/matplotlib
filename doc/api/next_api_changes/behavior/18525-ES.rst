@@ -1,0 +1,5 @@
+``mplot3d.art3d.get_dir_vector`` always returns NumPy arrays
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For consistency, `~.mplot3d.art3d.get_dir_vector` now always returns NumPy
+arrays, even if the input is a 3-element iterable.

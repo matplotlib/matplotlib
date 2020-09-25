@@ -68,7 +68,7 @@ def test_tight_layout4():
 @image_comparison(['tight_layout5'])
 def test_tight_layout5():
     """Test tight_layout for image."""
-    ax = plt.subplot(111)
+    ax = plt.subplot()
     arr = np.arange(100).reshape((10, 10))
     ax.imshow(arr, interpolation="none")
     plt.tight_layout()
@@ -135,7 +135,7 @@ def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
     fig.set_tight_layout({'pad': .1})
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     example_plot(ax, fontsize=24)
 
 

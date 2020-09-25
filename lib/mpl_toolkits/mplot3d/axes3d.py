@@ -19,6 +19,7 @@ import textwrap
 import numpy as np
 
 from matplotlib import artist
+from matplotlib import _api
 import matplotlib.axes as maxes
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
@@ -35,12 +36,6 @@ from matplotlib.tri.triangulation import Triangulation
 from . import art3d
 from . import proj3d
 from . import axis3d
-
-
-@cbook.deprecated("3.2", alternative="Bbox.unit()")
-def unit_bbox():
-    box = Bbox(np.array([[0, 0], [1, 1]]))
-    return box
 
 
 @cbook._define_aliases({
@@ -160,29 +155,6 @@ class Axes3D(Axes):
 
         """
         return self.zaxis.convert_units(z)
-
-    def _process_unit_info(self, xdata=None, ydata=None, zdata=None,
-                           kwargs=None):
-        """Update the axis instances based on unit *kwargs* if given."""
-        super()._process_unit_info(xdata=xdata, ydata=ydata, kwargs=kwargs)
-
-        if self.xaxis is None or self.yaxis is None or self.zaxis is None:
-            return
-
-        if zdata is not None:
-            # we only need to update if there is nothing set yet.
-            if not self.zaxis.have_units():
-                self.zaxis.update_units(xdata)
-
-        # process kwargs 2nd since these will override default units
-        if kwargs is not None:
-            zunits = kwargs.pop('zunits', self.zaxis.units)
-            if zunits != self.zaxis.units:
-                self.zaxis.set_units(zunits)
-                # If the units being set imply a different converter,
-                # we need to update.
-                if zdata is not None:
-                    self.zaxis.update_units(zdata)
 
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
@@ -746,7 +718,7 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
 
-        self._process_unit_info(xdata=(left, right))
+        self._process_unit_info([("x", (left, right))], convert=False)
         left = self._validate_converted_limits(left, self.convert_xunits)
         right = self._validate_converted_limits(right, self.convert_xunits)
 
@@ -800,7 +772,7 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
 
-        self._process_unit_info(ydata=(bottom, top))
+        self._process_unit_info([("y", (bottom, top))], convert=False)
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)
 
@@ -855,7 +827,7 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `zmax` and `top`')
             top = zmax
 
-        self._process_unit_info(zdata=(bottom, top))
+        self._process_unit_info([("z", (bottom, top))], convert=False)
         bottom = self._validate_converted_limits(bottom, self.convert_zunits)
         top = self._validate_converted_limits(top, self.convert_zunits)
 
@@ -1014,7 +986,7 @@ class Axes3D(Axes):
         ----------
         proj_type : {'persp', 'ortho'}
         """
-        self._projection = cbook._check_getitem({
+        self._projection = _api.check_getitem({
             'persp': proj3d.persp_transformation,
             'ortho': proj3d.ortho_transformation,
         }, proj_type=proj_type)
@@ -1358,7 +1330,7 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
         """
-        cbook._check_in_list(['x', 'y', 'z', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
             super().tick_params(axis, **kwargs)
         if axis in ['z', 'both']:
@@ -2650,7 +2622,7 @@ pivot='tail', normalize=False, **kwargs)
         shaft_dt = np.array([0., length], dtype=float)
         arrow_dt = shaft_dt * arrow_length_ratio
 
-        cbook._check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
+        _api.check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
         if pivot == 'tail':
             shaft_dt -= length
         elif pivot == 'middle':

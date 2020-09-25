@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _pylab_helpers, cbook, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, cbook, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutgrid as layoutgrid
 
@@ -342,8 +342,8 @@ class GridSpecBase:
             cbook._warn_external(
                 "sharex argument to subplots() was an integer.  Did you "
                 "intend to use subplot() (without 's')?")
-        cbook._check_in_list(["all", "row", "col", "none"],
-                             sharex=sharex, sharey=sharey)
+        _api.check_in_list(["all", "row", "col", "none"],
+                           sharex=sharex, sharey=sharey)
         if subplot_kw is None:
             subplot_kw = {}
         # don't mutate kwargs passed by user...
@@ -486,18 +486,7 @@ class GridSpec(GridSpecBase):
                 raise AttributeError(f"{k} is an unknown keyword")
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
-                # copied from Figure.subplots_adjust
-                if not isinstance(ax, mpl.axes.SubplotBase):
-                    # Check if sharing a subplots axis
-                    if isinstance(ax._sharex, mpl.axes.SubplotBase):
-                        if ax._sharex.get_subplotspec().get_gridspec() == self:
-                            ax._sharex.update_params()
-                            ax._set_position(ax._sharex.figbox)
-                    elif isinstance(ax._sharey, mpl.axes.SubplotBase):
-                        if ax._sharey.get_subplotspec().get_gridspec() == self:
-                            ax._sharey.update_params()
-                            ax._set_position(ax._sharey.figbox)
-                else:
+                if isinstance(ax, mpl.axes.SubplotBase):
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
                         ax.update_params()

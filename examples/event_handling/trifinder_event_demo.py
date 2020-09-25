@@ -52,7 +52,7 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
 trifinder = triang.get_trifinder()
 
 # Setup plot and callbacks.
-plt.subplot(111, aspect='equal')
+plt.subplot(aspect='equal')
 plt.triplot(triang, 'bo-')
 polygon = Polygon([[0, 0], [0, 0]], facecolor='y')  # dummy data for (xs, ys)
 update_polygon(-1)

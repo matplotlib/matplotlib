@@ -14,7 +14,7 @@ from numbers import Number
 import numpy as np
 
 import matplotlib as mpl
-from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
+from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
 import warnings
 
@@ -570,8 +570,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         offset_position : {'screen', 'data'}
         """
-        cbook._check_in_list(['screen', 'data'],
-                             offset_position=offset_position)
+        _api.check_in_list(['screen', 'data'], offset_position=offset_position)
         self._offset_position = offset_position
         self.stale = True
 
@@ -1620,7 +1619,7 @@ class EventCollection(LineCollection):
         orientation : {'horizontal', 'vertical'}
         """
         try:
-            is_horizontal = cbook._check_getitem(
+            is_horizontal = _api.check_getitem(
                 {"horizontal": True, "vertical": False},
                 orientation=orientation)
         except ValueError:

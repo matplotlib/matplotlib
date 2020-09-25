@@ -573,7 +573,7 @@ def test_SymLogNorm_colorbar():
     """
     norm = mcolors.SymLogNorm(0.1, vmin=-1, vmax=1, linscale=1, base=np.e)
     fig = plt.figure()
-    mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    mcolorbar.ColorbarBase(fig.add_subplot(), norm=norm)
     plt.close(fig)
 
 
@@ -583,7 +583,7 @@ def test_SymLogNorm_single_zero():
     """
     fig = plt.figure()
     norm = mcolors.SymLogNorm(1e-5, vmin=-1, vmax=1, base=np.e)
-    cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    cbar = mcolorbar.ColorbarBase(fig.add_subplot(), norm=norm)
     ticks = cbar.get_ticks()
     assert sum(ticks == 0) == 1
     plt.close(fig)
@@ -1211,3 +1211,10 @@ def test_colormap_bad_data_with_alpha():
     assert_array_equal(c[0, 0], (0, 0, 0, 0))
     c = cmap([[np.nan, 0.5], [0, 0]], alpha=np.full((2, 2), 0.5))
     assert_array_equal(c[0, 0], (0, 0, 0, 0))
+
+
+def test_2d_to_rgba():
+    color = np.array([0.1, 0.2, 0.3])
+    rgba_1d = mcolors.to_rgba(color.reshape(-1))
+    rgba_2d = mcolors.to_rgba(color.reshape((1, -1)))
+    assert rgba_1d == rgba_2d

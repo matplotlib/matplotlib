@@ -104,7 +104,7 @@ import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import cbook, rcsetup
+from . import cbook, docstring, rcsetup
 from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import validate_backend, cycler
@@ -133,23 +133,6 @@ __bibtex__ = r"""@Article{Hunter:2007,
   publisher = {IEEE COMPUTER SOC},
   year      = 2007
 }"""
-
-
-@cbook.deprecated("3.2")
-def compare_versions(a, b):
-    """Return whether version *a* is greater than or equal to version *b*."""
-    if isinstance(a, bytes):
-        cbook.warn_deprecated(
-            "3.0", message="compare_versions arguments should be strs.")
-        a = a.decode('ascii')
-    if isinstance(b, bytes):
-        cbook.warn_deprecated(
-            "3.0", message="compare_versions arguments should be strs.")
-        b = b.decode('ascii')
-    if a:
-        return LooseVersion(a) >= LooseVersion(b)
-    else:
-        return False
 
 
 def _check_versions():
@@ -382,26 +365,6 @@ def _get_executable_info(name):
         raise ValueError("Unknown executable: {!r}".format(name))
 
 
-@cbook.deprecated("3.2")
-def checkdep_ps_distiller(s):
-    if not s:
-        return False
-    try:
-        _get_executable_info("gs")
-    except ExecutableNotFoundError:
-        _log.warning(
-            "Setting rcParams['ps.usedistiller'] requires ghostscript.")
-        return False
-    if s == "xpdf":
-        try:
-            _get_executable_info("pdftops")
-        except ExecutableNotFoundError:
-            _log.warning(
-                "Setting rcParams['ps.usedistiller'] to 'xpdf' requires xpdf.")
-            return False
-    return s
-
-
 def checkdep_usetex(s):
     if not s:
         return False
@@ -419,20 +382,6 @@ def checkdep_usetex(s):
         _log.warning("usetex mode requires ghostscript.")
         return False
     return True
-
-
-@cbook.deprecated("3.2", alternative="os.path.expanduser('~')")
-@_logged_cached('$HOME=%s')
-def get_home():
-    """
-    Return the user's home directory.
-
-    If the user's home directory cannot be found, return None.
-    """
-    try:
-        return str(Path.home())
-    except Exception:
-        return None
 
 
 def _get_xdg_config_dir():
@@ -635,12 +584,17 @@ _deprecated_remain_as_none = {
 _all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
+@docstring.Substitution("\n".join(map("- {}".format, rcsetup._validators)))
 class RcParams(MutableMapping, dict):
     """
     A dictionary object including validation.
 
     Validating functions are defined and associated with rc parameters in
     :mod:`matplotlib.rcsetup`.
+
+    The list of rcParams is:
+
+    %s
 
     See Also
     --------

@@ -13,6 +13,7 @@ import numpy as np
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -243,7 +244,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         if origin is None:
             origin = mpl.rcParams['image.origin']
-        cbook._check_in_list(["upper", "lower"], origin=origin)
+        _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
@@ -470,8 +471,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # do not run the vmin/vmax through the same pipeline we can
                 # have values close or equal to the boundaries end up on the
                 # wrong side.
-                vrange = np.array([self.norm.vmin, self.norm.vmax],
-                                  dtype=scaled_dtype)
+                vmin, vmax = self.norm.vmin, self.norm.vmax
+                if vmin is np.ma.masked:
+                    vmin, vmax = a_min, a_max
+                vrange = np.array([vmin, vmax], dtype=scaled_dtype)
 
                 A_scaled -= a_min
                 vrange -= a_min
@@ -530,9 +533,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 resampled_masked = np.ma.masked_array(A_resampled, out_mask)
                 # we have re-set the vmin/vmax to account for small errors
                 # that may have moved input values in/out of range
+                s_vmin, s_vmax = vrange
+                if isinstance(self.norm, mcolors.LogNorm):
+                    if s_vmin < 0:
+                        s_vmin = max(s_vmin, np.finfo(scaled_dtype).eps)
                 with cbook._setattr_cm(self.norm,
-                                       vmin=vrange[0],
-                                       vmax=vrange[1],
+                                       vmin=s_vmin,
+                                       vmax=s_vmax,
                                        ):
                     output = self.norm(resampled_masked)
             else:
@@ -763,7 +770,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if s is None:
             s = mpl.rcParams['image.interpolation']
         s = s.lower()
-        cbook._check_in_list(_interpd_, interpolation=s)
+        _api.check_in_list(_interpd_, interpolation=s)
         self._interpolation = s
         self.stale = True
 

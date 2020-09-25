@@ -78,7 +78,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import cbook, scale
+from matplotlib import _api, cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -265,6 +265,10 @@ def _to_rgba_no_colorcycle(c, alpha=None):
                     f"Value must be within 0-1 range")
             return c, c, c, alpha if alpha is not None else 1.
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
+    # turn 2-D array into 1-D array
+    if isinstance(c, np.ndarray):
+        if c.ndim == 2 and c.shape[0] == 1:
+            c = c.reshape(-1)
     # tuple color.
     if not np.iterable(c):
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
@@ -1286,7 +1290,6 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                 **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
             self._scale = scale_cls(axis=None, **ba.arguments)
             self._trf = self._scale.get_transform()
-            self._inv_trf = self._trf.inverted()
 
         def __call__(self, value, clip=None):
             value, is_scalar = self.process_value(value)
@@ -1318,7 +1321,10 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                 raise ValueError("Invalid vmin or vmax")
             rescaled = value * (t_vmax - t_vmin)
             rescaled += t_vmin
-            return self._inv_trf.transform(rescaled).reshape(np.shape(value))
+            return (self._trf
+                    .inverted()
+                    .transform(rescaled)
+                    .reshape(np.shape(value)))
 
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
@@ -2154,7 +2160,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
         'max': slice(0, -1),
         'neither': slice(0, None),
     }
-    cbook._check_in_list(slice_map, extend=extend)
+    _api.check_in_list(slice_map, extend=extend)
     color_slice = slice_map[extend]
 
     n_data_colors = len(levels) - 1

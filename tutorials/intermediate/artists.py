@@ -383,7 +383,7 @@ plt.show()
 # :class:`~matplotlib.patches.Circle` for polar coordinates; this patch
 # determines the shape, background and border of the plotting region::
 #
-#     ax = fig.add_subplot(111)
+#     ax = fig.add_subplot()
 #     rect = ax.patch  # a Rectangle instance
 #     rect.set_facecolor('green')
 #

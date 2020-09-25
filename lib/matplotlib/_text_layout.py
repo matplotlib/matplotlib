@@ -2,7 +2,13 @@
 Text layouting utilities.
 """
 
+import dataclasses
+
 from .ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
+
+
+LayoutItem = dataclasses.make_dataclass(
+    "LayoutItem", ["char", "glyph_idx", "x", "prev_kern"])
 
 
 def layout(string, font, *, kern_mode=KERNING_DEFAULT):
@@ -26,13 +32,13 @@ def layout(string, font, *, kern_mode=KERNING_DEFAULT):
     x_position : float
     """
     x = 0
-    last_glyph_idx = None
+    prev_glyph_idx = None
     for char in string:
         glyph_idx = font.get_char_index(ord(char))
-        kern = (font.get_kerning(last_glyph_idx, glyph_idx, kern_mode)
-                if last_glyph_idx is not None else 0) / 64
+        kern = (font.get_kerning(prev_glyph_idx, glyph_idx, kern_mode) / 64
+                if prev_glyph_idx is not None else 0.)
         x += kern
         glyph = font.load_glyph(glyph_idx, flags=LOAD_NO_HINTING)
-        yield glyph_idx, x
+        yield LayoutItem(char, glyph_idx, x, kern)
         x += glyph.linearHoriAdvance / 65536
-        last_glyph_idx = glyph_idx
+        prev_glyph_idx = glyph_idx

@@ -15,7 +15,7 @@ from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 # load some test data for demonstration and plot a wireframe
 X, Y, Z = axes3d.get_test_data(0.1)

@@ -33,55 +33,50 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
 
 import copy
 import logging
+import textwrap
 
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
 import matplotlib.artist as martist
-import matplotlib.cbook as cbook
-import matplotlib.collections as collections
-import matplotlib.colors as colors
-import matplotlib.contour as contour
-import matplotlib.cm as cm
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.spines as mspines
-import matplotlib.ticker as ticker
 import matplotlib.transforms as mtransforms
 from matplotlib import docstring
 
 _log = logging.getLogger(__name__)
 
 _make_axes_param_doc = """
-    location : None or {'left', 'right', 'top', 'bottom'}
-        The location, relative to the parent axes, where the colorbar axes
-        is created.  It also determines the *orientation* of the colorbar
-        (colorbars on the left and right are vertical, colorbars at the top
-        and bottom are horizontal).  If None, the location will come from the
-        *orientation* if it is set (vertical colorbars on the right, horizontal
-        ones at the bottom), or default to 'right' if *orientation* is unset.
-    orientation : None or {'vertical', 'horizontal'}
-        The orientation of the colorbar.  It is preferrable to set the
-        *location* of the colorbar, as that also determines the *orientation*;
-        passing incompatible values for *location* and *orientation* raises an
-        exception.
-    fraction : float, default: 0.15
-        Fraction of original axes to use for colorbar.
-    shrink : float, default: 1.0
-        Fraction by which to multiply the size of the colorbar.
-    aspect : float, default: 20
-        Ratio of long to short dimensions.
+location : None or {'left', 'right', 'top', 'bottom'}
+    The location, relative to the parent axes, where the colorbar axes
+    is created.  It also determines the *orientation* of the colorbar
+    (colorbars on the left and right are vertical, colorbars at the top
+    and bottom are horizontal).  If None, the location will come from the
+    *orientation* if it is set (vertical colorbars on the right, horizontal
+    ones at the bottom), or default to 'right' if *orientation* is unset.
+orientation : None or {'vertical', 'horizontal'}
+    The orientation of the colorbar.  It is preferrable to set the *location*
+    of the colorbar, as that also determines the *orientation*; passing
+    incompatible values for *location* and *orientation* raises an exception.
+fraction : float, default: 0.15
+    Fraction of original axes to use for colorbar.
+shrink : float, default: 1.0
+    Fraction by which to multiply the size of the colorbar.
+aspect : float, default: 20
+    Ratio of long to short dimensions.
 """
 _make_axes_other_param_doc = """
-    pad : float, default: 0.05 if vertical, 0.15 if horizontal
-        Fraction of original axes between colorbar and new image axes.
-    anchor : (float, float), optional
-        The anchor point of the colorbar axes.
-        Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
-    panchor : (float, float), or *False*, optional
-        The anchor point of the colorbar parent axes. If *False*, the parent
-        axes' anchor will be unchanged.
-        Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
+pad : float, default: 0.05 if vertical, 0.15 if horizontal
+    Fraction of original axes between colorbar and new image axes.
+anchor : (float, float), optional
+    The anchor point of the colorbar axes.
+    Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
+panchor : (float, float), or *False*, optional
+    The anchor point of the colorbar parent axes. If *False*, the parent
+    axes' anchor will be unchanged.
+    Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
 """
 
 _colormap_kw_doc = """
@@ -214,7 +209,9 @@ segments::
 However this has negative consequences in other circumstances, e.g. with
 semi-transparent images (alpha < 1) and colorbar extensions; therefore, this
 workaround is not used by default (see issue #1188).
-""" % (_make_axes_param_doc, _make_axes_other_param_doc, _colormap_kw_doc))
+""" % (textwrap.indent(_make_axes_param_doc, "    "),
+       textwrap.indent(_make_axes_other_param_doc, "    "),
+       _colormap_kw_doc))
 
 # Deprecated since 3.4.
 colorbar_doc = docstring.interpd.params["colorbar_doc"]
@@ -436,12 +433,12 @@ class ColorbarBase:
                  label='',
                  ):
         cbook._check_isinstance([colors.Colormap, None], cmap=cmap)
-        cbook._check_in_list(
+        _api.check_in_list(
             ['vertical', 'horizontal'], orientation=orientation)
-        cbook._check_in_list(
+        _api.check_in_list(
             ['auto', 'left', 'right', 'top', 'bottom'],
             ticklocation=ticklocation)
-        cbook._check_in_list(
+        _api.check_in_list(
             ['uniform', 'proportional'], spacing=spacing)
 
         self.ax = ax
@@ -464,7 +461,7 @@ class ColorbarBase:
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
-        self._inside = cbook._check_getitem(
+        self._inside = _api.check_getitem(
             {'neither': slice(0, None), 'both': slice(1, -1),
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
@@ -528,28 +525,29 @@ class ColorbarBase:
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
         """
-        # sets self._boundaries and self._values in real data units.
-        # takes into account extend values:
-        self._process_values()
-        # sets self.vmin and vmax in data units, but just for the part of the
-        # colorbar that is not part of the extend patch:
-        self._find_range()
-        # returns the X and Y mesh, *but* this was/is in normalized units:
-        X, Y = self._mesh()
-        C = self._values[:, np.newaxis]
-
         self._config_axis()  # Inline it after deprecation elapses.
+        # Set self._boundaries and self._values, including extensions.
+        self._process_values()
+        # Set self.vmin and self.vmax to first and last boundary, excluding
+        # extensions.
+        self.vmin, self.vmax = self._boundaries[self._inside][[0, -1]]
+        # Compute the X/Y mesh, assuming vertical orientation.
+        X, Y = self._mesh()
+        # Extract bounding polygon (the last entry's value (X[0, 1]) doesn't
+        # matter, it just matches the CLOSEPOLY code).
+        x = np.concatenate([X[[0, 1, -2, -1], 0], X[[-1, -2, 1, 0, 0], 1]])
+        y = np.concatenate([Y[[0, 1, -2, -1], 0], Y[[-1, -2, 1, 0, 0], 1]])
+        xy = (np.column_stack([x, y]) if self.orientation == 'vertical' else
+              np.column_stack([y, x]))  # Apply orientation.
         # Configure axes limits, patch, and outline.
-        xy = self._outline(X, Y)
         xmin, ymin = xy.min(axis=0)
         xmax, ymax = xy.max(axis=0)
         self.ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
         self.outline.set_xy(xy)
         self.patch.set_xy(xy)
         self.update_ticks()
-
         if self.filled:
-            self._add_solids(X, Y, C)
+            self._add_solids(X, Y, self._values[:, np.newaxis])
 
     @cbook.deprecated("3.3")
     def config_axis(self):
@@ -783,9 +781,9 @@ class ColorbarBase:
             if loc is None:
                 loc = mpl.rcParams['%saxis.labellocation' % _pos_xy]
         if self.orientation == 'vertical':
-            cbook._check_in_list(('bottom', 'center', 'top'), loc=loc)
+            _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
         else:
-            cbook._check_in_list(('left', 'center', 'right'), loc=loc)
+            _api.check_in_list(('left', 'center', 'right'), loc=loc)
         if loc in ['right', 'top']:
             kwargs[_pos_xy] = 1.
             kwargs['horizontalalignment'] = 'right'
@@ -797,19 +795,6 @@ class ColorbarBase:
         else:
             self.ax.set_xlabel(label, **kwargs)
         self.stale = True
-
-    def _outline(self, X, Y):
-        """
-        Return *x*, *y* arrays of colorbar bounding polygon,
-        taking orientation into account.
-        """
-        N = X.shape[0]
-        ii = [0, 1, N - 2, N - 1, 2 * N - 1, 2 * N - 2, N + 1, N, 0]
-        x = X.T.reshape(-1)[ii]
-        y = Y.T.reshape(-1)[ii]
-        return (np.column_stack([y, x])
-                if self.orientation == 'horizontal' else
-                np.column_stack([x, y]))
 
     def _edges(self, X, Y):
         """Return the separator line segments; helper for _add_solids."""
@@ -1006,24 +991,6 @@ class ColorbarBase:
                     b[-1] = b[-1] + 1
         self._process_values(b)
 
-    def _find_range(self):
-        """
-        Set :attr:`vmin` and :attr:`vmax` attributes to the first and
-        last boundary excluding extended end boundaries.
-        """
-        b = self._boundaries[self._inside]
-        self.vmin = b[0]
-        self.vmax = b[-1]
-
-    def _central_N(self):
-        """Return the number of boundaries excluding end extensions."""
-        nb = len(self._boundaries)
-        if self.extend == 'both':
-            nb -= 2
-        elif self.extend in ('min', 'max'):
-            nb -= 1
-        return nb
-
     def _get_extension_lengths(self, frac, automin, automax, default=0.05):
         """
         Return the lengths of colorbar extensions.
@@ -1033,7 +1000,7 @@ class ColorbarBase:
         # Set the default value.
         extendlength = np.array([default, default])
         if isinstance(frac, str):
-            cbook._check_in_list(['auto'], extendfrac=frac.lower())
+            _api.check_in_list(['auto'], extendfrac=frac.lower())
             # Use the provided values when 'auto' is required.
             extendlength[:] = [automin, automax]
         elif frac is not None:
@@ -1130,7 +1097,8 @@ class ColorbarBase:
         norm.vmax = self.vmax
         x = np.array([0.0, 1.0])
         if self.spacing == 'uniform':
-            y = self._uniform_y(self._central_N())
+            n_boundaries_no_extensions = len(self._boundaries[self._inside])
+            y = self._uniform_y(n_boundaries_no_extensions)
         else:
             y = self._proportional_y()
         xmid = np.array([0.5])
@@ -1375,10 +1343,10 @@ class Colorbar(ColorbarBase):
 
 def _normalize_location_orientation(location, orientation):
     if location is None:
-        location = cbook._check_getitem(
+        location = _api.check_getitem(
             {None: "right", "vertical": "right", "horizontal": "bottom"},
             orientation=orientation)
-    loc_settings = cbook._check_getitem({
+    loc_settings = _api.check_getitem({
         "left":   {"location": "left", "orientation": "vertical",
                    "anchor": (1.0, 0.5), "panchor": (0.0, 0.5), "pad": 0.10},
         "right":  {"location": "right", "orientation": "vertical",

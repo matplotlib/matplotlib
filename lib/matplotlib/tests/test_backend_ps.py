@@ -113,6 +113,24 @@ def test_transparency():
     ax.text(.5, .5, "foo", color="r", alpha=0)
 
 
+def test_bbox():
+    fig, ax = plt.subplots()
+    with io.BytesIO() as buf:
+        fig.savefig(buf, format='eps')
+        buf = buf.getvalue()
+
+    bb = re.search(b'^%%BoundingBox: (.+) (.+) (.+) (.+)$', buf, re.MULTILINE)
+    assert bb
+    hibb = re.search(b'^%%HiResBoundingBox: (.+) (.+) (.+) (.+)$', buf,
+                     re.MULTILINE)
+    assert hibb
+
+    for i in range(1, 5):
+        # BoundingBox must use integers, and be ceil/floor of the hi res.
+        assert b'.' not in bb.group(i)
+        assert int(bb.group(i)) == pytest.approx(float(hibb.group(i)), 1)
+
+
 @needs_usetex
 def test_failing_latex():
     """Test failing latex subprocess call"""
@@ -130,3 +148,12 @@ def test_partial_usetex(caplog):
     plt.savefig(io.BytesIO(), format="ps")
     assert caplog.records and all("as if usetex=False" in record.getMessage()
                                   for record in caplog.records)
+
+
+@image_comparison(["useafm.eps"])
+def test_useafm():
+    mpl.rcParams["ps.useafm"] = True
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+    ax.axhline(.5)
+    ax.text(.5, .5, "qk")

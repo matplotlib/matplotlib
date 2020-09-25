@@ -209,7 +209,7 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
 
     # for ax in [a for a in fig._localaxes if hasattr(a, 'get_subplotspec')]:
     for ax in fig.get_axes():
-        if not hasattr(ax, 'get_subplotspec'):
+        if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
             continue
 
         ss = ax.get_subplotspec()
@@ -320,7 +320,8 @@ def _match_submerged_margins(fig):
     for panel in fig.panels:
         _match_submerged_margins(panel)
 
-    axs = [a for a in fig.get_axes() if hasattr(a, 'get_subplotspec')]
+    axs = [a for a in fig.get_axes() if (hasattr(a, 'get_subplotspec')
+                                         and a.get_in_layout())]
 
     for ax1 in axs:
         ss1 = ax1.get_subplotspec()
@@ -457,7 +458,7 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
     # for ax in fig._localaxes:
     #     if not hasattr(a, 'get_subplotspec'):
     for ax in fig.get_axes():
-        if not hasattr(ax, 'get_subplotspec'):
+        if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
             continue
 
         # grid bbox is in Figure co-ordinates, but we specify in panel
@@ -578,7 +579,7 @@ def _reset_margins(fig):
     for span in fig.panels:
         _reset_margins(span)
     for ax in fig.axes:
-        if hasattr(ax, 'get_subplotspec'):
+        if hasattr(ax, 'get_subplotspec') and ax.get_in_layout():
             ss = ax.get_subplotspec()
             gs = ss.get_gridspec()
             if gs._layoutgrid is not None:

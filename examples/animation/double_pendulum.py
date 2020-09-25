@@ -71,7 +71,7 @@ x2 = L2*sin(y[:, 2]) + x1
 y2 = -L2*cos(y[:, 2]) + y1
 
 fig = plt.figure(figsize=(5, 4))
-ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 1))
+ax = fig.add_subplot(autoscale_on=False, xlim=(-2, 2), ylim=(-2, 1))
 ax.set_aspect('equal')
 ax.grid()
 

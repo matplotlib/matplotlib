@@ -11,7 +11,7 @@ import types
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.cbook import _OrderedSet, _check_1d, index_of
 from matplotlib import docstring
 import matplotlib.colors as mcolors
@@ -83,6 +83,31 @@ class _axis_method_wrapper:
             wrapper.__doc__ = inspect.cleandoc(doc)
 
         setattr(owner, name, wrapper)
+
+
+class _TransformedBoundsLocator:
+    """
+    Axes locator for `.Axes.inset_axes` and similarly positioned axes.
+
+    The locator is a callable object used in `.Axes.set_aspect` to compute the
+    axes location depending on the renderer.
+    """
+
+    def __init__(self, bounds, transform):
+        """
+        *bounds* (a ``[l, b, w, h]`` rectangle) and *transform* together
+        specify the position of the inset axes.
+        """
+        self._bounds = bounds
+        self._transform = transform
+
+    def __call__(self, ax, renderer):
+        # Subtracting transFigure will typically rely on inverted(), freezing
+        # the transform; thus, this needs to be delayed until draw time as
+        # transFigure may otherwise change after this is evaluated.
+        return mtransforms.TransformedBbox(
+            mtransforms.Bbox.from_bounds(*self._bounds),
+            self._transform - ax.figure.transFigure)
 
 
 def _process_plot_format(fmt):
@@ -926,7 +951,8 @@ class _AxesBase(martist.Artist):
         """
         self._set_position(pos, which=which)
         # because this is being called externally to the library we
-        # zero the constrained layout parts.
+        # don't let it be in the layout.
+        self.set_in_layout(False)
 
     def _set_position(self, pos, which='both'):
         """
@@ -1417,7 +1443,7 @@ class _AxesBase(martist.Artist):
         which the adjustments for aspect ratios are done sequentially
         and independently on each Axes as it is drawn.
         """
-        cbook._check_in_list(["box", "datalim"], adjustable=adjustable)
+        _api.check_in_list(["box", "datalim"], adjustable=adjustable)
         if share:
             axs = {*self._shared_x_axes.get_siblings(self),
                    *self._shared_y_axes.get_siblings(self)}
@@ -2182,47 +2208,64 @@ class _AxesBase(martist.Artist):
         """
         self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
-    def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
+    def _process_unit_info(self, datasets=None, kwargs=None, *, convert=True):
         """
-        Look for unit *kwargs* and update the axis instances as necessary
+        Set axis units based on *datasets* and *kwargs*, and optionally apply
+        unit conversions to *datasets*.
 
+        Parameters
+        ----------
+        datasets : list
+            List of (axis_name, dataset) pairs (where the axis name is defined
+            as in `._get_axis_map`.
+        kwargs : dict
+            Other parameters from which unit info (i.e., the *xunits*,
+            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
+            polar axes) entries) is popped, if present.  Note that this dict is
+            mutated in-place!
+        convert : bool, default: True
+            Whether to return the original datasets or the converted ones.
 
-        .. warning ::
-
-           This method may mutate the dictionary passed in an kwargs and
-           the Axis instances attached to this Axes.
+        Returns
+        -------
+        list
+            Either the original datasets if *convert* is False, or the
+            converted ones if *convert* is True (the default).
         """
-
-        def _process_single_axis(data, axis, unit_name, kwargs):
-            # Return if there's no axis set
+        # The API makes datasets a list of pairs rather than an axis_name to
+        # dataset mapping because it is sometimes necessary to process multiple
+        # datasets for a single axis, and concatenating them may be tricky
+        # (e.g. if some are scalars, etc.).
+        datasets = datasets or []
+        kwargs = kwargs or {}
+        axis_map = self._get_axis_map()
+        for axis_name, data in datasets:
+            try:
+                axis = axis_map[axis_name]
+            except KeyError:
+                raise ValueError(f"Invalid axis name: {axis_name!r}") from None
+            # Update from data if axis is already set but no unit is set yet.
+            if axis is not None and data is not None and not axis.have_units():
+                axis.update_units(data)
+        for axis_name, axis in axis_map.items():
+            # Return if no axis is set.
             if axis is None:
-                return kwargs
-
-            if data is not None:
-                # We only need to update if there is nothing set yet.
-                if not axis.have_units():
-                    axis.update_units(data)
-
-            # Check for units in the kwargs, and if present update axis
-            if kwargs is not None:
-                units = kwargs.pop(unit_name, axis.units)
-                if self.name == 'polar':
-                    # handle special casing to allow the kwargs
-                    # thetaunits and runits to be used with polar
-                    polar_units = {'xunits': 'thetaunits', 'yunits': 'runits'}
-                    units = kwargs.pop(polar_units[unit_name], units)
-
-                if units != axis.units and units is not None:
-                    axis.set_units(units)
-                    # If the units being set imply a different converter,
-                    # we need to update.
-                    if data is not None:
+                continue
+            # Check for units in the kwargs, and if present update axis.
+            units = kwargs.pop(f"{axis_name}units", axis.units)
+            if self.name == "polar":
+                # Special case: polar supports "thetaunits"/"runits".
+                polar_units = {"x": "thetaunits", "y": "runits"}
+                units = kwargs.pop(polar_units[axis_name], units)
+            if units != axis.units and units is not None:
+                axis.set_units(units)
+                # If the units being set imply a different converter,
+                # we need to update again.
+                for dataset_axis_name, data in datasets:
+                    if dataset_axis_name == axis_name and data is not None:
                         axis.update_units(data)
-            return kwargs
-
-        kwargs = _process_single_axis(xdata, self.xaxis, 'xunits', kwargs)
-        kwargs = _process_single_axis(ydata, self.yaxis, 'yunits', kwargs)
-        return kwargs
+        return [axis_map[axis_name].convert_units(data) if convert else data
+                for axis_name, data in datasets]
 
     def in_axes(self, mouseevent):
         """
@@ -2802,7 +2845,7 @@ class _AxesBase(martist.Artist):
         with ExitStack() as stack:
             for artist in [*self._get_axis_list(),
                            self.title, self._left_title, self._right_title]:
-                stack.push(artist.set_visible, artist.get_visible())
+                stack.callback(artist.set_visible, artist.get_visible())
                 artist.set_visible(False)
             self.draw(self.figure._cachedRenderer)
 
@@ -2915,7 +2958,7 @@ class _AxesBase(martist.Artist):
         """
         if len(kwargs):
             b = True
-        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
             self.xaxis.grid(b, which=which, **kwargs)
         if axis in ['y', 'both']:
@@ -2976,10 +3019,10 @@ class _AxesBase(martist.Artist):
                 raise ValueError("scilimits must be a sequence of 2 integers"
                                  ) from err
         STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None}
-        is_sci_style = cbook._check_getitem(STYLES, style=style)
+        is_sci_style = _api.check_getitem(STYLES, style=style)
         axis_map = {**{k: [v] for k, v in self._get_axis_map().items()},
                     'both': self._get_axis_list()}
-        axises = cbook._check_getitem(axis_map, axis=axis)
+        axises = _api.check_getitem(axis_map, axis=axis)
         try:
             for axis in axises:
                 if is_sci_style is not None:
@@ -3029,7 +3072,7 @@ class _AxesBase(martist.Artist):
             ax.locator_params(tight=True, nbins=4)
 
         """
-        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'both'], axis=axis)
         update_x = axis in ['x', 'both']
         update_y = axis in ['y', 'both']
         if update_x:
@@ -3103,7 +3146,7 @@ class _AxesBase(martist.Artist):
         also be red.  Gridlines will be red and translucent.
 
         """
-        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
             xkw.pop('left', None)
@@ -3186,7 +3229,7 @@ class _AxesBase(martist.Artist):
         else:
             loc = (loc if loc is not None
                    else mpl.rcParams['xaxis.labellocation'])
-        cbook._check_in_list(('left', 'center', 'right'), loc=loc)
+        _api.check_in_list(('left', 'center', 'right'), loc=loc)
         if loc == 'left':
             kwargs.update(x=0, horizontalalignment='left')
         elif loc == 'right':
@@ -3374,7 +3417,7 @@ class _AxesBase(martist.Artist):
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
 
-        self._process_unit_info(xdata=(left, right))
+        self._process_unit_info([("x", (left, right))], convert=False)
         left = self._validate_converted_limits(left, self.convert_xunits)
         right = self._validate_converted_limits(right, self.convert_xunits)
 
@@ -3529,7 +3572,7 @@ class _AxesBase(martist.Artist):
         else:
             loc = (loc if loc is not None
                    else mpl.rcParams['yaxis.labellocation'])
-        cbook._check_in_list(('bottom', 'center', 'top'), loc=loc)
+        _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
         if loc == 'bottom':
             kwargs.update(y=0, horizontalalignment='left')
         elif loc == 'top':
@@ -3699,7 +3742,7 @@ class _AxesBase(martist.Artist):
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
 
-        self._process_unit_info(ydata=(bottom, top))
+        self._process_unit_info([("y", (bottom, top))], convert=False)
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)
 
@@ -4348,7 +4391,10 @@ class _AxesBase(martist.Artist):
         # Typically, SubplotBase._make_twin_axes is called instead of this.
         if 'sharex' in kwargs and 'sharey' in kwargs:
             raise ValueError("Twinned Axes may share only one axis")
-        ax2 = self.figure.add_axes(self.get_position(True), *args, **kwargs)
+        ax2 = self.figure.add_axes(
+            self.get_position(True), *args, **kwargs,
+            axes_locator=_TransformedBoundsLocator(
+                [0, 0, 1, 1], self.transAxes))
         self.set_adjustable('datalim')
         ax2.set_adjustable('datalim')
         self._twinned_axes.join(self, ax2)

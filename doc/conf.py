@@ -183,7 +183,12 @@ try:
 except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
 
-html_context = {'sha': SHA}
+html_context = {
+    'sha': SHA,
+    # This will disable any analytics in the HTML templates (currently Google
+    # Analytics.)
+    'include_analytics': False,
+}
 
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '

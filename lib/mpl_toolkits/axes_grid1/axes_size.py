@@ -11,7 +11,7 @@ values are used.
 
 from numbers import Number
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.axes import Axes
 
 
@@ -148,7 +148,7 @@ class MaxExtent(_Base):
 
     def __init__(self, artist_list, w_or_h):
         self._artist_list = artist_list
-        cbook._check_in_list(["width", "height"], w_or_h=w_or_h)
+        _api.check_in_list(["width", "height"], w_or_h=w_or_h)
         self._w_or_h = w_or_h
 
     def add_artist(self, a):
@@ -260,7 +260,7 @@ class GetExtentHelper:
     }
 
     def __init__(self, ax, direction):
-        cbook._check_in_list(self._get_func_map, direction=direction)
+        _api.check_in_list(self._get_func_map, direction=direction)
         self._ax_list = [ax] if isinstance(ax, Axes) else ax
         self._direction = direction
 

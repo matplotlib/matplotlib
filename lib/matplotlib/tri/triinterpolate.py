@@ -4,7 +4,7 @@ Interpolation inside triangular grids.
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
@@ -475,7 +475,7 @@ class CubicTriInterpolator(TriInterpolator):
         elif kind == 'min_E':
             TE = _DOF_estimator_min_E(self)
         else:
-            cbook._check_in_list(['user', 'geom', 'min_E'], kind=kind)
+            _api.check_in_list(['user', 'geom', 'min_E'], kind=kind)
         return TE.compute_dof_from_df()
 
     @staticmethod

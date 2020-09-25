@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
@@ -44,7 +44,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
 
     The remaining kwargs are the same as for `~.Axes.pcolor`.
     """
-    cbook._check_in_list(['flat', 'gouraud'], shading=shading)
+    _api.check_in_list(['flat', 'gouraud'], shading=shading)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 

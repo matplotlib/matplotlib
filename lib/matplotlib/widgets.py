@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook, colors, ticker
+from . import _api, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -319,8 +319,7 @@ class Slider(AxesWidget):
         if slidermax is not None and not hasattr(slidermax, 'val'):
             raise ValueError(
                 f"Argument slidermax ({type(slidermax)}) has no 'val'")
-        cbook._check_in_list(['horizontal', 'vertical'],
-                             orientation=orientation)
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         self.orientation = orientation
         self.closedmin = closedmin
@@ -1688,7 +1687,7 @@ class SpanSelector(_SelectorWidget):
 
         rectprops['animated'] = self.useblit
 
-        cbook._check_in_list(['horizontal', 'vertical'], direction=direction)
+        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
         self.direction = direction
 
         self.rect = None
@@ -2019,7 +2018,7 @@ class RectangleSelector(_SelectorWidget):
         self.minspanx = minspanx
         self.minspany = minspany
 
-        cbook._check_in_list(['data', 'pixels'], spancoords=spancoords)
+        _api.check_in_list(['data', 'pixels'], spancoords=spancoords)
         self.spancoords = spancoords
         self.drawtype = drawtype
 
@@ -2103,8 +2102,8 @@ class RectangleSelector(_SelectorWidget):
             spanx = abs(self.eventpress.x - self.eventrelease.x)
             spany = abs(self.eventpress.y - self.eventrelease.y)
         else:
-            cbook._check_in_list(['data', 'pixels'],
-                                 spancoords=self.spancoords)
+            _api.check_in_list(['data', 'pixels'],
+                               spancoords=self.spancoords)
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
         if (self.drawtype != 'none'
@@ -2387,7 +2386,7 @@ class LassoSelector(_SelectorWidget):
 
     Example usage::
 
-        ax = subplot(111)
+        ax = plt.subplot()
         ax.plot(x, y)
 
         def onselect(verts):

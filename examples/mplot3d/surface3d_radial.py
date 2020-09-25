@@ -15,7 +15,7 @@ import numpy as np
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 # Create the mesh in polar coordinates and compute corresponding Z.
 r = np.linspace(0, 1.25, 50)

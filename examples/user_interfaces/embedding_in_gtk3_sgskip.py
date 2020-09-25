@@ -22,7 +22,7 @@ win.set_default_size(400, 300)
 win.set_title("Embedding in GTK")
 
 fig = Figure(figsize=(5, 4), dpi=100)
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 t = np.arange(0.0, 3.0, 0.01)
 s = np.sin(2*np.pi*t)
 ax.plot(t, s)

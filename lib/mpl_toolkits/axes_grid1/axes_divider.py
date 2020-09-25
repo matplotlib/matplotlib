@@ -4,7 +4,7 @@ Helper classes to adjust the positions of multiple axes at drawing time.
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.axes import SubplotBase
 from matplotlib.gridspec import SubplotSpec, GridSpec
 import matplotlib.transforms as mtransforms
@@ -123,7 +123,7 @@ class Divider:
 
         """
         if len(anchor) != 2:
-            cbook._check_in_list(mtransforms.Bbox.coefs, anchor=anchor)
+            _api.check_in_list(mtransforms.Bbox.coefs, anchor=anchor)
         self._anchor = anchor
 
     def get_anchor(self):
@@ -258,8 +258,8 @@ class Divider:
         elif position == "top":
             self._vertical.append(size)
         else:
-            cbook._check_in_list(["left", "right", "bottom", "top"],
-                                 position=position)
+            _api.check_in_list(["left", "right", "bottom", "top"],
+                               position=position)
 
     def add_auto_adjustable_area(self, use_axes, pad=0.1, adjust_dirs=None):
         if adjust_dirs is None:
@@ -538,8 +538,8 @@ class AxesDivider(Divider):
         elif position == "top":
             ax = self.new_vertical(size, pad, pack_start=False, **kwargs)
         else:
-            cbook._check_in_list(["left", "right", "bottom", "top"],
-                                 position=position)
+            _api.check_in_list(["left", "right", "bottom", "top"],
+                               position=position)
         if add_to_figure:
             self._fig.add_axes(ax)
         return ax

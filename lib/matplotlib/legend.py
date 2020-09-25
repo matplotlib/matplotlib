@@ -28,12 +28,13 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, docstring, colors
+from matplotlib import _api, cbook, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
+from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
+                                StepPatch)
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
@@ -65,7 +66,7 @@ class DraggableLegend(DraggableOffsetBox):
         """
         self.legend = legend
 
-        cbook._check_in_list(["loc", "bbox"], update=update)
+        _api.check_in_list(["loc", "bbox"], update=update)
         self._update = update
 
         super().__init__(legend, legend._legend_box, use_blit=use_blit)
@@ -623,6 +624,7 @@ class Legend(Artist):
         ErrorbarContainer: legend_handler.HandlerErrorbar(),
         Line2D: legend_handler.HandlerLine2D(),
         Patch: legend_handler.HandlerPatch(),
+        StepPatch: legend_handler.HandlerStepPatch(),
         LineCollection: legend_handler.HandlerLineCollection(),
         RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
         CircleCollection: legend_handler.HandlerCircleCollection(),
@@ -753,8 +755,7 @@ class Legend(Artist):
                 handle_list.append(None)
             else:
                 textbox = TextArea(lab, textprops=label_prop,
-                                   multilinebaseline=True,
-                                   minimumdescent=True)
+                                   multilinebaseline=True)
                 handlebox = DrawingArea(width=self.handlelength * fontsize,
                                         height=height,
                                         xdescent=0., ydescent=descent)
@@ -788,12 +789,6 @@ class Legend(Artist):
                                  children=[h, t] if markerfirst else [t, h],
                                  align="baseline")
                          for h, t in handles_and_labels[i0:i0 + di]]
-            # minimumdescent=False for the text of the last row of the column
-            if markerfirst:
-                itemBoxes[-1].get_children()[1].set_minimumdescent(False)
-            else:
-                itemBoxes[-1].get_children()[0].set_minimumdescent(False)
-
             # pack columnBox
             alignment = "baseline" if markerfirst else "right"
             columnbox.append(VPacker(pad=0,

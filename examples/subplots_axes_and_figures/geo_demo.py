@@ -14,28 +14,28 @@ import matplotlib.pyplot as plt
 ###############################################################################
 
 plt.figure()
-plt.subplot(111, projection="aitoff")
+plt.subplot(projection="aitoff")
 plt.title("Aitoff")
 plt.grid(True)
 
 ###############################################################################
 
 plt.figure()
-plt.subplot(111, projection="hammer")
+plt.subplot(projection="hammer")
 plt.title("Hammer")
 plt.grid(True)
 
 ###############################################################################
 
 plt.figure()
-plt.subplot(111, projection="lambert")
+plt.subplot(projection="lambert")
 plt.title("Lambert")
 plt.grid(True)
 
 ###############################################################################
 
 plt.figure()
-plt.subplot(111, projection="mollweide")
+plt.subplot(projection="mollweide")
 plt.title("Mollweide")
 plt.grid(True)
 

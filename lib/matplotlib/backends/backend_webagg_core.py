@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image
 import tornado
 
-from matplotlib import backend_bases, cbook
+from matplotlib import _api, backend_bases
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
 
@@ -165,7 +165,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         draw this mode may be changed if the resulting image has any
         transparent component.
         """
-        cbook._check_in_list(['full', 'diff'], mode=mode)
+        _api.check_in_list(['full', 'diff'], mode=mode)
         if self._current_image_mode != mode:
             self._current_image_mode = mode
             self.handle_send_image_mode(None)
