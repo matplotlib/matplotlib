@@ -21,7 +21,7 @@ class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
         self.figure.draw(self._renderer)
         buf = np.reshape(surface.get_data(), (height, width, 4))
         _backend_tk.blit(
-            self._tkcanvas, self._tkphoto, buf,
+            self._tkphoto, buf,
             (2, 1, 0, 3) if sys.byteorder == "little" else (1, 2, 3, 0))
 
 

@@ -9,8 +9,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg, FigureCanvasTk):
         self.blit()
 
     def blit(self, bbox=None):
-        blit(self._tkcanvas, self._tkphoto,
-             self.renderer._renderer, (0, 1, 2, 3), bbox=bbox)
+        blit(self._tkphoto, self.renderer._renderer, (0, 1, 2, 3), bbox=bbox)
 
 
 @_BackendTk.export

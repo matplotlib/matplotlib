@@ -45,7 +45,8 @@ def _restore_foreground_window_at_end():
 
 
 _blit_args = {}
-_blit_tcl_name = None
+# Initialized to non-empty string that is not a current Tcl command
+_blit_tcl_name = "29345091836409813"
 
 
 def _blit(argsid):
@@ -56,7 +57,7 @@ def _blit(argsid):
     _tkagg.blit(*args)
 
 
-def blit(tk_instance, photoimage, aggimage, offsets, bbox=None):
+def blit(photoimage, aggimage, offsets, bbox=None):
     """
     Blit *aggimage* to *photoimage*.
 
@@ -92,13 +93,12 @@ def blit(tk_instance, photoimage, aggimage, offsets, bbox=None):
     global _blit_tcl_name
     # tkapp.call coerces all arguments to strings
     try:
-        tk_instance.tk.call(_blit_tcl_name, argsid)
+        photoimage.tk.call(_blit_tcl_name, argsid)
     except tk.TclError:
-        # need to register with the tk root or constantly re-register
-        # each time tk_instance is destroyed
-        root = tk_instance._root()
-        _blit_tcl_name = root.register(_blit)
-        tk_instance.tk.call(_blit_tcl_name, argsid)
+        # register _blit by copying code from tkinter.Misc._register
+        _blit_tcl_name = repr(id(_blit)) + _blit.__name__
+        photoimage.tk.createcommand(_blit_tcl_name, _blit)
+        photoimage.tk.call(_blit_tcl_name, argsid)
 
 
 class TimerTk(TimerBase):
