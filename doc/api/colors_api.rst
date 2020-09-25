@@ -20,6 +20,7 @@ Classes
 
    BoundaryNorm
    Colormap
+   CenteredNorm
    LightSource
    LinearSegmentedColormap
    ListedColormap
