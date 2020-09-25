@@ -54,11 +54,10 @@ def _blit(argsid):
     Thin wrapper to pass arguments to blit via tkapp.call
     """
     photoimage, dataptr, offsets, bboxptr, blank = _blit_args.pop(argsid)
-    args = (
-        photoimage.tk.interpaddr(), str(photoimage), dataptr, offsets, bboxptr)
     if blank:
         photoimage.blank()
-    _tkagg.blit(*args)
+    _tkagg.blit(
+        photoimage.tk.interpaddr(), str(photoimage), dataptr, offsets, bboxptr)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):

@@ -72,6 +72,7 @@ import importlib.util
 import io
 import json
 import sys
+import threading
 from unittest import TestCase
 
 import matplotlib as mpl
@@ -146,6 +147,28 @@ if not backend.startswith('qt5') and sys.platform == 'darwin':
     # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS to
     # not resize incorrectly.
     assert_equal(result.getvalue(), result_after.getvalue())
+    
+# Test artists and drawing does not crash from thread (no other guarantees)
+fig, ax = plt.subplots()
+# plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
+plt.pause(0.1)
+
+def thread_artist_work():
+    ax.plot([1,3,6])
+
+def thread_draw_work():
+    fig.canvas.draw()
+    fig.canvas.stop_event_loop()
+
+t = threading.Thread(target=thread_artist_work)
+t.start()
+# artists never wait for the event loop to run, so just join
+t.join()
+
+t = threading.Thread(target=thread_draw_work)
+t.start()
+fig.canvas.start_event_loop()
+t.join()
 """
 _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 
