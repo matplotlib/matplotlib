@@ -462,7 +462,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # would not full eliminate it and breaks a number of
                 # tests (due to the slightly different error bouncing
                 # some pixels across a boundary in the (very
-                # quantized) color mapping step).
+                # quantized) colormapping step).
                 offset = .1
                 frac = .8
                 # we need to run the vmin/vmax through the same rescaling

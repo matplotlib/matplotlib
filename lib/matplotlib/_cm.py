@@ -54,7 +54,7 @@ def _prism_blue(x): return -1.1 * np.sin((x * 20.9) * np.pi)
 _prism_data = {'red': _prism_red, 'green': _prism_green, 'blue': _prism_blue}
 
 def _ch_helper(gamma, s, r, h, p0, p1, x):
-    """Helper function for generating picklable cubehelix color maps."""
+    """Helper function for generating picklable cubehelix colormaps."""
     # Apply gamma factor to emphasise low or high intensity values
     xg = x ** gamma
     # Calculate amplitude and angle of deviation from the black to white
@@ -1096,7 +1096,7 @@ _gist_stern_data = {
 def _gist_yarg(x): return 1 - x
 _gist_yarg_data = {'red': _gist_yarg, 'green': _gist_yarg, 'blue': _gist_yarg}
 
-# This bipolar color map was generated from CoolWarmFloat33.csv of
+# This bipolar colormap was generated from CoolWarmFloat33.csv of
 # "Diverging Color Maps for Scientific Visualization" by Kenneth Moreland.
 # <http://www.kennethmoreland.com/color-maps/>
 _coolwarm_data = {

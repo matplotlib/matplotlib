@@ -2007,8 +2007,8 @@ def colormaps():
       for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
 
-    Matplotlib ships with 4 perceptually uniform color maps which are
-    the recommended color maps for sequential data:
+    Matplotlib ships with 4 perceptually uniform colormaps which are
+    the recommended colormaps for sequential data:
 
       =========   ===================================================
       Colormap    Description
@@ -2087,7 +2087,7 @@ def colormaps():
       Colormap    Description
       =========   =======================================================
       autumn      sequential linearly-increasing shades of red-orange-yellow
-      bone        sequential increasing black-white color map with
+      bone        sequential increasing black-white colormap with
                   a tinge of blue, to emulate X-ray film
       cool        linearly-decreasing shades of cyan-magenta
       copper      sequential increasing shades of black-copper
@@ -2128,7 +2128,7 @@ def colormaps():
                     Language software
       ============  =======================================================
 
-    A set of cyclic color maps:
+    A set of cyclic colormaps:
 
       ================  =================================================
       Colormap          Description

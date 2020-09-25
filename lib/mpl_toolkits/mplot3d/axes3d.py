@@ -1458,7 +1458,7 @@ class Axes3D(Axes):
         Create a surface plot.
 
         By default it will be colored in shades of a solid color, but it also
-        supports color mapping by supplying the *cmap* argument.
+        supports colormapping by supplying the *cmap* argument.
 
         .. note::
 

@@ -703,14 +703,14 @@ class Colormap:
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
-        """Return whether the color map is grayscale."""
+        """Return whether the colormap is grayscale."""
         if not self._isinit:
             self._init()
         return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
                 np.all(self._lut[:, 0] == self._lut[:, 2]))
 
     def _resample(self, lutsize):
-        """Return a new color map with *lutsize* entries."""
+        """Return a new colormap with *lutsize* entries."""
         raise NotImplementedError()
 
     def reversed(self, name=None):
@@ -738,7 +738,7 @@ class Colormap:
                     (_REPR_PNG_SIZE[1], 1))
         pixels = self(X, bytes=True)
         png_bytes = io.BytesIO()
-        title = self.name + ' color map'
+        title = self.name + ' colormap'
         author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'
         pnginfo = PngInfo()
         pnginfo.add_text('Title', title)
@@ -766,7 +766,7 @@ class Colormap:
                 f'<strong>{self.name}</strong> '
                 '</div>'
                 '<div class="cmap"><img '
-                f'alt="{self.name} color map" '
+                f'alt="{self.name} colormap" '
                 f'title="{self.name}" '
                 'style="border: 1px solid #555;" '
                 f'src="data:image/png;base64,{png_base64}"></div>'
@@ -795,7 +795,7 @@ class LinearSegmentedColormap(Colormap):
 
     def __init__(self, name, segmentdata, N=256, gamma=1.0):
         """
-        Create color map from linear mapping segments
+        Create colormap from linear mapping segments
 
         segmentdata argument is a dictionary with a red, green and blue
         entries. Each entry should be a list of *x*, *y0*, *y1* tuples,
@@ -858,7 +858,7 @@ class LinearSegmentedColormap(Colormap):
         self._set_extremes()
 
     def set_gamma(self, gamma):
-        """Set a new gamma value and regenerate color map."""
+        """Set a new gamma value and regenerate colormap."""
         self._gamma = gamma
         self._init()
 
@@ -902,7 +902,7 @@ class LinearSegmentedColormap(Colormap):
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
     def _resample(self, lutsize):
-        """Return a new color map with *lutsize* entries."""
+        """Return a new colormap with *lutsize* entries."""
         new_cmap = LinearSegmentedColormap(self.name, self._segmentdata,
                                            lutsize)
         new_cmap._rgba_over = self._rgba_over
@@ -1006,7 +1006,7 @@ class ListedColormap(Colormap):
         self._set_extremes()
 
     def _resample(self, lutsize):
-        """Return a new color map with *lutsize* entries."""
+        """Return a new colormap with *lutsize* entries."""
         colors = self(np.linspace(0, 1, lutsize))
         new_cmap = ListedColormap(colors, name=self.name)
         # Keep the over/under values too

@@ -21,10 +21,10 @@ def _get_cmap_norms():
     Helper function for _colorbar_extension_shape and
     colorbar_extension_length.
     """
-    # Create a color map and specify the levels it represents.
+    # Create a colormap and specify the levels it represents.
     cmap = cm.get_cmap("RdBu", lut=5)
     clevs = [-5., -2.5, -.5, .5, 1.5, 3.5]
-    # Define norms for the color maps.
+    # Define norms for the colormaps.
     norms = dict()
     norms['neither'] = BoundaryNorm(clevs, len(clevs) - 1)
     norms['min'] = BoundaryNorm([-10] + clevs[1:], len(clevs) - 1)
