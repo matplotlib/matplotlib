@@ -983,7 +983,7 @@ def _azimuth2math(azimuth, elevation):
 
 def test_pandas_iterable(pd):
     # Using a list or series yields equivalent
-    # color maps, i.e the series isn't seen as
+    # colormaps, i.e the series isn't seen as
     # a single color
     lst = ['red', 'blue', 'green']
     s = pd.Series(lst)

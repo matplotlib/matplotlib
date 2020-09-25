@@ -1,9 +1,9 @@
 """
-======================
-3D surface (color map)
-======================
+=====================
+3D surface (colormap)
+=====================
 
-Demonstrates plotting a 3D surface colored with the coolwarm color map.
+Demonstrates plotting a 3D surface colored with the coolwarm colormap.
 The surface is made opaque by using antialiased=False.
 
 Also demonstrates using the LinearLocator and custom formatting for the

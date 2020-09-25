@@ -4472,7 +4472,7 @@ default: :rc:`scatter.edgecolors`
 
             - If *None*, no binning is applied; the color of each hexagon
               directly corresponds to its count value.
-            - If 'log', use a logarithmic scale for the color map.
+            - If 'log', use a logarithmic scale for the colormap.
               Internally, :math:`log_{10}(i+1)` is used to determine the
               hexagon color. This is equivalent to ``norm=LogNorm()``.
             - If an integer, divide the counts in the specified number
@@ -5239,7 +5239,7 @@ default: :rc:`scatter.edgecolors`
 
         The input may either be actual RGB(A) data, or 2D scalar data, which
         will be rendered as a pseudocolor image. For displaying a grayscale
-        image set up the color mapping using the parameters
+        image set up the colormapping using the parameters
         ``cmap='gray', vmin=0, vmax=255``.
 
         The number of pixels used to render an image is set by the axes size

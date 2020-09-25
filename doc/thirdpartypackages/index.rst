@@ -331,7 +331,7 @@ visualisation of data from csv files or `pandas.DataFrame`\s. Main features:
 
 - Scatter, line, density, histogram, and box plot types
 - Settings for the marker size, line width, number of bins of histogram,
-  color map (from cmocean)
+  colormap (from cmocean)
 - Save figure as editable PDF
 - Code of the plotted graph is available so that it can be reused and modified
   outside of sviewgui

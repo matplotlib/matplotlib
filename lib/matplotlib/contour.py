@@ -1191,7 +1191,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Color argument processing for contouring.
 
-        Note that we base the color mapping on the contour levels
+        Note that we base the colormapping on the contour levels
         and layers, not on the actual range of the Z values.  This
         means we don't have to worry about bad values in Z, and we
         always have the full dynamic range available for the selected

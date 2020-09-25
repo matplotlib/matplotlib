@@ -1980,7 +1980,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2008-04-20 Fix double-zoom bug. - MM
 
-2008-04-15 Speed up color mapping. - EF
+2008-04-15 Speed up colormapping. - EF
 
 2008-04-12 Speed up zooming and panning of dense images. - EF
 
@@ -3197,7 +3197,7 @@ the `API changes <../../api/api_changes.html>`_.
            a sequence of (x,y) tuples for specifying paths in
            collections, quiver, contour, pcolor, transforms.
            Fixed contour bug involving setting limits for
-           color mapping.  Added numpy-style all() to numerix. - EF
+           colormapping.  Added numpy-style all() to numerix. - EF
 
 2006-06-20 Added custom FigureClass hook to pylab interface - see
            examples/custom_figure_class.py
