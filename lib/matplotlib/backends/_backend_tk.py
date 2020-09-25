@@ -61,9 +61,6 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     """
     Blit *aggimage* to *photoimage*.
 
-    A *tk_instance* such as a canvas is required execute the blit.
-    Tcl events must be dispatched to trigger a blit from a non-Tcl thread.
-
     *offsets* is a tuple describing how to fill the ``offset`` field of the
     ``Tk_PhotoImageBlock`` struct: it should be (0, 1, 2, 3) for RGBA8888 data,
     (2, 1, 0, 3) for little-endian ARBG32 (i.e. GBRA8888) data and (1, 2, 3, 0)
