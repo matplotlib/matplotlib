@@ -652,7 +652,7 @@ class Colormap:
         """Get the color for masked values."""
         if not self._isinit:
             self._init()
-        return self._lut[self._i_bad]
+        return np.array(self._lut[self._i_bad])
 
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
@@ -665,7 +665,7 @@ class Colormap:
         """Get the color for low out-of-range values."""
         if not self._isinit:
             self._init()
-        return self._lut[self._i_under]
+        return np.array(self._lut[self._i_under])
 
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
@@ -678,7 +678,7 @@ class Colormap:
         """Get the color for high out-of-range values."""
         if not self._isinit:
             self._init()
-        return self._lut[self._i_over]
+        return np.array(self._lut[self._i_over])
 
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""

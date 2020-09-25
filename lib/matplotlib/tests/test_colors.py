@@ -64,13 +64,43 @@ def test_resample():
 
 
 def test_register_cmap():
-    new_cm = copy.copy(plt.cm.viridis)
-    cm.register_cmap('viridis2', new_cm)
-    assert plt.get_cmap('viridis2') == new_cm
+    new_cm = copy.copy(cm.get_cmap("viridis"))
+    target = "viridis2"
+    cm.register_cmap(target, new_cm)
+    assert plt.get_cmap(target) == new_cm
 
     with pytest.raises(ValueError,
-                       match='Arguments must include a name or a Colormap'):
+                       match="Arguments must include a name or a Colormap"):
         cm.register_cmap()
+
+    with pytest.warns(UserWarning):
+        cm.register_cmap(target, new_cm)
+
+    cm.unregister_cmap(target)
+    with pytest.raises(ValueError,
+                       match=f'{target!r} is not a valid value for name;'):
+        cm.get_cmap(target)
+    # test that second time is error free
+    cm.unregister_cmap(target)
+
+    with pytest.raises(ValueError, match="You must pass a Colormap instance."):
+        cm.register_cmap('nome', cmap='not a cmap')
+
+
+def test_double_register_builtin_cmap():
+    name = "viridis"
+    match = f"Trying to re-register the builtin cmap {name!r}."
+    with pytest.raises(ValueError, match=match):
+        cm.register_cmap(name, cm.get_cmap(name))
+    with pytest.warns(UserWarning):
+        cm.register_cmap(name, cm.get_cmap(name), override_builtin=True)
+
+
+def test_unregister_builtin_cmap():
+    name = "viridis"
+    match = f'cannot unregister {name!r} which is a builtin colormap.'
+    with pytest.raises(ValueError, match=match):
+        cm.unregister_cmap(name)
 
 
 def test_colormap_global_set_warn():
@@ -94,7 +124,8 @@ def test_colormap_global_set_warn():
         new_cm.set_under('k')
 
     # Re-register the original
-    plt.register_cmap(cmap=orig_cmap)
+    with pytest.warns(UserWarning):
+        plt.register_cmap(cmap=orig_cmap, override_builtin=True)
 
 
 def test_colormap_dict_deprecate():
@@ -1185,6 +1216,16 @@ def test_get_under_over_bad():
     assert_array_equal(cmap.get_under(), cmap(-np.inf))
     assert_array_equal(cmap.get_over(), cmap(np.inf))
     assert_array_equal(cmap.get_bad(), cmap(np.nan))
+
+
+@pytest.mark.parametrize('kind', ('over', 'under', 'bad'))
+def test_non_mutable_get_values(kind):
+    cmap = copy.copy(plt.get_cmap('viridis'))
+    init_value = getattr(cmap, f'get_{kind}')()
+    getattr(cmap, f'set_{kind}')('k')
+    black_value = getattr(cmap, f'get_{kind}')()
+    assert np.all(black_value == [0, 0, 0, 1])
+    assert not np.all(init_value == black_value)
 
 
 def test_colormap_alpha_array():
