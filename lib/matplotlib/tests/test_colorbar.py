@@ -644,10 +644,10 @@ def test_anchored_cbar_position_using_specgrid():
     cy1 = cbar.ax.get_position().y1
     cy0 = cbar.ax.get_position().y0
 
-    assert np.isclose(
+    np.testing.assert_allclose(
             [cy1, cy0],
             [y1 * shrink + (1 - shrink) * p0, p0 * (1 - shrink) + y0 * shrink]
-            ).all()
+            )
 
     # horizontal
     shrink = 0.5
@@ -666,7 +666,7 @@ def test_anchored_cbar_position_using_specgrid():
     cx1 = cbar.ax.get_position().x1
     cx0 = cbar.ax.get_position().x0
 
-    assert np.isclose(
+    np.testing.assert_allclose(
             [cx1, cx0],
             [x1 * shrink + (1 - shrink) * p0, p0 * (1 - shrink) + x0 * shrink]
-            ).all()
+            )

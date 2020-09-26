@@ -1564,62 +1564,46 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     kw['orientation'] = loc_settings['orientation']
     location = kw['ticklocation'] = loc_settings['location']
 
-    pad = loc_settings["pad"]
+    anchor = kw.pop('anchor', loc_settings['anchor'])
+    panchor = kw.pop('panchor', loc_settings['panchor'])
+    pad = kw.pop('pad', loc_settings["pad"])
+    wh_space = 2 * pad / (1 - pad)
 
     # we need to none the tree of layoutboxes because constrained_layout can't
     # remove and replace the tree hierarchy w/o a segfault.
     layoutbox.nonetree(parent.get_subplotspec().get_gridspec()._layoutbox)
-    if location == "left":
-        wh_space = 2 * pad / (1 - pad)
-        anchor = kw.pop('anchor', (0.0, 0.5))
-        panchor = kw.pop('panchor', (1.0, 0.5))
 
+    if location in ('left', 'right'):
         # for shrinking
         wh_ratios = [(1-anchor[1])*(1-shrink), shrink, anchor[1]*(1-shrink)]
 
-        gs = parent.get_subplotspec().subgridspec(
-            1, 2, wspace=wh_space, width_ratios=[fraction, 1-fraction-pad])
-        ss_main = gs[1]
-        ss_cb = gs[0].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
-    elif location == "right":
-        wh_space = 2 * pad / (1 - pad)
-        anchor = kw.pop('anchor', (0.0, 0.5))
-        panchor = kw.pop('panchor', (1.0, 0.5))
-
-        # for shrinking
-        wh_ratios = [(1-anchor[1])*(1-shrink), shrink, anchor[1]*(1-shrink)]
-
-        gs = parent.get_subplotspec().subgridspec(
-            1, 2, wspace=wh_space, width_ratios=[1-fraction-pad, fraction])
-        ss_main = gs[0]
-        ss_cb = gs[1].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
-    elif location == "top":
-        wh_space = 2 * pad / (1 - pad)
-        anchor = kw.pop('anchor', (0.5, 1.0))
-        panchor = kw.pop('panchor', (0.5, 0.0))
-
-        # for shrinking
-        wh_ratios = [(1-anchor[0])*(1-shrink), shrink, anchor[0]*(1-shrink)]
-
-        gs = parent.get_subplotspec().subgridspec(
-            2, 1, hspace=wh_space, height_ratios=[fraction, 1-fraction-pad])
-        ss_main = gs[1]
-        ss_cb = gs[0].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
-        aspect = 1 / aspect
-    else:  # "bottom"
-        wh_space = 2 * pad / (1 - pad)
-        anchor = kw.pop('anchor', (0.5, 1.0))
-        panchor = kw.pop('panchor', (0.5, 0.0))
-
+        if location == 'left':
+            gs = parent.get_subplotspec().subgridspec(
+                1, 2, wspace=wh_space, width_ratios=[fraction, 1-fraction-pad])
+            ss_main = gs[1]
+            ss_cb = gs[0].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
+        else:
+            gs = parent.get_subplotspec().subgridspec(
+                1, 2, wspace=wh_space, width_ratios=[1-fraction-pad, fraction])
+            ss_main = gs[0]
+            ss_cb = gs[1].subgridspec(3, 1, hspace=0, height_ratios=wh_ratios)[1]
+    else:
         # for shrinking
         wh_ratios = [anchor[0]*(1-shrink), shrink, (1-anchor[0])*(1-shrink)]
 
-        gs = parent.get_subplotspec().subgridspec(
-            2, 1, hspace=wh_space, height_ratios=[1-fraction-pad, fraction])
-        ss_main = gs[0]
-        ss_cb = gs[1].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
-        aspect = 1 / aspect
-
+        if location == 'bottom':
+            gs = parent.get_subplotspec().subgridspec(
+                2, 1, hspace=wh_space, height_ratios=[1-fraction-pad, fraction])
+            ss_main = gs[0]
+            ss_cb = gs[1].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
+            aspect = 1 / aspect
+        else:
+            gs = parent.get_subplotspec().subgridspec(
+                2, 1, hspace=wh_space, height_ratios=[fraction, 1-fraction-pad])
+            ss_main = gs[1]
+            ss_cb = gs[0].subgridspec(1, 3, wspace=0, width_ratios=wh_ratios)[1]
+            aspect = 1 / aspect
+            
     parent.set_subplotspec(ss_main)
     parent.update_params()
     parent._set_position(parent.figbox)
