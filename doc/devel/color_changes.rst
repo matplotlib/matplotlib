@@ -5,21 +5,21 @@ Default Color changes
 *********************
 
 As discussed at length elsewhere [insert links], ``jet`` is an
-empirically bad color map and should not be the default color map.
+empirically bad colormap and should not be the default colormap.
 Due to the position that changing the appearance of the plot breaks
 backward compatibility, this change has been put off for far longer
 than it should have been.  In addition to changing the default color
 map we plan to take the chance to change the default color-cycle on
-plots and to adopt a different color map for filled plots (``imshow``,
+plots and to adopt a different colormap for filled plots (``imshow``,
 ``pcolor``, ``contourf``, etc) and for scatter like plots.
 
 
 Default Heat Map Colormap
 -------------------------
 
-The choice of a new color map is fertile ground to bike-shedding ("No,
+The choice of a new colormap is fertile ground to bike-shedding ("No,
 it should be _this_ color") so we have a proposed set criteria (via
-Nathaniel Smith) to evaluate proposed color maps.
+Nathaniel Smith) to evaluate proposed colormaps.
 
 - it should be a sequential colormap, because diverging colormaps are
   really misleading unless you know where the "center" of the data is,
@@ -64,9 +64,9 @@ Default Scatter Colormap
 ------------------------
 
 For heat-map like applications it can be desirable to cover as much of
-the luminance scale as possible, however when color mapping markers,
+the luminance scale as possible, however when colormapping markers,
 having markers too close to white can be a problem.  For that reason
-we propose using a different (but maybe related) color map to the
+we propose using a different (but maybe related) colormap to the
 heat map for marker-based.  The design parameters are the same as
 above, only with a more limited luminance variation.
 
@@ -102,7 +102,7 @@ Example script
 Proposed Colormaps
 ++++++++++++++++++
 
-Color Cycle / Qualitative color map
+Color Cycle / Qualitative colormap
 -----------------------------------
 
 When plotting lines it is frequently desirable to plot multiple lines

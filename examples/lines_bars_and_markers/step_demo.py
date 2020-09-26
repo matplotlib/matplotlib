@@ -7,6 +7,11 @@ This example demonstrates the use of `.pyplot.step` for piece-wise constant
 curves. In particular, it illustrates the effect of the parameter *where*
 on the step position.
 
+.. note::
+
+    For the common case that you know the edge positions, use `.pyplot.stairs`
+    instead.
+
 The circular markers created with `.pyplot.plot` show the actual data
 positions so that it's easier to see the effect of *where*.
 

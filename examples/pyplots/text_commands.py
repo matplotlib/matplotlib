@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 fig = plt.figure()
 fig.suptitle('bold figure suptitle', fontsize=14, fontweight='bold')
 
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 fig.subplots_adjust(top=0.85)
 ax.set_title('axes title')
 

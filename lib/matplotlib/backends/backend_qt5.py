@@ -543,13 +543,6 @@ class FigureManagerQT(FigureManagerBase):
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 
-        # Give the keyboard focus to the figure instead of the manager:
-        # StrongFocus accepts both tab and click to focus and will enable the
-        # canvas to process event without clicking.
-        # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
-        self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.canvas.setFocus()
-
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
@@ -577,6 +570,13 @@ class FigureManagerQT(FigureManagerBase):
         if matplotlib.is_interactive():
             self.window.show()
             self.canvas.draw_idle()
+
+        # Give the keyboard focus to the figure instead of the manager:
+        # StrongFocus accepts both tab and click to focus and will enable the
+        # canvas to process event without clicking.
+        # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
+        self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.canvas.setFocus()
 
         self.window.raise_()
 

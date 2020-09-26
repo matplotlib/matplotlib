@@ -110,8 +110,8 @@ The ``Axes.get_axis_bgcolor``, ``Axes.set_axis_bgcolor``,
 The unused ``FONT_SCALE`` and ``fontd`` attributes of the `.RendererSVG`
 class have been removed.
 
-color maps
-~~~~~~~~~~
+colormaps
+~~~~~~~~~
 
 The ``spectral`` colormap has been removed.  The ``Vega*`` colormaps, which
 were aliases for the ``tab*`` colormaps, have been removed.

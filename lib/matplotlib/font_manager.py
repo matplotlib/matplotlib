@@ -38,9 +38,10 @@ except ImportError:
     from dummy_threading import Timer
 
 import matplotlib as mpl
-from matplotlib import afm, cbook, ft2font, rcParams
+from matplotlib import _api, afm, cbook, ft2font, rcParams
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
+from matplotlib.rcsetup import _validators
 
 _log = logging.getLogger(__name__)
 
@@ -566,68 +567,14 @@ def afmFontProperty(fontpath, font):
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
-@cbook.deprecated("3.2", alternative="FontManager.addfont")
-def createFontList(fontfiles, fontext='ttf'):
-    """
-    Create a font lookup list.  The default is to create
-    a list of TrueType fonts.  An AFM font list can optionally be
-    created.
-    """
-
-    fontlist = []
-    #  Add fonts from list of known font files.
-    seen = set()
-    for fpath in fontfiles:
-        _log.debug('createFontDict: %s', fpath)
-        fname = os.path.split(fpath)[1]
-        if fname in seen:
-            continue
-        if fontext == 'afm':
-            try:
-                with open(fpath, 'rb') as fh:
-                    font = afm.AFM(fh)
-            except EnvironmentError:
-                _log.info("Could not open font file %s", fpath)
-                continue
-            except RuntimeError:
-                _log.info("Could not parse font file %s", fpath)
-                continue
-            try:
-                prop = afmFontProperty(fpath, font)
-            except KeyError as exc:
-                _log.info("Could not extract properties for %s: %s",
-                          fpath, exc)
-                continue
-        else:
-            try:
-                font = ft2font.FT2Font(fpath)
-            except (OSError, RuntimeError) as exc:
-                _log.info("Could not open font file %s: %s", fpath, exc)
-                continue
-            except UnicodeError:
-                _log.info("Cannot handle unicode filenames")
-                continue
-            try:
-                prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError,
-                    NotImplementedError) as exc:
-                _log.info("Could not extract properties for %s: %s",
-                          fpath, exc)
-                continue
-
-        fontlist.append(prop)
-        seen.add(fname)
-    return fontlist
-
-
 class FontProperties:
     """
     A class for storing and manipulating font properties.
 
-    The font properties are those described in the `W3C Cascading
-    Style Sheet, Level 1
+    The font properties are the six properties described in the
+    `W3C Cascading Style Sheet, Level 1
     <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ font
-    specification.  The six properties are:
+    specification and *math_fontfamily* for math fonts:
 
     - family: A list of font names in decreasing order of priority.
       The items may include a generic font family name, either
@@ -652,6 +599,12 @@ class FontProperties:
     - size: Either an relative value of 'xx-small', 'x-small',
       'small', 'medium', 'large', 'x-large', 'xx-large' or an
       absolute font size, e.g., 12.
+
+    - math_fontfamily: The family of fonts used to render math text; overrides
+      :rc:`mathtext.fontset`. Supported values are the same as the ones
+      supported by :rc:`mathtext.fontset` ::
+
+        'dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans' and 'custom'.
 
     The default font property for TrueType fonts (as specified in the
     default rcParams) is ::
@@ -690,6 +643,7 @@ class FontProperties:
                  stretch= None,
                  size   = None,
                  fname  = None,  # if set, it's a hardcoded filename to use
+                 math_fontfamily = None,
                  ):
         self._family = _normalize_font_family(rcParams['font.family'])
         self._slant = rcParams['font.style']
@@ -698,6 +652,7 @@ class FontProperties:
         self._stretch = rcParams['font.stretch']
         self._size = rcParams['font.size']
         self._file = None
+        self._math_fontfamily = None
 
         if isinstance(family, str):
             # Treat family as a fontconfig pattern if it is the only
@@ -714,6 +669,7 @@ class FontProperties:
         self.set_stretch(stretch)
         self.set_file(fname)
         self.set_size(size)
+        self.set_math_fontfamily(math_fontfamily)
 
     @classmethod
     def _from_any(cls, arg):
@@ -745,7 +701,8 @@ class FontProperties:
              self.get_weight(),
              self.get_stretch(),
              self.get_size_in_points(),
-             self.get_file())
+             self.get_file(),
+             self.get_math_fontfamily())
         return hash(l)
 
     def __eq__(self, other):
@@ -840,7 +797,7 @@ class FontProperties:
         """
         if style is None:
             style = rcParams['font.style']
-        cbook._check_in_list(['normal', 'italic', 'oblique'], style=style)
+        _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
     set_slant = set_style
 
@@ -850,7 +807,7 @@ class FontProperties:
         """
         if variant is None:
             variant = rcParams['font.variant']
-        cbook._check_in_list(['normal', 'small-caps'], variant=variant)
+        _api.check_in_list(['normal', 'small-caps'], variant=variant)
         self._variant = variant
 
     def set_weight(self, weight):
@@ -934,6 +891,45 @@ class FontProperties:
             else:
                 getattr(self, "set_" + key)(val)
 
+    def get_math_fontfamily(self):
+        """
+        Return the name of the font family used for math text.
+
+        The default font is :rc:`mathtext.fontset`.
+        """
+        if self._math_fontfamily is None:
+            return rcParams['mathtext.fontset']
+        return self._math_fontfamily
+
+    def set_math_fontfamily(self, fontfamily):
+        """
+        Set the font family for text in math mode.
+
+        If not set explicitly, :rc:`mathtext.fontset` will be used.
+
+        Parameters
+        ----------
+        fontfamily : str
+            The name of the font family.
+
+            Available font families are defined in the
+            matplotlibrc.template file
+            :ref:`here <customizing-with-matplotlibrc-files>`
+
+        See Also
+        --------
+        .text.Text.get_math_fontfamily
+        """
+        if fontfamily is None:
+            self._math_fontfamily = None
+            return
+
+        valid_fonts = _validators['mathtext.fontset'].valid.values()
+        # _check_in_list() Validates the parameter math_fontfamily as
+        # if it were passed to rcParams['mathtext.fontset']
+        _api.check_in_list(valid_fonts, math_fontfamily=fontfamily)
+        self._math_fontfamily = fontfamily
+
     def copy(self):
         """Return a copy of self."""
         new = type(self)()
@@ -957,11 +953,6 @@ class _JSONEncoder(json.JSONEncoder):
             return d
         else:
             return super().default(o)
-
-
-@cbook.deprecated("3.2", alternative="json_dump")
-class JSONEncoder(_JSONEncoder):
-    pass
 
 
 def _json_decode(o):

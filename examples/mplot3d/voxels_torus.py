@@ -36,8 +36,7 @@ hsv[..., 2] = zc + 0.5
 colors = matplotlib.colors.hsv_to_rgb(hsv)
 
 # and plot everything
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 ax.voxels(x, y, z, sphere,
           facecolors=colors,
           edgecolors=np.clip(2*colors - 0.5, 0, 1),  # brighter

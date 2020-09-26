@@ -54,7 +54,7 @@ class PlotPanel(wx.Panel):
         self.Fit()
 
     def init_plot_data(self):
-        ax = self.fig.add_subplot(111)
+        ax = self.fig.add_subplot()
 
         x = np.arange(120.0) * 2 * np.pi / 60.0
         y = np.arange(100.0) * 2 * np.pi / 50.0

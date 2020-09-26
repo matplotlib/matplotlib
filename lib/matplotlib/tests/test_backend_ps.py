@@ -39,10 +39,8 @@ needs_usetex = pytest.mark.skipif(
     'eps afm',
     'eps with usetex'
 ])
-def test_savefig_to_stringio(format, use_log, rcParams, orientation,
-                             monkeypatch):
+def test_savefig_to_stringio(format, use_log, rcParams, orientation):
     mpl.rcParams.update(rcParams)
-    monkeypatch.setenv("SOURCE_DATE_EPOCH", "0")  # For reproducibility.
 
     fig, ax = plt.subplots()
 
@@ -70,12 +68,11 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation,
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
 
-        if rcParams.get("ps.usedistiller") or rcParams.get("text.usetex"):
-            # Strip out CreationDate betcase ghostscript doesn't obey
-            # SOURCE_DATE_EPOCH.  Note that in usetex mode, we *always* call
-            # gs_distill, even if ps.usedistiller is unset.
-            s_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", s_val)
-            b_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", b_val)
+        # Strip out CreationDate: ghostscript and cairo don't obey
+        # SOURCE_DATE_EPOCH, and that environment variable is already tested in
+        # test_determinism.
+        s_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", s_val)
+        b_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", b_val)
 
         assert s_val == b_val.replace(b'\r\n', b'\n')
 
@@ -116,6 +113,24 @@ def test_transparency():
     ax.text(.5, .5, "foo", color="r", alpha=0)
 
 
+def test_bbox():
+    fig, ax = plt.subplots()
+    with io.BytesIO() as buf:
+        fig.savefig(buf, format='eps')
+        buf = buf.getvalue()
+
+    bb = re.search(b'^%%BoundingBox: (.+) (.+) (.+) (.+)$', buf, re.MULTILINE)
+    assert bb
+    hibb = re.search(b'^%%HiResBoundingBox: (.+) (.+) (.+) (.+)$', buf,
+                     re.MULTILINE)
+    assert hibb
+
+    for i in range(1, 5):
+        # BoundingBox must use integers, and be ceil/floor of the hi res.
+        assert b'.' not in bb.group(i)
+        assert int(bb.group(i)) == pytest.approx(float(hibb.group(i)), 1)
+
+
 @needs_usetex
 def test_failing_latex():
     """Test failing latex subprocess call"""
@@ -133,3 +148,12 @@ def test_partial_usetex(caplog):
     plt.savefig(io.BytesIO(), format="ps")
     assert caplog.records and all("as if usetex=False" in record.getMessage()
                                   for record in caplog.records)
+
+
+@image_comparison(["useafm.eps"])
+def test_useafm():
+    mpl.rcParams["ps.useafm"] = True
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+    ax.axhline(.5)
+    ax.text(.5, .5, "qk")

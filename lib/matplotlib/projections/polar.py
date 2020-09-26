@@ -3,7 +3,7 @@ import types
 
 import numpy as np
 
-from matplotlib import cbook, rcParams
+from matplotlib import _api, cbook, rcParams
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 import matplotlib.markers as mmarkers
@@ -245,10 +245,6 @@ class ThetaLocator(mticker.Locator):
         else:
             return np.deg2rad(self.base())
 
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        return self.base.autoscale()
-
     @cbook.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
@@ -430,10 +426,6 @@ class RadialLocator(mticker.Locator):
             return self.base()
         else:
             return [tick for tick in self.base() if tick > rorigin]
-
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        return self.base.autoscale()
 
     @cbook.deprecated("3.3")
     def pan(self, numsteps):
@@ -907,7 +899,7 @@ class PolarAxes(Axes):
             self._r_label_position + self.transData)
 
     def get_xaxis_transform(self, which='grid'):
-        cbook._check_in_list(['tick1', 'tick2', 'grid'], which=which)
+        _api.check_in_list(['tick1', 'tick2', 'grid'], which=which)
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -922,7 +914,7 @@ class PolarAxes(Axes):
         elif which == 'grid':
             return self._yaxis_transform
         else:
-            cbook._check_in_list(['tick1', 'tick2', 'grid'], which=which)
+            _api.check_in_list(['tick1', 'tick2', 'grid'], which=which)
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
@@ -1121,7 +1113,7 @@ class PolarAxes(Axes):
         elif direction in ('counterclockwise', 'anticlockwise', 1):
             mtx[0, 0] = 1
         else:
-            cbook._check_in_list(
+            _api.check_in_list(
                 [-1, 1, 'clockwise', 'counterclockwise', 'anticlockwise'],
                 direction=direction)
         self._direction.invalidate()

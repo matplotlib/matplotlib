@@ -9,7 +9,7 @@ import weakref
 
 import numpy as np
 
-from . import artist, cbook, docstring, rcParams
+from . import _api, artist, cbook, docstring, rcParams
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -256,7 +256,7 @@ class Text(Artist):
             aligned according to their horizontal and vertical alignments.  If
             ``"anchor"``, then alignment occurs before rotation.
         """
-        cbook._check_in_list(["anchor", "default", None], rotation_mode=m)
+        _api.check_in_list(["anchor", "default", None], rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 
@@ -956,7 +956,7 @@ class Text(Artist):
         ----------
         align : {'center', 'right', 'left'}
         """
-        cbook._check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
         self.stale = True
 
@@ -972,7 +972,7 @@ class Text(Artist):
         ----------
         align : {'left', 'right', 'center'}
         """
-        cbook._check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(['center', 'right', 'left'], align=align)
         self._multialignment = align
         self.stale = True
 
@@ -1060,6 +1060,40 @@ class Text(Artist):
         """
         self._fontproperties.set_size(fontsize)
         self.stale = True
+
+    def get_math_fontfamily(self):
+        """
+        Return the font family name for math text rendered by Matplotlib.
+
+        The default value is :rc:`mathtext.fontset`.
+
+        See Also
+        --------
+        set_math_fontfamily
+        """
+        return self._fontproperties.get_math_fontfamily()
+
+    def set_math_fontfamily(self, fontfamily):
+        """
+        Set the font family for math text rendered by Matplotlib.
+
+        This does only affect Matplotlib's own math renderer. It has no effect
+        when rendering with TeX (``usetex=True``).
+
+        Parameters
+        ----------
+        fontfamily : str
+            The name of the font family.
+
+            Available font families are defined in the
+            :ref:`matplotlibrc.template file
+            <customizing-with-matplotlibrc-files>`.
+
+        See Also
+        --------
+        get_math_fontfamily
+        """
+        self._fontproperties.set_math_fontfamily(fontfamily)
 
     def set_fontweight(self, weight):
         """
@@ -1160,7 +1194,7 @@ class Text(Artist):
         ----------
         align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
         """
-        cbook._check_in_list(
+        _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
             align=align)
         self._verticalalignment = align
@@ -1293,7 +1327,7 @@ class OffsetFrom:
         ----------
         unit : {'points', 'pixels'}
         """
-        cbook._check_in_list(["points", "pixels"], unit=unit)
+        _api.check_in_list(["points", "pixels"], unit=unit)
         self._unit = unit
 
     def get_unit(self):

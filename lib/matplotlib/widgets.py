@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook, colors, ticker
+from . import _api, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -319,8 +319,7 @@ class Slider(AxesWidget):
         if slidermax is not None and not hasattr(slidermax, 'val'):
             raise ValueError(
                 f"Argument slidermax ({type(slidermax)}) has no 'val'")
-        cbook._check_in_list(['horizontal', 'vertical'],
-                             orientation=orientation)
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         self.orientation = orientation
         self.closedmin = closedmin
@@ -1688,7 +1687,7 @@ class SpanSelector(_SelectorWidget):
 
         rectprops['animated'] = self.useblit
 
-        cbook._check_in_list(['horizontal', 'vertical'], direction=direction)
+        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
         self.direction = direction
 
         self.rect = None
@@ -1855,9 +1854,11 @@ class ToolHandles:
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
         self.ax = ax
-        props = dict(marker=marker, markersize=7, mfc='w', ls='none',
-                     alpha=0.5, visible=False, label='_nolegend_')
-        props.update(marker_props if marker_props is not None else {})
+        props = dict(marker=marker, markersize=7, markerfacecolor='w',
+                     linestyle='none', alpha=0.5, visible=False,
+                     label='_nolegend_')
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
+                     if marker_props is not None else {})
         self._markers = Line2D(x, y, animated=useblit, **props)
         self.ax.add_line(self._markers)
         self.artist = self._markers
@@ -2017,16 +2018,18 @@ class RectangleSelector(_SelectorWidget):
         self.minspanx = minspanx
         self.minspany = minspany
 
-        cbook._check_in_list(['data', 'pixels'], spancoords=spancoords)
+        _api.check_in_list(['data', 'pixels'], spancoords=spancoords)
         self.spancoords = spancoords
         self.drawtype = drawtype
 
         self.maxdist = maxdist
 
         if rectprops is None:
-            props = dict(mec='r')
+            props = dict(markeredgecolor='r')
         else:
-            props = dict(mec=rectprops.get('edgecolor', 'r'))
+            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
+                     if marker_props is not None else {})
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
@@ -2099,8 +2102,8 @@ class RectangleSelector(_SelectorWidget):
             spanx = abs(self.eventpress.x - self.eventrelease.x)
             spany = abs(self.eventpress.y - self.eventrelease.y)
         else:
-            cbook._check_in_list(['data', 'pixels'],
-                                 spancoords=self.spancoords)
+            _api.check_in_list(['data', 'pixels'],
+                               spancoords=self.spancoords)
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
         if (self.drawtype != 'none'
@@ -2383,7 +2386,7 @@ class LassoSelector(_SelectorWidget):
 
     Example usage::
 
-        ax = subplot(111)
+        ax = plt.subplot()
         ax.plot(x, y)
 
         def onselect(verts):
@@ -2503,7 +2506,8 @@ class PolygonSelector(_SelectorWidget):
         self.ax.add_line(self.line)
 
         if markerprops is None:
-            markerprops = dict(mec='k', mfc=lineprops.get('color', 'k'))
+            markerprops = dict(markeredgecolor='k',
+                               markerfacecolor=lineprops.get('color', 'k'))
         self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
                                             useblit=self.useblit,
                                             marker_props=markerprops)

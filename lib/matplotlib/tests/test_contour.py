@@ -325,11 +325,8 @@ def test_contourf_log_extension():
     plt.rcParams['pcolormesh.snap'] = False
 
     # Test that contourf with lognorm is extended correctly
-    fig = plt.figure(figsize=(10, 5))
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10, 5))
     fig.subplots_adjust(left=0.05, right=0.95)
-    ax1 = fig.add_subplot(131)
-    ax2 = fig.add_subplot(132)
-    ax3 = fig.add_subplot(133)
 
     # make data set with large range e.g. between 1e-8 and 1e10
     data_exp = np.linspace(-7.5, 9.5, 1200)

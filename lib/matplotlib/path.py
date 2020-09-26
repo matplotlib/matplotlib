@@ -15,7 +15,7 @@ from weakref import WeakValueDictionary
 import numpy as np
 
 import matplotlib as mpl
-from . import _path, cbook
+from . import _api, _path, cbook
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 from .bezier import BezierSegment
 
@@ -129,7 +129,7 @@ class Path:
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        cbook._check_shape((None, 2), vertices=vertices)
+        _api.check_shape((None, 2), vertices=vertices)
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)

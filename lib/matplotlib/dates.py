@@ -499,8 +499,8 @@ def num2date(x, tz=None):
         Number of days (fraction part represents hours, minutes, seconds)
         since the epoch.  See `.get_epoch` for the
         epoch, which can be changed by :rc:`date.epoch` or `.set_epoch`.
-    tz : str, optional
-        Timezone of *x* (defaults to :rc:`timezone`).
+    tz : str, default: :rc:`timezone`
+        Timezone of *x*.
 
     Returns
     -------
@@ -1194,42 +1194,6 @@ class RRuleLocator(DateLocator):
     def _get_interval(self):
         return self.rule._rrule._interval
 
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """
-        Set the view limits to include the data range.
-        """
-        dmin, dmax = self.datalim_to_dt()
-        delta = relativedelta(dmax, dmin)
-
-        # We need to cap at the endpoints of valid datetime
-        try:
-            start = dmin - delta
-        except ValueError:
-            start = _from_ordinalf(1.0)
-
-        try:
-            stop = dmax + delta
-        except ValueError:
-            # The magic number!
-            stop = _from_ordinalf(3652059.9999999)
-
-        self.rule.set(dtstart=start, until=stop)
-        dmin, dmax = self.datalim_to_dt()
-
-        vmin = self.rule.before(dmin, True)
-        if not vmin:
-            vmin = dmin
-
-        vmax = self.rule.after(dmax, True)
-        if not vmax:
-            vmax = dmax
-
-        vmin = date2num(vmin)
-        vmax = date2num(vmax)
-
-        return self.nonsingular(vmin, vmax)
-
 
 class AutoDateLocator(DateLocator):
     """
@@ -1362,12 +1326,6 @@ class AutoDateLocator(DateLocator):
             return 1. / MUSECONDS_PER_DAY
         else:
             return RRuleLocator.get_unit_generic(self._freq)
-
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """Try to choose the view limits intelligently."""
-        dmin, dmax = self.datalim_to_dt()
-        return self.get_locator(dmin, dmax).autoscale()
 
     def get_locator(self, dmin, dmax):
         """Pick the best locator based on a distance."""
@@ -1537,24 +1495,6 @@ class YearLocator(DateLocator):
                     dt = self.tz.localize(dt, is_dst=True)
 
             ticks.append(dt)
-
-    @cbook.deprecated("3.2")
-    def autoscale(self):
-        """
-        Set the view limits to include the data range.
-        """
-        dmin, dmax = self.datalim_to_dt()
-
-        ymin = self.base.le(dmin.year)
-        ymax = self.base.ge(dmax.year)
-        vmin = dmin.replace(year=ymin, **self.replaced)
-        vmin = vmin.astimezone(self.tz)
-        vmax = dmax.replace(year=ymax, **self.replaced)
-        vmax = vmax.astimezone(self.tz)
-
-        vmin = date2num(vmin)
-        vmax = date2num(vmax)
-        return self.nonsingular(vmin, vmax)
 
 
 class MonthLocator(RRuleLocator):

@@ -21,7 +21,7 @@ from matplotlib.offsetbox import (
 class AnchoredText(AnchoredOffsetbox):
     def __init__(self, s, loc, pad=0.4, borderpad=0.5,
                  prop=None, frameon=True):
-        self.txt = TextArea(s, minimumdescent=False)
+        self.txt = TextArea(s)
         super().__init__(loc, pad=pad, borderpad=borderpad,
                          child=self.txt, prop=prop, frameon=frameon)
 
@@ -93,13 +93,10 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         """
         self.size_bar = AuxTransformBox(transform)
         self.size_bar.add_artist(Line2D([0, size], [0, 0], color="black"))
-
-        self.txt_label = TextArea(label, minimumdescent=False)
-
+        self.txt_label = TextArea(label)
         self._box = VPacker(children=[self.size_bar, self.txt_label],
                             align="center",
                             pad=0, sep=sep)
-
         super().__init__(loc, pad=pad, borderpad=borderpad,
                          child=self._box, prop=prop, frameon=frameon)
 

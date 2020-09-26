@@ -39,7 +39,7 @@ reconfiguration.
 
 This approach will make easier to create and share tools among
 users. In the far future, we can even foresee a kind of Marketplace
-for `Tools` where the most popular can be added into the main
+for ``Tool``\ s where the most popular can be added into the main
 distribution.
 
 Detailed description
@@ -53,12 +53,12 @@ example see https://github.com/matplotlib/matplotlib/issues/2694 also
 the shortcuts are hardcoded and again not easily modifiable
 https://github.com/matplotlib/matplotlib/issues/2699
 
-The proposed solution is to take the actions out of the `Toolbar` and
-the shortcuts out of the `Canvas`.  This actions and shortcuts will be
-in the form of `Tools`.
+The proposed solution is to take the actions out of the ``Toolbar`` and the
+shortcuts out of the ``Canvas``. The actions and shortcuts will be in the form
+of ``Tool``\ s.
 
-A new class `Navigation` will be the bridge between the events from
-the `Canvas` and `Toolbar` and redirect them to the appropriate `Tool`.
+A new class ``Navigation`` will be the bridge between the events from the
+``Canvas`` and ``Toolbar`` and redirect them to the appropriate ``Tool``.
 
 At the end the user interaction will be divided into three classes:
 
@@ -75,7 +75,8 @@ Implementation
 ToolBase(object)
 ----------------
 
-Tools can have a graphical representation as the `SubplotTool` or not even be present in the Toolbar as `Quit`
+Tools can have a graphical representation as the ``SubplotTool`` or not even be
+present in the Toolbar as ``Quit``.
 
 The `.ToolBase` has the following class attributes for configuration at definition time
 
@@ -93,7 +94,8 @@ The following instance attributes are set at instantiation:
    * keypress associated with the Tool Keymap
    * Call to navigation.trigger_tool(name)
  * set_figure(self, figure): Set the figure and navigation attributes
- * ``destroy(self, *args)``: Destroy the `Tool` graphical interface (if exists)
+ * ``destroy(self, *args)``: Destroy the ``Tool`` graphical interface (if
+   exists)
 
 **Available Tools**
  * ToolQuit
@@ -137,7 +139,7 @@ NavigationBase
 
 Defines the following attributes
  * canvas:
- * keypresslock: Lock to know if the `canvas` key_press_event` is
+ * keypresslock: Lock to know if the ``canvas`` ``key_press_event`` is
         available and process it
  * messagelock: Lock to know if the message is available to write
 
@@ -152,9 +154,9 @@ Public methods for **User use**:
    associated with the tool
  * set_tool_keymap(self, name, ``*keys``): Set the keys for the given tool
  * remove_tool(self, name): Removes tool from the navigation control.
- * add_tools(self, tools): Add multiple tools to `Navigation`
+ * add_tools(self, tools): Add multiple tools to ``Navigation``
  * add_tool(self, name, tool, group=None, position=None): Add a tool
-   to the Navigation
+   to the ``Navigation``
  * tool_trigger_event(self, name, sender=None, canvasevent=None,
    data=None): Trigger a tool and fire the event
 
@@ -168,20 +170,20 @@ ToolbarBase
 -----------
 
 Methods for **Backend implementation**
- * add_toolitem(self, name, group, position, image, description,
-   toggle): Add a toolitem to the toolbar. This method is a callback
-   from `tool_added_event` (emitted by navigation)
- * set_message(self, s): Display a message on toolbar or in status bar
- * toggle_toolitem(self, name): Toggle the toolitem without firing
-   event.
- * remove_toolitem(self, name): Remove a toolitem from the `Toolbar`
+
+* ``add_toolitem(self, name, group, position, image, description, toggle)``:
+  Add a toolitem to the toolbar. This method is a callback from
+  ``tool_added_event`` (emitted by navigation)
+* ``set_message(self, s)``: Display a message on toolbar or in status bar
+* ``toggle_toolitem(self, name)``: Toggle the toolitem without firing event.
+* ``remove_toolitem(self, name)``: Remove a toolitem from the ``Toolbar``
 
 
 Backward compatibility
 ======================
 
 For backward compatibility added 'navigation' to the list of values
-supported by :rc:`toolbar`, that is used for Navigation classes
+supported by :rc:`toolbar`, that is used for ``Navigation`` classes
 instantiation instead of the NavigationToolbar classes
 
 With this parameter, it makes it transparent to anyone using the

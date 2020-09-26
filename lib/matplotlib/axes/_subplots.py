@@ -5,7 +5,6 @@ from matplotlib import cbook, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
-import matplotlib._layoutbox as layoutbox
 
 
 class SubplotBase:
@@ -34,29 +33,10 @@ class SubplotBase:
         **kwargs
             Keyword arguments are passed to the Axes (sub)class constructor.
         """
-
-        self.figure = fig
-        self._subplotspec = SubplotSpec._from_subplot_args(fig, args)
-        self.update_params()
         # _axes_class is set in the subplot_class_factory
-        self._axes_class.__init__(self, fig, self.figbox, **kwargs)
-        # add a layout box to this, for both the full axis, and the poss
-        # of the axis.  We need both because the axes may become smaller
-        # due to parasitic axes and hence no longer fill the subplotspec.
-        if self._subplotspec._layoutbox is None:
-            self._layoutbox = None
-            self._poslayoutbox = None
-        else:
-            name = self._subplotspec._layoutbox.name + '.ax'
-            name = name + layoutbox.seq_id()
-            self._layoutbox = layoutbox.LayoutBox(
-                    parent=self._subplotspec._layoutbox,
-                    name=name,
-                    artist=self)
-            self._poslayoutbox = layoutbox.LayoutBox(
-                    parent=self._layoutbox,
-                    name=self._layoutbox.name+'.pos',
-                    pos=True, subplot=True, artist=self)
+        self._axes_class.__init__(self, fig, [0, 0, 1, 1], **kwargs)
+        # This will also update the axes position.
+        self.set_subplotspec(SubplotSpec._from_subplot_args(fig, args))
 
     def __reduce__(self):
         # get the first axes class which does not inherit from a subplotbase
@@ -67,12 +47,15 @@ class SubplotBase:
                 (axes_class,),
                 self.__getstate__())
 
+    @cbook.deprecated(
+        "3.4", alternative="get_subplotspec",
+        addendum="(get_subplotspec returns a SubplotSpec instance.)")
     def get_geometry(self):
         """Get the subplot geometry, e.g., (2, 2, 3)."""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1 + 1  # for compatibility
 
-    # COVERAGE NOTE: Never used internally or from examples
+    @cbook.deprecated("3.4", alternative="set_subplotspec")
     def change_geometry(self, numrows, numcols, num):
         """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols,
@@ -87,16 +70,33 @@ class SubplotBase:
     def set_subplotspec(self, subplotspec):
         """Set the `.SubplotSpec`. instance associated with the subplot."""
         self._subplotspec = subplotspec
+        self._set_position(subplotspec.get_position(self.figure))
 
     def get_gridspec(self):
         """Return the `.GridSpec` instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
 
+    @cbook.deprecated(
+        "3.4", alternative="get_subplotspec().get_position(self.figure)")
+    @property
+    def figbox(self):
+        return self.get_subplotspec().get_position(self.figure)
+
+    @cbook.deprecated("3.4", alternative="get_gridspec().nrows")
+    @property
+    def numRows(self):
+        return self.get_gridspec().nrows
+
+    @cbook.deprecated("3.4", alternative="get_gridspec().ncols")
+    @property
+    def numCols(self):
+        return self.get_gridspec().ncols
+
+    @cbook.deprecated("3.4")
     def update_params(self):
         """Update the subplot position from ``self.figure.subplotpars``."""
-        self.figbox, _, _, self.numRows, self.numCols = \
-            self.get_subplotspec().get_position(self.figure,
-                                                return_all=True)
+        # Now a no-op, as figbox/numRows/numCols are (deprecated) auto-updating
+        # properties.
 
     @cbook.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
     @property
@@ -108,15 +108,19 @@ class SubplotBase:
     def colNum(self):
         return self.get_subplotspec().colspan.start
 
+    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_first_row()")
     def is_first_row(self):
         return self.get_subplotspec().rowspan.start == 0
 
+    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_last_row()")
     def is_last_row(self):
         return self.get_subplotspec().rowspan.stop == self.get_gridspec().nrows
 
+    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_first_col()")
     def is_first_col(self):
         return self.get_subplotspec().colspan.start == 0
 
+    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_last_col()")
     def is_last_col(self):
         return self.get_subplotspec().colspan.stop == self.get_gridspec().ncols
 
@@ -127,8 +131,9 @@ class SubplotBase:
         x-labels are only kept for subplots on the last row; y-labels only for
         subplots on the first column.
         """
-        lastrow = self.is_last_row()
-        firstcol = self.is_first_col()
+        ss = self.get_subplotspec()
+        lastrow = ss.is_last_row()
+        firstcol = ss.is_first_col()
         if not lastrow:
             for label in self.get_xticklabels(which="both"):
                 label.set_visible(False)
@@ -159,29 +164,8 @@ class SubplotBase:
             twin.set_label(real_label)
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
-        if self._layoutbox is not None and twin._layoutbox is not None:
-            # make the layout boxes be explicitly the same
-            twin._layoutbox.constrain_same(self._layoutbox)
-            twin._poslayoutbox.constrain_same(self._poslayoutbox)
         self._twinned_axes.join(self, twin)
         return twin
-
-    def __repr__(self):
-        fields = []
-        if self.get_label():
-            fields += [f"label={self.get_label()!r}"]
-        titles = []
-        for k in ["left", "center", "right"]:
-            title = self.get_title(loc=k)
-            if title:
-                titles.append(f"{k!r}:{title!r}")
-        if titles:
-            fields += ["title={" + ",".join(titles) + "}"]
-        if self.get_xlabel():
-            fields += [f"xlabel={self.get_xlabel()!r}"]
-        if self.get_ylabel():
-            fields += [f"ylabel={self.get_ylabel()!r}"]
-        return f"<{self.__class__.__name__}:" + ", ".join(fields) + ">"
 
 
 # this here to support cartopy which was using a private part of the

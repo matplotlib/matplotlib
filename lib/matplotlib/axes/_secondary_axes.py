@@ -1,10 +1,10 @@
 import numpy as np
 
+from matplotlib import _api
 import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
-from matplotlib.axes import _axes
-from matplotlib.axes._base import _AxesBase
+from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
 
 
 class SecondaryAxis(_AxesBase):
@@ -36,8 +36,6 @@ class SecondaryAxis(_AxesBase):
             self._otherstrings = ['top', 'bottom']
         self._parentscale = None
         # this gets positioned w/o constrained_layout so exclude:
-        self._layoutbox = None
-        self._poslayoutbox = None
 
         self.set_location(location)
         self.set_functions(functions)
@@ -72,7 +70,7 @@ class SecondaryAxis(_AxesBase):
             either 'top' or 'bottom' for orientation='x' or
             'left' or 'right' for orientation='y' axis.
         """
-        cbook._check_in_list(self._locstrings, align=align)
+        _api.check_in_list(self._locstrings, align=align)
         if align == self._locstrings[1]:  # Need to change the orientation.
             self._locstrings = self._locstrings[::-1]
         self.spines[self._locstrings[0]].set_visible(True)
@@ -116,13 +114,12 @@ class SecondaryAxis(_AxesBase):
         else:
             bounds = [self._pos, 0, 1e-10, 1]
 
-        secondary_locator = _axes._InsetLocator(bounds, self._parent.transAxes)
-
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
         # figure coordinates.
-        # it gets called in `ax.apply_aspect() (of all places)
-        self.set_axes_locator(secondary_locator)
+        # it gets called in ax.apply_aspect() (of all places)
+        self.set_axes_locator(
+            _TransformedBoundsLocator(bounds, self._parent.transAxes))
 
     def apply_aspect(self, position=None):
         # docstring inherited.
@@ -251,56 +248,6 @@ class SecondaryAxis(_AxesBase):
         sets a warning.
         """
         cbook._warn_external("Secondary axes can't set the aspect ratio")
-
-    def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
-        """
-        Set the label for the x-axis.
-
-        Parameters
-        ----------
-        xlabel : str
-            The label text.
-
-        labelpad : float, default: ``self.xaxis.labelpad``
-            Spacing in points between the label and the x-axis.
-
-        Other Parameters
-        ----------------
-        **kwargs : `.Text` properties
-            `.Text` properties control the appearance of the label.
-
-        See Also
-        --------
-        text : Documents the properties supported by `.Text`.
-        """
-        if labelpad is not None:
-            self.xaxis.labelpad = labelpad
-        return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
-
-    def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
-        """
-        Set the label for the y-axis.
-
-        Parameters
-        ----------
-        ylabel : str
-            The label text.
-
-        labelpad : float, default: ``self.yaxis.labelpad``
-            Spacing in points between the label and the y-axis.
-
-        Other Parameters
-        ----------------
-        **kwargs : `.Text` properties
-            `.Text` properties control the appearance of the label.
-
-        See Also
-        --------
-        text : Documents the properties supported by `.Text`.
-        """
-        if labelpad is not None:
-            self.yaxis.labelpad = labelpad
-        return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
     def set_color(self, color):
         """

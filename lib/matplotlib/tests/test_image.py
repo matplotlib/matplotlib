@@ -27,20 +27,16 @@ def test_image_interps():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
-    X = np.arange(100)
-    X = X.reshape(5, 20)
+    X = np.arange(100).reshape(5, 20)
 
-    fig = plt.figure()
-    ax1 = fig.add_subplot(311)
+    fig, (ax1, ax2, ax3) = plt.subplots(3)
     ax1.imshow(X, interpolation='nearest')
     ax1.set_title('three interpolations')
     ax1.set_ylabel('nearest')
 
-    ax2 = fig.add_subplot(312)
     ax2.imshow(X, interpolation='bilinear')
     ax2.set_ylabel('bilinear')
 
-    ax3 = fig.add_subplot(313)
     ax3.imshow(X, interpolation='bicubic')
     ax3.set_ylabel('bicubic')
 
@@ -69,11 +65,9 @@ def test_interp_nearest_vs_none():
     rcParams['savefig.dpi'] = 3
     X = np.array([[[218, 165, 32], [122, 103, 238]],
                   [[127, 255, 0], [255, 99, 71]]], dtype=np.uint8)
-    fig = plt.figure()
-    ax1 = fig.add_subplot(121)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.imshow(X, interpolation='none')
     ax1.set_title('interpolation none')
-    ax2 = fig.add_subplot(122)
     ax2.imshow(X, interpolation='nearest')
     ax2.set_title('interpolation nearest')
 
@@ -260,19 +254,13 @@ def test_imsave_pil_kwargs_tiff():
 
 @image_comparison(['image_alpha'], remove_text=True)
 def test_image_alpha():
-    plt.figure()
-
     np.random.seed(0)
     Z = np.random.rand(6, 6)
 
-    plt.subplot(131)
-    plt.imshow(Z, alpha=1.0, interpolation='none')
-
-    plt.subplot(132)
-    plt.imshow(Z, alpha=0.5, interpolation='none')
-
-    plt.subplot(133)
-    plt.imshow(Z, alpha=0.5, interpolation='nearest')
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    ax1.imshow(Z, alpha=1.0, interpolation='none')
+    ax2.imshow(Z, alpha=0.5, interpolation='none')
+    ax3.imshow(Z, alpha=0.5, interpolation='nearest')
 
 
 def test_cursor_data():
@@ -853,6 +841,14 @@ def test_mask_image():
     ax2.imshow(A, interpolation='nearest')
 
 
+def test_mask_image_all():
+    # Test behavior with an image that is entirely masked does not warn
+    data = np.full((2, 2), np.nan)
+    fig, ax = plt.subplots()
+    ax.imshow(data)
+    fig.canvas.draw_idle()  # would emit a warning
+
+
 @image_comparison(['imshow_endianess.png'], remove_text=True)
 def test_imshow_endianess():
     x = np.arange(10)
@@ -1082,13 +1078,18 @@ def test_image_array_alpha(fig_test, fig_ref):
     alpha = zz / zz.max()
 
     cmap = plt.get_cmap('viridis')
-    ax = fig_test.add_subplot(111)
+    ax = fig_test.add_subplot()
     ax.imshow(zz, alpha=alpha, cmap=cmap, interpolation='nearest')
 
-    ax = fig_ref.add_subplot(111)
+    ax = fig_ref.add_subplot()
     rgba = cmap(colors.Normalize()(zz))
     rgba[..., -1] = alpha
     ax.imshow(rgba, interpolation='nearest')
+
+
+def test_image_array_alpha_validation():
+    with pytest.raises(TypeError, match="alpha must be a float, two-d"):
+        plt.imshow(np.zeros((2, 2)), alpha=[1, 1])
 
 
 @pytest.mark.style('mpl20')
@@ -1204,3 +1205,22 @@ def test_imshow_quantitynd():
     ax.imshow(arr)
     # executing the draw should not raise an exception
     fig.canvas.draw()
+
+
+@check_figures_equal(extensions=['png'])
+def test_huge_range_log(fig_test, fig_ref):
+    data = np.full((5, 5), -1, dtype=np.float64)
+    data[0:2, :] = 1E20
+
+    ax = fig_test.subplots()
+    im = ax.imshow(data, norm=colors.LogNorm(vmin=100, vmax=data.max()),
+                   interpolation='nearest', cmap='viridis')
+
+    data = np.full((5, 5), -1, dtype=np.float64)
+    data[0:2, :] = 1000
+
+    cm = copy(plt.get_cmap('viridis'))
+    cm.set_under('w')
+    ax = fig_ref.subplots()
+    im = ax.imshow(data, norm=colors.Normalize(vmin=100, vmax=data.max()),
+                   interpolation='nearest', cmap=cm)

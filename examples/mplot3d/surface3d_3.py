@@ -11,8 +11,7 @@ from matplotlib.ticker import LinearLocator
 import numpy as np
 
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 # Make data.
 X = np.arange(-5, 5, 0.25)
