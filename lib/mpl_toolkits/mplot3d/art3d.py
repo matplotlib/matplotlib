@@ -673,7 +673,7 @@ class Poly3DCollection(PolyCollection):
         # FIXME: This may no longer be needed?
         if self._A is not None:
             self.update_scalarmappable()
-            self._facecolors3d = self._facecolors
+            self._facecolors3d = self._facecolor
 
         txs, tys, tzs = proj3d._proj_transform_vec(self._vec, renderer.M)
         xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
