@@ -149,10 +149,10 @@ class TextToPath:
 
         xpositions = []
         glyph_ids = []
-        for char, (_, x) in zip(s, _text_layout.layout(s, font)):
-            char_id = self._get_char_id(font, ord(char))
+        for item in _text_layout.layout(s, font):
+            char_id = self._get_char_id(font, ord(item.char))
             glyph_ids.append(char_id)
-            xpositions.append(x)
+            xpositions.append(item.x)
             if char_id not in glyph_map:
                 glyph_map_new[char_id] = font.get_path()
 

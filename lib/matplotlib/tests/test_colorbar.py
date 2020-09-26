@@ -21,10 +21,10 @@ def _get_cmap_norms():
     Helper function for _colorbar_extension_shape and
     colorbar_extension_length.
     """
-    # Create a color map and specify the levels it represents.
+    # Create a colormap and specify the levels it represents.
     cmap = cm.get_cmap("RdBu", lut=5)
     clevs = [-5., -2.5, -.5, .5, 1.5, 3.5]
-    # Define norms for the color maps.
+    # Define norms for the colormaps.
     norms = dict()
     norms['neither'] = BoundaryNorm(clevs, len(clevs) - 1)
     norms['min'] = BoundaryNorm([-10] + clevs[1:], len(clevs) - 1)
@@ -224,13 +224,13 @@ def test_remove_from_figure(use_gridspec):
     fig, ax = plt.subplots()
     sc = ax.scatter([1, 2], [3, 4], cmap="spring")
     sc.set_array(np.array([5, 6]))
-    pre_figbox = np.array(ax.figbox)
+    pre_position = ax.get_position()
     cb = fig.colorbar(sc, use_gridspec=use_gridspec)
     fig.subplots_adjust()
     cb.remove()
     fig.subplots_adjust()
-    post_figbox = np.array(ax.figbox)
-    assert (pre_figbox == post_figbox).all()
+    post_position = ax.get_position()
+    assert (pre_position.get_points() == post_position.get_points()).all()
 
 
 def test_colorbarbase():

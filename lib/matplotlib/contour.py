@@ -8,6 +8,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
@@ -787,7 +788,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             self.logscale = False
 
-        cbook._check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
+        _api.check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
         if self.extent is not None and len(self.extent) != 4:
             raise ValueError(
                 "If given, 'extent' must be None or (x0, x1, y0, y1)")
@@ -1190,7 +1191,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Color argument processing for contouring.
 
-        Note that we base the color mapping on the contour levels
+        Note that we base the colormapping on the contour levels
         and layers, not on the actual range of the Z values.  This
         means we don't have to worry about bad values in Z, and we
         always have the full dynamic range available for the selected
@@ -1474,9 +1475,7 @@ class QuadContourSet(ContourSet):
         convert them to 2D using meshgrid.
         """
         x, y = args[:2]
-        kwargs = self.axes._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.axes.convert_xunits(x)
-        y = self.axes.convert_yunits(y)
+        x, y = self.axes._process_unit_info([("x", x), ("y", y)], kwargs)
 
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)

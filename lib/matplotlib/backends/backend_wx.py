@@ -957,11 +957,6 @@ class FigureFrameWx(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self._onClose)
 
-    @cbook.deprecated("3.2", alternative="self.GetStatusBar()")
-    @property
-    def statusbar(self):
-        return self.GetStatusBar()
-
     @property
     def toolmanager(self):
         return self.figmgr.toolmanager
@@ -1308,16 +1303,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         dc.SetBrush(wx.Brush(color))
         dc.DrawRectangle(rect)
 
-    @cbook.deprecated("3.2")
-    def set_status_bar(self, statbar):
-        self.GetTopLevelParent().SetStatusBar(statbar)
-
-    @cbook.deprecated("3.2",
-                      alternative="self.GetTopLevelParent().GetStatusBar()")
-    @property
-    def statbar(self):
-        return self.GetTopLevelParent().GetStatusBar()
-
     def set_message(self, s):
         if self._coordinates:
             self._label_text.SetLabel(s)
@@ -1450,27 +1435,6 @@ class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
         NavigationToolbar2Wx.configure_subplots(
             self._make_classic_style_pseudo_toolbar())
-
-    @cbook.deprecated("3.2")
-    def configure_subplots(self):
-        frame = wx.Frame(None, -1, "Configure subplots")
-        _set_frame_icon(frame)
-
-        toolfig = Figure((6, 3))
-        canvas = self.get_canvas(frame, toolfig)
-
-        # Now put all into a sizer
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        # This way of adding to sizer allows resizing
-        sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
-        frame.SetSizer(sizer)
-        frame.Fit()
-        SubplotTool(self.canvas.figure, toolfig)
-        frame.Show()
-
-    @cbook.deprecated("3.2")
-    def get_canvas(self, frame, fig):
-        return type(self.canvas)(frame, -1, fig)
 
 
 class SaveFigureWx(backend_tools.SaveFigureBase):

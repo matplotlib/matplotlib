@@ -18,9 +18,9 @@ None so far.
 Abstract
 ========
 
-When one axis of a 2-dimensional plot if overridden via `~.Axes.set_xlim` or `~.Axes.set_ylim`,
-automatic scaling of the remaining axis should be based on the data that falls
-within the specified limits of the first axis.
+When one Axis of a 2-dimensional plot is overridden via `~.Axes.set_xlim` or
+`~.Axes.set_ylim`, automatic scaling of the remaining Axis should be based on
+the data that falls within the specified limits of the first Axis.
 
 Detailed description
 ====================

@@ -159,7 +159,7 @@ Implementation
    should be divided on a per-module basis so no single developer is
    over-burdened by it.
 
-3. Reorganize the API docs using autosummary and `sphinx-autogen`.
+3. Reorganize the API docs using autosummary and ``sphinx-autogen``.
    This should hopefully have minimal impact on the narrative
    documentation.
 
@@ -167,7 +167,7 @@ Implementation
    extracts the module docstring from the example and includes it in a
    non-literal part of the example page.
 
-5. Use `sphinx-quickstart` to generate a new-style Sphinx Makefile.
+5. Use ``sphinx-quickstart`` to generate a new-style Sphinx Makefile.
    The following features in the current :file:`make.py` will have to be
    addressed in some other way:
 

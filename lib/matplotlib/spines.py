@@ -1,7 +1,7 @@
 import numpy as np
 
 import matplotlib
-from matplotlib import cbook, docstring, rcParams
+from matplotlib import _api, cbook, docstring, rcParams
 from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -400,8 +400,8 @@ class Spine(mpatches.Patch):
                 position = ('data', 0)
         assert len(position) == 2, 'position should be 2-tuple'
         position_type, amount = position
-        cbook._check_in_list(['axes', 'outward', 'data'],
-                             position_type=position_type)
+        _api.check_in_list(['axes', 'outward', 'data'],
+                           position_type=position_type)
         if self.spine_type in ['left', 'right']:
             base_transform = self.axes.get_yaxis_transform(which='grid')
         elif self.spine_type in ['top', 'bottom']:

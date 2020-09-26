@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image
 import tornado
 
-from matplotlib import backend_bases, cbook
+from matplotlib import _api, backend_bases
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
 
@@ -165,7 +165,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         draw this mode may be changed if the resulting image has any
         transparent component.
         """
-        cbook._check_in_list(['full', 'diff'], mode=mode)
+        _api.check_in_list(['full', 'diff'], mode=mode)
         if self._current_image_mode != mode:
             self._current_image_mode = mode
             self.handle_send_image_mode(None)
@@ -264,6 +264,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         guiEvent = event.get('guiEvent', None)
         if e_type == 'button_press':
             self.button_press_event(x, y, button, guiEvent=guiEvent)
+        elif e_type == 'dblclick':
+            self.button_press_event(x, y, button, dblclick=True,
+                                    guiEvent=guiEvent)
         elif e_type == 'button_release':
             self.button_release_event(x, y, button, guiEvent=guiEvent)
         elif e_type == 'motion_notify':
@@ -274,9 +277,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.leave_notify_event()
         elif e_type == 'scroll':
             self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
-    handle_button_press = handle_button_release = handle_motion_notify = \
-        handle_figure_enter = handle_figure_leave = handle_scroll = \
-        _handle_mouse
+    handle_button_press = handle_button_release = handle_dblclick = \
+        handle_figure_enter = handle_figure_leave = handle_motion_notify = \
+        handle_scroll = _handle_mouse
 
     def _handle_key(self, event):
         key = _handle_key(event['key'])

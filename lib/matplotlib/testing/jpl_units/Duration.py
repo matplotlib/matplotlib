@@ -2,7 +2,7 @@
 
 import operator
 
-from matplotlib import cbook
+from matplotlib import _api
 
 
 class Duration:
@@ -21,7 +21,7 @@ class Duration:
         - frame     The frame of the duration.  Must be 'ET' or 'UTC'
         - seconds  The number of seconds in the Duration.
         """
-        cbook._check_in_list(self.allowed, frame=frame)
+        _api.check_in_list(self.allowed, frame=frame)
         self._frame = frame
         self._seconds = seconds
 

@@ -382,14 +382,14 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     fname : str or path-like or file-like
         If `str` or `os.PathLike`, the file is opened using the flags specified
         by *flag* and *encoding*.  If a file-like object, it is passed through.
-    flag : str, default 'r'
+    flag : str, default: 'r'
         Passed as the *mode* argument to `open` when *fname* is `str` or
         `os.PathLike`; ignored if *fname* is file-like.
-    return_opened : bool, default False
+    return_opened : bool, default: False
         If True, return both the file object and a boolean indicating whether
         this was a new file (that the caller needs to close).  If False, return
         only the new file.
-    encoding : str or None, default None
+    encoding : str or None, default: None
         Passed as the *mode* argument to `open` when *fname* is `str` or
         `os.PathLike`; ignored if *fname* is file-like.
 
@@ -483,7 +483,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=False):
 
 def _get_data_path(*args):
     """
-    Return the `Path` to a resource file provided by Matplotlib.
+    Return the `pathlib.Path` to a resource file provided by Matplotlib.
 
     ``*args`` specify a path relative to the base data path.
     """
@@ -989,7 +989,7 @@ def _combine_masks(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2 and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2 and 4 if `numpy.isfinite`
     does not yield a Boolean array.  Category 3 is included to
     support RGB or RGBA ndarrays, which are assumed to have only
     valid values and which are passed through unchanged.
@@ -1243,9 +1243,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     return bxpstats
 
 
-# The ls_mapper maps short codes for line style to their full name used by
-# backends; the reverse mapper is for mapping full names to short ones.
+#: Maps short codes for line style to their full name used by backends.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
+#: Maps full names for line styles used by backends to their short codes.
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
@@ -1349,12 +1349,23 @@ def _reshape_2D(X, name):
     Use Fortran ordering to convert ndarrays and lists of iterables to lists of
     1D arrays.
 
-    Lists of iterables are converted by applying `np.asanyarray` to each of
+    Lists of iterables are converted by applying `numpy.asanyarray` to each of
     their elements.  1D ndarrays are returned in a singleton list containing
     them.  2D ndarrays are converted to the list of their *columns*.
 
     *name* is used to generate the error message for invalid inputs.
     """
+
+    # unpack if we have a values or to_numpy method.
+    try:
+        X = X.to_numpy()
+    except AttributeError:
+        try:
+            if isinstance(X.values, np.ndarray):
+                X = X.values
+        except AttributeError:
+            pass
+
     # Iterate over columns for ndarrays.
     if isinstance(X, np.ndarray):
         X = X.T
@@ -2093,6 +2104,8 @@ def _warn_external(message, category=None):
     function back to `warnings.warn`, i.e. ``cbook._warn_external =
     warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
     etc.).
+
+    :meta public:
     """
     frame = sys._getframe()
     for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
@@ -2266,84 +2279,6 @@ def _check_isinstance(_types, **kwargs):
                     ", ".join(names[:-1]) + " or " + names[-1]
                     if len(names) > 1 else names[0],
                     type_name(type(v))))
-
-
-def _check_in_list(_values, **kwargs):
-    """
-    For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
-    if not, raise an appropriate ValueError.
-
-    Examples
-    --------
-    >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
-    """
-    values = _values
-    for k, v in kwargs.items():
-        if v not in values:
-            raise ValueError(
-                "{!r} is not a valid value for {}; supported values are {}"
-                .format(v, k, ', '.join(map(repr, values))))
-
-
-def _check_shape(_shape, **kwargs):
-    """
-    For each *key, value* pair in *kwargs*, check that *value* has the shape
-    *_shape*, if not, raise an appropriate ValueError.
-
-    *None* in the shape is treated as a "free" size that can have any length.
-    e.g. (None, 2) -> (N, 2)
-
-    The values checked must be numpy arrays.
-
-    Examples
-    --------
-    To check for (N, 2) shaped arrays
-
-    >>> cbook._check_in_list((None, 2), arg=arg, other_arg=other_arg)
-    """
-    target_shape = _shape
-    for k, v in kwargs.items():
-        data_shape = v.shape
-
-        if len(target_shape) != len(data_shape) or any(
-                t not in [s, None]
-                for t, s in zip(target_shape, data_shape)
-        ):
-            dim_labels = iter(itertools.chain(
-                'MNLIJKLH',
-                (f"D{i}" for i in itertools.count())))
-            text_shape = ", ".join((str(n)
-                                    if n is not None
-                                    else next(dim_labels)
-                                    for n in target_shape))
-
-            raise ValueError(
-                f"{k!r} must be {len(target_shape)}D "
-                f"with shape ({text_shape}). "
-                f"Your input has shape {v.shape}."
-            )
-
-
-def _check_getitem(_mapping, **kwargs):
-    """
-    *kwargs* must consist of a single *key, value* pair.  If *key* is in
-    *_mapping*, return ``_mapping[value]``; else, raise an appropriate
-    ValueError.
-
-    Examples
-    --------
-    >>> cbook._check_getitem({"foo": "bar"}, arg=arg)
-    """
-    mapping = _mapping
-    if len(kwargs) != 1:
-        raise ValueError("_check_getitem takes a single keyword argument")
-    (k, v), = kwargs.items()
-    try:
-        return mapping[v]
-    except KeyError:
-        raise ValueError(
-            "{!r} is not a valid value for {}; supported values are {}"
-            .format(v, k, ', '.join(map(repr, mapping)))) from None
 
 
 class _classproperty:

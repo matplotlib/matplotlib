@@ -68,10 +68,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     # draw_idle is provided by _macosx.FigureCanvas
 
-    @cbook.deprecated("3.2", alternative="draw_idle()")
-    def invalidate(self):
-        return self.draw_idle()
-
     def blit(self, bbox=None):
         self.draw_idle()
 

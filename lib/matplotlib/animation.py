@@ -28,13 +28,14 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 import uuid
+import warnings
 
 import numpy as np
 
 import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
-from matplotlib import cbook
+from matplotlib import _api, cbook
 
 
 _log = logging.getLogger(__name__)
@@ -410,10 +411,9 @@ class FileMovieWriter(MovieWriter):
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
-        dpi : float, optional
+        dpi : float, default: ``fig.dpi``
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
-            Default is ``fig.dpi``.
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  If None (the
             default), files are written to a temporary directory which is
@@ -440,6 +440,10 @@ class FileMovieWriter(MovieWriter):
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
+
+    def __del__(self):
+        if self._tmpdir:
+            self._tmpdir.cleanup()
 
     @cbook.deprecated("3.3")
     @property
@@ -793,8 +797,8 @@ class HTMLWriter(FileMovieWriter):
         extra_args = ()  # Don't lookup nonexistent rcParam[args_key].
         self.embed_frames = embed_frames
         self.default_mode = default_mode.lower()
-        cbook._check_in_list(['loop', 'once', 'reflect'],
-                             default_mode=self.default_mode)
+        _api.check_in_list(['loop', 'once', 'reflect'],
+                           default_mode=self.default_mode)
 
         # Save embed limit, which is given in MB
         if embed_limit is None:
@@ -808,8 +812,7 @@ class HTMLWriter(FileMovieWriter):
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
         outfile = Path(outfile)
-        cbook._check_in_list(['.html', '.htm'],
-                             outfile_extension=outfile.suffix)
+        _api.check_in_list(['.html', '.htm'], outfile_extension=outfile.suffix)
 
         self._saved_frames = []
         self._total_bytes = 0
@@ -903,6 +906,8 @@ class Animation:
     """
 
     def __init__(self, fig, event_source=None, blit=False):
+        self._draw_was_started = False
+
         self._fig = fig
         # Disables blitting for backends that don't support it.  This
         # allows users to request it if available, but still have a
@@ -926,6 +931,14 @@ class Animation:
                                                       self._stop)
         if self._blit:
             self._setup_blit()
+
+    def __del__(self):
+        if not getattr(self, '_draw_was_started', True):
+            warnings.warn(
+                'Animation was deleted without rendering anything. This is '
+                'most likely unintended. To prevent deletion, assign the '
+                'Animation to a variable that exists for as long as you need '
+                'the Animation.')
 
     def _start(self, *args):
         """
@@ -991,7 +1004,7 @@ class Animation:
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
 
-        metadata : Dict[str, str], default {}
+        metadata : Dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
             the output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -1162,7 +1175,7 @@ class Animation:
     def _init_draw(self):
         # Initial draw to clear the frame. Also used by the blitting code
         # when a clean base is required.
-        pass
+        self._draw_was_started = True
 
     def _pre_draw(self, framedata, blit):
         # Perform any cleaning or whatnot before the drawing of the frame.
@@ -1457,8 +1470,8 @@ class ArtistAnimation(TimedAnimation):
     fig : `~matplotlib.figure.Figure`
         The figure object used to get needed events, such as draw or resize.
     artists : list
-        Each list entry is a collection of artists that are made visible on
-        the corresponding frame.  Other artists are made invisible.
+        Each list entry is a collection of `.Artist` objects that are made
+        visible on the corresponding frame.  Other artists are made invisible.
     interval : int, default: 200
         Delay between frames in milliseconds.
     repeat_delay : int, default: 0
@@ -1480,6 +1493,7 @@ class ArtistAnimation(TimedAnimation):
         super().__init__(fig, *args, **kwargs)
 
     def _init_draw(self):
+        super()._init_draw()
         # Make all the artists involved in *any* frame invisible
         figs = set()
         for f in self.new_frame_seq():
@@ -1691,6 +1705,7 @@ class FuncAnimation(TimedAnimation):
                 return gen()
 
     def _init_draw(self):
+        super()._init_draw()
         # Initialize the drawing either using the given init_func or by
         # calling the draw function with the first item of the frame sequence.
         # For blitting, the init_func should return a sequence of modified

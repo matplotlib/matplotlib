@@ -50,6 +50,7 @@ per-file-ignores =
 
     lib/matplotlib/__init__.py: F401
     lib/matplotlib/_cm.py: E202, E203, E302
+    lib/matplotlib/_mathtext.py: E221, E251
     lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/animation.py: F401
     lib/matplotlib/axes/__init__.py: F401, F403
@@ -162,6 +163,7 @@ per-file-ignores =
     examples/lines_bars_and_markers/fill.py: E402
     examples/lines_bars_and_markers/fill_between_demo.py: E402
     examples/lines_bars_and_markers/filled_step.py: E402
+    examples/lines_bars_and_markers/stairs_demo.py: E402
     examples/lines_bars_and_markers/horizontal_barchart_distribution.py: E402
     examples/lines_bars_and_markers/joinstyle.py: E402
     examples/lines_bars_and_markers/scatter_hist.py: E402
@@ -249,6 +251,7 @@ per-file-ignores =
     examples/subplots_axes_and_figures/custom_figure_class.py: E402
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
     examples/subplots_axes_and_figures/demo_tight_layout.py: E402
+    examples/subplots_axes_and_figures/figure_size_units.py: E402
     examples/subplots_axes_and_figures/secondary_axis.py: E402
     examples/subplots_axes_and_figures/two_scales.py: E402
     examples/subplots_axes_and_figures/zoom_inset_axes.py: E402

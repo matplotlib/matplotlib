@@ -14,7 +14,7 @@ from numbers import Number
 import numpy as np
 
 import matplotlib as mpl
-from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
+from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
 import warnings
 
@@ -570,8 +570,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         offset_position : {'screen', 'data'}
         """
-        cbook._check_in_list(['screen', 'data'],
-                             offset_position=offset_position)
+        _api.check_in_list(['screen', 'data'], offset_position=offset_position)
         self._offset_position = offset_position
         self.stale = True
 
@@ -832,11 +831,23 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._set_edgecolor(c)
 
     def set_alpha(self, alpha):
-        # docstring inherited
-        super().set_alpha(alpha)
+        """
+        Set the transparency of the collection.
+
+        Parameters
+        ----------
+        alpha: float or array of float or None
+            If not None, *alpha* values must be between 0 and 1, inclusive.
+            If an array is provided, its length must match the number of
+            elements in the collection.  Masked values and nans are not
+            supported.
+        """
+        artist.Artist._set_alpha_for_array(self, alpha)
         self._update_dict['array'] = True
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+
+    set_alpha.__doc__ = artist.Artist._set_alpha_for_array.__doc__
 
     def get_linewidth(self):
         return self._linewidths
@@ -848,11 +859,23 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """Update colors from the scalar mappable array, if it is not None."""
         if self._A is None:
             return
-        # QuadMesh can map 2d arrays
+        # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
         if self._A.ndim > 1 and not isinstance(self, QuadMesh):
             raise ValueError('Collections can only map rank 1 arrays')
         if not self._check_update("array"):
             return
+        if np.iterable(self._alpha):
+            if self._alpha.size != self._A.size:
+                raise ValueError(f'Data array shape, {self._A.shape} '
+                                 'is incompatible with alpha array shape, '
+                                 f'{self._alpha.shape}. '
+                                 'This can occur with the deprecated '
+                                 'behavior of the "flat" shading option, '
+                                 'in which a row and/or column of the data '
+                                 'array is dropped.')
+            # pcolormesh, scatter, maybe others flatten their _A
+            self._alpha = self._alpha.reshape(self._A.shape)
+
         if self._is_filled:
             self._facecolors = self.to_rgba(self._A, self._alpha)
         elif self._is_stroked:
@@ -990,7 +1013,7 @@ class PathCollection(_CollectionWithSizes):
             the collection. If "sizes", the legend will show the different
             sizes. To set both, use *kwargs* to directly edit the `.Line2D`
             properties.
-        num : int, None, "auto" (default), array-like, or `~.ticker.Locator`,
+        num : int, None, "auto" (default), array-like, or `~.ticker.Locator`
             Target number of elements to create.
             If None, use all unique elements of the mappable array. If an
             integer, target to use *num* elements in the normed range.
@@ -1004,7 +1027,7 @@ class PathCollection(_CollectionWithSizes):
             The format or formatter to use for the labels. If a string must be
             a valid input for a `~.StrMethodFormatter`. If None (the default),
             use a `~.ScalarFormatter`.
-        func : function, default *lambda x: x*
+        func : function, default: ``lambda x: x``
             Function to calculate the labels.  Often the size (or color)
             argument to `~.Axes.scatter` will have been pre-processed by the
             user using a function ``s = f(x)`` to make the markers visible;
@@ -1596,7 +1619,7 @@ class EventCollection(LineCollection):
         orientation : {'horizontal', 'vertical'}
         """
         try:
-            is_horizontal = cbook._check_getitem(
+            is_horizontal = _api.check_getitem(
                 {"horizontal": True, "vertical": False},
                 orientation=orientation)
         except ValueError:
@@ -1772,7 +1795,7 @@ class PatchCollection(Collection):
     """
     A generic collection of patches.
 
-    This makes it easier to assign a color map to a heterogeneous
+    This makes it easier to assign a colormap to a heterogeneous
     collection of patches.
 
     This also may improve plotting speed, since PatchCollection will

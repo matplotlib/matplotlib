@@ -23,7 +23,7 @@ Abstract
 ========
 
 Add the possibility to have multiple figures grouped under the same
-`FigureManager`
+`~.backend_template.FigureManager`
 
 Detailed description
 ====================
@@ -38,7 +38,7 @@ desirable to be able to group these under the same window
 [see](https://github.com/matplotlib/matplotlib/issues/2194).
 
 The proposed solution modifies `.FigureManagerBase` to contain and manage more
-than one `canvas`.  The settings parameter :rc:`backend.multifigure` control
+than one ``Canvas``. The settings parameter :rc:`backend.multifigure` control
 when the **MultiFigure** behaviour is desired.
 
 **Note**
@@ -46,7 +46,7 @@ when the **MultiFigure** behaviour is desired.
 It is important to note, that the proposed solution, assumes that the
 [MEP22](https://github.com/matplotlib/matplotlib/wiki/Mep22) is
 already in place. This is simply because the actual implementation of
-the `Toolbar` makes it pretty hard to switch between canvases.
+the ``Toolbar`` makes it pretty hard to switch between canvases.
 
 Implementation
 ==============
@@ -54,44 +54,49 @@ Implementation
 The first implementation will be done in GTK3 using a Notebook as
 canvas container.
 
-`.FigureManagerBase`
---------------------
+``FigureManagerBase``
+---------------------
 
 will add the following new methods
 
-* `add_canvas`: To add a canvas to an existing `FigureManager` object
-* `remove_canvas`: To remove a canvas from a `FigureManager` object,
-  if it is the last one, it will be destroyed
-* `move_canvas`: To move a canvas from one `FigureManager` to another.
-* `set_canvas_title`: To change the title associated with a specific
+* ``add_canvas``: To add a canvas to an existing
+  `~.backend_template.FigureManager` object
+* ``remove_canvas``: To remove a canvas from a
+  `~.backend_template.FigureManager` object, if it is the last one, it will be
+  destroyed
+* ``move_canvas``: To move a canvas from one `~.backend_template.FigureManager`
+  to another.
+* ``set_canvas_title``: To change the title associated with a specific
   canvas container
-* `get_canvas_title`: To get the title associated with a specific
+* ``get_canvas_title``: To get the title associated with a specific
   canvas container
-* `get_active_canvas`: To get the canvas that is in the foreground and
-  is subject to the gui events. There is no `set_active_canvas`
-  because the active canvas, is defined when `show` is called on a
-  `Canvas` object.
+* ``get_active_canvas``: To get the canvas that is in the foreground and
+  is subject to the gui events. There is no ``set_active_canvas``
+  because the active canvas, is defined when ``show`` is called on a
+  ``Canvas`` object.
 
-`new_figure_manager`
---------------------
+``new_figure_manager``
+----------------------
 
-To control which `FigureManager` will contain the new figures, an
-extra optional parameter *figuremanager* will be added, this parameter
-value will be passed to `new_figure_manager_given_figure`
+To control which `~.backend_template.FigureManager` will contain the new
+figures, an extra optional parameter *figuremanager* will be added, this
+parameter value will be passed to ``new_figure_manager_given_figure``.
 
-`new_figure_manager_given_figure`
----------------------------------
+``new_figure_manager_given_figure``
+-----------------------------------
 
-* If *figuremanager* parameter is given, this `FigureManager` object
-  will be used instead of creating a new one.
+* If *figuremanager* parameter is given, this
+  `~.backend_template.FigureManager` object will be used instead of creating a
+  new one.
 * If ``rcParams['backend.multifigure']`` is True: The last
-  `FigureManager` object will be used instead of creating a new one.
+  `~.backend_template.FigureManager` object will be used instead of creating a
+  new one.
 
-`NavigationBase`
-----------------
+``NavigationBase``
+------------------
 
-Modifies the `NavigationBase` to keep a list of canvases, directing
-the actions to the active one
+Modifies the ``NavigationBase`` to keep a list of canvases, directing the
+actions to the active one.
 
 Backward compatibility
 ======================

@@ -6,8 +6,7 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 
 import matplotlib
-import matplotlib.cbook as cbook
-import matplotlib.cm as cm
+from matplotlib import _api, cbook, cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
@@ -103,8 +102,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
-    cbook._check_in_list(['both', 'forward', 'backward'],
-                         integration_direction=integration_direction)
+    _api.check_in_list(['both', 'forward', 'backward'],
+                       integration_direction=integration_direction)
 
     if integration_direction == 'both':
         maxlength /= 2.

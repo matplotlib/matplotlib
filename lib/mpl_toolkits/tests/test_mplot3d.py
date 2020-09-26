@@ -1,4 +1,5 @@
 import functools
+import itertools
 
 import pytest
 
@@ -19,7 +20,7 @@ mpl3d_image_comparison = functools.partial(
 
 def test_aspect_equal_error():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     with pytest.raises(NotImplementedError):
         ax.set_aspect('equal')
 
@@ -27,7 +28,7 @@ def test_aspect_equal_error():
 @mpl3d_image_comparison(['bar3d.png'])
 def test_bar3d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     for c, z in zip(['r', 'g', 'b', 'y'], [30, 20, 10, 0]):
         xs = np.arange(20)
         ys = np.arange(20)
@@ -38,7 +39,7 @@ def test_bar3d():
 
 def test_bar3d_colors():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     for c in ['red', 'green', 'blue', 'yellow']:
         xs = np.arange(len(c))
         ys = np.zeros_like(xs)
@@ -71,7 +72,7 @@ def test_bar3d_shaded():
 @mpl3d_image_comparison(['bar3d_notshaded.png'])
 def test_bar3d_notshaded():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     x = np.arange(4)
     y = np.arange(5)
     x2d, y2d = np.meshgrid(x, y)
@@ -111,7 +112,7 @@ def test_bar3d_lightsource():
 @mpl3d_image_comparison(['contour3d.png'])
 def test_contour3d():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
     ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
@@ -124,7 +125,7 @@ def test_contour3d():
 @mpl3d_image_comparison(['contourf3d.png'])
 def test_contourf3d():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
     ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
@@ -137,7 +138,7 @@ def test_contourf3d():
 @mpl3d_image_comparison(['contourf3d_fill.png'])
 def test_contourf3d_fill():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y = np.meshgrid(np.arange(-2, 2, 0.25), np.arange(-2, 2, 0.25))
     Z = X.clip(0, 0)
     # This produces holes in the z=0 surface that causes rendering errors if
@@ -167,7 +168,7 @@ def test_tricontour():
 @mpl3d_image_comparison(['lines3d.png'])
 def test_lines3d():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
     z = np.linspace(-2, 2, 100)
     r = z ** 2 + 1
@@ -178,9 +179,9 @@ def test_lines3d():
 
 @check_figures_equal(extensions=["png"])
 def test_plot_scalar(fig_test, fig_ref):
-    ax1 = fig_test.gca(projection='3d')
+    ax1 = fig_test.add_subplot(projection='3d')
     ax1.plot([1], [1], "o")
-    ax2 = fig_ref.gca(projection='3d')
+    ax2 = fig_ref.add_subplot(projection='3d')
     ax2.plot(1, 1, "o")
 
 
@@ -212,11 +213,11 @@ def test_mixedsubplots():
 def test_tight_layout_text(fig_test, fig_ref):
     # text is currently ignored in tight layout. So the order of text() and
     # tight_layout() calls should not influence the result.
-    ax1 = fig_test.gca(projection='3d')
+    ax1 = fig_test.add_subplot(projection='3d')
     ax1.text(.5, .5, .5, s='some string')
     fig_test.tight_layout()
 
-    ax2 = fig_ref.gca(projection='3d')
+    ax2 = fig_ref.add_subplot(projection='3d')
     fig_ref.tight_layout()
     ax2.text(.5, .5, .5, s='some string')
 
@@ -224,7 +225,7 @@ def test_tight_layout_text(fig_test, fig_ref):
 @mpl3d_image_comparison(['scatter3d.png'])
 def test_scatter3d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
                c='r', marker='o')
     x = y = z = np.arange(10, 20)
@@ -235,46 +236,94 @@ def test_scatter3d():
 @mpl3d_image_comparison(['scatter3d_color.png'])
 def test_scatter3d_color():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
+
+    # Check that 'none' color works; these two should overlay to produce the
+    # same as setting just `color`.
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
-               color='r', marker='o')
+               facecolor='r', edgecolor='none', marker='o')
+    ax.scatter(np.arange(10), np.arange(10), np.arange(10),
+               facecolor='none', edgecolor='r', marker='o')
+
     ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
                color='b', marker='s')
 
 
-def test_scatter3d_depthshade_false():
-    """
-    Test that 3d scatter plot doesn't throw
-    IndexError with depthshade=False (issue #18037)
-    """
-    x = y = z = np.arange(16)
-    fig_test = plt.figure()
-    ax_test = fig_test.add_subplot(projection='3d')
-    ax_test.scatter(x, y, z, depthshade=False)
-
-
 @check_figures_equal(extensions=['png'])
-def test_scatter3d_size(fig_ref, fig_test):
-    """Test that large markers in correct position (issue #18135)"""
-    x = np.arange(10)
-    x, y = np.meshgrid(x, x)
-    z = np.arange(100).reshape(10, 10)
+def test_scatter3d_modification(fig_ref, fig_test):
+    # Changing Path3DCollection properties post-creation should work correctly.
+    ax_test = fig_test.add_subplot(projection='3d')
+    c = ax_test.scatter(np.arange(10), np.arange(10), np.arange(10),
+                        marker='o')
+    c.set_facecolor('C1')
+    c.set_edgecolor('C2')
+    c.set_alpha([0.3, 0.7] * 5)
+    assert c.get_depthshade()
+    c.set_depthshade(False)
+    assert not c.get_depthshade()
+    c.set_sizes(np.full(10, 75))
+    c.set_linewidths(3)
 
-    s = np.full(z.shape, 5)
-    s[0, 0] = 100
-    s[-1, 0] = 100
-    s[0, -1] = 100
-    s[-1, -1] = 100
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.scatter(np.arange(10), np.arange(10), np.arange(10), marker='o',
+                   facecolor='C1', edgecolor='C2', alpha=[0.3, 0.7] * 5,
+                   depthshade=False, s=75, linewidths=3)
 
-    ax_ref = fig_ref.gca(projection='3d')
-    ax_test = fig_test.gca(projection='3d')
 
-    small = np.ma.masked_array(z, s == 100, dtype=float)
-    large = np.ma.masked_array(z, s != 100, dtype=float)
+@pytest.mark.parametrize('depthshade', [True, False])
+@check_figures_equal(extensions=['png'])
+def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
+    """Test that marker properties are correctly sorted."""
 
-    ax_ref.scatter(x, y, large, s=100, c="C0", alpha=1)
-    ax_ref.scatter(x, y, small, s=5, c="C0", alpha=1)
-    ax_test.scatter(x, y, z, s=s, c="C0", alpha=1)
+    y, x = np.mgrid[:10, :10]
+    z = np.arange(x.size).reshape(x.shape)
+
+    sizes = np.full(z.shape, 25)
+    sizes[0::2, 0::2] = 100
+    sizes[1::2, 1::2] = 100
+
+    facecolors = np.full(z.shape, 'C0')
+    facecolors[:5, :5] = 'C1'
+    facecolors[6:, :4] = 'C2'
+    facecolors[6:, 6:] = 'C3'
+
+    edgecolors = np.full(z.shape, 'C4')
+    edgecolors[1:5, 1:5] = 'C5'
+    edgecolors[5:9, 1:5] = 'C6'
+    edgecolors[5:9, 5:9] = 'C7'
+
+    linewidths = np.full(z.shape, 2)
+    linewidths[0::2, 0::2] = 5
+    linewidths[1::2, 1::2] = 5
+
+    x, y, z, sizes, facecolors, edgecolors, linewidths = [
+        a.flatten()
+        for a in [x, y, z, sizes, facecolors, edgecolors, linewidths]
+    ]
+
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    sets = (np.unique(a) for a in [sizes, facecolors, edgecolors, linewidths])
+    for s, fc, ec, lw in itertools.product(*sets):
+        subset = (
+            (sizes != s) |
+            (facecolors != fc) |
+            (edgecolors != ec) |
+            (linewidths != lw)
+        )
+        subset = np.ma.masked_array(z, subset, dtype=float)
+
+        # When depth shading is disabled, the colors are passed through as
+        # single-item lists; this triggers single path optimization. The
+        # following reshaping is a hack to disable that, since the optimization
+        # would not occur for the full scatter which has multiple colors.
+        fc = np.repeat(fc, sum(~subset.mask))
+
+        ax_ref.scatter(x, y, subset, s=s, fc=fc, ec=ec, lw=lw, alpha=1,
+                       depthshade=depthshade)
+
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.scatter(x, y, z, s=sizes, fc=facecolors, ec=edgecolors,
+                    lw=linewidths, alpha=1, depthshade=depthshade)
 
 
 @pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first
@@ -325,7 +374,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
 @mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.01)
 def test_plot_3d_from_2d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     xs = np.arange(0, 5)
     ys = np.arange(5, 10)
     ax.plot(xs, ys, zs=0, zdir='x')
@@ -338,7 +387,7 @@ def test_surface3d():
     plt.rcParams['pcolormesh.snap'] = False
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X = np.arange(-5, 5, 0.25)
     Y = np.arange(-5, 5, 0.25)
     X, Y = np.meshgrid(X, Y)
@@ -353,7 +402,7 @@ def test_surface3d():
 @mpl3d_image_comparison(['surface3d_shaded.png'])
 def test_surface3d_shaded():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X = np.arange(-5, 5, 0.25)
     Y = np.arange(-5, 5, 0.25)
     X, Y = np.meshgrid(X, Y)
@@ -367,7 +416,7 @@ def test_surface3d_shaded():
 @mpl3d_image_comparison(['text3d.png'], remove_text=False)
 def test_text3d():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
     xs = (2, 6, 4, 9, 7, 2)
@@ -388,6 +437,31 @@ def test_text3d():
     ax.set_zlabel('Z axis')
 
 
+@check_figures_equal(extensions=['png'])
+def test_text3d_modification(fig_ref, fig_test):
+    # Modifying the Text position after the fact should work the same as
+    # setting it directly.
+    zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
+    xs = (2, 6, 4, 9, 7, 2)
+    ys = (6, 4, 8, 7, 2, 2)
+    zs = (4, 2, 5, 6, 1, 7)
+
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.set_xlim3d(0, 10)
+    ax_test.set_ylim3d(0, 10)
+    ax_test.set_zlim3d(0, 10)
+    for zdir, x, y, z in zip(zdirs, xs, ys, zs):
+        t = ax_test.text(0, 0, 0, f'({x}, {y}, {z}), dir={zdir}')
+        t.set_position_3d((x, y, z), zdir=zdir)
+
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.set_xlim3d(0, 10)
+    ax_ref.set_ylim3d(0, 10)
+    ax_ref.set_zlim3d(0, 10)
+    for zdir, x, y, z in zip(zdirs, xs, ys, zs):
+        ax_ref.text(x, y, z, f'({x}, {y}, {z}), dir={zdir}', zdir=zdir)
+
+
 @mpl3d_image_comparison(['trisurf3d.png'], tol=0.03)
 def test_trisurf3d():
     n_angles = 36
@@ -402,7 +476,7 @@ def test_trisurf3d():
     z = np.sin(-x*y)
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
 
 
@@ -420,14 +494,14 @@ def test_trisurf3d_shaded():
     z = np.sin(-x*y)
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
 @mpl3d_image_comparison(['wireframe3d.png'])
 def test_wireframe3d():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
 
@@ -435,7 +509,7 @@ def test_wireframe3d():
 @mpl3d_image_comparison(['wireframe3dzerocstride.png'])
 def test_wireframe3dzerocstride():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=0)
 
@@ -443,14 +517,14 @@ def test_wireframe3dzerocstride():
 @mpl3d_image_comparison(['wireframe3dzerorstride.png'])
 def test_wireframe3dzerorstride():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
 
 
 def test_wireframe3dzerostrideraises():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     with pytest.raises(ValueError):
         ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
@@ -458,7 +532,7 @@ def test_wireframe3dzerostrideraises():
 
 def test_mixedsamplesraises():
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     with pytest.raises(ValueError):
         ax.plot_wireframe(X, Y, Z, rstride=10, ccount=50)
@@ -489,7 +563,7 @@ def test_quiver3d_empty(fig_test, fig_ref):
 @mpl3d_image_comparison(['quiver3d_masked.png'])
 def test_quiver3d_masked():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     # Using mgrid here instead of ogrid because masked_where doesn't
     # seem to like broadcasting very much...
@@ -504,10 +578,34 @@ def test_quiver3d_masked():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
+@check_figures_equal(extensions=['png'])
+def test_patch_collection_modification(fig_test, fig_ref):
+    # Test that modifying Patch3DCollection properties after creation works.
+    patch = Circle((0, 0), 0.05)
+    c = art3d.Patch3DCollection([patch], linewidths=3)
+
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.add_collection3d(c)
+    c.set_edgecolor('C2')
+    c.set_facecolor('C3')
+    c.set_alpha(0.7)
+    assert c.get_depthshade()
+    c.set_depthshade(False)
+    assert not c.get_depthshade()
+
+    patch = Circle((0, 0), 0.05)
+    c = art3d.Patch3DCollection([patch], linewidths=3,
+                                edgecolor='C2', facecolor='C3', alpha=0.7,
+                                depthshade=False)
+
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.add_collection3d(c)
+
+
 @mpl3d_image_comparison(['poly3dcollection_closed.png'])
 def test_poly3dcollection_closed():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     poly1 = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
     poly2 = np.array([[0, 1, 1], [1, 1, 1], [1, 1, 0]], float)
@@ -529,15 +627,17 @@ def test_poly_collection_2d_to_3d_empty():
 @mpl3d_image_comparison(['poly3dcollection_alpha.png'])
 def test_poly3dcollection_alpha():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     poly1 = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
     poly2 = np.array([[0, 1, 1], [1, 1, 1], [1, 1, 0]], float)
     c1 = art3d.Poly3DCollection([poly1], linewidths=3, edgecolor='k',
                                 facecolor=(0.5, 0.5, 1), closed=True)
     c1.set_alpha(0.5)
-    c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
-                                facecolor=(1, 0.5, 0.5), closed=False)
+    c2 = art3d.Poly3DCollection([poly2], linewidths=3, closed=False)
+    # Post-creation modification should work.
+    c2.set_facecolor((1, 0.5, 0.5))
+    c2.set_edgecolor('k')
     c2.set_alpha(0.5)
     ax.add_collection3d(c1)
     ax.add_collection3d(c2)
@@ -555,7 +655,7 @@ def test_add_collection3d_zs_array():
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     norm = plt.Normalize(0, 2*np.pi)
     # 2D LineCollection from x & y values
@@ -583,7 +683,7 @@ def test_add_collection3d_zs_scalar():
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     norm = plt.Normalize(0, 2*np.pi)
     lc = LineCollection(segments, cmap='twilight', norm=norm)
@@ -600,7 +700,7 @@ def test_add_collection3d_zs_scalar():
 @mpl3d_image_comparison(['axes3d_labelpad.png'], remove_text=False)
 def test_axes3d_labelpad():
     fig = plt.figure()
-    ax = Axes3D(fig)
+    ax = fig.add_axes(Axes3D(fig))
     # labelpad respects rcParams
     assert ax.xaxis.labelpad == mpl.rcParams['axes.labelpad']
     # labelpad can be set in set_label
@@ -796,7 +896,7 @@ def test_autoscale():
 @mpl3d_image_comparison(['axes3d_ortho.png'], remove_text=False)
 def test_axes3d_ortho():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     ax.set_proj_type('ortho')
 
 
@@ -812,7 +912,7 @@ def test_axes3d_ortho():
 def test_invalid_axes_limits(setter, side, value):
     limit = {side: value}
     fig = plt.figure()
-    obj = fig.add_subplot(111, projection='3d')
+    obj = fig.add_subplot(projection='3d')
     with pytest.raises(ValueError):
         getattr(obj, setter)(**limit)
 
@@ -943,7 +1043,7 @@ def test_line3d_set_get_data_3d():
     x, y, z = [0, 1], [2, 3], [4, 5]
     x2, y2, z2 = [6, 7], [8, 9], [10, 11]
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(projection='3d')
     lines = ax.plot(x, y, z)
     line = lines[0]
     np.testing.assert_array_equal((x, y, z), line.get_data_3d())
@@ -1052,7 +1152,7 @@ def test_quiver3D_smoke(fig_test, fig_ref):
     u = v = w = np.ones_like(x)
 
     for fig, length in zip((fig_ref, fig_test), (1, 1.0)):
-        ax = fig.gca(projection="3d")
+        ax = fig.add_subplot(projection="3d")
         ax.quiver(x, y, z, u, v, w, length=length, pivot=pivot)
 
 
@@ -1074,7 +1174,7 @@ def test_errorbar3d_errorevery():
     x, y, z = np.sin(t), np.cos(3*t), np.sin(5*t)
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     estep = 15
     i = np.arange(t.size)
@@ -1089,7 +1189,7 @@ def test_errorbar3d_errorevery():
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3d errorbars."""
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     d = [1, 2, 3, 4, 5]
     e = [.5, .5, .5, .5, .5]
@@ -1106,7 +1206,7 @@ def test_equal_box_aspect():
     from itertools import product, combinations
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    ax = fig.add_subplot(projection="3d")
 
     # Make data
     u = np.linspace(0, 2 * np.pi, 100)

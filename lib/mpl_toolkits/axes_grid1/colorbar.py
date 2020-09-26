@@ -43,8 +43,10 @@ make_axes_kw_doc = '''
     ============= ====================================================
     *orientation* vertical or horizontal
     *fraction*    0.15; fraction of original axes to use for colorbar
-    *pad*         0.05 if vertical, 0.15 if horizontal; fraction
-                  of original axes between colorbar and new image axes
+    *pad*         Defaults to 0.05 if vertical, 0.15 if horizontal; fraction
+                  of original axes between colorbar and new image axes.
+                  Defaults to 0.05 for both if `.get_constrained_layout`
+                  is *True*.
     *shrink*      1.0; fraction by which to shrink the colorbar
     *aspect*      20; ratio of long to short dimensions
     ============= ====================================================
@@ -89,7 +91,7 @@ colormap_kw_doc = '''
     *values*       None or a sequence which must be of length 1 less
                    than the sequence of *boundaries*. For each region
                    delimited by adjacent entries in *boundaries*, the
-                   color mapped to the corresponding value in values
+                   colormapped to the corresponding value in values
                    will be used.
     ============   ===================================================
 

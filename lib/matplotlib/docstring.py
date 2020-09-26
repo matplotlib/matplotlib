@@ -37,7 +37,7 @@ class Substitution:
 
     def __call__(self, func):
         if func.__doc__:
-            func.__doc__ %= self.params
+            func.__doc__ = inspect.cleandoc(func.__doc__) % self.params
         return func
 
     def update(self, *args, **kwargs):
@@ -54,6 +54,8 @@ class Substitution:
         dictionary) and it may change before this class is called, one may
         explicitly use a reference to the params rather than using *args or
         **kwargs which will copy the values and not reference them.
+
+        :meta private:
         """
         result = cls()
         result.params = params
@@ -72,9 +74,4 @@ def copy(source):
 # Create a decorator that will house the various docstring snippets reused
 # throughout Matplotlib.
 interpd = Substitution()
-
-
-def dedent_interpd(func):
-    """Dedent *func*'s docstring, then interpolate it with ``interpd``."""
-    func.__doc__ = inspect.getdoc(func)
-    return interpd(func)
+dedent_interpd = interpd

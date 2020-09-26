@@ -1,0 +1,11 @@
+Locators
+~~~~~~~~
+The unused ``Locator.autoscale`` method has been removed (pass the axis limits
+to `.Locator.view_limits` instead). Any derived methods are also removed:
+
+* ``Locator.autoscale``
+* ``AutoDateLocator.autoscale``
+* ``RRuleLocator.autoscale``
+* ``RadialLocator.autoscale``
+* ``ThetaLocator.autoscale``
+* ``YearLocator.autoscale``

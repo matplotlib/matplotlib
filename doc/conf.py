@@ -183,7 +183,12 @@ try:
 except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
 
-html_context = {'sha': SHA}
+html_context = {
+    'sha': SHA,
+    # This will disable any analytics in the HTML templates (currently Google
+    # Analytics.)
+    'include_analytics': False,
+}
 
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
@@ -276,7 +281,7 @@ html_sidebars = {
         # 'sidebar_announcement.html',
         'sidebar_versions.html',
         'donate_sidebar.html'],
-    '**': ['localtoc.html', 'relations.html', 'pagesource.html']
+    '**': ['localtoc.html', 'pagesource.html']
 }
 
 # If false, no module index is generated.

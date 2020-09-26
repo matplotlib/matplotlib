@@ -25,6 +25,6 @@ X = np.array(canvas.renderer.buffer_rgba())
 
 # now display the array X as an Axes in a new figure
 fig2 = plt.figure()
-ax2 = fig2.add_subplot(111, frameon=False)
+ax2 = fig2.add_subplot(frameon=False)
 ax2.imshow(X)
 plt.show()

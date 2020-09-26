@@ -16,7 +16,6 @@ Classes
    :template: autosummary.rst
    :nosignatures:
 
-   AxesStack
    Figure
    SubplotParams
 

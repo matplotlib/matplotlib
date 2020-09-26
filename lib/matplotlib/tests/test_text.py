@@ -34,8 +34,7 @@ def test_font_styles():
         UserWarning,
         module='matplotlib.font_manager')
 
-    plt.figure()
-    ax = plt.subplot(1, 1, 1)
+    fig, ax = plt.subplots()
 
     normalFont = find_matplotlib_font(
         family="sans-serif",
@@ -599,8 +598,7 @@ def test_text_as_text_opacity():
 def test_text_repr():
     # smoketest to make sure text repr doesn't error for category
     plt.plot(['A', 'B'], [1, 2])
-    txt = plt.text(['A'], 0.5, 'Boo')
-    print(txt)
+    repr(plt.text(['A'], 0.5, 'Boo'))
 
 
 def test_annotation_update():

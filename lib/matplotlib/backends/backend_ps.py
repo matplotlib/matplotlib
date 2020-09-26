@@ -18,7 +18,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, _path
+from matplotlib import _api, cbook, _path
 from matplotlib import _text_layout
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
@@ -541,7 +541,6 @@ grestore
             scale = 0.001 * fontsize
 
             thisx = 0
-            thisy = font.get_str_bbox_and_descent(s)[4] * scale
             last_name = None
             lines = []
             for c in s:
@@ -558,7 +557,7 @@ grestore
                 last_name = name
                 thisx += kern * scale
 
-                lines.append('%f %f m /%s glyphshow' % (thisx, thisy, name))
+                lines.append('%f 0 m /%s glyphshow' % (thisx, name))
 
                 thisx += width * scale
 
@@ -585,8 +584,9 @@ grestore
             self.set_font(ps_name, prop.get_size_in_points())
 
             thetext = '\n'.join(
-                '%f 0 m /%s glyphshow' % (x, font.get_glyph_name(glyph_idx))
-                for glyph_idx, x in _text_layout.layout(s, font))
+                '{:f} 0 m /{:s} glyphshow'
+                .format(item.x, font.get_glyph_name(item.glyph_idx))
+                for item in _text_layout.layout(s, font))
             self._pswriter.write(f"""\
 gsave
 {x:f} {y:f} translate
@@ -797,11 +797,12 @@ class FigureCanvasPS(FigureCanvasBase):
 
         dsc_comments = {}
         if isinstance(outfile, (str, os.PathLike)):
+            filename = pathlib.Path(outfile).name
             dsc_comments["Title"] = \
-                os.fspath(outfile).encode("ascii", "replace").decode("ascii")
+                filename.encode("ascii", "replace").decode("ascii")
         dsc_comments["Creator"] = (metadata or {}).get(
             "Creator",
-            f"matplotlib version {mpl.__version__}, http://matplotlib.org/")
+            f"Matplotlib v{mpl.__version__}, https://matplotlib.org/")
         # See https://reproducible-builds.org/specs/source-date-epoch/
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         dsc_comments["CreationDate"] = (
@@ -815,9 +816,9 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        cbook._check_in_list(['auto', *papersize], papertype=papertype)
+        _api.check_in_list(['auto', *papersize], papertype=papertype)
 
-        orientation = cbook._check_getitem(
+        orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())
 
         printer = (self._print_figure_tex
@@ -827,11 +828,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 orientation=orientation, papertype=papertype, **kwargs)
 
     @_check_savefig_extra_args
-    @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None):
+            bbox_inches_restore=None):
         """
         Render the figure to a filesystem path or a file-like object.
 
@@ -879,14 +879,7 @@ class FigureCanvasPS(FigureCanvasBase):
             rotation = 90
         bbox = (llx, lly, urx, ury)
 
-        if dryrun:
-            class NullWriter:
-                def write(self, *args, **kwargs):
-                    pass
-
-            self._pswriter = NullWriter()
-        else:
-            self._pswriter = StringIO()
+        self._pswriter = StringIO()
 
         # mixed mode rendering
         ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
@@ -895,9 +888,6 @@ class FigureCanvasPS(FigureCanvasBase):
             bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
-
-        if dryrun:  # return immediately if dryrun (tightbbox=True)
-            return
 
         def print_figure_impl(fh):
             # write the PostScript headers
@@ -910,7 +900,7 @@ class FigureCanvasPS(FigureCanvasBase):
                       end="", file=fh)
             print(f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
-                  f"%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
+                  f"{get_bbox_header(bbox)[0]}\n"
                   f"%%EndComments\n",
                   end="", file=fh)
 
@@ -1005,11 +995,10 @@ class FigureCanvasPS(FigureCanvasBase):
                     print_figure_impl(fh)
 
     @_check_savefig_extra_args
-    @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure_tex(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
-            dryrun=False, bbox_inches_restore=None):
+            bbox_inches_restore=None):
         """
         If :rc:`text.usetex` is True, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
@@ -1029,14 +1018,7 @@ class FigureCanvasPS(FigureCanvasBase):
         ury = lly + self.figure.bbox.height
         bbox = (llx, lly, urx, ury)
 
-        if dryrun:
-            class NullWriter:
-                def write(self, *args, **kwargs):
-                    pass
-
-            self._pswriter = NullWriter()
-        else:
-            self._pswriter = StringIO()
+        self._pswriter = StringIO()
 
         # mixed mode rendering
         ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
@@ -1046,9 +1028,6 @@ class FigureCanvasPS(FigureCanvasBase):
 
         self.figure.draw(renderer)
 
-        if dryrun:  # return immediately if dryrun (tightbbox=True)
-            return
-
         # write to a temp file, we'll move it to outfile when done
         with TemporaryDirectory() as tmpdir:
             tmpfile = os.path.join(tmpdir, "tmp.ps")
@@ -1056,7 +1035,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
 {dsc_comments}
-%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}
+{get_bbox_header(bbox)[0]}
 %%EndComments
 %%BeginProlog
 /mpldict {len(psDefs)} dict def

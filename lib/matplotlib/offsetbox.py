@@ -24,7 +24,7 @@ Container classes for `.Artist`\s.
 
 import numpy as np
 
-from matplotlib import cbook, docstring, rcParams
+from matplotlib import _api, cbook, docstring, rcParams
 import matplotlib.artist as martist
 import matplotlib.path as mpath
 import matplotlib.text as mtext
@@ -99,7 +99,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         The left offsets of the boxes.
     """
     w_list, d_list = zip(*wd_list)  # d_list is currently not used.
-    cbook._check_in_list(["fixed", "expand", "equal"], mode=mode)
+    _api.check_in_list(["fixed", "expand", "equal"], mode=mode)
 
     if mode == "fixed":
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
@@ -155,7 +155,7 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
 
     if height is None:
         height = max(h for h, d in hd_list)
-    cbook._check_in_list(
+    _api.check_in_list(
         ["baseline", "left", "top", "right", "bottom", "center"], align=align)
 
     if align == "baseline":
@@ -769,11 +769,14 @@ class DrawingArea(OffsetBox):
 
 class TextArea(OffsetBox):
     """
-    The TextArea is contains a single Text instance. The text is
-    placed at (0, 0) with baseline+left alignment. The width and height
-    of the TextArea instance is the width and height of the its child
-    text.
+    The TextArea is a container artist for a single Text instance.
+
+    The text is placed at (0, 0) with baseline+left alignment, by default. The
+    width and height of the TextArea instance is the width and height of its
+    child text.
     """
+
+    @cbook._delete_parameter("3.4", "minimumdescent")
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=None,
@@ -793,8 +796,9 @@ class TextArea(OffsetBox):
             If `True`, baseline for multiline text is adjusted so that it is
             (approximately) center-aligned with singleline text.
 
-        minimumdescent : bool, optional
-            If `True`, the box has a minimum descent of "p".
+        minimumdescent : bool, default: True
+            If `True`, the box has a minimum descent of "p".  This is now
+            effectively always True.
         """
         if textprops is None:
             textprops = {}
@@ -834,16 +838,20 @@ class TextArea(OffsetBox):
         """
         return self._multilinebaseline
 
+    @cbook.deprecated("3.4")
     def set_minimumdescent(self, t):
         """
         Set minimumdescent.
 
         If True, extent of the single line text is adjusted so that
-        it has minimum descent of "p"
+        its descent is at least the one of the glyph "p".
         """
+        # The current implementation of Text._get_layout always behaves as if
+        # this is True.
         self._minimumdescent = t
         self.stale = True
 
+    @cbook.deprecated("3.4")
     def get_minimumdescent(self):
         """
         Get minimumdescent.
@@ -876,37 +884,36 @@ class TextArea(OffsetBox):
     def get_window_extent(self, renderer):
         """Return the bounding box in display space."""
         w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()  # w, h, xd, yd)
+        ox, oy = self.get_offset()
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
         _, h_, d_ = renderer.get_text_width_height_descent(
-            "lp", self._text._fontproperties, ismath=False)
+            "lp", self._text._fontproperties,
+            ismath="TeX" if self._text.get_usetex() else False)
 
-        bbox, info, d = self._text._get_layout(renderer)
+        bbox, info, yd = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
 
         self._baseline_transform.clear()
 
         if len(info) > 1 and self._multilinebaseline:
-            d_new = 0.5 * h - 0.5 * (h_ - d_)
-            self._baseline_transform.translate(0, d - d_new)
-            d = d_new
-
+            yd_new = 0.5 * h - 0.5 * (h_ - d_)
+            self._baseline_transform.translate(0, yd - yd_new)
+            yd = yd_new
         else:  # single line
+            h_d = max(h_ - d_, h - yd)
+            h = h_d + yd
 
-            h_d = max(h_ - d_, h - d)
+        ha = self._text.get_horizontalalignment()
+        if ha == 'left':
+            xd = 0
+        elif ha == 'center':
+            xd = w / 2
+        elif ha == 'right':
+            xd = w
 
-            if self.get_minimumdescent():
-                ## to have a minimum descent, #i.e., "l" and "p" have same
-                ## descents.
-                d = max(d, d_)
-            #else:
-            #    d = d
-
-            h = h_d + d
-
-        return w, h, 0., d
+        return w, h, xd, yd
 
     def draw(self, renderer):
         # docstring inherited
@@ -1088,7 +1095,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_child(child)
 
         if isinstance(loc, str):
-            loc = cbook._check_getitem(self.codes, loc=loc)
+            loc = _api.check_getitem(self.codes, loc=loc)
 
         self.loc = loc
         self.borderpad = borderpad
@@ -1288,13 +1295,12 @@ class AnchoredText(AnchoredOffsetbox):
 
         if prop is None:
             prop = {}
-        badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
+        badkwargs = {'va', 'verticalalignment'}
         if badkwargs & set(prop):
             raise ValueError(
-                "Mixing horizontalalignment or verticalalignment with "
-                "AnchoredText is not supported.")
+                'Mixing verticalalignment with AnchoredText is not supported.')
 
-        self.txt = TextArea(s, textprops=prop, minimumdescent=False)
+        self.txt = TextArea(s, textprops=prop)
         fp = self.txt._text.get_fontproperties()
         super().__init__(
             loc, pad=pad, borderpad=borderpad, child=self.txt, prop=fp,

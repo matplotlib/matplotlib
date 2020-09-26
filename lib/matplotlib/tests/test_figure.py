@@ -170,7 +170,7 @@ def test_gca():
         # Changing the projection will throw a warning
         assert fig.gca(polar=True) is not ax3
     assert fig.gca(polar=True) is not ax2
-    assert fig.gca().get_geometry() == (1, 1, 1)
+    assert fig.gca().get_subplotspec().get_geometry() == (1, 1, 0, 0)
 
     fig.sca(ax1)
     assert fig.gca(projection='rectilinear') is ax1

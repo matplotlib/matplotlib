@@ -137,6 +137,7 @@ Binned
    Axes.hexbin
    Axes.hist
    Axes.hist2d
+   Axes.stairs
 
 Contours
 --------

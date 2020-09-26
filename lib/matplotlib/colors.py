@@ -78,7 +78,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import cbook, scale
+from matplotlib import _api, cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -265,6 +265,10 @@ def _to_rgba_no_colorcycle(c, alpha=None):
                     f"Value must be within 0-1 range")
             return c, c, c, alpha if alpha is not None else 1.
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
+    # turn 2-D array into 1-D array
+    if isinstance(c, np.ndarray):
+        if c.ndim == 2 and c.shape[0] == 1:
+            c = c.reshape(-1)
     # tuple color.
     if not np.iterable(c):
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
@@ -289,18 +293,40 @@ def to_rgba_array(c, alpha=None):
     """
     Convert *c* to a (n, 4) array of RGBA colors.
 
-    If *alpha* is not ``None``, it forces the alpha value.  If *c* is
-    ``"none"`` (case-insensitive) or an empty list, an empty array is returned.
-    If *c* is a masked array, an ndarray is returned with a (0, 0, 0, 0)
-    row for each masked value or row in *c*.
+    Parameters
+    ----------
+    c : Matplotlib color or array of colors
+        If *c* is a masked array, an ndarray is returned with a (0, 0, 0, 0)
+        row for each masked value or row in *c*.
+
+    alpha : float or sequence of floats, optional
+        If *alpha* is not ``None``, it forces the alpha value, except if *c* is
+        ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+        If *alpha* is a sequence and *c* is a single color, *c* will be
+        repeated to match the length of *alpha*.
+
+    Returns
+    -------
+    array
+        (n, 4) array of RGBA colors.
+
     """
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
+    if np.iterable(alpha):
+        alpha = np.asarray(alpha).ravel()
     if (isinstance(c, np.ndarray) and c.dtype.kind in "if"
             and c.ndim == 2 and c.shape[1] in [3, 4]):
         mask = c.mask.any(axis=1) if np.ma.is_masked(c) else None
         c = np.ma.getdata(c)
+        if np.iterable(alpha):
+            if c.shape[0] == 1 and alpha.shape[0] > 1:
+                c = np.tile(c, (alpha.shape[0], 1))
+            elif c.shape[0] != alpha.shape[0]:
+                raise ValueError("The number of colors must match the number"
+                                 " of alpha values if there are more than one"
+                                 " of each.")
         if c.shape[1] == 3:
             result = np.column_stack([c, np.zeros(len(c))])
             result[:, -1] = alpha if alpha is not None else 1.
@@ -320,7 +346,10 @@ def to_rgba_array(c, alpha=None):
     if cbook._str_lower_equal(c, "none"):
         return np.zeros((0, 4), float)
     try:
-        return np.array([to_rgba(c, alpha)], float)
+        if np.iterable(alpha):
+            return np.array([to_rgba(c, a) for a in alpha], float)
+        else:
+            return np.array([to_rgba(c, alpha)], float)
     except (ValueError, TypeError):
         pass
 
@@ -332,7 +361,10 @@ def to_rgba_array(c, alpha=None):
     if len(c) == 0:
         return np.zeros((0, 4), float)
     else:
-        return np.array([to_rgba(cc, alpha) for cc in c])
+        if np.iterable(alpha):
+            return np.array([to_rgba(cc, aa) for cc, aa in zip(c, alpha)])
+        else:
+            return np.array([to_rgba(cc, alpha) for cc in c])
 
 
 def to_rgb(c):
@@ -539,8 +571,9 @@ class Colormap:
             return the RGBA values ``X*100`` percent along the Colormap line.
             For integers, X should be in the interval ``[0, Colormap.N)`` to
             return RGBA values *indexed* from the Colormap with index ``X``.
-        alpha : float, None
-            Alpha must be a scalar between 0 and 1, or None.
+        alpha : float, array-like, None
+            Alpha must be a scalar between 0 and 1, a sequence of such
+            floats with shape matching X, or None.
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be uint8s in the interval
@@ -580,23 +613,29 @@ class Colormap:
         else:
             lut = self._lut.copy()  # Don't let alpha modify original _lut.
 
+        rgba = np.empty(shape=xa.shape + (4,), dtype=lut.dtype)
+        lut.take(xa, axis=0, mode='clip', out=rgba)
+
         if alpha is not None:
+            if np.iterable(alpha):
+                alpha = np.asarray(alpha)
+                if alpha.shape != xa.shape:
+                    raise ValueError("alpha is array-like but its shape"
+                                     " %s doesn't match that of X %s" %
+                                     (alpha.shape, xa.shape))
             alpha = np.clip(alpha, 0, 1)
             if bytes:
-                alpha = int(alpha * 255)
-            if (lut[-1] == 0).all():
-                lut[:-1, -1] = alpha
-                # All zeros is taken as a flag for the default bad
-                # color, which is no color--fully transparent.  We
-                # don't want to override this.
-            else:
-                lut[:, -1] = alpha
-                # If the bad value is set to have a color, then we
-                # override its alpha just as for any other value.
+                alpha = (alpha * 255).astype(np.uint8)
+            rgba[..., -1] = alpha
 
-        rgba = lut[xa]
+            # If the "bad" color is all zeros, then ignore alpha input.
+            if (lut[-1] == 0).all() and np.any(mask_bad):
+                if np.iterable(mask_bad) and mask_bad.shape == xa.shape:
+                    rgba[mask_bad] = (0, 0, 0, 0)
+                else:
+                    rgba[..., :] = (0, 0, 0, 0)
+
         if not np.iterable(X):
-            # Return a tuple if the input was a scalar
             rgba = tuple(rgba)
         return rgba
 
@@ -613,7 +652,7 @@ class Colormap:
         """Get the color for masked values."""
         if not self._isinit:
             self._init()
-        return self._lut[self._i_bad]
+        return np.array(self._lut[self._i_bad])
 
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
@@ -626,7 +665,7 @@ class Colormap:
         """Get the color for low out-of-range values."""
         if not self._isinit:
             self._init()
-        return self._lut[self._i_under]
+        return np.array(self._lut[self._i_under])
 
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
@@ -639,7 +678,7 @@ class Colormap:
         """Get the color for high out-of-range values."""
         if not self._isinit:
             self._init()
-        return self._lut[self._i_over]
+        return np.array(self._lut[self._i_over])
 
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""
@@ -664,14 +703,14 @@ class Colormap:
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
-        """Return whether the color map is grayscale."""
+        """Return whether the colormap is grayscale."""
         if not self._isinit:
             self._init()
         return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
                 np.all(self._lut[:, 0] == self._lut[:, 2]))
 
     def _resample(self, lutsize):
-        """Return a new color map with *lutsize* entries."""
+        """Return a new colormap with *lutsize* entries."""
         raise NotImplementedError()
 
     def reversed(self, name=None):
@@ -699,7 +738,7 @@ class Colormap:
                     (_REPR_PNG_SIZE[1], 1))
         pixels = self(X, bytes=True)
         png_bytes = io.BytesIO()
-        title = self.name + ' color map'
+        title = self.name + ' colormap'
         author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'
         pnginfo = PngInfo()
         pnginfo.add_text('Title', title)
@@ -727,7 +766,7 @@ class Colormap:
                 f'<strong>{self.name}</strong> '
                 '</div>'
                 '<div class="cmap"><img '
-                f'alt="{self.name} color map" '
+                f'alt="{self.name} colormap" '
                 f'title="{self.name}" '
                 'style="border: 1px solid #555;" '
                 f'src="data:image/png;base64,{png_base64}"></div>'
@@ -756,7 +795,7 @@ class LinearSegmentedColormap(Colormap):
 
     def __init__(self, name, segmentdata, N=256, gamma=1.0):
         """
-        Create color map from linear mapping segments
+        Create colormap from linear mapping segments
 
         segmentdata argument is a dictionary with a red, green and blue
         entries. Each entry should be a list of *x*, *y0*, *y1* tuples,
@@ -819,7 +858,7 @@ class LinearSegmentedColormap(Colormap):
         self._set_extremes()
 
     def set_gamma(self, gamma):
-        """Set a new gamma value and regenerate color map."""
+        """Set a new gamma value and regenerate colormap."""
         self._gamma = gamma
         self._init()
 
@@ -863,7 +902,7 @@ class LinearSegmentedColormap(Colormap):
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
     def _resample(self, lutsize):
-        """Return a new color map with *lutsize* entries."""
+        """Return a new colormap with *lutsize* entries."""
         new_cmap = LinearSegmentedColormap(self.name, self._segmentdata,
                                            lutsize)
         new_cmap._rgba_over = self._rgba_over
@@ -967,7 +1006,7 @@ class ListedColormap(Colormap):
         self._set_extremes()
 
     def _resample(self, lutsize):
-        """Return a new color map with *lutsize* entries."""
+        """Return a new colormap with *lutsize* entries."""
         colors = self(np.linspace(0, 1, lutsize))
         new_cmap = ListedColormap(colors, name=self.name)
         # Keep the over/under values too
@@ -1251,7 +1290,6 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                 **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
             self._scale = scale_cls(axis=None, **ba.arguments)
             self._trf = self._scale.get_transform()
-            self._inv_trf = self._trf.inverted()
 
         def __call__(self, value, clip=None):
             value, is_scalar = self.process_value(value)
@@ -1283,7 +1321,10 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                 raise ValueError("Invalid vmin or vmax")
             rescaled = value * (t_vmax - t_vmin)
             rescaled += t_vmin
-            return self._inv_trf.transform(rescaled).reshape(np.shape(value))
+            return (self._trf
+                    .inverted()
+                    .transform(rescaled)
+                    .reshape(np.shape(value)))
 
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
@@ -2119,7 +2160,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
         'max': slice(0, -1),
         'neither': slice(0, None),
     }
-    cbook._check_in_list(slice_map, extend=extend)
+    _api.check_in_list(slice_map, extend=extend)
     color_slice = slice_map[extend]
 
     n_data_colors = len(levels) - 1

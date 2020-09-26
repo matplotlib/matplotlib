@@ -247,8 +247,7 @@ class RendererAgg(RendererBase):
         d /= 64.0
         return w, h, d
 
-    @cbook._delete_parameter("3.2", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
@@ -525,15 +524,13 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     @_check_savefig_extra_args(
         extra_kwargs=["quality", "optimize", "progressive"])
-    @cbook._delete_parameter("3.2", "dryrun")
     @cbook._delete_parameter("3.3", "quality",
                              alternative="pil_kwargs={'quality': ...}")
     @cbook._delete_parameter("3.3", "optimize",
                              alternative="pil_kwargs={'optimize': ...}")
     @cbook._delete_parameter("3.3", "progressive",
                              alternative="pil_kwargs={'progressive': ...}")
-    def print_jpg(self, filename_or_obj, *args, dryrun=False, pil_kwargs=None,
-                  **kwargs):
+    def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
         """
         Write the figure to a JPEG file.
 
@@ -569,8 +566,6 @@ class FigureCanvasAgg(FigureCanvasBase):
             FigureCanvasAgg.draw(self)
         finally:
             self.figure.set_facecolor((r, g, b, a))
-        if dryrun:
-            return
         if pil_kwargs is None:
             pil_kwargs = {}
         for k in ["quality", "optimize", "progressive"]:
@@ -594,11 +589,8 @@ class FigureCanvasAgg(FigureCanvasBase):
     print_jpeg = print_jpg
 
     @_check_savefig_extra_args
-    @cbook._delete_parameter("3.2", "dryrun")
-    def print_tif(self, filename_or_obj, *, dryrun=False, pil_kwargs=None):
+    def print_tif(self, filename_or_obj, *, pil_kwargs=None):
         FigureCanvasAgg.draw(self)
-        if dryrun:
-            return
         if pil_kwargs is None:
             pil_kwargs = {}
         pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))

@@ -1,6 +1,5 @@
 import itertools
 import pickle
-import re
 
 from weakref import ref
 from unittest.mock import patch, Mock
@@ -559,6 +558,23 @@ def test_reshape2d():
     assert isinstance(xnew[0], np.ndarray)
 
 
+def test_reshape2d_pandas(pd):
+    # seperate to allow the rest of the tests to run if no pandas...
+    X = np.arange(30).reshape(10, 3)
+    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    Xnew = cbook._reshape_2D(x, 'x')
+    # Need to check each row because _reshape_2D returns a list of arrays:
+    for x, xnew in zip(X.T, Xnew):
+        np.testing.assert_array_equal(x, xnew)
+
+    X = np.arange(30).reshape(10, 3)
+    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    Xnew = cbook._reshape_2D(x, 'x')
+    # Need to check each row because _reshape_2D returns a list of arrays:
+    for x, xnew in zip(X.T, Xnew):
+        np.testing.assert_array_equal(x, xnew)
+
+
 def test_contiguous_regions():
     a, b, c = 3, 4, 5
     # Starts and ends with True
@@ -656,22 +672,6 @@ def test_array_patch_perimeters():
         for rstride, cstride in itertools.product(divisors(rows - 1),
                                                   divisors(cols - 1)):
             check(x, rstride=rstride, cstride=cstride)
-
-
-@pytest.mark.parametrize('target,test_shape',
-                         [((None, ), (1, 3)),
-                          ((None, 3), (1,)),
-                          ((None, 3), (1, 2)),
-                          ((1, 5), (1, 9)),
-                          ((None, 2, None), (1, 3, 1))
-                          ])
-def test_check_shape(target, test_shape):
-    error_pattern = (f"^'aardvark' must be {len(target)}D.*" +
-                     re.escape(f'has shape {test_shape}'))
-    data = np.zeros(test_shape)
-    with pytest.raises(ValueError,
-                       match=error_pattern):
-        cbook._check_shape(target, aardvark=data)
 
 
 def test_setattr_cm():

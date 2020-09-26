@@ -4,7 +4,7 @@ Interpolation inside triangular grids.
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
@@ -475,7 +475,7 @@ class CubicTriInterpolator(TriInterpolator):
         elif kind == 'min_E':
             TE = _DOF_estimator_min_E(self)
         else:
-            cbook._check_in_list(['user', 'geom', 'min_E'], kind=kind)
+            _api.check_in_list(['user', 'geom', 'min_E'], kind=kind)
         return TE.compute_dof_from_df()
 
     @staticmethod
@@ -505,15 +505,14 @@ class CubicTriInterpolator(TriInterpolator):
         ab = _transpose_vectorized(abT)
         OM = np.stack([x, y], axis=1) - tris_pts[:, 0, :]
 
-        metric = _prod_vectorized(ab, abT)
+        metric = ab @ abT
         # Here we try to deal with the colinear cases.
         # metric_inv is in this case set to the Moore-Penrose pseudo-inverse
         # meaning that we will still return a set of valid barycentric
         # coordinates.
         metric_inv = _pseudo_inv22sym_vectorized(metric)
-        Covar = _prod_vectorized(ab, _transpose_vectorized(
-            np.expand_dims(OM, ndim)))
-        ksi = _prod_vectorized(metric_inv, Covar)
+        Covar = ab @ _transpose_vectorized(np.expand_dims(OM, ndim))
+        ksi = metric_inv @ Covar
         alpha = _to_matrix_vectorized([
             [1-ksi[:, 0, 0]-ksi[:, 1, 0]], [ksi[:, 0, 0]], [ksi[:, 1, 0]]])
         return alpha
@@ -567,9 +566,9 @@ class CubicTriInterpolator(TriInterpolator):
         c = np.expand_dims(tris_pts[:, 1, :] - tris_pts[:, 0, :], axis=2)
         # Do not use np.squeeze, this is dangerous if only one triangle
         # in the triangulation...
-        dot_a = _prod_vectorized(_transpose_vectorized(a), a)[:, 0, 0]
-        dot_b = _prod_vectorized(_transpose_vectorized(b), b)[:, 0, 0]
-        dot_c = _prod_vectorized(_transpose_vectorized(c), c)[:, 0, 0]
+        dot_a = (_transpose_vectorized(a) @ a)[:, 0, 0]
+        dot_b = (_transpose_vectorized(b) @ b)[:, 0, 0]
+        dot_c = (_transpose_vectorized(c) @ c)[:, 0, 0]
         # Note that this line will raise a warning for dot_a, dot_b or dot_c
         # zeros, but we choose not to support triangles with duplicate points.
         return _to_matrix_vectorized([[(dot_c-dot_b) / dot_a],
@@ -702,15 +701,12 @@ class _ReducedHCT_Element:
         V = _to_matrix_vectorized([
             [x_sq*x], [y_sq*y], [z_sq*z], [x_sq*z], [x_sq*y], [y_sq*x],
             [y_sq*z], [z_sq*y], [z_sq*x], [x*y*z]])
-        prod = _prod_vectorized(self.M, V)
-        prod += _scalar_vectorized(E[:, 0, 0],
-                                   _prod_vectorized(self.M0, V))
-        prod += _scalar_vectorized(E[:, 1, 0],
-                                   _prod_vectorized(self.M1, V))
-        prod += _scalar_vectorized(E[:, 2, 0],
-                                   _prod_vectorized(self.M2, V))
+        prod = self.M @ V
+        prod += _scalar_vectorized(E[:, 0, 0], self.M0 @ V)
+        prod += _scalar_vectorized(E[:, 1, 0], self.M1 @ V)
+        prod += _scalar_vectorized(E[:, 2, 0], self.M2 @ V)
         s = _roll_vectorized(prod, 3*subtri, axis=0)
-        return _prod_vectorized(dofs, s)[:, 0, 0]
+        return (dofs @ s)[:, 0, 0]
 
     def get_function_derivatives(self, alpha, J, ecc, dofs):
         """
@@ -752,23 +748,20 @@ class _ReducedHCT_Element:
             [       -z_sq,  2.*x*z-z_sq],
             [     x*z-y*z,      x*y-y*z]])
         # Puts back dV in first apex basis
-        dV = _prod_vectorized(dV, _extract_submatrices(
-            self.rotate_dV, subtri, block_size=2, axis=0))
+        dV = dV @ _extract_submatrices(
+            self.rotate_dV, subtri, block_size=2, axis=0)
 
-        prod = _prod_vectorized(self.M, dV)
-        prod += _scalar_vectorized(E[:, 0, 0],
-                                   _prod_vectorized(self.M0, dV))
-        prod += _scalar_vectorized(E[:, 1, 0],
-                                   _prod_vectorized(self.M1, dV))
-        prod += _scalar_vectorized(E[:, 2, 0],
-                                   _prod_vectorized(self.M2, dV))
+        prod = self.M @ dV
+        prod += _scalar_vectorized(E[:, 0, 0], self.M0 @ dV)
+        prod += _scalar_vectorized(E[:, 1, 0], self.M1 @ dV)
+        prod += _scalar_vectorized(E[:, 2, 0], self.M2 @ dV)
         dsdksi = _roll_vectorized(prod, 3*subtri, axis=0)
-        dfdksi = _prod_vectorized(dofs, dsdksi)
+        dfdksi = dofs @ dsdksi
         # In global coordinates:
         # Here we try to deal with the simplest colinear cases, returning a
         # null matrix.
         J_inv = _safe_inv22_vectorized(J)
-        dfdx = _prod_vectorized(J_inv, _transpose_vectorized(dfdksi))
+        dfdx = J_inv @ _transpose_vectorized(dfdksi)
         return dfdx
 
     def get_function_hessians(self, alpha, J, ecc, dofs):
@@ -791,9 +784,9 @@ class _ReducedHCT_Element:
         as a column-matrices of shape (N x 3 x 1).
         """
         d2sdksi2 = self.get_d2Sidksij2(alpha, ecc)
-        d2fdksi2 = _prod_vectorized(dofs, d2sdksi2)
+        d2fdksi2 = dofs @ d2sdksi2
         H_rot = self.get_Hrot_from_J(J)
-        d2fdx2 = _prod_vectorized(d2fdksi2, H_rot)
+        d2fdx2 = d2fdksi2 @ H_rot
         return _transpose_vectorized(d2fdx2)
 
     def get_d2Sidksij2(self, alpha, ecc):
@@ -828,15 +821,12 @@ class _ReducedHCT_Element:
             [       0., 2.*x-4.*z,     -2.*z],
             [    -2.*z,     -2.*y,     x-y-z]])
         # Puts back d2V in first apex basis
-        d2V = _prod_vectorized(d2V, _extract_submatrices(
-            self.rotate_d2V, subtri, block_size=3, axis=0))
-        prod = _prod_vectorized(self.M, d2V)
-        prod += _scalar_vectorized(E[:, 0, 0],
-                                   _prod_vectorized(self.M0, d2V))
-        prod += _scalar_vectorized(E[:, 1, 0],
-                                   _prod_vectorized(self.M1, d2V))
-        prod += _scalar_vectorized(E[:, 2, 0],
-                                   _prod_vectorized(self.M2, d2V))
+        d2V = d2V @ _extract_submatrices(
+            self.rotate_d2V, subtri, block_size=3, axis=0)
+        prod = self.M @ d2V
+        prod += _scalar_vectorized(E[:, 0, 0], self.M0 @ d2V)
+        prod += _scalar_vectorized(E[:, 1, 0], self.M1 @ d2V)
+        prod += _scalar_vectorized(E[:, 2, 0], self.M2 @ d2V)
         d2sdksi2 = _roll_vectorized(prod, 3*subtri, axis=0)
         return d2sdksi2
 
@@ -859,8 +849,8 @@ class _ReducedHCT_Element:
         n = np.size(ecc, 0)
 
         # 1) matrix to rotate dofs in global coordinates
-        J1 = _prod_vectorized(self.J0_to_J1, J)
-        J2 = _prod_vectorized(self.J0_to_J2, J)
+        J1 = self.J0_to_J1 @ J
+        J2 = self.J0_to_J2 @ J
         DOF_rot = np.zeros([n, 9, 9], dtype=np.float64)
         DOF_rot[:, 0, 0] = 1
         DOF_rot[:, 3, 3] = 1
@@ -882,13 +872,11 @@ class _ReducedHCT_Element:
             alpha = np.expand_dims(alpha, 2)
             weight = weights[igauss]
             d2Skdksi2 = self.get_d2Sidksij2(alpha, ecc)
-            d2Skdx2 = _prod_vectorized(d2Skdksi2, H_rot)
-            K += weight * _prod_vectorized(_prod_vectorized(d2Skdx2, self.E),
-                                           _transpose_vectorized(d2Skdx2))
+            d2Skdx2 = d2Skdksi2 @ H_rot
+            K += weight * (d2Skdx2 @ self.E @ _transpose_vectorized(d2Skdx2))
 
         # 4) With nodal (not elem) dofs
-        K = _prod_vectorized(_prod_vectorized(_transpose_vectorized(DOF_rot),
-                                              K), DOF_rot)
+        K = _transpose_vectorized(DOF_rot) @ K @ DOF_rot
 
         # 5) Need the area to compute total element energy
         return _scalar_vectorized(area, K)
@@ -960,9 +948,8 @@ class _ReducedHCT_Element:
             c_indices, triangles[:, 2]*2, triangles[:, 2]*2+1]])
 
         expand_indices = np.ones([ntri, 9, 1], dtype=np.int32)
-        f_row_indices = _prod_vectorized(_transpose_vectorized(f_dof_indices),
-                                         _transpose_vectorized(expand_indices))
-        f_col_indices = _prod_vectorized(expand_indices, f_dof_indices)
+        f_row_indices = _transpose_vectorized(expand_indices @ f_dof_indices)
+        f_col_indices = expand_indices @ f_dof_indices
         K_elem = self.get_bending_matrices(J, ecc)
 
         # Extracting sub-matrices
@@ -985,7 +972,7 @@ class _ReducedHCT_Element:
         # Computing Ff force vector in sparse coo format
         Kfc_elem = K_elem[np.ix_(vec_range, f_dof, c_dof)]
         Uc_elem = np.expand_dims(Uc, axis=2)
-        Ff_elem = - _prod_vectorized(Kfc_elem, Uc_elem)[:, :, 0]
+        Ff_elem = -(Kfc_elem @ Uc_elem)[:, :, 0]
         Ff_indices = f_dof_indices[np.ix_(vec_range, [0], f_dof)][:, 0, :]
 
         # Extracting Ff force vector in dense format
@@ -1059,12 +1046,12 @@ class _DOF_estimator:
         """
         npt = tri_z.shape[0]
         dof = np.zeros([npt, 9], dtype=np.float64)
-        J1 = _prod_vectorized(_ReducedHCT_Element.J0_to_J1, J)
-        J2 = _prod_vectorized(_ReducedHCT_Element.J0_to_J2, J)
+        J1 = _ReducedHCT_Element.J0_to_J1 @ J
+        J2 = _ReducedHCT_Element.J0_to_J2 @ J
 
-        col0 = _prod_vectorized(J, np.expand_dims(tri_dz[:, 0, :], axis=2))
-        col1 = _prod_vectorized(J1, np.expand_dims(tri_dz[:, 1, :], axis=2))
-        col2 = _prod_vectorized(J2, np.expand_dims(tri_dz[:, 2, :], axis=2))
+        col0 = J @ np.expand_dims(tri_dz[:, 0, :], axis=2)
+        col1 = J1 @ np.expand_dims(tri_dz[:, 1, :], axis=2)
+        col2 = J2 @ np.expand_dims(tri_dz[:, 2, :], axis=2)
 
         dfdksi = _to_matrix_vectorized([
             [col0[:, 0, 0], col1[:, 0, 0], col2[:, 0, 0]],
@@ -1370,7 +1357,6 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 # The following private functions:
 #     :func:`_safe_inv22_vectorized`
 #     :func:`_pseudo_inv22sym_vectorized`
-#     :func:`_prod_vectorized`
 #     :func:`_scalar_vectorized`
 #     :func:`_transpose_vectorized`
 #     :func:`_roll_vectorized`
@@ -1490,23 +1476,6 @@ def _pseudo_inv22sym_vectorized(M):
         M_inv[rank01, 1, 1] = M[rank01, 1, 1] * sq_tr_inv
 
     return M_inv
-
-
-def _prod_vectorized(M1, M2):
-    """
-    Matrix product between arrays of matrices, or a matrix and an array of
-    matrices (*M1* and *M2*)
-    """
-    sh1 = M1.shape
-    sh2 = M2.shape
-    assert len(sh1) >= 2
-    assert len(sh2) >= 2
-    assert sh1[-1] == sh2[-2]
-
-    ndim1 = len(sh1)
-    t1_index = [*range(ndim1-2), ndim1-1, ndim1-2]
-    return np.sum(np.transpose(M1, t1_index)[..., np.newaxis] *
-                  M2[..., np.newaxis, :], -3)
 
 
 def _scalar_vectorized(scalar, M):

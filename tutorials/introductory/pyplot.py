@@ -258,10 +258,10 @@ plt.plot(t2, np.cos(2*np.pi*t2), 'r--')
 plt.show()
 
 ###############################################################################
-# The `~.pyplot.figure` call here is optional because
-# ``figure(1)`` will be created by default, just as a ``subplot(111)``
-# will be created by default if you don't manually specify any axes.  The
-# `~.pyplot.subplot` call specifies ``numrows,
+# The `~.pyplot.figure` call here is optional because a figure will be created
+# if none exists, just as an axes will be created (equivalent to an explicit
+# ``subplot()`` call) if none exists.
+# The `~.pyplot.subplot` call specifies ``numrows,
 # numcols, plot_number`` where ``plot_number`` ranges from 1 to
 # ``numrows*numcols``.  The commas in the ``subplot`` call are
 # optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
@@ -291,7 +291,7 @@ plt.show()
 #
 #
 #     plt.figure(2)                # a second figure
-#     plt.plot([4, 5, 6])          # creates a subplot(111) by default
+#     plt.plot([4, 5, 6])          # creates a subplot() by default
 #
 #     plt.figure(1)                # figure 1 current; subplot(212) still current
 #     plt.subplot(211)             # make subplot(211) in figure1 current
@@ -380,7 +380,7 @@ plt.show()
 # the argument ``xy`` and the location of the text ``xytext``.  Both of
 # these arguments are ``(x, y)`` tuples.
 
-ax = plt.subplot(111)
+ax = plt.subplot()
 
 t = np.arange(0.0, 5.0, 0.01)
 s = np.cos(2*np.pi*t)

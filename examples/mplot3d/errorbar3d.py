@@ -9,8 +9,7 @@ An example of using errorbars with upper and lower limits in mplot3d.
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 # setting up a parametric curve
 t = np.arange(0, 2*np.pi+.1, 0.01)

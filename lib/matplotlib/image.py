@@ -13,6 +13,7 @@ import numpy as np
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -243,7 +244,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         if origin is None:
             origin = mpl.rcParams['image.origin']
-        cbook._check_in_list(["upper", "lower"], origin=origin)
+        _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
@@ -274,16 +275,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        alpha : float
+        alpha : float or 2D array-like or None
         """
-        if alpha is not None and not isinstance(alpha, Number):
-            alpha = np.asarray(alpha)
-            if alpha.ndim != 2:
-                raise TypeError('alpha must be a float, two-dimensional '
-                                'array, or None')
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        martist.Artist._set_alpha_for_array(self, alpha)
+        if np.ndim(alpha) not in (0, 2):
+            raise TypeError('alpha must be a float, two-dimensional '
+                            'array, or None')
         self._imcache = None
 
     def _get_scalar_alpha(self):
@@ -465,7 +462,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # would not full eliminate it and breaks a number of
                 # tests (due to the slightly different error bouncing
                 # some pixels across a boundary in the (very
-                # quantized) color mapping step).
+                # quantized) colormapping step).
                 offset = .1
                 frac = .8
                 # we need to run the vmin/vmax through the same rescaling
@@ -474,8 +471,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # do not run the vmin/vmax through the same pipeline we can
                 # have values close or equal to the boundaries end up on the
                 # wrong side.
-                vrange = np.array([self.norm.vmin, self.norm.vmax],
-                                  dtype=scaled_dtype)
+                vmin, vmax = self.norm.vmin, self.norm.vmax
+                if vmin is np.ma.masked:
+                    vmin, vmax = a_min, a_max
+                vrange = np.array([vmin, vmax], dtype=scaled_dtype)
 
                 A_scaled -= a_min
                 vrange -= a_min
@@ -534,9 +533,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 resampled_masked = np.ma.masked_array(A_resampled, out_mask)
                 # we have re-set the vmin/vmax to account for small errors
                 # that may have moved input values in/out of range
+                s_vmin, s_vmax = vrange
+                if isinstance(self.norm, mcolors.LogNorm):
+                    if s_vmin < 0:
+                        s_vmin = max(s_vmin, np.finfo(scaled_dtype).eps)
                 with cbook._setattr_cm(self.norm,
-                                       vmin=vrange[0],
-                                       vmax=vrange[1],
+                                       vmin=s_vmin,
+                                       vmax=s_vmax,
                                        ):
                     output = self.norm(resampled_masked)
             else:
@@ -767,7 +770,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if s is None:
             s = mpl.rcParams['image.interpolation']
         s = s.lower()
-        cbook._check_in_list(_interpd_, interpolation=s)
+        _api.check_in_list(_interpd_, interpolation=s)
         self._interpolation = s
         self.stale = True
 

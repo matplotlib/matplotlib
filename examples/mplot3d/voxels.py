@@ -29,8 +29,7 @@ colors[cube1] = 'blue'
 colors[cube2] = 'green'
 
 # and plot everything
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 ax.voxels(voxels, facecolors=colors, edgecolor='k')
 
 plt.show()

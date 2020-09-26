@@ -13,18 +13,16 @@ plt.rcParams.update({
     "text.usetex": True,     # use inline math for ticks
     "pgf.rcfonts": False,    # don't setup fonts from rc parameters
     "pgf.preamble": "\n".join([
-         "\\usepackage{units}",          # load additional packages
-         "\\usepackage{metalogo}",
-         "\\usepackage{unicode-math}",   # unicode math setup
-         r"\setmathfont{xits-math.otf}",
+         r"\usepackage{url}",            # load additional packages
+         r"\usepackage{unicode-math}",   # unicode math setup
          r"\setmainfont{DejaVu Serif}",  # serif font via preamble
     ])
 })
 
 plt.figure(figsize=(4.5, 2.5))
 plt.plot(range(5))
-plt.xlabel("unicode text: я, ψ, €, ü, \\unitfrac[10]{°}{µm}")
-plt.ylabel("\\XeLaTeX")
+plt.xlabel("unicode text: я, ψ, €, ü")
+plt.ylabel(r"\url{https://matplotlib.org}")
 plt.legend(["unicode math: $λ=∑_i^∞ μ_i^2$"])
 plt.tight_layout(.5)
 

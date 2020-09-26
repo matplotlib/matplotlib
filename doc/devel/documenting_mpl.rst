@@ -687,7 +687,7 @@ are:
    are updated automatically.
 
 The function `matplotlib.artist.kwdoc` and the decorator
-`matplotlib.docstring.dedent_interpd` facilitate this.  They combine Python
+``matplotlib.docstring.dedent_interpd`` facilitate this.  They combine Python
 string interpolation in the docstring with the Matplotlib artist introspection
 facility that underlies ``setp`` and ``getp``.  The ``kwdoc`` function gives
 the list of properties as a docstring. In order to use this in another

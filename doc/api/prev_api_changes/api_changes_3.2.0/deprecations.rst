@@ -113,7 +113,7 @@ Deprecation of the constructor means that classes inheriting from
 
 Locators
 ~~~~~~~~
-The unused `.Locator.autoscale` method is deprecated (pass the axis limits to
+The unused ``Locator.autoscale`` method is deprecated (pass the axis limits to
 `.Locator.view_limits` instead).
 
 Animation

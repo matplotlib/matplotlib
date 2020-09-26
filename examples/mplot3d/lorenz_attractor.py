@@ -54,8 +54,7 @@ for i in range(num_steps):
 
 
 # Plot
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 ax.plot(xs, ys, zs, lw=0.5)
 ax.set_xlabel("X Axis")

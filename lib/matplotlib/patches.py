@@ -989,6 +989,127 @@ class PathPatch(Patch):
         self._path = path
 
 
+class StepPatch(PathPatch):
+    """
+    A path patch describing a stepwise constant function.
+
+    The path is unclosed. It starts and stops at baseline.
+    """
+
+    @docstring.dedent_interpd
+    def __init__(self, values, edges, *,
+                 orientation='vertical', baseline=0, **kwargs):
+        """
+        Parameters
+        ----------
+        values : array-like
+            The step heights.
+
+        edges : array-like
+            The edge positions, with ``len(edges) == len(vals) + 1``,
+            between which the curve takes on vals values.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            The direction of the steps. Vertical means that *values* are along
+            the y-axis, and edges are along the x-axis.
+
+        baseline : float or None, default: 0
+            Determines starting value of the bounding edges or when
+            ``fill=True``, position of lower edge.
+
+        Other valid keyword arguments are:
+
+        %(Patch)s
+        """
+        self.baseline = baseline
+        self.orientation = orientation
+        self._edges = np.asarray(edges)
+        self._values = np.asarray(values)
+        self._update_path()
+        super().__init__(self._path, **kwargs)
+
+    def _update_path(self):
+        if np.isnan(np.sum(self._edges)):
+            raise ValueError('Nan values in "edges" are disallowed')
+        if self._edges.size - 1 != self._values.size:
+            raise ValueError('Size mismatch between "values" and "edges". '
+                             "Expected `len(values) + 1 == len(edges)`, but "
+                             f"`len(values) = {self._values.size}` and "
+                             f"`len(edges) = {self._edges.size}`.")
+        verts, codes = [], []
+        for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._values)):
+            x = np.repeat(self._edges[idx0:idx1+1], 2)
+            y = np.repeat(self._values[idx0:idx1], 2)
+            if self.baseline is not None:
+                y = np.hstack((self.baseline, y, self.baseline))
+            else:
+                y = np.hstack((y[0], y, y[-1]))
+            if self.orientation == 'vertical':
+                xy = np.column_stack([x, y])
+            else:
+                xy = np.column_stack([y, x])
+            verts.append(xy)
+            codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
+            self._path = Path(np.vstack(verts), np.hstack(codes))
+
+    def get_data(self):
+        """Get `.StepPatch` values and edges."""
+        return self._values, self._edges
+
+    def set_data(self, values, edges=None):
+        """
+        Set `.StepPatch` values and optionally edges.
+
+        Parameters
+        ----------
+        values : 1D array-like or None
+            Will not update values, if passing None
+        edges : 1D array-like, optional
+        """
+        if values is not None:
+            self._values = np.asarray(values)
+        if edges is not None:
+            self._edges = np.asarray(edges)
+        self._update_path()
+        self.stale = True
+
+    def set_values(self, values):
+        """
+        Set `.StepPatch` values.
+
+        Parameters
+        ----------
+        values : 1D array-like
+        """
+        self.set_data(values, edges=None)
+
+    def set_edges(self, edges):
+        """
+        Set `.StepPatch` edges.
+
+        Parameters
+        ----------
+        edges : 1D array-like
+        """
+        self.set_data(None, edges=edges)
+
+    def get_baseline(self):
+        """Get `.StepPatch` baseline value."""
+        return self.baseline
+
+    def set_baseline(self, baseline):
+        """
+        Set `.StepPatch` baseline value.
+
+        Parameters
+        ----------
+        baseline : float or None
+        """
+        self.baseline = baseline
+        self._update_path()
+        self.stale = True
+
+
 class Polygon(Patch):
     """A general polygon patch."""
 

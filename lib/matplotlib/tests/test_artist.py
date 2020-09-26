@@ -105,13 +105,13 @@ def test_clipping():
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
 
-    ax1 = plt.subplot(121)
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
+
     col = mcollections.PathCollection([star], lw=5, edgecolor='blue',
                                       facecolor='red', alpha=0.7, hatch='*')
     col.set_clip_path(clip_path, ax1.transData)
     ax1.add_collection(col)
 
-    ax2 = plt.subplot(122, sharex=ax1, sharey=ax1)
     patch = mpatches.PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
                                alpha=0.7, hatch='*')
     patch.set_clip_path(clip_path, ax2.transData)
@@ -277,3 +277,29 @@ def test_artist_inspector_get_aliases():
     ai = martist.ArtistInspector(mlines.Line2D)
     aliases = ai.get_aliases()
     assert aliases["linewidth"] == {"lw"}
+
+
+def test_set_alpha():
+    art = martist.Artist()
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art.set_alpha('string')
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art.set_alpha([1, 2, 3])
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art.set_alpha(1.1)
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art.set_alpha(np.nan)
+
+
+def test_set_alpha_for_array():
+    art = martist.Artist()
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art._set_alpha_for_array('string')
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art._set_alpha_for_array(1.1)
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art._set_alpha_for_array(np.nan)
+    with pytest.raises(ValueError, match="alpha must be between 0 and 1"):
+        art._set_alpha_for_array([0.5, 1.1])
+    with pytest.raises(ValueError, match="alpha must be between 0 and 1"):
+        art._set_alpha_for_array([0.5, np.nan])

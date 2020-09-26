@@ -24,8 +24,7 @@ def polygon_under_graph(xlist, ylist):
     return [(xlist[0], 0.), *zip(xlist, ylist), (xlist[-1], 0.)]
 
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 # Make verts a list such that verts[i] is a list of (x, y) pairs defining
 # polygon i.

@@ -218,8 +218,6 @@ def test_fontinfo():
         (r'$\hspace{foo}$', r'Expected \hspace{n}'),
         (r'$\frac$', r'Expected \frac{num}{den}'),
         (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
-        (r'$\stackrel$', r'Expected \stackrel{num}{den}'),
-        (r'$\stackrel{}{}$', r'Expected \stackrel{num}{den}'),
         (r'$\binom$', r'Expected \binom{num}{den}'),
         (r'$\binom{}{}$', r'Expected \binom{num}{den}'),
         (r'$\genfrac$',
@@ -242,8 +240,6 @@ def test_fontinfo():
         'hspace with invalid value',
         'frac without parameters',
         'frac with empty parameters',
-        'stackrel without parameters',
-        'stackrel with empty parameters',
         'binom without parameters',
         'binom with empty parameters',
         'genfrac without parameters',
@@ -364,3 +360,13 @@ def test_mathtext_to_png(tmpdir):
     mt = mathtext.MathTextParser('bitmap')
     mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
     mt.to_png(io.BytesIO(), '$x^2$')
+
+
+@image_comparison(baseline_images=['math_fontfamily_image.png'],
+                  savefig_kwarg={'dpi': 40})
+def test_math_fontfamily():
+    fig = plt.figure(figsize=(10, 3))
+    fig.text(0.2, 0.7, r"$This\ text\ should\ have\ one\ font$",
+             size=24, math_fontfamily='dejavusans')
+    fig.text(0.2, 0.3, r"$This\ text\ should\ have\ another$",
+             size=24, math_fontfamily='stix')

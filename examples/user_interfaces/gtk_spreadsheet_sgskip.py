@@ -52,7 +52,7 @@ class DataManager(Gtk.Window):
 
         self.canvas = FigureCanvas(fig)  # a Gtk.DrawingArea
         vbox.pack_start(self.canvas, True, True, 0)
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot()
         self.line, = ax.plot(self.data[0, :], 'go')  # plot the first row
 
         self.treeview.connect('row-activated', self.plot_row)
