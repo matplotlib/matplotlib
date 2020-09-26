@@ -593,10 +593,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
-        lw = mpl.rcParams['patch.linewidth']
-        if lw is None:
-            lw = mpl.rcParams['lines.linewidth']
-        return lw
+        return mpl.rcParams['patch.linewidth']  # validated as float
 
     def set_linewidth(self, lw):
         """
@@ -1420,6 +1417,7 @@ class LineCollection(Collection):
     _edge_default = True
 
     def __init__(self, segments,  # Can be None.
+                 *args,           # Deprecated.
                  zorder=2,        # Collection.zorder is 1
                  **kwargs
                  ):
@@ -1454,7 +1452,17 @@ class LineCollection(Collection):
         **kwargs
             Forwarded to `.Collection`.
         """
-
+        argnames = ["linewidths", "colors", "antialiaseds", "linestyles",
+                    "offsets", "transOffset", "norm", "cmap", "pickradius",
+                    "zorder", "facecolors"]
+        if args:
+            argkw = {name: val for name, val in zip(argnames, args)}
+            kwargs.update(argkw)
+            cbook.warn_deprecated(
+                "3.4", message="In a future release, all LineCollection "
+                "arguments other than the first, 'segments', will be "
+                "keyword-only arguments."
+                )
         super().__init__(
             zorder=zorder,
             **kwargs)

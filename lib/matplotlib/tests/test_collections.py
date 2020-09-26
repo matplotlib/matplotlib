@@ -12,6 +12,7 @@ import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 
 
 def generate_EventCollection_plot():
@@ -789,6 +790,15 @@ def test_color_logic(pcfunc):
     pc = pcfunc(z, edgecolors=(1, 0, 0), facecolors=np.ones((12, 4)))
     assert_array_equal(pc.get_facecolor(), np.ones((12, 4)))
     assert_array_equal(pc.get_edgecolor(), [[1, 0, 0, 1]])
+
+
+def test_LineCollection_args():
+    with pytest.warns(MatplotlibDeprecationWarning):
+        lc = LineCollection(None, 2.2, 'r', zorder=3, facecolors=[0, 1, 0, 1])
+        assert lc.get_linewidth()[0] == 2.2
+        assert list(lc.get_edgecolor()[0]) == [1, 0, 0, 1]
+        assert lc.get_zorder() == 3
+        assert list(lc.get_facecolor()[0]) == [0, 1, 0, 1]
 
 
 def test_array_wrong_dimensions():
