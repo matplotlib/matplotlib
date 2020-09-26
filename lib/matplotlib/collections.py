@@ -19,6 +19,8 @@ from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
 import warnings
 
 
+# "color" is excluded; it is a compound setter, and its docstring differs
+# in LineCollection.
 @cbook._define_aliases({
     "antialiased": ["antialiaseds", "aa"],
     "edgecolor": ["edgecolors", "ec"],
@@ -589,6 +591,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         return self._offset_position
 
+    def _get_default_linewidth(self):
+        # This may be overridden in a subclass.
+        lw = mpl.rcParams['patch.linewidth']
+        if lw is None:
+            lw = mpl.rcParams['lines.linewidth']
+        return lw
+
     def set_linewidth(self, lw):
         """
         Set the linewidth(s) for the collection.  *lw* can be a scalar
@@ -600,9 +609,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         lw : float or list of floats
         """
         if lw is None:
-            lw = mpl.rcParams['patch.linewidth']
-            if lw is None:
-                lw = mpl.rcParams['lines.linewidth']
+            lw = self._get_default_linewidth()
         # get the un-scaled/broadcast lw
         self._us_lw = np.atleast_1d(np.asarray(lw))
 
@@ -755,9 +762,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
+    def _get_default_facecolor(self):
+        # This may be overridden in a subclass.
+        return mpl.rcParams['patch.facecolor']
+
     def _set_facecolor(self, c):
         if c is None:
-            c = mpl.rcParams['patch.facecolor']
+            c = self._get_default_facecolor()
 
         self._facecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
@@ -789,6 +800,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             return self._edgecolors
 
     def _get_default_edgecolor(self):
+        # This may be overridden in a subclass.
         return mpl.rcParams['patch.edgecolor']
 
     def _set_edgecolor(self, c):
@@ -799,7 +811,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 c = 'none'
                 set_hatch_color = False
-        if isinstance(c, str) and c == 'face':
+        if cbook._str_lower_equal(c, 'face'):
             self._edgecolors = 'face'
             self.stale = True
             return
@@ -852,32 +864,46 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._linestyles
 
     def _set_mappable_flags(self):
+        """
+        Determine whether edges and/or faces are color-mapped.
+
+        This is a helper for update_scalarmappable.
+        It sets Boolean flags '_edge_is_mapped' and '_face_is_mapped'.
+
+        Returns
+        -------
+        mapping_change: bool
+            True if either flag is True, or if a flag has changed.
+        """
         edge0 = self._edge_is_mapped
         face0 = self._face_is_mapped
         if self._A is None:
             self._edge_is_mapped = False
             self._face_is_mapped = False
-            # return False  # Nothing to map
         else:
-            # Typical mapping: centers, not edges.
+            # Typical mapping: faces, not edges.
             self._face_is_mapped = True
             self._edge_is_mapped = False
 
-            # Make the colors None or a string. (If None, it is a default.)
+            # Prepare color strings to check for special cases.
             fc = self._original_facecolor
-            if not (fc is None or isinstance(fc, str)):
+            if fc is None:
+                fc = self._get_default_facecolor()
+            if not isinstance(fc, str):
                 fc = 'array'
             ec = self._original_edgecolor
-            if not (ec is None or isinstance(ec, str)):
+            if ec is None:
+                ec = self._get_default_edgecolor()
+            if not isinstance(ec, str):
                 ec = 'array'
 
             # Handle special cases.
             if fc == 'none':
                 self._face_is_mapped = False
-                if ec in ('face', 'none', None):
-                    self._edge_is_mapped = True
-            if ec == 'face':
-                self._edge_is_mapped = self._face_is_mapped
+                self._edge_is_mapped = True
+            elif ec == 'face':
+                self._edge_is_mapped = True
+                self._face_is_mapped = True
 
         mapped = self._face_is_mapped or self._edge_is_mapped
         changed = (self._edge_is_mapped != edge0
@@ -924,8 +950,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def get_fill(self):
         """Return whether face is colored."""
-        fill = not (isinstance(self._original_facecolor, str)
-                    and self._original_facecolor == "none")
+        fill = not cbook._str_lower_equal(self._original_facecolor, "none")
         return fill
 
     def update_from(self, other):
@@ -1394,18 +1419,8 @@ class LineCollection(Collection):
 
     _edge_default = True
 
-    def __init__(self, segments,     # Can be None.
-                 linewidths=None,
-                 colors=None,
-                 antialiaseds=None,
-                 linestyles='solid',
-                 offsets=None,
-                 transOffset=None,
-                 norm=None,
-                 cmap=None,
-                 pickradius=5,
-                 zorder=2,
-                 facecolors='none',
+    def __init__(self, segments,  # Can be None.
+                 zorder=2,        # Collection.zorder is 1
                  **kwargs
                  ):
         """
@@ -1439,29 +1454,11 @@ class LineCollection(Collection):
         **kwargs
             Forwarded to `.Collection`.
         """
-        kw_plural = dict(linewidths=linewidths,
-                         colors=colors,
-                         facecolors=facecolors,
-                         antialiaseds=antialiaseds,
-                         linestyles=linestyles,)
-
-        kw = {k: kwargs.pop(k[:-1], val) for k, val in kw_plural.items()}
-        kw.update(kwargs)
-        colors = kw.pop('colors')
-        if kw['linewidths'] is None:
-            kw['linewidths'] = (mpl.rcParams['lines.linewidth'],)
-        if kw['antialiaseds'] is None:
-            kw['antialiaseds'] = (mpl.rcParams['lines.antialiased'],)
 
         super().__init__(
-            offsets=offsets,
-            transOffset=transOffset,
-            norm=norm,
-            cmap=cmap,
             zorder=zorder,
-            **kw)
+            **kwargs)
         self.set_segments(segments)
-        self.set_color(colors)  # sets edgecolors, including default
 
     def set_segments(self, segments):
         if segments is None:
@@ -1512,12 +1509,18 @@ class LineCollection(Collection):
                 segs[i] = segs[i] + offsets[io:io + 1]
         return segs
 
+    def _get_default_linewidth(self):
+        return mpl.rcParams['lines.linewidth']
+
     def _get_default_edgecolor(self):
         return mpl.rcParams['lines.color']
 
+    def _get_default_facecolor(self):
+        return 'none'
+
     def set_color(self, c):
         """
-        Set the color(s) of the LineCollection.
+        Set the edgecolor(s) of the LineCollection.
 
         Parameters
         ----------
@@ -1527,6 +1530,8 @@ class LineCollection(Collection):
             cycle through the sequence.
         """
         self.set_edgecolor(c)
+
+    set_colors = set_color
 
     def get_color(self):
         return self._edgecolors
