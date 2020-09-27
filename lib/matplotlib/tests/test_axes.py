@@ -1822,28 +1822,31 @@ def test_stairs(fig_test, fig_ref):
     test_axes[5].stairs(y, x, orientation='horizontal')
     test_axes[5].semilogx()
 
-    ref_axes = fig_ref.subplots(3, 2).flatten()
-    ref_axes[0].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
-    ref_axes[1].plot(np.append(y[0], y), x, drawstyle='steps-post')
+    # defaults of `PathPatch` to be used for all following Line2D
+    style = {'solid_joinstyle': 'miter', 'solid_capstyle': 'butt'}
 
-    ref_axes[2].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
-    ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
-    ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+    ref_axes = fig_ref.subplots(3, 2).flatten()
+    ref_axes[0].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
+    ref_axes[1].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+
+    ref_axes[2].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
+    ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]], **style))
+    ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]], **style))
     ref_axes[2].set_ylim(0, None)
 
-    ref_axes[3].plot(np.append(y[0], y), x, drawstyle='steps-post')
-    ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
-    ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+    ref_axes[3].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+    ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]], **style))
+    ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]], **style))
     ref_axes[3].set_xlim(0, None)
 
-    ref_axes[4].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
-    ref_axes[4].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
-    ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+    ref_axes[4].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
+    ref_axes[4].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]], **style))
+    ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]], **style))
     ref_axes[4].semilogy()
 
-    ref_axes[5].plot(np.append(y[0], y), x, drawstyle='steps-post')
-    ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
-    ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+    ref_axes[5].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+    ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]], **style))
+    ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]], **style))
     ref_axes[5].semilogx()
 
 
@@ -1861,15 +1864,15 @@ def test_stairs_fill(fig_test, fig_ref):
 
     # # Ref
     ref_axes = fig_ref.subplots(2, 2).flatten()
-    ref_axes[0].fill_between(bins, np.append(h, h[-1]), step='post')
+    ref_axes[0].fill_between(bins, np.append(h, h[-1]), step='post', lw=0)
     ref_axes[0].set_ylim(0, None)
-    ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), step='post')
+    ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), step='post', lw=0)
     ref_axes[1].set_xlim(0, None)
     ref_axes[2].fill_between(bins, np.append(h, h[-1]),
-                             np.ones(len(h)+1)*bs, step='post')
+                             np.ones(len(h)+1)*bs, step='post', lw=0)
     ref_axes[2].set_ylim(bs, None)
     ref_axes[3].fill_betweenx(bins, np.append(h, h[-1]),
-                              np.ones(len(h)+1)*bs, step='post')
+                              np.ones(len(h)+1)*bs, step='post', lw=0)
     ref_axes[3].set_xlim(bs, None)
 
 
