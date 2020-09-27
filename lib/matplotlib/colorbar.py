@@ -44,7 +44,6 @@ import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.spines as mspines
 import matplotlib.transforms as mtransforms
-import matplotlib._layoutbox as layoutbox
 from matplotlib import docstring
 
 _log = logging.getLogger(__name__)
@@ -1514,10 +1513,6 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     panchor = kw.pop('panchor', loc_settings['panchor'])
     pad = kw.pop('pad', loc_settings["pad"])
     wh_space = 2 * pad / (1 - pad)
-
-    # we need to none the tree of layoutboxes because constrained_layout can't
-    # remove and replace the tree hierarchy w/o a segfault.
-    layoutbox.nonetree(parent.get_subplotspec().get_gridspec()._layoutbox)
 
     if location in ('left', 'right'):
         # for shrinking
