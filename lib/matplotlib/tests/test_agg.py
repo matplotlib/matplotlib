@@ -161,30 +161,30 @@ def test_agg_filter():
     fig, ax = plt.subplots()
 
     # draw lines
-    l1, = ax.plot([0.1, 0.5, 0.9], [0.1, 0.9, 0.5], "bo-",
-                  mec="b", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
-    l2, = ax.plot([0.1, 0.5, 0.9], [0.5, 0.2, 0.7], "ro-",
-                  mec="r", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
+    line1, = ax.plot([0.1, 0.5, 0.9], [0.1, 0.9, 0.5], "bo-",
+                     mec="b", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
+    line2, = ax.plot([0.1, 0.5, 0.9], [0.5, 0.2, 0.7], "ro-",
+                     mec="r", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
 
     gauss = DropShadowFilter(4)
 
-    for l in [l1, l2]:
+    for line in [line1, line2]:
 
         # draw shadows with same lines with slight offset.
-        xx = l.get_xdata()
-        yy = l.get_ydata()
+        xx = line.get_xdata()
+        yy = line.get_ydata()
         shadow, = ax.plot(xx, yy)
-        shadow.update_from(l)
+        shadow.update_from(line)
 
         # offset transform
-        ot = mtransforms.offset_copy(l.get_transform(), ax.figure,
+        ot = mtransforms.offset_copy(line.get_transform(), ax.figure,
                                      x=4.0, y=-6.0, units='points')
 
         shadow.set_transform(ot)
 
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
-        shadow.set_zorder(l.get_zorder() - 0.5)
+        shadow.set_zorder(line.get_zorder() - 0.5)
         shadow.set_agg_filter(gauss)
         shadow.set_rasterized(True)  # to support mixed-mode renderers
 

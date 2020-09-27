@@ -19,26 +19,26 @@ def test_bbox_inches_tight():
             [78415, 81858, 150656, 193263, 69638],
             [139361, 331509, 343164, 781380, 52269]]
 
-    colLabels = rowLabels = [''] * 5
+    col_labels = row_labels = [''] * 5
 
     rows = len(data)
-    ind = np.arange(len(colLabels)) + 0.3  # the x locations for the groups
-    cellText = []
+    ind = np.arange(len(col_labels)) + 0.3  # the x locations for the groups
+    cell_text = []
     width = 0.4     # the width of the bars
-    yoff = np.zeros(len(colLabels))
+    yoff = np.zeros(len(col_labels))
     # the bottom values for stacked bar chart
     fig, ax = plt.subplots(1, 1)
     for row in range(rows):
         ax.bar(ind, data[row], width, bottom=yoff, align='edge', color='b')
         yoff = yoff + data[row]
-        cellText.append([''])
+        cell_text.append([''])
     plt.xticks([])
     plt.xlim(0, 5)
     plt.legend([''] * 5, loc=(1.2, 0.2))
     fig.legend([''] * 5, bbox_to_anchor=(0, 0.2), loc='lower left')
     # Add a table at the bottom of the axes
-    cellText.reverse()
-    plt.table(cellText=cellText, rowLabels=rowLabels, colLabels=colLabels,
+    cell_text.reverse()
+    plt.table(cellText=cell_text, rowLabels=row_labels, colLabels=col_labels,
               loc='bottom')
 
 
