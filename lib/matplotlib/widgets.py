@@ -19,7 +19,6 @@ import matplotlib as mpl
 from . import _api, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
-from .transforms import blended_transform_factory
 
 
 class LockDraw:
@@ -1716,12 +1715,10 @@ class SpanSelector(_SelectorWidget):
             self.connect_default_events()
 
         if self.direction == 'horizontal':
-            trans = blended_transform_factory(self.ax.transData,
-                                              self.ax.transAxes)
+            trans = ax.get_xaxis_transform()
             w, h = 0, 1
         else:
-            trans = blended_transform_factory(self.ax.transAxes,
-                                              self.ax.transData)
+            trans = ax.get_yaxis_transform()
             w, h = 1, 0
         self.rect = Rectangle((0, 0), w, h,
                               transform=trans,
