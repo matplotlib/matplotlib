@@ -50,7 +50,7 @@ triangle, make *headaxislength* the same as *headlength*. To make the
 arrow more pointed, reduce *headwidth* or increase *headlength* and
 *headaxislength*. To make the head smaller relative to the shaft,
 scale down all the head parameters. You will probably do best to leave
-minshaft alone. To set the position of the arrowhead used *head_pos* and
+minshaft alone. To set the position of the arrowhead use *head_pos* and
 to exactly position the head on the shaft use *mid_scale*.
 
 **Arrow outline**
