@@ -431,10 +431,18 @@ class FigureManagerTk(FigureManagerBase):
         if self.canvas._idle_callback:
             self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
 
-        self.window.destroy()
+        # NOTE: events need to be flushed before issuing destroy (GH #9956),
+        # however, self.window.update() can break user code. This is the
+        # safest way to achieve a complete draining of the event queue,
+        # but it may require users to update() on their own to execute the
+        # completion in obscure corner cases.
+        def delayed_destroy():
+            self.window.destroy()
 
-        if self._owns_mainloop and not Gcf.get_num_fig_managers():
-            self.window.quit()
+            if self._owns_mainloop and not Gcf.get_num_fig_managers():
+                self.window.quit()
+
+        self.window.after_idle(delayed_destroy)
 
     def get_window_title(self):
         return self.window.wm_title()
