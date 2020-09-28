@@ -4,7 +4,7 @@ Quiver Arrowhead Position Demo
 ==============================
 
 An example of how to add positioning of arrowheads to
-a `~.axes.Axes.quiver` plot with a `~.axes.Axes.quiverkey`.
+a `~.axes.Axes.quiver` plot, with a `~.axes.Axes.quiverkey`.
 
 For more advanced options refer to
 :doc:`/gallery/images_contours_and_fields/quiver_demo`.

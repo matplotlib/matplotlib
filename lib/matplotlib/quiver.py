@@ -50,8 +50,13 @@ triangle, make *headaxislength* the same as *headlength*. To make the
 arrow more pointed, reduce *headwidth* or increase *headlength* and
 *headaxislength*. To make the head smaller relative to the shaft,
 scale down all the head parameters. You will probably do best to leave
+<<<<<<< HEAD
 minshaft alone. To set the position of the arrowhead used *head_pos* and
 to exactly position the head on the shaft use *head_pos*.
+=======
+minshaft alone. To set the position of the arrowhead use *head_pos* and
+to exactly position the head on the shaft use *mid_scale*.
+>>>>>>> 670c2031e4222c0ed9612ec8d09b1f71fac9aafc
 
 **Arrow outline**
 
@@ -174,12 +179,11 @@ pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
 
     'mid' is a synonym for 'middle'.
 
-head_pos : string, in {'tail', 'mid', 'middle', 'tip'},
-    or float, in range 0.0<head_pos<1.0
-    optional, default: 'tip'
+head_pos : {'tip', 'mid', 'middle', 'tail'}, or float, default: 'tip'
     The position of the arrowhead along the shaft.
-    'tail' gives value 0.0, 'tip' gives value 1.0
-    'mid' synonymous to 'middle' each gives value 0.5
+    'tail' gives value 0.0, 'tip' gives value 1.0,
+    'mid' synonymous to 'middle' gives value 0.5.
+    If a float is specified, it must be between 0.0 and 1.0.
 
 color : color or color sequence, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
