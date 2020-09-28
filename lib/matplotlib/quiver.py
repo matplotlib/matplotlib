@@ -176,8 +176,9 @@ pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
 
 head_pos : {'tip', 'mid', 'middle', 'tail'}, or float, default: 'tip'
     The position of the arrowhead along the shaft.
-    'tail' gives value 0.0, 'tip' gives value 1.0
-    'mid' synonymous to 'middle' each gives value 0.5
+    'tail' gives value 0.0, 'tip' gives value 1.0,
+    'mid' synonymous to 'middle' gives value 0.5.
+    If a float is specified, it must be between 0.0 and 1.0.
 
 color : color or color sequence, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
