@@ -45,13 +45,19 @@ def _restore_foreground_window_at_end():
 
 
 _blit_args = {}
-# Initialized to non-empty string that is not a current Tcl command
+# Initialize to a non-empty string that is not a Tcl command
 _blit_tcl_name = "29345091836409813"
 
 
 def _blit(argsid):
     """
-    Thin wrapper to pass arguments to blit via tkapp.call
+    Thin wrapper to blit via tkapp.call
+
+    *argsid* is a unique string identifier to fetch the correct arguments from
+    the _blit_args dict, since args cannot be passed directly
+
+    photoimage blanking must occur in the same event and thread as blitting
+    to avoid flickering.
     """
     photoimage, dataptr, offsets, bboxptr, blank = _blit_args.pop(argsid)
     if blank:
@@ -69,7 +75,10 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     (2, 1, 0, 3) for little-endian ARBG32 (i.e. GBRA8888) data and (1, 2, 3, 0)
     for big-endian ARGB32 (i.e. ARGB8888) data.
 
-    If *bbox* is passed, it defines the region that gets blitted.
+    If *bbox* is passed, it defines the region that gets blitted. That region
+    will NOT be blanked before blitting.
+
+    Tcl events must be dispatched to trigger a blit from a non-Tcl thread.
     """
     data = np.asarray(aggimage)
     height, width = data.shape[:2]
@@ -86,16 +95,24 @@ def blit(photoimage, aggimage, offsets, bbox=None):
         bboxptr = (0, width, 0, height)
         blank = True
 
+    # NOTE: _tkagg.blit is thread unsafe and will crash the process if called
+    # from a thread (GH#13293). Instead of blanking and blitting here,
+    # use tkapp.call to post a cross-thread event if this function is called
+    # from a non-Tcl thread.
+
+    # tkapp.call coerces all arguments to strings, so to avoid string parsing
+    # within _blit, pack up the arguments into a global data structure.
     args = photoimage, dataptr, offsets, bboxptr, blank
+    # Need a unique key to avoid thread races.
+    # Again, make the key a string to avoid string parsing in _blit.
     argsid = repr(id(args))
     _blit_args[argsid] = args
 
     global _blit_tcl_name
-    # tkapp.call coerces all arguments to strings
     try:
         photoimage.tk.call(_blit_tcl_name, argsid)
     except tk.TclError:
-        # register _blit by copying code from tkinter.Misc._register
+        # register _blit with code copied from tkinter.Misc._register
         _blit_tcl_name = repr(id(_blit)) + _blit.__name__
         photoimage.tk.createcommand(_blit_tcl_name, _blit)
         photoimage.tk.call(_blit_tcl_name, argsid)
