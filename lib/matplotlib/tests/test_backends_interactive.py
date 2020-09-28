@@ -67,7 +67,6 @@ def _get_testable_interactive_backends():
 # early.  Also, gtk3 redefines key_press_event with a different signature, so
 # we directly invoke it from the superclass instead.
 _test_script = """\
-import importlib
 import importlib.util
 import io
 import json
@@ -147,28 +146,49 @@ if not backend.startswith('qt5') and sys.platform == 'darwin':
     # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS to
     # not resize incorrectly.
     assert_equal(result.getvalue(), result_after.getvalue())
-    
-# Test artists and drawing does not crash from thread (no other guarantees)
+
+# Test artists and drawing from thread does not crash (no other guarantees)
 fig, ax = plt.subplots()
 # plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
-plt.pause(0.1)
+plt.pause(0.5)
+
+exc_info = None
 
 def thread_artist_work():
-    ax.plot([1,3,6])
+    try:
+        ax.plot([1,3,6])
+    except Exception as e:
+        # Propagate error to main thread
+        global exc_info
+        exc_info = sys.exc_info()
 
 def thread_draw_work():
-    fig.canvas.draw()
-    fig.canvas.stop_event_loop()
+    try:
+        fig.canvas.draw()
+    except Exception as e:
+        # Propagate error to main thread
+        global exc_info
+        exc_info = sys.exc_info()
 
 t = threading.Thread(target=thread_artist_work)
 t.start()
 # artists never wait for the event loop to run, so just join
 t.join()
 
+if exc_info is not None:  # Raise thread error
+    raise exc_info[1].with_traceback(exc_info[2])
+
 t = threading.Thread(target=thread_draw_work)
+timer = fig.canvas.new_timer(1.)
+timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
+fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
+fig.canvas.mpl_connect("close_event", print)
 t.start()
 fig.canvas.start_event_loop()
 t.join()
+
+if exc_info is not None:  # Raise thread error
+    raise exc_info[1].with_traceback(exc_info[2])
 """
 _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 
@@ -193,7 +213,7 @@ def test_interactive_backend(backend, toolbar):
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")
-    assert proc.stdout.count("CloseEvent") == 1
+    assert proc.stdout.count("CloseEvent") == 2
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
