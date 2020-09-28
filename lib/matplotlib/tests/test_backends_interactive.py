@@ -147,17 +147,17 @@ if not backend.startswith('qt5') and sys.platform == 'darwin':
     # not resize incorrectly.
     assert_equal(result.getvalue(), result_after.getvalue())
 
-# Test artists and drawing from thread does not crash (no other guarantees)
+# Test artists and drawing does not crash from thread (no other guarantees)
 fig, ax = plt.subplots()
 # plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
-plt.pause(0.5)
+plt.pause(0.1)
 
 exc_info = None
 
 def thread_artist_work():
     try:
         ax.plot([1,3,6])
-    except Exception as e:
+    except:
         # Propagate error to main thread
         global exc_info
         exc_info = sys.exc_info()
@@ -165,7 +165,7 @@ def thread_artist_work():
 def thread_draw_work():
     try:
         fig.canvas.draw()
-    except Exception as e:
+    except:
         # Propagate error to main thread
         global exc_info
         exc_info = sys.exc_info()
@@ -175,19 +175,18 @@ t.start()
 # artists never wait for the event loop to run, so just join
 t.join()
 
-if exc_info is not None:  # Raise thread error
+if exc_info:  # Raise thread error
     raise exc_info[1].with_traceback(exc_info[2])
 
 t = threading.Thread(target=thread_draw_work)
-timer = fig.canvas.new_timer(1.)
-timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
-fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
 fig.canvas.mpl_connect("close_event", print)
 t.start()
-fig.canvas.start_event_loop()
+plt.pause(0.1)  # flush_events fails on at least Tkagg (bpo-41176)
 t.join()
+plt.close()
+fig.canvas.flush_events()  # pause doesn't process events after close
 
-if exc_info is not None:  # Raise thread error
+if exc_info:  # Raise thread error
     raise exc_info[1].with_traceback(exc_info[2])
 """
 _test_timeout = 10  # Empirically, 1s is not enough on Travis.
