@@ -51,7 +51,7 @@ arrow more pointed, reduce *headwidth* or increase *headlength* and
 *headaxislength*. To make the head smaller relative to the shaft,
 scale down all the head parameters. You will probably do best to leave
 minshaft alone. To set the position of the arrowhead used *head_pos* and
-to exactly position the head on the shaft use *mid_scale*.
+to exactly position the head on the shaft use *head_pos*.
 
 **Arrow outline**
 
@@ -498,7 +498,7 @@ class Quiver(mcollections.PolyCollection):
         self.angles = angles
         self.width = width
 
-        # Checks the boundaries of mid_scale if outside range default of 0.5
+        # Checks the boundaries of head_pos if outside range default of 0.5
         if (head_pos == 0.0) or (head_pos == "tail"):
             self.head_pos = 0.0
         elif (head_pos == 1.0) or (head_pos == "tip"):
@@ -510,11 +510,11 @@ class Quiver(mcollections.PolyCollection):
                 self.head_pos = head_pos
             else:
                 raise ValueError("'head_pos' must be "
-                                 "a value in the bounds 0<mid_scale<1,"
+                                 "a value in the bounds 0<head_pos<1,"
                                  "or a string in {'tail', 'middle', 'tip'}")
         else:
             raise ValueError("'head_pos' must be "
-                             "a value in the bounds 0<mid_scale<1,"
+                             "a value in the bounds 0head_pos<1,"
                              "or a string in {'tail', 'middle', 'tip'}")
 
         if pivot.lower() == 'mid':
@@ -783,7 +783,7 @@ class Quiver(mcollections.PolyCollection):
             Y[:, 5:-1] *= -1
         else:
             raise ValueError("'head_pos' must be "
-                             "a value in the bounds 0<mid_scale<1,"
+                             "a value in the bounds 0<head_pos<1,"
                              "or a string in {'tail', 'middle', 'tip'}")
         X0 = x0[ii_min]
         Y0 = y0[ii_min]
