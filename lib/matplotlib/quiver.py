@@ -174,9 +174,7 @@ pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
 
     'mid' is a synonym for 'middle'.
 
-head_pos : string, in {'tail', 'mid', 'middle', 'tip'},
-    or float, in range 0.0<head_pos<1.0
-    optional, default: 'tip'
+head_pos : {'tip', 'mid', 'middle', 'tail'}, or float, default: 'tip'
     The position of the arrowhead along the shaft.
     'tail' gives value 0.0, 'tip' gives value 1.0
     'mid' synonymous to 'middle' each gives value 0.5
