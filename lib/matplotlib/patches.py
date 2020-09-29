@@ -729,59 +729,35 @@ class Rectangle(Patch):
         **kwargs : `.Patch` properties
             %(Patch)s
         """
-
         super().__init__(**kwargs)
-
         self._x0 = xy[0]
         self._y0 = xy[1]
-
         self._width = width
         self._height = height
-
-        self._x1 = self._x0 + self._width
-        self._y1 = self._y0 + self._height
-
         self.angle = float(angle)
-        # Note: This cannot be calculated until this is added to an Axes
-        self._rect_transform = transforms.IdentityTransform()
+        self._convert_units()  # Validate the inputs.
 
     def get_path(self):
         """Return the vertices of the rectangle."""
         return Path.unit_rectangle()
 
-    def _update_patch_transform(self):
-        """
-        Notes
-        -----
-        This cannot be called until after this has been added to an Axes,
-        otherwise unit conversion will fail. This makes it very important to
-        call the accessor method and not directly access the transformation
-        member variable.
-        """
-        x0, y0, x1, y1 = self._convert_units()
-        bbox = transforms.Bbox.from_extents(x0, y0, x1, y1)
-        rot_trans = transforms.Affine2D()
-        rot_trans.rotate_deg_around(x0, y0, self.angle)
-        self._rect_transform = transforms.BboxTransformTo(bbox)
-        self._rect_transform += rot_trans
-
-    def _update_x1(self):
-        self._x1 = self._x0 + self._width
-
-    def _update_y1(self):
-        self._y1 = self._y0 + self._height
-
     def _convert_units(self):
         """Convert bounds of the rectangle."""
         x0 = self.convert_xunits(self._x0)
         y0 = self.convert_yunits(self._y0)
-        x1 = self.convert_xunits(self._x1)
-        y1 = self.convert_yunits(self._y1)
+        x1 = self.convert_xunits(self._x0 + self._width)
+        y1 = self.convert_yunits(self._y0 + self._height)
         return x0, y0, x1, y1
 
     def get_patch_transform(self):
-        self._update_patch_transform()
-        return self._rect_transform
+        # Note: This cannot be called until after this has been added to
+        # an Axes, otherwise unit conversion will fail. This makes it very
+        # important to call the accessor method and not directly access the
+        # transformation member variable.
+        bbox = self.get_bbox()
+        return (transforms.BboxTransformTo(bbox)
+                + transforms.Affine2D().rotate_deg_around(
+                    bbox.x0, bbox.y0, self.angle))
 
     def get_x(self):
         """Return the left coordinate of the rectangle."""
@@ -806,13 +782,11 @@ class Rectangle(Patch):
     def set_x(self, x):
         """Set the left coordinate of the rectangle."""
         self._x0 = x
-        self._update_x1()
         self.stale = True
 
     def set_y(self, y):
         """Set the bottom coordinate of the rectangle."""
         self._y0 = y
-        self._update_y1()
         self.stale = True
 
     def set_xy(self, xy):
@@ -824,20 +798,16 @@ class Rectangle(Patch):
         xy : (float, float)
         """
         self._x0, self._y0 = xy
-        self._update_x1()
-        self._update_y1()
         self.stale = True
 
     def set_width(self, w):
         """Set the width of the rectangle."""
         self._width = w
-        self._update_x1()
         self.stale = True
 
     def set_height(self, h):
         """Set the height of the rectangle."""
         self._height = h
-        self._update_y1()
         self.stale = True
 
     def set_bounds(self, *args):
@@ -859,8 +829,6 @@ class Rectangle(Patch):
         self._y0 = b
         self._width = w
         self._height = h
-        self._update_x1()
-        self._update_y1()
         self.stale = True
 
     def get_bbox(self):
@@ -876,8 +844,8 @@ class RegularPolygon(Patch):
 
     def __str__(self):
         s = "RegularPolygon((%g, %g), %d, radius=%g, orientation=%g)"
-        return s % (self._xy[0], self._xy[1], self._numVertices, self._radius,
-                    self._orientation)
+        return s % (self.xy[0], self.xy[1], self.numvertices, self.radius,
+                    self.orientation)
 
     @docstring.dedent_interpd
     def __init__(self, xy, numVertices, radius=5, orientation=0,
@@ -902,63 +870,22 @@ class RegularPolygon(Patch):
 
             %(Patch)s
         """
-        self._xy = xy
-        self._numVertices = numVertices
-        self._orientation = orientation
-        self._radius = radius
+        self.xy = xy
+        self.numvertices = numVertices
+        self.orientation = orientation
+        self.radius = radius
         self._path = Path.unit_regular_polygon(numVertices)
-        self._poly_transform = transforms.Affine2D()
-        self._update_transform()
-
+        self._patch_transform = transforms.Affine2D()
         super().__init__(**kwargs)
-
-    def _update_transform(self):
-        self._poly_transform.clear() \
-            .scale(self.radius) \
-            .rotate(self.orientation) \
-            .translate(*self.xy)
-
-    @property
-    def xy(self):
-        return self._xy
-
-    @xy.setter
-    def xy(self, xy):
-        self._xy = xy
-        self._update_transform()
-
-    @property
-    def orientation(self):
-        return self._orientation
-
-    @orientation.setter
-    def orientation(self, orientation):
-        self._orientation = orientation
-        self._update_transform()
-
-    @property
-    def radius(self):
-        return self._radius
-
-    @radius.setter
-    def radius(self, radius):
-        self._radius = radius
-        self._update_transform()
-
-    @property
-    def numvertices(self):
-        return self._numVertices
-
-    @numvertices.setter
-    def numvertices(self, numVertices):
-        self._numVertices = numVertices
 
     def get_path(self):
         return self._path
 
     def get_patch_transform(self):
-        self._update_transform()
-        return self._poly_transform
+        return self._patch_transform.clear() \
+            .scale(self.radius) \
+            .rotate(self.orientation) \
+            .translate(*self.xy)
 
 
 class PathPatch(Patch):
@@ -1461,7 +1388,7 @@ class CirclePolygon(RegularPolygon):
 
     def __str__(self):
         s = "CirclePolygon((%g, %g), radius=%g, resolution=%d)"
-        return s % (self._xy[0], self._xy[1], self._radius, self._numVertices)
+        return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
     @docstring.dedent_interpd
     def __init__(self, xy, radius=5,
