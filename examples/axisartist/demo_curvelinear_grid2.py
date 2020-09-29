@@ -17,7 +17,7 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import (
     GridHelperCurveLinear)
 from mpl_toolkits.axisartist.grid_finder import (
     ExtremeFinderSimple, MaxNLocator)
-from mpl_toolkits.axisartist.axislines import Subplot
+from mpl_toolkits.axisartist.axislines import Axes
 
 
 def curvelinear_test1(fig):
@@ -39,12 +39,10 @@ def curvelinear_test1(fig):
         # better tick density
         grid_locator1=MaxNLocator(nbins=6), grid_locator2=MaxNLocator(nbins=6))
 
-    ax1 = Subplot(fig, 111, grid_helper=grid_helper)
+    ax1 = fig.add_subplot(axes_class=Axes, grid_helper=grid_helper)
     # ax1 will have a ticks and gridlines defined by the given
     # transform (+ transData of the Axes). Note that the transform of the Axes
     # itself (i.e., transData) is not affected by the given transform.
-
-    fig.add_subplot(ax1)
 
     ax1.imshow(np.arange(25).reshape(5, 5),
                vmax=50, cmap=plt.cm.gray_r, origin="lower")
