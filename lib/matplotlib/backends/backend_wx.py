@@ -1179,12 +1179,14 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return type(self.canvas)(frame, -1, fig)
 
     def zoom(self, *args):
-        self.ToggleTool(self.wx_ids['Pan'], False)
-        NavigationToolbar2.zoom(self, *args)
+        tool = self.wx_ids['Zoom']
+        self.ToggleTool(tool, not self.GetToolState(tool))
+        super().zoom(*args)
 
     def pan(self, *args):
-        self.ToggleTool(self.wx_ids['Zoom'], False)
-        NavigationToolbar2.pan(self, *args)
+        tool = self.wx_ids['Pan']
+        self.ToggleTool(tool, not self.GetToolState(tool))
+        super().pan(*args)
 
     def save_figure(self, *args):
         # Fetch the required filename and file type.
