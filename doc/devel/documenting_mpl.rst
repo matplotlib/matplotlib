@@ -53,7 +53,7 @@ Installing dependencies
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
 using the Sphinx_ documentation generation tool. To build the documentation
 you will need to (1) set up an appropriate Python environment and (2)
-separately install LaTeX and Graphviz.
+separately install our external dependencies.
 
 To (1) set up an appropriate Python environment for building the
 documentation, you should:
@@ -70,16 +70,25 @@ shown below:
 .. include:: ../../requirements/doc/doc-requirements.txt
    :literal:
 
-To (2) set up LaTeX and Graphviz dependencies you should:
+For (2), the Matplotlib docs require that you:
 
 *  install a minimal working LaTeX distribution
-*  install the LaTeX packages cm-super and dvipng
 *  install `Graphviz <http://www.graphviz.org/download>`_
+*  install the LaTeX packages cm-super and dvipng. If your OS bundles ``TexLive``,
+   then often the "complete" version of the installer will automatically include
+   these packages (e.g. "texlive-full" or "texlive-all").
+*  (suggested) install `Inkscape <https://inkscape.org>`_.
+*  (suggested) install `optipng <http://optipng.sourceforge.net>`_.
+*  (suggested) install the "Humor Sans" font (aka the "XKCD" font), or the free
+   alternative `Comic Neue <http://comicneue.com/>`_.
 
 .. note::
 
   The documentation will not build without LaTeX and Graphviz.  These are not
-  Python packages and must be installed separately.
+  Python packages and must be installed separately. The documentation can be
+  built without Inkscape and optipng, but the build process will raise various
+  warnings. If the build process warns that you are missing fonts, make sure
+  your LaTeX distribution bundles cm-super or install it separately.
 
 Building the docs
 -----------------
@@ -111,7 +120,7 @@ it, use
 .. code-block:: sh
 
    make SPHINXOPTS= html
-   
+
 On Windows the arguments must be at the end of the statement:
 
 .. code-block:: bat
@@ -131,8 +140,8 @@ On Windows, either use the format shown above or set options as environment vari
 
 .. code-block:: bat
 
-   set O=-W --keep-going -j4 
-   make html 
+   set O=-W --keep-going -j4
+   make html
 
 .. _writing-rest-pages:
 
