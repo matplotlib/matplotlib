@@ -942,18 +942,18 @@ class StepPatch(PathPatch):
             The direction of the steps. Vertical means that *values* are along
             the y-axis, and edges are along the x-axis.
 
-        baseline : float or None, default: 0
-            Determines starting value of the bounding edges or when
+        baseline : float, 1D array-like or None, default: 0
+            Determines bottom value of the bounding edges or when
             ``fill=True``, position of lower edge.
 
         Other valid keyword arguments are:
 
         %(Patch)s
         """
-        self.baseline = baseline
         self.orientation = orientation
         self._edges = np.asarray(edges)
         self._values = np.asarray(values)
+        self._baseline = np.asarray(baseline) if baseline is not None else None
         self._update_path()
         super().__init__(self._path, **kwargs)
 
@@ -966,13 +966,24 @@ class StepPatch(PathPatch):
                              f"`len(values) = {self._values.size}` and "
                              f"`len(edges) = {self._edges.size}`.")
         verts, codes = [], []
-        for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._values)):
+
+        _nan_mask = np.isnan(self._values)
+        if self._baseline is not None:
+            _nan_mask |= np.isnan(self._baseline)
+        for idx0, idx1 in cbook.contiguous_regions(~_nan_mask):
             x = np.repeat(self._edges[idx0:idx1+1], 2)
             y = np.repeat(self._values[idx0:idx1], 2)
-            if self.baseline is not None:
-                y = np.hstack((self.baseline, y, self.baseline))
-            else:
+            if self._baseline is None:
                 y = np.hstack((y[0], y, y[-1]))
+            elif self._baseline.ndim == 0:  # single baseline value
+                y = np.hstack((self._baseline, y, self._baseline))
+            elif self._baseline.ndim == 1:  # baseline array
+                base = np.repeat(self._baseline[idx0:idx1], 2)[::-1]
+                x = np.concatenate([x, x[::-1]])
+                y = np.concatenate([np.hstack((base[-1], y, base[0],
+                                               base[0], base, base[-1]))])
+            else:  # no baseline
+                raise ValueError('Invalid `baseline` specified')
             if self.orientation == 'vertical':
                 xy = np.column_stack([x, y])
             else:
@@ -982,23 +993,26 @@ class StepPatch(PathPatch):
             self._path = Path(np.vstack(verts), np.hstack(codes))
 
     def get_data(self):
-        """Get `.StepPatch` values and edges."""
-        return self._values, self._edges
+        """Get `.StepPatch` values, edges and baseline."""
+        return self._values, self._edges, self._baseline
 
-    def set_data(self, values, edges=None):
+    def set_data(self, values, edges=None, baseline=None):
         """
-        Set `.StepPatch` values and optionally edges.
+        Set `.StepPatch` values and optionally edges and baseline.
 
         Parameters
         ----------
         values : 1D array-like or None
             Will not update values, if passing None
         edges : 1D array-like, optional
+        baseline : float, 1D array-like or None
         """
         if values is not None:
             self._values = np.asarray(values)
         if edges is not None:
             self._edges = np.asarray(edges)
+        if baseline is not None:
+            self._baseline = np.asarray(baseline)
         self._update_path()
         self.stale = True
 
@@ -1010,7 +1024,7 @@ class StepPatch(PathPatch):
         ----------
         values : 1D array-like
         """
-        self.set_data(values, edges=None)
+        self.set_data(values, edges=None, baseline=None)
 
     def set_edges(self, edges):
         """
@@ -1020,23 +1034,21 @@ class StepPatch(PathPatch):
         ----------
         edges : 1D array-like
         """
-        self.set_data(None, edges=edges)
+        self.set_data(None, edges=edges, baseline=None)
 
     def get_baseline(self):
-        """Get `.StepPatch` baseline value."""
-        return self.baseline
+        """Get `.StepPatch` baseline."""
+        return self._baseline
 
     def set_baseline(self, baseline):
         """
-        Set `.StepPatch` baseline value.
+        Set `.StepPatch` baseline.
 
         Parameters
         ----------
-        baseline : float or None
+        baseline : float, array-like or None, default: 0
         """
-        self.baseline = baseline
-        self._update_path()
-        self.stale = True
+        self.set_data(None, edges=None, baseline=baseline)
 
 
 class Polygon(Patch):

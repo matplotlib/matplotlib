@@ -6744,8 +6744,8 @@ such objects
             The direction of the steps. Vertical means that *values* are along
             the y-axis, and edges are along the x-axis.
 
-        baseline : float or None, default: 0
-            Determines starting value of the bounding edges or when
+        baseline : float, array-like or None, default: 0
+            Determines bottom value of the bounding edges or when
             ``fill=True``, position of lower edge.
 
         fill : bool, default: False
@@ -6775,8 +6775,8 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
-        edges, values = self._process_unit_info(
-            [("x", edges), ("y", values)], kwargs)
+        edges, values, baseline = self._process_unit_info(
+            [("x", edges), ("y", values), ("y", baseline)], kwargs)
 
         patch = mpatches.StepPatch(values,
                                    edges,
@@ -6788,9 +6788,9 @@ such objects
         if baseline is None:
             baseline = 0
         if orientation == 'vertical':
-            patch.sticky_edges.y.append(baseline)
+            patch.sticky_edges.y.append(np.min(baseline))
         else:
-            patch.sticky_edges.x.append(baseline)
+            patch.sticky_edges.x.append(np.min(baseline))
         self._request_autoscale_view()
         return patch
 
