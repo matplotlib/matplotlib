@@ -899,6 +899,55 @@ default: 'top'
         """
         return np.array(self.bbox_inches.p1)
 
+    def set_size_pixels(self, w, h=None, forward=True):
+        """
+        Set the figure size in pixels.
+
+        Call signatures::
+
+             fig.set_size_pixels(w, h)  # OR
+             fig.set_size_pixels((w, h))
+
+        Parameters
+        ----------
+        w : (float, float) or float
+            Width and height in pixels (if height not specified as a
+            separate argument) or width.
+        h : float
+            Height in pixels.
+        forward : bool, default: True
+            If ``True``, the canvas size is automatically updated, e.g.,
+            you can resize the figure window from the shell.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.set_size_inches
+        matplotlib.figure.Figure.set_dpi
+        matplotlib.figure.Figure.set_figheight
+        """
+        if h is None:  # Got called with a single pair as argument.
+            w, h = w
+        size = np.array([w, h])
+        if not np.isfinite(size).all() or (size < 0).any():
+            raise ValueError(f'figure size must be positive finite not {size}')
+        self.set_size_inches(size / self.dpi, forward=forward)
+
+    def get_size_pixels(self):
+        """
+        Return the current size of the figure in pixels.
+
+        Returns
+        -------
+        ndarray
+           The size (width, height) of the figure in pixels.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.get_size_inches
+        matplotlib.figure.Figure.get_dpi
+        """
+        return np.array(self.bbox_inches.p1) * self.dpi
+
     def get_edgecolor(self):
         """Get the edge color of the Figure rectangle."""
         return self.patch.get_edgecolor()
