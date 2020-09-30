@@ -47,40 +47,50 @@ documentation built into their comments.
   :file:`doc/api/api_changes/`).  Sphinx_ regenerates files in these
   directories when building documentation.
 
-Installing dependencies
------------------------
+Setting up the doc build
+------------------------
 
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
 using the Sphinx_ documentation generation tool. To build the documentation
-you will need to (1) set up an appropriate Python environment and (2)
-separately install our external dependencies.
+you will need to
 
-To (1) set up an appropriate Python environment for building the
-documentation, you should:
+1. set up an appropriate Python environment
+2. install additional external dependencies
 
-*  create a clean virtual environment with no existing Matplotlib
-   installation
+Setting up a dedicated Python environment
+`````````````````````````````````````````
+
+*  create a clean virtual environment with no existing Matplotlib installation
 *  install the Python packages required for Matplotlib
-*  install the additional Python packages required to build the documentation
+*  install the additional Python packages required to build the documentation.
+   They are listed in :file:`doc-requirements.txt`, which is shown below:
 
-There are several extra python packages that are needed to build the
-documentation. They are listed in :file:`doc-requirements.txt`, which is
-shown below:
+   .. include:: ../../requirements/doc/doc-requirements.txt
+      :literal:
 
-.. include:: ../../requirements/doc/doc-requirements.txt
-   :literal:
+.. note::
 
-For (2), the Matplotlib docs require that you:
+  If you've already set up an
+  :ref:`environment for Matplotlib development <installing_for_devs>`, you
+  can reuse that and skip the first two steps.
 
-*  install a minimal working LaTeX distribution
-*  install `Graphviz <http://www.graphviz.org/download>`_
-*  install the LaTeX packages cm-super and dvipng. If your OS bundles ``TexLive``,
+Install additional external dependencies
+````````````````````````````````````````
+
+Required:
+
+*  a minimal working LaTeX distribution
+*  `Graphviz <http://www.graphviz.org/download>`_
+*  the LaTeX packages *cm-super* and *dvipng*. If your OS bundles ``TexLive``,
    then often the "complete" version of the installer will automatically include
    these packages (e.g. "texlive-full" or "texlive-all").
-*  (suggested) install `Inkscape <https://inkscape.org>`_.
-*  (suggested) install `optipng <http://optipng.sourceforge.net>`_.
-*  (suggested) install the "Humor Sans" font (aka the "XKCD" font), or the free
-   alternative `Comic Neue <http://comicneue.com/>`_.
+
+Optional, but recommended:
+
+*  `Inkscape <https://inkscape.org>`_
+*  `optipng <http://optipng.sourceforge.net>`_
+*  the font "Humor Sans" (aka the "XKCD" font), or the free alternative
+   `Comic Neue <http://comicneue.com/>`_.
 
 .. note::
 
