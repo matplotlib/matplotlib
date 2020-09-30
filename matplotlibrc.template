@@ -211,15 +211,20 @@
 ## on font properties.  The 6 font properties used for font matching are
 ## given below with their default values.
 ##
-## The font.family property has five values:
+## The font.family property can take either a concrete font name (not supported
+## when rendering text with usetex), or one of the following five generic
+## values:
 ##     - 'serif' (e.g., Times),
 ##     - 'sans-serif' (e.g., Helvetica),
 ##     - 'cursive' (e.g., Zapf-Chancery),
 ##     - 'fantasy' (e.g., Western), and
 ##     - 'monospace' (e.g., Courier).
-## Each of these font families has a default list of font names in decreasing
-## order of priority associated with them.  When text.usetex is False,
-## font.family may also be one or more concrete font names.
+## Each of these values has a corresponding default list of font names
+## (font.serif, etc.); the first available font in the list is used.  Note that
+## for font.serif, font.sans-serif, and font.monospace, the first element of
+## the list (a DejaVu font) will always be used because DejaVu is shipped with
+## Matplotlib and is thus guaranteed to be available; the other entries are
+## left as examples of other possible values.
 ##
 ## The font.style property has three values: normal (or roman), italic
 ## or oblique.  The oblique style will be used for italic, if it is not
