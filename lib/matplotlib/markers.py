@@ -1,6 +1,7 @@
 r"""
 Functions to handle markers; used by the marker functionality of
-`~matplotlib.axes.Axes.plot`, `~matplotlib.axes.Axes.scatter`, and `~matplotlib.axes.Axes.errorbar`.
+`~matplotlib.axes.Axes.plot`, `~matplotlib.axes.Axes.scatter`, and
+`~matplotlib.axes.Axes.errorbar`.
 
 All possible markers are defined here:
 
@@ -217,9 +218,9 @@ class MarkerStyle:
         Parameters
         ----------
         marker : str, array-like, Path, MarkerStyle, or None, default: None
-            
+
             Another instance of *MarkerStyle* copies the details of that ``marker``.
-            
+
             *None* means no marker.
 
             For other possible marker values see the module docstring `matplotlib.markers`.
@@ -288,9 +289,9 @@ class MarkerStyle:
         Parameters
         ----------
         marker : str, array-like, Path, MarkerStyle, or None, default: None
-            
+
             Another instance of *MarkerStyle* copies the details of that ``marker``.
-            
+
             *None* means no marker.
 
             For other possible marker values see the module docstring `matplotlib.markers`.
