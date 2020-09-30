@@ -245,20 +245,6 @@ div.sphinxsidebar {
 /*    margin-left: -100%; */
 }
 
-div.sphinxsidebar h4, div.sphinxsidebar h3 {
-    margin: 1em 0 0.5em 0;
-    font-size: 0.9em;
-    padding: 0.1em 0 0.1em 0.5em;
-    color: white;
-    border: 1px solid #86989B;
-    background-color: #AFC1C4;
-}
-
-div.sphinxsidebar h3 a {
-    /* workaround for table of contents heading, which is a link */
-    color: white !important;
-}
-
 div.sphinxsidebar ul {
     padding-left: 1.5em;
     margin-top: 10px;
