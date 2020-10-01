@@ -1317,7 +1317,7 @@ def test_arc_ellipse():
     ax.add_patch(e2)
 
 
-def test_marker_as_MarkerStyle():
+def test_marker_as_markerstyle():
     fix, ax = plt.subplots()
     m = mmarkers.MarkerStyle('o')
     plt.plot([1, 2, 3], [3, 2, 1], marker=m)
