@@ -3260,3 +3260,6 @@ def nipy_spectral(): set_cmap('nipy_spectral')
 
 
 _setup_pyplot_info_docstrings()
+
+
+ 

@@ -1145,3 +1145,14 @@ CSS4_COLORS = {
     'whitesmoke':           '#F5F5F5',
     'yellow':               '#FFFF00',
     'yellowgreen':          '#9ACD32'}
+
+
+#Use of colus in making pie chart
+#EX :
+
+#labels = ['python','ruby','c++','java']
+#sizes = [215,230,245,210]
+#colors = ['red','yellow','green','blue']
+#explode = [0.1,0.2,0,0]
+#plt.pie(sizes,labels=labels,colors=colors,explode= explode,shadow=True,autopct = '%1.1f%%')
+#
