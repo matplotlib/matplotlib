@@ -69,6 +69,15 @@ After installation, launch the test suite::
 
 Read the `testing guide <https://matplotlib.org/devel/testing.html>`_ for more information and alternatives.
 
+For creating 3D graphs
+======================
+You can also create 3D graphs with the help of matplotlib. For creating 3D plot import below code in your python file or your notebook::
+
+  from mpl_toolkits.mplot3d import Axes3D
+  import matplotlib.pyplot as plt
+  
+For examples go through this link: https://matplotlib.org/mpl_toolkits/mplot3d/tutorial.html
+
 Contribute
 ==========
 You've discovered a bug or something else you want to change - excellent!
