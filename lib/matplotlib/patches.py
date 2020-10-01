@@ -923,6 +923,8 @@ class StepPatch(PathPatch):
     The path is unclosed. It starts and stops at baseline.
     """
 
+    _edge_default = False
+
     @docstring.dedent_interpd
     def __init__(self, values, edges, *,
                  orientation='vertical', baseline=0, **kwargs):
