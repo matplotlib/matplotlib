@@ -1,0 +1,8 @@
+Changed cursive and fantasy font definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The Comic Sans and Comic Neue fonts were moved from the default :rc:`font.fantasy`
+list to the default :rc:`font.cursive` setting, in accordance with the CSS
+font families example_ and in order to provide a cursive font present in
+Microsoft's Core Fonts set.
+
+.. _example: https://www.w3.org/Style/Examples/007/fonts.en.html
