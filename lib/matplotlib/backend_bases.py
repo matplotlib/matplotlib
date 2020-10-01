@@ -2178,9 +2178,6 @@ class FigureCanvasBase:
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
 
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
-        # Some code (e.g. Figure.show) differentiates between having *no*
-        # manager and a *None* manager, which should be fixed at some point,
-        # but this should be fine.
         with cbook._setattr_cm(self, manager=None), \
                 cbook._setattr_cm(self.figure, dpi=dpi), \
                 cbook._setattr_cm(canvas, _is_saving=True):
