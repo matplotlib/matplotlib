@@ -529,14 +529,13 @@ class ColorbarBase:
         # Set self.vmin and self.vmax to first and last boundary, excluding
         # extensions.
         self.vmin, self.vmax = self._boundaries[self._inside][[0, -1]]
-        # Compute the X/Y mesh, assuming vertical orientation.
+        # Compute the X/Y mesh.
         X, Y = self._mesh()
         # Extract bounding polygon (the last entry's value (X[0, 1]) doesn't
         # matter, it just matches the CLOSEPOLY code).
         x = np.concatenate([X[[0, 1, -2, -1], 0], X[[-1, -2, 1, 0, 0], 1]])
         y = np.concatenate([Y[[0, 1, -2, -1], 0], Y[[-1, -2, 1, 0, 0], 1]])
-        xy = (np.column_stack([x, y]) if self.orientation == 'vertical' else
-              np.column_stack([y, x]))  # Apply orientation.
+        xy = np.column_stack([x, y])
         # Configure axes limits, patch, and outline.
         xmin, ymin = xy.min(axis=0)
         xmax, ymax = xy.max(axis=0)
@@ -796,13 +795,9 @@ class ColorbarBase:
 
     def _edges(self, X, Y):
         """Return the separator line segments; helper for _add_solids."""
-        N = X.shape[0]
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
-        if self.orientation == 'vertical':
-            return [list(zip(X[i], Y[i])) for i in range(1, N - 1)]
-        else:
-            return [list(zip(Y[i], X[i])) for i in range(1, N - 1)]
+        return [list(zip(X[i], Y[i])) for i in range(1, len(X) - 1)]
 
     def _add_solids(self, X, Y, C):
         """Draw the colors; optionally add separators."""
@@ -823,9 +818,8 @@ class ColorbarBase:
 
     def _add_solids_pcolormesh(self, X, Y, C):
         _log.debug('Setting pcolormesh')
-        args = (X, Y, C) if self.orientation == 'vertical' else (Y.T, X.T, C.T)
         self.solids = self.ax.pcolormesh(
-            *args, cmap=self.cmap, norm=self.norm, alpha=self.alpha,
+            X, Y, C, cmap=self.cmap, norm=self.norm, alpha=self.alpha,
             edgecolors='none', shading='flat')
         if not self.drawedges:
             if len(self._y) >= self.n_rasterize:
@@ -839,8 +833,6 @@ class ColorbarBase:
                            [X[i, 1], Y[i, 0]],
                            [X[i + 1, 1], Y[i + 1, 0]],
                            [X[i + 1, 0], Y[i + 1, 1]]])
-            if self.orientation == 'horizontal':
-                xy = xy[..., ::-1]  # Swap x/y.
             patch = mpatches.PathPatch(mpath.Path(xy),
                                        facecolor=self.cmap(self.norm(C[i][0])),
                                        hatch=hatches[i], linewidth=0,
@@ -1098,10 +1090,9 @@ class ColorbarBase:
     def _mesh(self):
         """
         Return the coordinate arrays for the colorbar pcolormesh/patches.
-        These are suitable for a vertical colorbar; swapping and transposition
-        for a horizontal colorbar are done outside this function.
 
-        These are scaled between vmin and vmax.
+        These are scaled between vmin and vmax, and already handle colorbar
+        orientation.
         """
         # copy the norm and change the vmin and vmax to the vmin and
         # vmax of the colorbar, not the norm.  This allows the situation
@@ -1134,7 +1125,7 @@ class ColorbarBase:
             X[0, :] = xmid
         if self._extend_upper() and not self.extendrect:
             X[-1, :] = xmid
-        return X, Y
+        return (X, Y) if self.orientation == 'vertical' else (Y, X)
 
     def _locate(self, x):
         """

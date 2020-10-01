@@ -76,7 +76,7 @@ def test_constrained_layout4():
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
 
-@image_comparison(['constrained_layout5.png'])
+@image_comparison(['constrained_layout5.png'], tol=0.002)
 def test_constrained_layout5():
     """
     Test constrained_layout for a single colorbar with subplots,
@@ -93,7 +93,7 @@ def test_constrained_layout5():
                  location='bottom')
 
 
-@image_comparison(['constrained_layout6.png'])
+@image_comparison(['constrained_layout6.png'], tol=0.002)
 def test_constrained_layout6():
     """Test constrained_layout for nested gridspecs"""
     # Remove this line when this test image is regenerated.
