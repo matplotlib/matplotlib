@@ -87,9 +87,6 @@ class TimerWx(TimerBase):
         if self._timer.IsRunning():
             self._timer_start()  # Restart with new interval.
 
-    def _timer_set_single_shot(self):
-        self._timer.Start()
-
 
 class RendererWx(RendererBase):
     """
