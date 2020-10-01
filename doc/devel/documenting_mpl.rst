@@ -58,7 +58,7 @@ you will need to
 2. install additional external dependencies
 
 Setting up a dedicated Python environment
-`````````````````````````````````````````
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *  create a clean virtual environment with no existing Matplotlib installation
 *  install the Python packages required for Matplotlib
