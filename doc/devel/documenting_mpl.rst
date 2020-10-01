@@ -75,7 +75,7 @@ Setting up a dedicated Python environment
   can reuse that and skip the first two steps.
 
 Install additional external dependencies
-````````````````````````````````````````
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Required:
 
