@@ -1316,12 +1316,14 @@ def test_arc_ellipse():
 
     ax.add_patch(e2)
 
+
 def test_marker_as_MarkerStyle():
     fix, ax = plt.subplots()
     m = mmarkers.MarkerStyle('o')
-    plt.plot([1,2,3],[3,2,1], marker=m)
-    plt.scatter([1,2,3],[4,3,2], marker=m)
-    plt.errorbar([1,2,3],[5,4,3], marker=m)
+    plt.plot([1, 2, 3], [3, 2, 1], marker=m)
+    plt.scatter([1, 2, 3], [4, 3, 2], marker=m)
+    plt.errorbar([1, 2, 3],[5, 4, 3], marker=m)
+
 
 @image_comparison(['markevery'], remove_text=True)
 def test_markevery():
