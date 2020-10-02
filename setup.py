@@ -287,7 +287,6 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         "numpy>=1.15",
     ],
     install_requires=[
-        "certifi>=2020.06.20",
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
         "numpy>=1.15",
