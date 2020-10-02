@@ -19,9 +19,6 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
     On top of `.ColorbarBase` this connects the colorbar with a
     `.ScalarMappable` such as an image or contour plot.
 
-:class:`ColorbarPatch`
-    A specialized `.Colorbar` to support hatched contour plots.
-
 :func:`make_axes`
     Create an `~.axes.Axes` suitable for a colorbar. This functions can be
     used with figures containing a single axes or with freely placed axes.
@@ -472,6 +469,7 @@ class ColorbarBase:
         self.extendfrac = extendfrac
         self.extendrect = extendrect
         self.solids = None
+        self.solids_patches = []
         self.lines = []
 
         for spine in ax.spines.values():
@@ -531,14 +529,13 @@ class ColorbarBase:
         # Set self.vmin and self.vmax to first and last boundary, excluding
         # extensions.
         self.vmin, self.vmax = self._boundaries[self._inside][[0, -1]]
-        # Compute the X/Y mesh, assuming vertical orientation.
+        # Compute the X/Y mesh.
         X, Y = self._mesh()
         # Extract bounding polygon (the last entry's value (X[0, 1]) doesn't
         # matter, it just matches the CLOSEPOLY code).
         x = np.concatenate([X[[0, 1, -2, -1], 0], X[[-1, -2, 1, 0, 0], 1]])
         y = np.concatenate([Y[[0, 1, -2, -1], 0], Y[[-1, -2, 1, 0, 0], 1]])
-        xy = (np.column_stack([x, y]) if self.orientation == 'vertical' else
-              np.column_stack([y, x]))  # Apply orientation.
+        xy = np.column_stack([x, y])
         # Configure axes limits, patch, and outline.
         xmin, ymin = xy.min(axis=0)
         xmax, ymax = xy.max(axis=0)
@@ -798,41 +795,51 @@ class ColorbarBase:
 
     def _edges(self, X, Y):
         """Return the separator line segments; helper for _add_solids."""
-        N = X.shape[0]
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
-        if self.orientation == 'vertical':
-            return [list(zip(X[i], Y[i])) for i in range(1, N - 1)]
-        else:
-            return [list(zip(Y[i], X[i])) for i in range(1, N - 1)]
+        return [list(zip(X[i], Y[i])) for i in range(1, len(X) - 1)]
 
     def _add_solids(self, X, Y, C):
-        """
-        Draw the colors using `~.axes.Axes.pcolormesh`;
-        optionally add separators.
-        """
-        if self.orientation == 'vertical':
-            args = (X, Y, C)
-        else:
-            args = (np.transpose(Y), np.transpose(X), np.transpose(C))
-        kw = dict(cmap=self.cmap,
-                  norm=self.norm,
-                  alpha=self.alpha,
-                  edgecolors='None')
-        _log.debug('Setting pcolormesh')
-        col = self.ax.pcolormesh(*args, **kw, shading='flat')
-        # self.add_observer(col) # We should observe, not be observed...
-
+        """Draw the colors; optionally add separators."""
+        # Cleanup previously set artists.
         if self.solids is not None:
             self.solids.remove()
-        self.solids = col
-
-        if self.drawedges:
-            self.dividers.set_segments(self._edges(X, Y))
+        for solid in self.solids_patches:
+            solid.remove()
+        # Add new artist(s), based on mappable type.  Use individual patches if
+        # hatching is needed, pcolormesh otherwise.
+        mappable = getattr(self, 'mappable', None)
+        if (isinstance(mappable, contour.ContourSet)
+                and any(hatch is not None for hatch in mappable.hatches)):
+            self._add_solids_patches(X, Y, C, mappable)
         else:
-            self.dividers.set_segments([])
+            self._add_solids_pcolormesh(X, Y, C)
+        self.dividers.set_segments(self._edges(X, Y) if self.drawedges else [])
+
+    def _add_solids_pcolormesh(self, X, Y, C):
+        _log.debug('Setting pcolormesh')
+        self.solids = self.ax.pcolormesh(
+            X, Y, C, cmap=self.cmap, norm=self.norm, alpha=self.alpha,
+            edgecolors='none', shading='flat')
+        if not self.drawedges:
             if len(self._y) >= self.n_rasterize:
                 self.solids.set_rasterized(True)
+
+    def _add_solids_patches(self, X, Y, C, mappable):
+        hatches = mappable.hatches * len(C)  # Have enough hatches.
+        patches = []
+        for i in range(len(X) - 1):
+            xy = np.array([[X[i, 0], Y[i, 0]],
+                           [X[i, 1], Y[i, 0]],
+                           [X[i + 1, 1], Y[i + 1, 0]],
+                           [X[i + 1, 0], Y[i + 1, 1]]])
+            patch = mpatches.PathPatch(mpath.Path(xy),
+                                       facecolor=self.cmap(self.norm(C[i][0])),
+                                       hatch=hatches[i], linewidth=0,
+                                       antialiased=False, alpha=self.alpha)
+            self.ax.add_patch(patch)
+            patches.append(patch)
+        self.solids_patches = patches
 
     def add_lines(self, levels, colors, linewidths, erase=True):
         """
@@ -1082,11 +1089,10 @@ class ColorbarBase:
 
     def _mesh(self):
         """
-        Return ``(X, Y)``, the coordinate arrays for the colorbar pcolormesh.
-        These are suitable for a vertical colorbar; swapping and transposition
-        for a horizontal colorbar are done outside this function.
+        Return the coordinate arrays for the colorbar pcolormesh/patches.
 
-        These are scaled between vmin and vmax.
+        These are scaled between vmin and vmax, and already handle colorbar
+        orientation.
         """
         # copy the norm and change the vmin and vmax to the vmin and
         # vmax of the colorbar, not the norm.  This allows the situation
@@ -1119,7 +1125,7 @@ class ColorbarBase:
             X[0, :] = xmid
         if self._extend_upper() and not self.extendrect:
             X[-1, :] = xmid
-        return X, Y
+        return (X, Y) if self.orientation == 'vertical' else (Y, X)
 
     def _locate(self, x):
         """
@@ -1212,6 +1218,10 @@ class Colorbar(ColorbarBase):
             if isinstance(mappable, martist.Artist):
                 _add_disjoint_kwargs(kwargs, alpha=mappable.get_alpha())
             super().__init__(ax, **kwargs)
+
+        mappable.colorbar = self
+        mappable.colorbar_cid = mappable.callbacksSM.connect(
+            'changed', self.update_normal)
 
     @cbook.deprecated("3.3", alternative="update_normal")
     def on_mappable_changed(self, mappable):
@@ -1548,61 +1558,12 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     return cax, kw
 
 
+@cbook.deprecated("3.4", alternative="Colorbar")
 class ColorbarPatch(Colorbar):
-    """
-    A Colorbar that uses a list of `~.patches.Patch` instances rather than the
-    default `~.collections.PatchCollection` created by `~.axes.Axes.pcolor`,
-    because the latter does not allow the hatch pattern to vary among the
-    members of the collection.
-    """
-
-    def __init__(self, ax, mappable, **kw):
-        # we do not want to override the behaviour of solids
-        # so add a new attribute which will be a list of the
-        # colored patches in the colorbar
-        self.solids_patches = []
-        super().__init__(ax, mappable, **kw)
-
-    def _add_solids(self, X, Y, C):
-        """
-        Draw the colors using `~matplotlib.patches.Patch`;
-        optionally add separators.
-        """
-        n_segments = len(C)
-
-        # ensure there are sufficient hatches
-        hatches = self.mappable.hatches * n_segments
-
-        patches = []
-        for i in range(len(X) - 1):
-            val = C[i][0]
-            hatch = hatches[i]
-
-            xy = np.array([[X[i][0], Y[i][0]],
-                           [X[i][1], Y[i][0]],
-                           [X[i + 1][1], Y[i + 1][0]],
-                           [X[i + 1][0], Y[i + 1][1]]])
-
-            if self.orientation == 'horizontal':
-                # if horizontal swap the xs and ys
-                xy = xy[..., ::-1]
-
-            patch = mpatches.PathPatch(mpath.Path(xy),
-                                       facecolor=self.cmap(self.norm(val)),
-                                       hatch=hatch, linewidth=0,
-                                       antialiased=False, alpha=self.alpha)
-            self.ax.add_patch(patch)
-            patches.append(patch)
-
-        if self.solids_patches:
-            for solid in self.solids_patches:
-                solid.remove()
-
-        self.solids_patches = patches
-
-        self.dividers.set_segments(self._edges(X, Y) if self.drawedges else [])
+    pass
 
 
+@cbook.deprecated("3.4", alternative="Colorbar")
 def colorbar_factory(cax, mappable, **kwargs):
     """
     Create a colorbar on the given axes for the given mappable.
@@ -1624,20 +1585,7 @@ def colorbar_factory(cax, mappable, **kwargs):
 
     Returns
     -------
-    `.Colorbar` or `.ColorbarPatch`
-        The created colorbar instance. `.ColorbarPatch` is only used if
-        *mappable* is a `.ContourSet` with hatches.
+    `.Colorbar`
+        The created colorbar instance.
     """
-    # if the given mappable is a contourset with any hatching, use
-    # ColorbarPatch else use Colorbar
-    if (isinstance(mappable, contour.ContourSet)
-            and any(hatch is not None for hatch in mappable.hatches)):
-        cb = ColorbarPatch(cax, mappable, **kwargs)
-    else:
-        cb = Colorbar(cax, mappable, **kwargs)
-
-    cid = mappable.callbacksSM.connect('changed', cb.update_normal)
-    mappable.colorbar = cb
-    mappable.colorbar_cid = cid
-
-    return cb
+    return Colorbar(cax, mappable, **kwargs)

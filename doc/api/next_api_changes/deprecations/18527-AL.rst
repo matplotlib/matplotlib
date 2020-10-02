@@ -1,0 +1,4 @@
+``ColorbarPatch`` and ``colorbar_factory`` are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All the relevant functionality has been moved to the
+`~matplotlib.colorbar.Colorbar` class.
