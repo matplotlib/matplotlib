@@ -675,7 +675,7 @@ def test_anchored_cbar_position_using_specgrid():
 
     # the bottom left corner of one ax is (x0, y0)
     # the top right corner of one ax is (x1, y1)
-    # p0: the verticle / horizontal postion of anchor
+    # p0: the vertical / horizontal position of anchor
     x0, y0, x1, y1 = ax.get_position().extents
     cx0, cy0, cx1, cy1 = cbar.ax.get_position().extents
     p0 = (x1 - x0) * anchor_x + x0
