@@ -635,9 +635,8 @@ class Legend(Artist):
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection(),
         FancyArrowPatch: legend_handler.HandlerFancyArrowPatch(),
-	Annotation: legend_handler.HandlerAnnotation()
+    Annotation: legend_handler.HandlerAnnotation()
     }
-
 
     # (get|set|update)_default_handler_maps are public interfaces to
     # modify the default handler map.
@@ -647,7 +646,7 @@ class Legend(Artist):
         """
         A class method that returns the default handler map.
         """
-	return cls._default_handler_map
+        return cls._default_handler_map
 
     @classmethod
     def set_default_handler_map(cls, handler_map):
@@ -1108,39 +1107,6 @@ class Legend(Artist):
         """Return ``True`` if the legend is draggable, ``False`` otherwise."""
         return self._draggable is not None
 
-<<<<<<< HEAD
-    def draggable(self, state=None, use_blit=False, update="loc"):
-        """
-        Set the draggable state -- if state is
-
-          * None : toggle the current state
-
-          * True : turn draggable on
-
-          * False : turn draggable off
-
-        If draggable is on, you can drag the legend on the canvas with
-        the mouse. The `.DraggableLegend` helper instance is returned if
-        draggable is on.
-
-        The update parameter control which parameter of the legend changes
-        when dragged. If update is "loc", the *loc* parameter of the legend
-        is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
-        """
-        warn_deprecated("2.2",
-                        message="Legend.draggable() is deprecated in "
-                                "favor of Legend.set_draggable(). "
-                                "Legend.draggable may be reintroduced as a "
-                                "property in future releases.")
-
-        if state is None:
-            state = not self.get_draggable()  # toggle state
-
-        self.set_draggable(state, use_blit, update)
-
-        return self._draggable
-=======
->>>>>>> ae47ad26eda9c69b182837feaece416c6017d29f
 
 # Helper functions to parse legend arguments for both `figure.legend` and
 # `axes.legend`:
@@ -1159,8 +1125,8 @@ def _get_legend_handles(axs, legend_handler_map=None):
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += (axx.lines + axx.patches +
-                                     axx.collections + axx.containers + axx.texts)
-
+                                     axx.collections + axx.containers
+                                        + axx.texts)
 
     handler_map = Legend.get_default_handler_map()
 
