@@ -31,7 +31,6 @@ from matplotlib import cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, FancyArrowPatch
 import matplotlib.collections as mcoll
-from matplotlib.text import Text, Annotation
 import matplotlib.colors as mcolors
 
 
@@ -787,6 +786,7 @@ class HandlerFancyArrowPatch(HandlerPatch):
 
 
 class HandlerAnnotation(HandlerBase):
+
     """
     Handler for Annotation instances.
     Defers to HandlerFancyArrowPatch to draw the annotation arrow (if any).
