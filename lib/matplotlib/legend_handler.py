@@ -786,7 +786,6 @@ class HandlerFancyArrowPatch(HandlerPatch):
 
 
 class HandlerAnnotation(HandlerBase):
-
     """
     Handler for Annotation instances.
     Defers to HandlerFancyArrowPatch to draw the annotation arrow (if any).
