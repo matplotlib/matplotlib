@@ -1955,7 +1955,10 @@ class BoxStyle(_Style):
         # This can go away once the deprecation period elapses, leaving _Base
         # as a fully abstract base class just providing docstrings, no logic.
         def __init_subclass__(cls):
-            if not cls.__module__ == "matplotlib.patches":
+            transmute = cbook._deprecate_method_override(
+                __class__.transmute, cls, since="3.4")
+            if transmute:
+                cls.__call__ = transmute
                 return
 
             __call__ = cls.__call__
