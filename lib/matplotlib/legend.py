@@ -34,11 +34,7 @@ from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
-<<<<<<< HEAD
-                                FancyArrowPatch)
-=======
-                                StepPatch)
->>>>>>> ae47ad26eda9c69b182837feaece416c6017d29f
+                                FancyArrowPatch, StepPatch)
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
