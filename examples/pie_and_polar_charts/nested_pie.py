@@ -13,7 +13,7 @@ import numpy as np
 
 ###############################################################################
 # The most straightforward way to build a pie chart is to use the
-# :meth:`pie method <matplotlib.axes.Axes.pie>`
+# `~matplotlib.axes.Axes.pie` method.
 #
 # In this case, pie takes values corresponding to counts in a group.
 # We'll first generate some fake data, corresponding to three groups.
@@ -21,8 +21,8 @@ import numpy as np
 # own group. In the outer circle, we'll plot them as members of their
 # original 3 groups.
 #
-# The effect of the donut shape is achieved by setting a `width` to
-# the pie's wedges through the `wedgeprops` argument.
+# The effect of the donut shape is achieved by setting a ``width`` to
+# the pie's wedges through the *wedgeprops* argument.
 
 
 fig, ax = plt.subplots()
@@ -32,7 +32,7 @@ vals = np.array([[60., 32.], [37., 40.], [29., 10.]])
 
 cmap = plt.get_cmap("tab20c")
 outer_colors = cmap(np.arange(3)*4)
-inner_colors = cmap(np.array([1, 2, 5, 6, 9, 10]))
+inner_colors = cmap([1, 2, 5, 6, 9, 10])
 
 ax.pie(vals.sum(axis=1), radius=1, colors=outer_colors,
        wedgeprops=dict(width=size, edgecolor='w'))
@@ -63,7 +63,7 @@ valsleft = np.cumsum(np.append(0, valsnorm.flatten()[:-1])).reshape(vals.shape)
 
 cmap = plt.get_cmap("tab20c")
 outer_colors = cmap(np.arange(3)*4)
-inner_colors = cmap(np.array([1, 2, 5, 6, 9, 10]))
+inner_colors = cmap([1, 2, 5, 6, 9, 10])
 
 ax.bar(x=valsleft[:, 0],
        width=valsnorm.sum(axis=1), bottom=1-size, height=size,

@@ -11,7 +11,7 @@ many plotting functions, which we demonstrate below.
 """
 import matplotlib.pyplot as plt
 
-data = {'apples': 10, 'oranges': 15, 'lemons': 5, 'limes': 20}
+data = {'apple': 10, 'orange': 15, 'lemon': 5, 'lime': 20}
 names = list(data.keys())
 values = list(data.values())
 

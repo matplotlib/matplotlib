@@ -17,7 +17,7 @@ The following lists any open PRs or branches related to this MEP:
 
 #. Deprecate redundant statistical kwargs in ``Axes.boxplot``: https://github.com/phobson/matplotlib/tree/MEP28-initial-deprecations
 #. Deprecate redundant style options in ``Axes.boxplot``: https://github.com/phobson/matplotlib/tree/MEP28-initial-deprecations
-#. Deprecate passings 2D numpy arrays as input: None
+#. Deprecate passings 2D NumPy arrays as input: None
 #. Add pre- & post-processing options to ``cbook.boxplot_stats``: https://github.com/phobson/matplotlib/tree/boxplot-stat-transforms
 #. Exposing ``cbook.boxplot_stats`` through ``Axes.boxplot`` kwargs: None
 #. Remove redundant statistical kwargs in ``Axes.boxplot``: None
@@ -146,7 +146,7 @@ These transformations can then be added to the call signature of
 ``Axes.boxplot`` with little impact to that method's complexity. This is
 because they can be directly passed to ``cbook.boxplot_stats``.
 Alternatively, ``Axes.boxplot`` could be modified to accept an optional
-statistical function kwarg and a dictionary of parameters to be direcly
+statistical function kwarg and a dictionary of parameters to be directly
 passed to it.
 
 At this point in the implementation users and external libraries like
@@ -197,9 +197,9 @@ Schedule
 An accelerated timeline could look like the following:
 
 #. v2.0.1 add transforms to ``cbook.boxplots_stats``, expose in ``Axes.boxplot``
-#. v2.1.0 Initial Deprecations , and using 2D numpy arrays as input
+#. v2.1.0 Initial Deprecations , and using 2D NumPy arrays as input
 
-    a. Using 2D numpy arrays as input. The semantics around 2D arrays are generally confusing.
+    a. Using 2D NumPy arrays as input. The semantics around 2D arrays are generally confusing.
     b. ``usermedians``, ``conf_intervals``, ``sym`` parameters
 
 #. v2.2.0

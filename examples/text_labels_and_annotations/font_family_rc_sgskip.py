@@ -7,8 +7,8 @@ You can explicitly set which font family is picked up for a given font
 style (e.g., 'serif', 'sans-serif', or 'monospace').
 
 In the example below, we only allow one font family (Tahoma) for the
-sans-serif font style.  You the default family with the font.family rc
-param, e.g.,::
+sans-serif font style.  The default family is set with the font.family rcparam,
+e.g. ::
 
   rcParams['font.family'] = 'sans-serif'
 
@@ -17,9 +17,7 @@ in order::
 
   rcParams['font.sans-serif'] = ['Tahoma', 'DejaVu Sans',
                                  'Lucida Grande', 'Verdana']
-
 """
-
 
 from matplotlib import rcParams
 rcParams['font.family'] = 'sans-serif'

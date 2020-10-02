@@ -133,7 +133,7 @@ class HandlerDashedLines(HandlerLineCollection):
         leglines = []
         # divide the vertical space where the lines will go
         # into equal parts based on the number of lines
-        ydata = ((height) / (numlines + 1)) * np.ones(xdata.shape, float)
+        ydata = np.full_like(xdata, height / (numlines + 1))
         # for each line, create the line at the proper location
         # and set the dash pattern
         for i in range(numlines):
@@ -153,7 +153,7 @@ class HandlerDashedLines(HandlerLineCollection):
                 lw = orig_handle.get_linewidths()[i]
             except IndexError:
                 lw = orig_handle.get_linewidths()[0]
-            if dashes[0] is not None:
+            if dashes[1] is not None:
                 legline.set_dashes(dashes[1])
             legline.set_color(color)
             legline.set_transform(trans)

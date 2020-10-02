@@ -1,18 +1,19 @@
 """
 ===============
-Shading Example
+Shading example
 ===============
 
-Example showing how to make shaded relief plots
-like Mathematica
-(http://reference.wolfram.com/mathematica/ref/ReliefPlot.html)
-or Generic Mapping Tools
-(https://gmt.soest.hawaii.edu/)
+Example showing how to make shaded relief plots like Mathematica_ or
+`Generic Mapping Tools`_.
+
+.. _Mathematica: http://reference.wolfram.com/mathematica/ref/ReliefPlot.html
+.. _Generic Mapping Tools: https://gmt.soest.hawaii.edu/
 """
+
 import numpy as np
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
-from matplotlib.cbook import get_sample_data
 
 
 def main():
@@ -20,9 +21,8 @@ def main():
     x, y = np.mgrid[-5:5:0.05, -5:5:0.05]
     z = 5 * (np.sqrt(x**2 + y**2) + np.sin(x**2 + y**2))
 
-    filename = get_sample_data('jacksboro_fault_dem.npz', asfileobj=False)
-    with np.load(filename) as dem:
-        elev = dem['elevation']
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    elev = dem['elevation']
 
     fig = compare(z, plt.cm.copper)
     fig.suptitle('HSV Blending Looks Best with Smooth Surfaces', y=0.95)
@@ -69,7 +69,8 @@ if __name__ == '__main__':
 # References
 # """"""""""
 #
-# The use of the following functions, methods and classes is shown in this example:
+# The use of the following functions, methods and classes is shown in this
+# example:
 
 import matplotlib
 matplotlib.colors.LightSource

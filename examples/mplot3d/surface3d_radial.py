@@ -1,24 +1,21 @@
-'''
+"""
 =================================
 3D surface with polar coordinates
 =================================
 
 Demonstrates plotting a surface defined in polar coordinates.
-Uses the reversed version of the YlGnBu color map.
+Uses the reversed version of the YlGnBu colormap.
 Also demonstrates writing axis labels with latex math mode.
 
 Example contributed by Armin Moser.
-'''
-
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 # Create the mesh in polar coordinates and compute corresponding Z.
 r = np.linspace(0, 1.25, 50)

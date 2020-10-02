@@ -19,7 +19,7 @@ from matplotlib.backend_tools import ToolBase, ToolToggleBase
 
 
 class ListTools(ToolBase):
-    '''List all the tools controlled by the `ToolManager`'''
+    """List all the tools controlled by the `ToolManager`."""
     # keyboard shortcut
     default_keymap = 'm'
     description = 'List Tools'
@@ -45,8 +45,8 @@ class ListTools(ToolBase):
 
 
 class GroupHideTool(ToolToggleBase):
-    '''Show lines with a given gid'''
-    default_keymap = 'G'
+    """Show lines with a given gid."""
+    default_keymap = 'S'
     description = 'Show by gid'
     default_toggled = True
 

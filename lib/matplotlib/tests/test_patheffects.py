@@ -1,14 +1,15 @@
 import numpy as np
-import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
+from matplotlib.path import Path
+import matplotlib.patches as patches
 
 
-@image_comparison(baseline_images=['patheffect1'], remove_text=True)
+@image_comparison(['patheffect1'], remove_text=True)
 def test_patheffect1():
-    ax1 = plt.subplot(111)
+    ax1 = plt.subplot()
     ax1.imshow([[1, 2], [2, 3]])
     txt = ax1.annotate("test", (1., 1.), (0., 0),
                        arrowprops=dict(arrowstyle="->",
@@ -24,13 +25,12 @@ def test_patheffect1():
     ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(baseline_images=['patheffect2'], remove_text=True,
-                  style='mpl20')
+@image_comparison(['patheffect2'], remove_text=True, style='mpl20')
 def test_patheffect2():
 
-    ax2 = plt.subplot(111)
+    ax2 = plt.subplot()
     arr = np.arange(25).reshape((5, 5))
-    ax2.imshow(arr)
+    ax2.imshow(arr, interpolation='nearest')
     cntr = ax2.contour(arr, colors="k")
 
     plt.setp(cntr.collections,
@@ -43,12 +43,13 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(baseline_images=['patheffect3'])
+@image_comparison(['patheffect3'])
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
                          path_effects.Normal()])
-    plt.title(r'testing$^{123}$',
+    plt.title(
+        r'testing$^{123}$',
         path_effects=[path_effects.withStroke(linewidth=1, foreground="r")])
     leg = plt.legend([p1], [r'Line 1$^2$'], fancybox=True, loc='upper left')
     leg.legendPatch.set_path_effects([path_effects.withSimplePatchShadow()])
@@ -70,7 +71,7 @@ def test_patheffect3():
     t.set_path_effects(pe)
 
 
-@image_comparison(baseline_images=['stroked_text'], extensions=['png'])
+@image_comparison(['stroked_text.png'])
 def test_patheffects_stroked_text():
     text_chunks = [
         'A B C D E F G H I J K L',
@@ -98,17 +99,14 @@ def test_patheffects_stroked_text():
     ax.axis('off')
 
 
-@pytest.mark.xfail
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))
     p1.set_path_effects([path_effects.SimpleLineShadow(),
                          path_effects.Normal()])
-
     renderer = fig.canvas.get_renderer()
-    pe_renderer = path_effects.SimpleLineShadow().get_proxy_renderer(renderer)
-
-    assert isinstance(pe_renderer, path_effects.PathEffectRenderer)
+    pe_renderer = path_effects.PathEffectRenderer(
+        p1.get_path_effects(), renderer)
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.
     assert renderer.points_to_pixels(15) == pe_renderer.points_to_pixels(15)
@@ -119,7 +117,7 @@ def test_SimplePatchShadow_offset():
     assert pe._offset == (4, 5)
 
 
-@image_comparison(baseline_images=['collection'], tol=0.02, style='mpl20')
+@image_comparison(['collection'], tol=0.03, style='mpl20')
 def test_collection():
     x, y = np.meshgrid(np.linspace(0, 10, 150), np.linspace(-5, 5, 100))
     data = np.sin(x) + np.cos(y)
@@ -136,3 +134,57 @@ def test_collection():
                                                        linewidth=3)])
         text.set_bbox({'boxstyle': 'sawtooth', 'facecolor': 'none',
                        'edgecolor': 'blue'})
+
+
+@image_comparison(['tickedstroke'], remove_text=True, extensions=['png'])
+def test_tickedstroke():
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4))
+    path = Path.unit_circle()
+    patch = patches.PathPatch(path, facecolor='none', lw=2, path_effects=[
+        path_effects.withTickedStroke(angle=-90, spacing=10,
+                                      length=1)])
+
+    ax1.add_patch(patch)
+    ax1.axis('equal')
+    ax1.set_xlim(-2, 2)
+    ax1.set_ylim(-2, 2)
+
+    ax2.plot([0, 1], [0, 1], label=' ',
+             path_effects=[path_effects.withTickedStroke(spacing=7,
+                                                         angle=135)])
+    nx = 101
+    x = np.linspace(0.0, 1.0, nx)
+    y = 0.3 * np.sin(x * 8) + 0.4
+    ax2.plot(x, y, label=' ', path_effects=[path_effects.withTickedStroke()])
+
+    ax2.legend()
+
+    nx = 101
+    ny = 105
+
+    # Set up survey vectors
+    xvec = np.linspace(0.001, 4.0, nx)
+    yvec = np.linspace(0.001, 4.0, ny)
+
+    # Set up survey matrices.  Design disk loading and gear ratio.
+    x1, x2 = np.meshgrid(xvec, yvec)
+
+    # Evaluate some stuff to plot
+    g1 = -(3 * x1 + x2 - 5.5)
+    g2 = -(x1 + 2 * x2 - 4)
+    g3 = .8 + x1 ** -3 - x2
+
+    cg1 = ax3.contour(x1, x2, g1, [0], colors=('k',))
+    plt.setp(cg1.collections,
+             path_effects=[path_effects.withTickedStroke(angle=135)])
+
+    cg2 = ax3.contour(x1, x2, g2, [0], colors=('r',))
+    plt.setp(cg2.collections,
+             path_effects=[path_effects.withTickedStroke(angle=60, length=2)])
+
+    cg3 = ax3.contour(x1, x2, g3, [0], colors=('b',))
+    plt.setp(cg3.collections,
+             path_effects=[path_effects.withTickedStroke(spacing=7)])
+
+    ax3.set_xlim(0, 4)
+    ax3.set_ylim(0, 4)

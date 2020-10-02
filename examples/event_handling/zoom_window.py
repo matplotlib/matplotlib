@@ -8,7 +8,7 @@ press, to another figure window.
 
 If you click on a point in the first window, the z and y limits of the second
 will be adjusted so that the center of the zoom in the second window will be
-the x,y coordinates of the clicked point.
+the (x, y) coordinates of the clicked point.
 
 Note the diameter of the circles in the scatter are defined in points**2, so
 their size is independent of the zoom.
@@ -16,6 +16,10 @@ their size is independent of the zoom.
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 figsrc, axsrc = plt.subplots()
 figzoom, axzoom = plt.subplots()
@@ -31,7 +35,7 @@ axsrc.scatter(x, y, s, c)
 axzoom.scatter(x, y, s, c)
 
 
-def onpress(event):
+def on_press(event):
     if event.button != 1:
         return
     x, y = event.xdata, event.ydata
@@ -39,5 +43,5 @@ def onpress(event):
     axzoom.set_ylim(y - 0.1, y + 0.1)
     figzoom.canvas.draw()
 
-figsrc.canvas.mpl_connect('button_press_event', onpress)
+figsrc.canvas.mpl_connect('button_press_event', on_press)
 plt.show()

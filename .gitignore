@@ -37,6 +37,8 @@ dist
 # Egg metadata
 *.egg-info
 .eggs
+# wheel metadata
+pip-wheel-metadata/*
 # tox testing tool
 .tox
 setup.cfg
@@ -54,6 +56,8 @@ Thumbs.db
 ###################################
 lib/matplotlib/mpl-data/matplotlib.conf
 lib/matplotlib/mpl-data/matplotlibrc
+tutorials/intermediate/CL01.png
+tutorials/intermediate/CL02.png
 
 # Documentation generated files #
 #################################
@@ -75,6 +79,7 @@ examples/*/*.svgz
 examples/tests/*
 !examples/tests/backend_driver_sgskip.py
 result_images
+doc/_static/constrained_layout*.png
 
 # Nose/Pytest generated files #
 ###############################
@@ -95,3 +100,8 @@ lib/z.lib
 #################
 
 .ipynb_checkpoints/
+
+# Vendored dependencies #
+#########################
+lib/matplotlib/backends/web_backend/node_modules/
+lib/matplotlib/backends/web_backend/package-lock.json

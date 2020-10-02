@@ -1,7 +1,11 @@
 import numpy as np
 
 from .. import cbook
-from . import backend_agg, backend_cairo, backend_gtk3
+try:
+    from . import backend_cairo
+except ImportError as e:
+    raise ImportError('backend Gtk3Agg requires cairo') from e
+from . import backend_agg, backend_gtk3
 from .backend_cairo import cairo
 from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib import transforms
@@ -13,15 +17,8 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
         self._bbox_queue = []
 
-    def _renderer_init(self):
-        pass
-
-    def _render_figure(self, width, height):
-        backend_agg.FigureCanvasAgg.draw(self)
-
     def on_draw_event(self, widget, ctx):
-        """GtkDrawable draw event, like expose_event in GTK 2.X.
-        """
+        """GtkDrawable draw event, like expose_event in GTK 2.X."""
         allocation = self.get_allocation()
         w, h = allocation.width, allocation.height
 
@@ -61,9 +58,8 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             bbox = self.figure.bbox
 
         allocation = self.get_allocation()
-        w, h = allocation.width, allocation.height
         x = int(bbox.x0)
-        y = h - int(bbox.y1)
+        y = allocation.height - int(bbox.y1)
         width = int(bbox.x1) - int(bbox.x0)
         height = int(bbox.y1) - int(bbox.y0)
 
@@ -71,9 +67,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         self.queue_draw_area(x, y, width, height)
 
     def draw(self):
-        if self.get_visible() and self.get_mapped():
-            allocation = self.get_allocation()
-            self._render_figure(allocation.width, allocation.height)
+        backend_agg.FigureCanvasAgg.draw(self)
         super().draw()
 
     def print_png(self, filename, *args, **kwargs):

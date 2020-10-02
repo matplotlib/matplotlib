@@ -6,7 +6,7 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 
 import matplotlib
-import matplotlib.cm as cm
+from matplotlib import _api, cbook, cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
@@ -20,61 +20,67 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both'):
-    """Draw streamlines of a vector flow.
+    """
+    Draw streamlines of a vector flow.
 
-    *x*, *y* : 1d arrays
-        an *evenly spaced* grid.
-    *u*, *v* : 2d arrays
-        x and y-velocities. Number of rows should match length of y, and
-        the number of columns should match x.
-    *density* : float or 2-tuple
-        Controls the closeness of streamlines. When `density = 1`, the domain
-        is divided into a 30x30 grid---*density* linearly scales this grid.
+    Parameters
+    ----------
+    x, y : 1D arrays
+        An evenly spaced grid.
+    u, v : 2D arrays
+        *x* and *y*-velocities. The number of rows and columns must match
+        the length of *y* and *x*, respectively.
+    density : float or (float, float)
+        Controls the closeness of streamlines. When ``density = 1``, the domain
+        is divided into a 30x30 grid. *density* linearly scales this grid.
         Each cell in the grid can have, at most, one traversing streamline.
-        For different densities in each direction, use [density_x, density_y].
-    *linewidth* : numeric or 2d array
-        vary linewidth when given a 2d array with the same shape as velocities.
-    *color* : matplotlib color code, or 2d array
-        Streamline color. When given an array with the same shape as
-        velocities, *color* values are converted to colors using *cmap*.
-    *cmap* : :class:`~matplotlib.colors.Colormap`
-        Colormap used to plot streamlines and arrows. Only necessary when using
-        an array input for *color*.
-    *norm* : :class:`~matplotlib.colors.Normalize`
-        Normalize object used to scale luminance data to 0, 1. If None, stretch
-        (min, max) to (0, 1). Only necessary when *color* is an array.
-    *arrowsize* : float
-        Factor scale arrow size.
-    *arrowstyle* : str
+        For different densities in each direction, use a tuple
+        (density_x, density_y).
+    linewidth : float or 2D array
+        The width of the stream lines. With a 2D array the line width can be
+        varied across the grid. The array must have the same shape as *u*
+        and *v*.
+    color : color or 2D array
+        The streamline color. If given an array, its values are converted to
+        colors using *cmap* and *norm*.  The array must have the same shape
+        as *u* and *v*.
+    cmap : `~matplotlib.colors.Colormap`
+        Colormap used to plot streamlines and arrows. This is only used if
+        *color* is an array.
+    norm : `~matplotlib.colors.Normalize`
+        Normalize object used to scale luminance data to 0, 1. If ``None``,
+        stretch (min, max) to (0, 1). This is only used if *color* is an array.
+    arrowsize : float
+        Scaling factor for the arrow size.
+    arrowstyle : str
         Arrow style specification.
-        See :class:`~matplotlib.patches.FancyArrowPatch`.
-    *minlength* : float
+        See `~matplotlib.patches.FancyArrowPatch`.
+    minlength : float
         Minimum length of streamline in axes coordinates.
-    *start_points*: Nx2 array
-        Coordinates of starting points for the streamlines.
-        In data coordinates, the same as the ``x`` and ``y`` arrays.
-    *zorder* : int
-        any number
-    *maxlength* : float
+    start_points : Nx2 array
+        Coordinates of starting points for the streamlines in data coordinates
+        (the same coordinates as the *x* and *y* arrays).
+    zorder : int
+        The zorder of the stream lines and arrows.
+        Artists with lower zorder values are drawn first.
+    maxlength : float
         Maximum length of streamline in axes coordinates.
-    *integration_direction* : ['forward', 'backward', 'both']
+    integration_direction : {'forward', 'backward', 'both'}, default: 'both'
         Integrate the streamline in forward, backward or both directions.
 
-    Returns:
+    Returns
+    -------
+    StreamplotSet
+        Container object with attributes
 
-        *stream_container* : StreamplotSet
-            Container object with attributes
+        - ``lines``: `.LineCollection` of streamlines
 
-                - lines: `matplotlib.collections.LineCollection` of streamlines
+        - ``arrows``: `.PatchCollection` containing `.FancyArrowPatch`
+          objects representing the arrows half-way along stream lines.
 
-                - arrows: collection of `matplotlib.patches.FancyArrowPatch`
-                  objects representing arrows half-way along stream
-                  lines.
-
-            This container will probably change in the future to allow changes
-            to the colormap, alpha, etc. for both lines and arrows, but these
-            changes should be backward compatible.
-
+        This container will probably change in the future to allow changes
+        to the colormap, alpha, etc. for both lines and arrows, but these
+        changes should be backward compatible.
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
@@ -96,11 +102,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
-    if integration_direction not in ['both', 'forward', 'backward']:
-        errstr = ("Integration direction '%s' not recognised. "
-                  "Expected 'both', 'forward' or 'backward'." %
-                  integration_direction)
-        raise ValueError(errstr)
+    _api.check_in_list(['both', 'forward', 'backward'],
+                       integration_direction=integration_direction)
 
     if integration_direction == 'both':
         maxlength /= 2.
@@ -108,8 +111,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
         if color.shape != grid.shape:
-            raise ValueError(
-                "If 'color' is given, must have the shape of 'Grid(x,y)'")
+            raise ValueError("If 'color' is given, it must match the shape of "
+                             "'Grid(x, y)'")
         line_colors = []
         color = np.ma.masked_invalid(color)
     else:
@@ -118,8 +121,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     if isinstance(linewidth, np.ndarray):
         if linewidth.shape != grid.shape:
-            raise ValueError(
-                "If 'linewidth' is given, must have the shape of 'Grid(x,y)'")
+            raise ValueError("If 'linewidth' is given, it must match the "
+                             "shape of 'Grid(x, y)'")
         line_kw['linewidth'] = []
     else:
         line_kw['linewidth'] = linewidth
@@ -128,9 +131,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw['zorder'] = zorder
     arrow_kw['zorder'] = zorder
 
-    ## Sanity checks.
+    # Sanity checks.
     if u.shape != grid.shape or v.shape != grid.shape:
-        raise ValueError("'u' and 'v' must be of shape 'Grid(x,y)'")
+        raise ValueError("'u' and 'v' must match the shape of 'Grid(x, y)'")
 
     u = np.ma.masked_invalid(u)
     v = np.ma.masked_invalid(v)
@@ -151,8 +154,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         # Check if start_points are outside the data boundaries
         for xs, ys in sp2:
-            if not (grid.x_origin <= xs <= grid.x_origin + grid.width
-                    and grid.y_origin <= ys <= grid.y_origin + grid.height):
+            if not (grid.x_origin <= xs <= grid.x_origin + grid.width and
+                    grid.y_origin <= ys <= grid.y_origin + grid.height):
                 raise ValueError("Starting point ({}, {}) outside of data "
                                  "boundaries".format(xs, ys))
 
@@ -226,9 +229,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     return stream_container
 
 
-class StreamplotSet(object):
+class StreamplotSet:
 
     def __init__(self, lines, arrows, **kwargs):
+        if kwargs:
+            cbook.warn_deprecated(
+                "3.3",
+                message="Passing arbitrary keyword arguments to StreamplotSet "
+                        "is deprecated since %(since) and will become an "
+                        "error %(removal)s.")
         self.lines = lines
         self.arrows = arrows
 
@@ -236,8 +245,9 @@ class StreamplotSet(object):
 # Coordinate definitions
 # ========================
 
-class DomainMap(object):
-    """Map representing different coordinate systems.
+class DomainMap:
+    """
+    Map representing different coordinate systems.
 
     Coordinate definitions:
 
@@ -258,8 +268,8 @@ class DomainMap(object):
         self.grid = grid
         self.mask = mask
         # Constants for conversion between grid- and mask-coordinates
-        self.x_grid2mask = (mask.nx - 1) / grid.nx
-        self.y_grid2mask = (mask.ny - 1) / grid.ny
+        self.x_grid2mask = (mask.nx - 1) / (grid.nx - 1)
+        self.y_grid2mask = (mask.ny - 1) / (grid.ny - 1)
 
         self.x_mask2grid = 1. / self.x_grid2mask
         self.y_mask2grid = 1. / self.y_grid2mask
@@ -269,8 +279,8 @@ class DomainMap(object):
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
-        return (int((xi * self.x_grid2mask) + 0.5),
-                int((yi * self.y_grid2mask) + 0.5))
+        return (int(xi * self.x_grid2mask + 0.5),
+                int(yi * self.y_grid2mask + 0.5))
 
     def mask2grid(self, xm, ym):
         return xm * self.x_mask2grid, ym * self.y_mask2grid
@@ -299,7 +309,7 @@ class DomainMap(object):
         self.mask._undo_trajectory()
 
 
-class Grid(object):
+class Grid:
     """Grid of data."""
     def __init__(self, x, y):
 
@@ -347,12 +357,13 @@ class Grid(object):
     def within_grid(self, xi, yi):
         """Return True if point is a valid index of grid."""
         # Note that xi/yi can be floats; so, for example, we can't simply check
-        # `xi < self.nx` since `xi` can be `self.nx - 1 < xi < self.nx`
-        return xi >= 0 and xi <= self.nx - 1 and yi >= 0 and yi <= self.ny - 1
+        # `xi < self.nx` since *xi* can be `self.nx - 1 < xi < self.nx`
+        return 0 <= xi <= self.nx - 1 and 0 <= yi <= self.ny - 1
 
 
-class StreamMask(object):
-    """Mask to keep track of discrete regions crossed by streamlines.
+class StreamMask:
+    """
+    Mask to keep track of discrete regions crossed by streamlines.
 
     The resolution of this grid determines the approximate spacing between
     trajectories. Streamlines are only allowed to pass through zeroed cells:
@@ -363,8 +374,9 @@ class StreamMask(object):
     def __init__(self, density):
         try:
             self.nx, self.ny = (30 * np.broadcast_to(density, 2)).astype(int)
-        except ValueError:
-            raise ValueError("'density' must be a scalar or be of length 2")
+        except ValueError as err:
+            raise ValueError("'density' must be a scalar or be of length "
+                             "2") from err
         if self.nx < 0 or self.ny < 0:
             raise ValueError("'density' must be positive")
         self._mask = np.zeros((self.ny, self.nx))
@@ -372,8 +384,8 @@ class StreamMask(object):
 
         self._current_xy = None
 
-    def __getitem__(self, *args):
-        return self._mask.__getitem__(*args)
+    def __getitem__(self, args):
+        return self._mask[args]
 
     def _start_trajectory(self, xm, ym):
         """Start recording streamline trajectory"""
@@ -383,10 +395,11 @@ class StreamMask(object):
     def _undo_trajectory(self):
         """Remove current trajectory from mask"""
         for t in self._traj:
-            self._mask.__setitem__(t, 0)
+            self._mask[t] = 0
 
     def _update_trajectory(self, xm, ym):
-        """Update current trajectory position in mask.
+        """
+        Update current trajectory position in mask.
 
         If the new position has already been filled, raise `InvalidIndexError`.
         """
@@ -408,7 +421,7 @@ class TerminateTrajectory(Exception):
 
 
 # Integrator definitions
-#========================
+# =======================
 
 def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
 
@@ -416,11 +429,13 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     u, v = dmap.data2grid(u, v)
 
     # speed (path length) will be in axes-coordinates
-    u_ax = u / dmap.grid.nx
-    v_ax = v / dmap.grid.ny
+    u_ax = u / (dmap.grid.nx - 1)
+    v_ax = v / (dmap.grid.ny - 1)
     speed = np.ma.sqrt(u_ax ** 2 + v_ax ** 2)
 
     def forward_time(xi, yi):
+        if not dmap.grid.within_grid(xi, yi):
+            raise OutOfBounds
         ds_dt = interpgrid(speed, xi, yi)
         if ds_dt == 0:
             raise TerminateTrajectory()
@@ -434,7 +449,8 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         return -dxi, -dyi
 
     def integrate(x0, y0):
-        """Return x, y grid-coordinates of trajectory based on starting point.
+        """
+        Return x, y grid-coordinates of trajectory based on starting point.
 
         Integrate both forward and backward in time from starting point in
         grid coordinates.
@@ -475,8 +491,13 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     return integrate
 
 
+class OutOfBounds(IndexError):
+    pass
+
+
 def _integrate_rk12(x0, y0, dmap, f, maxlength):
-    """2nd-order Runge-Kutta algorithm with adaptive step size.
+    """
+    2nd-order Runge-Kutta algorithm with adaptive step size.
 
     This method is also referred to as the improved Euler's method, or Heun's
     method. This method is favored over higher-order methods because:
@@ -518,18 +539,28 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
     xf_traj = []
     yf_traj = []
 
-    while dmap.grid.within_grid(xi, yi):
-        xf_traj.append(xi)
-        yf_traj.append(yi)
+    while True:
         try:
+            if dmap.grid.within_grid(xi, yi):
+                xf_traj.append(xi)
+                yf_traj.append(yi)
+            else:
+                raise OutOfBounds
+
+            # Compute the two intermediate gradients.
+            # f should raise OutOfBounds if the locations given are
+            # outside the grid.
             k1x, k1y = f(xi, yi)
-            k2x, k2y = f(xi + ds * k1x,
-                         yi + ds * k1y)
-        except IndexError:
-            # Out of the domain on one of the intermediate integration steps.
-            # Take an Euler step to the boundary to improve neatness.
-            ds, xf_traj, yf_traj = _euler_step(xf_traj, yf_traj, dmap, f)
-            stotal += ds
+            k2x, k2y = f(xi + ds * k1x, yi + ds * k1y)
+
+        except OutOfBounds:
+            # Out of the domain during this step.
+            # Take an Euler step to the boundary to improve neatness
+            # unless the trajectory is currently empty.
+            if xf_traj:
+                ds, xf_traj, yf_traj = _euler_step(xf_traj, yf_traj,
+                                                   dmap, f)
+                stotal += ds
             break
         except TerminateTrajectory:
             break
@@ -541,7 +572,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
 
         nx, ny = dmap.grid.shape
         # Error is normalized to the axes coordinates
-        error = np.hypot((dx2 - dx1) / nx, (dy2 - dy1) / ny)
+        error = np.hypot((dx2 - dx1) / (nx - 1), (dy2 - dy1) / (ny - 1))
 
         # Only save step if within error tolerance
         if error < maxerror:
@@ -632,7 +663,8 @@ def interpgrid(a, xi, yi):
 
 
 def _gen_starting_points(shape):
-    """Yield starting points for streamlines.
+    """
+    Yield starting points for streamlines.
 
     Trying points on the boundary first gives higher quality streamlines.
     This algorithm starts with a point on the mask corner and spirals inward.
@@ -646,7 +678,6 @@ def _gen_starting_points(shape):
     x, y = 0, 0
     direction = 'right'
     for i in range(nx * ny):
-
         yield x, y
 
         if direction == 'right':

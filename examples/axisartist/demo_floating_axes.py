@@ -1,19 +1,20 @@
 """
-==================
-Demo Floating Axes
-==================
+=====================================================
+:mod:`mpl_toolkits.axisartist.floating_axes` features
+=====================================================
 
-Demo of the floating axes.
+Demonstration of features of the :mod:`.floating_axes` module:
 
-This demo shows features of functions in floating_axes:
-    * Using scatter function and bar function with changing the
-      shape of the plot.
-    * Using GridHelperCurveLinear to rotate the plot and set the
-      boundary of the plot.
-    * Using FloatingSubplot to create a subplot using the return
-      value from GridHelperCurveLinear.
-    * Making sector plot by adding more features to GridHelperCurveLinear.
+* Using `~.axes.Axes.scatter` and `~.axes.Axes.bar` with changing the shape of
+  the plot.
+* Using `~.floating_axes.GridHelperCurveLinear` to rotate the plot and set the
+  plot boundary.
+* Using `~.floating_axes.FloatingSubplot` to create a subplot using the return
+  value from `~.floating_axes.GridHelperCurveLinear`.
+* Making a sector plot by adding more features to
+  `~.floating_axes.GridHelperCurveLinear`.
 """
+
 from matplotlib.transforms import Affine2D
 import mpl_toolkits.axisartist.floating_axes as floating_axes
 import numpy as np
@@ -34,15 +35,14 @@ def setup_axes1(fig, rect):
     tr = Affine2D().scale(2, 1).rotate_deg(30)
 
     grid_helper = floating_axes.GridHelperCurveLinear(
-        tr, extremes=(-0.5, 3.5, 0, 4))
+        tr, extremes=(-0.5, 3.5, 0, 4),
+        grid_locator1=MaxNLocator(nbins=4),
+        grid_locator2=MaxNLocator(nbins=4))
 
-    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
-    fig.add_subplot(ax1)
+    ax1 = fig.add_subplot(
+        rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
 
     aux_ax = ax1.get_aux_axes(tr)
-
-    grid_helper.grid_finder.grid_locator1._nbins = 4
-    grid_helper.grid_finder.grid_locator2._nbins = 4
 
     return ax1, aux_ax
 
@@ -70,8 +70,8 @@ def setup_axes2(fig, rect):
         tick_formatter1=tick_formatter1,
         tick_formatter2=None)
 
-    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
-    fig.add_subplot(ax1)
+    ax1 = fig.add_subplot(
+        rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
 
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
@@ -114,8 +114,8 @@ def setup_axes3(fig, rect):
         tick_formatter1=tick_formatter1,
         tick_formatter2=None)
 
-    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
-    fig.add_subplot(ax1)
+    ax1 = fig.add_subplot(
+        rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
 
     # adjust axis
     ax1.axis["left"].set_axis_direction("bottom")

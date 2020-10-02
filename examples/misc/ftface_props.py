@@ -1,50 +1,51 @@
 """
-============
-Ftface Props
-============
+===============
+Font properties
+===============
 
-This is a demo script to show you how to use all the properties of an
-FT2Font object.  These describe global font properties.  For
-individual character metrics, use the Glyph object, as returned by
-load_char
+This example lists the attributes of an `.FT2Font` object, which describe
+global font properties.  For individual character metrics, use the `.Glyph`
+object, as returned by `.load_char`.
 """
+
+import os
+
 import matplotlib
 import matplotlib.ft2font as ft
 
 
-#fname = '/usr/local/share/matplotlib/VeraIt.ttf'
-fname = matplotlib.get_data_path() + '/fonts/ttf/DejaVuSans-Oblique.ttf'
-#fname = '/usr/local/share/matplotlib/cmr10.ttf'
+font = ft.FT2Font(
+    # Use a font shipped with Matplotlib.
+    os.path.join(matplotlib.get_data_path(),
+                 'fonts/ttf/DejaVuSans-Oblique.ttf'))
 
-font = ft.FT2Font(fname)
-
-print('Num faces   :', font.num_faces)        # number of faces in file
-print('Num glyphs  :', font.num_glyphs)       # number of glyphs in the face
-print('Family name :', font.family_name)      # face family name
-print('Style name  :', font.style_name)       # face style name
-print('PS name     :', font.postscript_name)  # the postscript name
-print('Num fixed   :', font.num_fixed_sizes)  # number of embedded bitmap in face
+print('Num faces:  ', font.num_faces)        # number of faces in file
+print('Num glyphs: ', font.num_glyphs)       # number of glyphs in the face
+print('Family name:', font.family_name)      # face family name
+print('Style name: ', font.style_name)       # face style name
+print('PS name:    ', font.postscript_name)  # the postscript name
+print('Num fixed:  ', font.num_fixed_sizes)  # number of embedded bitmaps
 
 # the following are only available if face.scalable
 if font.scalable:
     # the face global bounding box (xmin, ymin, xmax, ymax)
-    print('Bbox                :', font.bbox)
+    print('Bbox:               ', font.bbox)
     # number of font units covered by the EM
-    print('EM                  :', font.units_per_EM)
+    print('EM:                 ', font.units_per_EM)
     # the ascender in 26.6 units
-    print('Ascender            :', font.ascender)
+    print('Ascender:           ', font.ascender)
     # the descender in 26.6 units
-    print('Descender           :', font.descender)
+    print('Descender:          ', font.descender)
     # the height in 26.6 units
-    print('Height              :', font.height)
+    print('Height:             ', font.height)
     # maximum horizontal cursor advance
-    print('Max adv width       :', font.max_advance_width)
+    print('Max adv width:      ', font.max_advance_width)
     # same for vertical layout
-    print('Max adv height      :', font.max_advance_height)
+    print('Max adv height:     ', font.max_advance_height)
     # vertical position of the underline bar
-    print('Underline pos       :', font.underline_position)
+    print('Underline pos:      ', font.underline_position)
     # vertical thickness of the underline
-    print('Underline thickness :', font.underline_thickness)
+    print('Underline thickness:', font.underline_thickness)
 
 for style in ('Italic',
               'Bold',
@@ -60,8 +61,4 @@ for style in ('Italic',
               'Glyph names',
               'External stream'):
     bitpos = getattr(ft, style.replace(' ', '_').upper()) - 1
-    print('%-17s:' % style, bool(font.style_flags & (1 << bitpos)))
-
-print(dir(font))
-
-print(font.get_kerning)
+    print(f"{style+':':17}", bool(font.style_flags & (1 << bitpos)))

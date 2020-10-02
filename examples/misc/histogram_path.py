@@ -31,8 +31,8 @@ data = np.random.randn(1000)
 n, bins = np.histogram(data, 50)
 
 # get the corners of the rectangles for the histogram
-left = np.array(bins[:-1])
-right = np.array(bins[1:])
+left = bins[:-1]
+right = bins[1:]
 bottom = np.zeros(len(left))
 top = bottom + n
 

@@ -3,10 +3,10 @@
 Annotating Plots
 ================
 
-The following examples show how it is possible to annotate plots in matplotlib.
+The following examples show how it is possible to annotate plots in Matplotlib.
 This includes highlighting specific points of interest and using various
 visual tools to call attention to this point. For a more complete and in-depth
-description of the annotation and text tools in :mod:`matplotlib`, see the
+description of the annotation and text tools in Matplotlib, see the
 :doc:`tutorial on annotation </tutorials/text/annotations>`.
 """
 
@@ -20,21 +20,21 @@ from matplotlib.text import OffsetFrom
 # Specifying text points and annotation points
 # --------------------------------------------
 #
-# You must specify an annotation point `xy=(x,y)` to annotate this point.
-# additionally, you may specify a text point `xytext=(x,y)` for the
-# location of the text for this annotation.  Optionally, you can
-# specify the coordinate system of `xy` and `xytext` with one of the
-# following strings for `xycoords` and `textcoords` (default is 'data')::
+# You must specify an annotation point ``xy=(x, y)`` to annotate this point.
+# Additionally, you may specify a text point ``xytext=(x, y)`` for the location
+# of the text for this annotation.  Optionally, you can specify the coordinate
+# system of *xy* and *xytext* with one of the following strings for *xycoords*
+# and *textcoords* (default is 'data')::
 #
-#   'figure points'   : points from the lower left corner of the figure
-#   'figure pixels'   : pixels from the lower left corner of the figure
-#   'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
-#   'axes points'     : points from lower left corner of axes
-#   'axes pixels'     : pixels from lower left corner of axes
-#   'axes fraction'   : 0,0 is lower left of axes and 1,1 is upper right
-#   'offset points'   : Specify an offset (in points) from the xy value
-#   'offset pixels'   : Specify an offset (in pixels) from the xy value
-#   'data'            : use the axes data coordinate system
+#  'figure points'   : points from the lower left corner of the figure
+#  'figure pixels'   : pixels from the lower left corner of the figure
+#  'figure fraction' : (0, 0) is lower left of figure and (1, 1) is upper right
+#  'axes points'     : points from lower left corner of axes
+#  'axes pixels'     : pixels from lower left corner of axes
+#  'axes fraction'   : (0, 0) is lower left of axes and (1, 1) is upper right
+#  'offset points'   : Specify an offset (in points) from the xy value
+#  'offset pixels'   : Specify an offset (in pixels) from the xy value
+#  'data'            : use the axes data coordinate system
 #
 # Note: for physical coordinate systems (points or pixels) the origin is the
 # (bottom, left) of the figure or axes.
@@ -100,11 +100,11 @@ ax.set(xlim=(-1, 5), ylim=(-3, 5))
 # Using multiple coordinate systems and axis types
 # ------------------------------------------------
 #
-# You can specify the xypoint and the xytext in different positions and
-# coordinate systems, and optionally turn on a connecting line and mark
-# the point with a marker.  Annotations work on polar axes too.
+# You can specify the *xypoint* and the *xytext* in different positions and
+# coordinate systems, and optionally turn on a connecting line and mark the
+# point with a marker.  Annotations work on polar axes too.
 #
-# In the example below, the xy point is in native coordinates (xycoords
+# In the example below, the *xy* point is in native coordinates (*xycoords*
 # defaults to 'data').  For a polar axes, this is in (theta, radius) space.
 # The text in the example is placed in the fractional figure coordinate system.
 # Text keyword args like horizontal and vertical alignment are respected.
@@ -151,7 +151,7 @@ ax.set(xlim=[-20, 20], ylim=[-20, 20])
 # Customizing arrow and bubble styles
 # -----------------------------------
 #
-# The arrow between xytext and the annotation point, as well as the bubble
+# The arrow between *xytext* and the annotation point, as well as the bubble
 # that covers the annotation text, are highly customizable. Below are a few
 # parameter options as well as their resulting output.
 
@@ -161,71 +161,72 @@ t = np.arange(0.0, 5.0, 0.01)
 s = np.cos(2*np.pi*t)
 line, = ax.plot(t, s, lw=3)
 
-ax.annotate('straight',
-            xy=(0, 1), xycoords='data',
-            xytext=(-50, 30), textcoords='offset points',
-            arrowprops=dict(arrowstyle="->"))
-
-ax.annotate('arc3,\nrad 0.2',
-            xy=(0.5, -1), xycoords='data',
-            xytext=(-80, -60), textcoords='offset points',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc3,rad=.2"))
-
-ax.annotate('arc,\nangle 50',
-            xy=(1., 1), xycoords='data',
-            xytext=(-90, 50), textcoords='offset points',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc,angleA=0,armA=50,rad=10"))
-
-ax.annotate('arc,\narms',
-            xy=(1.5, -1), xycoords='data',
-            xytext=(-80, -60), textcoords='offset points',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc,angleA=0,armA=40,angleB=-90,armB=30,rad=7"))
-
-ax.annotate('angle,\nangle 90',
-            xy=(2., 1), xycoords='data',
-            xytext=(-70, 30), textcoords='offset points',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="angle,angleA=0,angleB=90,rad=10"))
-
-ax.annotate('angle3,\nangle -90',
-            xy=(2.5, -1), xycoords='data',
-            xytext=(-80, -60), textcoords='offset points',
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="angle3,angleA=0,angleB=-90"))
-
-ax.annotate('angle,\nround',
-            xy=(3., 1), xycoords='data',
-            xytext=(-60, 30), textcoords='offset points',
-            bbox=dict(boxstyle="round", fc="0.8"),
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="angle,angleA=0,angleB=90,rad=10"))
-
-ax.annotate('angle,\nround4',
-            xy=(3.5, -1), xycoords='data',
-            xytext=(-70, -80), textcoords='offset points',
-            size=20,
-            bbox=dict(boxstyle="round4,pad=.5", fc="0.8"),
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="angle,angleA=0,angleB=-90,rad=10"))
-
-ax.annotate('angle,\nshrink',
-            xy=(4., 1), xycoords='data',
-            xytext=(-60, 30), textcoords='offset points',
-            bbox=dict(boxstyle="round", fc="0.8"),
-            arrowprops=dict(arrowstyle="->",
-                            shrinkA=0, shrinkB=10,
-                            connectionstyle="angle,angleA=0,angleB=90,rad=10"))
-
+ax.annotate(
+    'straight',
+    xy=(0, 1), xycoords='data',
+    xytext=(-50, 30), textcoords='offset points',
+    arrowprops=dict(arrowstyle="->"))
+ax.annotate(
+    'arc3,\nrad 0.2',
+    xy=(0.5, -1), xycoords='data',
+    xytext=(-80, -60), textcoords='offset points',
+    arrowprops=dict(arrowstyle="->",
+                    connectionstyle="arc3,rad=.2"))
+ax.annotate(
+    'arc,\nangle 50',
+    xy=(1., 1), xycoords='data',
+    xytext=(-90, 50), textcoords='offset points',
+    arrowprops=dict(arrowstyle="->",
+                    connectionstyle="arc,angleA=0,armA=50,rad=10"))
+ax.annotate(
+    'arc,\narms',
+    xy=(1.5, -1), xycoords='data',
+    xytext=(-80, -60), textcoords='offset points',
+    arrowprops=dict(
+        arrowstyle="->",
+        connectionstyle="arc,angleA=0,armA=40,angleB=-90,armB=30,rad=7"))
+ax.annotate(
+    'angle,\nangle 90',
+    xy=(2., 1), xycoords='data',
+    xytext=(-70, 30), textcoords='offset points',
+    arrowprops=dict(arrowstyle="->",
+                    connectionstyle="angle,angleA=0,angleB=90,rad=10"))
+ax.annotate(
+    'angle3,\nangle -90',
+    xy=(2.5, -1), xycoords='data',
+    xytext=(-80, -60), textcoords='offset points',
+    arrowprops=dict(arrowstyle="->",
+                    connectionstyle="angle3,angleA=0,angleB=-90"))
+ax.annotate(
+    'angle,\nround',
+    xy=(3., 1), xycoords='data',
+    xytext=(-60, 30), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="0.8"),
+    arrowprops=dict(arrowstyle="->",
+                    connectionstyle="angle,angleA=0,angleB=90,rad=10"))
+ax.annotate(
+    'angle,\nround4',
+    xy=(3.5, -1), xycoords='data',
+    xytext=(-70, -80), textcoords='offset points',
+    size=20,
+    bbox=dict(boxstyle="round4,pad=.5", fc="0.8"),
+    arrowprops=dict(arrowstyle="->",
+                    connectionstyle="angle,angleA=0,angleB=-90,rad=10"))
+ax.annotate(
+    'angle,\nshrink',
+    xy=(4., 1), xycoords='data',
+    xytext=(-60, 30), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="0.8"),
+    arrowprops=dict(arrowstyle="->",
+                    shrinkA=0, shrinkB=10,
+                    connectionstyle="angle,angleA=0,angleB=90,rad=10"))
 # You can pass an empty string to get only annotation arrows rendered
-ann = ax.annotate('', xy=(4., 1.), xycoords='data',
-                  xytext=(4.5, -1), textcoords='data',
-                  arrowprops=dict(arrowstyle="<->",
-                                  connectionstyle="bar",
-                                  ec="k",
-                                  shrinkA=5, shrinkB=5))
+ax.annotate('', xy=(4., 1.), xycoords='data',
+            xytext=(4.5, -1), textcoords='data',
+            arrowprops=dict(arrowstyle="<->",
+                            connectionstyle="bar",
+                            ec="k",
+                            shrinkA=5, shrinkB=5))
 
 ax.set(xlim=(-1, 5), ylim=(-4, 3))
 
@@ -242,7 +243,6 @@ ax.annotate('$->$',
             arrowprops=dict(arrowstyle="->",
                             patchB=el,
                             connectionstyle="angle,angleA=90,angleB=0,rad=10"))
-
 ax.annotate('arrow\nfancy',
             xy=(2., -1), xycoords='data',
             xytext=(-100, 60), textcoords='offset points',
@@ -252,7 +252,6 @@ ax.annotate('arrow\nfancy',
                             fc="0.6", ec="none",
                             patchB=el,
                             connectionstyle="angle3,angleA=0,angleB=-90"))
-
 ax.annotate('arrow\nsimple',
             xy=(2., -1), xycoords='data',
             xytext=(100, 60), textcoords='offset points',
@@ -262,7 +261,6 @@ ax.annotate('arrow\nsimple',
                             fc="0.6", ec="none",
                             patchB=el,
                             connectionstyle="arc3,rad=0.3"))
-
 ax.annotate('wedge',
             xy=(2., -1), xycoords='data',
             xytext=(-100, -100), textcoords='offset points',
@@ -272,31 +270,29 @@ ax.annotate('wedge',
                             fc="0.6", ec="none",
                             patchB=el,
                             connectionstyle="arc3,rad=-0.3"))
-
-ann = ax.annotate('bubble,\ncontours',
-                  xy=(2., -1), xycoords='data',
-                  xytext=(0, -70), textcoords='offset points',
-                  size=20,
-                  bbox=dict(boxstyle="round",
-                            fc=(1.0, 0.7, 0.7),
-                            ec=(1., .5, .5)),
-                  arrowprops=dict(arrowstyle="wedge,tail_width=1.",
-                                  fc=(1.0, 0.7, 0.7), ec=(1., .5, .5),
-                                  patchA=None,
-                                  patchB=el,
-                                  relpos=(0.2, 0.8),
-                                  connectionstyle="arc3,rad=-0.1"))
-
-ann = ax.annotate('bubble',
-                  xy=(2., -1), xycoords='data',
-                  xytext=(55, 0), textcoords='offset points',
-                  size=20, va="center",
-                  bbox=dict(boxstyle="round", fc=(1.0, 0.7, 0.7), ec="none"),
-                  arrowprops=dict(arrowstyle="wedge,tail_width=1.",
-                                  fc=(1.0, 0.7, 0.7), ec="none",
-                                  patchA=None,
-                                  patchB=el,
-                                  relpos=(0.2, 0.5)))
+ax.annotate('bubble,\ncontours',
+            xy=(2., -1), xycoords='data',
+            xytext=(0, -70), textcoords='offset points',
+            size=20,
+            bbox=dict(boxstyle="round",
+                      fc=(1.0, 0.7, 0.7),
+                      ec=(1., .5, .5)),
+            arrowprops=dict(arrowstyle="wedge,tail_width=1.",
+                            fc=(1.0, 0.7, 0.7), ec=(1., .5, .5),
+                            patchA=None,
+                            patchB=el,
+                            relpos=(0.2, 0.8),
+                            connectionstyle="arc3,rad=-0.1"))
+ax.annotate('bubble',
+            xy=(2., -1), xycoords='data',
+            xytext=(55, 0), textcoords='offset points',
+            size=20, va="center",
+            bbox=dict(boxstyle="round", fc=(1.0, 0.7, 0.7), ec="none"),
+            arrowprops=dict(arrowstyle="wedge,tail_width=1.",
+                            fc=(1.0, 0.7, 0.7), ec="none",
+                            patchA=None,
+                            patchB=el,
+                            relpos=(0.2, 0.5)))
 
 ax.set(xlim=(-1, 5), ylim=(-5, 3))
 

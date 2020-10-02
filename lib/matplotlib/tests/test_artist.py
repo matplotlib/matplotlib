@@ -1,6 +1,5 @@
 import io
 from itertools import chain
-import warnings
 
 import numpy as np
 
@@ -24,9 +23,9 @@ def test_patch_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    # Draw an ellipse over data coord (2,2) by specifying device coords.
+    # Draw an ellipse over data coord (2, 2) by specifying device coords.
     xy_data = (2, 2)
-    xy_pix = ax.transData.transform_point(xy_data)
+    xy_pix = ax.transData.transform(xy_data)
 
     # Not providing a transform of None puts the ellipse in data coordinates .
     e = mpatches.Ellipse(xy_data, width=1, height=1, fc='yellow', alpha=0.5)
@@ -66,9 +65,9 @@ def test_collection_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    # draw an ellipse over data coord (2,2) by specifying device coords
+    # draw an ellipse over data coord (2, 2) by specifying device coords
     xy_data = (2, 2)
-    xy_pix = ax.transData.transform_point(xy_data)
+    xy_pix = ax.transData.transform(xy_data)
 
     # not providing a transform of None puts the ellipse in data coordinates
     e = mpatches.Ellipse(xy_data, width=1, height=1)
@@ -88,34 +87,31 @@ def test_collection_transform_of_none():
     # providing an IdentityTransform puts the ellipse in device coordinates
     e = mpatches.Ellipse(xy_pix, width=100, height=100)
     c = mcollections.PatchCollection([e],
-                                 transform=mtransforms.IdentityTransform(),
-                                 alpha=0.5)
+                                     transform=mtransforms.IdentityTransform(),
+                                     alpha=0.5)
     ax.add_collection(c)
     assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
 
-@image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)
+@image_comparison(["clip_path_clipping"], remove_text=True)
 def test_clipping():
     exterior = mpath.Path.unit_rectangle().deepcopy()
     exterior.vertices *= 4
     exterior.vertices -= 2
     interior = mpath.Path.unit_circle().deepcopy()
     interior.vertices = interior.vertices[::-1]
-    clip_path = mpath.Path(vertices=np.concatenate([exterior.vertices,
-                                                    interior.vertices]),
-                           codes=np.concatenate([exterior.codes,
-                                                 interior.codes]))
+    clip_path = mpath.Path.make_compound_path(exterior, interior)
 
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
 
-    ax1 = plt.subplot(121)
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
+
     col = mcollections.PathCollection([star], lw=5, edgecolor='blue',
                                       facecolor='red', alpha=0.7, hatch='*')
     col.set_clip_path(clip_path, ax1.transData)
     ax1.add_collection(col)
 
-    ax2 = plt.subplot(122, sharex=ax1, sharey=ax1)
     patch = mpatches.PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
                                alpha=0.7, hatch='*')
     patch.set_clip_path(clip_path, ax2.transData)
@@ -142,8 +138,7 @@ def test_cull_markers():
     assert len(svg.getvalue()) < 20000
 
 
-@image_comparison(baseline_images=['hatching'], remove_text=True,
-                  style='default')
+@image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
     fig, ax = plt.subplots(1, 1)
 
@@ -200,9 +195,11 @@ def test_remove():
     assert ax.stale
 
 
-@image_comparison(baseline_images=["default_edges"], remove_text=True,
-                  extensions=['png'], style='default')
+@image_comparison(["default_edges.png"], remove_text=True, style='default')
 def test_default_edges():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2)
 
     ax1.plot(np.arange(10), np.arange(10), 'x',
@@ -221,11 +218,7 @@ def test_default_edges():
 
 def test_properties():
     ln = mlines.Line2D([], [])
-    with warnings.catch_warnings(record=True) as w:
-        # Cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-        ln.properties()
-        assert len(w) == 0
+    ln.properties()  # Check that no warning is emitted.
 
 
 def test_setp():
@@ -234,13 +227,13 @@ def test_setp():
     plt.setp([[]])
 
     # Check arbitrary iterables
-    fig, axes = plt.subplots()
-    lines1 = axes.plot(range(3))
-    lines2 = axes.plot(range(3))
+    fig, ax = plt.subplots()
+    lines1 = ax.plot(range(3))
+    lines2 = ax.plot(range(3))
     martist.setp(chain(lines1, lines2), 'lw', 5)
-    plt.setp(axes.spines.values(), color='green')
+    plt.setp(ax.spines.values(), color='green')
 
-    # Check `file` argument
+    # Check *file* argument
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: float\n'
@@ -277,3 +270,36 @@ def test_artist_inspector_get_valid_values(accept_clause, expected):
     """ % accept_clause
     valid_values = martist.ArtistInspector(TestArtist).get_valid_values('f')
     assert valid_values == expected
+
+
+def test_artist_inspector_get_aliases():
+    # test the correct format and type of get_aliases method
+    ai = martist.ArtistInspector(mlines.Line2D)
+    aliases = ai.get_aliases()
+    assert aliases["linewidth"] == {"lw"}
+
+
+def test_set_alpha():
+    art = martist.Artist()
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art.set_alpha('string')
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art.set_alpha([1, 2, 3])
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art.set_alpha(1.1)
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art.set_alpha(np.nan)
+
+
+def test_set_alpha_for_array():
+    art = martist.Artist()
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art._set_alpha_for_array('string')
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art._set_alpha_for_array(1.1)
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art._set_alpha_for_array(np.nan)
+    with pytest.raises(ValueError, match="alpha must be between 0 and 1"):
+        art._set_alpha_for_array([0.5, 1.1])
+    with pytest.raises(ValueError, match="alpha must be between 0 and 1"):
+        art._set_alpha_for_array([0.5, np.nan])

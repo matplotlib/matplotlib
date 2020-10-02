@@ -1,0 +1,18 @@
+# Requirements for building docs
+#
+# You will first need a matching Matplotlib installation
+# e.g (from the Matplotlib root directory)
+#     pip install -e .
+#
+# Install the documentation requirements with:
+#     pip install -r requirements/doc/doc-requirements.txt
+#
+sphinx>=1.8.1,!=2.0.0
+colorspacious
+ipython
+ipywidgets
+numpydoc>=0.8
+sphinxcontrib-svg2pdfconverter>=1.1.0
+sphinx-gallery>=0.7
+sphinx-copybutton
+scipy

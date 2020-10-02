@@ -3,25 +3,26 @@
 Unicode minus
 =============
 
-You can use the proper typesetting `Unicode minus`__ or the ASCII hyphen for
-minus, which some people prefer.  :rc:`axes.unicode_minus` controls the default
-behavior.
+By default, tick labels at negative values are rendered using a `Unicode
+minus`__ (U+2212) rather than an ASCII hyphen (U+002D).  This can be controlled
+by setting :rc:`axes.unicode_minus`.
 
 __ https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 
-The default is to use the Unicode minus.
+The replacement is performed at draw time of the tick labels (usually during a
+`.pyplot.show()` or `.pyplot.savefig()` call). Therefore, all tick labels of
+the figure follow the same setting and we cannot demonstrate both glyphs on
+real tick labels of the same figure simultaneously.
+
+Instead, this example simply showcases the difference between the two glyphs
+in a magnified font.
 """
 
-import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-
-matplotlib.rcParams['axes.unicode_minus'] = False
-fig, ax = plt.subplots()
-ax.plot(10*np.random.randn(100), 10*np.random.randn(100), 'o')
-ax.set_title('Using hyphen instead of Unicode minus')
+fig = plt.figure(figsize=(4, 2))
+fig.text(.15, .6, "Unicode minus:", fontsize=20)
+fig.text(.85, .6, "\N{MINUS SIGN}1", ha='right', fontsize=20)
+fig.text(.15, .3, "ASCII hyphen:", fontsize=20)
+fig.text(.85, .3, "-1", ha='right', fontsize=20)
 plt.show()

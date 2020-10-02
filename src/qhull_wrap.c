@@ -5,6 +5,7 @@
  * triangulation, construct an instance of the matplotlib.tri.Triangulation
  * class without specifying a triangles array.
  */
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "numpy/ndarrayobject.h"
 #include "libqhull/qhull_a.h"
@@ -336,6 +337,8 @@ static struct PyModuleDef qhull_module = {
     NULL, NULL, NULL, NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC
 PyInit__qhull(void)
 {
@@ -351,3 +354,5 @@ PyInit__qhull(void)
 
     return m;
 }
+
+#pragma GCC visibility pop

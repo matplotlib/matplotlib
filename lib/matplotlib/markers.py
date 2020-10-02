@@ -1,7 +1,6 @@
-"""
-This module contains functions to handle markers.  Used by both the
-marker functionality of `~matplotlib.axes.Axes.plot` and
-`~matplotlib.axes.Axes.scatter`.
+r"""
+Functions to handle markers; used by the marker functionality of
+`~matplotlib.axes.Axes.plot` and `~matplotlib.axes.Axes.scatter`.
 
 All possible markers are defined here:
 
@@ -51,34 +50,17 @@ marker                         symbol description
                                       letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
                                       vertices. The center of the marker is
-                                      located at (0,0) and the size is
+                                      located at (0, 0) and the size is
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
 path                                  A `~matplotlib.path.Path` instance.
-``(numsides, style, angle)``          The marker can also be a tuple
-                                      ``(numsides, style, angle)``, which
-                                      will create a custom, regular symbol.
-
-                                      ``numsides``:
-                                          the number of sides
-
-                                      ``style``:
-                                          the style of the regular symbol:
-
-                                          - 0: a regular polygon
-                                          - 1: a star-like symbol
-                                          - 2: an asterisk
-                                          - 3: a circle (``numsides`` and
-                                            ``angle`` is ignored);
-                                            deprecated.
-
-                                      ``angle``:
-                                          the angle of rotation of the symbol
+``(numsides, 0, angle)``              A regular polygon with ``numsides``
+                                      sides, rotated by ``angle``.
+``(numsides, 1, angle)``              A star-like symbol with ``numsides``
+                                      sides, rotated by ``angle``.
+``(numsides, 2, angle)``              An asterisk with ``numsides`` sides,
+                                      rotated by ``angle``.
 ============================== ====== =========================================
-
-For backward compatibility, the form ``(verts, 0)`` is also accepted, but it is
-deprecated and equivalent to just ``verts`` for giving a raw set of vertices
-that define the shape.
 
 ``None`` is the default which means 'nothing', however this table is
 referred to from other docs for the valid inputs from marker inputs and in
@@ -94,15 +76,14 @@ Integer numbers from ``0`` to ``11`` create lines and triangles. Those are
 equally accessible via capitalized variables, like ``CARETDOWNBASE``.
 Hence the following are equivalent::
 
-    plt.plot([1,2,3], marker=11)
-    plt.plot([1,2,3], marker=matplotlib.markers.CARETDOWNBASE)
-
+    plt.plot([1, 2, 3], marker=11)
+    plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
 Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
-* :doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`
 * :doc:`/gallery/shapes_and_collections/marker_path`
+* :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`
 
 
 .. |m00| image:: /_static/markers/m00.png
@@ -146,11 +127,10 @@ Examples showing the use of markers:
 """
 
 from collections.abc import Sized
-from numbers import Number
 
 import numpy as np
 
-from . import cbook, rcParams
+from . import _api, cbook, rcParams
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
 
@@ -162,7 +142,19 @@ from .transforms import IdentityTransform, Affine2D
 _empty_path = Path(np.empty((0, 2)))
 
 
-class MarkerStyle(object):
+class MarkerStyle:
+    """
+    A class representing marker types.
+
+    Attributes
+    ----------
+    markers : list
+        All known markers.
+    filled_markers : list
+        All known filled markers. This is a subset of *markers*.
+    fillstyles : list
+        The supported fillstyles.
+    """
 
     markers = {
         '.': 'point',
@@ -222,23 +214,14 @@ class MarkerStyle(object):
 
     def __init__(self, marker=None, fillstyle=None):
         """
-        MarkerStyle
-
-        Attributes
-        ----------
-        markers : list of known marks
-
-        fillstyles : list of known fillstyles
-
-        filled_markers : list of known filled markers.
-
         Parameters
         ----------
-        marker : string or array_like, optional, default: None
-            See the descriptions of possible markers in the module docstring.
+        marker : str or array-like or None, default: None
+            *None* means no marker. For other possible marker values see the
+            module docstring `matplotlib.markers`.
 
-        fillstyle : string, optional, default: 'full'
-            'full', 'left", 'right', 'bottom', 'top', 'none'
+        fillstyle : str, default: 'full'
+            One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
         """
         self._marker_function = None
         self.set_fillstyle(fillstyle)
@@ -254,7 +237,10 @@ class MarkerStyle(object):
         self._snap_threshold = None
         self._joinstyle = 'round'
         self._capstyle = 'butt'
-        self._filled = True
+        # Initial guess: Assume the marker is filled unless the fillstyle is
+        # set to 'none'. The marker function will override this for unfilled
+        # markers.
+        self._filled = self._fillstyle != 'none'
         self._marker_function()
 
     def __bool__(self):
@@ -268,17 +254,17 @@ class MarkerStyle(object):
 
     def set_fillstyle(self, fillstyle):
         """
-        Sets fillstyle
+        Set the fillstyle.
 
         Parameters
         ----------
-        fillstyle : string amongst known fillstyles
+        fillstyle : {'full', 'left', 'right', 'bottom', 'top', 'none'}
+            The part of the marker surface that is colored with
+            markerfacecolor.
         """
         if fillstyle is None:
             fillstyle = rcParams['markers.fillstyle']
-        if fillstyle not in self.fillstyles:
-            raise ValueError("Unrecognized fillstyle %s"
-                             % ' '.join(self.fillstyles))
+        _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
         self._recache()
 
@@ -292,6 +278,15 @@ class MarkerStyle(object):
         return self._marker
 
     def set_marker(self, marker):
+        """
+        Set the marker.
+
+        Parameters
+        ----------
+        marker : str or array-like or None, default: None
+            *None* means no marker. For other possible marker values see the
+            module docstring `matplotlib.markers`.
+        """
         if (isinstance(marker, np.ndarray) and marker.ndim == 2 and
                 marker.shape[1] == 2):
             self._marker_function = self._set_vertices
@@ -300,33 +295,56 @@ class MarkerStyle(object):
         elif isinstance(marker, Path):
             self._marker_function = self._set_path_marker
         elif (isinstance(marker, Sized) and len(marker) in (2, 3) and
-                marker[1] in (0, 1, 2, 3)):
+                marker[1] in (0, 1, 2)):
             self._marker_function = self._set_tuple_marker
         elif (not isinstance(marker, (np.ndarray, list)) and
               marker in self.markers):
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
+        elif isinstance(marker, MarkerStyle):
+            self.__dict__.update(marker.__dict__)
         else:
             try:
                 Path(marker)
                 self._marker_function = self._set_vertices
-            except ValueError:
+            except ValueError as err:
                 raise ValueError('Unrecognized marker style {!r}'
-                                 .format(marker))
+                                 .format(marker)) from err
 
-        self._marker = marker
-        self._recache()
+        if not isinstance(marker, MarkerStyle):
+            self._marker = marker
+            self._recache()
 
     def get_path(self):
+        """
+        Return a `.Path` for the primary part of the marker.
+
+        For unfilled markers this is the whole marker, for filled markers,
+        this is the area to be drawn with *markerfacecolor*.
+        """
         return self._path
 
     def get_transform(self):
+        """
+        Return the transform to be applied to the `.Path` from
+        `MarkerStyle.get_path()`.
+        """
         return self._transform.frozen()
 
     def get_alt_path(self):
+        """
+        Return a `.Path` for the alternate part of the marker.
+
+        For unfilled markers, this is *None*; for filled markers, this is the
+        area to be drawn with *markerfacecoloralt*.
+        """
         return self._alt_path
 
     def get_alt_transform(self):
+        """
+        Return the transform to be applied to the `.Path` from
+        `MarkerStyle.get_alt_path()`.
+        """
         return self._alt_transform.frozen()
 
     def get_snap_threshold(self):
@@ -336,9 +354,7 @@ class MarkerStyle(object):
         self._filled = False
 
     def _set_custom_marker(self, path):
-        verts = path.vertices
-        rescale = max(np.max(np.abs(verts[:, 0])),
-                      np.max(np.abs(verts[:, 1])))
+        rescale = np.max(np.abs(path.vertices))  # max of x's and y's.
         self._transform = Affine2D().scale(0.5 / rescale)
         self._path = path
 
@@ -346,43 +362,28 @@ class MarkerStyle(object):
         self._set_custom_marker(self._marker)
 
     def _set_vertices(self):
-        verts = self._marker
-        marker = Path(verts)
-        self._set_custom_marker(marker)
+        self._set_custom_marker(Path(self._marker))
 
     def _set_tuple_marker(self):
         marker = self._marker
-        if isinstance(marker[0], Number):
-            if len(marker) == 2:
-                numsides, rotation = marker[0], 0.0
-            elif len(marker) == 3:
-                numsides, rotation = marker[0], marker[2]
-            symstyle = marker[1]
-            if symstyle == 0:
-                self._path = Path.unit_regular_polygon(numsides)
-                self._joinstyle = 'miter'
-            elif symstyle == 1:
-                self._path = Path.unit_regular_star(numsides)
-                self._joinstyle = 'bevel'
-            elif symstyle == 2:
-                self._path = Path.unit_regular_asterisk(numsides)
-                self._filled = False
-                self._joinstyle = 'bevel'
-            elif symstyle == 3:
-                cbook.warn_deprecated(
-                    "3.0", message="Setting a circle marker using `(..., 3)` "
-                    "is deprecated since Matplotlib 3.0, and support for it "
-                    "will be removed in 3.2.  Directly pass 'o' instead.")
-                self._path = Path.unit_circle()
-            self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
+        if len(marker) == 2:
+            numsides, rotation = marker[0], 0.0
+        elif len(marker) == 3:
+            numsides, rotation = marker[0], marker[2]
+        symstyle = marker[1]
+        if symstyle == 0:
+            self._path = Path.unit_regular_polygon(numsides)
+            self._joinstyle = 'miter'
+        elif symstyle == 1:
+            self._path = Path.unit_regular_star(numsides)
+            self._joinstyle = 'bevel'
+        elif symstyle == 2:
+            self._path = Path.unit_regular_asterisk(numsides)
+            self._filled = False
+            self._joinstyle = 'bevel'
         else:
-            cbook.warn_deprecated(
-                "3.0", message="Passing vertices as `(verts, 0)` is "
-                "deprecated since Matplotlib 3.0, and support for it will be "
-                "removed in 3.2.  Directly pass `verts` instead.")
-            verts = np.asarray(marker[0])
-            path = Path(verts)
-            self._set_custom_marker(path)
+            raise ValueError(f"Unexpected tuple marker: {marker}")
+        self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
 
     def _set_mathtext_path(self):
         """
@@ -391,14 +392,10 @@ class MarkerStyle(object):
         Submitted by tcb
         """
         from matplotlib.text import TextPath
-        from matplotlib.font_manager import FontProperties
 
         # again, the properties could be initialised just once outside
         # this function
-        # Font size is irrelevant here, it will be rescaled based on
-        # the drawn size later
-        props = FontProperties(size=1.0)
-        text = TextPath(xy=(0, 0), s=self.get_marker(), fontproperties=props,
+        text = TextPath(xy=(0, 0), s=self.get_marker(),
                         usetex=rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return
@@ -415,9 +412,7 @@ class MarkerStyle(object):
         self._snap = False
 
     def _half_fill(self):
-        fs = self.get_fillstyle()
-        result = fs in self._half_fillstyles
-        return result
+        return self.get_fillstyle() in self._half_fillstyles
 
     def _set_circle(self, reduction=1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
@@ -457,26 +452,18 @@ class MarkerStyle(object):
     def _set_point(self):
         self._set_circle(reduction=self._point_size_reduction)
 
-    _triangle_path = Path(
-        [[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
-        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    _triangle_path = Path([[0, 1], [-1, -1], [1, -1], [0, 1]], closed=True)
     # Going down halfway looks to small.  Golden ratio is too far.
-    _triangle_path_u = Path(
-        [[0.0, 1.0], [-3 / 5., -1 / 5.], [3 / 5., -1 / 5.], [0.0, 1.0]],
-        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    _triangle_path_u = Path([[0, 1], [-3/5, -1/5], [3/5, -1/5], [0, 1]],
+                            closed=True)
     _triangle_path_d = Path(
-        [[-3 / 5., -1 / 5.], [3 / 5., -1 / 5.], [1.0, -1.0], [-1.0, -1.0],
-         [-3 / 5., -1 / 5.]],
-        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-    _triangle_path_l = Path(
-        [[0.0, 1.0], [0.0, -1.0], [-1.0, -1.0], [0.0, 1.0]],
-        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-    _triangle_path_r = Path(
-        [[0.0, 1.0], [0.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
-        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+        [[-3/5, -1/5], [3/5, -1/5], [1, -1], [-1, -1], [-3/5, -1/5]],
+        closed=True)
+    _triangle_path_l = Path([[0, 1], [0, -1], [-1, -1], [0, 1]], closed=True)
+    _triangle_path_r = Path([[0, 1], [0, -1], [1, -1], [0, 1]], closed=True)
 
     def _set_triangle(self, rot, skip):
-        self._transform = Affine2D().scale(0.5, 0.5).rotate_deg(rot)
+        self._transform = Affine2D().scale(0.5).rotate_deg(rot)
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 
@@ -552,10 +539,8 @@ class MarkerStyle(object):
         if not self._half_fill():
             self._path = Path.unit_rectangle()
         else:
-            self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
-            self._alt_path = Path([[0.0, 0.0], [0.0, 1.0],
-                                   [1.0, 1.0], [0.0, 0.0]])
-
+            self._path = Path([[0, 0], [1, 0], [1, 1], [0, 0]])
+            self._alt_path = Path([[0, 0], [0, 1], [1, 1], [0, 0]])
             if fs == 'bottom':
                 rotate = 270.
             elif fs == 'top':
@@ -564,10 +549,8 @@ class MarkerStyle(object):
                 rotate = 180.
             else:
                 rotate = 0.
-
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
-
         self._joinstyle = 'miter'
 
     def _set_thin_diamond(self):
@@ -862,24 +845,13 @@ class MarkerStyle(object):
         self._filled = False
         self._path = self._x_path
 
-    _plus_filled_path = Path([(1/3, 0), (2/3, 0), (2/3, 1/3),
-                              (1, 1/3), (1, 2/3), (2/3, 2/3),
-                              (2/3, 1), (1/3, 1), (1/3, 2/3),
-                              (0, 2/3), (0, 1/3), (1/3, 1/3),
-                              (1/3, 0)],
-                             [Path.MOVETO, Path.LINETO, Path.LINETO,
-                              Path.LINETO, Path.LINETO, Path.LINETO,
-                              Path.LINETO, Path.LINETO, Path.LINETO,
-                              Path.LINETO, Path.LINETO, Path.LINETO,
-                              Path.CLOSEPOLY])
-
-    _plus_filled_path_t = Path([(1, 1/2), (1, 2/3), (2/3, 2/3),
-                                (2/3, 1), (1/3, 1), (1/3, 2/3),
-                                (0, 2/3), (0, 1/2), (1, 1/2)],
-                               [Path.MOVETO, Path.LINETO, Path.LINETO,
-                                Path.LINETO, Path.LINETO, Path.LINETO,
-                                Path.LINETO, Path.LINETO,
-                                Path.CLOSEPOLY])
+    _plus_filled_path = Path(
+        [(1/3, 0), (2/3, 0), (2/3, 1/3), (1, 1/3), (1, 2/3), (2/3, 2/3),
+         (2/3, 1), (1/3, 1), (1/3, 2/3), (0, 2/3), (0, 1/3), (1/3, 1/3),
+         (1/3, 0)], closed=True)
+    _plus_filled_path_t = Path(
+        [(1, 1/2), (1, 2/3), (2/3, 2/3), (2/3, 1), (1/3, 1), (1/3, 2/3),
+         (0, 2/3), (0, 1/2), (1, 1/2)], closed=True)
 
     def _set_plus_filled(self):
         self._transform = Affine2D().translate(-0.5, -0.5)
@@ -905,22 +877,13 @@ class MarkerStyle(object):
             self._transform.rotate_deg(rotate)
             self._alt_transform.rotate_deg(rotate_alt)
 
-    _x_filled_path = Path([(0.25, 0), (0.5, 0.25), (0.75, 0), (1, 0.25),
-                           (0.75, 0.5), (1, 0.75), (0.75, 1), (0.5, 0.75),
-                           (0.25, 1), (0, 0.75), (0.25, 0.5), (0, 0.25),
-                           (0.25, 0)],
-                          [Path.MOVETO, Path.LINETO, Path.LINETO,
-                           Path.LINETO, Path.LINETO, Path.LINETO,
-                           Path.LINETO, Path.LINETO, Path.LINETO,
-                           Path.LINETO, Path.LINETO, Path.LINETO,
-                           Path.CLOSEPOLY])
-
-    _x_filled_path_t = Path([(0.75, 0.5), (1, 0.75), (0.75, 1),
-                             (0.5, 0.75), (0.25, 1), (0, 0.75),
-                             (0.25, 0.5), (0.75, 0.5)],
-                            [Path.MOVETO, Path.LINETO, Path.LINETO,
-                             Path.LINETO, Path.LINETO, Path.LINETO,
-                             Path.LINETO, Path.CLOSEPOLY])
+    _x_filled_path = Path(
+        [(0.25, 0), (0.5, 0.25), (0.75, 0), (1, 0.25), (0.75, 0.5), (1, 0.75),
+         (0.75, 1), (0.5, 0.75), (0.25, 1), (0, 0.75), (0.25, 0.5), (0, 0.25),
+         (0.25, 0)], closed=True)
+    _x_filled_path_t = Path(
+        [(0.75, 0.5), (1, 0.75), (0.75, 1), (0.5, 0.75), (0.25, 1), (0, 0.75),
+         (0.25, 0.5), (0.75, 0.5)], closed=True)
 
     def _set_x_filled(self):
         self._transform = Affine2D().translate(-0.5, -0.5)

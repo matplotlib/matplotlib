@@ -1,7 +1,7 @@
-#include "src/_contour.h"
-#include "src/mplutils.h"
-#include "src/py_converters.h"
-#include "src/py_exceptions.h"
+#include "_contour.h"
+#include "mplutils.h"
+#include "py_converters.h"
+#include "py_exceptions.h"
 
 /* QuadContourGenerator */
 
@@ -23,7 +23,7 @@ static PyObject* PyQuadContourGenerator_new(PyTypeObject* type, PyObject* args, 
 
 const char* PyQuadContourGenerator_init__doc__ =
     "QuadContourGenerator(x, y, z, mask, corner_mask, chunk_size)\n"
-    "\n"
+    "--\n\n"
     "Create a new C++ QuadContourGenerator object\n";
 
 static int PyQuadContourGenerator_init(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
@@ -78,7 +78,7 @@ static void PyQuadContourGenerator_dealloc(PyQuadContourGenerator* self)
 
 const char* PyQuadContourGenerator_create_contour__doc__ =
     "create_contour(level)\n"
-    "\n"
+    "--\n\n"
     "Create and return a non-filled contour.";
 
 static PyObject* PyQuadContourGenerator_create_contour(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
@@ -95,7 +95,7 @@ static PyObject* PyQuadContourGenerator_create_contour(PyQuadContourGenerator* s
 
 const char* PyQuadContourGenerator_create_filled_contour__doc__ =
     "create_filled_contour(lower_level, upper_level)\n"
-    "\n"
+    "--\n\n"
     "Create and return a filled contour";
 
 static PyObject* PyQuadContourGenerator_create_filled_contour(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
@@ -152,8 +152,6 @@ static PyTypeObject* PyQuadContourGenerator_init_type(PyObject* m, PyTypeObject*
 
 /* Module */
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_contour",
@@ -165,6 +163,8 @@ static struct PyModuleDef moduledef = {
     NULL,
     NULL
 };
+
+#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__contour(void)
 {
@@ -185,4 +185,4 @@ PyMODINIT_FUNC PyInit__contour(void)
     return m;
 }
 
-} // extern "C"
+#pragma GCC visibility pop

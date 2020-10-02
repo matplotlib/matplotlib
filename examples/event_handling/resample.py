@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 # A class that will downsample the data and recompute when zoomed.
-class DataDisplayDownsampler(object):
+class DataDisplayDownsampler:
     def __init__(self, xdata, ydata):
         self.origYData = ydata
         self.origXData = xdata
@@ -37,15 +37,14 @@ class DataDisplayDownsampler(object):
         xdata = xdata[::ratio]
         ydata = ydata[::ratio]
 
-        print("using {} of {} visible points".format(
-            len(ydata), np.sum(mask)))
+        print("using {} of {} visible points".format(len(ydata), np.sum(mask)))
 
         return xdata, ydata
 
     def update(self, ax):
         # Update the line
         lims = ax.viewLim
-        if np.abs(lims.width - self.delta) > 1e-8:
+        if abs(lims.width - self.delta) > 1e-8:
             self.delta = lims.width
             xstart, xend = lims.intervalx
             self.line.set_data(*self.downsample(xstart, xend))

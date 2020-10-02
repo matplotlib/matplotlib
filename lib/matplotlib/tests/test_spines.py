@@ -1,10 +1,10 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
-@image_comparison(baseline_images=['spines_axes_positions'])
+@image_comparison(['spines_axes_positions'])
 def test_spines_axes_positions():
     # SF bug 2852168
     fig = plt.figure()
@@ -21,10 +21,9 @@ def test_spines_axes_positions():
     ax.spines['bottom'].set_color('none')
 
 
-@image_comparison(baseline_images=['spines_data_positions'])
+@image_comparison(['spines_data_positions'])
 def test_spines_data_positions():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.spines['left'].set_position(('data', -1.5))
     ax.spines['top'].set_position(('data', 0.5))
     ax.spines['right'].set_position(('data', -0.5))
@@ -33,19 +32,38 @@ def test_spines_data_positions():
     ax.set_ylim([-2, 2])
 
 
-@image_comparison(baseline_images=['spines_capstyle'])
+@check_figures_equal(extensions=["png"])
+def test_spine_nonlinear_data_positions(fig_test, fig_ref):
+    plt.style.use("default")
+
+    ax = fig_test.add_subplot()
+    ax.set(xscale="log", xlim=(.1, 1))
+    # Use position="data" to visually swap the left and right spines, using
+    # linewidth to distinguish them.  The calls to tick_params removes labels
+    # (for image comparison purposes) and harmonizes tick positions with the
+    # reference).
+    ax.spines["left"].set_position(("data", 1))
+    ax.spines["left"].set_linewidth(2)
+    ax.spines["right"].set_position(("data", .1))
+    ax.tick_params(axis="y", labelleft=False, direction="in")
+
+    ax = fig_ref.add_subplot()
+    ax.set(xscale="log", xlim=(.1, 1))
+    ax.spines["right"].set_linewidth(2)
+    ax.tick_params(axis="y", labelleft=False, left=False, right=True)
+
+
+@image_comparison(['spines_capstyle'])
 def test_spines_capstyle():
     # issue 2542
     plt.rc('axes', linewidth=20)
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.set_xticks([])
     ax.set_yticks([])
 
 
 def test_label_without_ticks():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     plt.subplots_adjust(left=0.3, bottom=0.3)
     ax.plot(np.arange(10))
     ax.yaxis.set_ticks_position('left')

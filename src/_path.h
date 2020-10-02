@@ -8,6 +8,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <string>
 
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
@@ -812,6 +813,19 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
     return count;
 }
 
+
+inline bool isclose(double a, double b)
+{
+    // relative and absolute tolerance values are chosen empirically
+    // it looks the atol value matters here because of round-off errors
+    const double rtol = 1e-10;
+    const double atol = 1e-13;
+
+    // as per python's math.isclose
+    return fabs(a-b) <= fmax(rtol * fmax(fabs(a), fabs(b)), atol);
+}
+
+
 inline bool segments_intersect(const double &x1,
                                const double &y1,
                                const double &x2,
@@ -821,18 +835,36 @@ inline bool segments_intersect(const double &x1,
                                const double &x4,
                                const double &y4)
 {
+    // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
-    if (den == 0.0) {
+
+    if (isclose(den, 0.0)) {  // collinear segments
+        if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
+                                    // and lie on the same line
+            return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
+                   (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
+        }
+        else {
+            double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
+            if (isclose(intercept, 0.0)) { // segments lie on the same line
+                return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
+                       (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
+            }
+        }
+
         return false;
     }
 
-    double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
-    double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
+    const double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
+    const double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
 
-    double u1 = n1 / den;
-    double u2 = n2 / den;
+    const double u1 = n1 / den;
+    const double u2 = n2 / den;
 
-    return (u1 >= 0.0 && u1 <= 1.0 && u2 >= 0.0 && u2 <= 1.0);
+    return ((u1 > 0.0 || isclose(u1, 0.0)) &&
+            (u1 < 1.0 || isclose(u1, 1.0)) &&
+            (u2 > 0.0 || isclose(u2, 0.0)) &&
+            (u2 < 1.0 || isclose(u2, 1.0)));
 }
 
 template <class PathIterator1, class PathIterator2>
@@ -856,9 +888,18 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 
     c1.vertex(&x11, &y11);
     while (c1.vertex(&x12, &y12) != agg::path_cmd_stop) {
+        // if the segment in path 1 is (almost) 0 length, skip to next vertex
+        if ((isclose((x11 - x12) * (x11 - x12) + (y11 - y12) * (y11 - y12), 0))){
+            continue;
+        }
         c2.rewind(0);
         c2.vertex(&x21, &y21);
+
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
+            // if the segment in path 2 is (almost) 0 length, skip to next vertex
+            if ((isclose((x21 - x22) * (x21 - x22) + (y21 - y22) * (y21 - y22), 0))){
+                continue;
+            }
             if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22)) {
                 return true;
             }
@@ -1044,80 +1085,54 @@ void quad2cubic(double x0, double y0,
     outy[2] = y2;
 }
 
-char *__append_to_string(char *p, char **buffer, size_t *buffersize,
-                         const char *content)
+
+void __add_number(double val, char format_code, int precision,
+                  std::string& buffer)
 {
-    for (const char *i = content; *i; ++i) {
-        if (p < *buffer) {
-            /* This is just an internal error */
-            return NULL;
+    if (precision == -1) {
+        // Special-case for compat with old ttconv code, which *truncated*
+        // values with a cast to int instead of rounding them as printf
+        // would do.  The only point where non-integer values arise is from
+        // quad2cubic conversion (as we already perform a first truncation
+        // on Python's side), which can introduce additional floating point
+        // error (by adding 2/3 delta-x and then 1/3 delta-x), so compensate by
+        // first rounding to the closest 1/3 and then truncating.
+        char str[255];
+        PyOS_snprintf(str, 255, "%d", (int)(round(val * 3)) / 3);
+        buffer += str;
+    } else {
+        char *str = PyOS_double_to_string(
+          val, format_code, precision, Py_DTSF_ADD_DOT_0, NULL);
+        // Delete trailing zeros and decimal point
+        char *c = str + strlen(str) - 1;  // Start at last character.
+        // Rewind through all the zeros and, if present, the trailing decimal
+        // point.  Py_DTSF_ADD_DOT_0 ensures we won't go past the start of str.
+        while (*c == '0') {
+            --c;
         }
-        if ((size_t)(p - *buffer) >= *buffersize) {
-            ptrdiff_t diff = p - *buffer;
-            *buffersize *= 2;
-            *buffer = (char *)realloc(*buffer, *buffersize);
-            if (*buffer == NULL) {
-                return NULL;
-            }
-            p = *buffer + diff;
+        if (*c == '.') {
+            --c;
         }
-
-        *p++ = *i;
-    }
-
-    return p;
-}
-
-
-char *__add_number(double val, const char *format, int precision,
-                 char **buffer, char *p, size_t *buffersize)
-{
-    char *result;
-
-    char *str;
-    str = PyOS_double_to_string(val, format[0], precision, 0, NULL);
-
-    // Delete trailing zeros and decimal point
-    char *q = str;
-    for (; *q != 0; ++q) {
-        // Find the end of the string
-    }
-
-    --q;
-    for (; q >= str && *q == '0'; --q) {
-        // Rewind through all the zeros
-    }
-
-    // If the end is a decimal qoint, delete that too
-    if (q >= str && *q == '.') {
-        --q;
-    }
-
-    // Truncate the string
-    ++q;
-    *q = 0;
-
-    if ((result = __append_to_string(p, buffer, buffersize, str)) == NULL) {
+        try {
+            buffer.append(str, c + 1);
+        } catch (std::bad_alloc& e) {
+            PyMem_Free(str);
+            throw e;
+        }
         PyMem_Free(str);
-        return NULL;
     }
-    PyMem_Free(str);
-
-    return result;
 }
 
 
 template <class PathIterator>
-int __convert_to_string(PathIterator &path,
-                        int precision,
-                        char **codes,
-                        bool postfix,
-                        char **buffer,
-                        size_t *buffersize)
+bool __convert_to_string(PathIterator &path,
+                         int precision,
+                         char **codes,
+                         bool postfix,
+                         std::string& buffer)
 {
-    const char *format = "f";
+    const char format_code = 'f';
 
-    char *p = *buffer;
     double x[3];
     double y[3];
     double last_x = 0.0;
@@ -1129,14 +1144,14 @@ int __convert_to_string(PathIterator &path,
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
         if (code == 0x4f) {
-            if ((p = __append_to_string(p, buffer, buffersize, codes[4])) == NULL) return 1;
+            buffer += codes[4];
         } else if (code < 5) {
             size = sizes[code - 1];
 
             for (int i = 1; i < size; ++i) {
                 unsigned subcode = path.vertex(&x[i], &y[i]);
                 if (subcode != code) {
-                    return 2;
+                    return false;
                 }
             }
 
@@ -1149,48 +1164,46 @@ int __convert_to_string(PathIterator &path,
             }
 
             if (!postfix) {
-                if ((p = __append_to_string(p, buffer, buffersize, codes[code - 1])) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
+                buffer += codes[code - 1];
+                buffer += ' ';
             }
 
             for (int i = 0; i < size; ++i) {
-                if ((p = __add_number(x[i], format, precision, buffer, p, buffersize)) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-                if ((p = __add_number(y[i], format, precision, buffer, p, buffersize)) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
+                __add_number(x[i], format_code, precision, buffer);
+                buffer += ' ';
+                __add_number(y[i], format_code, precision, buffer);
+                buffer += ' ';
             }
 
             if (postfix) {
-                if ((p = __append_to_string(p, buffer, buffersize, codes[code - 1])) == NULL) return 1;
+                buffer += codes[code - 1];
             }
 
             last_x = x[size - 1];
             last_y = y[size - 1];
         } else {
             // Unknown code value
-            return 2;
+            return false;
         }
 
-        if ((p = __append_to_string(p, buffer, buffersize, "\n")) == NULL) return 1;
+        buffer += '\n';
     }
 
-    *buffersize = p - *buffer;
-
-    return 0;
+    return true;
 }
 
 template <class PathIterator>
-int convert_to_string(PathIterator &path,
-                      agg::trans_affine &trans,
-                      agg::rect_d &clip_rect,
-                      bool simplify,
-                      SketchParams sketch_params,
-                      int precision,
-                      char **codes,
-                      bool postfix,
-                      char **buffer,
-                      size_t *buffersize)
+bool convert_to_string(PathIterator &path,
+                       agg::trans_affine &trans,
+                       agg::rect_d &clip_rect,
+                       bool simplify,
+                       SketchParams sketch_params,
+                       int precision,
+                       char **codes,
+                       bool postfix,
+                       std::string& buffer)
 {
+    size_t buffersize;
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
@@ -1205,26 +1218,23 @@ int convert_to_string(PathIterator &path,
     clipped_t clipped(nan_removed, do_clip && !path.has_curves(), clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
-    *buffersize = path.total_vertices() * (precision + 5) * 4;
-    if (*buffersize == 0) {
-        return 0;
+    buffersize = path.total_vertices() * (precision + 5) * 4;
+    if (buffersize == 0) {
+        return true;
     }
 
     if (sketch_params.scale != 0.0) {
-        *buffersize *= 10;
+        buffersize *= 10;
     }
 
-    *buffer = (char *)malloc(*buffersize);
-    if (*buffer == NULL) {
-        return 1;
-    }
+    buffer.reserve(buffersize);
 
     if (sketch_params.scale == 0.0) {
-        return __convert_to_string(simplified, precision, codes, postfix, buffer, buffersize);
+        return __convert_to_string(simplified, precision, codes, postfix, buffer);
     } else {
         curve_t curve(simplified);
         sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
-        return __convert_to_string(sketch, precision, codes, postfix, buffer, buffersize);
+        return __convert_to_string(sketch, precision, codes, postfix, buffer);
     }
 
 }

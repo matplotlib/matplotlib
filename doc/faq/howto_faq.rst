@@ -1,8 +1,7 @@
-
 .. _howto-faq:
 
 ******
-How-To
+How-to
 ******
 
 .. contents::
@@ -11,8 +10,8 @@ How-To
 
 .. _howto-plotting:
 
-Plotting: howto
-===============
+How-to: Plotting
+================
 
 .. _howto-datetime64:
 
@@ -22,21 +21,43 @@ Plot `numpy.datetime64` values
 As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
 as `datetime.datetime` objects.
 
-If you prefer the pandas converters and locators, you can register their
-converter with the `matplolib.units` module::
+If you prefer the pandas converters and locators, you can register them.  This
+is done automatically when calling a pandas plot function and may be
+unnecessary when using pandas instead of Matplotlib directly. ::
 
-  from pandas.tseries import converter as pdtc
-  pdtc.register()
-
-If you only want to use the `pandas` converter for `datetime64` values ::
-
-  from pandas.tseries import converter as pdtc
-  import matplotlib.units as munits
-  import numpy as np
-
-  munits.registry[np.datetime64] = pdtc.DatetimeConverter()
+  from pandas.plotting import register_matplotlib_converters
+  register_matplotlib_converters()
 
 
+.. _howto-figure-empty:
+
+Check whether a figure is empty
+-------------------------------
+Empty can actually mean different things. Does the figure contain any artists?
+Does a figure with an empty `~.axes.Axes` still count as empty? Is the figure
+empty if it was rendered pure white (there may be artists present, but they
+could be outside the drawing area or transparent)?
+
+For the purpose here, we define empty as: "The figure does not contain any
+artists except it's background patch." The exception for the background is
+necessary, because by default every figure contains a `.Rectangle` as it's
+background patch. This definition could be checked via::
+
+    def is_empty(figure):
+        """
+        Return whether the figure contains no Artists (other than the default
+        background patch).
+        """
+        contained_artists = figure.get_children()
+        return len(contained_artists) <= 1
+
+We've decided not to include this as a figure method because this is only one
+way of defining empty, and checking the above is only rarely necessary.
+Usually the user or program handling the figure know if they have added
+something to the figure.
+
+Checking whether a figure would render empty cannot be reliably checked except
+by actually rendering the figure and investigating the rendered result.
 
 .. _howto-findobj:
 
@@ -49,7 +70,7 @@ recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
 instances or match some arbitrary filter function).  For example, the
 following snippet finds every object in the figure which has a
-`set_color` property and makes the object blue::
+``set_color`` property and makes the object blue::
 
     def myfunc(x):
         return hasattr(x, 'set_color')
@@ -74,7 +95,7 @@ off on a per-axis basis::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-set the rcParam ``axes.formatter.useoffset``, or use a different
+set :rc:`axes.formatter.useoffset`, or use a different
 formatter.  See :mod:`~matplotlib.ticker` for details.
 
 .. _howto-transparent:
@@ -190,7 +211,8 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of placing axes manually.
+:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
+placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -199,8 +221,11 @@ Automatically make room for tick labels
 
 .. note::
    This is now easier to handle than ever before.
-   Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :doc:`/tutorials/intermediate/tight_layout_guide`.
+   Calling :func:`~matplotlib.pyplot.tight_layout` or alternatively using
+   ``constrained_layout=True`` argument in :func:`~matplotlib.pyplot.subplots`
+   can fix many common layout issues.  See the
+   :doc:`/tutorials/intermediate/tight_layout_guide` and
+   :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details.
 
    The information below is kept here in case it is useful for other
    purposes.
@@ -243,8 +268,8 @@ over so that the tick labels fit in the figure:
 Configure the tick widths
 -------------------------
 
-Wherever possible, it is recommended to use the :meth:`~Axes.tick_params` or
-:meth:`~Axis.set_tick_params` methods to modify tick properties::
+Wherever possible, it is recommended to use the :meth:`~.axes.Axes.tick_params`
+or :meth:`~.axis.Axis.set_tick_params` methods to modify tick properties::
 
     import matplotlib.pyplot as plt
 
@@ -303,37 +328,13 @@ setting in the right subplots.
 Skip dates where there is no data
 ---------------------------------
 
-When plotting time series, e.g., financial time series, one often wants
-to leave out days on which there is no data, e.g., weekends.  By passing
-in dates on the x-xaxis, you get large horizontal gaps on periods when
-there is not data. The solution is to pass in some proxy x-data, e.g.,
-evenly sampled indices, and then use a custom formatter to format
-these as dates. The example below shows how to use an 'index formatter'
-to achieve the desired plot::
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import matplotlib.mlab as mlab
-    import matplotlib.ticker as ticker
-
-    r = mlab.csv2rec('../data/aapl.csv')
-    r.sort()
-    r = r[-30:]  # get the last 30 days
-
-    N = len(r)
-    ind = np.arange(N)  # the evenly spaced plot indices
-
-    def format_date(x, pos=None):
-        thisind = np.clip(int(x+0.5), 0, N-1)
-        return r.date[thisind].strftime('%Y-%m-%d')
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(ind, r.adj_close, 'o-')
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
-    fig.autofmt_xdate()
-
-    plt.show()
+When plotting time series, e.g., financial time series, one often wants to
+leave out days on which there is no data, e.g., weekends.  By passing in
+dates on the x-xaxis, you get large horizontal gaps on periods when there
+is not data. The solution is to pass in some proxy x-data, e.g., evenly
+sampled indices, and then use a custom formatter to format these as dates.
+:doc:`/gallery/text_labels_and_annotations/date_index_formatter` demonstrates
+how to use an 'index formatter' to achieve the desired plot.
 
 .. _howto-set-zorder:
 
@@ -423,18 +424,12 @@ locators as desired because the two axes are independent.
 Generate images without having a window appear
 ----------------------------------------------
 
-The easiest way to do this is use a non-interactive backend (see
-:ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
-your figure-generating script, just call the
-:func:`matplotlib.use` directive before importing pylab or
-pyplot::
+Simply do not call `~matplotlib.pyplot.show`, and directly save the figure to
+the desired format::
 
-    import matplotlib
-    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    plt.plot([1,2,3])
-    plt.savefig('myfig')
-
+    plt.plot([1, 2, 3])
+    plt.savefig('myfig.png')
 
 .. seealso::
 
@@ -454,42 +449,29 @@ the mainloop. Because this mainloop is blocking by default (i.e., script
 execution is paused), you should only call this once per script, at the end.
 Script execution is resumed after the last window is closed. Therefore, if
 you are using Matplotlib to generate only images and do not want a user
-interface window, you do not need to call ``show``  (see :ref:`howto-batch`
+interface window, you do not need to call ``show`` (see :ref:`howto-batch`
 and :ref:`what-is-a-backend`).
 
 .. note::
-   Because closing a figure window invokes the destruction of its plotting
-   elements, you should call :func:`~matplotlib.pyplot.savefig` *before*
-   calling ``show`` if you wish to save the figure as well as view it.
+   Because closing a figure window unregisters it from pyplot, you must call
+   `~matplotlib.pyplot.savefig` *before* calling ``show`` if you wish to save
+   the figure as well as view it.
 
-.. versionadded:: v1.0.0
-   ``show`` now starts the GUI mainloop only if it isn't already running.
-   Therefore, multiple calls to ``show`` are now allowed.
-
-Having ``show`` block further execution of the script or the python
-interpreter depends on whether Matplotlib is set for interactive mode
-or not.  In non-interactive mode (the default setting), execution is paused
+Whether ``show`` blocks further execution of the script or the python
+interpreter depends on whether Matplotlib is set to use interactive mode.
+In non-interactive mode (the default setting), execution is paused
 until the last figure window is closed.  In interactive mode, the execution
 is not paused, which allows you to create additional figures (but the script
 won't finish until the last figure window is closed).
 
-.. note::
-   Support for interactive/non-interactive mode depends upon the backend.
-   Until version 1.0.0 (and subsequent fixes for 1.0.1), the behavior of
-   the interactive mode was not consistent across backends.
-   As of v1.0.1, only the macosx backend differs from other backends
-   because it does not support non-interactive mode.
-
-
 Because it is expensive to draw, you typically will not want Matplotlib
 to redraw a figure many times in a script such as the following::
 
-    plot([1,2,3])            # draw here ?
-    xlabel('time')           # and here ?
-    ylabel('volts')          # and here ?
-    title('a simple plot')   # and here ?
+    plot([1, 2, 3])          # draw here?
+    xlabel('time')           # and here?
+    ylabel('volts')          # and here?
+    title('a simple plot')   # and here?
     show()
-
 
 However, it is *possible* to force Matplotlib to draw after every command,
 which might be what you want when working interactively at the
@@ -507,188 +489,82 @@ you're all done issuing commands and you want to draw the figure now.
     If you want to force a figure draw, use
     :func:`~matplotlib.pyplot.draw` instead.
 
-Many users are frustrated by ``show`` because they want it to be a
-blocking call that raises the figure, pauses the script until they
-close the figure, and then allow the script to continue running until
-the next figure is created and the next show is made.  Something like
-this::
-
-   # WARNING : illustrating how NOT to use show
-   for i in range(10):
-       # make figure i
-       show()
-
-This is not what show does and unfortunately, because doing blocking
-calls across user interfaces can be tricky, is currently unsupported,
-though we have made significant progress towards supporting blocking events.
-
 .. versionadded:: v1.0.0
-   As noted earlier, this restriction has been relaxed to allow multiple
-   calls to ``show``.  In *most* backends, you can now expect to be
-   able to create new figures and raise them in a subsequent call to
-   ``show`` after closing the figures from a previous call to ``show``.
+   Matplotlib 1.0.0 and 1.0.1 added support for calling ``show`` multiple times
+   per script, and harmonized the behavior of interactive mode, across most
+   backends.
 
 .. _howto-boxplot_violinplot:
 
 Interpreting box plots and violin plots
 ---------------------------------------
 
-Tukey's `box plots <http://matplotlib.org/examples/pylab_examples/boxplot_demo.html>`_ (Robert McGill, John W. Tukey and Wayne A. Larsen: "The American Statistician" Vol. 32, No. 1, Feb., 1978, pp. 12-16) are statistical plots that provide useful information about the data distribution such as skewness. However, bar plots with error bars are still the common standard in most scientific literature, and thus, the interpretation of box plots can be challenging for the unfamiliar reader. The figure below illustrates the different visual features of a box plot.
+Tukey's :doc:`box plots </gallery/statistics/boxplot_demo>` (Robert McGill,
+John W. Tukey and Wayne A. Larsen: "The American Statistician" Vol. 32, No. 1,
+Feb., 1978, pp. 12-16) are statistical plots that provide useful information
+about the data distribution such as skewness. However, bar plots with error
+bars are still the common standard in most scientific literature, and thus, the
+interpretation of box plots can be challenging for the unfamiliar reader. The
+figure below illustrates the different visual features of a box plot.
 
 .. figure:: ../_static/boxplot_explanation.png
 
-`Violin plots <http://matplotlib.org/examples/statistics/violinplot_demo.html>`_ are closely related to box plots but add useful information such as the distribution of the sample data (density trace).
-Violin plots were added in Matplotlib 1.4.
+:doc:`Violin plots </gallery/statistics/violinplot>` are closely related to box
+plots but add useful information such as the distribution of the sample data
+(density trace).  Violin plots were added in Matplotlib 1.4.
 
+.. _how-to-threads:
 
-.. _howto-contribute:
+Working with threads
+--------------------
 
-Contributing: howto
-===================
+Matplotlib is not thread-safe: in fact, there are known race conditions
+that affect certain artists.  Hence, if you work with threads, it is your
+responsibility to set up the proper locks to serialize access to Matplotlib
+artists.
 
-.. _how-to-request-feature:
-
-Request a new feature
----------------------
-
-Is there a feature you wish Matplotlib had?  Then ask!  The best
-way to get started is to email the developer `mailing
-list <matplotlib-devel@python.org>`_ for discussion.
-This is an open source project developed primarily in the
-contributors free time, so there is no guarantee that your
-feature will be added.  The *best* way to get the feature
-you need added is to contribute it your self.
-
-.. _how-to-submit-patch:
-
-Reporting a bug or submitting a patch
--------------------------------------
-
-The development of Matplotlib is organized through `github
-<https://github.com/matplotlib/matplotlib>`_.  If you would like
-to report a bug or submit a patch please use that interface.
-
-To report a bug `create an issue
-<https://github.com/matplotlib/matplotlib/issues/new>`_ on github
-(this requires having a github account).  Please include a `Short,
-Self Contained, Correct (Compilable), Example <http://sscce.org>`_
-demonstrating what the bug is.  Including a clear, easy to test
-example makes it easy for the developers to evaluate the bug.  Expect
-that the bug reports will be a conversation.  If you do not want to
-register with github, please email bug reports to the `mailing list
-<matplotlib-devel@python.org>`_.
-
-The easiest way to submit patches to Matplotlib is through pull
-requests on github.  Please see the :ref:`developers-guide-index` for
-the details.
-
-.. _how-to-contribute-docs:
-
-Contribute to Matplotlib documentation
---------------------------------------
-
-Matplotlib is a big library, which is used in many ways, and the
-documentation has only scratched the surface of everything it can
-do.  So far, the place most people have learned all these features are
-through studying the examples (:ref:`how-to-search-examples`), which is a
-recommended and great way to learn, but it would be nice to have more
-official narrative documentation guiding people through all the dark
-corners.  This is where you come in.
-
-There is a good chance you know more about Matplotlib usage in some
-areas, the stuff you do every day, than many of the core developers
-who wrote most of the documentation.  Just pulled your hair out
-compiling Matplotlib for Windows?  Write a FAQ or a section for the
-:ref:`installing-faq` page.  Are you a digital signal processing wizard?
-Write a tutorial on the signal analysis plotting functions like
-:func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
-:func:`~matplotlib.pyplot.specgram`.  Do you use Matplotlib with
-`django <https://www.djangoproject.com/>`_ or other popular web
-application servers?  Write a FAQ or tutorial and we'll find a place
-for it in the :ref:`users-guide-index`.  And so on...  I think you get the
-idea.
-
-Matplotlib is documented using the `sphinx
-<http://www.sphinx-doc.org/index.html>`_ extensions to restructured text
-`(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
-extensible python framework for documentation projects which generates
-HTML and PDF, and is pretty easy to write; you can see the source for this
-document or any page on this site by clicking on the *Show Source* link
-at the end of the page in the sidebar.
-
-The sphinx website is a good resource for learning sphinx, but we have
-put together a cheat-sheet at :ref:`documenting-matplotlib` which
-shows you how to get started, and outlines the Matplotlib conventions
-and extensions, e.g., for including plots directly from external code in
-your documents.
-
-Once your documentation contributions are working (and hopefully
-tested by actually *building* the docs) you can submit them as a patch
-against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
-Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
-or look at the open issues on github.
-
-
-
+You may be able to work on separate figures from separate threads.  However,
+you must in that case use a *non-interactive backend* (typically Agg), because
+most GUI backends *require* being run from the main thread as well.
 
 .. _howto-webapp:
 
-Matplotlib in a web application server
-======================================
+How to use Matplotlib in a web application server
+=================================================
 
-Many users report initial problems trying to use Matplotlib in web
-application servers, because by default Matplotlib ships configured to
-work with a graphical user interface which may require an X11
-connection.  Since many barebones application servers do not have X11
-enabled, you may get errors if you don't configure Matplotlib for use
-in these environments.  Most importantly, you need to decide what
-kinds of images you want to generate (PNG, PDF, SVG) and configure the
-appropriate default backend.  For 99% of users, this will be the Agg
-backend, which uses the C++
-`antigrain <http://antigrain.com>`_
-rendering engine to make nice PNGs.  The Agg backend is also
-configured to recognize requests to generate other output formats
-(PDF, PS, EPS, SVG).  The easiest way to configure Matplotlib to use
-Agg is to call::
+In general, the simplest solution when using Matplotlib in a web server is
+to completely avoid using pyplot (pyplot maintains references to the opened
+figures to make `~.matplotlib.pyplot.show` work, but this will cause memory
+leaks unless the figures are properly closed).  Since Matplotlib 3.1, one
+can directly create figures using the `.Figure` constructor and save them to
+in-memory buffers.  The following example uses Flask_, but other frameworks
+work similarly::
 
-    # do this before importing pylab or pyplot
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
+   import base64
+   from io import BytesIO
 
-For more on configuring your backend, see :ref:`what-is-a-backend`.
+   from flask import Flask
+   from matplotlib.figure import Figure
 
-Alternatively, you can avoid pylab/pyplot altogether, which will give
-you a little more control, by calling the API directly as shown in
-:doc:`/gallery/user_interfaces/canvasagg`.
+   app = Flask(__name__)
 
-You can either generate hardcopy on the filesystem by calling
-`.Figure.savefig()`::
+   @app.route("/")
+   def hello():
+      # Generate the figure **without using pyplot**.
+      fig = Figure()
+      ax = fig.subplots()
+      ax.plot([1, 2])
+      # Save it to a temporary buffer.
+      buf = BytesIO()
+      fig.savefig(buf, format="png")
+      # Embed the result in the html output.
+      data = base64.b64encode(buf.getbuffer()).decode("ascii")
+      return f"<img src='data:image/png;base64,{data}'/>"
 
-    # do this before importing pylab or pyplot
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot([1,2,3])
-    fig.savefig('test.png')
+.. _Flask: http://flask.pocoo.org/
 
-or by saving to a file handle::
-
-    import sys
-    fig.savefig(sys.stdout)
-
-Here is an example using `Pillow <https://pillow.readthedocs.io/en/latest/>`_.
-First, the figure is saved to a BytesIO object which is then fed to
-Pillow for further processing::
-
-    from io import BytesIO
-    from PIL import Image
-    imgdata = BytesIO()
-    fig.savefig(imgdata, format='png')
-    imgdata.seek(0)  # rewind the data
-    im = Image.open(imgdata)
+When using Matplotlib versions older than 3.1, it is necessary to explicitly
+instantiate an Agg canvas; see e.g. :doc:`/gallery/user_interfaces/canvasagg`.
 
 
 .. _howto-click-maps:
@@ -702,53 +578,3 @@ has written a nice `article
 on how to make html click maps with Matplotlib agg PNGs.  We would
 also like to add this functionality to SVG.  If you are interested in
 contributing to these efforts that would be great.
-
-
-.. _how-to-search-examples:
-
-Search examples
-===============
-
-The nearly 300 code :ref:`examples-index` included with the Matplotlib
-source distribution are full-text searchable from the :ref:`search`
-page, but sometimes when you search, you get a lot of results from the
-:ref:`api-index` or other documentation that you may not be interested
-in if you just want to find a complete, free-standing, working piece
-of example code.  To facilitate example searches, we have tagged every
-code example page with the keyword ``codex`` for *code example* which
-shouldn't appear anywhere else on this site except in the FAQ.
-So if you want to search for an example that uses an
-ellipse, :ref:`search` for ``codex ellipse``.
-
-
-.. _how-to-cite-mpl:
-
-Cite Matplotlib
-===============
-
-If you want to refer to Matplotlib in a publication, you can use
-"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
-in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
-reference page <https://doi.org/10.1109/MCSE.2007.55>`_)::
-
-  @article{Hunter:2007,
-	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},
-	  Author = {Hunter, John D.},
-	  Date-Added = {2010-09-23 12:22:10 -0700},
-	  Date-Modified = {2010-09-23 12:22:10 -0700},
-	  Isi = {000245668100019},
-	  Isi-Recid = {155389429},
-	  Journal = {Computing In Science \& Engineering},
-	  Month = {May-Jun},
-	  Number = {3},
-	  Pages = {90--95},
-	  Publisher = {IEEE COMPUTER SOC},
-	  Times-Cited = {21},
-	  Title = {Matplotlib: A 2D graphics environment},
-	  Type = {Editorial Material},
-	  Volume = {9},
-	  Year = {2007},
-	  Abstract = {Matplotlib is a 2D graphics package used for Python for application
-                      development, interactive scripting, and publication-quality image
-                      generation across user interfaces and operating systems.},
-	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}

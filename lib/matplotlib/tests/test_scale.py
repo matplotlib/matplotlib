@@ -1,22 +1,56 @@
-from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.scale import Log10Transform, InvertedLog10Transform
+from matplotlib.scale import (
+    LogTransform, InvertedLogTransform,
+    SymmetricalLogTransform)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+
 import numpy as np
+from numpy.testing import assert_allclose
 import io
-import platform
 import pytest
 
 
-@image_comparison(baseline_images=['log_scales'], remove_text=True)
-def test_log_scales():
-    ax = plt.figure().add_subplot(122, yscale='log', xscale='symlog')
+@check_figures_equal()
+def test_log_scales(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot(122, yscale='log', xscale='symlog')
+    ax_test.axvline(24.1)
+    ax_test.axhline(24.1)
+    xlim = ax_test.get_xlim()
+    ylim = ax_test.get_ylim()
+    ax_ref = fig_ref.add_subplot(122, yscale='log', xscale='symlog')
+    ax_ref.set(xlim=xlim, ylim=ylim)
+    ax_ref.plot([24.1, 24.1], ylim, 'b')
+    ax_ref.plot(xlim, [24.1, 24.1], 'b')
 
-    ax.axvline(24.1)
-    ax.axhline(24.1)
+
+def test_symlog_mask_nan():
+    # Use a transform round-trip to verify that the forward and inverse
+    # transforms work, and that they respect nans and/or masking.
+    slt = SymmetricalLogTransform(10, 2, 1)
+    slti = slt.inverted()
+
+    x = np.arange(-1.5, 5, 0.5)
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
+
+    x[4] = np.nan
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
+
+    x = np.ma.array(x)
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
+
+    x[3] = np.ma.masked
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
 
 
-@image_comparison(baseline_images=['logit_scales'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['logit_scales.png'], remove_text=True)
 def test_logit_scales():
     fig, ax = plt.subplots()
 
@@ -54,13 +88,12 @@ def test_log_scatter():
 
 def test_logscale_subs():
     fig, ax = plt.subplots()
-    ax.set_yscale('log', subsy=np.array([2, 3, 4]))
+    ax.set_yscale('log', subs=np.array([2, 3, 4]))
     # force draw
     fig.canvas.draw()
 
 
-@image_comparison(baseline_images=['logscale_mask'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['logscale_mask.png'], remove_text=True)
 def test_logscale_mask():
     # Check that zero values are masked correctly on log scales.
     # See github issue 8045
@@ -74,8 +107,10 @@ def test_logscale_mask():
 
 def test_extra_kwargs_raise():
     fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
-        ax.set_yscale('log', nonpos='mask')
+
+    for scale in ['linear', 'log', 'symlog']:
+        with pytest.raises(TypeError):
+            ax.set_yscale(scale, foo='mask')
 
 
 def test_logscale_invert_transform():
@@ -85,22 +120,20 @@ def test_logscale_invert_transform():
     tform = (ax.transAxes + ax.transData.inverted()).inverted()
 
     # direct test of log transform inversion
-    assert isinstance(Log10Transform().inverted(), InvertedLog10Transform)
+    inverted_transform = LogTransform(base=2).inverted()
+    assert isinstance(inverted_transform, InvertedLogTransform)
+    assert inverted_transform.base == 2
 
 
 def test_logscale_transform_repr():
-    # check that repr of log transform succeeds
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    s = repr(ax.transData)
-
-    # check that repr of log transform succeeds
-    s = repr(Log10Transform(nonpos='clip'))
+    repr(ax.transData)
+    repr(LogTransform(10, nonpositive='clip'))
 
 
-@image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'], style='mpl20')
+@image_comparison(['logscale_nonpos_values.png'],
+                  remove_text=True, tol=0.02, style='mpl20')
 def test_logscale_nonpos_values():
     np.random.seed(19680801)
     xs = np.random.normal(size=int(1e3))
@@ -108,7 +141,7 @@ def test_logscale_nonpos_values():
     ax1.hist(xs, range=(-5, 5), bins=10)
     ax1.set_yscale('log')
     ax2.hist(xs, range=(-5, 5), bins=10)
-    ax2.set_yscale('log', nonposy='mask')
+    ax2.set_yscale('log', nonpositive='mask')
 
     xdata = np.arange(0, 10, 0.01)
     ydata = np.exp(-xdata)
@@ -148,3 +181,20 @@ def test_invalid_log_lims():
     with pytest.warns(UserWarning):
         ax.set_ylim(top=-1)
     assert ax.get_ylim() == original_ylim
+
+
+@image_comparison(['function_scales.png'], remove_text=True, style='mpl20')
+def test_function_scale():
+    def inverse(x):
+        return x**2
+
+    def forward(x):
+        return x**(1/2)
+
+    fig, ax = plt.subplots()
+
+    x = np.arange(1, 1000)
+
+    ax.plot(x, x)
+    ax.set_xscale('function', functions=(forward, inverse))
+    ax.set_xlim(1, 1000)

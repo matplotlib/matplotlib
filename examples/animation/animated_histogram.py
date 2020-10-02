@@ -21,16 +21,16 @@ data = np.random.randn(1000)
 n, bins = np.histogram(data, 100)
 
 # get the corners of the rectangles for the histogram
-left = np.array(bins[:-1])
-right = np.array(bins[1:])
+left = bins[:-1]
+right = bins[1:]
 bottom = np.zeros(len(left))
 top = bottom + n
 nrects = len(left)
 
 ###############################################################################
 # Here comes the tricky part -- we have to set up the vertex and path codes
-# arrays using ``plt.Path.MOVETO``, ``plt.Path.LINETO`` and
-# ``plt.Path.CLOSEPOLY`` for each rect.
+# arrays using `.Path.MOVETO`, `.Path.LINETO` and `.Path.CLOSEPOLY` for each
+# rect.
 #
 # * We need 1 ``MOVETO`` per rectangle, which sets the initial point.
 # * We need 3 ``LINETO``'s, which tell Matplotlib to draw lines from
@@ -45,7 +45,7 @@ nrects = len(left)
 #   in the ``verts`` array to keep the codes aligned with the vertices.
 nverts = nrects * (1 + 3 + 1)
 verts = np.zeros((nverts, 2))
-codes = np.ones(nverts, int) * path.Path.LINETO
+codes = np.full(nverts, path.Path.LINETO)
 codes[0::5] = path.Path.MOVETO
 codes[4::5] = path.Path.CLOSEPOLY
 verts[0::5, 0] = left
@@ -61,7 +61,7 @@ verts[3::5, 1] = bottom
 # To animate the histogram, we need an ``animate`` function, which generates
 # a random set of numbers and updates the locations of the vertices for the
 # histogram (in this case, only the heights of each rectangle). ``patch`` will
-# eventually be a ``Patch`` object.
+# eventually be a `.Patch` object.
 patch = None
 
 
@@ -75,9 +75,9 @@ def animate(i):
     return [patch, ]
 
 ###############################################################################
-# And now we build the `Path` and `Patch` instances for the histogram using
-# our vertices and codes. We add the patch to the `Axes` instance, and setup
-# the `FuncAnimation` with our animate function.
+# And now we build the `.Path` and `.Patch` instances for the histogram using
+# our vertices and codes. We add the patch to the `~.axes.Axes` instance, and
+# setup the `.FuncAnimation` with our ``animate`` function.
 fig, ax = plt.subplots()
 barpath = path.Path(verts, codes)
 patch = patches.PathPatch(
@@ -87,5 +87,5 @@ ax.add_patch(patch)
 ax.set_xlim(left[0], right[-1])
 ax.set_ylim(bottom.min(), top.max())
 
-ani = animation.FuncAnimation(fig, animate, 100, repeat=False, blit=True)
+ani = animation.FuncAnimation(fig, animate, 50, repeat=False, blit=True)
 plt.show()

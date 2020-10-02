@@ -14,7 +14,6 @@
  */
 
 #include <Python.h>
-#include "numpy_cpp.h"
 #include "_backend_agg_basic_types.h"
 
 extern "C" {

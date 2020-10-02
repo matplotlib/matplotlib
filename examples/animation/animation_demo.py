@@ -6,7 +6,7 @@ pyplot animation
 Generating an animation by calling `~.pyplot.pause` between plotting commands.
 
 The method shown here is only suitable for simple, low-performance use.  For
-more demanding applications, look at the :mod:`animation` module and the
+more demanding applications, look at the :mod:`.animation` module and the
 examples that use it.
 
 Note that calling `time.sleep` instead of `~.pyplot.pause` would *not* work.

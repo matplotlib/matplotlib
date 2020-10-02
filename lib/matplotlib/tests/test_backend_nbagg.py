@@ -1,6 +1,7 @@
+import os
 from pathlib import Path
 import subprocess
-import tempfile
+from tempfile import TemporaryDirectory
 
 import pytest
 
@@ -9,25 +10,19 @@ nbformat = pytest.importorskip('nbformat')
 # From https://blog.thedataincubator.com/2016/06/testing-jupyter-notebooks/
 
 
-def _notebook_run(nb_file):
-    """Execute a notebook via nbconvert and collect output.
-       :returns (parsed nb object, execution errors)
-    """
-    with tempfile.NamedTemporaryFile(suffix=".ipynb", mode='w+t') as fout:
-        subprocess.check_call([
-            "jupyter", "nbconvert", "--to", "notebook",
-            "--execute", "--ExecutePreprocessor.timeout=500",
-            "--output", fout.name, nb_file,
-        ])
-        fout.seek(0)
-        nb = nbformat.read(fout, nbformat.current_nbformat)
-
-    errors = [output for cell in nb.cells if "outputs" in cell
-                     for output in cell["outputs"]
-                     if output.output_type == "error"]
-    return nb, errors
-
-
 def test_ipynb():
-    nb, errors = _notebook_run(Path(__file__).parent / 'test_nbagg_01.ipynb')
-    assert errors == []
+    nb_path = Path(__file__).parent / 'test_nbagg_01.ipynb'
+
+    with TemporaryDirectory() as tmpdir:
+        out_path = Path(tmpdir, "out.ipynb")
+        subprocess.check_call(
+            ["jupyter", "nbconvert", "--to", "notebook",
+             "--execute", "--ExecutePreprocessor.timeout=500",
+             "--output", str(out_path), str(nb_path)],
+            env={**os.environ, "IPYTHONDIR": tmpdir})
+        with out_path.open() as out:
+            nb = nbformat.read(out, nbformat.current_nbformat)
+
+    errors = [output for cell in nb.cells for output in cell.get("outputs", [])
+              if output.output_type == "error"]
+    assert not errors

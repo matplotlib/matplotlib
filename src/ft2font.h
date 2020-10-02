@@ -10,10 +10,14 @@ extern "C" {
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+#include FT_OUTLINE_H
 #include FT_SFNT_NAMES_H
 #include FT_TYPE1_TABLES_H
 #include FT_TRUETYPE_TABLES_H
 }
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
 
 /*
  By definition, FT_FIXED as 2 16bit values stored in a single long.
@@ -74,6 +78,7 @@ class FT2Font
     void set_text(
         size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode);
+    void set_kerning_factor(int factor);
     void load_char(long charcode, FT_Int32 flags);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
     void get_width_height(long *width, long *height);
@@ -86,8 +91,7 @@ class FT2Font
     void draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased);
     void get_glyph_name(unsigned int glyph_number, char *buffer);
     long get_name_index(char *name);
-    int get_path_count();
-    void get_path(double *outpoints, unsigned char *outcodes);
+    PyObject* get_path();
 
     FT_Face &get_face()
     {
@@ -117,18 +121,12 @@ class FT2Font
   private:
     FT2Image image;
     FT_Face face;
-    FT_Matrix matrix; /* transformation matrix */
     FT_Vector pen;    /* untransformed origin  */
-    FT_Error error;
     std::vector<FT_Glyph> glyphs;
-    std::vector<FT_Vector> pos;
     FT_BBox bbox;
     FT_Pos advance;
-    double ptsize;
-    double dpi;
     long hinting_factor;
-
-    void set_scalable_attributes();
+    int kerning_factor;
 
     // prevent copying
     FT2Font(const FT2Font &);

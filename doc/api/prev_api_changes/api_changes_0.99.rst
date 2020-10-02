@@ -4,7 +4,7 @@ Changes in 0.99
 * pylab no longer provides a load and save function.  These are
   available in matplotlib.mlab, or you can use numpy.loadtxt and
   numpy.savetxt for text files, or np.save and np.load for binary
-  numpy arrays.
+  NumPy arrays.
 
 * User-generated colormaps can now be added to the set recognized
   by :func:`matplotlib.cm.get_cmap`.  Colormaps can be made the

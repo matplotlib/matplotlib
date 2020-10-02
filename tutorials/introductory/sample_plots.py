@@ -118,7 +118,7 @@ including surface, wireframe, scatter, and bar charts.
    Surface3d
 
 Thanks to John Porter, Jonathon Taylor, Reinier Heeres, and Ben Root for
-the `mplot3d` toolkit. This toolkit is included with all standard Matplotlib
+the `.mplot3d` toolkit. This toolkit is included with all standard Matplotlib
 installs.
 
 .. _screenshots_ellipse_demo:
@@ -243,7 +243,7 @@ GUI widgets
 Matplotlib has basic GUI widgets that are independent of the graphical
 user interface you are using, allowing you to write cross GUI figures
 and widgets.  See :mod:`matplotlib.widgets` and the
-`widget examples <../../gallery/index.html>`_.
+`widget examples <../../gallery/index.html#widgets>`_.
 
 .. figure:: ../../gallery/widgets/images/sphx_glr_slider_demo_001.png
    :target: ../../gallery/widgets/slider_demo.html
@@ -406,7 +406,7 @@ XKCD-style sketch plots
 =======================
 
 Just for fun, Matplotlib supports plotting in the style of `xkcd
-<http://www.xkcd.com/>`.
+<https://www.xkcd.com/>`_.
 
 .. figure:: ../../gallery/showcase/images/sphx_glr_xkcd_001.png
    :target: ../../gallery/showcase/xkcd.html
@@ -414,15 +414,14 @@ Just for fun, Matplotlib supports plotting in the style of `xkcd
    :scale: 50
 
    xkcd
+
+Subplot example
+===============
+
+Many plot types can be combined in one figure to create
+powerful and flexible representations of data.
 """
 
-###################################################################
-# Subplot example
-# ===============
-#
-# Many plot types can be combined in one figure to create
-# powerful and flexible representations of data.
-#
 import matplotlib.pyplot as plt
 import numpy as np
 

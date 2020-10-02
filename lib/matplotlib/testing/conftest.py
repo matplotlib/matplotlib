@@ -1,13 +1,26 @@
-import warnings
-
 import pytest
-
+import sys
 import matplotlib
 from matplotlib import cbook
-from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def pytest_configure(config):
+    # config is initialized here rather than in pytest.ini so that `pytest
+    # --pyargs matplotlib` (which would not find pytest.ini) works.  The only
+    # entries in pytest.ini set minversion (which is checked earlier),
+    # testpaths/python_files, as they are required to properly find the tests
+    for key, value in [
+        ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
+        ("markers", "timeout: (Provided by pytest-timeout.)"),
+        ("markers", "backend: Set alternate Matplotlib backend temporarily."),
+        ("markers", "style: Set alternate Matplotlib style temporarily."),
+        ("markers", "baseline_images: Compare output against references."),
+        ("markers", "pytz: Tests that require pytz to be installed."),
+        ("markers", "network: Tests that reach out to the network."),
+        ("filterwarnings", "error"),
+    ]:
+        config.addinivalue_line(key, value)
+
     matplotlib.use('agg', force=True)
     matplotlib._called_from_pytest = True
     matplotlib._init_tests()
@@ -29,9 +42,36 @@ def mpl_test_settings(request):
             assert len(backend_marker.args) == 1, \
                 "Marker 'backend' must specify 1 backend."
             backend, = backend_marker.args
+            skip_on_importerror = backend_marker.kwargs.get(
+                'skip_on_importerror', False)
             prev_backend = matplotlib.get_backend()
 
-        style = '_classic_test'  # Default of cleanup and image_comparison too.
+            # special case Qt backend importing to avoid conflicts
+            if backend.lower().startswith('qt4'):
+                if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
+                    pytest.skip('Qt5 binding already imported')
+                try:
+                    import PyQt4
+                # RuntimeError if PyQt5 already imported.
+                except (ImportError, RuntimeError):
+                    try:
+                        import PySide
+                    except ImportError:
+                        pytest.skip("Failed to import a Qt4 binding.")
+            elif backend.lower().startswith('qt5'):
+                if any(k in sys.modules for k in ('PyQt4', 'PySide')):
+                    pytest.skip('Qt4 binding already imported')
+                try:
+                    import PyQt5
+                # RuntimeError if PyQt4 already imported.
+                except (ImportError, RuntimeError):
+                    try:
+                        import PySide2
+                    except ImportError:
+                        pytest.skip("Failed to import a Qt5 binding.")
+
+        # Default of cleanup and image_comparison too.
+        style = ["classic", "_classic_test_patch"]
         style_marker = request.node.get_closest_marker('style')
         if style_marker is not None:
             assert len(style_marker.args) == 1, \
@@ -39,22 +79,21 @@ def mpl_test_settings(request):
             style, = style_marker.args
 
         matplotlib.testing.setup()
-        if backend is not None:
-            # This import must come after setup() so it doesn't load the
-            # default backend prematurely.
-            import matplotlib.pyplot as plt
-            try:
-                plt.switch_backend(backend)
-            except ImportError as exc:
-                # Should only occur for the cairo backend tests, if neither
-                # pycairo nor cairocffi are installed.
-                if 'cairo' in backend.lower():
-                    pytest.skip("Failed to switch to backend {} ({})."
-                                .format(backend, exc))
-                else:
-                    raise
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+        with cbook._suppress_matplotlib_deprecation_warning():
+            if backend is not None:
+                # This import must come after setup() so it doesn't load the
+                # default backend prematurely.
+                import matplotlib.pyplot as plt
+                try:
+                    plt.switch_backend(backend)
+                except ImportError as exc:
+                    # Should only occur for the cairo backend tests, if neither
+                    # pycairo nor cairocffi are installed.
+                    if 'cairo' in backend.lower() or skip_on_importerror:
+                        pytest.skip("Failed to switch to backend {} ({})."
+                                    .format(backend, exc))
+                    else:
+                        raise
             matplotlib.style.use(style)
         try:
             yield
@@ -91,17 +130,8 @@ def pd():
     pd = pytest.importorskip('pandas')
     try:
         from pandas.plotting import (
-            register_matplotlib_converters as register)
+            deregister_matplotlib_converters as deregister)
+        deregister()
     except ImportError:
-        from pandas.tseries.converter import register
-    register()
-    try:
-        yield pd
-    finally:
-        try:
-            from pandas.plotting import (
-                deregister_matplotlib_converters as deregister)
-        except ImportError:
-            pass
-        else:
-            deregister()
+        pass
+    return pd

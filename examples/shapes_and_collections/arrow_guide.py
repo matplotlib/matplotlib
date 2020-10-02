@@ -18,9 +18,9 @@ start point and end point, called 'anchor points' from now on.
 Here we show three use cases for plotting arrows, depending on whether the
 head or anchor points need to be fixed in data or display space:
 
-    1. Head shape fixed in display space, anchor points fixed in data space
-    2. Head shape and anchor points fixed in display space
-    3. Entire patch fixed in data space
+1. Head shape fixed in display space, anchor points fixed in data space
+2. Head shape and anchor points fixed in display space
+3. Entire patch fixed in data space
 
 Below each use case is presented in turn.
 """

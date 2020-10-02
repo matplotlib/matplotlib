@@ -3,10 +3,14 @@
 Subplot Toolbar
 ===============
 
-Matplotlib has a toolbar available for adjusting suplot spacing.
+Matplotlib has a toolbar available for adjusting subplot spacing.
 """
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 fig, axs = plt.subplots(2, 2)
 

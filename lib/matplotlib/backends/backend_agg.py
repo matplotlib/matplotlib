@@ -1,62 +1,68 @@
 """
-An agg http://antigrain.com/ backend
+An agg_ backend.
 
-Features that are implemented
+.. _agg: http://antigrain.com/
 
- * capstyles and join styles
- * dashes
- * linewidth
- * lines, rectangles, ellipses
- * clipping to a rectangle
- * output to RGBA and PNG, optionally JPEG and TIFF
- * alpha blending
- * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
- * draw polygon
- * freetype2 w/ ft2font
+Features that are implemented:
+
+* capstyles and join styles
+* dashes
+* linewidth
+* lines, rectangles, ellipses
+* clipping to a rectangle
+* output to RGBA and Pillow-supported image formats
+* alpha blending
+* DPI scaling properly - everything scales properly (dashes, linewidths, etc)
+* draw polygon
+* freetype2 w/ ft2font
 
 TODO:
 
-  * integrate screen dpi w/ ppi and text
-
+* integrate screen dpi w/ ppi and text
 """
+
 try:
     import threading
 except ImportError:
     import dummy_threading as threading
-import numpy as np
-from collections import OrderedDict
+from contextlib import nullcontext
 from math import radians, cos, sin
-from matplotlib import cbook, rcParams, __version__
+
+import numpy as np
+from PIL import Image
+
+import matplotlib as mpl
+from matplotlib import cbook
+from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
+    RendererBase)
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
                                 LOAD_DEFAULT, LOAD_NO_AUTOHINT)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
-from matplotlib import colors as mcolors
-
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
-from matplotlib import _png
 
-from matplotlib.backend_bases import _has_pil
-
-if _has_pil:
-    from PIL import Image
 
 backend_version = 'v2.2'
 
+
 def get_hinting_flag():
     mapping = {
+        'default': LOAD_DEFAULT,
+        'no_autohint': LOAD_NO_AUTOHINT,
+        'force_autohint': LOAD_FORCE_AUTOHINT,
+        'no_hinting': LOAD_NO_HINTING,
         True: LOAD_FORCE_AUTOHINT,
         False: LOAD_NO_HINTING,
         'either': LOAD_DEFAULT,
         'native': LOAD_NO_AUTOHINT,
         'auto': LOAD_FORCE_AUTOHINT,
-        'none': LOAD_NO_HINTING
-        }
-    return mapping[rcParams['text.hinting']]
+        'none': LOAD_NO_HINTING,
+    }
+    return mapping[mpl.rcParams['text.hinting']]
 
 
 class RendererAgg(RendererBase):
@@ -79,7 +85,7 @@ class RendererAgg(RendererBase):
     lock = threading.RLock()
 
     def __init__(self, width, height, dpi):
-        RendererBase.__init__(self)
+        super().__init__()
 
         self.dpi = dpi
         self.width = width
@@ -105,11 +111,20 @@ class RendererAgg(RendererBase):
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
-        self.draw_path_collection = self._renderer.draw_path_collection
+        # This is its own method for the duration of the deprecation of
+        # offset_position = "data".
+        # self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
-        self.get_content_extents = self._renderer.get_content_extents
 
+    @cbook.deprecated("3.4")
+    def get_content_extents(self):
+        orig_img = np.asarray(self.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+        return (slice_x.start, slice_y.start,
+                slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
+
+    @cbook.deprecated("3.4")
     def tostring_rgba_minimized(self):
         extents = self.get_content_extents()
         bbox = [[extents[0], self.height - (extents[1] + extents[3])],
@@ -119,10 +134,10 @@ class RendererAgg(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
-        nmax = rcParams['agg.path.chunksize']  # here at least for testing
+        nmax = mpl.rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
-        if (nmax > 100 and npts > nmax and path.should_simplify and
+        if (npts > nmax > 100 and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
             nch = np.ceil(npts / nmax)
             chsize = int(np.ceil(npts / nch))
@@ -139,27 +154,39 @@ class RendererAgg(RendererBase):
                 p = Path(v, c)
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
-                except OverflowError:
-                    raise OverflowError("Exceeded cell block limit (set "
-                                        "'agg.path.chunksize' rcparam)")
+                except OverflowError as err:
+                    raise OverflowError(
+                        "Exceeded cell block limit (set 'agg.path.chunksize' "
+                        "rcparam)") from err
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
-            except OverflowError:
+            except OverflowError as err:
                 raise OverflowError("Exceeded cell block limit (set "
-                                    "'agg.path.chunksize' rcparam)")
+                                    "'agg.path.chunksize' rcparam)") from err
+
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        if offset_position == "data":
+            cbook.warn_deprecated(
+                "3.3", message="Support for offset_position='data' is "
+                "deprecated since %(since)s and will be removed %(removal)s.")
+        return self._renderer.draw_path_collection(
+            gc, master_transform, paths, all_transforms, offsets, offsetTrans,
+            facecolors, edgecolors, linewidths, linestyles, antialiaseds, urls,
+            offset_position)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
-        """
-        Draw the math text using matplotlib.mathtext
-        """
+        """Draw mathtext using :mod:`matplotlib.mathtext`."""
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
         xd = descent * sin(radians(angle))
         yd = descent * cos(radians(angle))
-        x = np.round(x + ox + xd)
-        y = np.round(y - oy + yd)
+        x = round(x + ox + xd)
+        y = round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -173,28 +200,31 @@ class RendererAgg(RendererBase):
 
         if font is None:
             return None
-        if len(s) == 1 and ord(s) > 127:
-            font.load_char(ord(s), flags=flags)
-        else:
-            # We pass '0' for angle here, since it will be rotated (in raster
-            # space) in the following call to draw_text_image).
-            font.set_text(s, 0, flags=flags)
-        font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
+        # We pass '0' for angle here, since it will be rotated (in raster
+        # space) in the following call to draw_text_image).
+        font.set_text(s, 0, flags=flags)
+        font.draw_glyphs_to_bitmap(
+            antialiased=mpl.rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle.
         xo, yo = font.get_bitmap_offset()
         xo /= 64.0
         yo /= 64.0
-        xd = -d * sin(radians(angle))
+        xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
-
-        self._renderer.draw_text_image(
-            font, np.round(x - xd + xo), np.round(y + yd + yo) + 1, angle, gc)
+        x = round(x + xo + xd)
+        y = round(y + yo + yd)
+        self._renderer.draw_text_image(font, x, y + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
 
         if ismath in ["TeX", "TeX!"]:
+            if ismath == "TeX!":
+                cbook._warn_deprecated(
+                    "3.3", message="Support for ismath='TeX!' is deprecated "
+                    "since %(since)s and will be removed %(removal)s; use "
+                    "ismath='TeX' instead.")
             # todo: handle props
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
@@ -217,7 +247,7 @@ class RendererAgg(RendererBase):
         d /= 64.0
         return w, h, d
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
@@ -227,12 +257,11 @@ class RendererAgg(RendererBase):
         Z = texmanager.get_grey(s, size, self.dpi)
         Z = np.array(Z * 255.0, np.uint8)
 
-        w, h, d = self.get_text_width_height_descent(s, prop, ismath)
+        w, h, d = self.get_text_width_height_descent(s, prop, ismath="TeX")
         xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
-        x = np.round(x + xd)
-        y = np.round(y + yd)
-
+        x = round(x + xd)
+        y = round(y + yd)
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):
@@ -256,14 +285,14 @@ class RendererAgg(RendererBase):
         # docstring inherited
         return points * self.dpi / 72
 
-    def tostring_rgb(self):
-        return self._renderer.tostring_rgb()
+    def buffer_rgba(self):
+        return memoryview(self._renderer)
 
     def tostring_argb(self):
-        return self._renderer.tostring_argb()
+        return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
-    def buffer_rgba(self):
-        return self._renderer.buffer_rgba()
+    def tostring_rgb(self):
+        return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
 
     def clear(self):
         self._renderer.clear()
@@ -284,7 +313,7 @@ class RendererAgg(RendererBase):
         """
         Restore the saved region. If bbox (instance of BboxBase, or
         its extents) is given, only the region specified by the bbox
-        will be restored. *xy* (a tuple of two floasts) optionally
+        will be restored. *xy* (a pair of floats) optionally
         specifies the new position (the LLC of the original region,
         not the LLC of the bbox) where the region will be restored.
 
@@ -341,36 +370,25 @@ class RendererAgg(RendererBase):
         The saved renderer is restored and the returned image from
         post_processing is plotted (using draw_image) on it.
         """
-
-        width, height = int(self.width), int(self.height)
-
-        buffer, (l, b, w, h) = self.tostring_rgba_minimized()
+        orig_img = np.asarray(self.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+        cropped_img = orig_img[slice_y, slice_x]
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
 
-        if w > 0 and h > 0:
-            img = np.frombuffer(buffer, np.uint8)
-            img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
-                                          self.dpi)
+        if cropped_img.size:
+            img, ox, oy = post_processing(cropped_img / 255, self.dpi)
             gc = self.new_gc()
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
-            img = img[::-1]
-            self._renderer.draw_image(gc, l + ox, height - b - h + oy, img)
+            self._renderer.draw_image(
+                gc, slice_x.start + ox, int(self.height) - slice_y.stop + oy,
+                img[::-1])
 
 
 class FigureCanvasAgg(FigureCanvasBase):
-    """
-    The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc...
-
-    Attributes
-    ----------
-    figure : `matplotlib.figure.Figure`
-        A high-level Figure instance
-
-    """
+    # docstring inherited
 
     def copy_from_bbox(self, bbox):
         renderer = self.get_renderer()
@@ -381,23 +399,19 @@ class FigureCanvasAgg(FigureCanvasBase):
         return renderer.restore_region(region, bbox, xy)
 
     def draw(self):
-        """
-        Draw the figure using the renderer.
-        """
+        # docstring inherited
         self.renderer = self.get_renderer(cleared=True)
-        # acquire a lock on the shared font cache
-        RendererAgg.lock.acquire()
-
-        try:
+        # Acquire a lock on the shared font cache.
+        with RendererAgg.lock, \
+             (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
+              else nullcontext()):
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
             # don't forget to call the superclass.
             super().draw()
-        finally:
-            RendererAgg.lock.release()
 
     def get_renderer(self, cleared=False):
-        l, b, w, h = self.figure.bbox.bounds
+        w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
         reuse_renderer = (hasattr(self, "renderer")
                           and getattr(self, "_lastKey", None) == key)
@@ -409,57 +423,50 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
-        '''Get the image as an RGB byte string.
+        """
+        Get the image as RGB `bytes`.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        bytes
-        '''
+        """
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
-        '''Get the image as an ARGB byte string
+        """
+        Get the image as ARGB `bytes`.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        bytes
-
-        '''
+        """
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
-        '''Get the image as an RGBA byte string.
+        """
+        Get the image as a `memoryview` to the renderer's buffer.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        bytes
-        '''
+        """
         return self.renderer.buffer_rgba()
 
-    def print_raw(self, filename_or_obj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_raw(self, filename_or_obj, *args):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
-        with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
-                cbook.open_file_cm(filename_or_obj, "wb") as fh:
-            fh.write(renderer._renderer.buffer_rgba())
+        with cbook.open_file_cm(filename_or_obj, "wb") as fh:
+            fh.write(renderer.buffer_rgba())
+
     print_rgba = print_raw
 
-    def print_png(self, filename_or_obj, *args, **kwargs):
+    @_check_savefig_extra_args
+    def print_png(self, filename_or_obj, *args,
+                  metadata=None, pil_kwargs=None):
         """
         Write the figure to a PNG file.
 
         Parameters
         ----------
-        filename_or_obj : str or PathLike or file-like object
+        filename_or_obj : str or path-like or file-like
             The file to write to.
 
         metadata : dict, optional
@@ -486,95 +493,111 @@ class FigureCanvasAgg(FigureCanvasBase):
 
             Other keywords may be invented for other purposes.
 
-            If 'Software' is not given, an autogenerated value for matplotlib
-            will be used.
+            If 'Software' is not given, an autogenerated value for Matplotlib
+            will be used.  This can be removed by setting it to *None*.
 
             For more details see the `PNG specification`_.
 
             .. _PNG specification: \
                 https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords
 
+        pil_kwargs : dict, optional
+            Keyword arguments passed to `PIL.Image.Image.save`.
+
+            If the 'pnginfo' key is present, it completely overrides
+            *metadata*, including the default 'Software' key.
         """
         FigureCanvasAgg.draw(self)
-        renderer = self.get_renderer()
-
-        version_str = (
-            'matplotlib version ' + __version__ + ', http://matplotlib.org/')
-        metadata = OrderedDict({'Software': version_str})
-        user_metadata = kwargs.pop("metadata", None)
-        if user_metadata is not None:
-            metadata.update(user_metadata)
-
-        with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
-                cbook.open_file_cm(filename_or_obj, "wb") as fh:
-            _png.write_png(renderer._renderer, fh,
-                            self.figure.dpi, metadata=metadata)
+        mpl.image.imsave(
+            filename_or_obj, self.buffer_rgba(), format="png", origin="upper",
+            dpi=self.figure.dpi, metadata=metadata, pil_kwargs=pil_kwargs)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
-        with cbook._setattr_cm(renderer, dpi=self.figure.dpi):
-            return (renderer._renderer.buffer_rgba(),
-                    (int(renderer.width), int(renderer.height)))
+        return (bytes(renderer.buffer_rgba()),
+                (int(renderer.width), int(renderer.height)))
 
-    if _has_pil:
-        # add JPEG support
-        def print_jpg(self, filename_or_obj, *args, dryrun=False, **kwargs):
-            """
-            Write the figure to a JPEG file.
+    # Note that these methods should typically be called via savefig() and
+    # print_figure(), and the latter ensures that `self.figure.dpi` already
+    # matches the dpi kwarg (if any).
 
-            Parameters
-            ----------
-            filename_or_obj : str or PathLike or file-like object
-                The file to write to.
+    @_check_savefig_extra_args(
+        extra_kwargs=["quality", "optimize", "progressive"])
+    @cbook._delete_parameter("3.3", "quality",
+                             alternative="pil_kwargs={'quality': ...}")
+    @cbook._delete_parameter("3.3", "optimize",
+                             alternative="pil_kwargs={'optimize': ...}")
+    @cbook._delete_parameter("3.3", "progressive",
+                             alternative="pil_kwargs={'progressive': ...}")
+    def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
+        """
+        Write the figure to a JPEG file.
 
-            Other Parameters
-            ----------------
-            quality : int
-                The image quality, on a scale from 1 (worst) to 100 (best).
-                The default is :rc:`savefig.jpeg_quality`.  Values above
-                95 should be avoided; 100 completely disables the JPEG
-                quantization stage.
+        Parameters
+        ----------
+        filename_or_obj : str or path-like or file-like
+            The file to write to.
 
-            optimize : bool
-                If present, indicates that the encoder should
-                make an extra pass over the image in order to select
-                optimal encoder settings.
+        Other Parameters
+        ----------------
+        quality : int, default: :rc:`savefig.jpeg_quality`
+            The image quality, on a scale from 1 (worst) to 95 (best).
+            Values above 95 should be avoided; 100 disables portions of
+            the JPEG compression algorithm, and results in large files
+            with hardly any gain in image quality.  This parameter is
+            deprecated.
+        optimize : bool, default: False
+            Whether the encoder should make an extra pass over the image
+            in order to select optimal encoder settings.  This parameter is
+            deprecated.
+        progressive : bool, default: False
+            Whether the image should be stored as a progressive JPEG file.
+            This parameter is deprecated.
+        pil_kwargs : dict, optional
+            Additional keyword arguments that are passed to
+            `PIL.Image.Image.save` when saving the figure.  These take
+            precedence over *quality*, *optimize* and *progressive*.
+        """
+        # Remove transparency by alpha-blending on an assumed white background.
+        r, g, b, a = mcolors.to_rgba(self.figure.get_facecolor())
+        try:
+            self.figure.set_facecolor(a * np.array([r, g, b]) + 1 - a)
+            FigureCanvasAgg.draw(self)
+        finally:
+            self.figure.set_facecolor((r, g, b, a))
+        if pil_kwargs is None:
+            pil_kwargs = {}
+        for k in ["quality", "optimize", "progressive"]:
+            if k in kwargs:
+                pil_kwargs.setdefault(k, kwargs.pop(k))
+        if "quality" not in pil_kwargs:
+            quality = pil_kwargs["quality"] = \
+                dict.__getitem__(mpl.rcParams, "savefig.jpeg_quality")
+            if quality not in [0, 75, 95]:  # default qualities.
+                cbook.warn_deprecated(
+                    "3.3", name="savefig.jpeg_quality", obj_type="rcParam",
+                    addendum="Set the quality using "
+                    "`pil_kwargs={'quality': ...}`; the future default "
+                    "quality will be 75, matching the default of Pillow and "
+                    "libjpeg.")
+        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+        # Drop alpha channel now.
+        return (Image.fromarray(np.asarray(self.buffer_rgba())[..., :3])
+                .save(filename_or_obj, format='jpeg', **pil_kwargs))
 
-            progressive : bool
-                If present, indicates that this image
-                should be stored as a progressive JPEG file.
-            """
-            buf, size = self.print_to_buffer()
-            if dryrun:
-                return
-            # The image is "pasted" onto a white background image to safely
-            # handle any transparency
-            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            rgba = mcolors.to_rgba(rcParams['savefig.facecolor'])
-            color = tuple([int(x * 255) for x in rgba[:3]])
-            background = Image.new('RGB', size, color)
-            background.paste(image, image)
-            options = {k: kwargs[k]
-                       for k in ['quality', 'optimize', 'progressive', 'dpi']
-                       if k in kwargs}
-            options.setdefault('quality', rcParams['savefig.jpeg_quality'])
-            if 'dpi' in options:
-                # Set the same dpi in both x and y directions
-                options['dpi'] = (options['dpi'], options['dpi'])
+    print_jpeg = print_jpg
 
-            return background.save(filename_or_obj, format='jpeg', **options)
-        print_jpeg = print_jpg
+    @_check_savefig_extra_args
+    def print_tif(self, filename_or_obj, *, pil_kwargs=None):
+        FigureCanvasAgg.draw(self)
+        if pil_kwargs is None:
+            pil_kwargs = {}
+        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+        return (Image.fromarray(np.asarray(self.buffer_rgba()))
+                .save(filename_or_obj, format='tiff', **pil_kwargs))
 
-        # add TIFF support
-        def print_tif(self, filename_or_obj, *args, dryrun=False, **kwargs):
-            buf, size = self.print_to_buffer()
-            if dryrun:
-                return
-            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            dpi = (self.figure.dpi, self.figure.dpi)
-            return image.save(filename_or_obj, format='tiff', dpi=dpi)
-        print_tiff = print_tif
+    print_tiff = print_tif
 
 
 @_Backend.export

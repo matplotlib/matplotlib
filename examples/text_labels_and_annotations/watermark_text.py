@@ -3,7 +3,7 @@
 Text watermark
 ==============
 
-Adding a text watermark.
+A watermark effect can be achieved by drawing a semi-transparent text.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,9 +16,9 @@ fig, ax = plt.subplots()
 ax.plot(np.random.rand(20), '-o', ms=20, lw=2, alpha=0.7, mfc='orange')
 ax.grid()
 
-fig.text(0.95, 0.05, 'Property of MPL',
-         fontsize=50, color='gray',
-         ha='right', va='bottom', alpha=0.5)
+ax.text(0.5, 0.5, 'created with matplotlib', transform=ax.transAxes,
+        fontsize=40, color='gray', alpha=0.5,
+        ha='center', va='center', rotation='30')
 
 plt.show()
 

@@ -11,23 +11,32 @@ designed to be user extensible.
 In this example a user defined function is used to format the ticks in
 millions of dollars on the y axis.
 """
-from matplotlib.ticker import FuncFormatter
 import matplotlib.pyplot as plt
-import numpy as np
 
-x = np.arange(4)
 money = [1.5e5, 2.5e6, 5.5e6, 2.0e7]
 
 
 def millions(x, pos):
-    'The two args are the value and tick position'
-    return '$%1.1fM' % (x * 1e-6)
-
-
-formatter = FuncFormatter(millions)
+    """The two args are the value and tick position."""
+    return '${:1.1f}M'.format(x*1e-6)
 
 fig, ax = plt.subplots()
-ax.yaxis.set_major_formatter(formatter)
-plt.bar(x, money)
-plt.xticks(x, ('Bill', 'Fred', 'Mary', 'Sue'))
+# Use automatic FuncFormatter creation
+ax.yaxis.set_major_formatter(millions)
+ax.bar(['Bill', 'Fred', 'Mary', 'Sue'], money)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplots
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.ticker.FuncFormatter

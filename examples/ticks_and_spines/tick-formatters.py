@@ -3,106 +3,136 @@
 Tick formatters
 ===============
 
-Show the different tick formatters.
+Tick formatters define how the numeric value associated with a tick on an axis
+is formatted as a string.
+
+This example illustrates the usage and effect of the most common formatters.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+from matplotlib import ticker
 
 
-# Setup a plot such that only the bottom spine is shown
-def setup(ax):
+def setup(ax, title):
+    """Set up common parameters for the Axes in the example."""
+    # only show the bottom spine
+    ax.yaxis.set_major_locator(ticker.NullLocator())
     ax.spines['right'].set_color('none')
     ax.spines['left'].set_color('none')
-    ax.yaxis.set_major_locator(ticker.NullLocator())
     ax.spines['top'].set_color('none')
+
+    # define tick positions
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
+    ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
+
     ax.xaxis.set_ticks_position('bottom')
     ax.tick_params(which='major', width=1.00, length=5)
     ax.tick_params(which='minor', width=0.75, length=2.5, labelsize=10)
     ax.set_xlim(0, 5)
     ax.set_ylim(0, 1)
-    ax.patch.set_alpha(0.0)
+    ax.text(0.0, 0.2, title, transform=ax.transAxes,
+            fontsize=14, fontname='Monospace', color='tab:blue')
 
 
-fig = plt.figure(figsize=(8, 6))
-n = 7
+# Tick formatters can be set in one of two ways, either by passing a ``str``
+# or function to `~.Axis.set_major_formatter` or `~.Axis.set_minor_formatter`,
+# or by creating an instance of one of the various `~.ticker.Formatter` classes
+# and providing that to `~.Axis.set_major_formatter` or
+# `~.Axis.set_minor_formatter`.
+
+# The first two examples directly pass a ``str`` or function.
+
+fig0, axs0 = plt.subplots(2, 1, figsize=(8, 2))
+fig0.suptitle('Simple Formatting')
+
+# A ``str``, using format string function syntax, can be used directly as a
+# formatter.  The variable ``x`` is the tick value and the variable ``pos`` is
+# tick position.  This creates a StrMethodFormatter automatically.
+setup(axs0[0], title="'{x} km'")
+axs0[0].xaxis.set_major_formatter('{x} km')
+
+# A function can also be used directly as a formatter. The function must take
+# two arguments: ``x`` for the tick value and ``pos`` for the tick position,
+# and must return a ``str``  This creates a FuncFormatter automatically.
+setup(axs0[1], title="lambda x, pos: str(x-5)")
+axs0[1].xaxis.set_major_formatter(lambda x, pos: str(x-5))
+
+fig0.tight_layout()
+
+
+# The remaining examples use Formatter objects.
+
+fig1, axs1 = plt.subplots(7, 1, figsize=(8, 6))
+fig1.suptitle('Formatter Object Formatting')
 
 # Null formatter
-ax = fig.add_subplot(n, 1, 1)
-setup(ax)
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
-ax.xaxis.set_major_formatter(ticker.NullFormatter())
-ax.xaxis.set_minor_formatter(ticker.NullFormatter())
-ax.text(0.0, 0.1, "NullFormatter()", fontsize=16, transform=ax.transAxes)
+setup(axs1[0], title="NullFormatter()")
+axs1[0].xaxis.set_major_formatter(ticker.NullFormatter())
 
-# Fixed formatter
-ax = fig.add_subplot(n, 1, 2)
-setup(ax)
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1.0))
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
-majors = ["", "0", "1", "2", "3", "4", "5"]
-ax.xaxis.set_major_formatter(ticker.FixedFormatter(majors))
-minors = [""] + ["%.2f" % (x-int(x)) if (x-int(x))
-                 else "" for x in np.arange(0, 5, 0.25)]
-ax.xaxis.set_minor_formatter(ticker.FixedFormatter(minors))
-ax.text(0.0, 0.1, "FixedFormatter(['', '0', '1', ...])",
-        fontsize=15, transform=ax.transAxes)
+# StrMethod formatter
+setup(axs1[1], title="StrMethodFormatter('{x:.3f}')")
+axs1[1].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.3f}"))
 
 
 # FuncFormatter can be used as a decorator
 @ticker.FuncFormatter
 def major_formatter(x, pos):
-    return "[%.2f]" % x
+    return f'[{x:.2f}]'
 
 
-ax = fig.add_subplot(n, 1, 3)
-setup(ax)
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
-ax.xaxis.set_major_formatter(major_formatter)
-ax.text(0.0, 0.1, 'FuncFormatter(lambda x, pos: "[%.2f]" % x)',
-        fontsize=15, transform=ax.transAxes)
+setup(axs1[2], title='FuncFormatter("[{:.2f}]".format')
+axs1[2].xaxis.set_major_formatter(major_formatter)
 
-
-# FormatStr formatter
-ax = fig.add_subplot(n, 1, 4)
-setup(ax)
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
-ax.xaxis.set_major_formatter(ticker.FormatStrFormatter(">%d<"))
-ax.text(0.0, 0.1, "FormatStrFormatter('>%d<')",
-        fontsize=15, transform=ax.transAxes)
+# Fixed formatter
+setup(axs1[3], title="FixedFormatter(['A', 'B', 'C', ...])")
+# FixedFormatter should only be used together with FixedLocator.
+# Otherwise, one cannot be sure where the labels will end up.
+positions = [0, 1, 2, 3, 4, 5]
+labels = ['A', 'B', 'C', 'D', 'E', 'F']
+axs1[3].xaxis.set_major_locator(ticker.FixedLocator(positions))
+axs1[3].xaxis.set_major_formatter(ticker.FixedFormatter(labels))
 
 # Scalar formatter
-ax = fig.add_subplot(n, 1, 5)
-setup(ax)
-ax.xaxis.set_major_locator(ticker.AutoLocator())
-ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-ax.xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
-ax.text(0.0, 0.1, "ScalarFormatter()", fontsize=15, transform=ax.transAxes)
+setup(axs1[4], title="ScalarFormatter()")
+axs1[4].xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
 
-# StrMethod formatter
-ax = fig.add_subplot(n, 1, 6)
-setup(ax)
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
-ax.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x}"))
-ax.text(0.0, 0.1, "StrMethodFormatter('{x}')",
-        fontsize=15, transform=ax.transAxes)
+# FormatStr formatter
+setup(axs1[5], title="FormatStrFormatter('#%d')")
+axs1[5].xaxis.set_major_formatter(ticker.FormatStrFormatter("#%d"))
 
 # Percent formatter
-ax = fig.add_subplot(n, 1, 7)
-setup(ax)
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
-ax.xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
-ax.text(0.0, 0.1, "PercentFormatter(xmax=5)",
-        fontsize=15, transform=ax.transAxes)
+setup(axs1[6], title="PercentFormatter(xmax=5)")
+axs1[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
 
-# Push the top of the top axes outside the figure because we only show the
-# bottom spine.
-fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=1.05)
-
+fig1.tight_layout()
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplots
+matplotlib.axes.Axes.text
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.axis.Axis.set_major_locator
+matplotlib.axis.Axis.set_minor_locator
+matplotlib.axis.XAxis.set_ticks_position
+matplotlib.axis.YAxis.set_ticks_position
+matplotlib.ticker.FixedFormatter
+matplotlib.ticker.FixedLocator
+matplotlib.ticker.FormatStrFormatter
+matplotlib.ticker.FuncFormatter
+matplotlib.ticker.MultipleLocator
+matplotlib.ticker.NullFormatter
+matplotlib.ticker.NullLocator
+matplotlib.ticker.PercentFormatter
+matplotlib.ticker.ScalarFormatter
+matplotlib.ticker.StrMethodFormatter

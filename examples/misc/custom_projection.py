@@ -39,11 +39,8 @@ class GeoAxes(Axes):
             self._round_to = round_to
 
         def __call__(self, x, pos=None):
-            degrees = np.round(np.rad2deg(x) / self._round_to) * self._round_to
-            if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
-                return r"$%0.0f^\circ$" % degrees
-            else:
-                return "%0.0f\N{DEGREE SIGN}" % degrees
+            degrees = round(np.rad2deg(x) / self._round_to) * self._round_to
+            return f"{degrees:0.0f}\N{DEGREE SIGN}"
 
     RESOLUTION = 75
 
@@ -56,7 +53,7 @@ class GeoAxes(Axes):
         self._update_transScale()
 
     def cla(self):
-        Axes.cla(self)
+        super().cla()
 
         self.set_longitude_grid(30)
         self.set_latitude_grid(15)
@@ -79,13 +76,13 @@ class GeoAxes(Axes):
 
         # There are three important coordinate spaces going on here:
         #
-        #    1. Data space: The space of the data itself
+        # 1. Data space: The space of the data itself
         #
-        #    2. Axes space: The unit rectangle (0, 0) to (1, 1)
-        #       covering the entire plot area.
+        # 2. Axes space: The unit rectangle (0, 0) to (1, 1)
+        #    covering the entire plot area.
         #
-        #    3. Display space: The coordinates of the resulting image,
-        #       often in pixels or dpi/inch.
+        # 3. Display space: The coordinates of the resulting image,
+        #    often in pixels or dpi/inch.
 
         # This function makes heavy use of the Transform classes in
         # ``lib/matplotlib/transforms.py.`` For more information, see
@@ -174,8 +171,8 @@ class GeoAxes(Axes):
 
     def _get_affine_transform(self):
         transform = self._get_core_transform(1)
-        xscale, _ = transform.transform_point((np.pi, 0))
-        _, yscale = transform.transform_point((0, np.pi / 2.0))
+        xscale, _ = transform.transform((np.pi, 0))
+        _, yscale = transform.transform((0, np.pi/2))
         return Affine2D() \
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)
@@ -260,9 +257,8 @@ class GeoAxes(Axes):
     # set_xlim and set_ylim to ignore any input.  This also applies to
     # interactive panning and zooming in the GUI interfaces.
     def set_xlim(self, *args, **kwargs):
-        raise TypeError("It is not possible to change axes limits "
-                        "for geographic projections. Please consider "
-                        "using Basemap or Cartopy.")
+        raise TypeError("Changing axes limits of a geographic projection is "
+                        "not supported.  Please consider using Cartopy.")
 
     set_ylim = set_xlim
 
@@ -374,16 +370,12 @@ class HammerAxes(GeoAxes):
 
     # The projection must specify a name. This will be used by the
     # user to select the projection,
-    # i.e. ``subplot(111, projection='custom_hammer')``.
+    # i.e. ``subplot(projection='custom_hammer')``.
     name = 'custom_hammer'
 
     class HammerTransform(Transform):
-        """
-        The base Hammer transform.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        """The base Hammer transform."""
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             """
@@ -406,23 +398,17 @@ class HammerAxes(GeoAxes):
             x = (2 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
             y = (sqrt2 * np.sin(latitude)) / alpha
             return np.column_stack([x, y])
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def transform_path_non_affine(self, path):
             # vertices = path.vertices
             ipath = path.interpolated(self._resolution)
             return Path(self.transform(ipath.vertices), ipath.codes)
-        transform_path_non_affine.__doc__ = \
-            Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
             return HammerAxes.InvertedHammerTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedHammerTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             Transform.__init__(self)
@@ -434,15 +420,13 @@ class HammerAxes(GeoAxes):
             longitude = 2 * np.arctan((z * x) / (2 * (2 * z ** 2 - 1)))
             latitude = np.arcsin(y*z)
             return np.column_stack([longitude, latitude])
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):
             return HammerAxes.HammerTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
         self._longitude_cap = np.pi / 2.0
-        GeoAxes.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
 
@@ -450,15 +434,14 @@ class HammerAxes(GeoAxes):
         return self.HammerTransform(resolution)
 
 
-# Now register the projection with matplotlib so the user can select
-# it.
+# Now register the projection with Matplotlib so the user can select it.
 register_projection(HammerAxes)
 
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     # Now make a simple example using the custom projection.
-    plt.subplot(111, projection="custom_hammer")
+    plt.subplot(projection="custom_hammer")
     p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
     plt.grid(True)
 

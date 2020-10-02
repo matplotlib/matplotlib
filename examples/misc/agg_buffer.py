@@ -3,8 +3,8 @@
 Agg Buffer
 ==========
 
-Use backend agg to access the figure canvas as an RGB string and then
-convert it to an array and pass it to Pillow for rendering.
+Use backend agg to access the figure canvas as an RGBA buffer, convert it to an
+array, and pass it to Pillow for rendering.
 """
 
 import numpy as np
@@ -14,18 +14,15 @@ import matplotlib.pyplot as plt
 
 plt.plot([1, 2, 3])
 
-canvas = plt.get_current_fig_manager().canvas
+canvas = plt.gcf().canvas
 
 agg = canvas.switch_backends(FigureCanvasAgg)
 agg.draw()
-s, (width, height) = agg.print_to_buffer()
-
-# Convert to a NumPy array.
-X = np.frombuffer(s, np.uint8).reshape((height, width, 4))
+X = np.asarray(agg.buffer_rgba())
 
 # Pass off to PIL.
 from PIL import Image
-im = Image.frombytes("RGBA", (width, height), s)
+im = Image.fromarray(X)
 
 # Uncomment this line to display the image using ImageMagick's `display` tool.
 # im.show()

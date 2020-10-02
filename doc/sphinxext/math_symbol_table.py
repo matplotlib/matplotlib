@@ -1,3 +1,5 @@
+from docutils.parsers.rst import Directive
+
 from matplotlib import mathtext
 
 
@@ -93,8 +95,9 @@ symbols = [
      \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
      \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
-     \iiint \iint \iint \oiiint"""]
+     \iiint \iint \oiiint"""]
 ]
+
 
 def run(state_machine):
     def get_n(n, l):
@@ -135,17 +138,24 @@ def run(state_machine):
     state_machine.insert_input(lines, "Symbol table")
     return []
 
-def math_symbol_table_directive(name, arguments, options, content, lineno,
-                                content_offset, block_text, state, state_machine):
-    return run(state_machine)
+
+class MathSymbolTableDirective(Directive):
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {}
+
+    def run(self):
+        return run(self.state_machine)
+
 
 def setup(app):
-    app.add_directive(
-        'math_symbol_table', math_symbol_table_directive,
-        False, (0, 1, 0))
+    app.add_directive("math_symbol_table", MathSymbolTableDirective)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
+
 
 if __name__ == "__main__":
     # Do some verification of the tables

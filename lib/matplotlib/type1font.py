@@ -1,10 +1,9 @@
 """
-This module contains a class representing a Type 1 font.
+A class representing a Type 1 font.
 
 This version reads pfa and pfb files and splits them for embedding in
 pdf files. It also supports SlantFont and ExtendFont transformations,
-similarly to pdfTeX and friends. There is no support yet for
-subsetting.
+similarly to pdfTeX and friends. There is no support yet for subsetting.
 
 Usage::
 
@@ -30,13 +29,15 @@ import struct
 
 import numpy as np
 
+from matplotlib.cbook import _format_approx
+
 
 # token types
 _TokenType = enum.Enum('_TokenType',
                        'whitespace name string delimiter number')
 
 
-class Type1Font(object):
+class Type1Font:
     """
     A class representing a Type-1 font, for use by backends.
 
@@ -54,8 +55,13 @@ class Type1Font(object):
 
     def __init__(self, input):
         """
-        Initialize a Type-1 font. *input* can be either the file name of
-        a pfb file or a 3-tuple of already-decoded Type-1 font parts.
+        Initialize a Type-1 font.
+
+        Parameters
+        ----------
+        input : str or 3-tuple
+            Either a pfb file name, or a 3-tuple of already-decoded Type-1
+            font `~.Type1Font.parts`.
         """
         if isinstance(input, tuple) and len(input) == 3:
             self.parts = input
@@ -67,9 +73,7 @@ class Type1Font(object):
         self._parse()
 
     def _read(self, file):
-        """
-        Read the font from a file, decoding into usable parts.
-        """
+        """Read the font from a file, decoding into usable parts."""
         rawdata = file.read()
         if not rawdata.startswith(b'\x80'):
             return rawdata
@@ -202,7 +206,7 @@ class Type1Font(object):
         # The spec calls this an ASCII format; in Python 2.x we could
         # just treat the strings and names as opaque bytes but let's
         # turn them into proper Unicode, and be lenient in case of high bytes.
-        convert = lambda x: x.decode('ascii', 'replace')
+        def convert(x): return x.decode('ascii', 'replace')
         for token, value in filtered:
             if token is _TokenType.name and value.startswith(b'/'):
                 key = convert(value[1:])
@@ -249,7 +253,10 @@ class Type1Font(object):
             return result
 
         def italicangle(angle):
-            return b'%a' % (float(angle) - np.arctan(slant) / np.pi * 180)
+            return b'%a' % round(
+                float(angle) - np.arctan(slant) / np.pi * 180,
+                5
+            )
 
         def fontmatrix(array):
             array = array.lstrip(b'[').rstrip(b']').split()
@@ -263,10 +270,9 @@ class Type1Font(object):
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
-            # Not directly using `b'%a' % x for x in array` for now as that
-            # produces longer reprs on numpy<1.14, causing test failures.
-            as_string = '[' + ' '.join(str(x) for x in array) + ']'
-            return as_string.encode('latin-1')
+            return (
+                '[%s]' % ' '.join(_format_approx(x, 6) for x in array)
+            ).encode('ascii')
 
         def replace(fun):
             def replacer(tokens):
@@ -288,7 +294,7 @@ class Type1Font(object):
             return replacer
 
         def suppress(tokens):
-            for x in itertools.takewhile(lambda x: x[1] != b'def', tokens):
+            for _ in itertools.takewhile(lambda x: x[1] != b'def', tokens):
                 pass
             yield b''
 
@@ -306,12 +312,23 @@ class Type1Font(object):
 
     def transform(self, effects):
         """
-        Transform the font by slanting or extending. *effects* should
-        be a dict where ``effects['slant']`` is the tangent of the
-        angle that the font is to be slanted to the right (so negative
-        values slant to the left) and ``effects['extend']`` is the
-        multiplier by which the font is to be extended (so values less
-        than 1.0 condense). Returns a new :class:`Type1Font` object.
+        Return a new font that is slanted and/or extended.
+
+        Parameters
+        ----------
+        effects : dict
+            A dict with optional entries:
+
+            - 'slant' : float, default: 0
+                Tangent of the angle that the font is to be slanted to the
+                right. Negative values slant to the left.
+            - 'extend' : float, default: 1
+                Scaling factor for the font width. Values less than 1 condense
+                the glyphs.
+
+        Returns
+        -------
+        `Type1Font`
         """
         tokenizer = self._tokens(self.parts[0])
         transformed = self._transformer(tokenizer,

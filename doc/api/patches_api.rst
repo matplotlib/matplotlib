@@ -29,12 +29,12 @@ Classes
    FancyBboxPatch
    Patch
    PathPatch
+   StepPatch
    Polygon
    Rectangle
    RegularPolygon
    Shadow
    Wedge
-   YAArrow
 
 Functions
 ---------

@@ -7,19 +7,29 @@ setup.cfg.template for more information.
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
 import sys
-from setuptools import setup
-from setuptools.command.test import test as TestCommand
-from setuptools.command.build_ext import build_ext as BuildExtCommand
 
-if sys.version_info < (3, 6):
+min_version = (3, 7)
+
+if sys.version_info < min_version:
     error = """
-Beginning with Matplotlib 3.1, Python 3.6 or above is required.
+Beginning with Matplotlib 3.1, Python {0} or above is required.
+You are using Python {1}.
 
 This may be due to an out of date pip.
 
 Make sure you have pip >= 9.0.1.
-"""
+""".format('.'.join(str(n) for n in min_version),
+           '.'.join(str(n) for n in sys.version_info[:3]))
     sys.exit(error)
+
+import os
+from pathlib import Path
+import shutil
+import subprocess
+
+from setuptools import setup, find_packages, Extension
+from setuptools.command.build_ext import build_ext as BuildExtCommand
+from setuptools.command.test import test as TestCommand
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
@@ -31,60 +41,40 @@ except ImportError:
 else:
     del sdist.sdist.make_release_tree
 
+from distutils.errors import CompileError
 from distutils.dist import Distribution
 
 import setupext
-from setupext import print_line, print_raw, print_message, print_status
+from setupext import print_raw, print_status
 
 # Get the version from versioneer
 import versioneer
 __version__ = versioneer.get_version()
 
 
-# These are the packages in the order we want to display them.  This
-# list may contain strings to create section headers for the display.
+# These are the packages in the order we want to display them.
 mpl_packages = [
-    'Building Matplotlib',
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
-    'Required dependencies and extensions',
-    setupext.Numpy(),
-    setupext.InstallRequires(),
-    setupext.LibAgg(),
     setupext.FreeType(),
-    setupext.FT2Font(),
-    setupext.Png(),
-    setupext.Qhull(),
-    setupext.Image(),
-    setupext.TTConv(),
-    setupext.Path(),
-    setupext.Contour(),
-    setupext.QhullWrap(),
-    setupext.Tri(),
-    'Optional subpackages',
     setupext.SampleData(),
     setupext.Tests(),
-    'Optional backend extensions',
-    setupext.BackendAgg(),
-    setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
-    setupext.Windowing(),
-    'Optional package data',
-    setupext.Dlls(),
     ]
 
 
-classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Science/Research',
-    'License :: OSI Approved :: Python Software Foundation License',
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Topic :: Scientific/Engineering :: Visualization',
-    ]
+# From https://bugs.python.org/issue26689
+def has_flag(self, flagname):
+    """Return whether a flag name is supported on the specified compiler."""
+    import tempfile
+    with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
+        f.write('int main (int argc, char **argv) { return 0; }')
+        try:
+            self.compile([f.name], extra_postargs=[flagname])
+        except CompileError:
+            return False
+    return True
 
 
 class NoopTestCommand(TestCommand):
@@ -94,6 +84,84 @@ class NoopTestCommand(TestCommand):
 
 
 class BuildExtraLibraries(BuildExtCommand):
+    def finalize_options(self):
+        self.distribution.ext_modules[:] = [
+            ext
+            for package in good_packages
+            for ext in package.get_extensions()
+        ]
+        super().finalize_options()
+
+    def add_optimization_flags(self):
+        """
+        Add optional optimization flags to extension.
+
+        This adds flags for LTO and hidden visibility to both compiled
+        extensions, and to the environment variables so that vendored libraries
+        will also use them. If the compiler does not support these flags, then
+        none are added.
+        """
+
+        env = os.environ.copy()
+        if not setupext.config.getboolean('libs', 'enable_lto', fallback=True):
+            return env
+        if sys.platform == 'win32':
+            return env
+
+        cppflags = []
+        if 'CPPFLAGS' in os.environ:
+            cppflags.append(os.environ['CPPFLAGS'])
+        cxxflags = []
+        if 'CXXFLAGS' in os.environ:
+            cxxflags.append(os.environ['CXXFLAGS'])
+        ldflags = []
+        if 'LDFLAGS' in os.environ:
+            ldflags.append(os.environ['LDFLAGS'])
+
+        if has_flag(self.compiler, '-fvisibility=hidden'):
+            for ext in self.extensions:
+                ext.extra_compile_args.append('-fvisibility=hidden')
+            cppflags.append('-fvisibility=hidden')
+        if has_flag(self.compiler, '-fvisibility-inlines-hidden'):
+            for ext in self.extensions:
+                if self.compiler.detect_language(ext.sources) != 'cpp':
+                    continue
+                ext.extra_compile_args.append('-fvisibility-inlines-hidden')
+            cxxflags.append('-fvisibility-inlines-hidden')
+        ranlib = 'RANLIB' in env
+        if not ranlib and self.compiler.compiler_type == 'unix':
+            try:
+                result = subprocess.run(self.compiler.compiler +
+                                        ['--version'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT,
+                                        universal_newlines=True)
+            except Exception as e:
+                pass
+            else:
+                version = result.stdout.lower()
+                if 'gcc' in version:
+                    ranlib = shutil.which('gcc-ranlib')
+                elif 'clang' in version:
+                    if sys.platform == 'darwin':
+                        ranlib = True
+                    else:
+                        ranlib = shutil.which('llvm-ranlib')
+        if ranlib and has_flag(self.compiler, '-flto'):
+            for ext in self.extensions:
+                ext.extra_compile_args.append('-flto')
+            cppflags.append('-flto')
+            ldflags.append('-flto')
+            # Needed so FreeType static library doesn't lose its LTO objects.
+            if isinstance(ranlib, str):
+                env['RANLIB'] = ranlib
+
+        env['CPPFLAGS'] = ' '.join(cppflags)
+        env['CXXFLAGS'] = ' '.join(cxxflags)
+        env['LDFLAGS'] = ' '.join(ldflags)
+
+        return env
+
     def build_extensions(self):
         # Remove the -Wstrict-prototypes option, it's not valid for C++.  Fixed
         # in Py3.7 as bpo-5755.
@@ -101,8 +169,18 @@ class BuildExtraLibraries(BuildExtCommand):
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
         except (ValueError, AttributeError):
             pass
+        if (self.compiler.compiler_type == 'msvc' and
+                os.environ.get('MPL_DISABLE_FH4')):
+            # Disable FH4 Exception Handling implementation so that we don't
+            # require VCRUNTIME140_1.dll. For more details, see:
+            # https://devblogs.microsoft.com/cppblog/making-cpp-exception-handling-smaller-x64/
+            # https://github.com/joerick/cibuildwheel/issues/423#issuecomment-677763904
+            for ext in self.extensions:
+                ext.extra_compile_args.append('/d2FH4-')
+
+        env = self.add_optimization_flags()
         for package in good_packages:
-            package.do_custom_build()
+            package.do_custom_build(env)
         return super().build_extensions()
 
 
@@ -110,134 +188,113 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
 
-# One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
-# however, this is needed on Windows to avoid creating infinite subprocesses
-# when using multiprocessing.
-if __name__ == '__main__':
-    # These are distutils.setup parameters that the various packages add
-    # things to.
-    packages = []
-    namespace_packages = []
-    py_modules = []
-    ext_modules = []
-    package_data = {}
-    package_dir = {'': 'lib'}
-    install_requires = []
-    setup_requires = []
 
-    # If the user just queries for information, don't bother figuring out which
-    # packages to build or install.
-    if (any('--' + opt in sys.argv for opt in
-            Distribution.display_option_names + ['help']) or
-            'clean' in sys.argv):
-        setup_requires = []
-    else:
-        # Go through all of the packages and figure out which ones we are
-        # going to build/install.
-        print_line()
-        print_raw("Edit setup.cfg to change the build options")
+package_data = {}  # Will be filled below by the various components.
 
-        required_failed = []
-        good_packages = []
-        for package in mpl_packages:
-            if isinstance(package, str):
-                print_raw('')
-                print_raw(package.upper())
-            else:
-                try:
-                    result = package.check()
-                    if result is not None:
-                        message = 'yes [%s]' % result
-                        print_status(package.name, message)
-                except setupext.CheckFailed as e:
-                    msg = str(e).strip()
-                    if len(msg):
-                        print_status(package.name, 'no  [%s]' % msg)
-                    else:
-                        print_status(package.name, 'no')
-                    if not package.optional:
-                        required_failed.append(package)
-                else:
-                    good_packages.append(package)
-        print_raw('')
+# If the user just queries for information, don't bother figuring out which
+# packages to build or install.
+if not (any('--' + opt in sys.argv
+            for opt in Distribution.display_option_names + ['help'])
+        or 'clean' in sys.argv):
+    # Go through all of the packages and figure out which ones we are
+    # going to build/install.
+    print_raw()
+    print_raw("Edit setup.cfg to change the build options; "
+              "suppress output with --quiet.")
+    print_raw()
+    print_raw("BUILDING MATPLOTLIB")
 
-        # Abort if any of the required packages can not be built.
-        if required_failed:
-            print_line()
-            print_message("The following required packages can not be built: "
-                          "%s" % ", ".join(x.name for x in required_failed))
-            for pkg in required_failed:
-                msg = pkg.install_help_msg()
-                if msg:
-                    print_message(msg)
-            sys.exit(1)
+    good_packages = []
+    for package in mpl_packages:
+        try:
+            message = package.check()
+        except setupext.Skipped as e:
+            print_status(package.name, "no  [{e}]".format(e=e))
+            continue
+        if message is not None:
+            print_status(package.name,
+                         "yes [{message}]".format(message=message))
+        good_packages.append(package)
 
-        # Now collect all of the information we need to build all of the
-        # packages.
-        for package in good_packages:
-            packages.extend(package.get_packages())
-            namespace_packages.extend(package.get_namespace_packages())
-            py_modules.extend(package.get_py_modules())
-            ext = package.get_extension()
-            if ext is not None:
-                ext_modules.append(ext)
-            data = package.get_package_data()
-            for key, val in data.items():
-                package_data.setdefault(key, [])
-                package_data[key] = list(set(val + package_data[key]))
-            install_requires.extend(package.get_install_requires())
-            setup_requires.extend(package.get_setup_requires())
+    print_raw()
 
-        # Write the default matplotlibrc file
-        with open('matplotlibrc.template') as fd:
-            template_lines = fd.read().splitlines(True)
-        backend_line_idx, = [  # Also asserts that there is a single such line.
-            idx for idx, line in enumerate(template_lines)
-            if line.startswith('#backend ')]
-        if setupext.options['backend']:
-            template_lines[backend_line_idx] = (
-                'backend: {}'.format(setupext.options['backend']))
-        with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(''.join(template_lines))
+    # Now collect all of the information we need to build all of the packages.
+    for package in good_packages:
+        # Extension modules only get added in build_ext, as numpy will have
+        # been installed (as setup_requires) at that point.
+        data = package.get_package_data()
+        for key, val in data.items():
+            package_data.setdefault(key, [])
+            package_data[key] = list(set(val + package_data[key]))
 
-        # Finalize the extension modules so they can get the Numpy include
-        # dirs
-        for mod in ext_modules:
-            mod.finalize()
+    # Write the default matplotlibrc file
+    with open('matplotlibrc.template') as fd:
+        template_lines = fd.read().splitlines(True)
+    backend_line_idx, = [  # Also asserts that there is a single such line.
+        idx for idx, line in enumerate(template_lines)
+        if line.startswith('#backend:')]
+    if setupext.options['backend']:
+        template_lines[backend_line_idx] = (
+            'backend: {}'.format(setupext.options['backend']))
+    with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
+        fd.write(''.join(template_lines))
 
-    # Finally, pass this all along to distutils to do the heavy lifting.
-    setup(
-        name="matplotlib",
-        version=__version__,
-        description="Python plotting package",
-        author="John D. Hunter, Michael Droettboom",
-        author_email="matplotlib-users@python.org",
-        url="http://matplotlib.org",
-        long_description="""
-        Matplotlib strives to produce publication quality 2D graphics
-        for interactive graphing, scientific publishing, user interface
-        development and web application servers targeting multiple user
-        interfaces and hardcopy output formats.
-        """,
-        license="BSD",
-        packages=packages,
-        namespace_packages=namespace_packages,
-        platforms='any',
-        py_modules=py_modules,
-        ext_modules=ext_modules,
-        package_dir=package_dir,
-        package_data=package_data,
-        classifiers=classifiers,
-        download_url="http://matplotlib.org/users/installing.html",
+setup(  # Finally, pass this all along to distutils to do the heavy lifting.
+    name="matplotlib",
+    version=__version__,
+    description="Python plotting package",
+    author="John D. Hunter, Michael Droettboom",
+    author_email="matplotlib-users@python.org",
+    url="https://matplotlib.org",
+    download_url="https://matplotlib.org/users/installing.html",
+    project_urls={
+        'Documentation': 'https://matplotlib.org',
+        'Source Code': 'https://github.com/matplotlib/matplotlib',
+        'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
+        'Forum': 'https://discourse.matplotlib.org/',
+        'Donate': 'https://numfocus.org/donate-to-matplotlib'
+    },
+    long_description=Path("README.rst").read_text(encoding="utf-8"),
+    long_description_content_type="text/x-rst",
+    license="PSF",
+    platforms="any",
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Framework :: Matplotlib',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: Education',
+        'License :: OSI Approved :: Python Software Foundation License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Scientific/Engineering :: Visualization',
+    ],
 
-        python_requires='>=3.6',
-        # List third-party Python packages that we require
-        install_requires=install_requires,
-        setup_requires=setup_requires,
+    package_dir={"": "lib"},
+    packages=find_packages("lib"),
+    namespace_packages=["mpl_toolkits"],
+    py_modules=["pylab"],
+    # Dummy extension to trigger build_ext, which will swap it out with
+    # real extensions that can depend on numpy for the build.
+    ext_modules=[Extension("", [])],
+    package_data=package_data,
 
-        # matplotlib has C/C++ extensions, so it's not zip safe.
-        # Telling setuptools this prevents it from doing an automatic
-        # check for zip safety.
-        zip_safe=False,
-        cmdclass=cmdclass,
-    )
+    python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
+    setup_requires=[
+        "certifi>=2020.06.20",
+        "numpy>=1.15",
+    ],
+    install_requires=[
+        "certifi>=2020.06.20",
+        "cycler>=0.10",
+        "kiwisolver>=1.0.1",
+        "numpy>=1.16",
+        "pillow>=6.2.0",
+        "pyparsing>=2.2.1",
+        "python-dateutil>=2.7",
+    ],
+
+    cmdclass=cmdclass,
+)

@@ -3,6 +3,11 @@
 **********************
 
 
+:func:`matplotlib.test`
+=======================
+
+.. autofunction:: matplotlib.test
+
 :mod:`matplotlib.testing`
 =========================
 
@@ -25,15 +30,6 @@
 ====================================
 
 .. automodule:: matplotlib.testing.decorators
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-:mod:`matplotlib.testing.disable_internet`
-==========================================
-
-.. automodule:: matplotlib.testing.disable_internet
    :members:
    :undoc-members:
    :show-inheritance:

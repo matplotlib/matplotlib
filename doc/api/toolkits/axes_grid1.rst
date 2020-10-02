@@ -1,9 +1,9 @@
-.. _toolkit_axesgrid1-index:
+.. module:: mpl_toolkits.axes_grid1
 
 Matplotlib axes_grid1 Toolkit
 =============================
 
-The matplotlib :class:`mpl_toolkits.axes_grid1` toolkit is a collection of
+The matplotlib :mod:`mpl_toolkits.axes_grid1` toolkit is a collection of
 helper classes to ease displaying multiple images in matplotlib.  While the
 aspect parameter in matplotlib adjust the position of the single axes,
 axes_grid1 toolkit provides a framework to adjust the position of
@@ -15,8 +15,6 @@ See :ref:`axes_grid1_users-guide-index` for a guide on the usage of axes_grid1.
    :target: ../../gallery/axes_grid1/demo_axes_grid.html
    :align: center
    :scale: 50
-
-
 
 .. currentmodule:: mpl_toolkits
 

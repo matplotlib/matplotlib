@@ -35,7 +35,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     values : array
         A length n array of bin counts or values
 
-    bottoms : scalar or array, optional
+    bottoms : float or array, optional
         A length n array of the bottom of the bars.  If None, zero is used.
 
     orientation : {'v', 'h'}
@@ -64,8 +64,8 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
         bottoms = 0
     bottoms = np.broadcast_to(bottoms, values.shape)
 
-    values = np.r_[values, values[-1]]
-    bottoms = np.r_[bottoms, bottoms[-1]]
+    values = np.append(values, values[-1])
+    bottoms = np.append(bottoms, bottoms[-1])
     if orientation == 'h':
         return ax.fill_betweenx(edges, values, bottoms,
                                 **kwargs)
@@ -80,6 +80,8 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
                hist_func=None, labels=None,
                plot_func=None, plot_kwargs=None):
     """
+    Parameters
+    ----------
     ax : axes.Axes
         The axes to add artists too
 
@@ -90,8 +92,8 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     sty_cycle : Cycler or operable of dict
         Style to apply to each set
 
-    bottoms : array, optional
-        The initial positions of the bottoms, defaults to 0
+    bottoms : array, default: 0
+        The initial positions of the bottoms.
 
     hist_func : callable, optional
         Must have signature `bin_vals, bin_edges = f(data)`.

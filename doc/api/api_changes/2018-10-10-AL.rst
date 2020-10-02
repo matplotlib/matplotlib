@@ -1,9 +1,0 @@
-`Axes.streamplot` now raises ValueError when an irregular grid is passed in
-```````````````````````````````````````````````````````````````````````````
-
-`Axes.streamplot` does not support irregularly gridded ``x`` and ``y`` values.
-So far, it used to silently plot an incorrect result.  This has been changed to
-raise a ValueError instead.
-
-The `.streamplot.Grid` class, which is internally used by streamplot code, also
-throws a ValueError when irregularly gridded values are passed in.

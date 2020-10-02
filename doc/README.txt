@@ -35,4 +35,4 @@ python documentation system built on top of ReST.  This directory contains
 
 * _templates - used by the sphinx build system
 
-* sphinxext - Sphinx extensions for the mpl docs
+* sphinxext - Sphinx extensions for the Matplotlib docs

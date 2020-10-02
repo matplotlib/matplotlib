@@ -2,20 +2,19 @@
 Changes for 0.91.0
 ==================
 
-* Changed :func:`cbook.is_file_like` to
-  :func:`cbook.is_writable_file_like` and corrected behavior.
+* Changed ``cbook.is_file_like`` to ``cbook.is_writable_file_like`` and
+  corrected behavior.
 
-* Added ax kwarg to :func:`pyplot.colorbar` and
-  :meth:`Figure.colorbar` so that one can specify the axes object from
+* Added *ax* keyword argument to :func:`.pyplot.colorbar` and
+  :meth:`.Figure.colorbar` so that one can specify the axes object from
   which space for the colorbar is to be taken, if one does not want to
   make the colorbar axes manually.
 
-* Changed :func:`cbook.reversed` so it yields a tuple rather than a
-  (index, tuple). This agrees with the python reversed builtin,
-  and cbook only defines reversed if python doesn't provide the
-  builtin.
+* Changed ``cbook.reversed`` so it yields a tuple rather than a (index, tuple).
+  This agrees with the Python reversed builtin, and cbook only defines reversed
+  if Python doesn't provide the builtin.
 
-* Made skiprows=1 the default on :func:`csv2rec`
+* Made skiprows=1 the default on ``csv2rec``
 
 * The gd and paint backends have been deleted.
 
@@ -32,17 +31,18 @@ Changes for 0.91.0
   files. In the future the class might actually parse the font to
   allow e.g.,  subsetting.
 
-* :mod:`matplotlib.FT2Font` now supports :meth:`FT_Attach_File`. In
+* :mod:`matplotlib.ft2font` now supports ``FT_Attach_File``. In
   practice this can be used to read an afm file in addition to a
   pfa/pfb file, to get metrics and kerning information for a Type 1
   font.
 
-* The :class:`AFM` class now supports querying CapHeight and stem
+* The :class:`.AFM` class now supports querying CapHeight and stem
   widths. The get_name_char method now has an isord kwarg like
   get_width_char.
 
-* Changed :func:`pcolor` default to shading='flat'; but as noted now in the
-  docstring, it is preferable to simply use the edgecolor kwarg.
+* Changed :func:`.pcolor` default to ``shading='flat'``; but as noted now in
+  the docstring, it is preferable to simply use the *edgecolor* keyword
+  argument.
 
 * The mathtext font commands (``\cal``, ``\rm``, ``\it``, ``\tt``) now
   behave as TeX does: they are in effect until the next font change
@@ -57,8 +57,7 @@ Changes for 0.91.0
   extent of a line of ordinary text.  The default is 1.2;
   ``linespacing=2`` would be like ordinary double spacing, for example.
 
-* Changed default kwarg in
-  :meth:`matplotlib.colors.Normalize.__init__`` to ``clip=False``;
+* Changed default kwarg in `matplotlib.colors.Normalize` to ``clip=False``;
   clipping silently defeats the purpose of the special over, under,
   and bad values in the colormap, thereby leading to unexpected
   behavior.  The new default should reduce such surprises.

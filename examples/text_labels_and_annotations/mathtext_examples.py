@@ -34,7 +34,7 @@ mathext_demos = {
     r"\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau},\ "
     r"\ldots$",
 
-    2: r"$\frac{3}{4},\ \binom{3}{4},\ \stackrel{3}{4},\ "
+    2: r"$\frac{3}{4},\ \binom{3}{4},\ \genfrac{}{}{0}{}{3}{4},\ "
     r"\left(\frac{5 - \frac{1}{x}}{4}\right),\ \ldots$",
 
     3: r"$\sqrt{2},\ \sqrt[3]{x},\ \ldots$",
@@ -56,7 +56,7 @@ mathext_demos = {
 
 
 def doall():
-    # Colors used in mpl online documentation.
+    # Colors used in Matplotlib online documentation.
     mpl_blue_rvb = (191. / 255., 209. / 256., 212. / 255.)
     mpl_orange_rvb = (202. / 255., 121. / 256., 0. / 255.)
     mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)
@@ -72,18 +72,17 @@ def doall():
     plt.gca().set_yticklabels("", visible=False)
 
     # Gap between lines in axes coords
-    line_axesfrac = (1. / (n_lines))
+    line_axesfrac = 1 / n_lines
 
     # Plotting header demonstration formula
     full_demo = mathext_demos[0]
     plt.annotate(full_demo,
                  xy=(0.5, 1. - 0.59 * line_axesfrac),
-                 xycoords='data', color=mpl_orange_rvb, ha='center',
-                 fontsize=20)
+                 color=mpl_orange_rvb, ha='center', fontsize=20)
 
     # Plotting features demonstration formulae
     for i_line in range(1, n_lines):
-        baseline = 1 - (i_line) * line_axesfrac
+        baseline = 1 - i_line * line_axesfrac
         baseline_next = baseline - line_axesfrac
         title = mathtext_titles[i_line] + ":"
         fill_color = ['white', mpl_blue_rvb][i_line % 2]
@@ -92,12 +91,11 @@ def doall():
                          color=fill_color, alpha=0.5)
         plt.annotate(title,
                      xy=(0.07, baseline - 0.3 * line_axesfrac),
-                     xycoords='data', color=mpl_grey_rvb, weight='bold')
+                     color=mpl_grey_rvb, weight='bold')
         demo = mathext_demos[i_line]
         plt.annotate(demo,
                      xy=(0.05, baseline - 0.75 * line_axesfrac),
-                     xycoords='data', color=mpl_grey_rvb,
-                     fontsize=16)
+                     color=mpl_grey_rvb, fontsize=16)
 
     for i in range(n_lines):
         s = mathext_demos[i]

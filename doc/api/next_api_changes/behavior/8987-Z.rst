@@ -1,0 +1,6 @@
+``ScalarFormatter`` *useLocale* option obeys grouping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the `~.ScalarFormatter` option *useLocale* is enabled (or
+:rc:`axes.formatter.use_locale` is *True*) and the configured locale uses
+grouping, a separator will be added as described in `locale.format_string`.

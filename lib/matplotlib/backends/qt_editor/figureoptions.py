@@ -1,22 +1,15 @@
 # Copyright © 2009 Pierre Raybaut
 # Licensed under the terms of the MIT License
-# see the mpl licenses directory for a copy of the license
+# see the Matplotlib licenses directory for a copy of the license
 
 
-"""Module that provides a GUI-based editor for matplotlib's figure options."""
+"""Module that provides a GUI-based editor for Matplotlib's figure options."""
 
-import os.path
 import re
 
-import matplotlib
-from matplotlib import cm, colors as mcolors, markers, image as mimage
+from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
-
-
-def get_icon(name):
-    basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
-    return QtGui.QIcon(os.path.join(basedir, name))
 
 
 LINESTYLES = {'-': 'Solid',
@@ -82,11 +75,12 @@ def figure_edit(axes, parent=None):
     curves = []
 
     def prepare_data(d, init):
-        """Prepare entry for FormLayout.
+        """
+        Prepare entry for FormLayout.
 
-        `d` is a mapping of shorthands to style names (a single style may
+        *d* is a mapping of shorthands to style names (a single style may
         have multiple shorthands, in particular the shorthands `None`,
-        `"None"`, `"none"` and `""` are synonyms); `init` is one shorthand
+        `"None"`, `"none"` and `""` are synonyms); *init* is one shorthand
         of the initial style.
 
         This function returns an list suitable for initializing a
@@ -146,11 +140,11 @@ def figure_edit(axes, parent=None):
         mappabledict[label] = mappable
     mappablelabels = sorted(mappabledict, key=cmp_key)
     mappables = []
-    cmaps = [(cmap, name) for name, cmap in sorted(cm.cmap_d.items())]
+    cmaps = [(cmap, name) for name, cmap in sorted(cm._cmap_registry.items())]
     for label in mappablelabels:
         mappable = mappabledict[label]
         cmap = mappable.get_cmap()
-        if cmap not in cm.cmap_d.values():
+        if cmap not in cm._cmap_registry.values():
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [
@@ -176,7 +170,7 @@ def figure_edit(axes, parent=None):
         datalist.append((mappables, "Images, etc.", ""))
 
     def apply_callback(data):
-        """This function will be called to apply changes"""
+        """A callback to apply changes."""
         orig_xlim = axes.get_xlim()
         orig_ylim = axes.get_ylim()
 
@@ -257,8 +251,10 @@ def figure_edit(axes, parent=None):
         if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
             figure.canvas.toolbar.push_current()
 
-    data = _formlayout.fedit(datalist, title="Figure options", parent=parent,
-                             icon=get_icon('qt4_editor_options.svg'),
-                             apply=apply_callback)
+    data = _formlayout.fedit(
+        datalist, title="Figure options", parent=parent,
+        icon=QtGui.QIcon(
+            str(cbook._get_data_path('images', 'qt4_editor_options.svg'))),
+        apply=apply_callback)
     if data is not None:
         apply_callback(data)

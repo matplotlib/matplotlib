@@ -1,0 +1,10 @@
+Widgets use ``CallbackRegistry`` to save callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`.Widget`\s with event observers now use a `.CallbackRegistry` for storing
+callbacks. This is consistent with canvas event callbacks, and fixes some bugs
+in widget callback handling.
+
+Due to this change, callback methods are now stored as weak references, which
+means you must keep a reference to the associated object. Otherwise it may be
+garbage collected.

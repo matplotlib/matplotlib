@@ -4,7 +4,7 @@ Log Axis
 ========
 
 This is an example of assigning a log-scale for the x-axis using
-`semilogx`.
+`~.axes.Axes.semilogx`.
 """
 
 import matplotlib.pyplot as plt

@@ -2,10 +2,12 @@
 
 import operator
 
+from matplotlib import _api
 
-class UnitDbl(object):
-    """Class UnitDbl in development.
-    """
+
+class UnitDbl:
+    """Class UnitDbl in development."""
+
     # Unit conversion table.  Small subset of the full one but enough
     # to test the required functions.  First field is a scale factor to
     # convert the input units to the units of the second field.  Only
@@ -30,7 +32,8 @@ class UnitDbl(object):
         }
 
     def __init__(self, value, units):
-        """Create a new UnitDbl object.
+        """
+        Create a new UnitDbl object.
 
         Units are internally converted to km, rad, and sec.  The only
         valid inputs for units are [m, km, mile, rad, deg, sec, min, hour].
@@ -45,14 +48,13 @@ class UnitDbl(object):
         - value     The numeric value of the UnitDbl.
         - units     The string name of the units the value is in.
         """
-        self.checkUnits(units)
-
-        data = self.allowed[units]
+        data = _api.check_getitem(self.allowed, units=units)
         self._value = float(value * data[0])
         self._units = data[1]
 
     def convert(self, units):
-        """Convert the UnitDbl to a specific set of units.
+        """
+        Convert the UnitDbl to a specific set of units.
 
         = ERROR CONDITIONS
         - If the input units are not in the allowed list, an error is thrown.
@@ -66,17 +68,12 @@ class UnitDbl(object):
         """
         if self._units == units:
             return self._value
-
-        self.checkUnits(units)
-
-        data = self.allowed[units]
+        data = _api.check_getitem(self.allowed, units=units)
         if self._units != data[1]:
-            msg = "Error trying to convert to different units.\n" \
-                    "    Invalid conversion requested.\n" \
-                    "    UnitDbl: %s\n" \
-                    "    Units:    %s\n" % (str(self), units)
-            raise ValueError(msg)
-
+            raise ValueError(f"Error trying to convert to different units.\n"
+                             f"    Invalid conversion requested.\n"
+                             f"    UnitDbl: {self}\n"
+                             f"    Units:   {units}\n")
         return self._value / data[0]
 
     def __abs__(self):
@@ -110,7 +107,8 @@ class UnitDbl(object):
         return self._cmp(rhs, operator.ge)
 
     def _cmp(self, rhs, op):
-        """Compare two UnitDbl's.
+        """
+        Compare two UnitDbl's.
 
         = ERROR CONDITIONS
         - If the input rhs units are not the same as our units,
@@ -127,7 +125,8 @@ class UnitDbl(object):
         return op(self._value, rhs._value)
 
     def __add__(self, rhs):
-        """Add two UnitDbl's.
+        """
+        Add two UnitDbl's.
 
         = ERROR CONDITIONS
         - If the input rhs units are not the same as our units,
@@ -143,7 +142,8 @@ class UnitDbl(object):
         return UnitDbl(self._value + rhs._value, self._units)
 
     def __sub__(self, rhs):
-        """Subtract two UnitDbl's.
+        """
+        Subtract two UnitDbl's.
 
         = ERROR CONDITIONS
         - If the input rhs units are not the same as our units,
@@ -159,7 +159,8 @@ class UnitDbl(object):
         return UnitDbl(self._value - rhs._value, self._units)
 
     def __mul__(self, rhs):
-        """Scale a UnitDbl by a value.
+        """
+        Scale a UnitDbl by a value.
 
         = INPUT VARIABLES
         - rhs     The scalar to multiply by.
@@ -170,7 +171,8 @@ class UnitDbl(object):
         return UnitDbl(self._value * rhs, self._units)
 
     def __rmul__(self, lhs):
-        """Scale a UnitDbl by a value.
+        """
+        Scale a UnitDbl by a value.
 
         = INPUT VARIABLES
         - lhs     The scalar to multiply by.
@@ -179,17 +181,6 @@ class UnitDbl(object):
         - Returns the scaled UnitDbl.
         """
         return UnitDbl(self._value * lhs, self._units)
-
-    def __div__(self, rhs):
-        """Divide a UnitDbl by a value.
-
-        = INPUT VARIABLES
-        - rhs     The scalar to divide by.
-
-        = RETURN VALUE
-        - Returns the scaled UnitDbl.
-        """
-        return UnitDbl(self._value / rhs, self._units)
 
     def __str__(self):
         """Print the UnitDbl."""
@@ -203,8 +194,10 @@ class UnitDbl(object):
         """Return the type of UnitDbl data."""
         return self._types[self._units]
 
+    @staticmethod
     def range(start, stop, step=None):
-        """Generate a range of UnitDbl objects.
+        """
+        Generate a range of UnitDbl objects.
 
         Similar to the Python range() method.  Returns the range [
         start, stop) at the requested step.  Each element will be a
@@ -217,7 +210,7 @@ class UnitDbl(object):
                       value 1 w/ the units of the start is used.
 
         = RETURN VALUE
-        - Returns a list contianing the requested UnitDbl values.
+        - Returns a list containing the requested UnitDbl values.
         """
         if step is None:
             step = UnitDbl(1, start._units)
@@ -235,24 +228,9 @@ class UnitDbl(object):
 
         return elems
 
-    range = staticmethod(range)
-
-    def checkUnits(self, units):
-        """Check to see if some units are valid.
-
-        = ERROR CONDITIONS
-        - If the input units are not in the allowed list, an error is thrown.
-
-        = INPUT VARIABLES
-        - units     The string name of the units to check.
-        """
-        if units not in self.allowed:
-            raise ValueError("Input units '%s' are not one of the supported "
-                             "types of %s" % (
-                                units, list(self.allowed.keys())))
-
     def checkSameUnits(self, rhs, func):
-        """Check to see if units are the same.
+        """
+        Check to see if units are the same.
 
         = ERROR CONDITIONS
         - If the units of the rhs UnitDbl are not the same as our units,
@@ -263,7 +241,6 @@ class UnitDbl(object):
         - func    The name of the function doing the check.
         """
         if self._units != rhs._units:
-            msg = "Cannot %s units of different types.\n" \
-                    "LHS: %s\n" \
-                    "RHS: %s" % (func, self._units, rhs._units)
-            raise ValueError(msg)
+            raise ValueError(f"Cannot {func} units of different types.\n"
+                             f"LHS: {self._units}\n"
+                             f"RHS: {rhs._units}")

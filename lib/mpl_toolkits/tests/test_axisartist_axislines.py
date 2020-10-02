@@ -9,9 +9,11 @@ from mpl_toolkits.axisartist import SubplotHost, ParasiteAxesAuxTrans
 from mpl_toolkits.axisartist import Axes
 
 
-@image_comparison(baseline_images=['SubplotZero'],
-                  extensions=['png'], style='default')
+@image_comparison(['SubplotZero.png'], style='default')
 def test_SubplotZero():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure()
 
     ax = SubplotZero(fig, 1, 1, 1)
@@ -28,9 +30,11 @@ def test_SubplotZero():
     ax.set_ylabel("Test")
 
 
-@image_comparison(baseline_images=['Subplot'],
-                  extensions=['png'], style='default')
+@image_comparison(['Subplot.png'], style='default')
 def test_Subplot():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure()
 
     ax = Subplot(fig, 1, 1, 1)
@@ -51,16 +55,15 @@ def test_Axes():
     ax = Axes(fig, [0.15, 0.1, 0.65, 0.8])
     fig.add_axes(ax)
     ax.plot([1, 2, 3], [0, 1, 2])
-
     ax.set_xscale('log')
+    fig.canvas.draw()
 
-    plt.show()
 
-
-@image_comparison(baseline_images=['ParasiteAxesAuxTrans_meshplot'],
-                  extensions=['png'], remove_text=True, style='default',
-                  tol=0.075)
+@image_comparison(['ParasiteAxesAuxTrans_meshplot.png'],
+                  remove_text=True, style='default', tol=0.075)
 def test_ParasiteAxesAuxTrans():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
 
     data = np.ones((6, 6))
     data[2, 2] = 2
@@ -82,7 +85,10 @@ def test_ParasiteAxesAuxTrans():
 
         ax2 = ParasiteAxesAuxTrans(ax1, IdentityTransform())
         ax1.parasites.append(ax2)
-        getattr(ax2, name)(xx, yy, data)
+        if name.startswith('pcolor'):
+            getattr(ax2, name)(xx, yy, data[:-1, :-1])
+        else:
+            getattr(ax2, name)(xx, yy, data)
         ax1.set_xlim((0, 5))
         ax1.set_ylim((0, 5))
 

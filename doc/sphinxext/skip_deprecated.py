@@ -1,5 +1,6 @@
 # Skip deprecated members
 
+
 def skip_deprecated(app, what, name, obj, skip, options):
     if skip:
         return skip
@@ -7,6 +8,7 @@ def skip_deprecated(app, what, name, obj, skip, options):
     skip_list = skipped.get(getattr(obj, "__module__", None))
     if skip_list is not None:
         return getattr(obj, "__name__", None) in skip_list
+
 
 def setup(app):
     app.connect('autodoc-skip-member', skip_deprecated)

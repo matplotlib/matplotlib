@@ -14,7 +14,7 @@ np.random.seed(19680801)
 fig, ax = plt.subplots()
 
 image = np.random.uniform(size=(10, 10))
-ax.imshow(image, cmap=plt.cm.gray, interpolation='nearest')
+ax.imshow(image, cmap=plt.cm.gray)
 ax.set_title('dropped spines')
 
 # Move left and bottom spines outward by 10 points

@@ -8,8 +8,9 @@ Sometimes we want to combine two subplots in an axes layout created with
 and then remove the covered axes and fill the gap with a new bigger axes.
 Here we create a layout with the bottom two axes in the last column combined.
 
-See: :doc:`/tutorials/intermediate/gridspec`
+See also :doc:`/tutorials/intermediate/gridspec`.
 """
+
 import matplotlib.pyplot as plt
 
 fig, axs = plt.subplots(ncols=3, nrows=3)
@@ -22,3 +23,5 @@ axbig.annotate('Big Axes \nGridSpec[1:, -1]', (0.1, 0.5),
                xycoords='axes fraction', va='center')
 
 fig.tight_layout()
+
+plt.show()

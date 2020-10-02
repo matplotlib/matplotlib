@@ -8,6 +8,8 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 """
 import numpy as np
 
+from matplotlib import _api
+
 __all__ = ['stackplot']
 
 
@@ -48,12 +50,11 @@ def stackplot(axes, x, *args,
         colour the stacked areas.
 
     **kwargs
-        All other keyword arguments are passed to `Axes.fill_between()`.
-
+        All other keyword arguments are passed to `.Axes.fill_between`.
 
     Returns
     -------
-    list : list of `.PolyCollection`
+    list of `.PolyCollection`
         A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
     """
@@ -68,6 +69,8 @@ def stackplot(axes, x, *args,
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
+    _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
+                       baseline=baseline)
     if baseline == 'zero':
         first_line = 0.
 
@@ -96,11 +99,6 @@ def stackplot(axes, x, *args,
         center = np.cumsum(center.sum(0))
         first_line = center - 0.5 * total
         stack += first_line
-
-    else:
-        errstr = "Baseline method %s not recognised. " % baseline
-        errstr += "Expected 'zero', 'sym', 'wiggle' or 'weighted_wiggle'"
-        raise ValueError(errstr)
 
     # Color between x = 0 and the first array.
     color = axes._get_lines.get_next_color()

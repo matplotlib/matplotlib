@@ -4,10 +4,14 @@
 The Matplotlib Developers' Guide
 ################################
 
-.. only:: html
+.. raw:: html
 
-   :Release: |version|
-   :Date: |today|
+   <div style="margin: 2em 0;">
+     <a href="contributing.html#submitting-a-bug-report"><span class="mpl-button">Report a bug</span></a>
+     <a href="contributing.html#request-a-new-feature"><span class="mpl-button">Request a feature</span></a>
+     <a href="contributing.html#contributing-code"><span class="mpl-button">Contribute code</span></a>
+     <a href="contributing.html#contributing-documentation"><span class="mpl-button">Write documentation</span></a>
+   </div>
 
 .. toctree::
    :maxdepth: 2
@@ -15,7 +19,6 @@ The Matplotlib Developers' Guide
    contributing.rst
    testing.rst
    documenting_mpl.rst
-   plot_directive.rst
    add_new_projection.rst
    gitwash/index.rst
    coding_guide.rst

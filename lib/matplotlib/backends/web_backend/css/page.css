@@ -78,5 +78,6 @@ span#login_widget {
 #figure-div {
     display: inline-block;
     margin: 10px;
+    vertical-align: top;
 }
 

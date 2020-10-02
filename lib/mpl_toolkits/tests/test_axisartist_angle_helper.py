@@ -118,12 +118,11 @@ def test_formatters(Formatter, regex, direction, factor, values):
     prev_degree = prev_minute = prev_second = None
     for tick, value in zip(result, values):
         m = regex.match(tick)
-        assert m is not None, '"%s" is not an expected tick format.' % (tick, )
+        assert m is not None, f'{tick!r} is not an expected tick format.'
 
         sign = sum(m.group(sign + '_sign') is not None
                    for sign in ('degree', 'minute', 'second'))
-        assert sign <= 1, \
-            'Only one element of tick "%s" may have a sign.' % (tick, )
+        assert sign <= 1, f'Only one element of tick {tick!r} may have a sign.'
         sign = 1 if sign == 0 else -1
 
         degree = float(m.group('degree') or prev_degree or 0)
@@ -135,7 +134,7 @@ def test_formatters(Formatter, regex, direction, factor, values):
         else:
             expected_value = pytest.approx(value / factor)
         assert sign * dms2float(degree, minute, second) == expected_value, \
-            '"%s" does not match expected tick value.' % (tick, )
+            f'{tick!r} does not match expected tick value.'
 
         prev_degree = degree
         prev_minute = minute

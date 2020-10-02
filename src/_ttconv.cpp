@@ -5,7 +5,7 @@
 
   Python wrapper for TrueType conversion library in ../ttconv.
  */
-
+#define PY_SSIZE_T_CLEAN
 #include "mplutils.h"
 
 #include <Python.h>
@@ -49,7 +49,7 @@ class PythonFileWriter : public TTStreamWriter
             if (decoded == NULL) {
                 throw py::exception();
             }
-            result = PyObject_CallFunction(_write_method, (char *)"O", decoded);
+            result = PyObject_CallFunctionObjArgs(_write_method, decoded, NULL);
             Py_DECREF(decoded);
             if (!result) {
                 throw py::exception();
@@ -276,8 +276,10 @@ static PyModuleDef ttconv_module = {
     NULL, NULL, NULL, NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC
-PyInit_ttconv(void)
+PyInit__ttconv(void)
 {
     PyObject* m;
 
@@ -285,3 +287,5 @@ PyInit_ttconv(void)
 
     return m;
 }
+
+#pragma GCC visibility pop

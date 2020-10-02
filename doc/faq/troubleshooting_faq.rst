@@ -84,7 +84,7 @@ There is a good chance your question has already been asked:
 
 - The `mailing list archive <http://matplotlib.1069221.n5.nabble.com/>`_.
 
-- `Github issues <https://github.com/matplotlib/matplotlib/issues>`_.
+- `GitHub issues <https://github.com/matplotlib/matplotlib/issues>`_.
 
 - Stackoverflow questions tagged `matplotlib
   <http://stackoverflow.com/questions/tagged/matplotlib>`_.
@@ -97,11 +97,10 @@ provide the following information in your e-mail to the `mailing list
 
 * Matplotlib version::
 
-     python -c "import matplotlib; print matplotlib.__version__"
+     python -c "import matplotlib; print(matplotlib.__version__)"
 
 * Where you obtained Matplotlib (e.g., your Linux distribution's packages,
-  Github, PyPi, or `Anaconda <https://www.continuum.io/downloads>`_ or
-  `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
+  GitHub, PyPI, or `Anaconda <https://www.anaconda.com/>`_).
 
 * Any customizations to your ``matplotlibrc`` file (see
   :doc:`/tutorials/introductory/customizing`).
@@ -114,35 +113,18 @@ provide the following information in your e-mail to the `mailing list
   the error will help you find a bug in *your* code that is causing the
   problem.
 
-* You can get helpful debugging output from Matlotlib by using the `logging`
-  library in your code and posting the verbose output to the lists.  For a
-  command-line version of this, try::
+* Matplotlib provides debugging information through the `logging` library, and
+  a helper function to set the logging level: one can call ::
 
-     python -c "from logging import *; basicConfig(level=DEBUG); from pylab import *; plot(); show()"
+    plt.set_loglevel("info")  # or "debug" for more info
 
+  to obtain this debugging information.
 
-  If you want to put the debugging hooks in your own code, then the
-  most simple way to do so is to insert the following *before* any calls
-  to ``import matplotlib``::
-
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
-
-    import matplotlib.pyplot as plt
-
-  Note that if you want to use `logging` in your own code, but do not
-  want verbose Matplotlib output, you can set the logging level
-  for Matplotlib independently::
-
-    import logging
-    # set DEBUG for everything
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger('matplotlib')
-    # set WARNING for Matplotlib
-    logger.setLevel(logging.WARNING)
-
-  The `logging` module is very flexible, and can be a valuable tool in chasing
-  down errors.
+  Standard functions from the `logging` module are also applicable; e.g. one
+  could call ``logging.basicConfig(level="DEBUG")`` even before importing
+  Matplotlib (this is in particular necessary to get the logging info emitted
+  during Matplotlib's import), or attach a custom handler to the "matplotlib"
+  logger.  This may be useful if you use a custom logging configuration.
 
 If you compiled Matplotlib yourself, please also provide:
 
@@ -180,7 +162,7 @@ mode::
     git clean -xdf
     git pull
     python -mpip install -v . > build.out
-    python examples/pylab_examples/simple_plot.py --verbose-debug > run.out
+    python -c "from pylab import *; set_loglevel('debug'); plot(); show()" > run.out
 
 and post :file:`build.out` and :file:`run.out` to the `matplotlib-devel
 <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_

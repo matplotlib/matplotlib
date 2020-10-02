@@ -13,7 +13,7 @@ from . import axes_size as Size
 from .parasite_axes import HostAxes
 
 
-class InsetPosition(object):
+class InsetPosition:
     @docstring.dedent_interpd
     def __init__(self, parent, lbwh):
         """
@@ -96,15 +96,14 @@ class AnchoredSizeLocator(AnchoredLocatorBase):
         self.y_size = Size.from_any(y_size)
 
     def get_extent(self, renderer):
-        x, y, w, h = self.get_bbox_to_anchor().bounds
-
+        bbox = self.get_bbox_to_anchor()
         dpi = renderer.points_to_pixels(72.)
 
         r, a = self.x_size.get_size(renderer)
-        width = w * r + a * dpi
-
+        width = bbox.width * r + a * dpi
         r, a = self.y_size.get_size(renderer)
-        height = h * r + a * dpi
+        height = bbox.height * r + a * dpi
+
         xd, yd = 0, 0
 
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
@@ -120,23 +119,19 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
                  bbox_transform=None):
         self.parent_axes = parent_axes
         self.zoom = zoom
-
         if bbox_to_anchor is None:
             bbox_to_anchor = parent_axes.bbox
-
         super().__init__(
             bbox_to_anchor, None, loc, borderpad=borderpad,
             bbox_transform=bbox_transform)
 
     def get_extent(self, renderer):
-        bb = TransformedBbox(self.axes.viewLim,
-                             self.parent_axes.transData)
-
-        x, y, w, h = bb.bounds
+        bb = TransformedBbox(self.axes.viewLim, self.parent_axes.transData)
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
-
-        return abs(w * self.zoom) + 2 * pad, abs(h * self.zoom) + 2 * pad, pad, pad
+        return (abs(bb.width * self.zoom) + 2 * pad,
+                abs(bb.height * self.zoom) + 2 * pad,
+                pad, pad)
 
 
 class BboxPatch(Patch):
@@ -152,35 +147,21 @@ class BboxPatch(Patch):
 
         **kwargs
             Patch properties. Valid arguments include:
+
             %(Patch)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.bbox = bbox
 
     def get_path(self):
+        # docstring inherited
         x0, y0, x1, y1 = self.bbox.extents
-
-        verts = [(x0, y0),
-                 (x1, y0),
-                 (x1, y1),
-                 (x0, y1),
-                 (x0, y0),
-                 (0, 0)]
-
-        codes = [Path.MOVETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.CLOSEPOLY]
-
-        return Path(verts, codes)
-
-    get_path.__doc__ = Patch.get_path.__doc__
+        return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
+                    closed=True)
 
 
 class BboxConnector(Patch):
@@ -250,25 +231,14 @@ class BboxConnector(Patch):
             corner of *bbox2*.
         """
         if isinstance(bbox1, Rectangle):
-            transform = bbox1.get_transform()
-            bbox1 = Bbox.from_bounds(0, 0, 1, 1)
-            bbox1 = TransformedBbox(bbox1, transform)
-
+            bbox1 = TransformedBbox(Bbox.unit(), bbox1.get_transform())
         if isinstance(bbox2, Rectangle):
-            transform = bbox2.get_transform()
-            bbox2 = Bbox.from_bounds(0, 0, 1, 1)
-            bbox2 = TransformedBbox(bbox2, transform)
-
+            bbox2 = TransformedBbox(Bbox.unit(), bbox2.get_transform())
         if loc2 is None:
             loc2 = loc1
-
         x1, y1 = BboxConnector.get_bbox_edge_pos(bbox1, loc1)
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
-
-        verts = [[x1, y1], [x2, y2]]
-        codes = [Path.MOVETO, Path.LINETO]
-
-        return Path(verts, codes)
+        return Path([[x1, y1], [x2, y2]])
 
     @docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
@@ -299,6 +269,7 @@ class BboxConnector(Patch):
 
         **kwargs
             Patch properties for the line drawn. Valid arguments include:
+
             %(Patch)s
         """
         if "transform" in kwargs:
@@ -306,20 +277,19 @@ class BboxConnector(Patch):
 
         kwargs["transform"] = IdentityTransform()
         if 'fill' in kwargs:
-            Patch.__init__(self, **kwargs)
+            super().__init__(**kwargs)
         else:
-            fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
-            Patch.__init__(self, fill=fill, **kwargs)
+            fill = bool({'fc', 'facecolor', 'color'}.intersection(kwargs))
+            super().__init__(fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
         self.loc2 = loc2
 
     def get_path(self):
+        # docstring inherited
         return self.connect_bbox(self.bbox1, self.bbox2,
                                  self.loc1, self.loc2)
-
-    get_path.__doc__ = Patch.get_path.__doc__
 
 
 class BboxConnectorPatch(BboxConnector):
@@ -328,10 +298,10 @@ class BboxConnectorPatch(BboxConnector):
         """
         Connect two bboxes with a quadrilateral.
 
-        The quadrilateral is specified by two lines that start and end at corners
-        of the bboxes. The four sides of the quadrilateral are defined by the two
-        lines given, the line between the two corners specified in *bbox1* and the
-        line between the two corners specified in *bbox2*.
+        The quadrilateral is specified by two lines that start and end at
+        corners of the bboxes. The four sides of the quadrilateral are defined
+        by the two lines given, the line between the two corners specified in
+        *bbox1* and the line between the two corners specified in *bbox2*.
 
         Parameters
         ----------
@@ -358,22 +328,22 @@ class BboxConnectorPatch(BboxConnector):
 
         **kwargs
             Patch properties for the line drawn:
+
             %(Patch)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
-        BboxConnector.__init__(self, bbox1, bbox2, loc1a, loc2a, **kwargs)
+        super().__init__(bbox1, bbox2, loc1a, loc2a, **kwargs)
         self.loc1b = loc1b
         self.loc2b = loc2b
 
     def get_path(self):
+        # docstring inherited
         path1 = self.connect_bbox(self.bbox1, self.bbox2, self.loc1, self.loc2)
         path2 = self.connect_bbox(self.bbox2, self.bbox1,
                                   self.loc2b, self.loc1b)
         path_merged = [*path1.vertices, *path2.vertices, path1.vertices[0]]
         return Path(path_merged)
-
-    get_path.__doc__ = BboxConnector.get_path.__doc__
 
 
 def _add_inset_axes(parent_axes, inset_axes):
@@ -434,7 +404,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         are relative to the parent_axes. Otherwise they are to be understood
         relative to the bounding box provided via *bbox_to_anchor*.
 
-    loc : int or string, optional, default to 1
+    loc : int or str, default: 1
         Location to place the inset axes. The valid locations are::
 
             'upper right'  : 1,
@@ -478,16 +448,17 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     axes_kwargs : dict, optional
         Keyworded arguments to pass to the constructor of the inset axes.
         Valid arguments include:
+
         %(Axes)s
 
-    borderpad : float, optional
-        Padding between inset axes and the bbox_to_anchor. Defaults to 0.5.
+    borderpad : float, default: 0.5
+        Padding between inset axes and the bbox_to_anchor.
         The units are axes font size, i.e. for a default font size of 10 points
         *borderpad = 0.5* is equivalent to a padding of 5 points.
 
     Returns
     -------
-    inset_axes : `axes_class`
+    inset_axes : *axes_class*
         Inset axes object created.
     """
 
@@ -506,18 +477,18 @@ def inset_axes(parent_axes, width, height, loc='upper right',
             cbook._warn_external("Using the axes or figure transform "
                                  "requires a bounding box in the respective "
                                  "coordinates. "
-                                 "Using bbox_to_anchor=(0,0,1,1) now.")
+                                 "Using bbox_to_anchor=(0, 0, 1, 1) now.")
             bbox_to_anchor = (0, 0, 1, 1)
 
     if bbox_to_anchor is None:
         bbox_to_anchor = parent_axes.bbox
 
-    if isinstance(bbox_to_anchor, tuple) and \
-        (isinstance(width, str) or isinstance(height, str)):
+    if (isinstance(bbox_to_anchor, tuple) and
+            (isinstance(width, str) or isinstance(height, str))):
         if len(bbox_to_anchor) != 4:
             raise ValueError("Using relative units for width or height "
                              "requires to provide a 4-tuple or a "
-                             "`BBox` instance to `bbox_to_anchor.")
+                             "`Bbox` instance to `bbox_to_anchor.")
 
     axes_locator = AnchoredSizeLocator(bbox_to_anchor,
                                        width, height,
@@ -552,7 +523,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         coordinates (i.e., "zoomed in"), while *zoom* < 1 will shrink the
         coordinates (i.e., "zoomed out").
 
-    loc : int or string, optional, default to 1
+    loc : int or str, default: 'upper right'
         Location to place the inset axes. The valid locations are::
 
             'upper right'  : 1,
@@ -595,16 +566,17 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
     axes_kwargs : dict, optional
         Keyworded arguments to pass to the constructor of the inset axes.
         Valid arguments include:
+
         %(Axes)s
 
-    borderpad : float, optional
-        Padding between inset axes and the bbox_to_anchor. Defaults to 0.5.
+    borderpad : float, default: 0.5
+        Padding between inset axes and the bbox_to_anchor.
         The units are axes font size, i.e. for a default font size of 10 points
         *borderpad = 0.5* is equivalent to a padding of 5 points.
 
     Returns
     -------
-    inset_axes : `axes_class`
+    inset_axes : *axes_class*
         Inset axes object created.
     """
 
@@ -651,6 +623,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
 
     **kwargs
         Patch properties for the lines and box drawn:
+
         %(Patch)s
 
     Returns
@@ -666,7 +639,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     if 'fill' in kwargs:
         pp = BboxPatch(rect, **kwargs)
     else:
-        fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+        fill = bool({'fc', 'facecolor', 'color'}.intersection(kwargs))
         pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
 

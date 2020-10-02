@@ -1,15 +1,17 @@
 import io
+import os
 import re
 
 import numpy as np
 import pytest
 
-import matplotlib
+import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import mathtext
+from matplotlib import cbook, mathtext
 
 
+# If test is removed, use None as placeholder
 math_tests = [
     r'$a+b+\dot s+\dot{s}+\ldots$',
     r'$x \doteq y$',
@@ -55,7 +57,7 @@ math_tests = [
     '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
     # The examples prefixed by 'mmltt' are from the MathML torture test here:
-    # http://www.mozilla.org/projects/mathml/demo/texvsmml.xhtml
+    # https://developer.mozilla.org/en-US/docs/Mozilla/MathML_Project/MathML_Torture_Test
     r'${x}^{2}{y}^{2}$',
     r'${}_{2}F_{3}$',
     r'$\frac{x+{y}^{2}}{k+1}$',
@@ -75,7 +77,7 @@ math_tests = [
     # mathtex doesn't support array
     # 'mmltt18'    : r'$f\left(x\right)=\left\{\begin{array}{cc}\hfill 1/3\hfill & \text{if_}0\le x\le 1;\hfill \\ \hfill 2/3\hfill & \hfill \text{if_}3\le x\le 4;\hfill \\ \hfill 0\hfill & \text{elsewhere.}\hfill \end{array}$',
     # mathtex doesn't support stackrel
-    # 'mmltt19'    : ur'$\stackrel{\stackrel{k\text{times}}{\ufe37}}{x+...+x}$',
+    # 'mmltt19'    : r'$\stackrel{\stackrel{k\text{times}}{\ufe37}}{x+...+x}$',
     r'${y}_{{x}^{2}}$',
     # mathtex doesn't support the "\text" command
     # 'mmltt21'    : r'$\sum _{p\text{\prime}}f\left(p\right)={\int }_{t>1}f\left(t\right) d\pi \left(t\right)$',
@@ -90,10 +92,10 @@ math_tests = [
     r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
     r"$\left(2 \, a=b\right)$",  # Sage bug #8125
     r"$? ! &$",  # github issue #466
-    r'$\operatorname{cos} x$',  # github issue #553
+    None,
     r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
-    r'$\mathring{A}  \stackrel{\circ}{A}  \AA$',
+    r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
     r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
@@ -101,7 +103,7 @@ math_tests = [
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._snowflake)),
+    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._accentprefixed)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
@@ -119,15 +121,19 @@ lowergreek = ("\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\i
               "\\phi \\chi \\psi")
 all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 
+# Use stubs to reserve space if tests are removed
+# stub should be of the form (None, N) where N is the number of strings that
+# used to be tested
+# Add new tests at the end.
 font_test_specs = [
     ([], all),
     (['mathrm'], all),
     (['mathbf'], all),
     (['mathit'], all),
     (['mathtt'], [digits, uppercase, lowercase]),
-    (['mathcircled'], [digits, uppercase, lowercase]),
-    (['mathrm', 'mathcircled'], [digits, uppercase, lowercase]),
-    (['mathbf', 'mathcircled'], [digits, uppercase, lowercase]),
+    (None, 3),
+    (None, 3),
+    (None, 3),
     (['mathbb'], [digits, uppercase, lowercase,
                   r'\Gamma \Pi \Sigma \gamma \pi']),
     (['mathrm', 'mathbb'], [digits, uppercase, lowercase,
@@ -145,17 +151,21 @@ font_test_specs = [
 
 font_tests = []
 for fonts, chars in font_test_specs:
-    wrapper = [' '.join(fonts), ' $']
-    for font in fonts:
-        wrapper.append(r'\%s{' % font)
-    wrapper.append('%s')
-    for font in fonts:
-        wrapper.append('}')
-    wrapper.append('$')
-    wrapper = ''.join(wrapper)
+    if fonts is None:
+        font_tests.extend([None] * chars)
+    else:
+        wrapper = ''.join([
+            ' '.join(fonts),
+            ' $',
+            *(r'\%s{' % font for font in fonts),
+            '%s',
+            *('}' for font in fonts),
+            '$',
+        ])
+        for set in chars:
+            font_tests.append(wrapper % set)
 
-    for set in chars:
-        font_tests.append(wrapper % set)
+font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
 
 
 @pytest.fixture
@@ -163,39 +173,40 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-@pytest.mark.parametrize('index, test', enumerate(math_tests),
-                         ids=[str(index) for index in range(len(math_tests))])
+cur_math_tests = list(filter(lambda x: x[1] is not None, enumerate(math_tests)))
+
+
+@pytest.mark.parametrize('index, test', cur_math_tests,
+                         ids=[str(index) for index, _ in cur_math_tests])
 @pytest.mark.parametrize('fontset',
                          ['cm', 'stix', 'stixsans', 'dejavusans',
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
 def test_mathtext_rendering(baseline_images, fontset, index, test):
-    matplotlib.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, test', enumerate(font_tests),
-                         ids=[str(index) for index in range(len(font_tests))])
+@pytest.mark.parametrize('index, test', font_tests,
+                         ids=[str(index) for index, _ in font_tests])
 @pytest.mark.parametrize('fontset',
                          ['cm', 'stix', 'stixsans', 'dejavusans',
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
 def test_mathfont_rendering(baseline_images, fontset, index, test):
-    matplotlib.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
              horizontalalignment='center', verticalalignment='center')
 
 
 def test_fontinfo():
-    import matplotlib.font_manager as font_manager
-    import matplotlib.ft2font as ft2font
-    fontpath = font_manager.findfont("DejaVu Sans")
-    font = ft2font.FT2Font(fontpath)
+    fontpath = mpl.font_manager.findfont("DejaVu Sans")
+    font = mpl.ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)
 
@@ -207,8 +218,6 @@ def test_fontinfo():
         (r'$\hspace{foo}$', r'Expected \hspace{n}'),
         (r'$\frac$', r'Expected \frac{num}{den}'),
         (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
-        (r'$\stackrel$', r'Expected \stackrel{num}{den}'),
-        (r'$\stackrel{}{}$', r'Expected \stackrel{num}{den}'),
         (r'$\binom$', r'Expected \binom{num}{den}'),
         (r'$\binom{}{}$', r'Expected \binom{num}{den}'),
         (r'$\genfrac$',
@@ -231,8 +240,6 @@ def test_fontinfo():
         'hspace with invalid value',
         'frac without parameters',
         'frac with empty parameters',
-        'stackrel without parameters',
-        'stackrel with empty parameters',
         'binom without parameters',
         'binom with empty parameters',
         'genfrac without parameters',
@@ -252,9 +259,8 @@ def test_fontinfo():
 def test_mathtext_exceptions(math, msg):
     parser = mathtext.MathTextParser('agg')
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match=re.escape(msg)):
         parser.parse(math)
-    excinfo.match(re.escape(msg))
 
 
 def test_single_minus_sign():
@@ -277,3 +283,91 @@ def test_single_minus_sign():
 def test_spaces(fig_test, fig_ref):
     fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
     fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+
+
+@check_figures_equal(extensions=["png"])
+def test_operator_space(fig_test, fig_ref):
+    fig_test.text(0.1, 0.1, r"$\log 6$")
+    fig_test.text(0.1, 0.2, r"$\log(6)$")
+    fig_test.text(0.1, 0.3, r"$\arcsin 6$")
+    fig_test.text(0.1, 0.4, r"$\arcsin|6|$")
+    fig_test.text(0.1, 0.5, r"$\operatorname{op} 6$")  # GitHub issue #553
+    fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
+    fig_test.text(0.1, 0.7, r"$\cos^2$")
+    fig_test.text(0.1, 0.8, r"$\log_2$")
+
+    fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
+    fig_ref.text(0.1, 0.3, r"$\mathrm{arcsin\,}6$")
+    fig_ref.text(0.1, 0.4, r"$\mathrm{arcsin}|6|$")
+    fig_ref.text(0.1, 0.5, r"$\mathrm{op\,}6$")
+    fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
+    fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
+    fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
+
+
+def test_mathtext_fallback_valid():
+    for fallback in ['cm', 'stix', 'stixsans', 'None']:
+        mpl.rcParams['mathtext.fallback'] = fallback
+
+
+@pytest.mark.xfail
+def test_mathtext_fallback_invalid():
+    for fallback in ['abc', '']:
+        mpl.rcParams['mathtext.fallback'] = fallback
+
+
+@pytest.mark.xfail
+def test_mathtext_fallback_to_cm_invalid():
+    for fallback in [True, False]:
+        mpl.rcParams['mathtext.fallback_to_cm'] = fallback
+
+
+@pytest.mark.parametrize(
+    "fallback,fontlist",
+    [("cm", ['DejaVu Sans', 'mpltest', 'STIXGeneral', 'cmr10', 'STIXGeneral']),
+     ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral'])])
+def test_mathtext_fallback(fallback, fontlist):
+    mpl.font_manager.fontManager.addfont(
+        os.path.join((os.path.dirname(os.path.realpath(__file__))), 'mpltest.ttf'))
+    mpl.rcParams["svg.fonttype"] = 'none'
+    mpl.rcParams['mathtext.fontset'] = 'custom'
+    mpl.rcParams['mathtext.rm'] = 'mpltest'
+    mpl.rcParams['mathtext.it'] = 'mpltest:italic'
+    mpl.rcParams['mathtext.bf'] = 'mpltest:bold'
+    mpl.rcParams['mathtext.fallback'] = fallback
+
+    test_str = r'a$A\AA\breve\gimel$'
+
+    buff = io.BytesIO()
+    fig, ax = plt.subplots()
+    fig.text(.5, .5, test_str, fontsize=40, ha='center')
+    fig.savefig(buff, format="svg")
+    char_fonts = [
+        line.split("font-family:")[-1].split(";")[0]
+        for line in str(buff.getvalue()).split(r"\n") if "tspan" in line
+    ]
+    assert char_fonts == fontlist
+    mpl.font_manager.fontManager.ttflist = mpl.font_manager.fontManager.ttflist[:-1]
+
+
+def test_math_to_image(tmpdir):
+    mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
+    mathtext.math_to_image('$x^2$', io.BytesIO())
+
+
+def test_mathtext_to_png(tmpdir):
+    with cbook._suppress_matplotlib_deprecation_warning():
+        mt = mathtext.MathTextParser('bitmap')
+        mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
+        mt.to_png(io.BytesIO(), '$x^2$')
+
+
+@image_comparison(baseline_images=['math_fontfamily_image.png'],
+                  savefig_kwarg={'dpi': 40})
+def test_math_fontfamily():
+    fig = plt.figure(figsize=(10, 3))
+    fig.text(0.2, 0.7, r"$This\ text\ should\ have\ one\ font$",
+             size=24, math_fontfamily='dejavusans')
+    fig.text(0.2, 0.3, r"$This\ text\ should\ have\ another$",
+             size=24, math_fontfamily='stix')

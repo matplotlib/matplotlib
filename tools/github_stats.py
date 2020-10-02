@@ -34,7 +34,7 @@ def round_hour(dt):
     return dt.replace(minute=0,second=0,microsecond=0)
 
 def _parse_datetime(s):
-    """Parse dates in the format returned by the Github API."""
+    """Parse dates in the format returned by the GitHub API."""
     if s:
         return datetime.strptime(s, ISO8601)
     else:
@@ -48,7 +48,7 @@ def issues2dict(issues):
     return idict
 
 def split_pulls(all_issues, project="matplotlib/matplotlib"):
-    """split a list of closed issues into non-PR Issues and Pull Requests"""
+    """Split a list of closed issues into non-PR Issues and Pull Requests."""
     pulls = []
     issues = []
     for i in all_issues:
@@ -209,8 +209,8 @@ if __name__ == "__main__":
 
     print("We closed %d issues and merged %d pull requests." % (n_issues, n_pulls))
     if milestone:
-        print("The full list can be seen `on GitHub <https://github.com/%s/milestone/%s>`__"
-            % (project, milestone)
+        print("The full list can be seen `on GitHub <https://github.com/%s/milestone/%s?closed=1>`__"
+            % (project, milestone_id)
         )
 
     print()
@@ -227,3 +227,17 @@ if __name__ == "__main__":
         print()
         print('Issues (%d):\n' % n_issues)
         report(issues, show_urls)
+    print()
+    print()
+    print("""Previous GitHub Stats
+---------------------
+
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+    :reversed:
+
+    prev_whats_new/github_stats_*
+
+""")

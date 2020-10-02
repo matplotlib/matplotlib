@@ -12,7 +12,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
+from matplotlib import rc_context
 
 
 def test_legend_ordereddict():
@@ -33,33 +33,30 @@ def test_legend_ordereddict():
               loc='center left', bbox_to_anchor=(1, .5))
 
 
-@image_comparison(baseline_images=['legend_auto1'], remove_text=True)
+@image_comparison(['legend_auto1'], remove_text=True)
 def test_legend_auto1():
-    'Test automatic legend placement'
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    """Test automatic legend placement"""
+    fig, ax = plt.subplots()
     x = np.arange(100)
     ax.plot(x, 50 - x, 'o', label='y=1')
     ax.plot(x, x - 50, 'o', label='y=-1')
     ax.legend(loc='best')
 
 
-@image_comparison(baseline_images=['legend_auto2'], remove_text=True)
+@image_comparison(['legend_auto2'], remove_text=True)
 def test_legend_auto2():
-    'Test automatic legend placement'
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    """Test automatic legend placement"""
+    fig, ax = plt.subplots()
     x = np.arange(100)
     b1 = ax.bar(x, x, align='edge', color='m')
     b2 = ax.bar(x, x[::-1], align='edge', color='g')
     ax.legend([b1[0], b2[0]], ['up', 'down'], loc='best')
 
 
-@image_comparison(baseline_images=['legend_auto3'])
+@image_comparison(['legend_auto3'])
 def test_legend_auto3():
-    'Test automatic legend placement'
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    """Test automatic legend placement"""
+    fig, ax = plt.subplots()
     x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
     y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
     ax.plot(x, y, 'o-', label='line')
@@ -68,7 +65,7 @@ def test_legend_auto3():
     ax.legend(loc='best')
 
 
-@image_comparison(baseline_images=['legend_various_labels'], remove_text=True)
+@image_comparison(['legend_various_labels'], remove_text=True)
 def test_various_labels():
     # tests all sorts of label types
     fig = plt.figure()
@@ -79,24 +76,20 @@ def test_various_labels():
     ax.legend(numpoints=1, loc='best')
 
 
-@image_comparison(baseline_images=['legend_labels_first'], extensions=['png'],
-                  remove_text=True)
+@image_comparison(['legend_labels_first.png'], remove_text=True)
 def test_labels_first():
     # test labels to left of markers
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot(np.arange(10), '-o', label=1)
     ax.plot(np.ones(10)*5, ':x', label="x")
     ax.plot(np.arange(20, 10, -1), 'd', label="diamond")
     ax.legend(loc='best', markerfirst=False)
 
 
-@image_comparison(baseline_images=['legend_multiple_keys'], extensions=['png'],
-                  remove_text=True)
+@image_comparison(['legend_multiple_keys.png'], remove_text=True)
 def test_multiple_keys():
     # test legend entries with multiple keys
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     p1, = ax.plot([1, 2, 3], '-o')
     p2, = ax.plot([2, 3, 4], '-x')
     p3, = ax.plot([3, 4, 5], '-d')
@@ -106,25 +99,19 @@ def test_multiple_keys():
                            (p2, p1): HandlerTuple(ndivide=None, pad=0)})
 
 
-@image_comparison(baseline_images=['rgba_alpha'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'], remove_text=True)
+@image_comparison(['rgba_alpha.png'], remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_alpha_rgba():
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
     leg = plt.legend(['Longlabel that will go away'], loc='center')
     leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
 
 
-@image_comparison(baseline_images=['rcparam_alpha'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'], remove_text=True)
+@image_comparison(['rcparam_alpha.png'], remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_alpha_rcparam():
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
     with mpl.rc_context(rc={'legend.framealpha': .75}):
         leg = plt.legend(['Longlabel that will go away'], loc='center')
@@ -135,7 +122,7 @@ def test_alpha_rcparam():
         leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
 
 
-@image_comparison(baseline_images=['fancy'], remove_text=True)
+@image_comparison(['fancy'], remove_text=True)
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.subplot(121)
@@ -147,8 +134,8 @@ def test_fancy():
                ncol=2, shadow=True, title="My legend", numpoints=1)
 
 
-@image_comparison(baseline_images=['framealpha'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+@image_comparison(['framealpha'], remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_framealpha():
     x = np.linspace(1, 100, 100)
     y = x
@@ -156,8 +143,7 @@ def test_framealpha():
     plt.legend(framealpha=0.5)
 
 
-@image_comparison(baseline_images=['scatter_rc3', 'scatter_rc1'],
-                  remove_text=True)
+@image_comparison(['scatter_rc3', 'scatter_rc1'], remove_text=True)
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.figure()
@@ -174,9 +160,9 @@ def test_rc():
               title="My legend")
 
 
-@image_comparison(baseline_images=['legend_expand'], remove_text=True)
+@image_comparison(['legend_expand'], remove_text=True)
 def test_legend_expand():
-    'Test expand mode'
+    """Test expand mode"""
     legend_modes = [None, "expand"]
     fig, axes_list = plt.subplots(len(legend_modes), 1)
     x = np.arange(100)
@@ -190,9 +176,11 @@ def test_legend_expand():
         ax.legend(loc='lower left', mode=mode, ncol=2)
 
 
-@image_comparison(baseline_images=['hatching'], remove_text=True,
-                  style='default')
+@image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, ax = plt.subplots()
 
     # Patches
@@ -222,8 +210,7 @@ def test_hatching():
 
 
 def test_legend_remove():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     lines = ax.plot(range(10))
     leg = fig.legend(lines, "test")
     leg.remove()
@@ -233,21 +220,28 @@ def test_legend_remove():
     assert ax.get_legend() is None
 
 
-class TestLegendFunction(object):
+class TestLegendFunction:
     # Tests the legend function on the Axes and pyplot.
-    def test_legend_handle_label(self):
-        lines = plt.plot(range(10))
-        with mock.patch('matplotlib.legend.Legend') as Legend:
-            plt.legend(lines, ['hello world'])
-        Legend.assert_called_with(plt.gca(), lines, ['hello world'])
-
     def test_legend_no_args(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend()
         Legend.assert_called_with(plt.gca(), lines, ['hello world'])
 
-    def test_legend_label_args(self):
+    def test_legend_positional_handles_labels(self):
+        lines = plt.plot(range(10))
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            plt.legend(lines, ['hello world'])
+        Legend.assert_called_with(plt.gca(), lines, ['hello world'])
+
+    def test_legend_positional_handles_only(self):
+        lines = plt.plot(range(10))
+        with pytest.raises(TypeError, match='but found an Artist'):
+            # a single arg is interpreted as labels
+            # it's a common error to just pass handles
+            plt.legend(lines)
+
+    def test_legend_positional_labels_only(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend(['foobar'])
@@ -267,20 +261,40 @@ class TestLegendFunction(object):
             plt.legend(handler_map={'1': 2})
         handles_labels.assert_called_with([plt.gca()], {'1': 2})
 
-    def test_kwargs(self):
-        fig, ax = plt.subplots(1, 1)
-        th = np.linspace(0, 2*np.pi, 1024)
-        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
-        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+    def test_legend_kwargs_handles_only(self):
+        fig, ax = plt.subplots()
+        x = np.linspace(0, 1, 11)
+        ln1, = ax.plot(x, x, label='x')
+        ln2, = ax.plot(x, 2*x, label='2x')
+        ln3, = ax.plot(x, 3*x, label='3x')
         with mock.patch('matplotlib.legend.Legend') as Legend:
+            ax.legend(handles=[ln3, ln2])  # reversed and not ln1
+        Legend.assert_called_with(ax, [ln3, ln2], ['3x', '2x'])
+
+    def test_legend_kwargs_labels_only(self):
+        fig, ax = plt.subplots()
+        x = np.linspace(0, 1, 11)
+        ln1, = ax.plot(x, x)
+        ln2, = ax.plot(x, 2*x)
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            ax.legend(labels=['x', '2x'])
+        Legend.assert_called_with(ax, [ln1, ln2], ['x', '2x'])
+
+    def test_legend_kwargs_handles_labels(self):
+        fig, ax = plt.subplots()
+        th = np.linspace(0, 2*np.pi, 1024)
+        lns, = ax.plot(th, np.sin(th), label='sin')
+        lnc, = ax.plot(th, np.cos(th), label='cos')
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            # labels of lns, lnc are overwritten with explict ('a', 'b')
             ax.legend(labels=('a', 'b'), handles=(lnc, lns))
         Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
 
-    def test_warn_args_kwargs(self):
-        fig, ax = plt.subplots(1, 1)
+    def test_warn_mixed_args_and_kwargs(self):
+        fig, ax = plt.subplots()
         th = np.linspace(0, 2*np.pi, 1024)
-        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
-        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+        lns, = ax.plot(th, np.sin(th), label='sin')
+        lnc, = ax.plot(th, np.cos(th), label='cos')
         with pytest.warns(UserWarning) as record:
             ax.legend((lnc, lns), labels=('a', 'b'))
         assert len(record) == 1
@@ -298,40 +312,43 @@ class TestLegendFunction(object):
         p2, = par.plot([0, 1, 2], [0, 3, 2], label="Temperature")
 
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            leg = plt.legend()
-        Legend.assert_called_with(host, [p1, p2],
-                ['Density', 'Temperature'])
+            plt.legend()
+        Legend.assert_called_with(host, [p1, p2], ['Density', 'Temperature'])
 
 
-class TestLegendFigureFunction(object):
+class TestLegendFigureFunction:
     # Tests the legend function for figure
     def test_legend_handle_label(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10))
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend(lines, ['hello world'])
-        Legend.assert_called_with(fig, lines, ['hello world'])
+        Legend.assert_called_with(fig, lines, ['hello world'],
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_no_args(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend()
-        Legend.assert_called_with(fig, lines, ['hello world'])
+        Legend.assert_called_with(fig, lines, ['hello world'],
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_label_arg(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10))
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend(['foobar'])
-        Legend.assert_called_with(fig, lines, ['foobar'])
+        Legend.assert_called_with(fig, lines, ['foobar'],
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_label_three_args(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10))
         with mock.patch('matplotlib.legend.Legend') as Legend:
             fig.legend(lines, ['foobar'], 'right')
-        Legend.assert_called_with(fig, lines, ['foobar'], 'right')
+        Legend.assert_called_with(fig, lines, ['foobar'], 'right',
+                                  bbox_transform=fig.transFigure)
 
     def test_legend_label_three_args_pluskw(self):
         # test that third argument and loc=  called together give
@@ -346,10 +363,10 @@ class TestLegendFigureFunction(object):
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            fig.legend(loc='right', labels=('a', 'b'),
-                    handles=(lines, lines2))
-        Legend.assert_called_with(fig, (lines, lines2), ('a', 'b'),
-                loc='right')
+            fig.legend(loc='right', labels=('a', 'b'), handles=(lines, lines2))
+        Legend.assert_called_with(
+            fig, (lines, lines2), ('a', 'b'), loc='right',
+            bbox_transform=fig.transFigure)
 
     def test_warn_args_kwargs(self):
         fig, axs = plt.subplots(1, 2)
@@ -363,12 +380,11 @@ class TestLegendFigureFunction(object):
             "be discarded.")
 
 
-@image_comparison(baseline_images=['legend_stackplot'], extensions=['png'])
+@image_comparison(['legend_stackplot.png'])
 def test_legend_stackplot():
-    '''test legend for PolyCollection using stackplot'''
+    """Test legend for PolyCollection using stackplot."""
     # related to #1341, #1943, and PR #3303
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     x = np.linspace(0, 10, 10)
     y1 = 1.0 * x
     y2 = 2.0 * x + 1
@@ -411,18 +427,18 @@ def test_legend_repeatcheckok():
     fig, ax = plt.subplots()
     ax.scatter(0.0, 1.0, color='k', marker='o', label='test')
     ax.scatter(0.5, 0.0, color='r', marker='v', label='test')
-    hl = ax.legend()
+    ax.legend()
     hand, lab = mlegend._get_legend_handles_labels([ax])
     assert len(lab) == 2
     fig, ax = plt.subplots()
     ax.scatter(0.0, 1.0, color='k', marker='o', label='test')
     ax.scatter(0.5, 0.0, color='k', marker='v', label='test')
-    hl = ax.legend()
+    ax.legend()
     hand, lab = mlegend._get_legend_handles_labels([ax])
     assert len(lab) == 2
 
 
-@image_comparison(baseline_images=['not_covering_scatter'], extensions=['png'])
+@image_comparison(['not_covering_scatter.png'])
 def test_not_covering_scatter():
     colors = ['b', 'g', 'r']
 
@@ -434,8 +450,7 @@ def test_not_covering_scatter():
     plt.gca().set_ylim(-0.5, 2.2)
 
 
-@image_comparison(baseline_images=['not_covering_scatter_transform'],
-                  extensions=['png'])
+@image_comparison(['not_covering_scatter_transform.png'])
 def test_not_covering_scatter_transform():
     # Offsets point to top left, the default auto position
     offset = mtransforms.Affine2D().translate(-20, 20)
@@ -469,11 +484,19 @@ def test_linecollection_scaled_dashes():
 
 
 def test_handler_numpoints():
-    '''test legend handler with numponts less than or equal to 1'''
+    """Test legend handler with numpoints <= 1."""
     # related to #6921 and PR #8478
     fig, ax = plt.subplots()
     ax.plot(range(5), label='test')
     ax.legend(numpoints=0.5)
+
+
+def test_empty_bar_chart_with_legend():
+    """Test legend when bar chart is empty with a label."""
+    # related to issue #13003. Calling plt.legend() should not
+    # raise an IndexError.
+    plt.bar([], [], label='test')
+    plt.legend()
 
 
 def test_shadow_framealpha():
@@ -529,30 +552,72 @@ def test_legend_title_fontsize():
     assert leg.get_title().get_fontsize() == 22
 
 
+def test_legend_labelcolor_single():
+    # test labelcolor for a single color
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3')
+
+    leg = ax.legend(labelcolor='red')
+    for text in leg.get_texts():
+        assert mpl.colors.same_color(text.get_color(), 'red')
+
+
+def test_legend_labelcolor_list():
+    # test labelcolor for a list of colors
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3')
+
+    leg = ax.legend(labelcolor=['r', 'g', 'b'])
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_linecolor():
+    # test the labelcolor for labelcolor='linecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', color='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', color='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', color='b')
+
+    leg = ax.legend(labelcolor='linecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_markeredgecolor():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markeredgecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markeredgecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markeredgecolor='b')
+
+    leg = ax.legend(labelcolor='markeredgecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_markerfacecolor():
+    # test the labelcolor for labelcolor='markerfacecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markerfacecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markerfacecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
+
+    leg = ax.legend(labelcolor='markerfacecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
 def test_get_set_draggable():
     legend = plt.legend()
     assert not legend.get_draggable()
     legend.set_draggable(True)
     assert legend.get_draggable()
     legend.set_draggable(False)
-    assert not legend.get_draggable()
-
-
-def test_draggable():
-    legend = plt.legend()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable(True)
-    assert legend.get_draggable()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable(False)
-    assert not legend.get_draggable()
-
-    # test toggle
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable()
-    assert legend.get_draggable()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable()
     assert not legend.get_draggable()
 
 
@@ -563,3 +628,46 @@ def test_alpha_handles():
         lh.set_alpha(1.0)
     assert lh.get_facecolor()[:-1] == hh[1].get_facecolor()[:-1]
     assert lh.get_edgecolor()[:-1] == hh[1].get_edgecolor()[:-1]
+
+
+@pytest.mark.skipif(
+    not mpl.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
+def test_usetex_no_warn(caplog):
+    mpl.rcParams['font.family'] = 'serif'
+    mpl.rcParams['font.serif'] = 'Computer Modern'
+    mpl.rcParams['text.usetex'] = True
+
+    fig, ax = plt.subplots()
+    ax.plot(0, 0, label='input')
+    ax.legend(title="My legend")
+
+    fig.canvas.draw()
+    assert "Font family ['serif'] not found." not in caplog.text
+
+
+def test_warn_big_data_best_loc():
+    fig, ax = plt.subplots()
+    fig.canvas.draw()  # So that we can call draw_artist later.
+    for idx in range(1000):
+        ax.plot(np.arange(5000), label=idx)
+    with rc_context({'legend.loc': 'best'}):
+        legend = ax.legend()
+    with pytest.warns(UserWarning) as records:
+        fig.draw_artist(legend)  # Don't bother drawing the lines -- it's slow.
+    # The _find_best_position method of Legend is called twice, duplicating
+    # the warning message.
+    assert len(records) == 2
+    for record in records:
+        assert str(record.message) == (
+            'Creating legend with loc="best" can be slow with large '
+            'amounts of data.')
+
+
+def test_no_warn_big_data_when_loc_specified():
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    for idx in range(1000):
+        ax.plot(np.arange(5000), label=idx)
+    legend = ax.legend('best')
+    fig.draw_artist(legend)  # Check that no warning is emitted.

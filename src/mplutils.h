@@ -4,6 +4,7 @@
 
 #ifndef MPLUTILS_H
 #define MPLUTILS_H
+#define PY_SSIZE_T_CLEAN
 
 #include <stdint.h>
 

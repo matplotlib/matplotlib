@@ -11,7 +11,7 @@ def test_fontconfig_preamble():
     tm1 = TexManager()
     font_config1 = tm1.get_font_config()
 
-    plt.rcParams['text.latex.preamble'] = ['\\usepackage{txfonts}']
+    plt.rcParams['text.latex.preamble'] = '\\usepackage{txfonts}'
     tm2 = TexManager()
     font_config2 = tm2.get_font_config()
 

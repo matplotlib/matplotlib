@@ -1,4 +1,4 @@
-'''
+"""
 =========================================================
 Line, Poly and RegularPoly Collection with autoscaling
 =========================================================
@@ -12,12 +12,11 @@ kwargs of the `~.collections.LineCollection` and
 The third subplot will make regular polygons, with the same
 type of scaling and positioning as in the first two.
 
-The last subplot illustrates the use of "offsets=(xo,yo)",
+The last subplot illustrates the use of "offsets=(xo, yo)",
 that is, a single tuple instead of a list of tuples, to generate
 successively offset curves, with the offset given in data
 units.  This behavior is available only for the LineCollection.
-
-'''
+"""
 
 import matplotlib.pyplot as plt
 from matplotlib import collections, colors, transforms
@@ -43,10 +42,9 @@ xyo = rs.randn(npts, 2)
 colors = [colors.to_rgba(c)
           for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
 
-fig, axes = plt.subplots(2, 2)
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 fig.subplots_adjust(top=0.92, left=0.07, right=0.97,
                     hspace=0.3, wspace=0.3)
-((ax1, ax2), (ax3, ax4)) = axes  # unpack the axes
 
 
 col = collections.LineCollection([spiral], offsets=xyo,
@@ -54,7 +52,7 @@ col = collections.LineCollection([spiral], offsets=xyo,
 trans = fig.dpi_scale_trans + transforms.Affine2D().scale(1.0/72.0)
 col.set_transform(trans)  # the points to pixels transform
 # Note: the first argument to the collection initializer
-# must be a list of sequences of x,y tuples; we have only
+# must be a list of sequences of (x, y) tuples; we have only
 # one sequence, but we still have to put it in a list.
 ax1.add_collection(col, autolim=True)
 # autolim=True enables autoscaling.  For collections with

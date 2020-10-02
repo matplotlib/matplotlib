@@ -38,9 +38,17 @@ def onselect(xmin, xmax):
     ax2.set_ylim(thisy.min(), thisy.max())
     fig.canvas.draw()
 
-# Set useblit=True on most backends for enhanced performance.
+#############################################################################
+# .. note::
+#
+#    If the SpanSelector object is garbage collected you will lose the
+#    interactivity.  You must keep a hard reference to it to prevent this.
+#
+
+
 span = SpanSelector(ax1, onselect, 'horizontal', useblit=True,
                     rectprops=dict(alpha=0.5, facecolor='red'))
+# Set useblit=True on most backends for enhanced performance.
 
 
 plt.show()

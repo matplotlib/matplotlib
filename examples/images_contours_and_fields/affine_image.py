@@ -4,15 +4,13 @@ Affine transform of an image
 ============================
 
 
-Prepending an affine transformation (:class:`~.transforms.Affine2D`)
-to the :ref:`data transform <data-coords>`
-of an image allows to manipulate the image's shape and orientation.
-This is an example of the concept of
-:ref:`transform chaining <transformation-pipeline>`.
+Prepending an affine transformation (`~.transforms.Affine2D`) to the :ref:`data
+transform <data-coords>` of an image allows to manipulate the image's shape and
+orientation.  This is an example of the concept of :ref:`transform chaining
+<transformation-pipeline>`.
 
-For the backends that support draw_image with optional affine
-transform (e.g., agg, ps backend), the image of the output should
-have its boundary match the dashed yellow rectangle.
+The image of the output should have its boundary match the dashed yellow
+rectangle.
 """
 
 import numpy as np

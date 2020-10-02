@@ -35,7 +35,7 @@ fig.colorbar(pos, ax=ax1)
 neg = ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
 fig.colorbar(neg, ax=ax2)
 
-# Plot both positive and negative values betwen +/- 1.2
+# Plot both positive and negative values between +/- 1.2
 pos_neg_clipped = ax3.imshow(Z, cmap='RdBu', vmin=-1.2, vmax=1.2,
                              interpolation='none')
 # Add minorticks on the colorbar to make it easy to read the

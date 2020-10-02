@@ -17,10 +17,9 @@ except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.kernel.comm import Comm
 
-from matplotlib import is_interactive
+from matplotlib import cbook, is_interactive
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, NavigationToolbar2)
+from matplotlib.backend_bases import _Backend, NavigationToolbar2
 from matplotlib.backends.backend_webagg_core import (
     FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
     TimerTornado)
@@ -40,7 +39,7 @@ def connection_info():
         for manager in Gcf.get_all_fig_managers()
     ]
     if not is_interactive():
-        result.append('Figures pending show: {}'.format(len(Gcf._activeQue)))
+        result.append(f'Figures pending show: {len(Gcf.figs)}')
     return '\n'.join(result)
 
 
@@ -76,7 +75,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def __init__(self, canvas, num):
         self._shown = False
-        FigureManagerWebAgg.__init__(self, canvas, num)
+        super().__init__(canvas, num)
 
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
@@ -139,15 +138,14 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def remove_comm(self, comm_id):
         self.web_sockets = {socket for socket in self.web_sockets
-                            if not socket.comm.comm_id == comm_id}
+                            if socket.comm.comm_id != comm_id}
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    def new_timer(self, *args, **kwargs):
-        return TimerTornado(*args, **kwargs)
+    _timer_cls = TimerTornado
 
 
-class CommSocket(object):
+class CommSocket:
     """
     Manages the Comm connection between IPython and the browser (client).
 
@@ -166,9 +164,10 @@ class CommSocket(object):
         display(HTML("<div id=%r></div>" % self.uuid))
         try:
             self.comm = Comm('matplotlib', data={'id': self.uuid})
-        except AttributeError:
+        except AttributeError as err:
             raise RuntimeError('Unable to create an IPython notebook Comm '
-                               'instance. Are you in the IPython notebook?')
+                               'instance. Are you in the IPython '
+                               'notebook?') from err
         self.comm.on_msg(self.on_message)
 
         manager = self.manager
@@ -232,7 +231,12 @@ class _BackendNbAgg(_Backend):
         if is_interactive():
             manager.show()
             figure.canvas.draw_idle()
-        canvas.mpl_connect('close_event', lambda event: Gcf.destroy(num))
+
+        def destroy(event):
+            canvas.mpl_disconnect(cid)
+            Gcf.destroy(manager)
+
+        cid = canvas.mpl_connect('close_event', destroy)
         return manager
 
     @staticmethod
@@ -240,7 +244,7 @@ class _BackendNbAgg(_Backend):
         manager.show()
 
     @staticmethod
-    def show(*args, **kwargs):
+    def show(block=None):
         ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf
 
@@ -253,12 +257,12 @@ class _BackendNbAgg(_Backend):
         for manager in managers:
             manager.show()
 
-            # plt.figure adds an event which puts the figure in focus
-            # in the activeQue. Disable this behaviour, as it results in
+            # plt.figure adds an event which makes the figure in focus the
+            # active one. Disable this behaviour, as it results in
             # figures being put as the active figure after they have been
             # shown, even in non-interactive mode.
             if hasattr(manager, '_cidgcf'):
                 manager.canvas.mpl_disconnect(manager._cidgcf)
 
-            if not interactive and manager in Gcf._activeQue:
-                Gcf._activeQue.remove(manager)
+            if not interactive:
+                Gcf.figs.pop(manager.num, None)

@@ -1,5 +1,6 @@
 import numpy as np
 
+from matplotlib import _api, cbook
 from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
@@ -14,8 +15,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
 
       tripcolor(triangulation, ...)
 
-    where triangulation is a :class:`matplotlib.tri.Triangulation`
-    object, or
+    where triangulation is a `.Triangulation` object, or
 
     ::
 
@@ -25,9 +25,8 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
       tripcolor(x, y, mask=mask, ...)
       tripcolor(x, y, triangles, mask=mask, ...)
 
-    in which case a Triangulation object will be created.  See
-    :class:`~matplotlib.tri.Triangulation` for a explanation of these
-    possibilities.
+    in which case a Triangulation object will be created.  See `.Triangulation`
+    for a explanation of these possibilities.
 
     The next argument must be *C*, the array of color values, either
     one per point in the triangulation if color values are defined at
@@ -43,12 +42,9 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     three points. If *shading* is 'gouraud' then color values must be
     defined at points.
 
-    The remaining kwargs are the same as for
-    :meth:`~matplotlib.axes.Axes.pcolor`.
+    The remaining kwargs are the same as for `~.Axes.pcolor`.
     """
-    if shading not in ['flat', 'gouraud']:
-        raise ValueError("shading must be one of ['flat', 'gouraud'] "
-                         "not {0}".format(shading))
+    _api.check_in_list(['flat', 'gouraud'], shading=shading)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 
@@ -112,20 +108,16 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
             C = C[maskedTris].mean(axis=1)
         elif tri.mask is not None:
             # Remove color values of masked triangles.
-            C = C.compress(1-tri.mask)
+            C = C[~tri.mask]
 
         collection = PolyCollection(verts, **kwargs)
 
     collection.set_alpha(alpha)
     collection.set_array(C)
-    if norm is not None and not isinstance(norm, Normalize):
-        raise ValueError("'norm' must be an instance of 'Normalize'")
+    cbook._check_isinstance((Normalize, None), norm=norm)
     collection.set_cmap(cmap)
     collection.set_norm(norm)
-    if vmin is not None or vmax is not None:
-        collection.set_clim(vmin, vmax)
-    else:
-        collection.autoscale_None()
+    collection._scale_norm(norm, vmin, vmax)
     ax.grid(False)
 
     minx = tri.x.min()

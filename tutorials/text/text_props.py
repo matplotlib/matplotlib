@@ -5,10 +5,9 @@
 
 Controlling properties of text and its layout with Matplotlib.
 
-The :class:`matplotlib.text.Text` instances have a variety of
-properties which can be configured via keyword arguments to the text
-commands (e.g., :func:`~matplotlib.pyplot.title`,
-:func:`~matplotlib.pyplot.xlabel` and :func:`~matplotlib.pyplot.text`).
+`matplotlib.text.Text` instances have a variety of properties which can be
+configured via keyword arguments to `~.Axes.set_title`, `~.Axes.set_xlabel`,
+`~.Axes.text`, etc.
 
 ==========================  ======================================================================================================================
 Property                    Value Type
@@ -21,19 +20,19 @@ clip_on                     bool
 clip_path                   a `~matplotlib.path.Path` instance and a `~matplotlib.transforms.Transform` instance, a `~matplotlib.patches.Patch`
 color                       any matplotlib :doc:`color </tutorials/colors/colors>`
 family                      [ ``'serif'`` | ``'sans-serif'`` | ``'cursive'`` | ``'fantasy'`` | ``'monospace'`` ]
-fontproperties              a `~matplotlib.font_manager.FontProperties` instance
+fontproperties              `~matplotlib.font_manager.FontProperties`
 horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]
 label                       any string
 linespacing                 `float`
 multialignment              [``'left'`` | ``'right'`` | ``'center'`` ]
 name or fontname            string e.g., [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
-picker                      [None|float|boolean|callable]
+picker                      [None|float|bool|callable]
 position                    (x, y)
 rotation                    [ angle in degrees | ``'vertical'`` | ``'horizontal'`` ]
 size or fontsize            [ size in points | relative size, e.g., ``'smaller'``, ``'x-large'`` ]
 style or fontstyle          [ ``'normal'`` | ``'italic'`` | ``'oblique'`` ]
 text                        string or anything printable with '%s' conversion
-transform                   a `~matplotlib.transforms.Transform` instance
+transform                   `~matplotlib.transforms.Transform` subclass
 variant                     [ ``'normal'`` | ``'small-caps'`` ]
 verticalalignment or va     [ ``'center'`` | ``'top'`` | ``'bottom'`` | ``'baseline'`` ]
 visible                     bool
@@ -56,7 +55,7 @@ center or right justified.  Here is an example which uses the
 :func:`~matplotlib.pyplot.text` command to show the various alignment
 possibilities.  The use of ``transform=ax.transAxes`` throughout the
 code indicates that the coordinates are given relative to the axes
-bounding box, with 0,0 being the lower left of the axes and 1,1 the
+bounding box, with (0, 0) being the lower left of the axes and (1, 1) the
 upper right.
 """
 
@@ -72,7 +71,7 @@ top = bottom + height
 fig = plt.figure()
 ax = fig.add_axes([0, 0, 1, 1])
 
-# axes coordinates are 0,0 is bottom left and 1,1 is upper right
+# axes coordinates: (0, 0) is bottom left and (1, 1) is upper right
 p = patches.Rectangle(
     (left, bottom), width, height,
     fill=False, transform=ax.transAxes, clip_on=False
@@ -200,11 +199,9 @@ plt.show()
 # Text with non-latin glyphs
 # ==========================
 #
-# As of v2.0 the :ref:`default font <default_changes_font>` contains
-# glyphs for many western alphabets, but still does not cover all of the
-# glyphs that may be required by mpl users.  For example, DejaVu has no
-# coverage of Chinese, Korean, or Japanese.
-#
+# As of v2.0 the :ref:`default font <default_changes_font>`, DejaVu, contains
+# glyphs for many western alphabets, but not other scripts, such as Chinese,
+# Korean, or Japanese.
 #
 # To set the default font to be one that supports the code points you
 # need, prepend the font name to ``'font.family'`` or the desired alias

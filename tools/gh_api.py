@@ -1,4 +1,4 @@
-"""Functions for Github API requests."""
+"""Functions for GitHub API requests."""
 
 import getpass
 import json
@@ -24,8 +24,8 @@ class Obj(dict):
     def __getattr__(self, name):
         try:
             return self[name]
-        except KeyError:
-            raise AttributeError(name)
+        except KeyError as err:
+            raise AttributeError(name) from err
 
     def __setattr__(self, name, val):
         self[name] = val
@@ -51,7 +51,7 @@ def get_auth_token():
 
     print("Please enter your github username and password. These are not "
            "stored, only used to get an oAuth token. You can revoke this at "
-           "any time on Github.")
+           "any time on GitHub.")
     user = input("Username: ")
     pw = getpass.getpass("Password: ")
 
@@ -71,7 +71,7 @@ def get_auth_token():
     return token
 
 def make_auth_header():
-    return {'Authorization': 'token ' + get_auth_token()}
+    return {'Authorization': 'token ' + get_auth_token().replace("\n","")}
 
 def post_issue_comment(project, num, body):
     url = 'https://api.github.com/repos/{project}/issues/{num}/comments'.format(project=project, num=num)

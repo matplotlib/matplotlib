@@ -3,10 +3,12 @@
 Pyplot Simple
 =============
 
-A most simple plot, where a list of numbers is plotted against their index.
+A very simple pyplot where a list of numbers are ploted against their
+index. Creates a straight line due to the rate of change being 1 for
+both the X and Y axis.
 """
 import matplotlib.pyplot as plt
-plt.plot([1,2,3,4])
+plt.plot([1, 2, 3, 4])
 plt.ylabel('some numbers')
 plt.show()
 

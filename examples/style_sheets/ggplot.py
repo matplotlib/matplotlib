@@ -10,7 +10,7 @@ These settings were shamelessly stolen from [1]_ (with permission).
 
 .. [1] https://web.archive.org/web/20111215111010/http://www.huyng.com/archives/sane-color-scheme-for-matplotlib/691/
 
-.. _ggplot: http://ggplot2.org/
+.. _ggplot: https://ggplot2.tidyverse.org/
 .. _R: https://www.r-project.org/
 
 """
@@ -22,8 +22,8 @@ plt.style.use('ggplot')
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-fig, axes = plt.subplots(ncols=2, nrows=2)
-ax1, ax2, ax3, ax4 = axes.ravel()
+fig, axs = plt.subplots(ncols=2, nrows=2)
+ax1, ax2, ax3, ax4 = axs.ravel()
 
 # scatter plot (Note: `plt.scatter` doesn't use default colors)
 x, y = np.random.normal(size=(2, 200))

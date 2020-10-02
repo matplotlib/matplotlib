@@ -13,7 +13,7 @@ import matplotlib.units as units
 import matplotlib.ticker as ticker
 
 
-class ProxyDelegate(object):
+class ProxyDelegate:
     def __init__(self, fn_name, proxy_type):
         self.proxy_type = proxy_type
         self.fn_name = fn_name
@@ -25,14 +25,12 @@ class ProxyDelegate(object):
 class TaggedValueMeta(type):
     def __init__(self, name, bases, dict):
         for fn_name in self._proxies:
-            try:
-                dummy = getattr(self, fn_name)
-            except AttributeError:
+            if not hasattr(self, fn_name):
                 setattr(self, fn_name,
                         ProxyDelegate(fn_name, self._proxies[fn_name]))
 
 
-class PassThroughProxy(object):
+class PassThroughProxy:
     def __init__(self, fn_name, obj):
         self.fn_name = fn_name
         self.target = obj.proxy_target
@@ -45,7 +43,7 @@ class PassThroughProxy(object):
 
 class ConvertArgsProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
@@ -56,23 +54,23 @@ class ConvertArgsProxy(PassThroughProxy):
             except AttributeError:
                 converted_args.append(TaggedValue(a, self.unit))
         converted_args = tuple([c.get_value() for c in converted_args])
-        return PassThroughProxy.__call__(self, *converted_args)
+        return super().__call__(*converted_args)
 
 
 class ConvertReturnProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
-        ret = PassThroughProxy.__call__(self, *args)
+        ret = super().__call__(*args)
         return (NotImplemented if ret is NotImplemented
                 else TaggedValue(ret, self.unit))
 
 
 class ConvertAllProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
@@ -98,7 +96,7 @@ class ConvertAllProxy(PassThroughProxy):
                 else:
                     arg_units.append(None)
         converted_args = tuple(converted_args)
-        ret = PassThroughProxy.__call__(self, *converted_args)
+        ret = super().__call__(*converted_args)
         if ret is NotImplemented:
             return NotImplemented
         ret_unit = unit_resolver(self.fn_name, arg_units)
@@ -122,15 +120,10 @@ class TaggedValue(metaclass=TaggedValueMeta):
         # generate a new subclass for value
         value_class = type(value)
         try:
-            subcls = type('TaggedValue_of_%s' % (value_class.__name__),
-                          tuple([cls, value_class]),
-                          {})
-            if subcls not in units.registry:
-                units.registry[subcls] = basicConverter
+            subcls = type(f'TaggedValue_of_{value_class.__name__}',
+                          (cls, value_class), {})
             return object.__new__(subcls)
         except TypeError:
-            if cls not in units.registry:
-                units.registry[cls] = basicConverter
             return object.__new__(cls)
 
     def __init__(self, value, unit):
@@ -187,7 +180,7 @@ class TaggedValue(metaclass=TaggedValueMeta):
         return self.unit
 
 
-class BasicUnit(object):
+class BasicUnit:
     def __init__(self, name, fullname=None):
         self.name = name
         if fullname is None:
@@ -196,7 +189,7 @@ class BasicUnit(object):
         self.conversions = dict()
 
     def __repr__(self):
-        return 'BasicUnit(%s)' % self.name
+        return f'BasicUnit({self.name})'
 
     def __str__(self):
         return self.fullname
@@ -248,7 +241,7 @@ class BasicUnit(object):
         return self
 
 
-class UnitResolver(object):
+class UnitResolver:
     def addition_rule(self, units):
         for unit_1, unit_2 in zip(units[:-1], units[1:]):
             if unit_1 != unit_2:
@@ -314,15 +307,15 @@ def rad_fn(x, pos=None):
     elif n == -2:
         return r'$-\pi$'
     elif n % 2 == 0:
-        return r'$%s\pi$' % (n//2,)
+        return fr'${n//2}\pi$'
     else:
-        return r'$%s\pi/2$' % (n,)
+        return fr'${n}\pi/2$'
 
 
 class BasicUnitConverter(units.ConversionInterface):
     @staticmethod
     def axisinfo(unit, axis):
-        'return AxisInfo instance for x and unit'
+        """Return AxisInfo instance for x and unit."""
 
         if unit == radians:
             return units.AxisInfo(
@@ -367,7 +360,7 @@ class BasicUnitConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(x, axis):
-        'return the default unit for x or None'
+        """Return the default unit for x or None."""
         if np.iterable(x):
             for thisx in x:
                 return thisx.unit
@@ -381,6 +374,4 @@ def cos(x):
         return math.cos(x.convert_to(radians).get_value())
 
 
-basicConverter = BasicUnitConverter()
-units.registry[BasicUnit] = basicConverter
-units.registry[TaggedValue] = basicConverter
+units.registry[BasicUnit] = units.registry[TaggedValue] = BasicUnitConverter()

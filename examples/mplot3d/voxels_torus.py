@@ -1,17 +1,14 @@
-'''
+"""
 =======================================================
 3D voxel / volumetric plot with cylindrical coordinates
 =======================================================
 
-Demonstrates using the ``x, y, z`` arguments of ``ax.voxels``.
-'''
+Demonstrates using the *x*, *y*, *z* parameters of `.Axes3D.voxels`.
+"""
 
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import numpy as np
-
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
 def midpoints(x):
@@ -39,8 +36,7 @@ hsv[..., 2] = zc + 0.5
 colors = matplotlib.colors.hsv_to_rgb(hsv)
 
 # and plot everything
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 ax.voxels(x, y, z, sphere,
           facecolors=colors,
           edgecolors=np.clip(2*colors - 0.5, 0, 1),  # brighter

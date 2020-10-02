@@ -5,12 +5,10 @@ import numpy as np
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
-
-# Python2/3 text handling
-_to_str = cat.StrCategoryFormatter._text
+from matplotlib.testing.decorators import check_figures_equal
 
 
-class TestUnitData(object):
+class TestUnitData:
     test_cases = [('single', (["hello world"], [0])),
                   ('unicode', (["Здравствуйте мир"], [0])),
                   ('mixed', (['A', "np.nan", 'B', "3.14", "мир"],
@@ -56,13 +54,14 @@ class TestUnitData(object):
             unitdata.update(fdata)
 
 
-class FakeAxis(object):
+class FakeAxis:
     def __init__(self, units):
         self.units = units
 
 
-class TestStrCategoryConverter(object):
-    """Based on the pandas conversion and factorization tests:
+class TestStrCategoryConverter:
+    """
+    Based on the pandas conversion and factorization tests:
 
     ref: /pandas/tseries/tests/test_converter.py
          /pandas/tests/test_algos.py:TestFactorize
@@ -132,7 +131,7 @@ PLOT_LIST = [Axes.scatter, Axes.plot, Axes.bar]
 PLOT_IDS = ["scatter", "plot", "bar"]
 
 
-class TestStrCategoryLocator(object):
+class TestStrCategoryLocator:
     def test_StrCategoryLocator(self):
         locs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         unit = cat.UnitData([str(j) for j in locs])
@@ -145,7 +144,7 @@ class TestStrCategoryLocator(object):
         np.testing.assert_array_equal(ax.yaxis.major.locator(), range(3))
 
 
-class TestStrCategoryFormatter(object):
+class TestStrCategoryFormatter:
     test_cases = [("ascii", ["hello", "world", "hi"]),
                   ("unicode", ["Здравствуйте", "привет"])]
 
@@ -156,28 +155,29 @@ class TestStrCategoryFormatter(object):
         unit = cat.UnitData(ydata)
         labels = cat.StrCategoryFormatter(unit._mapping)
         for i, d in enumerate(ydata):
-            assert labels(i, i) == _to_str(d)
+            assert labels(i, i) == d
+            assert labels(i, None) == d
 
     @pytest.mark.parametrize("ydata", cases, ids=ids)
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
     def test_StrCategoryFormatterPlot(self, ax, ydata, plotter):
         plotter(ax, range(len(ydata)), ydata)
         for i, d in enumerate(ydata):
-            assert ax.yaxis.major.formatter(i, i) == _to_str(d)
-        assert ax.yaxis.major.formatter(i+1, i+1) == ""
-        assert ax.yaxis.major.formatter(0, None) == ""
+            assert ax.yaxis.major.formatter(i) == d
+        assert ax.yaxis.major.formatter(i+1) == ""
 
 
 def axis_test(axis, labels):
     ticks = list(range(len(labels)))
     np.testing.assert_array_equal(axis.get_majorticklocs(), ticks)
     graph_labels = [axis.major.formatter(i, i) for i in ticks]
-    assert graph_labels == [_to_str(l) for l in labels]
+    # _text also decodes bytes as utf-8.
+    assert graph_labels == [cat.StrCategoryFormatter._text(l) for l in labels]
     assert list(axis.units._mapping.keys()) == [l for l in labels]
     assert list(axis.units._mapping.values()) == ticks
 
 
-class TestPlotBytes(object):
+class TestPlotBytes:
     bytes_cases = [('string list', ['a', 'b', 'c']),
                    ('bytes list', [b'a', b'b', b'c']),
                    ('bytes ndarray', np.array([b'a', b'b', b'c']))]
@@ -192,7 +192,7 @@ class TestPlotBytes(object):
         axis_test(ax.xaxis, bdata)
 
 
-class TestPlotNumlike(object):
+class TestPlotNumlike:
     numlike_cases = [('string list', ['1', '11', '3']),
                      ('string ndarray', np.array(['1', '11', '3'])),
                      ('bytes list', [b'1', b'11', b'3']),
@@ -207,7 +207,7 @@ class TestPlotNumlike(object):
         axis_test(ax.xaxis, ndata)
 
 
-class TestPlotTypes(object):
+class TestPlotTypes:
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
     def test_plot_unicode(self, ax, plotter):
         words = ['Здравствуйте', 'привет']
@@ -255,21 +255,50 @@ class TestPlotTypes(object):
 
     fids, fvalues = zip(*failing_test_cases)
 
-    PLOT_BROKEN_LIST = [Axes.scatter,
-                        pytest.param(Axes.plot, marks=pytest.mark.xfail),
-                        pytest.param(Axes.bar, marks=pytest.mark.xfail)]
+    plotters = [Axes.scatter, Axes.bar,
+                pytest.param(Axes.plot, marks=pytest.mark.xfail)]
 
-    PLOT_BROKEN_IDS = ["scatter", "plot", "bar"]
-
-    @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
+    @pytest.mark.parametrize("plotter", plotters)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
     def test_mixed_type_exception(self, ax, plotter, xdata):
         with pytest.raises(TypeError):
             plotter(ax, xdata, [1, 2])
 
-    @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
+    @pytest.mark.parametrize("plotter", plotters)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
     def test_mixed_type_update_exception(self, ax, plotter, xdata):
         with pytest.raises(TypeError):
             plotter(ax, [0, 3], [1, 3])
             plotter(ax, xdata, [1, 2])
+
+
+@pytest.mark.style('default')
+@check_figures_equal(extensions=["png"])
+def test_overriding_units_in_plot(fig_test, fig_ref):
+    from datetime import datetime
+
+    t0 = datetime(2018, 3, 1)
+    t1 = datetime(2018, 3, 2)
+    t2 = datetime(2018, 3, 3)
+    t3 = datetime(2018, 3, 4)
+
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    for ax, kwargs in zip([ax_test, ax_ref],
+                          ({}, dict(xunits=None, yunits=None))):
+        # First call works
+        ax.plot([t0, t1], ["V1", "V2"], **kwargs)
+        x_units = ax.xaxis.units
+        y_units = ax.yaxis.units
+        # this should not raise
+        ax.plot([t2, t3], ["V1", "V2"], **kwargs)
+        # assert that we have not re-set the units attribute at all
+        assert x_units is ax.xaxis.units
+        assert y_units is ax.yaxis.units
+
+
+def test_hist():
+    fig, ax = plt.subplots()
+    n, bins, patches = ax.hist(['a', 'b', 'a', 'c', 'ff'])
+    assert n.shape == (10,)
+    np.testing.assert_allclose(n, [2., 0., 0., 1., 0., 0., 1., 0., 0., 1.])

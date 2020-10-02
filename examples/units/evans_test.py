@@ -16,7 +16,7 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 
-class Foo(object):
+class Foo:
     def __init__(self, val, unit=1.0):
         self.unit = unit
         self._val = val * unit
@@ -30,7 +30,7 @@ class Foo(object):
 class FooConverter(units.ConversionInterface):
     @staticmethod
     def axisinfo(unit, axis):
-        'return the Foo AxisInfo'
+        """Return the Foo AxisInfo."""
         if unit == 1.0 or unit == 2.0:
             return units.AxisInfo(
                 majloc=ticker.IndexLocator(8, 0),
@@ -44,8 +44,9 @@ class FooConverter(units.ConversionInterface):
     @staticmethod
     def convert(obj, unit, axis):
         """
-        convert obj using unit.  If obj is a sequence, return the
-        converted sequence
+        Convert *obj* using *unit*.
+
+        If *obj* is a sequence, return the converted sequence.
         """
         if units.ConversionInterface.is_numlike(obj):
             return obj
@@ -57,7 +58,7 @@ class FooConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(x, axis):
-        'return the default unit for x or None'
+        """Return the default unit for *x* or None."""
         if np.iterable(x):
             for thisx in x:
                 return thisx.unit
@@ -68,13 +69,9 @@ class FooConverter(units.ConversionInterface):
 units.registry[Foo] = FooConverter()
 
 # create some Foos
-x = []
-for val in range(0, 50, 2):
-    x.append(Foo(val, 1.0))
-
+x = [Foo(val, 1.0) for val in range(0, 50, 2)]
 # and some arbitrary y data
 y = [i for i in range(len(x))]
-
 
 fig, (ax1, ax2) = plt.subplots(1, 2)
 fig.suptitle("Custom units")

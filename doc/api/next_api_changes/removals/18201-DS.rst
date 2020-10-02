@@ -1,0 +1,5 @@
+`matplotlib.colors` removals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``makeMappingArray`` has been removed.
+- ``DivergingNorm`` has been renamed to `~matplotlib.colors.TwoSlopeNorm`.

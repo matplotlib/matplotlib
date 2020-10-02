@@ -3,10 +3,12 @@
 import operator
 import math
 import datetime as DT
+
+from matplotlib import _api
 from matplotlib.dates import date2num
 
 
-class Epoch(object):
+class Epoch:
     # Frame conversion offsets in seconds
     # t(TO) = t(FROM) + allowed[ FROM ][ TO ]
     allowed = {
@@ -19,7 +21,8 @@ class Epoch(object):
         }
 
     def __init__(self, frame, sec=None, jd=None, daynum=None, dt=None):
-        """Create a new Epoch object.
+        """
+        Create a new Epoch object.
 
         Build an epoch 1 of 2 ways:
 
@@ -56,11 +59,7 @@ class Epoch(object):
                 "dnum= %s\n"
                 "dt  = %s" % (sec, jd, daynum, dt))
 
-        if frame not in self.allowed:
-            raise ValueError(
-                "Input frame '%s' is not one of the supported frames of %s" %
-                (frame, list(self.allowed.keys())))
-
+        _api.check_in_list(self.allowed, frame=frame)
         self._frame = frame
 
         if dt is not None:
@@ -77,7 +76,7 @@ class Epoch(object):
             self._jd = float(jd)
 
             # Resolve seconds down to [ 0, 86400)
-            deltaDays = int(math.floor(self._seconds / 86400.0))
+            deltaDays = math.floor(self._seconds / 86400)
             self._jd += deltaDays
             self._seconds -= deltaDays * 86400.0
 
@@ -126,7 +125,8 @@ class Epoch(object):
         return self._cmp(rhs, operator.ge)
 
     def _cmp(self, rhs, op):
-        """Compare two Epoch's.
+        """
+        Compare two Epoch's.
 
         = INPUT VARIABLES
         - rhs     The Epoch to compare against.
@@ -145,7 +145,8 @@ class Epoch(object):
         return op(t._seconds, rhs._seconds)
 
     def __add__(self, rhs):
-        """Add a duration to an Epoch.
+        """
+        Add a duration to an Epoch.
 
         = INPUT VARIABLES
         - rhs     The Epoch to subtract.
@@ -162,7 +163,8 @@ class Epoch(object):
         return Epoch(t._frame, sec, t._jd)
 
     def __sub__(self, rhs):
-        """Subtract two Epoch's or a Duration from an Epoch.
+        """
+        Subtract two Epoch's or a Duration from an Epoch.
 
         Valid:
         Duration = Epoch - Epoch
@@ -201,7 +203,8 @@ class Epoch(object):
 
     @staticmethod
     def range(start, stop, step):
-        """Generate a range of Epoch objects.
+        """
+        Generate a range of Epoch objects.
 
         Similar to the Python range() method.  Returns the range [
         start, stop) at the requested step.  Each element will be a
@@ -213,7 +216,7 @@ class Epoch(object):
         - step      Step to use.
 
         = RETURN VALUE
-        - Returns a list contianing the requested Epoch values.
+        - Returns a list containing the requested Epoch values.
         """
         elems = []
 

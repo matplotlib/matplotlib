@@ -1,0 +1,3 @@
+mathtext.Fonts.destroy
+~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated, because Fonts do not create reference loops anyways.

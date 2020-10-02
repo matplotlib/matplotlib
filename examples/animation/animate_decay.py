@@ -8,16 +8,16 @@ This example showcases:
 - changing axes limits during an animation.
 """
 
+import itertools
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-def data_gen(t=0):
-    cnt = 0
-    while cnt < 1000:
-        cnt += 1
-        t += 0.1
+def data_gen():
+    for cnt in itertools.count():
+        t = cnt / 10
         yield t, np.sin(2*np.pi*t) * np.exp(-t/10.)
 
 
@@ -49,6 +49,5 @@ def run(data):
 
     return line,
 
-ani = animation.FuncAnimation(fig, run, data_gen, blit=False, interval=10,
-                              repeat=False, init_func=init)
+ani = animation.FuncAnimation(fig, run, data_gen, interval=10, init_func=init)
 plt.show()

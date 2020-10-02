@@ -1,6 +1,7 @@
 #include "mplutils.h"
 #include "_image_resample.h"
 #include "_image.h"
+#include "numpy_cpp.h"
 #include "py_converters.h"
 
 
@@ -66,8 +67,7 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
     out_dims[0] = dims[0] * dims[1];
     out_dims[1] = 2;
 
-    py_inverse = PyObject_CallMethod(
-        py_affine, (char *)"inverted", (char *)"", NULL);
+    py_inverse = PyObject_CallMethod(py_affine, "inverted", NULL);
     if (py_inverse == NULL) {
         return NULL;
     }
@@ -82,10 +82,8 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
         }
     }
 
-    PyObject *output_mesh =
-        PyObject_CallMethod(
-            py_inverse, (char *)"transform", (char *)"O",
-            (char *)input_mesh.pyobj(), NULL);
+    PyObject *output_mesh = PyObject_CallMethod(
+        py_inverse, "transform", "O", input_mesh.pyobj_steal());
 
     Py_DECREF(py_inverse);
 
@@ -107,6 +105,19 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
 }
 
 
+template<class T>
+static void
+resample(PyArrayObject* input, PyArrayObject* output, resample_params_t params)
+{
+    Py_BEGIN_ALLOW_THREADS
+    resample(
+        (T*)PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
+        (T*)PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
+        params);
+    Py_END_ALLOW_THREADS
+}
+
+
 static PyObject *
 image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 {
@@ -119,7 +130,12 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     PyArrayObject *output_array = NULL;
     PyArrayObject *transform_mesh_array = NULL;
 
+    params.interpolation = NEAREST;
     params.transform_mesh = NULL;
+    params.resample = false;
+    params.norm = false;
+    params.radius = 1.0;
+    params.alpha = 1.0;
 
     const char *kwlist[] = {
         "input_array", "output_array", "transform", "interpolation",
@@ -145,9 +161,18 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         goto error;
     }
 
-    output_array = (PyArrayObject *)PyArray_FromAny(
-        py_output_array, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);
-    if (output_array == NULL) {
+    if (!PyArray_Check(py_output_array)) {
+        PyErr_SetString(PyExc_ValueError, "output array must be a NumPy array");
+        goto error;
+    }
+    output_array = (PyArrayObject *)py_output_array;
+    if (!PyArray_IS_C_CONTIGUOUS(output_array)) {
+        PyErr_SetString(PyExc_ValueError, "output array must be C-contiguous");
+        goto error;
+    }
+    if (PyArray_NDIM(output_array) < 2 || PyArray_NDIM(output_array) > 3) {
+        PyErr_SetString(PyExc_ValueError,
+                        "output array must be 2- or 3-dimensional");
         goto error;
     }
 
@@ -204,56 +229,20 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         }
 
         if (PyArray_DIM(input_array, 2) == 4) {
-            switch(PyArray_TYPE(input_array)) {
-            case NPY_BYTE:
+            switch (PyArray_TYPE(input_array)) {
             case NPY_UINT8:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba8 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba8 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+            case NPY_INT8:
+                resample<agg::rgba8>(input_array, output_array, params);
                 break;
             case NPY_UINT16:
             case NPY_INT16:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba16 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba16 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba16>(input_array, output_array, params);
                 break;
             case NPY_FLOAT32:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba32 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba32 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba32>(input_array, output_array, params);
                 break;
             case NPY_FLOAT64:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba64 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba64 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba64>(input_array, output_array, params);
                 break;
             default:
                 PyErr_SetString(
@@ -272,54 +261,18 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     } else { // NDIM == 2
         switch (PyArray_TYPE(input_array)) {
         case NPY_DOUBLE:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (double *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (double *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<double>(input_array, output_array, params);
             break;
         case NPY_FLOAT:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (float *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (float *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<float>(input_array, output_array, params);
             break;
         case NPY_UINT8:
-        case NPY_BYTE:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (unsigned char *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (unsigned char *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+        case NPY_INT8:
+            resample<unsigned char>(input_array, output_array, params);
             break;
         case NPY_UINT16:
         case NPY_INT16:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (unsigned short *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (unsigned short *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<unsigned short>(input_array, output_array, params);
             break;
         default:
             PyErr_SetString(PyExc_ValueError, "Unsupported dtype");
@@ -329,11 +282,10 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 
     Py_DECREF(input_array);
     Py_XDECREF(transform_mesh_array);
-    return (PyObject *)output_array;
+    Py_RETURN_NONE;
 
  error:
     Py_XDECREF(input_array);
-    Py_XDECREF(output_array);
     Py_XDECREF(transform_mesh_array);
     return NULL;
 }
@@ -433,8 +385,6 @@ static PyMethodDef module_functions[] = {
     {NULL}
 };
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
@@ -446,6 +396,8 @@ static struct PyModuleDef moduledef = {
     NULL,
     NULL
 };
+
+#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__image(void)
 {
@@ -483,4 +435,4 @@ PyMODINIT_FUNC PyInit__image(void)
     return m;
 }
 
-} // extern "C"
+#pragma GCC visibility pop

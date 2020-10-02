@@ -1,5 +1,5 @@
 #define NO_IMPORT_ARRAY
-
+#define PY_SSIZE_T_CLEAN
 #include "py_converters.h"
 #include "numpy_cpp.h"
 
@@ -27,7 +27,7 @@ static int convert_string_enum(PyObject *obj, const char *name, const char **nam
         Py_INCREF(obj);
         bytesobj = obj;
     } else {
-        PyErr_Format(PyExc_TypeError, "%s must be bytes or unicode", name);
+        PyErr_Format(PyExc_TypeError, "%s must be str or bytes", name);
         return 0;
     }
 
@@ -54,9 +54,9 @@ int convert_from_method(PyObject *obj, const char *name, converter func, void *p
 {
     PyObject *value;
 
-    value = PyObject_CallMethod(obj, (char *)name, NULL);
+    value = PyObject_CallMethod(obj, name, NULL);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }
@@ -76,9 +76,9 @@ int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
 {
     PyObject *value;
 
-    value = PyObject_GetAttrString(obj, (char *)name);
+    value = PyObject_GetAttrString(obj, name);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }
@@ -116,14 +116,11 @@ int convert_double(PyObject *obj, void *p)
 int convert_bool(PyObject *obj, void *p)
 {
     bool *val = (bool *)p;
-    int ret;
-
-    ret = PyObject_IsTrue(obj);
-    if (ret == -1) {
-        return 0;
+    switch (PyObject_IsTrue(obj)) {
+        case 0: *val = false; break;
+        case 1: *val = true; break;
+        default: return 0;  // errored.
     }
-    *val = ret != 0;
-
     return 1;
 }
 
@@ -229,7 +226,6 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
     PyObject *dash_offset_obj = NULL;
     double dash_offset = 0.0;
     PyObject *dashes_seq = NULL;
-    Py_ssize_t nentries;
 
     if (!PyArg_ParseTuple(dashobj, "OO:dashes", &dash_offset_obj, &dashes_seq)) {
         return 0;
@@ -238,6 +234,14 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
     if (dash_offset_obj != Py_None) {
         dash_offset = PyFloat_AsDouble(dash_offset_obj);
         if (PyErr_Occurred()) {
+            return 0;
+        }
+    } else {
+        if (PyErr_WarnEx(PyExc_FutureWarning,
+                         "Passing the dash offset as None is deprecated since "
+                         "Matplotlib 3.3 and will be removed in Matplotlib 3.5; "
+                         "pass it as zero instead.",
+                         1)) {
             return 0;
         }
     }
@@ -251,18 +255,17 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
         return 0;
     }
 
-    nentries = PySequence_Size(dashes_seq);
-    if (nentries % 2 != 0) {
-        PyErr_Format(PyExc_ValueError, "dashes sequence must have an even number of elements");
-        return 0;
-    }
+    Py_ssize_t nentries = PySequence_Size(dashes_seq);
+    // If the dashpattern has odd length, iterate through it twice (in
+    // accordance with the pdf/ps/svg specs).
+    Py_ssize_t dash_pattern_length = (nentries % 2) ? 2 * nentries : nentries;
 
-    for (Py_ssize_t i = 0; i < nentries; ++i) {
+    for (Py_ssize_t i = 0; i < dash_pattern_length; ++i) {
         PyObject *item;
         double length;
         double skip;
 
-        item = PySequence_GetItem(dashes_seq, i);
+        item = PySequence_GetItem(dashes_seq, i % nentries);
         if (item == NULL) {
             return 0;
         }
@@ -275,7 +278,7 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
 
         ++i;
 
-        item = PySequence_GetItem(dashes_seq, i);
+        item = PySequence_GetItem(dashes_seq, i % nentries);
         if (item == NULL) {
             return 0;
         }
@@ -389,7 +392,11 @@ int convert_path(PyObject *obj, void *pathp)
     if (should_simplify_obj == NULL) {
         goto exit;
     }
-    should_simplify = PyObject_IsTrue(should_simplify_obj) != 0;
+    switch (PyObject_IsTrue(should_simplify_obj)) {
+        case 0: should_simplify = 0; break;
+        case 1: should_simplify = 1; break;
+        default: goto exit;  // errored.
+    }
 
     simplify_threshold_obj = PyObject_GetAttrString(obj, "simplify_threshold");
     if (simplify_threshold_obj == NULL) {
@@ -438,15 +445,15 @@ int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 int convert_snap(PyObject *obj, void *snapp)
 {
     e_snap_mode *snap = (e_snap_mode *)snapp;
-
     if (obj == NULL || obj == Py_None) {
         *snap = SNAP_AUTO;
-    } else if (PyObject_IsTrue(obj)) {
-        *snap = SNAP_TRUE;
     } else {
-        *snap = SNAP_FALSE;
+        switch (PyObject_IsTrue(obj)) {
+            case 0: *snap = SNAP_FALSE; break;
+            case 1: *snap = SNAP_TRUE; break;
+            default: return 0;  // errored.
+        }
     }
-
     return 1;
 }
 

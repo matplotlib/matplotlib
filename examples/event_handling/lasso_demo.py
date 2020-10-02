@@ -18,7 +18,7 @@ from matplotlib.widgets import Lasso
 import numpy as np
 
 
-class Datum(object):
+class Datum:
     colorin = mcolors.to_rgba("red")
     colorout = mcolors.to_rgba("blue")
 
@@ -31,7 +31,7 @@ class Datum(object):
             self.color = self.colorout
 
 
-class LassoManager(object):
+class LassoManager:
     def __init__(self, ax, data):
         self.axes = ax
         self.canvas = ax.figure.canvas
@@ -49,7 +49,7 @@ class LassoManager(object):
 
         ax.add_collection(self.collection)
 
-        self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
+        self.cid = self.canvas.mpl_connect('button_press_event', self.on_press)
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
@@ -65,7 +65,7 @@ class LassoManager(object):
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
 
-    def onpress(self, event):
+    def on_press(self, event):
         if self.canvas.widgetlock.locked():
             return
         if event.inaxes is None:

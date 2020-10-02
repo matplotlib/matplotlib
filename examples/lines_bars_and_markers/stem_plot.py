@@ -3,23 +3,41 @@
 Stem Plot
 =========
 
-Stem plot plots vertical lines from baseline to the y-coordinate
-Plotting cosine(x) w.r.t x, using '-.' as the pattern
-for plotting vertical lines
+`~.pyplot.stem` plots vertical lines from a baseline to the y-coordinate and
+places a marker at the tip.
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
-# returns 10 evenly spaced samples from 0.1 to 2*PI
-x = np.linspace(0.1, 2 * np.pi, 10)
+x = np.linspace(0.1, 2 * np.pi, 41)
+y = np.exp(np.sin(x))
 
-markerline, stemlines, baseline = plt.stem(x, np.cos(x), '-.')
-
-# setting property of baseline with color red and linewidth 2
-plt.setp(baseline, color='r', linewidth=2)
-
+plt.stem(x, y)
 plt.show()
 
-#############################
-# This example makes use of:
-# * :meth:`matplotlib.axes.Axes.stem`
+#############################################################################
+#
+# The position of the baseline can be adapted using *bottom*.
+# The parameters *linefmt*, *markerfmt*, and *basefmt* control basic format
+# properties of the plot. However, in contrast to `~.pyplot.plot` not all
+# properties are configurable via keyword arguments. For more advanced
+# control adapt the line objects returned by `~.pyplot`.
+
+markerline, stemlines, baseline = plt.stem(
+    x, y, linefmt='grey', markerfmt='D', bottom=1.1)
+markerline.set_markerfacecolor('none')
+plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.stem
+matplotlib.axes.Axes.stem

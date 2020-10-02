@@ -12,16 +12,16 @@ infrastructure are in :mod:`matplotlib.testing`.
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
-.. _pytest-pep8: https://pypi.python.org/pypi/pytest-pep8
-.. _pytest-xdist: https://pypi.python.org/pypi/pytest-xdist
-.. _pytest-timeout: https://pypi.python.org/pypi/pytest-timeout
+.. _pytest-flake8: https://pypi.org/project/pytest-flake8/
+.. _pytest-xdist: https://pypi.org/project/pytest-xdist/
+.. _pytest-timeout: https://pypi.org/project/pytest-timeout/
+.. _flake8: https://pypi.org/project/flake8/
 
 Requirements
 ------------
 
 Install the latest version of Matplotlib as documented in
-:ref:`installing_for_devs` In particular, follow the instructions to use a
-local FreeType build.
+:ref:`installing_for_devs`.
 
 The following software is required to run the tests:
 
@@ -32,7 +32,7 @@ The following software is required to run the tests:
 Optionally you can install:
 
 - pytest-cov_ (>=2.3.1) to collect coverage information
-- pytest-pep8_ to test coding standards
+- pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
 
@@ -44,29 +44,20 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
    pytest
 
-or::
+in the root directory of the repository.
 
-   pytest .
-
-
-in the root directory of the distribution. The script takes a set of
-commands, such as:
-
-========================  ===========
-``--pep8``                Perform pep8 checks (requires pytest-pep8_)
-``-m "not network"``      Disable tests that require network access
-========================  ===========
-
-Additional arguments are passed on to pytest. See the pytest documentation for
-`supported arguments`_. Some of the more important ones are given here:
+pytest can be configured via a lot of `command-line parameters`_. Some
+particularly useful ones are:
 
 =============================  ===========
-``--verbose``                  Be more verbose
-``--n NUM``                    Run tests in parallel over NUM
+``-v`` or ``--verbose``        Be more verbose
+``-n NUM``                     Run tests in parallel over NUM
                                processes (requires pytest-xdist_)
 ``--timeout=SECONDS``          Set timeout for results from each test
                                process (requires pytest-timeout_)
 ``--capture=no`` or ``-s``     Do not capture stdout
+``--flake8``                   Check coding standards using flake8_
+                               (requires pytest-flake8_)
 =============================  ===========
 
 To run a single test from the command line, you can provide a file path,
@@ -85,11 +76,6 @@ running the tests in parallel::
 
   pytest --verbose -n 5
 
-Depending on your version of Python and pytest-xdist, you may need to set
-``PYTHONHASHSEED`` to a fixed value when running in parallel::
-
-  PYTHONHASHSEED=0 pytest --verbose -n 5
-
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
 function :func:`matplotlib.test`::
@@ -98,14 +84,14 @@ function :func:`matplotlib.test`::
   matplotlib.test()
 
 
-.. _supported arguments: http://doc.pytest.org/en/latest/usage.html
+.. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
 
 
 Writing a simple test
 ---------------------
 
 Many elements of Matplotlib can be tested using standard tests. For
-example, here is a test from :mod:`matplotlib.tests.test_basic`::
+example, here is a test from :file:`matplotlib/tests/test_basic.py`::
 
   def test_simple():
       """
@@ -118,8 +104,8 @@ begin with ``"test_"`` and then within those files for functions beginning with
 ``"test"`` or classes beginning with ``"Test"``.
 
 Some tests have internal side effects that need to be cleaned up after their
-execution (such as created figures or modified rc params). The pytest fixture
-:func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
+execution (such as created figures or modified `.rcParams`). The pytest fixture
+``matplotlib.testing.conftest.mpl_test_settings`` will automatically clean
 these up; there is no need to do anything further.
 
 Random data in tests
@@ -169,7 +155,7 @@ the tests, they should now pass.
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
-used to decorate a function taking two `Figure` parameters and draws the same
+used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.
@@ -208,7 +194,7 @@ are in ``test_mathtext.py``.
 Using Travis CI
 ---------------
 
-`Travis CI <https://travis-ci.org/>`_ is a hosted CI system "in the
+`Travis CI <https://travis-ci.com/>`_ is a hosted CI system "in the
 cloud".
 
 Travis is configured to receive notifications of new commits to GitHub
@@ -217,10 +203,10 @@ sees these new commits. It looks for a YAML file called
 ``.travis.yml`` in the root of the repository to see how to test the
 project.
 
-Travis CI is already enabled for the `main matplotlib GitHub
+Travis CI is already enabled for the `main Matplotlib GitHub
 repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
-<https://travis-ci.org/matplotlib/matplotlib>`_.
+<https://travis-ci.com/matplotlib/matplotlib>`_.
 
 If you want to enable Travis CI for your personal Matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
@@ -257,7 +243,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py36,py37
+    $ tox -e py37,py38
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,

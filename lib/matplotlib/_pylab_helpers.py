@@ -1,37 +1,41 @@
 """
-Manage figures for pyplot interface.
+Manage figures for the pyplot interface.
 """
 
 import atexit
+from collections import OrderedDict
 import gc
 
 
-class Gcf(object):
+class Gcf:
     """
-    Singleton to manage a set of integer-numbered figures.
+    Singleton to maintain the relation between figures and their managers, and
+    keep track of and "active" figure and manager.
 
-    This class is never instantiated; it consists of two class
-    attributes (a list and a dictionary), and a set of static
-    methods that operate on those attributes, accessing them
-    directly as class attributes.
+    The canvas of a figure created through pyplot is associated with a figure
+    manager, which handles the interaction between the figure and the backend.
+    pyplot keeps track of figure managers using an identifier, the "figure
+    number" or "manager number" (which can actually be any hashable value);
+    this number is available as the :attr:`number` attribute of the manager.
 
-    Attributes:
+    This class is never instantiated; it consists of an `OrderedDict` mapping
+    figure/manager numbers to managers, and a set of class methods that
+    manipulate this `OrderedDict`.
 
-        *figs*:
-          dictionary of the form {*num*: *manager*, ...}
-
-        *_activeQue*:
-          list of *managers*, with active one at the end
-
+    Attributes
+    ----------
+    figs : OrderedDict
+        `OrderedDict` mapping numbers to managers; the active manager is at the
+        end.
     """
-    _activeQue = []
-    figs = {}
+
+    figs = OrderedDict()
 
     @classmethod
     def get_fig_manager(cls, num):
         """
-        If figure manager *num* exists, make it the active
-        figure and return the manager; otherwise return *None*.
+        If manager number *num* exists, make it the active one and return it;
+        otherwise return *None*.
         """
         manager = cls.figs.get(num, None)
         if manager is not None:
@@ -41,23 +45,31 @@ class Gcf(object):
     @classmethod
     def destroy(cls, num):
         """
-        Try to remove all traces of figure *num*.
+        Destroy manager *num* -- either a manager instance or a manager number.
 
-        In the interactive backends, this is bound to the
-        window "destroy" and "delete" events.
+        In the interactive backends, this is bound to the window "destroy" and
+        "delete" events.
+
+        It is recommended to pass a manager instance, to avoid confusion when
+        two managers share the same number.
         """
-        if not cls.has_fignum(num):
-            return
-        manager = cls.figs[num]
-        manager.canvas.mpl_disconnect(manager._cidgcf)
-        cls._activeQue.remove(manager)
-        del cls.figs[num]
+        if all(hasattr(num, attr) for attr in ["num", "destroy"]):
+            manager = num
+            if cls.figs.get(manager.num) is manager:
+                cls.figs.pop(manager.num)
+        else:
+            try:
+                manager = cls.figs.pop(num)
+            except KeyError:
+                return
+        if hasattr(manager, "_cidgcf"):
+            manager.canvas.mpl_disconnect(manager._cidgcf)
         manager.destroy()
         gc.collect(1)
 
     @classmethod
     def destroy_fig(cls, fig):
-        "*fig* is a Figure instance"
+        """Destroy figure *fig*."""
         num = next((manager.num for manager in cls.figs.values()
                     if manager.canvas.figure == fig), None)
         if num is not None:
@@ -65,66 +77,64 @@ class Gcf(object):
 
     @classmethod
     def destroy_all(cls):
-        # this is need to ensure that gc is available in corner cases
-        # where modules are being torn down after install with easy_install
-        import gc  # noqa
+        """Destroy all figures."""
+        # Reimport gc in case the module globals have already been removed
+        # during interpreter shutdown.
+        import gc
         for manager in list(cls.figs.values()):
             manager.canvas.mpl_disconnect(manager._cidgcf)
             manager.destroy()
-
-        cls._activeQue = []
         cls.figs.clear()
         gc.collect(1)
 
     @classmethod
     def has_fignum(cls, num):
-        """
-        Return *True* if figure *num* exists.
-        """
+        """Return whether figure number *num* exists."""
         return num in cls.figs
 
     @classmethod
     def get_all_fig_managers(cls):
-        """
-        Return a list of figure managers.
-        """
+        """Return a list of figure managers."""
         return list(cls.figs.values())
 
     @classmethod
     def get_num_fig_managers(cls):
-        """
-        Return the number of figures being managed.
-        """
+        """Return the number of figures being managed."""
         return len(cls.figs)
 
     @classmethod
     def get_active(cls):
-        """
-        Return the manager of the active figure, or *None*.
-        """
-        if len(cls._activeQue) == 0:
-            return None
-        else:
-            return cls._activeQue[-1]
+        """Return the active manager, or *None* if there is no manager."""
+        return next(reversed(cls.figs.values())) if cls.figs else None
+
+    @classmethod
+    def _set_new_active_manager(cls, manager):
+        """Adopt *manager* into pyplot and make it the active manager."""
+        if not hasattr(manager, "_cidgcf"):
+            manager._cidgcf = manager.canvas.mpl_connect(
+                "button_press_event", lambda event: cls.set_active(manager))
+        fig = manager.canvas.figure
+        fig.number = manager.num
+        label = fig.get_label()
+        if label:
+            manager.set_window_title(label)
+        cls.set_active(manager)
 
     @classmethod
     def set_active(cls, manager):
-        """
-        Make the figure corresponding to *manager* the active one.
-        """
-        oldQue = cls._activeQue[:]
-        cls._activeQue = [m for m in oldQue if m != manager]
-        cls._activeQue.append(manager)
+        """Make *manager* the active manager."""
         cls.figs[manager.num] = manager
+        cls.figs.move_to_end(manager.num)
 
     @classmethod
     def draw_all(cls, force=False):
         """
-        Redraw all figures registered with the pyplot
-        state machine.
+        Redraw all stale managed figures, or, if *force* is True, all managed
+        figures.
         """
-        for f_mgr in cls.get_all_fig_managers():
-            if force or f_mgr.canvas.figure.stale:
-                f_mgr.canvas.draw_idle()
+        for manager in cls.get_all_fig_managers():
+            if force or manager.canvas.figure.stale:
+                manager.canvas.draw_idle()
+
 
 atexit.register(Gcf.destroy_all)

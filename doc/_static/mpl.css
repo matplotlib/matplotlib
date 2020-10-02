@@ -3,6 +3,26 @@
  * Originally created by Armin Ronacher for Werkzeug, adapted by Georg Brandl.
  */
 
+/* Carlogo font (similar to Calibri in the MPL logo) */
+@font-face {
+    font-family: 'CarlogoRegular';
+    font-style: normal;
+    src:    local('Carlito'),
+            url('fonts/carlogo-regular.woff2') format('woff2'),
+            url('fonts/carlogo-regular.woff') format('woff'),
+            url('fonts/carlogo-regular.ttf') format('truetype')
+}
+
+@font-face {
+    font-family: 'CarlogoBold';
+    font-style: bold;
+    src:    local('Carlito Bold'),
+            url('fonts/carlogo-bold.woff2') format('woff2'),
+            url('fonts/carlogo-bold.woff') format('woff'),
+            url('fonts/carlogo-bold.ttf') format('truetype')
+}
+
+
 body {
     font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
     font-size: 14px;
@@ -169,10 +189,6 @@ div.documentwrapper {
 }
 */
 
-div.clearer {
-    clear: both;
-}
-
 div.related h3 {
     display: none;
 }
@@ -227,20 +243,6 @@ div.sphinxsidebar {
     float: right;
     text-align: left;
 /*    margin-left: -100%; */
-}
-
-div.sphinxsidebar h4, div.sphinxsidebar h3 {
-    margin: 1em 0 0.5em 0;
-    font-size: 0.9em;
-    padding: 0.1em 0 0.1em 0.5em;
-    color: white;
-    border: 1px solid #86989B;
-    background-color: #AFC1C4;
-}
-
-div.sphinxsidebar h3 a {
-    /* workaround for table of contents heading, which is a link */
-    color: white !important;
 }
 
 div.sphinxsidebar ul {
@@ -312,6 +314,11 @@ h3 {
     font-size: 1.2em;
 }
 
+h1, h2, h3, h4, h5, h6{
+    font-family: 'CarlogoBold', 'Carlito-bold', sans-serif;
+    font-weight: normal;
+}
+
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     color: black!important;
 }
@@ -349,7 +356,7 @@ div.footer {
     padding: 3px 8px 3px 0;
     clear: both;
     font-size: 0.8em;
-    text-align: right;
+    text-align: center;
 }
 
 div.footer a {
@@ -461,7 +468,7 @@ div.topic {
     border-left: 0px;
     border-right: 0px;
     margin: 10px 0px;
-    padding: 1em 1.4em;
+    padding-left: 1em;
 }
 
 p.topic-title {
@@ -495,7 +502,8 @@ p.topic-title {
 }
 
 .contents > ul > li {
-    padding-top: 0.7em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
 }
 
 .contents ul > li::before {
@@ -594,6 +602,10 @@ span.linkdescr {
     font-size: 90%;
 }
 
+.highlight span.c1 span.highlighted {
+    background-color: #fce5a6;
+}
+
 ul.search {
     margin: 10px 0 0 20px;
     padding: 0;
@@ -671,6 +683,11 @@ dl.class p.rubric + table.docutils td:first-of-type > strong {
     font-weight: normal;
 }
 
+.classifier:before {
+    font-style: normal;
+    margin: 0.2em;
+    content: ":";
+}
 
 /* module summary table */
 .longtable.docutils {
@@ -891,6 +908,30 @@ figcaption {
 #unreleased-message a {
   color: #fff;
   text-decoration:underline;
+
+}
+
+/* top-banner style message. */
+#annc-banner {
+  box-sizing: border-box;
+  left: 0;
+  min-height: 3em;
+  padding: 0.7em;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+  background-image: linear-gradient(90deg, #440154, #482475, #414487, #355f8d, #2a788e, #21908d, #22a884, #42be71, #7ad151, #bddf26, #bddf26);
+  padding: 5px
+}
+
+#annc-banner a {
+    font-weight: bold;
+}
+
+#annc-banner p{
+    background-color: rgba(255, 255, 255, .8);
+    padding: 13px;
+    margin:0;
 }
 
 /* Fork me on GitHub "button" */
@@ -946,26 +987,35 @@ figcaption {
   }
 }
 
+.mpl-button {
+    background: #11557C;
+    font-weight: normal;
+    display: inline-block;
+    padding: 0 1em;
+    line-height: 2.8;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    z-index: 1;
+    transition: background .25s ease;
+}
+
+.mpl-button:hover, .mpl-button:active, .mpl-button:focus {
+    background: #003c63;
+    outline-color: #003c63;
+}
+
 #sidebar-donations {
     margin-top: 40px;
 }
 
 .donate_button {
-    background:#11557C;
-    font-weight:normal;
     clear: both;
     display: block;
-    width:200px;
-    line-height:2.8;
-    font-size: 16px;
-    text-align: center;
-    cursor:pointer;
-    color:#fff;
-    text-decoration: none;
     margin: 30px auto 0;
-    border-radius: 6px;
-    z-index:1;
-    transition: background .25s ease;
 }
 
 .donate_button:last-of-type {
@@ -973,12 +1023,6 @@ figcaption {
 
 
 }
-
-.donate_button:hover, .donate_button:active, .donate_button:focus {
-    background: #003c63;
-    outline-color: #003c63;
-}
-
 
 div.responsive_screenshots {
     /* Horizontally centered */
@@ -1016,7 +1060,7 @@ div.responsive_subfig img {
     width: 100%;
 }
 
-@media only screen and (max-width: 1000px){
+@media only screen and (max-width: 930px){
     /* The value of 1000px was handcrafted to provide a more or less */
     /* smooth transition between the 1x4 and the 2x2 layouts. It is  */
     /* NB: it is slightly below 1024px: so one should still have a   */
@@ -1042,10 +1086,6 @@ div.align-center {
 
 p.caption {
     font-weight: bold;
-}
-
-div#gallery.section, div#tutorials.section {
-    overflow: hidden;
 }
 
 .sphx-glr-multi-img{
@@ -1098,13 +1138,128 @@ div.viewcode-block:target {
 
 }
 
-.sidebar-announcement {
+.sidebar-announcement,
+.sidebar-versions {
     border: 1px solid #11557C;
     background: #eff9ff;
-    padding: 2px;
-    margin-top: 40px;
+    padding: 0.2em 0.5em;
+    margin-top: 1em;
 }
 
 .sidebar-announcement p {
-    margin: 0.4em 0.4em 0.6em 0.4em;
+    margin: 0.4em 0 0.6em 0;
+}
+
+/* new main nav */
+nav.main-nav{
+    background-color: #002b47;
+    font-family: 'CarlogoRegular', 'Carlito', sans-serif;
+    font-size: 16px;
+  }
+
+  nav.main-nav ul{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+  }
+
+  nav.main-nav li{
+    margin: 8px 15px;
+    list-style-type: none;
+  }
+
+  nav.main-nav a{
+    color: white;
+  }
+
+  nav.main-nav a:hover{
+    text-decoration: underline;
+  }
+
+  nav.main-nav li.nav-right{
+    margin: 6px 15px 0 auto;
+  }
+
+  nav.main-nav input {
+    border: 0;
+    padding: 3px 6px;
+    width: 198px;
+  }
+
+/* community items on main page */
+div.box {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+div.box-item {
+    flex: 0 0 45%;
+    padding: 4px;
+    margin: 8px 12px;
+}
+
+div.box-item img {
+    float: left;
+    width: 30px;
+    height: 30px;
+    fill: #888;
+
+}
+div.box-item p {
+    margin: 0 0 0 50px;
+}
+
+div.box-item ul {
+    margin: 0 0 0 50px;
+    padding-left: 20px;
+}
+
+hr.box-sep {
+    margin: 1em 2em;
+}
+
+@media only screen and (max-width: 930px){
+    div.box-item {
+        flex: 0 0 90%;
+    }
+}
+
+/* bullet boxes on main page */
+div.bullet-box-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1em 0;
+}
+
+div.bullet-box {
+    flex-grow: 1;
+    width: 28%;
+    margin: 0.4em;
+    padding: 0 1em;
+    background: #eff9ff;
+}
+
+div.bullet-box p:first-of-type {
+    font-size: 1.4em;
+    text-align: center;
+}
+
+div.bullet-box ul {
+    padding-left: 1.2em;
+}
+
+div.bullet-box li {
+    padding-left: 0.3em;
+    margin-bottom: 0.3em;
+}
+
+@media only screen and (max-width: 930px){
+    div.bullet-box {
+        flex: 0 0 90%;
+    }
+}
+
+div#gallery.section .sphx-glr-clear:first-of-type, div#tutorials.section .sphx-glr-clear:first-of-type{
+    display: none;
 }

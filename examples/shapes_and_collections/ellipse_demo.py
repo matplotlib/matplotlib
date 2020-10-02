@@ -11,6 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Ellipse
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 NUM = 250
 
 ells = [Ellipse(xy=np.random.rand(2) * 10,
@@ -42,20 +46,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Ellipse
 
-delta = 45.0  # degrees
+angle_step = 45  # degrees
+angles = np.arange(0, 180, angle_step)
 
-angles = np.arange(0, 360 + delta, delta)
-ells = [Ellipse((1, 1), 4, 2, a) for a in angles]
+ax = plt.subplot(aspect='equal')
 
-a = plt.subplot(111, aspect='equal')
+for angle in angles:
+    ellipse = Ellipse((0, 0), 4, 2, angle=angle, alpha=0.1)
+    ax.add_artist(ellipse)
 
-for e in ells:
-    e.set_clip_box(a.bbox)
-    e.set_alpha(0.1)
-    a.add_artist(e)
-
-plt.xlim(-2, 4)
-plt.ylim(-1, 3)
+plt.xlim(-2.2, 2.2)
+plt.ylim(-2.2, 2.2)
 
 plt.show()
 

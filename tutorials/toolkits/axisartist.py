@@ -7,12 +7,12 @@ The axisartist toolkit tutorial.
 
 .. warning::
    *axisartist* uses a custom Axes class
-   (derived from the mpl's original Axes class).
+   (derived from the Matplotlib's original Axes class).
    As a side effect, some commands (mostly tick-related) do not work.
 
 The *axisartist* contains a custom Axes class that is meant to support
 curvilinear grids (e.g., the world coordinate system in astronomy).
-Unlike mpl's original Axes class which uses Axes.xaxis and Axes.yaxis
+Unlike Matplotlib's original Axes class which uses Axes.xaxis and Axes.yaxis
 to draw ticks, ticklines, etc., axisartist uses a special
 artist (AxisArtist) that can handle ticks, ticklines, etc. for
 curved coordinate systems.
@@ -52,13 +52,13 @@ To create an axes, ::
 
   import mpl_toolkits.axisartist as AA
   fig = plt.figure()
-  ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
-  fig.add_axes(ax)
+  fig.add_axes([0.1, 0.1, 0.8, 0.8], axes_class=AA.Axes)
 
 or to create a subplot ::
 
-  ax = AA.Subplot(fig, 111)
-  fig.add_subplot(ax)
+  fig.add_subplot(111, axes_class=AA.Axes)
+  # Given that 111 is the default, one can also do
+  fig.add_subplot(axes_class=AA.Axes)
 
 For example, you can hide the right and top spines using::
 
@@ -87,8 +87,7 @@ horizontal axis at y=0 (in data coordinate). ::
 Or a fixed axis with some offset ::
 
     # make new (right-side) yaxis, but with some offset
-    ax.axis["right2"] = ax.new_fixed_axis(loc="right",
-                  offset=(20, 0))
+    ax.axis["right2"] = ax.new_fixed_axis(loc="right", offset=(20, 0))
 
 axisartist with ParasiteAxes
 ----------------------------
@@ -142,11 +141,11 @@ axisartist namespace
 
 The *axisartist* namespace includes a derived Axes implementation. The
 biggest difference is that the artists responsible to draw axis line,
-ticks, ticklabel and axis labels are separated out from the mpl's Axis
-class, which are much more than artists in the original mpl. This
+ticks, ticklabel and axis labels are separated out from the Matplotlib's Axis
+class, which are much more than artists in the original Matplotlib. This
 change was strongly motivated to support curvilinear grid. Here are a
-few things that mpl_tootlkits.axisartist.Axes is different from original
-Axes from mpl.
+few things that mpl_toolkits.axisartist.Axes is different from original
+Axes from Matplotlib.
 
 * Axis elements (axis line(spine), ticks, ticklabel and axis labels)
   are drawn by a AxisArtist instance. Unlike Axis, left, right, top
@@ -179,7 +178,7 @@ bottom and top axis.
 
 xaxis and yaxis attributes are still available, however they are set
 to not visible. As separate artists are used for rendering axis, some
-axis-related method in mpl may have no effect.
+axis-related method in Matplotlib may have no effect.
 In addition to AxisArtist instances, the mpl_toolkits.axisartist.Axes will
 have *gridlines* attribute (Gridlines), which obviously draws grid
 lines.
@@ -188,8 +187,8 @@ In both AxisArtist and Gridlines, the calculation of tick and grid
 location is delegated to an instance of GridHelper class.
 mpl_toolkits.axisartist.Axes class uses GridHelperRectlinear as a grid
 helper. The GridHelperRectlinear class is a wrapper around the *xaxis*
-and *yaxis* of mpl's original Axes, and it was meant to work as the
-way how mpl's original axes works. For example, tick location changes
+and *yaxis* of Matplotlib's original Axes, and it was meant to work as the
+way how Matplotlib's original axes works. For example, tick location changes
 using set_ticks method and etc. should work as expected. But change in
 artist properties (e.g., color) will not work in general, although
 some effort has been made so that some often-change attributes (color,
@@ -210,12 +209,12 @@ attributes which will draw ticks, labels, etc.
 line
 ----
 
-Derived from Line2d class. Responsible for drawing a spinal(?) line.
+Derived from Line2D class. Responsible for drawing a spinal(?) line.
 
 major_ticks, minor_ticks
 ------------------------
 
-Derived from Line2d class. Note that ticks are markers.
+Derived from Line2D class. Note that ticks are markers.
 
 major_ticklabels, minor_ticklabels
 ----------------------------------
@@ -247,7 +246,7 @@ Similarly, to make ticklabels invisible ::
 
   ax.axis["bottom"].major_ticklabels.set_visible(False)
 
-AxisAritst provides a helper method to control the visibility of ticks,
+AxisArtist provides a helper method to control the visibility of ticks,
 ticklabels, and label. To make ticklabel invisible, ::
 
   ax.axis["bottom"].toggle(ticklabels=False)
@@ -262,17 +261,18 @@ To turn all off but ticks on ::
 
 To turn all on but (axis) label off ::
 
-      ax.axis["bottom"].toggle(all=True, label=False))
+      ax.axis["bottom"].toggle(all=True, label=False)
 
 ax.axis's __getitem__ method can take multiple axis names. For
 example, to turn ticklabels of "top" and "right" axis on, ::
 
-      ax.axis["top","right"].toggle(ticklabels=True))
+      ax.axis["top", "right"].toggle(ticklabels=True)
 
-Note that 'ax.axis["top","right"]' returns a simple proxy object that translate above code to something like below. ::
+Note that ``ax.axis["top", "right"]`` returns a simple proxy object that
+translate above code to something like below. ::
 
-      for n in ["top","right"]:
-        ax.axis[n].toggle(ticklabels=True))
+      for n in ["top", "right"]:
+          ax.axis[n].toggle(ticklabels=True)
 
 So, any return values in the for loop are ignored. And you should not
 use it anything more than a simple method.
@@ -288,9 +288,9 @@ HowTo
 
 1. Changing tick locations and label.
 
-  Same as the original mpl's axes.::
+  Same as the original Matplotlib's axes::
 
-   ax.set_xticks([1,2,3])
+   ax.set_xticks([1, 2, 3])
 
 2. Changing axis properties like color, etc.
 
@@ -301,27 +301,27 @@ HowTo
 
 3. To change the attributes of multiple axis::
 
-    ax.axis["left","bottom"].major_ticklabels.set_color("r")
+    ax.axis["left", "bottom"].major_ticklabels.set_color("r")
 
    or to change the attributes of all axis::
 
     ax.axis[:].major_ticklabels.set_color("r")
 
 4. To change the tick size (length), you need to use
-    axis.major_ticks.set_ticksize method. To change the direction of
-    the ticks (ticks are in opposite direction of ticklabels by
-    default), use axis.major_ticks.set_tick_out method.
+   axis.major_ticks.set_ticksize method. To change the direction of
+   the ticks (ticks are in opposite direction of ticklabels by
+   default), use axis.major_ticks.set_tick_out method.
 
-    To change the pad between ticks and ticklabels, use
-    axis.major_ticklabels.set_pad method.
+   To change the pad between ticks and ticklabels, use
+   axis.major_ticklabels.set_pad method.
 
-    To change the pad between ticklabels and axis label,
-    axis.label.set_pad method.
+   To change the pad between ticklabels and axis label,
+   axis.label.set_pad method.
 
 Rotation and Alignment of TickLabels
 ====================================
 
-This is also quite different from the original mpl and can be
+This is also quite different from standard Matplotlib and can be
 confusing. When you want to rotate the ticklabels, first consider
 using "set_axis_direction" method. ::
 
@@ -340,51 +340,26 @@ The parameter for set_axis_direction is one of ["left", "right",
 
 You must understand some underlying concept of directions.
 
- 1. There is a reference direction which is defined as the direction
-    of the axis line with increasing coordinate.  For example, the
-    reference direction of the left x-axis is from bottom to top.
+- There is a reference direction which is defined as the direction
+  of the axis line with increasing coordinate.  For example, the
+  reference direction of the left x-axis is from bottom to top.
 
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step01_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step01.html
-       :align: center
-       :scale: 50
+  The direction, text angle, and alignments of the ticks, ticklabels and
+  axis-label is determined with respect to the reference direction
 
-       Axis Direction Demo - Step 01
+- *label_direction* and *ticklabel_direction* are either the right-hand side
+  (+) of the reference direction or the left-hand side (-).
 
-   The direction, text angle, and alignments of the ticks, ticklabels and
-   axis-label is determined with respect to the reference direction
+- ticks are by default drawn toward the opposite direction of the ticklabels.
 
- 2. *ticklabel_direction* is either the right-hand side (+) of the
-    reference direction or the left-hand side (-).
+- text rotation of ticklabels and label is determined in reference
+  to the *ticklabel_direction* or *label_direction*,
+  respectively. The rotation of ticklabels and label is anchored.
 
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step02_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step02.html
-       :align: center
-       :scale: 50
-
-       Axis Direction Demo - Step 02
-
- 3. same for the *label_direction*
-
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step03_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step03.html
-       :align: center
-       :scale: 50
-
-       Axis Direction Demo - Step 03
-
- 4. ticks are by default drawn toward the opposite direction of the ticklabels.
-
- 5. text rotation of ticklabels and label is determined in reference
-    to the *ticklabel_direction* or *label_direction*,
-    respectively. The rotation of ticklabels and label is anchored.
-
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step04_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step04.html
-       :align: center
-       :scale: 50
-
-       Axis Direction Demo - Step 04
+.. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_001.png
+   :target: ../../gallery/axisartist/axis_direction.html
+   :align: center
+   :scale: 50
 
 On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
@@ -415,7 +390,7 @@ direction can be more clear with curved axis.
    Demo Axis Direction
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
-level of its child arists, i.e., ticks, ticklabels, and axis-label. ::
+level of its child artists, i.e., ticks, ticklabels, and axis-label. ::
 
   ax1.axis["left"].set_axis_direction("top")
 
@@ -450,22 +425,29 @@ default direction). ::
 
 So, in summary,
 
- * AxisArtist's methods
-    * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_ticklabel_direction : "+" or "-"
-    * set_axislabel_direction : "+" or "-"
-    * invert_ticklabel_direction
- * Ticks' methods (major_ticks and minor_ticks)
-    * set_tick_out : True or False
-    * set_ticksize : size in points
- * TickLabels' methods (major_ticklabels and minor_ticklabels)
-    * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_rotation : angle with respect to the reference direction
-    * set_ha and set_va : see below
- * AxisLabels' methods (label)
-    * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_rotation : angle with respect to the reference direction
-    * set_ha and set_va
+* AxisArtist's methods
+
+  - set_axis_direction: "left", "right", "bottom", or "top"
+  - set_ticklabel_direction: "+" or "-"
+  - set_axislabel_direction: "+" or "-"
+  - invert_ticklabel_direction
+
+* Ticks' methods (major_ticks and minor_ticks)
+
+  - set_tick_out: True or False
+  - set_ticksize: size in points
+
+* TickLabels' methods (major_ticklabels and minor_ticklabels)
+
+  - set_axis_direction: "left", "right", "bottom", or "top"
+  - set_rotation: angle with respect to the reference direction
+  - set_ha and set_va: see below
+
+* AxisLabels' methods (label)
+
+  - set_axis_direction: "left", "right", "bottom", or "top"
+  - set_rotation: angle with respect to the reference direction
+  - set_ha and set_va
 
 Adjusting ticklabels alignment
 ------------------------------
@@ -511,7 +493,7 @@ transform of the axes itself (ax.transData) is still rectilinear
 
     from mpl_toolkits.axisartist.grid_helper_curvelinear \
          import GridHelperCurveLinear
-    from mpl_toolkits.axisartist import Subplot
+    from mpl_toolkits.axisartist import Axes
 
     # from curved coordinate to rectlinear coordinate.
     def tr(x, y):
@@ -519,17 +501,15 @@ transform of the axes itself (ax.transData) is still rectilinear
         return x, y-x
 
     # from rectlinear coordinate to curved coordinate.
-    def inv_tr(x,y):
+    def inv_tr(x, y):
         x, y = np.asarray(x), np.asarray(y)
         return x, y+x
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
-    ax1 = Subplot(fig, 1, 1, 1, grid_helper=grid_helper)
+    fig.add_subplot(axes_class=Axes, grid_helper=grid_helper)
 
-    fig.add_subplot(ax1)
-
-You may use matplotlib's Transform instance instead (but a
+You may use Matplotlib's Transform instance instead (but a
 inverse transformation must be defined). Often, coordinate range in a
 curved coordinate system may have a limited range, or may have
 cycles. In those cases, a more customized version of grid helper is
@@ -541,8 +521,8 @@ required. ::
     # system in degree
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
 
-    # extreme finder :  find a range of coordinate.
-    # 20, 20 : number of sampling points along x, y direction
+    # extreme finder: find a range of coordinate.
+    # 20, 20: number of sampling points along x, y direction
     # The first coordinate (longitude, but theta in polar)
     #   has a cycle of 360 degree.
     # The second coordinate (latitude, but radius in polar)  has a minimum of 0
@@ -557,10 +537,10 @@ required. ::
     # minute, second). The argument is a approximate number of grids.
     grid_locator1 = angle_helper.LocatorDMS(12)
 
-    # And also uses an appropriate formatter.  Note that,the
-    # acceptable Locator and Formatter class is a bit different than
-    # that of mpl's, and you cannot directly use mpl's Locator and
-    # Formatter here (but may be possible in the future).
+    # And also uses an appropriate formatter.  Note that the acceptable Locator
+    # and Formatter classes are different than that of Matplotlib's, and you
+    # cannot directly use Matplotlib's Locator and Formatter here (but may be
+    # possible in the future).
     tick_formatter1 = angle_helper.FormatterDMS()
 
     grid_helper = GridHelperCurveLinear(tr,
@@ -578,7 +558,7 @@ coordinates, or you may use Parasite Axes for convenience.::
     # A parasite axes with given transform
     ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
     # note that ax2.transData == tr + ax1.transData
-    # Anthing you draw in ax2 will match the ticks and grids of ax1.
+    # Anything you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
@@ -615,8 +595,8 @@ The code need more refinement. Here is a incomplete list of issues and TODO's
 * No easy way to support a user customized tick location (for
   curvilinear grid). A new Locator class needs to be created.
 
-* FloatingAxis may have coordinate limits, e.g., a floating axis of x
-  = 0, but y only spans from 0 to 1.
+* FloatingAxis may have coordinate limits, e.g., a floating axis of x = 0,
+  but y only spans from 0 to 1.
 
 * The location of axislabel of FloatingAxis needs to be optionally
   given as a coordinate value. ex, a floating axis of x=0 with label at y=1

@@ -4,7 +4,7 @@ Different ways of specifying error bars
 =======================================
 
 Errors can be specified as a constant value (as shown in
-`errorbar_demo.py`). However, this example demonstrates
+:doc:`/gallery/statistics/errorbar`). However, this example demonstrates
 how they vary by specifying arrays of error values.
 
 If the raw ``x`` and ``y`` data have length N, there are two options:

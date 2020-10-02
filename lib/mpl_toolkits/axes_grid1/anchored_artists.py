@@ -1,4 +1,4 @@
-from matplotlib import docstring, transforms
+from matplotlib import transforms
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox,
                                   DrawingArea, TextArea, VPacker)
 from matplotlib.patches import (Rectangle, Ellipse, ArrowStyle,
@@ -10,7 +10,6 @@ __all__ = ['AnchoredDrawingArea', 'AnchoredAuxTransformBox',
 
 
 class AnchoredDrawingArea(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, width, height, xdescent, ydescent,
                  loc, pad=0.4, borderpad=0.5, prop=None, frameon=True,
                  **kwargs):
@@ -23,10 +22,10 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
         Parameters
         ----------
-        width, height : int or float
+        width, height : float
             width and height of the container, in pixels.
 
-        xdescent, ydescent : int or float
+        xdescent, ydescent : float
             descent of the container in the x- and y- direction, in pixels.
 
         loc : int
@@ -43,19 +42,17 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
                 'upper center' : 9,
                 'center'       : 10
 
-        pad : int or float, optional
-            Padding around the child objects, in fraction of the font
-            size. Defaults to 0.4.
+        pad : float, default: 0.4
+            Padding around the child objects, in fraction of the font size.
 
-        borderpad : int or float, optional
+        borderpad : float, default: 0.5
             Border padding, in fraction of the font size.
-            Defaults to 0.5.
 
         prop : `matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
 
-        frameon : bool, optional
-            If True, draw a box around this artists. Defaults to True.
+        frameon : bool, default: True
+            If True, draw a box around this artists.
 
         **kwargs
             Keyworded arguments to pass to
@@ -87,7 +84,6 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
 
 class AnchoredAuxTransformBox(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, loc,
                  pad=0.4, borderpad=0.5, prop=None, frameon=True, **kwargs):
         """
@@ -117,19 +113,17 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
                 'upper center' : 9,
                 'center'       : 10
 
-        pad : int or float, optional
-            Padding around the child objects, in fraction of the font
-            size. Defaults to 0.4.
+        pad : float, default: 0.4
+            Padding around the child objects, in fraction of the font size.
 
-        borderpad : int or float, optional
+        borderpad : float, default: 0.5
             Border padding, in fraction of the font size.
-            Defaults to 0.5.
 
         prop : `matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
 
-        frameon : bool, optional
-            If True, draw a box around this artists. Defaults to True.
+        frameon : bool, default: True
+            If True, draw a box around this artists.
 
         **kwargs
             Keyworded arguments to pass to
@@ -146,21 +140,18 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
         height of 0.4 in data coordinates:
 
         >>> box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
-        >>> el = Ellipse((0,0), width=0.1, height=0.4, angle=30)
+        >>> el = Ellipse((0, 0), width=0.1, height=0.4, angle=30)
         >>> box.drawing_area.add_artist(el)
         >>> ax.add_artist(box)
         """
         self.drawing_area = AuxTransformBox(transform)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self.drawing_area,
-                                   prop=prop,
-                                   frameon=frameon,
-                                   **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad,
+                         child=self.drawing_area, prop=prop, frameon=frameon,
+                         **kwargs)
 
 
 class AnchoredEllipse(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, width, height, angle, loc,
                  pad=0.1, borderpad=0.1, prop=None, frameon=True, **kwargs):
         """
@@ -172,11 +163,11 @@ class AnchoredEllipse(AnchoredOffsetbox):
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transData`.
 
-        width, height : int or float
+        width, height : float
             Width and height of the ellipse, given in coordinates of
             *transform*.
 
-        angle : int or float
+        angle : float
             Rotation of the ellipse, in degrees, anti-clockwise.
 
         loc : int
@@ -193,15 +184,15 @@ class AnchoredEllipse(AnchoredOffsetbox):
                 'upper center' : 9,
                 'center'       : 10
 
-        pad : int or float, optional
+        pad : float, optional
             Padding around the ellipse, in fraction of the font size. Defaults
             to 0.1.
 
-        borderpad : int or float, optional
-            Border padding, in fraction of the font size. Defaults to 0.1.
+        borderpad : float, default: 0.1
+            Border padding, in fraction of the font size.
 
-        frameon : bool, optional
-            If True, draw a box around the ellipse. Defaults to True.
+        frameon : bool, default: True
+            If True, draw a box around the ellipse.
 
         prop : `matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
@@ -219,14 +210,11 @@ class AnchoredEllipse(AnchoredOffsetbox):
         self.ellipse = Ellipse((0, 0), width, height, angle)
         self._box.add_artist(self.ellipse)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self._box,
-                                   prop=prop,
-                                   frameon=frameon, **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad, child=self._box,
+                         prop=prop, frameon=frameon, **kwargs)
 
 
 class AnchoredSizeBar(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
@@ -241,7 +229,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transData`.
 
-        size : int or float
+        size : float
             Horizontal length of the size bar, given in coordinates of
             *transform*.
 
@@ -262,33 +250,28 @@ class AnchoredSizeBar(AnchoredOffsetbox):
                 'upper center' : 9,
                 'center'       : 10
 
-        pad : int or float, optional
+        pad : float, default: 0.1
             Padding around the label and size bar, in fraction of the font
-            size. Defaults to 0.1.
+            size.
 
-        borderpad : int or float, optional
+        borderpad : float, default: 0.1
             Border padding, in fraction of the font size.
-            Defaults to 0.1.
 
-        sep : int or float, optional
+        sep : float, default: 2
             Separation between the label and the size bar, in points.
-            Defaults to 2.
 
-        frameon : bool, optional
+        frameon : bool, default: True
             If True, draw a box around the horizontal bar and label.
-            Defaults to True.
 
-        size_vertical : int or float, optional
+        size_vertical : float, default: 0
             Vertical length of the size bar, given in coordinates of
-            *transform*. Defaults to 0.
+            *transform*.
 
-        color : str, optional
+        color : str, default: 'black'
             Color for the size bar and label.
-            Defaults to black.
 
-        label_top : bool, optional
+        label_top : bool, default: False
             If True, the label will be over the size bar.
-            Defaults to False.
 
         fontproperties : `matplotlib.font_manager.FontProperties`, optional
             Font properties for the label text.
@@ -324,7 +307,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         >>> from mpl_toolkits.axes_grid1.anchored_artists import (
         ...     AnchoredSizeBar)
         >>> fig, ax = plt.subplots()
-        >>> ax.imshow(np.random.random((10,10)))
+        >>> ax.imshow(np.random.random((10, 10)))
         >>> bar = AnchoredSizeBar(ax.transData, 3, '3 data units', 4)
         >>> ax.add_artist(bar)
         >>> fig.show()
@@ -354,10 +337,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         else:
             textprops = {'color': color, 'fontproperties': fontproperties}
 
-        self.txt_label = TextArea(
-            label,
-            minimumdescent=False,
-            textprops=textprops)
+        self.txt_label = TextArea(label, textprops=textprops)
 
         if label_top:
             _box_children = [self.txt_label, self.size_bar]
@@ -368,14 +348,11 @@ class AnchoredSizeBar(AnchoredOffsetbox):
                             align="center",
                             pad=0, sep=sep)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self._box,
-                                   prop=fontproperties,
-                                   frameon=frameon, **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad, child=self._box,
+                         prop=fontproperties, frameon=frameon, **kwargs)
 
 
 class AnchoredDirectionArrows(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, label_x, label_y, length=0.15,
                  fontsize=0.08, loc=2, angle=0, aspect_ratio=1, pad=0.4,
                  borderpad=0.4, frameon=False, color='w', alpha=1,
@@ -392,19 +369,16 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transAxes`.
 
-        label_x, label_y : string
+        label_x, label_y : str
             Label text for the x and y arrows
 
-        length : int or float, optional
-            Length of the arrow, given in coordinates of
-            *transform*.
-            Defaults to 0.15.
+        length : float, default: 0.15
+            Length of the arrow, given in coordinates of *transform*.
 
-        fontsize : int, optional
+        fontsize : float, default: 0.08
             Size of label strings, given in coordinates of *transform*.
-            Defaults to 0.08.
 
-        loc : int, optional
+        loc : int, default: 2
             Location of the direction arrows. Valid location codes are::
 
                 'upper right'  : 1,
@@ -418,64 +392,50 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
                 'upper center' : 9,
                 'center'       : 10
 
-            Defaults to 2.
-
-        angle : int or float, optional
+        angle : float, default: 0
             The angle of the arrows in degrees.
-            Defaults to 0.
 
-        aspect_ratio : int or float, optional
+        aspect_ratio : float, default: 1
             The ratio of the length of arrow_x and arrow_y.
             Negative numbers can be used to change the direction.
-            Defaults to 1.
 
-        pad : int or float, optional
-            Padding around the labels and arrows, in fraction of the font
-            size. Defaults to 0.4.
+        pad : float, default: 0.4
+            Padding around the labels and arrows, in fraction of the font size.
 
-        borderpad : int or float, optional
+        borderpad : float, default: 0.4
             Border padding, in fraction of the font size.
-            Defaults to 0.4.
 
-        frameon : bool, optional
+        frameon : bool, default: False
             If True, draw a box around the arrows and labels.
-            Defaults to False.
 
-        color : str, optional
+        color : str, default: 'white'
             Color for the arrows and labels.
-            Defaults to white.
 
-        alpha : int or float, optional
+        alpha : float, default: 1
             Alpha values of the arrows and labels
-            Defaults to 1.
 
-        sep_x, sep_y : int or float, optional
+        sep_x, sep_y : float, default: 0.01 and 0 respectively
             Separation between the arrows and labels in coordinates of
-            *transform*. Defaults to 0.01 and 0.
+            *transform*.
 
         fontproperties : `matplotlib.font_manager.FontProperties`, optional
             Font properties for the label text.
 
-        back_length : float, optional
+        back_length : float, default: 0.15
             Fraction of the arrow behind the arrow crossing.
-            Defaults to 0.15.
 
-        head_width : int or float, optional
+        head_width : float, default: 10
             Width of arrow head, sent to ArrowStyle.
-            Defaults to 10.
 
-        head_length : int or float, optional
+        head_length : float, default: 15
             Length of arrow head, sent to ArrowStyle.
-            Defaults to 15.
 
-        tail_width : int or float, optional
+        tail_width : float, default: 2
             Width of arrow tail, sent to ArrowStyle.
-            Defaults to 2.
 
         text_props, arrow_props : dict
             Properties of the text and arrows, passed to
-            :class:`matplotlib.text.TextPath` and
-            `matplotlib.patches.FancyArrowPatch`
+            `.textpath.TextPath` and `.patches.FancyArrowPatch`.
 
         **kwargs
             Keyworded arguments to pass to
@@ -486,7 +446,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         arrow_x, arrow_y : `matplotlib.patches.FancyArrowPatch`
             Arrow x and y
 
-        text_path_x, text_path_y : `matplotlib.text.TextPath`
+        text_path_x, text_path_y : `matplotlib.textpath.TextPath`
             Path for arrow labels
 
         p_x, p_y : `matplotlib.patches.PathPatch`
@@ -508,7 +468,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         >>> from mpl_toolkits.axes_grid1.anchored_artists import (
         ...     AnchoredDirectionArrows)
         >>> fig, ax = plt.subplots()
-        >>> ax.imshow(np.random.random((10,10)))
+        >>> ax.imshow(np.random.random((10, 10)))
         >>> arrows = AnchoredDirectionArrows(ax.transAxes, '111', '110')
         >>> ax.add_artist(arrows)
         >>> fig.show()
@@ -590,6 +550,5 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         self.p_y = PathPatch(text_path_y, **text_props)
         self.box.add_artist(self.p_y)
 
-        AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
-                                   child=self.box,
-                                   frameon=frameon, **kwargs)
+        super().__init__(loc, pad=pad, borderpad=borderpad, child=self.box,
+                         frameon=frameon, **kwargs)

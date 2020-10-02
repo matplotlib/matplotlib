@@ -3,15 +3,7 @@ from .axislines import Axes
 
 
 class CbarAxes(axes_grid_orig.CbarAxesBase, Axes):
-    def __init__(self, *args, orientation, **kwargs):
-        self.orientation = orientation
-        self._default_label_on = False
-        self.locator = None
-        super().__init__(*args, **kwargs)
-
-    def cla(self):
-        super().cla()
-        self._config_axes()
+    pass
 
 
 class Grid(axes_grid_orig.Grid):

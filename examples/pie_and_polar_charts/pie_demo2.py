@@ -3,7 +3,7 @@
 Pie Demo2
 =========
 
-Make a pie charts using :meth:`~.axes.Axes.pie`.
+Make a pie charts using `~.axes.Axes.pie`.
 
 This example demonstrates some pie chart features like labels, varying size,
 autolabeling the percentage, offsetting a slice and adding a shadow.

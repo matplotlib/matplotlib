@@ -1,18 +1,20 @@
 """
-===================
-Centered Ticklabels
-===================
+==============================
+Centering labels between ticks
+==============================
 
-sometimes it is nice to have ticklabels centered.  Matplotlib currently
-associates a label with a tick, and the label can be aligned
-'center', 'left', or 'right' using the horizontal alignment property::
+Ticklabels are aligned relative to their associated tick. The alignment
+'center', 'left', or 'right' can be controlled using the horizontal alignment
+property::
 
-    ax.xaxis.set_tick_params(horizontalalignment='right')
+    for label in ax.xaxis.get_xticklabels():
+        label.set_horizontalalignment('right')
 
-but this doesn't help center the label between ticks.  One solution
-is to "fake it".  Use the minor ticks to place a tick centered
-between the major ticks.  Here is an example that labels the months,
-centered between the ticks
+However there is no direct way to center the labels between ticks. To fake
+this behavior, one can place a label on the minor ticks in between the major
+ticks, and hide the major tick labels and minor ticks.
+
+Here is an example that labels the months, centered between the ticks.
 """
 
 import numpy as np
@@ -22,18 +24,16 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 # load some financial data; apple's stock price
-with cbook.get_sample_data('aapl.npz') as fh:
-    r = np.load(fh)['price_data'].view(np.recarray)
+r = (cbook.get_sample_data('aapl.npz', np_load=True)['price_data']
+     .view(np.recarray))
 r = r[-250:]  # get the last 250 days
-# Matplotlib works better with datetime.datetime than np.datetime64, but the
-# latter is more portable.
-date = r.date.astype('O')
 
 fig, ax = plt.subplots()
-ax.plot(date, r.adj_close)
+ax.plot(r.date, r.adj_close)
 
 ax.xaxis.set_major_locator(dates.MonthLocator())
-ax.xaxis.set_minor_locator(dates.MonthLocator(bymonthday=15))
+# 16 is a slight approximation since months differ in number of days.
+ax.xaxis.set_minor_locator(dates.MonthLocator(bymonthday=16))
 
 ax.xaxis.set_major_formatter(ticker.NullFormatter())
 ax.xaxis.set_minor_formatter(dates.DateFormatter('%b'))
@@ -44,5 +44,5 @@ for tick in ax.xaxis.get_minor_ticks():
     tick.label1.set_horizontalalignment('center')
 
 imid = len(r) // 2
-ax.set_xlabel(str(date[imid].year))
+ax.set_xlabel(str(r.date[imid].item().year))
 plt.show()

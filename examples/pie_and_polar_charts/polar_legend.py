@@ -9,21 +9,21 @@ Demo of a legend on a polar-axis plot.
 import matplotlib.pyplot as plt
 import numpy as np
 
-# radar green, solid grid lines
-plt.rc('grid', color='#316931', linewidth=1, linestyle='-')
-plt.rc('xtick', labelsize=15)
-plt.rc('ytick', labelsize=15)
+fig = plt.figure()
+ax = fig.add_subplot(projection="polar", facecolor="lightgoldenrodyellow")
 
-# force square figure and square axes looks better for polar, IMO
-fig = plt.figure(figsize=(8, 8))
-ax = fig.add_axes([0.1, 0.1, 0.8, 0.8],
-                  projection='polar', facecolor='#d5de9c')
-
-r = np.arange(0, 3.0, 0.01)
+r = np.linspace(0, 3, 301)
 theta = 2 * np.pi * r
-ax.plot(theta, r, color='#ee8d18', lw=3, label='a line')
-ax.plot(0.5 * theta, r, color='blue', ls='--', lw=3, label='another line')
-ax.legend()
+ax.plot(theta, r, color="tab:orange", lw=3, label="a line")
+ax.plot(0.5 * theta, r, color="tab:blue", ls="--", lw=3, label="another line")
+ax.tick_params(grid_color="palegoldenrod")
+# For polar axes, it may be useful to move the legend slightly away from the
+# axes center, to avoid overlap between the legend and the axes.  The following
+# snippet places the legend's lower left corner just outside of the polar axes
+# at an angle of 67.5 degrees in polar coordinates.
+angle = np.deg2rad(67.5)
+ax.legend(loc="lower left",
+          bbox_to_anchor=(.5 + np.cos(angle)/2, .5 + np.sin(angle)/2))
 
 plt.show()
 

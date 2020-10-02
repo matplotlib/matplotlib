@@ -1,0 +1,5 @@
+*minimumdescent* parameter/property of ``TextArea``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.offsetbox.TextArea` has behaved as if *minimumdescent* was always True
+(regardless of the value to which it was set) since Matplotlib 1.3, so the
+parameter/property is deprecated.

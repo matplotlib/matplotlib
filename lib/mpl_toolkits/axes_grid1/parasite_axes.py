@@ -1,11 +1,11 @@
 import functools
 
-from matplotlib import artist as martist, transforms as mtransforms
+from matplotlib import _api, cbook
+import matplotlib.artist as martist
+import matplotlib.transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
-
-import numpy as np
 
 
 class ParasiteAxesBase:
@@ -36,17 +36,34 @@ class ParasiteAxesBase:
             self.xaxis.set_zorder(2.5)
             self.yaxis.set_zorder(2.5)
 
+    def pick(self, mouseevent):
+        # This most likely goes to Artist.pick (depending on axes_class given
+        # to the factory), which only handles pick events registered on the
+        # axes associated with each child:
+        super().pick(mouseevent)
+        # But parasite axes are additionally given pick events from their host
+        # axes (cf. HostAxesBase.pick), which we handle here:
+        for a in self.get_children():
+            if (hasattr(mouseevent.inaxes, "parasites")
+                    and self in mouseevent.inaxes.parasites):
+                a.pick(mouseevent)
+
 
 @functools.lru_cache(None)
 def parasite_axes_class_factory(axes_class=None):
     if axes_class is None:
+        cbook.warn_deprecated(
+            "3.3", message="Support for passing None to "
+            "parasite_axes_class_factory is deprecated since %(since)s and "
+            "will be removed %(removal)s; explicitly pass the default Axes "
+            "class instead.")
         axes_class = Axes
 
     return type("%sParasite" % axes_class.__name__,
                 (ParasiteAxesBase, axes_class), {})
 
 
-ParasiteAxes = parasite_axes_class_factory()
+ParasiteAxes = parasite_axes_class_factory(Axes)
 
 
 class ParasiteAxesAuxTransBase:
@@ -70,10 +87,8 @@ class ParasiteAxesAuxTransBase:
                 self.transAxes, self.transData)
 
     def set_viewlim_mode(self, mode):
-        if mode not in [None, "equal", "transform"]:
-            raise ValueError("Unknown mode: %s" % (mode,))
-        else:
-            self._viewlim_mode = mode
+        _api.check_in_list([None, "equal", "transform"], mode=mode)
+        self._viewlim_mode = mode
 
     def get_viewlim_mode(self):
         return self._viewlim_mode
@@ -89,73 +104,7 @@ class ParasiteAxesAuxTransBase:
             self.axes.viewLim.set(
                 viewlim.transformed(self.transAux.inverted()))
         else:
-            raise ValueError("Unknown mode: %s" % (self._viewlim_mode,))
-
-    def _pcolor(self, super_pcolor, *XYC, **kwargs):
-        if len(XYC) == 1:
-            C = XYC[0]
-            ny, nx = C.shape
-
-            gx = np.arange(-0.5, nx)
-            gy = np.arange(-0.5, ny)
-
-            X, Y = np.meshgrid(gx, gy)
-        else:
-            X, Y, C = XYC
-
-        if "transform" in kwargs:
-            mesh = super_pcolor(X, Y, C, **kwargs)
-        else:
-            orig_shape = X.shape
-            xyt = np.column_stack([X.flat, Y.flat])
-            wxy = self.transAux.transform(xyt)
-            gx = wxy[:, 0].reshape(orig_shape)
-            gy = wxy[:, 1].reshape(orig_shape)
-            mesh = super_pcolor(gx, gy, C, **kwargs)
-            mesh.set_transform(self._parent_axes.transData)
-
-        return mesh
-
-    def pcolormesh(self, *XYC, **kwargs):
-        return self._pcolor(super().pcolormesh, *XYC, **kwargs)
-
-    def pcolor(self, *XYC, **kwargs):
-        return self._pcolor(super().pcolor, *XYC, **kwargs)
-
-    def _contour(self, super_contour, *XYCL, **kwargs):
-
-        if len(XYCL) <= 2:
-            C = XYCL[0]
-            ny, nx = C.shape
-
-            gx = np.arange(0., nx)
-            gy = np.arange(0., ny)
-
-            X, Y = np.meshgrid(gx, gy)
-            CL = XYCL
-        else:
-            X, Y = XYCL[:2]
-            CL = XYCL[2:]
-
-        if "transform" in kwargs:
-            cont = super_contour(X, Y, *CL, **kwargs)
-        else:
-            orig_shape = X.shape
-            xyt = np.column_stack([X.flat, Y.flat])
-            wxy = self.transAux.transform(xyt)
-            gx = wxy[:, 0].reshape(orig_shape)
-            gy = wxy[:, 1].reshape(orig_shape)
-            cont = super_contour(gx, gy, *CL, **kwargs)
-            for c in cont.collections:
-                c.set_transform(self._parent_axes.transData)
-
-        return cont
-
-    def contour(self, *XYCL, **kwargs):
-        return self._contour(super().contour, *XYCL, **kwargs)
-
-    def contourf(self, *XYCL, **kwargs):
-        return self._contour(super().contourf, *XYCL, **kwargs)
+            _api.check_in_list([None, "equal", "transform"], mode=mode)
 
     def apply_aspect(self, position=None):
         self.update_viewlim()
@@ -165,6 +114,11 @@ class ParasiteAxesAuxTransBase:
 @functools.lru_cache(None)
 def parasite_axes_auxtrans_class_factory(axes_class=None):
     if axes_class is None:
+        cbook.warn_deprecated(
+            "3.3", message="Support for passing None to "
+            "parasite_axes_auxtrans_class_factory is deprecated since "
+            "%(since)s and will be removed %(removal)s; explicitly pass the "
+            "default ParasiteAxes class instead.")
         parasite_axes_class = ParasiteAxes
     elif not issubclass(axes_class, ParasiteAxesBase):
         parasite_axes_class = parasite_axes_class_factory(axes_class)
@@ -175,8 +129,7 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
                 {'name': 'parasite_axes'})
 
 
-ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(
-    axes_class=ParasiteAxes)
+ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
 
 
 class HostAxesBase:
@@ -184,11 +137,11 @@ class HostAxesBase:
         self.parasites = []
         super().__init__(*args, **kwargs)
 
-    def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=None):
+    def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=ParasiteAxes):
         parasite_axes_class = parasite_axes_auxtrans_class_factory(axes_class)
         ax2 = parasite_axes_class(self, tr, viewlim_mode)
         # note that ax2.transData == tr + ax1.transData
-        # Anthing you draw in ax2 will match the ticks and grids of ax1.
+        # Anything you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
         ax2._remove_method = self.parasites.remove
         return ax2
@@ -232,14 +185,20 @@ class HostAxesBase:
             ax.cla()
         super().cla()
 
+    def pick(self, mouseevent):
+        super().pick(mouseevent)
+        # Also pass pick events on to parasite axes and, in turn, their
+        # children (cf. ParasiteAxesBase.pick)
+        for a in self.parasites:
+            a.pick(mouseevent)
+
     def twinx(self, axes_class=None):
         """
-        create a twin of Axes for generating a plot with a sharex
-        x-axis but independent y axis.  The y-axis of self will have
-        ticks on left and the returned axes will have ticks on the
-        right
-        """
+        Create a twin of Axes with a shared x-axis but independent y-axis.
 
+        The y-axis of self will have ticks on the left and the returned axes
+        will have ticks on the right.
+        """
         if axes_class is None:
             axes_class = self._get_base_axes()
 
@@ -263,12 +222,11 @@ class HostAxesBase:
 
     def twiny(self, axes_class=None):
         """
-        create a twin of Axes for generating a plot with a shared
-        y-axis but independent x axis.  The x-axis of self will have
-        ticks on bottom and the returned axes will have ticks on the
-        top
-        """
+        Create a twin of Axes with a shared y-axis but independent x-axis.
 
+        The x-axis of self will have ticks on the bottom and the returned axes
+        will have ticks on the top.
+        """
         if axes_class is None:
             axes_class = self._get_base_axes()
 
@@ -292,12 +250,11 @@ class HostAxesBase:
 
     def twin(self, aux_trans=None, axes_class=None):
         """
-        create a twin of Axes for generating a plot with a sharex
-        x-axis but independent y axis.  The y-axis of self will have
-        ticks on left and the returned axes will have ticks on the
-        right
-        """
+        Create a twin of Axes with no shared axis.
 
+        While self will have ticks on the left and bottom axis, the returned
+        axes will have ticks on the top and right axis.
+        """
         if axes_class is None:
             axes_class = self._get_base_axes()
 
@@ -328,17 +285,22 @@ class HostAxesBase:
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
                       bbox_extra_artists=None):
-        bbs = [ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)
-               for ax in self.parasites]
-        bbs.append(super().get_tightbbox(renderer,
-                call_axes_locator=call_axes_locator,
-                bbox_extra_artists=bbox_extra_artists))
+        bbs = [
+            *[ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)
+              for ax in self.parasites],
+            super().get_tightbbox(renderer,
+                                  call_axes_locator=call_axes_locator,
+                                  bbox_extra_artists=bbox_extra_artists)]
         return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
 @functools.lru_cache(None)
 def host_axes_class_factory(axes_class=None):
     if axes_class is None:
+        cbook.warn_deprecated(
+            "3.3", message="Support for passing None to host_axes_class is "
+            "deprecated since %(since)s and will be removed %(removed)s; "
+            "explicitly pass the default Axes class instead.")
         axes_class = Axes
 
     def _get_base_axes(self):
@@ -350,16 +312,16 @@ def host_axes_class_factory(axes_class=None):
 
 
 def host_subplot_class_factory(axes_class):
-    host_axes_class = host_axes_class_factory(axes_class=axes_class)
+    host_axes_class = host_axes_class_factory(axes_class)
     subplot_host_class = subplot_class_factory(host_axes_class)
     return subplot_host_class
 
 
-HostAxes = host_axes_class_factory(axes_class=Axes)
+HostAxes = host_axes_class_factory(Axes)
 SubplotHost = subplot_class_factory(HostAxes)
 
 
-def host_axes(*args, axes_class=None, figure=None, **kwargs):
+def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
     """
     Create axes that can act as a hosts to parasitic axes.
 
@@ -367,7 +329,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
     ----------
     figure : `matplotlib.figure.Figure`
         Figure to which the axes will be added. Defaults to the current figure
-        `pyplot.gcf()`.
+        `.pyplot.gcf()`.
 
     *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.
@@ -382,7 +344,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
     return ax
 
 
-def host_subplot(*args, axes_class=None, figure=None, **kwargs):
+def host_subplot(*args, axes_class=Axes, figure=None, **kwargs):
     """
     Create a subplot that can act as a host to parasitic axes.
 
@@ -390,7 +352,7 @@ def host_subplot(*args, axes_class=None, figure=None, **kwargs):
     ----------
     figure : `matplotlib.figure.Figure`
         Figure to which the subplot will be added. Defaults to the current
-        figure `pyplot.gcf()`.
+        figure `.pyplot.gcf()`.
 
     *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.

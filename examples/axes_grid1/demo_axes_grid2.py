@@ -5,47 +5,41 @@ Demo Axes Grid2
 
 Grid of images with shared xaxis and yaxis.
 """
-import numpy as np
 
+import numpy as np
+from matplotlib import cbook
+import matplotlib.colors
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import matplotlib.colors
 
 
-def get_demo_image():
-    from matplotlib.cbook import get_sample_data
-    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-    z = np.load(f)
-    # z is a numpy array of 15x15
-    return z, (-3, 4, -4, 3)
+plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
-def add_inner_title(ax, title, loc, size=None, **kwargs):
+def add_inner_title(ax, title, loc, **kwargs):
     from matplotlib.offsetbox import AnchoredText
     from matplotlib.patheffects import withStroke
-    if size is None:
-        size = dict(size=plt.rcParams['legend.fontsize'])
-    at = AnchoredText(title, loc=loc, prop=size,
+    prop = dict(path_effects=[withStroke(foreground='w', linewidth=3)],
+                size=plt.rcParams['legend.fontsize'])
+    at = AnchoredText(title, loc=loc, prop=prop,
                       pad=0., borderpad=0.5,
                       frameon=False, **kwargs)
     ax.add_artist(at)
-    at.txt._text.set_path_effects([withStroke(foreground="w", linewidth=3)])
     return at
 
 
 fig = plt.figure(figsize=(6, 6))
 
 # Prepare images
-Z, extent = get_demo_image()
+Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
+extent = (-3, 4, -4, 3)
 ZS = [Z[i::3, :] for i in range(3)]
 extent = extent[0], extent[1]/3., extent[2], extent[3]
 
 # *** Demo 1: colorbar at each axes ***
 grid = ImageGrid(fig, 211,  # similar to subplot(211)
                  nrows_ncols=(1, 3),
-                 direction="row",
                  axes_pad=0.05,
-                 add_all=True,
                  label_mode="1",
                  share_all=True,
                  cbar_location="top",
@@ -54,10 +48,12 @@ grid = ImageGrid(fig, 211,  # similar to subplot(211)
                  cbar_pad="1%",
                  )
 
-for ax, z in zip(grid, ZS):
-    im = ax.imshow(
-        z, origin="lower", extent=extent, interpolation="nearest")
-    ax.cax.colorbar(im)
+for i, (ax, z) in enumerate(zip(grid, ZS)):
+    im = ax.imshow(z, origin="lower", extent=extent)
+    cb = ax.cax.colorbar(im)
+    # Changing the colorbar ticks
+    if i in [1, 2]:
+        cb.set_ticks([-1, 0, 1])
 
 for ax, im_title in zip(grid, ["Image 1", "Image 2", "Image 3"]):
     t = add_inner_title(ax, im_title, loc='lower left')
@@ -70,19 +66,13 @@ for ax, z in zip(grid, ZS):
     #axis.label.set_size(10)
     #axis.major_ticklabels.set_size(6)
 
-# Changing the colorbar ticks
-grid[1].cax.set_xticks([-1, 0, 1])
-grid[2].cax.set_xticks([-1, 0, 1])
-
 grid[0].set_xticks([-2, 0])
 grid[0].set_yticks([-2, 0, 2])
 
 # *** Demo 2: shared colorbar ***
 grid2 = ImageGrid(fig, 212,
                   nrows_ncols=(1, 3),
-                  direction="row",
                   axes_pad=0.05,
-                  add_all=True,
                   label_mode="1",
                   share_all=True,
                   cbar_location="right",
@@ -98,9 +88,7 @@ vmax, vmin = np.max(ZS), np.min(ZS)
 norm = matplotlib.colors.Normalize(vmax=vmax, vmin=vmin)
 
 for ax, z in zip(grid2, ZS):
-    im = ax.imshow(z, norm=norm,
-                   origin="lower", extent=extent,
-                   interpolation="nearest")
+    im = ax.imshow(z, norm=norm, origin="lower", extent=extent)
 
 # With cbar_mode="single", cax attribute of all axes are identical.
 ax.cax.colorbar(im)

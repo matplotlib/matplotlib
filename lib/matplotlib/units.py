@@ -42,18 +42,41 @@ datetime objects::
 
 """
 
+from decimal import Decimal
 from numbers import Number
 
 import numpy as np
+from numpy import ma
 
 from matplotlib import cbook
 
 
-class AxisInfo(object):
+class ConversionError(TypeError):
+    pass
+
+
+def _is_natively_supported(x):
     """
-    Information to support default axis labeling, tick labeling, and
-    default limits. An instance of this class must be returned by
-    :meth:`ConversionInterface.axisinfo`.
+    Return whether *x* is of a type that Matplotlib natively supports or an
+    array of objects of such types.
+    """
+    # Matplotlib natively supports all number types except Decimal.
+    if np.iterable(x):
+        # Assume lists are homogeneous as other functions in unit system.
+        for thisx in x:
+            if thisx is ma.masked:
+                continue
+            return isinstance(thisx, Number) and not isinstance(thisx, Decimal)
+    else:
+        return isinstance(x, Number) and not isinstance(x, Decimal)
+
+
+class AxisInfo:
+    """
+    Information to support default axis labeling, tick labeling, and limits.
+
+    An instance of this class must be returned by
+    `ConversionInterface.axisinfo`.
     """
     def __init__(self, majloc=None, minloc=None,
                  majfmt=None, minfmt=None, label=None,
@@ -84,119 +107,116 @@ class AxisInfo(object):
         self.default_limits = default_limits
 
 
-class ConversionInterface(object):
+class ConversionInterface:
     """
     The minimal interface for a converter to take custom data types (or
     sequences) and convert them to values Matplotlib can use.
     """
+
     @staticmethod
     def axisinfo(unit, axis):
-        """
-        Return an `~units.AxisInfo` instance for the axis with the
-        specified units.
-        """
+        """Return an `.AxisInfo` for the axis with the specified units."""
         return None
 
     @staticmethod
     def default_units(x, axis):
-        """
-        Return the default unit for *x* or ``None`` for the given axis.
-        """
+        """Return the default unit for *x* or ``None`` for the given axis."""
         return None
 
     @staticmethod
     def convert(obj, unit, axis):
         """
         Convert *obj* using *unit* for the specified *axis*.
-        If *obj* is a sequence, return the converted sequence.
-        The output must be a sequence of scalars that can be used by the numpy
-        array layer.
+
+        If *obj* is a sequence, return the converted sequence.  The output must
+        be a sequence of scalars that can be used by the numpy array layer.
         """
         return obj
 
     @staticmethod
     def is_numlike(x):
         """
-        The Matplotlib datalim, autoscaling, locators etc work with
-        scalars which are the units converted to floats given the
-        current unit.  The converter may be passed these floats, or
-        arrays of them, even when units are set.
+        The Matplotlib datalim, autoscaling, locators etc work with scalars
+        which are the units converted to floats given the current unit.  The
+        converter may be passed these floats, or arrays of them, even when
+        units are set.
         """
         if np.iterable(x):
             for thisx in x:
+                if thisx is ma.masked:
+                    continue
                 return isinstance(thisx, Number)
         else:
             return isinstance(x, Number)
 
 
+class DecimalConverter(ConversionInterface):
+    """Converter for decimal.Decimal data to float."""
+
+    @staticmethod
+    def convert(value, unit, axis):
+        """
+        Convert Decimals to floats.
+
+        The *unit* and *axis* arguments are not used.
+
+        Parameters
+        ----------
+        value : decimal.Decimal or iterable
+            Decimal or list of Decimal need to be converted
+        """
+        # If value is a Decimal
+        if isinstance(value, Decimal):
+            return float(value)
+        else:
+            # assume x is a list of Decimal
+            converter = np.asarray
+            if isinstance(value, ma.MaskedArray):
+                converter = ma.asarray
+            return converter(value, dtype=float)
+
+    @staticmethod
+    def axisinfo(unit, axis):
+        # Since Decimal is a kind of Number, don't need specific axisinfo.
+        return AxisInfo()
+
+    @staticmethod
+    def default_units(x, axis):
+        # Return None since Decimal is a kind of Number.
+        return None
+
+
 class Registry(dict):
-    """
-    A register that maps types to conversion interfaces.
-    """
-    def __init__(self):
-        dict.__init__(self)
-        self._cached = {}
+    """Register types with conversion interface."""
 
     def get_converter(self, x):
-        """
-        Get the converter for data that has the same type as *x*. If no
-        converters are registered for *x*, returns ``None``.
-        """
-
-        if not len(self):
-            return None  # nothing registered
-        # DISABLED idx = id(x)
-        # DISABLED cached = self._cached.get(idx)
-        # DISABLED if cached is not None: return cached
-
-        converter = None
-        classx = getattr(x, '__class__', None)
-
-        if classx is not None:
-            converter = self.get(classx)
-
-        if converter is None and hasattr(x, "values"):
-            # this unpacks pandas series or dataframes...
-            x = x.values
-
-        # If x is an array, look inside the array for data with units
+        """Get the converter interface instance for *x*, or None."""
+        if hasattr(x, "values"):
+            x = x.values  # Unpack pandas Series and DataFrames.
         if isinstance(x, np.ndarray):
+            # In case x in a masked array, access the underlying data (only its
+            # type matters).  If x is a regular ndarray, getdata() just returns
+            # the array itself.
+            x = np.ma.getdata(x).ravel()
             # If there are no elements in x, infer the units from its dtype
             if not x.size:
                 return self.get_converter(np.array([0], dtype=x.dtype))
-            xravel = x.ravel()
+        for cls in type(x).__mro__:  # Look up in the cache.
             try:
-                # pass the first value of x that is not masked back to
-                # get_converter
-                if not np.all(xravel.mask):
-                    # Get first non-masked item
-                    converter = self.get_converter(
-                        xravel[np.argmin(xravel.mask)])
-                    return converter
-            except AttributeError:
-                # not a masked_array
-                # Make sure we don't recurse forever -- it's possible for
-                # ndarray subclasses to continue to return subclasses and
-                # not ever return a non-subclass for a single element.
-                next_item = xravel[0]
-                if (not isinstance(next_item, np.ndarray) or
-                        next_item.shape != x.shape):
-                    converter = self.get_converter(next_item)
-                return converter
-
-        # If we haven't found a converter yet, try to get the first element
-        if converter is None:
-            try:
-                thisx = cbook.safe_first_element(x)
-            except (TypeError, StopIteration):
+                return self[cls]
+            except KeyError:
                 pass
-            else:
-                if classx and classx != getattr(thisx, '__class__', None):
-                    converter = self.get_converter(thisx)
-                    return converter
-
-        # DISABLED self._cached[idx] = converter
-        return converter
+        try:  # If cache lookup fails, look up based on first element...
+            first = cbook.safe_first_element(x)
+        except (TypeError, StopIteration):
+            pass
+        else:
+            # ... and avoid infinite recursion for pathological iterables for
+            # which indexing returns instances of the same iterable class.
+            if type(first) is not type(x):
+                return self.get_converter(first)
+        return None
 
 
 registry = Registry()
+registry[Decimal] = DecimalConverter()

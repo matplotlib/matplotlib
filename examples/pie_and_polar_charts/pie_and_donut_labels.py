@@ -3,10 +3,10 @@
 Labeling a pie and a donut
 ==========================
 
-Welcome to the matplotlib bakery. We will create a pie and a donut
-chart through the :meth:`pie method <matplotlib.axes.Axes.pie>` and
-show how to label them with a :meth:`legend <matplotlib.axes.Axes.legend>`
-as well as with :meth:`annotations <matplotlib.axes.Axes.annotate>`.
+Welcome to the Matplotlib bakery. We will create a pie and a donut
+chart through the `pie method <matplotlib.axes.Axes.pie>` and
+show how to label them with a `legend <matplotlib.axes.Axes.legend>`
+as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 """
 
 ###############################################################################
@@ -19,16 +19,14 @@ as well as with :meth:`annotations <matplotlib.axes.Axes.annotate>`.
 # automatic percentage labeling by showing absolute values; we calculate
 # the latter back from relative data and the known sum of all values.
 #
-# We then create the pie and store the returned objects for later.
-# The first returned element of the returned tuple is a list of the wedges.
-# Those are
-# :class:`matplotlib.patches.Wedge <matplotlib.patches.Wedge>` patches, which
-# can directly be used as the handles for a legend. We can use the
-# legend's ``bbox_to_anchor`` argument to position the legend outside of
-# the pie. Here we use the axes coordinates ``(1, 0, 0.5, 1)`` together
-# with the location ``"center left"``; i.e.
-# the left central point of the legend will be at the left central point of the
-# bounding box, spanning from ``(1,0)`` to ``(1.5,1)`` in axes coordinates.
+# We then create the pie and store the returned objects for later.  The first
+# returned element of the returned tuple is a list of the wedges.  Those are
+# `matplotlib.patches.Wedge` patches, which can directly be used as the handles
+# for a legend. We can use the legend's ``bbox_to_anchor`` argument to position
+# the legend outside of the pie. Here we use the axes coordinates ``(1, 0, 0.5,
+# 1)`` together with the location ``"center left"``; i.e. the left central
+# point of the legend will be at the left central point of the bounding box,
+# spanning from ``(1, 0)`` to ``(1.5, 1)`` in axes coordinates.
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -45,7 +43,7 @@ ingredients = [x.split()[-1] for x in recipe]
 
 
 def func(pct, allvals):
-    absolute = int(pct/100.*np.sum(allvals))
+    absolute = int(round(pct/100.*np.sum(allvals)))
     return "{:.1f}%\n({:d} g)".format(pct, absolute)
 
 
@@ -73,7 +71,7 @@ plt.show()
 # This is done via the ``wedgeprops`` argument.
 #
 # We then want to label the wedges via
-# :meth:`annotations <matplotlib.axes.Axes.annotate>`. We first create some
+# `annotations <matplotlib.axes.Axes.annotate>`. We first create some
 # dictionaries of common properties, which we can later pass as keyword
 # argument. We then iterate over all wedges and for each
 #
@@ -102,7 +100,7 @@ data = [225, 90, 50, 60, 100, 5]
 wedges, texts = ax.pie(data, wedgeprops=dict(width=0.5), startangle=-40)
 
 bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
-kw = dict(xycoords='data', textcoords='data', arrowprops=dict(arrowstyle="-"),
+kw = dict(arrowprops=dict(arrowstyle="-"),
           bbox=bbox_props, zorder=0, va="center")
 
 for i, p in enumerate(wedges):
@@ -113,7 +111,7 @@ for i, p in enumerate(wedges):
     connectionstyle = "angle,angleA=0,angleB={}".format(ang)
     kw["arrowprops"].update({"connectionstyle": connectionstyle})
     ax.annotate(recipe[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y),
-                 horizontalalignment=horizontalalignment, **kw)
+                horizontalalignment=horizontalalignment, **kw)
 
 ax.set_title("Matplotlib bakery: A donut")
 

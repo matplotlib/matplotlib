@@ -1,3 +1,6 @@
+from io import BytesIO, StringIO
+import multiprocessing
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -6,10 +9,12 @@ import warnings
 import numpy as np
 import pytest
 
+from matplotlib import font_manager as fm
 from matplotlib.font_manager import (
-    findfont, FontProperties, fontManager, json_dump, json_load, get_font,
-    get_fontconfig_fonts, is_opentype_cff_font)
-from matplotlib import rc_context
+    findfont, findSystemFonts, FontProperties, fontManager, json_dump,
+    json_load, get_font, get_fontconfig_fonts, is_opentype_cff_font,
+    MSUserFontDirectories, _call_fc_list)
+from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -90,18 +95,121 @@ def test_hinting_factor(factor):
                                rtol=0.1)
 
 
-@pytest.mark.skipif(sys.platform != "win32",
-                   reason="Need Windows font to test against")
 def test_utf16m_sfnt():
-    segoe_ui_semibold = None
-    for f in fontManager.ttflist:
+    try:
         # seguisbi = Microsoft Segoe UI Semibold
-        if f.fname[-12:] == "seguisbi.ttf":
-            segoe_ui_semibold = f
-            break
+        entry = next(entry for entry in fontManager.ttflist
+                     if Path(entry.fname).name == "seguisbi.ttf")
+    except StopIteration:
+        pytest.skip("Couldn't find font to test against.")
     else:
-        pytest.xfail(reason="Couldn't find font to test against.")
+        # Check that we successfully read "semibold" from the font's sfnt table
+        # and set its weight accordingly.
+        assert entry.weight == 600
 
-    # Check that we successfully read the "semibold" from the font's
-    # sfnt table and set its weight accordingly
-    assert segoe_ui_semibold.weight == "semibold"
+
+def test_find_ttc():
+    fp = FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+        if not os.environ.get("TRAVIS") or sys.platform != "linux":
+            pytest.skip("Font may be missing")
+        # Travis appears to fail to pick up the ttc file sometimes.  Try to
+        # rebuild the cache and try again.
+        fm._rebuild()
+        assert Path(findfont(fp)).name == "wqy-zenhei.ttc"
+
+    fig, ax = plt.subplots()
+    ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
+    fig.savefig(BytesIO(), format="raw")
+    fig.savefig(BytesIO(), format="svg")
+    fig.savefig(BytesIO(), format="pdf")
+    with pytest.raises(RuntimeError):
+        fig.savefig(BytesIO(), format="ps")
+
+
+def test_find_invalid(tmpdir):
+    tmp_path = Path(tmpdir)
+
+    with pytest.raises(FileNotFoundError):
+        get_font(tmp_path / 'non-existent-font-name.ttf')
+
+    with pytest.raises(FileNotFoundError):
+        get_font(str(tmp_path / 'non-existent-font-name.ttf'))
+
+    with pytest.raises(FileNotFoundError):
+        get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
+
+    # Not really public, but get_font doesn't expose non-filename constructor.
+    from matplotlib.ft2font import FT2Font
+    with pytest.raises(TypeError, match='path or binary-mode file'):
+        FT2Font(StringIO())
+
+
+@pytest.mark.skipif(sys.platform != 'linux', reason='Linux only')
+def test_user_fonts_linux(tmpdir, monkeypatch):
+    font_test_file = 'mpltest.ttf'
+
+    # Precondition: the test font should not be available
+    fonts = findSystemFonts()
+    if any(font_test_file in font for font in fonts):
+        pytest.skip(f'{font_test_file} already exists in system fonts')
+
+    # Prepare a temporary user font directory
+    user_fonts_dir = tmpdir.join('fonts')
+    user_fonts_dir.ensure(dir=True)
+    shutil.copyfile(Path(__file__).parent / font_test_file,
+                    user_fonts_dir.join(font_test_file))
+
+    with monkeypatch.context() as m:
+        m.setenv('XDG_DATA_HOME', str(tmpdir))
+        _call_fc_list.cache_clear()
+        # Now, the font should be available
+        fonts = findSystemFonts()
+        assert any(font_test_file in font for font in fonts)
+
+    # Make sure the temporary directory is no longer cached.
+    _call_fc_list.cache_clear()
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
+def test_user_fonts_win32():
+    if not (os.environ.get('APPVEYOR', False) or
+            os.environ.get('TF_BUILD', False)):
+        pytest.xfail("This test should only run on CI (appveyor or azure) "
+                     "as the developer's font directory should remain "
+                     "unchanged.")
+
+    font_test_file = 'mpltest.ttf'
+
+    # Precondition: the test font should not be available
+    fonts = findSystemFonts()
+    if any(font_test_file in font for font in fonts):
+        pytest.skip(f'{font_test_file} already exists in system fonts')
+
+    user_fonts_dir = MSUserFontDirectories[0]
+
+    # Make sure that the user font directory exists (this is probably not the
+    # case on Windows versions < 1809)
+    os.makedirs(user_fonts_dir)
+
+    # Copy the test font to the user font directory
+    shutil.copy(Path(__file__).parent / font_test_file, user_fonts_dir)
+
+    # Now, the font should be available
+    fonts = findSystemFonts()
+    assert any(font_test_file in font for font in fonts)
+
+
+def _model_handler(_):
+    fig, ax = plt.subplots()
+    fig.savefig(BytesIO(), format="pdf")
+    plt.close()
+
+
+@pytest.mark.skipif(not hasattr(os, "register_at_fork"),
+                    reason="Cannot register at_fork handlers")
+def test_fork():
+    _model_handler(0)  # Make sure the font cache is filled.
+    ctx = multiprocessing.get_context("fork")
+    with ctx.Pool(processes=2) as pool:
+        pool.map(_model_handler, range(2))

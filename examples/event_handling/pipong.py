@@ -34,7 +34,7 @@ press 'g' -- toggle the game on/off
   """
 
 
-class Pad(object):
+class Pad:
     def __init__(self, disp, x, y, type='l'):
         self.disp = disp
         self.x = x
@@ -57,7 +57,7 @@ class Pad(object):
         return self.disp.get_bbox().contains(loc.x, loc.y)
 
 
-class Puck(object):
+class Puck:
     def __init__(self, disp, pad, field):
         self.vmax = .2
         self.disp = disp
@@ -120,24 +120,24 @@ class Puck(object):
             self.vy = -self.vmax
 
 
-class Game(object):
+class Game:
     def __init__(self, ax):
         # create the initial line
         self.ax = ax
         ax.set_ylim([-1, 1])
         ax.set_xlim([0, 7])
-        padAx = 0
-        padBx = .50
-        padAy = padBy = .30
-        padBx += 6.3
+        pad_a_x = 0
+        pad_b_x = .50
+        pad_a_y = pad_b_y = .30
+        pad_b_x += 6.3
 
         # pads
-        pA, = self.ax.barh(padAy, .2,
+        pA, = self.ax.barh(pad_a_y, .2,
                            height=.3, color='k', alpha=.5, edgecolor='b',
                            lw=2, label="Player B",
                            animated=True)
-        pB, = self.ax.barh(padBy, .2,
-                           height=.3, left=padBx, color='k', alpha=.5,
+        pB, = self.ax.barh(pad_b_y, .2,
+                           height=.3, left=pad_b_x, color='k', alpha=.5,
                            edgecolor='r', lw=2, label="Player A",
                            animated=True)
 
@@ -169,9 +169,8 @@ class Game(object):
         self.on = False
         self.inst = True    # show instructions from the beginning
         self.background = None
-        self.pads = []
-        self.pads.append(Pad(pA, padAx, padAy))
-        self.pads.append(Pad(pB, padBx, padBy, 'r'))
+        self.pads = [Pad(pA, pad_a_x, pad_a_y),
+                     Pad(pB, pad_b_x, pad_b_y, 'r')]
         self.pucks = []
         self.i = self.ax.annotate(instructions, (.5, 0.5),
                                   name='monospace',
@@ -180,9 +179,9 @@ class Game(object):
                                   multialignment='left',
                                   textcoords='axes fraction',
                                   animated=False)
-        self.canvas.mpl_connect('key_press_event', self.key_press)
+        self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
-    def draw(self, evt):
+    def draw(self, event):
         draw_artist = self.ax.draw_artist
         if self.background is None:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
@@ -238,7 +237,7 @@ class Game(object):
         self.cnt += 1
         return True
 
-    def key_press(self, event):
+    def on_key_press(self, event):
         if event.key == '3':
             self.res *= 5.0
         if event.key == '4':

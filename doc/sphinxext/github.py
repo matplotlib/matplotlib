@@ -1,4 +1,5 @@
-"""Define text roles for GitHub
+"""
+Define text roles for GitHub.
 
 * ghissue - Issue
 * ghpull - Pull Request
@@ -20,8 +21,10 @@ Authors
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
+
 def make_link_node(rawtext, app, type, slug, options):
-    """Create a link to a github resource.
+    """
+    Create a link to a github resource.
 
     :param rawtext: Text being replaced with link node.
     :param app: Sphinx application context
@@ -37,7 +40,9 @@ def make_link_node(rawtext, app, type, slug, options):
         if not base.endswith('/'):
             base += '/'
     except AttributeError as err:
-        raise ValueError('github_project_url configuration value is not set (%s)' % str(err))
+        raise ValueError(
+            f'github_project_url configuration value is not set '
+            f'({err})') from err
 
     ref = base + type + '/' + slug + '/'
     set_classes(options)
@@ -48,8 +53,10 @@ def make_link_node(rawtext, app, type, slug, options):
                            **options)
     return node
 
+
 def ghissue_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    """Link to a GitHub issue.
+    """
+    Link to a GitHub issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -88,8 +95,10 @@ def ghissue_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     node = make_link_node(rawtext, app, category, str(issue_num), options)
     return [node], []
 
+
 def ghuser_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    """Link to a GitHub user.
+    """
+    Link to a GitHub user.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -103,13 +112,15 @@ def ghuser_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     :param options: Directive options for customization.
     :param content: The directive content for customization.
     """
-    app = inliner.document.settings.env.app
     ref = 'https://www.github.com/' + text
     node = nodes.reference(rawtext, text, refuri=ref, **options)
     return [node], []
 
-def ghcommit_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    """Link to a GitHub commit.
+
+def ghcommit_role(
+        name, rawtext, text, lineno, inliner, options={}, content=[]):
+    """
+    Link to a GitHub commit.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -131,7 +142,9 @@ def ghcommit_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
         if not base.endswith('/'):
             base += '/'
     except AttributeError as err:
-        raise ValueError('github_project_url configuration value is not set (%s)' % str(err))
+        raise ValueError(
+            f'github_project_url configuration value is not set '
+            f'({err})') from err
 
     ref = base + text
     node = nodes.reference(rawtext, text[:6], refuri=ref, **options)
@@ -139,7 +152,8 @@ def ghcommit_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def setup(app):
-    """Install the plugin.
+    """
+    Install the plugin.
 
     :param app: Sphinx application context.
     """

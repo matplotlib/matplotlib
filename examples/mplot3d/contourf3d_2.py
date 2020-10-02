@@ -1,4 +1,4 @@
-'''
+"""
 ======================================
 Projecting filled contour onto a graph
 ======================================
@@ -7,14 +7,13 @@ Demonstrates displaying a 3D surface while also projecting filled contour
 'profiles' onto the 'walls' of the graph.
 
 See contour3d_demo2 for the unfilled version.
-'''
+"""
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 X, Y, Z = axes3d.get_test_data(0.05)
 
 # Plot the 3D surface

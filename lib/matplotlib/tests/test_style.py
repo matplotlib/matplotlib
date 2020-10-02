@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import gc
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import warnings
+import sys
 
 import pytest
 
@@ -36,16 +36,14 @@ def temp_style(style_name, settings=None):
         style.reload_library()
 
 
-def test_invalid_rc_warning_includes_filename():
+def test_invalid_rc_warning_includes_filename(caplog):
     SETTINGS = {'foo': 'bar'}
     basename = 'basename'
-    with warnings.catch_warnings(record=True) as warns:
-        with temp_style(basename, SETTINGS):
-            # style.reload_library() in temp_style() triggers the warning
-            pass
-
-    for w in warns:
-        assert basename in str(w.message)
+    with temp_style(basename, SETTINGS):
+        # style.reload_library() in temp_style() triggers the warning
+        pass
+    assert (len(caplog.records) == 1
+            and basename in caplog.records[0].getMessage())
 
 
 def test_available():
@@ -60,11 +58,25 @@ def test_use():
             assert mpl.rcParams[PARAM] == VALUE
 
 
-@pytest.mark.network
-def test_use_url():
+def test_use_url(tmpdir):
+    path = Path(tmpdir, 'file')
+    path.write_text('axes.facecolor: adeade')
     with temp_style('test', DUMMY_SETTINGS):
-        with style.context('https://gist.github.com/adrn/6590261/raw'):
+        url = ('file:'
+               + ('///' if sys.platform == 'win32' else '')
+               + path.resolve().as_posix())
+        with style.context(url):
             assert mpl.rcParams['axes.facecolor'] == "#adeade"
+
+
+def test_single_path(tmpdir):
+    mpl.rcParams[PARAM] = 'gray'
+    temp_file = f'text.{STYLE_EXTENSION}'
+    path = Path(tmpdir, temp_file)
+    path.write_text(f'{PARAM} : {VALUE}')
+    with style.context(path):
+        assert mpl.rcParams[PARAM] == VALUE
+    assert mpl.rcParams[PARAM] == 'gray'
 
 
 def test_context():
@@ -144,7 +156,7 @@ def test_alias(equiv_styles):
     rc_dicts = []
     for sty in equiv_styles:
         with style.context(sty):
-            rc_dicts.append(dict(mpl.rcParams))
+            rc_dicts.append(mpl.rcParams.copy())
 
     rc_base = rc_dicts[0]
     for nm, rc in zip(equiv_styles[1:], rc_dicts[1:]):
