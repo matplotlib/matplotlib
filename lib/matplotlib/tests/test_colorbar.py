@@ -664,6 +664,7 @@ def test_anchored_cbar_position_using_specgrid():
     np.testing.assert_allclose(
             [cy1, cy0],
             [y1 * shrink + (1 - shrink) * p0, p0 * (1 - shrink) + y0 * shrink])
+
     # top
     shrink = 0.5
     anchor_x = 0.3
