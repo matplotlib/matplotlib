@@ -2431,11 +2431,10 @@ default: 'top'
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
-            cbook._warn_external("This figure was using "
-                                 "constrained_layout==True, but that is "
-                                 "incompatible with subplots_adjust and or "
-                                 "tight_layout: setting "
-                                 "constrained_layout==False. ")
+            cbook._warn_external(
+                "This figure was using constrained_layout, but that is "
+                "incompatible with subplots_adjust and/or tight_layout; "
+                "disabling constrained_layout.")
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
             if isinstance(ax, SubplotBase):
