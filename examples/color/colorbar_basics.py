@@ -32,7 +32,7 @@ pos = ax1.imshow(Zpos, cmap='Blues', interpolation='none')
 fig.colorbar(pos, ax=ax1)
 
 # repeat everything above for the negative data
-# you can specifiy location, anchor and shrink the colorbar
+# you can specify location, anchor and shrink the colorbar
 neg = ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
 fig.colorbar(neg, ax=ax2, location='right', anchor=(0, 0.3), shrink=0.7)
 
