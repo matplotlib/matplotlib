@@ -218,9 +218,11 @@ class MarkerStyle:
         Parameters
         ----------
         marker : str, array-like, Path, MarkerStyle, or None, default: None
-            - Another instance of *MarkerStyle* copies the details of that ``marker``.
+            - Another instance of *MarkerStyle* copies the details of that
+              ``marker``.
             - *None* means no marker.
-            - For other possible marker values see the module docstring `matplotlib.markers`.
+            - For other possible marker values see the module docstring
+              `matplotlib.markers`.
 
         fillstyle : str, default: 'full'
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
@@ -286,9 +288,11 @@ class MarkerStyle:
         Parameters
         ----------
         marker : str, array-like, Path, MarkerStyle, or None, default: None
-            - Another instance of *MarkerStyle* copies the details of that ``marker``.
+            - Another instance of *MarkerStyle* copies the details of that
+              ``marker``.
             - *None* means no marker.
-            - For other possible marker values see the module docstring `matplotlib.markers`.
+            - For other possible marker values see the module docstring
+              `matplotlib.markers`.
         """
         if (isinstance(marker, np.ndarray) and marker.ndim == 2 and
                 marker.shape[1] == 2):
