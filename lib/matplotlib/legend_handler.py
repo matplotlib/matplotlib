@@ -800,7 +800,6 @@ class HandlerAnnotation(HandlerBase):
     Must be of length 2.
     Default is [1,4].
     """
-
     def __init__(self, pad=None, width_ratios=[1, 4], **kwargs):
 
         self._pad = pad
