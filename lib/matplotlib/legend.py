@@ -45,7 +45,7 @@ from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
 
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
-from matplotlib.text import Annotation, Text
+from matplotlib.text import Annotation
 from . import legend_handler
 
 
