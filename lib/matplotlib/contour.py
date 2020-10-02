@@ -249,9 +249,9 @@ class ContourLabeler:
                         .get_text_width_height_descent(lev, fsize))
         elif ismath:
             if not hasattr(self, '_mathtext_parser'):
-                self._mathtext_parser = mathtext.MathTextParser('bitmap')
-            img, _ = self._mathtext_parser.parse(lev, dpi=72,
-                                                 prop=self.labelFontProps)
+                self._mathtext_parser = mathtext.MathTextParser('agg')
+            _, _, _, _, _, img, _ = self._mathtext_parser.parse(
+                lev, dpi=72, prop=self.labelFontProps)
             _, lw = np.shape(img)  # at dpi=72, the units are PostScript points
         else:
             # width is much less than "font size"
