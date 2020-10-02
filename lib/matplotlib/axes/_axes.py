@@ -5334,6 +5334,7 @@ default: :rc:`scatter.edgecolors`
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
             data. It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            When using RGB(A) data, parameters *vmin*/*vmax* are ignored.
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Place the [0, 0] index of the array in the upper left or lower
