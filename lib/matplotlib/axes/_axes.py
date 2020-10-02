@@ -6729,7 +6729,8 @@ such objects
     def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
         """
-        A stepwise constant line or filled plot.
+        A stepwise constant function as a line with bounding edges
+        or a filled plot.
 
         Parameters
         ----------
@@ -6745,8 +6746,10 @@ such objects
             the y-axis, and edges are along the x-axis.
 
         baseline : float, array-like or None, default: 0
-            Determines bottom value of the bounding edges or when
-            ``fill=True``, position of lower edge.
+            The bottom value of the bounding edges or when
+            ``fill=True``, position of lower edge. If *fill* is
+            True or an array is passed to *baseline*, a closed
+            path is drawn.
 
         fill : bool, default: False
             Whether the area under the step curve should be filled.

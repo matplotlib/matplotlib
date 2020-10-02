@@ -45,11 +45,12 @@ plt.show()
 
 #############################################################################
 # *baseline* can take an array to allow for stacked histogram plots
+A = [[0, 0, 0],
+     [1, 2, 3],
+     [2, 4, 6],
+     [3, 6, 9]]
 
-A = np.tile([1, 2, 3], (3, 1)) * np.arange(1, 4).reshape(-1, 1)
-A = np.vstack([np.zeros(3), A])
-
-for i in range(3):
+for i in range(len(A) - 1):
     plt.stairs(A[i+1], baseline=A[i], fill=True)
 
 #############################################################################

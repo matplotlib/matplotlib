@@ -1884,15 +1884,15 @@ def test_stairs_update(fig_test, fig_ref):
     test_ax = fig_test.add_subplot()
     h = test_ax.stairs([1, 2, 3])
     test_ax.set_ylim(ylim)
-    h.set_values([3, 2, 1])
-    h.set_edges(np.arange(4)+2)
+    h.set_data([3, 2, 1])
+    h.set_data(edges=np.arange(4)+2)
     h.set_data([1, 2, 1], np.arange(4)/2)
     h.set_data([1, 2, 3])
     h.set_data(None, np.arange(4))
     assert np.allclose(h.get_data()[0], np.arange(1, 4))
     assert np.allclose(h.get_data()[1], np.arange(4))
-    h.set_baseline(-2)
-    assert h.get_baseline() == -2
+    h.set_data(baseline=-2)
+    assert h.get_data().baseline == -2
 
     # Ref
     ref_ax = fig_ref.add_subplot()
@@ -1913,13 +1913,13 @@ def test_stairs_invalid_mismatch():
 def test_stairs_invalid_update():
     h = plt.stairs([1, 2], [0, 1, 2])
     with pytest.raises(ValueError, match='Nan values in "edges"'):
-        h.set_edges([1, np.nan, 2])
+        h.set_data(edges=[1, np.nan, 2])
 
 
 def test_stairs_invalid_update2():
     h = plt.stairs([1, 2], [0, 1, 2])
     with pytest.raises(ValueError, match='Size mismatch'):
-        h.set_edges(np.arange(5))
+        h.set_data(edges=np.arange(5))
 
 
 @image_comparison(['test_stairs_options.png'], remove_text=True)
