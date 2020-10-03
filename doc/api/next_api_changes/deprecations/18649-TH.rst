@@ -1,0 +1,5 @@
+``imread()`` reading from URLs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing a URL to `~.pyplot.imread()` is deprecated. Please open the URL before
+reading using ``urllib.request.urlopen()``.
