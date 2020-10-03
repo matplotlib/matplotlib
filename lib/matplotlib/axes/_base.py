@@ -2001,12 +2001,15 @@ class _AxesBase(martist.Artist):
             # pre-lazy-autoscale behavior, which is not really better).
             self._unstale_viewLim()
             datalim = collection.get_datalim(self.transData)
-            # By definition, p0 <= minpos <= p1, so minpos would be
-            # unnecessary. However, we add minpos to the call so that
-            # self.dataLim will update its own minpos. This ensures that log
-            # scales see the correct minimum.
-            self.update_datalim(
-                np.row_stack([datalim.p0, datalim.minpos, datalim.p1]))
+            points = datalim.get_points()
+            if not np.isinf(datalim.minpos).all():
+                # By definition, if minpos (minimum positive value) is set
+                # (i.e., non-inf), then min(points) <= minpos <= max(points),
+                # and minpos would be superfluous. However, we add minpos to
+                # the call so that self.dataLim will update its own minpos.
+                # This ensures that log scales see the correct minimum.
+                points = np.concatenate([points, [datalim.minpos]])
+            self.update_datalim(points)
 
         self.stale = True
         return collection
