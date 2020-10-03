@@ -10,6 +10,7 @@ import matplotlib as mpl
 from matplotlib import cbook, rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -60,10 +61,9 @@ def test_align_labels():
 
 
 def test_figure_label():
-    # pyplot figure creation, selection and closing with figure label and
-    # number
+    # pyplot figure creation, selection, and closing with label/number/instance
     plt.close('all')
-    plt.figure('today')
+    fig_today = plt.figure('today')
     plt.figure(3)
     plt.figure('tomorrow')
     plt.figure()
@@ -78,6 +78,10 @@ def test_figure_label():
     plt.close('tomorrow')
     assert plt.get_fignums() == [0, 1]
     assert plt.get_figlabels() == ['', 'today']
+    plt.figure(fig_today)
+    assert plt.gcf() == fig_today
+    with pytest.raises(ValueError):
+        plt.figure(Figure())
 
 
 def test_fignum_exists():
