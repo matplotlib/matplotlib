@@ -766,38 +766,11 @@ class ColorbarBase:
             `~.Axes.set_ylabel`.
             Supported keywords are *labelpad* and `.Text` properties.
         """
-        _pos_xy = 'y' if self.orientation == 'vertical' else 'x'
-        _protected_kw = [_pos_xy, 'horizontalalignment', 'ha']
-        if any([k in kwargs for k in _protected_kw]):
-            if loc is not None:
-                raise TypeError(f'Specifying *loc* is disallowed when any of '
-                                f'its corresponding low level keyword '
-                                f'arguments {_protected_kw} are also supplied')
-            loc = 'center'
+        if self.orientation == "vertical":
+            self.ax.set_ylabel(label, loc=loc, **kwargs)
         else:
-            if loc is None:
-                loc = mpl.rcParams['%saxis.labellocation' % _pos_xy]
-        if self.orientation == 'vertical':
-            _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
-        else:
-            _api.check_in_list(('left', 'center', 'right'), loc=loc)
-        if loc in ['right', 'top']:
-            kwargs[_pos_xy] = 1.
-            kwargs['horizontalalignment'] = 'right'
-        elif loc in ['left', 'bottom']:
-            kwargs[_pos_xy] = 0.
-            kwargs['horizontalalignment'] = 'left'
-        if self.orientation == 'vertical':
-            self.ax.set_ylabel(label, **kwargs)
-        else:
-            self.ax.set_xlabel(label, **kwargs)
+            self.ax.set_xlabel(label, loc=loc, **kwargs)
         self.stale = True
-
-    def _edges(self, X, Y):
-        """Return the separator line segments; helper for _add_solids."""
-        # Using the non-array form of these line segments is much
-        # simpler than making them into arrays.
-        return [list(zip(X[i], Y[i])) for i in range(1, len(X) - 1)]
 
     def _add_solids(self, X, Y, C):
         """Draw the colors; optionally add separators."""
@@ -814,7 +787,8 @@ class ColorbarBase:
             self._add_solids_patches(X, Y, C, mappable)
         else:
             self._add_solids_pcolormesh(X, Y, C)
-        self.dividers.set_segments(self._edges(X, Y) if self.drawedges else [])
+        self.dividers.set_segments(
+            np.dstack([X, Y])[1:-1] if self.drawedges else [])
 
     def _add_solids_pcolormesh(self, X, Y, C):
         _log.debug('Setting pcolormesh')
