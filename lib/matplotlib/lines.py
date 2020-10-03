@@ -18,7 +18,8 @@ from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import (
-    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath, AffineDeltaTransform)
+    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath,
+    AffineDeltaTransform)
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -1455,7 +1456,8 @@ class _AxLineTransAxes(_AxLine):
         ax = self.axes
         x, y = self._xy1
 
-        dx, dy = AffineDeltaTransform(ax.transData + ax.transAxes.inverted()).transform([1, self._slope])
+        dx, dy = AffineDeltaTransform(ax.transData + ax.transAxes.inverted())\
+            .transform([1, self._slope])
         slope_axes = dy / dx
 
         start = 0, slope_axes * (0 - x) + y
