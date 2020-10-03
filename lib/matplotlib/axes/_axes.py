@@ -880,8 +880,10 @@ class Axes(_AxesBase):
         """
         Add an infinitely long straight line.
 
-        The line is defined by one point in axes coordinates *xy1* and a
-        *slope* in data coordinates.
+        The line is defined by a *slope* in data coordinates, set by the
+        current x and y limits of the axes, and a point in axes-relative
+        coordinates, which is in the same place on the axes regardless of x
+        and y limits.
 
         This should only be used with linear scales; the *slope* has no clear
         meaning for all other scales, and thus the behavior is undefined.
@@ -890,6 +892,8 @@ class Axes(_AxesBase):
         ----------
         xy1 : (float, float)
             Point for the line to pass through, in axes coordinates.
+            ``(0, 0)`` is the bottom left corner of the axes, ``(1, 1)`` is
+            the upper right.
         slope : float
             The slope of the line, in data coordinates.
 
