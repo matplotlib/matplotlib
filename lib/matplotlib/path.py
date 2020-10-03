@@ -1039,6 +1039,7 @@ def get_path_collection_extents(
     from .transforms import Bbox
     if len(paths) == 0:
         raise ValueError("No paths provided")
-    return Bbox.from_extents(*_path.get_path_collection_extents(
+    extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
-        offsets, offset_transform))
+        offsets, offset_transform)
+    return Bbox.from_extents(*extents)
