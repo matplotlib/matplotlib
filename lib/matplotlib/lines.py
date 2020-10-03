@@ -1440,6 +1440,34 @@ class _AxLine(Line2D):
         super().draw(renderer)
 
 
+class _AxLineTransAxes(_AxLine):
+    """
+    A helper class that implements `~.Axes.axline_transaxes`, by recomputing
+    the artist transform at draw time.
+    """
+
+    def __init__(self, xy1, slope, **kwargs):
+        super().__init__([0, 1], [0, 1], **kwargs)
+        self._slope = slope
+        self._xy1 = xy1
+
+    def get_transform(self):
+        ax = self.axes
+        (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
+        x, y = (ax.transAxes + ax.transData.inverted()).transform(self._xy1)
+
+        # find intersections with view limits in either direction,
+        # and draw between the middle two points.
+        _, start, stop, _ = sorted([
+            (vxlo, y + (vxlo - x) * self._slope),
+            (vxhi, y + (vxhi - x) * self._slope),
+            (x + (vylo - y) / self._slope, vylo),
+            (x + (vyhi - y) / self._slope, vyhi),
+        ])
+        return (BboxTransformTo(Bbox([start, stop]))
+                + ax.transLimits + ax.transAxes)
+
+
 class VertexSelector:
     """
     Manage the callbacks to maintain a list of selected vertices for

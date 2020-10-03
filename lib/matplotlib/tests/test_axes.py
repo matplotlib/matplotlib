@@ -4072,6 +4072,19 @@ def test_axline(fig_test, fig_ref):
     ax.axvline(-0.5, color='C5')
 
 
+@check_figures_equal()
+def test_axline_transform(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.axline_transaxes((0, 0), slope=1)
+    ax.axline_transaxes((1, 0.5), slope=1, color='C1')
+
+    ax = fig_ref.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.plot([-1, 1], [-1, 1])
+    ax.plot([0, 1], [-1, 0], color='C1')
+
+
 def test_axline_args():
     """Exactly one of *xy2* and *slope* must be specified."""
     fig, ax = plt.subplots()

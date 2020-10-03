@@ -876,6 +876,55 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
         return line
 
+    def axline_transaxes(self, xy1, slope, **kwargs):
+        """
+        Add an infinitely long straight line.
+
+        The line is defined by one point in axes coordinates *xy1* and a
+        *slope* in data coordinates.
+
+        This should only be used with linear scales; the *slope* has no clear
+        meaning for all other scales, and thus the behavior is undefined.
+
+        Parameters
+        ----------
+        xy1 : (float, float)
+            Point for the line to pass through, in axes coordinates.
+        slope : float
+            The slope of the line, in data coordinates.
+
+        Returns
+        -------
+        `.Line2D`
+
+        Other Parameters
+        ----------------
+        **kwargs
+            Valid kwargs are `.Line2D` properties, with the exception of
+            'transform':
+
+            %(_Line2D_docstr)s
+
+        See Also
+        --------
+        axhline : for horizontal lines
+        axvline : for vertical lines
+
+        Examples
+        --------
+        Draw a thick red line passing through (0, 0)
+        (the lower left corner of the viewport) with slope 1::
+
+            >>> axline_transaxes((0, 0), 1, linewidth=4, color='r')
+        """
+        if "transform" in kwargs:
+            raise TypeError("'transform' is not allowed as a kwarg; "
+                            "axline_transaxes generates its own transform")
+
+        line = mlines._AxLineTransAxes(xy1, slope, **kwargs)
+        self.add_line(line)
+        return line
+
     @docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
