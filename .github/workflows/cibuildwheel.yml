@@ -42,7 +42,7 @@ jobs:
           CIBW_SKIP: "cp35-* cp36-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
           CIBW_MANYLINUX_I686_IMAGE: manylinux1
-          CIBW_BEFORE_BUILD: pip install numpy==1.15
+          CIBW_BEFORE_BUILD: pip install certifi numpy==1.15
           MPL_DISABLE_FH4: "yes"
 
       - name: Build wheels for CPython 3.6
@@ -52,7 +52,7 @@ jobs:
           CIBW_BUILD: "cp36-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
           CIBW_MANYLINUX_I686_IMAGE: manylinux1
-          CIBW_BEFORE_BUILD: pip install numpy==1.15
+          CIBW_BEFORE_BUILD: pip install certifi numpy==1.15
           MPL_DISABLE_FH4: "yes"
         if: >
           startsWith(github.ref, 'refs/heads/v3.3') ||
@@ -63,7 +63,7 @@ jobs:
           python -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD: "pp3?-*"
-          CIBW_BEFORE_BUILD: pip install numpy==1.15
+          CIBW_BEFORE_BUILD: pip install certifi numpy==1.15
         if: >
           runner.os != 'Windows' && (
           startsWith(github.ref, 'refs/heads/v3.3') ||
