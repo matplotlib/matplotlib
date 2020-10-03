@@ -1042,4 +1042,4 @@ def get_path_collection_extents(
     extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform)
-    return Bbox.from_extents(*extents)
+    return Bbox.from_extents(*extents, minpos=minpos)

@@ -808,13 +808,17 @@ class Bbox(BboxBase):
         return Bbox.from_extents(x0, y0, x0 + width, y0 + height)
 
     @staticmethod
-    def from_extents(*args):
+    def from_extents(*args, minpos=None):
         """
         Create a new Bbox from *left*, *bottom*, *right* and *top*.
 
-        The *y*-axis increases upwards.
+        The *y*-axis increases upwards. Optionally, passing *minpos* will set
+        that property on the returned Bbox.
         """
-        return Bbox(np.reshape(args, (2, 2)))
+        bbox = Bbox(np.reshape(args, (2, 2)))
+        if minpos is not None:
+            bbox._minpos[:] = minpos
+        return bbox
 
     def __format__(self, fmt):
         return (

@@ -2000,7 +2000,13 @@ class _AxesBase(martist.Artist):
             # Make sure viewLim is not stale (mostly to match
             # pre-lazy-autoscale behavior, which is not really better).
             self._unstale_viewLim()
-            self.update_datalim(collection.get_datalim(self.transData))
+            datalim = collection.get_datalim(self.transData)
+            # By definition, p0 <= minpos <= p1, so minpos would be
+            # unnecessary. However, we add minpos to the call so that
+            # self.dataLim will update its own minpos. This ensures that log
+            # scales see the correct minimum.
+            self.update_datalim(
+                np.row_stack([datalim.p0, datalim.minpos, datalim.p1]))
 
         self.stale = True
         return collection
