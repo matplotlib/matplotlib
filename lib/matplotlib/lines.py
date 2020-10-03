@@ -1456,14 +1456,18 @@ class _AxLineTransAxes(_AxLine):
         (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
         x, y = (ax.transAxes + ax.transData.inverted()).transform(self._xy1)
 
-        # find intersections with view limits in either direction,
-        # and draw between the middle two points.
-        _, start, stop, _ = sorted([
-            (vxlo, y + (vxlo - x) * self._slope),
-            (vxhi, y + (vxhi - x) * self._slope),
-            (x + (vylo - y) / self._slope, vylo),
-            (x + (vyhi - y) / self._slope, vyhi),
-        ])
+        if np.isclose(self._slope, 0):
+            start = vxlo, y
+            stop = vxhi, y
+        else:
+            # find intersections with view limits in either direction,
+            # and draw between the middle two points.
+            _, start, stop, _ = sorted([
+                (vxlo, y + (vxlo - x) * self._slope),
+                (vxhi, y + (vxhi - x) * self._slope),
+                (x + (vylo - y) / self._slope, vylo),
+                (x + (vyhi - y) / self._slope, vyhi),
+            ])
         return (BboxTransformTo(Bbox([start, stop]))
                 + ax.transLimits + ax.transAxes)
 
