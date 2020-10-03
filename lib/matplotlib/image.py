@@ -1431,6 +1431,9 @@ def imread(fname, format=None):
     fname : str or file-like
         The image file to read: a filename, a URL or a file-like object opened
         in read-binary mode.
+
+        Passing a URL is deprecated. Please open the URL before reading using
+        ``urllib.request.urlopen()``.
     format : str, optional
         The image file format assumed for reading the data. If not
         given, the format is deduced from the filename.  If nothing can
@@ -1473,9 +1476,12 @@ def imread(fname, format=None):
     img_open = (
         PIL.PngImagePlugin.PngImageFile if ext == 'png' else PIL.Image.open)
     if isinstance(fname, str):
-
         parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
+            cbook.warn_deprecated(
+                "3.4", message="Directly reading images from URLs is "
+                               "deprecated. Please open the URL before "
+                               "reading using urllib.request.urlopen().")
             # hide imports to speed initial import on systems with slow linkers
             from urllib import request
             with request.urlopen(fname,

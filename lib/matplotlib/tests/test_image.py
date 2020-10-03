@@ -12,7 +12,7 @@ from numpy.testing import assert_array_equal
 from PIL import Image
 
 from matplotlib import (
-    colors, image as mimage, patches, pyplot as plt, style, rcParams)
+    cbook, colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -705,7 +705,8 @@ def test_load_from_url():
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
-    plt.imread(url)
+    with cbook._suppress_matplotlib_deprecation_warning():
+        plt.imread(url)
     plt.imread(urllib.request.urlopen(url))
 
 
@@ -1124,7 +1125,8 @@ def test_exact_vmin():
 @pytest.mark.network
 @pytest.mark.flaky
 def test_https_imread_smoketest():
-    v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
+    with cbook._suppress_matplotlib_deprecation_warning():
+        v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
 
 
 # A basic ndarray subclass that implements a quantity
