@@ -18,7 +18,7 @@ from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import (
-    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath)
+    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath, AffineDeltaTransform)
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -1453,23 +1453,15 @@ class _AxLineTransAxes(_AxLine):
 
     def get_transform(self):
         ax = self.axes
-        (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
-        x, y = (ax.transAxes + ax.transData.inverted()).transform(self._xy1)
+        x, y = self._xy1
 
-        if np.isclose(self._slope, 0):
-            start = vxlo, y
-            stop = vxhi, y
-        else:
-            # find intersections with view limits in either direction,
-            # and draw between the middle two points.
-            _, start, stop, _ = sorted([
-                (vxlo, y + (vxlo - x) * self._slope),
-                (vxhi, y + (vxhi - x) * self._slope),
-                (x + (vylo - y) / self._slope, vylo),
-                (x + (vyhi - y) / self._slope, vyhi),
-            ])
-        return (BboxTransformTo(Bbox([start, stop]))
-                + ax.transLimits + ax.transAxes)
+        dx, dy = AffineDeltaTransform(ax.transData + ax.transAxes.inverted()).transform([1, self._slope])
+        slope_axes = dy / dx
+
+        start = 0, slope_axes * (0 - x) + y
+        stop = 1, slope_axes * (1 - x) + y
+
+        return BboxTransformTo(Bbox([start, stop])) + ax.transAxes
 
 
 class VertexSelector:
