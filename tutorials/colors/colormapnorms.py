@@ -77,7 +77,7 @@ plt.show()
 # In many cases, data is symmetrical around a center, for example, positive and
 # negative anomalies around a center 0. In this case, we would like the center
 # to be mapped to 0.5 and the datapoint with the largest deviation from the
-# center to be mapped to 1.0, if its value is greater than the center, or -1.0
+# center to be mapped to 1.0, if its value is greater than the center, or 0.0
 # otherwise. The norm `.colors.CenteredNorm` creates such a mapping
 # automatically. It is well suited to be combined with a divergent colormap
 # which uses different colors edges that meet in the center at an unsaturated
