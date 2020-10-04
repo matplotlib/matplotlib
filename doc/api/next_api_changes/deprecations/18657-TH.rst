@@ -1,0 +1,3 @@
+``matplotlib.cbook.deprecation`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The module is considered internal and will be removed from the public API.
