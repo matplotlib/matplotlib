@@ -657,7 +657,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : int or str, optional
+    num : int or str or `.Figure`, optional
         A unique identifier for the figure.
 
         If a figure with that identifier already exists, this figure is made
@@ -728,6 +728,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
     """
+    if isinstance(num, Figure):
+        if num.canvas.manager is None:
+            raise ValueError("The passed figure is not managed by pyplot")
+        _pylab_helpers.Gcf.set_active(num.canvas.manager)
+        return num
 
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
@@ -1055,9 +1060,7 @@ def sca(ax):
     """
     Set the current Axes to *ax* and the current Figure to the parent of *ax*.
     """
-    if not hasattr(ax.figure.canvas, "manager"):
-        raise ValueError("Axes parent figure is not managed by pyplot")
-    _pylab_helpers.Gcf.set_active(ax.figure.canvas.manager)
+    figure(ax.figure)
     ax.figure.sca(ax)
 
 
