@@ -2552,7 +2552,7 @@ class Axes(_AxesBase):
         def sign(x):
             return 1 if x >= 0 else -1
 
-        cbook._check_in_list(['edge', 'center'], label_type=label_type)
+        _api.check_in_list(['edge', 'center'], label_type=label_type)
 
         bars = container.patches
         errorbar = container.errorbar

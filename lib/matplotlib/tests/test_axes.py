@@ -6850,12 +6850,3 @@ def test_bar_label_labels():
     labels = ax.bar_label(rects, labels=['A', 'B'])
     assert labels[0].get_text() == 'A'
     assert labels[1].get_text() == 'B'
-
-
-def test_multiplot_autoscale():
-    fig = plt.figure()
-    ax1, ax2 = fig.subplots(2, 1, sharex='all')
-    ax1.scatter([1, 2, 3, 4], [2, 3, 2, 3])
-    ax2.axhspan(-5, 5)
-    xlim = ax1.get_xlim()
-    assert np.allclose(xlim, [0.5, 4.5])
