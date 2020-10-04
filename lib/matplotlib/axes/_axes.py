@@ -2537,7 +2537,9 @@ class Axes(_AxesBase):
         padding : float, default: 0
             Distance of label from the end of the bar.
 
-        **kwargs : passed through to `.Axes.annotate`.
+        **kwargs
+            Any remaining keyword arguments are passed through to
+            `.Axes.annotate`.
 
         Returns
         -------
