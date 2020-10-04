@@ -369,7 +369,7 @@ class PackerBase(OffsetBox):
     def __init__(self, pad=None, sep=None, width=None, height=None,
                  align=None, mode=None,
                  children=None):
-        """
+        r"""
         Parameters
         ----------
         pad : float, optional
@@ -388,7 +388,7 @@ class PackerBase(OffsetBox):
         mode : {'fixed', 'expand', 'equal'}
             The packing mode.
 
-            - 'fixed' packs the given `.Artists` tight with *sep* spacing.
+            - 'fixed' packs the given `.Artist`\s tight with *sep* spacing.
             - 'expand' uses the maximal available space to distribute the
               artists with equal spacing in between.
             - 'equal': Each artist an equal fraction of the available space
@@ -422,7 +422,7 @@ class VPacker(PackerBase):
     def __init__(self, pad=None, sep=None, width=None, height=None,
                  align="baseline", mode="fixed",
                  children=None):
-        """
+        r"""
         Parameters
         ----------
         pad : float, optional
@@ -441,7 +441,7 @@ class VPacker(PackerBase):
         mode : {'fixed', 'expand', 'equal'}
             The packing mode.
 
-            - 'fixed' packs the given `.Artists` tight with *sep* spacing.
+            - 'fixed' packs the given `.Artist`\s tight with *sep* spacing.
             - 'expand' uses the maximal available space to distribute the
               artists with equal spacing in between.
             - 'equal': Each artist an equal fraction of the available space
@@ -500,7 +500,7 @@ class HPacker(PackerBase):
     def __init__(self, pad=None, sep=None, width=None, height=None,
                  align="baseline", mode="fixed",
                  children=None):
-        """
+        r"""
         Parameters
         ----------
         pad : float, optional
@@ -519,7 +519,7 @@ class HPacker(PackerBase):
         mode : {'fixed', 'expand', 'equal'}
             The packing mode.
 
-            - 'fixed' packs the given `.Artists` tight with *sep* spacing.
+            - 'fixed' packs the given `.Artist`\s tight with *sep* spacing.
             - 'expand' uses the maximal available space to distribute the
               artists with equal spacing in between.
             - 'equal': Each artist an equal fraction of the available space

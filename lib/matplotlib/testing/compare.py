@@ -23,7 +23,7 @@ from matplotlib.testing.exceptions import ImageComparisonFailure
 
 _log = logging.getLogger(__name__)
 
-__all__ = ['compare_images', 'comparable_formats']
+__all__ = ['calculate_rms', 'comparable_formats', 'compare_images']
 
 
 def make_test_filename(fname, purpose):

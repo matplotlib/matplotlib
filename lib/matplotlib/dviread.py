@@ -531,10 +531,9 @@ class DviFont:
     tfm : Tfm
         TeX font metrics for this font
     texname : bytes
-       Name of the font as used internally by TeX and friends, as an
-       ASCII bytestring. This is usually very different from any external
-       font names, and :class:`dviread.PsfontsMap` can be used to find
-       the external name of the font.
+       Name of the font as used internally by TeX and friends, as an ASCII
+       bytestring.  This is usually very different from any external font
+       names; `PsfontsMap` can be used to find the external name of the font.
     vf : Vf
        A TeX "virtual font" file, or None if this font is not virtual.
 

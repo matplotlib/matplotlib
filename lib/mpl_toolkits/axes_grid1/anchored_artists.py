@@ -279,7 +279,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         fill_bar : bool, optional
             If True and if size_vertical is nonzero, the size bar will
             be filled in with the color specified by the size bar.
-            Defaults to True if `size_vertical` is greater than
+            Defaults to True if *size_vertical* is greater than
             zero and False otherwise.
 
         **kwargs

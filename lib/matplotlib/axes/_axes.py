@@ -4563,7 +4563,7 @@ default: :rc:`scatter.edgecolors`
 
             - `numpy.mean`: average of the points
             - `numpy.sum`: integral of the point values
-            - `numpy.max`: value taken from the largest point
+            - `numpy.amax`: value taken from the largest point
 
         **kwargs : `~matplotlib.collections.PolyCollection` properties
             All other keyword arguments are passed on to `.PolyCollection`:
