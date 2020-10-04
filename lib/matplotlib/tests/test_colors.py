@@ -537,6 +537,29 @@ def test_Normalize():
     assert 0 < norm(1 + 50 * eps) < 1
 
 
+def test_FuncNorm():
+    def forward(x):
+        return (x**2)
+    def inverse(x):
+        return np.sqrt(x)
+
+    norm = mcolors.FuncNorm((forward, inverse), vmin=0, vmax=10)
+    expected = np.array([0, 0.25, 1])
+    input = np.array([0, 5, 10])
+    assert_array_almost_equal(norm(input), expected)
+    assert_array_almost_equal(norm.inverse(expected), input)
+
+    def forward(x):
+        return np.log10(x)
+    def inverse(x):
+        return 10**x
+    norm = mcolors.FuncNorm((forward, inverse), vmin=0.1, vmax=10)
+    lognorm = mcolors.LogNorm(vmin=0.1, vmax=10)
+    assert_array_almost_equal(norm([0.2, 5, 10]), lognorm([0.2, 5, 10]))
+    assert_array_almost_equal(norm.inverse([0.2, 5, 10]),
+                              lognorm.inverse([0.2, 5, 10]))
+
+
 def test_TwoSlopeNorm_autoscale():
     norm = mcolors.TwoSlopeNorm(vcenter=20)
     norm.autoscale([10, 20, 30, 40])

@@ -77,7 +77,6 @@ pcm = ax[1].pcolormesh(X, Y, Z1, cmap='RdBu_r', vmin=-np.max(Z1),
                        shading='nearest')
 fig.colorbar(pcm, ax=ax[1], extend='both')
 
-
 ###############################################################################
 # Custom Norm: An example with a customized normalization.  This one
 # uses the example above, and normalizes the negative data differently

@@ -30,6 +30,7 @@ Classes
    PowerNorm
    SymLogNorm
    TwoSlopeNorm
+   FuncNorm
 
 Functions
 ---------
