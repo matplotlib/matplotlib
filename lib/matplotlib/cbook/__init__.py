@@ -1266,12 +1266,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     return bxpstats
 
 
-#: Maps short codes for line style to their full name used by backends.
-ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
-#: Maps full names for line styles used by backends to their short codes.
-ls_mapper_r = {v: k for k, v in ls_mapper.items()}
-
-
 def contiguous_regions(mask):
     """
     Return a list of (ind0, ind1) such that ``mask[ind0:ind1].all()`` is

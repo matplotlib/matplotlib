@@ -3,7 +3,7 @@ The rcsetup module contains the validation code for customization using
 Matplotlib's rc settings.
 
 Each rc setting is assigned a function used to validate any attempted changes
-to that setting.  The validation functions are defined in the rcsetup module,
+to that setting. The validation functions are defined in the rcsetup module,
 and are used to construct the rcParams global object which stores the settings
 and is referenced throughout Matplotlib.
 
@@ -23,10 +23,9 @@ import re
 import numpy as np
 
 from matplotlib import _api, animation, cbook
-from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
-from matplotlib._enums import JoinStyle, CapStyle
+from matplotlib._enums import JoinStyle, CapStyle, LineStyle
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
@@ -530,27 +529,18 @@ def validate_ps_distiller(s):
 
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
-_validate_named_linestyle = ValidateInStrings(
-    'linestyle',
-    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
-    ignorecase=True)
-
-
 def _validate_linestyle(ls):
     """
     A validator for all possible line styles, the named ones *and*
     the on-off ink sequences.
     """
     if isinstance(ls, str):
-        try:  # Look first for a valid named line style, like '--' or 'solid'.
-            return _validate_named_linestyle(ls)
-        except ValueError:
-            pass
         try:
             ls = ast.literal_eval(ls)  # Parsing matplotlibrc.
         except (SyntaxError, ValueError):
             pass  # Will error with the ValueError at the end.
 
+<<<<<<< HEAD
     def _is_iterable_not_string_like(x):
         # Explicitly exclude bytes/bytearrays so that they are not
         # nonsensically interpreted as sequences of numbers (codepoints).
@@ -576,6 +566,21 @@ def _validate_linestyle(ls):
             and all(isinstance(elem, Number) for elem in ls)):
         return (0, ls)
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
+=======
+    try:
+        LineStyle(ls)
+    except ValueError as e:
+        # For backcompat, only in rc, we allow the user to pash only the
+        # onoffseq, and set the offset implicitly to 0
+        if (np.iterable(ls) and not isinstance(ls, (str, bytes, bytearray))
+                and len(ls) % 2 == 0
+                and all(isinstance(elem, Number) for elem in ls)):
+            try:
+                LineStyle((0, ls))
+            except ValueError:
+                raise e
+    return ls
+>>>>>>> b2d2793cc... GSOD: LineStyle class
 
 
 validate_fillstyle = ValidateInStrings(

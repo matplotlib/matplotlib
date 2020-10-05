@@ -11,13 +11,12 @@ import numpy as np
 import matplotlib as mpl
 from . import _api, artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
-from .cbook import (
-    _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
+from .cbook import _to_unmasked_float_array, STEP_LOOKUP_MAP
 from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
-from ._enums import JoinStyle, CapStyle
+from ._enums import JoinStyle, CapStyle, LineStyle
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -28,49 +27,6 @@ from .markers import (
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
 _log = logging.getLogger(__name__)
-
-
-def _get_dash_pattern(style):
-    """Convert linestyle to dash pattern."""
-    # go from short hand -> full strings
-    if isinstance(style, str):
-        style = ls_mapper.get(style, style)
-    # un-dashed styles
-    if style in ['solid', 'None']:
-        offset = 0
-        dashes = None
-    # dashed styles
-    elif style in ['dashed', 'dashdot', 'dotted']:
-        offset = 0
-        dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
-    #
-    elif isinstance(style, tuple):
-        offset, dashes = style
-        if offset is None:
-            _api.warn_deprecated(
-                "3.3", message="Passing the dash offset as None is deprecated "
-                "since %(since)s and support for it will be removed "
-                "%(removal)s; pass it as zero instead.")
-            offset = 0
-    else:
-        raise ValueError('Unrecognized linestyle: %s' % str(style))
-
-    # normalize offset to be positive and shorter than the dash cycle
-    if dashes is not None:
-        dsum = sum(dashes)
-        if dsum:
-            offset %= dsum
-
-    return offset, dashes
-
-
-def _scale_dashes(offset, dashes, lw):
-    if not rcParams['lines.scale_dashes']:
-        return offset, dashes
-    scaled_offset = offset * lw
-    scaled_dashes = ([x * lw if x is not None else None for x in dashes]
-                     if dashes is not None else None)
-    return scaled_offset, scaled_dashes
 
 
 def segment_hits(cx, cy, x, y, radius):
@@ -217,15 +173,7 @@ class Line2D(Artist):
     can create "stepped" lines in various styles.
     """
 
-    lineStyles = _lineStyles = {  # hidden names deprecated
-        '-':    '_draw_solid',
-        '--':   '_draw_dashed',
-        '-.':   '_draw_dash_dot',
-        ':':    '_draw_dotted',
-        'None': '_draw_nothing',
-        ' ':    '_draw_nothing',
-        '':     '_draw_nothing',
-    }
+    lineStyles = _lineStyles = LineStyle._deprecated_lineStyles
 
     _drawStyles_l = {
         'default':    '_draw_lines',
@@ -303,7 +251,7 @@ class Line2D(Artist):
 
         %(Line2D_kwdoc)s
 
-        See :meth:`set_linestyle` for a description of the line styles,
+        See `.LineStyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
         :meth:`set_drawstyle` for a description of the draw styles.
 
@@ -320,7 +268,7 @@ class Line2D(Artist):
             linewidth = rcParams['lines.linewidth']
 
         if linestyle is None:
-            linestyle = rcParams['lines.linestyle']
+            linestyle = LineStyle(rcParams['lines.linestyle'])
         if marker is None:
             marker = rcParams['lines.marker']
         if markerfacecolor is None:
@@ -359,16 +307,8 @@ class Line2D(Artist):
         self._drawstyle = None
         self._linewidth = linewidth
 
-        # scaled dash + offset
-        self._dashSeq = None
-        self._dashOffset = 0
-        # unscaled dash + offset
-        # this is needed scaling the dash pattern by linewidth
-        self._us_dashSeq = None
-        self._us_dashOffset = 0
-
-        self.set_linewidth(linewidth)
         self.set_linestyle(linestyle)
+        self.set_linewidth(linewidth)
         self.set_drawstyle(drawstyle)
 
         self._color = None
@@ -792,7 +732,7 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-                gc.set_dashes(self._dashOffset, self._dashSeq)
+                gc.set_dashes(*self._linestyle.get_dashes(self._linewidth))
                 renderer.draw_path(gc, tpath, affine.frozen())
                 gc.restore()
 
@@ -902,7 +842,7 @@ class Line2D(Artist):
 
         See also `~.Line2D.set_linestyle`.
         """
-        return self._linestyle
+        return self._linestyle._linestyle_spec
 
     def get_linewidth(self):
         """
@@ -1105,57 +1045,32 @@ class Line2D(Artist):
         if self._linewidth != w:
             self.stale = True
         self._linewidth = w
-        # rescale the dashes + offset
-        self._dashOffset, self._dashSeq = _scale_dashes(
-            self._us_dashOffset, self._us_dashSeq, self._linewidth)
+        if rcParams['lines.scale_dashes']:
+            self._linestyle.scale = self._linewidth
 
     def set_linestyle(self, ls):
         """
-        Set the linestyle of the line.
+        Set the `.LineStyle` of the line.
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
-            Possible values:
+        ls : {'-', '--', ':', '-.', ...} or other `.LineStyle`-like
+            Set the dashing pattern for the line. Typical values are
 
-            - A string:
+            ===============================   =================
+            Linestyle                         Description
+            ===============================   =================
+            ``'-'`` or ``'solid'``            solid line
+            ``'--'`` or  ``'dashed'``         dashed line
+            ``'-.'`` or  ``'dashdot'``        dash-dotted line
+            ``':'`` or ``'dotted'``           dotted line
+            ``'None'`` or ``' '`` or ``''``   draw nothing
+            ===============================   =================
 
-              ===============================   =================
-              Linestyle                         Description
-              ===============================   =================
-              ``'-'`` or ``'solid'``            solid line
-              ``'--'`` or  ``'dashed'``         dashed line
-              ``'-.'`` or  ``'dashdot'``        dash-dotted line
-              ``':'`` or ``'dotted'``           dotted line
-              ``'None'`` or ``' '`` or ``''``   draw nothing
-              ===============================   =================
-
-            - Alternatively a dash tuple of the following form can be
-              provided::
-
-                  (offset, onoffseq)
-
-              where ``onoffseq`` is an even length tuple of on and off ink
-              in points. See also :meth:`set_dashes`.
-
-            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
+            For a full description of possible inputs and examples, see the
+            `.LineStyle` docs.
         """
-        if isinstance(ls, str):
-            if ls in [' ', '', 'none']:
-                ls = 'None'
-
-            _api.check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
-            if ls not in self._lineStyles:
-                ls = ls_mapper_r[ls]
-            self._linestyle = ls
-        else:
-            self._linestyle = '--'
-
-        # get the unscaled dashes
-        self._us_dashOffset, self._us_dashSeq = _get_dash_pattern(ls)
-        # compute the linewidth scaled dashes
-        self._dashOffset, self._dashSeq = _scale_dashes(
-            self._us_dashOffset, self._us_dashSeq, self._linewidth)
+        self._linestyle = LineStyle(ls)
 
     @docstring.interpd
     def set_marker(self, marker):
@@ -1268,25 +1183,9 @@ class Line2D(Artist):
         self.stale = True
 
     def set_dashes(self, seq):
-        """
-        Set the dash sequence.
+        self.set_linestyle(LineStyle.from_dashes(seq))
 
-        The dash sequence is a sequence of floats of even length describing
-        the length of dashes and spaces in points.
-
-        For example, (5, 2, 1, 2) describes a sequence of 5 point and 1 point
-        dashes separated by 2 point spaces.
-
-        Parameters
-        ----------
-        seq : sequence of floats (on/off ink in points) or (None, None)
-            If *seq* is empty or ``(None, None)``, the linestyle will be set
-            to solid.
-        """
-        if seq == (None, None) or len(seq) == 0:
-            self.set_linestyle('-')
-        else:
-            self.set_linestyle((0, seq))
+    set_dashes.__doc__ = LineStyle.from_dashes.__doc__
 
     def update_from(self, other):
         """Copy properties from *other* to self."""
@@ -1299,10 +1198,6 @@ class Line2D(Artist):
         self._markerfacecoloralt = other._markerfacecoloralt
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
-        self._dashSeq = other._dashSeq
-        self._us_dashSeq = other._us_dashSeq
-        self._dashOffset = other._dashOffset
-        self._us_dashOffset = other._us_dashOffset
         self._dashcapstyle = other._dashcapstyle
         self._dashjoinstyle = other._dashjoinstyle
         self._solidcapstyle = other._solidcapstyle
