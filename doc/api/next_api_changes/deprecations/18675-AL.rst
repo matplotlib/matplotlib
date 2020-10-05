@@ -1,0 +1,11 @@
+ParasiteAxesAuxTransBase
+~~~~~~~~~~~~~~~~~~~~~~~~
+The functionality of that mixin class has been moved to the base
+``ParasiteAxesBase`` class.  Thus, ``ParasiteAxesAuxTransBase``,
+``ParasiteAxesAuxTrans``, and ``parasite_axes_auxtrans_class_factory`` are
+deprecated.
+
+In general, it is suggested to use ``HostAxes.get_aux_axes`` to create
+parasite axes, as this saves the need of manually appending the parasite
+to ``host.parasites`` and makes sure that their ``remove()`` method works
+properly.

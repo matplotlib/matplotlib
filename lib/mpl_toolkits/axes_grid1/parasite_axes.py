@@ -10,13 +10,11 @@ from .mpl_axes import Axes
 
 class ParasiteAxesBase:
 
-    def get_images_artists(self):
-        artists = {a for a in self.get_children() if a.get_visible()}
-        images = {a for a in self.images if a.get_visible()}
-        return list(images), list(artists - images)
-
-    def __init__(self, parent_axes, **kwargs):
+    def __init__(self, parent_axes, aux_transform=None,
+                 *, viewlim_mode=None, **kwargs):
         self._parent_axes = parent_axes
+        self.transAux = aux_transform
+        self.set_viewlim_mode(viewlim_mode)
         kwargs["frameon"] = False
         super().__init__(parent_axes.figure, parent_axes._position, **kwargs)
 
@@ -24,6 +22,11 @@ class ParasiteAxesBase:
         super().cla()
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
+
+    def get_images_artists(self):
+        artists = {a for a in self.get_children() if a.get_visible()}
+        images = {a for a in self.images if a.get_visible()}
+        return list(images), list(artists - images)
 
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given
@@ -36,6 +39,49 @@ class ParasiteAxesBase:
             if (hasattr(mouseevent.inaxes, "parasites")
                     and self in mouseevent.inaxes.parasites):
                 a.pick(mouseevent)
+
+    # aux_transform support
+
+    def _set_lim_and_transforms(self):
+        if self.transAux is not None:
+            self.transAxes = self._parent_axes.transAxes
+            self.transData = self.transAux + self._parent_axes.transData
+            self._xaxis_transform = mtransforms.blended_transform_factory(
+                self.transData, self.transAxes)
+            self._yaxis_transform = mtransforms.blended_transform_factory(
+                self.transAxes, self.transData)
+        else:
+            super()._set_lim_and_transforms()
+
+    def set_viewlim_mode(self, mode):
+        _api.check_in_list([None, "equal", "transform"], mode=mode)
+        self._viewlim_mode = mode
+
+    def get_viewlim_mode(self):
+        return self._viewlim_mode
+
+    @cbook.deprecated("3.4", alternative="apply_aspect")
+    def update_viewlim(self):
+        return self._update_viewlim
+
+    def _update_viewlim(self):  # Inline after deprecation elapses.
+        viewlim = self._parent_axes.viewLim.frozen()
+        mode = self.get_viewlim_mode()
+        if mode is None:
+            pass
+        elif mode == "equal":
+            self.axes.viewLim.set(viewlim)
+        elif mode == "transform":
+            self.axes.viewLim.set(
+                viewlim.transformed(self.transAux.inverted()))
+        else:
+            _api.check_in_list([None, "equal", "transform"], mode=mode)
+
+    def apply_aspect(self, position=None):
+        self._update_viewlim()
+        super().apply_aspect()
+
+    # end of aux_transform support
 
 
 @functools.lru_cache(None)
@@ -55,12 +101,13 @@ def parasite_axes_class_factory(axes_class=None):
 ParasiteAxes = parasite_axes_class_factory(Axes)
 
 
+@cbook.deprecated("3.4", alternative="ParasiteAxesBase")
 class ParasiteAxesAuxTransBase:
     def __init__(self, parent_axes, aux_transform, viewlim_mode=None,
                  **kwargs):
-        self.transAux = aux_transform
-        self.set_viewlim_mode(viewlim_mode)
-        super().__init__(parent_axes, **kwargs)
+        # Explicit wrapper for deprecation to work.
+        super().__init__(parent_axes, aux_transform,
+                         viewlim_mode=viewlim_mode, **kwargs)
 
     def _set_lim_and_transforms(self):
         self.transAxes = self._parent_axes.transAxes
@@ -99,6 +146,7 @@ class ParasiteAxesAuxTransBase:
         super().apply_aspect()
 
 
+@cbook.deprecated("3.4", alternative="parasite_axes_class_factory")
 @functools.lru_cache(None)
 def parasite_axes_auxtrans_class_factory(axes_class=None):
     if axes_class is None:
@@ -117,7 +165,9 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
                 {'name': 'parasite_axes'})
 
 
-ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
+# Also deprecated.
+with cbook._suppress_matplotlib_deprecation_warning():
+    ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
 
 
 class HostAxesBase:
@@ -125,9 +175,20 @@ class HostAxesBase:
         self.parasites = []
         super().__init__(*args, **kwargs)
 
-    def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=ParasiteAxes):
-        parasite_axes_class = parasite_axes_auxtrans_class_factory(axes_class)
-        ax2 = parasite_axes_class(self, tr, viewlim_mode)
+    def get_aux_axes(self, tr=None, viewlim_mode="equal", axes_class=Axes):
+        """
+        Add a parasite axes to this host.
+
+        Despite this method's name, this should actually be thought of as an
+        ``add_parasite_axes`` method.
+
+        *tr* may be `.Transform`, in which case the following relation will
+        hold: ``parasite.transData = tr + host.transData``.  Alternatively, it
+        may be None (the default), no special relationship will hold between
+        the parasite's and the host's ``transData``.
+        """
+        parasite_axes_class = parasite_axes_class_factory(axes_class)
+        ax2 = parasite_axes_class(self, tr, viewlim_mode=viewlim_mode)
         # note that ax2.transData == tr + ax1.transData
         # Anything you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
@@ -236,13 +297,11 @@ class HostAxesBase:
         if axes_class is None:
             axes_class = self._get_base_axes()
 
-        parasite_axes_auxtrans_class = \
-            parasite_axes_auxtrans_class_factory(axes_class)
+        parasite_axes_class = parasite_axes_class_factory(axes_class)
 
         if aux_trans is None:
             aux_trans = mtransforms.IdentityTransform()
-        ax2 = parasite_axes_auxtrans_class(
-            self, aux_trans, viewlim_mode="transform")
+        ax2 = parasite_axes_class(self, aux_trans, viewlim_mode="transform")
         self.parasites.append(ax2)
         ax2._remove_method = self._remove_any_twin
 
