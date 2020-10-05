@@ -24,8 +24,9 @@ import matplotlib._image as _image
 # For user convenience, the names from _image are also imported into
 # the image namespace:
 from matplotlib._image import *
-from matplotlib.transforms import (Affine2D, BboxBase, Bbox, BboxTransform,
-                                   IdentityTransform, TransformedBbox)
+from matplotlib.transforms import (
+    Affine2D, BboxBase, Bbox, BboxTransform, BboxTransformTo,
+    IdentityTransform, TransformedBbox)
 
 _log = logging.getLogger(__name__)
 
@@ -1377,12 +1378,7 @@ class BboxImage(_ImageBase):
             resample=resample,
             **kwargs
         )
-
         self.bbox = bbox
-        self._transform = IdentityTransform()
-
-    def get_transform(self):
-        return self._transform
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
@@ -1416,7 +1412,7 @@ class BboxImage(_ImageBase):
         bbox_in._points /= [width, height]
         bbox_out = self.get_window_extent(renderer)
         clip = Bbox([[0, 0], [width, height]])
-        self._transform = BboxTransform(Bbox([[0, 0], [1, 1]]), clip)
+        self._transform = BboxTransformTo(clip)
         return self._make_image(
             self._A,
             bbox_in, bbox_out, clip, magnification, unsampled=unsampled)
