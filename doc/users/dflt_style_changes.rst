@@ -260,7 +260,7 @@ or by setting::
 In your :file:`matplotlibrc` file.
 
 In addition, the ``forward`` kwarg to
-`~matplotlib.Figure.set_size_inches` now defaults to `True` to improve
+`~.Figure.set_size_inches` now defaults to `True` to improve
 the interactive experience.  Backend canvases that adjust the size of
 their bound `matplotlib.figure.Figure` must pass ``forward=False`` to
 avoid circular behavior.  This default is not configurable.
@@ -597,7 +597,7 @@ in your :file:`matplotlibrc` file.
 ``hexbin``
 ----------
 
-The default value of the ``linecolor`` kwarg for `~matplotlib.Axes.hexbin` has
+The default value of the *linecolor* keyword argument for `~.Axes.hexbin` has
 changed from ``'none'`` to ``'face'``. If 'none' is now supplied, no line edges
 are drawn around the hexagons.
 
@@ -607,7 +607,7 @@ are drawn around the hexagons.
 --------------------
 
 The default value of the ``align`` kwarg for both
-`~matplotlib.Axes.bar` and `~matplotlib.Axes.barh` is changed from
+`~.Axes.bar` and `~.Axes.barh` is changed from
 ``'edge'`` to ``'center'``.
 
 

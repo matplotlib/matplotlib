@@ -653,8 +653,7 @@ class _AxesBase(martist.Artist):
         --------
         matplotlib.axes.Axes.get_tightbbox
         matplotlib.axis.Axis.get_tightbbox
-        matplotlib.spines.get_window_extent
-
+        matplotlib.spines.Spine.get_window_extent
         """
         return self.bbox
 
