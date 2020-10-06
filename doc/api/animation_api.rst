@@ -186,6 +186,7 @@ on all systems.
 
    FFMpegWriter
    ImageMagickWriter
+   AVConvWriter
 
 The file-based writers save temporary files for each frame which are stitched
 into a single file at the end.  Although slower, these writers can be easier to
@@ -197,6 +198,7 @@ debug.
 
    FFMpegFileWriter
    ImageMagickFileWriter
+   AVConvFileWriter
 
 Fundamentally, a `MovieWriter` provides a way to grab sequential frames
 from the same underlying `~matplotlib.figure.Figure` object.  The base
@@ -281,6 +283,7 @@ and mixins
    :toctree: _as_gen
    :nosignatures:
 
+   AVConvBase
    FFMpegBase
    ImageMagickBase
 
@@ -295,6 +298,6 @@ Inheritance Diagrams
    :private-bases:
    :parts: 1
 
-.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
+.. inheritance-diagram:: matplotlib.animation.AVConvFileWriter matplotlib.animation.AVConvWriter matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
    :private-bases:
    :parts: 1
