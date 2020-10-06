@@ -1206,11 +1206,25 @@ class Axes3D(Axes):
             self.stale = True
             self.figure.canvas.draw_idle()
 
-#        elif self.button_pressed == 2:
+        elif self.button_pressed == 2:
             # pan view
+            # get the x and y pixel coords
+            if dx == 0 and dy == 0:
+                return
+            minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+            dx = 1-((w - dx)/w)
+            dy = 1-((h - dy)/h)
+            elev, azim = np.deg2rad(self.elev), np.deg2rad(self.azim)
             # project xv, yv, zv -> xw, yw, zw
+            dxx = (maxx-minx)*(dy*np.sin(elev)*np.cos(azim) + dx*np.sin(azim))
+            dyy = (maxy-miny)*(-dx*np.cos(azim) + dy*np.sin(elev)*np.sin(azim))
+            dzz = (maxz-minz)*(-dy*np.cos(elev))
             # pan
-#            pass
+            self.set_xlim3d(minx + dxx, maxx + dxx)
+            self.set_ylim3d(miny + dyy, maxy + dyy)
+            self.set_zlim3d(minz + dzz, maxz + dzz)
+            self.get_proj()
+            self.figure.canvas.draw_idle()
 
         # Zoom
         elif self.button_pressed in self._zoom_btn:
