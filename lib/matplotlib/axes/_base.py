@@ -2301,7 +2301,7 @@ class _AxesBase(martist.Artist):
 
     def set_autoscale_on(self, b):
         """
-        Set whether autoscaling is applied on plot commands
+        Set whether autoscaling is applied to axes on the next draw.
 
         Parameters
         ----------
@@ -2312,7 +2312,8 @@ class _AxesBase(martist.Artist):
 
     def set_autoscalex_on(self, b):
         """
-        Set whether autoscaling for the x-axis is applied on plot commands
+        Set whether autoscaling for the x-axis is applied to axes on the next
+        draw.
 
         Parameters
         ----------
@@ -2322,7 +2323,8 @@ class _AxesBase(martist.Artist):
 
     def set_autoscaley_on(self, b):
         """
-        Set whether autoscaling for the y-axis is applied on plot commands
+        Set whether autoscaling for the y-axis is applied to axes on the next
+        draw.
 
         Parameters
         ----------
