@@ -53,11 +53,6 @@
 #define CGContext                            graphicsPort
 #endif
 
-/* CGFloat was defined in Mac OS X 10.5 */
-#ifndef CGFLOAT_DEFINED
-#define CGFloat float
-#endif
-
 
 /* Various NSApplicationDefined event subtypes */
 #define STOP_EVENT_LOOP 2
