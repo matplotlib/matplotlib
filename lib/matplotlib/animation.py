@@ -584,6 +584,17 @@ class FFMpegBase:
 
         return args + ['-y', self.outfile]
 
+    @classmethod
+    def isAvailable(cls):
+        return (
+            super().isAvailable()
+            # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use.
+            # NOTE: when removed, remove the same method in AVConvBase.
+            and b'LibAv' not in subprocess.run(
+                [cls.bin_path()], creationflags=subprocess_creation_flags,
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE).stderr)
+
 
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
@@ -627,6 +638,45 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
         return [self.bin_path(), '-r', str(self.fps),
                 '-i', self._base_temp_name(),
                 '-vframes', str(self._frame_counter)] + self.output_args
+
+
+# Base class of avconv information.  AVConv has identical arguments to FFMpeg.
+@cbook.deprecated('3.3')
+class AVConvBase(FFMpegBase):
+    """
+    Mixin class for avconv output.
+
+    To be useful this must be multiply-inherited from with a
+    `MovieWriterBase` sub-class.
+    """
+
+    _exec_key = 'animation.avconv_path'
+    _args_key = 'animation.avconv_args'
+
+    # NOTE : should be removed when the same method is removed in FFMpegBase.
+    isAvailable = classmethod(MovieWriter.isAvailable.__func__)
+
+
+# Combine AVConv options with pipe-based writing
+@writers.register('avconv')
+class AVConvWriter(AVConvBase, FFMpegWriter):
+    """
+    Pipe-based avconv writer.
+
+    Frames are streamed directly to avconv via a pipe and written in a single
+    pass.
+    """
+
+
+# Combine AVConv options with file-based writing
+@writers.register('avconv_file')
+class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
+    """
+    File-based avconv writer.
+
+    Frames are written to temporary files on disk and then stitched
+    together at the end.
+    """
 
 
 # Base class for animated GIFs with ImageMagick
