@@ -321,15 +321,17 @@ def _clean_conversion_cache():
     # (actually an overestimate: we don't convert png baselines and results).
     max_cache_size = 2 * baseline_images_size
     # Reduce cache until it fits.
-    cache_stat = {
-        path: path.stat() for path in _get_cache_path().glob("*")}
-    cache_size = sum(stat.st_size for stat in cache_stat.values())
-    paths_by_atime = sorted(  # Oldest at the end.
-        cache_stat, key=lambda path: cache_stat[path].st_atime, reverse=True)
-    while cache_size > max_cache_size:
-        path = paths_by_atime.pop()
-        cache_size -= cache_stat[path].st_size
-        path.unlink()
+    with cbook._lock_path(_get_cache_path()):
+        cache_stat = {
+            path: path.stat() for path in _get_cache_path().glob("*")}
+        cache_size = sum(stat.st_size for stat in cache_stat.values())
+        paths_by_atime = sorted(  # Oldest at the end.
+            cache_stat, key=lambda path: cache_stat[path].st_atime,
+            reverse=True)
+        while cache_size > max_cache_size:
+            path = paths_by_atime.pop()
+            cache_size -= cache_stat[path].st_size
+            path.unlink()
 
 
 @functools.lru_cache()  # Ensure this is only registered once.
