@@ -294,7 +294,8 @@ legend.handletextpad : 0.8    # the space between the legend line and legend tex
 legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
 legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 legend.shadow        : False
-legend.frameon       : True   # whether or not to draw a frame around legend
+legend.shadowcolor   : None    # sets shadow color; defaults to legend.facecolor
+legend.frameon       : True    # whether or not to draw a frame around legend
 legend.framealpha    : None    # opacity of legend frame
 legend.scatterpoints : 3 # number of scatter points
 legend.facecolor     : inherit   # legend background color (when 'inherit' uses axes.facecolor)

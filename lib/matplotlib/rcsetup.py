@@ -1246,6 +1246,7 @@ _validators = {
      # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
     "legend.shadow":         validate_bool,
+    "legend.shadowcolor":    validate_color,
      # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,
      # alpha value of the legend frame

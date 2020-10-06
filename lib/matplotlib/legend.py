@@ -211,6 +211,11 @@ fancybox : bool, default: :rc:`legend.fancybox`
 shadow : bool, default: :rc:`legend.shadow`
     Whether to draw a shadow behind the legend.
 
+shadowcolor : color or None
+    Takes a valid color string. If ``None``, defaults to the legend's
+    ``facecolor`` as usual.
+    Sets shadow color directly if shadow is activated.
+
 framealpha : float, default: :rc:`legend.framealpha`
     The alpha transparency of the legend's background.
     If *shadow* is activated and *framealpha* is ``None``, the default value is
@@ -322,6 +327,7 @@ class Legend(Artist):
                  fancybox=None,  # True use a fancy box, false use a rounded
                                  # box, none use rc
                  shadow=None,
+                 shadowcolor=None,    # set shadow color directly
                  title=None,  # set a title for the legend
                  title_fontsize=None,  # the font size for the title
                  framealpha=None,  # set frame alpha
@@ -514,7 +520,6 @@ class Legend(Artist):
         self._draggable = None
 
         # set the text color
-
         color_getters = {  # getter function depends on line or patch
             'linecolor':       ['get_color',           'get_facecolor'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
@@ -542,6 +547,9 @@ class Legend(Artist):
         else:
             raise ValueError("Invalid argument for labelcolor : %s" %
                              str(labelcolor))
+
+        # set shadow color
+        self.shadowcolor = shadowcolor
 
     def _set_artist_props(self, a):
         """
@@ -607,7 +615,10 @@ class Legend(Artist):
         self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         self.legendPatch.set_mutation_scale(fontsize)
 
-        if self.shadow:
+        if self.shadowcolor and self.shadow:
+            Shadow(self.legendPatch, 2, -2,
+                   color=self.shadowcolor).draw(renderer)
+        elif self.shadow:
             Shadow(self.legendPatch, 2, -2).draw(renderer)
 
         self.legendPatch.draw(renderer)
