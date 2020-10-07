@@ -11,7 +11,6 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 from tempfile import TemporaryDirectory
 import weakref
 
@@ -200,7 +199,6 @@ class LatexManager:
     determining the metrics of text elements. The LaTeX environment can be
     modified by setting fonts and/or a custom preamble in `.rcParams`.
     """
-    _unclean_instances = weakref.WeakSet()
 
     @staticmethod
     def _build_latex_header():
@@ -237,12 +235,6 @@ class LatexManager:
     def _get_cached_or_new_impl(cls, header):  # Helper for _get_cached_or_new.
         return cls()
 
-    @staticmethod
-    def _cleanup_remaining_instances():
-        unclean_instances = list(LatexManager._unclean_instances)
-        for latex_manager in unclean_instances:
-            latex_manager._cleanup()
-
     def _stdin_writeln(self, s):
         if self.latex is None:
             self._setup_latex_process()
@@ -268,13 +260,10 @@ class LatexManager:
         return self._expect("\n*")
 
     def __init__(self):
-        # store references for __del__
-        self._os_path = os.path
-        self._shutil = shutil
-
-        # create a tmp directory for running latex, remember to cleanup
-        self.tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_lm_")
-        LatexManager._unclean_instances.add(self)
+        # create a tmp directory for running latex, register it for deletion
+        self._tmpdir = TemporaryDirectory()
+        self.tmpdir = self._tmpdir.name
+        self._finalize_tmpdir = weakref.finalize(self, self._tmpdir.cleanup)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
         self.texcommand = mpl.rcParams["pgf.texsystem"]
@@ -303,11 +292,21 @@ class LatexManager:
         self.str_cache = {}  # cache for strings already processed
 
     def _setup_latex_process(self):
-        # open LaTeX process for real work
+        # Open LaTeX process for real work; register it for deletion.  On
+        # Windows, we must ensure that the subprocess has quit before being
+        # able to delete the tmpdir in which it runs; in order to do so, we
+        # must first `kill()` it, and then `communicate()` with it.
         self.latex = subprocess.Popen(
             [self.texcommand, "-halt-on-error"],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             encoding="utf-8", cwd=self.tmpdir)
+
+        def finalize_latex(latex):
+            latex.kill()
+            latex.communicate()
+
+        self._finalize_latex = weakref.finalize(
+            self, finalize_latex, self.latex)
         # write header with 'pgf_backend_query_start' token
         self._stdin_writeln(self._build_latex_header())
         # read all lines until our 'pgf_backend_query_start' token appears
@@ -317,23 +316,6 @@ class LatexManager:
     @cbook.deprecated("3.3")
     def latex_stdin_utf8(self):
         return self.latex.stdin
-
-    def _cleanup(self):
-        if not self._os_path.isdir(self.tmpdir):
-            return
-        try:
-            self.latex.communicate()
-        except Exception:
-            pass
-        try:
-            self._shutil.rmtree(self.tmpdir)
-            LatexManager._unclean_instances.discard(self)
-        except Exception:
-            sys.stderr.write("error deleting tmp directory %s\n" % self.tmpdir)
-
-    def __del__(self):
-        _log.debug("deleting LatexManager")
-        self._cleanup()
 
     def get_width_height_descent(self, text, prop):
         """
@@ -766,16 +748,25 @@ class GraphicsContextPgf(GraphicsContextBase):
     pass
 
 
+@cbook.deprecated("3.4")
 class TmpDirCleaner:
-    remaining_tmpdirs = set()
+    _remaining_tmpdirs = set()
+
+    @cbook._classproperty
+    @cbook.deprecated("3.4")
+    def remaining_tmpdirs(cls):
+        return cls._remaining_tmpdirs
 
     @staticmethod
+    @cbook.deprecated("3.4")
     def add(tmpdir):
-        TmpDirCleaner.remaining_tmpdirs.add(tmpdir)
+        TmpDirCleaner._remaining_tmpdirs.add(tmpdir)
 
     @staticmethod
+    @cbook.deprecated("3.4")
+    @atexit.register
     def cleanup_remaining_tmpdirs():
-        for tmpdir in TmpDirCleaner.remaining_tmpdirs:
+        for tmpdir in TmpDirCleaner._remaining_tmpdirs:
             error_message = "error deleting tmp directory {}".format(tmpdir)
             shutil.rmtree(
                 tmpdir,
@@ -928,14 +919,6 @@ FigureManagerPgf = FigureManagerBase
 @_Backend.export
 class _BackendPgf(_Backend):
     FigureCanvas = FigureCanvasPgf
-
-
-def _cleanup_all():
-    LatexManager._cleanup_remaining_instances()
-    TmpDirCleaner.cleanup_remaining_tmpdirs()
-
-
-atexit.register(_cleanup_all)
 
 
 class PdfPages:
