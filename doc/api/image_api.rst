@@ -57,8 +57,8 @@ interpolation in RGB space producing colors that are not in the
 colormap.
 
 
-Floating point and you
-~~~~~~~~~~~~~~~~~~~~~~
+What you need to know about Floating Point Arithmetic for Colormapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Floating point numbers, despite being ubiquitous, are not fully
 understood by most practitioners.  For a through review of how
@@ -81,7 +81,7 @@ paywalls).  For the purposes of this discussion we need to know:
    floats.
 3. During computation results are rounded to the nearest
    represent-able value.  Working with numbers that are either almost
-   identical or vastly different orders of magnitude exasperates the
+   identical or vastly different orders of magnitude exaggerates the
    errors due to this rounding.
 
 This is relevant to images because, as an implementation detail, we
