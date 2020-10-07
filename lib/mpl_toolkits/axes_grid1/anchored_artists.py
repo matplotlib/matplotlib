@@ -52,7 +52,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
             Font property used as a reference for paddings.
 
         frameon : bool, default: True
-            If True, add a frame and solid background for the artist. The frame's appearance can be changed with the `facecolor` and `edgecolor` kwargs.
+            If True, add a frame and solid background for the artist. The frame's appearance can be changed with the *facecolor* and *edgecolor* keyword arguments.
             If False, possibly allow image with proper transparency.
 
         **kwargs
