@@ -40,17 +40,24 @@ Color Conversion tools
 Normalization and Colormapping
 ------------------------------
 
-Some Artists can map an array of input data to RGBA values, (ex
-`~.axes.Axes.scatter` or `~.axes.Axes.imshow`).  The machinery for
-this is implemented via the `~.cm.ScalarMappable` base class in `~.cm`
-and the `~.Normalize` and `~.Colormap` classes in this module.
+Some `~.artists.Artist` classes can map an array of input data to RGBA
+values, (ex `~.axes.Axes.scatter` or `~.axes.Axes.imshow`).  The
+machinery for this is implemented via the `~.cm.ScalarMappable` base
+class in `~.cm` and the `~.Normalize` and `~.Colormap` classes in
+`~.colors` (this module).
 
-At the core, colormapping is going from a scalar value to a RGB(A) tuple
-(formally :math:`f(x) : ℝ^1 \rightarrow ℝ^3`), that is we are tracing some
-1D path through the 3D RGB space.  This mapping can be separated into two
-orthogonal parts:
+At the core, colormapping is going from a scalar value to a RGB tuple
+(formally :math:`f(x) : ℝ^1 \rightarrow ℝ^3`).  To effectively
+communicate through the color we want pick a :ref:`colormap suited to
+the data <sphx_glr_tutorials_colors_colormaps.py>` but in general
+"good" colormaps smoothly and continuously change their RGB values as
+a function of the input data.  By looking at the RGB values as we go
+through the full range of the user data (e.g. a colorbar) we can trace
+out the 1-dimensional path the colormap takes through 3-dimensional
+RGB space.  This allows us to separate the mapping process into two
+orthogonal parts :
 
-1. the path through color space
+1. the parameterized path through color space
 2. the mapping between the users data to distance along the curve.
 
 The first step is expressed in Matplotlib via the `.Colormap` family
