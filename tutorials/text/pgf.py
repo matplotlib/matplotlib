@@ -97,7 +97,7 @@ When saving to ``.pgf``, the font configuration Matplotlib used for the
 layout of the figure is included in the header of the text file.
 
 .. literalinclude:: ../../gallery/userdemo/pgf_fonts.py
-   :end-before: plt.savefig
+   :end-before: fig.savefig
 
 
 .. _pgf-preamble:
@@ -114,7 +114,7 @@ specified in the rc parameters, make sure to disable :rc:`pgf.rcfonts`.
 .. only:: html
 
     .. literalinclude:: ../../gallery/userdemo/pgf_preamble_sgskip.py
-        :end-before: plt.savefig
+        :end-before: fig.savefig
 
 .. only:: latex
 
@@ -133,7 +133,7 @@ Please note that when selecting pdflatex, the fonts and Unicode handling must
 be configured in the preamble.
 
 .. literalinclude:: ../../gallery/userdemo/pgf_texsystem.py
-   :end-before: plt.savefig
+   :end-before: fig.savefig
 
 
 .. _pgf-troubleshooting:
