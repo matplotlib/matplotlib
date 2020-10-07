@@ -762,7 +762,11 @@ def is_url(filename):
 
 @functools.lru_cache()
 def _get_ssl_context():
-    import certifi
+    try:
+        import certifi
+    except ImportError:
+        _log.debug("Could not import certifi.")
+        return None
     import ssl
     return ssl.create_default_context(cafile=certifi.where())
 
@@ -771,7 +775,12 @@ def _get_ssl_context():
 def _open_file_or_url(fname):
     if not isinstance(fname, Path) and is_url(fname):
         import urllib.request
-        with urllib.request.urlopen(fname, context=_get_ssl_context()) as f:
+        ssl_ctx = _get_ssl_context()
+        if ssl_ctx is None:
+            _log.debug(
+                "Could not get certifi ssl context, https may not work."
+            )
+        with urllib.request.urlopen(fname, context=ssl_ctx) as f:
             yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
