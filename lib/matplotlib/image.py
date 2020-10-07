@@ -1674,9 +1674,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 def pil_to_array(pilImage):
     """
-    Load a `PIL image`_ and return it as a numpy int array.
+    Load a PIL_ image and return it as a numpy int array.
 
-    .. _PIL image: https://pillow.readthedocs.io/en/latest/reference/Image.html
+    .. _PIL: https://pillow.readthedocs.io/en/latest/reference/Image.html
 
     Returns
     -------
