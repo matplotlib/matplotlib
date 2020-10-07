@@ -1795,7 +1795,7 @@ class PatchCollection(Collection):
     """
     A generic collection of patches.
 
-    This makes it easier to assign a color map to a heterogeneous
+    This makes it easier to assign a colormap to a heterogeneous
     collection of patches.
 
     This also may improve plotting speed, since PatchCollection will

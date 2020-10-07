@@ -609,8 +609,7 @@ class HBoxDivider(SubplotDivider):
 
     def new_locator(self, nx, nx1=None):
         """
-        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for
-        the specified cell.
+        Create a new `AxesLocator` for the specified cell.
 
         Parameters
         ----------
@@ -688,8 +687,7 @@ class VBoxDivider(HBoxDivider):
 
     def new_locator(self, ny, ny1=None):
         """
-        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for
-        the specified cell.
+        Create a new `AxesLocator` for the specified cell.
 
         Parameters
         ----------

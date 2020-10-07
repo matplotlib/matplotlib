@@ -234,7 +234,7 @@ class SimplePatchShadow(AbstractPathEffect):
             The alpha transparency of the created shadow patch.
             http://matplotlib.1069221.n5.nabble.com/path-effects-question-td27630.html
         rho : float, default: 0.3
-            A scale factor to apply to the rgbFace color if `shadow_rgbFace`
+            A scale factor to apply to the rgbFace color if *shadow_rgbFace*
             is not specified.
         **kwargs
             Extra keywords are stored and passed through to
@@ -303,7 +303,7 @@ class SimpleLineShadow(AbstractPathEffect):
         alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
         rho : float, default: 0.3
-            A scale factor to apply to the rgbFace color if `shadow_rgbFace`
+            A scale factor to apply to the rgbFace color if *shadow_color*
             is ``None``.
         **kwargs
             Extra keywords are stored and passed through to

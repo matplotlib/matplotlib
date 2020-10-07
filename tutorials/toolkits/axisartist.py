@@ -52,13 +52,13 @@ To create an axes, ::
 
   import mpl_toolkits.axisartist as AA
   fig = plt.figure()
-  ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
-  fig.add_axes(ax)
+  fig.add_axes([0.1, 0.1, 0.8, 0.8], axes_class=AA.Axes)
 
 or to create a subplot ::
 
-  ax = AA.Subplot(fig, 111)
-  fig.add_subplot(ax)
+  fig.add_subplot(111, axes_class=AA.Axes)
+  # Given that 111 is the default, one can also do
+  fig.add_subplot(axes_class=AA.Axes)
 
 For example, you can hide the right and top spines using::
 
@@ -340,51 +340,26 @@ The parameter for set_axis_direction is one of ["left", "right",
 
 You must understand some underlying concept of directions.
 
- 1. There is a reference direction which is defined as the direction
-    of the axis line with increasing coordinate.  For example, the
-    reference direction of the left x-axis is from bottom to top.
+- There is a reference direction which is defined as the direction
+  of the axis line with increasing coordinate.  For example, the
+  reference direction of the left x-axis is from bottom to top.
 
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step01_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step01.html
-       :align: center
-       :scale: 50
+  The direction, text angle, and alignments of the ticks, ticklabels and
+  axis-label is determined with respect to the reference direction
 
-       Axis Direction Demo - Step 01
+- *label_direction* and *ticklabel_direction* are either the right-hand side
+  (+) of the reference direction or the left-hand side (-).
 
-   The direction, text angle, and alignments of the ticks, ticklabels and
-   axis-label is determined with respect to the reference direction
+- ticks are by default drawn toward the opposite direction of the ticklabels.
 
- 2. *ticklabel_direction* is either the right-hand side (+) of the
-    reference direction or the left-hand side (-).
+- text rotation of ticklabels and label is determined in reference
+  to the *ticklabel_direction* or *label_direction*,
+  respectively. The rotation of ticklabels and label is anchored.
 
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step02_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step02.html
-       :align: center
-       :scale: 50
-
-       Axis Direction Demo - Step 02
-
- 3. same for the *label_direction*
-
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step03_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step03.html
-       :align: center
-       :scale: 50
-
-       Axis Direction Demo - Step 03
-
- 4. ticks are by default drawn toward the opposite direction of the ticklabels.
-
- 5. text rotation of ticklabels and label is determined in reference
-    to the *ticklabel_direction* or *label_direction*,
-    respectively. The rotation of ticklabels and label is anchored.
-
-    .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_demo_step04_001.png
-       :target: ../../gallery/axisartist/axis_direction_demo_step04.html
-       :align: center
-       :scale: 50
-
-       Axis Direction Demo - Step 04
+.. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_001.png
+   :target: ../../gallery/axisartist/axis_direction.html
+   :align: center
+   :scale: 50
 
 On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
@@ -518,7 +493,7 @@ transform of the axes itself (ax.transData) is still rectilinear
 
     from mpl_toolkits.axisartist.grid_helper_curvelinear \
          import GridHelperCurveLinear
-    from mpl_toolkits.axisartist import Subplot
+    from mpl_toolkits.axisartist import Axes
 
     # from curved coordinate to rectlinear coordinate.
     def tr(x, y):
@@ -532,9 +507,7 @@ transform of the axes itself (ax.transData) is still rectilinear
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
-    ax1 = Subplot(fig, 1, 1, 1, grid_helper=grid_helper)
-
-    fig.add_subplot(ax1)
+    fig.add_subplot(axes_class=Axes, grid_helper=grid_helper)
 
 You may use Matplotlib's Transform instance instead (but a
 inverse transformation must be defined). Often, coordinate range in a

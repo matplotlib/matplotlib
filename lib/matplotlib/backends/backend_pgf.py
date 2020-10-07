@@ -2,6 +2,7 @@ import atexit
 import codecs
 import datetime
 import functools
+from io import BytesIO
 import logging
 import math
 import os
@@ -11,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from tempfile import TemporaryDirectory
 import weakref
 
 from PIL import Image
@@ -866,18 +868,12 @@ class FigureCanvasPgf(FigureCanvasBase):
         hyperref_options = ','.join(
             _metadata_to_str(k, v) for k, v in info_dict.items())
 
-        try:
-            # create temporary directory for compiling the figure
-            tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_")
-            fname_pgf = os.path.join(tmpdir, "figure.pgf")
-            fname_tex = os.path.join(tmpdir, "figure.tex")
-            fname_pdf = os.path.join(tmpdir, "figure.pdf")
+        with TemporaryDirectory() as tmpdir:
+            tmppath = pathlib.Path(tmpdir)
 
             # print figure to pgf and compile it with latex
-            self.print_pgf(fname_pgf, *args, **kwargs)
+            self.print_pgf(tmppath / "figure.pgf", *args, **kwargs)
 
-            latex_preamble = get_preamble()
-            latex_fontspec = get_fontspec()
             latexcode = """
 \\PassOptionsToPackage{pdfinfo={%s}}{hyperref}
 \\RequirePackage{hyperref}
@@ -890,22 +886,16 @@ class FigureCanvasPgf(FigureCanvasBase):
 \\begin{document}
 \\centering
 \\input{figure.pgf}
-\\end{document}""" % (hyperref_options, w, h, latex_preamble, latex_fontspec)
-            pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
+\\end{document}""" % (hyperref_options, w, h, get_preamble(), get_fontspec())
+            (tmppath / "figure.tex").write_text(latexcode, encoding="utf-8")
 
             texcommand = mpl.rcParams["pgf.texsystem"]
             cbook._check_and_log_subprocess(
                 [texcommand, "-interaction=nonstopmode", "-halt-on-error",
                  "figure.tex"], _log, cwd=tmpdir)
 
-            # copy file contents to target
-            with open(fname_pdf, "rb") as fh_src:
-                shutil.copyfileobj(fh_src, fh)
-        finally:
-            try:
-                shutil.rmtree(tmpdir)
-            except:
-                TmpDirCleaner.add(tmpdir)
+            with (tmppath / "figure.pdf").open("rb") as fh_src:
+                shutil.copyfileobj(fh_src, fh)  # copy file contents to target
 
     def print_pdf(self, fname_or_fh, *args, **kwargs):
         """Use LaTeX to compile a Pgf generated figure to PDF."""
@@ -914,23 +904,14 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def _print_png_to_fh(self, fh, *args, **kwargs):
         converter = make_pdf_to_png_converter()
-
-        try:
-            # create temporary directory for pdf creation and png conversion
-            tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_")
-            fname_pdf = os.path.join(tmpdir, "figure.pdf")
-            fname_png = os.path.join(tmpdir, "figure.png")
-            # create pdf and try to convert it to png
-            self.print_pdf(fname_pdf, *args, **kwargs)
-            converter(fname_pdf, fname_png, dpi=self.figure.dpi)
-            # copy file contents to target
-            with open(fname_png, "rb") as fh_src:
-                shutil.copyfileobj(fh_src, fh)
-        finally:
-            try:
-                shutil.rmtree(tmpdir)
-            except:
-                TmpDirCleaner.add(tmpdir)
+        with TemporaryDirectory() as tmpdir:
+            tmppath = pathlib.Path(tmpdir)
+            pdf_path = tmppath / "figure.pdf"
+            png_path = tmppath / "figure.png"
+            self.print_pdf(pdf_path, *args, **kwargs)
+            converter(pdf_path, png_path, dpi=self.figure.dpi)
+            with png_path.open("rb") as fh_src:
+                shutil.copyfileobj(fh_src, fh)  # copy file contents to target
 
     def print_png(self, fname_or_fh, *args, **kwargs):
         """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
@@ -973,12 +954,8 @@ class PdfPages:
     ...     pdf.savefig()
     """
     __slots__ = (
-        '_outputfile',
+        '_output_name',
         'keep_empty',
-        '_tmpdir',
-        '_basename',
-        '_fname_tex',
-        '_fname_pdf',
         '_n_figures',
         '_file',
         '_info_dict',
@@ -1009,7 +986,7 @@ class PdfPages:
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
         """
-        self._outputfile = filename
+        self._output_name = filename
         self._n_figures = 0
         self.keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
@@ -1027,13 +1004,7 @@ class PdfPages:
                         f'set {canonical} instead of {key}.')
                     self._metadata[canonical] = self._metadata.pop(key)
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
-
-        # create temporary directory for compiling the figure
-        self._tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_pdfpages_")
-        self._basename = 'pdf_pages'
-        self._fname_tex = os.path.join(self._tmpdir, self._basename + ".tex")
-        self._fname_pdf = os.path.join(self._tmpdir, self._basename + ".pdf")
-        self._file = open(self._fname_tex, 'wb')
+        self._file = BytesIO()
 
     @cbook.deprecated('3.3')
     @property
@@ -1085,27 +1056,22 @@ class PdfPages:
         and moving the final pdf file to *filename*.
         """
         self._file.write(rb'\end{document}\n')
-        self._file.close()
-
         if self._n_figures > 0:
-            try:
-                self._run_latex()
-            finally:
-                try:
-                    shutil.rmtree(self._tmpdir)
-                except:
-                    TmpDirCleaner.add(self._tmpdir)
+            self._run_latex()
         elif self.keep_empty:
-            open(self._outputfile, 'wb').close()
+            open(self._output_name, 'wb').close()
+        self._file.close()
 
     def _run_latex(self):
         texcommand = mpl.rcParams["pgf.texsystem"]
-        cbook._check_and_log_subprocess(
-            [texcommand, "-interaction=nonstopmode", "-halt-on-error",
-             os.path.basename(self._fname_tex)],
-            _log, cwd=self._tmpdir)
-        # copy file contents to target
-        shutil.copyfile(self._fname_pdf, self._outputfile)
+        with TemporaryDirectory() as tmpdir:
+            tex_source = pathlib.Path(tmpdir, "pdf_pages.tex")
+            tex_source.write_bytes(self._file.getvalue())
+            cbook._check_and_log_subprocess(
+                [texcommand, "-interaction=nonstopmode", "-halt-on-error",
+                 tex_source],
+                _log, cwd=tmpdir)
+            shutil.move(tex_source.with_suffix(".pdf"), self._output_name)
 
     def savefig(self, figure=None, **kwargs):
         """

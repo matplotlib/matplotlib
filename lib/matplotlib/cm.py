@@ -24,6 +24,7 @@ import matplotlib as mpl
 from matplotlib import _api, colors, cbook
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
+from matplotlib.cbook import _warn_external
 
 
 LUTSIZE = mpl.rcParams['image.lut']
@@ -95,30 +96,38 @@ _cmap_registry = _gen_cmap_registry()
 locals().update(_cmap_registry)
 # This is no longer considered public API
 cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
-
+__builtin_cmaps = tuple(_cmap_registry)
 
 # Continue with definitions ...
 
 
-def register_cmap(name=None, cmap=None, data=None, lut=None):
+def register_cmap(name=None, cmap=None, *, override_builtin=False):
     """
     Add a colormap to the set recognized by :func:`get_cmap`.
 
-    It can be used in two ways::
+    Register a new colormap to be accessed by name ::
 
-        register_cmap(name='swirly', cmap=swirly_cmap)
+        LinearSegmentedColormap('swirly', data, lut)
+        register_cmap(cmap=swirly_cmap)
 
-        register_cmap(name='choppy', data=choppydata, lut=128)
+    Parameters
+    ----------
+    name : str, optional
+       The name that can be used in :func:`get_cmap` or :rc:`image.cmap`
 
-    In the first case, *cmap* must be a :class:`matplotlib.colors.Colormap`
-    instance.  The *name* is optional; if absent, the name will
-    be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
+       If absent, the name will be the :attr:`~matplotlib.colors.Colormap.name`
+       attribute of the *cmap*.
 
-    The second case is deprecated. Here, the three arguments are passed to
-    the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
-    and the resulting colormap is registered. Instead of this implicit
-    colormap creation, create a `.LinearSegmentedColormap` and use the first
-    case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
+    cmap : matplotlib.colors.Colormap
+       Despite being the second argument and having a default value, this
+       is a required argument.
+
+    override_builtin : bool
+
+        Allow built-in colormaps to be overridden by a user-supplied
+        colormap.
+
+        Please do not use this unless you are sure you need it.
 
     Notes
     -----
@@ -126,6 +135,7 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     which can currently be modified and inadvertantly change the global
     colormap state. This behavior is deprecated and in Matplotlib 3.5
     the registered colormap will be immutable.
+
     """
     cbook._check_isinstance((str, None), name=name)
     if name is None:
@@ -134,23 +144,21 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         except AttributeError as err:
             raise ValueError("Arguments must include a name or a "
                              "Colormap") from err
-    if isinstance(cmap, colors.Colormap):
-        cmap._global = True
-        _cmap_registry[name] = cmap
-        return
-    if lut is not None or data is not None:
-        cbook.warn_deprecated(
-            "3.3",
-            message="Passing raw data via parameters data and lut to "
-                    "register_cmap() is deprecated since %(since)s and will "
-                    "become an error %(removal)s. Instead use: register_cmap("
-                    "cmap=LinearSegmentedColormap(name, data, lut))")
-    # For the remainder, let exceptions propagate.
-    if lut is None:
-        lut = mpl.rcParams['image.lut']
-    cmap = colors.LinearSegmentedColormap(name, data, lut)
+    if name in _cmap_registry:
+        if not override_builtin and name in __builtin_cmaps:
+            msg = f"Trying to re-register the builtin cmap {name!r}."
+            raise ValueError(msg)
+        else:
+            msg = f"Trying to register the cmap {name!r} which already exists."
+            _warn_external(msg)
+
+    if not isinstance(cmap, colors.Colormap):
+        raise ValueError("You must pass a Colormap instance. "
+                         f"You passed {cmap} a {type(cmap)} object.")
+
     cmap._global = True
     _cmap_registry[name] = cmap
+    return
 
 
 def get_cmap(name=None, lut=None):
@@ -185,6 +193,47 @@ def get_cmap(name=None, lut=None):
         return _cmap_registry[name]
     else:
         return _cmap_registry[name]._resample(lut)
+
+
+def unregister_cmap(name):
+    """
+    Remove a colormap recognized by :func:`get_cmap`.
+
+    You may not remove built-in colormaps.
+
+    If the named colormap is not registered, returns with no error, raises
+    if you try to de-register a default colormap.
+
+    .. warning ::
+
+      Colormap names are currently a shared namespace that may be used
+      by multiple packages. Use `unregister_cmap` only if you know you
+      have registered that name before. In particular, do not
+      unregister just in case to clean the name before registering a
+      new colormap.
+
+    Parameters
+    ----------
+    name : str
+        The name of the colormap to be un-registered
+
+    Returns
+    -------
+    ColorMap or None
+        If the colormap was registered, return it if not return `None`
+
+    Raises
+    ------
+    ValueError
+       If you try to de-register a default built-in colormap.
+
+    """
+    if name not in _cmap_registry:
+        return
+    if name in __builtin_cmaps:
+        raise ValueError(f"cannot unregister {name!r} which is a builtin "
+                         "colormap.")
+    return _cmap_registry.pop(name)
 
 
 class ScalarMappable:

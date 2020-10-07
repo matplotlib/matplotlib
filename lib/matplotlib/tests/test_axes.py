@@ -602,26 +602,21 @@ def test_fill_units():
     dt = np.arange('2009-04-27', '2009-04-29', dtype='datetime64[D]')
     dtn = mdates.date2num(dt)
 
-    fig = plt.figure()
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
-    # Top-Left
-    ax1 = fig.add_subplot(221)
     ax1.plot([t], [value], yunits='deg', color='red')
     ind = [0, 0, 1, 1]
     ax1.fill(dtn[ind], [0.0, 0.0, 90.0, 0.0], 'b')
-    # Top-Right
-    ax2 = fig.add_subplot(222)
+
     ax2.plot([t], [value], yunits='deg', color='red')
     ax2.fill([t, t, t + day, t + day],
              [0.0, 0.0, 90.0, 0.0], 'b')
-    # Bottom-Left
-    ax3 = fig.add_subplot(223)
+
     ax3.plot([t], [value], yunits='deg', color='red')
     ax3.fill(dtn[ind],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
              'b')
-    # Bottom-Right
-    ax4 = fig.add_subplot(224)
+
     ax4.plot([t], [value], yunits='deg', color='red')
     ax4.fill([t, t, t + day, t + day],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
@@ -635,22 +630,16 @@ def test_single_point():
     matplotlib.rcParams['lines.marker'] = 'o'
     matplotlib.rcParams['axes.grid'] = True
 
-    plt.figure()
-    plt.subplot(211)
-    plt.plot([0], [0], 'o')
-
-    plt.subplot(212)
-    plt.plot([1], [1], 'o')
+    fig, (ax1, ax2) = plt.subplots(2)
+    ax1.plot([0], [0], 'o')
+    ax2.plot([1], [1], 'o')
 
     # Reuse testcase from above for a labeled data test
     data = {'a': [0], 'b': [1]}
 
-    plt.figure()
-    plt.subplot(211)
-    plt.plot('a', 'a', 'o', data=data)
-
-    plt.subplot(212)
-    plt.plot('b', 'b', 'o', data=data)
+    fig, (ax1, ax2) = plt.subplots(2)
+    ax1.plot('a', 'a', 'o', data=data)
+    ax2.plot('b', 'b', 'o', data=data)
 
 
 @image_comparison(['single_date.png'], style='mpl20')
@@ -721,7 +710,7 @@ def test_axvspan_epoch():
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
-    plt.axvspan(t0, tf, facecolor="blue", alpha=0.25)
+    ax.axvspan(t0, tf, facecolor="blue", alpha=0.25)
     ax.set_xlim(t0 - 5.0*dt, tf + 5.0*dt)
 
 
@@ -862,8 +851,7 @@ def test_imshow():
 
     # Reuse testcase from above for a labeled data test
     data = {"r": r}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.imshow("r", data=data)
 
 
@@ -1329,14 +1317,21 @@ def test_arc_ellipse():
     ax.add_patch(e2)
 
 
+def test_marker_as_markerstyle():
+    fix, ax = plt.subplots()
+    m = mmarkers.MarkerStyle('o')
+    ax.plot([1, 2, 3], [3, 2, 1], marker=m)
+    ax.scatter([1, 2, 3], [4, 3, 2], marker=m)
+    ax.errorbar([1, 2, 3], [5, 4, 3], marker=m)
+
+
 @image_comparison(['markevery'], remove_text=True)
 def test_markevery():
     x = np.linspace(0, 10, 100)
     y = np.sin(x) * np.sqrt(x/10 + 0.5)
 
     # check marker only plot
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(x, y, 'o', label='default')
     ax.plot(x, y, 'd', markevery=None, label='mark all')
     ax.plot(x, y, 's', markevery=10, label='mark every 10')
@@ -1350,8 +1345,7 @@ def test_markevery_line():
     y = np.sin(x) * np.sqrt(x/10 + 0.5)
 
     # check line/marker combos
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(x, y, '-o', label='default')
     ax.plot(x, y, '-d', markevery=None, label='mark all')
     ax.plot(x, y, '-s', markevery=10, label='mark every 10')
@@ -1465,8 +1459,7 @@ def test_markevery_polar():
 @image_comparison(['marker_edges'], remove_text=True)
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
     ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
     ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
@@ -1480,8 +1473,7 @@ def test_bar_tick_label_single():
 
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax = plt.gca()
     ax.bar("a", "b", align='edge', tick_label='0', data=data)
 
@@ -1683,8 +1675,7 @@ def test_pandas_minimal_plot(pd):
 def test_hist_log():
     data0 = np.linspace(0, 1, 200)**3
     data = np.concatenate([1 - data0, 1 + data0])
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(data, fill=False, log=True)
 
 
@@ -1823,14 +1814,13 @@ def test_hist_zorder(histtype, zorder):
         assert patch.get_zorder() == zorder
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_stairs(fig_test, fig_ref):
     import matplotlib.lines as mlines
     y = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
     x = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
 
-    fig_test, test_axes = plt.subplots(3, 2)
-    test_axes = test_axes.flatten()
+    test_axes = fig_test.subplots(3, 2).flatten()
     test_axes[0].stairs(y, x, baseline=None)
     test_axes[1].stairs(y, x, baseline=None, orientation='horizontal')
     test_axes[2].stairs(y, x)
@@ -1838,102 +1828,106 @@ def test_stairs(fig_test, fig_ref):
     test_axes[4].stairs(y, x)
     test_axes[4].semilogy()
     test_axes[5].stairs(y, x, orientation='horizontal')
-    test_axes[5].semilogy()
+    test_axes[5].semilogx()
 
-    fig_ref, ref_axes = plt.subplots(3, 2)
-    ref_axes = ref_axes.flatten()
-    ref_axes[0].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
-    ref_axes[1].plot(np.append(y[0], y), x, drawstyle='steps-post')
+    # defaults of `PathPatch` to be used for all following Line2D
+    style = {'solid_joinstyle': 'miter', 'solid_capstyle': 'butt'}
 
-    ref_axes[2].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
-    ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
-    ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+    ref_axes = fig_ref.subplots(3, 2).flatten()
+    ref_axes[0].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
+    ref_axes[1].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+
+    ref_axes[2].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
+    ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]], **style))
+    ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]], **style))
     ref_axes[2].set_ylim(0, None)
 
-    ref_axes[3].plot(np.append(y[0], y), x, drawstyle='steps-post')
-    ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
-    ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+    ref_axes[3].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+    ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]], **style))
+    ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]], **style))
     ref_axes[3].set_xlim(0, None)
 
-    ref_axes[4].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
-    ref_axes[4].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
-    ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+    ref_axes[4].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
+    ref_axes[4].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]], **style))
+    ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]], **style))
     ref_axes[4].semilogy()
 
-    ref_axes[5].plot(np.append(y[0], y), x, drawstyle='steps-post')
-    ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
-    ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+    ref_axes[5].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+    ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]], **style))
+    ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]], **style))
     ref_axes[5].semilogx()
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_stairs_fill(fig_test, fig_ref):
     h, bins = [1, 2, 3, 4, 2], [0, 1, 2, 3, 4, 5]
     bs = -2
     # Test
-    fig_test, test_axes = plt.subplots(2, 2)
-    test_axes = test_axes.flatten()
+    test_axes = fig_test.subplots(2, 2).flatten()
     test_axes[0].stairs(h, bins, fill=True)
     test_axes[1].stairs(h, bins, orientation='horizontal', fill=True)
     test_axes[2].stairs(h, bins, baseline=bs, fill=True)
     test_axes[3].stairs(h, bins, baseline=bs, orientation='horizontal',
-                          fill=True)
+                        fill=True)
 
     # # Ref
-    fig_ref, ref_axes = plt.subplots(2, 2)
-    ref_axes = ref_axes.flatten()
-    ref_axes[0].fill_between(bins, np.append(h, h[-1]), step='post')
+    ref_axes = fig_ref.subplots(2, 2).flatten()
+    ref_axes[0].fill_between(bins, np.append(h, h[-1]), step='post', lw=0)
     ref_axes[0].set_ylim(0, None)
-    ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), step='post')
+    ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), step='post', lw=0)
     ref_axes[1].set_xlim(0, None)
     ref_axes[2].fill_between(bins, np.append(h, h[-1]),
-                             np.ones(len(h)+1)*bs, step='post')
+                             np.ones(len(h)+1)*bs, step='post', lw=0)
     ref_axes[2].set_ylim(bs, None)
     ref_axes[3].fill_betweenx(bins, np.append(h, h[-1]),
-                              np.ones(len(h)+1)*bs, step='post')
+                              np.ones(len(h)+1)*bs, step='post', lw=0)
     ref_axes[3].set_xlim(bs, None)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_stairs_update(fig_test, fig_ref):
+    # fixed ylim because stairs() does autoscale, but updating data does not
+    ylim = -3, 4
     # Test
-    fig_test, test_ax = plt.subplots()
+    test_ax = fig_test.add_subplot()
     h = test_ax.stairs([1, 2, 3])
-    h.set_values([3, 2, 1])
-    h.set_edges(np.arange(4)+2)
+    test_ax.set_ylim(ylim)
+    h.set_data([3, 2, 1])
+    h.set_data(edges=np.arange(4)+2)
     h.set_data([1, 2, 1], np.arange(4)/2)
     h.set_data([1, 2, 3])
     h.set_data(None, np.arange(4))
     assert np.allclose(h.get_data()[0], np.arange(1, 4))
     assert np.allclose(h.get_data()[1], np.arange(4))
-    h.set_baseline(-2)
-    assert h.get_baseline() == -2
+    h.set_data(baseline=-2)
+    assert h.get_data().baseline == -2
 
-    # # Ref
-    fig_ref, ref_ax = plt.subplots()
+    # Ref
+    ref_ax = fig_ref.add_subplot()
     h = ref_ax.stairs([1, 2, 3], baseline=-2)
+    ref_ax.set_ylim(ylim)
 
 
-@pytest.mark.xfail
 def test_stairs_invalid_nan():
-    plt.stairs([1, 2], [0, np.nan, 1])
+    with pytest.raises(ValueError, match='Nan values in "edges"'):
+        plt.stairs([1, 2], [0, np.nan, 1])
 
 
-@pytest.mark.xfail
 def test_stairs_invalid_mismatch():
-    plt.stairs([1, 2], [0, 1])
+    with pytest.raises(ValueError, match='Size mismatch'):
+        plt.stairs([1, 2], [0, 1])
 
 
-@pytest.mark.xfail
 def test_stairs_invalid_update():
     h = plt.stairs([1, 2], [0, 1, 2])
-    h.set_edges([1, np.nan, 2])
+    with pytest.raises(ValueError, match='Nan values in "edges"'):
+        h.set_data(edges=[1, np.nan, 2])
 
 
-@pytest.mark.xfail
 def test_stairs_invalid_update2():
     h = plt.stairs([1, 2], [0, 1, 2])
-    h.set_edges(np.arange(5))
+    with pytest.raises(ValueError, match='Size mismatch'):
+        h.set_data(edges=np.arange(5))
 
 
 @image_comparison(['test_stairs_options.png'], remove_text=True)
@@ -1949,10 +1943,14 @@ def test_stairs_options():
     ax.stairs(yn, x, color='orange', ls='--', lw=2, label="C")
     ax.stairs(yn/3, x*3-2, ls='--', lw=2, baseline=0.5,
               orientation='horizontal', label="D")
-    ax.stairs(y[::-1]*3+12, x, color='red', ls='--', lw=2, baseline=None,
+    ax.stairs(y[::-1]*3+13, x-1, color='red', ls='--', lw=2, baseline=None,
               label="E")
+    ax.stairs(y[::-1]*3+14, x, baseline=26,
+              color='purple', ls='--', lw=2, label="F")
+    ax.stairs(yn[::-1]*3+15, x+1, baseline=np.linspace(27, 25, len(y)),
+              color='blue', ls='--', lw=2, label="G", fill=True)
     ax.stairs(y[:-1][::-1]*2+11, x[:-1]+0.5, color='black', ls='--', lw=2,
-              baseline=12, hatch='//', label="F")
+              baseline=12, hatch='//', label="H")
     ax.legend(loc=0)
 
 
@@ -1975,8 +1973,7 @@ def contour_dat():
 @image_comparison(['contour_hatching'], remove_text=True, style='mpl20')
 def test_contour_hatching():
     x, y, z = contour_dat()
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
                 cmap=plt.get_cmap('gray'),
                 extend='both', alpha=0.5)
@@ -1989,8 +1986,7 @@ def test_contour_colorbar():
 
     x, y, z = contour_dat()
 
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     cs = ax.contourf(x, y, z, levels=np.arange(-1.8, 1.801, 0.2),
                      cmap=plt.get_cmap('RdBu'),
                      vmin=-0.6,
@@ -2017,14 +2013,12 @@ def test_hist2d():
     # make it not symmetric in case we switch x and y axis
     x = np.random.randn(100)*2+5
     y = np.random.randn(100)-2
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist2d(x, y, bins=10, rasterized=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": x, "y": y}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist2d("x", "y", bins=10, data=data, rasterized=True)
 
 
@@ -2038,8 +2032,7 @@ def test_hist2d_transpose():
     # passing to pcolorfast
     x = np.array([5]*100)
     y = np.random.randn(100)-2
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist2d(x, y, bins=10, rasterized=True)
 
 
@@ -2877,8 +2870,7 @@ def test_boxplot_with_CIarray():
 
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     CIs = np.array([[-1.5, 3.], [-1., 3.5]])
 
     # show a boxplot with Matplotlib medians and confidence intervals, and
@@ -2961,7 +2953,7 @@ def test_boxplot_mod_artist_after_plotting():
 def test_vert_violinplot_baseline():
     # First 9 digits of frac(sqrt(2))
     np.random.seed(414213562)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax = plt.axes()
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0)
@@ -2969,7 +2961,6 @@ def test_vert_violinplot_baseline():
     # Reuse testcase from above for a labeled data test
     data = {"d": data}
     fig, ax = plt.subplots()
-    ax = plt.axes()
     ax.violinplot("d", positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, data=data)
 
@@ -2979,7 +2970,7 @@ def test_vert_violinplot_showmeans():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(3))
     np.random.seed(732050807)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=0,
                   showmedians=0)
 
@@ -2989,7 +2980,7 @@ def test_vert_violinplot_showextrema():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(5))
     np.random.seed(236067977)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=1,
                   showmedians=0)
 
@@ -2999,7 +2990,7 @@ def test_vert_violinplot_showmedians():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(7))
     np.random.seed(645751311)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=1)
 
@@ -3009,7 +3000,7 @@ def test_vert_violinplot_showall():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(11))
     np.random.seed(316624790)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
                   showmedians=1,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
@@ -3020,7 +3011,7 @@ def test_vert_violinplot_custompoints_10():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(13))
     np.random.seed(605551275)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, points=10)
 
@@ -3030,7 +3021,7 @@ def test_vert_violinplot_custompoints_200():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(17))
     np.random.seed(123105625)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, points=200)
 
@@ -3040,7 +3031,7 @@ def test_horiz_violinplot_baseline():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(19))
     np.random.seed(358898943)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0)
 
@@ -3050,7 +3041,7 @@ def test_horiz_violinplot_showmedians():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(23))
     np.random.seed(795831523)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=1)
 
@@ -3060,7 +3051,7 @@ def test_horiz_violinplot_showmeans():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(29))
     np.random.seed(385164807)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=0, showmedians=0)
 
@@ -3070,7 +3061,7 @@ def test_horiz_violinplot_showextrema():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(31))
     np.random.seed(567764362)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=1, showmedians=0)
 
@@ -3080,7 +3071,7 @@ def test_horiz_violinplot_showall():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(37))
     np.random.seed(82762530)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=1, showmedians=1,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
@@ -3091,7 +3082,7 @@ def test_horiz_violinplot_custompoints_10():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(41))
     np.random.seed(403124237)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0, points=10)
 
@@ -3101,7 +3092,7 @@ def test_horiz_violinplot_custompoints_200():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(43))
     np.random.seed(557438524)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0, points=200)
 
@@ -3110,7 +3101,7 @@ def test_violinplot_bad_positions():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(47))
     np.random.seed(855654600)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     with pytest.raises(ValueError):
         ax.violinplot(data, positions=range(5))
 
@@ -3119,7 +3110,7 @@ def test_violinplot_bad_widths():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(53))
     np.random.seed(280109889)
-    data = [np.random.normal(size=100) for i in range(4)]
+    data = [np.random.normal(size=100) for _ in range(4)]
     with pytest.raises(ValueError):
         ax.violinplot(data, positions=range(4), widths=[1, 2, 3])
 
@@ -3385,8 +3376,25 @@ def test_errorbar_with_prop_cycle(fig_test, fig_ref):
     ax.set_xlim(1, 11)
 
 
+def test_errorbar_every_invalid():
+    x = np.linspace(0, 1, 15)
+    y = x * (1-x)
+    yerr = y/6
+
+    ax = plt.figure().subplots()
+
+    with pytest.raises(ValueError, match='not a tuple of two integers'):
+        ax.errorbar(x, y, yerr, errorevery=(1, 2, 3))
+    with pytest.raises(ValueError, match='not a tuple of two integers'):
+        ax.errorbar(x, y, yerr, errorevery=(1.3, 3))
+    with pytest.raises(ValueError, match='not a valid NumPy fancy index'):
+        ax.errorbar(x, y, yerr, errorevery=[False, True])
+    with pytest.raises(ValueError, match='not a recognized value'):
+        ax.errorbar(x, y, yerr, errorevery='foobar')
+
+
 @check_figures_equal()
-def test_errorbar_offsets(fig_test, fig_ref):
+def test_errorbar_every(fig_test, fig_ref):
     x = np.linspace(0, 1, 15)
     y = x * (1-x)
     yerr = y/6
@@ -3397,7 +3405,7 @@ def test_errorbar_offsets(fig_test, fig_ref):
     for color, shift in zip('rgbk', [0, 0, 2, 7]):
         y += .02
 
-        # Using feature in question
+        # Check errorevery using an explicit offset and step.
         ax_test.errorbar(x, y, yerr, errorevery=(shift, 4),
                          capsize=4, c=color)
 
@@ -3407,20 +3415,39 @@ def test_errorbar_offsets(fig_test, fig_ref):
         ax_ref.errorbar(x[shift::4], y[shift::4], yerr[shift::4],
                         capsize=4, c=color, fmt='none')
 
+    # Check that markevery is propagated to line, without affecting errorbars.
+    ax_test.errorbar(x, y + 0.1, yerr, markevery=(1, 4), capsize=4, fmt='o')
+    ax_ref.plot(x[1::4], y[1::4] + 0.1, 'o', zorder=2.1)
+    ax_ref.errorbar(x, y + 0.1, yerr, capsize=4, fmt='none')
+
+    # Check that passing a slice to markevery/errorevery works.
+    ax_test.errorbar(x, y + 0.2, yerr, errorevery=slice(2, None, 3),
+                     markevery=slice(2, None, 3),
+                     capsize=4, c='C0', fmt='o')
+    ax_ref.plot(x[2::3], y[2::3] + 0.2, 'o', c='C0', zorder=2.1)
+    ax_ref.errorbar(x[2::3], y[2::3] + 0.2, yerr[2::3],
+                    capsize=4, c='C0', fmt='none')
+
+    # Check that passing an iterable to markevery/errorevery works.
+    ax_test.errorbar(x, y + 0.2, yerr, errorevery=[False, True, False] * 5,
+                     markevery=[False, True, False] * 5,
+                     capsize=4, c='C1', fmt='o')
+    ax_ref.plot(x[1::3], y[1::3] + 0.2, 'o', c='C1', zorder=2.1)
+    ax_ref.errorbar(x[1::3], y[1::3] + 0.2, yerr[1::3],
+                    capsize=4, c='C1', fmt='none')
+
 
 @image_comparison(['hist_stacked_stepfilled', 'hist_stacked_stepfilled'])
 def test_hist_stacked_stepfilled():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="stepfilled", stacked=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": (d1, d2)}
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist("x", histtype="stepfilled", stacked=True, data=data)
 
 
@@ -3429,8 +3456,7 @@ def test_hist_offset():
     # make some data
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d1, bottom=5)
     ax.hist(d2, bottom=15)
 
@@ -3439,8 +3465,7 @@ def test_hist_offset():
 def test_hist_step():
     # make some data
     d1 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d1, histtype="step")
     ax.set_ylim(0, 10)
     ax.set_xlim(-1, 5)
@@ -3451,8 +3476,7 @@ def test_hist_step_horiz():
     # make some data
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="step", orientation="horizontal")
 
 
@@ -3463,8 +3487,7 @@ def test_hist_stacked_weighted():
     d2 = np.linspace(1, 3, 20)
     w1 = np.linspace(0.01, 3.5, 50)
     w2 = np.linspace(0.05, 2., 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), weights=(w1, w2), histtype="stepfilled", stacked=True)
 
 
@@ -3521,8 +3544,7 @@ def test_hist_stacked_stepfilled_alpha():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="stepfilled", stacked=True, alpha=0.5)
 
 
@@ -3531,8 +3553,7 @@ def test_hist_stacked_step():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist((d1, d2), histtype="step", stacked=True)
 
 
@@ -3549,8 +3570,7 @@ def test_hist_stacked_density():
 def test_hist_step_bottom():
     # make some data
     d1 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d1, bottom=np.arange(10), histtype="stepfilled")
 
 
@@ -3696,8 +3716,7 @@ def test_hist_stacked_bar():
               (0.0, 1.0, 0.6549834156005998), (0.0, 0.6569064625276622, 1.0),
               (0.28302699607823545, 0.0, 1.0), (0.6849123462299822, 0.0, 1.0)]
     labels = ['green', 'orange', ' yellow', 'magenta', 'black']
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors,
             label=labels)
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1)
@@ -3710,24 +3729,23 @@ def test_hist_barstacked_bottom_unchanged():
 
 
 def test_hist_emptydata():
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.hist([[], range(10), range(10)], histtype="step")
 
 
 def test_hist_labels():
     # test singleton labels OK
     fig, ax = plt.subplots()
-    l = ax.hist([0, 1], label=0)
-    assert l[2][0].get_label() == '0'
-    l = ax.hist([0, 1], label=[0])
-    assert l[2][0].get_label() == '0'
-    l = ax.hist([0, 1], label=None)
-    assert l[2][0].get_label() == '_nolegend_'
-    l = ax.hist([0, 1], label='0')
-    assert l[2][0].get_label() == '0'
-    l = ax.hist([0, 1], label='00')
-    assert l[2][0].get_label() == '00'
+    _, _, bars = ax.hist([0, 1], label=0)
+    assert bars[0].get_label() == '0'
+    _, _, bars = ax.hist([0, 1], label=[0])
+    assert bars[0].get_label() == '0'
+    _, _, bars = ax.hist([0, 1], label=None)
+    assert bars[0].get_label() == '_nolegend_'
+    _, _, bars = ax.hist([0, 1], label='0')
+    assert bars[0].get_label() == '0'
+    _, _, bars = ax.hist([0, 1], label='00')
+    assert bars[0].get_label() == '00'
 
 
 @image_comparison(['transparent_markers'], remove_text=True)
@@ -3735,8 +3753,7 @@ def test_transparent_markers():
     np.random.seed(0)
     data = np.random.random(50)
 
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(data, 'D', mfc='none', markersize=100)
 
 
@@ -3814,8 +3831,7 @@ def test_alpha():
     np.random.seed(0)
     data = np.random.random(50)
 
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
 
     # alpha=.5 markers, solid line
     ax.plot(data, '-D', color=[1, 0, 0], mfc=[1, 0, 0, .5],
@@ -3908,7 +3924,7 @@ def test_eventplot_defaults():
 ])
 def test_eventplot_colors(colors):
     """Test the *colors* parameter of eventplot. Inspired by issue #8193."""
-    data = [[i] for i in range(4)]  # 4 successive events of different nature
+    data = [[0], [1], [2], [3]]  # 4 successive events of different nature
 
     # Build the list of the expected colors
     expected = [c if c is not None else 'C0' for c in colors]
@@ -3978,8 +3994,7 @@ def test_eventplot_orientation(data, orientation):
 
 @image_comparison(['marker_styles.png'], remove_text=True)
 def test_marker_styles():
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     for y, marker in enumerate(sorted(matplotlib.markers.MarkerStyle.markers,
                                       key=lambda x: str(type(x))+str(x))):
         ax.plot((y % 2)*5 + np.arange(10)*10, np.ones(10)*10*y, linestyle='',
@@ -4001,8 +4016,7 @@ def test_vertex_markers():
     data = list(range(10))
     marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
     marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
     ax.plot(data, linestyle='', marker=marker_as_tuple, mfc='k')
     ax.plot(data[::-1], linestyle='', marker=marker_as_list, mfc='b')
     ax.set_xlim([-1, 10])
@@ -4557,9 +4571,9 @@ def test_rcparam_grid_minor():
     matplotlib.rcParams['axes.grid'] = True
 
     values = (
-        (('both'), (True, True)),
-        (('major'), (True, False)),
-        (('minor'), (False, True))
+        ('both', (True, True)),
+        ('major', (True, False)),
+        ('minor', (False, True))
         )
 
     for locator, result in values:
@@ -4576,7 +4590,6 @@ def test_vline_limit():
     ax = fig.gca()
     ax.axvline(0.5)
     ax.plot([-0.1, 0, 0.2, 0.1])
-    (ymin, ymax) = ax.get_ylim()
     assert_allclose(ax.get_ylim(), (-.1, .2))
 
 
@@ -4674,10 +4687,10 @@ def test_relim_visible_only():
     ax.plot(x1, y1)
     assert ax.get_xlim() == x1
     assert ax.get_ylim() == y1
-    l = ax.plot(x2, y2)
+    line, = ax.plot(x2, y2)
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
-    l[0].set_visible(False)
+    line.set_visible(False)
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
 
@@ -5109,7 +5122,7 @@ def test_rc_spines():
         'axes.spines.top': False,
         'axes.spines.bottom': False}
     with matplotlib.rc_context(rc_dict):
-        fig, ax = plt.subplots()
+        plt.subplots()  # create a figure and axes with the spine properties
 
 
 @image_comparison(['rc_grid.png'], savefig_kwarg={'dpi': 40})
@@ -5456,12 +5469,12 @@ def test_shared_axes_autoscale():
     l = np.arange(-80, 90, 40)
     t = np.random.random_sample((l.size, l.size))
 
-    ax1 = plt.subplot(211)
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, sharey=True)
+
     ax1.set_xlim(-1000, 1000)
     ax1.set_ylim(-1000, 1000)
     ax1.contour(l, l, t)
 
-    ax2 = plt.subplot(212, sharex=ax1, sharey=ax1)
     ax2.contour(l, l, t)
     assert not ax1.get_autoscalex_on() and not ax2.get_autoscalex_on()
     assert not ax1.get_autoscaley_on() and not ax2.get_autoscaley_on()
@@ -5484,7 +5497,7 @@ def test_adjust_numtick_aspect():
 @image_comparison(["auto_numticks.png"], style='default')
 def test_auto_numticks():
     # Make tiny, empty subplots, verify that there are only 3 ticks.
-    fig, axs = plt.subplots(4, 4)
+    plt.subplots(4, 4)
 
 
 @image_comparison(["auto_numticks_log.png"], style='default')
@@ -6121,7 +6134,7 @@ def test_cartopy_backcompat():
     assert DummySubplot is FactoryDummySubplot
 
 
-def test_gettightbbox_ignoreNaN():
+def test_gettightbbox_ignore_nan():
     fig, ax = plt.subplots()
     remove_ticks_and_titles(fig)
     ax.text(np.NaN, 1, 'Boo')
@@ -6196,6 +6209,7 @@ def test_secondary_fail():
 def test_secondary_resize():
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(np.arange(2, 11), np.arange(2, 11))
+
     def invert(x):
         with np.errstate(divide='ignore'):
             return 1 / x
@@ -6209,6 +6223,7 @@ def test_secondary_resize():
 def test_secondary_minorloc():
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(np.arange(2, 11), np.arange(2, 11))
+
     def invert(x):
         with np.errstate(divide='ignore'):
             return 1 / x
@@ -6332,10 +6347,6 @@ def test_nodecorator():
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
 
     # test the axis bboxes
-    target = [
-        None,
-        None
-    ]
     for nn, b in enumerate(bbaxis):
         assert b is None
 
@@ -6366,14 +6377,15 @@ def test_displaced_spine():
         fig.canvas.draw()
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
 
-    target = [
+    targets = [
         [150., 24., 930., 11.111111],
         [150.0, 1080.0, 930.0, 0.0],
         [150.0, 119.9999, 11.111, 960.0],
         [1068.8888, 119.9999, 11.111, 960.0]
     ]
-    for nn, b in enumerate(bbspines):
-        targetbb = mtransforms.Bbox.from_bounds(*target[nn])
+    for target, bbspine in zip(targets, bbspines):
+        targetbb = mtransforms.Bbox.from_bounds(*target)
+        assert_allclose(bbspine.bounds, targetbb.bounds, atol=1e-2)
 
     target = [150.0, 119.99999999999997, 930.0, 960.0]
     targetbb = mtransforms.Bbox.from_bounds(*target)

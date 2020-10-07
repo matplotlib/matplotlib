@@ -4,7 +4,7 @@
 =================================
 
 Demonstrates plotting a surface defined in polar coordinates.
-Uses the reversed version of the YlGnBu color map.
+Uses the reversed version of the YlGnBu colormap.
 Also demonstrates writing axis labels with latex math mode.
 
 Example contributed by Armin Moser.

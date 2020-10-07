@@ -44,14 +44,23 @@ class _axis_method_wrapper:
 
     The docstring of ``get_foo`` is built by replacing "this Axis" by "the
     {attr_name}" (i.e., "the xaxis", "the yaxis") in the wrapped method's
-    docstring; additional replacements can by given in *doc_sub*.  The
-    docstring is also dedented to simplify further manipulations.
+    dedented docstring; additional replacements can by given in *doc_sub*.
     """
 
     def __init__(self, attr_name, method_name, *, doc_sub=None):
         self.attr_name = attr_name
         self.method_name = method_name
-        self.doc_sub = doc_sub
+        # Immediately put the docstring in ``self.__doc__`` so that docstring
+        # manipulations within the class body work as expected.
+        doc = inspect.getdoc(getattr(maxis.Axis, method_name))
+        self._missing_subs = []
+        if doc:
+            doc_sub = {"this Axis": f"the {self.attr_name}", **(doc_sub or {})}
+            for k, v in doc_sub.items():
+                if k not in doc:  # Delay raising error until we know qualname.
+                    self._missing_subs.append(k)
+                doc = doc.replace(k, v)
+        self.__doc__ = doc
 
     def __set_name__(self, owner, name):
         # This is called at the end of the class body as
@@ -65,22 +74,19 @@ class _axis_method_wrapper:
         wrapper.__module__ = owner.__module__
         wrapper.__name__ = name
         wrapper.__qualname__ = f"{owner.__qualname__}.{name}"
+        wrapper.__doc__ = self.__doc__
         # Manually copy the signature instead of using functools.wraps because
         # displaying the Axis method source when asking for the Axes method
         # source would be confusing.
-        wrapped_method = getattr(maxis.Axis, self.method_name)
-        wrapper.__signature__ = inspect.signature(wrapped_method)
-        doc = wrapped_method.__doc__
-        if doc:
-            doc_sub = {"this Axis": f"the {self.attr_name}",
-                       **(self.doc_sub or {})}
-            for k, v in doc_sub.items():
-                assert k in doc, \
-                    (f"The definition of {wrapper.__qualname__} expected that "
-                     f"the docstring of Axis.{self.method_name} contains "
-                     f"{k!r} as a substring.")
-                doc = doc.replace(k, v)
-            wrapper.__doc__ = inspect.cleandoc(doc)
+        wrapper.__signature__ = inspect.signature(
+            getattr(maxis.Axis, self.method_name))
+
+        if self._missing_subs:
+            raise ValueError(
+                "The definition of {} expected that the docstring of Axis.{} "
+                "contains {!r} as substrings".format(
+                    wrapper.__qualname__, self.method_name,
+                    ", ".join(map(repr, self._missing_subs))))
 
         setattr(owner, name, wrapper)
 
@@ -460,6 +466,7 @@ class _AxesBase(martist.Artist):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
 
+    @cbook._make_keyword_only("3.4", "facecolor")
     def __init__(self, fig, rect,
                  facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
@@ -646,8 +653,7 @@ class _AxesBase(martist.Artist):
         --------
         matplotlib.axes.Axes.get_tightbbox
         matplotlib.axis.Axis.get_tightbbox
-        matplotlib.spines.get_window_extent
-
+        matplotlib.spines.Spine.get_window_extent
         """
         return self.bbox
 

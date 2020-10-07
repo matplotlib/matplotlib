@@ -198,11 +198,8 @@ def test_bbox_inches():
                   'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
 
-    Y, X = np.ogrid[-1:1:40j, -1:1:40j]
-    fig = plt.figure()
-    ax1 = fig.add_subplot(121)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.plot(range(5))
-    ax2 = fig.add_subplot(122)
     ax2.plot(range(5))
     plt.tight_layout()
 
@@ -324,3 +321,10 @@ def test_bbox_inches_tight(tmpdir):
     ax.imshow([[0, 1], [2, 3]])
     fig.savefig(os.path.join(tmpdir, "test.pdf"), backend="pgf",
                 bbox_inches="tight")
+
+
+@needs_xelatex
+def test_png():
+    # Just a smoketest.
+    fig, ax = plt.subplots()
+    fig.savefig(BytesIO(), format="png", backend="pgf")

@@ -425,7 +425,7 @@ more control, it supports a few other options.
 
    This allows annotating a point in another axes::
 
-     ax1, ax2 = subplot(121), subplot(122)
+     fig, (ax1, ax2) = plt.subplots(1, 2)
      ax2.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transData,
                   xytext=(0.5, 0.5), textcoords=ax2.transData,
                   arrowprops=dict(arrowstyle="->"))

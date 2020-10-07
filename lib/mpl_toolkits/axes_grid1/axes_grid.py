@@ -50,7 +50,7 @@ class CbarAxesBase:
             mappable.colorbar = cb
             self._locator = cb.cbar_axis.get_major_locator()
         else:
-            cb = mpl.colorbar.colorbar_factory(
+            cb = mpl.colorbar.Colorbar(
                 self, mappable, orientation=orientation, ticks=ticks, **kwargs)
             self._cbid = mappable.colorbar_cid  # deprecated.
             self._locator = cb.locator  # deprecated.

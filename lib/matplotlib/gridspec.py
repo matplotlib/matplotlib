@@ -489,8 +489,8 @@ class GridSpec(GridSpecBase):
                 if isinstance(ax, mpl.axes.SubplotBase):
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
-                        ax.update_params()
-                        ax._set_position(ax.figbox)
+                        ax._set_position(
+                            ax.get_subplotspec().get_position(ax.figure))
 
     def get_subplot_params(self, figure=None):
         """
@@ -764,6 +764,19 @@ class SubplotSpec:
         c1, c2 = sorted([self.num1 % ncols, self.num2 % ncols])
         return range(c1, c2 + 1)
 
+    def is_first_row(self):
+        return self.rowspan.start == 0
+
+    def is_last_row(self):
+        return self.rowspan.stop == self.get_gridspec().nrows
+
+    def is_first_col(self):
+        return self.colspan.start == 0
+
+    def is_last_col(self):
+        return self.colspan.stop == self.get_gridspec().ncols
+
+    @cbook._delete_parameter("3.4", "return_all")
     def get_position(self, figure, return_all=False):
         """
         Update the subplot position from ``figure.subplotpars``.

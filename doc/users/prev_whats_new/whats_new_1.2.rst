@@ -176,9 +176,9 @@ New hist functionality
 
 Nic Eggert added a new *stacked* kwarg to :meth:`~matplotlib.pyplot.hist` that
 allows creation of stacked histograms using any of the histogram types.
-Previously, this functionality was only available by using the `barstacked`
+Previously, this functionality was only available by using the "barstacked"
 histogram type. Now, when ``stacked=True`` is passed to the function, any of the
-histogram types can be stacked. The `barstacked` histogram type retains its
+histogram types can be stacked. The "barstacked" histogram type retains its
 previous functionality for backwards compatibility.
 
 Updated shipped dependencies

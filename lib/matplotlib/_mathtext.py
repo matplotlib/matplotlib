@@ -3,6 +3,7 @@ Implementation details for :mod:`.mathtext`.
 """
 
 from collections import namedtuple
+import enum
 import functools
 from io import StringIO
 import logging
@@ -1944,8 +1945,11 @@ class Parser:
     The grammar is based directly on that in TeX, though it cuts a few corners.
     """
 
-    _math_style_dict = dict(displaystyle=0, textstyle=1,
-                            scriptstyle=2, scriptscriptstyle=3)
+    class _MathStyle(enum.Enum):
+        DISPLAYSTYLE = enum.auto()
+        TEXTSTYLE = enum.auto()
+        SCRIPTSTYLE = enum.auto()
+        SCRIPTSCRIPTSTYLE = enum.auto()
 
     _binary_operators = set('''
       + * -
@@ -2798,8 +2802,7 @@ class Parser:
 
         rule = float(rule)
 
-        # If style != displaystyle == 0, shrink the num and den
-        if style != self._math_style_dict['displaystyle']:
+        if style is not self._MathStyle.DISPLAYSTYLE:
             num.shrink()
             den.shrink()
         cnum = HCentered([num])
@@ -2848,8 +2851,8 @@ class Parser:
             state.font, state.fontsize, state.dpi)
         num, den = toks[0]
 
-        return self._genfrac('', '', thickness,
-                             self._math_style_dict['textstyle'], num, den)
+        return self._genfrac('', '', thickness, self._MathStyle.TEXTSTYLE,
+                             num, den)
 
     def dfrac(self, s, loc, toks):
         assert len(toks) == 1
@@ -2860,16 +2863,16 @@ class Parser:
             state.font, state.fontsize, state.dpi)
         num, den = toks[0]
 
-        return self._genfrac('', '', thickness,
-                             self._math_style_dict['displaystyle'], num, den)
+        return self._genfrac('', '', thickness, self._MathStyle.DISPLAYSTYLE,
+                             num, den)
 
     def binom(self, s, loc, toks):
         assert len(toks) == 1
         assert len(toks[0]) == 2
         num, den = toks[0]
 
-        return self._genfrac('(', ')', 0.0,
-                             self._math_style_dict['textstyle'], num, den)
+        return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
+                             num, den)
 
     def sqrt(self, s, loc, toks):
         root, body = toks[0]

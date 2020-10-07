@@ -105,13 +105,13 @@ def test_clipping():
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
 
-    ax1 = plt.subplot(121)
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
+
     col = mcollections.PathCollection([star], lw=5, edgecolor='blue',
                                       facecolor='red', alpha=0.7, hatch='*')
     col.set_clip_path(clip_path, ax1.transData)
     ax1.add_collection(col)
 
-    ax2 = plt.subplot(122, sharex=ax1, sharey=ax1)
     patch = mpatches.PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
                                alpha=0.7, hatch='*')
     patch.set_clip_path(clip_path, ax2.transData)

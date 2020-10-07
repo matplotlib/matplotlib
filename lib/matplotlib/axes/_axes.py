@@ -2,7 +2,7 @@ import functools
 import itertools
 import logging
 import math
-from numbers import Number
+from numbers import Integral, Number
 
 import numpy as np
 from numpy import ma
@@ -3147,17 +3147,6 @@ class Axes(_AxesBase):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
-        try:
-            offset, errorevery = errorevery
-        except TypeError:
-            offset = 0
-
-        if errorevery < 1 or int(errorevery) != errorevery:
-            raise ValueError(
-                'errorevery must be positive integer or tuple of integers')
-        if int(offset) != offset:
-            raise ValueError("errorevery's starting index must be an integer")
-
         self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
 
         # Make sure all the args are iterable; use lists not arrays to preserve
@@ -3178,6 +3167,33 @@ class Axes(_AxesBase):
         if yerr is not None:
             if not np.iterable(yerr):
                 yerr = [yerr] * len(y)
+
+        if isinstance(errorevery, Integral):
+            errorevery = (0, errorevery)
+        if isinstance(errorevery, tuple):
+            if (len(errorevery) == 2 and
+                    isinstance(errorevery[0], Integral) and
+                    isinstance(errorevery[1], Integral)):
+                errorevery = slice(errorevery[0], None, errorevery[1])
+            else:
+                raise ValueError(
+                    f'errorevery={errorevery!r} is a not a tuple of two '
+                    f'integers')
+
+        elif isinstance(errorevery, slice):
+            pass
+
+        elif not isinstance(errorevery, str) and np.iterable(errorevery):
+            # fancy indexing
+            try:
+                x[errorevery]
+            except (ValueError, IndexError) as err:
+                raise ValueError(
+                    f"errorevery={errorevery!r} is iterable but not a valid "
+                    f"NumPy fancy index to match 'xerr'/'yerr'") from err
+        else:
+            raise ValueError(
+                f"errorevery={errorevery!r} is not a recognized value")
 
         label = kwargs.pop("label", None)
         kwargs['label'] = '_nolegend_'
@@ -3219,6 +3235,7 @@ class Axes(_AxesBase):
         base_style.pop('markerfacecolor', None)
         base_style.pop('markeredgewidth', None)
         base_style.pop('markeredgecolor', None)
+        base_style.pop('markevery', None)
         base_style.pop('linestyle', None)
 
         # Make the style dict for the line collections (the bars).
@@ -3260,7 +3277,7 @@ class Axes(_AxesBase):
         xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
         everymask = np.zeros(len(x), bool)
-        everymask[offset::errorevery] = True
+        everymask[errorevery] = True
 
         def apply_mask(arrays, mask):
             # Return, for each array in *arrays*, the elements for which *mask*
@@ -4455,7 +4472,7 @@ default: :rc:`scatter.edgecolors`
 
             - If *None*, no binning is applied; the color of each hexagon
               directly corresponds to its count value.
-            - If 'log', use a logarithmic scale for the color map.
+            - If 'log', use a logarithmic scale for the colormap.
               Internally, :math:`log_{10}(i+1)` is used to determine the
               hexagon color. This is equivalent to ``norm=LogNorm()``.
             - If an integer, divide the counts in the specified number
@@ -4546,7 +4563,7 @@ default: :rc:`scatter.edgecolors`
 
             - `numpy.mean`: average of the points
             - `numpy.sum`: integral of the point values
-            - `numpy.max`: value taken from the largest point
+            - `numpy.amax`: value taken from the largest point
 
         **kwargs : `~matplotlib.collections.PolyCollection` properties
             All other keyword arguments are passed on to `.PolyCollection`:
@@ -5222,7 +5239,7 @@ default: :rc:`scatter.edgecolors`
 
         The input may either be actual RGB(A) data, or 2D scalar data, which
         will be rendered as a pseudocolor image. For displaying a grayscale
-        image set up the color mapping using the parameters
+        image set up the colormapping using the parameters
         ``cmap='gray', vmin=0, vmax=255``.
 
         The number of pixels used to render an image is set by the axes size
@@ -5317,6 +5334,7 @@ default: :rc:`scatter.edgecolors`
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
             data. It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            When using RGB(A) data, parameters *vmin*/*vmax* are ignored.
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Place the [0, 0] index of the array in the upper left or lower
@@ -6712,7 +6730,8 @@ such objects
     def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
         """
-        A stepwise constant line or filled plot.
+        A stepwise constant function as a line with bounding edges
+        or a filled plot.
 
         Parameters
         ----------
@@ -6727,9 +6746,11 @@ such objects
             The direction of the steps. Vertical means that *values* are along
             the y-axis, and edges are along the x-axis.
 
-        baseline : float or None, default: 0
-            Determines starting value of the bounding edges or when
-            ``fill=True``, position of lower edge.
+        baseline : float, array-like or None, default: 0
+            The bottom value of the bounding edges or when
+            ``fill=True``, position of lower edge. If *fill* is
+            True or an array is passed to *baseline*, a closed
+            path is drawn.
 
         fill : bool, default: False
             Whether the area under the step curve should be filled.
@@ -6758,8 +6779,8 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
-        edges, values = self._process_unit_info(
-            [("x", edges), ("y", values)], kwargs)
+        edges, values, baseline = self._process_unit_info(
+            [("x", edges), ("y", values), ("y", baseline)], kwargs)
 
         patch = mpatches.StepPatch(values,
                                    edges,
@@ -6771,9 +6792,9 @@ such objects
         if baseline is None:
             baseline = 0
         if orientation == 'vertical':
-            patch.sticky_edges.y.append(baseline)
+            patch.sticky_edges.y.append(np.min(baseline))
         else:
-            patch.sticky_edges.x.append(baseline)
+            patch.sticky_edges.x.append(np.min(baseline))
         self._request_autoscale_view()
         return patch
 

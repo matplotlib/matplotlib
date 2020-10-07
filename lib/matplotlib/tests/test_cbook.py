@@ -144,7 +144,6 @@ class Test_boxplot_stats:
     def test_results_withlabels(self):
         labels = ['Test1', 2, 'ardvark', 4]
         results = cbook.boxplot_stats(self.data, labels=labels)
-        res = results[0]
         for lab, res in zip(labels, results):
             assert res['label'] == lab
 
@@ -248,10 +247,10 @@ def raising_cb_reg(func):
     class TestException(Exception):
         pass
 
-    def raising_function():
+    def raise_runtime_error():
         raise RuntimeError
 
-    def raising_function_VE():
+    def raise_value_error():
         raise ValueError
 
     def transformer(excp):
@@ -261,15 +260,15 @@ def raising_cb_reg(func):
 
     # old default
     cb_old = cbook.CallbackRegistry(exception_handler=None)
-    cb_old.connect('foo', raising_function)
+    cb_old.connect('foo', raise_runtime_error)
 
     # filter
     cb_filt = cbook.CallbackRegistry(exception_handler=transformer)
-    cb_filt.connect('foo', raising_function)
+    cb_filt.connect('foo', raise_runtime_error)
 
     # filter
     cb_filt_pass = cbook.CallbackRegistry(exception_handler=transformer)
-    cb_filt_pass.connect('foo', raising_function_VE)
+    cb_filt_pass.connect('foo', raise_value_error)
 
     return pytest.mark.parametrize('cb, excp',
                                    [[cb_old, RuntimeError],
@@ -434,9 +433,9 @@ def test_step_fails(args):
 
 
 def test_grouper():
-    class dummy:
+    class Dummy:
         pass
-    a, b, c, d, e = objs = [dummy() for j in range(5)]
+    a, b, c, d, e = objs = [Dummy() for _ in range(5)]
     g = cbook.Grouper()
     g.join(*objs)
     assert set(list(g)[0]) == set(objs)
@@ -454,9 +453,9 @@ def test_grouper():
 
 
 def test_grouper_private():
-    class dummy:
+    class Dummy:
         pass
-    objs = [dummy() for j in range(5)]
+    objs = [Dummy() for _ in range(5)]
     g = cbook.Grouper()
     g.join(*objs)
     # reach in and touch the internals !
@@ -484,13 +483,13 @@ def test_flatiter():
 
 def test_reshape2d():
 
-    class dummy:
+    class Dummy:
         pass
 
     xnew = cbook._reshape_2D([], 'x')
     assert np.shape(xnew) == (1, 0)
 
-    x = [dummy() for j in range(5)]
+    x = [Dummy() for _ in range(5)]
 
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (1, 5)
@@ -499,7 +498,7 @@ def test_reshape2d():
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (1, 5)
 
-    x = [[dummy() for j in range(5)] for i in range(3)]
+    x = [[Dummy() for _ in range(5)] for _ in range(3)]
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (3, 5)
 
@@ -676,9 +675,9 @@ def test_array_patch_perimeters():
 
 def test_setattr_cm():
     class A:
-
         cls_level = object()
         override = object()
+
         def __init__(self):
             self.aardvark = 'aardvark'
             self.override = 'override'
@@ -688,7 +687,7 @@ def test_setattr_cm():
             ...
 
         @classmethod
-        def classy(klass):
+        def classy(cls):
             ...
 
         @staticmethod

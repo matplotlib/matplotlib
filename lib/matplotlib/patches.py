@@ -4,6 +4,7 @@ import inspect
 import math
 from numbers import Number
 import textwrap
+from collections import namedtuple
 
 import numpy as np
 
@@ -409,6 +410,10 @@ class Patch(artist.Artist):
         ``'--'`` or  ``'dashed'``     dashed line
         ``'-.'`` or  ``'dashdot'``    dash-dotted line
         ``':'`` or ``'dotted'``       dotted line
+        ``'None'``                    draw nothing
+        ``'none'``                    draw nothing
+        ``' '``                       draw nothing
+        ``''``                        draw nothing
         ===========================   =================
 
         Alternatively a dash tuple of the following form can be provided::
@@ -424,6 +429,8 @@ class Patch(artist.Artist):
         """
         if ls is None:
             ls = "solid"
+        if ls in [' ', '', 'none']:
+            ls = 'None'
         self._linestyle = ls
         # get the unscaled dash pattern
         offset, ls = self._us_dashes = mlines._get_dash_pattern(ls)
@@ -540,7 +547,7 @@ class Patch(artist.Artist):
         gc.set_foreground(self._edgecolor, isRGBA=True)
 
         lw = self._linewidth
-        if self._edgecolor[3] == 0:
+        if self._edgecolor[3] == 0 or self._linestyle == 'None':
             lw = 0
         gc.set_linewidth(lw)
         gc.set_dashes(self._dashoffset, self._dashes)
@@ -729,59 +736,35 @@ class Rectangle(Patch):
         **kwargs : `.Patch` properties
             %(Patch)s
         """
-
         super().__init__(**kwargs)
-
         self._x0 = xy[0]
         self._y0 = xy[1]
-
         self._width = width
         self._height = height
-
-        self._x1 = self._x0 + self._width
-        self._y1 = self._y0 + self._height
-
         self.angle = float(angle)
-        # Note: This cannot be calculated until this is added to an Axes
-        self._rect_transform = transforms.IdentityTransform()
+        self._convert_units()  # Validate the inputs.
 
     def get_path(self):
         """Return the vertices of the rectangle."""
         return Path.unit_rectangle()
 
-    def _update_patch_transform(self):
-        """
-        Notes
-        -----
-        This cannot be called until after this has been added to an Axes,
-        otherwise unit conversion will fail. This makes it very important to
-        call the accessor method and not directly access the transformation
-        member variable.
-        """
-        x0, y0, x1, y1 = self._convert_units()
-        bbox = transforms.Bbox.from_extents(x0, y0, x1, y1)
-        rot_trans = transforms.Affine2D()
-        rot_trans.rotate_deg_around(x0, y0, self.angle)
-        self._rect_transform = transforms.BboxTransformTo(bbox)
-        self._rect_transform += rot_trans
-
-    def _update_x1(self):
-        self._x1 = self._x0 + self._width
-
-    def _update_y1(self):
-        self._y1 = self._y0 + self._height
-
     def _convert_units(self):
         """Convert bounds of the rectangle."""
         x0 = self.convert_xunits(self._x0)
         y0 = self.convert_yunits(self._y0)
-        x1 = self.convert_xunits(self._x1)
-        y1 = self.convert_yunits(self._y1)
+        x1 = self.convert_xunits(self._x0 + self._width)
+        y1 = self.convert_yunits(self._y0 + self._height)
         return x0, y0, x1, y1
 
     def get_patch_transform(self):
-        self._update_patch_transform()
-        return self._rect_transform
+        # Note: This cannot be called until after this has been added to
+        # an Axes, otherwise unit conversion will fail. This makes it very
+        # important to call the accessor method and not directly access the
+        # transformation member variable.
+        bbox = self.get_bbox()
+        return (transforms.BboxTransformTo(bbox)
+                + transforms.Affine2D().rotate_deg_around(
+                    bbox.x0, bbox.y0, self.angle))
 
     def get_x(self):
         """Return the left coordinate of the rectangle."""
@@ -806,13 +789,11 @@ class Rectangle(Patch):
     def set_x(self, x):
         """Set the left coordinate of the rectangle."""
         self._x0 = x
-        self._update_x1()
         self.stale = True
 
     def set_y(self, y):
         """Set the bottom coordinate of the rectangle."""
         self._y0 = y
-        self._update_y1()
         self.stale = True
 
     def set_xy(self, xy):
@@ -824,20 +805,16 @@ class Rectangle(Patch):
         xy : (float, float)
         """
         self._x0, self._y0 = xy
-        self._update_x1()
-        self._update_y1()
         self.stale = True
 
     def set_width(self, w):
         """Set the width of the rectangle."""
         self._width = w
-        self._update_x1()
         self.stale = True
 
     def set_height(self, h):
         """Set the height of the rectangle."""
         self._height = h
-        self._update_y1()
         self.stale = True
 
     def set_bounds(self, *args):
@@ -859,8 +836,6 @@ class Rectangle(Patch):
         self._y0 = b
         self._width = w
         self._height = h
-        self._update_x1()
-        self._update_y1()
         self.stale = True
 
     def get_bbox(self):
@@ -876,8 +851,8 @@ class RegularPolygon(Patch):
 
     def __str__(self):
         s = "RegularPolygon((%g, %g), %d, radius=%g, orientation=%g)"
-        return s % (self._xy[0], self._xy[1], self._numVertices, self._radius,
-                    self._orientation)
+        return s % (self.xy[0], self.xy[1], self.numvertices, self.radius,
+                    self.orientation)
 
     @docstring.dedent_interpd
     def __init__(self, xy, numVertices, radius=5, orientation=0,
@@ -902,63 +877,22 @@ class RegularPolygon(Patch):
 
             %(Patch)s
         """
-        self._xy = xy
-        self._numVertices = numVertices
-        self._orientation = orientation
-        self._radius = radius
+        self.xy = xy
+        self.numvertices = numVertices
+        self.orientation = orientation
+        self.radius = radius
         self._path = Path.unit_regular_polygon(numVertices)
-        self._poly_transform = transforms.Affine2D()
-        self._update_transform()
-
+        self._patch_transform = transforms.Affine2D()
         super().__init__(**kwargs)
-
-    def _update_transform(self):
-        self._poly_transform.clear() \
-            .scale(self.radius) \
-            .rotate(self.orientation) \
-            .translate(*self.xy)
-
-    @property
-    def xy(self):
-        return self._xy
-
-    @xy.setter
-    def xy(self, xy):
-        self._xy = xy
-        self._update_transform()
-
-    @property
-    def orientation(self):
-        return self._orientation
-
-    @orientation.setter
-    def orientation(self, orientation):
-        self._orientation = orientation
-        self._update_transform()
-
-    @property
-    def radius(self):
-        return self._radius
-
-    @radius.setter
-    def radius(self, radius):
-        self._radius = radius
-        self._update_transform()
-
-    @property
-    def numvertices(self):
-        return self._numVertices
-
-    @numvertices.setter
-    def numvertices(self, numVertices):
-        self._numVertices = numVertices
 
     def get_path(self):
         return self._path
 
     def get_patch_transform(self):
-        self._update_transform()
-        return self._poly_transform
+        return self._patch_transform.clear() \
+            .scale(self.radius) \
+            .rotate(self.orientation) \
+            .translate(*self.xy)
 
 
 class PathPatch(Patch):
@@ -993,8 +927,11 @@ class StepPatch(PathPatch):
     """
     A path patch describing a stepwise constant function.
 
-    The path is unclosed. It starts and stops at baseline.
+    By default the path is not closed and starts and stops at
+    baseline value.
     """
+
+    _edge_default = False
 
     @docstring.dedent_interpd
     def __init__(self, values, edges, *,
@@ -1010,21 +947,23 @@ class StepPatch(PathPatch):
             between which the curve takes on vals values.
 
         orientation : {'vertical', 'horizontal'}, default: 'vertical'
-            The direction of the steps. Vertical means that *values* are along
-            the y-axis, and edges are along the x-axis.
+            The direction of the steps. Vertical means that *values* are
+            along the y-axis, and edges are along the x-axis.
 
-        baseline : float or None, default: 0
-            Determines starting value of the bounding edges or when
-            ``fill=True``, position of lower edge.
+        baseline : float, array-like or None, default: 0
+            The bottom value of the bounding edges or when
+            ``fill=True``, position of lower edge. If *fill* is
+            True or an array is passed to *baseline*, a closed
+            path is drawn.
 
         Other valid keyword arguments are:
 
         %(Patch)s
         """
-        self.baseline = baseline
         self.orientation = orientation
         self._edges = np.asarray(edges)
         self._values = np.asarray(values)
+        self._baseline = np.asarray(baseline) if baseline is not None else None
         self._update_path()
         super().__init__(self._path, **kwargs)
 
@@ -1037,13 +976,24 @@ class StepPatch(PathPatch):
                              f"`len(values) = {self._values.size}` and "
                              f"`len(edges) = {self._edges.size}`.")
         verts, codes = [], []
-        for idx0, idx1 in cbook.contiguous_regions(~np.isnan(self._values)):
+
+        _nan_mask = np.isnan(self._values)
+        if self._baseline is not None:
+            _nan_mask |= np.isnan(self._baseline)
+        for idx0, idx1 in cbook.contiguous_regions(~_nan_mask):
             x = np.repeat(self._edges[idx0:idx1+1], 2)
             y = np.repeat(self._values[idx0:idx1], 2)
-            if self.baseline is not None:
-                y = np.hstack((self.baseline, y, self.baseline))
-            else:
+            if self._baseline is None:
                 y = np.hstack((y[0], y, y[-1]))
+            elif self._baseline.ndim == 0:  # single baseline value
+                y = np.hstack((self._baseline, y, self._baseline))
+            elif self._baseline.ndim == 1:  # baseline array
+                base = np.repeat(self._baseline[idx0:idx1], 2)[::-1]
+                x = np.concatenate([x, x[::-1]])
+                y = np.concatenate([np.hstack((base[-1], y, base[0],
+                                               base[0], base, base[-1]))])
+            else:  # no baseline
+                raise ValueError('Invalid `baseline` specified')
             if self.orientation == 'vertical':
                 xy = np.column_stack([x, y])
             else:
@@ -1053,59 +1003,29 @@ class StepPatch(PathPatch):
             self._path = Path(np.vstack(verts), np.hstack(codes))
 
     def get_data(self):
-        """Get `.StepPatch` values and edges."""
-        return self._values, self._edges
+        """Get `.StepPatch` values, edges and baseline as namedtuple."""
+        StairData = namedtuple('StairData', 'values edges baseline')
+        return StairData(self._values, self._edges, self._baseline)
 
-    def set_data(self, values, edges=None):
+    def set_data(self, values=None, edges=None, baseline=None):
         """
-        Set `.StepPatch` values and optionally edges.
+        Set `.StepPatch` values, edges and baseline.
 
         Parameters
         ----------
         values : 1D array-like or None
             Will not update values, if passing None
         edges : 1D array-like, optional
+        baseline : float, 1D array-like or None
         """
+        if values is None and edges is None and baseline is None:
+            raise ValueError("Must set *values*, *edges* or *baseline*.")
         if values is not None:
             self._values = np.asarray(values)
         if edges is not None:
             self._edges = np.asarray(edges)
-        self._update_path()
-        self.stale = True
-
-    def set_values(self, values):
-        """
-        Set `.StepPatch` values.
-
-        Parameters
-        ----------
-        values : 1D array-like
-        """
-        self.set_data(values, edges=None)
-
-    def set_edges(self, edges):
-        """
-        Set `.StepPatch` edges.
-
-        Parameters
-        ----------
-        edges : 1D array-like
-        """
-        self.set_data(None, edges=edges)
-
-    def get_baseline(self):
-        """Get `.StepPatch` baseline value."""
-        return self.baseline
-
-    def set_baseline(self, baseline):
-        """
-        Set `.StepPatch` baseline value.
-
-        Parameters
-        ----------
-        baseline : float or None
-        """
-        self.baseline = baseline
+        if baseline is not None:
+            self._baseline = np.asarray(baseline)
         self._update_path()
         self.stale = True
 
@@ -1461,7 +1381,7 @@ class CirclePolygon(RegularPolygon):
 
     def __str__(self):
         s = "CirclePolygon((%g, %g), radius=%g, resolution=%d)"
-        return s % (self._xy[0], self._xy[1], self._radius, self._numVertices)
+        return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
     @docstring.dedent_interpd
     def __init__(self, xy, radius=5,

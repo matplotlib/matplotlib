@@ -32,7 +32,7 @@ people commonly use a specific argument to the %matplotlib magic:
 This turns on inline plotting, where plot graphics will appear in your
 notebook.  This has important implications for interactivity.  For inline plotting, commands in
 cells below the cell that outputs a plot will not affect the plot.  For example,
-changing the color map is not possible from cells below the cell that creates a plot.
+changing the colormap is not possible from cells below the cell that creates a plot.
 However, for other backends, such as Qt5, that open a separate window,
 cells below those that create the plot will change the plot - it is a
 live object in memory.

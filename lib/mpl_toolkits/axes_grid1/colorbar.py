@@ -91,7 +91,7 @@ colormap_kw_doc = '''
     *values*       None or a sequence which must be of length 1 less
                    than the sequence of *boundaries*. For each region
                    delimited by adjacent entries in *boundaries*, the
-                   color mapped to the corresponding value in values
+                   colormapped to the corresponding value in values
                    will be used.
     ============   ===================================================
 

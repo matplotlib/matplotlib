@@ -120,11 +120,8 @@ def test_find_ttc():
 
     fig, ax = plt.subplots()
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
-    fig.savefig(BytesIO(), format="raw")
-    fig.savefig(BytesIO(), format="svg")
-    fig.savefig(BytesIO(), format="pdf")
-    with pytest.raises(RuntimeError):
-        fig.savefig(BytesIO(), format="ps")
+    for fmt in ["raw", "svg", "pdf", "ps"]:
+        fig.savefig(BytesIO(), format=fmt)
 
 
 def test_find_invalid(tmpdir):

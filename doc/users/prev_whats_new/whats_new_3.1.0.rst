@@ -130,10 +130,10 @@ now directly forwards to the visibility of the underlying Rectangle artist
 
 Matplotlib uses Pillow to handle saving to the JPEG and TIFF formats.  The
 `~.Figure.savefig()` function gained a *pil_kwargs* keyword argument, which can
-be used to forward arguments to Pillow's `pillow.Image.save()`.
+be used to forward arguments to Pillow's `PIL.Image.Image.save`.
 
 The *pil_kwargs* argument can also be used when saving to PNG.  In that case,
-Matplotlib also uses Pillow's `pillow.Image.save()` instead of going through its
+Matplotlib also uses Pillow's `PIL.Image.Image.save` instead of going through its
 own builtin PNG support.
 
 
@@ -176,7 +176,7 @@ changed.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Alternatively to strings like ``"data"`` or ``"axes fraction"``,
-`ConnectionPatch` now accepts any `~matplotlib.transforms.Transform` as input
+`.ConnectionPatch` now accepts any `~matplotlib.transforms.Transform` as input
 for the *coordsA* and *coordsB* arguments. This allows to draw lines between
 points defined in different user defined coordinate systems. Also see the
 :doc:`Connect Simple01 example </gallery/userdemo/connect_simple01>`.

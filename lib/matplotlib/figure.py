@@ -607,7 +607,7 @@ class Figure(Artist):
                 "3.3", message="Support for passing which=None to mean "
                 "which='major' is deprecated since %(since)s and will be "
                 "removed %(removal)s.")
-        allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
+        allsubplots = all(hasattr(ax, 'get_subplotspec') for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
@@ -615,7 +615,7 @@ class Figure(Artist):
         else:
             if allsubplots:
                 for ax in self.get_axes():
-                    if ax.is_last_row():
+                    if ax.get_subplotspec().is_last_row():
                         for label in ax.get_xticklabels(which=which):
                             label.set_ha(ha)
                             label.set_rotation(rotation)
@@ -1073,7 +1073,8 @@ default: 'top'
         return key
 
     def _process_projection_requirements(
-            self, *args, polar=False, projection=None, **kwargs):
+            self, *args, axes_class=None, polar=False, projection=None,
+            **kwargs):
         """
         Handle the args/kwargs to add_axes/add_subplot/gca, returning::
 
@@ -1081,22 +1082,30 @@ default: 'top'
 
         which can be used for new axes initialization/identification.
         """
-        if polar:
-            if projection is not None and projection != 'polar':
+        if axes_class is not None:
+            if polar or projection is not None:
                 raise ValueError(
-                    "polar=True, yet projection=%r. "
-                    "Only one of these arguments should be supplied." %
-                    projection)
-            projection = 'polar'
-
-        if isinstance(projection, str) or projection is None:
-            projection_class = projections.get_projection_class(projection)
-        elif hasattr(projection, '_as_mpl_axes'):
-            projection_class, extra_kwargs = projection._as_mpl_axes()
-            kwargs.update(**extra_kwargs)
+                    "Cannot combine 'axes_class' and 'projection' or 'polar'")
+            projection_class = axes_class
         else:
-            raise TypeError('projection must be a string, None or implement a '
-                            '_as_mpl_axes method. Got %r' % projection)
+
+            if polar:
+                if projection is not None and projection != 'polar':
+                    raise ValueError(
+                        "polar=True, yet projection=%r. "
+                        "Only one of these arguments should be supplied." %
+                        projection)
+                projection = 'polar'
+
+            if isinstance(projection, str) or projection is None:
+                projection_class = projections.get_projection_class(projection)
+            elif hasattr(projection, '_as_mpl_axes'):
+                projection_class, extra_kwargs = projection._as_mpl_axes()
+                kwargs.update(**extra_kwargs)
+            else:
+                raise TypeError(
+                    f"projection must be a string, None or implement a "
+                    f"_as_mpl_axes method, not {projection!r}")
 
         # Make the key without projection kwargs, this is used as a unique
         # lookup for axes instances
@@ -1128,6 +1137,11 @@ default: 'top'
 
         polar : bool, default: False
             If True, equivalent to projection='polar'.
+
+        axes_class : subclass type of `~.axes.Axes`, optional
+            The `.axes.Axes` subclass that is instantiated.  This parameter
+            is incompatible with *projection* and *polar*.  See
+            :ref:`axisartist_users-guide-index` for examples.
 
         sharex, sharey : `~.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
@@ -1283,6 +1297,11 @@ default: 'top'
 
         polar : bool, default: False
             If True, equivalent to projection='polar'.
+
+        axes_class : subclass type of `~.axes.Axes`, optional
+            The `.axes.Axes` subclass that is instantiated.  This parameter
+            is incompatible with *projection* and *polar*.  See
+            :ref:`axisartist_users-guide-index` for examples.
 
         sharex, sharey : `~.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
@@ -2375,7 +2394,7 @@ default: 'top'
         NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
                              'panchor']
         cb_kw = {k: v for k, v in kw.items() if k not in NON_COLORBAR_KEYS}
-        cb = cbar.colorbar_factory(cax, mappable, **cb_kw)
+        cb = cbar.Colorbar(cax, mappable, **cb_kw)
 
         self.sca(current_ax)
         self.stale = True
@@ -2412,16 +2431,14 @@ default: 'top'
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
-            cbook._warn_external("This figure was using "
-                                 "constrained_layout==True, but that is "
-                                 "incompatible with subplots_adjust and or "
-                                 "tight_layout: setting "
-                                 "constrained_layout==False. ")
+            cbook._warn_external(
+                "This figure was using constrained_layout, but that is "
+                "incompatible with subplots_adjust and/or tight_layout; "
+                "disabling constrained_layout.")
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
             if isinstance(ax, SubplotBase):
-                ax.update_params()
-                ax.set_position(ax.figbox)
+                ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
     def ginput(self, n=1, timeout=30, show_clicks=True,

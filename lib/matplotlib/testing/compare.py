@@ -3,7 +3,9 @@ Utilities for comparing image results.
 """
 
 import atexit
+import functools
 import hashlib
+import logging
 import os
 from pathlib import Path
 import re
@@ -19,7 +21,9 @@ import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
-__all__ = ['compare_images', 'comparable_formats']
+_log = logging.getLogger(__name__)
+
+__all__ = ['calculate_rms', 'comparable_formats', 'compare_images']
 
 
 def make_test_filename(fname, purpose):
@@ -30,10 +34,14 @@ def make_test_filename(fname, purpose):
     return '%s-%s%s' % (base, purpose, ext)
 
 
-def get_cache_dir():
+def _get_cache_path():
     cache_dir = Path(mpl.get_cachedir(), 'test_cache')
     cache_dir.mkdir(parents=True, exist_ok=True)
-    return str(cache_dir)
+    return cache_dir
+
+
+def get_cache_dir():
+    return str(_get_cache_path())
 
 
 def get_file_hash(path, block_size=2 ** 20):
@@ -282,21 +290,53 @@ def convert(filename, cache):
     # Only convert the file if the destination doesn't already exist or
     # is out of date.
     if not newpath.exists() or newpath.stat().st_mtime < path.stat().st_mtime:
-        cache_dir = Path(get_cache_dir()) if cache else None
+        cache_dir = _get_cache_path() if cache else None
 
         if cache_dir is not None:
+            _register_conversion_cache_cleaner_once()
             hash_value = get_file_hash(path)
             cached_path = cache_dir / (hash_value + newpath.suffix)
             if cached_path.exists():
+                _log.debug("For %s: reusing cached conversion.", filename)
                 shutil.copyfile(cached_path, newpath)
                 return str(newpath)
 
+        _log.debug("For %s: converting to png.", filename)
         converter[path.suffix[1:]](path, newpath)
 
         if cache_dir is not None:
+            _log.debug("For %s: caching conversion result.", filename)
             shutil.copyfile(newpath, cached_path)
 
     return str(newpath)
+
+
+def _clean_conversion_cache():
+    # This will actually ignore mpl_toolkits baseline images, but they're
+    # relatively small.
+    baseline_images_size = sum(
+        path.stat().st_size
+        for path in Path(mpl.__file__).parent.glob("**/baseline_images/**/*"))
+    # 2x: one full copy of baselines, and one full copy of test results
+    # (actually an overestimate: we don't convert png baselines and results).
+    max_cache_size = 2 * baseline_images_size
+    # Reduce cache until it fits.
+    with cbook._lock_path(_get_cache_path()):
+        cache_stat = {
+            path: path.stat() for path in _get_cache_path().glob("*")}
+        cache_size = sum(stat.st_size for stat in cache_stat.values())
+        paths_by_atime = sorted(  # Oldest at the end.
+            cache_stat, key=lambda path: cache_stat[path].st_atime,
+            reverse=True)
+        while cache_size > max_cache_size:
+            path = paths_by_atime.pop()
+            cache_size -= cache_stat[path].st_size
+            path.unlink()
+
+
+@functools.lru_cache()  # Ensure this is only registered once.
+def _register_conversion_cache_cleaner_once():
+    atexit.register(_clean_conversion_cache)
 
 
 def crop_to_same(actual_path, actual_image, expected_path, expected_image):
@@ -387,7 +427,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
         raise IOError('Baseline image %r does not exist.' % expected)
     extension = expected.split('.')[-1]
     if extension != 'png':
-        actual = convert(actual, cache=False)
+        actual = convert(actual, cache=True)
         expected = convert(expected, cache=True)
 
     # open the image files and remove the alpha channel (if it exists)

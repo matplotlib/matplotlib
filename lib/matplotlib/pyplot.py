@@ -657,7 +657,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : int or str, optional
+    num : int or str or `.Figure`, optional
         A unique identifier for the figure.
 
         If a figure with that identifier already exists, this figure is made
@@ -728,6 +728,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
     """
+    if isinstance(num, Figure):
+        if num.canvas.manager is None:
+            raise ValueError("The passed figure is not managed by pyplot")
+        _pylab_helpers.Gcf.set_active(num.canvas.manager)
+        return num
 
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
@@ -1055,9 +1060,7 @@ def sca(ax):
     """
     Set the current Axes to *ax* and the current Figure to the parent of *ax*.
     """
-    if not hasattr(ax.figure.canvas, "manager"):
-        raise ValueError("Axes parent figure is not managed by pyplot")
-    _pylab_helpers.Gcf.set_active(ax.figure.canvas.manager)
+    figure(ax.figure)
     ax.figure.sca(ax)
 
 
@@ -2007,8 +2010,8 @@ def colormaps():
       for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
 
-    Matplotlib ships with 4 perceptually uniform color maps which are
-    the recommended color maps for sequential data:
+    Matplotlib ships with 4 perceptually uniform colormaps which are
+    the recommended colormaps for sequential data:
 
       =========   ===================================================
       Colormap    Description
@@ -2087,7 +2090,7 @@ def colormaps():
       Colormap    Description
       =========   =======================================================
       autumn      sequential linearly-increasing shades of red-orange-yellow
-      bone        sequential increasing black-white color map with
+      bone        sequential increasing black-white colormap with
                   a tinge of blue, to emulate X-ray film
       cool        linearly-decreasing shades of cyan-magenta
       copper      sequential increasing shades of black-copper
@@ -2128,7 +2131,7 @@ def colormaps():
                     Language software
       ============  =======================================================
 
-    A set of cyclic color maps:
+    A set of cyclic colormaps:
 
       ================  =================================================
       Colormap          Description
