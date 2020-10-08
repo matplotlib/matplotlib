@@ -159,7 +159,9 @@ import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers, cbook
 
 matplotlib.use("agg")
-align = Image.align
+align = cbook.deprecated(
+    "3.4", alternative="docutils.parsers.rst.directives.images.Image.align")(
+        Image.align)
 
 __version__ = 2
 
@@ -189,11 +191,6 @@ def _option_context(arg):
 
 def _option_format(arg):
     return directives.choice(arg, ('python', 'doctest'))
-
-
-def _option_align(arg):
-    return directives.choice(arg, ("top", "middle", "bottom", "left", "center",
-                                   "right"))
 
 
 def mark_plot_labels(app, document):
@@ -238,7 +235,7 @@ class PlotDirective(Directive):
         'height': directives.length_or_unitless,
         'width': directives.length_or_percentage_or_unitless,
         'scale': directives.nonnegative_int,
-        'align': _option_align,
+        'align': Image.align,
         'class': directives.class_option,
         'include-source': _option_boolean,
         'format': _option_format,
@@ -258,7 +255,6 @@ class PlotDirective(Directive):
 
 
 def setup(app):
-    import matplotlib
     setup.app = app
     setup.config = app.config
     setup.confdir = app.confdir
