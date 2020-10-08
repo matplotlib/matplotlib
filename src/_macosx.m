@@ -10,15 +10,16 @@
 #endif
 
 /* Proper way to check for the OS X version we are compiling for, from
-   http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
+ * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
+ */
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
 #define COMPILING_FOR_10_7
 #endif
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 10100
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
 #define COMPILING_FOR_10_10
 #endif
 
-#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101200
+#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
 /* A lot of symbols were renamed in Sierra and cause deprecation warnings
    so define macros for the new names if we are compiling on an older SDK */
 #define NSEventMaskAny                       NSAnyEventMask
@@ -45,17 +46,12 @@
 #define NSWindowStyleMaskTitled              NSTitledWindowMask
 #endif
 
-#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101400
+#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
 /* A few more deprecations in Mojave */
 #define NSButtonTypeMomentaryLight           NSMomentaryLightButton
 #define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
 #define NSBezelStyleShadowlessSquare         NSShadowlessSquareBezelStyle
 #define CGContext                            graphicsPort
-#endif
-
-/* CGFloat was defined in Mac OS X 10.5 */
-#ifndef CGFLOAT_DEFINED
-#define CGFloat float
 #endif
 
 
