@@ -10,7 +10,8 @@
 #endif
 
 /* Proper way to check for the OS X version we are compiling for, from
-   http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
+ * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
+ */
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
 #define COMPILING_FOR_10_7
 #endif
