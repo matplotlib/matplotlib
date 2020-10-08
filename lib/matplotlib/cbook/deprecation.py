@@ -119,6 +119,12 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     ``@staticmethod`` (i.e., `deprecated` should directly decorate the
     underlying callable), but *over* ``@property``.
 
+    When deprecating a class ``C`` intended to be used as a base class in a
+    multiple inheritance hierarchy, ``C`` *must* define an ``__init__`` method
+    (if ``C`` instead inherited its ``__init__`` from its own base class, then
+    ``@deprecated`` would mess up ``__init__`` inheritance when installing its
+    own (deprecation-emitting) ``C.__init__``).
+
     Parameters
     ----------
     since : str
