@@ -27,7 +27,7 @@ Matplotlib recognizes the following formats to specify a color:
   color cycle): ``{'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
   'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'}``
   (case-insensitive);
-* a "CN" color spec, i.e. ``'C'`` followed by a number, which is an index into
+* a "CN" color spec, i.e. ``'C'`` followed by a number, which is an really an index into
   the default property cycle (:rc:`axes.prop_cycle`); the indexing is intended
   to occur at rendering time, and defaults to black if the cycle does not
   include color.
