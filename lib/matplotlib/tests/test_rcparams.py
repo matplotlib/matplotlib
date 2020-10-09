@@ -254,9 +254,7 @@ def generate_validator_testcases(valid):
                      for _ in ('1.5, 2.5', [1.5, 2.5], [1.5, 2.5],
                                (1.5, 2.5), np.array((1.5, 2.5)))),
          'fail': ((_, ValueError)
-                  for _ in ('aardvark', ('a', 1),
-                            (1, 2, 3)
-                            ))
+                  for _ in ('aardvark', ('a', 1), (1, 2, 3), (None, ), None))
          },
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',

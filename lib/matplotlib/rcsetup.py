@@ -246,7 +246,7 @@ def _make_type_validator(cls, *, allow_none=False):
             return None
         try:
             return cls(s)
-        except ValueError as e:
+        except (TypeError, ValueError) as e:
             raise ValueError(
                 f'Could not convert {s!r} to {cls.__name__}') from e
 
