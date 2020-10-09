@@ -10,7 +10,7 @@ import matplotlib.patches as patches
 import matplotlib.cbook as cbook
 
 
-with cbook.get_sample_data('grace_hopper.png') as image_file:
+with cbook.get_sample_data('grace_hopper.jpg') as image_file:
     image = plt.imread(image_file)
 
 fig, ax = plt.subplots()

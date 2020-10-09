@@ -78,8 +78,8 @@ ab = AnnotationBbox(im, xy,
 ax.add_artist(ab)
 
 # Annotate the 2nd position with another image (a Grace Hopper portrait)
-with get_sample_data("grace_hopper.png") as file:
-    arr_img = plt.imread(file, format='png')
+with get_sample_data("grace_hopper.jpg") as file:
+    arr_img = plt.imread(file)
 
 imagebox = OffsetImage(arr_img, zoom=0.2)
 imagebox.image.axes = ax
