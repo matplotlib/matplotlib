@@ -52,10 +52,10 @@ communicate through the color we want pick a :ref:`colormap suited to
 the data <sphx_glr_tutorials_colors_colormaps.py>` but in general
 "good" colormaps smoothly and continuously change their RGB values as
 a function of the input data.  By looking at the RGB values as we go
-through the full range of the user data (e.g. a colorbar) we can trace
-out the 1-dimensional path the colormap takes through 3-dimensional
-RGB space.  This allows us to separate the mapping process into two
-orthogonal parts :
+through the full range of the user data we can trace out the
+1-dimensional path the colormap takes through 3-dimensional RGB space.
+This allows us to separate the mapping process into two orthogonal
+parts :
 
 1. the parameterized path through color space
 2. the mapping between the user's data to distance along the curve.
@@ -68,7 +68,8 @@ attributes on `.Normalize`, or via the `.cm.ScalarMappable.set_clim` method), an
 the functional transform (e.g., linear vs log) from data space to distance along the
 curve space.
 
-In addition to the colors in the map, `.Colormap` objects carry three additional colors:
+In addition to the colors in the map, `.Colormap` objects carry three
+additional colors:
 
 - over (`.Colormap.set_over` / `.Colormap.get_over`)
 - under (`.Colormap.set_under` / `.Colormap.get_under`)
@@ -96,13 +97,24 @@ inf) and defaults to transparent.
 
 Both `.Colormap` and `.Normalize` are implemented as `callable classes
 <https://docs.python.org/3/reference/datamodel.html#object.__call__>`__ which
-allows us to bind some (mutable) state to a function call.  The `.Colormap.__call__`
-signature when passed floats ::
+allows use to bind some (mutable) state to a function call.
+
+The `.Normalize.__call__` signature is ::
+
+  def normalize(value: RawData, clip:Optional[Bool] =None):
+     ...
+
+It takes in data in the user's data space and converts it to *NormedData*.  The
+*clip* parameter allows you to override the value set at class instantiation time
+and controls if the input data is clipped to the range :math:`[vmin, vmax]` before
+being transformed or not.
+
+The `.Colormap.__call__` signature when passed floats ::
 
   def map(X: NormedData, alpha:Optional[float] =None, bytes:Bool=False) -> RGBA:
      ...
 
-Takes data in a "normalized" space and:
+It takes data in a "normalized" space and:
 
 - maps values in the closed set ``[0, 1]`` to that fraction along the curve
 - maps any value greater than 1 to the "over" color
@@ -110,14 +122,123 @@ Takes data in a "normalized" space and:
 - maps any non-finite or masked value to the "bad" color
 
 broadcasting to match the input shape (scalar to tuple, n-D array to
-(n+1)-D array).  This can be useful to get a set of colors drawn from
-a color map ::
+(n+1)-D array).
 
-  import matplotlib.cm as mcm
-  import numpy as np
+.. note ::
 
-  cmap = mcm.get_cmap('viridis')
-  list_of_colors = cmap(np.arange(0, 1, 5))
+   This can be useful to draw a set of colors from a colormap ::
+
+     import matplotlib.cm as mcm
+     import numpy as np
+
+     cmap = mcm.get_cmap('viridis')
+     array_of_colors = cmap(np.arange(0, 1, 5))
+
+
+In practice
+~~~~~~~~~~~
+
+To make the above section concrete, lets first consider the linear `.Normalize`
+
+.. ipython ::
+
+   In [104]: import matplotlib.colors as mcolors
+
+   In [105]: norm = mcolors.Normalize(vmin=100, vmax=300)
+
+   In [106]: norm
+   Out[106]: <matplotlib.colors.Normalize at 0x7f9bf441aeb0>
+
+If we now pass in values in the range of :math:`[vmin, vmax]`
+
+.. ipython ::
+
+
+   In [130]: norm([100, 200, 300])
+   Out[130]:
+   masked_array(data=[ 0. , 0.5, 1.],
+                mask=False,
+          fill_value=1e+20)
+
+We see that they are scaled as expected.  If we also pass in some over
+/ under / bad values
+
+.. ipython ::
+
+   In [131]: norm([0, 100, 200, 300, 400, np.nan])
+   Out[131]:
+   masked_array(data=[-0.5,  0. ,  0.5,  1. ,  1.5,  nan],
+                mask=False,
+          fill_value=1e+20)
+
+we see that they are also scaled and produce values outside of the
+range :math:`[0, 1]`.  If you need the values to be clipped, you can do
+have the norm do that for you via the *clip* kwarg
+
+.. ipython ::
+
+   In [130]: norm([0, 100, 200, 300, 400, np.nan], clip=True)
+   Out[130]:
+   masked_array(data=[0. , 0. , 0.5, 1. , 1. , nan],
+                mask=False,
+          fill_value=1e+20)
+
+The default value of *clip* can be set when instantiating the
+`.Normalize` instance.
+
+We can also use a non-linear norm
+
+.. ipython ::
+
+   In [136]: log_norm = mcolors.LogNorm(10, 1000)
+
+   In [137]: log_norm([10, 100, 1000])
+   Out[137]:
+   masked_array(data=[0.0, 0.5, 1.0],
+                mask=[False, False, False],
+          fill_value=1e+20)
+
+if the data has a large dynamic range.
+
+Once we have normalized our data we can pass it to the colormap
+
+.. ipython ::
+
+   In [102]: import copy
+
+   In [103]: import matplotlib.cm as mcm
+
+   In [141]: viridis = copy.copy(mcm.get_cmap('viridis'))
+
+.. ipython ::
+
+   In [143]: viridis([0, .5, 1])
+   Out[143]:
+   array([[0.267004, 0.004874, 0.329415, 1.      ],
+          [0.127568, 0.566949, 0.550556, 1.      ],
+          [0.993248, 0.906157, 0.143936, 1.      ]])
+
+Which pulls out the bottom, middle, and top color of the *viridis* .
+If we set the over/under/bad colors and pass out-of-range values we can also
+see them pulled out:
+
+.. ipython ::
+
+   In [144]: viridis.set_over('w')
+
+   In [147]: viridis.set_under('k')
+
+   In [148]: viridis.set_bad('r')
+
+   In [149]: viridis([1.5, -0.5, np.nan])
+   Out[149]:
+   array([[1., 1., 1., 1.],
+          [0., 0., 0., 1.],
+          [1., 0., 0., 1.]])
+
+
+API
+~~~
 
 
 
