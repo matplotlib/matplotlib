@@ -1101,6 +1101,10 @@ class Normalize:
     ``[0.0, 1.0]`` interval.
     """
 
+    def __repr__(self):
+        cls_name = f'{self.__class__.__module__}.{self.__class__.__qualname__}'
+        return f'<{cls_name}, vmin={self.vmin}, vmax={self.vmax}>'
+
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
         Parameters
