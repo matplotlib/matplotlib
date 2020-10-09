@@ -30,14 +30,14 @@ Image Artists
 Resampling
 ~~~~~~~~~~
 
-When Matplotlib rasterizes an image when saving / displaying a Figure
+When Matplotlib rasterizes an image to save / display a Figure,
 we need to, in general, resample the data (either up or down) in
 addition to normalizing and color mapping it.  This is because the
 exact size of the input, in "data" pixels, will not match the size, in
 "screen" pixels, of the output.  The details of how we do the
 resampling is controlled by the *interpolation* specified.  This
 resampling process can introduce a variety of artifacts and the
-default interpolation is chosen to avoid aliasis in common cases (see
+default interpolation is chosen to avoid aliasing in common cases (see
 :doc:`/gallery/images_contours_and_fields/image_antialiasing`).
 
 Colormapping
@@ -45,7 +45,7 @@ Colormapping
 
 The processing steps for rendering a pseudo color image are:
 
-1. rasample to user input to the required dimensions
+1. resample the user input to the required dimensions
 2. normalize the user data via a `~.colors.Normalize` instance
 3. colormap from the normalized data to RGBA via a `~.colors.Colormap` instance
 
@@ -69,9 +69,9 @@ Floating Point Arithmetic ( IEEE std 754) 10.1109/IEEESTD.2008.4610935
 <https://doi.org/10.1109/IEEESTD.2008.4610935>`__ (both behind
 paywalls).  For the purposes of this discussion we need to know:
 
-1. There are only a finite number "floating point numbers" (that is
+1. There are only a finite number of "floating point numbers" (that is,
    values that can be represented by a IEEE float in the computer) and
-   hence can not exactly represent all Real Numbers.  Between those
+   hence they can not exactly represent all Real Numbers.  Between
    two Real Numbers there is an infinite number of Real numbers, hence
    the floating point numbers and computation expressed in a computer
    are an approximation of the Real Numbers.
@@ -80,19 +80,19 @@ paywalls).  For the purposes of this discussion we need to know:
    the same.  This is a consequence of the implementation of IEEE
    floats.
 3. During computation results are rounded to the nearest
-   represent-able value.  Working with numbers that are either almost
+   representable value.  Working with numbers that are either almost
    identical or vastly different orders of magnitude exaggerates the
    errors due to this rounding.
 
 This is relevant to images because, as an implementation detail, we
-make use of the GAG library to do the resampling from the data space
+make use of the Agg library to do the resampling from the data space
 to screen space and that code clips all input values to the range
-:math:`[0, 1]`.  In addition to the mapping the colors "in range" we also
+:math:`[0, 1]`.  In addition to mapping the colors "in range" we also
 map over, under, and bad values (see :ref:`norms_and_colormaps`) which need to be
 preserved through the resampling process.  Thus, we:
 
 1. scale the data to :math:`[.1, .9]`
-2. pass the data to AGG to resample the pixels
+2. pass the data to Agg to resample the pixels
 3. scale back to the original data range
 
 and then resume going through the user supplied normalization and colormap.
@@ -110,13 +110,13 @@ Naively, this could be expressed as ::
 For "most" user data is OK, but can fail in interesting ways.  First,
 if range of the input data is large, but the range the user actually
 cares about is small this will effectively map all of the interesting
-data to the same value!  To counter act this, we have a check min /
+data to the same value!  To counteract this, we have a check if min /
 max of the data are drastically different than the vmin / vmax of the
 norm we use a data range expanded from vmin/vmax in the rescaling.
-This was addressed in and :ghissue:`10072`, :ghpull:`10133`, and
+This was addressed in :ghissue:`10072`, :ghpull:`10133`, and
 :ghpull:`11047`.
 
-The second is that due floating point math being an approximation of
+The second is that due to floating point math being an approximation of
 the exact infinite precision computation not all values "round trip"
 identically.  This cause the rescaling to move values in the input
 data that are very close to the values of vmin or vmax to the other
@@ -157,7 +157,7 @@ Helper functions
 Image I/O functions
 -------------------
 
-This functions can be used to read, save, and generate thumbnails of
+These functions can be used to read, save, and generate thumbnails of
 files on disk.  These are here for historical reasons, and while it is
 unlikely we will remove them, please use a dedicated image I/O library
 (such as `imageio <https://imageio.github.io/>`__, `pillow

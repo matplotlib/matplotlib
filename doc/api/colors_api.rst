@@ -40,7 +40,7 @@ Color Conversion tools
 Normalization and Colormapping
 ------------------------------
 
-Some `~.artists.Artist` classes can map an array of input data to RGBA
+Some `~.artist.Artist` classes can map an array of input data to RGBA
 values, (ex `~.axes.Axes.scatter` or `~.axes.Axes.imshow`).  The
 machinery for this is implemented via the `~.cm.ScalarMappable` base
 class in `~.cm` and the `~.Normalize` and `~.Colormap` classes in
@@ -58,17 +58,17 @@ RGB space.  This allows us to separate the mapping process into two
 orthogonal parts :
 
 1. the parameterized path through color space
-2. the mapping between the users data to distance along the curve.
+2. the mapping between the user's data to distance along the curve.
 
 The first step is expressed in Matplotlib via the `.Colormap` family
 of classes and the second step is expressed through the `.Normalize` family
 of classes.  This allows us to fully independently pick what colors to use (by
 selecting the colormap), what data range to show (via the ``vmin`` and ``vmax``
-attributes on `.Normalize` or the `.cm.ScalarMappable.set_clim` method), and
-the functional transform (ex linear vs log) from data space to distance along the
+attributes on `.Normalize`, or via the `.cm.ScalarMappable.set_clim` method), and
+the functional transform (e.g., linear vs log) from data space to distance along the
 curve space.
 
-In addition to the colors in the map `.Colormap` objects carry three additional colors
+In addition to the colors in the map, `.Colormap` objects carry three additional colors:
 
 - over (`.Colormap.set_over` / `.Colormap.get_over`)
 - under (`.Colormap.set_under` / `.Colormap.get_under`)
@@ -96,7 +96,7 @@ inf) and defaults to transparent.
 
 Both `.Colormap` and `.Normalize` are implemented as `callable classes
 <https://docs.python.org/3/reference/datamodel.html#object.__call__>`__ which
-allows use to bind some (mutable) state to a function call.  The `.Colormap.__call__`
+allows us to bind some (mutable) state to a function call.  The `.Colormap.__call__`
 signature when passed floats ::
 
   def map(X: NormedData, alpha:Optional[float] =None, bytes:Bool=False) -> RGBA:
