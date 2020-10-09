@@ -144,7 +144,7 @@ axs[2].plot(x, y, '+')
 # Still there remains an unused empty space between the subplots.
 #
 # To precisely control the positioning of the subplots, one can explicitly
-# create a `.GridSpec` with `.add_gridspec`, and then call its
+# create a `.GridSpec` with `.Figure.add_gridspec`, and then call its
 # `~.GridSpecBase.subplots` method.  For example, we can reduce the height
 # between vertical subplots using ``add_gridspec(hspace=0)``.
 #

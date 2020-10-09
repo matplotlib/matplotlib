@@ -1,5 +1,3 @@
-import platform
-
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
@@ -9,8 +7,7 @@ from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
-@image_comparison(['polar_axes'], style='default',
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+@image_comparison(['polar_axes'], style='default', tol=0.012)
 def test_polar_annotations():
     # You can specify the xypoint and the xytext in different positions and
     # coordinate systems, and optionally turn on a connecting line and mark the
@@ -44,7 +41,8 @@ def test_polar_annotations():
     ax.tick_params(axis='x', tick1On=True, tick2On=True, direction='out')
 
 
-@image_comparison(['polar_coords'], style='default', remove_text=True)
+@image_comparison(['polar_coords'], style='default', remove_text=True,
+                  tol=0.012)
 def test_polar_coord_annotations():
     # You can also use polar notation on a cartesian axes.  Here the native
     # coordinate system ('data') is cartesian, so you need to specify the

@@ -1428,6 +1428,8 @@ class _AnnotationBase:
         bbox_name, unit = s_
         # if unit is offset-like
         if bbox_name == "figure":
+            bbox0 = self.figure.figbbox
+        elif bbox_name == "subfigure":
             bbox0 = self.figure.bbox
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
@@ -1611,19 +1613,27 @@ class Annotation(Text, _AnnotationBase):
 
             - One of the following strings:
 
-              =================   =============================================
-              Value               Description
-              =================   =============================================
-              'figure points'     Points from the lower left of the figure
-              'figure pixels'     Pixels from the lower left of the figure
-              'figure fraction'   Fraction of figure from lower left
-              'axes points'       Points from lower left corner of axes
-              'axes pixels'       Pixels from lower left corner of axes
-              'axes fraction'     Fraction of axes from lower left
-              'data'              Use the coordinate system of the object being
-                                  annotated (default)
-              'polar'             *(theta, r)* if not native 'data' coordinates
-              =================   =============================================
+              ==================== ============================================
+              Value                Description
+              ==================== ============================================
+              'figure points'      Points from the lower left of the figure
+              'figure pixels'      Pixels from the lower left of the figure
+              'figure fraction'    Fraction of figure from lower left
+              'subfigure points'   Points from the lower left of the subfigure
+              'subfigure pixels'   Pixels from the lower left of the subfigure
+              'subfigure fraction' Fraction of subfigure from lower left
+              'axes points'        Points from lower left corner of axes
+              'axes pixels'        Pixels from lower left corner of axes
+              'axes fraction'      Fraction of axes from lower left
+              'data'               Use the coordinate system of the object
+                                   being annotated (default)
+              'polar'              *(theta, r)* if not native 'data'
+                                   coordinates
+              ==================== ============================================
+
+              Note that 'subfigure pixels' and 'figure pixels' are the same
+              for the parent figure, so users who want code that is usable in
+              a subfigure can use 'subfigure pixels'.
 
             - An `.Artist`: *xy* is interpreted as a fraction of the artist's
               `~matplotlib.transforms.Bbox`. E.g. *(0, 0)* would be the lower
