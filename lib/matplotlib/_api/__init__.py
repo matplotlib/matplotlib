@@ -1,3 +1,12 @@
+"""
+Helper functions for managing the Matplotlib API.
+
+.. warning:
+
+    This module and its submodules is for internal use only.
+
+"""
+
 import itertools
 import re
 import sys

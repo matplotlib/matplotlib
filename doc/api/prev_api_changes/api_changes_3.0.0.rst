@@ -405,7 +405,7 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``textpath.TextToPath.tex_font_map``
 - ``matplotlib.cbook.deprecation.mplDeprecation`` will be removed
   in future versions. It is just an alias for
-  :class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.  Please
+  ``matplotlib.cbook.deprecation.MatplotlibDeprecationWarning``.  Please
   use ``matplotlib.cbook.MatplotlibDeprecationWarning`` directly if necessary.
 - The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
   `types.SimpleNamespace` from the standard library which provides the same
