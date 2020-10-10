@@ -11,6 +11,7 @@ from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
 from matplotlib.container import ErrorbarContainer
+from matplotlib.cbook import flatten
 
 
 LINESTYLES = {'-': 'Solid',
@@ -292,27 +293,3 @@ def figure_edit(axes, parent=None):
         apply=apply_callback)
     if data is not None:
         apply_callback(data)
-
-
-def flatten(seq):
-    """
-    Flatten a nested sequence.
-
-    Parameters
-    ----------
-    seq : sequence
-        The sequence to flatten
-
-    Returns
-    -------
-    el : generator
-        yields flattened sequences from seq
-    """
-    for el in seq:
-        try:
-            iter(el)
-            if isinstance(el, (str, bytes)):
-                raise TypeError
-            yield from flatten(el)
-        except TypeError:
-            yield el
