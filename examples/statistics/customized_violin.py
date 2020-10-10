@@ -28,7 +28,7 @@ def adjacent_values(vals, q1, q3):
 
 
 def set_axis_style(ax, labels):
-    ax.get_xaxis().set_tick_params(direction='out')
+    ax.xaxis.set_tick_params(direction='out')
     ax.xaxis.set_ticks_position('bottom')
     ax.set_xticks(np.arange(1, len(labels) + 1))
     ax.set_xticklabels(labels)

@@ -39,8 +39,8 @@ ax.spines['left'].set_visible(False)
 
 # Ensure that the axis ticks only show up on the bottom and left of the plot.
 # Ticks on the right and top of the plot are generally unnecessary.
-ax.get_xaxis().tick_bottom()
-ax.get_yaxis().tick_left()
+ax.xaxis.tick_bottom()
+ax.yaxis.tick_left()
 
 fig.subplots_adjust(left=.06, right=.75, bottom=.02, top=.94)
 # Limit the range of the plot to only where the data is.

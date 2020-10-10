@@ -527,18 +527,18 @@ class TestScalarFormatter:
     @pytest.mark.parametrize('left, right, offset', offset_data)
     def test_offset_value(self, left, right, offset):
         fig, ax = plt.subplots()
-        formatter = ax.get_xaxis().get_major_formatter()
+        formatter = ax.xaxis.get_major_formatter()
 
         with (pytest.warns(UserWarning, match='Attempting to set identical')
               if left == right else nullcontext()):
             ax.set_xlim(left, right)
-        ax.get_xaxis()._update_ticks()
+        ax.xaxis._update_ticks()
         assert formatter.offset == offset
 
         with (pytest.warns(UserWarning, match='Attempting to set identical')
               if left == right else nullcontext()):
             ax.set_xlim(right, left)
-        ax.get_xaxis()._update_ticks()
+        ax.xaxis._update_ticks()
         assert formatter.offset == offset
 
     @pytest.mark.parametrize('use_offset', use_offset_data)

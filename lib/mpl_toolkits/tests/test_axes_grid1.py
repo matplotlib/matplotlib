@@ -259,8 +259,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[0], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[0], axins, loc1=2, loc2=4, fc="b", ec="0.5")
 
     # fill with yellow by setting 'facecolor' field
@@ -276,8 +276,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[1], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[1], axins, loc1=2, loc2=4, facecolor="y", ec="0.5")
 
     # fill with green by setting 'color' field
@@ -293,8 +293,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[2], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[2], axins, loc1=2, loc2=4, color="g", ec="0.5")
 
     # fill with green but color won't show if set fill to False
@@ -310,8 +310,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[3], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    axins.get_xaxis().set_ticks([])
-    axins.get_yaxis().set_ticks([])
+    axins.xaxis.set_ticks([])
+    axins.yaxis.set_ticks([])
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 

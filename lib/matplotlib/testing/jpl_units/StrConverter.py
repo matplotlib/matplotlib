@@ -35,7 +35,7 @@ class StrConverter(units.ConversionInterface):
 
         # we delay loading to make matplotlib happy
         ax = axis.axes
-        if axis is ax.get_xaxis():
+        if axis is ax.xaxis:
             isXAxis = True
         else:
             isXAxis = False
