@@ -1414,18 +1414,21 @@ class Axes(_AxesBase):
           >>> plot(x1, y1, 'bo')
           >>> plot(x2, y2, 'go')
 
-        - Alternatively, if your data is already a 2d array, you can pass it
-          directly to *x*, *y*. A separate data set will be drawn for every
-          column.
+        - If *x* and/or *y* are 2D arrays a separate data set will be drawn
+          for every column. If both *x* and *y* are 2D, they must have the
+          same shape. If only one of them is 2D with shape (N, m) the other
+          must have length N and will be used for every data set m.
 
-          Example: For an array ``a`` with shape (N, m) calling::
+          Example:
 
-          >>> plot(a)
+          >>> x = [1, 2, 3]
+          >>> y = np.array([[1, 2], [3, 4], [5, 6]])
+          >>> plot(x, y)
 
           is equivalent to:
 
-          >>> for i in range(m):
-          ...     plot(a[:, i])
+          >>> for col in range(y.shape[1]):
+          ...     plot(x, y[:, col])
 
         - The third way is to specify multiple sets of *[x]*, *y*, *[fmt]*
           groups::
