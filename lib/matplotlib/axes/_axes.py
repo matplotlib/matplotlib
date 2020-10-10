@@ -1566,10 +1566,14 @@ class Axes(_AxesBase):
           directly to *x*, *y*. A separate data set will be drawn for every
           column.
 
-          Example: an array ``a`` where the first column represents the *x*
-          values and the other columns are the *y* columns::
+          Example: For an array ``a`` with shape (N, m) calling::
 
-          >>> plot(a[0], a[1:])
+          >>> plot(a)
+
+          is equivalent to:
+
+          >>> for i in range(m):
+          ...     plot(a[:, i])
 
         - The third way is to specify multiple sets of *[x]*, *y*, *[fmt]*
           groups::
