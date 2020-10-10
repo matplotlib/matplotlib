@@ -215,9 +215,9 @@ class TriInterpolator:
         ----------
         return_index : {'z', 'dzdx', 'dzdy'}
             Identifies the requested values (z or its derivatives)
-        tri_index : 1d int array
+        tri_index : 1D int array
             Valid triangle index (-1 prohibited)
-        x, y : 1d arrays, same shape as `tri_index`
+        x, y : 1D arrays, same shape as `tri_index`
             Valid locations where interpolation is requested.
 
         Returns
@@ -290,7 +290,7 @@ class CubicTriInterpolator(TriInterpolator):
 
     In one-dimension - on a segment - a cubic interpolating function is
     defined by the values of the function and its derivative at both ends.
-    This is almost the same in 2-d inside a triangle, except that the values
+    This is almost the same in 2D inside a triangle, except that the values
     of the function and its 2 derivatives have to be defined at each triangle
     node.
 

@@ -1213,7 +1213,7 @@ class Transform(TransformNode):
 
     The following attributes may be overridden if the default is unsuitable:
 
-    - :attr:`is_separable` (defaults to True for 1d -> 1d transforms, False
+    - :attr:`is_separable` (defaults to True for 1D -> 1D transforms, False
       otherwise)
     - :attr:`has_inverse` (defaults to True if :meth:`inverted` is overridden,
       False otherwise)

@@ -21,15 +21,15 @@ def stackplot(axes, x, *args,
 
     Parameters
     ----------
-    x : 1d array of dimension N
+    x : array-like (N)
 
-    y : 2d array (dimension MxN), or sequence of 1d arrays (each dimension 1xN)
+    y : 2D array (M, N) or sequence of array-like (N)
 
         The data is assumed to be unstacked. Each of the following
         calls is legal::
 
-            stackplot(x, y)               # where y is MxN
-            stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
+            stackplot(x, y)           # where y has shape (M, N)
+            stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
 
     baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
@@ -42,10 +42,10 @@ def stackplot(axes, x, *args,
           size of each layer. It is also called 'Streamgraph'-layout. More
           details can be found at http://leebyron.com/streamgraph/.
 
-    labels : Length N sequence of strings
+    labels : Length N list of str
         Labels to assign to each data series.
 
-    colors : Length N sequence of colors
+    colors : Length N list of color
         A list or tuple of colors. These will be cycled through and used to
         colour the stacked areas.
 

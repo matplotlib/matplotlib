@@ -5,7 +5,7 @@ Pcolor Demo
 
 Generating images with `~.axes.Axes.pcolor`.
 
-Pcolor allows you to generate 2-D image-style plots. Below we will show how
+Pcolor allows you to generate 2D image-style plots. Below we will show how
 to do so in Matplotlib.
 """
 import matplotlib.pyplot as plt

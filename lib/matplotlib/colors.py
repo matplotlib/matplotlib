@@ -415,7 +415,7 @@ colorConverter = ColorConverter()
 
 def _create_lookup_table(N, data, gamma=1.0):
     r"""
-    Create an *N* -element 1-d lookup table.
+    Create an *N* -element 1D lookup table.
 
     This assumes a mapping :math:`f : [0, 1] \rightarrow [0, 1]`. The returned
     data is an array of N values :math:`y = f(x)` where x is sampled from
@@ -1795,7 +1795,7 @@ class LightSource:
         Parameters
         ----------
         elevation : array-like
-            A 2d array (or equivalent) of the height values used to generate an
+            A 2D array (or equivalent) of the height values used to generate an
             illumination map
         vert_exag : number, optional
             The amount to exaggerate the elevation values by when calculating
@@ -1817,7 +1817,7 @@ class LightSource:
         Returns
         -------
         ndarray
-            A 2d array of illumination values between 0-1, where 0 is
+            A 2D array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
 
@@ -1860,7 +1860,7 @@ class LightSource:
         Returns
         -------
         ndarray
-            A 2d array of illumination values between 0-1, where 0 is
+            A 2D array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
 
@@ -1893,7 +1893,7 @@ class LightSource:
         Parameters
         ----------
         data : array-like
-            A 2d array (or equivalent) of the height values used to generate a
+            A 2D array (or equivalent) of the height values used to generate a
             shaded map.
         cmap : `~matplotlib.colors.Colormap`
             The colormap used to color the *data* array. Note that this must be

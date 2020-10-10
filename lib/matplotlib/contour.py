@@ -1564,7 +1564,7 @@ class QuadContourSet(ContourSet):
         X, Y : array-like, optional
             The coordinates of the values in *Z*.
 
-            *X* and *Y* must both be 2-D with the same shape as *Z* (e.g.
+            *X* and *Y* must both be 2D with the same shape as *Z* (e.g.
             created via `numpy.meshgrid`), or they must both be 1-D such
             that ``len(X) == M`` is the number of columns in *Z* and
             ``len(Y) == N`` is the number of rows in *Z*.

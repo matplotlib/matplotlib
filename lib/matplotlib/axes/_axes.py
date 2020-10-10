@@ -2028,11 +2028,11 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : array-like
-            1-D sequence of x positions. It is assumed, but not checked, that
+            1D sequence of x positions. It is assumed, but not checked, that
             it is uniformly increasing.
 
         y : array-like
-            1-D sequence of y levels.
+            1D sequence of y levels.
 
         fmt : str, optional
             A format string, e.g. 'g' for a green line. See `.plot` for a more
@@ -4200,7 +4200,7 @@ class Axes(_AxesBase):
                             "RGBA sequence, which should be avoided as value-"
                             "mapping will have precedence in case its length "
                             "matches with *x* & *y*.  Please use the *color* "
-                            "keyword-argument or provide a 2-D array "
+                            "keyword-argument or provide a 2D array "
                             "with a single row if you intend to specify "
                             "the same RGB or RGBA value for all points.")
                     valid_shape = False
@@ -4253,14 +4253,14 @@ class Axes(_AxesBase):
 
             - A scalar or sequence of n numbers to be mapped to colors using
               *cmap* and *norm*.
-            - A 2-D array in which the rows are RGB or RGBA.
+            - A 2D array in which the rows are RGB or RGBA.
             - A sequence of colors of length n.
             - A single color format string.
 
             Note that *c* should not be a single numeric RGB or RGBA sequence
             because that is indistinguishable from an array of values to be
             colormapped. If you want to specify the same RGB or RGBA value for
-            all points, use a 2-D array with a single row.  Otherwise, value-
+            all points, use a 2D array with a single row.  Otherwise, value-
             matching will have precedence in case of a size matching with *x*
             and *y*.
 
@@ -4341,7 +4341,7 @@ default: :rc:`scatter.edgecolors`
           case all masks will be combined and only unmasked points will be
           plotted.
 
-        * Fundamentally, scatter works with 1-D arrays; *x*, *y*, *s*, and *c*
+        * Fundamentally, scatter works with 1D arrays; *x*, *y*, *s*, and *c*
           may be input as N-D arrays, but within scatter they will be
           flattened. The exception is *c*, which will be flattened only if its
           size matches the size of *x* and *y*.
@@ -5597,7 +5597,7 @@ default: :rc:`scatter.edgecolors`
         Parameters
         ----------
         C : array-like
-            A scalar 2-D array. The values will be color-mapped.
+            A scalar 2D array. The values will be color-mapped.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -5623,7 +5623,7 @@ default: :rc:`scatter.edgecolors`
             color ``C[i, j]`` will be centered on ``(X[i, j], Y[i, j])``.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
-            expanded as needed into the appropriate 2-D arrays, making a
+            expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
         shading : {'flat', 'nearest', 'auto'}, optional
@@ -5841,7 +5841,7 @@ default: :rc:`scatter.edgecolors`
         Parameters
         ----------
         C : array-like
-            A scalar 2-D array. The values will be color-mapped.
+            A scalar 2D array. The values will be color-mapped.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -5869,7 +5869,7 @@ default: :rc:`scatter.edgecolors`
             interpolation is caried out between the quadrilateral corners.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
-            expanded as needed into the appropriate 2-D arrays, making a
+            expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
         cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
@@ -5970,7 +5970,7 @@ default: :rc:`scatter.edgecolors`
 
         **Differences between pcolor() and pcolormesh()**
 
-        Both methods are used to create a pseudocolor plot of a 2-D array
+        Both methods are used to create a pseudocolor plot of a 2D array
         using quadrilaterals.
 
         The main difference lies in the created object and internal data
@@ -6300,7 +6300,7 @@ default: :rc:`scatter.edgecolors`
 
         Multiple data can be provided via *x* as a list of datasets
         of potentially different length ([*x0*, *x1*, ...]), or as
-        a 2-D ndarray in which each column is a dataset.  Note that
+        a 2D ndarray in which each column is a dataset.  Note that
         the ndarray form is transposed relative to the list form.
 
         Masked arrays are not supported.
@@ -7478,7 +7478,7 @@ such objects
 
         Returns
         -------
-        spectrum : 2-D array
+        spectrum : 2D array
             Columns are the periodograms of successive segments.
 
         freqs : 1-D array

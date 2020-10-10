@@ -243,7 +243,7 @@ class TriAnalyzer:
         """
         Parameters
         ----------
-        valid : 1d bool array
+        valid : 1D bool array
             Validity mask.
 
         Returns
