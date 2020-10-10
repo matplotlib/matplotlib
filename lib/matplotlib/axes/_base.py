@@ -1100,11 +1100,11 @@ class _AxesBase(martist.Artist):
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
 
-        self.xaxis.cla()
-        self.yaxis.cla()
+        self.xaxis.clear()
+        self.yaxis.clear()
 
         for name, spine in self.spines.items():
-            spine.cla()
+            spine.clear()
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry()

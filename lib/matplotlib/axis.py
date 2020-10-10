@@ -705,7 +705,7 @@ class Axis(martist.Artist):
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
 
-        self.cla()
+        self.clear()
         self._set_scale('linear')
 
     # During initialization, Axis objects often create ticks that are later
@@ -768,8 +768,19 @@ class Axis(martist.Artist):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
-    def cla(self):
-        """Clear this axis."""
+    def clear(self):
+        """
+        Clear the axis.
+
+        This resets axis properties to their default values:
+
+        - the label
+        - the scale
+        - locators, formatters and ticks
+        - major and minor grid
+        - units
+        - registered callbacks
+        """
 
         self.label.set_text('')  # self.set_label_text would change isDefault_
 
@@ -792,6 +803,11 @@ class Axis(martist.Artist):
         self.units = None
         self.set_units(None)
         self.stale = True
+
+    @cbook.deprecated("3.4", alternative="Axis.clear()")
+    def cla(self):
+        """Clear this axis."""
+        return self.clear()
 
     def reset_ticks(self):
         """

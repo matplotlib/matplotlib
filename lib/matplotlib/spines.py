@@ -228,14 +228,18 @@ class Spine(mpatches.Patch):
         """
         self.axis = axis
         if self.axis is not None:
-            self.axis.cla()
+            self.axis.clear()
         self.stale = True
 
-    def cla(self):
+    def clear(self):
         """Clear the current spine."""
         self._position = None  # clear position
         if self.axis is not None:
-            self.axis.cla()
+            self.axis.clear()
+
+    @cbook.deprecated("3.4", alternative="Spine.clear()")
+    def cla(self):
+        self.clear()
 
     def _adjust_location(self):
         """Automatically set spine bounds to the view interval."""
