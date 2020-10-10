@@ -1061,7 +1061,7 @@ class Axes3D(Axes):
 
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
 
         3D axes objects do not use the zoom box button.
         """
@@ -1069,7 +1069,7 @@ class Axes3D(Axes):
 
     def can_pan(self):
         """
-        Return *True* if this axes supports the pan/zoom button functionality.
+        Return whether this axes supports the pan/zoom button functionality.
 
         3D axes objects do not use the pan/zoom button.
         """

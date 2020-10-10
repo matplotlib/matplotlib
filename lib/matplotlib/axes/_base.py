@@ -1921,7 +1921,7 @@ class _AxesBase(martist.Artist):
 
     def has_data(self):
         """
-        Return *True* if any artists have been added to axes.
+        Return whether any artists have been added to the axes.
 
         This should not be used to determine whether the *dataLim*
         need to be updated, and may not actually be useful for
@@ -2277,8 +2277,7 @@ class _AxesBase(martist.Artist):
 
     def in_axes(self, mouseevent):
         """
-        Return *True* if the given *mouseevent* (in display coords)
-        is in the Axes
+        Return whether the given event (in display coords) is in the Axes.
         """
         return self.patch.contains(mouseevent)[0]
 
@@ -3922,13 +3921,13 @@ class _AxesBase(martist.Artist):
 
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
         """
         return True
 
     def can_pan(self):
         """
-        Return *True* if this axes supports any pan/zoom button functionality.
+        Return whether this axes supports any pan/zoom button functionality.
         """
         return True
 

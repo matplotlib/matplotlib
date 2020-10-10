@@ -202,7 +202,7 @@ class GeoAxes(Axes):
 
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
 
         This axes object does not support interactive zoom box.
         """
@@ -210,7 +210,7 @@ class GeoAxes(Axes):
 
     def can_pan(self):
         """
-        Return *True* if this axes supports the pan/zoom button functionality.
+        Return whether this axes supports the pan/zoom button functionality.
 
         This axes object does not support interactive pan/zoom.
         """

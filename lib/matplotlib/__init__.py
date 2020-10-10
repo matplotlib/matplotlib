@@ -711,7 +711,7 @@ URL_REGEX = re.compile(r'^http://|^https://|^ftp://|^file:')
 
 
 def is_url(filename):
-    """Return True if string is an http, ftp, or file URL path."""
+    """Return whether *filename* is an http, https, ftp, or file URL path."""
     return URL_REGEX.match(filename) is not None
 
 
