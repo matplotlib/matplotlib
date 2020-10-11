@@ -489,6 +489,7 @@
 #xtick.major.bottom:  True    # draw x axis bottom major ticks
 #xtick.minor.top:     True    # draw x axis top minor ticks
 #xtick.minor.bottom:  True    # draw x axis bottom minor ticks
+#xtick.minor.ndivs:   auto    # number of minor ticks between the major ticks on x-axis
 #xtick.alignment:     center  # alignment of xticks
 
 #ytick.left:          True    # draw ticks on the left side
@@ -510,6 +511,7 @@
 #ytick.major.right:   True    # draw y axis right major ticks
 #ytick.minor.left:    True    # draw y axis left minor ticks
 #ytick.minor.right:   True    # draw y axis right minor ticks
+#ytick.minor.ndivs:   auto    # number of minor ticks between the major ticks on y-axis
 #ytick.alignment:     center_baseline  # alignment of yticks
 
 
