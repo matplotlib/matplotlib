@@ -568,6 +568,14 @@ def _validate_greaterequal0_lessequal1(s):
         raise RuntimeError(f'Value must be >=0 and <=1; got {s}')
 
 
+def _validate_int_greaterequal0(s):
+    s = validate_int(s)
+    if s >= 0:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0; got {s}')
+
+
 def validate_hatch(s):
     r"""
     Validate a hatch pattern.
@@ -585,6 +593,23 @@ def validate_hatch(s):
 
 validate_hatchlist = _listify_validator(validate_hatch)
 validate_dashlist = _listify_validator(validate_floatlist)
+
+
+def _validate_minor_tick_ndivs(n):
+    """
+    Validate ndiv parameter related with the minor ticks.
+    It controls the number of minor ticks to be placed between
+    two major ticks.
+    """
+    if isinstance(n, str):
+        n = n.lower()
+        if n == 'auto':
+            return n
+
+        raise ValueError("Value must be set to 'auto'")
+    else:
+        n = _validate_int_greaterequal0(n)
+        return n
 
 
 _prop_validators = {
@@ -1093,6 +1118,8 @@ _validators = {
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
     "xtick.major.top":     validate_bool,      # draw top major xticks
     "xtick.major.bottom":  validate_bool,      # draw bottom major xticks
+    "xtick.minor.ndivs":   _validate_minor_tick_ndivs,
+    # number of minor xticks
     "xtick.labelsize":     validate_fontsize,  # fontsize of xtick labels
     "xtick.direction":     ["out", "in", "inout"],  # direction of xticks
     "xtick.alignment":     ["center", "right", "left"],
@@ -1114,6 +1141,8 @@ _validators = {
     "ytick.minor.right":   validate_bool,      # draw right minor yticks
     "ytick.major.left":    validate_bool,      # draw left major yticks
     "ytick.major.right":   validate_bool,      # draw right major yticks
+    "ytick.minor.ndivs":   _validate_minor_tick_ndivs,
+    # number of minor yticks
     "ytick.labelsize":     validate_fontsize,  # fontsize of ytick labels
     "ytick.direction":     ["out", "in", "inout"],  # direction of yticks
     "ytick.alignment":     [
