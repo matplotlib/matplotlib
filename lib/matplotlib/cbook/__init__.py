@@ -73,7 +73,7 @@ def _get_running_interactive_framework():
     if 'matplotlib.backends._macosx' in sys.modules:
         if sys.modules["matplotlib.backends._macosx"].event_loop_is_running():
             return "macosx"
-    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+    if not _c_internal_utils.display_is_valid():
         return "headless"
     return None
 
