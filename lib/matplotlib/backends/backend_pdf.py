@@ -31,7 +31,7 @@ from matplotlib.backend_bases import (
     GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
+from matplotlib.font_manager import findfont, get_font
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
@@ -1348,15 +1348,6 @@ end"""
             'StemV': 0  # ???
             }
 
-        # The font subsetting to a Type 3 font does not work for
-        # OpenType (.otf) that embed a Postscript CFF font, so avoid that --
-        # save as a (non-subsetted) Type 42 font instead.
-        if is_opentype_cff_font(filename):
-            fonttype = 42
-            _log.warning("%r can not be subsetted into a Type 3 font. The "
-                         "entire font will be embedded in the output.",
-                         os.path.basename(filename))
-
         if fonttype == 3:
             return embedTTFType3(font, characters, descriptor)
         elif fonttype == 42:
@@ -2119,7 +2110,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             }
             self.file._annotations[-1][1].append(link_annotation)
 
-        global_fonttype = mpl.rcParams['pdf.fonttype']
+        fonttype = mpl.rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
         a = math.radians(angle)
@@ -2137,8 +2128,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         for font, fontsize, num, ox, oy in glyphs:
             self.file._character_tracker.track(font, chr(num))
             fontname = font.fname
-            fonttype = (
-                42 if is_opentype_cff_font(fontname) else global_fonttype)
             if fonttype == 3 and num > 255:
                 # For Type3 fonts, multibyte characters must be emitted
                 # separately (below).
@@ -2282,10 +2271,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             font = self._get_font_ttf(prop)
             self.file._character_tracker.track(font, s)
             fonttype = mpl.rcParams['pdf.fonttype']
-            # We can't subset all OpenType fonts, so switch to Type 42
-            # in that case.
-            if is_opentype_cff_font(font.fname):
-                fonttype = 42
 
         if gc.get_url() is not None:
             font.set_text(s)
