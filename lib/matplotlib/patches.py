@@ -1958,18 +1958,18 @@ class BoxStyle(_Style):
     An instance of any boxstyle class is an callable object,
     whose call signature is::
 
-       __call__(self, x0, y0, width, height, mutation_size, aspect_ratio=1.)
+       __call__(self, x0, y0, width, height, mutation_size)
 
     and returns a `.Path` instance. *x0*, *y0*, *width* and
     *height* specify the location and size of the box to be
     drawn. *mutation_scale* determines the overall size of the
     mutation (by which I mean the transformation of the rectangle to
-    the fancy box).  *mutation_aspect* determines the aspect-ratio of
-    the mutation.
+    the fancy box).
     """
 
     _style_list = {}
 
+    @cbook.deprecated("3.4")
     class _Base:
         """
         Abstract base class for styling of `.FancyBboxPatch`.
@@ -1982,18 +1982,48 @@ class BoxStyle(_Style):
         ``__init__`` method because they must be able to be initialized
         without arguments.
 
-        Subclasses must implement the `transmute` method. It receives the
+        Subclasses must implement the `__call__` method. It receives the
         enclosing rectangle *x0, y0, width, height* as well as the
         *mutation_size*, which scales the outline properties such as padding.
         It returns the outline of the fancy box as `.path.Path`.
         """
 
+        @cbook.deprecated("3.4")
         def transmute(self, x0, y0, width, height, mutation_size):
             """Return the `~.path.Path` outlining the given rectangle."""
-            raise NotImplementedError('Derived must override')
+            return self(self, x0, y0, width, height, mutation_size, 1)
 
-        def __call__(self, x0, y0, width, height, mutation_size,
-                     aspect_ratio=1.):
+        # This can go away once the deprecation period elapses, leaving _Base
+        # as a fully abstract base class just providing docstrings, no logic.
+        def __init_subclass__(cls):
+            transmute = cbook._deprecate_method_override(
+                __class__.transmute, cls, since="3.4")
+            if transmute:
+                cls.__call__ = transmute
+                return
+
+            __call__ = cls.__call__
+
+            @cbook._delete_parameter("3.4", "mutation_aspect")
+            def call_wrapper(
+                    self, x0, y0, width, height, mutation_size,
+                    mutation_aspect=cbook.deprecation._deprecated_parameter):
+                if mutation_aspect is cbook.deprecation._deprecated_parameter:
+                    # Don't trigger deprecation warning internally.
+                    return __call__(self, x0, y0, width, height, mutation_size)
+                else:
+                    # Squeeze the given height by the aspect_ratio.
+                    y0, height = y0 / mutation_aspect, height / mutation_aspect
+                    path = self(x0, y0, width, height, mutation_size,
+                                mutation_aspect)
+                    vertices, codes = path.vertices, path.codes
+                    # Restore the height.
+                    vertices[:, 1] = vertices[:, 1] * mutation_aspect
+                    return Path(vertices, codes)
+
+            cls.__call__ = call_wrapper
+
+        def __call__(self, x0, y0, width, height, mutation_size):
             """
             Given the location and size of the box, return the path of
             the box around it.
@@ -2004,43 +2034,27 @@ class BoxStyle(_Style):
                 Location and size of the box.
             mutation_size : float
                 A reference scale for the mutation.
-            aspect_ratio : float, default: 1
-                Aspect-ratio for the mutation.
 
             Returns
             -------
             `~matplotlib.path.Path`
             """
-            # The __call__ method is a thin wrapper around the transmute method
-            # and takes care of the aspect.
-
-            if aspect_ratio is not None:
-                # Squeeze the given height by the aspect_ratio
-                y0, height = y0 / aspect_ratio, height / aspect_ratio
-                # call transmute method with squeezed height.
-                path = self.transmute(x0, y0, width, height, mutation_size)
-                vertices, codes = path.vertices, path.codes
-                # Restore the height
-                vertices[:, 1] = vertices[:, 1] * aspect_ratio
-                return Path(vertices, codes)
-            else:
-                return self.transmute(x0, y0, width, height, mutation_size)
+            raise NotImplementedError('Derived must override')
 
     @_register_style(_style_list)
     class Square(_Base):
-        """
-        A square box.
+        """A square box."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        """
         def __init__(self, pad=0.3):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            """
             self.pad = pad
-            super().__init__()
 
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
             pad = mutation_size * self.pad
             # width and height with padding added.
             width, height = width + 2 * pad, height + 2 * pad
@@ -2052,19 +2066,18 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Circle(_Base):
-        """
-        A circular box.
+        """A circular box."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        """
         def __init__(self, pad=0.3):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            """
             self.pad = pad
-            super().__init__()
 
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
             pad = mutation_size * self.pad
             width, height = width + 2 * pad, height + 2 * pad
             # boundary of the padded box
@@ -2074,19 +2087,18 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class LArrow(_Base):
-        """
-        A box in the shape of a left-pointing arrow.
+        """A box in the shape of a left-pointing arrow."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        """
         def __init__(self, pad=0.3):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            """
             self.pad = pad
-            super().__init__()
 
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
             # padding
             pad = mutation_size * self.pad
             # width and height with padding added.
@@ -2107,41 +2119,29 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class RArrow(LArrow):
-        """
-        A box in the shape of a right-pointing arrow.
+        """A box in the shape of a right-pointing arrow."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        """
-        def __init__(self, pad=0.3):
-            super().__init__(pad)
-
-        def transmute(self, x0, y0, width, height, mutation_size):
-            p = BoxStyle.LArrow.transmute(self, x0, y0,
-                                          width, height, mutation_size)
+        def __call__(self, x0, y0, width, height, mutation_size):
+            p = BoxStyle.LArrow.__call__(
+                self, x0, y0, width, height, mutation_size)
             p.vertices[:, 0] = 2 * x0 + width - p.vertices[:, 0]
             return p
 
     @_register_style(_style_list)
     class DArrow(_Base):
-        """
-        A box in the shape of a two-way arrow.
-
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        """
-        # This source is copied from LArrow,
-        # modified to add a right arrow to the bbox.
+        """A box in the shape of a two-way arrow."""
+        # Modified from LArrow to add a right arrow to the bbox.
 
         def __init__(self, pad=0.3):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            """
             self.pad = pad
-            super().__init__()
 
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
             # padding
             pad = mutation_size * self.pad
             # width and height with padding added.
@@ -2166,22 +2166,21 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Round(_Base):
-        """
-        A box with round corners.
+        """A box with round corners."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        rounding_size : float, default: *pad*
-            Radius of the corners.
-        """
         def __init__(self, pad=0.3, rounding_size=None):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            rounding_size : float, default: *pad*
+                Radius of the corners.
+            """
             self.pad = pad
             self.rounding_size = rounding_size
-            super().__init__()
 
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
 
             # padding
             pad = mutation_size * self.pad
@@ -2227,22 +2226,21 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Round4(_Base):
-        """
-        A box with rounded edges.
+        """A box with rounded edges."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        rounding_size : float, default: *pad*/2
-             Rounding of edges.
-        """
         def __init__(self, pad=0.3, rounding_size=None):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            rounding_size : float, default: *pad*/2
+                Rounding of edges.
+            """
             self.pad = pad
             self.rounding_size = rounding_size
-            super().__init__()
 
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
 
             # padding
             pad = mutation_size * self.pad
@@ -2279,20 +2277,19 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Sawtooth(_Base):
-        """
-        A box with a sawtooth outline.
+        """A box with a sawtooth outline."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        tooth_size : float, default: *pad*/2
-             Size of the sawtooth.
-        """
         def __init__(self, pad=0.3, tooth_size=None):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            tooth_size : float, default: *pad*/2
+                Size of the sawtooth.
+            """
             self.pad = pad
             self.tooth_size = tooth_size
-            super().__init__()
 
         def _get_sawtooth_vertices(self, x0, y0, width, height, mutation_size):
 
@@ -2368,7 +2365,7 @@ class BoxStyle(_Style):
 
             return saw_vertices
 
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
             saw_vertices = self._get_sawtooth_vertices(x0, y0, width,
                                                        height, mutation_size)
             path = Path(saw_vertices, closed=True)
@@ -2376,20 +2373,9 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Roundtooth(Sawtooth):
-        """
-        A box with a rounded sawtooth outline.
+        """A box with a rounded sawtooth outline."""
 
-        Parameters
-        ----------
-        pad : float, default: 0.3
-            The amount of padding around the original box.
-        tooth_size : float, default: *pad*/2
-             Size of the sawtooth.
-        """
-        def __init__(self, pad=0.3, tooth_size=None):
-            super().__init__(pad, tooth_size)
-
-        def transmute(self, x0, y0, width, height, mutation_size):
+        def __call__(self, x0, y0, width, height, mutation_size):
             saw_vertices = self._get_sawtooth_vertices(x0, y0,
                                                        width, height,
                                                        mutation_size)
@@ -3759,11 +3745,31 @@ class FancyBboxPatch(Patch):
 
     def get_path(self):
         """Return the mutated path of the rectangle."""
-        _path = self.get_boxstyle()(self._x, self._y,
-                                    self._width, self._height,
-                                    self.get_mutation_scale(),
-                                    self.get_mutation_aspect())
-        return _path
+        boxstyle = self.get_boxstyle()
+        x = self._x
+        y = self._y
+        width = self._width
+        height = self._height
+        m_scale = self.get_mutation_scale()
+        m_aspect = self.get_mutation_aspect()
+        # Squeeze the given height by the aspect_ratio.
+        y, height = y / m_aspect, height / m_aspect
+        # Call boxstyle with squeezed height.
+        try:
+            inspect.signature(boxstyle).bind(x, y, width, height, m_scale)
+        except TypeError:
+            # Don't apply aspect twice.
+            path = boxstyle(x, y, width, height, m_scale, 1)
+            cbook.warn_deprecated(
+                "3.4", message="boxstyles must be callable without the "
+                "'mutation_aspect' parameter since %(since)s; support for the "
+                "old call signature will be removed %(removal)s.")
+        else:
+            path = boxstyle(x, y, width, height, m_scale)
+        vertices, codes = path.vertices, path.codes
+        # Restore the height.
+        vertices[:, 1] = vertices[:, 1] * m_aspect
+        return Path(vertices, codes)
 
     # Following methods are borrowed from the Rectangle class.
 
