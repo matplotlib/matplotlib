@@ -55,7 +55,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
             If True, add a frame and solid background for the artist.
             Frame appearance can be changed with, i.e.
             *facecolor* and *edgecolor* keyword arguments.
-            
+
             If False, possibly allow image with proper transparency.
 
         **kwargs
