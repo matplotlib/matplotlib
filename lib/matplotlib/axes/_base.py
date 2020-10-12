@@ -1088,7 +1088,7 @@ class _AxesBase(martist.Artist):
         self.yaxis._scale = other.yaxis._scale
 
     def cla(self):
-        """Clear the current axes."""
+        """Clear the axes."""
         # Note: this is called by Axes.__init__()
 
         # stash the current visibility state
