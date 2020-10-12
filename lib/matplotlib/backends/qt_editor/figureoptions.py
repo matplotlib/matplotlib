@@ -81,7 +81,9 @@ def figure_edit(axes, parent=None):
         label = container.get_label()
         if label == '_nolegend_':
             continue
-        linedict[label] = container
+        elif isinstance(container, ErrorbarContainer):
+            # don't do anything but ErrorbarContainers to start with
+            linedict[label] = container
     curves = []
 
     def prepare_data(d, init):
