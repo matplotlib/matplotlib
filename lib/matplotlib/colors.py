@@ -1342,7 +1342,6 @@ class CenteredNorm(Normalize):
             self.vmax = None
         else:
             self._halfrange = abs(halfrange)
-            #self._set_vmin_vmax()
 
     def __call__(self, value, clip=None):
         if self._halfrange is not None:
