@@ -19,6 +19,7 @@ from matplotlib.rcsetup import (
     validate_bool_maybe_none,
     validate_color,
     validate_colorlist,
+    validate_color_or_bool,
     validate_cycler,
     validate_float,
     validate_fontweight,
@@ -338,6 +339,32 @@ def generate_validator_testcases(valid):
                   ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
                   ('(0, 1, none)', ValueError),  # cannot cast none to float
                   ('(0, 1, "0.5")', ValueError),  # last one not a float
+                  ),
+         },
+        {'validator': validate_color_or_bool,
+         'success': (('None', 'none'),
+                     ('none', 'none'),
+                     ('AABBCC', '#AABBCC'),  # RGB hex code
+                     ('AABBCC00', '#AABBCC00'),  # RGBA hex code
+                     ('tab:blue', 'tab:blue'),  # named color
+                     ('C12', 'C12'),  # color from cycle
+                     ('(0, 1, 0)', (0.0, 1.0, 0.0)),  # RGB tuple
+                     ((0, 1, 0), (0, 1, 0)),  # non-string version
+                     ('(0, 1, 0, 1)', (0.0, 1.0, 0.0, 1.0)),  # RGBA tuple
+                     ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
+                     *((_, True) for _ in
+                       ('t', 'yes', 'on', 'true', 1, True)),
+                     *((_, False) for _ in
+                       ('f', 'n', 'no', 'off', 'false', 0, False)),
+                     ),
+         'fail': (('tab:veryblue', ValueError),  # invalid name
+                  ('(0, 1)', ValueError),  # tuple with length < 3
+                  ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
+                  ('(0, 1, none)', ValueError),  # cannot cast none to float
+                  ('(0, 1, "0.5")', ValueError),  # last one not a float
+                  (2, ValueError),
+                  (-1, ValueError),
+                  ([], ValueError),
                   ),
          },
         {'validator': validate_hist_bins,

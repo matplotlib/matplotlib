@@ -31,6 +31,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
+from matplotlib.colors import is_color_like
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
@@ -208,13 +209,11 @@ fancybox : bool, default: :rc:`legend.fancybox`
     Whether round edges should be enabled around the `~.FancyBboxPatch` which
     makes up the legend's background.
 
-shadow : bool, default: :rc:`legend.shadow`
+shadow : bool or color, default: :rc:`legend.shadow`
     Whether to draw a shadow behind the legend.
-
-shadowcolor : color or None
-    Takes a valid color string. If ``None``, defaults to the legend's
-    ``facecolor`` as usual.
-    Sets shadow color directly if shadow is activated.
+    If value is a color, a shadow of that color will be applied.
+    If the value is neither boolean nor a valid color, behavior is that of
+    *True* and the shadow is the default color.
 
 framealpha : float, default: :rc:`legend.framealpha`
     The alpha transparency of the legend's background.
@@ -327,7 +326,6 @@ class Legend(Artist):
                  fancybox=None,  # True use a fancy box, false use a rounded
                                  # box, none use rc
                  shadow=None,
-                 shadowcolor=None,    # set shadow color directly
                  title=None,  # set a title for the legend
                  title_fontsize=None,  # the font size for the title
                  framealpha=None,  # set frame alpha
@@ -548,9 +546,6 @@ class Legend(Artist):
             raise ValueError("Invalid argument for labelcolor : %s" %
                              str(labelcolor))
 
-        # set shadow color
-        self.shadowcolor = shadowcolor
-
     def _set_artist_props(self, a):
         """
         Set the boilerplate props for artists added to axes.
@@ -615,11 +610,12 @@ class Legend(Artist):
         self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         self.legendPatch.set_mutation_scale(fontsize)
 
-        if self.shadowcolor and self.shadow:
-            Shadow(self.legendPatch, 2, -2,
-                   color=self.shadowcolor).draw(renderer)
-        elif self.shadow:
-            Shadow(self.legendPatch, 2, -2).draw(renderer)
+        if self.shadow:
+            shadow = self.shadow
+            if is_color_like(shadow):
+                Shadow(self.legendPatch, 2, -2, color=shadow).draw(renderer)
+            else:
+                Shadow(self.legendPatch, 2, -2).draw(renderer)
 
         self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)

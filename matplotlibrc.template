@@ -520,7 +520,6 @@
 #legend.fancybox:      True     # if True, use a rounded box for the
                                 # legend background, else a rectangle
 #legend.shadow:        False    # if True, give background a shadow effect
-#legend.shadowcolor:   None     # takes a color string, otherwise default behavior
 #legend.numpoints:     1        # the number of marker points in the legend line
 #legend.scatterpoints: 1        # number of scatter points
 #legend.markerscale:   1.0      # the relative size of legend markers vs. original
