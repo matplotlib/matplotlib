@@ -6246,7 +6246,6 @@ default: :rc:`scatter.edgecolors`
         Call signature::
 
             contour([X, Y,] Z, [levels], **kwargs)
-
         """ + mcontour.QuadContourSet._contour_doc
 
     @_preprocess_data()
@@ -6261,7 +6260,6 @@ default: :rc:`scatter.edgecolors`
         Call signature::
 
             contourf([X, Y,] Z, [levels], **kwargs)
-
         """ + mcontour.QuadContourSet._contour_doc
 
     def clabel(self, CS, levels=None, **kwargs):

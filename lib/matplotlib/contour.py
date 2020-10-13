@@ -1555,7 +1555,6 @@ class QuadContourSet(ContourSet):
         return np.meshgrid(x, y)
 
     _contour_doc = """
-
         `.contour` and `.contourf` draw contour lines and filled contours,
         respectively.  Except as noted, function signatures and return values
         are the same for both versions.
