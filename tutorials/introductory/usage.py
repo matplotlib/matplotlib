@@ -411,29 +411,29 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ========= ================================================================
 # Backend   Description
 # ========= ================================================================
-# Qt5Agg    Agg rendering in a :term:`Qt5` canvas (requires PyQt5_).  This
+# Qt5Agg    Agg rendering in a Qt5_ canvas (requires PyQt5_).  This
 #           backend can be activated in IPython with ``%matplotlib qt5``.
 # ipympl    Agg rendering embedded in a Jupyter widget.  (requires ipympl).
 #           This backend can be enabled in a Jupyter notebook with
 #           ``%matplotlib ipympl``.
-# GTK3Agg   Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_,
+# GTK3Agg   Agg rendering to a GTK_ 3.x canvas (requires PyGObject_,
 #           and pycairo_ or cairocffi_).  This backend can be activated in
 #           IPython with ``%matplotlib gtk3``.
 # macosx    Agg rendering into a Cocoa canvas in OSX.  This backend can be
 #           activated in IPython with ``%matplotlib osx``.
-# TkAgg     Agg rendering to a :term:`Tk` canvas (requires TkInter_). This
+# TkAgg     Agg rendering to a Tk_ canvas (requires TkInter_). This
 #           backend can be activated in IPython with ``%matplotlib tk``.
 # nbAgg     Embed an interactive figure in a Jupyter classic notebook.  This
 #           backend can be enabled in Jupyter notebooks via
 #           ``%matplotlib notebook``.
 # WebAgg    On ``show()`` will start a tornado server with an interactive
 #           figure.
-# GTK3Cairo Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_,
+# GTK3Cairo Cairo rendering to a GTK_ 3.x canvas (requires PyGObject_,
 #           and pycairo_ or cairocffi_).
-# Qt4Agg    Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or
+# Qt4Agg    Agg rendering to a Qt4_ canvas (requires PyQt4_ or
 #           ``pyside``).  This backend can be activated in IPython with
 #           ``%matplotlib qt4``.
-# wxAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
+# wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 #           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
 #
@@ -454,6 +454,11 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _TkInter: https://docs.python.org/3/library/tk.html
 # .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
+# .. _Qt5: https://doc.qt.io/qt-5/index.html
+# .. _GTK: https://www.gtk.org/
+# .. _Tk: http://www.tcl.tk/
+# .. _Qt4: https://doc.qt.io/archives/qt-4.8/index.html
+# .. _wxWidgets: http://www.wxwidgets.org/
 #
 # ipympl
 # ^^^^^^
