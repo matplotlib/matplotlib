@@ -135,7 +135,7 @@ def test_polar_units_2(fig_test, fig_ref):
     plt.figure(fig_test.number)
     # test {theta,r}units.
     plt.polar(xs_deg, ys_km, thetaunits="rad", runits="km")
-    assert isinstance(plt.gca().get_xaxis().get_major_formatter(),
+    assert isinstance(plt.gca().xaxis.get_major_formatter(),
                       units.UnitDblFormatter)
 
     ax = fig_ref.add_subplot(projection="polar")

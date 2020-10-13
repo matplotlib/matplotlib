@@ -1885,11 +1885,21 @@ class _AxesBase(martist.Artist):
         return cbook.silent_list('Line2D', self.lines)
 
     def get_xaxis(self):
-        """Return the XAxis instance."""
+        """
+        Return the XAxis instance.
+
+        The use of this function is discouraged. You should instead directly
+        access the attribute ``ax.xaxis``.
+        """
         return self.xaxis
 
     def get_yaxis(self):
-        """Return the YAxis instance."""
+        """
+        Return the YAxis instance.
+
+        The use of this function is discouraged. You should instead directly
+        access the attribute ``ax.yaxis``.
+        """
         return self.yaxis
 
     get_xgridlines = _axis_method_wrapper("xaxis", "get_gridlines")
