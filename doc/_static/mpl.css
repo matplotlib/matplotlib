@@ -162,11 +162,6 @@ dt:target,
     background-color: #ffffee;
 }
 
-dl.glossary dt {
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
 pre a {
     color: inherit;
     text-decoration: none;
