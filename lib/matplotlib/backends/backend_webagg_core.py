@@ -517,7 +517,7 @@ class TimerTornado(backend_bases.TimerBase):
         else:
             self._timer = tornado.ioloop.PeriodicCallback(
                 self._on_timer,
-                self.interval)
+                max(self.interval, 1e-6))
             self._timer.start()
 
     def _timer_stop(self):
