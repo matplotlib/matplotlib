@@ -456,9 +456,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 # .. _Qt5: https://doc.qt.io/qt-5/index.html
 # .. _GTK: https://www.gtk.org/
-# .. _Tk: http://www.tcl.tk/
+# .. _Tk: https://www.tcl.tk/
 # .. _Qt4: https://doc.qt.io/archives/qt-4.8/index.html
-# .. _wxWidgets: http://www.wxwidgets.org/
+# .. _wxWidgets: https://www.wxwidgets.org/
 #
 # ipympl
 # ^^^^^^
