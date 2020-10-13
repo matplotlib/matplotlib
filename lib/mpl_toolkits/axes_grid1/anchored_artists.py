@@ -53,7 +53,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
         frameon : bool, default: True
             If True, add a frame and solid background for the artist.
-            Frame appearance can be changed with, i.e.
+            Frame appearance can be changed with, e.g.,
             *facecolor* and *edgecolor* keyword arguments.
 
             If False, possibly allow image with proper transparency.
