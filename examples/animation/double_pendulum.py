@@ -19,9 +19,10 @@ from collections import deque
 G = 9.8  # acceleration due to gravity, in m/s^2
 L1 = 1.0  # length of pendulum 1 in m
 L2 = 1.0  # length of pendulum 2 in m
+L = L1 + L2  # maximal length of the combined pendulum
 M1 = 1.0  # mass of pendulum 1 in kg
 M2 = 1.0  # mass of pendulum 2 in kg
-t_stop = 50  # how many seconds to simulate
+t_stop = 5  # how many seconds to simulate
 history_len = 500  # how many trajectory points to display
 
 
@@ -73,9 +74,7 @@ x2 = L2*sin(y[:, 2]) + x1
 y2 = -L2*cos(y[:, 2]) + y1
 
 fig = plt.figure(figsize=(5, 4))
-ax = fig.add_subplot(autoscale_on=False,
-                     xlim=(-(L1+L2), (L1+L2)),
-                     ylim=(-(L1+L2), 1.))
+ax = fig.add_subplot(autoscale_on=False, xlim=(-L, L), ylim=(-L, 1.))
 ax.set_aspect('equal')
 ax.grid()
 
@@ -89,6 +88,10 @@ history_x, history_y = deque(maxlen=history_len), deque(maxlen=history_len)
 def animate(i):
     thisx = [0, x1[i], x2[i]]
     thisy = [0, y1[i], y2[i]]
+
+    if i == 0:
+        history_x.clear()
+        history_y.clear()
 
     history_x.appendleft(thisx[2])
     history_y.appendleft(thisy[2])
