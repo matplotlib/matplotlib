@@ -22,7 +22,7 @@ L2 = 1.0  # length of pendulum 2 in m
 M1 = 1.0  # mass of pendulum 1 in kg
 M2 = 1.0  # mass of pendulum 2 in kg
 t_stop = 50  # how many seconds to simulate
-history_len = 500 #how many trace points to display (trail history)
+history_len = 500  # how many trajectory points to display
 
 
 def derivs(state, t):
@@ -73,7 +73,9 @@ x2 = L2*sin(y[:, 2]) + x1
 y2 = -L2*cos(y[:, 2]) + y1
 
 fig = plt.figure(figsize=(5, 4))
-ax = fig.add_subplot(autoscale_on=False, xlim=(-(L1+L2), (L1+L2)), ylim=(-(L1+L2), 1))
+ax = fig.add_subplot(autoscale_on=False,
+                     xlim=(-(L1+L2), (L1+L2)),
+                     ylim=(-(L1+L2), 1.))
 ax.set_aspect('equal')
 ax.grid()
 
