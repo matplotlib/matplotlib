@@ -14,13 +14,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as integrate
 import matplotlib.animation as animation
+from collections import deque
 
 G = 9.8  # acceleration due to gravity, in m/s^2
 L1 = 1.0  # length of pendulum 1 in m
 L2 = 1.0  # length of pendulum 2 in m
 M1 = 1.0  # mass of pendulum 1 in kg
 M2 = 1.0  # mass of pendulum 2 in kg
-t_stop = 5  # how many seconds to simulate
+t_stop = 50  # how many seconds to simulate
+history_len = 500 #how many trace points to display (trail history)
 
 
 def derivs(state, t):
@@ -47,8 +49,8 @@ def derivs(state, t):
 
     return dydx
 
-# create a time array from 0..100 sampled at 0.05 second steps
-dt = 0.05
+# create a time array from 0..t_stop sampled at 0.02 second steps
+dt = 0.02
 t = np.arange(0, t_stop, dt)
 
 # th1 and th2 are the initial angles (degrees)
@@ -71,22 +73,28 @@ x2 = L2*sin(y[:, 2]) + x1
 y2 = -L2*cos(y[:, 2]) + y1
 
 fig = plt.figure(figsize=(5, 4))
-ax = fig.add_subplot(autoscale_on=False, xlim=(-2, 2), ylim=(-2, 1))
+ax = fig.add_subplot(autoscale_on=False, xlim=(-(L1+L2), (L1+L2)), ylim=(-(L1+L2), 1))
 ax.set_aspect('equal')
 ax.grid()
 
 line, = ax.plot([], [], 'o-', lw=2)
+trace, = ax.plot([], [], ',-', lw=1)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
+history_x, history_y = deque(maxlen=history_len), deque(maxlen=history_len)
 
 
 def animate(i):
     thisx = [0, x1[i], x2[i]]
     thisy = [0, y1[i], y2[i]]
 
+    history_x.appendleft(thisx[2])
+    history_y.appendleft(thisy[2])
+
     line.set_data(thisx, thisy)
+    trace.set_data(history_x, history_y)
     time_text.set_text(time_template % (i*dt))
-    return line, time_text
+    return line, trace, time_text
 
 
 ani = animation.FuncAnimation(
