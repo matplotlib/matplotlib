@@ -6240,7 +6240,14 @@ default: :rc:`scatter.edgecolors`
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self._request_autoscale_view()
         return contours
-    contour.__doc__ = mcontour.QuadContourSet._contour_doc
+    contour.__doc__ = """
+        Plot contour lines.
+
+        Call signature::
+
+            contour([X, Y,] Z, [levels], **kwargs)
+
+        """ + mcontour.QuadContourSet._contour_doc
 
     @_preprocess_data()
     def contourf(self, *args, **kwargs):
@@ -6248,7 +6255,14 @@ default: :rc:`scatter.edgecolors`
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self._request_autoscale_view()
         return contours
-    contourf.__doc__ = mcontour.QuadContourSet._contour_doc
+    contourf.__doc__ = """
+        Plot filled contours.
+
+        Call signature::
+
+            contourf([X, Y,] Z, [levels], **kwargs)
+
+        """ + mcontour.QuadContourSet._contour_doc
 
     def clabel(self, CS, levels=None, **kwargs):
         """
