@@ -20,8 +20,7 @@ from pyparsing import (
 import matplotlib as mpl
 from . import cbook
 from ._mathtext_data import (
-    latex_to_bakoma, latex_to_cmex, latex_to_standard, stix_virtual_fonts,
-    tex2uni)
+    latex_to_bakoma, latex_to_standard, stix_virtual_fonts, tex2uni)
 from .afm import AFM
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import KERNING_DEFAULT
@@ -452,7 +451,7 @@ class UnicodeFonts(TruetypeFonts):
     This class will "fallback" on the Bakoma fonts when a required
     symbol can not be found in the font.
     """
-    use_cmex = True
+    use_cmex = True  # Unused; delete once mathtext becomes private.
 
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
@@ -497,22 +496,13 @@ class UnicodeFonts(TruetypeFonts):
         return fontname, uniindex
 
     def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
-        found_symbol = False
-
-        if self.use_cmex:
-            uniindex = latex_to_cmex.get(sym)
-            if uniindex is not None:
-                fontname = 'ex'
-                found_symbol = True
-
-        if not found_symbol:
-            try:
-                uniindex = get_unicode_index(sym, math)
-                found_symbol = True
-            except ValueError:
-                uniindex = ord('?')
-                _log.warning(
-                    "No TeX to unicode mapping for {!a}.".format(sym))
+        try:
+            uniindex = get_unicode_index(sym, math)
+            found_symbol = True
+        except ValueError:
+            uniindex = ord('?')
+            found_symbol = False
+            _log.warning("No TeX to unicode mapping for {!a}.".format(sym))
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
@@ -574,7 +564,7 @@ class UnicodeFonts(TruetypeFonts):
 
 
 class DejaVuFonts(UnicodeFonts):
-    use_cmex = False
+    use_cmex = False  # Unused; delete once mathtext becomes private.
 
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
@@ -677,7 +667,7 @@ class StixFonts(UnicodeFonts):
         4: 'STIXSizeFourSym',
         5: 'STIXSizeFiveSym',
     }
-    use_cmex = False
+    use_cmex = False  # Unused; delete once mathtext becomes private.
     cm_fallback = False
     _sans = False
 

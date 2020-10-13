@@ -236,7 +236,7 @@ latex_to_bakoma = {
     '\\_'                        : ('cmtt10', 0x5f)
 }
 
-latex_to_cmex = {
+latex_to_cmex = {  # Unused; delete once mathtext becomes private.
     r'\__sqrt__'   : 112,
     r'\bigcap'     : 92,
     r'\bigcup'     : 91,
