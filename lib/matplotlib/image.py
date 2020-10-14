@@ -1008,6 +1008,8 @@ class AxesImage(_ImageBase):
 
 
 class NonUniformImage(AxesImage):
+    mouseover = False  # This class still needs its own get_cursor_data impl.
+
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
         Parameters
