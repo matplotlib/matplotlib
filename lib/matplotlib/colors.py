@@ -1262,16 +1262,27 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     After ::
 
         @_make_norm_from_scale(scale_cls)
-        class base_norm_cls(Normalize):
+        class norm_cls(Normalize):
             ...
 
-    *base_norm_cls* is filled with methods so that normalization computations
-    are forwarded to *scale_cls* (i.e., *scale_cls* is the scale that would be
-    used for the colorbar of a mappable normalized with *base_norm_cls*).
+    *norm_cls* is filled with methods so that normalization computations are
+    forwarded to *scale_cls* (i.e., *scale_cls* is the scale that would be used
+    for the colorbar of a mappable normalized with *norm_cls*).
 
-    The constructor signature of *base_norm_cls* is derived from the
-    constructor signature of *scale_cls*, but can be overridden using *init*
-    (a callable which is *only* used for its signature).
+    If *init* is not passed, then the constructor signature of *norm_cls*
+    will be ``norm_cls(vmin=None, vmax=None, clip=False)``; these three
+    parameters will be forwarded to the base class (``Normalize.__init__``),
+    and a *scale_cls* object will be initialized with no arguments (other than
+    a dummy axis).
+
+    If the *scale_cls* constructor takes additional parameters, then *init*
+    should be passed to `_make_norm_from_scale`.  It is a callable which is
+    *only* used for its signature.  First, this signature will become the
+    signature of *norm_cls*.  Second, the *norm_cls* constructor will bind the
+    parameters passed to it using this signature, extract the bound *vmin*,
+    *vmax*, and *clip* values, pass those to ``Normalize.__init__``, and
+    forward the remaining bound values (including any defaults defined by the
+    signature) to the *scale_cls* constructor.
     """
 
     if base_norm_cls is None:
@@ -1279,12 +1290,12 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
 
     if init is None:
         def init(vmin=None, vmax=None, clip=False): pass
-    init_signature = inspect.signature(init)
+    bound_init_signature = inspect.signature(init)
 
     class Norm(base_norm_cls):
 
         def __init__(self, *args, **kwargs):
-            ba = init_signature.bind(*args, **kwargs)
+            ba = bound_init_signature.bind(*args, **kwargs)
             ba.apply_defaults()
             super().__init__(
                 **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
@@ -1329,6 +1340,9 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
+    Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
+        inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
+        *bound_init_signature.parameters.values()])
     return Norm
 
 
