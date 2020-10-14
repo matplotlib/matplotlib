@@ -40,6 +40,7 @@ Inheritance
    :template: autosummary.rst
    :nosignatures:
 
+   Axis.clear
    Axis.cla
    Axis.get_scale
 

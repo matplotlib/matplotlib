@@ -1079,7 +1079,7 @@ class Axes3D(Axes):
         # docstring inherited.
 
         super().cla()
-        self.zaxis.cla()
+        self.zaxis.clear()
 
         if self._sharez is not None:
             self.zaxis.major = self._sharez.zaxis.major

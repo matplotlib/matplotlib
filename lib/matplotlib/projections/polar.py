@@ -378,10 +378,14 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majloc = True
         self.isDefault_majfmt = True
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
+
+    @cbook.deprecated("3.4", alternative="ThetaAxis.clear()")
+    def cla(self):
+        self.clear()
 
     def _set_scale(self, value, **kwargs):
         super()._set_scale(value, **kwargs)
@@ -680,10 +684,14 @@ class RadialAxis(maxis.YAxis):
                                              self.axes))
         self.isDefault_majloc = True
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
+
+    @cbook.deprecated("3.4", alternative="RadialAxis.clear()")
+    def cla(self):
+        self.clear()
 
     def _set_scale(self, value, **kwargs):
         super()._set_scale(value, **kwargs)
@@ -810,7 +818,7 @@ class PolarAxes(Axes):
         # This is moved out of __init__ because non-separable axes don't use it
         self.xaxis = ThetaAxis(self)
         self.yaxis = RadialAxis(self)
-        # Calling polar_axes.xaxis.cla() or polar_axes.xaxis.cla()
+        # Calling polar_axes.xaxis.clear() or polar_axes.xaxis.clear()
         # results in weird artifacts. Therefore we disable this for
         # now.
         # self.spines['polar'].register_axis(self.yaxis)
