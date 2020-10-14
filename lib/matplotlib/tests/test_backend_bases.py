@@ -3,6 +3,8 @@ import re
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
+from matplotlib.backend_tools import (ToolZoom, ToolPan, RubberbandBase,
+                                      ToolViewsPositions, _views_positions)
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
@@ -157,3 +159,24 @@ def test_interactive_zoom():
 
     tb.zoom()
     assert ax.get_navigate_mode() is None
+
+
+def test_toolbar_zoompan():
+    plt.rcParams['toolbar'] = 'toolmanager'
+    ax = plt.gca()
+    assert ax.get_navigate_mode() is None
+    expected_warning_regex = (r"The new Tool classes introduced in "
+                              r"v[0-9]*.[0-9]* are experimental")
+    with pytest.warns(UserWarning, match=expected_warning_regex) as rec:
+        ax.figure.canvas.manager.toolmanager.add_tool(name="zoom",
+                                                      tool=ToolZoom)
+        ax.figure.canvas.manager.toolmanager.add_tool(name="pan",
+                                                      tool=ToolPan)
+        ax.figure.canvas.manager.toolmanager.add_tool(name=_views_positions,
+                                                      tool=ToolViewsPositions)
+        ax.figure.canvas.manager.toolmanager.add_tool(name='rubberband',
+                                                      tool=RubberbandBase)
+        ax.figure.canvas.manager.toolmanager.trigger_tool('zoom')
+        assert ax.get_navigate_mode() == "ZOOM"
+        ax.figure.canvas.manager.toolmanager.trigger_tool('pan')
+        assert ax.get_navigate_mode() == "PAN"
