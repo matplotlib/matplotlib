@@ -601,15 +601,16 @@ def _validate_minor_tick_ndivs(n):
     It controls the number of minor ticks to be placed between
     two major ticks.
     """
-    if isinstance(n, str):
-        n = n.lower()
-        if n == 'auto':
-            return n
 
-        raise ValueError("Value must be set to 'auto'")
-    else:
+    if isinstance(n, str) and n.lower() == 'auto':
+        return n
+    try:
         n = _validate_int_greaterequal0(n)
         return n
+    except (RuntimeError, ValueError):
+        pass
+
+    raise ValueError("'tick.minor.ndivs' must be a 'auto' or non-negative int")
 
 
 _prop_validators = {
