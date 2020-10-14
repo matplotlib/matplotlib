@@ -165,7 +165,9 @@ def test_toolbar_zoompan():
     plt.rcParams['toolbar'] = 'toolmanager'
     ax = plt.gca()
     assert ax.get_navigate_mode() is None
-    with pytest.warns(UserWarning) as rec:
+    expected_warning_regex = (r"The new Tool classes introduced in "
+                              r"v[0-9]*.[0-9]* are experimental")
+    with pytest.warns(UserWarning, match=expected_warning_regex) as rec:
         ax.figure.canvas.manager.toolmanager.add_tool(name="zoom",
                                                       tool=ToolZoom)
         ax.figure.canvas.manager.toolmanager.add_tool(name="pan",
@@ -178,7 +180,3 @@ def test_toolbar_zoompan():
         assert ax.get_navigate_mode() == "ZOOM"
         ax.figure.canvas.manager.toolmanager.trigger_tool('pan')
         assert ax.get_navigate_mode() == "PAN"
-        assert(len(rec) == 4)
-        for r in rec:
-            assert("The new Tool classes introduced in v1.5 are experimental"
-                   in str(r.message))
