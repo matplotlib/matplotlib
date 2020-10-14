@@ -1420,7 +1420,7 @@ class PolarAxes(Axes):
 
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
 
         Polar axes do not support zoom boxes.
         """
@@ -1428,7 +1428,7 @@ class PolarAxes(Axes):
 
     def can_pan(self):
         """
-        Return *True* if this axes supports the pan/zoom button functionality.
+        Return whether this axes supports the pan/zoom button functionality.
 
         For polar axes, this is slightly misleading. Both panning and
         zooming are performed by the same button. Panning is performed
