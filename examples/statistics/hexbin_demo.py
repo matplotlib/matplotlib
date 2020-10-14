@@ -6,7 +6,7 @@ Hexbin Demo
 Plotting hexbins with Matplotlib.
 
 Hexbin is an axes method or pyplot function that is essentially
-a pcolor of a 2-D histogram with hexagonal cells.  It can be
+a pcolor of a 2D histogram with hexagonal cells.  It can be
 much more informative than a scatter plot. In the first plot
 below, try substituting 'scatter' for 'hexbin'.
 """

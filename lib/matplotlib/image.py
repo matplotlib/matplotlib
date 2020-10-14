@@ -76,7 +76,7 @@ def composite_images(images, renderer, magnification=1.0):
 
     Returns
     -------
-    image : uint8 3d array
+    image : uint8 array (M, N, 4)
         The composited RGBA image.
     offset_x, offset_y : float
         The (left, bottom) offset where the composited image should be placed

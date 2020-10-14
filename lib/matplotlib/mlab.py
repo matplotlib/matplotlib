@@ -739,7 +739,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     Returns
     -------
     spectrum : array-like
-        2-D array, columns are the periodograms of successive segments.
+        2D array, columns are the periodograms of successive segments.
 
     freqs : array-like
         1-D array, frequencies corresponding to the rows in *spectrum*.
@@ -841,7 +841,7 @@ class GaussianKDE:
     ----------
     dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
-        array, otherwise a 2-D array with shape (# of dims, # of data).
+        array, otherwise a 2D array with shape (# of dims, # of data).
 
     bw_method : str, scalar or callable, optional
         The method used to calculate the estimator bandwidth.  This can be

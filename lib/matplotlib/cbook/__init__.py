@@ -1300,7 +1300,7 @@ def _to_unmasked_float_array(x):
 
 
 def _check_1d(x):
-    """Convert scalars to 1d arrays; pass-through arrays as is."""
+    """Convert scalars to 1D arrays; pass-through arrays as is."""
     if not hasattr(x, 'shape') or len(x.shape) < 1:
         return np.atleast_1d(x)
     else:

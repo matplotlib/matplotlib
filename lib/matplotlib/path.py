@@ -216,7 +216,7 @@ class Path:
     @property
     def codes(self):
         """
-        The list of codes in the `Path` as a 1-D numpy array.  Each
+        The list of codes in the `Path` as a 1D numpy array.  Each
         code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4`
         or `CLOSEPOLY`.  For codes that correspond to more than one
         vertex (`CURVE3` and `CURVE4`), that code will be repeated so

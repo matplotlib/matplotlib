@@ -946,7 +946,7 @@ class Axes3D(Axes):
 
         Notes
         -----
-        This function is merely provided for completeness, but 3d axes do not
+        This function is merely provided for completeness, but 3D axes do not
         support dates for ticks, and so this may not work as expected.
         """)
 
@@ -1495,7 +1495,7 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y, Z : 2d arrays
+        X, Y, Z : 2D arrays
             Data values.
 
         rcount, ccount : int
@@ -1751,7 +1751,7 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y, Z : 2d arrays
+        X, Y, Z : 2D arrays
             Data values.
 
         rcount, ccount : int
@@ -2272,7 +2272,7 @@ class Axes3D(Axes):
             - A sequence of colors of length n.
             - A sequence of n numbers to be mapped to colors using *cmap* and
               *norm*.
-            - A 2-D array in which the rows are RGB or RGBA.
+            - A 2D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
         depthshade : bool, default: True
@@ -2699,7 +2699,7 @@ pivot='tail', normalize=False, **kwargs)
         Parameters
         ----------
         filled : 3D np.array of bool
-            A 3d array of values, with truthy values indicating which voxels
+            A 3D array of values, with truthy values indicating which voxels
             to fill
 
         x, y, z : 3D np.array, optional

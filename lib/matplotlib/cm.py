@@ -295,7 +295,7 @@ class ScalarMappable:
         """
         Return a normalized rgba array corresponding to *x*.
 
-        In the normal case, *x* is a 1-D or 2-D sequence of scalars, and
+        In the normal case, *x* is a 1D or 2D sequence of scalars, and
         the corresponding ndarray of rgba values will be returned,
         based on the norm and colormap set for this ScalarMappable.
 

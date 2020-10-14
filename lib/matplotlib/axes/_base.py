@@ -430,7 +430,7 @@ class _process_plot_var_args:
             raise ValueError(f"x and y must have same first dimension, but "
                              f"have shapes {x.shape} and {y.shape}")
         if x.ndim > 2 or y.ndim > 2:
-            raise ValueError(f"x and y can be no greater than 2-D, but have "
+            raise ValueError(f"x and y can be no greater than 2D, but have "
                              f"shapes {x.shape} and {y.shape}")
         if x.ndim == 1:
             x = x[:, np.newaxis]

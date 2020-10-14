@@ -941,7 +941,7 @@ class TestVoxels:
 
     @mpl3d_image_comparison(['voxels-named-colors.png'])
     def test_named_colors(self):
-        """Test with colors set to a 3d object array of strings."""
+        """Test with colors set to a 3D object array of strings."""
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
         x, y, z = np.indices((10, 10, 10))
@@ -1171,7 +1171,7 @@ def test_minor_ticks():
 
 @mpl3d_image_comparison(['errorbar3d_errorevery.png'])
 def test_errorbar3d_errorevery():
-    """Tests errorevery functionality for 3d errorbars."""
+    """Tests errorevery functionality for 3D errorbars."""
     t = np.arange(0, 2*np.pi+.1, 0.01)
     x, y, z = np.sin(t), np.cos(3*t), np.sin(5*t)
 
@@ -1189,7 +1189,7 @@ def test_errorbar3d_errorevery():
 
 @mpl3d_image_comparison(['errorbar3d.png'])
 def test_errorbar3d():
-    """Tests limits, color styling, and legend for 3d errorbars."""
+    """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 

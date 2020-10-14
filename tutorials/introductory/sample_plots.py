@@ -107,7 +107,7 @@ Three-dimensional plotting
 ==========================
 
 The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
-:ref:`mplot3d-examples-index`) has support for simple 3d graphs
+:ref:`mplot3d-examples-index`) has support for simple 3D graphs
 including surface, wireframe, scatter, and bar charts.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_surface3d_001.png

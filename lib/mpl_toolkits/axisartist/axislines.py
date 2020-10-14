@@ -115,7 +115,7 @@ class AxisArtistHelper:
         def __init__(self, loc, nth_coord=None):
             """
             nth_coord = along which coordinate value varies
-            in 2d, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
+            in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
             """
             _api.check_in_list(["left", "right", "bottom", "top"], loc=loc)
             self._loc = loc
@@ -195,7 +195,7 @@ class AxisArtistHelperRectlinear:
         def __init__(self, axes, loc, nth_coord=None):
             """
             nth_coord = along which coordinate value varies
-            in 2d, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
+            in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
             """
             super().__init__(loc, nth_coord)
             self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]

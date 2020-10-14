@@ -3229,7 +3229,7 @@ def figaspect(arg):
 
     Parameters
     ----------
-    arg : float or 2d array
+    arg : float or 2D array
         If a float, this defines the aspect ratio (i.e. the ratio height /
         width).
         In case of an array the aspect ratio is number of rows / number of
