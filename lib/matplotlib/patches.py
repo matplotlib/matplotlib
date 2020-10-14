@@ -9,7 +9,7 @@ from collections import namedtuple
 import numpy as np
 
 import matplotlib as mpl
-from . import (artist, cbook, colors, docstring, hatch as mhatch,
+from . import (_api, artist, cbook, colors, docstring, hatch as mhatch,
                lines as mlines, transforms)
 from .bezier import (
     NonIntersectingPathException, get_cos_sin, get_intersection,
@@ -2007,8 +2007,8 @@ class BoxStyle(_Style):
             @cbook._delete_parameter("3.4", "mutation_aspect")
             def call_wrapper(
                     self, x0, y0, width, height, mutation_size,
-                    mutation_aspect=cbook.deprecation._deprecated_parameter):
-                if mutation_aspect is cbook.deprecation._deprecated_parameter:
+                    mutation_aspect=_api.deprecation._deprecated_parameter):
+                if mutation_aspect is _api.deprecation._deprecated_parameter:
                     # Don't trigger deprecation warning internally.
                     return __call__(self, x0, y0, width, height, mutation_size)
                 else:

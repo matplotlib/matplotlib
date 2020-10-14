@@ -1,9 +1,12 @@
 """
 Helper functions for managing the Matplotlib API.
 
+This documentation is only relevant for Matplotlib developers, not for users.
+
 .. warning:
 
-    This module and its submodules is for internal use only.
+    This module and its submodules are for internal use only.  Do not use them
+    in your own code.  We may change the API at any time with no warning.
 
 """
 
