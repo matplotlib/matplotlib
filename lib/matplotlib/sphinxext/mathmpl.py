@@ -6,9 +6,7 @@ from docutils.parsers.rst import Directive, directives
 import sphinx
 
 import matplotlib as mpl
-from matplotlib import cbook
-from matplotlib.mathtext import MathTextParser
-mathtext_parser = MathTextParser("Bitmap")
+from matplotlib import cbook, mathtext
 
 
 # Define LaTeX math node:
@@ -17,7 +15,7 @@ class latex_math(nodes.General, nodes.Element):
 
 
 def fontset_choice(arg):
-    return directives.choice(arg, MathTextParser._font_type_mapping)
+    return directives.choice(arg, mathtext.MathTextParser._font_type_mapping)
 
 
 def math_role(role, rawtext, text, lineno, inliner,
@@ -50,15 +48,12 @@ class MathDirective(Directive):
 def latex2png(latex, filename, fontset='cm'):
     latex = "$%s$" % latex
     with mpl.rc_context({'mathtext.fontset': fontset}):
-        if Path(filename).exists():
-            depth = mathtext_parser.get_depth(latex, dpi=100)
-        else:
-            try:
-                depth = mathtext_parser.to_png(filename, latex, dpi=100)
-            except Exception:
-                cbook._warn_external(
-                    f"Could not render math expression {latex}")
-                depth = 0
+        try:
+            depth = mathtext.math_to_image(
+                latex, filename, dpi=100, format="png")
+        except Exception:
+            cbook._warn_external(f"Could not render math expression {latex}")
+            depth = 0
     return depth
 
 

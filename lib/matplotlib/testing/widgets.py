@@ -18,31 +18,35 @@ def get_ax():
     return ax
 
 
-def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
-    """
-    Trigger an event
+def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
+    r"""
+    Create a mock event that can stand in for `.Event` and its subclasses.
+
+    This event is intended to be used in tests where it can be passed into
+    event handling functions.
 
     Parameters
     ----------
-    tool : matplotlib.widgets.RectangleSelector
-    etype
-        the event to trigger
+    ax : `matplotlib.axes.Axes`
+        The axes the event will be in.
     xdata : int
-        x coord of mouse in data coords
+        x coord of mouse in data coords.
     ydata : int
-        y coord of mouse in data coords
-    button : int or str
-        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
-        for scroll events)
-    key
-        the key depressed when the mouse event triggered (see
-        :class:`KeyEvent`)
+        y coord of mouse in data coords.
+    button : None or `MouseButton` or {'up', 'down'}
+        The mouse button pressed in this event (see also `.MouseEvent`).
+    key : None or str
+        The key pressed when the mouse event triggered (see also `.KeyEvent`).
     step : int
-        number of scroll steps (positive for 'up', negative for 'down')
+        Number of scroll steps (positive for 'up', negative for 'down').
+
+    Returns
+    -------
+    event
+        A `.Event`\-like Mock instance.
     """
     event = mock.Mock()
     event.button = button
-    ax = tool.ax
     event.x, event.y = ax.transData.transform([(xdata, ydata),
                                                (xdata, ydata)])[0]
     event.xdata, event.ydata = xdata, ydata
@@ -52,6 +56,29 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     event.step = step
     event.guiEvent = None
     event.name = 'Custom'
+    return event
 
+
+def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
+    """
+    Trigger an event on the given tool.
+
+    Parameters
+    ----------
+    tool : matplotlib.widgets.RectangleSelector
+    etype : str
+        The event to trigger.
+    xdata : int
+        x coord of mouse in data coords.
+    ydata : int
+        y coord of mouse in data coords.
+    button : None or `MouseButton` or {'up', 'down'}
+        The mouse button pressed in this event (see also `.MouseEvent`).
+    key : None or str
+        The key pressed when the mouse event triggered (see also `.KeyEvent`).
+    step : int
+        Number of scroll steps (positive for 'up', negative for 'down').
+    """
+    event = mock_event(tool.ax, button, xdata, ydata, key, step)
     func = getattr(tool, etype)
     func(event)

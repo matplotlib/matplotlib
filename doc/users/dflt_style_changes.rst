@@ -28,8 +28,8 @@ persistently and selectively revert many of these changes.
 
 
 
-Colors, color cycles, and color maps
-====================================
+Colors, color cycles, and colormaps
+===================================
 
 Colors in default property cycle
 --------------------------------
@@ -117,7 +117,7 @@ in your :file:`matplotlibrc` file.
 Colormap
 --------
 
-The new default color map used by `matplotlib.cm.ScalarMappable` instances is
+The new default colormap used by `matplotlib.cm.ScalarMappable` instances is
 'viridis' (aka `option D <https://bids.github.io/colormap/>`__).
 
 .. plot::
@@ -144,7 +144,7 @@ For an introduction to color theory and how 'viridis' was generated
 watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
 See `here for many more details <https://bids.github.io/colormap/>`__
 about the other alternatives and the tools used to create the color
-map.  For details on all of the color maps available in matplotlib see
+map.  For details on all of the colormaps available in matplotlib see
 :doc:`/tutorials/colors/colormaps`.
 
 .. raw:: html
@@ -260,7 +260,7 @@ or by setting::
 In your :file:`matplotlibrc` file.
 
 In addition, the ``forward`` kwarg to
-`~matplotlib.Figure.set_size_inches` now defaults to `True` to improve
+`~.Figure.set_size_inches` now defaults to `True` to improve
 the interactive experience.  Backend canvases that adjust the size of
 their bound `matplotlib.figure.Figure` must pass ``forward=False`` to
 avoid circular behavior.  This default is not configurable.
@@ -597,7 +597,7 @@ in your :file:`matplotlibrc` file.
 ``hexbin``
 ----------
 
-The default value of the ``linecolor`` kwarg for `~matplotlib.Axes.hexbin` has
+The default value of the *linecolor* keyword argument for `~.Axes.hexbin` has
 changed from ``'none'`` to ``'face'``. If 'none' is now supplied, no line edges
 are drawn around the hexagons.
 
@@ -607,7 +607,7 @@ are drawn around the hexagons.
 --------------------
 
 The default value of the ``align`` kwarg for both
-`~matplotlib.Axes.bar` and `~matplotlib.Axes.barh` is changed from
+`~.Axes.bar` and `~.Axes.barh` is changed from
 ``'edge'`` to ``'center'``.
 
 
@@ -846,7 +846,7 @@ Interpolation
 
 The default interpolation method for `~matplotlib.axes.Axes.imshow` is
 now ``'nearest'`` and by default it resamples the data (both up and down
-sampling) before color mapping.
+sampling) before colormapping.
 
 
 .. plot::
@@ -888,16 +888,16 @@ in your :file:`matplotlibrc` file.
 Colormapping pipeline
 ---------------------
 
-Previously, the input data was normalized, then color mapped, and then
+Previously, the input data was normalized, then colormapped, and then
 resampled to the resolution required for the screen.  This meant that
 the final resampling was being done in color space.  Because the color
-maps are not generally linear in RGB space, colors not in the color map
+maps are not generally linear in RGB space, colors not in the colormap
 may appear in the final image.  This bug was addressed by an almost
 complete overhaul of the image handling code.
 
 The input data is now normalized, then resampled to the correct
-resolution (in normalized dataspace), and then color mapped to
-RGB space.  This ensures that only colors from the color map appear
+resolution (in normalized dataspace), and then colormapped to
+RGB space.  This ensures that only colors from the colormap appear
 in the final image. (If your viewer subsequently resamples the image,
 the artifact may reappear.)
 

@@ -19,7 +19,6 @@ import matplotlib as mpl
 from . import _api, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
-from .transforms import blended_transform_factory
 
 
 class LockDraw:
@@ -1457,8 +1456,21 @@ class _SelectorWidget(AxesWidget):
         """Force an update of the background."""
         # If you add a call to `ignore` here, you'll want to check edge case:
         # `release` can call a draw event even when `ignore` is True.
-        if self.useblit:
+        if not self.useblit:
+            return
+        # Make sure that widget artists don't get accidentally included in the
+        # background, by re-rendering the background if needed (and then
+        # re-re-rendering the canvas with the visible widget artists).
+        needs_redraw = any(artist.get_visible() for artist in self.artists)
+        with ExitStack() as stack:
+            if needs_redraw:
+                for artist in self.artists:
+                    stack.callback(artist.set_visible, artist.get_visible())
+                    artist.set_visible(False)
+                self.canvas.draw()
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        if needs_redraw:
+            self.update()
 
     def connect_default_events(self):
         """Connect the major canvas events to methods."""
@@ -1716,12 +1728,10 @@ class SpanSelector(_SelectorWidget):
             self.connect_default_events()
 
         if self.direction == 'horizontal':
-            trans = blended_transform_factory(self.ax.transData,
-                                              self.ax.transAxes)
+            trans = ax.get_xaxis_transform()
             w, h = 0, 1
         else:
-            trans = blended_transform_factory(self.ax.transAxes,
-                                              self.ax.transData)
+            trans = ax.get_yaxis_transform()
             w, h = 1, 0
         self.rect = Rectangle((0, 0), w, h,
                               transform=trans,

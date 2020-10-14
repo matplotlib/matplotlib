@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 
 fig = plt.figure()
 
-host = HostAxes(fig, [0.15, 0.1, 0.65, 0.8])
+host = fig.add_axes([0.15, 0.1, 0.65, 0.8], axes_class=HostAxes)
 par1 = ParasiteAxes(host, sharex=host)
 par2 = ParasiteAxes(host, sharex=host)
 host.parasites.append(par1)
@@ -36,8 +36,6 @@ par1.axis["right"].major_ticklabels.set_visible(True)
 par1.axis["right"].label.set_visible(True)
 
 par2.axis["right2"] = par2.new_fixed_axis(loc="right", offset=(60, 0))
-
-fig.add_axes(host)
 
 p1, = host.plot([0, 1, 2], [0, 1, 2], label="Density")
 p2, = par1.plot([0, 1, 2], [0, 3, 2], label="Temperature")

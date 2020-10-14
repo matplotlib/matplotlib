@@ -249,9 +249,9 @@ class ContourLabeler:
                         .get_text_width_height_descent(lev, fsize))
         elif ismath:
             if not hasattr(self, '_mathtext_parser'):
-                self._mathtext_parser = mathtext.MathTextParser('bitmap')
-            img, _ = self._mathtext_parser.parse(lev, dpi=72,
-                                                 prop=self.labelFontProps)
+                self._mathtext_parser = mathtext.MathTextParser('agg')
+            _, _, _, _, _, img, _ = self._mathtext_parser.parse(
+                lev, dpi=72, prop=self.labelFontProps)
             _, lw = np.shape(img)  # at dpi=72, the units are PostScript points
         else:
             # width is much less than "font size"
@@ -1191,7 +1191,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Color argument processing for contouring.
 
-        Note that we base the color mapping on the contour levels
+        Note that we base the colormapping on the contour levels
         and layers, not on the actual range of the Z values.  This
         means we don't have to worry about bad values in Z, and we
         always have the full dynamic range available for the selected
@@ -1555,12 +1555,6 @@ class QuadContourSet(ContourSet):
         return np.meshgrid(x, y)
 
     _contour_doc = """
-        Plot contours.
-
-        Call signature::
-
-            contour([X, Y,] Z, [levels], **kwargs)
-
         `.contour` and `.contourf` draw contour lines and filled contours,
         respectively.  Except as noted, function signatures and return values
         are the same for both versions.

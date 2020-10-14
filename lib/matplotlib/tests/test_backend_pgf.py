@@ -321,3 +321,10 @@ def test_bbox_inches_tight(tmpdir):
     ax.imshow([[0, 1], [2, 3]])
     fig.savefig(os.path.join(tmpdir, "test.pdf"), backend="pgf",
                 bbox_inches="tight")
+
+
+@needs_xelatex
+def test_png():
+    # Just a smoketest.
+    fig, ax = plt.subplots()
+    fig.savefig(BytesIO(), format="png", backend="pgf")

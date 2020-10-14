@@ -10,31 +10,23 @@ from .mpl_axes import Axes
 
 class ParasiteAxesBase:
 
-    def get_images_artists(self):
-        artists = {a for a in self.get_children() if a.get_visible()}
-        images = {a for a in self.images if a.get_visible()}
-
-        return list(images), list(artists - images)
-
-    def __init__(self, parent_axes, **kwargs):
+    def __init__(self, parent_axes, aux_transform=None,
+                 *, viewlim_mode=None, **kwargs):
         self._parent_axes = parent_axes
+        self.transAux = aux_transform
+        self.set_viewlim_mode(viewlim_mode)
         kwargs["frameon"] = False
         super().__init__(parent_axes.figure, parent_axes._position, **kwargs)
 
     def cla(self):
         super().cla()
-
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
 
-        # In mpl's Axes, zorders of x- and y-axis are originally set
-        # within Axes.draw().
-        if self._axisbelow:
-            self.xaxis.set_zorder(0.5)
-            self.yaxis.set_zorder(0.5)
-        else:
-            self.xaxis.set_zorder(2.5)
-            self.yaxis.set_zorder(2.5)
+    def get_images_artists(self):
+        artists = {a for a in self.get_children() if a.get_visible()}
+        images = {a for a in self.images if a.get_visible()}
+        return list(images), list(artists - images)
 
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given
@@ -47,6 +39,49 @@ class ParasiteAxesBase:
             if (hasattr(mouseevent.inaxes, "parasites")
                     and self in mouseevent.inaxes.parasites):
                 a.pick(mouseevent)
+
+    # aux_transform support
+
+    def _set_lim_and_transforms(self):
+        if self.transAux is not None:
+            self.transAxes = self._parent_axes.transAxes
+            self.transData = self.transAux + self._parent_axes.transData
+            self._xaxis_transform = mtransforms.blended_transform_factory(
+                self.transData, self.transAxes)
+            self._yaxis_transform = mtransforms.blended_transform_factory(
+                self.transAxes, self.transData)
+        else:
+            super()._set_lim_and_transforms()
+
+    def set_viewlim_mode(self, mode):
+        _api.check_in_list([None, "equal", "transform"], mode=mode)
+        self._viewlim_mode = mode
+
+    def get_viewlim_mode(self):
+        return self._viewlim_mode
+
+    @cbook.deprecated("3.4", alternative="apply_aspect")
+    def update_viewlim(self):
+        return self._update_viewlim
+
+    def _update_viewlim(self):  # Inline after deprecation elapses.
+        viewlim = self._parent_axes.viewLim.frozen()
+        mode = self.get_viewlim_mode()
+        if mode is None:
+            pass
+        elif mode == "equal":
+            self.axes.viewLim.set(viewlim)
+        elif mode == "transform":
+            self.axes.viewLim.set(
+                viewlim.transformed(self.transAux.inverted()))
+        else:
+            _api.check_in_list([None, "equal", "transform"], mode=mode)
+
+    def apply_aspect(self, position=None):
+        self._update_viewlim()
+        super().apply_aspect()
+
+    # end of aux_transform support
 
 
 @functools.lru_cache(None)
@@ -66,25 +101,21 @@ def parasite_axes_class_factory(axes_class=None):
 ParasiteAxes = parasite_axes_class_factory(Axes)
 
 
+@cbook.deprecated("3.4", alternative="ParasiteAxesBase")
 class ParasiteAxesAuxTransBase:
     def __init__(self, parent_axes, aux_transform, viewlim_mode=None,
                  **kwargs):
-        self.transAux = aux_transform
-        self.set_viewlim_mode(viewlim_mode)
-        super().__init__(parent_axes, **kwargs)
+        # Explicit wrapper for deprecation to work.
+        super().__init__(parent_axes, aux_transform,
+                         viewlim_mode=viewlim_mode, **kwargs)
 
     def _set_lim_and_transforms(self):
-
         self.transAxes = self._parent_axes.transAxes
-
-        self.transData = \
-            self.transAux + \
-            self._parent_axes.transData
-
+        self.transData = self.transAux + self._parent_axes.transData
         self._xaxis_transform = mtransforms.blended_transform_factory(
-                self.transData, self.transAxes)
+            self.transData, self.transAxes)
         self._yaxis_transform = mtransforms.blended_transform_factory(
-                self.transAxes, self.transData)
+            self.transAxes, self.transData)
 
     def set_viewlim_mode(self, mode):
         _api.check_in_list([None, "equal", "transform"], mode=mode)
@@ -93,7 +124,11 @@ class ParasiteAxesAuxTransBase:
     def get_viewlim_mode(self):
         return self._viewlim_mode
 
+    @cbook.deprecated("3.4", alternative="apply_aspect")
     def update_viewlim(self):
+        return self._update_viewlim()
+
+    def _update_viewlim(self):  # Inline after deprecation elapses.
         viewlim = self._parent_axes.viewLim.frozen()
         mode = self.get_viewlim_mode()
         if mode is None:
@@ -107,10 +142,11 @@ class ParasiteAxesAuxTransBase:
             _api.check_in_list([None, "equal", "transform"], mode=mode)
 
     def apply_aspect(self, position=None):
-        self.update_viewlim()
+        self._update_viewlim()
         super().apply_aspect()
 
 
+@cbook.deprecated("3.4", alternative="parasite_axes_class_factory")
 @functools.lru_cache(None)
 def parasite_axes_auxtrans_class_factory(axes_class=None):
     if axes_class is None:
@@ -129,7 +165,9 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
                 {'name': 'parasite_axes'})
 
 
-ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
+# Also deprecated.
+with cbook._suppress_matplotlib_deprecation_warning():
+    ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
 
 
 class HostAxesBase:
@@ -137,9 +175,20 @@ class HostAxesBase:
         self.parasites = []
         super().__init__(*args, **kwargs)
 
-    def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=ParasiteAxes):
-        parasite_axes_class = parasite_axes_auxtrans_class_factory(axes_class)
-        ax2 = parasite_axes_class(self, tr, viewlim_mode)
+    def get_aux_axes(self, tr=None, viewlim_mode="equal", axes_class=Axes):
+        """
+        Add a parasite axes to this host.
+
+        Despite this method's name, this should actually be thought of as an
+        ``add_parasite_axes`` method.
+
+        *tr* may be `.Transform`, in which case the following relation will
+        hold: ``parasite.transData = tr + host.transData``.  Alternatively, it
+        may be None (the default), no special relationship will hold between
+        the parasite's and the host's ``transData``.
+        """
+        parasite_axes_class = parasite_axes_class_factory(axes_class)
+        ax2 = parasite_axes_class(self, tr, viewlim_mode=viewlim_mode)
         # note that ax2.transData == tr + ax1.transData
         # Anything you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
@@ -204,9 +253,9 @@ class HostAxesBase:
 
         parasite_axes_class = parasite_axes_class_factory(axes_class)
 
-        ax2 = parasite_axes_class(self, sharex=self, frameon=False)
+        ax2 = parasite_axes_class(self, sharex=self)
         self.parasites.append(ax2)
-        ax2._remove_method = self._remove_twinx
+        ax2._remove_method = self._remove_any_twin
 
         self.axis["right"].set_visible(False)
 
@@ -214,11 +263,6 @@ class HostAxesBase:
         ax2.axis["left", "top", "bottom"].set_visible(False)
 
         return ax2
-
-    def _remove_twinx(self, ax):
-        self.parasites.remove(ax)
-        self.axis["right"].set_visible(True)
-        self.axis["right"].toggle(ticklabels=False, label=False)
 
     def twiny(self, axes_class=None):
         """
@@ -232,9 +276,9 @@ class HostAxesBase:
 
         parasite_axes_class = parasite_axes_class_factory(axes_class)
 
-        ax2 = parasite_axes_class(self, sharey=self, frameon=False)
+        ax2 = parasite_axes_class(self, sharey=self)
         self.parasites.append(ax2)
-        ax2._remove_method = self._remove_twiny
+        ax2._remove_method = self._remove_any_twin
 
         self.axis["top"].set_visible(False)
 
@@ -242,11 +286,6 @@ class HostAxesBase:
         ax2.axis["left", "right", "bottom"].set_visible(False)
 
         return ax2
-
-    def _remove_twiny(self, ax):
-        self.parasites.remove(ax)
-        self.axis["top"].set_visible(True)
-        self.axis["top"].toggle(ticklabels=False, label=False)
 
     def twin(self, aux_trans=None, axes_class=None):
         """
@@ -258,30 +297,30 @@ class HostAxesBase:
         if axes_class is None:
             axes_class = self._get_base_axes()
 
-        parasite_axes_auxtrans_class = \
-            parasite_axes_auxtrans_class_factory(axes_class)
+        parasite_axes_class = parasite_axes_class_factory(axes_class)
 
         if aux_trans is None:
-            ax2 = parasite_axes_auxtrans_class(
-                self, mtransforms.IdentityTransform(), viewlim_mode="equal")
-        else:
-            ax2 = parasite_axes_auxtrans_class(
-                self, aux_trans, viewlim_mode="transform")
+            aux_trans = mtransforms.IdentityTransform()
+        ax2 = parasite_axes_class(self, aux_trans, viewlim_mode="transform")
         self.parasites.append(ax2)
-        ax2._remove_method = self.parasites.remove
+        ax2._remove_method = self._remove_any_twin
 
         self.axis["top", "right"].set_visible(False)
 
         ax2.axis["top", "right"].set_visible(True)
         ax2.axis["left", "bottom"].set_visible(False)
 
-        def _remove_method(h):
-            self.parasites.remove(h)
-            self.axis["top", "right"].set_visible(True)
-            self.axis["top", "right"].toggle(ticklabels=False, label=False)
-        ax2._remove_method = _remove_method
-
         return ax2
+
+    def _remove_any_twin(self, ax):
+        self.parasites.remove(ax)
+        restore = ["top", "right"]
+        if ax._sharex:
+            restore.remove("top")
+        if ax._sharey:
+            restore.remove("right")
+        self.axis[tuple(restore)].set_visible(True)
+        self.axis[tuple(restore)].toggle(ticklabels=False, label=False)
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
                       bbox_extra_artists=None):

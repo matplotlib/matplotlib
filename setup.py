@@ -284,10 +284,9 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
     setup_requires=[
         "certifi>=2020.06.20",
-        "numpy>=1.15",
+        "numpy>=1.16",
     ],
     install_requires=[
-        "certifi>=2020.06.20",
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
         "numpy>=1.16",

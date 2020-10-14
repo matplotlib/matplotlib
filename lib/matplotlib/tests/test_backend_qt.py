@@ -110,9 +110,9 @@ def test_fig_signals(qt_core):
         ('Key_Alt', ['ControlModifier'], 'ctrl+alt'),
         ('Key_Aacute', ['ControlModifier', 'AltModifier', 'MetaModifier'],
          'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
+        ('Key_Play', [], None),
         ('Key_Backspace', [], 'backspace'),
         ('Key_Backspace', ['ControlModifier'], 'ctrl+backspace'),
-        ('Key_Play', [], None),
     ],
     ids=[
         'shift',
@@ -123,9 +123,9 @@ def test_fig_signals(qt_core):
         'alt_control',
         'control_alt',
         'modifier_order',
+        'non_unicode_key',
         'backspace',
         'backspace_mod',
-        'non_unicode_key',
     ]
 )
 @pytest.mark.parametrize('backend', [

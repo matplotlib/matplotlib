@@ -131,8 +131,6 @@ class Axes3D(Axes):
         pseudo_bbox = self.transLimits.inverted().transform([(0, 0), (1, 1)])
         self._pseudo_w, self._pseudo_h = pseudo_bbox[1] - pseudo_bbox[0]
 
-        self.figure.add_axes(self)
-
         # mplot3d currently manages its own spines and needs these turned off
         # for bounding box calculations
         for k in self.spines.keys():
@@ -379,8 +377,11 @@ class Axes3D(Axes):
         # in the superclass, we would go through and actually deal with axis
         # scales and box/datalim. Those are all irrelevant - all we need to do
         # is make sure our coordinate system is square.
-        figW, figH = self.get_figure().get_size_inches()
-        fig_aspect = figH / figW
+        trans = self.get_figure().transSubfigure
+        bb = mtransforms.Bbox.from_bounds(0, 0, 1, 1).transformed(trans)
+        # this is the physical aspect of the panel (or figure):
+        fig_aspect = bb.height / bb.width
+
         box_aspect = 1
         pb = position.frozen()
         pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
@@ -1208,11 +1209,25 @@ class Axes3D(Axes):
             self.stale = True
             self.figure.canvas.draw_idle()
 
-#        elif self.button_pressed == 2:
+        elif self.button_pressed == 2:
             # pan view
+            # get the x and y pixel coords
+            if dx == 0 and dy == 0:
+                return
+            minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+            dx = 1-((w - dx)/w)
+            dy = 1-((h - dy)/h)
+            elev, azim = np.deg2rad(self.elev), np.deg2rad(self.azim)
             # project xv, yv, zv -> xw, yw, zw
+            dxx = (maxx-minx)*(dy*np.sin(elev)*np.cos(azim) + dx*np.sin(azim))
+            dyy = (maxy-miny)*(-dx*np.cos(azim) + dy*np.sin(elev)*np.sin(azim))
+            dzz = (maxz-minz)*(-dy*np.cos(elev))
             # pan
-#            pass
+            self.set_xlim3d(minx + dxx, maxx + dxx)
+            self.set_ylim3d(miny + dyy, maxy + dyy)
+            self.set_zlim3d(minz + dzz, maxz + dzz)
+            self.get_proj()
+            self.figure.canvas.draw_idle()
 
         # Zoom
         elif self.button_pressed in self._zoom_btn:
@@ -1458,7 +1473,7 @@ class Axes3D(Axes):
         Create a surface plot.
 
         By default it will be colored in shades of a solid color, but it also
-        supports color mapping by supplying the *cmap* argument.
+        supports colormapping by supplying the *cmap* argument.
 
         .. note::
 

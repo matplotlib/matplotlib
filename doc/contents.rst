@@ -20,7 +20,6 @@ Overview
    resources/index.rst
    thirdpartypackages/index.rst
    devel/index.rst
-   glossary/index.rst
 
 .. only:: html
 

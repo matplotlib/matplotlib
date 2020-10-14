@@ -10,6 +10,7 @@ import matplotlib as mpl
 from matplotlib import cbook, rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -60,10 +61,9 @@ def test_align_labels():
 
 
 def test_figure_label():
-    # pyplot figure creation, selection and closing with figure label and
-    # number
+    # pyplot figure creation, selection, and closing with label/number/instance
     plt.close('all')
-    plt.figure('today')
+    fig_today = plt.figure('today')
     plt.figure(3)
     plt.figure('tomorrow')
     plt.figure()
@@ -78,6 +78,10 @@ def test_figure_label():
     plt.close('tomorrow')
     assert plt.get_fignums() == [0, 1]
     assert plt.get_figlabels() == ['', 'today']
+    plt.figure(fig_today)
+    assert plt.gcf() == fig_today
+    with pytest.raises(ValueError):
+        plt.figure(Figure())
 
 
 def test_fignum_exists():
@@ -170,11 +174,24 @@ def test_gca():
         # Changing the projection will throw a warning
         assert fig.gca(polar=True) is not ax3
     assert fig.gca(polar=True) is not ax2
-    assert fig.gca().get_geometry() == (1, 1, 1)
+    assert fig.gca().get_subplotspec().get_geometry() == (1, 1, 0, 0)
 
     fig.sca(ax1)
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
+
+
+def test_add_subplot_subclass():
+    fig = plt.figure()
+    fig.add_subplot(axes_class=Axes)
+    with pytest.raises(ValueError):
+        fig.add_subplot(axes_class=Axes, projection="3d")
+    with pytest.raises(ValueError):
+        fig.add_subplot(axes_class=Axes, polar=True)
+    with pytest.raises(ValueError):
+        fig.add_subplot(projection="3d", polar=True)
+    with pytest.raises(TypeError):
+        fig.add_subplot(projection=42)
 
 
 def test_add_subplot_invalid():
@@ -797,3 +814,50 @@ def test_reused_gridspec():
 
     assert gs1 == gs2
     assert gs1 == gs3
+
+
+@image_comparison(['test_subfigure.png'], style='mpl20',
+                  savefig_kwarg={'facecolor': 'teal'},
+                  remove_text=False)
+def test_subfigure():
+    np.random.seed(19680808)
+    fig = plt.figure(constrained_layout=True)
+    sub = fig.subfigures(1, 2)
+
+    axs = sub[0].subplots(2, 2)
+    for ax in axs.flat:
+        pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
+    sub[0].colorbar(pc, ax=axs)
+    sub[0].suptitle('Left Side')
+
+    axs = sub[1].subplots(1, 3)
+    for ax in axs.flat:
+        pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
+    sub[1].colorbar(pc, ax=axs, location='bottom')
+    sub[1].suptitle('Right Side')
+
+    fig.suptitle('Figure suptitle', fontsize='xx-large')
+
+
+@image_comparison(['test_subfigure_ss.png'], style='mpl20',
+                  savefig_kwarg={'facecolor': 'teal'},
+                  remove_text=False)
+def test_subfigure_ss():
+    # test assigning the subfigure via subplotspec
+    np.random.seed(19680808)
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(1, 2)
+
+    sub = fig.add_subfigure(gs[0], facecolor='pink')
+
+    axs = sub.subplots(2, 2)
+    for ax in axs.flat:
+        pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
+    sub.colorbar(pc, ax=axs)
+    sub.suptitle('Left Side')
+
+    ax = fig.add_subplot(gs[1])
+    ax.plot(np.arange(20))
+    ax.set_title('Axes')
+
+    fig.suptitle('Figure suptitle', fontsize='xx-large')

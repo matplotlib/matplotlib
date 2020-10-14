@@ -171,6 +171,7 @@ class MathtextBackendAgg(MathtextBackend):
         return backend_agg.get_hinting_flag()
 
 
+@cbook.deprecated("3.4", alternative="mathtext.math_to_image")
 class MathtextBackendBitmap(MathtextBackendAgg):
     def get_results(self, box, used_characters):
         ox, oy, width, height, depth, image, characters = \
@@ -460,8 +461,11 @@ class MathTextParser:
         font_output.set_canvas_size(box.width, box.height, box.depth)
         return font_output.get_results(box)
 
+    @cbook.deprecated("3.4", alternative="mathtext.math_to_image")
     def to_mask(self, texstr, dpi=120, fontsize=14):
         r"""
+        Convert a mathtext string to a grayscale array and depth.
+
         Parameters
         ----------
         texstr : str
@@ -483,8 +487,11 @@ class MathTextParser:
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
         return np.asarray(ftimage), depth
 
+    @cbook.deprecated("3.4", alternative="mathtext.math_to_image")
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         r"""
+        Convert a mathtext string to an RGBA array and depth.
+
         Parameters
         ----------
         texstr : str
@@ -513,6 +520,7 @@ class MathTextParser:
         RGBA[:, :, 3] = x
         return RGBA, depth
 
+    @cbook.deprecated("3.4", alternative="mathtext.math_to_image")
     def to_png(self, filename, texstr, color='black', dpi=120, fontsize=14):
         r"""
         Render a tex expression to a PNG file.
@@ -540,8 +548,11 @@ class MathTextParser:
         Image.fromarray(rgba).save(filename, format="png")
         return depth
 
+    @cbook.deprecated("3.4", alternative="mathtext.math_to_image")
     def get_depth(self, texstr, dpi=120, fontsize=14):
         r"""
+        Get the depth of a mathtext string.
+
         Parameters
         ----------
         texstr : str

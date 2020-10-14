@@ -44,6 +44,16 @@ for ax in axs:
 plt.show()
 
 #############################################################################
+# *baseline* can take an array to allow for stacked histogram plots
+A = [[0, 0, 0],
+     [1, 2, 3],
+     [2, 4, 6],
+     [3, 6, 9]]
+
+for i in range(len(A) - 1):
+    plt.stairs(A[i+1], baseline=A[i], fill=True)
+
+#############################################################################
 # Comparison of `.pyplot.step` and `.pyplot.stairs`
 # -------------------------------------------------
 #

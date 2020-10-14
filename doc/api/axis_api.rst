@@ -121,8 +121,10 @@ Data and view intervals
 
    Axis.get_data_interval
    Axis.get_view_interval
+   Axis.get_inverted
    Axis.set_data_interval
    Axis.set_view_interval
+   Axis.set_inverted
 
 Rendering helpers
 -----------------

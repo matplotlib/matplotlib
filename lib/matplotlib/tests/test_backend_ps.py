@@ -157,3 +157,8 @@ def test_useafm():
     ax.set_axis_off()
     ax.axhline(.5)
     ax.text(.5, .5, "qk")
+
+
+@image_comparison(["type3.eps"])
+def test_type3_font():
+    plt.figtext(.5, .5, "I/J")

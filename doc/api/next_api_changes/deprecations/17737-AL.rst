@@ -1,0 +1,6 @@
+BoxStyles are now called without passing the *mutation_aspect* parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mutation aspect is now handled by the artist itself.  Hence the
+*mutation_aspect* parameter of ``BoxStyle._Base.__call__`` is deprecated, and
+custom boxstyles should be implemented to not require this parameter (it can be
+left as a parameter defaulting to 1 for back-compatibility).

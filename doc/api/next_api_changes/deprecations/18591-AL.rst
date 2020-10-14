@@ -1,0 +1,24 @@
+``MathTextParser("bitmap")`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The associated APIs ``MathtextBackendBitmap``, ``MathTextParser.to_mask``,
+``MathTextParser.to_rgba``, ``MathTextParser.to_png``, and
+``MathTextParser.get_depth`` are likewise deprecated.
+
+To convert a text string to an image, either directly draw the text to an
+empty `.Figure` and save the figure using a tight bbox, as demonstrated in
+:doc:`/gallery/text_labels_and_annotations/mathtext_asarray`, or use
+`.mathtext.math_to_image`.
+
+When using `.math_to_image`, text color can be set with e.g.::
+
+    with plt.rc_context({"text.color": "tab:blue"}):
+        mathtext.math_to_image(text, filename)
+
+and an RGBA array can be obtained with e.g.::
+
+    from io import BytesIO
+    buf = BytesIO()
+    mathtext.math_to_image(text, buf, format="png")
+    buf.seek(0)
+    rgba = plt.imread(buf)

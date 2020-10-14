@@ -1,0 +1,8 @@
+Axes3D no longer adds itself to figure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New `.Axes3D` objects previously added themselves to figures when they were
+created, which lead to them being added twice if
+``fig.add_subplot(111, projection='3d')`` was called.  Now ``ax = Axes3d(fig)``
+will need to be explicitly added to the figure with ``fig.add_axes(ax)``, as
+also needs to be done for normal `.axes.Axes`.

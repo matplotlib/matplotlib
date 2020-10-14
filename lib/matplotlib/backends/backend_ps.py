@@ -25,8 +25,8 @@ from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
     GraphicsContextBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
-from matplotlib.font_manager import is_opentype_cff_font, get_font
-from matplotlib.ft2font import LOAD_NO_HINTING
+from matplotlib.font_manager import get_font
+from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE
 from matplotlib._ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
@@ -132,6 +132,86 @@ def _move_path_to_path_or_stream(src, dst):
             shutil.copyfileobj(fh, dst)
     else:
         shutil.move(src, dst, copy_function=shutil.copyfile)
+
+
+def _font_to_ps_type3(font_path, glyph_ids):
+    """
+    Subset *glyph_ids* from the font at *font_path* into a Type 3 font.
+
+    Parameters
+    ----------
+    font_path : path-like
+        Path to the font to be subsetted.
+    glyph_ids : list of int
+        The glyph indices to include in the subsetted font.
+
+    Returns
+    -------
+    str
+        The string representation of a Type 3 font, which can be included
+        verbatim into a PostScript file.
+    """
+    font = get_font(font_path, hinting_factor=1)
+
+    preamble = """\
+%!PS-Adobe-3.0 Resource-Font
+%%Creator: Converted from TrueType to Type 3 by Matplotlib.
+10 dict begin
+/FontName /{font_name} def
+/PaintType 0 def
+/FontMatrix [{inv_units_per_em} 0 0 {inv_units_per_em} 0 0] def
+/FontBBox [{bbox}] def
+/FontType 3 def
+/Encoding [{encoding}] def
+/CharStrings {num_glyphs} dict dup begin
+/.notdef 0 def
+""".format(font_name=font.postscript_name,
+           inv_units_per_em=1 / font.units_per_EM,
+           bbox=" ".join(map(str, font.bbox)),
+           encoding=" ".join("/{}".format(font.get_glyph_name(glyph_id))
+                             for glyph_id in glyph_ids),
+           num_glyphs=len(glyph_ids) + 1)
+    postamble = """
+end readonly def
+
+/BuildGlyph {
+ exch begin
+ CharStrings exch
+ 2 copy known not {pop /.notdef} if
+ true 3 1 roll get exec
+ end
+} d
+
+/BuildChar {
+ 1 index /Encoding get exch get
+ 1 index /BuildGlyph get exec
+} d
+
+FontName currentdict end definefont pop
+"""
+
+    entries = []
+    for glyph_id in glyph_ids:
+        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        v, c = font.get_path()
+        entries.append(
+            "/%(name)s{%(bbox)s sc\n" % {
+                "name": font.get_glyph_name(glyph_id),
+                "bbox": " ".join(map(str, [g.horiAdvance, 0, *g.bbox])),
+            }
+            + _path.convert_to_string(
+                # Convert back to TrueType's internal units (1/64's).
+                # (Other dimensions are already in these units.)
+                Path(v * 64, c), None, None, False, None, 0,
+                # No code for quad Beziers triggers auto-conversion to cubics.
+                # Drop intermediate closepolys (relying on the outline
+                # decomposer always explicitly moving to the closing point
+                # first).
+                [b"m", b"l", b"", b"c", b""], True).decode("ascii")
+            + "ce} d"
+        )
+
+    return preamble + "\n".join(entries) + postamble
 
 
 class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
@@ -922,22 +1002,18 @@ class FigureCanvasPS(FigureCanvasBase):
                     # Can't use more than 255 chars from a single Type 3 font.
                     if len(glyph_ids) > 255:
                         fonttype = 42
-                    # The ttf to ps (subsetting) support doesn't work for
-                    # OpenType fonts that are Postscript inside (like the STIX
-                    # fonts).  This will simply turn that off to avoid errors.
-                    if is_opentype_cff_font(font_path):
-                        raise RuntimeError(
-                            "OpenType CFF fonts can not be saved using "
-                            "the internal Postscript backend at this "
-                            "time; consider using the Cairo backend")
                     fh.flush()
-                    try:
-                        convert_ttf_to_ps(os.fsencode(font_path),
-                                          fh, fonttype, glyph_ids)
-                    except RuntimeError:
-                        _log.warning("The PostScript backend does not "
-                                     "currently support the selected font.")
-                        raise
+                    if fonttype == 3:
+                        fh.write(_font_to_ps_type3(font_path, glyph_ids))
+                    else:
+                        try:
+                            convert_ttf_to_ps(os.fsencode(font_path),
+                                              fh, fonttype, glyph_ids)
+                        except RuntimeError:
+                            _log.warning(
+                                "The PostScript backend does not currently "
+                                "support the selected font.")
+                            raise
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
@@ -1312,16 +1388,20 @@ FigureManagerPS = FigureManagerBase
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
 psDefs = [
+    # name proc  *d*  -
+    "/d { bind def } bind def",
     # x y  *m*  -
-    "/m { moveto } bind def",
+    "/m { moveto } d",
     # x y  *l*  -
-    "/l { lineto } bind def",
+    "/l { lineto } d",
     # x y  *r*  -
-    "/r { rlineto } bind def",
+    "/r { rlineto } d",
     # x1 y1 x2 y2 x y *c*  -
-    "/c { curveto } bind def",
-    # *closepath*  -
-    "/cl { closepath } bind def",
+    "/c { curveto } d",
+    # *cl*  -
+    "/cl { closepath } d",
+    # *ce*  -
+    "/ce { closepath eofill } d",
     # w h x y  *box*  -
     """/box {
       m
@@ -1329,13 +1409,15 @@ psDefs = [
       0 exch r
       neg 0 r
       cl
-    } bind def""",
+    } d""",
     # w h x y  *clipbox*  -
     """/clipbox {
       box
       clip
       newpath
-    } bind def""",
+    } d""",
+    # wx wy llx lly urx ury  *setcachedevice*  -
+    "/sc { setcachedevice } d",
 ]
 
 

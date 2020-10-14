@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import io
 import os
 from pathlib import Path
@@ -210,6 +211,53 @@ def test_multipage_metadata(monkeypatch):
         '/Title': 'Multipage PDF',
         '/Trapped': '/True',
     }
+
+
+def test_text_urls():
+    pikepdf = pytest.importorskip('pikepdf')
+
+    test_url = 'https://test_text_urls.matplotlib.org/'
+
+    fig = plt.figure(figsize=(2, 1))
+    fig.text(0.1, 0.1, 'test plain 123', url=f'{test_url}plain')
+    fig.text(0.1, 0.4, 'test mathtext $123$', url=f'{test_url}mathtext')
+
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format='pdf')
+
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+    for y, fragment in [('0.1', 'plain'), ('0.4', 'mathtext')]:
+        annot = next(
+            (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
+            None)
+        assert annot is not None
+        # Positions in points (72 per inch.)
+        assert annot.Rect[1] == decimal.Decimal(y) * 72
+
+
+@needs_usetex
+def test_text_urls_tex():
+    pikepdf = pytest.importorskip('pikepdf')
+
+    test_url = 'https://test_text_urls.matplotlib.org/'
+
+    fig = plt.figure(figsize=(2, 1))
+    fig.text(0.1, 0.7, 'test tex $123$', usetex=True, url=f'{test_url}tex')
+
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format='pdf')
+
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+    annot = next(
+        (a for a in annots if a.A.URI == f'{test_url}tex'),
+        None)
+    assert annot is not None
+    # Positions in points (72 per inch.)
+    assert annot.Rect[1] == decimal.Decimal('0.7') * 72
 
 
 def test_pdfpages_fspath():

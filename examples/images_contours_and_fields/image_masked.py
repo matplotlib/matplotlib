@@ -45,7 +45,7 @@ Zm = np.ma.masked_where(Z > 1.2, Z)
 # set up the Axes objects
 fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 5.4))
 
-# plot using 'continuous' color map
+# plot using 'continuous' colormap
 im = ax1.imshow(Zm, interpolation='bilinear',
                 cmap=palette,
                 norm=colors.Normalize(vmin=-1.0, vmax=1.0),

@@ -1,0 +1,3 @@
+``backend_pgf.TmpDirCleaner``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated, with no replacement.

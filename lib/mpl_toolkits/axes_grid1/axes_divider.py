@@ -347,27 +347,33 @@ class SubplotDivider(Divider):
             (2, 3, 4)).
         """
         self.figure = fig
-        self._subplotspec = SubplotSpec._from_subplot_args(fig, args)
-        self.update_params()  # sets self.figbox
-        super().__init__(fig, pos=self.figbox.bounds,
+        super().__init__(fig, [0, 0, 1, 1],
                          horizontal=horizontal or [], vertical=vertical or [],
                          aspect=aspect, anchor=anchor)
+        self.set_subplotspec(SubplotSpec._from_subplot_args(fig, args))
 
     def get_position(self):
         """Return the bounds of the subplot box."""
-        self.update_params()  # update self.figbox
-        return self.figbox.bounds
+        return self.get_subplotspec().get_position(self.figure).bounds
 
+    @cbook.deprecated("3.4")
+    @property
+    def figbox(self):
+        return self.get_subplotspec().get_position(self.figure)
+
+    @cbook.deprecated("3.4")
     def update_params(self):
-        """Update the subplot position from fig.subplotpars."""
-        self.figbox = self.get_subplotspec().get_position(self.figure)
+        pass
 
+    @cbook.deprecated(
+        "3.4", alternative="get_subplotspec",
+        addendum="(get_subplotspec returns a SubplotSpec instance.)")
     def get_geometry(self):
         """Get the subplot geometry, e.g., (2, 2, 3)."""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1 + 1  # for compatibility
 
-    # COVERAGE NOTE: Never used internally or from examples
+    @cbook.deprecated("3.4", alternative="set_subplotspec")
     def change_geometry(self, numrows, numcols, num):
         """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols)[num-1]
@@ -381,6 +387,7 @@ class SubplotDivider(Divider):
     def set_subplotspec(self, subplotspec):
         """Set the SubplotSpec instance."""
         self._subplotspec = subplotspec
+        self.set_position(subplotspec.get_position(self.figure))
 
 
 class AxesDivider(Divider):
@@ -609,8 +616,7 @@ class HBoxDivider(SubplotDivider):
 
     def new_locator(self, nx, nx1=None):
         """
-        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for
-        the specified cell.
+        Create a new `AxesLocator` for the specified cell.
 
         Parameters
         ----------
@@ -688,8 +694,7 @@ class VBoxDivider(HBoxDivider):
 
     def new_locator(self, ny, ny1=None):
         """
-        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for
-        the specified cell.
+        Create a new `AxesLocator` for the specified cell.
 
         Parameters
         ----------

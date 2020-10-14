@@ -119,6 +119,12 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     ``@staticmethod`` (i.e., `deprecated` should directly decorate the
     underlying callable), but *over* ``@property``.
 
+    When deprecating a class ``C`` intended to be used as a base class in a
+    multiple inheritance hierarchy, ``C`` *must* define an ``__init__`` method
+    (if ``C`` instead inherited its ``__init__`` from its own base class, then
+    ``@deprecated`` would mess up ``__init__`` inheritance when installing its
+    own (deprecation-emitting) ``C.__init__``).
+
     Parameters
     ----------
     since : str
@@ -465,7 +471,8 @@ def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
         can always use ``__class__`` to refer to the class that is currently
         being defined.
     obj
-        An object of the class where *method* is defined.
+        Either an object of the class where *method* is defined, or a subclass
+        of that class.
     allow_empty : bool, default: False
         Whether to allow overrides by "empty" methods without emitting a
         warning.
@@ -478,15 +485,19 @@ def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
     def empty_with_docstring(): """doc"""
 
     name = method.__name__
-    bound_method = getattr(obj, name)
-    if (bound_method != method.__get__(obj)
+    bound_child = getattr(obj, name)
+    bound_base = (
+        method  # If obj is a class, then we need to use unbound methods.
+        if isinstance(bound_child, type(empty)) and isinstance(obj, type)
+        else method.__get__(obj))
+    if (bound_child != bound_base
             and (not allow_empty
-                 or (getattr(getattr(bound_method, "__code__", None),
+                 or (getattr(getattr(bound_child, "__code__", None),
                              "co_code", None)
                      not in [empty.__code__.co_code,
                              empty_with_docstring.__code__.co_code]))):
         warn_deprecated(**{"name": name, "obj_type": "method", **kwargs})
-        return bound_method
+        return bound_child
     return None
 
 

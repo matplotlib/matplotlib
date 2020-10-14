@@ -9,7 +9,8 @@ import weakref
 
 import numpy as np
 
-from . import _api, artist, cbook, docstring, rcParams
+import matplotlib as mpl
+from . import _api, artist, cbook, docstring
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -65,12 +66,13 @@ def get_rotation(rotation):
 
 def _get_textbox(text, renderer):
     """
-    Calculate the bounding box of the text. Unlike
-    :meth:`matplotlib.text.Text.get_extents` method, The bbox size of
-    the text before the rotation is calculated.
+    Calculate the bounding box of the text.
+
+    The bbox position takes text rotation into account, but the width and
+    height are those of the unrotated box (unlike `.Text.get_window_extent`).
     """
     # TODO : This function may move into the Text class as a method. As a
-    # matter of fact, The information from the _get_textbox function
+    # matter of fact, the information from the _get_textbox function
     # should be available during the Text._get_layout() call, which is
     # called within the _get_textbox. So, it would better to move this
     # function as a method with some refactoring of _get_layout method.
@@ -150,7 +152,8 @@ class Text(Artist):
         self._x, self._y = x, y
         self._text = ''
         self.set_text(text)
-        self.set_color(color if color is not None else rcParams["text.color"])
+        self.set_color(
+            color if color is not None else mpl.rcParams["text.color"])
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
         self.set_wrap(wrap)
@@ -490,17 +493,12 @@ class Text(Artist):
         This method should be used when the position and size of the bbox needs
         to be updated before actually drawing the bbox.
         """
-
         if self._bbox_patch:
-
-            trans = self.get_transform()
-
             # don't use self.get_unitless_position here, which refers to text
             # position in Text:
             posx = float(self.convert_xunits(self._x))
             posy = float(self.convert_yunits(self._y))
-
-            posx, posy = trans.transform((posx, posy))
+            posx, posy = self.get_transform().transform((posx, posy))
 
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
@@ -510,22 +508,6 @@ class Text(Artist):
                 .translate(posx + x_box, posy + y_box))
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
-
-    def _draw_bbox(self, renderer, posx, posy):
-        """
-        Update the location and size of the bbox (`.patches.FancyBboxPatch`),
-        and draw.
-        """
-
-        x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
-        self._bbox_patch.set_bounds(0., 0., w_box, h_box)
-        theta = np.deg2rad(self.get_rotation())
-        tr = Affine2D().rotate(theta)
-        tr = tr.translate(posx + x_box, posy + y_box)
-        self._bbox_patch.set_transform(tr)
-        fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
-        self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
-        self._bbox_patch.draw(renderer)
 
     def _update_clip_properties(self):
         clipprops = dict(clip_box=self.clipbox,
@@ -697,9 +679,11 @@ class Text(Artist):
                 return
             canvasw, canvash = renderer.get_canvas_width_height()
 
-            # draw the FancyBboxPatch
+            # Update the location and size of the bbox
+            # (`.patches.FancyBboxPatch`), and draw it.
             if textobj._bbox_patch:
-                textobj._draw_bbox(renderer, posx, posy)
+                self.update_bbox_position_size(renderer)
+                self._bbox_patch.draw(renderer)
 
             gc = renderer.new_gc()
             gc.set_foreground(textobj.get_color())
@@ -721,7 +705,7 @@ class Text(Artist):
                 if textobj.get_path_effects():
                     from matplotlib.patheffects import PathEffectRenderer
                     textrenderer = PathEffectRenderer(
-                                        textobj.get_path_effects(), renderer)
+                        textobj.get_path_effects(), renderer)
                 else:
                     textrenderer = renderer
 
@@ -1262,7 +1246,7 @@ class Text(Artist):
             :rc:`text.usetex`.
         """
         if usetex is None:
-            self._usetex = rcParams['text.usetex']
+            self._usetex = mpl.rcParams['text.usetex']
         else:
             self._usetex = bool(usetex)
         self.stale = True
@@ -1444,6 +1428,8 @@ class _AnnotationBase:
         bbox_name, unit = s_
         # if unit is offset-like
         if bbox_name == "figure":
+            bbox0 = self.figure.figbbox
+        elif bbox_name == "subfigure":
             bbox0 = self.figure.bbox
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
@@ -1461,7 +1447,6 @@ class _AnnotationBase:
         if xy0 is not None:
             # reference x, y in display coordinate
             ref_x, ref_y = xy0
-            from matplotlib.transforms import Affine2D
             if unit == "points":
                 # dots per points
                 dpp = self.figure.get_dpi() / 72.
@@ -1628,19 +1613,27 @@ class Annotation(Text, _AnnotationBase):
 
             - One of the following strings:
 
-              =================   =============================================
-              Value               Description
-              =================   =============================================
-              'figure points'     Points from the lower left of the figure
-              'figure pixels'     Pixels from the lower left of the figure
-              'figure fraction'   Fraction of figure from lower left
-              'axes points'       Points from lower left corner of axes
-              'axes pixels'       Pixels from lower left corner of axes
-              'axes fraction'     Fraction of axes from lower left
-              'data'              Use the coordinate system of the object being
-                                  annotated (default)
-              'polar'             *(theta, r)* if not native 'data' coordinates
-              =================   =============================================
+              ==================== ============================================
+              Value                Description
+              ==================== ============================================
+              'figure points'      Points from the lower left of the figure
+              'figure pixels'      Pixels from the lower left of the figure
+              'figure fraction'    Fraction of figure from lower left
+              'subfigure points'   Points from the lower left of the subfigure
+              'subfigure pixels'   Pixels from the lower left of the subfigure
+              'subfigure fraction' Fraction of subfigure from lower left
+              'axes points'        Points from lower left corner of axes
+              'axes pixels'        Pixels from lower left corner of axes
+              'axes fraction'      Fraction of axes from lower left
+              'data'               Use the coordinate system of the object
+                                   being annotated (default)
+              'polar'              *(theta, r)* if not native 'data'
+                                   coordinates
+              ==================== ============================================
+
+              Note that 'subfigure pixels' and 'figure pixels' are the same
+              for the parent figure, so users who want code that is usable in
+              a subfigure can use 'subfigure pixels'.
 
             - An `.Artist`: *xy* is interpreted as a fraction of the artist's
               `~matplotlib.transforms.Bbox`. E.g. *(0, 0)* would be the lower
@@ -1942,7 +1935,6 @@ class Annotation(Text, _AnnotationBase):
         if not self.get_visible() or not self._check_xy(renderer):
             return
         self.update_positions(renderer)
-        self.update_bbox_position_size(renderer)
         if self.arrow_patch is not None:   # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure

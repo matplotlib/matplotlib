@@ -88,58 +88,6 @@ class TimerGTK3(TimerBase):
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk3"
     _timer_cls = TimerGTK3
-
-    keyvald = {65507: 'control',
-               65505: 'shift',
-               65513: 'alt',
-               65508: 'control',
-               65506: 'shift',
-               65514: 'alt',
-               65361: 'left',
-               65362: 'up',
-               65363: 'right',
-               65364: 'down',
-               65307: 'escape',
-               65470: 'f1',
-               65471: 'f2',
-               65472: 'f3',
-               65473: 'f4',
-               65474: 'f5',
-               65475: 'f6',
-               65476: 'f7',
-               65477: 'f8',
-               65478: 'f9',
-               65479: 'f10',
-               65480: 'f11',
-               65481: 'f12',
-               65300: 'scroll_lock',
-               65299: 'break',
-               65288: 'backspace',
-               65293: 'enter',
-               65379: 'insert',
-               65535: 'delete',
-               65360: 'home',
-               65367: 'end',
-               65365: 'pageup',
-               65366: 'pagedown',
-               65438: '0',
-               65436: '1',
-               65433: '2',
-               65435: '3',
-               65430: '4',
-               65437: '5',
-               65432: '6',
-               65429: '7',
-               65431: '8',
-               65434: '9',
-               65451: '+',
-               65453: '-',
-               65450: '*',
-               65455: '/',
-               65439: 'dec',
-               65421: 'enter',
-               }
-
     # Setting this as a static constant prevents
     # this resulting expression from leaking
     event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -259,13 +207,9 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.draw_idle()
 
     def _get_key(self, event):
-        if event.keyval in self.keyvald:
-            key = self.keyvald[event.keyval]
-        elif event.keyval < 256:
-            key = chr(event.keyval)
-        else:
-            key = None
-
+        key = cbook._unikey_or_keysym_to_mplkey(
+            chr(Gdk.keyval_to_unicode(event.keyval)),
+            Gdk.keyval_name(event.keyval))
         modifiers = [
                      (Gdk.ModifierType.MOD4_MASK, 'super'),
                      (Gdk.ModifierType.MOD1_MASK, 'alt'),
@@ -274,7 +218,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         for key_mask, prefix in modifiers:
             if event.state & key_mask:
                 key = '{0}+{1}'.format(prefix, key)
-
         return key
 
     def configure_event(self, widget, event):

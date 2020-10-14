@@ -96,6 +96,13 @@ Merge ``*-doc`` branch
 Merge the most recent 'doc' branch (e.g., ``v3.2.0-doc``) into the branch you
 are going to tag on and delete the doc branch on GitHub.
 
+Update supported versions in Security Policy
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When making major or minor releases, update the supported versions in the
+Security Policy in :file:`SECURITY.md`.  Commonly, this may be one or two
+previous minor releases, but is dependent on release managers.
+
 Update "What's New" and "API changes"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

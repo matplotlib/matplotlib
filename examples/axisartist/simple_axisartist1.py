@@ -9,8 +9,7 @@ from mpl_toolkits import axisartist
 
 fig = plt.figure()
 fig.subplots_adjust(right=0.85)
-ax = axisartist.Subplot(fig, 1, 1, 1)
-fig.add_subplot(ax)
+ax = fig.add_subplot(axes_class=axisartist.Axes)
 
 # make some axis invisible
 ax.axis["bottom", "top", "right"].set_visible(False)

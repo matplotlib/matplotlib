@@ -449,7 +449,7 @@ class Axes(_AxesBase):
 
             # decide which two of the lines to keep visible....
             pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.figure.transFigure)
+            bboxins = pos.transformed(self.figure.transSubfigure)
             rectbbox = mtransforms.Bbox.from_bounds(
                 *bounds
             ).transformed(transform)
@@ -1414,14 +1414,21 @@ class Axes(_AxesBase):
           >>> plot(x1, y1, 'bo')
           >>> plot(x2, y2, 'go')
 
-        - Alternatively, if your data is already a 2d array, you can pass it
-          directly to *x*, *y*. A separate data set will be drawn for every
-          column.
+        - If *x* and/or *y* are 2D arrays a separate data set will be drawn
+          for every column. If both *x* and *y* are 2D, they must have the
+          same shape. If only one of them is 2D with shape (N, m) the other
+          must have length N and will be used for every data set m.
 
-          Example: an array ``a`` where the first column represents the *x*
-          values and the other columns are the *y* columns::
+          Example:
 
-          >>> plot(a[0], a[1:])
+          >>> x = [1, 2, 3]
+          >>> y = np.array([[1, 2], [3, 4], [5, 6]])
+          >>> plot(x, y)
+
+          is equivalent to:
+
+          >>> for col in range(y.shape[1]):
+          ...     plot(x, y[:, col])
 
         - The third way is to specify multiple sets of *[x]*, *y*, *[fmt]*
           groups::
@@ -4472,7 +4479,7 @@ default: :rc:`scatter.edgecolors`
 
             - If *None*, no binning is applied; the color of each hexagon
               directly corresponds to its count value.
-            - If 'log', use a logarithmic scale for the color map.
+            - If 'log', use a logarithmic scale for the colormap.
               Internally, :math:`log_{10}(i+1)` is used to determine the
               hexagon color. This is equivalent to ``norm=LogNorm()``.
             - If an integer, divide the counts in the specified number
@@ -4563,7 +4570,7 @@ default: :rc:`scatter.edgecolors`
 
             - `numpy.mean`: average of the points
             - `numpy.sum`: integral of the point values
-            - `numpy.max`: value taken from the largest point
+            - `numpy.amax`: value taken from the largest point
 
         **kwargs : `~matplotlib.collections.PolyCollection` properties
             All other keyword arguments are passed on to `.PolyCollection`:
@@ -5239,7 +5246,7 @@ default: :rc:`scatter.edgecolors`
 
         The input may either be actual RGB(A) data, or 2D scalar data, which
         will be rendered as a pseudocolor image. For displaying a grayscale
-        image set up the color mapping using the parameters
+        image set up the colormapping using the parameters
         ``cmap='gray', vmin=0, vmax=255``.
 
         The number of pixels used to render an image is set by the axes size
@@ -5334,6 +5341,7 @@ default: :rc:`scatter.edgecolors`
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
             data. It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            When using RGB(A) data, parameters *vmin*/*vmax* are ignored.
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Place the [0, 0] index of the array in the upper left or lower
@@ -6232,7 +6240,13 @@ default: :rc:`scatter.edgecolors`
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self._request_autoscale_view()
         return contours
-    contour.__doc__ = mcontour.QuadContourSet._contour_doc
+    contour.__doc__ = """
+        Plot contour lines.
+
+        Call signature::
+
+            contour([X, Y,] Z, [levels], **kwargs)
+        """ + mcontour.QuadContourSet._contour_doc
 
     @_preprocess_data()
     def contourf(self, *args, **kwargs):
@@ -6240,7 +6254,13 @@ default: :rc:`scatter.edgecolors`
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self._request_autoscale_view()
         return contours
-    contourf.__doc__ = mcontour.QuadContourSet._contour_doc
+    contourf.__doc__ = """
+        Plot filled contours.
+
+        Call signature::
+
+            contourf([X, Y,] Z, [levels], **kwargs)
+        """ + mcontour.QuadContourSet._contour_doc
 
     def clabel(self, CS, levels=None, **kwargs):
         """
@@ -6729,7 +6749,8 @@ such objects
     def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
         """
-        A stepwise constant line or filled plot.
+        A stepwise constant function as a line with bounding edges
+        or a filled plot.
 
         Parameters
         ----------
@@ -6744,9 +6765,11 @@ such objects
             The direction of the steps. Vertical means that *values* are along
             the y-axis, and edges are along the x-axis.
 
-        baseline : float or None, default: 0
-            Determines starting value of the bounding edges or when
-            ``fill=True``, position of lower edge.
+        baseline : float, array-like or None, default: 0
+            The bottom value of the bounding edges or when
+            ``fill=True``, position of lower edge. If *fill* is
+            True or an array is passed to *baseline*, a closed
+            path is drawn.
 
         fill : bool, default: False
             Whether the area under the step curve should be filled.
@@ -6775,8 +6798,8 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
-        edges, values = self._process_unit_info(
-            [("x", edges), ("y", values)], kwargs)
+        edges, values, baseline = self._process_unit_info(
+            [("x", edges), ("y", values), ("y", baseline)], kwargs)
 
         patch = mpatches.StepPatch(values,
                                    edges,
@@ -6788,9 +6811,11 @@ such objects
         if baseline is None:
             baseline = 0
         if orientation == 'vertical':
-            patch.sticky_edges.y.append(baseline)
+            patch.sticky_edges.y.append(np.min(baseline))
+            self.update_datalim([(edges[0], np.min(baseline))])
         else:
-            patch.sticky_edges.x.append(baseline)
+            patch.sticky_edges.x.append(np.min(baseline))
+            self.update_datalim([(np.min(baseline), edges[0])])
         self._request_autoscale_view()
         return patch
 

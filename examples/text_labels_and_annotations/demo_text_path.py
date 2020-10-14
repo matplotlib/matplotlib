@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     # EXAMPLE 1
 
-    arr = plt.imread(get_sample_data("grace_hopper.png"))
+    arr = plt.imread(get_sample_data("grace_hopper.jpg"))
 
     text_path = TextPath((0, 0), "!?", size=150)
     p = PathClippedImagePatch(text_path, arr, ec="k",
