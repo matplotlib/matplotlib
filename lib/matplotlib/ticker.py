@@ -2353,6 +2353,8 @@ class LogLocator(Locator):
 
         Parameters
         ----------
+        base : float, default: 10.0
+            The base of the log used, so ticks are placed at ``base**n``.
         subs : None or str or sequence of float, default: (1.0,)
             Gives the multiples of integer powers of the base at which
             to place ticks.  The default places ticks only at
@@ -2364,7 +2366,11 @@ class LogLocator(Locator):
             placed only between integer powers; with ``'all'``, the
             integer powers are included.  A value of None is
             equivalent to ``'auto'``.
-
+        numticks : None or int, default: None
+            The maximum number of ticks to allow on a given axis. The default
+            of ``None`` will try to choose intelligently as long as this
+            Locator has already been assigned to an axis using
+            `~.axis.Axis.get_tick_space`, but otherwise falls back to 9.
         """
         if numticks is None:
             if mpl.rcParams['_internal.classic_mode']:
