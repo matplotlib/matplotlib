@@ -285,15 +285,29 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
+    @staticmethod
+    def _linejoin_cmd(linejoin):
+        # Support for directly passing integer values is for backcompat.
+        linejoin = {'miter': 0, 'round': 1, 'bevel': 2, 0: 0, 1: 1, 2: 2}[
+            linejoin]
+        return f"{linejoin:d} setlinejoin\n"
+
     def set_linejoin(self, linejoin, store=True):
         if linejoin != self.linejoin:
-            self._pswriter.write("%d setlinejoin\n" % linejoin)
+            self._pswriter.write(self._linejoin_cmd(linejoin))
             if store:
                 self.linejoin = linejoin
 
+    @staticmethod
+    def _linecap_cmd(linecap):
+        # Support for directly passing integer values is for backcompat.
+        linecap = {'butt': 0, 'round': 1, 'projecting': 2, 0: 0, 1: 1, 2: 2}[
+            linecap]
+        return f"{linecap:d} setlinecap\n"
+
     def set_linecap(self, linecap, store=True):
         if linecap != self.linecap:
-            self._pswriter.write("%d setlinecap\n" % linecap)
+            self._pswriter.write(self._linecap_cmd(linecap))
             if store:
                 self.linecap = linecap
 
@@ -477,10 +491,8 @@ newpath
         stroke = lw > 0 and alpha > 0
         if stroke:
             ps_cmd.append('%.1f setlinewidth' % lw)
-            jint = gc.get_joinstyle()
-            ps_cmd.append('%d setlinejoin' % jint)
-            cint = gc.get_capstyle()
-            ps_cmd.append('%d setlinecap' % cint)
+            ps_cmd.append(self._linejoin_cmd(gc.get_joinstyle()))
+            ps_cmd.append(self._linecap_cmd(gc.get_capstyle()))
 
         ps_cmd.append(self._convert_path(marker_path, marker_trans,
                                          simplify=False))
@@ -675,10 +687,6 @@ gsave
 grestore
 """)
 
-    def new_gc(self):
-        # docstring inherited
-        return GraphicsContextPS()
-
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw the math text using matplotlib.mathtext."""
         if debugPS:
@@ -783,10 +791,8 @@ grestore
 
         if mightstroke:
             self.set_linewidth(gc.get_linewidth())
-            jint = gc.get_joinstyle()
-            self.set_linejoin(jint)
-            cint = gc.get_capstyle()
-            self.set_linecap(cint)
+            self.set_linejoin(gc.get_joinstyle())
+            self.set_linecap(gc.get_capstyle())
             self.set_linedash(*gc.get_dashes())
             self.set_color(*gc.get_rgb()[:3])
         write('gsave\n')
@@ -839,6 +845,7 @@ def _is_transparent(rgb_or_rgba):
         return False
 
 
+@cbook.deprecated("3.4", alternative="GraphicsContextBase")
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]

@@ -1,0 +1,3 @@
+GraphicsContextPS
+~~~~~~~~~~~~~~~~~
+... is deprecated.  The PostScript backend now uses `.GraphicsContextBase`.
