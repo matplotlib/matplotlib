@@ -9,6 +9,7 @@
 # See http://doc.pytest.org/ for a detailed description of these options.
 
 import sys
+import matplotlib
 import argparse
 
 
