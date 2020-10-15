@@ -92,8 +92,9 @@ a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
 fig, axs = plt.subplots(1, 2, figsize=(7, 4), sharex=True, sharey=True,
                         constrained_layout=True)
 for ax, interp in zip(axs, ['nearest', 'antialiased']):
-    ax.imshow(a, interpolation=interp, cmap='RdBu_r', vmin=-1, vmax=1)
+    pc = ax.imshow(a, interpolation=interp, cmap='RdBu_r', vmin=-1, vmax=1)
     ax.set_title(f"'{interp}'", fontsize='small')
+fig.colorbar(pc, ax=axs)
 plt.show()
 
 ###############################################################################
@@ -109,7 +110,7 @@ norm = mcolors.Normalize(vmin=-1, vmax=1)
 cmap = cm.RdBu_r
 a_rgba = cmap(norm(a))
 for ax, interp in zip(axs, ['nearest', 'antialiased']):
-    ax.imshow(a_rgba, interpolation=interp)
+    pc = ax.imshow(a_rgba, interpolation=interp)
     ax.set_title(f"'{interp}'", fontsize='small')
 plt.show()
 
@@ -121,7 +122,7 @@ plt.show()
 fig, axs = plt.subplots(1, 2, figsize=(3.5, 2), sharex=True, sharey=True,
                         constrained_layout=True)
 aa = np.ones_like(a)
-aa[np.sqrt(R)<0.5] = -1
+aa[np.sqrt(R) < 0.5] = -1
 
 norm = mcolors.Normalize(vmin=-1, vmax=1)
 cmap = cm.RdBu_r
@@ -129,7 +130,7 @@ a_rgba = cmap(norm(aa))
 
 axs[0].imshow(aa, interpolation=interp, cmap='RdBu_r')
 axs[0].set_title('Data antialiasing')
-axs[1].imshow(a_rgba, interpolation=interp)
+pc = axs[1].imshow(a_rgba, interpolation=interp)
 axs[1].set_title('RGBA antialiasing')
 plt.show()
 
@@ -145,4 +146,4 @@ plt.show()
 # in this example:
 
 import matplotlib
-matplotlib.axes.Axes.imshow;
+matplotlib.axes.Axes.imshow
