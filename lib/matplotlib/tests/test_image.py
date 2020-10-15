@@ -324,6 +324,15 @@ def test_cursor_data():
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.get_cursor_data(event) is None
 
+    # Now try with additional transform applied to the image artist
+    trans = Affine2D().scale(2).rotate(0.5)
+    im = ax.imshow(np.arange(100).reshape(10, 10),
+                   transform=trans + ax.transData)
+    x, y = 3, 10
+    xdisp, ydisp = ax.transData.transform([x, y])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == 44
+
 
 @pytest.mark.parametrize(
     "data, text_without_colorbar, text_with_colorbar", [
