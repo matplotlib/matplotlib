@@ -64,12 +64,14 @@ xy = xy.reshape(-1, 2)  # xy.shape = (10_000_000, 2)
 # that has a periodicity of about ~6 and oscillates between +1/-1.
 cmap = copy(plt.cm.Blues)
 cmap.set_bad(cmap(0))
-axes[1].hist2d(*xy.T, bins=[200, 200], cmap=cmap, norm=LogNorm())
+h, xedges, yedges = np.histogram2d(*xy.T, bins=[200, 200])
+axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap, norm=LogNorm())
 axes[1].set_title(
     r"Alternative time series vis. using `plt.hist2d` and log color scale")
 
 # It is even visible on a linear color scale
-axes[2].hist2d(*xy.T, bins=[200, 200], cmap=cmap)
+h, xedges, yedges = np.histogram2d(*xy.T, bins=[200, 200])
+axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap)
 axes[2].set_title(
     r"Alternative time series vis. using `plt.hist2d` and linear color scale")
 toc = time.time()
