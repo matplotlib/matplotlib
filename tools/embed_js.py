@@ -62,8 +62,9 @@ def gen_embedded_lines(pkg, source):
     name = safe_name(pkg.name)
     print('Embedding', source, 'as', name)
     yield '// prettier-ignore\n'
-    for line in source.read_text().splitlines(keepends=True):
-        yield line.replace('module.exports=function', f'var {name}=function')
+    for line in source.read_text().splitlines():
+        yield (line.replace('module.exports=function', f'var {name}=function')
+               + ' // eslint-disable-line\n')
 
 
 def build_mpljs(web_backend_path, license_path):
