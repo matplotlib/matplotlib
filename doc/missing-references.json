@@ -191,9 +191,6 @@
     "backend_qt5.FigureCanvasQTAgg": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:210"
     ],
-    "datetime": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.mx2num:2"
-    ],
     "dateutil.rrule.rrulebase": [
       "<external>/rrule.py:docstring of matplotlib.dates.rrule:1"
     ],

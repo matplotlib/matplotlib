@@ -1596,8 +1596,7 @@ class Annotation(Text, _AnnotationBase):
         Parameters
         ----------
         text : str
-            The text of the annotation.  *s* is a deprecated synonym for this
-            parameter.
+            The text of the annotation.
 
         xy : (float, float)
             The point *(x, y)* to annotate. The coordinate system is determined

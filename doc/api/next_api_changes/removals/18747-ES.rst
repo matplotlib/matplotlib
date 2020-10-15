@@ -1,0 +1,18 @@
+``Axes`` methods and properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``axes.Axes.get_data_ratio_log``
+- ``axes.SubplotBase.rowNum``; use ``ax.get_subplotspec().rowspan.start``
+  instead
+- ``axes.SubplotBase.colNum``; use ``ax.get_subplotspec().colspan.start``
+  instead
+
+``dates`` functions
+~~~~~~~~~~~~~~~~~~~
+- ``dates.mx2num``
+
+``quiver`` methods
+~~~~~~~~~~~~~~~~~~
+
+- ``quiver.QuiverKey.quiverkey_doc`` has been removed; use
+  ``quiver.QuiverKey.__init__.__doc__`` instead.

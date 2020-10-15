@@ -587,7 +587,6 @@ non-rectilinear Axes.
    Axes.get_xaxis_transform
    Axes.get_yaxis_transform
    Axes.get_data_ratio
-   Axes.get_data_ratio_log
 
    Axes.get_xaxis_text1_transform
    Axes.get_xaxis_text2_transform
