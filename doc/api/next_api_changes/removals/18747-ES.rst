@@ -16,3 +16,12 @@
 
 - ``quiver.QuiverKey.quiverkey_doc`` has been removed; use
   ``quiver.QuiverKey.__init__.__doc__`` instead.
+
+Smart bounds
+~~~~~~~~~~~~
+
+The "smart bounds" functionality on `~.axis.Axis` and `.Spine` has been
+deleted, and the following methods are removed:
+
+- ``Axis.set_smart_bounds`` and ``Axis.get_smart_bounds``
+- ``Spine.set_smart_bounds`` and ``Spine.get_smart_bounds``

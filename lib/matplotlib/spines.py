@@ -61,7 +61,6 @@ class Spine(mpatches.Patch):
         self.set_transform(self.axes.transData)  # default transform
 
         self._bounds = None  # default bounds
-        self._smart_bounds = False  # deprecated in 3.2
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
@@ -81,23 +80,6 @@ class Spine(mpatches.Patch):
         # Behavior copied from mpatches.Ellipse:
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = mtransforms.IdentityTransform()
-
-    @_api.deprecated("3.2")
-    def set_smart_bounds(self, value):
-        """Set the spine and associated axis to have smart bounds."""
-        self._smart_bounds = value
-
-        # also set the axis if possible
-        if self.spine_type in ('left', 'right'):
-            self.axes.yaxis.set_smart_bounds(value)
-        elif self.spine_type in ('top', 'bottom'):
-            self.axes.xaxis.set_smart_bounds(value)
-        self.stale = True
-
-    @_api.deprecated("3.2")
-    def get_smart_bounds(self):
-        """Return whether the spine has smart bounds."""
-        return self._smart_bounds
 
     def set_patch_arc(self, center, radius, theta1, theta2):
         """Set the spine to be arc-like."""
@@ -247,64 +229,14 @@ class Spine(mpatches.Patch):
         if self.spine_type == 'circle':
             return
 
-        if self._bounds is None:
-            if self.spine_type in ('left', 'right'):
-                low, high = self.axes.viewLim.intervaly
-            elif self.spine_type in ('top', 'bottom'):
-                low, high = self.axes.viewLim.intervalx
-            else:
-                raise ValueError('unknown spine spine_type: %s' %
-                                 self.spine_type)
-
-            if self._smart_bounds:  # deprecated in 3.2
-                # attempt to set bounds in sophisticated way
-
-                # handle inverted limits
-                viewlim_low, viewlim_high = sorted([low, high])
-
-                if self.spine_type in ('left', 'right'):
-                    datalim_low, datalim_high = self.axes.dataLim.intervaly
-                    ticks = self.axes.get_yticks()
-                elif self.spine_type in ('top', 'bottom'):
-                    datalim_low, datalim_high = self.axes.dataLim.intervalx
-                    ticks = self.axes.get_xticks()
-                # handle inverted limits
-                ticks = np.sort(ticks)
-                datalim_low, datalim_high = sorted([datalim_low, datalim_high])
-
-                if datalim_low < viewlim_low:
-                    # Data extends past view. Clip line to view.
-                    low = viewlim_low
-                else:
-                    # Data ends before view ends.
-                    cond = (ticks <= datalim_low) & (ticks >= viewlim_low)
-                    tickvals = ticks[cond]
-                    if len(tickvals):
-                        # A tick is less than or equal to lowest data point.
-                        low = tickvals[-1]
-                    else:
-                        # No tick is available
-                        low = datalim_low
-                    low = max(low, viewlim_low)
-
-                if datalim_high > viewlim_high:
-                    # Data extends past view. Clip line to view.
-                    high = viewlim_high
-                else:
-                    # Data ends before view ends.
-                    cond = (ticks >= datalim_high) & (ticks <= viewlim_high)
-                    tickvals = ticks[cond]
-                    if len(tickvals):
-                        # A tick is greater than or equal to highest data
-                        # point.
-                        high = tickvals[0]
-                    else:
-                        # No tick is available
-                        high = datalim_high
-                    high = min(high, viewlim_high)
-
-        else:
+        if self._bounds is not None:
             low, high = self._bounds
+        elif self.spine_type in ('left', 'right'):
+            low, high = self.axes.viewLim.intervaly
+        elif self.spine_type in ('top', 'bottom'):
+            low, high = self.axes.viewLim.intervalx
+        else:
+            raise ValueError(f'unknown spine spine_type: {self.spine_type}')
 
         if self._patch_type == 'arc':
             if self.spine_type in ('bottom', 'top'):
