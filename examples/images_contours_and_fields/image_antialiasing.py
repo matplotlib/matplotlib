@@ -18,6 +18,8 @@ Other anti-aliasing filters can be specified in `.Axes.imshow` using the
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import matplotlib.cm as cm
 
 ###############################################################################
 # First we generate a 500x500 px image with varying frequency content:
@@ -72,6 +74,65 @@ for ax, interp in zip(axs, ['hanning', 'lanczos']):
     ax.set_title(f"interpolation='{interp}'")
 plt.show()
 
+###############################################################################
+# Data antialiasing and RGBA antialiasing
+# ----------------------------------------
+#
+# The examples above all used grayscale.  When colormapping is added there
+# is the complication that downsampling and the antialiasing filters are
+# applied to the data in Matplotlib, before the data is mapped to
+# colors.  So in the following note how the corners fade to white, the middle
+# of the colormap, because the data is being smoothed and the high and low
+# values are averaging out to the middle of the colormap.
+
+f0 = 10
+k = 150
+a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
+
+fig, axs = plt.subplots(1, 2, figsize=(7, 4), sharex=True, sharey=True,
+                        constrained_layout=True)
+for ax, interp in zip(axs, ['nearest', 'antialiased']):
+    ax.imshow(a, interpolation=interp, cmap='RdBu_r', vmin=-1, vmax=1)
+    ax.set_title(f"'{interp}'", fontsize='small')
+plt.show()
+
+###############################################################################
+# Sometimes, however, we want the antialiasing to occur in RGBA space.  In
+# this case purple is actually the perceptual mixture of red and blue.
+# Matplotlib doesn't allow this to be directly achieved, but we can pass
+# RGBA data to `~.Axes.imshow`, and then the antialiasing filter will be
+# applied to the RGBA data:
+
+fig, axs = plt.subplots(1, 2, figsize=(7, 4), sharex=True, sharey=True,
+                        constrained_layout=True)
+norm = mcolors.Normalize(vmin=-1, vmax=1)
+cmap = cm.RdBu_r
+a_rgba = cmap(norm(a))
+for ax, interp in zip(axs, ['nearest', 'antialiased']):
+    ax.imshow(a_rgba, interpolation=interp)
+    ax.set_title(f"'{interp}'", fontsize='small')
+plt.show()
+
+###############################################################################
+# A concrete example of where antialiasing in data space may not be desirable
+# is given here, where the anti-aliasing returns white pixels in data space,
+# and (imperceptible) purple pixels in RGBA space:
+
+fig, axs = plt.subplots(1, 2, figsize=(3.5, 2), sharex=True, sharey=True,
+                        constrained_layout=True)
+aa = np.ones_like(a)
+aa[np.sqrt(R)<0.5] = -1
+
+norm = mcolors.Normalize(vmin=-1, vmax=1)
+cmap = cm.RdBu_r
+a_rgba = cmap(norm(aa))
+
+axs[0].imshow(aa, interpolation=interp, cmap='RdBu_r')
+axs[0].set_title('Data antialiasing')
+axs[1].imshow(a_rgba, interpolation=interp)
+axs[1].set_title('RGBA antialiasing')
+plt.show()
+
 
 #############################################################################
 #
@@ -84,4 +145,4 @@ plt.show()
 # in this example:
 
 import matplotlib
-matplotlib.axes.Axes.imshow
+matplotlib.axes.Axes.imshow;
