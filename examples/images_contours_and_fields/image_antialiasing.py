@@ -119,19 +119,26 @@ plt.show()
 # is given here, where the anti-aliasing returns white pixels in data space,
 # and (imperceptible) purple pixels in RGBA space:
 
-fig, axs = plt.subplots(1, 2, figsize=(3.5, 2), sharex=True, sharey=True,
+fig, axs = plt.subplots(1, 3, figsize=(5.5, 2), sharex=True, sharey=True,
                         constrained_layout=True)
-aa = np.ones_like(a)
+f0 = 10
+k = 100
+a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
+
+aa = a
+aa[np.sqrt(R) < 0.6] = 1
 aa[np.sqrt(R) < 0.5] = -1
 
 norm = mcolors.Normalize(vmin=-1, vmax=1)
 cmap = cm.RdBu_r
 a_rgba = cmap(norm(aa))
 
-axs[0].imshow(aa, interpolation=interp, cmap='RdBu_r')
-axs[0].set_title('Data antialiasing')
-pc = axs[1].imshow(a_rgba, interpolation=interp)
-axs[1].set_title('RGBA antialiasing')
+axs[0].imshow(aa, interpolation='nearest', cmap='RdBu_r')
+axs[0].set_title('No antialiasing')
+axs[1].imshow(aa, interpolation=interp, cmap='RdBu_r')
+axs[1].set_title('Data antialiasing')
+pc = axs[2].imshow(a_rgba, interpolation=interp)
+axs[2].set_title('RGBA antialiasing')
 plt.show()
 
 
