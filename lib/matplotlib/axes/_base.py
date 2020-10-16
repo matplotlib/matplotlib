@@ -1781,7 +1781,10 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
         """
-        if len(args) == 1 and isinstance(args[0], (str, bool)):
+        if len(args) > 1:
+            raise TypeError("axis() takes 0 or 1 positional arguments but "
+                            f"{len(args)} were given")
+        elif len(args) == 1 and isinstance(args[0], (str, bool)):
             s = args[0]
             if s is True:
                 s = 'on'
@@ -1823,12 +1826,7 @@ class _AxesBase(martist.Artist):
                 raise ValueError('Unrecognized string %s to axis; '
                                  'try on or off' % s)
         else:
-            if len(args) >= 1:
-                if len(args) != 1:
-                    cbook.warn_deprecated(
-                        "3.2", message="Passing more than one positional "
-                        "argument to axis() is deprecated and will raise a "
-                        "TypeError %(removal)s.")
+            if len(args) == 1:
                 limits = args[0]
                 try:
                     xmin, xmax, ymin, ymax = limits

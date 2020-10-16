@@ -6,6 +6,15 @@
   instead
 - ``axes.SubplotBase.colNum``; use ``ax.get_subplotspec().colspan.start``
   instead
+- the *verts* parameter to ``scatter`` (use *marker* instead)
+- Passing more than one positional argument to `~matplotlib.axes.Axes.axis`
+  will now raise an error.
+- Passing ``"range"`` to the *whis* parameter of `.Axes.boxplot` and
+  `.cbook.boxplot_stats` to mean "the whole data range" is  no longer
+  supported.
+- Passing scalars to parameter *where* in `.axes.Axes.fill_between` and
+  `.axes.Axes.fill_betweenx` is no longer accepted and non-matching sizes now
+  raise a `ValueError`.
 
 ``dates`` functions
 ~~~~~~~~~~~~~~~~~~~
@@ -25,3 +34,19 @@ deleted, and the following methods are removed:
 
 - ``Axis.set_smart_bounds`` and ``Axis.get_smart_bounds``
 - ``Spine.set_smart_bounds`` and ``Spine.get_smart_bounds``
+
+Testing
+~~~~~~~
+The *switch_backend_warn* parameter to ``matplotlib.test`` has no effect and
+has been removed.
+
+``tight_layout()``
+~~~~~~~~~~~~~~~~~~
+The *renderer* parameter to `.Figure.tight_layout` has been removed; this
+method now always uses the renderer instance cached on the `.Figure`.
+
+``axes_grid1``
+~~~~~~~~~~~~~~
+- The *locator* parameter to ``colorbar()`` has been removed in favor of its
+  synonym *ticks* (which already existed previously, and is consistent with
+  :mod:`matplotlib.colorbar`).

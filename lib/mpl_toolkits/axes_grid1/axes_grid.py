@@ -25,7 +25,6 @@ class CbarAxesBase:
         self._locator = None  # deprecated.
         super().__init__(*args, **kwargs)
 
-    @cbook._rename_parameter("3.2", "locator", "ticks")
     def colorbar(self, mappable, *, ticks=None, **kwargs):
 
         if self.orientation in ["top", "bottom"]:
