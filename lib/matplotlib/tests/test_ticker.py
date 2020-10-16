@@ -212,120 +212,66 @@ class TestAutoMinorLocator:
         assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
     @pytest.mark.parametrize(
-        'lim, ref',
-        [
-            (
-                    (0, 1.39),
-                    [0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45,
-                     0.5, 0.55, 0.65, 0.7, 0.75, 0.85, 0.9,
-                     0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35]
-            ),
-            (
-                    (0, 0.139),
-                    [0.005, 0.01, 0.015, 0.025, 0.03, 0.035, 0.045,
-                     0.05, 0.055, 0.065, 0.07, 0.075, 0.085, 0.09,
-                     0.095, 0.105, 0.11, 0.115, 0.125, 0.13, 0.135]
-            ),
-        ],
-    )
-    def test_number_of_minor_ticks_rcparams_auto(self, lim, ref):
-        with mpl.rc_context({'xtick.minor.ndivs': 'auto', 'ytick.minor.ndivs': 'auto'}):
+        'lim, ref, use_rcparam', [
+            ((0, 1.39),
+             [0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45, 0.5, 0.55, 0.65, 0.7,
+              0.75, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35], True),
+            ((0, 1.39),
+             [0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45, 0.5, 0.55, 0.65, 0.7,
+              0.75, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35], False),
+            ((0, 0.139),
+             [0.005, 0.01, 0.015, 0.025, 0.03, 0.035, 0.045, 0.05, 0.055,
+              0.065, 0.07, 0.075, 0.085, 0.09, 0.095, 0.105, 0.11, 0.115,
+              0.125, 0.13, 0.135], True),
+            ((0, 0.139),
+             [0.005, 0.01, 0.015, 0.025, 0.03, 0.035, 0.045, 0.05, 0.055,
+              0.065, 0.07, 0.075, 0.085, 0.09, 0.095, 0.105, 0.11, 0.115,
+              0.125, 0.13, 0.135], False),
+        ])
+    def test_number_of_minor_ticks_auto(self, lim, ref, use_rcparam):
+        if use_rcparam:
+            context = {'xtick.minor.ndivs': 'auto', 'ytick.minor.ndivs': 'auto'}
+            kwargs = {}
+        else:
+            context = {}
+            kwargs = {'n': 'auto'}
+
+        with mpl.rc_context(context):
             fig, ax = plt.subplots()
             ax.set_xlim(*lim)
             ax.set_ylim(*lim)
-            ax.xaxis.set_minor_locator(mticker.AutoMinorLocator())
-            ax.yaxis.set_minor_locator(mticker.AutoMinorLocator())
+            ax.xaxis.set_minor_locator(mticker.AutoMinorLocator(**kwargs))
+            ax.yaxis.set_minor_locator(mticker.AutoMinorLocator(**kwargs))
             assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), ref)
             assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
     @pytest.mark.parametrize(
-        'lim, ref',
-        [
-            (
-                    (0, 1.39),
-                    [0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45,
-                     0.5, 0.55, 0.65, 0.7, 0.75, 0.85, 0.9,
-                     0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35]
-            ),
-            (
-                    (0, 0.139),
-                    [0.005, 0.01, 0.015, 0.025, 0.03, 0.035, 0.045,
-                     0.05, 0.055, 0.065, 0.07, 0.075, 0.085, 0.09,
-                     0.095, 0.105, 0.11, 0.115, 0.125, 0.13, 0.135]
-            ),
-        ],
-    )
-    def test_number_of_minor_ticks_ndivs_auto(self, lim, ref):
-        fig, ax = plt.subplots()
-        ax.set_xlim(*lim)
-        ax.set_ylim(*lim)
-        ax.xaxis.set_minor_locator(mticker.AutoMinorLocator(n='auto'))
-        ax.yaxis.set_minor_locator(mticker.AutoMinorLocator(n='auto'))
-        assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), ref)
-        assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
+        'n, lim, ref, use_rcparam', [
+            (2, (0, 4), [0.5, 1.5, 2.5, 3.5], True),
+            (2, (0, 4), [0.5, 1.5, 2.5, 3.5], False),
+            (4, (0, 2), [0.25, 0.5, 0.75, 1.25, 1.5, 1.75], True),
+            (4, (0, 2), [0.25, 0.5, 0.75, 1.25, 1.5, 1.75], False),
+            (10, (0, 1), [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], True),
+            (10, (0, 1), [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], False),
+        ])
+    def test_number_of_minor_ticks_int(self, n, lim, ref, use_rcparam):
+        if use_rcparam:
+            context = {'xtick.minor.ndivs': n, 'ytick.minor.ndivs': n}
+            kwargs = {}
+        else:
+            context = {}
+            kwargs = {'n': n}
 
-    @pytest.mark.parametrize(
-        'n, lim, ref',
-        [
-            (
-                    2,
-                    (0, 4),
-                    [0.5, 1.5, 2.5, 3.5]
-            ),
-            (
-                    4,
-                    (0, 2),
-                    [0.25, 0.5, 0.75, 1.25, 1.5, 1.75]
-            ),
-            (
-                    10,
-                    (0, 1),
-                    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-            ),
-        ],
-    )
-    def test_number_of_minor_ticks_rcparams_int(self, n, lim, ref):
-        with mpl.rc_context({'xtick.minor.ndivs': n, 'ytick.minor.ndivs': n}):
+        with mpl.rc_context(context):
             fig, ax = plt.subplots()
             ax.set_xlim(*lim)
             ax.set_ylim(*lim)
             ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
-            ax.xaxis.set_minor_locator(mticker.AutoMinorLocator())
+            ax.xaxis.set_minor_locator(mticker.AutoMinorLocator(**kwargs))
             ax.yaxis.set_major_locator(mticker.MultipleLocator(1))
-            ax.yaxis.set_minor_locator(mticker.AutoMinorLocator())
+            ax.yaxis.set_minor_locator(mticker.AutoMinorLocator(**kwargs))
             assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), ref)
             assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
-
-    @pytest.mark.parametrize(
-        'n, lim, ref',
-        [
-            (
-                    2,
-                    (0, 4),
-                    [0.5, 1.5, 2.5, 3.5]
-            ),
-            (
-                    4,
-                    (0, 2),
-                    [0.25, 0.5, 0.75, 1.25, 1.5, 1.75]
-            ),
-            (
-                    10,
-                    (0, 1),
-                    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-            ),
-        ],
-    )
-    def test_number_of_minor_ticks_ndivs_int(self, n, lim, ref):
-        fig, ax = plt.subplots()
-        ax.set_xlim(*lim)
-        ax.set_ylim(*lim)
-        ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
-        ax.xaxis.set_minor_locator(mticker.AutoMinorLocator(n))
-        ax.yaxis.set_major_locator(mticker.MultipleLocator(1))
-        ax.yaxis.set_minor_locator(mticker.AutoMinorLocator(n))
-        assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), ref)
-        assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
 
 class TestLogLocator:
