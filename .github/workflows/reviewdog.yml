@@ -18,11 +18,11 @@ jobs:
 
       - name: Set up reviewdog
         run: |
-          mkdir -p $HOME/bin
+          mkdir -p "$HOME/bin"
           curl -sfL \
             https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
-              sh -s -- -b $HOME/bin
-          echo ::add-path::$HOME/bin
+              sh -s -- -b "$HOME/bin"
+          echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Run flake8
         env:
