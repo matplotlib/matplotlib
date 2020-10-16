@@ -8,13 +8,14 @@ series in a way that could potentially reveal hidden substructure and patterns
 that are not immediately obvious.
 
 The first plot shows the typical way of visualizing multiple time series by
-overlaying them on top of each other with `plt.plot`. The second and third
+overlaying them on top of each other with ``plt.plot``. The second and third
 plots show how to reinterpret the data as a 2d histogram.
 """
 from copy import copy
 import time
 
 import numpy as np
+import numpy.matlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
@@ -51,30 +52,30 @@ print(f"{toc-tic:.2f} sec. elapsed")  # ~4 seconds
 tic = time.time()
 # linearly interpolate between the points in each time series
 num_fine = 1000
-x_fine = np.linspace(x.min(), x.max(), num_fine)  # x_fine.shape == (1_000,)
-y_fine = np.stack([np.interp(x_fine, x, Y[i]) for i in range(
-    Y.shape[0])], axis=0)  # y_fine.shape = (10_000, 1_000)
-# convert into tensor of (x, y) pairs along the -1 axis
-xy = np.stack([np.broadcast_to(x_fine[None, :], y_fine.shape),
-               y_fine], axis=-1)  # xy.shape == (10_000, 1_000, 2)
-xy = xy.reshape(-1, 2)  # xy.shape = (10_000_000, 2)
+x_fine = np.linspace(x.min(), x.max(), num_fine)
+y_fine = np.zeros((num_series, num_fine))
+for i in range(num_series):
+    y_fine[i, :] = np.interp(x_fine, x, Y[i, :])
+y_fine = y_fine.flatten()
+x_fine = np.matlib.repmat(x_fine, num_series, 1).flatten()
+
 
 # Plot (x, y) points in 2d histogram with log colorscale
 # It is pretty evident that there is some kind of structure under the noise
 # that has a periodicity of about ~6 and oscillates between +1/-1.
 cmap = copy(plt.cm.Blues)
 cmap.set_bad(cmap(0))
-h, xedges, yedges = np.histogram2d(*xy.T, bins=[200, 200])
+h, xedges, yedges = np.histogram2d(x_fine, y_fine, bins=[200, 200])
 axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap, norm=LogNorm())
 axes[1].set_title(
     r"Alternative time series vis. using `plt.hist2d` and log color scale")
 
 # It is even visible on a linear color scale
-h, xedges, yedges = np.histogram2d(*xy.T, bins=[200, 200])
+h, xedges, yedges = np.histogram2d(x_fine, y_fine, bins=[200, 200])
 axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap)
 axes[2].set_title(
     r"Alternative time series vis. using `plt.hist2d` and linear color scale")
 toc = time.time()
-print(f"{toc-tic:.2f} sec. elapsed")  # ~1 sec for both plots
+print(f"{toc-tic:.2f} sec. elapsed")  # ~1 sec for both plots + interpolation
 
 plt.show()
