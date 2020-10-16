@@ -597,7 +597,7 @@ validate_dashlist = _listify_validator(validate_floatlist)
 
 def _validate_minor_tick_ndivs(n):
     """
-    Validate ndiv parameter related with the minor ticks.
+    Validate ndiv parameter related to the minor ticks.
     It controls the number of minor ticks to be placed between
     two major ticks.
     """
@@ -610,7 +610,7 @@ def _validate_minor_tick_ndivs(n):
     except (RuntimeError, ValueError):
         pass
 
-    raise ValueError("'tick.minor.ndivs' must be a 'auto' or non-negative int")
+    raise ValueError("'tick.minor.ndivs' must be 'auto' or non-negative int")
 
 
 _prop_validators = {
@@ -1119,8 +1119,8 @@ _validators = {
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
     "xtick.major.top":     validate_bool,      # draw top major xticks
     "xtick.major.bottom":  validate_bool,      # draw bottom major xticks
-    "xtick.minor.ndivs":   _validate_minor_tick_ndivs,
     # number of minor xticks
+    "xtick.minor.ndivs":   _validate_minor_tick_ndivs,
     "xtick.labelsize":     validate_fontsize,  # fontsize of xtick labels
     "xtick.direction":     ["out", "in", "inout"],  # direction of xticks
     "xtick.alignment":     ["center", "right", "left"],
@@ -1142,8 +1142,8 @@ _validators = {
     "ytick.minor.right":   validate_bool,      # draw right minor yticks
     "ytick.major.left":    validate_bool,      # draw left major yticks
     "ytick.major.right":   validate_bool,      # draw right major yticks
-    "ytick.minor.ndivs":   _validate_minor_tick_ndivs,
     # number of minor yticks
+    "ytick.minor.ndivs":   _validate_minor_tick_ndivs,
     "ytick.labelsize":     validate_fontsize,  # fontsize of ytick labels
     "ytick.direction":     ["out", "in", "inout"],  # direction of yticks
     "ytick.alignment":     [
