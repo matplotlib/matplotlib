@@ -812,7 +812,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
-                version, name=key, alternative=alt_key,
+                version, name=key, alternative=alt_key, obj_type='rcparam',
                 addendum="Please update your matplotlibrc.")
         else:
             version = 'master' if '.post' in __version__ else f'v{__version__}'
