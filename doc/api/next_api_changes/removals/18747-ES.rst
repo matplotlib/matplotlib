@@ -47,6 +47,11 @@ method now always uses the renderer instance cached on the `.Figure`.
 
 ``axes_grid1``
 ~~~~~~~~~~~~~~
+The ``mpl_toolkits.axes_grid1.colorbar`` module and its colorbar implementation
+have been removed in favor of :mod:`matplotlib.colorbar`. Additionally:
+
 - The *locator* parameter to ``colorbar()`` has been removed in favor of its
   synonym *ticks* (which already existed previously, and is consistent with
   :mod:`matplotlib.colorbar`).
+- The ``mpl_toolkits.legacy_colorbar`` rcParam has no effect and also has been
+  removed.

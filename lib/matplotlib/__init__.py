@@ -569,6 +569,7 @@ _deprecated_map = {}
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
 _deprecated_ignore_map = {
+    'mpl_toolkits.legacy_colorbar': ('3.4', None),
 }
 
 # rcParams deprecated; can use None to suppress warnings; remain actually

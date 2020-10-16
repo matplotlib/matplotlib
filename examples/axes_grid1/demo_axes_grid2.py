@@ -13,9 +13,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
 
-plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
-
-
 def add_inner_title(ax, title, loc, **kwargs):
     from matplotlib.offsetbox import AnchoredText
     from matplotlib.patheffects import withStroke
