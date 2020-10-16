@@ -812,8 +812,17 @@ class Bbox(BboxBase):
         """
         Create a new Bbox from *left*, *bottom*, *right* and *top*.
 
-        The *y*-axis increases upwards. Optionally, passing *minpos* will set
-        that property on the returned Bbox.
+        The *y*-axis increases upwards.
+
+        Parameters
+        ----------
+        left, bottom, right, top : float
+            The four extents of the bounding box.
+
+        minpos : float or None
+           If this is supplied, the Bbox will have a minimum positive value
+           set. This is useful when dealing with logarithmic scales and other
+           scales where negative bounds result in floating point errors.
         """
         bbox = Bbox(np.reshape(args, (2, 2)))
         if minpos is not None:
@@ -957,14 +966,35 @@ class Bbox(BboxBase):
 
     @property
     def minpos(self):
+        """
+        The minimum positive value in both directions within the Bbox.
+
+        This is useful when dealing with logarithmic scales and other scales
+        where negative bounds result in floating point errors, and will be used
+        as the minimum extent instead of *p0*.
+        """
         return self._minpos
 
     @property
     def minposx(self):
+        """
+        The minimum positive value in the *x*-direction within the Bbox.
+
+        This is useful when dealing with logarithmic scales and other scales
+        where negative bounds result in floating point errors, and will be used
+        as the minimum *x*-extent instead of *x0*.
+        """
         return self._minpos[0]
 
     @property
     def minposy(self):
+        """
+        The minimum positive value in the *y*-direction within the Bbox.
+
+        This is useful when dealing with logarithmic scales and other scales
+        where negative bounds result in floating point errors, and will be used
+        as the minimum *y*-extent instead of *y0*.
+        """
         return self._minpos[1]
 
     def get_points(self):
