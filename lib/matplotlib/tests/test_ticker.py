@@ -211,22 +211,16 @@ class TestAutoMinorLocator:
 
         assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
+    @pytest.mark.parametrize('use_rcparam', [False, True])
     @pytest.mark.parametrize(
-        'lim, ref, use_rcparam', [
+        'lim, ref', [
             ((0, 1.39),
              [0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45, 0.5, 0.55, 0.65, 0.7,
-              0.75, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35], True),
-            ((0, 1.39),
-             [0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45, 0.5, 0.55, 0.65, 0.7,
-              0.75, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35], False),
+              0.75, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35]),
             ((0, 0.139),
              [0.005, 0.01, 0.015, 0.025, 0.03, 0.035, 0.045, 0.05, 0.055,
               0.065, 0.07, 0.075, 0.085, 0.09, 0.095, 0.105, 0.11, 0.115,
-              0.125, 0.13, 0.135], True),
-            ((0, 0.139),
-             [0.005, 0.01, 0.015, 0.025, 0.03, 0.035, 0.045, 0.05, 0.055,
-              0.065, 0.07, 0.075, 0.085, 0.09, 0.095, 0.105, 0.11, 0.115,
-              0.125, 0.13, 0.135], False),
+              0.125, 0.13, 0.135]),
         ])
     def test_number_of_minor_ticks_auto(self, lim, ref, use_rcparam):
         if use_rcparam:
@@ -245,14 +239,12 @@ class TestAutoMinorLocator:
             assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), ref)
             assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
+    @pytest.mark.parametrize('use_rcparam', [False, True])
     @pytest.mark.parametrize(
-        'n, lim, ref, use_rcparam', [
-            (2, (0, 4), [0.5, 1.5, 2.5, 3.5], True),
-            (2, (0, 4), [0.5, 1.5, 2.5, 3.5], False),
-            (4, (0, 2), [0.25, 0.5, 0.75, 1.25, 1.5, 1.75], True),
-            (4, (0, 2), [0.25, 0.5, 0.75, 1.25, 1.5, 1.75], False),
-            (10, (0, 1), [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], True),
-            (10, (0, 1), [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], False),
+        'n, lim, ref', [
+            (2, (0, 4), [0.5, 1.5, 2.5, 3.5]),
+            (4, (0, 2), [0.25, 0.5, 0.75, 1.25, 1.5, 1.75]),
+            (10, (0, 1), [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]),
         ])
     def test_number_of_minor_ticks_int(self, n, lim, ref, use_rcparam):
         if use_rcparam:
