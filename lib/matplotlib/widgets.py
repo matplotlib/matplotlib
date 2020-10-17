@@ -108,15 +108,13 @@ class AxesWidget(Widget):
     active : bool
         If False, the widget does not respond to events.
     """
+
+    cids = cbook.deprecated("3.4")(property(lambda self: self._cids))
+
     def __init__(self, ax):
         self.ax = ax
         self.canvas = ax.figure.canvas
         self._cids = []
-
-    @cbook.deprecated("3.4")
-    @property
-    def cids(self):
-        return self._cids
 
     def connect_event(self, event, callback):
         """
@@ -152,6 +150,11 @@ class Button(AxesWidget):
     hovercolor
         The color of the button when hovering.
     """
+
+    cnt = cbook.deprecated("3.4")(property(  # Not real, but close enough.
+        lambda self: len(self._observers.callbacks['clicked'])))
+    observers = cbook.deprecated("3.4")(property(
+        lambda self: self._observers.callbacks['clicked']))
 
     def __init__(self, ax, label, image=None,
                  color='0.85', hovercolor='0.95'):
@@ -190,17 +193,6 @@ class Button(AxesWidget):
         ax.set_yticks([])
         self.color = color
         self.hovercolor = hovercolor
-
-    @cbook.deprecated("3.4")
-    @property
-    def cnt(self):
-        # Not real, but close enough.
-        return len(self._observers.callbacks['clicked'])
-
-    @cbook.deprecated("3.4")
-    @property
-    def observers(self):
-        return self._observers.callbacks['clicked']
 
     def _click(self, event):
         if self.ignore(event) or event.inaxes != self.ax or not self.eventson:
@@ -250,6 +242,11 @@ class Slider(AxesWidget):
     val : float
         Slider value.
     """
+
+    cnt = cbook.deprecated("3.4")(property(  # Not real, but close enough.
+        lambda self: len(self._observers.callbacks['changed'])))
+    observers = cbook.deprecated("3.4")(property(
+        lambda self: self._observers.callbacks['changed']))
 
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
@@ -386,17 +383,6 @@ class Slider(AxesWidget):
         self._observers = cbook.CallbackRegistry()
 
         self.set_val(valinit)
-
-    @cbook.deprecated("3.4")
-    @property
-    def cnt(self):
-        # Not real, but close enough.
-        return len(self._observers.callbacks['changed'])
-
-    @cbook.deprecated("3.4")
-    @property
-    def observers(self):
-        return self._observers.callbacks['changed']
 
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
@@ -538,6 +524,11 @@ class CheckButtons(AxesWidget):
         each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
+    cnt = cbook.deprecated("3.4")(property(  # Not real, but close enough.
+        lambda self: len(self._observers.callbacks['clicked'])))
+    observers = cbook.deprecated("3.4")(property(
+        lambda self: self._observers.callbacks['clicked']))
+
     def __init__(self, ax, labels, actives=None):
         """
         Add check buttons to `matplotlib.axes.Axes` instance *ax*
@@ -604,17 +595,6 @@ class CheckButtons(AxesWidget):
         self.connect_event('button_press_event', self._clicked)
 
         self._observers = cbook.CallbackRegistry()
-
-    @cbook.deprecated("3.4")
-    @property
-    def cnt(self):
-        # Not real, but close enough.
-        return len(self._observers.callbacks['clicked'])
-
-    @cbook.deprecated("3.4")
-    @property
-    def observers(self):
-        return self._observers.callbacks['clicked']
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -696,10 +676,14 @@ class TextBox(AxesWidget):
         The color of the text box when hovering.
     """
 
-    @cbook.deprecated("3.3")
-    @property
-    def params_to_disable(self):
-        return [key for key in mpl.rcParams if 'keymap' in key]
+    params_to_disable = cbook.deprecated("3.3")(property(
+        lambda self: [key for key in mpl.rcParams if 'keymap' in key]))
+    cnt = cbook.deprecated("3.4")(property(  # Not real, but close enough.
+        lambda self: sum(len(d) for d in self._observers.callbacks.values())))
+    change_observers = cbook.deprecated("3.4")(property(
+        lambda self: self._observers.callbacks['change']))
+    submit_observers = cbook.deprecated("3.4")(property(
+        lambda self: self._observers.callbacks['submit']))
 
     def __init__(self, ax, label, initial='',
                  color='.95', hovercolor='1', label_pad=.01):
@@ -752,22 +736,6 @@ class TextBox(AxesWidget):
         self.hovercolor = hovercolor
 
         self.capturekeystrokes = False
-
-    @cbook.deprecated("3.4")
-    @property
-    def cnt(self):
-        # Not real, but close enough.
-        return sum(len(d) for d in self._observers.callbacks.values())
-
-    @cbook.deprecated("3.4")
-    @property
-    def change_observers(self):
-        return self._observers.callbacks['change']
-
-    @cbook.deprecated("3.4")
-    @property
-    def submit_observers(self):
-        return self._observers.callbacks['submit']
 
     @property
     def text(self):
@@ -1025,16 +993,10 @@ class RadioButtons(AxesWidget):
 
         self._observers = cbook.CallbackRegistry()
 
-    @cbook.deprecated("3.4")
-    @property
-    def cnt(self):
-        # Not real, but close enough.
-        return len(self._observers.callbacks['clicked'])
-
-    @cbook.deprecated("3.4")
-    @property
-    def observers(self):
-        return self._observers.callbacks['clicked']
+    cnt = cbook.deprecated("3.4")(property(  # Not real, but close enough.
+        lambda self: len(self._observers.callbacks['clicked'])))
+    observers = cbook.deprecated("3.4")(property(
+        lambda self: self._observers.callbacks['clicked']))
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -1159,17 +1121,17 @@ class SubplotTool(Widget):
             event.canvas.draw()
             self.targetfig.canvas.draw()
 
-    axleft = cbook.deprecated("3.3", name="axleft")(
+    axleft = cbook.deprecated("3.3")(
         property(lambda self: self.sliderleft.ax))
-    axright = cbook.deprecated("3.3", name="axright")(
+    axright = cbook.deprecated("3.3")(
         property(lambda self: self.sliderright.ax))
-    axbottom = cbook.deprecated("3.3", name="axbottom")(
+    axbottom = cbook.deprecated("3.3")(
         property(lambda self: self.sliderbottom.ax))
-    axtop = cbook.deprecated("3.3", name="axtop")(
+    axtop = cbook.deprecated("3.3")(
         property(lambda self: self.slidertop.ax))
-    axwspace = cbook.deprecated("3.3", name="axwspace")(
+    axwspace = cbook.deprecated("3.3")(
         property(lambda self: self.sliderwspace.ax))
-    axhspace = cbook.deprecated("3.3", name="axhspace")(
+    axhspace = cbook.deprecated("3.3")(
         property(lambda self: self.sliderhspace.ax))
 
     @cbook.deprecated("3.3")

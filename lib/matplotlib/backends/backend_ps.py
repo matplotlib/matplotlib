@@ -223,6 +223,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
 
+    mathtext_parser = cbook.deprecated("3.4")(property(
+        lambda self: MathTextParser("PS")))
+    used_characters = cbook.deprecated("3.3")(property(
+        lambda self: self._character_tracker.used_characters))
+
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
@@ -248,16 +253,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._path_collection_id = 0
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
-
-    @cbook.deprecated("3.3")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser("PS")
-
-    @cbook.deprecated("3.3")
-    @property
-    def used_characters(self):
-        return self._character_tracker.used_characters
 
     @cbook.deprecated("3.3")
     def track_characters(self, *args, **kwargs):

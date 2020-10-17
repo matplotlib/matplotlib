@@ -80,42 +80,25 @@ class TexManager:
         'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
-    @cbook.deprecated("3.3", alternative="matplotlib.get_cachedir()")
-    @property
-    def cachedir(self):
-        return mpl.get_cachedir()
-
-    @cbook.deprecated("3.3")
-    @property
-    def rgba_arrayd(self):
-        return {}
+    cachedir = cbook.deprecated(
+        "3.3", alternative="matplotlib.get_cachedir()")(
+            property(lambda self: mpl.get_cachedir()))
+    rgba_arrayd = cbook.deprecated("3.3")(property(lambda self: {}))
+    _fonts = {}  # Only for deprecation period.
+    serif = cbook.deprecated("3.3")(property(
+        lambda self: self._fonts.get("serif", ('cmr', ''))))
+    sans_serif = cbook.deprecated("3.3")(property(
+        lambda self: self._fonts.get("sans-serif", ('cmss', ''))))
+    cursive = cbook.deprecated("3.3")(property(
+        lambda self:
+        self._fonts.get("cursive", ('pzc', r'\usepackage{chancery}'))))
+    monospace = cbook.deprecated("3.3")(property(
+        lambda self: self._fonts.get("monospace", ('cmtt', ''))))
 
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
         Path(cls.texcache).mkdir(parents=True, exist_ok=True)
         return object.__new__(cls)
-
-    _fonts = {}  # Only for deprecation period.
-
-    @cbook.deprecated("3.3")
-    @property
-    def serif(self):
-        return self._fonts.get("serif", ('cmr', ''))
-
-    @cbook.deprecated("3.3")
-    @property
-    def sans_serif(self):
-        return self._fonts.get("sans-serif", ('cmss', ''))
-
-    @cbook.deprecated("3.3")
-    @property
-    def cursive(self):
-        return self._fonts.get("cursive", ('pzc', r'\usepackage{chancery}'))
-
-    @cbook.deprecated("3.3")
-    @property
-    def monospace(self):
-        return self._fonts.get("monospace", ('cmtt', ''))
 
     def get_font_config(self):
         ff = rcParams['font.family']

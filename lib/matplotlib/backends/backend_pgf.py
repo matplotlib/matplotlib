@@ -944,6 +944,7 @@ class PdfPages:
         '_info_dict',
         '_metadata',
     )
+    metadata = cbook.deprecated('3.3')(property(lambda self: self._metadata))
 
     def __init__(self, filename, *, keep_empty=True, metadata=None):
         """
@@ -988,11 +989,6 @@ class PdfPages:
                     self._metadata[canonical] = self._metadata.pop(key)
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
-
-    @cbook.deprecated('3.3')
-    @property
-    def metadata(self):
-        return self._metadata
 
     def _write_header(self, width_inches, height_inches):
         hyperref_options = ','.join(
