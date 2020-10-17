@@ -11,7 +11,6 @@ from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
 from matplotlib.container import ErrorbarContainer
-from matplotlib.cbook import flatten
 
 
 LINESTYLES = {'-': 'Solid',
@@ -252,8 +251,7 @@ def figure_edit(axes, parent=None):
                 # it.
                 # TODO: adjust other characteristics of the errorbars? This
                 # will involve adjusting the Qt dialog.
-                other_lines = flatten(o[1:])
-                for line in other_lines:
+                for line in cbook.flatten(o[1:]):
                     line.set_alpha(None)
                     line.set_color(markerfacecolor)
                     line.set_linewidth(linewidth)
