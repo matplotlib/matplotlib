@@ -1,0 +1,115 @@
+# Importing Required Libraries
+
+import numpy as np
+
+import matplotlib.pyplot as plt
+
+import csv
+
+# Generating time data using arange function from numpy
+
+time = np.arange(-3*np.pi, 3*np.pi, 0.01)
+
+amplitude1 = np.sin(time)
+
+amplitude2 = np.cos(time)
+
+#adding values of amplitude1 amplitude2 and time in a array amplitude
+
+amplitude = np.array([[amplitude1],[time],[amplitude2]])
+
+def csvfile():
+
+    #converting into csv file
+
+    amplitude.tofile('amplitude.csv',sep=' ',format='%10f')
+
+    #print(amplitude)
+
+    with open('amplitude.csv','r') as file:
+
+        reader =csv.reader(file)
+
+        for row in reader:
+
+            print(row)
+
+def sineCurve():
+
+  
+
+    #Plotting time vs amplitude using plot function from pyplot
+
+    plt.plot(time, amplitude1)
+
+    # Settng title for the plot in red color for sine wave
+
+    plt.title('sine Wave graph in python', color='r')
+
+    # Setting x axis label for the plot
+
+    plt.xlabel('Time'+ r'$\rightarrow$')
+
+    # Setting y axis label for the plot
+
+    plt.ylabel('Sine(time) '+ r'$\rightarrow$')
+
+    # Showing grid
+
+    plt.grid()
+
+    # Highlighting axis at x=0 and y=0
+
+    plt.axhline(y=0, color='k')
+
+    plt.axvline(x=0, color='k')
+
+    # Finally displaying the plot
+
+    plt.show()
+
+def CosineCurve():
+
+    # Plotting time vs amplitude using plot function from pyplot
+
+    plt.plot(time, amplitude2)
+
+    # Settng title for the plot in red color for sine wave
+
+    plt.title('Cosine Wave graph in python', color='r')
+
+    # Setting x axis label for the plot
+
+    plt.xlabel('Time'+ r'$\rightarrow$')
+
+    # Setting y axis label for the plot
+
+    plt.ylabel('Cosine(time) '+ r'$\rightarrow$')
+
+    # Showing grid
+
+    plt.grid()
+
+    # Highlighting axis at x=0 and y=0
+
+    plt.axhline(y=0, color='k')
+
+    plt.axvline(x=0, color='k')
+
+  #  # Finally displaying the plot
+
+    plt.show()
+
+    
+
+#function defined for sine wave
+
+#sineCurve()
+
+#function defined for cosine wave
+
+CosineCurve()
+
+#function for csv file
+
+csvfile()
