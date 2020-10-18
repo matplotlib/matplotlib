@@ -395,6 +395,19 @@ def test_CenteredNorm():
     norm.vcenter = 2
     assert_array_almost_equal(x, 4 * norm(x))
 
+    # Check that manual change of vcenter adjusts halfrange accordingly.
+    norm = mcolors.CenteredNorm()
+    assert norm.vcenter == 0
+    # add data
+    norm(np.linspace(-1.0, 0.0, 10))
+    assert norm.vmax == 1.0
+    assert norm.halfrange == 1.0
+    # set vcenter to 1, which should double halfrange
+    norm.vcenter = 1
+    assert norm.vmin == -1.0
+    assert norm.vmax == 3.0
+    assert norm.halfrange == 2.0
+
 
 @pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])
 def test_lognorm_invalid(vmin, vmax):
