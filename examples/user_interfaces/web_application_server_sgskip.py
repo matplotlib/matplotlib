@@ -25,6 +25,7 @@ from matplotlib.figure import Figure
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def hello():
     # Generate the figure **without using pyplot**.
@@ -40,7 +41,8 @@ def hello():
 
 # %%
 # When using Matplotlib versions older than 3.1, it is necessary to explicitly
-# instantiate an Agg canvas; see e.g. :doc:`/gallery/user_interfaces/canvasagg`.
+# instantiate an Agg canvas;
+# see e.g. :doc:`/gallery/user_interfaces/canvasagg`.
 #
 #  .. _howto-click-maps:
 #
