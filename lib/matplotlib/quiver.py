@@ -760,6 +760,18 @@ class Quiver(mcollections.PolyCollection):
         # Mask handling is deferred to the caller, _make_verts.
         return X, Y
 
+    def set_offsets(self, xy):
+        """
+        Set the offsets for the quiver. 
+
+        Parameters
+        ----------
+        xy : sequence of pairs of floats
+        """
+        self.N = len(xy[:, 0])
+        mcollections.PolyCollection.set_offsets(self, xy)
+		
+		
     quiver_doc = _quiver_doc
 
 
