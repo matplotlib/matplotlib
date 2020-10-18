@@ -14,6 +14,7 @@
     Control the default spacing between subplots.
 """
 
+import io
 import inspect
 import logging
 from numbers import Integral
@@ -2930,10 +2931,13 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        fname : str or path-like or file-like
+        fname : str or path-like or file-like or None
             A path, or a Python file-like object, or
             possibly some backend-dependent object such as
             `matplotlib.backends.backend_pdf.PdfPages`.
+
+            If *fname* is explicitly set as None, returns a bytestring have
+            been written to a file.
 
             If *format* is set, it determines the output format, and the file
             is saved as *fname*.  Note that *fname* is used verbatim, and there
@@ -3041,6 +3045,11 @@ class Figure(FigureBase):
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
         """
+
+        if (fname is None):
+            in_memory_file = io.BytesIO()
+            self.savefig(in_memory_file, **kwargs)
+            return in_memory_file.getvalue()
 
         kwargs.setdefault('dpi', mpl.rcParams['savefig.dpi'])
         if transparent is None:
