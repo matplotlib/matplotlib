@@ -98,5 +98,6 @@ Citing Matplotlib
 =================
 If Matplotlib contributes to a project that leads to publication, please
 acknowledge this by citing Matplotlib.
+//special for hacktoberfest
 
 `A ready-made citation entry <https://matplotlib.org/citing.html>`_ is available.
