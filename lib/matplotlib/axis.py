@@ -387,18 +387,10 @@ class Tick(martist.Artist):
                     if k in ['labelsize', 'labelcolor']}
         self.label1.set(**label_kw)
         self.label2.set(**label_kw)
-        for k, v in label_kw.items():
-            # for labelsize the text objects covert str ('small')
-            # -> points. grab the integer from the `Text` object
-            # instead of saving the string representation
-            v = getattr(self.label1, 'get_' + k)()
-            setattr(self, '_label' + k, v)
 
         grid_kw = {k[5:]: v for k, v in kw.items()
                    if k in _gridline_param_names}
         self.gridline.set(**grid_kw)
-        for k, v in grid_kw.items():
-            setattr(self, '_grid_' + k, v)
 
     def update_position(self, loc):
         """Set the location of tick in data coords with scalar *loc*."""
