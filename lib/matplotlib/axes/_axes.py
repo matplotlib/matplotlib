@@ -715,6 +715,7 @@ class Axes(_AxesBase):
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
         self.add_line(l)
+        self.ignore_existing_data_limits = "x"
         self._request_autoscale_view(scalex=False, scaley=scaley)
         return l
 
@@ -782,6 +783,7 @@ class Axes(_AxesBase):
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
+        self.ignore_existing_data_limits = "y"
         self._request_autoscale_view(scalex=scalex, scaley=False)
         return l
 
@@ -921,6 +923,7 @@ class Axes(_AxesBase):
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(self.get_yaxis_transform(which="grid"))
         self.add_patch(p)
+        self.ignore_existing_data_limits = "x"
         self._request_autoscale_view(scalex=False)
         return p
 
@@ -976,6 +979,7 @@ class Axes(_AxesBase):
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(self.get_xaxis_transform(which="grid"))
         self.add_patch(p)
+        self.ignore_existing_data_limits = "y"
         self._request_autoscale_view(scaley=False)
         return p
 

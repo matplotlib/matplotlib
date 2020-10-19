@@ -6814,3 +6814,46 @@ def test_ylabel_ha_with_position(ha):
     ax.set_ylabel("test", y=1, ha=ha)
     ax.yaxis.set_label_position("right")
     assert ax.yaxis.get_label().get_ha() == ha
+
+
+def test_axhline_with_date_xaxis():
+    fig, ax = plt.subplots()
+    ax.axhline(1.5)
+    x = [datetime.datetime(2020, 1, i) for i in range(1, 3)]
+    y = [1, 2]
+    ax.plot(x, y)
+    assert ax.get_xlim() == (18262.0, 18263.0)
+
+
+def test_axvline_with_date_yaxis():
+    fig, ax = plt.subplots()
+    ax.axvline(1.5)
+    x = [1, 2]
+    y = [datetime.datetime(2020, 1, i) for i in range(1, 3)]
+    ax.plot(x, y)
+    assert ax.get_ylim() == (18262.0, 18263.0)
+
+
+def test_two_spans():
+    fig, ax = plt.subplots()
+    ax.axhline(1)
+    ax.axhline(2)
+    assert ax.get_ylim() == (1.0, 2.0)
+
+
+def test_axhspan_with_date_xaxis():
+    fig, ax = plt.subplots()
+    ax.axhspan(1, 2)
+    x = [datetime.datetime(2020, 1, i) for i in range(1, 3)]
+    y = [1, 2]
+    ax.plot(x, y)
+    assert ax.get_xlim() == (18262.0, 18263.0)
+
+
+def test_axvspan_with_date_yaxis():
+    fig, ax = plt.subplots()
+    ax.axvspan(1, 2)
+    x = [1, 2]
+    y = [datetime.datetime(2020, 1, i) for i in range(1, 3)]
+    ax.plot(x, y)
+    assert ax.get_ylim() == (18262.0, 18263.0)

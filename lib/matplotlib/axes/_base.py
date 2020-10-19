@@ -546,6 +546,7 @@ class _AxesBase(martist.Artist):
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
+        self._ignore_existing_data_limits = 1
         self.cla()
 
         # funcs used to format x and y - fall back on major formatters
@@ -639,6 +640,24 @@ class _AxesBase(martist.Artist):
         if self.get_ylabel():
             fields += [f"ylabel={self.get_ylabel()!r}"]
         return f"<{self.__class__.__name__}:" + ", ".join(fields) + ">"
+
+    @property
+    def ignore_existing_data_limits(self):
+        """
+        Whether to ignore existing data limits
+
+        value : int, bool or str
+            - when ``0`` or ``False``, do not ignore either x or y limits
+            - when ``1`` or ``True``, ignore both x and y limits
+            - when ``2`` or ``x``, ignore x-limits
+            - when ``3`` or ``y``, ignore y-limits
+        """
+        return self._ignore_existing_data_limits
+
+    @ignore_existing_data_limits.setter
+    def ignore_existing_data_limits(self, value):
+        lu = {False: 0, True: 1, 2: 2, "x": 2, 3: 3, "y": 3}
+        self._ignore_existing_data_limits = lu[value]
 
     def get_window_extent(self, *args, **kwargs):
         """

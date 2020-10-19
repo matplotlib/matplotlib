@@ -208,25 +208,76 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
 
     extent_limits e;
 
-    if (ignore) {
-        CALL_CPP("update_path_extents", reset_limits(e));
-    } else {
-        if (rect.x1 > rect.x2) {
+    switch(ignore) {
+        case 0: {
+            if (rect.x1 > rect.x2) {
+                e.x0 = std::numeric_limits<double>::infinity();
+                e.x1 = -std::numeric_limits<double>::infinity();
+            } else {
+                e.x0 = rect.x1;
+                e.x1 = rect.x2;
+            }
+            if (rect.y1 > rect.y2) {
+                e.y0 = std::numeric_limits<double>::infinity();
+                e.y1 = -std::numeric_limits<double>::infinity();
+            } else {
+                e.y0 = rect.y1;
+                e.y1 = rect.y2;
+            }
+            e.xm = minpos(0);
+            e.ym = minpos(1);
+            break;
+        }
+        case 1: {
+            CALL_CPP("update_path_extents", reset_limits(e));
+            break;
+        }
+        case 2: {
             e.x0 = std::numeric_limits<double>::infinity();
             e.x1 = -std::numeric_limits<double>::infinity();
-        } else {
-            e.x0 = rect.x1;
-            e.x1 = rect.x2;
+            if (rect.y1 > rect.y2) {
+                e.y0 = std::numeric_limits<double>::infinity();
+                e.y1 = -std::numeric_limits<double>::infinity();
+            } else {
+                e.y0 = rect.y1;
+                e.y1 = rect.y2;
+            }
+            e.xm = std::numeric_limits<double>::infinity();
+            e.ym = minpos(1);
+            break;
         }
-        if (rect.y1 > rect.y2) {
+        case 3: {
+            if (rect.x1 > rect.x2) {
+                e.x0 = std::numeric_limits<double>::infinity();
+                e.x1 = -std::numeric_limits<double>::infinity();
+            } else {
+                e.x0 = rect.x1;
+                e.x1 = rect.x2;
+            }
             e.y0 = std::numeric_limits<double>::infinity();
             e.y1 = -std::numeric_limits<double>::infinity();
-        } else {
-            e.y0 = rect.y1;
-            e.y1 = rect.y2;
+            e.xm = minpos(0);
+            e.ym = std::numeric_limits<double>::infinity();
+            break;
         }
-        e.xm = minpos(0);
-        e.ym = minpos(1);
+        default: {
+            if (rect.x1 > rect.x2) {
+                e.x0 = std::numeric_limits<double>::infinity();
+                e.x1 = -std::numeric_limits<double>::infinity();
+            } else {
+                e.x0 = rect.x1;
+                e.x1 = rect.x2;
+            }
+            if (rect.y1 > rect.y2) {
+                e.y0 = std::numeric_limits<double>::infinity();
+                e.y1 = -std::numeric_limits<double>::infinity();
+            } else {
+                e.y0 = rect.y1;
+                e.y1 = rect.y2;
+            }
+            e.xm = minpos(0);
+            e.ym = minpos(1);
+        }
     }
 
     CALL_CPP("update_path_extents", (update_path_extents(path, trans, e)));
