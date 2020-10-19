@@ -874,7 +874,7 @@ class Text(Artist):
         """
         #return _unit_box
         if not self.get_visible():
-            return Bbox.unit()
+            return Bbox.null()
         if dpi is None:
             dpi = self.figure.dpi
         if self.get_text() == '':
@@ -1958,8 +1958,8 @@ class Annotation(Text, _AnnotationBase):
         """
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
-        if not self.get_visible():
-            return Bbox.unit()
+        if not self.get_visible() or not self._check_xy(renderer):
+            return Bbox.null()
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:

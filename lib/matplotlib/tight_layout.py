@@ -68,8 +68,17 @@ def auto_adjust_subplotpars(
 
     if ax_bbox_list is None:
         ax_bbox_list = [
-            Bbox.union([ax.get_position(original=True) for ax in subplots])
-            for subplots in subplot_list]
+            [ax.get_position(original=True) for ax in subplots]
+            for subplots in subplot_list
+        ]
+        ax_bbox_list = [
+            Bbox.union([
+                b for b in bbox_list
+                if np.isfinite(b.width) and np.isfinite(b.height)
+                    and (b.width != 0 or b.height != 0)
+            ])
+            for bbox_list in ax_bbox_list
+        ]
 
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,
