@@ -1,0 +1,5 @@
+*resize_callback* parameter to ``FigureCanvasTk``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This parameter was never used internally and is deprecated.  Tk-level custom
+event handlers for resize events can be added to a ``FigureCanvasTk`` using
+e.g. ``get_tk_widget().bind('<Configure>', ..., True)``.

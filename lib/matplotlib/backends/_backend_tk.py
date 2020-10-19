@@ -159,6 +159,9 @@ class TimerTk(TimerBase):
 class FigureCanvasTk(FigureCanvasBase):
     required_interactive_framework = "tk"
 
+    @cbook._delete_parameter(
+        "3.4", "resize_callback",
+        alternative="get_tk_widget().bind('<Configure>', ..., True)")
     def __init__(self, figure, master=None, resize_callback=None):
         super().__init__(figure)
         self._idle = True
