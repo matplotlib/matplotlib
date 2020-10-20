@@ -16,7 +16,7 @@ and work of:
 
 using all 8 accents of the color palette - starting with blue
 
-ToDo:
+Still TODO:
 
 - Create alpha values for bar and stacked charts. .33 or .5
 - Apply Layout Rules

@@ -1,7 +1,5 @@
 """
-An agg_ backend.
-
-.. _agg: http://antigrain.com/
+An `Anti-Grain Geometry <http://antigrain.com>`_ (AGG) backend.
 
 Features that are implemented:
 
@@ -16,7 +14,7 @@ Features that are implemented:
 * draw polygon
 * freetype2 w/ ft2font
 
-TODO:
+Still TODO:
 
 * integrate screen dpi w/ ppi and text
 """
