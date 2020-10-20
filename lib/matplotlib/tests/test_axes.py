@@ -4577,25 +4577,35 @@ def test_twin_spines_on_top():
     ax2.fill_between("i", "j", color='#7FC97F', alpha=.5, data=data)
 
 
-def test_rcparam_grid_minor():
-    orig_grid = matplotlib.rcParams['axes.grid']
-    orig_locator = matplotlib.rcParams['axes.grid.which']
+@pytest.mark.parametrize("grid_which, major_visible, minor_visible", [
+    ("both", True, True),
+    ("major", True, False),
+    ("minor", False, True),
+])
+def test_rcparam_grid_minor(grid_which, major_visible, minor_visible):
+    mpl.rcParams.update({"axes.grid": True, "axes.grid.which": grid_which})
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    assert all(tick.gridline.get_visible() == major_visible
+               for tick in ax.xaxis.majorTicks)
+    assert all(tick.gridline.get_visible() == minor_visible
+               for tick in ax.xaxis.minorTicks)
 
-    matplotlib.rcParams['axes.grid'] = True
 
-    values = (
-        ('both', (True, True)),
-        ('major', (True, False)),
-        ('minor', (False, True))
-        )
-
-    for locator, result in values:
-        matplotlib.rcParams['axes.grid.which'] = locator
-        fig, ax = plt.subplots()
-        assert (ax.xaxis._gridOnMajor, ax.xaxis._gridOnMinor) == result
-
-    matplotlib.rcParams['axes.grid'] = orig_grid
-    matplotlib.rcParams['axes.grid.which'] = orig_locator
+def test_grid():
+    fig, ax = plt.subplots()
+    ax.grid()
+    fig.canvas.draw()
+    assert ax.xaxis.majorTicks[0].gridline.get_visible()
+    ax.grid(visible=False)
+    fig.canvas.draw()
+    assert not ax.xaxis.majorTicks[0].gridline.get_visible()
+    ax.grid(visible=True)
+    fig.canvas.draw()
+    assert ax.xaxis.majorTicks[0].gridline.get_visible()
+    ax.grid()
+    fig.canvas.draw()
+    assert not ax.xaxis.majorTicks[0].gridline.get_visible()
 
 
 def test_vline_limit():

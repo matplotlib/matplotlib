@@ -439,9 +439,9 @@ class GridHelperRectlinear(GridHelperBase):
         if axis in ["both", "y"]:
             x1, x2 = self.axes.get_xlim()
             locs = []
-            if self.axes.yaxis._gridOnMajor:
+            if self.axes.yaxis._major_tick_kw["gridOn"]:
                 locs.extend(self.axes.yaxis.major.locator())
-            if self.axes.yaxis._gridOnMinor:
+            if self.axes.yaxis._minor_tick_kw["gridOn"]:
                 locs.extend(self.axes.yaxis.minor.locator())
 
             for y in locs:
@@ -533,17 +533,17 @@ class Axes(maxes.Axes):
         """
         Toggle the gridlines, and optionally set the properties of the lines.
         """
-        # their are some discrepancy between the behavior of grid in
-        # axes_grid and the original mpl's grid, because axes_grid
-        # explicitly set the visibility of the gridlines.
+        # There are some discrepancies in the behavior of grid() between
+        # axes_grid and Matplotlib, because axes_grid explicitly sets the
+        # visibility of the gridlines.
         super().grid(b, which=which, axis=axis, **kwargs)
         if not self._axisline_on:
             return
         if b is None:
-            b = (self.axes.xaxis._gridOnMinor
-                 or self.axes.xaxis._gridOnMajor
-                 or self.axes.yaxis._gridOnMinor
-                 or self.axes.yaxis._gridOnMajor)
+            b = (self.axes.xaxis._minor_tick_kw["gridOn"]
+                 or self.axes.xaxis._major_tick_kw["gridOn"]
+                 or self.axes.yaxis._minor_tick_kw["gridOn"]
+                 or self.axes.yaxis._major_tick_kw["gridOn"])
         self.gridlines.set(which=which, axis=axis, visible=b)
         self.gridlines.set(**kwargs)
 

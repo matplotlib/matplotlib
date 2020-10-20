@@ -2976,8 +2976,6 @@ class _AxesBase(martist.Artist):
         use `.set_axisbelow` or, for more control, call the
         `~.Artist.set_zorder` method of each axis.
         """
-        if len(kwargs):
-            b = True
         _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
             self.xaxis.grid(b, which=which, **kwargs)
