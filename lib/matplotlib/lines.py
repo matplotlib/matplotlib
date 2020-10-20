@@ -17,9 +17,7 @@ from .cbook import (
 from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
-from .transforms import (
-    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath,
-    AffineDeltaTransform)
+from .transforms import Bbox, BboxTransformTo, TransformedPath
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
