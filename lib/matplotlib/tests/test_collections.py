@@ -6,13 +6,12 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal
 import pytest
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
+import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
-import matplotlib.pyplot as plt
-from matplotlib._types import JoinStyle, CapStyle
 from matplotlib.testing.decorators import image_comparison
-import matplotlib.transforms as mtransforms
 
 
 def generate_EventCollection_plot():
@@ -504,17 +503,17 @@ def test_lslw_bcast():
 @pytest.mark.style('default')
 def test_capstyle():
     col = mcollections.PathCollection([], capstyle='round')
-    assert col.get_capstyle() == CapStyle.round
+    assert col.get_capstyle() == 'round'
     col.set_capstyle('butt')
-    assert col.get_capstyle() == CapStyle.butt
+    assert col.get_capstyle() == 'butt'
 
 
 @pytest.mark.style('default')
 def test_joinstyle():
     col = mcollections.PathCollection([], joinstyle='round')
-    assert col.get_joinstyle() == JoinStyle.round
+    assert col.get_joinstyle() == 'round'
     col.set_joinstyle('miter')
-    assert col.get_joinstyle() == JoinStyle.miter
+    assert col.get_joinstyle() == 'miter'
 
 
 @image_comparison(['cap_and_joinstyle.png'])

@@ -26,23 +26,22 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import _api, _text_layout, cbook
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
     GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.dates import UTC
-import matplotlib.dviread as dviread
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
+from matplotlib.afm import AFM
+import matplotlib.type1font as type1font
+import matplotlib.dviread as dviread
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED)
 from matplotlib.mathtext import MathTextParser
-from matplotlib import _path
-from matplotlib.path import Path
-from matplotlib._types import JoinStyle, CapStyle
-import matplotlib.type1font as type1font
 from matplotlib.transforms import Affine2D, BboxBase
+from matplotlib.path import Path
+from matplotlib.dates import UTC
+from matplotlib import _path
 from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
@@ -747,8 +746,7 @@ class PdfFile:
                          self.reserveObject('length of content stream'))
         # Initialize the pdf graphics state to match the default mpl
         # graphics context: currently only the join style needs to be set
-        self.output(GraphicsContextPdf.joinstyles[JoinStyle.round],
-                    Op.setlinejoin)
+        self.output(GraphicsContextPdf.joinstyles['round'], Op.setlinejoin)
 
         # Clear the list of annotations for the next page
         self.pageAnnotations = []
@@ -2416,8 +2414,8 @@ class GraphicsContextPdf(GraphicsContextBase):
         """
         return Op.paint_path(self.fill(), self.stroke())
 
-    capstyles = {CapStyle.butt: 0, CapStyle.round: 1, CapStyle.projecting: 2}
-    joinstyles = {JoinStyle.miter: 0, JoinStyle.round: 1, JoinStyle.bevel: 2}
+    capstyles = {'butt': 0, 'round': 1, 'projecting': 2}
+    joinstyles = {'miter': 0, 'round': 1, 'bevel': 2}
 
     def capstyle_cmd(self, style):
         return [self.capstyles[style], Op.setlinecap]

@@ -6,10 +6,9 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 from matplotlib.patches import Patch, Polygon, Rectangle, FancyArrowPatch
-import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
-from matplotlib._types import JoinStyle, CapStyle
+import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
     path as mpath, style as mstyle, transforms as mtransforms, rcParams)
@@ -621,9 +620,9 @@ def test_default_linestyle():
 
 def test_default_capstyle():
     patch = Patch()
-    assert patch.get_capstyle() == CapStyle.butt
+    assert patch.get_capstyle() == 'butt'
 
 
 def test_default_joinstyle():
     patch = Patch()
-    assert patch.get_joinstyle() == JoinStyle.miter
+    assert patch.get_joinstyle() == 'miter'

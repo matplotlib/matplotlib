@@ -28,7 +28,6 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib._types import JoinStyle, CapStyle
 from matplotlib.widgets import SubplotTool
 
 import wx
@@ -326,13 +325,13 @@ class GraphicsContextWx(GraphicsContextBase):
     since wxPython colour management is rather simple, I have not chosen
     to implement a separate colour manager class.
     """
-    _capd = {CapStyle.butt: wx.CAP_BUTT,
-             CapStyle.projecting: wx.CAP_PROJECTING,
-             CapStyle.round: wx.CAP_ROUND}
+    _capd = {'butt': wx.CAP_BUTT,
+             'projecting': wx.CAP_PROJECTING,
+             'round': wx.CAP_ROUND}
 
-    _joind = {JoinStyle.bevel: wx.JOIN_BEVEL,
-              JoinStyle.miter: wx.JOIN_MITER,
-              JoinStyle.round: wx.JOIN_ROUND}
+    _joind = {'bevel': wx.JOIN_BEVEL,
+              'miter': wx.JOIN_MITER,
+              'round': wx.JOIN_ROUND}
 
     _cache = weakref.WeakKeyDictionary()
 

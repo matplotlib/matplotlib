@@ -130,17 +130,7 @@ int convert_cap(PyObject *capobj, void *capp)
     int values[] = {agg::butt_cap, agg::round_cap, agg::square_cap};
     int result = agg::butt_cap;
 
-    PyObject *name = PyUnicode_FromString("name");
-    PyObject *cap_string = PyObject_GetAttr(capobj, name);
-    if (cap_string == NULL) {
-        Py_DECREF(name);
-        PyErr_SetString(PyExc_TypeError, "capstyle must be a CapStyle (Enum) object.");
-    }
-
-    int success = convert_string_enum(cap_string, "capstyle", names, values, &result);
-    Py_DECREF(name);
-    Py_DECREF(cap_string);
-    if (!success) {
+    if (!convert_string_enum(capobj, "capstyle", names, values, &result)) {
         return 0;
     }
 
@@ -153,17 +143,8 @@ int convert_join(PyObject *joinobj, void *joinp)
     const char *names[] = {"miter", "round", "bevel", NULL};
     int values[] = {agg::miter_join_revert, agg::round_join, agg::bevel_join};
     int result = agg::miter_join_revert;
-    PyObject *name = PyUnicode_FromString("name");
-    PyObject *join_string = PyObject_GetAttr(joinobj, name);
-    if (join_string == NULL) {
-        Py_DECREF(name);
-        PyErr_SetString(PyExc_TypeError, "joinstyle must be a JoinStyle (Enum) object.");
-    }
 
-    int success = convert_string_enum(join_string, "joinstyle", names, values, &result);
-    Py_DECREF(name);
-    Py_DECREF(join_string);
-    if (!success) {
+    if (!convert_string_enum(joinobj, "joinstyle", names, values, &result)) {
         return 0;
     }
 

@@ -659,12 +659,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         cs : `.CapStyle` or {'butt', 'round', 'projecting'}
-            The capstyle.
         """
         self._capstyle = CapStyle(cs)
 
     def get_capstyle(self):
-        return self._capstyle
+        return self._capstyle.name
 
     def set_joinstyle(self, js):
         """
@@ -673,12 +672,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         js : `.JoinStyle` or {'miter', 'round', 'bevel'}
-            The joinstyle.
         """
         self._joinstyle = JoinStyle(js)
 
     def get_joinstyle(self):
-        return self._joinstyle
+        return self._joinstyle.name
 
     @staticmethod
     def _bcast_lwls(linewidths, dashes):

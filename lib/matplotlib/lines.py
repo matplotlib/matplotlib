@@ -255,12 +255,12 @@ class Line2D(Artist):
     @_api.deprecated("3.4")
     @_api.classproperty
     def validCap(cls):
-        return ('butt', 'round', 'projecting')
+        return tuple(cs.value for cs in CapStyle)
 
     @_api.deprecated("3.4")
     @_api.classproperty
     def validJoin(cls):
-        return ('miter', 'round', 'bevel')
+        return tuple(js.value for js in JoinStyle)
 
     def __str__(self):
         if self._label != "":
@@ -1342,7 +1342,7 @@ class Line2D(Artist):
 
         See also `~.Line2D.set_dash_joinstyle`.
         """
-        return self._dashjoinstyle
+        return self._dashjoinstyle.name
 
     def get_solid_joinstyle(self):
         """
@@ -1350,7 +1350,7 @@ class Line2D(Artist):
 
         See also `~.Line2D.set_solid_joinstyle`.
         """
-        return self._solidjoinstyle
+        return self._solidjoinstyle.name
 
     def set_dash_capstyle(self, s):
         """
@@ -1384,7 +1384,7 @@ class Line2D(Artist):
 
         See also `~.Line2D.set_dash_capstyle`.
         """
-        return self._dashcapstyle
+        return self._dashcapstyle.name
 
     def get_solid_capstyle(self):
         """
@@ -1392,7 +1392,7 @@ class Line2D(Artist):
 
         See also `~.Line2D.set_solid_capstyle`.
         """
-        return self._solidcapstyle
+        return self._solidcapstyle.name
 
     def is_dashed(self):
         """
