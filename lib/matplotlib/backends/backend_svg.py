@@ -27,7 +27,6 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
-from matplotlib._types import JoinStyle, CapStyle
 
 _log = logging.getLogger(__name__)
 
@@ -572,10 +571,10 @@ class RendererSVG(RendererBase):
                 attrib['stroke-opacity'] = short_float_fmt(rgb[3])
             if linewidth != 1.0:
                 attrib['stroke-width'] = short_float_fmt(linewidth)
-            if gc.get_joinstyle() != JoinStyle.round:
-                attrib['stroke-linejoin'] = gc.get_joinstyle().name
-            if gc.get_capstyle() != CapStyle.butt:
-                attrib['stroke-linecap'] = _capstyle_d[gc.get_capstyle().name]
+            if gc.get_joinstyle() != 'round':
+                attrib['stroke-linejoin'] = gc.get_joinstyle()
+            if gc.get_capstyle() != 'butt':
+                attrib['stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
         return attrib
 

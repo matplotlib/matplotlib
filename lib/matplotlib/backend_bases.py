@@ -821,7 +821,7 @@ class GraphicsContextBase:
 
     def get_capstyle(self):
         """Return the `.CapStyle`."""
-        return self._capstyle
+        return self._capstyle.name
 
     def get_clip_rectangle(self):
         """
@@ -866,7 +866,7 @@ class GraphicsContextBase:
 
     def get_joinstyle(self):
         """Return the `.JoinStyle`."""
-        return self._joinstyle
+        return self._joinstyle.name
 
     def get_linewidth(self):
         """Return the line width in points."""
