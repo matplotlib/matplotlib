@@ -44,7 +44,25 @@ def hello():
 # instantiate an Agg canvas;
 # see e.g. :doc:`/gallery/user_interfaces/canvasagg`.
 #
-#  .. _howto-click-maps:
+# Note: This script should be run using the
+# `flask command-line tool <https://flask.palletsprojects.com/en/master/cli/>`_
+# since it is a Flask application.
+# Assuming that the working directory contains this script:
+#
+# Unix-like systems
+#
+# .. code-block:: console
+#
+#  FLASK_APP=web_application_server_sgskip flask run
+#
+# Windows
+#
+# .. code-block:: console
+#
+#  set FLASK_APP=web_application_server_sgskip
+#  flask run
+#
+# .. _howto-click-maps:
 #
 # Clickable images for HTML
 # -------------------------
