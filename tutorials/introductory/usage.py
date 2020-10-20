@@ -364,8 +364,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Linux package named ``python-tk`` (or similar).
 #
 # If, however, you want to write graphical user interfaces, or a web
-# application server (:ref:`howto-webapp`), or need a better
-# understanding of what is going on, read on. To make things a little
+# application server
+# (:doc:`/gallery/user_interfaces/web_application_server_sgskip`), or need a
+# better understanding of what is going on, read on. To make things a little
 # more customizable for graphical user interfaces, Matplotlib separates
 # the concept of the renderer (the thing that actually does the drawing)
 # from the canvas (the place where the drawing goes).  The canonical
