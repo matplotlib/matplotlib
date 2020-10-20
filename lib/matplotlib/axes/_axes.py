@@ -808,6 +808,12 @@ class Axes(_AxesBase):
         all other scales, and thus the behavior is undefined. Please specify
         the line using the points *xy1*, *xy2* for non-linear scales.
 
+        As part of the ``kwargs``, a 'transform' can be passed. In the case
+        that a point and a slope are given, the transformation will only be
+        used for the point and not for the slope, i.e. the slope stays in data
+        coordinates. This can be used e.g. with ``ax.transAxes`` for drawing
+        grid lines with a fixed slope.
+
         Parameters
         ----------
         xy1, xy2 : (float, float)
@@ -823,8 +829,7 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            Valid kwargs are `.Line2D` properties, with the exception of
-            'transform':
+            Valid kwargs are `.Line2D` properties
 
             %(_Line2D_docstr)s
 
@@ -839,30 +844,22 @@ class Axes(_AxesBase):
 
             >>> axline((0, 0), (1, 1), linewidth=4, color='r')
         """
-        def _to_points(xy1, xy2, slope):
-            """
-            Check for a valid combination of input parameters and convert
-            to two points, if necessary.
-            """
-            if (xy2 is None and slope is None or
-                    xy2 is not None and slope is not None):
-                raise TypeError(
-                    "Exactly one of 'xy2' and 'slope' must be given")
-            if xy2 is None:
-                x1, y1 = xy1
-                xy2 = (x1, y1 + 1) if np.isinf(slope) else (x1 + 1, y1 + slope)
-            return xy1, xy2
+        if (xy2 is None and slope is None or
+                xy2 is not None and slope is not None):
+            raise TypeError(
+                "Exactly one of 'xy2' and 'slope' must be given")
 
-        if "transform" in kwargs:
-            raise TypeError("'transform' is not allowed as a kwarg; "
-                            "axline generates its own transform")
         if slope is not None and (self.get_xscale() != 'linear' or
                                   self.get_yscale() != 'linear'):
             raise TypeError("'slope' cannot be used with non-linear scales")
 
         datalim = [xy1] if xy2 is None else [xy1, xy2]
-        (x1, y1), (x2, y2) = _to_points(xy1, xy2, slope)
-        line = mlines._AxLine([x1, x2], [y1, y2], **kwargs)
+        if "transform" in kwargs:
+            #TODO: datalim = (kwargs["transform"]
+            # + self.transData.inverted()).transform(datalim)?
+            datalim = []
+
+        line = mlines._AxLine(xy1, xy2, slope, **kwargs)
         # Like add_line, but correctly handling data limits.
         self._set_artist_props(line)
         if line.get_clip_path() is None:
@@ -874,59 +871,6 @@ class Axes(_AxesBase):
         self.update_datalim(datalim)
 
         self._request_autoscale_view()
-        return line
-
-    def axline_transaxes(self, xy1, slope, **kwargs):
-        """
-        Add an infinitely long straight line.
-
-        The line is defined by a *slope* in data coordinates, set by the
-        current x and y limits of the axes, and a point in axes-relative
-        coordinates, which is in the same place on the axes regardless of x
-        and y limits.
-
-        This should only be used with linear scales; the *slope* has no clear
-        meaning for all other scales, and thus the behavior is undefined.
-
-        Parameters
-        ----------
-        xy1 : (float, float)
-            Point for the line to pass through, in axes coordinates.
-            ``(0, 0)`` is the bottom left corner of the axes, ``(1, 1)`` is
-            the upper right.
-        slope : float
-            The slope of the line, in data coordinates.
-
-        Returns
-        -------
-        `.Line2D`
-
-        Other Parameters
-        ----------------
-        **kwargs
-            Valid kwargs are `.Line2D` properties, with the exception of
-            'transform':
-
-            %(_Line2D_docstr)s
-
-        See Also
-        --------
-        axhline : for horizontal lines
-        axvline : for vertical lines
-
-        Examples
-        --------
-        Draw a thick red line passing through (0, 0)
-        (the lower left corner of the viewport) with slope 1::
-
-            >>> axline_transaxes((0, 0), 1, linewidth=4, color='r')
-        """
-        if "transform" in kwargs:
-            raise TypeError("'transform' is not allowed as a kwarg; "
-                            "axline_transaxes generates its own transform")
-
-        line = mlines._AxLineTransAxes(xy1, slope, **kwargs)
-        self.add_line(line)
         return line
 
     @docstring.dedent_interpd
