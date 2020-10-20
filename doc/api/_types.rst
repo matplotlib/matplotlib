@@ -3,7 +3,13 @@
 **********************
 
 .. automodule:: matplotlib._types
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :no-members:
+
+   .. autoclass:: JoinStyle
+      :members: demo
+      :exclude-members: bevel, miter, round, input_description
+
+   .. autoclass:: CapStyle
+      :members: demo
+      :exclude-members: butt, round, projecting, input_description
 

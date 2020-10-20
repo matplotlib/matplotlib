@@ -472,13 +472,14 @@ class Patch(artist.Artist):
     # attribute.
     fill = property(get_fill, set_fill)
 
+    @docstring.interpd
     def set_capstyle(self, s):
         """
         Set the `.CapStyle`.
 
         Parameters
         ----------
-        s : `.CapStyle` or {'butt', 'round', 'projecting'}
+        s : `.CapStyle` or %(CapStyle)s
         """
         cs = CapStyle(s)
         self._capstyle = cs
@@ -488,13 +489,14 @@ class Patch(artist.Artist):
         """Return the capstyle."""
         return self._capstyle
 
+    @docstring.interpd
     def set_joinstyle(self, s):
         """
         Set the `.JoinStyle`.
 
         Parameters
         ----------
-        s : `.JoinStyle` or {'miter', 'round', 'bevel'}
+        s : `.JoinStyle` or %(JoinStyle)s
         """
         js = JoinStyle(s)
         self._joinstyle = js
