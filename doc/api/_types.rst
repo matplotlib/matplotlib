@@ -7,3 +7,4 @@
    :undoc-members:
    :show-inheritance:
 
+   .. autodata:: _AutoStringNameEnum

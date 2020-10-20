@@ -72,6 +72,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _edge_default = False
 
     @cbook._delete_parameter("3.3", "offset_position")
+    @docstring.interpd
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -113,8 +114,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
         capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
             Style to use for capping lines for all paths in the collection.
+            Allowed values are %(CapStyle)s.
         joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
             Style to use for joining lines for all paths in the collection.
+            Allowed values are %(JoinStyle)s.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
             Whether each patch in the collection should be drawn with
             antialiasing.
@@ -125,7 +128,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transOffset : `~.transforms.Transform`, default: `.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
-        offset_position : {'screen' (default), 'data' (deprecated)}
+        offset_position : {{'screen' (default), 'data' (deprecated)}}
             If set to 'data' (deprecated), *offsets* will be treated as if it
             is in data coordinates instead of in screen coordinates.
         norm : `~.colors.Normalize`, optional
@@ -652,26 +655,28 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linewidths, self._linestyles = self._bcast_lwls(
             self._us_lw, self._us_linestyles)
 
+    @docstring.interpd
     def set_capstyle(self, cs):
         """
         Set the `.CapStyle` for the collection (for all its elements).
 
         Parameters
         ----------
-        cs : `.CapStyle` or {'butt', 'round', 'projecting'}
+        cs : `.CapStyle` or %(CapStyle)s
         """
         self._capstyle = CapStyle(cs)
 
     def get_capstyle(self):
         return self._capstyle.name
 
+    @docstring.interpd
     def set_joinstyle(self, js):
         """
         Set the `.JoinStyle` for the collection (for all its elements).
 
         Parameters
         ----------
-        js : `.JoinStyle` or {'miter', 'round', 'bevel'}
+        js : `.JoinStyle` or %(JoinStyle)s
         """
         self._joinstyle = JoinStyle(js)
 

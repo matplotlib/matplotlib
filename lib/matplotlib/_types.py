@@ -1,9 +1,9 @@
 """
-Style description information that is shared across unrelated classses.
+Types that would not normally have their own class are documented here.
 """
 
 from enum import Enum, auto
-from matplotlib import cbook
+from matplotlib import cbook, docstring
 
 
 class _AutoStringNameEnum(Enum):
@@ -52,17 +52,16 @@ class JoinStyle(str, _AutoStringNameEnum):
     results in corners appearing "rounded", which may not be the desired
     behavior if you are drawing, for example, a polygon or pointed star.
 
-    Matplotlib provides three options for drawing the corners between adjacent
-    segments. In short:
+    Supported values:
 
     - *miter* is the "arrow-tip" style. Each boundary of the filled-in area
-        will extend in a straight line parallel to the tangent vector of the
-        centerline at the point it meets the corner, until they meet in a
-        sharp point.
+      will extend in a straight line parallel to the tangent vector of the
+      centerline at the point it meets the corner, until they meet in a
+      sharp point.
     - *round* stokes every point within a radius of ``linewidth/2`` of the
-        center lines.
+      center lines.
     - *bevel* is the "squared-off" style. It can be thought of as a rounded
-        corner where the "circular" part of the corner has been cut off.
+      corner where the "circular" part of the corner has been cut off.
 
     .. note::
 
@@ -113,6 +112,9 @@ class JoinStyle(str, _AutoStringNameEnum):
         ax.set_ylim(-.5, 5.5)
         ax.set_axis_off()
         fig.show()
+JoinStyle.input_description = "{" \
+        + ", ".join([f"'{js.name}'" for js in JoinStyle]) \
+        + "}"
 
 
 class CapStyle(str, _AutoStringNameEnum):
@@ -133,13 +135,13 @@ class CapStyle(str, _AutoStringNameEnum):
         from matplotlib._types import CapStyle
         CapStyle.demo()
 
-    Available options:
+    Supported values:
 
     - *butt*: the line is squared off at its endpoint.
     - *projecting*: the line is squared off as in *butt*, but the filled in
-        area extends beyond the endpoint a distance of ``linewidth/2``.
+      area extends beyond the endpoint a distance of ``linewidth/2``.
     - *round*: like *butt*, but a semicircular cap is added to the end of
-        the line, of radius ``linewidth/2``.
+      the line, of radius ``linewidth/2``.
     """
     butt = 'butt'
     projecting = 'projecting'
@@ -168,3 +170,9 @@ class CapStyle(str, _AutoStringNameEnum):
         ax.set_ylim(-.5, 1.5)
         ax.set_axis_off()
         fig.show()
+CapStyle.input_description = "{" \
+        + ", ".join([f"'{cs.name}'" for cs in CapStyle]) \
+        + "}"
+
+docstring.interpd.update({'JoinStyle': JoinStyle.input_description,
+                          'CapStyle': CapStyle.input_description})

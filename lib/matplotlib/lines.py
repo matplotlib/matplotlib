@@ -1155,7 +1155,7 @@ class Line2D(Artist):
         self._dashOffset, self._dashSeq = _scale_dashes(
             self._us_dashOffset, self._us_dashSeq, self._linewidth)
 
-    @docstring.dedent_interpd
+    @docstring.interpd
     def set_marker(self, marker):
         """
         Set the line marker.
@@ -1310,26 +1310,28 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 
+    @docstring.interpd
     def set_dash_joinstyle(self, s):
         """
-        How to join segments of the line if it `~Line2D.is dashed`.
+        How to join segments of the line if it `~Line2D.is_dashed`.
 
         Parameters
         ----------
-        s : `.JoinStyle` or {'miter', 'round', 'bevel'}
+        s : `.JoinStyle` or %(JoinStyle)s
         """
         js = JoinStyle(s)
         if self._dashjoinstyle != js:
             self.stale = True
         self._dashjoinstyle = js
 
+    @docstring.interpd
     def set_solid_joinstyle(self, s):
         """
         How to join segments if the line is solid (not `~Line2D.is_dashed`).
 
         Parameters
         ----------
-        s : `.JoinStyle` or {'miter', 'round', 'bevel'}
+        s : `.JoinStyle` or %(JoinStyle)s
         """
         js = JoinStyle(s)
         if self._solidjoinstyle != js:
@@ -1352,26 +1354,28 @@ class Line2D(Artist):
         """
         return self._solidjoinstyle.name
 
+    @docstring.interpd
     def set_dash_capstyle(self, s):
         """
         How to draw the end caps if the line is `~Line2D.is_dashed`.
 
         Parameters
         ----------
-        s : `.CapStyle` or {'butt', 'round', 'projecting'}
+        s : `.CapStyle` or %(CapStyle)s
         """
         cs = CapStyle(s)
         if self._dashcapstyle != cs:
             self.stale = True
         self._dashcapstyle = cs
 
+    @docstring.interpd
     def set_solid_capstyle(self, s):
         """
         How to draw the end caps if the line is solid (not `~Line2D.is_dashed`)
 
         Parameters
         ----------
-        s : `.CapStyle` or {'butt', 'round', 'projecting'}
+        s : `.CapStyle` or %(CapStyle)s
         """
         cs = CapStyle(s)
         if self._solidcapstyle != cs:
@@ -1396,8 +1400,10 @@ class Line2D(Artist):
 
     def is_dashed(self):
         """
-        Return whether line has a dashed linestyle. A custom linestyle is
-        assumed to be dashed, we do not inspect the ``onoffseq`` directly.
+        Return whether line has a dashed linestyle.
+
+        A custom linestyle is assumed to be dashed, we do not inspect the
+        ``onoffseq`` directly.
 
         See also `~.Line2D.set_linestyle`.
         """
@@ -1529,4 +1535,4 @@ docstring.interpd.update(_Line2D_docstr=artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
-docstring.dedent_interpd(Line2D.__init__)
+docstring.interpd(Line2D.__init__)

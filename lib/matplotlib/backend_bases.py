@@ -44,8 +44,8 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, backend_tools as tools, cbook, colors, textpath, tight_bbox,
-    transforms, widgets, get_backend, is_interactive, rcParams)
+    _api, backend_tools as tools, cbook, colors, docstring, textpath,
+    tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
@@ -917,13 +917,14 @@ class GraphicsContextBase:
         # Use ints to make life easier on extension code trying to read the gc.
         self._antialiased = int(bool(b))
 
+    @docstring.interpd
     def set_capstyle(self, cs):
         """
         Set how to draw endpoints of lines.
 
         Parameters
         ----------
-        cs : `.CapStyle` or {'butt', 'round', 'projecting'}
+        cs : `.CapStyle` or %(CapStyle)s
         """
         self._capstyle = CapStyle(cs)
 
@@ -982,13 +983,14 @@ class GraphicsContextBase:
         else:
             self._rgb = colors.to_rgba(fg)
 
+    @docstring.interpd
     def set_joinstyle(self, js):
         """
         Set how to draw connections between line segments.
 
         Parameters
         ----------
-        js : `.JoinStyle` or {'miter', 'round', 'bevel'}.
+        js : `.JoinStyle` or %(JoinStyle)s
         """
         self._joinstyle = JoinStyle(js)
 

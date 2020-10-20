@@ -22,7 +22,7 @@ import re
 
 import numpy as np
 
-from matplotlib import animation, cbook
+from matplotlib import _api, animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
