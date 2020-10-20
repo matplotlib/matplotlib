@@ -778,10 +778,10 @@ class Axis(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         # whether the grids are on
-        self._gridOnMajor = (
+        self._major_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'major'))
-        self._gridOnMinor = (
+        self._minor_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
 
@@ -1381,7 +1381,6 @@ class Axis(martist.Artist):
             # Update the new tick label properties from the old.
             tick = self._get_tick(major=True)
             self.majorTicks.append(tick)
-            tick.gridline.set_visible(self._gridOnMajor)
             self._copy_tick_props(self.majorTicks[0], tick)
 
         return self.majorTicks[:numticks]
@@ -1395,7 +1394,6 @@ class Axis(martist.Artist):
             # Update the new tick label properties from the old.
             tick = self._get_tick(major=False)
             self.minorTicks.append(tick)
-            tick.gridline.set_visible(self._gridOnMinor)
             self._copy_tick_props(self.minorTicks[0], tick)
 
         return self.minorTicks[:numticks]
@@ -1420,32 +1418,37 @@ class Axis(martist.Artist):
             Define the line properties of the grid, e.g.::
 
                 grid(color='r', linestyle='-', linewidth=2)
-
         """
-        if len(kwargs):
-            if not b and b is not None:  # something false-like but not None
+        if b is not None:
+            if 'visible' in kwargs and bool(b) != bool(kwargs['visible']):
+                raise ValueError(
+                    "'b' and 'visible' specify inconsistent grid visibilities")
+            if kwargs and not b:  # something false-like but not None
                 cbook._warn_external('First parameter to grid() is false, '
                                      'but line properties are supplied. The '
                                      'grid will be enabled.')
-            b = True
+                b = True
         which = which.lower()
         cbook._check_in_list(['major', 'minor', 'both'], which=which)
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
+        if 'grid_visible' in gridkw:
+            forced_visibility = True
+            gridkw['gridOn'] = gridkw.pop('grid_visible')
+        else:
+            forced_visibility = False
 
         if which in ['minor', 'both']:
-            if b is None:
-                self._gridOnMinor = not self._gridOnMinor
-            else:
-                self._gridOnMinor = b
-            self.set_tick_params(which='minor', gridOn=self._gridOnMinor,
-                                 **gridkw)
+            if b is None and not forced_visibility:
+                gridkw['gridOn'] = not self._minor_tick_kw['gridOn']
+            elif b is not None:
+                gridkw['gridOn'] = b
+            self.set_tick_params(which='minor', **gridkw)
         if which in ['major', 'both']:
-            if b is None:
-                self._gridOnMajor = not self._gridOnMajor
-            else:
-                self._gridOnMajor = b
-            self.set_tick_params(which='major', gridOn=self._gridOnMajor,
-                                 **gridkw)
+            if b is None and not forced_visibility:
+                gridkw['gridOn'] = not self._major_tick_kw['gridOn']
+            elif b is not None:
+                gridkw['gridOn'] = b
+            self.set_tick_params(which='major', **gridkw)
         self.stale = True
 
     def update_units(self, data):
