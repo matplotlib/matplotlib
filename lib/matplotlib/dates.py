@@ -425,8 +425,8 @@ def date2num(d):
         tzi = getattr(d[0], 'tzinfo', None)
         if tzi is not None:
             # make datetime naive:
-            d = [dt.astimezone(UTC) for dt in d]
-            d = np.asarray([dt.replace(tzinfo=None) for dt in d])
+            d = [dt.astimezone(UTC).replace(tzinfo=None) for dt in d]
+            d = np.asarray(d)
         d = d.astype('datetime64[us]')
 
     d = _dt64_to_ordinalf(d)
