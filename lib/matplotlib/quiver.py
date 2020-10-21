@@ -296,22 +296,65 @@ class QuiverKey(martist.Artist):
         self.angle = angle
         self.coord = coordinates
         self.color = color
-        self.label = label
         self._labelsep_inches = labelsep
 
-        self.labelpos = labelpos
-        self.labelcolor = labelcolor
+        _api.check_in_list(['N', 'S', 'E', 'W'], labelpos=labelpos)
+        self._labelpos = labelpos
         self.fontproperties = fontproperties or dict()
         self.kw = kwargs
         self.text = mtext.Text(
             text=label,
-            horizontalalignment=self.halign[self.labelpos],
-            verticalalignment=self.valign[self.labelpos],
-            fontproperties=self.fontproperties)
-        if self.labelcolor is not None:
-            self.text.set_color(self.labelcolor)
+            horizontalalignment=self.halign[self._labelpos],
+            verticalalignment=self.valign[self._labelpos],
+            fontproperties=self.fontproperties,
+            color=labelcolor)
         self._dpi_at_last_init = None
         self.zorder = Q.zorder + 0.1
+
+    def get_label_text(self):
+        """Return the label string."""
+        return self.text.get_text()
+
+    def set_label_text(self, text):
+        """Set the label string."""
+        self.text.set_text(text)
+        self.stale = True
+
+    label = property(get_label_text, set_label_text, doc="The label string.")
+
+    def get_label_color(self):
+        """Return the label color."""
+        return self.text.get_color()
+
+    def set_label_color(self, labelcolor):
+        """Set the label color."""
+        self.text.set_color(labelcolor)
+        self.stale = True
+
+    labelcolor = property(get_label_color, set_label_color, doc="The label color.")
+
+    def get_label_pos(self):
+        """Return the label position."""
+        return self._labelpos
+
+    def set_label_pos(self, labelpos):
+        """
+        Set the label position.
+
+        Parameters
+        ----------
+        labelpos : {'N', 'S', 'E', 'W'}
+            Position the label above, below, to the right, to the left of the
+            arrow, respectively.
+        """
+        _api.check_in_list(['N', 'S', 'E', 'W'], labelpos=labelpos)
+        self._labelpos = labelpos
+        self.text.set_horizontalalignment(self.halign[labelpos])
+        self.text.set_verticalalignment(self.valign[labelpos])
+        self._initialized = False
+        self.stale = True
+
+    labelpos = property(get_label_pos, set_label_pos, doc="The label position.")
 
     @property
     def labelsep(self):
@@ -322,7 +365,7 @@ class QuiverKey(martist.Artist):
             if self.Q._dpi_at_last_init != self.Q.axes.figure.dpi:
                 self.Q._init()
             self._set_transform()
-            with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
+            with cbook._setattr_cm(self.Q, pivot=self.pivot[self._labelpos],
                                    # Hack: save and restore the Umask
                                    Umask=ma.nomask):
                 u = self.U * np.cos(np.radians(self.angle))
@@ -348,7 +391,7 @@ class QuiverKey(martist.Artist):
             "S": (0, -self.labelsep),
             "E": (+self.labelsep, 0),
             "W": (-self.labelsep, 0),
-        }[self.labelpos]
+        }[self._labelpos]
 
     @martist.allow_rasterization
     def draw(self, renderer):
