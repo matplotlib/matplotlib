@@ -855,8 +855,8 @@ class Axes(_AxesBase):
 
         datalim = [xy1] if xy2 is None else [xy1, xy2]
         if "transform" in kwargs:
-            #TODO: datalim = (kwargs["transform"]
-            # + self.transData.inverted()).transform(datalim)?
+            # if a transform is passed (i.e. line points are not in data space),
+            # data limits should not be adjusted.
             datalim = []
 
         line = mlines._AxLine(xy1, xy2, slope, **kwargs)
