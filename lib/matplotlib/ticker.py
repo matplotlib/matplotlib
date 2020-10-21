@@ -2500,6 +2500,13 @@ class LogLocator(Locator):
                   if mpl.rcParams['_internal.classic_mode'] else
                   (numdec + 1) // numticks + 1)
 
+        # if we have decided that the stride is as big or bigger than
+        # the range, clip the stride back to the available range - 1
+        # with a floor of 1.  This prevents getting axis with only 1 tick
+        # visible.
+        if stride >= numdec:
+            stride = max(1, numdec - 1)
+
         # Does subs include anything other than 1?  Essentially a hack to know
         # whether we're a major or a minor locator.
         have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
