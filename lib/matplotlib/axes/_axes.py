@@ -855,7 +855,7 @@ class Axes(_AxesBase):
 
         datalim = [xy1] if xy2 is None else [xy1, xy2]
         if "transform" in kwargs:
-            # if a transform is passed (i.e. line points are not in data space),
+            # if a transform is passed (i.e. line points not in data space),
             # data limits should not be adjusted.
             datalim = []
 
