@@ -1450,6 +1450,7 @@ class ArtistInspector:
         'matplotlib.image._ImageBase.set_filternorm',
         'matplotlib.image._ImageBase.set_filterrad',
         'matplotlib.image._ImageBase.set_interpolation',
+        'matplotlib.image._ImageBase.set_interpolation_stage',
         'matplotlib.image._ImageBase.set_resample',
         'matplotlib.text._AnnotationBase.set_annotation_clip',
     }
