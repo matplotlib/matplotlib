@@ -991,10 +991,10 @@ class Artist:
                         raise AttributeError(f"{type(self).__name__!r} object "
                                              f"has no property {k!r}")
                     # allow batch update properties
-                    if isinstance(v, dict):
+                    try:
                         ret.append(func(**v))
                     # traditional updater
-                    else:
+                    except:
                         ret.append(func(v))
         if ret:
             self.pchanged()
