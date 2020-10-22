@@ -4086,15 +4086,15 @@ class Axes(_AxesBase):
         Argument precedence for facecolors:
 
         - c (if not None)
-        - kwargs['facecolors']
         - kwargs['facecolor']
+        - kwargs['facecolors']
         - kwargs['color'] (==kwcolor)
         - 'b' if in classic mode else the result of ``get_next_color_func()``
 
         Argument precedence for edgecolors:
 
-        - edgecolors (is an explicit kw argument in scatter())
         - kwargs['edgecolor']
+        - edgecolors (is an explicit kw argument in scatter())
         - kwargs['color'] (==kwcolor)
         - 'face' if not in classic mode else None
 
