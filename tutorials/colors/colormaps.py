@@ -205,11 +205,11 @@ gradient = np.vstack((gradient, gradient))
 
 
 def plot_color_gradients(cmap_category, cmap_list, nrows):
-    fig, axes = plt.subplots(nrows=nrows)
+    fig, axs = plt.subplots(nrows=nrows)
     fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99)
-    axes[0].set_title(cmap_category + ' colormaps', fontsize=14)
+    axs[0].set_title(cmap_category + ' colormaps', fontsize=14)
 
-    for ax, name in zip(axes, cmap_list):
+    for ax, name in zip(axs, cmap_list):
         ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
         pos = list(ax.get_position().bounds)
         x_text = pos[0] - 0.01
@@ -217,7 +217,7 @@ def plot_color_gradients(cmap_category, cmap_list, nrows):
         fig.text(x_text, y_text, name, va='center', ha='right', fontsize=10)
 
     # Turn off *all* ticks & spines, not just the ones with colormaps.
-    for ax in axes:
+    for ax in axs:
         ax.set_axis_off()
 
 
@@ -258,10 +258,10 @@ for cmap_category, cmap_list in cmaps.items():
     nsubplots = int(np.ceil(len(cmap_list) / dsub))
 
     # squeeze=False to handle similarly the case of a single subplot
-    fig, axes = plt.subplots(nrows=nsubplots, squeeze=False,
-                             figsize=(7, 2.6*nsubplots))
+    fig, axs = plt.subplots(nrows=nsubplots, squeeze=False,
+                            figsize=(7, 2.6*nsubplots))
 
-    for i, ax in enumerate(axes.flat):
+    for i, ax in enumerate(axs.flat):
 
         locs = []  # locations for text labels
 
@@ -300,7 +300,7 @@ for cmap_category, cmap_list in cmaps.items():
         # Set up the axis limits:
         #   * the 1st subplot is used as a reference for the x-axis limits
         #   * lightness values goes from 0 to 100 (y-axis limits)
-        ax.set_xlim(axes[0, 0].get_xlim())
+        ax.set_xlim(axs[0, 0].get_xlim())
         ax.set_ylim(0.0, 100.0)
 
         # Set up labels for colormaps
@@ -364,12 +364,12 @@ gradient = np.vstack((gradient, gradient))
 
 
 def plot_color_gradients(cmap_category, cmap_list):
-    fig, axes = plt.subplots(nrows=len(cmap_list), ncols=2)
+    fig, axs = plt.subplots(nrows=len(cmap_list), ncols=2)
     fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99,
                         wspace=0.05)
     fig.suptitle(cmap_category + ' colormaps', fontsize=14, y=1.0, x=0.6)
 
-    for ax, name in zip(axes, cmap_list):
+    for ax, name in zip(axs, cmap_list):
 
         # Get RGB values for colormap.
         rgb = cm.get_cmap(plt.get_cmap(name))(x)[np.newaxis, :, :3]
@@ -387,7 +387,7 @@ def plot_color_gradients(cmap_category, cmap_list):
         fig.text(x_text, y_text, name, va='center', ha='right', fontsize=10)
 
     # Turn off *all* ticks & spines, not just the ones with colormaps.
-    for ax in axes.flat:
+    for ax in axs.flat:
         ax.set_axis_off()
 
     plt.show()

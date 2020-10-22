@@ -63,8 +63,8 @@ plt.show()
 ###############################################################################
 # Here we attach legends to more complex plots.
 
-fig, axes = plt.subplots(3, 1, constrained_layout=True)
-top_ax, middle_ax, bottom_ax = axes
+fig, axs = plt.subplots(3, 1, constrained_layout=True)
+top_ax, middle_ax, bottom_ax = axs
 
 top_ax.bar([0, 1, 2], [0.2, 0.3, 0.1], width=0.4, label="Bar 1",
            align="center")

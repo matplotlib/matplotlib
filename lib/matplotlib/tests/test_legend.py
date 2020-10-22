@@ -164,9 +164,9 @@ def test_rc():
 def test_legend_expand():
     """Test expand mode"""
     legend_modes = [None, "expand"]
-    fig, axes_list = plt.subplots(len(legend_modes), 1)
+    fig, axs = plt.subplots(len(legend_modes), 1)
     x = np.arange(100)
-    for ax, mode in zip(axes_list, legend_modes):
+    for ax, mode in zip(axs, legend_modes):
         ax.plot(x, 50 - x, 'o', label='y=1')
         l1 = ax.legend(loc='upper left', mode=mode)
         ax.add_artist(l1)
