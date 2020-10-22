@@ -433,8 +433,8 @@ the desired format::
 
 .. seealso::
 
-    :ref:`howto-webapp` for information about running matplotlib inside
-    of a web application.
+    :doc:`/gallery/user_interfaces/web_application_server_sgskip` for
+    information about running matplotlib inside of a web application.
 
 .. _howto-show:
 
