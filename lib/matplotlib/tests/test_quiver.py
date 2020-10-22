@@ -113,11 +113,14 @@ def test_quiver_with_key():
     fig, ax = plt.subplots()
     ax.margins(0.1)
     Q = draw_quiver(ax)
-    qk = ax.quiverkey(Q, 0.5, 0.95, 2, '',
+    qk = ax.quiverkey(Q, 0, 0, 2, '',
                       angle=-10, coordinates='figure',
-                      labelpos='W', labelcolor='b',
+                      labelpos='N', labelcolor='b',
                       fontproperties={'weight': 'bold', 'size': 'large'})
+    qk.set_x(0.5)
+    qk.set_y(0.95)
     qk.set_label_text(r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$')
+    qk.set_label_pos('W')
     qk.set_label_color('k')  # Go back to default to keep same test image.
 
 

@@ -290,8 +290,6 @@ class QuiverKey(martist.Artist):
         """
         super().__init__()
         self.Q = Q
-        self.X = X
-        self.Y = Y
         self.U = U
         self.angle = angle
         self.coord = coordinates
@@ -303,13 +301,65 @@ class QuiverKey(martist.Artist):
         self.fontproperties = fontproperties or dict()
         self.kw = kwargs
         self.text = mtext.Text(
-            text=label,
+            x=X, y=Y, text=label,
             horizontalalignment=self.halign[self._labelpos],
             verticalalignment=self.valign[self._labelpos],
             fontproperties=self.fontproperties,
             color=labelcolor)
         self._dpi_at_last_init = None
         self.zorder = Q.zorder + 0.1
+
+    def get_x(self):
+        """Return the *x* position of the QuiverKey."""
+        return self.text.get_position()[0]
+
+    def set_x(self, x):
+        """
+        Set the *x* position of the QuiverKey.
+
+        Parameters
+        ----------
+        x : float
+            The *x* location of the key.
+        """
+        self.text.set_x(x)
+        self.stale = True
+
+    X = property(get_x, set_x)
+
+    def get_y(self):
+        """Return the *y* position of the QuiverKey."""
+        return self.text.get_position()[1]
+
+    def set_y(self, y):
+        """
+        Set the *y* position of the QuiverKey.
+
+        Parameters
+        ----------
+        y : float
+            The *y* location of the key.
+        """
+        self.text.set_y(y)
+        self.stale = True
+
+    Y = property(get_y, set_y)
+
+    def get_position(self):
+        """Return the (x, y) position of the QuiverKey."""
+        return self.text.get_position()
+
+    def set_position(self, xy):
+        """
+        Set the position of the QuiverKey.
+
+        Parameters
+        ----------
+        xy : (float, float)
+            The (*x*, *y*) position of the QuiverKey.
+        """
+        self.text.set_position(xy)
+        self.stale = True
 
     def get_label_text(self):
         """Return the label string."""
@@ -351,13 +401,25 @@ class QuiverKey(martist.Artist):
         self._labelpos = labelpos
         self.text.set_horizontalalignment(self.halign[labelpos])
         self.text.set_verticalalignment(self.valign[labelpos])
+        self._update_text_transform()
         self._initialized = False
         self.stale = True
 
     labelpos = property(get_label_pos, set_label_pos, doc="The label position.")
 
+    def get_labelsep(self):
+        """Return the distance between the arrow and label in inches."""
+        return self._labelsep_inches
+
+    def set_labelsep(self, labelsep):
+        """Set the distance between the arrow and label in inches."""
+        self._labelsep_inches = labelsep
+        self._update_text_transform()
+        self.stale = True
+
     @property
     def labelsep(self):
+        """Return the distance between the arrow and label in pixels."""
         return self._labelsep_inches * self.Q.axes.figure.dpi
 
     def _init(self):
@@ -385,20 +447,21 @@ class QuiverKey(martist.Artist):
             self.vector.set_figure(self.get_figure())
             self._dpi_at_last_init = self.Q.axes.figure.dpi
 
-    def _text_shift(self):
-        return {
-            "N": (0, +self.labelsep),
-            "S": (0, -self.labelsep),
-            "E": (+self.labelsep, 0),
-            "W": (-self.labelsep, 0),
+    def _update_text_transform(self):
+        x, y = {
+            "N": (0, +self._labelsep_inches),
+            "S": (0, -self._labelsep_inches),
+            "E": (+self._labelsep_inches, 0),
+            "W": (-self._labelsep_inches, 0),
         }[self._labelpos]
+        self.text.set_transform(
+            transforms.offset_copy(self.get_transform(), self.figure, x=x, y=y))
 
     @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        pos = self.get_transform().transform((self.X, self.Y))
-        self.text.set_position(pos + self._text_shift())
+        self._update_text_transform()
         self.text.draw(renderer)
         self.stale = False
 
