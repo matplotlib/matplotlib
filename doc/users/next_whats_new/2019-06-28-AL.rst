@@ -1,5 +1,5 @@
-`.Colormap.set_extremes` and `.Colormap.with_extremes`
-``````````````````````````````````````````````````````
+``Colormap.set_extremes`` and ``Colormap.with_extremes``
+````````````````````````````````````````````````````````
 
 Because the `.Colormap.set_bad`, `.Colormap.set_under` and `.Colormap.set_over`
 methods modify the colormap in place, the user must be careful to first make a
