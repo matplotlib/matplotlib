@@ -4093,8 +4093,8 @@ class Axes(_AxesBase):
 
         Argument precedence for edgecolors:
 
-        - edgecolors (is an explicit kw argument in scatter())
         - kwargs['edgecolor']
+        - edgecolors (is an explicit kw argument in scatter())
         - kwargs['color'] (==kwcolor)
         - 'face' if not in classic mode else None
 
