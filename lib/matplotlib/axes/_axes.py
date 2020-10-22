@@ -4086,8 +4086,8 @@ class Axes(_AxesBase):
         Argument precedence for facecolors:
 
         - c (if not None)
-        - kwargs['facecolors']
         - kwargs['facecolor']
+        - kwargs['facecolors']
         - kwargs['color'] (==kwcolor)
         - 'b' if in classic mode else the result of ``get_next_color_func()``
 
