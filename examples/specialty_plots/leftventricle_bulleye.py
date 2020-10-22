@@ -162,9 +162,8 @@ fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap2, norm=norm2),
 # The second example illustrates the use of a ListedColormap, a
 # BoundaryNorm, and extended ends to show the "over" and "under"
 # value colors.
-cmap3 = mpl.colors.ListedColormap(['r', 'g', 'b', 'c'])
-cmap3.set_over('0.35')
-cmap3.set_under('0.75')
+cmap3 = (mpl.colors.ListedColormap(['r', 'g', 'b', 'c'])
+         .with_extremes(over='0.35', under='0.75'))
 # If a ListedColormap is used, the length of the bounds array must be
 # one greater than the length of the color list.  The bounds must be
 # monotonically increasing.

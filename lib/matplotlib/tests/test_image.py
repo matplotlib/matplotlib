@@ -799,10 +799,7 @@ def test_mask_image_over_under():
           (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
-    palette = copy(plt.cm.gray)
-    palette.set_over('r', 1.0)
-    palette.set_under('g', 1.0)
-    palette.set_bad('b', 1.0)
+    palette = plt.cm.gray.with_extremes(over='r', under='g', bad='b')
     Zm = np.ma.masked_where(Z > 1.2, Z)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
@@ -868,10 +865,7 @@ def test_imshow_endianess():
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 
-    cm = copy(plt.get_cmap('viridis'))
-    cm.set_over('r')
-    cm.set_under('b')
-    cm.set_bad('k')
+    cm = plt.get_cmap('viridis').with_extremes(over='r', under='b', bad='k')
 
     N = 20
     n = colors.Normalize(vmin=0, vmax=N*N-1)
