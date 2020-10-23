@@ -132,22 +132,22 @@ def test_colormap_dict_deprecate():
     # Make sure we warn on get and set access into cmap_d
     with pytest.warns(cbook.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
-        cm = plt.cm.cmap_d['viridis']
+        cmap = plt.cm.cmap_d['viridis']
 
     with pytest.warns(cbook.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
-        plt.cm.cmap_d['test'] = cm
+        plt.cm.cmap_d['test'] = cmap
 
 
 def test_colormap_copy():
-    cm = plt.cm.Reds
-    cm_copy = copy.copy(cm)
+    cmap = plt.cm.Reds
+    copied_cmap = copy.copy(cmap)
     with np.errstate(invalid='ignore'):
-        ret1 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
-    cm2 = copy.copy(cm_copy)
-    cm2.set_bad('g')
+        ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
+    cmap2 = copy.copy(copied_cmap)
+    cmap2.set_bad('g')
     with np.errstate(invalid='ignore'):
-        ret2 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+        ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
 
 

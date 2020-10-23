@@ -865,7 +865,7 @@ def test_imshow_endianess():
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 
-    cm = plt.get_cmap('viridis').with_extremes(over='r', under='b', bad='k')
+    cmap = plt.get_cmap('viridis').with_extremes(over='r', under='b', bad='k')
 
     N = 20
     n = colors.Normalize(vmin=0, vmax=N*N-1)
@@ -892,7 +892,7 @@ def test_imshow_masked_interpolation():
 
     for interp, ax in zip(interps, ax_grid.ravel()):
         ax.set_title(interp)
-        ax.imshow(data, norm=n, cmap=cm, interpolation=interp)
+        ax.imshow(data, norm=n, cmap=cmap, interpolation=interp)
         ax.axis('off')
 
 
@@ -1213,8 +1213,8 @@ def test_huge_range_log(fig_test, fig_ref):
     data = np.full((5, 5), -1, dtype=np.float64)
     data[0:2, :] = 1000
 
-    cm = copy(plt.get_cmap('viridis'))
-    cm.set_under('w')
+    cmap = copy(plt.get_cmap('viridis'))
+    cmap.set_under('w')
     ax = fig_ref.subplots()
     im = ax.imshow(data, norm=colors.Normalize(vmin=100, vmax=data.max()),
-                   interpolation='nearest', cmap=cm)
+                   interpolation='nearest', cmap=cmap)

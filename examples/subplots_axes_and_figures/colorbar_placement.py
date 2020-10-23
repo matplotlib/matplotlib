@@ -16,12 +16,12 @@ import numpy as np
 np.random.seed(19680801)
 
 fig, axs = plt.subplots(2, 2)
-cm = ['RdBu_r', 'viridis']
+cmaps = ['RdBu_r', 'viridis']
 for col in range(2):
     for row in range(2):
         ax = axs[row, col]
         pcm = ax.pcolormesh(np.random.random((20, 20)) * (col + 1),
-                            cmap=cm[col])
+                            cmap=cmaps[col])
         fig.colorbar(pcm, ax=ax)
 plt.show()
 
@@ -31,12 +31,12 @@ plt.show()
 # `.Figure.colorbar` with a list of axes instead of a single axes.
 
 fig, axs = plt.subplots(2, 2)
-cm = ['RdBu_r', 'viridis']
+cmaps = ['RdBu_r', 'viridis']
 for col in range(2):
     for row in range(2):
         ax = axs[row, col]
         pcm = ax.pcolormesh(np.random.random((20, 20)) * (col + 1),
-                            cmap=cm[col])
+                            cmap=cmaps[col])
     fig.colorbar(pcm, ax=axs[:, col], shrink=0.6)
 plt.show()
 
