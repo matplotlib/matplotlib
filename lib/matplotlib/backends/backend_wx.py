@@ -1119,7 +1119,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.Realize()
 
         NavigationToolbar2.__init__(self, canvas)
-        self._idle = True
+
         self._prevZoomRect = None
         # for now, use alternate zoom-rectangle drawing on all
         # Macs. N.B. In future versions of wx it may be possible to
