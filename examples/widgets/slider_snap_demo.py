@@ -1,9 +1,9 @@
 """
-==========================
-Slider Value Snapping Demo
-==========================
+===================================
+Snapping Sliders to Discrete Values
+===================================
 
-You can snap slider values to a discrete values using the ``valstep`` argument.
+You can snap slider values to discrete values using the ``valstep`` argument.
 
 In this example the Freq slider is constrained to be multiples of pi, and the
 Amp slider uses an array as the ``valstep`` argument to more densely sample
@@ -39,10 +39,8 @@ samp = Slider(
 sfreq = Slider(
     ax_freq, "Freq", 0, 10*np.pi,
     valinit=2*np.pi, valstep=np.pi,
-    initcolor=None
+    initcolor='none' # Remove the line marking the valinit position.
 )
-# initcolor is set to None to remove the line marking the valinit position
-
 
 def update(val):
     amp = samp.val
