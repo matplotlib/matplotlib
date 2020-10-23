@@ -24,6 +24,8 @@ class QuiverKey(martist.Artist):
     fontproperties: dict[str, Any]
     kw: dict[str, Any]
     text: Text
+    vector: mcollections.PolyCollection
+    verts: ArrayLike
     zorder: float
     def __init__(
         self,
