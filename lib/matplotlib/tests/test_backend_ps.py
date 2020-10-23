@@ -9,6 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook, patheffects
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 needs_ghostscript = pytest.mark.skipif(
@@ -59,6 +60,8 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
             allowable_exceptions.append(mpl.ExecutableNotFoundError)
         if rcParams.get("text.usetex"):
             allowable_exceptions.append(RuntimeError)
+        if rcParams.get("ps.useafm"):
+            allowable_exceptions.append(MatplotlibDeprecationWarning)
         try:
             fig.savefig(s_buf, format=format, orientation=orientation)
             fig.savefig(b_buf, format=format, orientation=orientation)
