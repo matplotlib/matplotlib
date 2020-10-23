@@ -433,6 +433,19 @@ class MathTextParser:
         The results are cached, so multiple calls to `parse`
         with the same expression should be fast.
         """
+        if _force_standard_ps_fonts:
+            cbook.warn_deprecated(
+                "3.4",
+                removal="3.5",
+                message=(
+                    "Mathtext using only standard PostScript fonts has "
+                    "been likely to produce wrong output for a while, "
+                    "has been deprecated in %(since)s and will be removed "
+                    "in %(removal)s, after which ps.useafm will have no "
+                    "effect on mathtext."
+                )
+            )
+
         # lru_cache can't decorate parse() directly because the ps.useafm and
         # mathtext.fontset rcParams also affect the parse (e.g. by affecting
         # the glyph metrics).
