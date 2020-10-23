@@ -3,7 +3,7 @@
 Usage Guide
 ***********
 
-This tutorial covers some basic usage patterns and best-practices to
+This tutorial covers some basic usage patterns and best practices to
 help you get started with Matplotlib.
 """
 
@@ -16,10 +16,17 @@ import numpy as np
 # A simple example
 # ================
 #
+<<<<<<< HEAD
 # Matplotlib graphs your data on `~.figure.Figure`\s (i.e., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes` (i.e., an
 # area where points can be specified in terms of x-y coordinates, or theta-r
 # in a polar plot, or x-y-z in a 3D plot, etc.).  The simplest way of
+=======
+# Matplotlib graphs your data on `~.figure.Figure`\s (e.g., windows, Jupyter
+# widgets, etc.), each of which can contain one or more `~.axes.Axes`, an
+# area where points can be specified in terms of x-y coordinates, or theta-r
+# in a polar plot, x-y-z in a 3D plot, etc.  The simplest way of
+>>>>>>> DOCS: Usage Guide Prose Edits
 # creating a figure with an axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the axes:
 
@@ -50,7 +57,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # Parts of a Figure
 # =================
 #
-# Now, let's have a deeper look at the components of a Matplotlib figure.
+# Here is a more detailed layout of the components of a Matplotlib figure.
 #
 # .. image:: ../../_static/anatomy.png
 #
@@ -58,11 +65,11 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # ----------------------------------
 #
 # The **whole** figure.  The figure keeps
-# track of all the child :class:`~matplotlib.axes.Axes`, a smattering of
+# track of all the child :class:`~matplotlib.axes.Axes`, a group of
 # 'special' artists (titles, figure legends, etc), and the **canvas**.
-# (Don't worry too much about the canvas, it is crucial as it is the
-# object that actually does the drawing to get you your plot, but as the
-# user it is more-or-less invisible to you).  A figure can contain any
+# (The canvas is not the primary focus. It is crucial as it is the
+# object that actually does the drawing to get you your plot, but as
+# the user, it is mostly invisible to you).  A figure can contain any
 # number of :class:`~matplotlib.axes.Axes`, but will typically have
 # at least one.
 #
@@ -78,7 +85,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # :class:`~matplotlib.axes.Axes`
 # ------------------------------
 #
-# This is what you think of as 'a plot', it is the region of the image
+# This is what you think of as 'a plot'. It is the region of the image
 # with the data space. A given figure
 # can contain many Axes, but a given :class:`~matplotlib.axes.Axes`
 # object can only be in one :class:`~matplotlib.figure.Figure`.  The
@@ -97,8 +104,8 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # :class:`~matplotlib.axis.Axis`
 # ------------------------------
 #
-# These are the number-line-like objects. They take
-# care of setting the graph limits and generating the ticks (the marks
+# These are the objects most similar to a number line.
+# They place graph limits and generate ticks (the marks
 # on the axis) and ticklabels (strings labeling the ticks).  The location of
 # the ticks is determined by a `~matplotlib.ticker.Locator` object and the
 # ticklabel strings are formatted by a `~matplotlib.ticker.Formatter`.  The
@@ -108,10 +115,10 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # :class:`~matplotlib.artist.Artist`
 # ----------------------------------
 #
-# Basically, everything you can see on the figure is an artist (even the
+# Basically, everything visible on the figure is an artist (even 
 # `.Figure`, `Axes <.axes.Axes>`, and `~.axis.Axis` objects).  This includes
 # `.Text` objects, `.Line2D` objects, :mod:`.collections` objects, `.Patch`
-# objects ... (you get the idea).  When the figure is rendered, all of the
+# objects, etc... When the figure is rendered, all of the
 # artists are drawn to the **canvas**.  Most Artists are tied to an Axes; such
 # an Artist cannot be shared by multiple Axes, or moved from one to another.
 #
@@ -121,8 +128,8 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # =====================================
 #
 # All of plotting functions expect `numpy.array` or `numpy.ma.masked_array` as
-# input.  Classes that are 'array-like' such as `pandas` data objects
-# and `numpy.matrix` may or may not work as intended.  It is best to
+# input.  Classes that are similar to arrays such as `pandas` data objects
+# and `numpy.matrix` may not work as intended.  Common convention is to
 # convert these to `numpy.array` objects prior to plotting.
 #
 # For example, to convert a `pandas.DataFrame` ::
