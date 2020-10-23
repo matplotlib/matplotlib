@@ -36,7 +36,7 @@ axins.set_ylim(y1, y2)
 axins.set_xticklabels('')
 axins.set_yticklabels('')
 
-ax.indicate_inset_zoom(axins)
+ax.indicate_inset_zoom(axins, edgecolor="black")
 
 plt.show()
 
