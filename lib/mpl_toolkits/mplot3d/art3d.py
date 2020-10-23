@@ -135,8 +135,7 @@ class Text3D(mtext.Text):
     def draw(self, renderer):
         position3d = np.array((self._x, self._y, self._z))
         proj = proj3d.proj_trans_points(
-            [position3d, position3d + self._dir_vec],
-            renderer.M)
+            [position3d, position3d + self._dir_vec], self.axes.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
@@ -213,7 +212,7 @@ class Line3D(lines.Line2D):
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
         self.set_data(xs, ys)
         super().draw(renderer)
         self.stale = False
@@ -297,13 +296,13 @@ class Line3DCollection(LineCollection):
         self._segments3d = segments
         super().set_segments([])
 
-    def do_3d_projection(self, renderer):
+    @cbook._delete_parameter('3.4', 'renderer')
+    def do_3d_projection(self, renderer=None):
         """
         Project the points according to renderer matrix.
         """
-        xyslist = [
-            proj3d.proj_trans_points(points, renderer.M) for points in
-            self._segments3d]
+        xyslist = [proj3d.proj_trans_points(points, self.axes.M)
+                   for points in self._segments3d]
         segments_2d = [np.column_stack([xs, ys]) for xs, ys, zs in xyslist]
         LineCollection.set_segments(self, segments_2d)
 
@@ -316,7 +315,7 @@ class Line3DCollection(LineCollection):
     @artist.allow_rasterization
     def draw(self, renderer, project=False):
         if project:
-            self.do_3d_projection(renderer)
+            self.do_3d_projection()
         super().draw(renderer)
 
 
@@ -348,10 +347,12 @@ class Patch3D(Patch):
     def get_facecolor(self):
         return self._facecolor2d
 
-    def do_3d_projection(self, renderer):
+    @cbook._delete_parameter('3.4', 'renderer')
+    def do_3d_projection(self, renderer=None):
         s = self._segment3d
         xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
+                                                        self.axes.M)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]))
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
@@ -372,10 +373,12 @@ class PathPatch3D(Patch3D):
         Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir)
         self._code3d = path.codes
 
-    def do_3d_projection(self, renderer):
+    @cbook._delete_parameter('3.4', 'renderer')
+    def do_3d_projection(self, renderer=None):
         s = self._segment3d
         xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
+                                                        self.axes.M)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
@@ -481,9 +484,11 @@ class Patch3DCollection(PatchCollection):
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
 
-    def do_3d_projection(self, renderer):
+    @cbook._delete_parameter('3.4', 'renderer')
+    def do_3d_projection(self, renderer=None):
         xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
+                                                        self.axes.M)
 
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
@@ -585,9 +590,11 @@ class Path3DCollection(PathCollection):
         super().set_linewidth(lw)
         self._linewidth3d = self.get_linewidth()
 
-    def do_3d_projection(self, renderer):
+    @cbook._delete_parameter('3.4', 'renderer')
+    def do_3d_projection(self, renderer=None):
         xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
+                                                        self.axes.M)
 
         fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
@@ -760,7 +767,8 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = val
         self.stale = True
 
-    def do_3d_projection(self, renderer):
+    @cbook._delete_parameter('3.4', 'renderer')
+    def do_3d_projection(self, renderer=None):
         """
         Perform the 3D projection for this object.
         """
@@ -769,7 +777,7 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, renderer.M)
+        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, self.axes.M)
         xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
 
         # This extra fuss is to re-order face / edge colors
@@ -805,7 +813,7 @@ class Poly3DCollection(PolyCollection):
         # Return zorder value
         if self._sort_zpos is not None:
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-            ztrans = proj3d._proj_transform_vec(zvec, renderer.M)
+            ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
             return ztrans[2][0]
         elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
@@ -890,13 +898,6 @@ def rotate_axes(xs, ys, zs, zdir):
 
     else:
         return xs, ys, zs
-
-
-def _get_colors(c, num):
-    """Stretch the color argument to provide the required number *num*."""
-    return np.broadcast_to(
-        mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
-        (num, 4))
 
 
 def _zalpha(colors, zs):

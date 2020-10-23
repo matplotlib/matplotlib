@@ -399,36 +399,71 @@ class Axes3D(Axes):
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
-        renderer.M = self.M
-        renderer.vvec = self.vvec
-        renderer.eye = self.eye
-        renderer.get_axis_position = self.get_axis_position
+        props3d = {
+            # To raise a deprecation, we need to wrap the attribute in a
+            # function, but binding that to an instance does not work, as you
+            # would end up with an instance-specific method. Properties are
+            # class-level attributes which *are* functions, so we do that
+            # instead.
+            # This dictionary comprehension creates deprecated properties for
+            # the attributes listed below, and they are temporarily attached to
+            # the _class_ in the `_setattr_cm` call. These can both be removed
+            # once the deprecation expires
+            name: cbook.deprecated('3.4', name=name,
+                                   alternative=f'self.axes.{name}')(
+                property(lambda self, _value=getattr(self, name): _value))
+            for name in ['M', 'vvec', 'eye', 'get_axis_position']
+        }
 
-        # Calculate projection of collections and patches and zorder them.
-        # Make sure they are drawn above the grids.
-        zorder_offset = max(axis.get_zorder()
-                            for axis in self._get_axis_list()) + 1
-        for i, col in enumerate(
-                sorted(self.collections,
-                       key=lambda col: col.do_3d_projection(renderer),
-                       reverse=True)):
-            col.zorder = zorder_offset + i
-        for i, patch in enumerate(
-                sorted(self.patches,
-                       key=lambda patch: patch.do_3d_projection(renderer),
-                       reverse=True)):
-            patch.zorder = zorder_offset + i
+        with cbook._setattr_cm(type(renderer), **props3d):
+            def do_3d_projection(artist):
+                """
+                Call `do_3d_projection` on an *artist*, and warn if passing
+                *renderer*.
 
-        if self._axis3don:
-            # Draw panes first
-            for axis in self._get_axis_list():
-                axis.draw_pane(renderer)
-            # Then axes
-            for axis in self._get_axis_list():
-                axis.draw(renderer)
+                For our Artists, never pass *renderer*. For external Artists,
+                in lieu of more complicated signature parsing, always pass
+                *renderer* and raise a warning.
+                """
 
-        # Then rest
-        super().draw(renderer)
+                if artist.__module__ == 'mpl_toolkits.mplot3d.art3d':
+                    # Our 3D Artists have deprecated the renderer parameter, so
+                    # avoid passing it to them; call this directly once the
+                    # deprecation has expired.
+                    return artist.do_3d_projection()
+
+                cbook.warn_deprecated(
+                    "3.4",
+                    message="The 'renderer' parameter of "
+                    "do_3d_projection() was deprecated in Matplotlib "
+                    "%(since)s and will be removed %(removal)s.")
+                return artist.do_3d_projection(renderer)
+
+            # Calculate projection of collections and patches and zorder them.
+            # Make sure they are drawn above the grids.
+            zorder_offset = max(axis.get_zorder()
+                                for axis in self._get_axis_list()) + 1
+            for i, col in enumerate(
+                    sorted(self.collections,
+                           key=do_3d_projection,
+                           reverse=True)):
+                col.zorder = zorder_offset + i
+            for i, patch in enumerate(
+                    sorted(self.patches,
+                           key=do_3d_projection,
+                           reverse=True)):
+                patch.zorder = zorder_offset + i
+
+            if self._axis3don:
+                # Draw panes first
+                for axis in self._get_axis_list():
+                    axis.draw_pane(renderer)
+                # Then axes
+                for axis in self._get_axis_list():
+                    axis.draw(renderer)
+
+            # Then rest
+            super().draw(renderer)
 
     def get_axis_position(self):
         vals = self.get_w_lims()
