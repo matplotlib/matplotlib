@@ -1477,11 +1477,21 @@ class Axis(martist.Artist):
             self.set_units(default)
 
         if neednew:
-            self._update_axisinfo()
+            if np.iterable(data):
+                try:
+                    data_interval = (np.min(data), np.max(data))
+                except (TypeError, ValueError):
+                    data_interval = None
+                else:
+                    if data_interval[0] == data_interval[1]:
+                        data_interval = None
+            else:
+                data_interval = None
+            self._update_axisinfo(data_interval)
         self.stale = True
         return True
 
-    def _update_axisinfo(self):
+    def _update_axisinfo(self, data_interval=None):
         """
         Check the axis converter for the stored units to see if the
         axis info needs to be updated.
@@ -1513,7 +1523,7 @@ class Axis(martist.Artist):
             self.set_label_text(info.label)
             self.isDefault_label = True
 
-        self.set_default_intervals()
+        self.set_default_intervals(data_interval)
 
     def have_units(self):
         return self.converter is not None or self.units is not None
@@ -2277,15 +2287,18 @@ class XAxis(Axis):
         # cast to bool to avoid bad interaction between python 3.8 and np.bool_
         self.axes.set_xlim(sorted((a, b), reverse=bool(inverted)), auto=None)
 
-    def set_default_intervals(self):
+    def set_default_intervals(self, data_interval=None):
         # docstring inherited
-        xmin, xmax = 0., 1.
+        xmin, xmax = (0., 1.) if data_interval is None else data_interval
         dataMutated = self.axes.dataLim.mutatedx()
         viewMutated = self.axes.viewLim.mutatedx()
         if not dataMutated or not viewMutated:
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
-                if info.default_limits is not None:
+                if data_interval is not None:
+                    xmin = self.converter.convert(xmin, self.units, self)
+                    xmax = self.converter.convert(xmax, self.units, self)
+                elif info.default_limits is not None:
                     valmin, valmax = info.default_limits
                     xmin = self.converter.convert(valmin, self.units, self)
                     xmax = self.converter.convert(valmax, self.units, self)
@@ -2561,15 +2574,18 @@ class YAxis(Axis):
         # cast to bool to avoid bad interaction between python 3.8 and np.bool_
         self.axes.set_ylim(sorted((a, b), reverse=bool(inverted)), auto=None)
 
-    def set_default_intervals(self):
+    def set_default_intervals(self, data_interval=None):
         # docstring inherited
-        ymin, ymax = 0., 1.
+        ymin, ymax = (0., 1.) if data_interval is None else data_interval
         dataMutated = self.axes.dataLim.mutatedy()
         viewMutated = self.axes.viewLim.mutatedy()
         if not dataMutated or not viewMutated:
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
-                if info.default_limits is not None:
+                if data_interval is not None:
+                    ymin = self.converter.convert(ymin, self.units, self)
+                    ymax = self.converter.convert(ymax, self.units, self)
+                elif info.default_limits is not None:
                     valmin, valmax = info.default_limits
                     ymin = self.converter.convert(valmin, self.units, self)
                     ymax = self.converter.convert(valmax, self.units, self)
