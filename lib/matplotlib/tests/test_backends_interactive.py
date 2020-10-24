@@ -177,7 +177,6 @@ _thread_test_script = """\
 import json
 import sys
 import threading
-from unittest import TestCase
 
 from matplotlib import pyplot as plt, rcParams
 rcParams.update({
@@ -186,14 +185,12 @@ rcParams.update({
 })
 if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
     rcParams.update(json.loads(sys.argv[1]))
-assert_equal = TestCase().assertEqual
-assert_raises = TestCase().assertRaises
 
 # Test artist creation and drawing does not crash from thread
 # No other guarantees!
 fig, ax = plt.subplots()
 # plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
-plt.pause(0.1)
+plt.pause(0.5)
 
 exc_info = None
 
@@ -226,7 +223,7 @@ if exc_info:  # Raise thread error
 t = threading.Thread(target=thread_draw_work)
 fig.canvas.mpl_connect("close_event", print)
 t.start()
-plt.pause(0.1)  # flush_events fails here on at least Tkagg (bpo-41176)
+plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
 t.join()
 plt.close()
 fig.canvas.flush_events()  # pause doesn't process events after close
