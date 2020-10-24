@@ -235,20 +235,28 @@ if exc_info:  # Raise thread error
     raise exc_info[1].with_traceback(exc_info[2])
 """
 
+_thread_safe_backends = _get_testable_interactive_backends()
+# Known unsafe backends. Remove the xfails if they start to pass!
+if "wx" in _thread_safe_backends:
+    _thread_safe_backends.remove("wx")
+    _thread_safe_backends.append(
+        pytest.param("wx", marks=pytest.mark.xfail(
+            raises=subprocess.CalledProcessError, strict=True)))
+if "macosx" in _thread_safe_backends:
+    _thread_safe_backends.remove("macosx")
+    _thread_safe_backends.append(
+        pytest.param("macosx", marks=pytest.mark.xfail(
+            raises=subprocess.TimeoutExpired, strict=True)))
 
-@pytest.mark.parametrize("backend", _get_testable_interactive_backends())
+
+@pytest.mark.parametrize("backend", _thread_safe_backends)
 @pytest.mark.flaky(reruns=3)
 def test_interactive_thread_safety(backend):
     proc = subprocess.run(
         [sys.executable, "-c", _thread_test_script],
         env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
-        timeout=_test_timeout,
+        timeout=_test_timeout, check=True,
         stdout=subprocess.PIPE, universal_newlines=True)
-    if proc.returncode:
-        if backend == "wx":
-            pytest.xfail("Ignoring deprecated wx failure. Use wxagg.")
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
     assert proc.stdout.count("CloseEvent") == 1
 
 
