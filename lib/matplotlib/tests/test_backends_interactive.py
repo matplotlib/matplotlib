@@ -146,48 +146,6 @@ if not backend.startswith('qt5') and sys.platform == 'darwin':
     # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS to
     # not resize incorrectly.
     assert_equal(result.getvalue(), result_after.getvalue())
-
-# Test artists and drawing does not crash from thread (no other guarantees)
-fig, ax = plt.subplots()
-# plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
-plt.pause(0.1)
-
-exc_info = None
-
-def thread_artist_work():
-    try:
-        ax.plot([1,3,6])
-    except:
-        # Propagate error to main thread
-        global exc_info
-        exc_info = sys.exc_info()
-
-def thread_draw_work():
-    try:
-        fig.canvas.draw()
-    except:
-        # Propagate error to main thread
-        global exc_info
-        exc_info = sys.exc_info()
-
-t = threading.Thread(target=thread_artist_work)
-t.start()
-# artists never wait for the event loop to run, so just join
-t.join()
-
-if exc_info:  # Raise thread error
-    raise exc_info[1].with_traceback(exc_info[2])
-
-t = threading.Thread(target=thread_draw_work)
-fig.canvas.mpl_connect("close_event", print)
-t.start()
-plt.pause(0.1)  # flush_events fails on at least Tkagg (bpo-41176)
-t.join()
-plt.close()
-fig.canvas.flush_events()  # pause doesn't process events after close
-
-if exc_info:  # Raise thread error
-    raise exc_info[1].with_traceback(exc_info[2])
 """
 _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 
@@ -212,7 +170,86 @@ def test_interactive_backend(backend, toolbar):
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")
-    assert proc.stdout.count("CloseEvent") == 2
+    assert proc.stdout.count("CloseEvent") == 1
+
+
+_thread_test_script = """\
+import json
+import sys
+import threading
+from unittest import TestCase
+
+from matplotlib import pyplot as plt, rcParams
+rcParams.update({
+    "webagg.open_in_browser": False,
+    "webagg.port_retries": 1,
+})
+if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
+    rcParams.update(json.loads(sys.argv[1]))
+assert_equal = TestCase().assertEqual
+assert_raises = TestCase().assertRaises
+
+# Test artist creation and drawing does not crash from thread
+# No other guarantees!
+fig, ax = plt.subplots()
+# plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
+plt.pause(0.1)
+
+exc_info = None
+
+def thread_artist_work():
+    try:
+        ax.plot([1,3,6])
+    except:
+        # Propagate error to main thread
+        import sys
+        global exc_info
+        exc_info = sys.exc_info()
+
+def thread_draw_work():
+    try:
+        fig.canvas.draw()
+    except:
+        # Propagate error to main thread
+        import sys
+        global exc_info
+        exc_info = sys.exc_info()
+
+t = threading.Thread(target=thread_artist_work)
+t.start()
+# artists never wait for the event loop to run, so just join
+t.join()
+
+if exc_info:  # Raise thread error
+    raise exc_info[1].with_traceback(exc_info[2])
+
+t = threading.Thread(target=thread_draw_work)
+fig.canvas.mpl_connect("close_event", print)
+t.start()
+plt.pause(0.1)  # flush_events fails here on at least Tkagg (bpo-41176)
+t.join()
+plt.close()
+fig.canvas.flush_events()  # pause doesn't process events after close
+
+if exc_info:  # Raise thread error
+    raise exc_info[1].with_traceback(exc_info[2])
+"""
+
+
+@pytest.mark.parametrize("backend", _get_testable_interactive_backends())
+@pytest.mark.flaky(reruns=3)
+def test_interactive_thread_safety(backend):
+    proc = subprocess.run(
+        [sys.executable, "-c", _thread_test_script],
+        env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout,
+        stdout=subprocess.PIPE, universal_newlines=True)
+    if proc.returncode:
+        if backend == "wx":
+            pytest.xfail("Ignoring deprecated wx failure. Use wxagg.")
+        pytest.fail("The subprocess returned with non-zero exit status "
+                    f"{proc.returncode}.")
+    assert proc.stdout.count("CloseEvent") == 1
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
