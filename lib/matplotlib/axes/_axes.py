@@ -5348,7 +5348,7 @@ default: :rc:`scatter.edgecolors`
             left corner of the Axes. The convention (the default) 'upper' is
             typically used for matrices and images.
 
-            Note that the vertical Axes points upward for 'lower'
+            Note that the vertical axis points upward for 'lower'
             but downward for 'upper'.
 
             See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
