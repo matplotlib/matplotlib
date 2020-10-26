@@ -11,6 +11,7 @@ from numpy.testing import (assert_array_equal, assert_approx_equal,
                            assert_array_almost_equal)
 import pytest
 
+from matplotlib import _api
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import MatplotlibDeprecationWarning, delete_masked_points
@@ -618,7 +619,7 @@ def test_delete_parameter():
         with pytest.warns(MatplotlibDeprecationWarning):
             func(foo="bar")
 
-    def pyplot_wrapper(foo=cbook.deprecation._deprecated_parameter):
+    def pyplot_wrapper(foo=_api.deprecation._deprecated_parameter):
         func1(foo)
 
     pyplot_wrapper()  # No warning.

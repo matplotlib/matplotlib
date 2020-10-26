@@ -35,6 +35,7 @@ from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
+from matplotlib import _api
 from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
@@ -2986,8 +2987,8 @@ def quiverkey(Q, X, Y, U, label, **kw):
 def scatter(
         x, y, s=None, c=None, marker=None, cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None,
-        verts=cbook.deprecation._deprecated_parameter,
-        edgecolors=None, *, plotnonfinite=False, data=None, **kwargs):
+        verts=_api.deprecation._deprecated_parameter, edgecolors=None,
+        *, plotnonfinite=False, data=None, **kwargs):
     __ret = gca().scatter(
         x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
         vmin=vmin, vmax=vmax, alpha=alpha, linewidths=linewidths,

@@ -29,7 +29,8 @@ import numpy as np
 
 import matplotlib
 from matplotlib import _c_internal_utils
-from .deprecation import (
+from matplotlib._api import warn_external as _warn_external
+from matplotlib._api.deprecation import (
     deprecated, warn_deprecated,
     _rename_parameter, _delete_parameter, _make_keyword_only,
     _deprecate_method_override, _deprecate_privatize_attribute,
@@ -2098,30 +2099,6 @@ def _setattr_cm(obj, **kwargs):
                 delattr(obj, attr)
             else:
                 setattr(obj, attr, orig)
-
-
-def _warn_external(message, category=None):
-    """
-    `warnings.warn` wrapper that sets *stacklevel* to "outside Matplotlib".
-
-    The original emitter of the warning can be obtained by patching this
-    function back to `warnings.warn`, i.e. ``cbook._warn_external =
-    warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
-    etc.).
-
-    :meta public:
-    """
-    frame = sys._getframe()
-    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
-        if frame is None:
-            # when called in embedded context may hit frame is None
-            break
-        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.(?!tests\.))",
-                        # Work around sphinx-gallery not setting __name__.
-                        frame.f_globals.get("__name__", "")):
-            break
-        frame = frame.f_back
-    warnings.warn(message, category, stacklevel)
 
 
 class _OrderedSet(collections.abc.MutableSet):

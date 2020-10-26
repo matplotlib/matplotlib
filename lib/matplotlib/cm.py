@@ -24,7 +24,6 @@ import matplotlib as mpl
 from matplotlib import _api, colors, cbook
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
-from matplotlib.cbook import _warn_external
 
 
 LUTSIZE = mpl.rcParams['image.lut']
@@ -150,7 +149,7 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
             raise ValueError(msg)
         else:
             msg = f"Trying to register the cmap {name!r} which already exists."
-            _warn_external(msg)
+            _api.warn_external(msg)
 
     if not isinstance(cmap, colors.Colormap):
         raise ValueError("You must pass a Colormap instance. "

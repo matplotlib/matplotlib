@@ -22,7 +22,7 @@ import textwrap
 
 # This line imports the installed copy of matplotlib, and not the local copy.
 import numpy as np
-from matplotlib import cbook, mlab
+from matplotlib import _api, mlab
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
@@ -74,8 +74,8 @@ class value_formatter:
             self._repr = "mlab.window_hanning"
         elif value is np.mean:
             self._repr = "np.mean"
-        elif value is cbook.deprecation._deprecated_parameter:
-            self._repr = "cbook.deprecation._deprecated_parameter"
+        elif value is _api.deprecation._deprecated_parameter:
+            self._repr = "_api.deprecation._deprecated_parameter"
         elif isinstance(value, Enum):
             # Enum str is Class.Name whereas their repr is <Class.Name: value>.
             self._repr = str(value)
