@@ -34,13 +34,7 @@ class JoinStyle(str, _AutoStringNameEnum):
     Define how the connection between two line segments is drawn.
 
     For a visual impression of each *JoinStyle*, `view these docs online
-    <JoinStyle>`, or run `JoinStyle.demo`:
-
-    .. plot::
-        :alt: Demo of possible JoinStyle's
-
-        from matplotlib._types import JoinStyle
-        JoinStyle.demo()
+    <JoinStyle>`, or run `JoinStyle.demo`.
 
     Lines in Matplotlib are typically defined by a 1D `~.path.Path` and a
     finite ``linewidth``, where the underlying 1D `~.path.Path` represents the
@@ -52,15 +46,15 @@ class JoinStyle(str, _AutoStringNameEnum):
     results in corners appearing "rounded", which may not be the desired
     behavior if you are drawing, for example, a polygon or pointed star.
 
-    Supported values:
+    **Supported values:**
 
-    - *miter* is the "arrow-tip" style. Each boundary of the filled-in area
+    - *miter*: the "arrow-tip" style. Each boundary of the filled-in area
       will extend in a straight line parallel to the tangent vector of the
       centerline at the point it meets the corner, until they meet in a
       sharp point.
-    - *round* stokes every point within a radius of ``linewidth/2`` of the
+    - *round*: stokes every point within a radius of ``linewidth/2`` of the
       center lines.
-    - *bevel* is the "squared-off" style. It can be thought of as a rounded
+    - *bevel*: the "squared-off" style. It can be thought of as a rounded
       corner where the "circular" part of the corner has been cut off.
 
     .. note::
@@ -77,6 +71,13 @@ class JoinStyle(str, _AutoStringNameEnum):
         A more detailed description of the effect of a miter limit can be found
         in the `Mozilla Developer Docs
         <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit>`_
+
+    .. plot::
+        :alt: Demo of possible JoinStyle's
+
+        from matplotlib._types import JoinStyle
+        JoinStyle.demo()
+
     """
 
     miter = auto()
@@ -89,6 +90,7 @@ class JoinStyle(str, _AutoStringNameEnum):
 
     @staticmethod
     def demo():
+        """Demonstrate how each JoinStyle looks for various join angles."""
         import numpy as np
         import matplotlib.pyplot as plt
 
@@ -127,7 +129,15 @@ class CapStyle(str, _AutoStringNameEnum):
     controlled by the *CapStyle*.
 
     For a visual impression of each *CapStyle*, `view these docs online
-    <CapStyle>` or run `CapStyle.demo`:
+    <CapStyle>` or run `CapStyle.demo`.
+
+    **Supported values:**
+
+    - *butt*: the line is squared off at its endpoint.
+    - *projecting*: the line is squared off as in *butt*, but the filled in
+      area extends beyond the endpoint a distance of ``linewidth/2``.
+    - *round*: like *butt*, but a semicircular cap is added to the end of
+      the line, of radius ``linewidth/2``.
 
     .. plot::
         :alt: Demo of possible CapStyle's
@@ -135,13 +145,6 @@ class CapStyle(str, _AutoStringNameEnum):
         from matplotlib._types import CapStyle
         CapStyle.demo()
 
-    Supported values:
-
-    - *butt*: the line is squared off at its endpoint.
-    - *projecting*: the line is squared off as in *butt*, but the filled in
-      area extends beyond the endpoint a distance of ``linewidth/2``.
-    - *round*: like *butt*, but a semicircular cap is added to the end of
-      the line, of radius ``linewidth/2``.
     """
     butt = 'butt'
     projecting = 'projecting'
@@ -153,6 +156,7 @@ class CapStyle(str, _AutoStringNameEnum):
 
     @staticmethod
     def demo():
+        """Demonstrate how each CapStyle looks for a thick line segment."""
         import matplotlib.pyplot as plt
 
         fig, ax = plt.subplots(figsize=(8, 2))
