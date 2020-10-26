@@ -8,3 +8,10 @@ Length of parameter *where* in ``fill_between()`` and ``fill_betweenx()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The parameter *where* in `~.Axes.fill_between()` and `~.Axes.fill_betweenx()`
 must have the same length as the data points.
+
+Default padding in ``AxesDivider``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter *pad* in `.AxesDivider.new_horizontal()` now defaults to
+:rc:`figure.subplot.wspace` instead of 0.
+The parameter *pad* in `.AxesDivider.new_vertical()` now defaults to
+:rc:`figure.subplot.hspace` instead of 0.

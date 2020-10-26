@@ -4,6 +4,7 @@ Helper classes to adjust the positions of multiple axes at drawing time.
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.axes import SubplotBase
 from matplotlib.gridspec import SubplotSpec, GridSpec
@@ -439,6 +440,7 @@ class AxesDivider(Divider):
             instance of the current axes.
         pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             Pad between the axes. It takes same argument as *size*.
+            Defaults to :rc:`figure.subplot.wspace`.
         pack_start : bool
             If False, the new axes is appended at the end
             of the list, i.e., it became the right-most axes. If True, it is
@@ -450,10 +452,7 @@ class AxesDivider(Divider):
             main axes will be used.
         """
         if pad is None:
-            cbook.warn_deprecated(
-                "3.2", message="In a future version, 'pad' will default to "
-                "rcParams['figure.subplot.wspace'].  Set pad=0 to keep the "
-                "old behavior.")
+            pad = mpl.rcParams['figure.subplot.wspace']
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._xref)
@@ -488,6 +487,7 @@ class AxesDivider(Divider):
             instance of the current axes.
         pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             Pad between the axes. It takes same argument as *size*.
+            Defaults to :rc:`figure.subplot.hspace`.
         pack_start : bool
             If False, the new axes is appended at the end
             of the list, i.e., it became the right-most axes. If True, it is
@@ -499,10 +499,7 @@ class AxesDivider(Divider):
             main axes will be used.
         """
         if pad is None:
-            cbook.warn_deprecated(
-                "3.2", message="In a future version, 'pad' will default to "
-                "rcParams['figure.subplot.hspace'].  Set pad=0 to keep the "
-                "old behavior.")
+            pad = mpl.rcParams['figure.subplot.hspace']
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._yref)
