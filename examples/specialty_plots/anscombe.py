@@ -41,7 +41,7 @@ for ax, (label, (x, y)) in zip(axs.flat, datasets.items()):
 
     # linear regression
     p1, p0 = np.polyfit(x, y, deg=1)
-    x_lin = np.array([np.min(x), np.max(x)])
+    x_lin = np.array([0, 20])
     y_lin = p1 * x_lin + p0
     ax.plot(x_lin, y_lin, 'r-', lw=2)
 
