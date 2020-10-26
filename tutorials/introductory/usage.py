@@ -115,7 +115,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # :class:`~matplotlib.artist.Artist`
 # ----------------------------------
 #
-# Basically, everything visible on the figure is an artist (even 
+# Basically, everything visible on the figure is an artist (even
 # `.Figure`, `Axes <.axes.Axes>`, and `~.axis.Axis` objects).  This includes
 # `.Text` objects, `.Line2D` objects, :mod:`.collections` objects, `.Patch`
 # objects, etc... When the figure is rendered, all of the
@@ -156,7 +156,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 #
 # So one can do (OO-style)
 
-x = np.linspace(0, 2, 100) # This is data for plotting.
+x = np.linspace(0, 2, 100)  # This is data for plotting.  
 
 # Note that even in the OO-style, we use `.pyplot.figure` to create the figure.
 fig, ax = plt.subplots()  # Create a figure and an axes.
@@ -171,7 +171,7 @@ ax.legend()  # Add a legend.
 ###############################################################################
 # or (pyplot-style)
 
-x = np.linspace(0, 2, 100) # This is the same data from the previous plot.
+x = np.linspace(0, 2, 100)  # This is the same data from the previous plot.
 
 plt.plot(x, x, label='linear')  # Plot some data on the (implicit) axes.
 plt.plot(x, x**2, label='quadratic')  # etc.
@@ -373,16 +373,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Linux package named ``python-tk`` (or similar).
 #
 # If, however, you want to write graphical user interfaces, or a web
-<<<<<<< HEAD
 # application server
 # (:doc:`/gallery/user_interfaces/web_application_server_sgskip`), or need a
-# better understanding of what is going on, read on. To make things a little
-# more customizable for graphical user interfaces, Matplotlib separates
-=======
-# application server (:ref:`howto-webapp`), or need a better
-# understanding of what is going on, read on. To make things more easily
-# customizable for graphical user interfaces, Matplotlib separates
->>>>>>> DOCS: Usage Guide Prose Edits
+# better understanding of what is going on, read on. To make things more
+# easily customizable for graphical user interfaces, Matplotlib separates
 # the concept of the renderer (the thing that actually does the drawing)
 # from the canvas (the place where the drawing goes).  The canonical
 # renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
