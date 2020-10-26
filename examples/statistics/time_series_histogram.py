@@ -31,7 +31,7 @@ import numpy.matlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
-_, axes = plt.subplots(nrows=3, figsize=(10, 6 * 3))
+fig, axes = plt.subplots(nrows=3, figsize=(6, 8))
 
 # Make some data; a 1D random walk + small fraction of sine waves
 num_series = 1000
@@ -58,7 +58,7 @@ tic = time.time()
 axes[0].plot(x, Y.T, color="C0", alpha=0.1)
 toc = time.time()
 axes[0].set_title("Line plot with alpha")
-print(f"{toc-tic:.2f} sec. elapsed")
+print(f"{toc-tic:.3f} sec. elapsed")
 
 
 # Now we will convert the multiple time series into a histogram. Not only will
@@ -80,13 +80,15 @@ x_fine = np.matlib.repmat(x_fine, num_series, 1).flatten()
 cmap = copy(plt.cm.plasma)
 cmap.set_bad(cmap(0))
 h, xedges, yedges = np.histogram2d(x_fine, y_fine, bins=[400, 100])
-axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap, norm=LogNorm(vmax=1.5e2))
+axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap,
+                   norm=LogNorm(vmax=1.5e2), rasterized=True)
 axes[1].set_title("2d histogram and log color scale")
 
 # Same data but on linear color scale
-axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap, vmax=1.5e2)
+axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap, vmax=1.5e2, rasterized=True)
 axes[2].set_title("2d histogram and linear color scale")
 toc = time.time()
-print(f"{toc-tic:.2f} sec. elapsed")
+print(f"{toc-tic:.3f} sec. elapsed")
 
+fig.tight_layout()
 plt.show()
