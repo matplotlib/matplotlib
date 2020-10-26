@@ -40,10 +40,8 @@ for ax, (label, (x, y)) in zip(axs.flat, datasets.items()):
     ax.plot(x, y, 'o')
 
     # linear regression
-    p1, p0 = np.polyfit(x, y, deg=1)
-    x_lin = np.array([0, 20])
-    y_lin = p1 * x_lin + p0
-    ax.plot(x_lin, y_lin, 'r-', lw=2)
+    p1, p0 = np.polyfit(x, y, deg=1)  # slope, intercept
+    ax.axline(xy1=(0, p0), slope=p1, color='r', lw=2)
 
     # add text box for the statistics
     stats = (f'$\\mu$ = {np.mean(y):.2f}\n'
