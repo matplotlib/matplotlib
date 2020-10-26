@@ -698,10 +698,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # value, change the :file:`matplotlibrc` file. Alternatively, users
 # can create a new style for interactive plotting (with maxmial
 # simplification) and another style for publication quality plotting
-# (with minimal simplification) and activate them as necessary. See 
-# :doc:`/tutorials/introductory/customizing` for instructions on 
+# (with minimal simplification) and activate them as necessary. See
+# :doc:`/tutorials/introductory/customizing` for instructions on
 # how to perform these actions.
-# 
+#
 #
 # The simplification works by iteratively merging line segments
 # into a single vector until the next line segment's perpendicular
