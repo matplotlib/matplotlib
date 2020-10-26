@@ -52,3 +52,18 @@ for ax, (label, (x, y)) in zip(axs.flat, datasets.items()):
             transform=ax.transAxes, horizontalalignment='right')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.axline
+matplotlib.axes.Axes.text
+matplotlib.axes.Axes.tick_params
