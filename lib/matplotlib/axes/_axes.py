@@ -5127,10 +5127,9 @@ default: :rc:`scatter.edgecolors`
         else:
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
-                cbook.warn_deprecated(
-                    "3.2", message=f"Since %(since)s, the parameter *where* "
-                    f"must have the same size as {ind} in {func_name}(). This "
-                    "will become an error %(removal)s.")
+                raise ValueError(
+                    f"Parameters 'where' and '{ind}' must have the same size "
+                    f"in {func_name}()")
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
 
