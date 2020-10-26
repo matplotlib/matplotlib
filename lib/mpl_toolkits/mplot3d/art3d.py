@@ -347,6 +347,10 @@ class Patch3D(Patch):
     def get_facecolor(self):
         return self._facecolor2d
 
+    def set_facecolor(self, color):
+        Patch.set_facecolor(self, color)
+        self._facecolor3d = Patch.get_facecolor(self)
+
     @cbook._delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         s = self._segment3d
