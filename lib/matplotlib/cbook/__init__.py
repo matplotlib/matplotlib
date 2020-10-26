@@ -199,7 +199,11 @@ class CallbackRegistry:
                 del self._func_cid_map[signal]
 
     def disconnect(self, cid):
-        """Disconnect the callback registered with callback id *cid*."""
+        """
+        Disconnect the callback registered with callback id *cid*.
+
+        No error is raised if such a callback does not exist.
+        """
         for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]
