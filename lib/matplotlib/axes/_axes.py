@@ -808,11 +808,10 @@ class Axes(_AxesBase):
         all other scales, and thus the behavior is undefined. Please specify
         the line using the points *xy1*, *xy2* for non-linear scales.
 
-        As part of the ``kwargs``, a 'transform' can be passed. In the case
-        that a point and a slope are given, the transformation will only be
-        used for the point and not for the slope, i.e. the slope stays in data
-        coordinates. This can be used e.g. with ``ax.transAxes`` for drawing
-        grid lines with a fixed slope.
+        The *transform* keyword argument only applies to the points *xy1*,
+        *xy2*. The *slope* (if given) is always in data coordinates. This can
+        be used e.g. with ``ax.transAxes`` for drawing grid lines with a fixed
+        slope.
 
         Parameters
         ----------
