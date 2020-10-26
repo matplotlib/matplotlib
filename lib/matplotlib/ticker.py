@@ -1070,7 +1070,7 @@ class LogFormatter(Formatter):
         fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
         exponent = round(fx) if is_x_decade else np.floor(fx)
-        coeff = round(x / b ** exponent)
+        coeff = round(b ** (fx - exponent))
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1154,7 +1154,7 @@ class LogFormatterMathtext(LogFormatter):
         fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
         exponent = round(fx) if is_x_decade else np.floor(fx)
-        coeff = round(x / b ** exponent)
+        coeff = round(b ** (fx - exponent))
         if is_x_decade:
             fx = round(fx)
 
@@ -1186,7 +1186,7 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         """Return string for non-decade locations."""
         b = float(base)
         exponent = math.floor(fx)
-        coeff = b ** fx / b ** exponent
+        coeff = b ** (fx - exponent)
         if is_close_to_int(coeff):
             coeff = round(coeff)
         return r'$\mathdefault{%s%g\times%s^{%d}}$' \
