@@ -56,7 +56,7 @@ class _AxesStack(cbook.Stack):
     Specialization of `.Stack`, to handle all tracking of `~.axes.Axes` in a
     `.Figure`.
 
-    This stack stores ``key, (ind, Axes)`` pairs, where:
+    This stack stores ``key, (ind, axes)`` pairs, where:
 
     * **key** is a hash of the args and kwargs used in generating the Axes.
     * **ind** is a serial index tracking the order in which Axes were added.
@@ -141,7 +141,7 @@ class _AxesStack(cbook.Stack):
 
     def current_key_axes(self):
         """
-        Return a tuple of ``(key, Axes)`` for the active Axes.
+        Return a tuple of ``(key, axes)`` for the active Axes.
 
         If no Axes exists on the stack, then returns ``(None, None)``.
         """
@@ -295,7 +295,7 @@ class FigureBase(Artist):
         """
         Date ticklabels often overlap, so it is useful to rotate them
         and right align them.  Also, a common use case is a number of
-        subplots with shared x-axes where the x-axis is date data.  The
+        subplots with shared x-axis where the x-axis is date data.  The
         ticklabels are often long, and it helps to rotate them on the
         bottom subplot and turn them off on other subplots, as well as
         turn off xlabels.
