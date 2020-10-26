@@ -56,13 +56,13 @@ class _AxesStack(cbook.Stack):
     Specialization of `.Stack`, to handle all tracking of `~.axes.Axes` in a
     `.Figure`.
 
-    This stack stores ``key, (ind, axes)`` pairs, where:
+    This stack stores ``key, (ind, Axes)`` pairs, where:
 
     * **key** is a hash of the args and kwargs used in generating the Axes.
-    * **ind** is a serial index tracking the order in which axes were added.
+    * **ind** is a serial index tracking the order in which Axes were added.
 
-    AxesStack is a callable; calling it returns the current axes.
-    The `current_key_axes` method returns the current key and associated axes.
+    AxesStack is a callable; calling it returns the current Axes.
+    The `current_key_axes` method returns the current key and associated Axes.
     """
 
     def __init__(self):
@@ -100,12 +100,12 @@ class _AxesStack(cbook.Stack):
         return (k, (ind, e))
 
     def remove(self, a):
-        """Remove the axes from the stack."""
+        """Remove the Axes from the stack."""
         super().remove(self._entry_from_axes(a))
 
     def bubble(self, a):
         """
-        Move the given axes, which must already exist in the
+        Move the given Axes, which must already exist in the
         stack, to the top.
         """
         return super().bubble(self._entry_from_axes(a))
@@ -141,9 +141,9 @@ class _AxesStack(cbook.Stack):
 
     def current_key_axes(self):
         """
-        Return a tuple of ``(key, axes)`` for the active axes.
+        Return a tuple of ``(key, Axes)`` for the active Axes.
 
-        If no axes exists on the stack, then returns ``(None, None)``.
+        If no Axes exists on the stack, then returns ``(None, None)``.
         """
         if not len(self._elements):
             return self._default, self._default
@@ -183,10 +183,10 @@ class SubplotParams:
             as a fraction of the figure height.
         wspace : float
             The width of the padding between subplots,
-            as a fraction of the average axes width.
+            as a fraction of the average Axes width.
         hspace : float
             The height of the padding between subplots,
-            as a fraction of the average axes height.
+            as a fraction of the average Axes height.
         """
         self.validate = True
         for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
@@ -222,7 +222,7 @@ class SubplotParams:
 class FigureBase(Artist):
     """
     Base class for `.figure.Figure` and `.figure.SubFigure` containing the
-    methods that add artists to the figure or subfigure, create axes, etc.
+    methods that add artists to the figure or subfigure, create Axes, etc.
     """
     def __init__(self):
         super().__init__()
@@ -295,7 +295,7 @@ class FigureBase(Artist):
         """
         Date ticklabels often overlap, so it is useful to rotate them
         and right align them.  Also, a common use case is a number of
-        subplots with shared xaxes where the x-axis is date data.  The
+        subplots with shared x-axes where the x-axis is date data.  The
         ticklabels are often long, and it helps to rotate them on the
         bottom subplot and turn them off on other subplots, as well as
         turn off xlabels.
@@ -521,7 +521,7 @@ default: 'top'
         """
         Add an `.Artist` to the figure.
 
-        Usually artists are added to axes objects using `.Axes.add_artist`;
+        Usually artists are added to Axes objects using `.Axes.add_artist`;
         this method can be used in the rare cases where one needs to add
         artists directly to the figure instead.
 
@@ -555,7 +555,7 @@ default: 'top'
     @docstring.dedent_interpd
     def add_axes(self, *args, **kwargs):
         """
-        Add an axes to the figure.
+        Add an Axes to the figure.
 
         Call signatures::
 
@@ -565,7 +565,7 @@ default: 'top'
         Parameters
         ----------
         rect : sequence of float
-            The dimensions [left, bottom, width, height] of the new axes. All
+            The dimensions [left, bottom, width, height] of the new Axes. All
             quantities are in fractions of figure width and height.
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
@@ -588,7 +588,7 @@ default: 'top'
             of the shared axes.
 
         label : str
-            A label for the returned axes.
+            A label for the returned Axes.
 
         Returns
         -------
@@ -601,28 +601,28 @@ default: 'top'
         ----------------
         **kwargs
             This method also takes the keyword arguments for
-            the returned axes class. The keyword arguments for the
-            rectilinear axes class `~.axes.Axes` can be found in
+            the returned Axes class. The keyword arguments for the
+            rectilinear Axes class `~.axes.Axes` can be found in
             the following table but there might also be other keyword
-            arguments if another projection is used, see the actual axes
+            arguments if another projection is used, see the actual Axes
             class.
 
             %(Axes)s
 
         Notes
         -----
-        If the figure already has an axes with key (*args*,
-        *kwargs*) then it will simply make that axes current and
+        If the figure already has an Axes with key (*args*,
+        *kwargs*) then it will simply make that Axes current and
         return it.  This behavior is deprecated. Meanwhile, if you do
         not want this behavior (i.e., you want to force the creation of a
-        new axes), you must use a unique set of args and kwargs.  The axes
+        new Axes), you must use a unique set of args and kwargs.  The Axes
         *label* attribute has been exposed for this purpose: if you want
-        two axes that are otherwise identical to be added to the figure,
+        two Axes that are otherwise identical to be added to the figure,
         make sure you give them unique labels.
 
         In rare circumstances, `.add_axes` may be called with a single
-        argument, a axes instance already created in the present figure but
-        not in the figure's list of axes.
+        argument, an Axes instance already created in the present figure but
+        not in the figure's list of Axes.
 
         See Also
         --------
@@ -724,8 +724,8 @@ default: 'top'
             - A `.SubplotSpec`.
 
             In rare circumstances, `.add_subplot` may be called with a single
-            argument, a subplot axes instance already created in the
-            present figure but not in the figure's list of axes.
+            argument, a subplot Axes instance already created in the
+            present figure but not in the figure's list of Axes.
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
@@ -747,22 +747,22 @@ default: 'top'
             of the shared axes.
 
         label : str
-            A label for the returned axes.
+            A label for the returned Axes.
 
         Returns
         -------
         `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
 
-            The axes of the subplot. The returned axes base class depends on
+            The Axes of the subplot. The returned Axes base class depends on
             the projection used. It is `~.axes.Axes` if rectilinear projection
             is used and `.projections.polar.PolarAxes` if polar projection
-            is used. The returned axes is then a subplot subclass of the
+            is used. The returned Axes is then a subplot subclass of the
             base class.
 
         Other Parameters
         ----------------
         **kwargs
-            This method also takes the keyword arguments for the returned axes
+            This method also takes the keyword arguments for the returned Axes
             base class; except for the *figure* argument. The keyword arguments
             for the rectilinear base class `~.axes.Axes` can be found in
             the following table but there might also be other keyword
@@ -776,7 +776,7 @@ default: 'top'
         *kwargs*) then it will simply make that subplot current and
         return it.  This behavior is deprecated. Meanwhile, if you do
         not want this behavior (i.e., you want to force the creation of a
-        new subplot), you must use a unique set of args and kwargs.  The axes
+        new subplot), you must use a unique set of args and kwargs.  The Axes
         *label* attribute has been exposed for this purpose: if you want
         two subplots that are otherwise identical to be added to the figure,
         make sure you give them unique labels.
@@ -946,7 +946,7 @@ default: 'top'
             ax1.set_title('Sharing Y axis')
             ax2.scatter(x, y)
 
-            # Create four polar axes and access them through the returned array
+            # Create four polar Axes and access them through the returned array
             axes = fig.subplots(2, 2, subplot_kw=dict(polar=True))
             axes[0, 0].plot(x, y)
             axes[1, 1].scatter(x, y)
@@ -972,7 +972,7 @@ default: 'top'
 
     def delaxes(self, ax):
         """
-        Remove the `~.axes.Axes` *ax* from the figure; update the current axes.
+        Remove the `~.axes.Axes` *ax* from the figure; update the current Axes.
         """
 
         def _reset_locators_and_formatters(axis):
@@ -1261,10 +1261,10 @@ default: 'top'
             as a fraction of the figure height.
         wspace : float, optional
             The width of the padding between subplots,
-            as a fraction of the average axes width.
+            as a fraction of the average Axes width.
         hspace : float, optional
             The height of the padding between subplots,
-            as a fraction of the average axes height.
+            as a fraction of the average Axes height.
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
@@ -1286,17 +1286,17 @@ default: 'top'
 
         Alignment persists for draw events after this is called.
 
-        If a label is on the bottom, it is aligned with labels on axes that
+        If a label is on the bottom, it is aligned with labels on Axes that
         also have their label on the bottom and that have the same
         bottom-most subplot row.  If the label is on the top,
-        it is aligned with labels on axes with the same top-most row.
+        it is aligned with labels on Axes with the same top-most row.
 
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
             Optional list of (or ndarray) `~matplotlib.axes.Axes`
             to align the xlabels.
-            Default is to align all axes on the figure.
+            Default is to align all Axes on the figure.
 
         See Also
         --------
@@ -1347,17 +1347,17 @@ default: 'top'
 
         Alignment persists for draw events after this is called.
 
-        If a label is on the left, it is aligned with labels on axes that
+        If a label is on the left, it is aligned with labels on Axes that
         also have their label on the left and that have the same
         left-most subplot column.  If the label is on the right,
-        it is aligned with labels on axes with the same right-most column.
+        it is aligned with labels on Axes with the same right-most column.
 
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
             Optional list (or ndarray) of `~matplotlib.axes.Axes`
             to align the ylabels.
-            Default is to align all axes on the figure.
+            Default is to align all Axes on the figure.
 
         See Also
         --------
@@ -1412,7 +1412,7 @@ default: 'top'
         axs : list of `~matplotlib.axes.Axes`
             Optional list (or ndarray) of `~matplotlib.axes.Axes`
             to align the labels.
-            Default is to align all axes on the figure.
+            Default is to align all Axes on the figure.
 
         See Also
         --------
@@ -1426,7 +1426,7 @@ default: 'top'
     def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
         Return a `.GridSpec` that has this figure as a parent.  This allows
-        complex layout of axes in the figure.
+        complex layout of Axes in the figure.
 
         Parameters
         ----------
@@ -1552,7 +1552,7 @@ default: 'top'
         return sf
 
     def sca(self, a):
-        """Set the current axes to be *a* and return *a*."""
+        """Set the current Axes to be *a* and return *a*."""
         self._axstack.bubble(a)
         self._axobservers.process("_axes_change_event", self)
         return a
@@ -1560,11 +1560,11 @@ default: 'top'
     @docstring.dedent_interpd
     def gca(self, **kwargs):
         """
-        Get the current axes, creating one if necessary.
+        Get the current Axes, creating one if necessary.
 
-        The following kwargs are supported for ensuring the returned axes
-        adheres to the given projection etc., and for axes creation if
-        the active axes does not exist:
+        The following kwargs are supported for ensuring the returned Axes
+        adheres to the given projection etc., and for Axes creation if
+        the active Axes does not exist:
 
         %(Axes)s
 
@@ -1612,8 +1612,8 @@ default: 'top'
         created by `imshow` or `figimage`, `.Collection` created by `pcolor` or
         `scatter`, etc.), or *None* if no such instance has been defined.
 
-        The current image is an attribute of the current axes, or the nearest
-        earlier axes in the current figure that contains an image.
+        The current image is an attribute of the current Axes, or the nearest
+        earlier Axes in the current figure that contains an image.
 
         Notes
         -----
@@ -1645,7 +1645,7 @@ default: 'top'
 
             (axes_proj_class, proj_class_kwargs, proj_stack_key)
 
-        which can be used for new axes initialization/identification.
+        which can be used for new Axes initialization/identification.
         """
         if axes_class is not None:
             if polar or projection is not None:
@@ -1731,7 +1731,7 @@ default: 'top'
 
         bbox_extra_artists : list of `.Artist` or ``None``
             List of artists to include in the tight bounding box.  If
-            ``None`` (default), then all artist children of each axes are
+            ``None`` (default), then all artist children of each Axes are
             included in the tight bounding box.
 
         Returns
@@ -1802,7 +1802,7 @@ default: 'top'
                x = [['A panel', 'A panel', 'edge'],
                     ['C panel', '.',       'edge']]
 
-            Produces 4 axes:
+            Produces 4 Axes:
 
             - 'A panel' which is 1 row high and spans the first two columns
             - 'edge' which is 2 rows high and is on the right edge
@@ -2153,24 +2153,24 @@ class SubFigure(FigureBase):
 
     def get_axes(self):
         """
-        Return a list of axes in the SubFigure. You can access and modify the
-        axes in the Figure through this list.
+        Return a list of Axes in the SubFigure. You can access and modify the
+        Axes in the Figure through this list.
 
         Do not modify the list itself. Instead, use `~.SubFigure.add_axes`,
         `~.SubFigure.add_subplot` or `~.SubFigure.delaxes` to add or remove an
-        axes.
+        Axes.
 
         Note: This is equivalent to the property `~.SubFigure.axes`.
         """
         return self._localaxes.as_list()
 
     axes = property(get_axes, doc="""
-        List of axes in the SubFigure.  You can access and modify the axes
+        List of Axes in the SubFigure.  You can access and modify the Axes
         in the SubFigure through this list.
 
         Do not modify the list itself. Instead, use `~.SubFigure.add_axes`,
         `~.SubFigure.add_subplot` or `~.SubFigure.delaxes` to add or remove an
-        axes.
+        Axes.
         """)
 
     def draw(self, renderer):
@@ -2390,22 +2390,22 @@ class Figure(FigureBase):
 
     def get_axes(self):
         """
-        Return a list of axes in the Figure. You can access and modify the
-        axes in the Figure through this list.
+        Return a list of Axes in the Figure. You can access and modify the
+        Axes in the Figure through this list.
 
         Do not modify the list itself. Instead, use `~Figure.add_axes`,
-        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an axes.
+        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an Axes.
 
         Note: This is equivalent to the property `~.Figure.axes`.
         """
         return self._axstack.as_list()
 
     axes = property(get_axes, doc="""
-        List of axes in the Figure.  You can access and modify the axes in the
+        List of Axes in the Figure.  You can access and modify the Axes in the
         Figure through this list.
 
         Do not modify the list itself. Instead, use "`~Figure.add_axes`,
-        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an axes.
+        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an Axes.
         """)
 
     def _get_dpi(self):
@@ -2504,7 +2504,7 @@ class Figure(FigureBase):
         Parameters
         ----------
         w_pad : float
-            Width padding in inches.  This is the pad around axes
+            Width padding in inches.  This is the pad around Axes
             and is meant to make sure there is enough room for fonts to
             look good.  Defaults to 3 pts = 0.04167 inches
 
@@ -2618,8 +2618,8 @@ class Figure(FigureBase):
 
         Notes
         -----
-        figimage complements the axes image (`~matplotlib.axes.Axes.imshow`)
-        which will be resampled to fit the current axes.  If you want
+        figimage complements the Axes image (`~matplotlib.axes.Axes.imshow`)
+        which will be resampled to fit the current Axes.  If you want
         a resampled image to fill the entire figure, you can define an
         `~matplotlib.axes.Axes` with extent [0, 0, 1, 1].
 
@@ -2779,7 +2779,7 @@ class Figure(FigureBase):
         Clear the figure.
 
         Set *keep_observers* to True if, for example,
-        a gui widget is tracking the axes in the figure.
+        a gui widget is tracking the Axes in the figure.
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry()
@@ -2910,7 +2910,7 @@ class Figure(FigureBase):
         self.stale = True
 
     def add_axobserver(self, func):
-        """Whenever the axes state change, ``func(self)`` will be called."""
+        """Whenever the Axes state change, ``func(self)`` will be called."""
         # Connect a wrapper lambda and not func itself, to avoid it being
         # weakref-collected.
         self._axobservers.connect("_axes_change_event", lambda arg: func(arg))
@@ -2998,7 +2998,7 @@ class Figure(FigureBase):
             this is unset is documented under *fname*.
 
         transparent : bool
-            If *True*, the axes patches will all be transparent; the
+            If *True*, the Axes patches will all be transparent; the
             figure patch will also be transparent unless facecolor
             and/or edgecolor are specified via kwargs.
             This is useful, for example, for displaying
@@ -3139,7 +3139,7 @@ class Figure(FigureBase):
 
     def execute_constrained_layout(self, renderer=None):
         """
-        Use ``layoutgrid`` to determine pos positions within axes.
+        Use ``layoutgrid`` to determine pos positions within Axes.
 
         See also `.set_constrained_layout_pads`.
         """
@@ -3172,7 +3172,7 @@ class Figure(FigureBase):
         """
         Adjust the padding between and around subplots.
 
-        To exclude an artist on the axes from the bounding box calculation
+        To exclude an artist on the Axes from the bounding box calculation
         that determines the subplot parameters (i.e. legend, or annotation),
         set ``a.set_in_layout(False)`` for that artist.
 
@@ -3242,7 +3242,7 @@ def figaspect(arg):
 
     Notes
     -----
-    If you want to create an axes within the figure, that still preserves the
+    If you want to create an Axes within the figure, that still preserves the
     aspect ratio, be sure to create it with equal width and height. See
     examples below.
 
