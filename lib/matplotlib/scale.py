@@ -256,12 +256,12 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    @cbook.deprecated("3.3", alternative="scale.LogTransform")
+    @_api.deprecated("3.3", alternative="scale.LogTransform")
     @property
     def LogTransform(self):
         return LogTransform
 
-    @cbook.deprecated("3.3", alternative="scale.InvertedLogTransform")
+    @_api.deprecated("3.3", alternative="scale.InvertedLogTransform")
     @property
     def InvertedLogTransform(self):
         return InvertedLogTransform
@@ -452,12 +452,12 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    @cbook.deprecated("3.3", alternative="scale.SymmetricalLogTransform")
+    @_api.deprecated("3.3", alternative="scale.SymmetricalLogTransform")
     @property
     def SymmetricalLogTransform(self):
         return SymmetricalLogTransform
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.3", alternative="scale.InvertedSymmetricalLogTransform")
     @property
     def InvertedSymmetricalLogTransform(self):

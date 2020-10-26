@@ -40,7 +40,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, dviread, rcParams
+from matplotlib import _api, cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -214,7 +214,7 @@ class TexManager:
     _re_vbox = re.compile(
         r"MatplotlibBox:\(([\d.]+)pt\+([\d.]+)pt\)x([\d.]+)pt")
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def make_tex_preview(self, tex, fontsize):
         """
         Generate a tex file to render the tex string at a specific font size.
@@ -301,7 +301,7 @@ class TexManager:
                 (Path(tmpdir) / Path(dvifile).name).replace(dvifile)
         return dvifile
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def make_dvi_preview(self, tex, fontsize):
         """
         Generate a dvi file containing latex's layout of tex string.

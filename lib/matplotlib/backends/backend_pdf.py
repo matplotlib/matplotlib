@@ -24,7 +24,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _text_layout, cbook
+from matplotlib import _api, _text_layout, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
@@ -716,7 +716,7 @@ class PdfFile:
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     @property
     def used_characters(self):
         return self.file._character_tracker.used_characters
@@ -1844,7 +1844,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.gc = self.new_gc()
         self.image_dpi = image_dpi
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     @property
     def mathtext_parser(self):
         return MathTextParser("Pdf")
@@ -1879,12 +1879,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         gc._fillcolor = orig_fill
         gc._effective_alphas = orig_alphas
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def track_characters(self, *args, **kwargs):
         """Keep track of which characters are required from each font."""
         self.file._character_tracker.track(*args, **kwargs)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def merge_used_characters(self, *args, **kwargs):
         self.file._character_tracker.merge(*args, **kwargs)
 

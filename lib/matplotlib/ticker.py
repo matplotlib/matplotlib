@@ -293,7 +293,7 @@ class Formatter(TickHelper):
         pass
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class IndexFormatter(Formatter):
     """
     Format the position x to the nearest i-th label where ``i = int(x + 0.5)``.
@@ -431,7 +431,7 @@ class StrMethodFormatter(Formatter):
         return self.fmt.format(x=x, pos=pos)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class OldScalarFormatter(Formatter):
     """
     Tick location is a plain old number.
@@ -1753,7 +1753,7 @@ class Locator(TickHelper):
         """
         return mtransforms.nonsingular(vmin, vmax)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def pan(self, numsteps):
         """Pan numticks (can be positive or negative)"""
         ticks = self()
@@ -1771,7 +1771,7 @@ class Locator(TickHelper):
         vmax += step
         self.axis.set_view_interval(vmin, vmax, ignore=True)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def zoom(self, direction):
         """Zoom in/out on axis; if direction is >0 zoom in, else zoom out."""
 
@@ -1781,7 +1781,7 @@ class Locator(TickHelper):
         step = 0.1 * interval * direction
         self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def refresh(self):
         """Refresh internal information based on current limits."""
 
@@ -2947,7 +2947,7 @@ class AutoMinorLocator(Locator):
                                   '%s type.' % type(self))
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class OldAutoLocator(Locator):
     """
     On autoscale this class picks the best MultipleLocator to set the

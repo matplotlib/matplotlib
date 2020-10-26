@@ -737,7 +737,7 @@ class SubplotSpec:
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
 
-    @cbook.deprecated("3.3", alternative="rowspan, colspan")
+    @_api.deprecated("3.3", alternative="rowspan, colspan")
     def get_rows_columns(self):
         """
         Return the subplot row and column numbers as a tuple

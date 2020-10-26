@@ -18,7 +18,7 @@ from pyparsing import (
     ParseResults, QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
 
 import matplotlib as mpl
-from . import cbook
+from . import _api, cbook
 from ._mathtext_data import (
     latex_to_bakoma, latex_to_standard, stix_virtual_fonts, tex2uni)
 from .afm import AFM
@@ -91,7 +91,7 @@ class Fonts:
         self.mathtext_backend = mathtext_backend
         self.used_characters = {}
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def destroy(self):
         """
         Fix any cyclical references before the object is about
@@ -234,7 +234,7 @@ class TruetypeFonts(Fonts):
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def destroy(self):
         self.glyphd = None
         super().destroy()
@@ -1577,43 +1577,43 @@ class Glue(Node):
 # Some convenient ways to get common kinds of glue
 
 
-@cbook.deprecated("3.3", alternative="Glue('fil')")
+@_api.deprecated("3.3", alternative="Glue('fil')")
 class Fil(Glue):
     def __init__(self):
         super().__init__('fil')
 
 
-@cbook.deprecated("3.3", alternative="Glue('fill')")
+@_api.deprecated("3.3", alternative="Glue('fill')")
 class Fill(Glue):
     def __init__(self):
         super().__init__('fill')
 
 
-@cbook.deprecated("3.3", alternative="Glue('filll')")
+@_api.deprecated("3.3", alternative="Glue('filll')")
 class Filll(Glue):
     def __init__(self):
         super().__init__('filll')
 
 
-@cbook.deprecated("3.3", alternative="Glue('neg_fil')")
+@_api.deprecated("3.3", alternative="Glue('neg_fil')")
 class NegFil(Glue):
     def __init__(self):
         super().__init__('neg_fil')
 
 
-@cbook.deprecated("3.3", alternative="Glue('neg_fill')")
+@_api.deprecated("3.3", alternative="Glue('neg_fill')")
 class NegFill(Glue):
     def __init__(self):
         super().__init__('neg_fill')
 
 
-@cbook.deprecated("3.3", alternative="Glue('neg_filll')")
+@_api.deprecated("3.3", alternative="Glue('neg_filll')")
 class NegFilll(Glue):
     def __init__(self):
         super().__init__('neg_filll')
 
 
-@cbook.deprecated("3.3", alternative="Glue('ss')")
+@_api.deprecated("3.3", alternative="Glue('ss')")
 class SsGlue(Glue):
     def __init__(self):
         super().__init__('ss')

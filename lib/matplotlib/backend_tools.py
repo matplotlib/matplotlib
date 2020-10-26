@@ -23,7 +23,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
-import matplotlib.cbook as cbook
+from matplotlib import _api, cbook
 
 _log = logging.getLogger(__name__)
 
@@ -404,7 +404,7 @@ class _ToolEnableAllNavigation(ToolBase):
         mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class ToolEnableAllNavigation(_ToolEnableAllNavigation):
     pass
 
@@ -419,7 +419,7 @@ class _ToolEnableNavigation(ToolBase):
         mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class ToolEnableNavigation(_ToolEnableNavigation):
     pass
 
@@ -619,7 +619,7 @@ class ToolViewsPositions(ToolBase):
             if a not in self.home_views[figure]:
                 self.home_views[figure][a] = a._get_view()
 
-    @cbook.deprecated("3.3", alternative="self.figure.canvas.draw_idle()")
+    @_api.deprecated("3.3", alternative="self.figure.canvas.draw_idle()")
     def refresh_locators(self):
         """Redraw the canvases, update the locators."""
         self._refresh_locators()

@@ -8,7 +8,7 @@ import warnings
 
 import numpy as np
 
-import matplotlib.cbook as cbook
+from matplotlib import _api, cbook
 
 
 # same algorithm as 3.8's math.comb
@@ -593,7 +593,7 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     return path_left, path_right
 
 
-@cbook.deprecated(
+@_api.deprecated(
     "3.3", alternative="Path.cleaned() and remove the final STOP if needed")
 def make_path_regular(p):
     """
@@ -611,7 +611,7 @@ def make_path_regular(p):
         return p
 
 
-@cbook.deprecated("3.3", alternative="Path.make_compound_path()")
+@_api.deprecated("3.3", alternative="Path.make_compound_path()")
 def concatenate_paths(paths):
     """Concatenate a list of paths into a single path."""
     from .path import Path

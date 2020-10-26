@@ -1,7 +1,7 @@
 import functools
 import uuid
 
-from matplotlib import cbook, docstring
+from matplotlib import _api, cbook, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -47,7 +47,7 @@ class SubplotBase:
                 (axes_class,),
                 self.__getstate__())
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.4", alternative="get_subplotspec",
         addendum="(get_subplotspec returns a SubplotSpec instance.)")
     def get_geometry(self):
@@ -55,7 +55,7 @@ class SubplotBase:
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1 + 1  # for compatibility
 
-    @cbook.deprecated("3.4", alternative="set_subplotspec")
+    @_api.deprecated("3.4", alternative="set_subplotspec")
     def change_geometry(self, numrows, numcols, num):
         """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols,
@@ -76,51 +76,51 @@ class SubplotBase:
         """Return the `.GridSpec` instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.4", alternative="get_subplotspec().get_position(self.figure)")
     @property
     def figbox(self):
         return self.get_subplotspec().get_position(self.figure)
 
-    @cbook.deprecated("3.4", alternative="get_gridspec().nrows")
+    @_api.deprecated("3.4", alternative="get_gridspec().nrows")
     @property
     def numRows(self):
         return self.get_gridspec().nrows
 
-    @cbook.deprecated("3.4", alternative="get_gridspec().ncols")
+    @_api.deprecated("3.4", alternative="get_gridspec().ncols")
     @property
     def numCols(self):
         return self.get_gridspec().ncols
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def update_params(self):
         """Update the subplot position from ``self.figure.subplotpars``."""
         # Now a no-op, as figbox/numRows/numCols are (deprecated) auto-updating
         # properties.
 
-    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
+    @_api.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
     @property
     def rowNum(self):
         return self.get_subplotspec().rowspan.start
 
-    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().colspan.start")
+    @_api.deprecated("3.2", alternative="ax.get_subplotspec().colspan.start")
     @property
     def colNum(self):
         return self.get_subplotspec().colspan.start
 
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_first_row()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_first_row()")
     def is_first_row(self):
         return self.get_subplotspec().rowspan.start == 0
 
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_last_row()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_last_row()")
     def is_last_row(self):
         return self.get_subplotspec().rowspan.stop == self.get_gridspec().nrows
 
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_first_col()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_first_col()")
     def is_first_col(self):
         return self.get_subplotspec().colspan.start == 0
 
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_last_col()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_last_col()")
     def is_last_col(self):
         return self.get_subplotspec().colspan.stop == self.get_gridspec().ncols
 

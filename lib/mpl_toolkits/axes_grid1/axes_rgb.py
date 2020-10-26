@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from .axes_divider import make_axes_locatable, Size
 from .mpl_axes import Axes
 
@@ -56,7 +56,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True, **kwargs):
     return ax_rgb
 
 
-@cbook.deprecated("3.3", alternative="ax.imshow(np.dstack([r, g, b]))")
+@_api.deprecated("3.3", alternative="ax.imshow(np.dstack([r, g, b]))")
 def imshow_rgb(ax, r, g, b, **kwargs):
     return ax.imshow(np.dstack([r, g, b]), **kwargs)
 
@@ -120,7 +120,7 @@ class RGBAxes:
             ax1.axis[:].line.set_color("w")
             ax1.axis[:].major_ticks.set_markeredgecolor("w")
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def add_RGB_to_figure(self):
         """Add red, green and blue axes to the RGB composite's axes figure."""
         self.RGB.get_figure().add_axes(self.R)
@@ -166,6 +166,6 @@ class RGBAxes:
         return im_rgb, im_r, im_g, im_b
 
 
-@cbook.deprecated("3.3", alternative="RGBAxes")
+@_api.deprecated("3.3", alternative="RGBAxes")
 class RGBAxesBase(RGBAxes):
     pass

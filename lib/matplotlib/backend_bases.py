@@ -43,7 +43,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    backend_tools as tools, cbook, colors, textpath, tight_bbox,
+    _api, backend_tools as tools, cbook, colors, textpath, tight_bbox,
     transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
@@ -2254,7 +2254,7 @@ class FigureCanvasBase:
         """
         return rcParams['savefig.format']
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.4", alternative="manager.get_window_title or GUI-specific methods")
     def get_window_title(self):
         """
@@ -2264,7 +2264,7 @@ class FigureCanvasBase:
         if self.manager is not None:
             return self.manager.get_window_title()
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.4", alternative="manager.set_window_title or GUI-specific methods")
     def set_window_title(self, title):
         """
@@ -2945,7 +2945,7 @@ class NavigationToolbar2:
         self.set_history_buttons()
         self._update_view()
 
-    @cbook.deprecated("3.3", alternative="__init__")
+    @_api.deprecated("3.3", alternative="__init__")
     def _init_toolbar(self):
         """
         This is where you actually build the GUI widgets (called by
@@ -3050,11 +3050,11 @@ class NavigationToolbar2:
             elif event.name == "button_release_event":
                 self.release_zoom(event)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def press(self, event):
         """Called whenever a mouse button is pressed."""
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def release(self, event):
         """Callback for mouse button release."""
 
@@ -3247,7 +3247,7 @@ class NavigationToolbar2:
                  for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
 
-    @cbook.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
+    @_api.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
     def draw(self):
         """Redraw the canvases, update the locators."""
         self._draw()
@@ -3471,7 +3471,7 @@ class ToolContainerBase:
         raise NotImplementedError
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusbarBase:
     """Base class for the statusbar."""
     def __init__(self, toolmanager):

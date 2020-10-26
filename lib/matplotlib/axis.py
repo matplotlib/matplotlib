@@ -194,7 +194,7 @@ class Tick(martist.Artist):
         self.update_position(loc)
 
     @property
-    @cbook.deprecated("3.1", alternative="Tick.label1", pending=True)
+    @_api.deprecated("3.1", alternative="Tick.label1", pending=True)
     def label(self):
         return self.label1
 
@@ -796,7 +796,7 @@ class Axis(martist.Artist):
         self.set_units(None)
         self.stale = True
 
-    @cbook.deprecated("3.4", alternative="Axis.clear()")
+    @_api.deprecated("3.4", alternative="Axis.clear()")
     def cla(self):
         """Clear this axis."""
         return self.clear()
@@ -1011,13 +1011,13 @@ class Axis(martist.Artist):
             bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
         return bbox, bbox2
 
-    @cbook.deprecated("3.2")
+    @_api.deprecated("3.2")
     def set_smart_bounds(self, value):
         """Set the axis to have smart bounds."""
         self._smart_bounds = value
         self.stale = True
 
-    @cbook.deprecated("3.2")
+    @_api.deprecated("3.2")
     def get_smart_bounds(self):
         """Return whether the axis has smart bounds."""
         return self._smart_bounds
@@ -1900,12 +1900,12 @@ class Axis(martist.Artist):
         """
         raise NotImplementedError('Derived must override')
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def pan(self, numsteps):
         """Pan by *numsteps* (can be positive or negative)."""
         self.major.locator.pan(numsteps)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def zoom(self, direction):
         """Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out."""
         self.major.locator.zoom(direction)

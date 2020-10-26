@@ -30,7 +30,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import cbook, rcParams
+from matplotlib import _api, cbook, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -952,7 +952,7 @@ class PsfontsMap:
                 encoding=encoding, filename=filename)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class Encoding:
     r"""
     Parse a \*.enc file referenced from a psfonts.map style file.

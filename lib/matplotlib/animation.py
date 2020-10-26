@@ -445,7 +445,7 @@ class FileMovieWriter(MovieWriter):
         if self._tmpdir:
             self._tmpdir.cleanup()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     @property
     def clear_temp(self):
         return self._clear_temp
@@ -641,7 +641,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
 
 
 # Base class of avconv information.  AVConv has identical arguments to FFMpeg.
-@cbook.deprecated('3.3')
+@_api.deprecated('3.3')
 class AVConvBase(FFMpegBase):
     """
     Mixin class for avconv output.

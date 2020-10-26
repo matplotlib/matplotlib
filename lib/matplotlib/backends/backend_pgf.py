@@ -17,7 +17,7 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, font_manager as fm
+from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
     GraphicsContextBase, RendererBase)
@@ -313,7 +313,7 @@ class LatexManager:
         self._expect("*pgf_backend_query_start")
         self._expect_prompt()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def latex_stdin_utf8(self):
         return self.latex.stdin
 
@@ -743,27 +743,27 @@ class RendererPgf(RendererBase):
         return points * mpl_pt_to_in * self.dpi
 
 
-@cbook.deprecated("3.3", alternative="GraphicsContextBase")
+@_api.deprecated("3.3", alternative="GraphicsContextBase")
 class GraphicsContextPgf(GraphicsContextBase):
     pass
 
 
-@cbook.deprecated("3.4")
+@_api.deprecated("3.4")
 class TmpDirCleaner:
     _remaining_tmpdirs = set()
 
     @cbook._classproperty
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def remaining_tmpdirs(cls):
         return cls._remaining_tmpdirs
 
     @staticmethod
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def add(tmpdir):
         TmpDirCleaner._remaining_tmpdirs.add(tmpdir)
 
     @staticmethod
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     @atexit.register
     def cleanup_remaining_tmpdirs():
         for tmpdir in TmpDirCleaner._remaining_tmpdirs:

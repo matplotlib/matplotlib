@@ -7,7 +7,7 @@ import sys
 import traceback
 
 import matplotlib as mpl
-from matplotlib import backend_tools, cbook
+from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
@@ -683,17 +683,17 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
+    @_api.deprecated("3.3", alternative="self.canvas.parent()")
     @property
     def parent(self):
         return self.canvas.parent()
 
-    @cbook.deprecated("3.3", alternative="self.canvas.setParent()")
+    @_api.deprecated("3.3", alternative="self.canvas.setParent()")
     @parent.setter
     def parent(self, value):
         pass
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
     @property
     def basedir(self):
@@ -956,7 +956,7 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         self.widgetForAction(self._message_action).setText(s)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
