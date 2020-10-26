@@ -1,0 +1,5 @@
+Unsupported arguments for ``axis()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing more than one positional argument or unsupported keyword arguments to
+`~.Axes.axis()` now raises a ``TypeError`` (such arguments used to be silently
+ignored).
