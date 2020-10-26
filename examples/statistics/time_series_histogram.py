@@ -31,7 +31,7 @@ import numpy.matlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
-fig, axes = plt.subplots(nrows=3, figsize=(6, 8))
+fig, axes = plt.subplots(nrows=3, figsize=(6, 8), constrained_layout=True)
 
 # Make some data; a 1D random walk + small fraction of sine waves
 num_series = 1000
@@ -80,15 +80,17 @@ x_fine = np.matlib.repmat(x_fine, num_series, 1).flatten()
 cmap = copy(plt.cm.plasma)
 cmap.set_bad(cmap(0))
 h, xedges, yedges = np.histogram2d(x_fine, y_fine, bins=[400, 100])
-axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap,
-                   norm=LogNorm(vmax=1.5e2), rasterized=True)
+pcm = axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap,
+                         norm=LogNorm(vmax=1.5e2), rasterized=True)
+fig.colorbar(pcm, ax=axes[1], label="# points", pad=0)
 axes[1].set_title("2d histogram and log color scale")
 
 # Same data but on linear color scale
-axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap, vmax=1.5e2, rasterized=True)
+pcm = axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap,
+                         vmax=1.5e2, rasterized=True)
+fig.colorbar(pcm, ax=axes[2], label="# points", pad=0)
 axes[2].set_title("2d histogram and linear color scale")
+
 toc = time.time()
 print(f"{toc-tic:.3f} sec. elapsed")
-
-fig.tight_layout()
 plt.show()
