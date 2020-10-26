@@ -843,11 +843,6 @@ class Axes(_AxesBase):
 
             >>> axline((0, 0), (1, 1), linewidth=4, color='r')
         """
-        if (xy2 is None and slope is None or
-                xy2 is not None and slope is not None):
-            raise TypeError(
-                "Exactly one of 'xy2' and 'slope' must be given")
-
         if slope is not None and (self.get_xscale() != 'linear' or
                                   self.get_yscale() != 'linear'):
             raise TypeError("'slope' cannot be used with non-linear scales")
