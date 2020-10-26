@@ -156,7 +156,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 #
 # So one can do (OO-style)
 
-x = np.linspace(0, 2, 100)  # This is data for plotting.  
+x = np.linspace(0, 2, 100)  # This is data for plotting.
 
 # Note that even in the OO-style, we use `.pyplot.figure` to create the figure.
 fig, ax = plt.subplots()  # Create a figure and an axes.
@@ -602,10 +602,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # window.
 #
 # Using a blocking function has benefits to users. Suppose a user
-# needs a script that plots the contents of a file to the screen. 
-# The user may want to look at that plot, and then end the script. 
-# Without a blocking command such as ``show()``, the script would 
-# flash up the plot and then end immediately, leaving nothing on 
+# needs a script that plots the contents of a file to the screen.
+# The user may want to look at that plot, and then end the script.
+# Without a blocking command such as ``show()``, the script would
+# flash up the plot and then end immediately, leaving nothing on
 # the screen.
 #
 # In addition, non-interactive mode delays all drawing until
@@ -694,10 +694,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #   plt.show()
 #
 # Matplotlib currently defaults to a conservative simplification
-# threshold of ``1/9``. To change default settings to use a different 
-# value, change the :file:`matplotlibrc` file. Alternatively, users 
-# can create a new style for interactive plotting (with maxmial 
-# simplification) and another style for publication quality plotting 
+# threshold of ``1/9``. To change default settings to use a different
+# value, change the :file:`matplotlibrc` file. Alternatively, users
+# can create a new style for interactive plotting (with maxmial
+# simplification) and another style for publication quality plotting
 # (with minimal simplification) and activate them as necessary. See 
 # :doc:`/tutorials/introductory/customizing` for instructions on 
 # how to perform these actions.
