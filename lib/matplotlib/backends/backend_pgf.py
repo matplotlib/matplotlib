@@ -134,7 +134,7 @@ def _font_properties_str(prop):
           and mpl.rcParams["pgf.texsystem"] != "pdflatex"):
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
-        pass  # print warning?
+        _log.warning("Ignoring unknown font: %s", family)
 
     size = prop.get_size_in_points()
     commands.append(r"\fontsize{%f}{%f}" % (size, size * 1.2))
