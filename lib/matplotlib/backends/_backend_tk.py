@@ -52,10 +52,10 @@ _blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
 
 def _blit(argsid):
     """
-    Thin wrapper to blit via tkapp.call
+    Thin wrapper to blit called via tkapp.call.
 
     *argsid* is a unique string identifier to fetch the correct arguments from
-    the _blit_args dict, since args cannot be passed directly
+    the ``_blit_args`` dict, since arguments cannot be passed directly.
 
     photoimage blanking must occur in the same event and thread as blitting
     to avoid flickering.
@@ -106,7 +106,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     args = photoimage, dataptr, offsets, bboxptr, blank
     # Need a unique key to avoid thread races.
     # Again, make the key a string to avoid string parsing in _blit.
-    argsid = repr(id(args))
+    argsid = str(id(args))
     _blit_args[argsid] = args
 
     try:
