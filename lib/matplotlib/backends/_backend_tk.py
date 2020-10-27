@@ -1,3 +1,4 @@
+import uuid
 from contextlib import contextmanager
 import logging
 import math
@@ -46,7 +47,7 @@ def _restore_foreground_window_at_end():
 
 _blit_args = {}
 # Initialize to a non-empty string that is not a Tcl command
-_blit_tcl_name = "29345091836409813"
+_blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
 
 
 def _blit(argsid):
@@ -108,12 +109,10 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     argsid = repr(id(args))
     _blit_args[argsid] = args
 
-    global _blit_tcl_name
     try:
         photoimage.tk.call(_blit_tcl_name, argsid)
     except tk.TclError:
         # register _blit with code copied from tkinter.Misc._register
-        _blit_tcl_name = repr(id(_blit)) + _blit.__name__
         photoimage.tk.createcommand(_blit_tcl_name, _blit)
         photoimage.tk.call(_blit_tcl_name, argsid)
 
