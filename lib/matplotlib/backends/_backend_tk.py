@@ -111,8 +111,9 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
     try:
         photoimage.tk.call(_blit_tcl_name, argsid)
-    except tk.TclError:
-        # register _blit with code copied from tkinter.Misc._register
+    except tk.TclError as e:
+        if "invalid command name" not in str(e):
+            raise
         photoimage.tk.createcommand(_blit_tcl_name, _blit)
         photoimage.tk.call(_blit_tcl_name, argsid)
 
