@@ -71,7 +71,6 @@ import importlib.util
 import io
 import json
 import sys
-import threading
 from unittest import TestCase
 
 import matplotlib as mpl
