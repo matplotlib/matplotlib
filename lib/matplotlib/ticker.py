@@ -1117,16 +1117,11 @@ class LogFormatterExponent(LogFormatter):
     """
     Format values for log axis using ``exponent = log_base(value)``.
     """
+
     def _num_to_string(self, x, vmin, vmax):
         fx = math.log(x) / math.log(self._base)
-        if abs(fx) > 10000:
-            s = '%1.0g' % fx
-        elif abs(fx) < 1:
-            s = '%1.0g' % fx
-        else:
-            fd = math.log(vmax - vmin) / math.log(self._base)
-            s = self._pprint_val(fx, fd)
-        return s
+        return (f"{fx:1.0g}" if abs(fx) < 1 else
+                f"{fx:1.2f}".rstrip("0").rstrip("."))
 
 
 class LogFormatterMathtext(LogFormatter):
