@@ -33,8 +33,18 @@ class Patch(artist.Artist):
     are *None*, they default to their rc params setting.
     """
     zorder = 1
-    validCap = mlines.Line2D.validCap
-    validJoin = mlines.Line2D.validJoin
+
+    @_api.deprecated("3.4")
+    @_api.classproperty
+    def validCap(cls):
+        with _api.suppress_matplotlib_deprecation_warning():
+            return mlines.Line2D.validCap
+
+    @_api.deprecated("3.4")
+    @_api.classproperty
+    def validJoin(cls):
+        with _api.suppress_matplotlib_deprecation_warning():
+            return mlines.Line2D.validJoin
 
     # Whether to draw an edge by default.  Set on a
     # subclass-by-subclass basis.

@@ -3,7 +3,6 @@ The 2D line class which can draw with a variety of line styles, markers and
 colors.
 """
 
-# TODO: expose cap and join style attrs
 from numbers import Integral, Number, Real
 import logging
 
@@ -251,8 +250,16 @@ class Line2D(Artist):
     fillStyles = MarkerStyle.fillstyles
 
     zorder = 2
-    validCap = ('butt', 'round', 'projecting')
-    validJoin = ('miter', 'round', 'bevel')
+
+    @_api.deprecated("3.4")
+    @_api.classproperty
+    def validCap(cls):
+        return ('butt', 'round', 'projecting')
+
+    @_api.deprecated("3.4")
+    @_api.classproperty
+    def validJoin(cls):
+        return ('miter', 'round', 'bevel')
 
     def __str__(self):
         if self._label != "":

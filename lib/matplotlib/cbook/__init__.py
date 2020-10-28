@@ -29,11 +29,13 @@ import numpy as np
 
 import matplotlib
 from matplotlib import _c_internal_utils
-from matplotlib._api import warn_external as _warn_external
+from matplotlib._api import (
+    warn_external as _warn_external, classproperty as _classproperty)
 from matplotlib._api.deprecation import (
     deprecated, warn_deprecated,
     _rename_parameter, _delete_parameter, _make_keyword_only,
     _deprecate_method_override, _deprecate_privatize_attribute,
+    suppress_matplotlib_deprecation_warning as
     _suppress_matplotlib_deprecation_warning,
     MatplotlibDeprecationWarning, mplDeprecation)
 
@@ -2260,30 +2262,6 @@ def _check_isinstance(_types, **kwargs):
                     ", ".join(names[:-1]) + " or " + names[-1]
                     if len(names) > 1 else names[0],
                     type_name(type(v))))
-
-
-class _classproperty:
-    """
-    Like `property`, but also triggers on access via the class, and it is the
-    *class* that's passed as argument.
-
-    Examples
-    --------
-    ::
-
-        class C:
-            @classproperty
-            def foo(cls):
-                return cls.__name__
-
-        assert C.foo == "C"
-    """
-
-    def __init__(self, fget):
-        self._fget = fget
-
-    def __get__(self, instance, owner):
-        return self._fget(owner)
 
 
 def _backend_module_name(name):
