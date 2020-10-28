@@ -27,37 +27,35 @@ Image Artists
    BboxImage
 
 
-Resampling
-~~~~~~~~~~
+Resampling and Colormapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When Matplotlib rasterizes an image to save / display a Figure,
-we need to, in general, resample the data (either up or down) in
-addition to normalizing and color mapping it.  This is because the
-exact size of the input, in "data" pixels, will not match the size, in
-"screen" pixels, of the output.  The details of how we do the
-resampling is controlled by the *interpolation* specified.  This
-resampling process can introduce a variety of artifacts and the
-default interpolation is chosen to avoid aliasing in common cases (see
-:doc:`/gallery/images_contours_and_fields/image_antialiasing`).
+When Matplotlib rasterizes an image to save / display a Figure, we
+need to resample the user supplied data because the size of the input,
+in "data" pixels, will in general not match the size, in "screen"
+pixels, of the output.  This resampling process can introduce a
+variety of artifacts and the default interpolation is chosen to avoid
+aliasing in common cases (see
+:doc:`/gallery/images_contours_and_fields/image_antialiasing`).  The
+details of how we do the resampling is controlled by the
+*interpolation* kwarg and, depending on the kernel, may also
+implicitly smooth the user data.
 
-Colormapping
-~~~~~~~~~~~~
-
-The processing steps for rendering a pseudo color image are:
+The processing steps for rendering a pseudo color image are currently:
 
 1. resample the user input to the required dimensions
 2. normalize the user data via a `~.colors.Normalize` instance
 3. colormap from the normalized data to RGBA via a `~.colors.Colormap` instance
 
 Prior to Matplotlib 2.0 we did the normalization and colormapping
-first and then resampled to fit the screen.  However this can produce
-artifacts in the visualization when the data is changing close to the
-full range on the scale of a few screen pixels.  Because most
-colormaps are not straight lines in RGB space the interpolated values
-"cut the corner" and produce colors in the output image that are not
-present in the colormap.  To fix this problem we re-ordered the
-processing, however this has lead to a number of subtle issues with
-floating point discussed below.
+first and then resampled in RGBA space to fit the screen.  However,
+colormaps are not straight lines in RGB space the RGBA interpolated
+values may "cut the corner" and produce colors in the output image
+that are not present in the colormap when the data is changing close
+to the full range on the scale of a few screen pixels.  To fix this
+problem we re-ordered the processing in 2.0.
+
+
 
 
 What you need to know about Floating Point Arithmetic for Colormapping
