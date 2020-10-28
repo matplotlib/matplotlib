@@ -5,13 +5,12 @@ Artist tutorial
 
 Using Artist objects to render on the canvas.
 
-There are three layers to the matplotlib API.
+There are three layers to the Matplotlib API.
 
 * the :class:`matplotlib.backend_bases.FigureCanvas` is the area onto which
   the figure is drawn
-* the :class:`matplotlib.backend_bases.Renderer` is
-  the object which knows how to draw on the
-  :class:`~matplotlib.backend_bases.FigureCanvas`
+* the :class:`matplotlib.backend_bases.Renderer` is the object which knows how
+  to draw on the :class:`~matplotlib.backend_bases.FigureCanvas`
 * and the :class:`matplotlib.artist.Artist` is the object that knows how to use
   a renderer to paint onto the canvas.
 
@@ -47,7 +46,7 @@ for us::
     ax = fig.add_subplot(2, 1, 1) # two rows, one column, first plot
 
 The :class:`~matplotlib.axes.Axes` is probably the most important
-class in the matplotlib API, and the one you will be working with most
+class in the Matplotlib API, and the one you will be working with most
 of the time.  This is because the ``Axes`` is the plotting area into
 which most of the objects go, and the ``Axes`` has many special helper
 methods (:meth:`~matplotlib.axes.Axes.plot`,
@@ -83,8 +82,8 @@ In this example, ``ax`` is the ``Axes`` instance created by the
 ``fig.add_subplot`` call above (remember ``Subplot`` is just a
 subclass of ``Axes``) and when you call ``ax.plot``, it creates a
 ``Line2D`` instance and adds it to the :attr:`Axes.lines
-<matplotlib.axes.Axes.lines>` list.  In the interactive `ipython
-<http://ipython.org/>`_ session below, you can see that the
+<matplotlib.axes.Axes.lines>` list.  In the interactive `IPython
+<https://ipython.org/>`_ session below, you can see that the
 ``Axes.lines`` list is length one and contains the same line that was
 returned by the ``line, = ax.plot...`` call:
 
@@ -170,7 +169,7 @@ plt.show()
 # ==========  =================================================================
 # alpha       The transparency - a scalar from 0-1
 # animated    A boolean that is used to facilitate animated drawing
-# axes        The axes that the Artist lives in, possibly None
+# axes        The Axes that the Artist lives in, possibly None
 # clip_box    The bounding box that clips the Artist
 # clip_on     Whether clipping is enabled
 # clip_path   The path the artist is clipped to
@@ -183,7 +182,7 @@ plt.show()
 # visible     A boolean whether the artist should be drawn
 # zorder      A number which determines the drawing order
 # rasterized  Boolean; Turns vectors into raster graphics (for compression &
-#             eps transparency)
+#             EPS transparency)
 # ==========  =================================================================
 #
 # Each of the properties is accessed with an old-fashioned setter or
@@ -307,17 +306,17 @@ plt.show()
 #     In [160]: print(fig.axes)
 #     [<AxesSubplot:>, <matplotlib.axes._axes.Axes object at 0x7f0768702be0>]
 #
-# Because the figure maintains the concept of the "current axes" (see
+# Because the figure maintains the concept of the "current Axes" (see
 # :meth:`Figure.gca <matplotlib.figure.Figure.gca>` and
 # :meth:`Figure.sca <matplotlib.figure.Figure.sca>`) to support the
-# pylab/pyplot state machine, you should not insert or remove axes
-# directly from the axes list, but rather use the
+# pylab/pyplot state machine, you should not insert or remove Axes
+# directly from the Axes list, but rather use the
 # :meth:`~matplotlib.figure.Figure.add_subplot` and
 # :meth:`~matplotlib.figure.Figure.add_axes` methods to insert, and the
 # :meth:`~matplotlib.figure.Figure.delaxes` method to delete.  You are
-# free however, to iterate over the list of axes or index into it to get
+# free however, to iterate over the list of Axes or index into it to get
 # access to ``Axes`` instances you want to customize.  Here is an
-# example which turns all the axes grids on::
+# example which turns all the Axes grids on::
 #
 #     for ax in fig.axes:
 #         ax.grid(True)
@@ -347,7 +346,7 @@ fig.lines.extend([l1, l2])
 plt.show()
 
 ###############################################################################
-# Here is a summary of the Artists the figure contains
+# Here is a summary of the Artists the Figure contains
 #
 # .. TODO: Add xrefs to this table
 #
@@ -547,7 +546,7 @@ plt.show()
 # ax.fill - shared area           Polygon               ax.patches
 # ax.hist - histograms            Rectangle             ax.patches
 # ax.imshow - image data          AxesImage             ax.images
-# ax.legend - axes legends        Legend                ax.legends
+# ax.legend - Axes legends        Legend                ax.legends
 # ax.plot - xy plots              Line2D                ax.lines
 # ax.scatter - scatter charts     PolygonCollection     ax.collections
 # ax.text - text                  Text                  ax.texts
@@ -661,7 +660,7 @@ axis.get_ticklines(minor=True)
 # ====================  =====================================================
 #
 # Here is an example, not recommended for its beauty, which customizes
-# the axes and tick properties
+# the Axes and Tick properties.
 
 # plt.figure creates a matplotlib.figure.Figure instance
 fig = plt.figure()
