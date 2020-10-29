@@ -348,21 +348,20 @@ plt.show()
 ###############################################################################
 # Here is a summary of the Artists the Figure contains
 #
-# .. TODO: Add xrefs to this table
-#
 # ================ ============================================================
 # Figure attribute Description
 # ================ ============================================================
-# axes             A list of Axes instances (includes Subplot)
-# patch            The Rectangle background
-# images           A list of FigureImage patches -
+# axes             A list of `~.axes.Axes` instances (includes Subplot)
+# patch            The `.Rectangle` background
+# images           A list of `.FigureImage` patches -
 #                  useful for raw pixel display
-# legends          A list of Figure Legend instances
-#                  (different from Axes.legends)
-# lines            A list of Figure Line2D instances
-#                  (rarely used, see Axes.lines)
-# patches          A list of Figure patches (rarely used, see Axes.patches)
-# texts            A list Figure Text instances
+# legends          A list of Figure `.Legend` instances
+#                  (different from ``Axes.legends``)
+# lines            A list of Figure `.Line2D` instances
+#                  (rarely used, see ``Axes.lines``)
+# patches          A list of Figure `.Patch`\s
+#                  (rarely used, see ``Axes.patches``)
+# texts            A list Figure `.Text` instances
 # ================ ============================================================
 #
 # .. _axes-container:
@@ -537,20 +536,21 @@ plt.show()
 # below summarizes a small sampling of them, the kinds of ``Artist`` they
 # create, and where they store them
 #
-# ==============================  ====================  =======================
-# Helper method                   Artist                Container
-# ==============================  ====================  =======================
-# ax.annotate - text annotations  Annotate              ax.texts
-# ax.bar  - bar charts            Rectangle             ax.patches
-# ax.errorbar - error bar plots   Line2D and Rectangle  ax.lines and ax.patches
-# ax.fill - shared area           Polygon               ax.patches
-# ax.hist - histograms            Rectangle             ax.patches
-# ax.imshow - image data          AxesImage             ax.images
-# ax.legend - Axes legends        Legend                ax.legends
-# ax.plot - xy plots              Line2D                ax.lines
-# ax.scatter - scatter charts     PolygonCollection     ax.collections
-# ax.text - text                  Text                  ax.texts
-# ==============================  ====================  =======================
+# =========================================  =================  ===============
+# Axes helper method                         Artist             Container
+# =========================================  =================  ===============
+# `~.axes.Axes.annotate` - text annotations  `.Annotation`      ax.texts
+# `~.axes.Axes.bar` - bar charts             `.Rectangle`       ax.patches
+# `~.axes.Axes.errorbar` - error bar plots   `.Line2D` and      ax.lines and
+#                                            `.Rectangle`       ax.patches
+# `~.axes.Axes.fill` - shared area           `.Polygon`         ax.patches
+# `~.axes.Axes.hist` - histograms            `.Rectangle`       ax.patches
+# `~.axes.Axes.imshow` - image data          `.AxesImage`       ax.images
+# `~.axes.Axes.legend` - Axes legends        `.Legend`          ax.legends
+# `~.axes.Axes.plot` - xy plots              `.Line2D`          ax.lines
+# `~.axes.Axes.scatter` - scatter charts     `.PolyCollection`  ax.collections
+# `~.axes.Axes.text` - text                  `.Text`            ax.texts
+# =========================================  =================  ===============
 #
 #
 # In addition to all of these ``Artists``, the ``Axes`` contains two
@@ -571,20 +571,20 @@ plt.show()
 #
 # Below is a summary of the Artists that the Axes contains
 #
-# ==============    ======================================
+# ==============    =========================================
 # Axes attribute    Description
-# ==============    ======================================
-# artists           A list of Artist instances
-# patch             Rectangle instance for Axes background
-# collections       A list of Collection instances
-# images            A list of AxesImage
-# legends           A list of Legend instances
-# lines             A list of Line2D instances
-# patches           A list of Patch instances
-# texts             A list of Text instances
-# xaxis             matplotlib.axis.XAxis instance
-# yaxis             matplotlib.axis.YAxis instance
-# ==============    ======================================
+# ==============    =========================================
+# artists           A list of `.Artist` instances
+# patch             `.Rectangle` instance for Axes background
+# collections       A list of `.Collection` instances
+# images            A list of `.AxesImage`
+# legends           A list of `.Legend` instances
+# lines             A list of `.Line2D` instances
+# patches           A list of `.Patch` instances
+# texts             A list of `.Text` instances
+# xaxis             A `matplotlib.axis.XAxis` instance
+# yaxis             A `matplotlib.axis.YAxis` instance
+# ==============    =========================================
 #
 # .. _axis-container:
 #
@@ -639,25 +639,32 @@ axis.get_ticklines(minor=True)
 # (these have corresponding setters where useful, such as
 # :meth:`~matplotlib.axis.Axis.set_major_formatter`.)
 #
-# ====================  =====================================================
-# Accessor method       Description
-# ====================  =====================================================
-# get_scale             The scale of the axis, e.g., 'log' or 'linear'
-# get_view_interval     The interval instance of the axis view limits
-# get_data_interval     The interval instance of the axis data limits
-# get_gridlines         A list of grid lines for the Axis
-# get_label             The axis label - a Text instance
-# get_ticklabels        A list of Text instances - keyword minor=True|False
-# get_ticklines         A list of Line2D instances - keyword minor=True|False
-# get_ticklocs          A list of Tick locations - keyword minor=True|False
-# get_major_locator     The `.ticker.Locator` instance for major ticks
-# get_major_formatter   The `.ticker.Formatter` instance for major ticks
-# get_minor_locator     The `.ticker.Locator` instance for minor ticks
-# get_minor_formatter   The `.ticker.Formatter` instance for minor ticks
-# get_major_ticks       A list of Tick instances for major ticks
-# get_minor_ticks       A list of Tick instances for minor ticks
-# grid                  Turn the grid on or off for the major or minor ticks
-# ====================  =====================================================
+# =============================  ==============================================
+# Axis accessor method           Description
+# =============================  ==============================================
+# `~.Axis.get_scale`             The scale of the Axis, e.g., 'log' or 'linear'
+# `~.Axis.get_view_interval`     The interval instance of the Axis view limits
+# `~.Axis.get_data_interval`     The interval instance of the Axis data limits
+# `~.Axis.get_gridlines`         A list of grid lines for the Axis
+# `~.Axis.get_label`             The Axis label - a `.Text` instance
+# `~.Axis.get_offset_text`       The Axis offset text - a `.Text` instance
+# `~.Axis.get_ticklabels`        A list of `.Text` instances -
+#                                keyword minor=True|False
+# `~.Axis.get_ticklines`         A list of `.Line2D` instances -
+#                                keyword minor=True|False
+# `~.Axis.get_ticklocs`          A list of Tick locations -
+#                                keyword minor=True|False
+# `~.Axis.get_major_locator`     The `.ticker.Locator` instance for major ticks
+# `~.Axis.get_major_formatter`   The `.ticker.Formatter` instance for major
+#                                ticks
+# `~.Axis.get_minor_locator`     The `.ticker.Locator` instance for minor ticks
+# `~.Axis.get_minor_formatter`   The `.ticker.Formatter` instance for minor
+#                                ticks
+# `~.axis.Axis.get_major_ticks`  A list of `.Tick` instances for major ticks
+# `~.axis.Axis.get_minor_ticks`  A list of `.Tick` instances for minor ticks
+# `~.Axis.grid`                  Turn the grid on or off for the major or minor
+#                                ticks
+# =============================  ==============================================
 #
 # Here is an example, not recommended for its beauty, which customizes
 # the Axes and Tick properties.
@@ -700,15 +707,15 @@ plt.show()
 # and lower ticks.  Each of these is accessible directly as an attribute
 # of the ``Tick``.
 #
-# ==============   ==========================================================
-# Tick attribute   Description
-# ==============   ==========================================================
-# tick1line        Line2D instance
-# tick2line        Line2D instance
-# gridline         Line2D instance
-# label1           Text instance
-# label2           Text instance
-# ==============   ==========================================================
+# ==============  ==========================================================
+# Tick attribute  Description
+# ==============  ==========================================================
+# tick1line       A `.Line2D` instance
+# tick2line       A `.Line2D` instance
+# gridline        A `.Line2D` instance
+# label1          A `.Text` instance
+# label2          A `.Text` instance
+# ==============  ==========================================================
 #
 # Here is an example which sets the formatter for the right side ticks with
 # dollar signs and colors them green on the right side of the yaxis.
