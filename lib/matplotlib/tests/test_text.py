@@ -8,10 +8,12 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.text import Text
 
 
 needs_usetex = pytest.mark.skipif(
@@ -697,3 +699,13 @@ def test_transform_rotates_text():
                    transform_rotates_text=True)
     result = text.get_rotation()
     assert_almost_equal(result, 30)
+
+
+def test_update_mutate_input():
+    inp = dict(fontproperties=FontProperties(weight="bold"),
+               bbox=None)
+    cache = dict(inp)
+    t = Text()
+    t.update(inp)
+    assert inp['fontproperties'] == cache['fontproperties']
+    assert inp['bbox'] == cache['bbox']
