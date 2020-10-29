@@ -77,6 +77,7 @@ Axis Label
    Axis.set_label_coords
    Axis.set_label_position
    Axis.set_label_text
+   Axis.get_label
    Axis.get_label_position
    Axis.get_label_text
 
