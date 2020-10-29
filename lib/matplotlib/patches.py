@@ -1288,26 +1288,26 @@ class FancyArrow(Polygon):
         """
         Parameters
         ----------
-        width: float, default: 0.001
+        width : float, default: 0.001
             Width of full arrow tail.
 
-        length_includes_head: bool, default: False
+        length_includes_head : bool, default: False
             True if head is to be counted in calculating the length.
 
-        head_width: float or None, default: 3*width
+        head_width : float or None, default: 3*width
             Total width of the full arrow head.
 
-        head_length: float or None, default: 1.5*head_width
+        head_length : float or None, default: 1.5*head_width
             Length of arrow head.
 
-        shape: ['full', 'left', 'right'], default: 'full'
+        shape : {'full', 'left', 'right'}, default: 'full'
             Draw the left-half, right-half, or full arrow.
 
-        overhang: float, default: 0
+        overhang : float, default: 0
             Fraction that the arrow is swept back (0 overhang means
             triangular shape). Can be negative or greater than one.
 
-        head_starts_at_zero: bool, default: False
+        head_starts_at_zero : bool, default: False
             If True, the head starts being drawn at coordinate 0
             instead of ending at coordinate 0.
 
