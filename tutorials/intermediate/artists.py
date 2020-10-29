@@ -322,17 +322,17 @@ plt.show()
 #         ax.grid(True)
 #
 #
-# The figure also has its own text, lines, patches and images, which you
-# can use to add primitives directly.  The default coordinate system for
-# the ``Figure`` will simply be in pixels (which is not usually what you
-# want) but you can control this by setting the transform property of
-# the ``Artist`` you are adding to the figure.
+# The figure also has its own ``images``, ``lines``, ``patches`` and ``text``
+# attributes, which you can use to add primitives directly. When doing so, the
+# default coordinate system for the ``Figure`` will simply be in pixels (which
+# is not usually what you want). If you instead use Figure-level methods to add
+# Artists (e.g., using `.Figure.text` to add text), then the default coordinate
+# system will be "figure coordinates" where (0, 0) is the bottom-left of the
+# figure and (1, 1) is the top-right of the figure.
 #
-# .. TODO: Is that still true?
-#
-# More useful is "figure coordinates" where (0, 0) is the bottom-left of
-# the figure and (1, 1) is the top-right of the figure which you can
-# obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
+# As with all ``Artist``\s, you can control this coordinate system by setting
+# the transform property. You can explicitly use "figure coordinates" by
+# setting the ``Artist`` transform to :attr:`fig.transFigure
 # <matplotlib.figure.Figure.transFigure>`:
 
 import matplotlib.lines as lines
