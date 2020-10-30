@@ -348,7 +348,11 @@ class FigureManagerTk(FigureManagerBase):
         super().__init__(canvas, num)
         self.window = window
         self.window.withdraw()
-        self.set_window_title("Figure %d" % num)
+        if isinstance(num, str):
+            title = num
+        else:
+            title = f"Figure {num}"
+        self.set_window_title(title)
         # packing toolbar first, because if space is getting low, last packed
         # widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()

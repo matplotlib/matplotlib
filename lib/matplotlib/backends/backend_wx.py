@@ -902,7 +902,11 @@ class FigureFrameWx(wx.Frame):
             pos = wx.DefaultPosition
         else:
             pos = wx.Point(20, 20)
-        super().__init__(parent=None, id=-1, pos=pos, title="Figure %d" % num)
+        if isinstance(num, str):
+            title = num
+        else:
+            title = f"Figure {num}"
+        super().__init__(parent=None, id=-1, pos=pos, title=title)
         # Frame will be sized later by the Fit method
         _log.debug("%s - __init__()", type(self))
         self.num = num

@@ -534,8 +534,11 @@ class FigureManagerQT(FigureManagerBase):
         self.window = MainWindow()
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
-
-        self.window.setWindowTitle("Figure %d" % num)
+        if isinstance(num, str):
+            title = num
+        else:
+            title = f"Figure {num}"
+        self.window.setWindowTitle(title)
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 

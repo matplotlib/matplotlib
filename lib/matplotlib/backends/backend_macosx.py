@@ -88,7 +88,10 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """
     def __init__(self, canvas, num):
         FigureManagerBase.__init__(self, canvas, num)
-        title = "Figure %d" % num
+        if isinstance(num, str):
+            title = num
+        else:
+            title = f"Figure {num}"
         _macosx.FigureManager.__init__(self, canvas, title)
         if mpl.rcParams['toolbar'] == 'toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
