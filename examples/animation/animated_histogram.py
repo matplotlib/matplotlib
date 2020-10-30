@@ -46,21 +46,10 @@ def prepare_animation(bar_container):
 # `.BarContainer`, all this is used to setup `.FuncAnimation`.
 
 fig, ax = plt.subplots()
-_, _, bar_container = ax.hist(
-    data,
-    HIST_BINS,
-    lw=1,
-    ec="yellow",
-    fc="green",
-    alpha=0.5
-)
+_, _, bar_container = ax.hist(data, HIST_BINS, lw=1,
+                              ec="yellow", fc="green", alpha=0.5)
 ax.set_ylim(top=55)  # set safe limit to ensure that all data is visible.
 
-ani = animation.FuncAnimation(
-    fig,
-    prepare_animation(bar_container),
-    50,
-    repeat=False,
-    blit=True
-)
+ani = animation.FuncAnimation(fig, prepare_animation(bar_container), 50,
+                              repeat=False, blit=True)
 plt.show()
