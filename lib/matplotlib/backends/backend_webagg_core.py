@@ -298,7 +298,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def handle_refresh(self, event):
         figure_label = self.figure.get_label()
         if not figure_label:
-            figure_label = "Figure {0}".format(self.manager.num)
+            figure_label = self._title
         self.send_event('figure_label', label=figure_label)
         self._force_full = True
         if self.toolbar:
@@ -410,7 +410,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
     def __init__(self, canvas, num):
         super().__init__(canvas, num)
-
+        if isinstance(num, str):
+            self._title = num
+        else:
+            self._title = f"Figure {num}"
         self.web_sockets = set()
 
         self.toolbar = self._get_toolbar(canvas)
@@ -429,6 +432,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
             forward=forward)
 
     def set_window_title(self, title):
+        self._title = title
         self._send_event('figure_label', label=title)
 
     # The following methods are specific to FigureManagerWebAgg
