@@ -291,6 +291,18 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.key_release_event(key, guiEvent=guiEvent)
     handle_key_press = handle_key_release = _handle_key
 
+    def _handle_touch(self, event):
+        e_type = event['type']
+        guiEvent = event.get('guiEvent', None)
+        # TODO: Use event['touches'] to build up an appropriate backend event record.
+        if e_type == 'touch_start':
+            self.touch_start_event([], guiEvent=guiEvent)
+        elif e_type == 'touch_move':
+            self.touch_move_event([], guiEvent=guiEvent)
+        elif e_type == 'touch_end':
+            self.touch_end_event([], guiEvent=guiEvent)
+    handle_touch_start = handle_touch_move = handle_touch_end = _handle_touch
+
     def handle_toolbar_button(self, event):
         # TODO: Be more suspicious of the input
         getattr(self.toolbar, event['name'])()
