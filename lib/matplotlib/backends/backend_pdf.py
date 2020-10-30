@@ -451,9 +451,9 @@ class Op(Operator, Enum):
 
         Parameters
         ----------
-        fill: bool
+        fill : bool
             Fill the path with the fill color.
-        stroke: bool
+        stroke : bool
             Stroke the outline of the path with the line color.
         """
         if stroke:

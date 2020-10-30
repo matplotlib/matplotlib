@@ -836,7 +836,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        alpha: float or array of float or None
+        alpha : float or array of float or None
             If not None, *alpha* values must be between 0 and 1, inclusive.
             If an array is provided, its length must match the number of
             elements in the collection.  Masked values and nans are not
@@ -1369,7 +1369,7 @@ class LineCollection(Collection):
         """
         Parameters
         ----------
-        segments: list of array-like
+        segments : list of array-like
             A sequence of (*line0*, *line1*, *line2*), where::
 
                 linen = (x0, y0), (x1, y1), ... (xm, ym)

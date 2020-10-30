@@ -285,7 +285,7 @@ class LayoutGrid:
             existing minimum it updates the margin size. Fraction of
             figure size.
 
-        cell: int
+        cell : int
             Cell column or row to edit.
         """
 
@@ -315,11 +315,11 @@ class LayoutGrid:
 
         Parameters
         ----------
-        todo: string (one of 'left', 'right', 'bottom', 'top')
-            margin to alter.
+        todo : {'left', 'right', 'bottom', 'top'}
+            The margin to alter.
 
-        size: float
-            Minimum size of the margin .  If it is larger than the
+        size : float
+            Minimum size of the margin.  If it is larger than the
             existing minimum it updates the margin size. Fraction of
             figure size.
         """
@@ -333,11 +333,11 @@ class LayoutGrid:
 
         Parameters
         ----------
-        margin: dict
+        margin : dict
             size of margins in a dict with keys 'left', 'right', 'bottom',
             'top'
 
-        ss: SubplotSpec
+        ss : SubplotSpec
             defines the subplotspec these margins should be applied to
         """
 

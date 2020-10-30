@@ -275,7 +275,7 @@ def get_epoch():
 
     Returns
     -------
-    epoch: str
+    epoch : str
         String for the epoch (parsable by `numpy.datetime64`).
     """
     global _epoch

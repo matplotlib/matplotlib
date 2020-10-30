@@ -1699,7 +1699,7 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        polygons: list of (M_i, 3) array-like, or (..., M, 3) array-like
+        polygons : list of (M_i, 3) array-like, or (..., M, 3) array-like
             A sequence of polygons to compute normals for, which can have
             varying numbers of vertices. If the polygons all have the same
             number of vertices and array is passed, then the operation will
@@ -1707,7 +1707,7 @@ class Axes3D(Axes):
 
         Returns
         -------
-        normals: (..., 3) array-like
+        normals : (..., 3) array-like
             A normal vector estimated for the polygon.
 
         """

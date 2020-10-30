@@ -1012,7 +1012,7 @@ class Axes(_AxesBase):
         See Also
         --------
         vlines : vertical lines
-        axhline: horizontal line across the Axes
+        axhline : horizontal line across the Axes
         """
 
         # We do the conversion first since not all unitized data is uniform
@@ -1089,7 +1089,7 @@ class Axes(_AxesBase):
         See Also
         --------
         hlines : horizontal lines
-        axvline: vertical line across the Axes
+        axvline : vertical line across the Axes
         """
 
         # We do the conversion first since not all unitized data is uniform
@@ -2221,7 +2221,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        barh: Plot a horizontal bar plot.
+        barh : Plot a horizontal bar plot.
 
         Notes
         -----
@@ -2490,7 +2490,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        bar: Plot a vertical bar plot.
+        bar : Plot a vertical bar plot.
 
         Notes
         -----
@@ -2831,7 +2831,7 @@ class Axes(_AxesBase):
         shadow : bool, default: False
             Draw a shadow beneath the pie.
 
-        normalize: None or bool, default: None
+        normalize : None or bool, default: None
             When *True*, always make a full pie by normalizing x so that
             ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
             and raises a `ValueError` for ``sum(x) > 1``.
