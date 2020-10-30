@@ -27,6 +27,7 @@ plt.xlabel("t")
 plt.legend(fontsize=14)
 plt.show()
 
+##############################################################################
 # `~.axes.Axes.axline` can also be used with a `transform` parameter, which
 # applies to the point, but not to the slope. This can be useful for drawing
 # diagonal grid lines with a fixed slope, which stay in place when the
