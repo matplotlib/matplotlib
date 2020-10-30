@@ -25,6 +25,7 @@ graphics contexts must implement to serve as a Matplotlib backend.
     The base class for the Toolbar class of each interactive backend.
 """
 
+from collections import namedtuple
 from contextlib import contextmanager, suppress
 from enum import Enum, IntEnum
 import functools
@@ -2871,7 +2872,6 @@ class NavigationToolbar2:
         self.canvas = canvas
         canvas.toolbar = self
         self._nav_stack = cbook.Stack()
-        self._xypress = None  # location and axis info at the time of the press
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
 
@@ -2889,9 +2889,8 @@ class NavigationToolbar2:
             'button_release_event', self._zoom_pan_handler)
         self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
+        self._pan_info = None
         self._zoom_info = None
-
-        self._button_pressed = None  # determined by button pressed at start
 
         self.mode = _Mode.NONE  # a mode string for the status bar
         self.set_history_buttons()
@@ -3074,26 +3073,25 @@ class NavigationToolbar2:
             a.set_navigate_mode(self.mode._navigate_mode)
         self.set_message(self.mode)
 
+    _PanInfo = namedtuple("_PanInfo", "button axes cid")
+
     def press_pan(self, event):
         """Callback for mouse button press in pan/zoom mode."""
-        if event.button in [1, 3]:
-            self._button_pressed = event.button
-        else:
-            self._button_pressed = None
+        if (event.button not in [MouseButton.LEFT, MouseButton.RIGHT]
+                or event.x is None or event.y is None):
+            return
+        axes = [a for a in self.canvas.figure.get_axes()
+                if a.in_axes(event) and a.get_navigate() and a.can_pan()]
+        if not axes:
             return
         if self._nav_stack() is None:
-            # set the home button to this view
-            self.push_current()
-        x, y = event.x, event.y
-        self._xypress = []
-        for i, a in enumerate(self.canvas.figure.get_axes()):
-            if (x is not None and y is not None and a.in_axes(event) and
-                    a.get_navigate() and a.can_pan()):
-                a.start_pan(x, y, event.button)
-                self._xypress.append((a, i))
-                self.canvas.mpl_disconnect(self._id_drag)
-                self._id_drag = self.canvas.mpl_connect(
-                    'motion_notify_event', self.drag_pan)
+            self.push_current()  # set the home button to this view
+        for ax in axes:
+            ax.start_pan(event.x, event.y, event.button)
+        self.canvas.mpl_disconnect(self._id_drag)
+        id_drag = self.canvas.mpl_connect("motion_notify_event", self.drag_pan)
+        self._pan_info = self._PanInfo(
+            button=event.button, axes=axes, cid=id_drag)
         press = cbook._deprecate_method_override(
             __class__.press, self, since="3.3", message="Calling an "
             "overridden press() at pan start is deprecated since %(since)s "
@@ -3103,27 +3101,21 @@ class NavigationToolbar2:
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
-        for a, ind in self._xypress:
-            #safer to use the recorded button at the press than current button:
-            #multiple button can get pressed during motion...
-            a.drag_pan(self._button_pressed, event.key, event.x, event.y)
+        for ax in self._pan_info.axes:
+            # Using the recorded button at the press is safer than the current
+            # button, as multiple buttons can get pressed during motion.
+            ax.drag_pan(self._pan_info.button, event.key, event.x, event.y)
         self.canvas.draw_idle()
 
     def release_pan(self, event):
         """Callback for mouse button release in pan/zoom mode."""
-
-        if self._button_pressed is None:
+        if self._pan_info is None:
             return
-        self.canvas.mpl_disconnect(self._id_drag)
+        self.canvas.mpl_disconnect(self._pan_info.cid)
         self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
-        for a, ind in self._xypress:
-            a.end_pan()
-        if not self._xypress:
-            return
-        self._xypress = []
-        self._button_pressed = None
-        self.push_current()
+        for ax in self._pan_info.axes:
+            ax.end_pan()
         release = cbook._deprecate_method_override(
             __class__.press, self, since="3.3", message="Calling an "
             "overridden release() at pan stop is deprecated since %(since)s "
@@ -3131,6 +3123,8 @@ class NavigationToolbar2:
         if release is not None:
             release(event)
         self._draw()
+        self._pan_info = None
+        self.push_current()
 
     def zoom(self, *args):
         """Toggle zoom to rect mode."""
@@ -3144,11 +3138,12 @@ class NavigationToolbar2:
             a.set_navigate_mode(self.mode._navigate_mode)
         self.set_message(self.mode)
 
+    _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid")
+
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
-        if event.button not in [1, 3]:
-            return
-        if event.x is None or event.y is None:
+        if (event.button not in [MouseButton.LEFT, MouseButton.RIGHT]
+                or event.x is None or event.y is None):
             return
         axes = [a for a in self.canvas.figure.get_axes()
                 if a.in_axes(event) and a.get_navigate() and a.can_zoom()]
@@ -3158,12 +3153,9 @@ class NavigationToolbar2:
             self.push_current()  # set the home button to this view
         id_zoom = self.canvas.mpl_connect(
             "motion_notify_event", self.drag_zoom)
-        self._zoom_info = {
-            "direction": "in" if event.button == 1 else "out",
-            "start_xy": (event.x, event.y),
-            "axes": axes,
-            "cid": id_zoom,
-        }
+        self._zoom_info = self._ZoomInfo(
+            direction="in" if event.button == 1 else "out",
+            start_xy=(event.x, event.y), axes=axes, cid=id_zoom)
         press = cbook._deprecate_method_override(
             __class__.press, self, since="3.3", message="Calling an "
             "overridden press() at zoom start is deprecated since %(since)s "
@@ -3173,8 +3165,8 @@ class NavigationToolbar2:
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
-        start_xy = self._zoom_info["start_xy"]
-        ax = self._zoom_info["axes"][0]
+        start_xy = self._zoom_info.start_xy
+        ax = self._zoom_info.axes[0]
         (x1, y1), (x2, y2) = np.clip(
             [start_xy, [event.x, event.y]], ax.bbox.min, ax.bbox.max)
         if event.key == "x":
@@ -3190,44 +3182,40 @@ class NavigationToolbar2:
 
         # We don't check the event button here, so that zooms can be cancelled
         # by (pressing and) releasing another mouse button.
-        self.canvas.mpl_disconnect(self._zoom_info["cid"])
+        self.canvas.mpl_disconnect(self._zoom_info.cid)
         self.remove_rubberband()
 
-        start_x, start_y = self._zoom_info["start_xy"]
+        start_x, start_y = self._zoom_info.start_xy
+        # Ignore single clicks: 5 pixels is a threshold that allows the user to
+        # "cancel" a zoom action by zooming by less than 5 pixels.
+        if ((abs(event.x - start_x) < 5 and event.key != "y")
+                or (abs(event.y - start_y) < 5 and event.key != "x")):
+            self._draw()
+            self._zoom_info = None
+            release = cbook._deprecate_method_override(
+                __class__.press, self, since="3.3", message="Calling an "
+                "overridden release() at zoom stop is deprecated since "
+                "%(since)s and will be removed %(removal)s; override "
+                "release_zoom() instead.")
+            if release is not None:
+                release(event)
+            return
 
-        for i, ax in enumerate(self._zoom_info["axes"]):
-            x, y = event.x, event.y
-            # ignore singular clicks - 5 pixels is a threshold
-            # allows the user to "cancel" a zoom action
-            # by zooming by less than 5 pixels
-            if ((abs(x - start_x) < 5 and event.key != "y") or
-                    (abs(y - start_y) < 5 and event.key != "x")):
-                self._xypress = None
-                release = cbook._deprecate_method_override(
-                    __class__.press, self, since="3.3", message="Calling an "
-                    "overridden release() at zoom stop is deprecated since "
-                    "%(since)s and will be removed %(removal)s; override "
-                    "release_zoom() instead.")
-                if release is not None:
-                    release(event)
-                self._draw()
-                return
-
+        for i, ax in enumerate(self._zoom_info.axes):
             # Detect whether this axes is twinned with an earlier axes in the
             # list of zoomed axes, to avoid double zooming.
             twinx = any(ax.get_shared_x_axes().joined(ax, prev)
-                        for prev in self._zoom_info["axes"][:i])
+                        for prev in self._zoom_info.axes[:i])
             twiny = any(ax.get_shared_y_axes().joined(ax, prev)
-                        for prev in self._zoom_info["axes"][:i])
-
+                        for prev in self._zoom_info.axes[:i])
             ax._set_view_from_bbox(
-                (start_x, start_y, x, y), self._zoom_info["direction"],
-                event.key, twinx, twiny)
+                (start_x, start_y, event.x, event.y),
+                self._zoom_info.direction, event.key, twinx, twiny)
 
         self._draw()
         self._zoom_info = None
-
         self.push_current()
+
         release = cbook._deprecate_method_override(
             __class__.release, self, since="3.3", message="Calling an "
             "overridden release() at zoom stop is deprecated since %(since)s "
