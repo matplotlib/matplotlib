@@ -3538,6 +3538,38 @@ class _Backend:
         return manager
 
     @classmethod
+    def new_figure(cls, label='Matplotlib Figure', *, auto_redraw=True):
+        """
+        Create a new window with a Figure and toolbar
+
+        Parameters
+        ----------
+        label : str
+            Use for the window title and figure label.
+
+        auto_redraw : bool
+            If the figure should automatically re-draw when stale.
+        """
+        manager = cls.new_figure_manager(label)
+        manager.canvas.figure.set_label(label)
+
+        def redraw(fig, val):
+            canvas = fig.canvas
+            if val and not canvas.is_saving() and not canvas._is_idle_drawing:
+                # Some artists can mark themselves as stale in the
+                # middle of drawing (e.g. axes position & tick labels
+                # being computed at draw time), but this shouldn't
+                # trigger a redraw because the current redraw will
+                # already take them into account.
+                with fig.canvas._idle_draw_cntx():
+                    fig.canvas.draw_idle()
+
+        if auto_redraw:
+            manager.canvas.figure.stale_callback = redraw
+
+        return manager.canvas.figure
+
+    @classmethod
     def draw_if_interactive(cls):
         if cls.trigger_manager_draw is not None and is_interactive():
             manager = Gcf.get_active()
@@ -3590,6 +3622,7 @@ class _Backend:
                 "FigureManager",
                 "new_figure_manager",
                 "new_figure_manager_given_figure",
+                "new_figure",
                 "draw_if_interactive",
                 "show",
         ]:
