@@ -75,16 +75,12 @@ mpl_in_to_pt = 1. / mpl_pt_to_in
 # helper functions
 
 NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
-re_mathsep = re.compile(NO_ESCAPE + r"\$")
-
-
+re_mathsep = re.compile(NO_ESCAPE + r"\$")  # Deprecated in 3.4.
+_split_math = re.compile(rf"({NO_ESCAPE}\$.*?{NO_ESCAPE}\$)").split
 _replace_escapetext = functools.partial(
     # When the next character is _, ^, $, or % (not preceded by an escape),
     # insert a backslash.
     re.compile(NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
-_replace_mathdefault = functools.partial(
-    # Replace \mathdefault (when not preceded by an escape) by empty string.
-    re.compile(NO_ESCAPE + r"(\\mathdefault)").sub, "")
 
 
 def common_texification(text):
@@ -92,26 +88,13 @@ def common_texification(text):
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
 
-    This distinguishes text-mode and math-mode by replacing the math separator
-    ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
-    are ignored.
-
-    The following characters are escaped in text segments: ``_^$%``
+    The characters ``_^$%`` are escaped in text mode (i.e., outside of math
+    blocks).
     """
-    # Sometimes, matplotlib adds the unknown command \mathdefault.
-    # Not using \mathnormal instead since this looks odd for the latex cm font.
-    text = _replace_mathdefault(text)
     text = text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
-    # split text into normaltext and inline math parts
-    parts = re_mathsep.split(text)
-    for i, s in enumerate(parts):
-        if not i % 2:
-            # textmode replacements
-            s = _replace_escapetext(s)
-        else:
-            # mathmode replacements
-            s = r"\(\displaystyle %s\)" % s
-        parts[i] = s
+    parts = _split_math(text)  # split into normal text and inline math parts
+    for i in range(0, len(parts), 2):
+        parts[i] = _replace_escapetext(parts[i])  # textmode replacements
     return "".join(parts)
 
 
@@ -228,6 +211,8 @@ class LatexManager:
             r"\usepackage{graphicx}",
             latex_preamble,
             latex_fontspec,
+            r"\def\mathdefault#1{#1}",
+            r"\everymath=\expandafter{\the\everymath\displaystyle}",
             r"\begin{document}",
             r"text $math \mu$",  # force latex to load fonts now
             r"\typeout{pgf_backend_query_start}",
@@ -835,6 +820,8 @@ class FigureCanvasPgf(FigureCanvasBase):
         fh.write("\n")
         writeln(fh, r"\begingroup")
         writeln(fh, r"\makeatletter")
+        writeln(fh, r"\def\mathdefault#1{#1}")
+        writeln(fh, r"\everymath=\expandafter{\the\everymath\displaystyle}")
         writeln(fh, r"\begin{pgfpicture}")
         writeln(fh,
                 r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
