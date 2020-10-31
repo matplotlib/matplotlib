@@ -2,15 +2,15 @@
 Autoscaling
 ===========
 
-Axis scales define the overall look of a plot, there are some default options
-that scale ranges automatically with respect to supplied data - autoscaling.
+Axis scales define the overall look of a plot, some default options
+scale ranges automatically with respect to supplied data - autoscaling.
 This tutorial shows concepts of individual autoscaling options and
-investigates cornerstone examples regarding needs of manual adjustments.
+investigates cornerstone examples regarding the needs for manual adjustments.
 """
 
 ###############################################################################
 # We will start with a simple line plot showing that the autoscaling feature
-# extends the visible range slightly beyond real data range (-2π, 2π).
+# extends the visible range slightly beyond the real data range (-2π, 2π).
 
 import numpy as np
 import matplotlib as mpl
@@ -26,15 +26,15 @@ fig.show()
 ###############################################################################
 # Margins
 # -------
-# The relative measure of extend is called margin and can be set by
+# The relative measure of the extend is called margin and can be set by
 # :func:`~matplotlib.axes.Axes.margins`.
-# We can check that default value is (0.05, 0.05).
+# We can check that the default value is (0.05, 0.05).
 
 ax.margins()
 
 ###############################################################################
-# Margin scales with respect to the data interval so setting larger margin
-# ensures more space between acutal data and plot edges, hence plotted curve
+# Margin scales with respect to the data interval so setting a larger margin
+# ensures more space between actual data and plot edges, hence plotted curve
 # will appear smaller.
 
 fig, ax = plt.subplots()
@@ -45,7 +45,7 @@ fig.show()
 ###############################################################################
 # In general, margins shall be in range (-0.5, ∞), negative margins crop the
 # plot showing only a part of the data. Using a single number for margins
-# affects both axes, single margin can be customized by means of keyword
+# affects both axes, a single margin can be customized using keyword
 # arguments ``x`` or ``y``, but positional and keyword interface cannot be
 # combined
 
@@ -55,18 +55,18 @@ ax.margins(y=-0.2)
 fig.show()
 
 ###############################################################################
-# There is a last keyword argument for margins call, the ``tight`` option. In
-# case of simple :func:`~matplotlib.axes.Axes.plot` call, this parameter does
-# not change anything, it is passed to the
+# There is the last keyword argument for margins call, the ``tight`` option. In
+# the case of a simple :func:`~matplotlib.axes.Axes.plot` call, this parameter
+# does not change anything, it is passed to the
 # :meth:`~matplotlib.axes.Axes.autoscale_view`, which requires more advanced
 # discussion.
 #
 # Margins can behave differently for certain plots, this is determined by
-# sticky edges property, which is of interest in next section.
+# the sticky edges property, which is of interest in the next section.
 #
 # Sticky edges
 # ------------
-# Margin must not be applied for certain :class:`.Artist`, for example setting
+# Margin must not be applied for certain :class:`.Artist`, for example, setting
 # ``margin=0.2`` on ``plt.imshow`` does not affect the resulting plot.
 #
 
@@ -89,11 +89,11 @@ fig.show()
 # `~matplotlib.axes.Axes.use_sticky_edges`.
 #
 # Settings of sticky edges of individual artists can be investigating by
-# accessing them directly, `.Artist.sticky_edges`. Moreover, values of sticky
-# edges can be changed by writing to ``Artist.sticky_edges.x`` or
+# accessing them directly, `.Artist.sticky_edges`. Moreover, the values of
+# sticky edges can be changed by writing to ``Artist.sticky_edges.x`` or
 # ``.Artist.sticky_edges.y``
 #
-# Following example shows how overriding works and when it is needed.
+# The following example shows how overriding works and when it is needed.
 
 fig, ax = plt.subplots(ncols=3, figsize=(16, 10))
 ax[0].imshow(zz)
@@ -121,7 +121,7 @@ fig.show()
 # We have figured out how to control the margins of the plot. Now, we will
 # investigate how to disable autoscaling. By default, the scales are
 # recalculated every time you add a new curve to the plot (see next figure).
-# This ensures visibility of the data. However, there are cases when you
+# This ensures the visibility of the data. However, there are cases when you
 # don't want to automatically adjust viewport to data.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
@@ -138,7 +138,7 @@ fig.show()
 # disabling the autoscale feature. One of the cases is manually setting the
 # axis limit. Let's say that we want to see only a part of the data in
 # greater detail. Setting the ``xlim`` persists even if we add more curves to
-# the data. To recalcuate the new limits we shall call `.Axes.autoscale`
+# the data. To recalculate the new limits we shall call `.Axes.autoscale`
 # manually to toggle the functionality.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
@@ -154,17 +154,17 @@ ax[1].set_title("set_xlim(left=-1, right=1)\nautoscale()")
 fig.show()
 
 ###############################################################################
-# We can check that first plot has autoscale disabled and that the second plot
-# has it enabled again by using `.Axes.get_autoscale_on()`:
+# We can check that the first plot has autoscale disabled and that the second
+# plot has it enabled again by using `.Axes.get_autoscale_on()`:
 
 print(ax[0].get_autoscale_on())  # False means disabled
 print(ax[1].get_autoscale_on())  # True means enabled -> recalculated
 
 ###############################################################################
 # Arguments of the autoscale function give us precise control over the process
-# of autoscaling. Combination of arguments ``enable``, and ``axis`` sets the
-# autoscaling feature for selected axis (or both). The argument ``tight`` sets
-# the margin of the selected axis to zero. To preserve settings of either
+# of autoscaling. A combination of arguments ``enable``, and ``axis`` sets the
+# autoscaling feature for the selected axis (or both). The argument ``tight``
+# sets the margin of the selected axis to zero. To preserve settings of either
 # ``enable`` or ``tight`` you can set the opposite one to None, that way
 # it should not be modified. However, setting ``enable`` to None and tight
 # to True affects both axes regardless of the ``axis`` argument.
@@ -179,10 +179,10 @@ print(ax.margins())
 ###############################################################################
 # Working with collections
 # ------------------------
-# Autoscale works out of the box for all lines, patches and images added to
-# the axes. One of artists that it won't work is `.Collection`. After adding
-# a collection to the axes, one has to manually trigger the
-# :func:`~matplotlib.axes.Axes.autoscale_view()` to popagate recalculated
+# Autoscale works out of the box for all lines, patches, and images added to
+# the axes. One of the artists that it won't work with is a `.Collection`.
+# After adding a collection to the axes, one has to manually trigger the
+# :func:`~matplotlib.axes.Axes.autoscale_view()` to propagate recalculated
 # limits to the figure.
 
 fig, ax = plt.subplots()
