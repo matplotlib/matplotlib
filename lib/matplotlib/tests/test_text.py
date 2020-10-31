@@ -8,9 +8,11 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.text import Text
 
 
 needs_usetex = pytest.mark.skipif(
@@ -689,3 +691,13 @@ def test_fontproperties_kwarg_precedence():
     text2 = plt.ylabel("counts", size=40.0, fontproperties='Times New Roman')
     assert text1.get_size() == 40.0
     assert text2.get_size() == 40.0
+
+
+def test_update_mutate_input():
+    inp = dict(fontproperties=FontProperties(weight="bold"),
+               bbox=None)
+    cache = dict(inp)
+    t = Text()
+    t.update(inp)
+    assert inp['fontproperties'] == cache['fontproperties']
+    assert inp['bbox'] == cache['bbox']
