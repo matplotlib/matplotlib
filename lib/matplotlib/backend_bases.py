@@ -3538,7 +3538,8 @@ class _Backend:
         return manager
 
     @classmethod
-    def new_figure(cls, label='Matplotlib Figure', *, auto_redraw=True):
+    def new_figure(cls, label='Matplotlib Figure', *,
+                   auto_redraw=True, auto_show=True):
         """
         Create a new window with a Figure and toolbar
 
@@ -3549,6 +3550,9 @@ class _Backend:
 
         auto_redraw : bool
             If the figure should automatically re-draw when stale.
+
+        auto_show : bool
+            If the GUI window should be shown on creation.
         """
         manager = cls.new_figure_manager(label)
         manager.canvas.figure.set_label(label)
@@ -3566,7 +3570,8 @@ class _Backend:
 
         if auto_redraw:
             manager.canvas.figure.stale_callback = redraw
-
+        if auto_show:
+            manager.show()
         return manager.canvas.figure
 
     @classmethod
