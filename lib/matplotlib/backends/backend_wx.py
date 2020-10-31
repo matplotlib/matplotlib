@@ -514,7 +514,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         self.Bind(wx.EVT_SIZE, self._onSize)
         self.Bind(wx.EVT_PAINT, self._onPaint)
-        self.Bind(wx.EVT_KEY_DOWN, self._onKeyDown)
+        self.Bind(wx.EVT_CHAR_HOOK, self._onKeyDown)
         self.Bind(wx.EVT_KEY_UP, self._onKeyUp)
         self.Bind(wx.EVT_LEFT_DOWN, self._onMouseButton)
         self.Bind(wx.EVT_LEFT_DCLICK, self._onMouseButton)
