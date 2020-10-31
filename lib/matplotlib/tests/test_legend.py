@@ -526,6 +526,21 @@ def test_shadow_color():
         plt.gca().add_artist(legends[x])
 
 
+def test_shadow_bad_type():
+    # Ensure an error is thrown if the value of shadow
+    # is neither colorlike nor bool
+    # fig, ax = plt.subplots()
+    # ax.plot(range(100), label="test")
+    # with pytest.raises(ValueError, match='valid color or bool') as e:
+    #     ax.legend(shadow='Aardvark')
+
+    fig, ax = plt.subplots()
+    ax.plot(range(100), label="test")
+    with pytest.raises(ValueError, match="color or bool"):
+        x = plt.legend(loc="upper left", shadow="aardvark")
+        fig.canvas.draw()
+
+
 def test_legend_title_empty():
     # test that if we don't set the legend title, that
     # it comes back as an empty string, and that it is not

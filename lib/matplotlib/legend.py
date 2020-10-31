@@ -617,7 +617,7 @@ class Legend(Artist):
         elif self.shadow is False:
             pass
         else:
-            raise ValueError('shadow must be a valid color or bool')
+            raise ValueError('Shadow must be a valid color or bool.')
 
         self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)
