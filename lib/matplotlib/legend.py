@@ -610,12 +610,14 @@ class Legend(Artist):
         self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         self.legendPatch.set_mutation_scale(fontsize)
 
-        if self.shadow:
-            shadow = self.shadow
-            if is_color_like(shadow):
-                Shadow(self.legendPatch, 2, -2, color=shadow).draw(renderer)
-            else:
-                Shadow(self.legendPatch, 2, -2).draw(renderer)
+        if is_color_like(self.shadow):
+            Shadow(self.legendPatch, 2, -2, color=self.shadow).draw(renderer)
+        elif self.shadow is True:
+            Shadow(self.legendPatch, 2, -2).draw(renderer)
+        elif self.shadow is False:
+            pass
+        else:
+            raise ValueError('shadow must be a valid color or bool')
 
         self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)
