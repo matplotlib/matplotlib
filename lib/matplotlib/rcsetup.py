@@ -152,7 +152,11 @@ def validate_color_or_bool(c):
     try:
         return validate_color(c)
     except ValueError:
+        pass
+    try:
         return validate_bool(c)
+    except ValueError:
+        raise ValueError(f'Could not convert {c} to color or bool.')
 
 
 @cbook.deprecated("3.3")
