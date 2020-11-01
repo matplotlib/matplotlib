@@ -1,9 +1,9 @@
 """
-=============
-Keypress Demo
-=============
+==============
+Keypress event
+==============
 
-Show how to connect to keypress events
+Show how to connect to keypress events.
 """
 import sys
 import numpy as np
@@ -18,9 +18,9 @@ def on_press(event):
         xl.set_visible(not visible)
         fig.canvas.draw()
 
+
 # Fixing random state for reproducibility
 np.random.seed(19680801)
-
 
 fig, ax = plt.subplots()
 

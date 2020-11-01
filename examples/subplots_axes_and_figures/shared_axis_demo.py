@@ -1,10 +1,10 @@
 """
-================
-Shared Axis Demo
-================
+===========
+Shared Axis
+===========
 
 You can share the x or y axis limits for one axis with another by
-passing an axes instance as a sharex or sharey kwarg.
+passing an axes instance as a *sharex* or *sharey* keyword argument.
 
 Changing the axis limits on one axes will be reflected automatically
 in the other, and vice-versa, so when you navigate with the toolbar
