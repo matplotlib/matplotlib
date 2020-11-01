@@ -637,6 +637,7 @@ class ColorbarBase:
         """
         self.locator = None
         self.formatter = None
+        print('Norm Scale', self.norm._scale)
         if isinstance(self.norm, colors.LogNorm):
             # *both* axes are made log so that determining the
             # mid point is easier.
@@ -651,6 +652,9 @@ class ColorbarBase:
                 self.__scale = 'linear'
             else:
                 self.__scale = 'manual'
+        self.ax.set_xscale(self.norm._scale.name)
+        self.ax.set_yscale(self.norm._scale.name)
+        self.__scale = self.norm._scale.name
 
     def update_ticks(self):
         """
@@ -1083,9 +1087,11 @@ class ColorbarBase:
             y = self._proportional_y()
         xmid = np.array([0.5])
         if self.__scale != 'manual':
+            print('norm', norm)
             y = norm.inverse(y)
             x = norm.inverse(x)
             xmid = norm.inverse(xmid)
+            print(x, y, xmid)
         else:
             # if a norm doesn't have a named scale, or
             # we are not using a norm
