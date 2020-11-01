@@ -1,9 +1,9 @@
 """
-=========
-Barb Demo
-=========
+==========
+Wind Barbs
+==========
 
-Demonstration of wind barb plots
+Demonstration of wind barb plots.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,7 +1,7 @@
 """
-===============
-Demo Axes Grid2
-===============
+==========
+Axes Grid2
+==========
 
 Grid of images with shared xaxis and yaxis.
 """

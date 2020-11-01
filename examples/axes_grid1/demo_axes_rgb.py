@@ -1,9 +1,11 @@
 """
-=============
-Demo Axes RGB
-=============
+==================================
+Showing RGB channels using RGBAxes
+==================================
 
-RGBAxes to show RGB composite images.
+`~.axes_grid1.axes_rgb.RGBAxes` creates a layout of 4 Axes for displaying RGB
+channels: one large Axes for the RGB image and 3 smaller Axes for the R, G, B
+channels.
 """
 
 import numpy as np

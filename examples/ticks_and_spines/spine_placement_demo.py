@@ -1,7 +1,7 @@
 """
-====================
-Spine Placement Demo
-====================
+===============
+Spine Placement
+===============
 
 Adjusting the location and appearance of axis spines.
 

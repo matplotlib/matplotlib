@@ -1,7 +1,7 @@
 """
-===========
-Slider Demo
-===========
+======
+Slider
+======
 
 Using the slider widget to control visual properties of your plot.
 

@@ -1,7 +1,7 @@
 """
-====================
-Connectionstyle Demo
-====================
+=================================
+Connection styles for annotations
+=================================
 
 When creating an annotation using `~.Axes.annotate`, the arrow shape can be
 controlled via the *connectionstyle* parameter of *arrowprops*. For further

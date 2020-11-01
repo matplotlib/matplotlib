@@ -1,8 +1,9 @@
 """
-=================
-Fancytextbox Demo
-=================
+==================
+Styling text boxes
+==================
 
+This example shows how to style text boxes using *bbox* parameters.
 """
 import matplotlib.pyplot as plt
 

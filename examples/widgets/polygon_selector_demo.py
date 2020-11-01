@@ -1,7 +1,7 @@
 """
-=====================
-Polygon Selector Demo
-=====================
+================
+Polygon Selector
+================
 
 Shows how one can select indices of a polygon interactively.
 """

@@ -1,7 +1,7 @@
 """
-============================
-Colorbar Tick Labelling Demo
-============================
+=======================
+Colorbar Tick Labelling
+=======================
 
 Produce custom labelling for a colorbar.
 
