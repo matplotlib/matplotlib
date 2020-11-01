@@ -897,8 +897,6 @@ class FontProperties:
 
         The default font is :rc:`mathtext.fontset`.
         """
-        if self._math_fontfamily is None:
-            return rcParams['mathtext.fontset']
         return self._math_fontfamily
 
     def set_math_fontfamily(self, fontfamily):
@@ -921,13 +919,12 @@ class FontProperties:
         .text.Text.get_math_fontfamily
         """
         if fontfamily is None:
-            self._math_fontfamily = None
-            return
-
-        valid_fonts = _validators['mathtext.fontset'].valid.values()
-        # _check_in_list() Validates the parameter math_fontfamily as
-        # if it were passed to rcParams['mathtext.fontset']
-        _api.check_in_list(valid_fonts, math_fontfamily=fontfamily)
+            fontfamily = rcParams['mathtext.fontset']
+        else:
+            valid_fonts = _validators['mathtext.fontset'].valid.values()
+            # _check_in_list() Validates the parameter math_fontfamily as
+            # if it were passed to rcParams['mathtext.fontset']
+            _api.check_in_list(valid_fonts, math_fontfamily=fontfamily)
         self._math_fontfamily = fontfamily
 
     def copy(self):
