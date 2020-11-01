@@ -1,7 +1,7 @@
 """
-=============
-Demo Axes RGB
-=============
+=======
+RGBAxes
+=======
 
 RGBAxes to show RGB composite images.
 """

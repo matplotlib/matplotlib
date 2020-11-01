@@ -1,7 +1,7 @@
 """
-===================
-Lasso Selector Demo
-===================
+==============
+Lasso Selector
+==============
 
 Interactively selecting data points with the lasso tool.
 

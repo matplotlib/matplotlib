@@ -1,11 +1,11 @@
 """
-==============
-Demo Text Path
-==============
+======================
+Using a text as a Path
+======================
 
-Use a text as `.Path`. The tool that allows for such conversion is a
-`~matplotlib.textpath.TextPath`. The resulting path can be employed
-e.g. as a clip path for an image.
+`~matplotlib.textpath.TextPath` creates a `.Path` that is the outline of the
+characters of a text. The resulting path can be employed e.g. as a clip path
+for an image.
 """
 
 import matplotlib.pyplot as plt

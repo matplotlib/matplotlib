@@ -1,7 +1,7 @@
 r"""
-=======================
-Demo Text Rotation Mode
-=======================
+==================
+Text Rotation Mode
+==================
 
 This example illustrates the effect of ``rotation_mode`` on the positioning
 of rotated text.
