@@ -1,0 +1,7 @@
+`shadow` parameter for Legend can be colorlike or bool
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter can now be any colorlike in addition to
+a bool. If it is neither, a ValueError is thrown.
+
+An accessory validation function `validate_color_or_bool'
+has also been added, which preferentially returns a color.
