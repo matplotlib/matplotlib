@@ -4786,32 +4786,28 @@ default: :rc:`scatter.edgecolors`
         if not marginals:
             return collection
 
-        if C is None:
-            C = np.ones(len(x))
-
         def coarse_bin(x, y, coarse):
-            ind = coarse.searchsorted(x).clip(0, len(coarse) - 1)
-            mus = np.zeros(len(coarse))
-            for i in range(len(coarse)):
-                yi = y[ind == i]
-                if len(yi) > 0:
-                    mu = reduce_C_function(yi)
-                else:
-                    mu = np.nan
-                mus[i] = mu
+            ind = coarse.searchsorted(x)
+            mus = np.zeros(len(coarse)-1)
+            if y is None:
+                for i in range(len(coarse)-1):
+                    mus[i] = np.sum(ind == i+1)
+            else:
+                for i in range(len(coarse)-1):
+                    yi = y[ind == i+1]
+                    if len(yi) > 0:
+                        mus[i] = reduce_C_function(yi)
+            mus[mus == 0] = np.nan
             return mus
 
-        coarse = np.linspace(xmin, xmax, gridsize)
+        coarse = np.linspace(xmin, xmax, nx+1)
 
         xcoarse = coarse_bin(xorig, C, coarse)
         valid = ~np.isnan(xcoarse)
         verts, values = [], []
         for i, val in enumerate(xcoarse):
             thismin = coarse[i]
-            if i < len(coarse) - 1:
-                thismax = coarse[i + 1]
-            else:
-                thismax = thismin + np.diff(coarse)[-1]
+            thismax = coarse[i + 1]
 
             if not valid[i]:
                 continue
@@ -4834,27 +4830,29 @@ default: :rc:`scatter.edgecolors`
         hbar.update(kwargs)
         self.add_collection(hbar, autolim=False)
 
-        coarse = np.linspace(ymin, ymax, gridsize)
+        coarse = np.linspace(ymin, ymax, ny+1)
+
         ycoarse = coarse_bin(yorig, C, coarse)
         valid = ~np.isnan(ycoarse)
         verts, values = [], []
         for i, val in enumerate(ycoarse):
             thismin = coarse[i]
-            if i < len(coarse) - 1:
-                thismax = coarse[i + 1]
-            else:
-                thismax = thismin + np.diff(coarse)[-1]
+            thismax = coarse[i + 1]
+
             if not valid[i]:
                 continue
-            verts.append([(0, thismin), (0.0, thismax),
-                          (0.05, thismax), (0.05, thismin)])
+
+            verts.append([(0, thismin),
+                          (0, thismax),
+                          (0.05, thismax),
+                          (0.05, thismin)])
             values.append(val)
 
         values = np.array(values)
-
         trans = self.get_yaxis_transform(which='grid')
 
         vbar = mcoll.PolyCollection(verts, transform=trans, edgecolors='face')
+
         vbar.set_array(values)
         vbar.set_cmap(cmap)
         vbar.set_norm(norm)
