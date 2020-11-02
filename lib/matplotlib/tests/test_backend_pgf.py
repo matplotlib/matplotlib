@@ -46,9 +46,9 @@ needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
                                     reason='lualatex + pgf is required')
 
 
-def _has_sfmath():
+def _has_tex_package(package):
     return (shutil.which("kpsewhich")
-            and subprocess.run(["kpsewhich", "sfmath.sty"],
+            and subprocess.run(["kpsewhich", f"{package}.sty"],
                                stdout=subprocess.PIPE).returncode == 0)
 
 
@@ -113,6 +113,7 @@ def test_xelatex():
 
 # test compiling a figure to pdf with pdflatex
 @needs_pdflatex
+@pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default')
 def test_pdflatex():
@@ -132,7 +133,6 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
-@pytest.mark.skipif(not _has_sfmath(), reason='needs sfmath.sty')
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
@@ -154,6 +154,10 @@ def test_rcupdate():
     tol = [6, 0]
     for i, rc_set in enumerate(rc_sets):
         with mpl.rc_context(rc_set):
+            for substring, pkg in [('sfmath', 'sfmath'), ('utf8x', 'ucs')]:
+                if (substring in mpl.rcParams['pgf.preamble']
+                        and not _has_tex_package(pkg)):
+                    pytest.skip(f'needs {pkg}.sty')
             create_figure()
             compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
 
