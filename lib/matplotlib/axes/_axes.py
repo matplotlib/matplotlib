@@ -4603,6 +4603,9 @@ default: :rc:`scatter.edgecolors`
             y = np.log10(y)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
+            if xmin > xmax or ymin > ymax:
+                raise ValueError("extent values in wrong order. Should be"
+                                 " (left, right, bottom, top)")
         else:
             xmin, xmax = (np.min(x), np.max(x)) if len(x) else (0, 1)
             ymin, ymax = (np.min(y), np.max(y)) if len(y) else (0, 1)
