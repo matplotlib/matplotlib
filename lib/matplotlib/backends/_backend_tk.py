@@ -1,3 +1,4 @@
+import uuid
 from contextlib import contextmanager
 import logging
 import math
@@ -44,6 +45,28 @@ def _restore_foreground_window_at_end():
             _c_internal_utils.Win32_SetForegroundWindow(foreground)
 
 
+_blit_args = {}
+# Initialize to a non-empty string that is not a Tcl command
+_blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
+
+
+def _blit(argsid):
+    """
+    Thin wrapper to blit called via tkapp.call.
+
+    *argsid* is a unique string identifier to fetch the correct arguments from
+    the ``_blit_args`` dict, since arguments cannot be passed directly.
+
+    photoimage blanking must occur in the same event and thread as blitting
+    to avoid flickering.
+    """
+    photoimage, dataptr, offsets, bboxptr, blank = _blit_args.pop(argsid)
+    if blank:
+        photoimage.blank()
+    _tkagg.blit(
+        photoimage.tk.interpaddr(), str(photoimage), dataptr, offsets, bboxptr)
+
+
 def blit(photoimage, aggimage, offsets, bbox=None):
     """
     Blit *aggimage* to *photoimage*.
@@ -53,7 +76,10 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     (2, 1, 0, 3) for little-endian ARBG32 (i.e. GBRA8888) data and (1, 2, 3, 0)
     for big-endian ARGB32 (i.e. ARGB8888) data.
 
-    If *bbox* is passed, it defines the region that gets blitted.
+    If *bbox* is passed, it defines the region that gets blitted. That region
+    will NOT be blanked before blitting.
+
+    Tcl events must be dispatched to trigger a blit from a non-Tcl thread.
     """
     data = np.asarray(aggimage)
     height, width = data.shape[:2]
@@ -65,11 +91,31 @@ def blit(photoimage, aggimage, offsets, bbox=None):
         y1 = max(math.floor(y1), 0)
         y2 = min(math.ceil(y2), height)
         bboxptr = (x1, x2, y1, y2)
+        blank = False
     else:
-        photoimage.blank()
         bboxptr = (0, width, 0, height)
-    _tkagg.blit(
-        photoimage.tk.interpaddr(), str(photoimage), dataptr, offsets, bboxptr)
+        blank = True
+
+    # NOTE: _tkagg.blit is thread unsafe and will crash the process if called
+    # from a thread (GH#13293). Instead of blanking and blitting here,
+    # use tkapp.call to post a cross-thread event if this function is called
+    # from a non-Tcl thread.
+
+    # tkapp.call coerces all arguments to strings, so to avoid string parsing
+    # within _blit, pack up the arguments into a global data structure.
+    args = photoimage, dataptr, offsets, bboxptr, blank
+    # Need a unique key to avoid thread races.
+    # Again, make the key a string to avoid string parsing in _blit.
+    argsid = str(id(args))
+    _blit_args[argsid] = args
+
+    try:
+        photoimage.tk.call(_blit_tcl_name, argsid)
+    except tk.TclError as e:
+        if "invalid command name" not in str(e):
+            raise
+        photoimage.tk.createcommand(_blit_tcl_name, _blit)
+        photoimage.tk.call(_blit_tcl_name, argsid)
 
 
 class TimerTk(TimerBase):
@@ -402,10 +448,18 @@ class FigureManagerTk(FigureManagerBase):
         if self.canvas._idle_callback:
             self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
 
-        self.window.destroy()
+        # NOTE: events need to be flushed before issuing destroy (GH #9956),
+        # however, self.window.update() can break user code. This is the
+        # safest way to achieve a complete draining of the event queue,
+        # but it may require users to update() on their own to execute the
+        # completion in obscure corner cases.
+        def delayed_destroy():
+            self.window.destroy()
 
-        if self._owns_mainloop and not Gcf.get_num_fig_managers():
-            self.window.quit()
+            if self._owns_mainloop and not Gcf.get_num_fig_managers():
+                self.window.quit()
+
+        self.window.after_idle(delayed_destroy)
 
     def get_window_title(self):
         return self.window.wm_title()

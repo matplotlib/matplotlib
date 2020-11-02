@@ -67,7 +67,6 @@ def _get_testable_interactive_backends():
 # early.  Also, gtk3 redefines key_press_event with a different signature, so
 # we directly invoke it from the superclass instead.
 _test_script = """\
-import importlib
 import importlib.util
 import io
 import json
@@ -170,6 +169,90 @@ def test_interactive_backend(backend, toolbar):
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")
+    assert proc.stdout.count("CloseEvent") == 1
+
+
+_thread_test_script = """\
+import json
+import sys
+import threading
+
+from matplotlib import pyplot as plt, rcParams
+rcParams.update({
+    "webagg.open_in_browser": False,
+    "webagg.port_retries": 1,
+})
+if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
+    rcParams.update(json.loads(sys.argv[1]))
+
+# Test artist creation and drawing does not crash from thread
+# No other guarantees!
+fig, ax = plt.subplots()
+# plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
+plt.pause(0.5)
+
+exc_info = None
+
+def thread_artist_work():
+    try:
+        ax.plot([1,3,6])
+    except:
+        # Propagate error to main thread
+        import sys
+        global exc_info
+        exc_info = sys.exc_info()
+
+def thread_draw_work():
+    try:
+        fig.canvas.draw()
+    except:
+        # Propagate error to main thread
+        import sys
+        global exc_info
+        exc_info = sys.exc_info()
+
+t = threading.Thread(target=thread_artist_work)
+t.start()
+# artists never wait for the event loop to run, so just join
+t.join()
+
+if exc_info:  # Raise thread error
+    raise exc_info[1].with_traceback(exc_info[2])
+
+t = threading.Thread(target=thread_draw_work)
+fig.canvas.mpl_connect("close_event", print)
+t.start()
+plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
+t.join()
+plt.close()
+fig.canvas.flush_events()  # pause doesn't process events after close
+
+if exc_info:  # Raise thread error
+    raise exc_info[1].with_traceback(exc_info[2])
+"""
+
+_thread_safe_backends = _get_testable_interactive_backends()
+# Known unsafe backends. Remove the xfails if they start to pass!
+if "wx" in _thread_safe_backends:
+    _thread_safe_backends.remove("wx")
+    _thread_safe_backends.append(
+        pytest.param("wx", marks=pytest.mark.xfail(
+            raises=subprocess.CalledProcessError, strict=True)))
+if "macosx" in _thread_safe_backends:
+    _thread_safe_backends.remove("macosx")
+    _thread_safe_backends.append(
+        pytest.param("macosx", marks=pytest.mark.xfail(
+            raises=subprocess.TimeoutExpired, strict=True)))
+
+
+@pytest.mark.parametrize("backend", _thread_safe_backends)
+@pytest.mark.flaky(reruns=3)
+def test_interactive_thread_safety(backend):
+    proc = subprocess.run(
+        [sys.executable, "-c", _thread_test_script],
+        env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout, check=True,
+        stdout=subprocess.PIPE, universal_newlines=True)
     assert proc.stdout.count("CloseEvent") == 1
 
 
