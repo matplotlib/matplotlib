@@ -422,6 +422,7 @@ class ColorbarBase:
                  extend=None,
                  spacing='uniform',  # uniform or proportional
                  ticks=None,
+                 ticklabels=None,
                  format=None,
                  drawedges=False,
                  filled=True,
@@ -463,6 +464,7 @@ class ColorbarBase:
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
         self.spacing = spacing
+        self.ticklabels = ticklabels
         self.orientation = orientation
         self.drawedges = drawedges
         self.filled = filled
@@ -543,6 +545,8 @@ class ColorbarBase:
         self.outline.set_xy(xy)
         self.patch.set_xy(xy)
         self.update_ticks()
+        if self.ticklabels:
+            self.set_ticklabels(self.ticklabels)
         if self.filled:
             self._add_solids(X, Y, self._values[:, np.newaxis])
 
