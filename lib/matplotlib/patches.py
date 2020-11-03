@@ -1305,6 +1305,12 @@ class FancyArrow(Polygon):
         """
         Parameters
         ----------
+        x, y : float
+            The x and y coordinates of the arrow base.
+
+        dx, dy : float
+            The length of the arrow along x and y direction.
+
         width : float, default: 0.001
             Width of full arrow tail.
 
