@@ -66,13 +66,14 @@ class RGBAxes:
     4-panel imshow (RGB, R, G, B).
 
     Layout:
-    +---------------+-----+
-    |               |  R  |
-    +               +-----+
-    |      RGB      |  G  |
-    +               +-----+
-    |               |  B  |
-    +---------------+-----+
+
+        +---------------+-----+
+        |               |  R  |
+        +               +-----+
+        |      RGB      |  G  |
+        +               +-----+
+        |               |  B  |
+        +---------------+-----+
 
     Subclasses can override the ``_defaultAxesClass`` attribute.
 
