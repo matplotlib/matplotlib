@@ -1096,6 +1096,7 @@ class Normalize:
         self.vmin = _sanitize_extrema(vmin)
         self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
+        self._scale = scale.LinearScale(axis=None)
 
     @staticmethod
     def process_value(value):

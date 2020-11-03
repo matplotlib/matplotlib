@@ -2162,8 +2162,7 @@ class MaxNLocator(Locator):
             self._nbins = kwargs.pop('nbins')
             if self._nbins != 'auto':
                 self._nbins = int(self._nbins)
-        if 'symmetric' in kwargs:
-            self._symmetric = kwargs.pop('symmetric')
+        self._symmetric = kwargs.pop('symmetric', False)
         if 'prune' in kwargs:
             prune = kwargs.pop('prune')
             _api.check_in_list(['upper', 'lower', 'both', None], prune=prune)

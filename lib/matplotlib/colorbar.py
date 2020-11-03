@@ -222,6 +222,31 @@ def _set_ticks_on_axis_warn(*args, **kw):
     cbook._warn_external("Use the colorbar set_ticks() method instead.")
 
 
+class _LocatorWrapper():
+    def __init__(self, parentLocator, colorbar=None):
+        print('Start INIT')
+        self.__class__ = type(parentLocator.__class__.__name__,
+                             (self.__class__, parentLocator.__class__),
+                             {})
+        self.__dict__ = parentLocator.__dict__
+        self._colorbar = colorbar
+        print('Stop INIT', parentLocator)
+
+
+    def tick_values(self, vmin, vmax):
+        if vmin is not None:
+            vmin = max(vmin, self._colorbar.norm.vmin)
+        if vmax is not None:
+            vmax = min(vmax, self._colorbar.norm.vmax)
+        ticks = super().tick_values(vmin, vmax)
+        if len(ticks) == 0:
+            return ticks
+        trans = self._colorbar.norm._scale._transform.transform
+        rtol = (trans(vmax) - trans(vmin)) * 1e-10
+        return ticks[(trans(ticks) >= trans(vmin) - rtol) &
+                     (trans(ticks) <= trans(vmax) + rtol)]
+
+
 class _ColorbarAutoLocator(ticker.MaxNLocator):
     """
     AutoLocator for Colorbar
@@ -307,6 +332,7 @@ class _ColorbarLogLocator(ticker.LogLocator):
             vmin, vmax = vmax, vmin
         vmin = max(vmin, self._colorbar.norm.vmin)
         vmax = min(vmax, self._colorbar.norm.vmax)
+        print('vmin, vmax', vmin, vmax)
         ticks = super().tick_values(vmin, vmax)
         rtol = (np.log10(vmax) - np.log10(vmin)) * 1e-10
         ticks = ticks[(np.log10(ticks) >= np.log10(vmin) - rtol) &
@@ -488,7 +514,9 @@ class ColorbarBase:
         self.ax.add_collection(self.dividers)
 
         self.locator = None
+        self.minorlocator = None
         self.formatter = None
+        self.minorformatter = None
         self._manual_tick_data_values = None
         self.__scale = None  # linear, log10 for now.  Hopefully more?
 
@@ -509,6 +537,18 @@ class ColorbarBase:
         else:
             self.formatter = format  # Assume it is a Formatter or None
         self.draw_all()
+
+    def _long_axis(self):
+        if self.orientation == 'vertical':
+            return self.ax.yaxis
+        else:
+            return self.ax.xaxis
+
+    def _short_axis(self):
+        if self.orientation == 'vertical':
+            return self.ax.xaxis
+        else:
+            return self.ax.yaxis
 
     def _extend_lower(self):
         """Return whether the lower limit is open ended."""
@@ -552,19 +592,16 @@ class ColorbarBase:
 
     def _config_axis(self):
         """Set up long and short axis."""
-        ax = self.ax
         if self.orientation == 'vertical':
-            long_axis, short_axis = ax.yaxis, ax.xaxis
             if mpl.rcParams['ytick.minor.visible']:
                 self.minorticks_on()
         else:
-            long_axis, short_axis = ax.xaxis, ax.yaxis
             if mpl.rcParams['xtick.minor.visible']:
                 self.minorticks_on()
-        long_axis.set(label_position=self.ticklocation,
+        self._long_axis().set(label_position=self.ticklocation,
                       ticks_position=self.ticklocation)
-        short_axis.set_ticks([])
-        short_axis.set_ticks([], minor=True)
+        self._short_axis().set_ticks([])
+        self._short_axis().set_ticks([], minor=True)
         self.stale = True
 
     def _get_ticker_locator_formatter(self):
@@ -577,30 +614,20 @@ class ColorbarBase:
         """
         locator = self.locator
         formatter = self.formatter
-        if locator is None:
-            if self.boundaries is None:
-                if isinstance(self.norm, colors.NoNorm):
-                    nv = len(self._values)
-                    base = 1 + int(nv / 10)
-                    locator = ticker.IndexLocator(base=base, offset=0)
-                elif isinstance(self.norm, colors.BoundaryNorm):
-                    b = self.norm.boundaries
-                    locator = ticker.FixedLocator(b, nbins=10)
-                elif isinstance(self.norm, colors.LogNorm):
-                    locator = _ColorbarLogLocator(self)
-                elif isinstance(self.norm, colors.SymLogNorm):
-                    # The subs setting here should be replaced
-                    # by logic in the locator.
-                    locator = ticker.SymmetricalLogLocator(
-                                      subs=np.arange(1, 10),
-                                      linthresh=self.norm.linthresh,
-                                      base=10)
-                else:
-                    if mpl.rcParams['_internal.classic_mode']:
-                        locator = ticker.MaxNLocator()
-                    else:
-                        locator = _ColorbarAutoLocator(self)
-            else:
+        minorlocator = self.minorlocator
+        minorformatter = self.minorformatter
+
+
+        if self.boundaries is None:
+            if locator is None:
+                locator = _LocatorWrapper(self._long_axis().get_major_locator(),
+                                      colorbar=self)
+            if minorlocator is None:
+                print('Setting', self._long_axis().get_minor_locator())
+                minorlocator = _LocatorWrapper(
+                    self._long_axis().get_minor_locator(), colorbar=self)
+        else:
+            if locator is None:
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
 
@@ -616,9 +643,9 @@ class ColorbarBase:
             formatter = self.formatter
 
         self.locator = locator
+        self.minorlocator = minorlocator
         self.formatter = formatter
-        _log.debug('locator: %r', locator)
-        return locator, formatter
+        self.minorformatter = minorformatter
 
     def _use_auto_colorbar_locator(self):
         """
@@ -636,15 +663,13 @@ class ColorbarBase:
         the mappable normal gets changed: Colorbar.update_normal)
         """
         self.locator = None
+        self.minorlocator = None
         self.formatter = None
-        print('Norm Scale', self.norm._scale)
-        if isinstance(self.norm, colors.LogNorm):
-            # *both* axes are made log so that determining the
-            # mid point is easier.
-            self.ax.set_xscale('log')
-            self.ax.set_yscale('log')
-            self.minorticks_on()
-            self.__scale = 'log'
+        if hasattr(self.norm, '_scale'):
+            print('scale', self.norm._scale)
+            self.ax.set_xscale(self.norm._scale.name)
+            self.ax.set_yscale(self.norm._scale.name)
+            self.__scale = self.norm._scale.name
         else:
             self.ax.set_xscale('linear')
             self.ax.set_yscale('linear')
@@ -652,9 +677,6 @@ class ColorbarBase:
                 self.__scale = 'linear'
             else:
                 self.__scale = 'manual'
-        self.ax.set_xscale(self.norm._scale.name)
-        self.ax.set_yscale(self.norm._scale.name)
-        self.__scale = self.norm._scale.name
 
     def update_ticks(self):
         """
@@ -663,18 +685,22 @@ class ColorbarBase:
         """
         ax = self.ax
         # Get the locator and formatter; defaults to self.locator if not None.
-        locator, formatter = self._get_ticker_locator_formatter()
-        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
+        self._get_ticker_locator_formatter()
+        print('locform', self.locator, self.minorlocator, self.formatter)
         if self._use_auto_colorbar_locator():
-            _log.debug('Using auto colorbar locator %r on colorbar', locator)
-            long_axis.set_major_locator(locator)
-            long_axis.set_major_formatter(formatter)
+            _log.debug('Using auto colorbar locator %r on colorbar',
+                       self.locator)
+            self._long_axis().set_major_locator(self.locator)
+            self._long_axis().set_minor_locator(self.minorlocator)
+            self._long_axis().set_major_formatter(self.formatter)
         else:
             _log.debug('Using fixed locator on colorbar')
-            ticks, ticklabels, offset_string = self._ticker(locator, formatter)
-            long_axis.set_ticks(ticks)
-            long_axis.set_ticklabels(ticklabels)
-            long_axis.get_major_formatter().set_offset_string(offset_string)
+            ticks, ticklabels, offset_string = self._ticker(self.locator,
+                                                            self.formatter)
+            print('ticks!', ticks, self.locator)
+            self._long_axis().set_ticks(ticks)
+            self._long_axis().set_ticklabels(ticklabels)
+            self._long_axis().get_major_formatter().set_offset_string(offset_string)
 
     def set_ticks(self, ticks, update_ticks=True):
         """
@@ -705,9 +731,7 @@ class ColorbarBase:
         """Return the x ticks as a list of locations."""
         if self._manual_tick_data_values is None:
             ax = self.ax
-            long_axis = (
-                ax.yaxis if self.orientation == 'vertical' else ax.xaxis)
-            return long_axis.get_majorticklocs()
+            return self._long_axis().get_majorticklocs()
         else:
             # We made the axes manually, the old way, and the ylim is 0-1,
             # so the majorticklocs are in those units, not data units.
@@ -734,20 +758,19 @@ class ColorbarBase:
         into the "extend regions".
         """
         ax = self.ax
-        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
 
-        if long_axis.get_scale() == 'log':
-            long_axis.set_minor_locator(_ColorbarLogLocator(self, base=10.,
+        if self._long_axis().get_scale() == 'log':
+            self._long_axis().set_minor_locator(_ColorbarLogLocator(self, base=10.,
                                                             subs='auto'))
-            long_axis.set_minor_formatter(ticker.LogFormatterSciNotation())
+            self._long_axis().set_minor_formatter(ticker.LogFormatterSciNotation())
         else:
-            long_axis.set_minor_locator(_ColorbarAutoMinorLocator(self))
+            self._long_axis().set_minor_locator(_ColorbarAutoMinorLocator(self))
 
     def minorticks_off(self):
         """Turn the minor ticks of the colorbar off."""
         ax = self.ax
-        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
-        long_axis.set_minor_locator(ticker.NullLocator())
+        self.minorlocator = ticker.NullLocator()
+        self._long_axis().set_minor_locator(self.minorlocator)
 
     def set_label(self, label, *, loc=None, **kwargs):
         """
@@ -1276,6 +1299,7 @@ class Colorbar(ColorbarBase):
         # colorbar methods, those changes will be lost.
         self.ax.cla()
         self.locator = None
+        self.minorlocator = None
         self.formatter = None
 
         # clearing the axes will delete outline, patch, solids, and lines:

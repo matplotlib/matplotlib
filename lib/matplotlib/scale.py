@@ -92,6 +92,7 @@ class LinearScale(ScaleBase):
         # the docstring of Axis.set_scale.
         """
         """
+        self._transform = IdentityTransform()
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
@@ -110,7 +111,7 @@ class LinearScale(ScaleBase):
         Return the transform for linear scaling, which is just the
         `~matplotlib.transforms.IdentityTransform`.
         """
-        return IdentityTransform()
+        return self._transform
 
 
 class FuncTransform(Transform):
