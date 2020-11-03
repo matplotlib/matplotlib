@@ -9,7 +9,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, Normalize,
                                TwoSlopeNorm)
-from matplotlib.colorbar import ColorbarBase, _ColorbarLogLocator
+from matplotlib.colorbar import ColorbarBase
 from matplotlib.ticker import FixedLocator
 
 
