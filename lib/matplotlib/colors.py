@@ -1251,6 +1251,7 @@ class TwoSlopeNorm(Normalize):
         if vcenter is not None and vmin is not None and vcenter <= vmin:
             raise ValueError('vmin, vcenter, and vmax must be in '
                              'ascending order')
+        self._scale = scale.LinearScale(axis=None)
 
     def autoscale_None(self, A):
         """
@@ -1317,6 +1318,7 @@ class CenteredNorm(Normalize):
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
         self.clip = clip
+        self._scale = scale.LinearScale(axis=None)
 
     def _set_vmin_vmax(self):
         """

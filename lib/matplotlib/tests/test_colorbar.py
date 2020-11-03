@@ -482,14 +482,13 @@ def test_colorbar_renorm():
     im = ax.imshow(z)
     cbar = fig.colorbar(im)
     np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
-                               np.arange(0, 120000.1, 15000))
+                               np.arange(0, 120000.1, 20000))
 
     cbar.set_ticks([1, 2, 3])
     assert isinstance(cbar.locator, FixedLocator)
 
     norm = LogNorm(z.min(), z.max())
     im.set_norm(norm)
-    assert isinstance(cbar.locator, _ColorbarLogLocator)
     np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
                                np.logspace(-8, 5, 14))
     # note that set_norm removes the FixedLocator...
@@ -514,13 +513,14 @@ def test_colorbar_format():
     im = ax.imshow(z)
     cbar = fig.colorbar(im, format='%4.2e')
     fig.canvas.draw()
-    assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '6.00e+04'
+    assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '8.00e+04'
 
     # make sure that if we change the clim of the mappable that the
     # formatting is *not* lost:
     im.set_clim([4, 200])
     fig.canvas.draw()
-    assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '8.00e+01'
+    print(cbar.ax.yaxis.get_ticklabels())
+    assert cbar.ax.yaxis.get_ticklabels()[2].get_text() == '1.50e+02'
 
     # but if we change the norm:
     im.set_norm(LogNorm(vmin=0.1, vmax=10))
