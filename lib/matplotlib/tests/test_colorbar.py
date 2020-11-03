@@ -519,7 +519,6 @@ def test_colorbar_format():
     # formatting is *not* lost:
     im.set_clim([4, 200])
     fig.canvas.draw()
-    print(cbar.ax.yaxis.get_ticklabels())
     assert cbar.ax.yaxis.get_ticklabels()[2].get_text() == '1.50e+02'
 
     # but if we change the norm:
