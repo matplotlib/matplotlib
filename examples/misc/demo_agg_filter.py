@@ -1,8 +1,13 @@
 """
-===============
-Demo Agg Filter
-===============
+==========
+AGG filter
+==========
 
+Most pixel-based backends in Matplotlib use `Anti-Grain Geometry (AGG)`_ for
+rendering. You can modify the rendering of Artists by applying a filter via
+`.Artist.set_agg_filter`.
+
+.. _Anti-Grain Geometry (AGG): http://antigrain.com
 """
 
 import matplotlib.cm as cm
