@@ -119,6 +119,11 @@ def _create_qApp():
                     QtCore.Qt.AA_EnableHighDpiScaling)
             except AttributeError:  # Attribute only exists for Qt>=5.6.
                 pass
+            try:
+                QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
+                    QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+            except AttributeError:  # Added in Qt>=5.14.
+                pass
             qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
             cbook._setup_new_guiapp()
