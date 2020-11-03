@@ -206,15 +206,12 @@ def _devicePixelRatioF(obj):
         return 1
 
 
-def _setDevicePixelRatioF(obj, val):
+def _setDevicePixelRatio(obj, val):
     """
-    Call obj.setDevicePixelRatioF(val) with graceful fallback for older Qt.
+    Call obj.setDevicePixelRatio(val) with graceful fallback for older Qt.
 
     This can be replaced by the direct call when we require Qt>=5.6.
     """
-    if hasattr(obj, 'setDevicePixelRatioF'):
-        # Not available on Qt<5.6
-        obj.setDevicePixelRatioF(val)
-    elif hasattr(obj, 'setDevicePixelRatio'):
+    if hasattr(obj, 'setDevicePixelRatio'):
         # Not available on Qt4 or some older Qt5.
         obj.setDevicePixelRatio(val)

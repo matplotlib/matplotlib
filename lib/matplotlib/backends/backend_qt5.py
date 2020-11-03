@@ -17,7 +17,7 @@ from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, __version__, QT_API,
-    _devicePixelRatioF, _isdeleted, _setDevicePixelRatioF,
+    _devicePixelRatioF, _isdeleted, _setDevicePixelRatio,
 )
 
 backend_version = __version__
@@ -707,7 +707,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if QtCore.qVersion() >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
-        _setDevicePixelRatioF(pm, _devicePixelRatioF(self))
+        _setDevicePixelRatio(pm, _devicePixelRatioF(self))
         if self.palette().color(self.backgroundRole()).value() < 128:
             icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
