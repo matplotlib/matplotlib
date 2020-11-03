@@ -578,38 +578,32 @@ class FontProperties:
 
     - family: A list of font names in decreasing order of priority.
       The items may include a generic font family name, either
-      'serif', 'sans-serif', 'cursive', 'fantasy', or 'monospace'.
+      'sans-serif' (default), 'serif', 'cursive', 'fantasy', or 'monospace'.
       In that case, the actual font to be used will be looked up
       from the associated rcParam.
 
-    - style: Either 'normal', 'italic' or 'oblique'.
+    - style: Either 'normal' (default), 'italic' or 'oblique'.
 
-    - variant: Either 'normal' or 'small-caps'.
+    - variant: Either 'normal' (default) or 'small-caps'.
 
     - stretch: A numeric value in the range 0-1000 or one of
       'ultra-condensed', 'extra-condensed', 'condensed',
-      'semi-condensed', 'normal', 'semi-expanded', 'expanded',
+      'semi-condensed', 'normal' (default), 'semi-expanded', 'expanded',
       'extra-expanded' or 'ultra-expanded'.
 
     - weight: A numeric value in the range 0-1000 or one of
-      'ultralight', 'light', 'normal', 'regular', 'book', 'medium',
+      'ultralight', 'light', 'normal' (default), 'regular', 'book', 'medium',
       'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
       'extra bold', 'black'.
 
     - size: Either an relative value of 'xx-small', 'x-small',
       'small', 'medium', 'large', 'x-large', 'xx-large' or an
-      absolute font size, e.g., 12.
+      absolute font size, e.g., 10 (default).
 
     - math_fontfamily: The family of fonts used to render math text; overrides
       :rc:`mathtext.fontset`. Supported values are the same as the ones
-      supported by :rc:`mathtext.fontset` ::
-
-        'dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans' and 'custom'.
-
-    The default font property for TrueType fonts (as specified in the
-    default rcParams) is ::
-
-      sans-serif, normal, normal, normal, normal, scalable.
+      supported by :rc:`mathtext.fontset`: 'dejavusans', 'dejavuserif', 'cm',
+      'stix', 'stixsans' and 'custom'.
 
     Alternatively, a font may be specified using the absolute path to a font
     file, by using the *fname* kwarg.  However, in this case, it is typically
