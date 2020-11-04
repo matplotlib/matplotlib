@@ -786,7 +786,7 @@ def test_image_preserve_size2():
                        np.identity(n, bool)[::-1])
 
 
-@image_comparison(['mask_image_over_under.png'], remove_text=False, tol=1.0)
+@image_comparison(['mask_image_over_under.png'], remove_text=True, tol=1.0)
 def test_mask_image_over_under():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False

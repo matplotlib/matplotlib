@@ -63,4 +63,3 @@ def test_imagegrid():
     ax = grid[0]
     im = ax.imshow([[1, 2]], norm=mpl.colors.LogNorm())
     cb = ax.cax.colorbar(im)
-    assert isinstance(cb.locator, mpl.colorbar._ColorbarLogLocator)

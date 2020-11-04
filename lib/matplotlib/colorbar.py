@@ -248,7 +248,6 @@ class _LocatorWrapper():
         ticks = super().__call__()
         return self._trim_ticks(np.asarray(ticks))
 
-
     def tick_values(self, vmin, vmax):
         if vmin is not None and vmax is not None and vmin > vmax:
             vmax, vmin = vmin, vmax
@@ -537,7 +536,8 @@ class ColorbarBase:
         minorlocator = self.minorlocator
         minorformatter = self.minorformatter
 
-        if self.boundaries is None:
+        if (self.boundaries is None and
+                not isinstance(self.norm, colors.BoundaryNorm)):
             if locator is None:
                 locator = _LocatorWrapper(
                     self._long_axis().get_major_locator(), colorbar=self)

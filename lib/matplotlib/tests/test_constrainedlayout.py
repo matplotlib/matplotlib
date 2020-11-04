@@ -51,8 +51,6 @@ def test_constrained_layout2():
 @image_comparison(['constrained_layout3.png'])
 def test_constrained_layout3():
     """Test constrained_layout for colorbars with subplots"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for nn, ax in enumerate(axs.flat):
@@ -67,8 +65,6 @@ def test_constrained_layout3():
 @image_comparison(['constrained_layout4.png'])
 def test_constrained_layout4():
     """Test constrained_layout for a single colorbar with subplots"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
@@ -82,8 +78,6 @@ def test_constrained_layout5():
     Test constrained_layout for a single colorbar with subplots,
     colorbar bottom
     """
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
@@ -96,8 +90,6 @@ def test_constrained_layout5():
 @image_comparison(['constrained_layout6.png'], tol=0.002)
 def test_constrained_layout6():
     """Test constrained_layout for nested gridspecs"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(1, 2, figure=fig)
@@ -139,8 +131,6 @@ def test_constrained_layout7():
 @image_comparison(['constrained_layout8.png'])
 def test_constrained_layout8():
     """Test for gridspecs that are not completely full"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig = plt.figure(figsize=(10, 5), constrained_layout=True)
     gs = gridspec.GridSpec(3, 5, figure=fig)
@@ -169,8 +159,6 @@ def test_constrained_layout8():
 @image_comparison(['constrained_layout9.png'])
 def test_constrained_layout9():
     """Test for handling suptitle and for sharex and sharey"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig, axs = plt.subplots(2, 2, constrained_layout=True,
                             sharex=False, sharey=False)
@@ -195,8 +183,6 @@ def test_constrained_layout10():
 @image_comparison(['constrained_layout11.png'])
 def test_constrained_layout11():
     """Test for multiple nested gridspecs"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig = plt.figure(constrained_layout=True, figsize=(13, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig)
@@ -217,8 +203,6 @@ def test_constrained_layout11():
 @image_comparison(['constrained_layout11rat.png'])
 def test_constrained_layout11rat():
     """Test for multiple nested gridspecs with width_ratios"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig = plt.figure(constrained_layout=True, figsize=(10, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[6, 1])
@@ -261,8 +245,6 @@ def test_constrained_layout12():
 @image_comparison(['constrained_layout13.png'], tol=2.e-2)
 def test_constrained_layout13():
     """Test that padding works."""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
@@ -274,8 +256,6 @@ def test_constrained_layout13():
 @image_comparison(['constrained_layout14.png'])
 def test_constrained_layout14():
     """Test that padding works."""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
@@ -402,9 +382,6 @@ def test_colorbar_location():
     Test that colorbar handling is as expected for various complicated
     cases...
     """
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     fig, axs = plt.subplots(4, 5, constrained_layout=True)
     for ax in axs.flat:
         pcm = example_pcolor(ax)

@@ -178,7 +178,6 @@ class FuncScale(ScaleBase):
         self._transform = transform
         self._kwargs = {'functions': functions}
 
-
     def get_transform(self):
         """Return the `.FuncTransform` associated with this scale."""
         return self._transform
@@ -578,8 +577,7 @@ class LogitScale(ScaleBase):
         self._use_overline = use_overline
         self._one_half = one_half
         self._kwargs = {'nonpositive': nonpositive, 'one_half': one_half,
-                        'use_overline':use_overline}
-
+                        'use_overline': use_overline}
 
     def get_transform(self):
         """Return the `.LogitTransform` associated with this scale."""
