@@ -237,12 +237,13 @@ class _LocatorWrapper():
         vmax = self._colorbar.norm.vmax
         trans = self._colorbar.norm._scale._transform.transform
         rtol = (trans(vmax) - trans(vmin)) * 1e-10
-        return ticks[(trans(ticks) >= trans(vmin) - rtol) &
-                     (trans(ticks) <= trans(vmax) + rtol)]
+        good = ((trans(ticks) >= trans(vmin) - rtol) &
+                     (trans(ticks) <= trans(vmax) + rtol))
+        return ticks[good]
 
     def __call__(self):
         ticks = super().__call__()
-        return self._trim_ticks(ticks)
+        return self._trim_ticks(np.asarray(ticks))
 
 
     def tick_values(self, vmin, vmax):
@@ -253,7 +254,7 @@ class _LocatorWrapper():
         if vmax is not None:
             vmax = min(vmax, self._colorbar.norm.vmax)
         ticks = super().tick_values(vmin, vmax)
-        return self._trim_ticks(ticks)
+        return self._trim_ticks(np.asarray(ticks))
 
 
 class _ColorbarSpine(mspines.Spine):
@@ -567,8 +568,7 @@ class ColorbarBase:
         one.  (check is used twice so factored out here...)
         """
         contouring = self.boundaries is not None and self.spacing == 'uniform'
-        return (type(self.norm) in [colors.Normalize, colors.LogNorm] and
-                not contouring)
+        return (hasattr(self.norm, '_scale') and not contouring)
 
     def _reset_locator_formatter_scale(self):
         """
@@ -580,8 +580,12 @@ class ColorbarBase:
         self.minorlocator = None
         self.formatter = None
         if hasattr(self.norm, '_scale'):
-            self.ax.set_xscale(self.norm._scale.name)
-            self.ax.set_yscale(self.norm._scale.name)
+            self.ax.set_xscale(self.norm._scale.name,
+                               **self.norm._scale._kwargs)
+            self.ax.set_yscale(self.norm._scale.name,
+                               **self.norm._scale._kwargs)
+            self.ax.xaxis._scale = self.norm._scale
+            self.ax.yaxis._scale = self.norm._scale
             self.__scale = self.norm._scale.name
         else:
             self.ax.set_xscale('linear')

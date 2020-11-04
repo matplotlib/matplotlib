@@ -53,6 +53,7 @@ class ScaleBase:
         be used: a single scale object should be usable by multiple
         `~matplotlib.axis.Axis`\es at the same time.
         """
+        self._kwargs = dict()
 
     def get_transform(self):
         """
@@ -93,6 +94,7 @@ class LinearScale(ScaleBase):
         """
         """
         self._transform = IdentityTransform()
+        self._kwargs = dict()
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
@@ -174,6 +176,8 @@ class FuncScale(ScaleBase):
         forward, inverse = functions
         transform = FuncTransform(forward, inverse)
         self._transform = transform
+        self._kwargs = {'functions': functions}
+
 
     def get_transform(self):
         """Return the `.FuncTransform` associated with this scale."""
@@ -297,6 +301,7 @@ class LogScale(ScaleBase):
         base, subs, nonpositive = __init__(**kwargs)
         self._transform = LogTransform(base, nonpositive)
         self.subs = subs
+        self._kwargs = kwargs
 
     base = property(lambda self: self._transform.base)
 
@@ -350,6 +355,7 @@ class FuncScaleLog(LogScale):
         forward, inverse = functions
         self.subs = None
         self._transform = FuncTransform(forward, inverse) + LogTransform(base)
+        self._kwargs = {'functions': functions, 'base': base}
 
     @property
     def base(self):
@@ -477,6 +483,7 @@ class SymmetricalLogScale(ScaleBase):
         base, linthresh, subs, linscale = __init__(**kwargs)
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
+        self._kwargs = kwargs
 
     base = property(lambda self: self._transform.base)
     linthresh = property(lambda self: self._transform.linthresh)
@@ -570,6 +577,9 @@ class LogitScale(ScaleBase):
         self._transform = LogitTransform(nonpositive)
         self._use_overline = use_overline
         self._one_half = one_half
+        self._kwargs = {'nonpositive': nonpositive, 'one_half': one_half,
+                        'use_overline':use_overline}
+
 
     def get_transform(self):
         """Return the `.LogitTransform` associated with this scale."""
