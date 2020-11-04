@@ -12,7 +12,7 @@ min_version = (3, 7)
 
 if sys.version_info < min_version:
     error = """
-Beginning with Matplotlib 3.1, Python {0} or above is required.
+Beginning with Matplotlib 3.4, Python {0} or above is required.
 You are using Python {1}.
 
 This may be due to an out of date pip.
