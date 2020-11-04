@@ -788,6 +788,9 @@ class ColorbarBase:
         Draw the colors using `~.axes.Axes.pcolormesh`;
         optionally add separators.
         """
+        if C.shape[0] == Y.shape[0]:
+            # trim the last one to be compatible with old behavior.
+            C = C[:-1]
         if self.orientation == 'vertical':
             args = (X, Y, C)
         else:
