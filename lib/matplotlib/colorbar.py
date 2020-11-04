@@ -235,7 +235,10 @@ class _LocatorWrapper():
             return ticks
         vmin = self._colorbar.norm.vmin
         vmax = self._colorbar.norm.vmax
-        trans = self._colorbar.norm._scale._transform.transform
+        if hasattr(self._colorbar.norm, '_scale'):
+            trans = self._colorbar.norm._scale._transform.transform
+        else:
+            trans = mtransforms.IdentityTransform().transform
         rtol = (trans(vmax) - trans(vmin)) * 1e-10
         good = ((trans(ticks) >= trans(vmin) - rtol) &
                      (trans(ticks) <= trans(vmax) + rtol))
@@ -607,7 +610,8 @@ class ColorbarBase:
             _log.debug('Using auto colorbar locator %r on colorbar',
                        self.locator)
             self._long_axis().set_major_locator(self.locator)
-            self._long_axis().set_minor_locator(self.minorlocator)
+            if self.minorlocator is not None:
+                self._long_axis().set_minor_locator(self.minorlocator)
             self._long_axis().set_major_formatter(self.formatter)
         else:
             _log.debug('Using fixed locator on colorbar')
