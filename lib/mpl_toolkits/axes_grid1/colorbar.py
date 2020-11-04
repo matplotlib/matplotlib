@@ -69,6 +69,9 @@ colormap_kw_doc = '''
     *ticks*       [ None | list of ticks | Locator object ]
                   If None, ticks are determined automatically from the
                   input.
+    *ticklabels*  sequence of str
+                  List of texts for tick labels; must include values
+                  for non-visible labels.
     *format*      [ None | format string | Formatter object ]
                   If None, the
                   :class:`~matplotlib.ticker.ScalarFormatter` is used.
