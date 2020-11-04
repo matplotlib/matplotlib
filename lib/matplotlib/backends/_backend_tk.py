@@ -502,7 +502,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             else:
                 self._buttons[text] = button = self._Button(
                     text,
-                    str(cbook._get_data_path(f"images/{image_file}.gif")),
+                    str(cbook._get_data_path(f"images/{image_file}.png")),
                     toggle=callback in ["zoom", "pan"],
                     command=getattr(self, callback),
                 )
@@ -567,7 +567,11 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             pass
 
     def _Button(self, text, image_file, toggle, command):
-        image = (tk.PhotoImage(master=self, file=image_file)
+        if tk.TkVersion >= 8.6:
+            PhotoImage = tk.PhotoImage
+        else:
+            from PIL.ImageTk import PhotoImage
+        image = (PhotoImage(master=self, file=image_file)
                  if image_file is not None else None)
         if not toggle:
             b = tk.Button(master=self, text=text, image=image, command=command)
@@ -718,8 +722,6 @@ class SetCursorTk(backend_tools.SetCursorBase):
 
 
 class ToolbarTk(ToolContainerBase, tk.Frame):
-    _icon_extension = '.gif'
-
     def __init__(self, toolmanager, window):
         ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
