@@ -705,3 +705,13 @@ def test_anchored_cbar_position_using_specgrid():
     np.testing.assert_allclose(
             [cx1, cx0],
             [x1 * shrink + (1 - shrink) * p0, p0 * (1 - shrink) + x0 * shrink])
+
+
+def test_colorbar_ticklabels():
+    fig = plt.figure()
+    plt.imshow(np.arange(100).reshape((10, 10)))
+    ticklabels = ['cat', 'dog']
+    cbar = plt.colorbar(ticks=[10, 90], ticklabels=ticklabels)
+    fig.canvas.draw()
+    for i, item in enumerate(cbar.ax.yaxis.get_ticklabels()):
+        assert ticklabels[i] == item.get_text()
