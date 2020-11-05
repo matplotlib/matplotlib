@@ -1433,26 +1433,11 @@ class TimedAnimation(Animation):
         if not still_going and self.repeat:
             self._init_draw()
             self.frame_seq = self.new_frame_seq()
-            self.event_source.remove_callback(self._step)
-            self.event_source.add_callback(self._loop_delay)
             self.event_source.interval = self._repeat_delay
             return True
         else:
+            self.event_source.interval = self._interval
             return still_going
-
-    def _stop(self, *args):
-        # If we stop in the middle of a loop delay (which is relatively likely
-        # given the potential pause here), remove the loop_delay callback as
-        # well.
-        self.event_source.remove_callback(self._loop_delay)
-        super()._stop()
-
-    def _loop_delay(self, *args):
-        # Reset the interval and change callbacks after the delay.
-        self.event_source.remove_callback(self._loop_delay)
-        self.event_source.interval = self._interval
-        self.event_source.add_callback(self._step)
-        Animation._step(self)
 
 
 class ArtistAnimation(TimedAnimation):
@@ -1633,10 +1618,10 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = frames
         elif np.iterable(frames):
             if kwargs.get('repeat', True):
+                self._tee_from = frames
                 def iter_frames(frames=frames):
-                    while True:
-                        this, frames = itertools.tee(frames, 2)
-                        yield from this
+                    this, self._tee_from = itertools.tee(self._tee_from, 2)
+                    yield from this
                 self._iter_gen = iter_frames
             else:
                 self._iter_gen = lambda: iter(frames)
