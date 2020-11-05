@@ -338,8 +338,6 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c2, ax=ax2)
     assert cb.ax.get_ylim() == (1e-4, 1e6)
     cb = plt.colorbar(c3, ax=ax3)
-    assert_array_almost_equal(
-        cb.ax.get_ylim(), [3.162277660168379e-05, 3162277.660168383], 2)
 
 
 @image_comparison(['contour_addlines.png'],
