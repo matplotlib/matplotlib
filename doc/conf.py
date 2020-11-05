@@ -20,6 +20,7 @@ from matplotlib._api import MatplotlibDeprecationWarning
 import sphinx
 
 from datetime import datetime
+import warnings
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -29,6 +30,11 @@ sys.path.append('.')
 
 # General configuration
 # ---------------------
+
+# Unless we catch the warning explicitly somewhere, a warning should cause the
+# docs build to fail. This is especially useful for getting rid of deprecated
+# usage in the gallery.
+warnings.filterwarnings('error', append=True)
 
 # Strip backslahes in function's signature
 # To be removed when numpydoc > 0.9.x
@@ -108,6 +114,11 @@ os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
 
+# we should ignore warnings coming from importing deprecated modules for
+# autodoc purposes, as this will disappear automatically when they are removed
+warnings.filterwarnings('ignore', message='.*module was deprecated.*',
+                        category=MatplotlibDeprecationWarning)
+
 autodoc_docstring_signature = True
 autodoc_default_options = {'members': None, 'undoc-members': None}
 
@@ -155,6 +166,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'compress_images': ('thumbnails', 'images'),
     'matplotlib_animations': True,
+    'abort_on_example_error': True,
 }
 
 plot_gallery = 'True'
