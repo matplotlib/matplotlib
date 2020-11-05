@@ -1137,21 +1137,26 @@ default: %(va)s
                     "to colorbar().")
 
         # Store the value of gca so that we can set it back later on.
-        current_ax = self.gca()
         if cax is None:
+            current_ax = self.gca()
+            kw['userax'] = False
             if (use_gridspec and isinstance(ax, SubplotBase)
                     and not self.get_constrained_layout()):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
+        else:
+            kw['userax'] = True
 
         # need to remove kws that cannot be passed to Colorbar
         NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
                              'panchor']
         cb_kw = {k: v for k, v in kw.items() if k not in NON_COLORBAR_KEYS}
+
         cb = cbar.Colorbar(cax, mappable, **cb_kw)
 
-        self.sca(current_ax)
+        if not kw['userax']:
+            self.sca(current_ax)
         self.stale = True
         return cb
 

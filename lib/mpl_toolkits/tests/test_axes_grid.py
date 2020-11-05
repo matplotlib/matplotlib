@@ -1,6 +1,7 @@
 import numpy as np
 
 import matplotlib as mpl
+import matplotlib.ticker as mticker
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
@@ -43,9 +44,7 @@ def test_imagegrid_cbar_mode_edge():
         # "second" ones.  To achieve this, clear out the axes first.
         for ax in grid:
             ax.cax.cla()
-            cb = ax.cax.colorbar(
-                ax.images[0],
-                ticks=mpl.ticker.MaxNLocator(5))  # old default locator.
+            cb = ax.cax.colorbar(ax.images[0])
 
 
 def test_imagegrid():
@@ -54,4 +53,4 @@ def test_imagegrid():
     ax = grid[0]
     im = ax.imshow([[1, 2]], norm=mpl.colors.LogNorm())
     cb = ax.cax.colorbar(im)
-    assert isinstance(cb.locator, mpl.colorbar._ColorbarLogLocator)
+    assert isinstance(cb.locator, mticker.LogLocator)
