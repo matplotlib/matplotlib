@@ -557,7 +557,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._uniform_offsets
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def set_offset_position(self, offset_position):
         """
         Set how offsets are applied.  If *offset_position* is 'screen'
@@ -574,7 +574,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._offset_position = offset_position
         self.stale = True
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def get_offset_position(self):
         """
         Return how offsets are applied for the collection.  If

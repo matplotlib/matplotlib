@@ -22,7 +22,7 @@ from matplotlib.backend_bases import (
     GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
 
-from matplotlib import cbook, backend_tools
+from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
@@ -43,7 +43,7 @@ _DEBUG = 5
 _DEBUG_lvls = {1: 'Low ', 2: 'Med ', 3: 'High', 4: 'Error'}
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def DEBUG_MSG(string, lvl=3, o=None):
     if lvl >= _DEBUG:
         print(f"{_DEBUG_lvls[lvl]}- {string} in {type(o)}")
@@ -280,7 +280,7 @@ class RendererWx(RendererBase):
         self.gc.unselect()
         return self.gc
 
-    @cbook.deprecated("3.3", alternative=".gc")
+    @_api.deprecated("3.3", alternative=".gc")
     def get_gc(self):
         """
         Fetch the locally cached gc.
@@ -1160,7 +1160,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return wx.Bitmap.FromBufferRGBA(
             image.shape[1], image.shape[0], image.tobytes())
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def get_canvas(self, frame, fig):
         return type(self.canvas)(frame, -1, fig)
 
@@ -1259,7 +1259,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.EnableTool(self.wx_ids['Forward'], can_forward)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusBarWx(wx.StatusBar):
     """
     A status bar is added to _FigureFrame to allow measurements and the
@@ -1361,7 +1361,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         self._label_text.SetLabel(s)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusbarWx(StatusbarBase, wx.StatusBar):
     """For use with ToolManager."""
     def __init__(self, parent, *args, **kwargs):

@@ -254,12 +254,12 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def track_characters(self, *args, **kwargs):
         """Keep track of which characters are required from each font."""
         self._character_tracker.track(*args, **kwargs)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def merge_used_characters(self, *args, **kwargs):
         self._character_tracker.merge(*args, **kwargs)
 
@@ -840,7 +840,7 @@ def _is_transparent(rgb_or_rgba):
         return False
 
 
-@cbook.deprecated("3.4", alternative="GraphicsContextBase")
+@_api.deprecated("3.4", alternative="GraphicsContextBase")
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]

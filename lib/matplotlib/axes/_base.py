@@ -1602,7 +1602,7 @@ class _AxesBase(martist.Artist):
         ysize = max(abs(tymax - tymin), 1e-30)
         return ysize / xsize
 
-    @cbook.deprecated("3.2")
+    @_api.deprecated("3.2")
     def get_data_ratio_log(self):
         """
         Return the aspect ratio of the raw data in log scale.
@@ -2213,7 +2213,7 @@ class _AxesBase(martist.Artist):
                                          updatex=updatex, updatey=updatey)
         self.ignore_existing_data_limits = False
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.3", alternative="ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))")
     def update_datalim_bounds(self, bounds):
         """

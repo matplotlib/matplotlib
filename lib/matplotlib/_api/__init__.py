@@ -15,6 +15,13 @@ import re
 import sys
 import warnings
 
+from .deprecation import (
+    deprecated, warn_deprecated,
+    _rename_parameter, _delete_parameter, _make_keyword_only,
+    _deprecate_method_override, _deprecate_privatize_attribute,
+    _suppress_matplotlib_deprecation_warning,
+    MatplotlibDeprecationWarning)
+
 
 def check_in_list(_values, *, _print_supported_values=True, **kwargs):
     """

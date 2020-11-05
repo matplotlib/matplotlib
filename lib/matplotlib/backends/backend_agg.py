@@ -30,7 +30,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
@@ -115,14 +115,14 @@ class RendererAgg(RendererBase):
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def get_content_extents(self):
         orig_img = np.asarray(self.buffer_rgba())
         slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
         return (slice_x.start, slice_y.start,
                 slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def tostring_rgba_minimized(self):
         extents = self.get_content_extents()
         bbox = [[extents[0], self.height - (extents[1] + extents[3])],

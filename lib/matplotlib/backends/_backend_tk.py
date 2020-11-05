@@ -12,7 +12,7 @@ import tkinter.messagebox
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import backend_tools, cbook, _c_internal_utils
+from matplotlib import _api, backend_tools, cbook, _c_internal_utils
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors, _Mode)
@@ -779,7 +779,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         self._message.set(s)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusbarTk(StatusbarBase, tk.Frame):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)

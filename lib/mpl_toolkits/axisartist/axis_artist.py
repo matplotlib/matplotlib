@@ -90,7 +90,7 @@ from operator import methodcaller
 
 import numpy as np
 
-from matplotlib import _api, cbook, rcParams
+from matplotlib import _api, rcParams
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 
@@ -683,7 +683,7 @@ class AxisArtist(martist.Artist):
         self._axislabel_add_angle = 0.
         self.set_axis_direction(axis_direction)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     @property
     def dpi_transform(self):
         return Affine2D().scale(1 / 72) + self.axes.figure.dpi_scale_trans

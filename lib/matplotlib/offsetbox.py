@@ -838,7 +838,7 @@ class TextArea(OffsetBox):
         """
         return self._multilinebaseline
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def set_minimumdescent(self, t):
         """
         Set minimumdescent.
@@ -851,7 +851,7 @@ class TextArea(OffsetBox):
         self._minimumdescent = t
         self.stale = True
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def get_minimumdescent(self):
         """
         Get minimumdescent.
@@ -1719,7 +1719,7 @@ class DraggableBase:
             else:
                 self.canvas.draw()
 
-    @cbook.deprecated("3.3", alternative="self.on_motion")
+    @_api.deprecated("3.3", alternative="self.on_motion")
     def on_motion_blit(self, evt):
         if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
@@ -1772,7 +1772,7 @@ class DraggableBase:
         else:
             self.canvas.mpl_disconnect(c1)
 
-    @cbook.deprecated("3.3", alternative="self.ref_artist.contains")
+    @_api.deprecated("3.3", alternative="self.ref_artist.contains")
     def artist_picker(self, artist, evt):
         return self.ref_artist.contains(evt)
 

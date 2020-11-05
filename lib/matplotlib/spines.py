@@ -82,7 +82,7 @@ class Spine(mpatches.Patch):
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = mtransforms.IdentityTransform()
 
-    @cbook.deprecated("3.2")
+    @_api.deprecated("3.2")
     def set_smart_bounds(self, value):
         """Set the spine and associated axis to have smart bounds."""
         self._smart_bounds = value
@@ -94,7 +94,7 @@ class Spine(mpatches.Patch):
             self.axes.xaxis.set_smart_bounds(value)
         self.stale = True
 
-    @cbook.deprecated("3.2")
+    @_api.deprecated("3.2")
     def get_smart_bounds(self):
         """Return whether the spine has smart bounds."""
         return self._smart_bounds
@@ -237,7 +237,7 @@ class Spine(mpatches.Patch):
         if self.axis is not None:
             self.axis.clear()
 
-    @cbook.deprecated("3.4", alternative="Spine.clear()")
+    @_api.deprecated("3.4", alternative="Spine.clear()")
     def cla(self):
         self.clear()
 

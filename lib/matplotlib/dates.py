@@ -163,9 +163,7 @@ import dateutil.tz
 import numpy as np
 
 import matplotlib as mpl
-import matplotlib.units as units
-import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
+from matplotlib import _api, cbook, ticker, units
 
 __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
            'epoch2num', 'num2epoch', 'mx2num', 'set_epoch',
@@ -588,7 +586,7 @@ class DateFormatter(ticker.Formatter):
     `~datetime.datetime.strftime` format string.
     """
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     @property
     def illegal_s(self):
         return re.compile(r"((^|[^%])(%%)*%s)")
@@ -620,7 +618,7 @@ class DateFormatter(ticker.Formatter):
         self.tz = tz
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class IndexDateFormatter(ticker.Formatter):
     """Use with `.IndexLocator` to cycle format strings by index."""
 
@@ -1785,7 +1783,7 @@ def num2epoch(d):
     return np.asarray(d) * SEC_PER_DAY - dt
 
 
-@cbook.deprecated("3.2")
+@_api.deprecated("3.2")
 def mx2num(mxdates):
     """
     Convert mx :class:`datetime` instance (or sequence of mx

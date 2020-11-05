@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 import matplotlib as mpl
-from matplotlib import backend_tools, cbook
+from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
@@ -136,7 +136,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         if renderer_init:
             renderer_init()
 
-    @cbook.deprecated("3.3", alternative="__init__")
+    @_api.deprecated("3.3", alternative="__init__")
     def _renderer_init(self):
         pass
 
@@ -655,7 +655,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._message.set_label(s)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
     def __init__(self, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)

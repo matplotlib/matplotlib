@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import cbook, ticker as mticker
+from matplotlib import _api, ticker as mticker
 from matplotlib.transforms import Bbox, Transform
 from .clip_path import clip_line_to_rect
 
@@ -226,7 +226,7 @@ class MaxNLocator(mticker.MaxNLocator):
         locs = super().__call__()
         return np.array(locs), len(locs), self._factor
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def set_factor(self, f):
         self._factor = f
 
@@ -241,7 +241,7 @@ class FixedLocator:
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
         return locs, len(locs), self._factor
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def set_factor(self, f):
         self._factor = f
 

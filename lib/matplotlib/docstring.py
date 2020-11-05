@@ -1,6 +1,6 @@
 import inspect
 
-from matplotlib import cbook
+from matplotlib import _api
 
 
 class Substitution:
@@ -47,7 +47,7 @@ class Substitution:
         self.params.update(*args, **kwargs)
 
     @classmethod
-    @cbook.deprecated("3.3", alternative="assign to the params attribute")
+    @_api.deprecated("3.3", alternative="assign to the params attribute")
     def from_params(cls, params):
         """
         In the case where the params is a mutable sequence (list or

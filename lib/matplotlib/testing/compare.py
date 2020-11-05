@@ -18,7 +18,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
 _log = logging.getLogger(__name__)
@@ -63,7 +63,7 @@ def get_file_hash(path, block_size=2 ** 20):
     return md5.hexdigest()
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def make_external_conversion_command(cmd):
     def convert(old, new):
         cmdline = cmd(old, new)

@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from mpl_toolkits.axisartist.grid_finder import ExtremeFinderSimple
 
 
@@ -146,7 +146,7 @@ class LocatorBase:
         self.nbins = nbins
         self._include_last = include_last
 
-    @cbook.deprecated("3.3", alternative="nbins")
+    @_api.deprecated("3.3", alternative="nbins")
     @property
     def den(self):
         return self.nbins

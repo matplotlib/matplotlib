@@ -1969,7 +1969,7 @@ class BoxStyle(_Style):
 
     _style_list = {}
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     class _Base:
         """
         Abstract base class for styling of `.FancyBboxPatch`.
@@ -1988,7 +1988,7 @@ class BoxStyle(_Style):
         It returns the outline of the fancy box as `.path.Path`.
         """
 
-        @cbook.deprecated("3.4")
+        @_api.deprecated("3.4")
         def transmute(self, x0, y0, width, height, mutation_size):
             """Return the `~.path.Path` outlining the given rectangle."""
             return self(self, x0, y0, width, height, mutation_size, 1)
@@ -3991,7 +3991,7 @@ default: 'arc3'
 
         self._dpi_cor = dpi_cor
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -4004,7 +4004,7 @@ default: 'arc3'
         self._dpi_cor = dpi_cor
         self.stale = True
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def get_dpi_cor(self):
         """
         dpi_cor is currently used for linewidth-related things and

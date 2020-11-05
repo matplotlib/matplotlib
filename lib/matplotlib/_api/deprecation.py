@@ -30,6 +30,7 @@ class MatplotlibDeprecationWarning(UserWarning):
 
 
 # mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead.
+# remove when removing the re-import from cbook
 mplDeprecation = MatplotlibDeprecationWarning
 
 

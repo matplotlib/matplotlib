@@ -245,7 +245,7 @@ class ThetaLocator(mticker.Locator):
         else:
             return np.deg2rad(self.base())
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
@@ -257,7 +257,7 @@ class ThetaLocator(mticker.Locator):
         vmin, vmax = np.rad2deg((vmin, vmax))
         return np.deg2rad(self.base.view_limits(vmin, vmax))
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
@@ -383,7 +383,7 @@ class ThetaAxis(maxis.XAxis):
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
-    @cbook.deprecated("3.4", alternative="ThetaAxis.clear()")
+    @_api.deprecated("3.4", alternative="ThetaAxis.clear()")
     def cla(self):
         self.clear()
 
@@ -431,15 +431,15 @@ class RadialLocator(mticker.Locator):
         else:
             return [tick for tick in self.base() if tick > rorigin]
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
@@ -689,7 +689,7 @@ class RadialAxis(maxis.YAxis):
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
-    @cbook.deprecated("3.4", alternative="RadialAxis.clear()")
+    @_api.deprecated("3.4", alternative="RadialAxis.clear()")
     def cla(self):
         self.clear()
 

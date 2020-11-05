@@ -546,7 +546,7 @@ class ColorbarBase:
         if self.filled:
             self._add_solids(X, Y, self._values[:, np.newaxis])
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def config_axis(self):
         self._config_axis()
 
@@ -1200,7 +1200,7 @@ class Colorbar(ColorbarBase):
         mappable.colorbar_cid = mappable.callbacksSM.connect(
             'changed', self.update_normal)
 
-    @cbook.deprecated("3.3", alternative="update_normal")
+    @_api.deprecated("3.3", alternative="update_normal")
     def on_mappable_changed(self, mappable):
         """
         Update this colorbar to match the mappable's properties.
@@ -1258,7 +1258,7 @@ class Colorbar(ColorbarBase):
                 self.add_lines(CS)
         self.stale = True
 
-    @cbook.deprecated("3.3", alternative="update_normal")
+    @_api.deprecated("3.3", alternative="update_normal")
     def update_bruteforce(self, mappable):
         """
         Destroy and rebuild the colorbar.  This is
@@ -1551,12 +1551,12 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     return cax, kw
 
 
-@cbook.deprecated("3.4", alternative="Colorbar")
+@_api.deprecated("3.4", alternative="Colorbar")
 class ColorbarPatch(Colorbar):
     pass
 
 
-@cbook.deprecated("3.4", alternative="Colorbar")
+@_api.deprecated("3.4", alternative="Colorbar")
 def colorbar_factory(cax, mappable, **kwargs):
     """
     Create a colorbar on the given axes for the given mappable.

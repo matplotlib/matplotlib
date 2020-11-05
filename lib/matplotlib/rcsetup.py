@@ -147,7 +147,7 @@ def validate_bool(b):
         raise ValueError('Could not convert "%s" to bool' % b)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_bool_maybe_none(b):
     """Convert b to ``bool`` or raise, passing through *None*."""
     if isinstance(b, str):
@@ -310,7 +310,7 @@ validate_toolbar = ValidateInStrings(
     _deprecated_since="3.3")
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def _make_nseq_validator(cls, n=None, allow_none=False):
 
     def validator(s):
@@ -336,12 +336,12 @@ def _make_nseq_validator(cls, n=None, allow_none=False):
     return validator
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_nseq_float(n):
     return _make_nseq_validator(float, n)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_nseq_int(n):
     return _make_nseq_validator(int, n)
 
@@ -666,7 +666,7 @@ validate_svg_fonttype = ValidateInStrings(
     'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_hinting(s):
     return _validate_hinting(s)
 
@@ -684,7 +684,7 @@ validate_pgf_texsystem = ValidateInStrings(
     _deprecated_since="3.3")
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_movie_writer(s):
     # writers.list() would only list actually available writers, but
     # FFMpeg.isAvailable is slow and not worth paying for at every import.
@@ -971,7 +971,7 @@ def validate_hist_bins(s):
                      " a sequence of floats".format(valid_strs))
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_webagg_address(s):
     if s is not None:
         import socket

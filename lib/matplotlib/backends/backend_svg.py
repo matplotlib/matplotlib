@@ -14,7 +14,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
      _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
      RendererBase)
@@ -311,7 +311,7 @@ class RendererSVG(RendererBase):
         self._write_metadata(metadata)
         self._write_default_style()
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     @property
     def mathtext_parser(self):
         return MathTextParser('SVG')

@@ -1134,37 +1134,37 @@ class SubplotTool(Widget):
     axhspace = cbook.deprecated("3.3")(
         property(lambda self: self.sliderhspace.ax))
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def funcleft(self, val):
         self.targetfig.subplots_adjust(left=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def funcright(self, val):
         self.targetfig.subplots_adjust(right=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def funcbottom(self, val):
         self.targetfig.subplots_adjust(bottom=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def functop(self, val):
         self.targetfig.subplots_adjust(top=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def funcwspace(self, val):
         self.targetfig.subplots_adjust(wspace=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def funchspace(self, val):
         self.targetfig.subplots_adjust(hspace=val)
         if self.drawon:

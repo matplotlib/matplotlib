@@ -9,7 +9,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook, docstring
+from . import _api, cbook, docstring
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -456,7 +456,7 @@ class Artist:
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
-    @cbook.deprecated("3.3", alternative="set_picker")
+    @_api.deprecated("3.3", alternative="set_picker")
     def set_contains(self, picker):
         """
         Define a custom contains test for the artist.
@@ -484,7 +484,7 @@ class Artist:
             raise TypeError("picker is not a callable")
         self._contains = picker
 
-    @cbook.deprecated("3.3", alternative="get_picker")
+    @_api.deprecated("3.3", alternative="get_picker")
     def get_contains(self):
         """
         Return the custom contains function of the artist if set, or *None*.
