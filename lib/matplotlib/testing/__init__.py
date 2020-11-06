@@ -6,7 +6,7 @@ import locale
 import logging
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api
 
 _log = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ def setup():
 
     mpl.use('Agg')
 
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         mpl.rcdefaults()  # Start with all defaults
 
     # These settings *must* be hardcoded for running the comparison tests and

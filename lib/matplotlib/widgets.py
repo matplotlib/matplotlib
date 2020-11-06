@@ -835,7 +835,7 @@ class TextBox(AxesWidget):
         else:
             # If not using toolmanager, disable all keypress-related rcParams.
             # Avoid spurious warnings if keymaps are getting deprecated.
-            with cbook._suppress_matplotlib_deprecation_warning():
+            with _api.suppress_matplotlib_deprecation_warning():
                 stack.enter_context(mpl.rc_context(
                     {k: [] for k in mpl.rcParams if k.startswith("keymap.")}))
 

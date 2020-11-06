@@ -5664,7 +5664,7 @@ def test_ls_ds_conflict():
     # Passing the drawstyle with the linestyle is deprecated since 3.1.
     # We still need to test this until it's removed from the code.
     # But we don't want to see the deprecation warning in the test.
-    with matplotlib.cbook._suppress_matplotlib_deprecation_warning(), \
+    with matplotlib._api.suppress_matplotlib_deprecation_warning(), \
          pytest.raises(ValueError):
         plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
 

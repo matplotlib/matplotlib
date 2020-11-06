@@ -19,7 +19,7 @@ import re
 import warnings
 
 import matplotlib as mpl
-from matplotlib import cbook, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, cbook, rc_params_from_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
@@ -106,7 +106,7 @@ def use(style):
         elif style == 'default':
             # Deprecation warnings were already handled when creating
             # rcParamsDefault, no need to reemit them here.
-            with cbook._suppress_matplotlib_deprecation_warning():
+            with _api.suppress_matplotlib_deprecation_warning():
                 _apply_style(rcParamsDefault, warn=False)
         elif style in library:
             _apply_style(library[style])

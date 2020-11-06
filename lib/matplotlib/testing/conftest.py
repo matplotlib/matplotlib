@@ -1,7 +1,7 @@
 import pytest
 import sys
 import matplotlib
-from matplotlib import cbook
+from matplotlib import _api, cbook
 
 
 def pytest_configure(config):
@@ -79,7 +79,7 @@ def mpl_test_settings(request):
             style, = style_marker.args
 
         matplotlib.testing.setup()
-        with cbook._suppress_matplotlib_deprecation_warning():
+        with _api.suppress_matplotlib_deprecation_warning():
             if backend is not None:
                 # This import must come after setup() so it doesn't load the
                 # default backend prematurely.

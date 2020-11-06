@@ -166,7 +166,7 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
 
 
 # Also deprecated.
-with cbook._suppress_matplotlib_deprecation_warning():
+with _api.suppress_matplotlib_deprecation_warning():
     ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
 
 

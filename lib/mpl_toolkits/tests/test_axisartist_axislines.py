@@ -1,5 +1,5 @@
 import numpy as np
-from matplotlib import cbook
+from matplotlib import _api
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import IdentityTransform
@@ -86,7 +86,7 @@ def test_ParasiteAxesAuxTrans(parasite_cls):
         ax1 = SubplotHost(fig, 1, 3, i+1)
         fig.add_subplot(ax1)
 
-        with cbook._suppress_matplotlib_deprecation_warning():
+        with _api.suppress_matplotlib_deprecation_warning():
             ax2 = parasite_cls(ax1, IdentityTransform())
         ax1.parasites.append(ax2)
         if name.startswith('pcolor'):
