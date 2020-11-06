@@ -882,6 +882,12 @@ class Animation:
     This class is not usable as is, and should be subclassed to provide needed
     behavior.
 
+    .. note::
+
+        You must store the created Animation in a variable that lives as long
+        as the animation should run. Otherwise, the Animation object will be
+        garbage-collected and the animation stops.
+
     Parameters
     ----------
     fig : `~matplotlib.figure.Figure`
@@ -1394,6 +1400,12 @@ class TimedAnimation(Animation):
 
     A new frame is drawn every *interval* milliseconds.
 
+    .. note::
+
+        You must store the created Animation in a variable that lives as long
+        as the animation should run. Otherwise, the Animation object will be
+        garbage-collected and the animation stops.
+
     Parameters
     ----------
     fig : `~matplotlib.figure.Figure`
@@ -1462,6 +1474,12 @@ class ArtistAnimation(TimedAnimation):
     Before creating an instance, all plotting should have taken place
     and the relevant artists saved.
 
+    .. note::
+
+        You must store the created Animation in a variable that lives as long
+        as the animation should run. Otherwise, the Animation object will be
+        garbage-collected and the animation stops.
+
     Parameters
     ----------
     fig : `~matplotlib.figure.Figure`
@@ -1528,6 +1546,12 @@ class ArtistAnimation(TimedAnimation):
 class FuncAnimation(TimedAnimation):
     """
     Makes an animation by repeatedly calling a function *func*.
+
+    .. note::
+
+        You must store the created Animation in a variable that lives as long
+        as the animation should run. Otherwise, the Animation object will be
+        garbage-collected and the animation stops.
 
     Parameters
     ----------
