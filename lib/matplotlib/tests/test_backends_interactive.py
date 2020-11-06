@@ -237,7 +237,7 @@ if "wx" in _thread_safe_backends:
     _thread_safe_backends.remove("wx")
     _thread_safe_backends.append(
         pytest.param("wx", marks=pytest.mark.xfail(
-            raises=subprocess.CalledProcessError, strict=True)))
+            raises=subprocess.CalledProcessError)))
 if "macosx" in _thread_safe_backends:
     _thread_safe_backends.remove("macosx")
     _thread_safe_backends.append(
