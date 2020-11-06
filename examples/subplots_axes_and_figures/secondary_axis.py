@@ -57,15 +57,19 @@ ax.set_ylabel('PSD')
 ax.set_title('Random spectrum')
 
 
-def forward(x):
-    return 1 / x
+def safe_inverse(x):
+    x = np.array(x).astype(float)
+    near_zero = np.isclose(x, 0)
+    x[near_zero] = np.inf
+    x[~near_zero] = 1 / x[~near_zero]
+    return x
 
 
-def inverse(x):
-    return 1 / x
+# the function "1/x" is its own inverse
+forward = safe_inverse
 
 
-secax = ax.secondary_xaxis('top', functions=(forward, inverse))
+secax = ax.secondary_xaxis('top', functions=(forward, safe_inverse))
 secax.set_xlabel('period [s]')
 plt.show()
 

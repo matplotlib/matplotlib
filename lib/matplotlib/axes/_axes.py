@@ -524,7 +524,11 @@ class Axes(_AxesBase):
             ax.set_xlabel('frequency [Hz]')
 
             def invert(x):
-                return 1 / x
+                x = np.array(x).astype(float)
+                near_zero = np.isclose(x, 0)
+                x[near_zero] = np.inf
+                x[~near_zero] = 1 / x[~near_zero]
+                return x
 
             secax = ax.secondary_xaxis('top', functions=(invert, invert))
             secax.set_xlabel('Period [s]')

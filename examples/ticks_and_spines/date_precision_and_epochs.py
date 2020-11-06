@@ -18,6 +18,7 @@ microseconds.
 
 """
 import datetime
+import warnings
 import numpy as np
 
 import matplotlib
@@ -113,25 +114,32 @@ print('After Roundtrip:  ', date2)
 # --------
 #
 # This all of course has an effect on plotting.  With the old default epoch
-# the times were rounded, leading to jumps in the data:
+# the times were rounded during the internal ``date2num`` conversion, leading
+# to jumps in the data:
 
 _reset_epoch_for_tutorial()  # Don't do this.  Just for this tutorial.
 mdates.set_epoch(old_epoch)
 
 x = np.arange('2000-01-01T00:00:00.0', '2000-01-01T00:00:00.000100',
               dtype='datetime64[us]')
+# simulate the plot being made using the old epoch
+xold = np.array([mdates.num2date(mdates.date2num(d)) for d in x])
 y = np.arange(0, len(x))
-fig, ax = plt.subplots(constrained_layout=True)
-ax.plot(x, y)
-ax.set_title('Epoch: ' + mdates.get_epoch())
-plt.setp(ax.xaxis.get_majorticklabels(), rotation=40)
-plt.show()
 
-#############################################################################
-# For a more recent epoch, the plot is smooth:
-
+# resetting the Epoch so plots are comparable
 _reset_epoch_for_tutorial()  # Don't do this.  Just for this tutorial.
 mdates.set_epoch(new_epoch)
+
+fig, ax = plt.subplots(constrained_layout=True)
+ax.plot(xold, y)
+ax.set_title('Epoch: ' + mdates.get_epoch())
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", message=".*dates far from the epoch.*")
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=40)
+    plt.show()
+
+#############################################################################
+# For dates plotted using the more recent epoch, the plot is smooth:
 
 fig, ax = plt.subplots(constrained_layout=True)
 ax.plot(x, y)

@@ -91,6 +91,7 @@ Optional, but recommended:
 *  `optipng <http://optipng.sourceforge.net>`_
 *  the font "Humor Sans" (aka the "XKCD" font), or the free alternative
    `Comic Neue <http://comicneue.com/>`_.
+*  the font "Times New Roman"
 
 .. note::
 

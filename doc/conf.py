@@ -20,7 +20,6 @@ from matplotlib._api import MatplotlibDeprecationWarning
 import sphinx
 
 from datetime import datetime
-import warnings
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -35,6 +34,9 @@ sys.path.append('.')
 # docs build to fail. This is especially useful for getting rid of deprecated
 # usage in the gallery.
 warnings.filterwarnings('error', append=True)
+#TODO remove when GridSpec allows rect again
+warnings.filterwarnings('ignore', message='(\n|.)*This figure includes Axes '
+                        'that are not compatible with tight_layout.*')
 
 # Strip backslahes in function's signature
 # To be removed when numpydoc > 0.9.x
@@ -116,8 +118,8 @@ autosummary_generate = True
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
-warnings.filterwarnings('ignore', message='.*module was deprecated.*',
-                        category=MatplotlibDeprecationWarning)
+warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+                        message=r'(\n|.)*module was deprecated.*')
 
 autodoc_docstring_signature = True
 autodoc_default_options = {'members': None, 'undoc-members': None}
