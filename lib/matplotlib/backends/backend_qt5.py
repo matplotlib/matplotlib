@@ -1020,10 +1020,6 @@ class _BackendQT5(_Backend):
     FigureManager = FigureManagerQT
 
     @staticmethod
-    def trigger_manager_draw(manager):
-        manager.canvas.draw_idle()
-
-    @staticmethod
     def mainloop():
         old_signal = signal.getsignal(signal.SIGINT)
         # allow SIGINT exceptions to close the plot window.

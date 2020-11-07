@@ -884,10 +884,6 @@ class _BackendTk(_Backend):
             return manager
 
     @staticmethod
-    def trigger_manager_draw(manager):
-        manager.show()
-
-    @staticmethod
     def mainloop():
         managers = Gcf.get_all_fig_managers()
         if managers:

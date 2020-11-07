@@ -1479,10 +1479,6 @@ class _BackendWx(_Backend):
     FigureManager = FigureManagerWx
     _frame_class = FigureFrameWx
 
-    @staticmethod
-    def trigger_manager_draw(manager):
-        manager.canvas.draw_idle()
-
     @classmethod
     def new_figure_manager(cls, num, *args, **kwargs):
         # Create a wx.App instance if it has not been created so far.
