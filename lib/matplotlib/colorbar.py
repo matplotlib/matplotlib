@@ -464,7 +464,7 @@ class ColorbarBase:
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
         self.spacing = spacing
-        self.ticklabels = ticklabels
+        self._ticklabels = ticklabels
         self.orientation = orientation
         self.drawedges = drawedges
         self.filled = filled
@@ -545,8 +545,8 @@ class ColorbarBase:
         self.outline.set_xy(xy)
         self.patch.set_xy(xy)
         self.update_ticks()
-        if self.ticklabels:
-            self.set_ticklabels(self.ticklabels)
+        if self._ticklabels:
+            self.set_ticklabels(self._ticklabels)
         if self.filled:
             self._add_solids(X, Y, self._values[:, np.newaxis])
 
@@ -725,7 +725,9 @@ class ColorbarBase:
             if update_ticks:
                 self.update_ticks()
         else:
-            cbook._warn_external("set_ticks() must have been called.")
+            cbook._warn_external('To set ticklabels, ticks with the same \
+                length need to be set explicitly first. This can be done \
+                through plt.colorbar(ticks) or set_ticks().')
         self.stale = True
 
     def minorticks_on(self):
