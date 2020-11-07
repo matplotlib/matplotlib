@@ -248,21 +248,11 @@ class HostAxesBase:
         The y-axis of self will have ticks on the left and the returned axes
         will have ticks on the right.
         """
-        if axes_class is None:
-            axes_class = self._get_base_axes()
-
-        parasite_axes_class = parasite_axes_class_factory(axes_class)
-
-        ax2 = parasite_axes_class(self, sharex=self)
-        self.parasites.append(ax2)
-        ax2._remove_method = self._remove_any_twin
-
+        ax = self._add_twin_axes(axes_class, sharex=self)
         self.axis["right"].set_visible(False)
-
-        ax2.axis["right"].set_visible(True)
-        ax2.axis["left", "top", "bottom"].set_visible(False)
-
-        return ax2
+        ax.axis["right"].set_visible(True)
+        ax.axis["left", "top", "bottom"].set_visible(False)
+        return ax
 
     def twiny(self, axes_class=None):
         """
@@ -271,21 +261,11 @@ class HostAxesBase:
         The x-axis of self will have ticks on the bottom and the returned axes
         will have ticks on the top.
         """
-        if axes_class is None:
-            axes_class = self._get_base_axes()
-
-        parasite_axes_class = parasite_axes_class_factory(axes_class)
-
-        ax2 = parasite_axes_class(self, sharey=self)
-        self.parasites.append(ax2)
-        ax2._remove_method = self._remove_any_twin
-
+        ax = self._add_twin_axes(axes_class, sharey=self)
         self.axis["top"].set_visible(False)
-
-        ax2.axis["top"].set_visible(True)
-        ax2.axis["left", "right", "bottom"].set_visible(False)
-
-        return ax2
+        ax.axis["top"].set_visible(True)
+        ax.axis["left", "right", "bottom"].set_visible(False)
+        return ax
 
     def twin(self, aux_trans=None, axes_class=None):
         """
@@ -294,23 +274,27 @@ class HostAxesBase:
         While self will have ticks on the left and bottom axis, the returned
         axes will have ticks on the top and right axis.
         """
-        if axes_class is None:
-            axes_class = self._get_base_axes()
-
-        parasite_axes_class = parasite_axes_class_factory(axes_class)
-
         if aux_trans is None:
             aux_trans = mtransforms.IdentityTransform()
-        ax2 = parasite_axes_class(self, aux_trans, viewlim_mode="transform")
-        self.parasites.append(ax2)
-        ax2._remove_method = self._remove_any_twin
-
+        ax = self._add_twin_axes(
+            axes_class, aux_transform=aux_trans, viewlim_mode="transform")
         self.axis["top", "right"].set_visible(False)
+        ax.axis["top", "right"].set_visible(True)
+        ax.axis["left", "bottom"].set_visible(False)
+        return ax
 
-        ax2.axis["top", "right"].set_visible(True)
-        ax2.axis["left", "bottom"].set_visible(False)
+    def _add_twin_axes(self, axes_class, **kwargs):
+        """
+        Helper for `.twinx`/`.twiny`/`.twin`.
 
-        return ax2
+        *kwargs* are forwarded to the parasite axes constructor.
+        """
+        if axes_class is None:
+            axes_class = self._get_base_axes()
+        ax = parasite_axes_class_factory(axes_class)(self, **kwargs)
+        self.parasites.append(ax)
+        ax._remove_method = self._remove_any_twin
+        return ax
 
     def _remove_any_twin(self, ax):
         self.parasites.remove(ax)
