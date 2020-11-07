@@ -18,7 +18,6 @@ microseconds.
 
 """
 import datetime
-import warnings
 import numpy as np
 
 import matplotlib
@@ -133,10 +132,8 @@ mdates.set_epoch(new_epoch)
 fig, ax = plt.subplots(constrained_layout=True)
 ax.plot(xold, y)
 ax.set_title('Epoch: ' + mdates.get_epoch())
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", message=".*dates far from the epoch.*")
-    plt.setp(ax.xaxis.get_majorticklabels(), rotation=40)
-    plt.show()
+plt.setp(ax.xaxis.get_majorticklabels(), rotation=40)
+plt.show()
 
 #############################################################################
 # For dates plotted using the more recent epoch, the plot is smooth:
