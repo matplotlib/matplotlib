@@ -186,6 +186,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
 
     def deprecate(obj, message=message, name=name, alternative=alternative,
                   pending=pending, obj_type=obj_type, addendum=addendum):
+        from matplotlib._api import classproperty
 
         if isinstance(obj, type):
             if obj_type is None:
@@ -202,15 +203,16 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 obj.__init__ = functools.wraps(obj.__init__)(wrapper)
                 return obj
 
-        elif isinstance(obj, property):
+        elif isinstance(obj, (property, classproperty)):
             obj_type = "attribute"
             func = None
             name = name or obj.fget.__name__
             old_doc = obj.__doc__
 
-            class _deprecated_property(property):
+            class _deprecated_property(type(obj)):
                 def __get__(self, instance, owner):
-                    if instance is not None:
+                    if instance is not None or owner is not None \
+                            and isinstance(self, classproperty):
                         emit_warning()
                     return super().__get__(instance, owner)
 
@@ -518,7 +520,7 @@ def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
 
 
 @contextlib.contextmanager
-def _suppress_matplotlib_deprecation_warning():
+def suppress_matplotlib_deprecation_warning():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
         yield

@@ -19,3 +19,16 @@ def test_check_shape(target, test_shape):
     data = np.zeros(test_shape)
     with pytest.raises(ValueError, match=error_pattern):
         _api.check_shape(target, aardvark=data)
+
+
+def test_classproperty_deprecation():
+    class A:
+        @_api.deprecated("0.0.0")
+        @_api.classproperty
+        def f(cls):
+            pass
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        A.f
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        a = A()
+        a.f
