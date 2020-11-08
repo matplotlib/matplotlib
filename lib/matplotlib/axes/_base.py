@@ -1852,7 +1852,7 @@ class _AxesBase(martist.Artist):
                     xmin, xmax, ymin, ymax = limits
                 except (TypeError, ValueError) as err:
                     raise TypeError('the first argument to axis() must be an '
-                                    'interable of the form '
+                                    'iterable of the form '
                                     '[xmin, xmax, ymin, ymax]') from err
             else:
                 xmin = kwargs.pop('xmin', None)
