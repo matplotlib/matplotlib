@@ -42,11 +42,7 @@ def _generate_deprecation_warning(
             raise ValueError(
                 "A pending deprecation cannot have a scheduled removal")
     else:
-        if removal:
-            removal = "in {}".format(removal)
-        else:
-            removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
-                since, "two minor releases later")
+        removal = f"in {removal}" if removal else "two minor releases later"
     if not message:
         message = (
             "\nThe %(name)s %(obj_type)s"
