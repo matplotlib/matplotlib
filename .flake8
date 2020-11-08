@@ -283,4 +283,4 @@ per-file-ignores =
     examples/userdemo/connectionstyle_demo.py: E402
     examples/userdemo/custom_boxstyle01.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
-    examples/widgets/textbox.py: E402
+    examples/widgets/*.py: E402

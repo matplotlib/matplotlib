@@ -22,3 +22,16 @@ ax2.plot(t, s2)
 
 multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.widgets.MultiCursor

@@ -39,8 +39,9 @@ samp = Slider(
 sfreq = Slider(
     ax_freq, "Freq", 0, 10*np.pi,
     valinit=2*np.pi, valstep=np.pi,
-    initcolor='none' # Remove the line marking the valinit position.
+    initcolor='none'  # Remove the line marking the valinit position.
 )
+
 
 def update(val):
     amp = samp.val
@@ -63,3 +64,17 @@ button.on_clicked(reset)
 
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.widgets.Slider
+matplotlib.widgets.Button

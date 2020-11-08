@@ -57,3 +57,16 @@ toggle_selector.RS = RectangleSelector(ax, line_select_callback,
                                        interactive=True)
 fig.canvas.mpl_connect('key_press_event', toggle_selector)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.widgets.RectangleSelector
