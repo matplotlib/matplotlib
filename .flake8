@@ -53,6 +53,7 @@ per-file-ignores =
     lib/matplotlib/_mathtext.py: E221, E251
     lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/animation.py: F401
+    lib/matplotlib/_animation_data.py: E501
     lib/matplotlib/axes/__init__.py: F401, F403
     lib/matplotlib/axes/_axes.py: F401
     lib/matplotlib/backends/backend_*.py: F401
