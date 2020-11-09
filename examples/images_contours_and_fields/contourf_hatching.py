@@ -36,8 +36,8 @@ cs = ax2.contourf(x, y, z, n_levels, colors='none',
                   extend='lower')
 
 # create a legend for the contour set
-artists, labels = cs.legend_elements()
-ax2.legend(artists, labels, handleheight=2)
+artists, labels = cs.legend_elements(str_format='{:2.1f}'.format)
+ax2.legend(artists, labels, handleheight=2, framealpha=1)
 plt.show()
 
 #############################################################################
