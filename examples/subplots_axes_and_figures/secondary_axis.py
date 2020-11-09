@@ -57,7 +57,8 @@ ax.set_ylabel('PSD')
 ax.set_title('Random spectrum')
 
 
-def safe_inverse(x):
+def one_over(x):
+    """Vectorized 1/x, treating x==0 manually"""
     x = np.array(x).astype(float)
     near_zero = np.isclose(x, 0)
     x[near_zero] = np.inf
@@ -66,10 +67,10 @@ def safe_inverse(x):
 
 
 # the function "1/x" is its own inverse
-forward = safe_inverse
+inverse = one_over
 
 
-secax = ax.secondary_xaxis('top', functions=(forward, safe_inverse))
+secax = ax.secondary_xaxis('top', functions=(one_over, inverse))
 secax.set_xlabel('period [s]')
 plt.show()
 

@@ -205,7 +205,7 @@ gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 # complicated layouts, like having one GridSpec in the left and one in the
 # right side of the figure. For these use cases, one should instead take
 # advantage of :doc:`/gallery/subplots_axes_and_figures/gridspec_nested`, or
-# the :doc:`/users/next_whats_new/subfigures`.
+# the :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
 
 ###############################################################################

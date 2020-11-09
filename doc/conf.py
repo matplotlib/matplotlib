@@ -166,7 +166,6 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'compress_images': ('thumbnails', 'images'),
     'matplotlib_animations': True,
-    'abort_on_example_error': True,
 }
 
 plot_gallery = 'True'
