@@ -1776,8 +1776,13 @@ default: 'top'
 
     @staticmethod
     def _normalize_grid_string(layout):
-        layout = inspect.cleandoc(layout)
-        return [list(ln) for ln in layout.strip('\n').split('\n')]
+        if '\n' not in layout:
+            # single-line string
+            return [list(ln) for ln in layout.split(';')]
+        else:
+            # multi-line string
+            layout = inspect.cleandoc(layout)
+            return [list(ln) for ln in layout.strip('\n').split('\n')]
 
     def subplot_mosaic(self, layout, *, subplot_kw=None, gridspec_kw=None,
                        empty_sentinel='.'):
@@ -1812,16 +1817,21 @@ default: 'top'
             Any of the entries in the layout can be a list of lists
             of the same form to create nested layouts.
 
-            If input is a str, then it must be of the form ::
+            If input is a str, then it can either be a multi-line string of
+            the form ::
 
               '''
               AAE
               C.E
               '''
 
-            where each character is a column and each line is a row.
-            This only allows only single character Axes labels and does
-            not allow nesting but is very terse.
+            where each character is a column and each line is a row. Or it
+            can be a single-line string where rows are separated by ``;``::
+
+              'AB;CC'
+
+            The string notation allows only single character Axes labels and
+            does not support nesting but is very terse.
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
