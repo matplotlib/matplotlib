@@ -191,11 +191,6 @@ def test_save_animation_smoketest(tmpdir, writer, output, anim):
 def test_animation_repr_html(writer, html, want, anim):
     # create here rather than in the fixture otherwise we get __del__ warnings
     # about producing no output
-    if writer == 'imagemagick':
-        ret = subprocess.run(['convert', '--version'], capture_output=True)
-        if b'7.0.10-34' in ret.stdout:
-            # see https://github.com/ImageMagick/ImageMagick/issues/2720
-            pytest.skip("Known bad version of imagemagick")
     anim = animation.FuncAnimation(**anim)
     with plt.rc_context({'animation.writer': writer,
                          'animation.html': html}):

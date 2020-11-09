@@ -324,7 +324,6 @@ def _get_executable_info(name):
         # try without it:
         return impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
     elif name == "magick":
-        path = None
         if sys.platform == "win32":
             # Check the registry to avoid confusing ImageMagick's convert with
             # Windows's builtin convert.exe.
@@ -339,18 +338,24 @@ def _get_executable_info(name):
                         binpath = winreg.QueryValueEx(hkey, "BinPath")[0]
                 except OSError:
                     pass
+            path = None
             if binpath:
                 for name in ["convert.exe", "magick.exe"]:
                     candidate = Path(binpath, name)
                     if candidate.exists():
                         path = str(candidate)
                         break
+            if path is None:
+                raise ExecutableNotFoundError(
+                    "Failed to find an ImageMagick installation")
         else:
             path = "convert"
-        if path is None:
+        info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+        if info.version == "7.0.10-34":
+            # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
-                "Failed to find an ImageMagick installation")
-        return impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+                f"You have ImageMagick {info.version}, which is unsupported")
+        return info
     elif name == "pdftops":
         info = impl(["pdftops", "-v"], "^pdftops version (.*)",
                     ignore_exit_code=True)
