@@ -30,6 +30,11 @@ sys.path.append('.')
 # General configuration
 # ---------------------
 
+# Unless we catch the warning explicitly somewhere, a warning should cause the
+# docs build to fail. This is especially useful for getting rid of deprecated
+# usage in the gallery.
+warnings.filterwarnings('error', append=True)
+
 # Strip backslahes in function's signature
 # To be removed when numpydoc > 0.9.x
 strip_signature_backslash = True
@@ -107,6 +112,12 @@ from sphinx_gallery import gen_rst
 os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
+
+# we should ignore warnings coming from importing deprecated modules for
+# autodoc purposes, as this will disappear automatically when they are removed
+warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+                        module='importlib',  # used by sphinx.autodoc.importer
+                        message=r'(\n|.)*module was deprecated.*')
 
 autodoc_docstring_signature = True
 autodoc_default_options = {'members': None, 'undoc-members': None}

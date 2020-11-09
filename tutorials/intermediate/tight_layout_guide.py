@@ -198,88 +198,15 @@ ax2 = fig.add_subplot(gs1[1])
 example_plot(ax1)
 example_plot(ax2)
 
-gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
+gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 
 ###############################################################################
-# For example, this can be used for a figure with multiple gridspecs.
+# However, we do not recommend that this be used to manually construct more
+# complicated layouts, like having one GridSpec in the left and one in the
+# right side of the figure. For these use cases, one should instead take
+# advantage of :doc:`/gallery/subplots_axes_and_figures/gridspec_nested`, or
+# the :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
-fig = plt.figure()
-
-gs1 = gridspec.GridSpec(2, 1)
-ax1 = fig.add_subplot(gs1[0])
-ax2 = fig.add_subplot(gs1[1])
-
-example_plot(ax1)
-example_plot(ax2)
-
-gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
-
-gs2 = gridspec.GridSpec(3, 1)
-
-for ss in gs2:
-    ax = fig.add_subplot(ss)
-    example_plot(ax)
-    ax.set_title("")
-    ax.set_xlabel("")
-
-ax.set_xlabel("x-label", fontsize=12)
-
-gs2.tight_layout(fig, rect=[0.5, 0, 1, 1], h_pad=0.5)
-
-# We may try to match the top and bottom of two grids ::
-top = min(gs1.top, gs2.top)
-bottom = max(gs1.bottom, gs2.bottom)
-
-gs1.update(top=top, bottom=bottom)
-gs2.update(top=top, bottom=bottom)
-plt.show()
-
-###############################################################################
-# While this should be mostly good enough, adjusting top and bottom may
-# require adjustment of hspace also.  To update hspace & vspace, we call
-# `.GridSpec.tight_layout` again with updated rect argument. Note that the
-# rect argument specifies the area including the ticklabels, etc.  Thus, we
-# will increase the bottom (which is 0 for the normal case) by the difference
-# between the *bottom* from above and the bottom of each gridspec. Same thing
-# for the top.
-
-fig = plt.gcf()
-
-gs1 = gridspec.GridSpec(2, 1)
-ax1 = fig.add_subplot(gs1[0])
-ax2 = fig.add_subplot(gs1[1])
-
-example_plot(ax1)
-example_plot(ax2)
-
-gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
-
-gs2 = gridspec.GridSpec(3, 1)
-
-for ss in gs2:
-    ax = fig.add_subplot(ss)
-    example_plot(ax)
-    ax.set_title("")
-    ax.set_xlabel("")
-
-ax.set_xlabel("x-label", fontsize=12)
-
-gs2.tight_layout(fig, rect=[0.5, 0, 1, 1], h_pad=0.5)
-
-top = min(gs1.top, gs2.top)
-bottom = max(gs1.bottom, gs2.bottom)
-
-gs1.update(top=top, bottom=bottom)
-gs2.update(top=top, bottom=bottom)
-
-top = min(gs1.top, gs2.top)
-bottom = max(gs1.bottom, gs2.bottom)
-
-gs1.tight_layout(fig, rect=[None, 0 + (bottom-gs1.bottom),
-                            0.5, 1 - (gs1.top-top)])
-gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
-                            None, 1 - (gs2.top-top)],
-                 h_pad=0.5)
 
 ###############################################################################
 # Legends and Annotations
