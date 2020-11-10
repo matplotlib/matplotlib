@@ -1113,6 +1113,12 @@ class FontManager:
         """
         self.__default_weight = weight
 
+    @staticmethod
+    def _expand_aliases(family):
+        if family in ('sans', 'sans serif'):
+            family = 'sans-serif'
+        return rcParams['font.' + family]
+
     # Each of the scoring functions below should return a value between
     # 0.0 (perfect match) and 1.0 (terrible match)
     def score_family(self, families, family2):
@@ -1135,10 +1141,7 @@ class FontManager:
         for i, family1 in enumerate(families):
             family1 = family1.lower()
             if family1 in font_family_aliases:
-                if family1 in ('sans', 'sans serif'):
-                    family1 = 'sans-serif'
-                options = rcParams['font.' + family1]
-                options = [x.lower() for x in options]
+                options = [*map(str.lower, self._expand_aliases(family1))]
                 if family2 in options:
                     idx = options.index(family2)
                     return (i + (idx / len(options))) * step
@@ -1341,6 +1344,12 @@ class FontManager:
                 _log.warning(
                     'findfont: Font family %s not found. Falling back to %s.',
                     prop.get_family(), self.defaultFamily[fontext])
+                for family in map(str.lower, prop.get_family()):
+                    if family in font_family_aliases:
+                        _log.warning(
+                            "findfont: Generic family %r not found because "
+                            "none of the following families were found: %s",
+                            family, ", ".join(self._expand_aliases(family)))
                 default_prop = prop.copy()
                 default_prop.set_family(self.defaultFamily[fontext])
                 return self.findfont(default_prop, fontext, directory,
