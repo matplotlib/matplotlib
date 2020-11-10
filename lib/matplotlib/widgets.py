@@ -222,7 +222,7 @@ class Button(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        return self._observers.connect('clicked', func)
+        return self._observers.connect('clicked', lambda event: func(event))
 
     def disconnect(self, cid):
         """Remove the callback function with connection id *cid*."""
@@ -483,7 +483,7 @@ class Slider(AxesWidget):
         int
             Connection id (which can be used to disconnect *func*)
         """
-        return self._observers.connect('changed', func)
+        return self._observers.connect('changed', lambda val: func(val))
 
     def disconnect(self, cid):
         """
@@ -646,7 +646,7 @@ class CheckButtons(AxesWidget):
 
         Returns a connection id, which can be used to disconnect the callback.
         """
-        return self._observers.connect('clicked', func)
+        return self._observers.connect('clicked', lambda text: func(text))
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
@@ -897,7 +897,7 @@ class TextBox(AxesWidget):
 
         A connection id is returned which can be used to disconnect.
         """
-        return self._observers.connect('change', func)
+        return self._observers.connect('change', lambda text: func(text))
 
     def on_submit(self, func):
         """
@@ -906,7 +906,7 @@ class TextBox(AxesWidget):
 
         A connection id is returned which can be used to disconnect.
         """
-        return self._observers.connect('submit', func)
+        return self._observers.connect('submit', lambda text: func(text))
 
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
