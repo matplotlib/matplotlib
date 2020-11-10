@@ -703,7 +703,7 @@ class ColorbarBase:
             self.stale = True
         else:
             cbook._warn_external('The ticks need to be an array of values '
-                'or an instance of ticker.Locator')
+                                 'or an instance of ticker.Locator')
 
     def get_ticks(self, minor=False):
         """Return the x ticks as a list of locations."""
@@ -726,12 +726,13 @@ class ColorbarBase:
         """
         # check if explitic ticks have been supplied
         if self._ticks is None:
-            cbook._warn_external('To set explicit ticklabels, call colorbar()'
-                'with ticks keyword or use set_ticks() method first.')
+            cbook._warn_external('To set explicit ticklabels, call colorbar() '
+                                 'with ticks keyword or use set_ticks() method '
+                                 'first.')
         # check if length of ticks and ticklabels match
         elif len(self._ticks) != len(self._ticklabels):
             cbook._warn_external('The ticklabels need to be of the same '
-                'length as the ticks.')
+                                 'length as the ticks.')
         # check if objects in list have valid type
         elif not all(type(item) in [str, float, int] for item in ticklabels):
             cbook._warn_external('ticklabels need to be a list of str')
@@ -742,8 +743,9 @@ class ColorbarBase:
                 self.update_ticks()
         else:
             cbook._warn_external('To set ticklabels, ticks of the same '
-                'length need to be set explicitly first. This can be done '
-                'through plt.colorbar(ticks) or set_ticks().')
+                                 'length need to be set explicitly first. '
+                                 'This can be done through plt.colorbar(ticks) '
+                                 'or set_ticks().')
         self.stale = True
 
     def minorticks_on(self):
