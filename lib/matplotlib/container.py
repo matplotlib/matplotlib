@@ -19,8 +19,7 @@ class Container(tuple):
 
     def __init__(self, kl, label=None):
         self.eventson = False  # fire events only if eventson
-        self._oid = 0  # an observer id
-        self._propobservers = {}  # a dict from oids to funcs
+        self._callbacks = cbook.CallbackRegistry()
         self._remove_method = None
         self.set_label(label)
 
@@ -29,7 +28,6 @@ class Container(tuple):
                 self, scalarp=lambda x: isinstance(x, Artist)):
             if c is not None:
                 c.remove()
-
         if self._remove_method:
             self._remove_method(self)
 

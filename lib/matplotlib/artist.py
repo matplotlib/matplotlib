@@ -119,8 +119,7 @@ class Artist:
         # only if they override get_cursor_data.
         self._mouseover = type(self).get_cursor_data != Artist.get_cursor_data
         self.eventson = False  # fire events only if eventson
-        self._oid = 0  # an observer id
-        self._propobservers = {}  # a dict from oids to funcs
+        self._callbacks = cbook.CallbackRegistry()
         try:
             self.axes = None
         except AttributeError:
@@ -341,10 +340,9 @@ class Artist:
         --------
         remove_callback
         """
-        oid = self._oid
-        self._propobservers[oid] = func
-        self._oid += 1
-        return oid
+        # Wrapping func in a lambda ensures it can be connected multiple times
+        # and never gets weakref-gc'ed.
+        return self._callbacks.connect("pchanged", lambda: func(self))
 
     def remove_callback(self, oid):
         """
@@ -354,10 +352,7 @@ class Artist:
         --------
         add_callback
         """
-        try:
-            del self._propobservers[oid]
-        except KeyError:
-            pass
+        self._callbacks.disconnect("pchanged", oid)
 
     def pchanged(self):
         """
@@ -370,8 +365,7 @@ class Artist:
         add_callback
         remove_callback
         """
-        for oid, func in self._propobservers.items():
-            func(self)
+        self._callbacks.process("pchanged")
 
     def is_transform_set(self):
         """
