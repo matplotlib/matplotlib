@@ -34,6 +34,16 @@ jobs:
         run: |
           cp setup.cfg.template setup.cfg
 
+      - name: Build wheels for CPython 3.9
+        run: |
+          python -m cibuildwheel --output-dir dist
+        env:
+          CIBW_BUILD: "cp39-*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
+          CIBW_MANYLINUX_I686_IMAGE: manylinux1
+          CIBW_BEFORE_BUILD: pip install certifi numpy==1.19.3
+          MPL_DISABLE_FH4: "yes"
+
       - name: Build wheels for CPython
         run: |
           python -m cibuildwheel --output-dir dist
