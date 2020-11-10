@@ -464,6 +464,7 @@ class ColorbarBase:
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
         self.spacing = spacing
+        self._ticks = None
         self._ticklabels = ticklabels
         self.orientation = orientation
         self.drawedges = drawedges
@@ -501,10 +502,8 @@ class ColorbarBase:
         self.set_label(label)
         self._reset_locator_formatter_scale()
 
-        if np.iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
-        else:
-            self.locator = ticks    # Handle default in _ticker()
+        if ticks:
+            self.set_ticks(ticks)
 
         if isinstance(format, str):
             self.formatter = ticker.FormatStrFormatter(format)
@@ -692,14 +691,19 @@ class ColorbarBase:
             user has to call `update_ticks` later to update the ticks.
 
         """
-        if np.iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+        if np.iterable(ticks) or isinstance(ticks, ticker.Locator):
+            self._ticks = ticks  # self._ticks always holds a valid value
+            if np.iterable(ticks):
+                self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+            else:
+                self.locator = ticks
+            if update_ticks:
+                self.update_ticks()
+                self._ticks = self.get_ticks()
+            self.stale = True
         else:
-            self.locator = ticks
-
-        if update_ticks:
-            self.update_ticks()
-        self.stale = True
+            cbook._warn_external('The ticks need to be an array of values '
+                'or an instance of ticker.Locator')
 
     def get_ticks(self, minor=False):
         """Return the x ticks as a list of locations."""
@@ -720,14 +724,26 @@ class ColorbarBase:
         Tick labels are updated immediately unless *update_ticks* is *False*,
         in which case one should call `.update_ticks` explicitly.
         """
-        if isinstance(self.locator, ticker.FixedLocator):
+        # check if explitic ticks have been supplied
+        if self._ticks is None:
+            cbook._warn_external('To set explicit ticklabels, call colorbar()'
+                'with ticks keyword or use set_ticks() method first.')
+        # check if length of ticks and ticklabels match
+        elif len(self._ticks) != len(self._ticklabels):
+            cbook._warn_external('The ticklabels need to be of the same '
+                'length as the ticks.')
+        # check if objects in list have valid type
+        elif not all(type(item) in [str, float, int] for item in ticklabels):
+            cbook._warn_external('ticklabels need to be a list of str')
+        # this check was in the code previously, not sure if needed
+        elif isinstance(self.locator, ticker.FixedLocator):
             self.formatter = ticker.FixedFormatter(ticklabels)
             if update_ticks:
                 self.update_ticks()
         else:
-            cbook._warn_external('To set ticklabels, ticks with the same \
-                length need to be set explicitly first. This can be done \
-                through plt.colorbar(ticks) or set_ticks().')
+            cbook._warn_external('To set ticklabels, ticks of the same '
+                'length need to be set explicitly first. This can be done '
+                'through plt.colorbar(ticks) or set_ticks().')
         self.stale = True
 
     def minorticks_on(self):
