@@ -388,5 +388,6 @@ def test_math_fontfamily():
 
 
 def test_mathtext_fontfamily():
-    fig = plt.figure(figsize=(10, 3))
-    fig.text(.5, .5, '$a-b$', fontsize=40, ha='center', math_fontfamily='cmr10')
+    mpl.rcParams['font.family'] = 'cmr10'
+    fig, ax = plt.subplots()
+    ax.plot(range(-1, 1), range(-1, 1))
