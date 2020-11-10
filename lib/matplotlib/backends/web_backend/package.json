@@ -11,5 +11,8 @@
     "lint:check": "npm run prettier:check && npm run eslint:check",
     "prettier": "prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json}\"",
     "prettier:check": "prettier --check \"**/*{.ts,.tsx,.js,.jsx,.css,.json}\""
+  },
+  "dependencies": {
+    "@jsxtools/resize-observer": "^1.0.4"
   }
 }
