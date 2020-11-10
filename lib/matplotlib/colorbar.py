@@ -727,8 +727,8 @@ class ColorbarBase:
         # check if explitic ticks have been supplied
         if self._ticks is None:
             cbook._warn_external('To set explicit ticklabels, call colorbar() '
-                                 'with ticks keyword or use set_ticks() method '
-                                 'first.')
+                                 'with ticks keyword or use set_ticks() '
+                                 'method first.')
         # check if length of ticks and ticklabels match
         elif len(self._ticks) != len(self._ticklabels):
             cbook._warn_external('The ticklabels need to be of the same '
@@ -744,8 +744,8 @@ class ColorbarBase:
         else:
             cbook._warn_external('To set ticklabels, ticks of the same '
                                  'length need to be set explicitly first. '
-                                 'This can be done through plt.colorbar(ticks) '
-                                 'or set_ticks().')
+                                 'This can be done through '
+                                 'plt.colorbar(ticks) or set_ticks().')
         self.stale = True
 
     def minorticks_on(self):
