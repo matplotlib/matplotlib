@@ -496,7 +496,11 @@ class Path:
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Return whether the (closed) path contains the given point.
+        Return whether the area enclosed by the path contains the given points.
+
+        The path is always treated as closed; i.e. if the last code is not
+        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        vertex is assumed.
 
         Parameters
         ----------
@@ -517,6 +521,17 @@ class Path:
         Returns
         -------
         bool
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (including *radius*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -531,7 +546,11 @@ class Path:
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Return whether the (closed) path contains the given point.
+        Return whether the area enclosed by the path contains the given point.
+
+        The path is always treated as closed; i.e. if the last code is not
+        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        vertex is assumed.
 
         Parameters
         ----------
@@ -541,7 +560,7 @@ class Path:
             If not ``None``, *points* will be compared to ``self`` transformed
             by *transform*; i.e. for a correct check, *transform* should
             transform the path into the coordinate system of *points*.
-        radius : float, default: 0.
+        radius : float, default: 0
             Add an additional margin on the path in coordinates of *points*.
             The path is extended tangentially by *radius/2*; i.e. if you would
             draw the path with a linewidth of *radius*, all points on the line
@@ -552,6 +571,17 @@ class Path:
         Returns
         -------
         length-N bool array
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (including *radius*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
         """
         if transform is not None:
             transform = transform.frozen()
