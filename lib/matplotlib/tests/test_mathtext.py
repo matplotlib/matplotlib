@@ -385,3 +385,8 @@ def test_math_fontfamily():
              size=24, math_fontfamily='dejavusans')
     fig.text(0.2, 0.3, r"$This\ text\ should\ have\ another$",
              size=24, math_fontfamily='stix')
+
+
+def test_mathtext_fontfamily():
+    fig = plt.figure(figsize=(10, 3))
+    fig.text(.5, .5, '$a-b$', fontsize=40, ha='center', math_fontfamily='cmr10')
