@@ -108,7 +108,7 @@ def test_bar3d_lightsource():
     # the top facecolors compared to the default, and that those colors are
     # precisely the colors from the colormap, due to the illumination parallel
     # to the z-axis.
-    np.testing.assert_array_equal(color, collection._facecolors3d[1::6])
+    np.testing.assert_array_equal(color, collection._facecolor3d[1::6])
 
 
 @mpl3d_image_comparison(['contour3d.png'])

@@ -834,8 +834,8 @@ class Poly3DCollection(PolyCollection):
         self.update_scalarmappable()
         self._sort_zpos = None
         self.set_zsort('average')
-        self._facecolors3d = PolyCollection.get_facecolor(self)
-        self._edgecolors3d = PolyCollection.get_edgecolor(self)
+        self._facecolor3d = PolyCollection.get_facecolor(self)
+        self._edgecolor3d = PolyCollection.get_edgecolor(self)
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
@@ -856,8 +856,8 @@ class Poly3DCollection(PolyCollection):
         xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
 
         # This extra fuss is to re-order face / edge colors
-        cface = self._facecolors3d
-        cedge = self._edgecolors3d
+        cface = self._facecolor3d
+        cedge = self._edgecolor3d
         if len(cface) != len(xyzlist):
             cface = cface.repeat(len(xyzlist), axis=0)
         if len(cedge) != len(xyzlist):
@@ -882,8 +882,8 @@ class Poly3DCollection(PolyCollection):
         else:
             PolyCollection.set_verts(self, segments_2d, self._closed)
 
-        if len(self._edgecolors3d) != len(cface):
-            self._edgecolors2d = self._edgecolors3d
+        if len(self._edgecolor3d) != len(cface):
+            self._edgecolors2d = self._edgecolor3d
 
         # Return zorder value
         if self._sort_zpos is not None:
@@ -901,24 +901,24 @@ class Poly3DCollection(PolyCollection):
     def set_facecolor(self, colors):
         # docstring inherited
         super().set_facecolor(colors)
-        self._facecolors3d = PolyCollection.get_facecolor(self)
+        self._facecolor3d = PolyCollection.get_facecolor(self)
 
     def set_edgecolor(self, colors):
         # docstring inherited
         super().set_edgecolor(colors)
-        self._edgecolors3d = PolyCollection.get_edgecolor(self)
+        self._edgecolor3d = PolyCollection.get_edgecolor(self)
 
     def set_alpha(self, alpha):
         # docstring inherited
         artist.Artist.set_alpha(self, alpha)
         try:
-            self._facecolors3d = mcolors.to_rgba_array(
-                self._facecolors3d, self._alpha)
+            self._facecolor3d = mcolors.to_rgba_array(
+                self._facecolor3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
         try:
             self._edgecolors = mcolors.to_rgba_array(
-                    self._edgecolors3d, self._alpha)
+                    self._edgecolor3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
         self.stale = True
