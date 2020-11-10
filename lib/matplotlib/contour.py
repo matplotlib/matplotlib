@@ -17,9 +17,7 @@ import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
-import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
-import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtransforms
 
 # Import needed for adding manual selection capability to clabel
@@ -51,7 +49,7 @@ class ContourLabeler:
     """Mixin to provide labelling capability to `.ContourSet`."""
 
     def clabel(self, levels=None, *,
-               fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
+               fontsize=None, inline=True, inline_spacing=5, fmt=None,
                colors=None, use_clabeltext=False, manual=False,
                rightside_up=True, zorder=None):
         """
@@ -92,14 +90,17 @@ class ContourLabeler:
             This spacing will be exact for labels at locations where the
             contour is straight, less so for labels on curved contours.
 
-        fmt : str or dict, default: '%1.3f'
-            A format string for the label.
+        fmt : `.Formatter` or str or callable or dict, optional
+            How the levels are formatted:
 
-            Alternatively, this can be a dictionary matching contour levels
-            with arbitrary strings to use for each contour level (i.e.,
-            fmt[level]=string), or it can be any callable, such as a
-            `.Formatter` instance, that returns a string when called with a
-            numeric contour level.
+            - If a `.Formatter`, it is used to format all levels at once, using
+              its `.Formatter.format_ticks` method.
+            - If a str, it is interpreted as a %-style format string.
+            - If a callable, it is called with one level at a time and should
+              return the corresponding label.
+            - If a dict, it should directly map levels to labels.
+
+            The default is to use a standard `.ScalarFormatter`.
 
         manual : bool or iterable, default: False
             If ``True``, contour labels will be placed manually using
@@ -144,6 +145,9 @@ class ContourLabeler:
         # labels method (case of automatic label placement) or
         # `BlockingContourLabeler` (case of manual label placement).
 
+        if fmt is None:
+            fmt = ticker.ScalarFormatter(useOffset=False)
+            fmt.create_dummy_axis()
         self.labelFmt = fmt
         self._use_clabeltext = use_clabeltext
         # Detect if manual selection is desired and remove from argument list.
@@ -243,20 +247,12 @@ class ContourLabeler:
         """
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
-        lev, ismath = text.Text()._preprocess_math(lev)
-        if ismath == 'TeX':
-            lw, _, _ = (texmanager.TexManager()
-                        .get_text_width_height_descent(lev, fsize))
-        elif ismath:
-            if not hasattr(self, '_mathtext_parser'):
-                self._mathtext_parser = mathtext.MathTextParser('agg')
-            _, _, _, _, _, img, _ = self._mathtext_parser.parse(
-                lev, dpi=72, prop=self.labelFontProps)
-            _, lw = np.shape(img)  # at dpi=72, the units are PostScript points
-        else:
-            # width is much less than "font size"
-            lw = len(lev) * fsize * 0.6
-        return lw
+        fig = self.axes.figure
+        width = (text.Text(0, 0, lev, figure=fig,
+                           size=fsize, fontproperties=self.labelFontProps)
+                 .get_window_extent(fig.canvas.get_renderer()).width)
+        width *= 72 / fig.dpi
+        return width
 
     def set_label_props(self, label, text, color):
         """Set the label properties - color, fontsize, text."""
@@ -269,13 +265,14 @@ class ContourLabeler:
         """Get the text of the label."""
         if isinstance(lev, str):
             return lev
+        elif isinstance(fmt, dict):
+            return fmt.get(lev, '%1.3f')
+        elif callable(getattr(fmt, "format_ticks", None)):
+            return fmt.format_ticks([*self.labelLevelList, lev])[-1]
+        elif callable(fmt):
+            return fmt(lev)
         else:
-            if isinstance(fmt, dict):
-                return fmt.get(lev, '%1.3f')
-            elif callable(fmt):
-                return fmt(lev)
-            else:
-                return fmt % lev
+            return fmt % lev
 
     def locate_label(self, linecontour, labelwidth):
         """
@@ -564,23 +561,14 @@ class ContourLabeler:
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
                 lc = linepath.vertices  # Line contour
-                slc0 = trans.transform(lc)  # Line contour in screen coords
-
-                # For closed polygons, add extra point to avoid division by
-                # zero in print_label and locate_label.  Other than these
-                # functions, this is not necessary and should probably be
-                # eventually removed.
-                if _is_closed_polygon(lc):
-                    slc = np.row_stack([slc0, slc0[1:2]])
-                else:
-                    slc = slc0
+                slc = trans.transform(lc)  # Line contour in screen coords
 
                 # Check if long enough for a label
                 if self.print_label(slc, lw):
                     x, y, ind = self.locate_label(slc, lw)
 
                     rotation, new = self.calc_label_rot_and_inline(
-                        slc0, ind, lw, lc if inline else None, inline_spacing)
+                        slc, ind, lw, lc if inline else None, inline_spacing)
 
                     # Actually add the label
                     add_label(x, y, rotation, lev, cvalue)

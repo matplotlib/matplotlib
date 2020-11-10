@@ -1,0 +1,5 @@
+Contour plots now default to using ScalarFormatter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pass ``fmt="%1.3f"`` to the contouring call to restore the old default label
+format.
