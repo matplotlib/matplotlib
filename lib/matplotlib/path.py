@@ -496,7 +496,7 @@ class Path:
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Return whether the area enclosed by the path contains the given points.
+        Return whether the area enclosed by the path contains the given point.
 
         The path is always treated as closed; i.e. if the last code is not
         CLOSEPOLY an implicit segment connecting the last vertex to the first
@@ -546,7 +546,7 @@ class Path:
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Return whether the area enclosed by the path contains the given point.
+        Return whether the area enclosed by the path contains the given points.
 
         The path is always treated as closed; i.e. if the last code is not
         CLOSEPOLY an implicit segment connecting the last vertex to the first
