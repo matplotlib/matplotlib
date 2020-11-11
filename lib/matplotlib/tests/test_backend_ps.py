@@ -8,7 +8,7 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook, patheffects
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
@@ -165,3 +165,11 @@ def test_useafm():
 @image_comparison(["type3.eps"])
 def test_type3_font():
     plt.figtext(.5, .5, "I/J")
+
+
+@check_figures_equal(extensions=["eps"])
+def test_text_clip(fig_test, fig_ref):
+    ax = fig_test.add_subplot()
+    # Fully clipped-out text should not appear.
+    ax.text(0, 0, "hello", transform=fig_test.transFigure, clip_on=True)
+    fig_ref.add_subplot()

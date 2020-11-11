@@ -369,6 +369,37 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         """
         return self.image_magnification
 
+    def _convert_path(self, path, transform, clip=False, simplify=None):
+        if clip:
+            clip = (0.0, 0.0, self.width * 72.0, self.height * 72.0)
+        else:
+            clip = None
+        return _path.convert_to_string(
+            path, transform, clip, simplify, None,
+            6, [b"m", b"l", b"", b"c", b"cl"], True).decode("ascii")
+
+    def _get_clip_cmd(self, gc):
+        clip = []
+        rect = gc.get_clip_rectangle()
+        if rect is not None:
+            clip.append("%s clipbox\n" % _nums_to_str(*rect.size, *rect.p0))
+        path, trf = gc.get_clip_path()
+        if path is not None:
+            key = (path, id(trf))
+            custom_clip_cmd = self._clip_paths.get(key)
+            if custom_clip_cmd is None:
+                custom_clip_cmd = "c%x" % len(self._clip_paths)
+                self._pswriter.write(f"""\
+/{custom_clip_cmd} {{
+{self._convert_path(path, trf, simplify=False)}
+clip
+newpath
+}} bind def
+""")
+                self._clip_paths[key] = custom_clip_cmd
+            clip.append(f"{custom_clip_cmd}\n")
+        return "".join(clip)
+
     def draw_image(self, gc, x, y, im, transform=None):
         # docstring inherited
 
@@ -396,20 +427,9 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             xscale = 1.0
             yscale = 1.0
 
-        bbox = gc.get_clip_rectangle()
-        clippath, clippath_trans = gc.get_clip_path()
-
-        clip = []
-        if bbox is not None:
-            clip.append('%s clipbox' % _nums_to_str(*bbox.size, *bbox.p0))
-        if clippath is not None:
-            id = self._get_clip_path(clippath, clippath_trans)
-            clip.append('%s' % id)
-        clip = '\n'.join(clip)
-
         self._pswriter.write(f"""\
 gsave
-{clip}
+{self._get_clip_cmd(gc)}
 {x:f} {y:f} translate
 [{matrix}] concat
 {xscale:f} {yscale:f} scale
@@ -421,32 +441,6 @@ currentfile DataString readhexstring pop
 {hexlines}
 grestore
 """)
-
-    def _convert_path(self, path, transform, clip=False, simplify=None):
-        if clip:
-            clip = (0.0, 0.0, self.width * 72.0, self.height * 72.0)
-        else:
-            clip = None
-        return _path.convert_to_string(
-            path, transform, clip, simplify, None,
-            6, [b'm', b'l', b'', b'c', b'cl'], True).decode('ascii')
-
-    def _get_clip_path(self, clippath, clippath_transform):
-        key = (clippath, id(clippath_transform))
-        pid = self._clip_paths.get(key)
-        if pid is None:
-            pid = 'c%x' % len(self._clip_paths)
-            clippath_bytes = self._convert_path(
-                clippath, clippath_transform, simplify=False)
-            self._pswriter.write(f"""\
-/{pid} {{
-{clippath_bytes}
-clip
-newpath
-}} bind def
-""")
-            self._clip_paths[key] = pid
-        return pid
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
@@ -649,6 +643,7 @@ grestore
                             for x, name in xs_names)
         self._pswriter.write(f"""\
 gsave
+{self._get_clip_cmd(gc)}
 {x:f} {y:f} translate
 {angle:f} rotate
 {thetext}
@@ -763,14 +758,7 @@ grestore
             self.set_color(*gc.get_rgb()[:3])
         write('gsave\n')
 
-        cliprect = gc.get_clip_rectangle()
-        if cliprect:
-            write('%1.4g %1.4g %1.4g %1.4g clipbox\n'
-                  % (*cliprect.size, *cliprect.p0))
-        clippath, clippath_trans = gc.get_clip_path()
-        if clippath:
-            id = self._get_clip_path(clippath, clippath_trans)
-            write('%s\n' % id)
+        write(self._get_clip_cmd(gc))
 
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
