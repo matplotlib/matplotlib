@@ -454,16 +454,6 @@ class Patch3DCollection(PatchCollection):
         self._depthshade = depthshade
         self.stale = True
 
-    def set_facecolor(self, c):
-        # docstring inherited
-        super().set_facecolor(c)
-        self._facecolor3d = self.get_facecolor()
-
-    def set_edgecolor(self, c):
-        # docstring inherited
-        super().set_edgecolor(c)
-        self._edgecolor3d = self.get_edgecolor()
-
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
@@ -480,8 +470,6 @@ class Patch3DCollection(PatchCollection):
             xs = []
             ys = []
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
-        self._facecolor3d = self.get_facecolor()
-        self._edgecolor3d = self.get_edgecolor()
         self.stale = True
 
     @cbook._delete_parameter('3.4', 'renderer')
@@ -489,22 +477,31 @@ class Patch3DCollection(PatchCollection):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
-
-        fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
-               self._facecolor3d)
-        fcs = mcolors.to_rgba_array(fcs, self._alpha)
-        super().set_facecolor(fcs)
-
-        ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
-               self._edgecolor3d)
-        ecs = mcolors.to_rgba_array(ecs, self._alpha)
-        super().set_edgecolor(ecs)
-        super().set_offsets(np.column_stack([vxs, vys]))
-
         if vzs.size > 0:
             return min(vzs)
         else:
             return np.nan
+
+    @artist.allow_rasterization
+    def draw(self, renderer):
+        # docstring inherited
+        xs, ys, zs = self._offsets3d
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
+                                                        self.axes.M)
+
+        fcs = self.get_facecolor()
+        ecs = self.get_edgecolor()
+        if self._depthshade:
+            fcs = _zalpha(fcs, vzs)
+            ecs = _zalpha(ecs, vzs)
+        fcs = mcolors.to_rgba_array(fcs, self._alpha)
+        ecs = mcolors.to_rgba_array(ecs, self._alpha)
+
+        offsets = np.column_stack([vxs, vys])
+
+        with cbook._setattr_cm(self, _edgecolors=ecs, _facecolors=fcs,
+                               _offsets=offsets):
+            super().draw(renderer)
 
 
 class Path3DCollection(PathCollection):
