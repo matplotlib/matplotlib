@@ -671,20 +671,20 @@ def _update_scalarmappable(sm):
 
     These things together mean you can have the sequence of events:
 
-    - we create the artist, do the color mapping and stash the results in a 3D
-      specific state.
-    - change something about the ScalarMappable that marks it as in need of an
-      update (`ScalarMappable.changed` and friends).
-    - We call do_3d_projection and shuffle the stashed colors into the 2D version
-      of face colors
-    - the draw method calls the update_scalarmappable method which overwrites our
-      shuffled colors
+    - we create the artist, do the color mapping and stash the results
+      in a 3D specific state.
+    - change something about the ScalarMappable that marks it as in
+      need of an update (`ScalarMappable.changed` and friends).
+    - We call do_3d_projection and shuffle the stashed colors into the
+      2D version of face colors
+    - the draw method calls the update_scalarmappable method which
+      overwrites our shuffled colors
     - we get a render that is wrong
     - if we re-render (either with a second save or implicitly via
       tight_layout / constrained_layout / bbox_inches='tight' (ex via
       inline's defaults)) we again shuffle the 3D colors
-    - because the CM is not marked as changed update_scalarmappable is a no-op and
-      we get a correct looking render.
+    - because the CM is not marked as changed update_scalarmappable is
+      a no-op and we get a correct looking render.
 
     This function is an internal helper to:
 
