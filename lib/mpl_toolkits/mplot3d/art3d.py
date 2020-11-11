@@ -642,8 +642,8 @@ class Path3DCollection(PathCollection):
 
 
 def _update_scalarmappable(sm):
-
-    """Update a 3D ScalarMappable.
+    """
+    Update a 3D ScalarMappable.
 
     With ScalarMappable objects if the data, colormap, or norm are
     changed, we need to update the computed colors.  This is handled
@@ -657,21 +657,21 @@ def _update_scalarmappable(sm):
     handled in the ``do_3d_projection`` methods which are called from the
     draw method of the 3D Axes.  These methods:
 
-     - do the projection from 3D -> 2D
-     - internally sort based on depth
-     - stash the results of the above in the 2D analogs of state
-     - return the z-depth of the whole artist
+    - do the projection from 3D -> 2D
+    - internally sort based on depth
+    - stash the results of the above in the 2D analogs of state
+    - return the z-depth of the whole artist
 
     the last step is so that we can, at the Axes level, sort the children by
     depth.
 
-    The base `draw` method of the 2D artists unconditionally call
+    The base `draw` method of the 2D artists unconditionally calls
     update_scalarmappable and rely on the method's internal caching logic to
     lazily evaluate.
 
     These things together mean you can have the sequence of events:
 
-    - we create the artist, to the color mapping and stash the results in a 3D
+    - we create the artist, do the color mapping and stash the results in a 3D
       specific state.
     - change something about the ScalarMappable that marks it as in need of an
       update (`ScalarMappable.changed` and friends).
@@ -679,18 +679,18 @@ def _update_scalarmappable(sm):
       of face colors
     - the draw method calls the update_scalarmappable method which overwrites our
       shuffled colors
-    - we get a render this is wrong
+    - we get a render that is wrong
     - if we re-render (either with a second save or implicitly via
-      tight_layout / constairned_layout / bbox_inches='tight' (ex via
+      tight_layout / constrained_layout / bbox_inches='tight' (ex via
       inline's defaults)) we again shuffle the 3D colors
     - because the CM is not marked as changed update_scalarmappable is a no-op and
       we get a correct looking render.
 
     This function is an internal helper to:
 
-     - sort out if we need to do the color mapping at all (has data!)
-     - sort out if update_scalarmappable is going to be a no-op
-     - copy the data over from the 2D -> 3D version
+    - sort out if we need to do the color mapping at all (has data!)
+    - sort out if update_scalarmappable is going to be a no-op
+    - copy the data over from the 2D -> 3D version
 
     This must be called first thing in do_3d_projection to make sure that
     the correct colors get shuffled.

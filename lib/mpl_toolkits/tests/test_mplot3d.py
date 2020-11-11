@@ -1318,7 +1318,7 @@ def test_scalarmap_update(fig_test, fig_ref):
     sc_test = ax_test.scatter(x, y, z, c=c, s=40, cmap='viridis')
     # force a draw
     fig_test.canvas.draw()
-    # make it as "stale"
+    # mark it as "stale"
     sc_test.changed()
 
     # ref
