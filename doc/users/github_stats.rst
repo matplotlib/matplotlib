@@ -3,91 +3,94 @@
 GitHub Stats
 ============
 
-GitHub stats for 2020/08/14 - 2020/09/15 (tag: v3.3.1)
+GitHub stats for 2020/09/15 - 2020/11/11 (tag: v3.3.2)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 15 issues and merged 39 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/57?closed=1>`__
+We closed 14 issues and merged 46 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/58?closed=1>`__
 
-The following 14 authors contributed 61 commits.
+The following 11 authors contributed 73 commits.
 
 * Antony Lee
-* Bruno Beltran
 * David Stansby
-* David Young
 * Elliott Sales de Andrade
-* Greg Lucas
+* Eric Larson
 * Jody Klymak
-* johnthagen
 * Jouni K. Seppänen
-* Richard Sheridan
-* richardsheridan
 * Ryan May
+* shevawen
+* Stephen Sinclair
 * Thomas A Caswell
 * Tim Hoffmann
 
 GitHub issues and pull requests:
 
-Pull Requests (39):
+Pull Requests (46):
 
-* :ghpull:`18488`: Backport PR #18483 on branch v3.3.x (DOC: reword non-monotonic cell center warning)
-* :ghpull:`18483`: DOC: reword non-monotonic cell center warning
-* :ghpull:`18485`: Backport PR #18475 on branch v3.3.x (BF: ensure exception caught if no kpeswitch)
-* :ghpull:`18482`: Backport PR #18398 on branch v3.3.x (Warn on non-increasing/decreasing pcolor coords)
-* :ghpull:`18484`: Backport PR #18458: Fix huge imshow range
-* :ghpull:`18475`: BF: ensure exception caught if no kpeswitch
-* :ghpull:`18458`: Fix huge imshow range
-* :ghpull:`18398`: Warn on non-increasing/decreasing pcolor coords
-* :ghpull:`18479`: Nbagg backports
-* :ghpull:`18454`: nbagg: Use OutputArea event to trigger figure close.
-* :ghpull:`18469`: Backport PR #18464 on branch v3.3.x (Remove extra stickies in barstacked histogram.)
-* :ghpull:`18464`: Remove extra stickies in barstacked histogram.
-* :ghpull:`18459`: Backport PR #18393 on branch v3.3.x (Fix Axis scale on twinned Axes.)
-* :ghpull:`18393`: Fix Axis scale on twinned Axes.
-* :ghpull:`18441`: Backport PR #18395: TkAgg bugfix: deselect buttons that are not the current _Mode
-* :ghpull:`18395`: TkAgg bugfix: deselect buttons that are not the current _Mode
-* :ghpull:`18380`: Backport PR #18374 on branch v3.3.x (FIX: make _reshape_2D accept pandas df with string indices)
-* :ghpull:`18374`: FIX: make _reshape_2D accept pandas df with string indices
-* :ghpull:`18376`: Backport PR #18298 on branch v3.3.x (Include license files in built distribution)
-* :ghpull:`18375`: Backport PR #18293 on branch v3.3.x (Fix scatter3d color/linewidth re-projection)
-* :ghpull:`18298`: Include license files in built distribution
-* :ghpull:`18293`: Fix scatter3d color/linewidth re-projection
-* :ghpull:`18361`: nbagg: Store DPI ratio on figure instead of window.
-* :ghpull:`18354`: Backport PR #18352 on branch v3.3.x (Avoid triggering backend resolution during qt initial import.)
-* :ghpull:`18352`: Avoid triggering backend resolution during qt initial import.
-* :ghpull:`18335`: Backport PR #18322 on branch v3.3.x (Disable FH4 so that we don't require VCRUNTIME140_1.dll.)
-* :ghpull:`18322`: Disable FH4 so that we don't require VCRUNTIME140_1.dll.
-* :ghpull:`18333`: Backport PR #18328 on branch v3.3.x (Add missing check for None in Qt toolmanager.)
-* :ghpull:`18328`: Add missing check for None in Qt toolmanager.
-* :ghpull:`18309`: Backport PR #18304 on branch v3.3.x (Fix canvas redraws during motion in figures with a Button or TextBox)
-* :ghpull:`18304`: Fix canvas redraws during motion in figures with a Button or TextBox
-* :ghpull:`18297`: Backport PR #18288 on branch v3.3.x (FIX: check if axes is off page before repositioning title)
-* :ghpull:`18288`: FIX: check if axes is off page before repositioning title
-* :ghpull:`18269`: Backport PR #18266 on branch v3.3.x (Fix Path.get_extents for empty paths.)
-* :ghpull:`18266`: Fix Path.get_extents for empty paths.
-* :ghpull:`18263`: Backport PR #18260 on branch v3.3.x (Add parent widget to IntVar)
-* :ghpull:`18260`: Add parent widget to IntVar
-* :ghpull:`18253`: Backport PR #18245 on branch v3.3.x
-* :ghpull:`18245`: MNT: do a better job guessing the GUI framework in use
+* :ghpull:`18936`: Backport PR #18929 on branch v3.3.x
+* :ghpull:`18929`: FIX: make sure scalarmappable updates are handled correctly in 3D
+* :ghpull:`18928`: Backport PR #18842 on branch v3.3.x (Add CPython 3.9 wheels.)
+* :ghpull:`18842`: Add CPython 3.9 wheels.
+* :ghpull:`18921`: Backport PR #18732 on branch v3.3.x (Add a ponyfill for ResizeObserver on older browsers.)
+* :ghpull:`18732`: Add a ponyfill for ResizeObserver on older browsers.
+* :ghpull:`18886`: Backport #18860 on branch v3.3.x
+* :ghpull:`18860`: FIX: stop deprecation message colorbar
+* :ghpull:`18845`: Backport PR #18839 on branch v3.3.x
+* :ghpull:`18843`: Backport PR #18756 on branch v3.3.x (FIX: improve date performance regression)
+* :ghpull:`18850`: Backport CI fixes to v3.3.x
+* :ghpull:`18839`: MNT: make sure we do not mutate input in Text.update
+* :ghpull:`18838`: Fix ax.set_xticklabels(fontproperties=fp)
+* :ghpull:`18756`: FIX: improve date performance regression
+* :ghpull:`18787`: Backport PR #18769 on branch v3.3.x
+* :ghpull:`18786`: Backport PR #18754 on branch v3.3.x (FIX: make sure we have more than 1 tick with small log ranges)
+* :ghpull:`18754`: FIX: make sure we have more than 1 tick with small log ranges
+* :ghpull:`18769`: Support ``ax.grid(visible=<bool>)``.
+* :ghpull:`18778`: Backport PR #18773 on branch v3.3.x (Update to latest cibuildwheel release.)
+* :ghpull:`18773`: Update to latest cibuildwheel release.
+* :ghpull:`18755`: Backport PR #18734 on branch v3.3.x (Fix deprecation warning in GitHub Actions.)
+* :ghpull:`18734`: Fix deprecation warning in GitHub Actions.
+* :ghpull:`18725`: Backport PR #18533 on branch v3.3.x
+* :ghpull:`18723`: Backport PR #18584 on branch v3.3.x (Fix setting 0-timeout timer with Tornado.)
+* :ghpull:`18676`: Backport PR #18670 on branch v3.3.x (MNT: make certifi actually optional)
+* :ghpull:`18670`: MNT: make certifi actually optional
+* :ghpull:`18665`: Backport PR #18639 on branch v3.3.x (nbagg: Don't close figures for bubbled events.)
+* :ghpull:`18639`: nbagg: Don't close figures for bubbled events.
+* :ghpull:`18640`: Backport PR #18636 on branch v3.3.x (BLD: certifi is not a run-time dependency)
+* :ghpull:`18636`: BLD: certifi is not a run-time dependency
+* :ghpull:`18629`: Backport PR #18621 on branch v3.3.x (Fix singleshot timers in wx.)
+* :ghpull:`18621`: Fix singleshot timers in wx.
+* :ghpull:`18607`: Backport PR #18604 on branch v3.3.x (Update test image to fix Ghostscript 9.53.)
+* :ghpull:`18604`: Update test image to fix Ghostscript 9.53.
+* :ghpull:`18584`: Fix setting 0-timeout timer with Tornado.
+* :ghpull:`18550`: backport pr 18549
+* :ghpull:`18545`: Backport PR #18540 on branch v3.3.x (Call to ExitStack.push should have been ExitStack.callback.)
+* :ghpull:`18549`: FIX: unit-convert pcolorargs before interpolating
+* :ghpull:`18540`: Call to ExitStack.push should have been ExitStack.callback.
+* :ghpull:`18533`: Correctly remove support for \stackrel.
+* :ghpull:`18509`: Backport PR #18505 on branch v3.3.x (Fix depth shading when edge/facecolor is none.)
+* :ghpull:`18505`: Fix depth shading when edge/facecolor is none.
+* :ghpull:`18504`: Backport PR #18500 on branch v3.3.x (BUG: Fix all-masked imshow)
+* :ghpull:`18500`: BUG: Fix all-masked imshow
+* :ghpull:`18476`: CI: skip qt, cairo, pygobject related installs on OSX on travis
+* :ghpull:`18134`: Build on xcode9
 
-Issues (15):
+Issues (14):
 
-* :ghissue:`18415`: imshow with LogNorm crashes with certain inputs
-* :ghissue:`18447`: nbagg: Closing a figure from the notebook does not close the python figure
-* :ghissue:`18470`: interactive plots slow with matplotlib 3.3.1
-* :ghissue:`18457`: Incorrect log y-scale for histogram with partitioned and barstacked data
-* :ghissue:`18385`: twinx not respecting log-scale
-* :ghissue:`18371`: Plotting a pandas DataFrame with string MultiIndex
-* :ghissue:`18296`: LICENSE file(s) not included in published PyPI package
-* :ghissue:`18287`: scatter3D assigns wrong color to points for some plot orientations
-* :ghissue:`18292`: ImportError: DLL load failed with Matplotlib 3.3.1 on Windows
-* :ghissue:`18327`: Tool Manager: adding buttons to toolbar fails with matplotlib version 3.3.1 using Qt backend
-* :ghissue:`18324`:  Poor UI responsiveness  of 3.3.1 compared with 3.2.2 for interactive mode UI using widgets
-* :ghissue:`18303`: Canvas redraws during any motion when Button is present
-* :ghissue:`18283`: Automatic title placement wrong if parent axes is off the page
-* :ghissue:`18254`: scatter(..., marker='') raises on drawing with mpl3.3.1
-* :ghissue:`18259`: New IntVar needs a parent widget
+* :ghissue:`18885`: 3D Scatter Plot with Colorbar is not saved correctly with savefig
+* :ghissue:`18922`: pyplot.xticks(): Font property specification is not effective except 1st tick label.
+* :ghissue:`18481`: "%matplotlib notebook" not working in firefox with matplotlib 3.3.1
+* :ghissue:`18595`: Getting internal "MatplotlibDeprecationWarning: shading='flat' ..."
+* :ghissue:`18743`:  from mpl 3.2.2 to 3.3.0 enormous increase in creation time
+* :ghissue:`18317`: pcolormesh: shading='nearest' and non-monotonic coordinates
+* :ghissue:`18758`: Using Axis.grid(visible=True) results in TypeError for multiple values for keyword argument
+* :ghissue:`18638`: ``matplotlib>=3.3.2`` breaks ``ipywidgets.interact``
+* :ghissue:`18337`: Error installing matplotlib-3.3.1 using pip due to old version of certifi on conda environment
+* :ghissue:`18620`: wx backend assertion error with fig.canvas.timer.start()
+* :ghissue:`18551`: test_transparent_markers[pdf] is broken on v3.3.x Travis macOS
+* :ghissue:`18580`: Animation freezes in Jupyter notebook
+* :ghissue:`18547`: pcolormesh x-axis with datetime broken for nearest shading
+* :ghissue:`18539`: Error in Axes.redraw_in_frame in use of ExitStack: push() takes 2 positional arguments but 3 were given
 
 
 Previous GitHub Stats
