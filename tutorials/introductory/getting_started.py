@@ -3,8 +3,8 @@
 Getting Started
 ***************
 
-This tutorial covers some basic usage patterns and best-practices to
-help you get started with Matplotlib.
+This tutorial covers basic usage patterns and best-practices to help you get
+started with Matplotlib.
 """
 
 ##############################################################################
@@ -19,39 +19,75 @@ help you get started with Matplotlib.
 # programming environments. The fundamental ideas behind Matplotlib for
 # visualizations involve taking data and transforming it through functions and
 # methods. This process occurs on the backend and is not user-facing. For more
-# information regarding manipulating backend capabilities, see """ref""".
+# information regarding manipulating backend capabilities, see
+# :ref:`backends`.
 #
 # There are two main ways of producing graphs with Matplotlib, explicit and
-# implicit. Explicit code, using Object Oriented Programmiong (OOP), and
-# implicit code, using `pyplot`, are the foundation for creating and
+# implicit. Explicit code, using Object Oriented Programming (OOP), and
+# implicit code, using ``pyplot``, are the foundation for creating and
 # manipulating data into visualizations.
 #
-# Explicit programming, OOP, helps users generalize code and is useful for
-# repeated uses or larger projects. This is also a more robust way of
-# controlling customizations for visualizations. Users looking to have control
-# over every part of the graph can call methods on each item.
+# +------------------------------------+------------------------------------+
+# | Explicit, Object Oriented          | Implicit, ``pyplot``               |
+# | Programming (OOP)                  |                                    |
+# +====================================+====================================+
+# | Users explicitly create and manage | Automatically manages Figure and   |
+# | all Figure elements.               | Axes.                              |
+# +------------------------------------+------------------------------------+
+# | Useful for repeated code use,      | Helpful for quickly graphing data  |
+# | generalization, robust             | when using interactive             |
+# | configurations of graphs.          | environments.                      |
+# +------------------------------------+------------------------------------+
+# | Recommended to new users for       | Most useful for users coming from  |
+# | learning fundamentals.             | MATLAB.                            |
+# +------------------------------------+------------------------------------+
 #
-# The implicit `pyplot` approach to generate plots is simple. It is helpful
-# for basic plots and for interactive environments, such as Jupyter Notebooks.
-# Users familiar with MATLAB or would like to have Matplotlib automatically
-# create and manage parts of the visualization benefit from using `pyplot`
-# functions to plot their data.
+# Explicit programming helps users generalize code and is useful for repeated
+# uses or larger projects. This is also a more robust way of controlling
+# customizations for visualizations. Users looking to have control over every
+# part of the graph can call methods on each item. Most users benefit using
+# explicit programming for regular Matplotlib use as the user manages each
+# element of building a graph.
 #
+# Implicit programming with ``pyplot`` is simpler. It is helpful for basic
+# plots and for interactive environments, such as Jupyter Notebooks. Users
+# familiar with MATLAB or would like to have Matplotlib automatically create
+# and manage parts of the visualization benefit from using the ``pyplot``
+# module to graph data. New users to Matplotlib may experience difficulty
+# understanding how elements of a visualization work together when using the
+# implicit approach.
 #
-
-
-##############################################################################
+# Examples
+# --------
+#
+# +------------------------------------+------------------------------------+
+# | Explicit, Object Oriented          | Implicit, ``pyplot``               |
+# | Programming (OOP)                  |                                    |
+# +====================================+====================================+
+# | ::                                 | ::                                 |
+# |                                    |                                    |
+# |     fig, ax = plt.subplots()       |    plt.plot([1,2,3],[1,2,3])       |
+# |     ax.plot([1,2,3],[1,2,3])       |                                    |
+# |                                    |                                    |
+# +------------------------------------+------------------------------------+
+# | `.pyplot.subplots` generates a     | :mod:`matplotlib.pyplot` creates   |
+# | `~.figure.Figure` and one or       | implicit Figure and Axes if        |
+# | more `~.axes.Axes` explicitly.     | there are no pre-existing          |
+# | `.Axes.plot` plots the data.       | elements and `.pyplot.plot` plots  |
+# |                                    | the data.                          |
+# +------------------------------------+------------------------------------+
+#
 #
 # Requirements
 # ============
 #
-# Matplotlib is a Python library and an installed version of Python 3.6 or
-# higher is required. Depending on your operating system, Python may already
+# Matplotlib is a Python library and an installed version of *Python 3.6 or
+# higher* is required. Depending on your operating system, Python may already
 # be installed on your machine.
 #
-# Installing Maptlotlib is required in order to generate plots with the
-# library. You can install Matplotlib for your own development environment(s)
-# or use a third-party package distribution.
+# Installing Maptlotlib is required in order to generate graphs with the
+# library. Install Matplotlib for your own development environment manually or
+# use a third-party package distribution.
 #
 # Third-party package distributions, such as
 # `Anaconda <https://www.anaconda.com/>`_,
@@ -64,17 +100,19 @@ help you get started with Matplotlib.
 # Installation from source
 # ------------------------
 #
-# In order to install Matplotlib from the source directory, you can run the
-# following command line executions using Python and installer program `pip`
+# In order to install Matplotlib from the source directory, run the
+# following command line executions using Python and installer program ``pip``
 # for the latest version of Matplotlib and its dependencies. This will compile
-# the library from the current directory on your machine.
+# the library from the current directory on your machine. Depending on your
+# operating system, you may need additional support.
 #
-# `python -m pip install matplotlib`
+# ``python -m pip install matplotlib``
 #
-# .. note::
+# .. seealso::
 #
-#     If you would like to contribute to Matplotlib, see the developer
-#     installation guide for details about the process.
+#     To contribute to the Matplotlib community, check
+#     :ref:`developers-guide-index`
+#     for details about working with the latest sources.
 #
 # Interactive environments
 # ------------------------
@@ -88,29 +126,41 @@ help you get started with Matplotlib.
 # Plotting
 # ========
 #
-# The common conventions for preparing to plot data involve importing the
-# necessary libraries with abbreviations for convenience. Both implicit and
-# explicit programming require the following.
+# The common convention for preparing to plot data involves importing the
+# Matplotlib library module ``pyplot`` with the abbreviation ``plt`` for
+# convenience. Both explicit and implicit programming require the following
+# code.
 
 import matplotlib.pyplot as plt
 
 ##############################################################################
 #
-# The `pyplot` module in Matplotlib is a collection of functions. The module's
-# functions create, manage, and manipulate the current figure and the plotting
-# area.
+# The ``pyplot`` module in Matplotlib is a collection of functions. The
+# module's functions create, manage, and manipulate the current Figure and the
+# plotting area.
 #
-# These are the two common strategies for creating plots with Matplotlib.
+# Two Approaches for Creating Graphs
+# ----------------------------------
 #
-# * Explicit: Code has explicit references to objects. Users manage objects
-#   for specific figures and axes and call on methods for manipulating data.
-#     * Object-oriented programming (OOP), robust control and useful for
-#       generalized code.
+# The two strategies, explicit and implicit, both involve using the ``pyplot``
+# module. However, they differ in how users interact with the data in the
+# transformation process. The `Introduction`_ and `Examples`_ sections above
+# provide key differences.
 #
-# * Implicit: The programming is designed to remember preceding events or
-#   interactions. Matplotlib automatically manages figures and axes.
-#     * `pyplot`, most similar to MATLAB and convenient for interactive
-#       environments.
+# +------------------------------------+------------------------------------+
+# | Explicit                           | Implicit                           |
+# +====================================+====================================+
+# | * Code has explicit references to  | * The programming is designed to   |
+# |   objects. Users manage objects for|   remember preceding events or     |
+# |   the specific Figure and Axes and |   interactions. This preserved     |
+# |   call on methods for manipulating |   state allows Matplotlib to       |
+# |   data.                            |   automatically manage a Figure and|
+# | * Object Oriented Programming      |   Axes.                            |
+# |   allows for robust control and is | * The module ``pyplot`` operates   |
+# |   useful for generalized code.     |   similarly to MATLAB and is       |
+# |                                    |   convenient for interactive       |
+# |                                    |   environments.                    |
+# +------------------------------------+------------------------------------+
 #
 # .. note::
 #
@@ -120,7 +170,7 @@ import matplotlib.pyplot as plt
 #     implicit programming can yield errors.
 #
 # For other techniques of creating plots with Matplotlib, refer to
-# """ref""".
+# :ref:`user_interfaces`.
 #
 # Data
 # ----
@@ -131,7 +181,7 @@ import matplotlib.pyplot as plt
 # data structures.
 #
 
-# Sample Data
+# Sample Data for Personal Financial Tracking in 2009 & 2010
 
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -157,10 +207,13 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 # --------------------------------------------
 #
 # To use explicit programming for Matplotlib involves using a single instance
-# of the `pyplot` module to unpack a set or sets of explicit figure and axes.
-# Each axes has its own methods to graph data. In addition, each axes also
-# uses separate methods to create and manage parts of a figure. These methods
-# are different from those of the implicit programming approach.
+# of the ``pyplot`` module. This unpacks a set of an explicit Figure and Axes.
+# There can be more than one Axes; however, each Axes can only be on one
+# Figure.
+#
+# Each Axes has its own methods to graph data. In addition, each Axes
+# also uses separate methods to create and manage parts of a Figure. These
+# methods are different from those of the implicit programming approach.
 
 # Explicit programming with OOP
 
@@ -168,150 +221,247 @@ x = months
 y1 = income
 y2 = chk_acct_09
 y3 = svg_acct_09
+# Assigning sample data to labeled variables.
 
-fig, ax = plt.subplots()  # Figure & axes unpacked separately with module.
+fig, ax = plt.subplots()
+# Explicit Figure & Axes unpacked separately with module.
 
 ax.plot(x, y1, label='Checking Account')
 ax.plot(x, y2, label='Savings Account')
 ax.plot(x, y3, label='Income')
-ax.set_xlabel('Month')  # Axes use separate methods to manage parts of figure.
+# Single explicit Axes graphs multiple data points.
+
+ax.set_xlabel('Month')
 ax.set_ylabel('USD')
-ax.set_title('Personal Financial Tracking from 2010')
+ax.set_title('Personal Financial Tracking from 2009')
 ax.legend()
+# Explicit Axes use separate methods to manage parts of Figure.
+
+plt.show()
+# The pyplot module displays the Figure.
 
 ##############################################################################
 #
-# For the OOP example, the figure and axes are unpacked from the module using
-# a single instance of `pyplot`. This convention uses `plt.subplots()` and
-# defaults to one figure, `fig`, and one axes, `ax`. The section below on
-# customizations contains additional information about multiple visulizations
-# and other modifications.
+# For the OOP example, the Figure and Axes are unpacked from the module using
+# a single instance of ``pyplot``. This convention uses ``plt.subplots()``
+# and defaults to one Figure, ``fig``, and one Axes, ``ax``. The
+# `Customizations`_ section below contains additional information about
+# multiple visulizations and other modifications.
 #
-# Using the OOP approach allows for `fig` and `ax` to use separate methods to
-# manipulate the visualization. Instead of using the module `pyplot` for all
-# instances of managing objects, the specfic axes refers to OOP usage and
+# Using the OOP approach allows for ``fig`` and ``ax`` to use separate methods
+# to manipulate the visualization. Instead of using the module ``pyplot`` for
+# all instances of managing objects, the specfic Axes refers to OOP usage and
 # manages the respective data.
 #
-# Implicit: `pyplot`
-# ------------------
+# Implicit: ``pyplot``
+# --------------------
 #
-# To use implicit programming for Matplotlib involves using the `pyplot`
-# module. The figure and axes are automatically generated by the module.
+# To use implicit programming for Matplotlib involves using the ``pyplot``
+# module. The Figure and Axes are automatically generated by the module.
 # Pass data through as arguments using methods within the module.
-# Additional parts of the figure are also available through the module
+# Additional parts of the Figure are also available through the module
 # methods.
 
 # Implicit programming with pyplot
 
 y4 = chk_acct_10
 y5 = svg_acct_10
+# Assigning former data to labeled variable.
+# Previous variables are still referenced.
 
 plt.plot(x, y1, label='Income')
 plt.plot(x, y4, label='Checking Account')
 plt.plot(x, y5, label='Savings Account')
-plt.xlabel('Month')  # Module methods generate parts of figure.
+# Module plots multiple data points on implicitly generated Axes.
+
+plt.xlabel('Month')
 plt.ylabel('USD')
-plt.title("Personal Financial Tracking from 2009")
+plt.title("Personal Financial Tracking from 2010")
 plt.legend()
+# Module methods generate parts of Figure.
+
+plt.show()
+# The module displays the Figure.
 
 ##############################################################################
 #
-# In the example above, the `pyplot` module contains its own methods of
-# actionable tasks for the data. The `plt.plot` plots data as a line graph
+# In the example above, the ``pyplot`` module contains its own methods of
+# actionable tasks for the data. The ``plt.plot`` plots data as a line graph
 # with various keyword arguments as customizable options. The module also
 # includes other methods for generating parts of the visualization. These parts
 # use different methods from the OOP approach.
 #
 # .. note::
 #
-#    The names and spelling for methods may be similar for both `pyplot` and
-#    OOP approaches. Errors may occur when using the wrong corresponding
-#    method. Confirm with the documentation API for specific method names
-#    according to your programming.
-
-##############################################################################
+#    The names and spelling for methods may be similar for both explicit and
+#    implicit approaches. Errors may occur when using the wrong corresponding
+#    method. Confirm with the documentation API of `~.axes.Axes` for explicit
+#    and mod:`matplotlib.pyplot` for implicit or other respective method
+#    names.
 #
 # Customizations
 # ==============
 #
 # There are two main parts to building a visualization with Matplotlib, the
-# figure and the axes.
+# `Figure`_ and the `Axes`_.
 #
 # Components of Matplotlib Figure
 # -------------------------------
 #
 # The image below depicts each visible element of a Matplotlib graph.
+# **Note**: ``Figure`` and ``Axes`` identify empty regions of the diagram;
+# however, these elements are foundational in operation.
 #
-# * Figure
-#    * The figure is the working space for the programming. All visible
-#      objects on a graph are located within the figure.
-# * Axes
-#    * Axes are subplots within the figure. They contain figure elements and
-#      are responsible for plotting and configuring additional details.
-#       * Note: Axes and Axis are not synonymous. Axis refers to
-#         """ref""".
+# .. image:: ../../_static/anatomy.png
+#
+# :class:`~matplotlib.figure.Figure`
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# The Figure is the working space for the programming. All visible
+# objects on a graph are located within the Figure.
+#
+# :class:`~matplotlib.axes.Axes`
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# Axes are subplots within the Figure. They contain Figure elements and
+# are responsible for plotting and configuring additional details. Each
+# Figure can contain multiple Axes, but each Axes is specific to one
+# Figure.
+#
+# Other Components
+# ^^^^^^^^^^^^^^^^
+#
+# * :class:`~matplotlib.artist.Artist`
+#
+# Artists are the visible elements when the Figure is rendered. They
+# correspond to a specific Axes and cannot be shared or transferred.
+#
+# .. note::
+#
+#   Axes and Axis are not synonymous. Axis refers to
+#   :class:`~matplotlib.axis.Axis`.
+#
 #
 # Multiple Graphs within a Figure
 # -------------------------------
 #
-# For multiple graphs using a single figure, explicit and implicit approaches
-# use a similar convention for mapping out multiple axes. Matplotlib manages
-# more than one axes in a two-dimensional matrix. They are arranged by row
+# For multiple graphs using a single Figure, explicit and implicit approaches
+# use a similar convention for mapping out multiple Axes. Matplotlib manages
+# more than one Axes in a two-dimensional matrix. They are arranged by row
 # amount and then by column amount. The third argument represents the specific
-# axes involved.
+# Axes involved.
 #
-# When looking for more complex solutions to multiple graphs within a figure,
+# When looking for more complex solutions to multiple graphs within a Figure,
 # use the GridSpec module to organize the layout.
+#
+# Explicit
+# ^^^^^^^^
 
 # Explicit with OOP
 
-fig, (ax1, ax2) = plt.subplots(1, 2, sharey='row',
-                               figsize=[8, 4], constrained_layout=True)
+fig, (ax1, ax2) = plt.subplots(1, 2,
+                               sharey='row',
+                               figsize=[8, 4],
+                               constrained_layout=True)
+# Figure and two Axes unpacked from arguments (1, 2) as row & column
+# Keyword arguments provide additional details of sharing Y-axis, Figure size
+# and layout formatting.
 
-fig.suptitle('Personal Financial Tracking \'09 - \'10',
-             fontsize=16, weight='black')
+fig.suptitle('Personal Financial Tracking \'09 - \'10')
+# Explicit Figure object has separate method for title.
 
 ax1.plot(x, y1, label='Income')
 ax1.plot(x, y2, label='Checking')
 ax1.plot(x, y3, color='green', label='Savings')
+# First explicit Axes object plots data with additional keyword arguments.
+
+ax1.set_xticks(months)
 ax1.set_xticklabels(months, rotation=270)
 ax1.set_title('2009', fontsize='small')
 ax1.legend(loc='upper left')
+# First explicit Axes object uses separate methods for ticks on the X-axis,
+# title, and legend. Keyword arguments are for additional configurations.
 
 ax2.plot(x, y1, label='Income')
-ax2.plot(x, y2, label='Checking')
-ax2.plot(x, y3, color='green', label='Savings')
+ax2.plot(x, y4, label='Checking')
+ax2.plot(x, y5, color='green', label='Savings')
+# Explicit second Axes object plots data similarly to first explicit Axes.
+
+ax2.set_xticks(months)
 ax2.set_xticklabels(months, rotation=270)
 ax2.set_title('2010', fontsize='small')
+# Explicit second Axes object has separate methods as well.
+
+plt.show()
+# The pyplot module displays the Figure.
 
 ##############################################################################
 #
-# The OOP example above also uses two axes to graph the data. However, the OOP
-# approach must refer to an explicitly generated axes after creating both the
-# figure and axes.
+# The OOP example above also uses two Axes to graph the data. However, the OOP
+# approach must refer to an explicitly generated Axes after creating both the
+# Figure and Axes.
+#
+# In the unpacking process, numerous Axes can also be assigned to the single
+# variable. To reference a specific Axes, you can index the location of the
+# respective Axes as a matrix through the single variable.
+#
+# .. note::
+#
+#   The code below demonstrates indexing multiple Axes.
+#   ::
+#
+#       fig, ax = plt.subplots(2,2)
+#
+#       ax[0,0].plot([1,2,3],[1,2,3])
+#       ax[0,1].plot([3,2,1],[3,2,1])
+#       ax[1,0].plot([3,2,1],[3,2,1])
+#       ax[1,1].plot([1,2,3],[1,2,3])
+#
+# Implicit
+# ^^^^^^^^
 
 # Implicit with pyplot
 
-plt.subplot(1, 2, 1)  # Note the different method name for implicit.
+plt.subplot(1, 2, 1)
+# Module implicitly manages a matrix size of (1, 2) for row & column
+# to work on the first implicit Axes.
+
 plt.plot(x, y1, label='Income')
 plt.plot(x, y2, label='Checking')
-plt.plot(x, y1, color='green', label='Savings')
+plt.plot(x, y3, color='green', label='Savings')
+# Module plots data on first implicit Axes.
+
 plt.xticks(x, months, rotation=270)
 plt.title('2009', fontsize='small')
+# Module methods generate parts of Figure for first implicit Axes.
 
 plt.subplot(1, 2, 2)
+# Module implicitly manages matching matrix size to work on second implicit
+# Axes.
+
 plt.plot(x, y1, label='Income')
 plt.plot(x, y4, label='Checking')
 plt.plot(x, y5, color='green', label='Savings')
+# Module plots data on second implicit Axes.
+
 plt.xticks(x, months, rotation=270)
 plt.title('2009', fontsize='small')
 plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
+# Module methods generate parts of Figure for second implicit Axes.
 
-plt.suptitle('Personal Financial Tracking', weight='black')
+plt.suptitle('Personal Financial Tracking')
 plt.tight_layout()
+# Module methods for managing Figure elements.
+
+plt.show()
+# Module displays the Figure.
 
 ##############################################################################
 #
-# The `pyplot` example above uses two axes to graph data. In each instance,
-# Matplotlib auotmatically manages the specific axes so that each action of
+# The ``pyplot`` example above uses two Axes to graph data. In each instance,
+# Matplotlib auotmatically manages the specific Axes so that each action of
 # plotting data does not interfere with the previous instance.
+#
+# Additional Resources
+# ====================
+#
