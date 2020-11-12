@@ -5,25 +5,18 @@ in ~/.matplotlib/tex.cache for reuse between sessions.
 
 Requirements:
 
-* latex
+* LaTeX
 * \*Agg backends: dvipng>=1.6
-* PS backend: psfrag, dvips, and Ghostscript>=8.60
-
-Backends:
-
-* \*Agg
-* PS
-* PDF
+* PS backend: psfrag, dvips, and Ghostscript>=9.0
 
 For raster output, you can get RGBA numpy arrays from TeX expressions
 as follows::
 
   texmanager = TexManager()
-  s = ('\TeX\ is Number '
-       '$\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!')
+  s = "\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!"
   Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1, 0, 0))
 
-To enable tex rendering of all text in your matplotlib figure, set
+To enable TeX rendering of all text in your Matplotlib figure, set
 :rc:`text.usetex` to True.
 """
 

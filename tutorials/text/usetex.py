@@ -3,25 +3,17 @@ r"""
 Text rendering With LaTeX
 *************************
 
-Rendering text with LaTeX in Matplotlib.
-
-Matplotlib has the option to use LaTeX to manage all text layout.  This
-option is available with the following backends:
-
-* Agg
-* PS
-* PDF
-
-The LaTeX option is activated by setting ``text.usetex : True`` in your rc
-settings.  Text handling with matplotlib's LaTeX support is slower than
-matplotlib's very capable :doc:`mathtext </tutorials/text/mathtext>`, but is
-more flexible, since different LaTeX packages (font packages, math packages,
+Matplotlib can use LaTeX to render text.  This is activated by setting
+``text.usetex : True`` in your rcParams, or by setting the ``usetex`` property
+to True on individual `.Text` objects.  Text handling through LaTeX is slower
+than Matplotlib's very capable :doc:`mathtext </tutorials/text/mathtext>`, but
+is more flexible, since different LaTeX packages (font packages, math packages,
 etc.) can be used. The results can be striking, especially when you take care
 to use the same fonts in your figures as in the main document.
 
-Matplotlib's LaTeX support requires a working LaTeX_ installation, dvipng_
-(which may be included with your LaTeX installation), and Ghostscript_
-(GPL Ghostscript 9.0 or later is required). The executables for these
+Matplotlib's LaTeX support requires a working LaTeX_ installation.  For the
+\*Agg backends, dvipng_ is additionally required; for the PS backend, psfrag_,
+dvips_ and Ghostscript_ are additionally required.  The executables for these
 external dependencies must all be located on your :envvar:`PATH`.
 
 There are a couple of options to mention, which can be changed using
@@ -30,7 +22,7 @@ matplotlibrc file::
 
   font.family        : serif
   font.serif         : Times, Palatino, New Century Schoolbook, Bookman, Computer Modern Roman
-  font.sans-serif    : Helvetica, Avant Garde, Computer Modern Sans serif
+  font.sans-serif    : Helvetica, Avant Garde, Computer Modern Sans Serif
   font.cursive       : Zapf Chancery
   font.monospace     : Courier, Computer Modern Typewriter
 
@@ -50,7 +42,7 @@ matplotlibrc use::
       "text.usetex": True,
       "font.family": "sans-serif",
       "font.sans-serif": ["Helvetica"]})
-  ## for Palatino and other serif fonts use:
+  # for Palatino and other serif fonts use:
   plt.rcParams.update({
       "text.usetex": True,
       "font.family": "serif",
@@ -65,10 +57,11 @@ Here is the standard example,
    :align: center
    :scale: 50
 
-   TeX Demo
-
 Note that display math mode (``$$ e=mc^2 $$``) is not supported, but adding the
 command ``\displaystyle``, as in the above demo, will produce the same results.
+
+Non-ASCII characters (e.g. the degree sign in the y-label above) are supported
+to the extent that they are supported by inputenc_.
 
 .. note::
    Certain characters require special escaping in TeX, such as::
@@ -78,40 +71,21 @@ command ``\displaystyle``, as in the above demo, will produce the same results.
    Therefore, these characters will behave differently depending on
    :rc:`text.usetex`.
 
-.. _usetex-unicode:
-
-usetex with unicode
-===================
-
-It is also possible to use unicode strings with the LaTeX text manager, here is
-an example taken from :file:`/gallery/text_labels_and_annotations/tex_demo`.
-The axis labels include Unicode text:
-
-.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
-   :target: ../../gallery/text_labels_and_annotations/tex_demo.html
-   :align: center
-   :scale: 50
-
-   TeX Unicode Demo
-
-.. _usetex-postscript:
-
-Postscript options
+PostScript options
 ==================
 
-In order to produce encapsulated postscript files that can be embedded in a new
-LaTeX document, the default behavior of matplotlib is to distill the output,
-which removes some postscript operators used by LaTeX that are illegal in an
-eps file. This step produces results which may be unacceptable to some users,
-because the text is coarsely rasterized and converted to bitmaps, which are not
-scalable like standard postscript, and the text is not searchable. One
-workaround is to set ``ps.distiller.res`` to a higher value (perhaps 6000)
+In order to produce encapsulated PostScript (EPS) files that can be embedded
+in a new LaTeX document, the default behavior of Matplotlib is to distill the
+output, which removes some PostScript operators used by LaTeX that are illegal
+in an EPS file. This step produces results which may be unacceptable to some
+users, because the text is coarsely rasterized and converted to bitmaps, which
+are not scalable like standard PostScript, and the text is not searchable. One
+workaround is to set :rc:`ps.distiller.res` to a higher value (perhaps 6000)
 in your rc settings, which will produce larger files but may look better and
-scale reasonably. A better workaround, which requires Poppler_ or Xpdf_, can be
-activated by changing the ``ps.usedistiller`` rc setting to ``xpdf``. This
-alternative produces postscript without rasterizing text, so it scales
-properly, can be edited in Adobe Illustrator, and searched text in pdf
-documents.
+scale reasonably. A better workaround, which requires Poppler_ or Xpdf_, can
+be activated by changing :rc:`ps.usedistiller` to ``xpdf``. This alternative
+produces PostScript without rasterizing text, so it scales properly, can be
+edited in Adobe Illustrator, and searched text in pdf documents.
 
 .. _usetex-hangups:
 
@@ -152,21 +126,20 @@ Troubleshooting
   that your LaTeX syntax is valid and that you are using raw strings
   if necessary to avoid unintended escape sequences.
 
-* Most problems reported on the mailing list have been cleared up by
-  upgrading Ghostscript_. If possible, please try upgrading to the
-  latest release before reporting problems to the list.
-
-* The ``text.latex.preamble`` rc setting is not officially supported. This
+* :rc:`text.latex.preamble` is not officially supported. This
   option provides lots of flexibility, and lots of ways to cause
   problems. Please disable this option before reporting problems to
   the mailing list.
 
 * If you still need help, please see :ref:`reporting-problems`
 
-.. _LaTeX: http://www.tug.org
 .. _dvipng: http://www.nongnu.org/dvipng/
+.. _dvips: https://tug.org/texinfohtml/dvips.html
 .. _Ghostscript: https://ghostscript.com/
-.. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
+.. _inputenc: https://ctan.org/pkg/inputenc
+.. _LaTeX: http://www.tug.org
 .. _Poppler: https://poppler.freedesktop.org/
+.. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
+.. _psfrag: https://ctan.org/pkg/psfrag
 .. _Xpdf: http://www.xpdfreader.com/
 """
