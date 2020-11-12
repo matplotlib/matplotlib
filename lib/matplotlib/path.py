@@ -527,7 +527,7 @@ class Path:
         The current algorithm has some limitations:
 
         - The result is undefined for points exactly at the boundary
-          (including *radius*).
+          (i.e. at the path shifted by *radius/2*).
         - The result is undefined if there is no enclosed area, i.e. all
           vertices are on a straight line.
         - If bounding lines start to cross each other due to *radius* shift,
@@ -577,7 +577,7 @@ class Path:
         The current algorithm has some limitations:
 
         - The result is undefined for points exactly at the boundary
-          (including *radius*).
+          (i.e. at the path shifted by *radius/2*).
         - The result is undefined if there is no enclosed area, i.e. all
           vertices are on a straight line.
         - If bounding lines start to cross each other due to *radius* shift,
