@@ -398,12 +398,13 @@ latex_elements['preamble'] = r"""
    % One line per author on title page
    \DeclareRobustCommand{\and}%
      {\end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}}%
+   \usepackage{etoolbox}
+   \AtBeginEnvironment{sphinxthebibliography}{\appendix\part{Appendices}}
    \usepackage{expdlist}
    \let\latexdescription=\description
    \def\description{\latexdescription{}{} \breaklabel}
    % But expdlist old LaTeX package requires fixes:
    % 1) remove extra space
-   \usepackage{etoolbox}
    \makeatletter
    \patchcmd\@item{{\@breaklabel} }{{\@breaklabel}}{}{}
    \makeatother
