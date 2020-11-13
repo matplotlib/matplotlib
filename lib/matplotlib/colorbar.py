@@ -501,7 +501,7 @@ class ColorbarBase:
 
         self.set_label(label)
         self._reset_locator_formatter_scale()
-        
+
         if np.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
