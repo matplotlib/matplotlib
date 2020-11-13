@@ -1009,8 +1009,8 @@ class StepPatch(PathPatch):
             else:
                 xy = np.column_stack([y, x])
             verts.append(xy)
-            codes.append(np.array([Path.MOVETO] + [Path.LINETO]*(len(xy)-1)))
-            self._path = Path(np.vstack(verts), np.hstack(codes))
+            codes.append([Path.MOVETO] + [Path.LINETO]*(len(xy)-1))
+        self._path = Path(np.concatenate(verts), np.concatenate(codes))
 
     def get_data(self):
         """Get `.StepPatch` values, edges and baseline as namedtuple."""
