@@ -707,7 +707,7 @@ def test_anchored_cbar_position_using_specgrid():
             [x1 * shrink + (1 - shrink) * p0, p0 * (1 - shrink) + x0 * shrink])
 
 
-def test_colorbar_ticklabels():
+def test_colorbar_ticklabels_2():
     fig = plt.figure()
     plt.imshow(np.arange(100).reshape((10, 10)))
     ticklabels = ['cat', 'dog']
@@ -715,3 +715,26 @@ def test_colorbar_ticklabels():
     fig.canvas.draw()
     for i, item in enumerate(cbar.ax.yaxis.get_ticklabels()):
         assert ticklabels[i] == item.get_text()
+
+
+def test_colorbar_ticklabels_3():
+    fig = plt.figure()
+    plt.imshow(np.arange(100).reshape((10, 10)))
+    ticklabels = ['cat', 'dog', 'elephant']
+    with pytest.warns(
+            UserWarning, match='The ticklabels need to be of the same '
+            'length as the ticks.'):
+        plt.colorbar(ticks=[10, 90], ticklabels=ticklabels)
+        fig.canvas.draw()
+
+
+def test_colorbar_ticklabels_no_ticks():
+    fig = plt.figure()
+    plt.imshow(np.arange(100).reshape((10, 10)))
+    ticklabels = ['cat', 'dog', 'dog']
+    with pytest.warns(
+            UserWarning, match='To set explicit ticklabels, call colorbar() '
+            'with ticks keyword or use set_ticks() '
+            'method first.'):
+        plt.colorbar(ticks=None, ticklabels=ticklabels)
+        fig.canvas.draw()
