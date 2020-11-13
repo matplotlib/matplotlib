@@ -464,7 +464,7 @@ class ColorbarBase:
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
         self.spacing = spacing
-        self._ticks = None
+        self._ticks = ticks
         self._ticklabels = ticklabels
         self.orientation = orientation
         self.drawedges = drawedges
@@ -501,9 +501,11 @@ class ColorbarBase:
 
         self.set_label(label)
         self._reset_locator_formatter_scale()
-
-        if ticks:
-            self.set_ticks(ticks)
+        
+        if np.iterable(ticks):
+            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+        else:
+            self.locator = ticks    # Handle default in _ticker()
 
         if isinstance(format, str):
             self.formatter = ticker.FormatStrFormatter(format)
