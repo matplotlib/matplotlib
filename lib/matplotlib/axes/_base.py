@@ -459,8 +459,8 @@ class _process_plot_var_args:
             labels = [label] * n_datasets
 
         result = (func(x[:, j % ncx], y[:, j % ncy], kw,
-                     {**kwargs, 'label': label})
-                for j, label in enumerate(labels))
+                       {**kwargs, 'label': label})
+                  for j, label in enumerate(labels))
 
         if return_kwargs:
             return list(result)
