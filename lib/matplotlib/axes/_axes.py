@@ -2614,8 +2614,7 @@ class Axes(_AxesBase):
             For horizontal stem plots, the x-values of the stem heads.
 
         linefmt : str, optional
-            A string defining the properties of the vertical lines. Usually,
-            this will be a color or a color and a linestyle:
+            A string defining the color and/or linestyle of the vertical lines:
 
             =========  =============
             Character  Line Style
@@ -2629,15 +2628,14 @@ class Axes(_AxesBase):
             Default: 'C0-', i.e. solid line with the first color of the color
             cycle.
 
-            Note: While it is technically possible to specify valid formats
-            other than color or color and linestyle (e.g. 'rx' or '-.'), this
-            is beyond the intention of the method and will most likely not
-            result in a reasonable plot.
+            Note: Markers specified through this parameter (e.g. 'x') will be
+            silently ignored (unless using ``use_line_collection=False``).
+            Instead, markers should be specified using *markerfmt*.
 
         markerfmt : str, optional
-            A string defining the properties of the markers at the stem heads.
-            Default: 'C0o', i.e. filled circles with the first color of the
-            color cycle.
+            A string defining the color and/or shape of the markers at the stem
+            heads.  Default: 'C0o', i.e. filled circles with the first color of
+            the color cycle.
 
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
@@ -2738,20 +2736,12 @@ class Axes(_AxesBase):
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
-            if orientation == 'horizontal':
-                stemlines = [
-                    ((bottom, loc), (head, loc))
-                    for loc, head in zip(locs, heads)]
-            else:
-                stemlines = [
-                    ((loc, bottom), (loc, head))
-                    for loc, head in zip(locs, heads)]
             if linestyle is None:
                 linestyle = rcParams['lines.linestyle']
-            stemlines = mcoll.LineCollection(stemlines, linestyles=linestyle,
-                                             colors=linecolor,
-                                             label='_nolegend_')
-            self.add_collection(stemlines)
+            xlines = self.vlines if orientation == "vertical" else self.hlines
+            stemlines = xlines(
+                locs, bottom, heads,
+                colors=linecolor, linestyles=linestyle, label="_nolegend_")
         # Old behaviour is to plot each of the lines individually
         else:
             stemlines = []
