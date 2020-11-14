@@ -733,8 +733,8 @@ def test_colorbar_ticklabels_no_ticks():
     plt.imshow(np.arange(100).reshape((10, 10)))
     ticklabels = ['cat', 'dog', 'dog']
     with pytest.warns(
-            UserWarning, match='To set explicit ticklabels, call colorbar\\(\\) '
-            'with ticks keyword or use set_ticks\\(\\) '
+            UserWarning, match='To set explicit ticklabels, call colorbar'
+            '\\(\\) with ticks keyword or use set_ticks\\(\\) '
             'method first.'):
         plt.colorbar(ticks=None, ticklabels=ticklabels)
         fig.canvas.draw()
