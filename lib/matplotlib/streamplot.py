@@ -25,8 +25,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     Parameters
     ----------
-    x, y : 1D arrays
-        An evenly spaced grid.
+    x, y : 1D/2D arrays
+        Evenly spaced strictly increasing arrays to make a grid.
     u, v : 2D arrays
         *x* and *y*-velocities. The number of rows and columns must match
         the length of *y* and *x*, respectively.
@@ -332,6 +332,11 @@ class Grid:
             y = y_col
         else:
             raise ValueError("'y' can have at maximum 2 dimensions")
+
+        if not (np.diff(x) > 0).all():
+            raise ValueError("'x' must be strictly increasing")
+        if not (np.diff(y) > 0).all():
+            raise ValueError("'y' must be strictly increasing")
 
         self.nx = len(x)
         self.ny = len(y)
