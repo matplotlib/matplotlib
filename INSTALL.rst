@@ -45,6 +45,9 @@ The wheels (:file:`*.whl`) on the `PyPI download page
 <https://pypi.org/project/matplotlib/>`_ do not contain test data
 or example code.
 
+You can install the test data as follows::
+conda install -c conda-forge mpl_sample_data
+
 If you want to try the many demos that come in the Matplotlib source
 distribution, download the :file:`*.tar.gz` file and look in the
 :file:`examples` subdirectory.
