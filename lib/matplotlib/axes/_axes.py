@@ -5833,12 +5833,12 @@ default: :rc:`scatter.edgecolors`
            and preferred in most cases. For a detailed discussion on the
            differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
-           
+   
         .. hint::
             `In order to speed up image processing of a plot with a large amount of points,
-             pcolormesh allows the use of the `rasterized` keyword. 
-             see :ref https://matplotlib.org/gallery/misc/rasterization_demo.html?highlight=rasterized%20true
-
+             pcolormesh allows the use of the `rasterized` keyword. As an example,
+             see :ref https://matplotlib.org/gallery/misc/rasterization_demo.html`.
+ 
         Parameters
         ----------
         C : array-like
@@ -5929,7 +5929,7 @@ default: :rc:`scatter.edgecolors`
 
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
-        
+    
         rasterized: bool, optional
             Force rasterized (bitmap) drawing in vector backend output.
 
