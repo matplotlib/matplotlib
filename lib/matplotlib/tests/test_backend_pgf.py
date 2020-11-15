@@ -44,6 +44,9 @@ needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
                                     reason='pdflatex + pgf is required')
 needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
                                     reason='lualatex + pgf is required')
+needs_ghostscript = pytest.mark.skipif(
+    "eps" not in mpl.testing.compare.converter,
+    reason="This test needs a ghostscript installation")
 
 
 def _has_tex_package(package):
@@ -315,6 +318,7 @@ def test_bbox_inches_tight(tmpdir):
 
 
 @needs_xelatex
+@needs_ghostscript
 def test_png():
     # Just a smoketest.
     fig, ax = plt.subplots()
