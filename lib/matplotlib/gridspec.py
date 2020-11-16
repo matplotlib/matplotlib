@@ -5,8 +5,8 @@ r"""
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
 
-See the tutorial :ref:`sphx_glr_tutorials_intermediate_gridspec.py` for a
-comprehensive usage guide.
+See the tutorial :doc:`/tutorials/intermediate/gridspec` for a comprehensive
+usage guide.
 """
 
 import copy
