@@ -204,8 +204,8 @@ Navigation Keyboard Shortcuts
 -----------------------------
 
 The following table holds all the default keys, which can be
-overwritten by use of your :ref:`matplotlibrc
-<sphx_glr_tutorials_introductory_customizing.py>`.
+overwritten by use of your :doc:`matplotlibrc
+</tutorials/introductory/customizing>`.
 
 ================================== ===============================
 Command                            Default key binding and rcParam
