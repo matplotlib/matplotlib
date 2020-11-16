@@ -1,4 +1,7 @@
 """
+
+.. _getting_started:
+
 ***************
 Getting Started
 ***************
@@ -310,7 +313,8 @@ plt.show()
 #
 # The image below depicts each visible element of a Matplotlib graph. The
 # graphic uses Matplotlib to display and highlight each individual part of the
-# visualization. The source code is available as :ref:`Anatomy-of-a-figure`.
+# visualization. The source code is available as
+# :ref:`sphx_glr_gallery_showcase_anatomy.py`.
 #
 # .. note::
 #
