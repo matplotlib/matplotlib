@@ -6,11 +6,14 @@ Axis scales define the overall look of a plot, some default options
 scale ranges automatically with respect to supplied data - autoscaling.
 This tutorial shows concepts of individual autoscaling options and
 investigates cornerstone examples regarding the needs for manual adjustments.
+The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``)
+or Matplotlib can set them automatically based on the data already on the
+axes. There are a number of options to this autoscaling behaviour,
+discussed below.
 """
-The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``) or Matplotlib can set them automatically based on the data already on the axes.  There are a number of options to this autoscaling behaviour, discussed below.
 
 ###############################################################################
-# We will start with a simple line plot showing that autoscaling 
+# We will start with a simple line plot showing that autoscaling
 # extends the visible range 5% beyond the real data range (-2π, 2π).
 
 import numpy as np
@@ -119,8 +122,8 @@ fig.show()
 #
 # It is possible to disable autoscaling. By default, the limits are
 # recalculated every time you add a new curve to the plot (see next figure).
-# However, there are cases when you don't want to automatically adjust the 
-viewport to new data.
+# However, there are cases when you don't want to automatically adjust the
+# viewport to new data.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
 ax[0].plot(x, y)
