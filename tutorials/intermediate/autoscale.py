@@ -7,10 +7,11 @@ scale ranges automatically with respect to supplied data - autoscaling.
 This tutorial shows concepts of individual autoscaling options and
 investigates cornerstone examples regarding the needs for manual adjustments.
 """
+The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``) or Matplotlib can set them automatically based on the data already on the axes.  There are a number of options to this autoscaling behaviour, discussed below.
 
 ###############################################################################
-# We will start with a simple line plot showing that the autoscaling feature
-# extends the visible range slightly beyond the real data range (-2π, 2π).
+# We will start with a simple line plot showing that autoscaling 
+# extends the visible range 5% beyond the real data range (-2π, 2π).
 
 import numpy as np
 import matplotlib as mpl
@@ -27,15 +28,13 @@ fig.show()
 # Margins
 # -------
 # The relative measure of the extend is called margin and can be set by
-# :func:`~matplotlib.axes.Axes.margins`.
-# We can check that the default value is (0.05, 0.05).
+# `~matplotlib.axes.Axes.margins`.
+# The default value is (0.05, 0.05):
 
 ax.margins()
 
 ###############################################################################
-# Margin scales with respect to the data interval so setting a larger margin
-# ensures more space between actual data and plot edges, hence plotted curve
-# will appear smaller.
+# The margins can be made larger:
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
@@ -118,11 +117,10 @@ fig.show()
 # Controlling autoscale
 # ---------------------
 #
-# We have figured out how to control the margins of the plot. Now, we will
-# investigate how to disable autoscaling. By default, the scales are
+# It is possible to disable autoscaling. By default, the limits are
 # recalculated every time you add a new curve to the plot (see next figure).
-# This ensures the visibility of the data. However, there are cases when you
-# don't want to automatically adjust viewport to data.
+# However, there are cases when you don't want to automatically adjust the 
+viewport to new data.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
 ax[0].plot(x, y)
@@ -134,12 +132,11 @@ fig.show()
 
 
 ###############################################################################
-# There are multiple reasons to do that so there are multiple ways of
-# disabling the autoscale feature. One of the cases is manually setting the
+# One way to disable autoscaling is to manually setting the
 # axis limit. Let's say that we want to see only a part of the data in
 # greater detail. Setting the ``xlim`` persists even if we add more curves to
-# the data. To recalculate the new limits we shall call `.Axes.autoscale`
-# manually to toggle the functionality.
+# the data. To recalculate the new limits  calling `.Axes.autoscale` will
+# manually toggle the functionality.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
 ax[0].plot(x, y)
@@ -165,9 +162,9 @@ print(ax[1].get_autoscale_on())  # True means enabled -> recalculated
 # of autoscaling. A combination of arguments ``enable``, and ``axis`` sets the
 # autoscaling feature for the selected axis (or both). The argument ``tight``
 # sets the margin of the selected axis to zero. To preserve settings of either
-# ``enable`` or ``tight`` you can set the opposite one to None, that way
-# it should not be modified. However, setting ``enable`` to None and tight
-# to True affects both axes regardless of the ``axis`` argument.
+# ``enable`` or ``tight`` you can set the opposite one to *None*, that way
+# it should not be modified. However, setting ``enable`` to *None* and tight
+# to *True* affects both axes regardless of the ``axis`` argument.
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
@@ -182,8 +179,8 @@ print(ax.margins())
 # Autoscale works out of the box for all lines, patches, and images added to
 # the axes. One of the artists that it won't work with is a `.Collection`.
 # After adding a collection to the axes, one has to manually trigger the
-# :func:`~matplotlib.axes.Axes.autoscale_view()` to propagate recalculated
-# limits to the figure.
+# `~matplotlib.axes.Axes.autoscale_view()` to recalculate
+# axes limits.
 
 fig, ax = plt.subplots()
 collection = mpl.collections.StarPolygonCollection(
