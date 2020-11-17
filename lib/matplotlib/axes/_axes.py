@@ -5928,7 +5928,7 @@ default: :rc:`scatter.edgecolors`
             Whether to snap the mesh to pixel boundaries.
 
         rasterized: bool, optional
-            Force rasterized (bitmap) drawing in vector backend output.
+            Rasterize the pcolormesh before drawing.  Can be faster and make smaller files for large data sets.
 
         Returns
         -------
