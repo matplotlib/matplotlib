@@ -5835,10 +5835,6 @@ default: :rc:`scatter.edgecolors`
            <differences-pcolor-pcolormesh>`.
 
         .. hint::
-            `In order to speed up image processing of a plot with a large
-            amount of points, pcolormesh allows the use of the `rasterized`
-            keyword. As an example, see
-            :ref https://matplotlib.org/gallery/misc/rasterization_demo.html`.
 
         Parameters
         ----------
