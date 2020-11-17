@@ -98,11 +98,10 @@ class Tick(martist.Artist):
         self.set_figure(axes.figure)
         self.axes = axes
 
-        name = self.__name__.lower()
-
         self._loc = loc
         self._major = major
 
+        name = self.__name__
         major_minor = "major" if major else "minor"
 
         if size is None:
@@ -448,7 +447,7 @@ class XTick(Tick):
     def apply_tickdir(self, tickdir):
         """Set tick direction. Valid values are 'in', 'out', 'inout'."""
         if tickdir is None:
-            tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
+            tickdir = mpl.rcParams[f'{self.__name__}.direction']
         _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
 
@@ -520,7 +519,7 @@ class YTick(Tick):
 
     def apply_tickdir(self, tickdir):
         if tickdir is None:
-            tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
+            tickdir = mpl.rcParams[f'{self.__name__}.direction']
         self._tickdir = tickdir
 
         if self._tickdir == 'in':

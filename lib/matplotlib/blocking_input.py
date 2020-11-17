@@ -149,10 +149,9 @@ class BlockingMouseInput(BlockingInput):
         if event.key is None:
             # At least in OSX gtk backend some keys return None.
             return
-        key = event.key.lower()
-        if key in ['backspace', 'delete']:
+        if event.key in ['backspace', 'delete']:
             self.mouse_event_pop(event)
-        elif key in ['escape', 'enter']:
+        elif event.key in ['escape', 'enter']:
             self.mouse_event_stop(event)
         else:
             self.mouse_event_add(event)
