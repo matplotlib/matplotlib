@@ -2601,9 +2601,9 @@ class _AxesBase(martist.Artist):
                     for ax in self._shared_y_axes.get_siblings(self)
                     if hasattr(ax, "lines")
                     for artist in ax.get_children()]))
-        if self.get_xscale().lower() == 'log':
+        if self.get_xscale() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
-        if self.get_yscale().lower() == 'log':
+        if self.get_yscale() == 'log':
             y_stickies = y_stickies[y_stickies > 0]
 
         def handle_single_axis(scale, autoscaleon, shared_axes, interval,
