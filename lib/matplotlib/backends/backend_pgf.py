@@ -10,7 +10,6 @@ import pathlib
 import re
 import shutil
 import subprocess
-import sys
 from tempfile import TemporaryDirectory
 import weakref
 
@@ -101,6 +100,7 @@ def common_texification(text):
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
     text = _replace_mathdefault(text)
+    text = text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
     # split text into normaltext and inline math parts
     parts = re_mathsep.split(text)
     for i, s in enumerate(parts):
@@ -792,10 +792,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 %% Make sure the required packages are loaded in your preamble
 %%   \\usepackage{pgf}
 %%
-%% and, on pdftex
-%%   \\usepackage[utf8]{inputenc}\\DeclareUnicodeCharacter{2212}{-}
-%%
-%% or, on luatex and xetex
+%% and on luatex and xetex
 %%   \\usepackage{unicode-math}
 %%
 %% Figures using additional raster images can only be included by \\input if
