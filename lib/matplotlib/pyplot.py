@@ -766,9 +766,6 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
                 f"warning, see the rcParam `figure.max_open_warning`).",
                 RuntimeWarning)
 
-        if get_backend().lower() == 'ps':
-            dpi = 72
-
         manager = new_figure_manager(
             num, figsize=figsize, dpi=dpi,
             facecolor=facecolor, edgecolor=edgecolor, frameon=frameon,
