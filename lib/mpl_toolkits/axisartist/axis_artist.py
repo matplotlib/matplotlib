@@ -629,7 +629,12 @@ class AxisArtist(martist.Artist):
     is constant) line, ticks, ticklabels, and axis label.
     """
 
-    zorder = ZORDER = 2.5  # ZORDER is a backcompat alias.
+    zorder = 2.5
+
+    @_api.deprecated("3.4")
+    @_api.classproperty
+    def ZORDER(cls):
+        return cls.zorder
 
     @property
     def LABELPAD(self):
