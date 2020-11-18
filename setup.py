@@ -49,10 +49,6 @@ from distutils.dist import Distribution
 import setupext
 from setupext import print_raw, print_status
 
-# Get the version from versioneer
-import versioneer
-__version__ = versioneer.get_version()
-
 
 # These are the packages in the order we want to display them.
 mpl_packages = [
@@ -200,11 +196,6 @@ class BuildExtraLibraries(BuildExtCommand):
         return super().build_extensions()
 
 
-cmdclass = versioneer.get_cmdclass()
-cmdclass['test'] = NoopTestCommand
-cmdclass['build_ext'] = BuildExtraLibraries
-
-
 package_data = {}  # Will be filled below by the various components.
 
 # If the user just queries for information, don't bother figuring out which
@@ -257,7 +248,6 @@ if not (any('--' + opt in sys.argv
 
 setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     name="matplotlib",
-    version=__version__,
     description="Python plotting package",
     author="John D. Hunter, Michael Droettboom",
     author_email="matplotlib-users@python.org",
@@ -301,6 +291,8 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     setup_requires=[
         "certifi>=2020.06.20",
         "numpy>=1.16",
+        "setuptools_scm>=4",
+        "setuptools_scm_git_archive",
     ],
     install_requires=[
         "cycler>=0.10",
@@ -309,7 +301,20 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         "pillow>=6.2.0",
         "pyparsing>=2.2.1",
         "python-dateutil>=2.7",
-    ],
-
-    cmdclass=cmdclass,
+    ] + (
+        # Installing from a git checkout.
+        ["setuptools_scm>=4"] if Path(__file__).with_name(".git").exists()
+        else []
+    ),
+    use_scm_version={
+        "version_scheme": "post-release",
+        "local_scheme": "node-and-date",
+        "write_to": "lib/matplotlib/_version.py",
+        "parentdir_prefix_version": "matplotlib-",
+        "fallback_version": "0.0+UNKNOWN",
+    },
+    cmdclass={
+        "test": NoopTestCommand,
+        "build_ext": BuildExtraLibraries,
+    },
 )

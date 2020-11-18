@@ -102,20 +102,15 @@ import sys
 import tempfile
 import warnings
 
+import numpy
+
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import _api, cbook, docstring, rcsetup
+from . import _api, _version, cbook, docstring, rcsetup
 from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import validate_backend, cycler
 
-import numpy
-
-# Get the version from the _version.py versioneer file. For a git checkout,
-# this is computed based on the number of commits since the last tag.
-from ._version import get_versions
-__version__ = str(get_versions()['version'])
-del get_versions
 
 _log = logging.getLogger(__name__)
 
@@ -133,6 +128,27 @@ __bibtex__ = r"""@Article{Hunter:2007,
   publisher = {IEEE COMPUTER SOC},
   year      = 2007
 }"""
+
+
+def __getattr__(name):
+    if name == "__version__":
+        import setuptools_scm
+        global __version__  # cache it.
+        # Only shell out to a git subprocess if really needed, and not on a
+        # shallow clone, such as those used by CI, as the latter would trigger
+        # a warning from setuptools_scm.
+        root = Path(__file__).resolve().parents[2]
+        if (root / ".git").exists() and not (root / ".git/shallow").exists():
+            __version__ = setuptools_scm.get_version(
+                root=root,
+                version_scheme="post-release",
+                local_scheme="node-and-date",
+                fallback_version=_version.version,
+            )
+        else:  # Get the version from the _version.py setuptools_scm file.
+            __version__ = _version.version
+        return __version__
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def _check_versions():
@@ -724,6 +740,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
     fail_on_error : bool, default: False
         Whether invalid entries should result in an exception or a warning.
     """
+    import matplotlib as mpl
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
@@ -770,7 +787,10 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 version, name=key, alternative=alt_key, obj_type='rcparam',
                 addendum="Please update your matplotlibrc.")
         else:
-            version = 'master' if '.post' in __version__ else f'v{__version__}'
+            # __version__ must be looked up as an attribute to trigger the
+            # module-level __getattr__.
+            version = ('master' if '.post' in mpl.__version__
+                       else f'v{mpl.__version__}')
             _log.warning("""
 Bad key %(key)s in file %(fname)s, line %(line_no)s (%(line)r)
 You probably need to get an updated matplotlibrc file from
@@ -1385,7 +1405,6 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     return inner
 
 
-_log.debug('matplotlib version %s', __version__)
 _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
 _log.debug('loaded modules: %s', list(sys.modules))

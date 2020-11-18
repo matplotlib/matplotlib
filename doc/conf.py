@@ -198,7 +198,7 @@ master_doc = 'contents'
 try:
     SHA = subprocess.check_output(
         ['git', 'describe', '--dirty']).decode('utf-8').strip()
-# Catch the case where git is not installed locally, and use the versioneer
+# Catch the case where git is not installed locally, and use the setuptools_scm
 # version number instead
 except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
