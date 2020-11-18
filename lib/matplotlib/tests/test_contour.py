@@ -392,3 +392,9 @@ def test_contour_linewidth(
         X = np.arange(4*3).reshape(4, 3)
         cs = ax.contour(X, linewidths=call_linewidths)
         assert cs.tlinewidths[0][0] == expected
+
+
+@pytest.mark.backend("pdf")
+def test_label_nonagg():
+    # This should not crash even if the canvas doesn't have a get_renderer().
+    plt.clabel(plt.contour([[1, 2], [3, 4]]))

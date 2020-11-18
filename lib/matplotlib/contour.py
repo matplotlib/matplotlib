@@ -250,7 +250,7 @@ class ContourLabeler:
         fig = self.axes.figure
         width = (text.Text(0, 0, lev, figure=fig,
                            size=fsize, fontproperties=self.labelFontProps)
-                 .get_window_extent(fig.canvas.get_renderer()).width)
+                 .get_window_extent(mpl.tight_layout.get_renderer(fig)).width)
         width *= 72 / fig.dpi
         return width
 
