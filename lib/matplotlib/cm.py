@@ -155,7 +155,7 @@ class ScalarMappable:
     RGBA colors from the given colormap.
 
     """
-    def __init__(self, norm=None, cmap=None):
+    def __init__(self, norm=None, cmap=None, data=None):
         """
 
         Parameters
@@ -167,7 +167,13 @@ class ScalarMappable:
             initializes its scaling based on the first data processed.
         cmap : str or `~matplotlib.colors.Colormap`
             The colormap used to map normalized data values to RGBA colors.
+
+        data : np.ndarray or list of list
+            Sorted rbg values of the colors to be represented
         """
+        if not data is None:
+            cmap = colors.ListedColormap(data)
+            norm = colors.Normalize(vmin = 0, vmax = 1)
         self._A = None
         self.norm = None  # So that the setter knows we're initializing.
         self.set_norm(norm)  # The Normalize instance of this ScalarMappable.
