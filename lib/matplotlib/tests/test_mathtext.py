@@ -395,4 +395,4 @@ def test_mathtext_cmr10_minus_sign():
     ax.plot(range(-1, 1), range(-1, 1))
     with pytest.warns(None) as record:
         fig.canvas.draw()
-    assert len(record) == 0
+    assert len(record) == 0, "\n".join(str(e.message) for e in record)
