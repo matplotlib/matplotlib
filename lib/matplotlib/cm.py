@@ -173,7 +173,7 @@ class ScalarMappable:
         """
         if not data is None:
             cmap = colors.ListedColormap(data)
-            norm = colors.Normalize(vmin = 0, vmax = 1)
+            norm = colors.Normalize(vmin=0, vmax=1)
         self._A = None
         self.norm = None  # So that the setter knows we're initializing.
         self.set_norm(norm)  # The Normalize instance of this ScalarMappable.
