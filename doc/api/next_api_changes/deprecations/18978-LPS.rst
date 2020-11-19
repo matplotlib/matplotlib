@@ -1,0 +1,5 @@
+pyplot.gca()
+~~~~~~~~~~~~
+
+Passing keyword arguments to ``.pyplot.gca`` will not be supported in a future
+release.

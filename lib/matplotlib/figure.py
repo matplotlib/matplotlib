@@ -56,48 +56,22 @@ class _AxesStack(cbook.Stack):
     Specialization of `.Stack`, to handle all tracking of `~.axes.Axes` in a
     `.Figure`.
 
-    This stack stores ``key, (ind, axes)`` pairs, where:
-
-    * **key** is a hash of the args and kwargs used in generating the Axes.
-    * **ind** is a serial index tracking the order in which Axes were added.
+    This stack stores ``key, axes`` pairs, where **key** is a hash of the args
+    and kwargs used in generating the Axes.
 
     AxesStack is a callable; calling it returns the current Axes.
     The `current_key_axes` method returns the current key and associated Axes.
     """
 
-    def __init__(self):
-        super().__init__()
-        self._ind = 0
-
     def as_list(self):
         """
         Return a list of the Axes instances that have been added to the figure.
         """
-        ia_list = [a for k, a in self._elements]
-        ia_list.sort()
-        return [a for i, a in ia_list]
-
-    def get(self, key):
-        """
-        Return the Axes instance that was added with *key*.
-        If it is not present, return *None*.
-        """
-        item = dict(self._elements).get(key)
-        if item is None:
-            return None
-        cbook.warn_deprecated(
-            "2.1",
-            message="Adding an axes using the same arguments as a previous "
-            "axes currently reuses the earlier instance.  In a future "
-            "version, a new instance will always be created and returned.  "
-            "Meanwhile, this warning can be suppressed, and the future "
-            "behavior ensured, by passing a unique label to each axes "
-            "instance.")
-        return item[1]
+        return [a for k, a in self._elements]
 
     def _entry_from_axes(self, e):
-        ind, k = {a: (ind, k) for k, (ind, a) in self._elements}[e]
-        return (k, (ind, e))
+        k = {a: k for k, a in self._elements}[e]
+        return (k, e)
 
     def remove(self, a):
         """Remove the Axes from the stack."""
@@ -114,30 +88,13 @@ class _AxesStack(cbook.Stack):
         """
         Add Axes *a*, with key *key*, to the stack, and return the stack.
 
-        If *key* is unhashable, replace it by a unique, arbitrary object.
-
         If *a* is already on the stack, don't add it again, but
         return *None*.
         """
         # All the error checking may be unnecessary; but this method
         # is called so seldom that the overhead is negligible.
         cbook._check_isinstance(Axes, a=a)
-        try:
-            hash(key)
-        except TypeError:
-            key = object()
-
-        a_existing = self.get(key)
-        if a_existing is not None:
-            super().remove((key, a_existing))
-            cbook._warn_external(
-                "key {!r} already existed; Axes is being replaced".format(key))
-            # I don't think the above should ever happen.
-
-        if a in self:
-            return None
-        self._ind += 1
-        return super().push((key, (self._ind, a)))
+        return super().push((key,  a))
 
     def current_key_axes(self):
         """
@@ -145,14 +102,10 @@ class _AxesStack(cbook.Stack):
 
         If no Axes exists on the stack, then returns ``(None, None)``.
         """
-        if not len(self._elements):
-            return self._default, self._default
-        else:
-            key, (index, axes) = self._elements[self._pos]
-            return key, axes
+        return super().__call__() or (None, None)
 
     def __call__(self):
-        return self.current_key_axes()[1]
+        ka = self.current_key_axes()[1]
 
     def __contains__(self, a):
         return a in self.as_list()
@@ -689,15 +642,8 @@ default: {va}
                     "add_axes() got multiple values for argument 'rect'")
             args = (kwargs.pop('rect'), )
 
-        # shortcut the projection "key" modifications later on, if an axes
-        # with the exact args/kwargs exists, return it immediately.
-        key = self._make_key(*args, **kwargs)
-        ax = self._axstack.get(key)
-        if ax is not None:
-            self.sca(ax)
-            return ax
-
         if isinstance(args[0], Axes):
+            key = self._make_key(*args, **kwargs)
             a = args[0]
             if a.get_figure() is not self:
                 raise ValueError(
@@ -709,13 +655,6 @@ default: {va}
                                  'not {}'.format(rect))
             projection_class, kwargs, key = \
                 self._process_projection_requirements(*args, **kwargs)
-
-            # check that an axes of this type doesn't already exist, if it
-            # does, set it as active and return it
-            ax = self._axstack.get(key)
-            if isinstance(ax, projection_class):
-                self.sca(ax)
-                return ax
 
             # create the new axes using the axes class given
             a = projection_class(self, rect, **kwargs)
@@ -861,19 +800,6 @@ default: {va}
                 args = tuple(map(int, str(args[0])))
             projection_class, kwargs, key = \
                 self._process_projection_requirements(*args, **kwargs)
-            ax = self._axstack.get(key)  # search axes with this key in stack
-            if ax is not None:
-                if isinstance(ax, projection_class):
-                    # the axes already existed, so set it as active & return
-                    self.sca(ax)
-                    return ax
-                else:
-                    # Undocumented convenience behavior:
-                    # subplot(111); subplot(111, projection='polar')
-                    # will replace the first with the second.
-                    # Without this, add_subplot would be simpler and
-                    # more similar to add_axes.
-                    self._axstack.remove(ax)
             ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
         return self._add_axes_internal(key, ax)
 
@@ -1601,6 +1527,16 @@ default: {va}
         %(Axes)s
 
         """
+        if kwargs:
+            cbook.warn_deprecated(
+                "3.4",
+                message="Calling gca() with keyword arguments is deprecated. "
+                "In a future version, gca() will take no keyword arguments. "
+                "The gca() function should only be used to get the current "
+                "axes, or if no axes exist, create new axes with default "
+                "keyword arguments. To create a new axes with non-default "
+                "arguments, use plt.axes() or plt.subplot().")
+
         ckey, cax = self._axstack.current_key_axes()
         # if there exists an axes on the stack see if it matches
         # the desired axes configuration
@@ -1627,10 +1563,11 @@ default: {va}
                 if key == ckey and isinstance(cax, projection_class):
                     return cax
                 else:
-                    cbook._warn_external('Requested projection is different '
-                                         'from current axis projection, '
-                                         'creating new axis with requested '
-                                         'projection.')
+                    raise ValueError(
+                        "The arguments passed to gca() did not match the "
+                        "arguments with which the current axes were "
+                        "originally created. To create new axes, use "
+                        "axes() or subplot().")
 
         # no axes found, so create one which spans the figure
         return self.add_subplot(1, 1, 1, **kwargs)

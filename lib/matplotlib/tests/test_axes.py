@@ -2387,28 +2387,36 @@ def test_as_mpl_axes_api():
     # testing axes creation with plt.axes
     ax = plt.axes([0, 0, 1, 1], projection=prj)
     assert type(ax) == PolarAxes
-    ax_via_gca = plt.gca(projection=prj)
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
+        ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     plt.close()
 
     # testing axes creation with gca
-    ax = plt.gca(projection=prj)
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
+        ax = plt.gca(projection=prj)
     assert type(ax) == mpl.axes._subplots.subplot_class_factory(PolarAxes)
-    ax_via_gca = plt.gca(projection=prj)
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
+        ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     # try getting the axes given a different polar projection
-    with pytest.warns(UserWarning) as rec:
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'), \
+        pytest.raises(
+            ValueError, match=r'arguments passed to gca\(\) did not match'):
         ax_via_gca = plt.gca(projection=prj2)
-        assert len(rec) == 1
-        assert 'Requested projection is different' in str(rec[0].message)
-    assert ax_via_gca is not ax
-    assert ax.get_theta_offset() == 0
-    assert ax_via_gca.get_theta_offset() == np.pi
     # try getting the axes given an == (not is) polar projection
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
         ax_via_gca = plt.gca(projection=prj3)
-        assert len(rec) == 1
-        assert 'Requested projection is different' in str(rec[0].message)
     assert ax_via_gca is ax
     plt.close()
 

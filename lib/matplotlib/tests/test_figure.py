@@ -8,6 +8,7 @@ import warnings
 
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
+from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -154,30 +155,44 @@ def test_gca():
         assert fig.add_axes() is None
 
     ax0 = fig.add_axes([0, 0, 1, 1])
-    assert fig.gca(projection='rectilinear') is ax0
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
+        assert fig.gca(projection='rectilinear') is ax0
     assert fig.gca() is ax0
 
     ax1 = fig.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
-    assert fig.gca(projection='rectilinear') is ax1
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
+        assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
     ax2 = fig.add_subplot(121, projection='polar')
     assert fig.gca() is ax2
-    assert fig.gca(polar=True) is ax2
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
+        assert fig.gca(polar=True) is ax2
 
     ax3 = fig.add_subplot(122)
     assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
-    with pytest.warns(UserWarning):
-        # Changing the projection will throw a warning
-        assert fig.gca(polar=True) is not ax3
-    assert fig.gca(polar=True) is not ax2
-    assert fig.gca().get_subplotspec().get_geometry() == (1, 1, 0, 0)
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'), \
+        pytest.raises(
+            ValueError, match=r'arguments passed to gca\(\) did not match'):
+        # Changing the projection will raise an exception
+        fig.gca(polar=True)
 
     fig.sca(ax1)
-    assert fig.gca(projection='rectilinear') is ax1
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
+        assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
 

@@ -1,0 +1,8 @@
+Changes to _AxesStack, preparing for its removal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The behavior of the internal ``.figure._AxesStack`` class has changed
+significantly in the process of removing the old behavior of gca() with regard
+to keyword arguments. When the deprecated behavior has been fully removed and
+gca() no longer takes keyword arguments, the ``.figure._AxesStack`` class will
+be removed.

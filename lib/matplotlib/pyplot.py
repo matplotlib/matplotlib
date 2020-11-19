@@ -2410,10 +2410,13 @@ def polar(*args, **kwargs):
     """
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
-        if not isinstance(gca(), PolarAxes):
+        ax = gca()
+        if isinstance(ax, PolarAxes):
+            return ax
+        else:
             cbook._warn_external('Trying to create polar plot on an axis '
                                  'that does not have a polar projection.')
-    ax = gca(polar=True)
+    ax = axes(polar=True)
     ret = ax.plot(*args, **kwargs)
     return ret
 
