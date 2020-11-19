@@ -30,7 +30,7 @@ href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.cs
     if (isInternetExplorer()) {
         // switch from oninput to onchange because IE <= 11 does not conform
         // with W3C specification. It ignores oninput and onchange behaves
-        // like oninput. In contrast, Mircosoft Edge behaves correctly.
+        // like oninput. In contrast, Microsoft Edge behaves correctly.
         slider.setAttribute('onchange', slider.getAttribute('oninput'));
         slider.setAttribute('oninput', null);
     }

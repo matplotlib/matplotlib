@@ -1124,7 +1124,7 @@ class Polygon(Patch):
                 xy = np.concatenate([xy, [xy[0]]])
         else:
             # if we aren't closed, and the last vertex matches the first, then
-            # we assume we have an unecessary CLOSEPOLY vertex and remove it
+            # we assume we have an unnecessary CLOSEPOLY vertex and remove it
             if nverts > 2 and (xy[0] == xy[-1]).all():
                 xy = xy[:-1]
         self._path = Path(xy, closed=self._closed)

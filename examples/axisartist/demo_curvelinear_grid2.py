@@ -1,6 +1,6 @@
 """
 ======================
-Demo Curvelinear Grid2
+Demo Curvilinear Grid2
 ======================
 
 Custom grid and ticklines.

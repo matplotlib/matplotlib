@@ -559,7 +559,7 @@ def test_reshape2d():
 
 
 def test_reshape2d_pandas(pd):
-    # seperate to allow the rest of the tests to run if no pandas...
+    # separate to allow the rest of the tests to run if no pandas...
     X = np.arange(30).reshape(10, 3)
     x = pd.DataFrame(X, columns=["a", "b", "c"])
     Xnew = cbook._reshape_2D(x, 'x')

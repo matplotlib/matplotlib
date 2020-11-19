@@ -44,7 +44,7 @@ axs[0].set_title('Default Date Formatter')
 plt.show()
 
 #############################################################################
-# The default date formater is quite verbose, so we have the option of
+# The default date formatter is quite verbose, so we have the option of
 # using `~.dates.ConciseDateFormatter`, as shown below.  Note that
 # for this example the labels do not need to be rotated as they do for the
 # default formatter because the labels are as small as possible.

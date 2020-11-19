@@ -243,7 +243,7 @@ mpl_interactions
 ================
 `mpl_interactions <https://mpl-interactions.readthedocs.io/en/latest/>`_
 makes it easy to create interactive plots controlled by sliders and other
-widgets. It also provides several handy capabilties such as manual
+widgets. It also provides several handy capabilities such as manual
 image segmentation, comparing cross-sections of arrays, and using the
 scroll wheel to zoom.
 

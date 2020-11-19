@@ -1,6 +1,6 @@
 """
 A layoutgrid is a nrows by ncols set of boxes, meant to be used by
-`._constrained_layout`, each box is analagous to a subplotspec element of
+`._constrained_layout`, each box is analogous to a subplotspec element of
 a gridspec.
 
 Each box is defined by left[ncols], right[ncols], bottom[nrows] and top[nrows],
@@ -28,7 +28,7 @@ _log = logging.getLogger(__name__)
 
 class LayoutGrid:
     """
-    Analagous to a gridspec, and contained in another LayoutGrid.
+    Analogous to a gridspec, and contained in another LayoutGrid.
     """
 
     def __init__(self, parent=None, parent_pos=(0, 0),

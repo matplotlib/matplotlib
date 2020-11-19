@@ -119,7 +119,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             See :doc:`/gallery/lines_bars_and_markers/joinstyle` for
             a demonstration of each of the allowed values.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
-            Whether each pach in the collection should be drawn with
+            Whether each patch in the collection should be drawn with
             antialiasing.
         offsets : (float, float) or list thereof, default: (0, 0)
             A vector by which to translate each patch after rendering (default
@@ -1491,7 +1491,7 @@ class LineCollection(Collection):
 
 class EventCollection(LineCollection):
     """
-    A collection of locations along a single axis at which an "event" occured.
+    A collection of locations along a single axis at which an "event" occurred.
 
     The events are given by a 1-dimensional array. They do not have an
     amplitude and are displayed as parallel lines.

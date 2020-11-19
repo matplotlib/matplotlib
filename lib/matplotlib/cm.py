@@ -131,7 +131,7 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
     Notes
     -----
     Registering a colormap stores a reference to the colormap object
-    which can currently be modified and inadvertantly change the global
+    which can currently be modified and inadvertently change the global
     colormap state. This behavior is deprecated and in Matplotlib 3.5
     the registered colormap will be immutable.
 

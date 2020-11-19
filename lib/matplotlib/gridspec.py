@@ -214,7 +214,7 @@ class GridSpecBase:
                 gs = ax.get_subplotspec().get_gridspec()
                 if hasattr(gs, 'get_topmost_subplotspec'):
                     # This is needed for colorbar gridspec layouts.
-                    # This is probably OK becase this whole logic tree
+                    # This is probably OK because this whole logic tree
                     # is for when the user is doing simple things with the
                     # add_subplot command.  For complicated layouts
                     # like subgridspecs the proper gridspec is passed in...
@@ -759,7 +759,7 @@ class SubplotSpec:
     def colspan(self):
         """The columns spanned by this subplot, as a `range` object."""
         ncols = self.get_gridspec().ncols
-        # We explicitly support num2 refering to a column on num1's *left*, so
+        # We explicitly support num2 referring to a column on num1's *left*, so
         # we must sort the column indices here so that the range makes sense.
         c1, c2 = sorted([self.num1 % ncols, self.num2 % ncols])
         return range(c1, c2 + 1)

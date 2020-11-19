@@ -882,7 +882,7 @@ dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
 with cbook._suppress_matplotlib_deprecation_warning():
     rcParamsOrig = RcParams(rcParams.copy())
     # This also checks that all rcParams are indeed listed in the template.
-    # Assiging to rcsetup.defaultParams is left only for backcompat.
+    # Assigning to rcsetup.defaultParams is left only for backcompat.
     defaultParams = rcsetup.defaultParams = {
         # We want to resolve deprecated rcParams, but not backend...
         key: [(rcsetup._auto_backend_sentinel if key == "backend" else

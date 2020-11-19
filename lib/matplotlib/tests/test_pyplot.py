@@ -144,7 +144,7 @@ def test_nested_ion_ioff():
         assert mpl.is_interactive()
     assert not mpl.is_interactive()
 
-    # redunant contexts
+    # redundant contexts
     with plt.ion():
         with plt.ion():
             assert mpl.is_interactive()

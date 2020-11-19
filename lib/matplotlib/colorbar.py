@@ -54,7 +54,7 @@ location : None or {'left', 'right', 'top', 'bottom'}
     *orientation* if it is set (vertical colorbars on the right, horizontal
     ones at the bottom), or default to 'right' if *orientation* is unset.
 orientation : None or {'vertical', 'horizontal'}
-    The orientation of the colorbar.  It is preferrable to set the *location*
+    The orientation of the colorbar.  It is preferable to set the *location*
     of the colorbar, as that also determines the *orientation*; passing
     incompatible values for *location* and *orientation* raises an exception.
 fraction : float, default: 0.15
