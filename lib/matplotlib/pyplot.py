@@ -1315,8 +1315,8 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             fig, axs = plt.subplots(2, 2)
 
             # using tuple unpacking for multiple Axes
-            fig, (ax1, ax2) = plt.subplot(1, 2)
-            fig, ((ax1, ax2), (ax3, ax4)) = plt.subplot(2, 2)
+            fig, (ax1, ax2) = plt.subplots(1, 2)
+            fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
         The names ``ax`` and pluralized ``axs`` are preferred over ``axes``
         because for the latter it's not clear if it refers to a single
