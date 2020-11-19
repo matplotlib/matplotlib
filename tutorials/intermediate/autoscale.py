@@ -2,19 +2,12 @@
 Autoscaling
 ===========
 
-Axis scales define the overall look of a plot, some default options
-scale ranges automatically with respect to supplied data - autoscaling.
-This tutorial shows concepts of individual autoscaling options and
-investigates cornerstone examples regarding the needs for manual adjustments.
-The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``)
-or Matplotlib can set them automatically based on the data already on the
-axes. There are a number of options to this autoscaling behaviour,
-discussed below.
+The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``) or Matplotlib can set them automatically based on the data already on the axes.  There are a number of options to this autoscaling behaviour, discussed below.
 """
 
 ###############################################################################
 # We will start with a simple line plot showing that autoscaling
-# extends the visible range 5% beyond the real data range (-2π, 2π).
+# extends the axis limits 5% beyond the data limits (-2π, 2π).
 
 import numpy as np
 import matplotlib as mpl
@@ -30,14 +23,12 @@ fig.show()
 ###############################################################################
 # Margins
 # -------
-# The relative measure of the extend is called margin and can be set by
-# `~matplotlib.axes.Axes.margins`.
-# The default value is (0.05, 0.05):
+# The default margin around the data limits is 5%:
 
 ax.margins()
 
 ###############################################################################
-# The margins can be made larger:
+# The margins can be made larger using `~matplotlib.axes.Axes.margins`:
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
@@ -45,8 +36,8 @@ ax.margins(0.2, 0.2)
 fig.show()
 
 ###############################################################################
-# In general, margins shall be in range (-0.5, ∞), negative margins crop the
-# plot showing only a part of the data. Using a single number for margins
+# In general, margins can be in the range (-0.5, ∞), where negative margins set the axes limits to 
+# a fraction of the data range, and allow a zoom effect. Using a single number for margins
 # affects both axes, a single margin can be customized using keyword
 # arguments ``x`` or ``y``, but positional and keyword interface cannot be
 # combined
@@ -57,18 +48,11 @@ ax.margins(y=-0.2)
 fig.show()
 
 ###############################################################################
-# There is the last keyword argument for margins call, the ``tight`` option. In
-# the case of a simple :func:`~matplotlib.axes.Axes.plot` call, this parameter
-# does not change anything, it is passed to the
-# :meth:`~matplotlib.axes.Axes.autoscale_view`, which requires more advanced
-# discussion.
 #
-# Margins can behave differently for certain plots, this is determined by
-# the sticky edges property, which is of interest in the next section.
 #
 # Sticky edges
 # ------------
-# Margin must not be applied for certain :class:`.Artist`, for example, setting
+# Some :class:`.Artist` objects do not allow margins.  For example, setting
 # ``margin=0.2`` on ``plt.imshow`` does not affect the resulting plot.
 #
 
@@ -84,16 +68,13 @@ ax[1].set_title("margins(0.2)")
 fig.show()
 
 ###############################################################################
-# This override of margins is determined by so-called sticky edges. That is a
-# property of :class:`.Artist` class, which can suppress adding margins to data
-# limits. The effect of sticky edges can be disabled by changing
-# :class:`~matplotlib.axes.Axes` property
-# `~matplotlib.axes.Axes.use_sticky_edges`.
-#
-# Settings of sticky edges of individual artists can be investigating by
-# accessing them directly, `.Artist.sticky_edges`. Moreover, the values of
+# This override of margins is determined by "sticky edges", a
+# property of :class:`.Artist` class that can suppress adding margins to axis
+# limits. The effect of sticky edges can be disabled on an Axes by changing
+#  `~matplotlib.axes.Axes.use_sticky_edges`.
+# Artists have a property `.Artist.sticky_edges`, and the values of
 # sticky edges can be changed by writing to ``Artist.sticky_edges.x`` or
-# ``.Artist.sticky_edges.y``
+# ``.Artist.sticky_edges.y``.
 #
 # The following example shows how overriding works and when it is needed.
 
