@@ -29,7 +29,7 @@ its physical size and the value of the ``dpi`` parameter passed to
 .. note::
 
     The image of this example shown in the HTML documentation is not a vector
-    graphics. Therefore, it cannot illustrate the rasterization effect. Please
+    graphic. Therefore, it cannot illustrate the rasterization effect. Please
     run this example locally and check the generated graphics files.
 
 """
