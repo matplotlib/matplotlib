@@ -5834,7 +5834,6 @@ default: :rc:`scatter.edgecolors`
            differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
 
-
         Parameters
         ----------
         C : array-like
@@ -5927,8 +5926,9 @@ default: :rc:`scatter.edgecolors`
             Whether to snap the mesh to pixel boundaries.
 
         rasterized: bool, optional
-            Rasterize the pcolormesh before drawing.  Can produce images
-            faster and make smaller files for large data sets.
+            Rasterize the pcolormesh when drawing vector graphics.  This can
+            speed up rendering and produce smaller files for large data sets.
+            See also :doc:`/gallery/misc/rasterization_demo`.
 
         Returns
         -------

@@ -886,9 +886,15 @@ class Artist:
 
     def set_rasterized(self, rasterized):
         """
-        Force rasterized (bitmap) drawing in vector backend output.
+        Force rasterized (bitmap) drawing for vector graphics output.
 
-        Defaults to None, which implies the backend's default behavior.
+        Rasterized drawing is not supported by all artists. If you try to
+        enable this on an artist that does not support it, the command has no
+        effect and a warning will be issued.
+
+        This setting is ignored for pixel-based output.
+
+        See also :doc:`/gallery/misc/rasterization_demo`.
 
         Parameters
         ----------

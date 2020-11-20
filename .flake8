@@ -180,6 +180,7 @@ per-file-ignores =
     examples/misc/agg_buffer.py: E402
     examples/misc/histogram_path.py: E402
     examples/misc/print_stdout_sgskip.py: E402
+    examples/misc/rasterization_demo.py: E402
     examples/misc/svg_filter_line.py: E402
     examples/misc/svg_filter_pie.py: E402
     examples/misc/table_demo.py: E201
