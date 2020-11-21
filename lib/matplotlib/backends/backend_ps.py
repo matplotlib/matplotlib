@@ -321,13 +321,8 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             self.linedash = (offset, seq)
 
     def set_font(self, fontname, fontsize, store=True):
-        if mpl.rcParams['ps.useafm']:
-            return
         if (fontname, fontsize) != (self.fontname, self.fontsize):
-            out = ("/%s findfont\n"
-                   "%1.3f scalefont\n"
-                   "setfont\n" % (fontname, fontsize))
-            self._pswriter.write(out)
+            self._pswriter.write(f"/{fontname} {fontsize:1.3f} selectfont\n")
             if store:
                 self.fontname = fontname
                 self.fontsize = fontsize
@@ -616,20 +611,16 @@ grestore
         if ismath == 'TeX':
             return self.draw_tex(gc, x, y, s, prop, angle)
 
-        elif ismath:
+        if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        elif mpl.rcParams['ps.useafm']:
-            self.set_color(*gc.get_rgb())
-
+        if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
-            fontname = font.get_fontname()
-            fontsize = prop.get_size_in_points()
-            scale = 0.001 * fontsize
+            scale = 0.001 * prop.get_size_in_points()
 
             thisx = 0
-            last_name = None
-            lines = []
+            last_name = None  # kerns returns 0 for None.
+            xs_names = []
             for c in s:
                 name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
                 try:
@@ -637,44 +628,26 @@ grestore
                 except KeyError:
                     name = 'question'
                     width = font.get_width_char('?')
-                if last_name is not None:
-                    kern = font.get_kern_dist_from_name(last_name, name)
-                else:
-                    kern = 0
+                kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
-
-                lines.append('%f 0 m /%s glyphshow' % (thisx, name))
-
+                xs_names.append((thisx, name))
                 thisx += width * scale
-
-            thetext = "\n".join(lines)
-            self._pswriter.write(f"""\
-gsave
-/{fontname} findfont
-{fontsize} scalefont
-setfont
-{x:f} {y:f} translate
-{angle:f} rotate
-{thetext}
-grestore
-""")
 
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0, flags=LOAD_NO_HINTING)
             self._character_tracker.track(font, s)
+            xs_names = [(item.x, font.get_glyph_name(item.glyph_idx))
+                        for item in _text_layout.layout(s, font)]
 
-            self.set_color(*gc.get_rgb())
-            ps_name = (font.postscript_name
-                       .encode('ascii', 'replace').decode('ascii'))
-            self.set_font(ps_name, prop.get_size_in_points())
-
-            thetext = '\n'.join(
-                '{:f} 0 m /{:s} glyphshow'
-                .format(item.x, font.get_glyph_name(item.glyph_idx))
-                for item in _text_layout.layout(s, font))
-            self._pswriter.write(f"""\
+        self.set_color(*gc.get_rgb())
+        ps_name = (font.postscript_name
+                   .encode("ascii", "replace").decode("ascii"))
+        self.set_font(ps_name, prop.get_size_in_points())
+        thetext = "\n".join(f"{x:f} 0 m /{name:s} glyphshow"
+                            for x, name in xs_names)
+        self._pswriter.write(f"""\
 gsave
 {x:f} {y:f} translate
 {angle:f} rotate
@@ -702,9 +675,7 @@ grestore
             if (font.postscript_name, fontsize) != lastfont:
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
-                    f"/{font.postscript_name} findfont\n"
-                    f"{fontsize} scalefont\n"
-                    f"setfont\n")
+                    f"/{font.postscript_name} {fontsize} selectfont\n")
             symbol_name = (
                 font.get_name_char(chr(num)) if isinstance(font, AFM) else
                 font.get_glyph_name(font.get_char_index(num)))
