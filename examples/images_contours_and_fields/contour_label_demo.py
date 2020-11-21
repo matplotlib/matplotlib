@@ -27,7 +27,7 @@ Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
 ###############################################################################
-# Make contour labels wuth custom level formatters
+# Make contour labels with custom level formatters
 
 
 # This custom formatter removes trailing zeros, e.g. "1.0" becomes "1", and
