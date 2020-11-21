@@ -2,7 +2,9 @@
 Autoscaling
 ===========
 
-The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``) or Matplotlib can set them automatically based on the data already on the axes.  There are a number of options to this autoscaling behaviour, discussed below.
+The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``)
+or Matplotlib can set them automatically based on the data already on the axes.
+There are a number of options to this autoscaling behaviour, discussed below.
 """
 
 ###############################################################################
@@ -36,11 +38,11 @@ ax.margins(0.2, 0.2)
 fig.show()
 
 ###############################################################################
-# In general, margins can be in the range (-0.5, ∞), where negative margins set the axes limits to 
-# a fraction of the data range, and allow a zoom effect. Using a single number for margins
-# affects both axes, a single margin can be customized using keyword
-# arguments ``x`` or ``y``, but positional and keyword interface cannot be
-# combined
+# In general, margins can be in the range (-0.5, ∞), where negative margins set
+# the axes limits to a fraction of the data range, and allow a zoom effect.
+# Using a single number for margins affects both axes, a single margin can be
+# customized using keyword arguments ``x`` or ``y``, but positional and keyword
+# interface cannot be combined.
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
@@ -48,8 +50,6 @@ ax.margins(y=-0.2)
 fig.show()
 
 ###############################################################################
-#
-#
 # Sticky edges
 # ------------
 # Some :class:`.Artist` objects do not allow margins.  For example, setting
@@ -71,7 +71,7 @@ fig.show()
 # This override of margins is determined by "sticky edges", a
 # property of :class:`.Artist` class that can suppress adding margins to axis
 # limits. The effect of sticky edges can be disabled on an Axes by changing
-#  `~matplotlib.axes.Axes.use_sticky_edges`.
+# `~matplotlib.axes.Axes.use_sticky_edges`.
 # Artists have a property `.Artist.sticky_edges`, and the values of
 # sticky edges can be changed by writing to ``Artist.sticky_edges.x`` or
 # ``.Artist.sticky_edges.y``.
@@ -160,6 +160,7 @@ print(ax.margins())
 ###############################################################################
 # Working with collections
 # ------------------------
+#
 # Autoscale works out of the box for all lines, patches, and images added to
 # the axes. One of the artists that it won't work with is a `.Collection`.
 # After adding a collection to the axes, one has to manually trigger the
