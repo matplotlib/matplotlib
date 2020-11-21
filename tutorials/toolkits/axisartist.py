@@ -121,7 +121,7 @@ and ticks.
    :align: center
    :scale: 50
 
-   Demo Curvilinear Grid
+   Demo CurveLinear Grid
 
 Floating Axes
 -------------
