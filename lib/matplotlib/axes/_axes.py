@@ -7662,8 +7662,9 @@ such objects
             if 'interpolation' in kwargs:
                 raise TypeError(
                     "spy() got an unexpected keyword argument 'interpolation'")
-            ret = self.imshow(mask, norm=mcolors.NoNorm(), interpolation='nearest', aspect=aspect,
-                              origin=origin, **kwargs)
+            ret = self.imshow(mask, norm=mcolors.NoNorm(),
+                                interpolation='nearest', aspect=aspect,
+                                origin=origin, **kwargs)
         else:
             if hasattr(Z, 'tocoo'):
                 c = Z.tocoo()
