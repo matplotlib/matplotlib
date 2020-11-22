@@ -4,7 +4,7 @@ Hatch demo
 ==========
 
 Hatches can be added to most polygons in Matplotlib, including `~.Axes.bar`,
-`~.Axes.fill_between`, `~.Axes.contourf`, and childern of `~.patches.Polygon`.
+`~.Axes.fill_between`, `~.Axes.contourf`, and children of `~.patches.Polygon`.
 They are currently supported in the PS, PDF, SVG, OSX, and Agg backends. The WX
 and Cairo backends do not currently support hatching.
 

@@ -778,7 +778,7 @@ class _AxesBase(martist.Artist):
             The transform used for drawing x-axis labels, which will add
             *pad_points* of padding (in points) between the axes and the label.
             The x-direction is in data coordinates and the y-direction is in
-            axis corrdinates
+            axis coordinates
         valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
             The text vertical alignment.
         halign : {'center', 'left', 'right'}
@@ -804,7 +804,7 @@ class _AxesBase(martist.Artist):
             The transform used for drawing secondary x-axis labels, which will
             add *pad_points* of padding (in points) between the axes and the
             label.  The x-direction is in data coordinates and the y-direction
-            is in axis corrdinates
+            is in axis coordinates
         valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
             The text vertical alignment.
         halign : {'center', 'left', 'right'}
@@ -854,7 +854,7 @@ class _AxesBase(martist.Artist):
             The transform used for drawing y-axis labels, which will add
             *pad_points* of padding (in points) between the axes and the label.
             The x-direction is in axis coordinates and the y-direction is in
-            data corrdinates
+            data coordinates
         valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
             The text vertical alignment.
         halign : {'center', 'left', 'right'}
@@ -880,7 +880,7 @@ class _AxesBase(martist.Artist):
             The transform used for drawing secondart y-axis labels, which will
             add *pad_points* of padding (in points) between the axes and the
             label.  The x-direction is in axis coordinates and the y-direction
-            is in data corrdinates
+            is in data coordinates
         valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
             The text vertical alignment.
         halign : {'center', 'left', 'right'}

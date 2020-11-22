@@ -8,7 +8,7 @@ This can be achieved with
 :doc:`nested gridspecs</gallery/subplots_axes_and_figures/gridspec_nested>`,
 but having a virtual figure with its own artists is helpful, so
 Matplotlib also has "subfigures", accessed by calling
-`matplotlib.figure.Figure.add_subfigure` in a way that is analagous to
+`matplotlib.figure.Figure.add_subfigure` in a way that is analogous to
 `matplotlib.figure.Figure.add_subplot`, or
 `matplotlib.figure.Figure.subfigures` to make an array of subfigures.  Note
 that subfigures can also have their own child subfigures.
@@ -73,7 +73,7 @@ for a in axs[:, 0]:
 for a in axs[:, 1:].flat:
     a.plot(np.arange(10))
 
-# make the subfigure in the empy gridspec slots:
+# make the subfigure in the empty gridspec slots:
 subfig = fig.add_subfigure(gridspec[:, 0])
 
 axsLeft = subfig.subplots(1, 2, sharey=True)

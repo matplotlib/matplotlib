@@ -286,7 +286,7 @@ class TestLegendFunction:
         lns, = ax.plot(th, np.sin(th), label='sin')
         lnc, = ax.plot(th, np.cos(th), label='cos')
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            # labels of lns, lnc are overwritten with explict ('a', 'b')
+            # labels of lns, lnc are overwritten with explicit ('a', 'b')
             ax.legend(labels=('a', 'b'), handles=(lnc, lns))
         Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
 

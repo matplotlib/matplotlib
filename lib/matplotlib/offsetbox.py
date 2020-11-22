@@ -998,7 +998,7 @@ class AuxTransformBox(OffsetBox):
         ub = mtransforms.Bbox.union(bboxes)
         # adjust ref_offset_transform
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
-        # restor offset transform
+        # restore offset transform
         self.offset_transform.set_matrix(_off)
 
         return ub.width, ub.height, 0., 0.

@@ -32,7 +32,7 @@ often just set to 1 for an equal grid.
 Subplotspecs that are derived from this gridspec can contain either a
 ``SubPanel``, a ``GridSpecFromSubplotSpec``, or an axes.  The ``SubPanel`` and
 ``GridSpecFromSubplotSpec`` are dealt with recursively and each contain an
-analagous layout.
+analogous layout.
 
 Each ``GridSpec`` has a ``_layoutgrid`` attached to it.  The ``_layoutgrid``
 has the same logical layout as the ``GridSpec``.   Each row of the grid spec
@@ -460,8 +460,8 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
         if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
             continue
 
-        # grid bbox is in Figure co-ordinates, but we specify in panel
-        # co-ordinates...
+        # grid bbox is in Figure coordinates, but we specify in panel
+        # coordinates...
         ss = ax.get_subplotspec()
         gs = ss.get_gridspec()
         nrows, ncols = gs.get_geometry()

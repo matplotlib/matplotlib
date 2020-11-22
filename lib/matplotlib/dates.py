@@ -247,7 +247,7 @@ def set_epoch(epoch):
     If microsecond accuracy is desired, the date being plotted needs to be
     within approximately 70 years of the epoch. Matplotlib internally
     represents dates as days since the epoch, so floating point dynamic
-    range needs to be within a factor fo 2^52.
+    range needs to be within a factor of 2^52.
 
     `~.dates.set_epoch` must be called before any dates are converted
     (i.e. near the import section) or a RuntimeError will be raised.

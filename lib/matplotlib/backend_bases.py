@@ -259,7 +259,7 @@ class RendererBase:
                 antialiaseds, urls, offset_position):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
-            # resuse the inital transform.
+            # reuse the initial transform.
             if xo != 0 or yo != 0:
                 # The transformation can be used by multiple paths. Since
                 # translate is a inplace operation, we need to copy the
@@ -2602,7 +2602,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
                 _log.warning(str(exc))
                 ax.set_xscale('linear')
             ax.figure.canvas.draw_idle()
-    # enable nagivation for all axes that contain the event (default key 'a')
+    # enable navigation for all axes that contain the event (default key 'a')
     elif event.key in all_keys:
         for a in canvas.figure.get_axes():
             if (event.x is not None and event.y is not None

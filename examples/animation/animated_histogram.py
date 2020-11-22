@@ -23,7 +23,7 @@ n, _ = np.histogram(data, HIST_BINS)
 
 ###############################################################################
 # To animate the histogram, we need an ``animate`` function, which generates
-# a random set of numbers and updates the heights of rectanges. We utilize a
+# a random set of numbers and updates the heights of rectangles. We utilize a
 # python closure to track an instance of `.BarContainer` whose `.Rectangle`
 # patches we shall update.
 

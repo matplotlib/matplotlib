@@ -190,7 +190,7 @@ def test_table_cells():
     table[2, 1] = cell2
     assert table[2, 1] is cell2
 
-    # make sure gettitem support has not broken
+    # make sure getitem support has not broken
     # properties and setp
     table.properties()
     plt.setp(table)
