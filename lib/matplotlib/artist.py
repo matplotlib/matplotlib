@@ -113,7 +113,7 @@ class Artist:
         self._label = ''
         self._picker = None
         self._contains = None
-        self._rasterized = None
+        self._rasterized = False
         self._agg_filter = None
         # Normally, artist classes need to be queried for mouseover info if and
         # only if they override get_cursor_data.
@@ -898,7 +898,7 @@ class Artist:
 
         Parameters
         ----------
-        rasterized : bool or None
+        rasterized : bool
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
             cbook._warn_external(
