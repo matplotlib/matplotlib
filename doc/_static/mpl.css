@@ -339,6 +339,8 @@ h5 a.anchor:hover, h6 a.anchor:hover {
 table {
     border-collapse: collapse;
     margin: 0 -0.5em 0 -0.5em;
+    table-layout: auto;
+    width: 100%;
 }
 
 table td, table th {
