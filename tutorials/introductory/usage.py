@@ -18,7 +18,7 @@ import numpy as np
 #
 # Matplotlib graphs your data on `~.figure.Figure`\s (i.e., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes` (i.e., an
-# area where points can be specified in terms of x-y coordinates (or theta-r
+# area where points can be specified in terms of x-y coordinates, or theta-r
 # in a polar plot, or x-y-z in a 3D plot, etc.).  The simplest way of
 # creating a figure with an axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the axes:
