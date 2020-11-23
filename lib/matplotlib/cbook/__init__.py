@@ -2241,21 +2241,22 @@ def _check_isinstance(_types, **kwargs):
     >>> cbook._check_isinstance((SomeClass, None), arg=arg)
     """
     types = _types
-    if isinstance(types, type) or types is None:
-        types = (types,)
-    none_allowed = None in types
-    types = tuple(tp for tp in types if tp is not None)
+    none_type = type(None)
+    types = ((types,) if isinstance(types, type) else
+             (none_type,) if types is None else
+             tuple(none_type if tp is None else tp for tp in types))
 
     def type_name(tp):
-        return (tp.__qualname__ if tp.__module__ == "builtins"
+        return ("None" if tp is none_type
+                else tp.__qualname__ if tp.__module__ == "builtins"
                 else f"{tp.__module__}.{tp.__qualname__}")
 
-    names = [*map(type_name, types)]
-    if none_allowed:
-        types = (*types, type(None))
-        names.append("None")
     for k, v in kwargs.items():
         if not isinstance(v, types):
+            names = [*map(type_name, types)]
+            if "None" in names:  # Move it to the end for better wording.
+                names.remove("None")
+                names.append("None")
             raise TypeError(
                 "{!r} must be an instance of {}, not a {}".format(
                     k,
