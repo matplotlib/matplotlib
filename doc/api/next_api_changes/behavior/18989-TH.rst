@@ -1,0 +1,5 @@
+The Artist property *rasterized* cannot be *None* anymore
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It is now a bool only. Before the default was *None* and
+`.Artist.set_rasterized` documented to accept *None*. However, *None* did not
+have a special meaning and was treated as *False*.
