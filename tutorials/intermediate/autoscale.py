@@ -78,18 +78,18 @@ ax[1].set_title("margins(0.2)")
 fig, ax = plt.subplots(ncols=3, figsize=(16, 10))
 ax[0].imshow(zz)
 ax[0].margins(0.2)
-ax[0].set_title("use_sticky_edges unchanged\nmargins(0.2)")
+ax[0].set_title("default use_sticky_edges\nmargins(0.2)")
 ax[1].imshow(zz)
 ax[1].margins(0.2)
 ax[1].use_sticky_edges = False
 ax[1].set_title("use_sticky_edges=False\nmargins(0.2)")
 ax[2].imshow(zz)
 ax[2].margins(-0.2)
-ax[2].set_title("use_sticky_edges unchanged\nmargins(-0.2)")
+ax[2].set_title("default use_sticky_edges\nmargins(-0.2)")
 
 ###############################################################################
-# We can see that setting ``use_sticky_edges`` to *False* renders the image with
-# requested margins.
+# We can see that setting ``use_sticky_edges`` to *False* renders the image
+# with requested margins.
 #
 # While sticky edges don't increase the axis limits through extra margins,
 # negative margins are still taken into accout. This can be seen in
