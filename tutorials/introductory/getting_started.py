@@ -668,7 +668,7 @@ plt.show()
 #
 # In the unpacking process, numerous Axes can also be assigned to the single
 # variable. To reference a specific Axes, you can index the location of the
-# respective Axes as a matrix through the single variable.
+# respective Axes as a matrix through the single variable as well.
 #
 # .. note::
 #
