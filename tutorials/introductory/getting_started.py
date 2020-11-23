@@ -123,8 +123,6 @@ started with Matplotlib.
 # The Matplotlib community suggests using `IPython <https://ipython.org/>`_
 # through `Jupyter <https://jupyter.org/index.html>`_ as the primary
 # interactive environment.
-
-##############################################################################
 #
 # Plotting
 # ========
@@ -135,12 +133,16 @@ started with Matplotlib.
 # code.
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 ##############################################################################
 #
 # The ``pyplot`` module in Matplotlib is a collection of functions. The
 # module's functions create, manage, and manipulate the current Figure and the
 # plotting area.
+#
+# NumPy is a common scientific Python library that benefits users with
+# additional robust tools for manipulating data.
 #
 # Two Approaches for Creating Graphs
 # ----------------------------------
@@ -228,6 +230,7 @@ y3 = svg_acct_09
 
 fig, ax = plt.subplots()
 # Explicit Figure & Axes unpacked separately with module.
+# Conventional object abbreviations are `fig` and `ax`, respectively.
 
 ax.plot(x, y1, label='Checking Account')
 ax.plot(x, y2, label='Savings Account')
@@ -299,11 +302,11 @@ plt.show()
 #    The names and spelling for methods may be similar for both explicit and
 #    implicit approaches. Errors may occur when using the wrong corresponding
 #    method. Confirm with the documentation API of `~.axes.Axes` for explicit
-#    and mod:`matplotlib.pyplot` for implicit or other respective method
+#    and :mod:`matplotlib.pyplot` for implicit or other respective method
 #    names.
 #
-# Customizations
-# ==============
+# Configuration
+# =============
 #
 # There are two main parts to building a visualization with Matplotlib, the
 # ``Figure`` and the ``Axes``.
@@ -335,19 +338,200 @@ plt.show()
 # Figure can contain multiple Axes, but each Axes is specific to one
 # Figure.
 #
+# In a Figure, each Axes can contain any number of visual elements. An Axes may
+# have more than one type of visualization of data. From the `Plotting`_
+# section above, the Axes in both explicit and implicit strategies contain
+# multiple types of visualizations of data on a single Axes. Each of these
+# types are specific to the Axes they are in.
+#
 # Other Components
 # ^^^^^^^^^^^^^^^^
 #
 # :class:`~matplotlib.artist.Artist`
 #
-# Artists are the visible elements when the Figure is rendered. They
-# correspond to a specific Axes and cannot be shared or transferred.
+# Artists are broad Matplotlib objects that display visuals. These are the
+# visible elements when the Figure is rendered. They correspond to a specific
+# Axes and cannot be shared or transferred. In Matplotlib programming, all
+# objects for display are Artists.
 #
 # .. note::
 #
 #   Axes and Axis are not synonymous. Axis refers to
 #   :class:`~matplotlib.axis.Axis`.
 #
+# Manipulating Artists
+# --------------------
+#
+# With simple plots, Matplotlib automatically generates the basic elements of
+# a graph. Artists as objects allow for more control over the visual.
+#
+# Matplotlib generates additional visual elements as Artists in the form of
+# objects. As Artists, each has its own respective methods and functions.
+# Explicit and implicit approaches use different methods and are not
+# interchangeable.
+#
+# The table below compares common Artists and their different methods.
+#
+# +-----------------------+--------------------------+------------------------+
+# | Artist                | Explicit                 | Implicit               |
+# +=======================+==========================+========================+
+# | Visible elements from | Each specific Axes has   | The ``pyplot`` module  |
+# | rendered Figure.      | its own method for       | manages Artists based  |
+# |                       | artists.                 | on most recent Figure  |
+# |                       |                          | or Axes.               |
+# +-----------------------+--------------------------+------------------------+
+# | X-axis labels         | ``ax.set_xticks()``      | ``plt.xlabel()``       |
+# |                       | ``ax.set_xticklabels()`` |                        |
+# +-----------------------+--------------------------+------------------------+
+# | Y-axis labels         | ``x.set_yticks()``       | ``plt.ylabel()`        |
+# |                       | ``ax.set_yticklabels()`` |                        |
+# +-----------------------+--------------------------+------------------------+
+# | Title (Axes)          | ``ax.set_title()``       | ``plt.title()``        |
+# +-----------------------+--------------------------+------------------------+
+# | Legend (Axes)         | ``ax.legend()``          | ``plt.legend()``       |
+# +-----------------------+--------------------------+------------------------+
+#
+# .. note::
+#
+#     In explicit programming, ``ax`` refers to an assigned variable for a
+#     specific Axes. Also, axis labels require separate setting actions for
+#     each specific Axes.
+#
+#     In implicit programming, the ``pyplot`` module automatically manages
+#     separate setting actions for state-based Matplotlib objects.
+#
+#
+# Pie Chart Examples
+# ------------------
+#
+# Matplotlib pie charts create wedges based on data and manipulate the size of
+# the Artists based on the ratio of the slice to the sum of the data. The
+# ``.pie()`` method is similar for both explicit and implicit approaches.
+#
+# The code below illustrates various levels of configuration in keyword
+# arguments as well as Artist methods for both explicit and implicit
+# programming.
+#
+# See `matplotlib.axes.Axes.pie` and `matplotlib.pyplot.pie` for more
+# information about the APIs for explicit and implicit, respectively.
+
+# Data
+
+budget = [475, 300, 125, 50]
+# Data points are represented in wedge size compared to total sum.
+
+descriptions = ['Shared house in Philadelphia',
+                'Dog costs, phone, utilities',
+                'Groceries & takeout',
+                'Treasury bonds']
+categories = ['Rent', 'Bills', 'Food', 'Savings']
+# These lists of strings contribute to labeling corresponding to data.
+
+colors = ['#1f77b4', '#ff7f0e', '#d62728', '#2ca02c']
+# Hex color codes determine respective wedge color.
+
+explode = [0, 0.1, 0.15, 0.35]
+# Float list represents percentage of radius to separate from center.
+
+
+def autopct_format(percent, group):
+    """
+    Takes percent equivalent and calculates original value from data.
+    Returns fstring of value above percentage.
+    """
+    value = int(percent/100.*np.sum(group))
+    return f'${value:<4}\n{percent:1.1f}%'
+# This function is used as a lambda for formatting labels in wedges.
+
+##############################################################################
+#
+# The following two plots are identical. Both the explicit and implicit
+# approaches generate the exact same plot when using the same variables.
+#
+# Basic
+# ^^^^^
+
+# Explicit
+
+
+fig, ax = plt.subplots()
+
+ax.pie(budget, colors=colors, labels=categories)
+ax.legend()
+ax.set_title('Average Monthly Income Expenses')
+ax.axis('equal')
+
+plt.show()
+
+##############################################################################
+#
+#
+
+plt.pie(budget, colors=colors, labels=categories)
+plt.legend()
+plt.axis('equal')
+plt.title('Average Monthly Income Expenses')
+plt.show()
+
+##############################################################################
+#
+# .. note::
+#
+#   There are minor differences in the method names. Overall, each method
+#   performs the same action through the different approaches.
+#
+# Additional Configurations
+# ^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# Many methods contain optional keyword arguments for further configuration.
+# In the explicit example below, there are values and functions in keyword
+# arguments that format the Artists.
+
+fig, ax = plt.subplots()
+
+ax.pie(budget,
+       colors=colors,
+       explode=explode,
+       labels=categories,
+       autopct=lambda pct: autopct_format(pct, budget),
+       startangle=-80,
+       shadow=True)
+
+
+ax.legend()
+ax.axis('equal')
+ax.set_title('Average Monthly Income Expenses')
+plt.show()
+
+##############################################################################
+#
+#
+
+fig, ax = plt.subplots()
+
+wedges, texts, autotexts = ax.pie(budget, labels=descriptions,
+                                  colors=colors, explode=explode,
+                                  autopct='%d', startangle=45,
+                                  pctdistance=0.85, labeldistance=1.125,
+                                  wedgeprops=dict(width=0.3),
+                                  shadow=True)
+
+for text, value in zip(autotexts, budget):
+    text.set_text(f'${value}\n{text.get_text()}%')
+    text.set_fontweight('medium')
+
+ax.legend(wedges, categories, title='Categories',
+          bbox_to_anchor=(0.125, 0.5), loc='center right')
+ax.set_title('Average Monthly Income Expenses')
+ax.axis('equal')
+
+plt.show()
+
+##############################################################################
+#
+#
+# Customization
+# =============
 #
 # Multiple Graphs within a Figure
 # -------------------------------
