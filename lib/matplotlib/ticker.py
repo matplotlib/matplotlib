@@ -1660,7 +1660,7 @@ def _if_refresh_overridden_call_and_emit_deprec(locator):
             "%(removal)s.  You are using a third-party locator that overrides "
             "the refresh() method; this locator should instead perform any "
             "required processing in __call__().")
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         locator.refresh()
 
 

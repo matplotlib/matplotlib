@@ -384,7 +384,7 @@ class GlueSpec:
         return cls._types[glue_type]
 
 
-with cbook._suppress_matplotlib_deprecation_warning():
+with _api.suppress_matplotlib_deprecation_warning():
     GlueSpec._types = {k: GlueSpec(**v._asdict())
                        for k, v in _mathtext._GlueSpec._named.items()}
 

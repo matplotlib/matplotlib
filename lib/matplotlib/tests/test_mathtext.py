@@ -8,7 +8,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import cbook, mathtext
+from matplotlib import _api, mathtext
 
 
 # If test is removed, use None as placeholder
@@ -357,7 +357,7 @@ def test_math_to_image(tmpdir):
 
 
 def test_mathtext_to_png(tmpdir):
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         mt = mathtext.MathTextParser('bitmap')
         mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
         mt.to_png(io.BytesIO(), '$x^2$')

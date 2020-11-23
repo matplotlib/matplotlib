@@ -10,7 +10,7 @@ from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
@@ -125,7 +125,7 @@ def test_Bug_2543():
     # We filter warnings at this stage since a number of them are raised
     # for deprecated rcparams as they should. We don't want these in the
     # printed in the test suite.
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:
