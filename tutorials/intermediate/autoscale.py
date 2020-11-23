@@ -39,7 +39,7 @@ fig.show()
 
 ###############################################################################
 # In general, margins can be in the range (-0.5, ∞), where negative margins set
-# the axes limits to a fraction of the data range, and allow a zoom effect.
+# the axes limits to a subrange of the data range, i.e. they clip data.
 # Using a single number for margins affects both axes, a single margin can be
 # customized using keyword arguments ``x`` or ``y``, but positional and keyword
 # interface cannot be combined.
@@ -52,8 +52,9 @@ fig.show()
 ###############################################################################
 # Sticky edges
 # ------------
-# Some :class:`.Artist` objects do not allow margins.  For example, setting
-# ``margin=0.2`` on ``plt.imshow`` does not affect the resulting plot.
+# There are plot elements (`.Artist`\s) that are usually used without margins.
+# For example false-color images (e.g. created with `.Axes.imshow`) are not
+# considered in the margins calculation.
 #
 
 xx, yy = np.meshgrid(x, x)
@@ -61,7 +62,7 @@ zz = np.sinc(np.sqrt((xx - 1)**2 + (yy - 1)**2))
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
 ax[0].imshow(zz)
-ax[0].set_title("margins unchanged")
+ax[0].set_title("default margins")
 ax[1].imshow(zz)
 ax[1].margins(0.2)
 ax[1].set_title("margins(0.2)")
@@ -69,7 +70,7 @@ fig.show()
 
 ###############################################################################
 # This override of margins is determined by "sticky edges", a
-# property of :class:`.Artist` class that can suppress adding margins to axis
+# property of `.Artist` class that can suppress adding margins to axis
 # limits. The effect of sticky edges can be disabled on an Axes by changing
 # `~matplotlib.axes.Axes.use_sticky_edges`.
 # Artists have a property `.Artist.sticky_edges`, and the values of
@@ -92,19 +93,18 @@ ax[2].set_title("use_sticky_edges unchanged\nmargins(-0.2)")
 fig.show()
 
 ###############################################################################
-# We can see that setting ``use_sticky_edges`` to False renders the image with
-# requested margins. Additionally, as is stated, sticky edges count for adding
-# a margin, therefore negative margin is not affected by its state, rendering
-# the third image within narrower limits and without changing the
-# `~matplotlib.axes.Axes.use_sticky_edges` property.
+# We can see that setting ``use_sticky_edges`` to *False* renders the image with
+# requested margins.
+#
+# While sticky edges don't increase the axis limits through extra margins,
+# negative margins are still taken into accout. This can be seen in
+# the reduced limits of the third image.
 #
 # Controlling autoscale
 # ---------------------
 #
-# It is possible to disable autoscaling. By default, the limits are
-# recalculated every time you add a new curve to the plot (see next figure).
-# However, there are cases when you don't want to automatically adjust the
-# viewport to new data.
+# By default, the limits are
+# recalculated every time you add a new curve to the plot:
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
 ax[0].plot(x, y)
@@ -116,11 +116,14 @@ fig.show()
 
 
 ###############################################################################
-# One way to disable autoscaling is to manually setting the
+# However, there are cases when you don't want to automatically adjust the
+# viewport to new data.
+#
+# One way to disable autoscaling is to manually set the
 # axis limit. Let's say that we want to see only a part of the data in
 # greater detail. Setting the ``xlim`` persists even if we add more curves to
 # the data. To recalculate the new limits  calling `.Axes.autoscale` will
-# manually toggle the functionality.
+# toggle the functionality manually.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
 ax[0].plot(x, y)
