@@ -22,7 +22,7 @@ As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
 as `datetime.datetime` objects.
 
 If you prefer the pandas converters and locators, you can register them.  This
-is done automatically when calling a pandas plot function and may be
+is done automatically when calling a pandas plot function and maybe
 unnecessary when using pandas instead of Matplotlib directly. ::
 
   from pandas.plotting import register_matplotlib_converters
@@ -39,7 +39,7 @@ empty if it was rendered pure white (there may be artists present, but they
 could be outside the drawing area or transparent)?
 
 For the purpose here, we define empty as: "The figure does not contain any
-artists except it's background patch." The exception for the background is
+artists except for its background patch." The exception for the background is
 necessary, because by default every figure contains a `.Rectangle` as it's
 background patch. This definition could be checked via::
 
@@ -53,7 +53,7 @@ background patch. This definition could be checked via::
 
 We've decided not to include this as a figure method because this is only one
 way of defining empty, and checking the above is only rarely necessary.
-Usually the user or program handling the figure know if they have added
+Usually, the user or program handling the figure know if they have added
 something to the figure.
 
 Checking whether a figure would render empty cannot be reliably checked except
@@ -69,7 +69,7 @@ called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
 instances or match some arbitrary filter function).  For example, the
-following snippet finds every object in the figure which has a
+the following snippet finds every object in the figure which has a
 ``set_color`` property and makes the object blue::
 
     def myfunc(x):
@@ -106,13 +106,12 @@ Save transparent figures
 The :meth:`~matplotlib.pyplot.savefig` command has a keyword argument
 *transparent* which, if 'True', will make the figure and axes
 backgrounds transparent when saving, but will not affect the displayed
-image on the screen.
+the image on the screen.
 
-If you need finer grained control, e.g., you do not want full transparency
+If you need finer-grained control, e.g., you do not want full transparency
 or you want to affect the screen displayed version as well, you can set
-the alpha properties directly.  The figure has a
-:class:`~matplotlib.patches.Rectangle` instance called *patch*
-and the axes has a Rectangle instance called *patch*.  You can set
+the alpha properties directly.  The figure has a:class:`~matplotlib.patches.Rectangle` instance called *patch*
+and the axes have a Rectangle instance called *patch*.  You can set
 any property on them directly (*facecolor*, *edgecolor*, *linewidth*,
 *linestyle*, *alpha*).  e.g.::
 
@@ -135,8 +134,8 @@ Save multiple plots to one pdf file
 -----------------------------------
 
 Many image file formats can only have one image per file, but some
-formats support multi-page files. Currently only the pdf backend has
-support for this. To make a multi-page pdf file, first initialize the
+formats support multi-page files. Currently, only the pdf backend has
+support for this. To make a multi-page pdf file, first, initialize the
 file::
 
     from matplotlib.backends.backend_pdf import PdfPages
@@ -164,7 +163,7 @@ The same can be done using the pgf backend::
 
 .. _howto-subplots-adjust:
 
-Move the edge of an axes to make room for tick labels
+Move the edge of axes to make room for tick labels
 -----------------------------------------------------
 
 For subplots, you can control the default spacing on the left, right,
@@ -233,7 +232,7 @@ Automatically make room for tick labels
 In most use cases, it is enough to simply change the subplots adjust
 parameters as described in :ref:`howto-subplots-adjust`.  But in some
 cases, you don't know ahead of time what your tick labels will be, or
-how large they will be (data and labels outside your control may be
+how large they will be (data and labels outside your control maybe
 being fed into your graphing application), and you may need to
 automatically adjust your subplot parameters based on the size of the
 tick labels.  Any :class:`~matplotlib.text.Text` instance can report
@@ -245,7 +244,7 @@ used to calculate the text size, is not known until the figure is
 drawn (:meth:`~matplotlib.figure.Figure.draw`).  After the window is
 drawn and the text instance knows its renderer, you can call
 :meth:`~matplotlib.text.Text.get_window_extent`.  One way to solve
-this chicken and egg problem is to wait until the figure is draw by
+this chicken and egg problem is to wait until the figure is drawn by
 connecting
 (:meth:`~matplotlib.backend_bases.FigureCanvasBase.mpl_connect`) to the
 "on_draw" signal (:class:`~matplotlib.backend_bases.DrawEvent`) and
@@ -313,7 +312,7 @@ vertically across the multiple subplots, which can be unattractive.
 By default, Matplotlib positions the x location of the ylabel so that
 it does not overlap any of the y ticks.  You can override this default
 behavior by specifying the coordinates of the label.  The example
-below shows the default behavior in the left subplots, and the manual
+below shows the default behavior in the left subplots and the manual
 setting in the right subplots.
 
 .. figure:: ../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
@@ -330,8 +329,8 @@ Skip dates where there is no data
 
 When plotting time series, e.g., financial time series, one often wants to
 leave out days on which there is no data, e.g., weekends.  By passing in
-dates on the x-xaxis, you get large horizontal gaps on periods when there
-is not data. The solution is to pass in some proxy x-data, e.g., evenly
+dates on the x-axis, you get large horizontal gaps on periods when there
+is no data. The solution is to pass in some proxy x-data, e.g., evenly
 sampled indices, and then use a custom formatter to format these as dates.
 :doc:`/gallery/text_labels_and_annotations/date_index_formatter` demonstrates
 how to use an 'index formatter' to achieve the desired plot.
@@ -342,7 +341,7 @@ Control the depth of plot elements
 ----------------------------------
 
 
-Within an axes, the order that the various lines, markers, text,
+Within axes, the order that the various lines, markers, text,
 collections, etc appear is determined by the
 :meth:`~matplotlib.artist.Artist.set_zorder` property.  The default
 order is patches, lines, text, with collections of lines and
@@ -384,7 +383,7 @@ A frequent request is to have two scales for the left and right
 y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
 than two scales are not currently supported, though it is on the wish
 list).  This works pretty well, though there are some quirks when you
-are trying to interactively pan and zoom, because both scales do not get
+are trying to interactively pan and zoom because both scales do not get
 the signals.
 
 The approach uses :func:`~matplotlib.pyplot.twinx` (and its sister
@@ -442,10 +441,10 @@ Use :func:`~matplotlib.pyplot.show`
 -----------------------------------
 
 When you want to view your plots on your display,
-the user interface backend will need to start the GUI mainloop.
+the user interface backend will need to start the GUI main loop.
 This is what :func:`~matplotlib.pyplot.show` does.  It tells
 Matplotlib to raise all of the figure windows created so far and start
-the mainloop. Because this mainloop is blocking by default (i.e., script
+the main loop. Because this main loop is blocking by default (i.e., script
 execution is paused), you should only call this once per script, at the end.
 Script execution is resumed after the last window is closed. Therefore, if
 you are using Matplotlib to generate only images and do not want a user
@@ -454,8 +453,7 @@ and :ref:`what-is-a-backend`).
 
 .. note::
    Because closing a figure window unregisters it from pyplot, you must call
-   `~matplotlib.pyplot.savefig` *before* calling ``show`` if you wish to save
-   the figure as well as view it.
+   `~matplotlib.pyplot.savefig` *before* calling ``show`` if you wish to save the figure as well as view it.
 
 Whether ``show`` blocks further execution of the script or the python
 interpreter depends on whether Matplotlib is set to use interactive mode.
@@ -475,7 +473,7 @@ to redraw a figure many times in a script such as the following::
 
 However, it is *possible* to force Matplotlib to draw after every command,
 which might be what you want when working interactively at the
-python console (see :ref:`mpl-shell`), but in a script you want to
+python console (see :ref:`mpl-shell`), but in a script, you want to
 defer all drawing until the call to ``show``.  This is especially
 important for complex figures that take some time to draw.
 :func:`~matplotlib.pyplot.show` is designed to tell Matplotlib that
@@ -483,10 +481,8 @@ you're all done issuing commands and you want to draw the figure now.
 
 .. note::
 
-    :func:`~matplotlib.pyplot.show` should typically only be called at
-    most once per script and it should be the last line of your
-    script.  At that point, the GUI takes control of the interpreter.
-    If you want to force a figure draw, use
+    :func:`~matplotlib.pyplot.show` should typically only be called at most once per script and it should be the last line of your script.  At that point, the GUI takes control of the interpreter.
+    If you want to force a figure drawing, use
     :func:`~matplotlib.pyplot.draw` instead.
 
 .. versionadded:: v1.0.0
