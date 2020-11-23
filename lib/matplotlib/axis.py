@@ -1820,8 +1820,7 @@ class Axis(martist.Artist):
             kwargs.update(fontdict)
         return self.set_ticklabels(labels, minor=minor, **kwargs)
 
-    @cbook._make_keyword_only("3.2", "minor")
-    def set_ticks(self, ticks, minor=False):
+    def set_ticks(self, ticks, *, minor=False):
         """
         Set this Axis' tick locations.
 

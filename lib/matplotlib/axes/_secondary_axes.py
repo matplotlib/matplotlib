@@ -126,8 +126,7 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         super().apply_aspect(position)
 
-    @cbook._make_keyword_only("3.2", "minor")
-    def set_ticks(self, ticks, minor=False):
+    def set_ticks(self, ticks, *, minor=False):
         """
         Set the x ticks with list of *ticks*
 
