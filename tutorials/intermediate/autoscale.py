@@ -20,7 +20,6 @@ y = np.sinc(x)
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
-fig.show()
 
 ###############################################################################
 # Margins
@@ -35,7 +34,6 @@ ax.margins()
 fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.margins(0.2, 0.2)
-fig.show()
 
 ###############################################################################
 # In general, margins can be in the range (-0.5, ∞), where negative margins set
@@ -47,7 +45,6 @@ fig.show()
 fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.margins(y=-0.2)
-fig.show()
 
 ###############################################################################
 # Sticky edges
@@ -66,7 +63,6 @@ ax[0].set_title("default margins")
 ax[1].imshow(zz)
 ax[1].margins(0.2)
 ax[1].set_title("margins(0.2)")
-fig.show()
 
 ###############################################################################
 # This override of margins is determined by "sticky edges", a
@@ -90,7 +86,6 @@ ax[1].set_title("use_sticky_edges=False\nmargins(0.2)")
 ax[2].imshow(zz)
 ax[2].margins(-0.2)
 ax[2].set_title("use_sticky_edges unchanged\nmargins(-0.2)")
-fig.show()
 
 ###############################################################################
 # We can see that setting ``use_sticky_edges`` to *False* renders the image with
@@ -112,8 +107,6 @@ ax[0].set_title("Single curve")
 ax[1].plot(x, y)
 ax[1].plot(x * 2.0, y)
 ax[1].set_title("Two curves")
-fig.show()
-
 
 ###############################################################################
 # However, there are cases when you don't want to automatically adjust the
@@ -135,7 +128,6 @@ ax[1].set_xlim(left=-1, right=1)
 ax[1].plot(x + np.pi * 0.5, y)
 ax[1].autoscale()
 ax[1].set_title("set_xlim(left=-1, right=1)\nautoscale()")
-fig.show()
 
 ###############################################################################
 # We can check that the first plot has autoscale disabled and that the second
@@ -157,7 +149,7 @@ fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.margins(0.2, 0.2)
 ax.autoscale(enable=None, axis="x", tight=True)
-fig.show()
+
 print(ax.margins())
 
 ###############################################################################
@@ -178,4 +170,3 @@ collection = mpl.collections.StarPolygonCollection(
 )
 ax.add_collection(collection)
 ax.autoscale_view()
-fig.show()
