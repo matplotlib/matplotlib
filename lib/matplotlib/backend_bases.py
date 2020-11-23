@@ -924,19 +924,11 @@ class GraphicsContextBase:
         self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
-        """
-        Set the clip rectangle with sequence (left, bottom, width, height)
-        """
+        """Set the clip rectangle to a `.Bbox` or None."""
         self._cliprect = rectangle
 
     def set_clip_path(self, path):
-        """
-        Set the clip path and transformation.
-
-        Parameters
-        ----------
-        path : `~matplotlib.transforms.TransformedPath` or None
-        """
+        """Set the clip path to a `.TransformedPath` or None."""
         cbook._check_isinstance((transforms.TransformedPath, None), path=path)
         self._clippath = path
 
