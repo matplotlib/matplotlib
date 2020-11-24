@@ -1252,4 +1252,3 @@ def test_spy_box(fig_test, fig_ref):
         ax_ref[i].yaxis.set_major_locator(
             mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True)
         )
-        i += 1
