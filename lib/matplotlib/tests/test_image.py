@@ -1227,12 +1227,14 @@ def test_spy_box(fig_test, fig_ref):
     ax_test = fig_test.subplots(1, 3)
     ax_ref = fig_ref.subplots(1, 3)
 
-    i = 0
+    plot_data = (
+        [[1, 1], [1, 1]],
+        [[0, 0], [0, 0]],
+        [[0, 1], [1, 0]],
+    )
+    plot_titles = ["ones", "zeros", "mixed"]
 
-    plot_data = [[1, 1], [1, 1], ], [[0, 0], [0, 0], ], [[0, 1], [1, 0], ]
-
-    for z, title in zip((plot_data), ["ones", "zeros", "mixed"]):
-        print(i, z, title)
+    for i, (z, title) in enumerate(zip(plot_data, plot_titles)):
         ax_test[i].set_title(title)
         ax_test[i].spy(z)
         ax_ref[i].set_title(title)
