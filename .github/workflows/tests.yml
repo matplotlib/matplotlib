@@ -1,0 +1,161 @@
+name: Tests
+
+on:
+  push:
+    branches-ignore:
+      - auto-backport-of-pr-[0-9]+
+      - v[0-9]+.[0-9]+.[0-9x]+-doc
+
+env:
+  NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
+  OPENBLAS_NUM_THREADS: 1
+  PYTHONFAULTHANDLER: 1
+  XVFB_RUN: xvfb-run -a
+
+jobs:
+  test:
+    name: "Python ${{ matrix.python-version }} ${{ matrix.name-suffix }}"
+    runs-on: ubuntu-16.04
+
+    strategy:
+      matrix:
+        include:
+          - name-suffix: "(Minimum Versions)"
+            python-version: 3.7
+            extra-requirements: '-c requirements/testing/minver.txt'
+            delete-font-cache: true
+          - python-version: 3.7
+            extra-requirements: '-r requirements/testing/travis_extra.txt'
+          - python-version: 3.8
+            extra-requirements: '-r requirements/testing/travis_extra.txt'
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install OS dependencies
+        run: |
+          case "${{ runner.os }}" in
+          Linux)
+            sudo apt-get update -yy
+            sudo apt-get install -yy \
+              cm-super \
+              dvipng \
+              ffmpeg \
+              gdb \
+              gir1.2-gtk-3.0 \
+              graphviz \
+              inkscape \
+              lcov \
+              libcairo2 \
+              libcairo2-dev \
+              libffi-dev \
+              libgeos-dev \
+              libgirepository1.0-dev \
+              libsdl2-2.0-0 \
+              libxkbcommon-x11-0 \
+              libxcb-icccm4 \
+              libxcb-image0 \
+              libxcb-keysyms1 \
+              libxcb-randr0 \
+              libxcb-render-util0 \
+              libxcb-xinerama0 \
+              lmodern \
+              fonts-freefont-otf \
+              texlive-pictures \
+              pkg-config \
+              qtbase5-dev \
+              texlive-fonts-recommended \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-latex-recommended \
+              texlive-luatex \
+              texlive-xetex \
+              ttf-wqy-zenhei
+            ;;
+          macOS)
+            ci/osx-deps
+            ;;
+          esac
+
+      - name: Install Python dependencies
+        run: |
+          # Upgrade pip and setuptools and wheel to get as clean an install as
+          # possible.
+          python -mpip install --upgrade pip setuptools wheel
+
+          # Install dependencies from PyPI.
+          python -mpip install --upgrade $PRE \
+            -r requirements/testing/travis_all.txt \
+            ${{ matrix.extra-requirements }}
+
+          # Install optional dependencies from PyPI.
+          # Sphinx is needed to run sphinxext tests
+          python -mpip install --upgrade sphinx
+
+          # GUI toolkits are pip-installable only for some versions of Python
+          # so don't fail if we can't install them.  Make it easier to check
+          # whether the install was successful by trying to import the toolkit
+          # (sometimes, the install appears to be successful but shared
+          # libraries cannot be loaded at runtime, so an actual import is a
+          # better check).
+
+          # PyGObject, pycairo, and cariocffi do not install on OSX 10.12
+
+          # There are not functioning wheels available for OSX 10.12 (as of
+          # Sept 2020) for either pyqt5 (there are only wheels for 10.13+)
+          # or pyside2 (the latest version (5.13.2) with 10.12 wheels has a
+          # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+             python -mpip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+               python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+               echo 'PyGObject is available' ||
+               echo 'PyGObject is not available'
+             python -mpip install --upgrade pyqt5 &&
+               python -c 'import PyQt5.QtCore' &&
+               echo 'PyQt5 is available' ||
+               echo 'PyQt5 is not available'
+             python -mpip install --upgrade pyside2 &&
+               python -c 'import PySide2.QtCore' &&
+               echo 'PySide2 is available' ||
+               echo 'PySide2 is not available'
+          fi
+          python -mpip install --upgrade \
+            -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04 \
+            wxPython &&
+            python -c 'import wx' &&
+            echo 'wxPython is available' ||
+            echo 'wxPython is not available'
+
+      - name: Install Matplotlib
+        run: |
+          git describe
+
+          # Set flag in a delayed manner to avoid issues with installing other
+          # packages
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+            export CPPFLAGS=--coverage
+          fi
+
+          python -mpip install -e .
+
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+            unset CPPFLAGS
+          fi
+
+      - name: Clear font cache
+        run: |
+          rm -rf ~/.cache/matplotlib
+        if: matrix.delete-font-cache
+
+      - name: Run pytest
+        run: |
+          ${{ matrix.XVFB_RUN }} python -mpytest -raR -n auto \
+            --maxfail=50 --timeout=300 --durations=25 \
+            --cov-report= --cov=lib --log-level=DEBUG
