@@ -55,33 +55,33 @@ make_axes_kw_doc = '''
 
 colormap_kw_doc = '''
 
-    ===========   ====================================================
-    Property      Description
-    ===========   ====================================================
-    *extend*      [ 'neither' | 'both' | 'min' | 'max' ]
-                  If not 'neither', make pointed end(s) for out-of-
-                  range values.  These are set for a given colormap
-                  using the colormap set_under and set_over methods.
-    *spacing*     [ 'uniform' | 'proportional' ]
-                  Uniform spacing gives each discrete color the same
-                  space; proportional makes the space proportional to
-                  the data interval.
-    *ticks*       [ None | list of ticks | Locator object ]
-                  If None, ticks are determined automatically from the
-                  input.
-    *ticklabels*  sequence of str
-                  List of texts for tick labels; must include values
-                  for non-visible labels.
-    *format*      [ None | format string | Formatter object ]
-                  If None, the
-                  :class:`~matplotlib.ticker.ScalarFormatter` is used.
-                  If a format string is given, e.g., '%.3f', that is
-                  used. An alternative
-                  :class:`~matplotlib.ticker.Formatter` object may be
-                  given instead.
-    *drawedges*   bool
-                  Whether to draw lines at color boundaries.
-    ===========   ====================================================
+    ============   ====================================================
+    Property       Description
+    ============   ====================================================
+    *extend*       [ 'neither' | 'both' | 'min' | 'max' ]
+                   If not 'neither', make pointed end(s) for out-of-
+                   range values.  These are set for a given colormap
+                   using the colormap set_under and set_over methods.
+    *spacing*      [ 'uniform' | 'proportional' ]
+                   Uniform spacing gives each discrete color the same
+                   space; proportional makes the space proportional to
+                   the data interval.
+    *ticks*        [ None | list of ticks | Locator object ]
+                   If None, ticks are determined automatically from the
+                   input.
+    *ticklabels*   sequence of str
+                   List of texts for tick labels; must include values
+                   for non-visible labels.
+    *format*       [ None | format string | Formatter object ]
+                   If None, the
+                   :class:`~matplotlib.ticker.ScalarFormatter` is used.
+                   If a format string is given, e.g., '%.3f', that is
+                   used. An alternative
+                   :class:`~matplotlib.ticker.Formatter` object may be
+                   given instead.
+    *drawedges*    bool
+                   Whether to draw lines at color boundaries.
+    ============   ====================================================
 
     The following will probably be useful only in the context of
     indexed colors (that is, when the mappable has norm=NoNorm()),
