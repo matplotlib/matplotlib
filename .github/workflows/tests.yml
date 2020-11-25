@@ -159,3 +159,6 @@ jobs:
           ${{ matrix.XVFB_RUN }} python -mpytest -raR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report= --cov=lib --log-level=DEBUG
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v1
