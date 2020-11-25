@@ -792,9 +792,6 @@ class FigureCanvasPgf(FigureCanvasBase):
 %% Make sure the required packages are loaded in your preamble
 %%   \\usepackage{pgf}
 %%
-%% and on luatex and xetex
-%%   \\usepackage{unicode-math}
-%%
 %% Figures using additional raster images can only be included by \\input if
 %% they are in the same directory as the main LaTeX file. For loading figures
 %% from other directories you can use the `import` package
