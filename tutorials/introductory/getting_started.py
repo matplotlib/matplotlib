@@ -92,24 +92,8 @@ started with Matplotlib.
 # library. Install Matplotlib for your own development environment manually or
 # use a third-party package distribution.
 #
-# Third-party package distributions, such as
-# `Anaconda <https://www.anaconda.com/>`_,
-# `ActiveState <https://www.activestate.com/activepython/downloads>`_,
-# or `WinPython <https://winpython.github.io/>`_,
-# already provide Matplotlib and its dependencies. They have the added benefit
-# of including other scientific Python libraries as well. These packages work
-# as is and do not require additional installations.
-#
-# Installation from source
-# ------------------------
-#
-# In order to install Matplotlib from the source directory, run the
-# following command line executions using Python and installer program ``pip``
-# for the latest version of Matplotlib and its dependencies. This compiles
-# the library from the current directory on your machine. Depending on your
-# operating system, you may need additional support.
-#
-# ``python -m pip install matplotlib``
+# The :ref:`installation-guide` contains more information about install
+# methods and resources for third-party package distributions.
 #
 # .. seealso::
 #
@@ -742,25 +726,29 @@ plt.show()
 
 def my_plotter(ax, data1, data2, param_dict):
     """
+    Helper function to make a graph.
+
     Parameters
     ----------
-    :param ax: Axes
-    :param data1: array of X data
-    :param data2: array of Y data
-    :param param_dict: Dictionary of keyword arguments to pass to method
+    ax : Axes
+        Specific Axes to graph data to
+    data1 : array
+        X data
+    data2 : array
+        Y data
+    param_dict : dict()
+        Dictionary of keyword arguments passes to method
 
     Returns
     -------
-    :returns: out : list of artists added
+    out : list
+        List of Artists added
     """
     out = ax.plot(data1, data2, **param_dict)
-    # Note: Other methods from Axes class are also applicable.
     return out
 
 ##############################################################################
 #
-# .. currentmodule:: getting_started
-# .. autofunction:: my_plotter
 #
 # Additional Resources
 # ====================
