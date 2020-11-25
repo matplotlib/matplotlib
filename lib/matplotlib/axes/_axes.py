@@ -3868,23 +3868,20 @@ class Axes(_AxesBase):
             d['zorder'] = zorder + zdelta
             if not use_marker:
                 d['marker'] = ''
-            if explicit is not None:
-                d.update(cbook.normalize_kwargs(explicit, mlines.Line2D))
+            d.update(cbook.normalize_kwargs(explicit, mlines.Line2D))
             return d
 
         # box properties
         if patch_artist:
-            final_boxprops = dict(
-                linestyle=rcParams['boxplot.boxprops.linestyle'],
-                linewidth=rcParams['boxplot.boxprops.linewidth'],
-                edgecolor=rcParams['boxplot.boxprops.color'],
-                facecolor=('white' if rcParams['_internal.classic_mode'] else
-                           rcParams['patch.facecolor']),
-                zorder=zorder,
-            )
-            if boxprops is not None:
-                final_boxprops.update(
-                    cbook.normalize_kwargs(boxprops, mpatches.PathPatch))
+            final_boxprops = {
+                'linestyle': rcParams['boxplot.boxprops.linestyle'],
+                'linewidth': rcParams['boxplot.boxprops.linewidth'],
+                'edgecolor': rcParams['boxplot.boxprops.color'],
+                'facecolor': ('white' if rcParams['_internal.classic_mode']
+                              else rcParams['patch.facecolor']),
+                'zorder': zorder,
+                **cbook.normalize_kwargs(boxprops, mpatches.PathPatch)
+            }
         else:
             final_boxprops = line_props_with_rcdefaults('boxprops', boxprops,
                                                         use_marker=False)

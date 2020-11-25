@@ -1826,11 +1826,10 @@ class ToolHandles:
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
         self.ax = ax
-        props = dict(marker=marker, markersize=7, markerfacecolor='w',
-                     linestyle='none', alpha=0.5, visible=False,
-                     label='_nolegend_')
-        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
-                     if marker_props is not None else {})
+        props = {'marker': marker, 'markersize': 7, 'markerfacecolor': 'w',
+                 'linestyle': 'none', 'alpha': 0.5, 'visible': False,
+                 'label': '_nolegend_',
+                 **cbook.normalize_kwargs(marker_props, Line2D._alias_map)}
         self._markers = Line2D(x, y, animated=useblit, **props)
         self.ax.add_line(self._markers)
         self.artist = self._markers
@@ -2000,8 +1999,7 @@ class RectangleSelector(_SelectorWidget):
             props = dict(markeredgecolor='r')
         else:
             props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
-        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map)
-                     if marker_props is not None else {})
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map))
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,

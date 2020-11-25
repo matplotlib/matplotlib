@@ -1714,8 +1714,10 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
 
     Parameters
     ----------
-    kw : dict
-        A dict of keyword arguments.
+    kw : dict or None
+        A dict of keyword arguments.  None is explicitly supported and treated
+        as an empty dict, to support functions with an optional parameter of
+        the form ``props=None``.
 
     alias_mapping : dict or Artist subclass or Artist instance, optional
         A mapping between a canonical name to a list of
@@ -1746,6 +1748,9 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         a callable.
     """
     from matplotlib.artist import Artist
+
+    if kw is None:
+        return {}
 
     # deal with default value of alias_mapping
     if alias_mapping is None:

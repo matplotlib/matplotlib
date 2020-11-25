@@ -309,6 +309,7 @@ fail_mapping = (
 )
 
 pass_mapping = (
+    (None, {}, {}),
     ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
     ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
     ({'b': 2}, {'a': 2},
