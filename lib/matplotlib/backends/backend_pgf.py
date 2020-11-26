@@ -846,7 +846,8 @@ class FigureCanvasPgf(FigureCanvasBase):
                 file = codecs.getwriter("utf-8")(file)
             self._print_pgf_to_fh(file, *args, **kwargs)
 
-    def _print_pdf_to_fh(self, fh, *args, metadata=None, **kwargs):
+    def print_pdf(self, fname_or_fh, *args, metadata=None, **kwargs):
+        """Use LaTeX to compile a pgf generated figure to pdf."""
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
         info_dict = _create_pdf_info_dict('pgf', metadata or {})
@@ -879,15 +880,12 @@ class FigureCanvasPgf(FigureCanvasBase):
                 [texcommand, "-interaction=nonstopmode", "-halt-on-error",
                  "figure.tex"], _log, cwd=tmpdir)
 
-            with (tmppath / "figure.pdf").open("rb") as fh_src:
-                shutil.copyfileobj(fh_src, fh)  # copy file contents to target
+            with (tmppath / "figure.pdf").open("rb") as orig, \
+                 cbook.open_file_cm(fname_or_fh, "wb") as dest:
+                shutil.copyfileobj(orig, dest)  # copy file contents to target
 
-    def print_pdf(self, fname_or_fh, *args, **kwargs):
-        """Use LaTeX to compile a Pgf generated figure to PDF."""
-        with cbook.open_file_cm(fname_or_fh, "wb") as file:
-            self._print_pdf_to_fh(file, *args, **kwargs)
-
-    def _print_png_to_fh(self, fh, *args, **kwargs):
+    def print_png(self, fname_or_fh, *args, **kwargs):
+        """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
         converter = make_pdf_to_png_converter()
         with TemporaryDirectory() as tmpdir:
             tmppath = pathlib.Path(tmpdir)
@@ -895,13 +893,9 @@ class FigureCanvasPgf(FigureCanvasBase):
             png_path = tmppath / "figure.png"
             self.print_pdf(pdf_path, *args, **kwargs)
             converter(pdf_path, png_path, dpi=self.figure.dpi)
-            with png_path.open("rb") as fh_src:
-                shutil.copyfileobj(fh_src, fh)  # copy file contents to target
-
-    def print_png(self, fname_or_fh, *args, **kwargs):
-        """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
-        with cbook.open_file_cm(fname_or_fh, "wb") as file:
-            self._print_png_to_fh(file, *args, **kwargs)
+            with png_path.open("rb") as orig, \
+                 cbook.open_file_cm(fname_or_fh, "wb") as dest:
+                shutil.copyfileobj(orig, dest)  # copy file contents to target
 
     def get_renderer(self):
         return RendererPgf(self.figure, None)
