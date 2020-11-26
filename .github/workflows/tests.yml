@@ -10,24 +10,32 @@ env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
   OPENBLAS_NUM_THREADS: 1
   PYTHONFAULTHANDLER: 1
-  XVFB_RUN: xvfb-run -a
 
 jobs:
   test:
-    name: "Python ${{ matrix.python-version }} ${{ matrix.name-suffix }}"
-    runs-on: ubuntu-16.04
+    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         include:
           - name-suffix: "(Minimum Versions)"
+            os: ubuntu-16.04
             python-version: 3.7
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
-          - python-version: 3.7
+            XVFB_RUN: xvfb-run -a
+          - os: ubuntu-16.04
+            python-version: 3.7
             extra-requirements: '-r requirements/testing/travis_extra.txt'
-          - python-version: 3.8
+            XVFB_RUN: xvfb-run -a
+          - os: ubuntu-16.04
+            python-version: 3.8
             extra-requirements: '-r requirements/testing/travis_extra.txt'
+            XVFB_RUN: xvfb-run -a
+          - os: macos-latest
+            python-version: 3.8
+            XVFB_RUN: ""
 
     steps:
       - uses: actions/checkout@v2
@@ -80,7 +88,7 @@ jobs:
               ttf-wqy-zenhei
             ;;
           macOS)
-            ci/osx-deps
+            true
             ;;
           esac
 
