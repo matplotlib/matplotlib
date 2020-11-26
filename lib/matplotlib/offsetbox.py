@@ -367,9 +367,8 @@ class OffsetBox(martist.Artist):
 
 class PackerBase(OffsetBox):
     def __init__(self, pad=None, sep=None, width=None, height=None,
-                 align=None, mode=None,
-                 children=None):
-        r"""
+                 align="baseline", mode="fixed", children=None):
+        """
         Parameters
         ----------
         pad : float, optional
@@ -382,13 +381,14 @@ class PackerBase(OffsetBox):
             Width and height of the container box in pixels, calculated if
             *None*.
 
-        align : {'top', 'bottom', 'left', 'right', 'center', 'baseline'}
+        align : {'top', 'bottom', 'left', 'right', 'center', 'baseline'}, \
+default: 'baseline'
             Alignment of boxes.
 
-        mode : {'fixed', 'expand', 'equal'}
+        mode : {'fixed', 'expand', 'equal'}, default: 'fixed'
             The packing mode.
 
-            - 'fixed' packs the given `.Artist`\s tight with *sep* spacing.
+            - 'fixed' packs the given `.Artist`\\s tight with *sep* spacing.
             - 'expand' uses the maximal available space to distribute the
               artists with equal spacing in between.
             - 'equal': Each artist an equal fraction of the available space
@@ -403,59 +403,20 @@ class PackerBase(OffsetBox):
         dpi, while *width* and *height* are in in pixels.
         """
         super().__init__()
-
         self.height = height
         self.width = width
         self.sep = sep
         self.pad = pad
         self.mode = mode
         self.align = align
-
         self._children = children
 
 
 class VPacker(PackerBase):
     """
-    The VPacker has its children packed vertically. It automatically
-    adjusts the relative positions of children at drawing time.
+    VPacker packs its children vertically, automatically adjusting their
+    relative positions at draw time.
     """
-    def __init__(self, pad=None, sep=None, width=None, height=None,
-                 align="baseline", mode="fixed",
-                 children=None):
-        r"""
-        Parameters
-        ----------
-        pad : float, optional
-            The boundary padding in points.
-
-        sep : float, optional
-            The spacing between items in points.
-
-        width, height : float, optional
-            Width and height of the container box in pixels, calculated if
-            *None*.
-
-        align : {'top', 'bottom', 'left', 'right', 'center', 'baseline'}
-            Alignment of boxes.
-
-        mode : {'fixed', 'expand', 'equal'}
-            The packing mode.
-
-            - 'fixed' packs the given `.Artist`\s tight with *sep* spacing.
-            - 'expand' uses the maximal available space to distribute the
-              artists with equal spacing in between.
-            - 'equal': Each artist an equal fraction of the available space
-              and is left-aligned (or top-aligned) therein.
-
-        children : list of `.Artist`
-            The artists to pack.
-
-        Notes
-        -----
-        *pad* and *sep* are in points and will be scaled with the renderer
-        dpi, while *width* and *height* are in in pixels.
-        """
-        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         # docstring inherited
@@ -494,46 +455,9 @@ class VPacker(PackerBase):
 
 class HPacker(PackerBase):
     """
-    The HPacker has its children packed horizontally. It automatically
-    adjusts the relative positions of children at draw time.
+    HPacker packs its children horizontally, automatically adjusting their
+    relative positions at draw time.
     """
-    def __init__(self, pad=None, sep=None, width=None, height=None,
-                 align="baseline", mode="fixed",
-                 children=None):
-        r"""
-        Parameters
-        ----------
-        pad : float, optional
-            The boundary padding in points.
-
-        sep : float, optional
-            The spacing between items in points.
-
-        width, height : float, optional
-            Width and height of the container box in pixels, calculated if
-            *None*.
-
-        align : {'top', 'bottom', 'left', 'right', 'center', 'baseline'}
-            Alignment of boxes.
-
-        mode : {'fixed', 'expand', 'equal'}
-            The packing mode.
-
-            - 'fixed' packs the given `.Artist`\s tight with *sep* spacing.
-            - 'expand' uses the maximal available space to distribute the
-              artists with equal spacing in between.
-            - 'equal': Each artist an equal fraction of the available space
-              and is left-aligned (or top-aligned) therein.
-
-        children : list of `.Artist`
-            The artists to pack.
-
-        Notes
-        -----
-        *pad* and *sep* are in points and will be scaled with the renderer
-        dpi, while *width* and *height* are in in pixels.
-        """
-        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         # docstring inherited
