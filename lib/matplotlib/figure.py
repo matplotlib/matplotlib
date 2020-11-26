@@ -887,6 +887,9 @@ default: 'top'
             first column subplot are created. To later turn other subplots'
             ticklabels on, use `~matplotlib.axes.Axes.tick_params`.
 
+            When subplots have a shared axis that has units, calling
+            `.Axis.set_units` will update each axis with the new units.
+
         squeeze : bool, default: True
             - If True, extra dimensions are squeezed out from the returned
               array of Axes:
