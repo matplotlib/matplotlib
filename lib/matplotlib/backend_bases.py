@@ -2714,11 +2714,9 @@ class FigureManagerBase:
         self.button_press_handler_id = None
         if rcParams['toolbar'] != 'toolmanager':
             self.key_press_handler_id = self.canvas.mpl_connect(
-                'key_press_event',
-                self.key_press)
+                'key_press_event', key_press_handler)
             self.button_press_handler_id = self.canvas.mpl_connect(
-                'button_press_event',
-                self.button_press)
+                'button_press_event', button_press_handler)
 
         self.toolmanager = (ToolManager(canvas.figure)
                             if mpl.rcParams['toolbar'] == 'toolmanager'
@@ -2758,6 +2756,8 @@ class FigureManagerBase:
     def resize(self, w, h):
         """For GUI backends, resize the window (in pixels)."""
 
+    @_api.deprecated(
+        "3.4", alternative="self.canvas.callbacks.process(event.name, event)")
     def key_press(self, event):
         """
         Implement the default Matplotlib key bindings defined at
@@ -2766,6 +2766,8 @@ class FigureManagerBase:
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event)
 
+    @_api.deprecated(
+        "3.4", alternative="self.canvas.callbacks.process(event.name, event)")
     def button_press(self, event):
         """The default Matplotlib button actions for extra mouse buttons."""
         if rcParams['toolbar'] != 'toolmanager':
