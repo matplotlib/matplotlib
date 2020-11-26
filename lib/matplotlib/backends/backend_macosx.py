@@ -10,34 +10,18 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 
-########################################################################
-#
-# The following functions and classes are for pylab and implement
-# window/figure managers, etc...
-#
-########################################################################
-
-
 class TimerMac(_macosx.Timer, TimerBase):
     """Subclass of `.TimerBase` using CFRunLoop timer events."""
     # completely implemented at the C-level (in _macosx.Timer)
 
 
 class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
-    """
-    The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc...
+    # docstring inherited
 
-    Events such as button presses, mouse movements, and key presses
-    are handled in the C code and the base class methods
-    button_press_event, button_release_event, motion_notify_event,
-    key_press_event, and key_release_event are called from there.
-
-    Attributes
-    ----------
-    figure : `matplotlib.figure.Figure`
-        A high-level Figure instance
-    """
+    # Events such as button presses, mouse movements, and key presses
+    # are handled in the C code and the base class methods
+    # button_press_event, button_release_event, motion_notify_event,
+    # key_press_event, and key_release_event are called from there.
 
     required_interactive_framework = "macosx"
     _timer_cls = TimerMac
@@ -146,12 +130,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def set_message(self, message):
         _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
 
-
-########################################################################
-#
-# Now just provide the standard names that backend.__init__ is expecting
-#
-########################################################################
 
 @_Backend.export
 class _BackendMac(_Backend):
