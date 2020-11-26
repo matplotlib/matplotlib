@@ -2692,15 +2692,7 @@ class PdfPages:
 
 
 class FigureCanvasPdf(FigureCanvasBase):
-    """
-    The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc...
-
-    Attributes
-    ----------
-    figure : `matplotlib.figure.Figure`
-        A high-level Figure instance
-    """
+    # docstring inherited
 
     fixed_dpi = 72
     filetypes = {'pdf': 'Portable Document Format'}
