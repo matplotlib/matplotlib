@@ -703,7 +703,7 @@ class TextArea(OffsetBox):
     @cbook._delete_parameter("3.4", "minimumdescent")
     def __init__(self, s,
                  textprops=None,
-                 multilinebaseline=None,
+                 multilinebaseline=False,
                  minimumdescent=True,
                  ):
         """
@@ -711,22 +711,18 @@ class TextArea(OffsetBox):
         ----------
         s : str
             The text to be displayed.
-
-        textprops : dict, optional
-            Dictionary of keyword parameters to be passed to the
-            `~matplotlib.text.Text` instance contained inside TextArea.
-
-        multilinebaseline : bool, optional
-            If `True`, baseline for multiline text is adjusted so that it is
-            (approximately) center-aligned with singleline text.
-
+        textprops : dict, default: {}
+            Dictionary of keyword parameters to be passed to the `.Text`
+            instance in the TextArea.
+        multilinebaseline : bool, default: False
+            Whether the baseline for multiline text is adjusted so that it
+            is (approximately) center-aligned with single-line text.
         minimumdescent : bool, default: True
             If `True`, the box has a minimum descent of "p".  This is now
             effectively always True.
         """
         if textprops is None:
             textprops = {}
-        textprops.setdefault("va", "baseline")
         self._text = mtext.Text(0, 0, s, **textprops)
         super().__init__()
         self._children = [self._text]
@@ -750,8 +746,10 @@ class TextArea(OffsetBox):
         """
         Set multilinebaseline.
 
-        If True, baseline for multiline text is adjusted so that it is
-        (approximately) center-aligned with single-line text.
+        If True, the baseline for multiline text is adjusted so that it is
+        (approximately) center-aligned with single-line text.  This is used
+        e.g. by the legend implementation so that single-line labels are
+        baseline-aligned, but multiline labels are "center"-aligned with them.
         """
         self._multilinebaseline = t
         self.stale = True
