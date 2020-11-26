@@ -2365,8 +2365,8 @@ class Parser:
     }
 
     def space(self, s, loc, toks):
-        assert len(toks) == 1
-        num = self._space_widths[toks[0]]
+        tok, = toks
+        num = self._space_widths[tok]
         box = self._make_space(num)
         return [box]
 
@@ -2374,7 +2374,7 @@ class Parser:
         return [self._make_space(float(toks[0]))]
 
     def symbol(self, s, loc, toks):
-        c = toks[0]
+        c, = toks
         try:
             char = Char(c, self.get_state())
         except ValueError as err:
@@ -2414,7 +2414,7 @@ class Parser:
     accentprefixed = symbol
 
     def unknown_symbol(self, s, loc, toks):
-        c = toks[0]
+        c, = toks
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
     _char_over_chars = {
@@ -2425,7 +2425,7 @@ class Parser:
     }
 
     def c_over_c(self, s, loc, toks):
-        sym = toks[0]
+        sym, = toks
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -2491,13 +2491,10 @@ class Parser:
     ])(set(_accent_map))
 
     def accent(self, s, loc, toks):
-        assert len(toks) == 1
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        if len(toks[0]) != 2:
-            raise ParseFatalException("Error parsing accent")
-        accent, sym = toks[0]
+        (accent, sym), = toks
         if accent in self._wide_accents:
             accent_box = AutoWidthChar(
                 '\\' + accent, sym.width, state, char_class=Accent)
@@ -2516,7 +2513,7 @@ class Parser:
 
     def function(self, s, loc, toks):
         hlist = self.operatorname(s, loc, toks)
-        hlist.function_name = toks[0]
+        hlist.function_name, = toks
         return hlist
 
     def operatorname(self, s, loc, toks):
@@ -2564,8 +2561,7 @@ class Parser:
         return []
 
     def font(self, s, loc, toks):
-        assert len(toks) == 1
-        name = toks[0]
+        name, = toks
         self.get_state().font = name
         return []
 
@@ -2821,45 +2817,32 @@ class Parser:
         return result
 
     def genfrac(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 6
-
-        return self._genfrac(*tuple(toks[0]))
+        args, = toks
+        return self._genfrac(*args)
 
     def frac(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
         state = self.get_state()
-
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        num, den = toks[0]
-
+        (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.TEXTSTYLE,
                              num, den)
 
     def dfrac(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
         state = self.get_state()
-
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        num, den = toks[0]
-
+        (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.DISPLAYSTYLE,
                              num, den)
 
     def binom(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-        num, den = toks[0]
-
+        (num, den), = toks
         return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
                              num, den)
 
     def sqrt(self, s, loc, toks):
-        root, body = toks[0]
+        (root, body), = toks
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -2899,10 +2882,7 @@ class Parser:
         return [hlist]
 
     def overline(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 1
-
-        body = toks[0][0]
+        (body,), = toks
 
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
