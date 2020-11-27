@@ -123,11 +123,11 @@ def test_polar_box():
     ax1.axis["lat"] = axis = grid_helper.new_floating_axis(0, 45, axes=ax1)
     axis.label.set_text("Test")
     axis.label.set_visible(True)
-    axis.get_helper()._extremes = 2, 12
+    axis.get_helper().set_extremes(2, 12)
 
     ax1.axis["lon"] = axis = grid_helper.new_floating_axis(1, 6, axes=ax1)
     axis.label.set_text("Test 2")
-    axis.get_helper()._extremes = -180, 90
+    axis.get_helper().set_extremes(-180, 90)
 
     # A parasite axes with given transform
     ax2 = ParasiteAxes(ax1, tr, viewlim_mode="equal")
@@ -186,20 +186,20 @@ def test_axis_direction():
         axes=ax1, axis_direction="left")
     axis.label.set_text("Test")
     axis.label.set_visible(True)
-    axis.get_helper()._extremes = 0.001, 10
+    axis.get_helper().set_extremes(0.001, 10)
 
     ax1.axis["lat2"] = axis = grid_helper.new_floating_axis(
         0, 50,
         axes=ax1, axis_direction="right")
     axis.label.set_text("Test")
     axis.label.set_visible(True)
-    axis.get_helper()._extremes = 0.001, 10
+    axis.get_helper().set_extremes(0.001, 10)
 
     ax1.axis["lon"] = axis = grid_helper.new_floating_axis(
         1, 10,
         axes=ax1, axis_direction="bottom")
     axis.label.set_text("Test 2")
-    axis.get_helper()._extremes = 50, 130
+    axis.get_helper().set_extremes(50, 130)
     axis.major_ticklabels.set_axis_direction("top")
     axis.label.set_axis_direction("top")
 
