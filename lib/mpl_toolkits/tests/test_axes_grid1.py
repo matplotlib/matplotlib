@@ -3,7 +3,7 @@ import platform
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
@@ -409,8 +409,9 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     # In each case we expect that both rectangles are picked if we click on the
     # small one and only the big one is picked if we click on the big one.
     # Also tests picking on normal axes ("gca") as a control.
-    big = plt.Rectangle((0.25, 0.25), 0.5, 0.5, picker=5)
-    small = plt.Rectangle((0.4, 0.4), 0.2, 0.2, facecolor="r", picker=5)
+    big = plt.Rectangle((0.25, 0.25), 0.5, 0.5, picker=True, pickradius=5)
+    with _api.suppress_matplotlib_deprecation_warning():
+        small = plt.Rectangle((0.4, 0.4), 0.2, 0.2, facecolor="r", picker=5)
     # Machinery for "receiving" events
     received_events = []
     def on_pick(event):

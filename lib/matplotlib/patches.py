@@ -94,6 +94,7 @@ class Patch(artist.Artist):
         # unscaled dashes.  Needed to scale dash patterns by lw
         self._us_dashes = None
         self._linewidth = 0
+        self._pickradius = None
 
         self.set_fill(fill)
         self.set_linestyle(linestyle)
@@ -102,9 +103,7 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
-
-        if len(kwargs):
-            self.update(kwargs)
+        self.update(kwargs)
 
     def get_verts(self):
         """
@@ -120,17 +119,52 @@ class Patch(artist.Artist):
             return polygons[0]
         return []
 
+    def set_picker(self, p):
+        # docstring inherited
+        # After deprecation, the whole method can be deleted and inherited.
+        if isinstance(p, Number) and not isinstance(p, bool):
+            cbook.warn_deprecated(
+                "3.4", message="Setting the collections's pick radius via "
+                "set_picker is deprecated since %(since)s and will be removed "
+                "%(removal)s; use set_pickradius instead.")
+            self.set_pickradius(p)
+        self._picker = p
+
+    def set_pickradius(self, d):
+        """
+        Set the pick radius used for containment tests.
+
+        Parameters
+        ----------
+        d : float or None
+            The pick radius, in points.  If None, the patch linewidth is used
+            as pickradius if the patch edge is not transparent.
+        """
+        if not isinstance(d, Number) or d < 0:
+            raise ValueError("pick radius should be a distance")
+        self._pickradius = d
+
+    def get_pickradius(self):
+        """
+        Return the pick radius used for containment tests.
+
+        Returns
+        -------
+        float or None
+            The pick radius, in points.  If None, the patch linewidth is used
+            as pickradius if the patch edge is not transparent.
+        """
+        return self._pickradius
+
     def _process_radius(self, radius):
-        if radius is not None:
-            return radius
-        if isinstance(self._picker, Number):
-            _radius = self._picker
-        else:
-            if self.get_edgecolor()[3] == 0:
-                _radius = 0
-            else:
-                _radius = self.get_linewidth()
-        return _radius
+        return (
+            radius if radius is not None
+            else self._pickradius if self._pickradius is not None
+            # Deprecated case.
+            else self._picker if (isinstance(self._picker, Number)
+                                  and not isinstance(self._picker, bool))
+            else 0 if self.get_edgecolor()[3] == 0
+            else self.get_linewidth())
 
     def contains(self, mouseevent, radius=None):
         """

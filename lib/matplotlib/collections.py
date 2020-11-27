@@ -415,6 +415,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
+    def set_picker(self, p):
+        # docstring inherited
+        # After deprecation, the whole method can be deleted and inherited.
+        if isinstance(p, Number) and not isinstance(p, bool):
+            cbook.warn_deprecated(
+                "3.4", message="Setting the collections's pick radius via "
+                "set_picker is deprecated since %(since)s and will be removed "
+                "%(removal)s; use set_pickradius instead.")
+            self.set_pickradius(p)
+        self._picker = p
+
     def set_pickradius(self, pr):
         """
         Set the pick radius used for containment tests.
@@ -439,32 +450,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
-
         if not self.get_visible():
             return False, {}
-
-        pickradius = (
-            float(self._picker)
-            if isinstance(self._picker, Number) and
-               self._picker is not True  # the bool, not just nonzero or 1
-            else self._pickradius)
-
         if self.axes:
             self.axes._unstale_viewLim()
-
         transform, transOffset, offsets, paths = self._prepare_points()
-
         # Tests if the point is contained on one of the polygons formed
         # by the control points of each of the paths. A point is considered
         # "on" a path if it would lie within a stroke of width 2*pickradius
         # following the path. If pickradius <= 0, then we instead simply check
         # if the point is *inside* of the path instead.
         ind = _path.point_in_path_collection(
-            mouseevent.x, mouseevent.y, pickradius,
+            mouseevent.x, mouseevent.y, self._pickradius,
             transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset, pickradius <= 0,
+            offsets, transOffset, self._pickradius <= 0,
             self._offset_position)
-
         return len(ind) > 0, dict(ind=ind)
 
     def set_urls(self, urls):

@@ -1,0 +1,5 @@
+Setting pickradius on Collections and Patches via ``set_picker``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting the pickradius (i.e. the tolerance for pick events and containment
+checks)of a `.Collection` or a `.Patch` via `.Artist.set_picker` is deprecated;
+use ``set_pickradius`` instead.

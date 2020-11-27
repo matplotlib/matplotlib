@@ -558,10 +558,10 @@ class Artist:
               artist, return *hit=True* and props is a dictionary of
               properties you want added to the PickEvent attributes.
 
-            - *deprecated*: For `.Line2D` only, *picker* can also be a float
-              that sets the tolerance for checking whether an event occurred
-              "on" the line; this is deprecated.  Use `.Line2D.set_pickradius`
-              instead.
+            - *deprecated*: For `.Line2D` and `.Collection`, *picker* can also
+              be a float that sets the tolerance for checking whether an event
+              occurred "on" the artist; this is deprecated.  Use
+              `.Line2D.set_pickradius`/`.Collection.set_pickradius` instead.
         """
         self._picker = picker
 
