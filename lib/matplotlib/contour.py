@@ -217,6 +217,7 @@ class ContourLabeler:
         return any((x - loc[0]) ** 2 + (y - loc[1]) ** 2 < thresh
                    for loc in self.labelXYs)
 
+    @_api.deprecated("3.4")
     def get_label_coords(self, distances, XX, YY, ysize, lw):
         """
         Return x, y, and the index of a label location.
@@ -278,37 +279,35 @@ class ContourLabeler:
         """
         Find good place to draw a label (relatively flat part of the contour).
         """
-
-        # Number of contour points
-        nsize = len(linecontour)
-        if labelwidth > 1:
-            xsize = int(np.ceil(nsize / labelwidth))
-        else:
-            xsize = 1
-        if xsize == 1:
-            ysize = nsize
-        else:
-            ysize = int(labelwidth)
-
-        XX = np.resize(linecontour[:, 0], (xsize, ysize))
-        YY = np.resize(linecontour[:, 1], (xsize, ysize))
-        # I might have fouled up the following:
-        yfirst = YY[:, :1]
-        ylast = YY[:, -1:]
-        xfirst = XX[:, :1]
-        xlast = XX[:, -1:]
-        s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
-        L = np.hypot(xlast - xfirst, ylast - yfirst)
+        ctr_size = len(linecontour)
+        n_blocks = int(np.ceil(ctr_size / labelwidth)) if labelwidth > 1 else 1
+        block_size = ctr_size if n_blocks == 1 else int(labelwidth)
+        # Split contour into blocks of length ``block_size``, filling the last
+        # block by cycling the contour start (per `np.resize` semantics).  (Due
+        # to cycling, the index returned is taken modulo ctr_size.)
+        xx = np.resize(linecontour[:, 0], (n_blocks, block_size))
+        yy = np.resize(linecontour[:, 1], (n_blocks, block_size))
+        yfirst = yy[:, :1]
+        ylast = yy[:, -1:]
+        xfirst = xx[:, :1]
+        xlast = xx[:, -1:]
+        s = (yfirst - yy) * (xlast - xfirst) - (xfirst - xx) * (ylast - yfirst)
+        l = np.hypot(xlast - xfirst, ylast - yfirst)
         # Ignore warning that divide by zero throws, as this is a valid option
         with np.errstate(divide='ignore', invalid='ignore'):
-            dist = np.sum(np.abs(s) / L, axis=-1)
-        x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
-
-        # There must be a more efficient way...
-        lc = [tuple(l) for l in linecontour]
-        dind = lc.index((x, y))
-
-        return x, y, dind
+            distances = (abs(s) / l).sum(axis=-1)
+        # Labels are drawn in the middle of the block (``hbsize``) where the
+        # contour is the closest (per ``distances``) to a straight line, but
+        # not `too_close()` to a preexisting label.
+        hbsize = block_size // 2
+        adist = np.argsort(distances)
+        # If all candidates are `too_close()`, go back to the straightest part
+        # (``adist[0]``).
+        for idx in np.append(adist, adist[0]):
+            x, y = xx[idx, hbsize], yy[idx, hbsize]
+            if not self.too_close(x, y, labelwidth):
+                break
+        return x, y, (idx * block_size + hbsize) % ctr_size
 
     def calc_label_rot_and_inline(self, slc, ind, lw, lc=None, spacing=5):
         """
