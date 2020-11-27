@@ -113,18 +113,21 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-
-          # PyGObject, pycairo, and cariocffi do not install on OSX 10.12
-
-          # There are not functioning wheels available for OSX 10.12 (as of
-          # Sept 2020) for either pyqt5 (there are only wheels for 10.13+)
-          # or pyside2 (the latest version (5.13.2) with 10.12 wheels has a
-          # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
-             python -mpip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+            # PyGObject, pycairo, and cariocffi do not install on OSX 10.12;
+            # pycairo 1.20+ requires a new version of Cairo, unavailable on
+            # Ubuntu 16.04, so PyGObject must be installed without build
+            # isolation in order to pick up the lower pre-installed version.
+             python -mpip install --upgrade 'pycairo<1.20.0' 'cairocffi>=0.8' &&
+             python -mpip install --upgrade --no-build-isolation PyGObject &&
                python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
                echo 'PyGObject is available' ||
                echo 'PyGObject is not available'
+
+            # There are no functioning wheels available for OSX 10.12 (as of
+            # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
+            # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
+            # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
              python -mpip install --upgrade pyqt5 &&
                python -c 'import PyQt5.QtCore' &&
                echo 'PyQt5 is available' ||
