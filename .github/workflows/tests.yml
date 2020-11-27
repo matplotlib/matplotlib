@@ -53,6 +53,7 @@ jobs:
           Linux)
             sudo apt-get update -yy
             sudo apt-get install -yy \
+              ccache \
               cm-super \
               dvipng \
               ffmpeg \
@@ -88,9 +89,46 @@ jobs:
               ttf-wqy-zenhei
             ;;
           macOS)
-            true
+            brew update
+            brew install ccache
             ;;
           esac
+
+      - name: Cache pip
+        uses: actions/cache@v2
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-py${{ matrix.python-version }}-pip-
+      - name: Cache pip
+        uses: actions/cache@v2
+        if: startsWith(runner.os, 'macOS')
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ runner.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-py${{ matrix.python-version }}-pip-
+      - name: Cache ccache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ccache
+          key: ${{ runner.os }}-py${{ matrix.python-version }}-ccache-${{ hashFiles('src/*') }}
+          restore-keys: |
+            ${{ runner.os }}-py${{ matrix.python-version }}-ccache-
+      - name: Cache Matplotlib
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/matplotlib
+            !~/.cache/matplotlib/tex.cache
+            !~/.cache/matplotlib/test_cache
+          key: ${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            ${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -147,6 +185,7 @@ jobs:
 
       - name: Install Matplotlib
         run: |
+          ccache -s
           git describe
 
           # Set flag in a delayed manner to avoid issues with installing other
