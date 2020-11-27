@@ -100,6 +100,7 @@ jobs:
 
           # Install dependencies from PyPI.
           python -mpip install --upgrade $PRE \
+            cycler kiwisolver numpy pillow pyparsing python-dateutil \
             -r requirements/testing/travis_all.txt \
             ${{ matrix.extra-requirements }}
 
@@ -154,7 +155,9 @@ jobs:
             export CPPFLAGS=--coverage
           fi
 
-          python -mpip install -e .
+          # All dependencies must have been pre-installed, so that the minver
+          # constraints are held.
+          python -mpip install --no-deps -e .
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS
