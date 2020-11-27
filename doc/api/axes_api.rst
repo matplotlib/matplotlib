@@ -533,14 +533,6 @@ Interactive
    Axes.mouseover
    Axes.in_axes
 
-   Axes.pick
-   Axes.pickable
-   Axes.get_picker
-   Axes.set_picker
-
-   Axes.set_contains
-   Axes.get_contains
-
    Axes.contains
    Axes.contains_point
 
