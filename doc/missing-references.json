@@ -70,16 +70,16 @@
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
     ],
     "matplotlib.axes.Axes.lines": [
-      "doc/tutorials/intermediate/artists.rst:427",
-      "doc/tutorials/intermediate/artists.rst:92"
+      "doc/tutorials/intermediate/artists.rst:425",
+      "doc/tutorials/intermediate/artists.rst:91"
     ],
     "matplotlib.axes.Axes.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:175",
-      "doc/tutorials/intermediate/artists.rst:411"
+      "doc/tutorials/intermediate/artists.rst:174",
+      "doc/tutorials/intermediate/artists.rst:409"
     ],
     "matplotlib.axes.Axes.patches": [
-      "doc/tutorials/intermediate/artists.rst:450"
+      "doc/tutorials/intermediate/artists.rst:448"
     ],
     "matplotlib.axes.Axes.transAxes": [
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows.__init__:8",
@@ -97,13 +97,13 @@
       "doc/api/prev_api_changes/api_changes_0.99.x.rst:23"
     ],
     "matplotlib.axes.Axes.xaxis": [
-      "doc/tutorials/intermediate/artists.rst:594"
+      "doc/tutorials/intermediate/artists.rst:593"
     ],
     "matplotlib.axes.Axes.yaxis": [
-      "doc/tutorials/intermediate/artists.rst:594"
+      "doc/tutorials/intermediate/artists.rst:593"
     ],
     "matplotlib.axis.Axis.label": [
-      "doc/tutorials/intermediate/artists.rst:641"
+      "doc/tutorials/intermediate/artists.rst:640"
     ],
     "matplotlib.cm.ScalarMappable.callbacksSM": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:10"
@@ -116,11 +116,11 @@
     ],
     "matplotlib.figure.Figure.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:175",
-      "doc/tutorials/intermediate/artists.rst:308"
+      "doc/tutorials/intermediate/artists.rst:174",
+      "doc/tutorials/intermediate/artists.rst:307"
     ],
     "matplotlib.figure.Figure.transFigure": [
-      "doc/tutorials/intermediate/artists.rst:357"
+      "doc/tutorials/intermediate/artists.rst:356"
     ],
     "max": [
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.p1:4"
@@ -246,8 +246,8 @@
       "doc/api/mathtext_api.rst:12"
     ],
     "matplotlib.axes.Subplot": [
-      "doc/tutorials/intermediate/artists.rst:36",
-      "doc/tutorials/intermediate/artists.rst:59"
+      "doc/tutorials/intermediate/artists.rst:35",
+      "doc/tutorials/intermediate/artists.rst:58"
     ],
     "matplotlib.axes._axes.Axes": [
       "doc/api/artist_api.rst:189",
@@ -265,11 +265,11 @@
     "matplotlib.backend_bases.FigureCanvas": [
       "doc/tutorials/intermediate/artists.rst:20",
       "doc/tutorials/intermediate/artists.rst:22",
-      "doc/tutorials/intermediate/artists.rst:28"
+      "doc/tutorials/intermediate/artists.rst:27"
     ],
     "matplotlib.backend_bases.Renderer": [
       "doc/tutorials/intermediate/artists.rst:22",
-      "doc/tutorials/intermediate/artists.rst:28"
+      "doc/tutorials/intermediate/artists.rst:27"
     ],
     "matplotlib.backend_bases._Backend": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ShowBase:1"
@@ -502,6 +502,8 @@
     "matplotlib.axes.Axes.transAxes": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.legend:219",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:220",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:220",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.SubFigure.legend:220",
       "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:178",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:220",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:219"
@@ -580,12 +582,6 @@
     ],
     "matplotlib.dates.MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:122"
-    ],
-    "matplotlib.lines.Line2D.pick": [
-      "doc/users/event_handling.rst:480"
-    ],
-    "matplotlib.patches.Rectangle.contains": [
-      "doc/users/event_handling.rst:164"
     ],
     "option_scale_image": [
       "lib/matplotlib/backends/backend_cairo.py:docstring of matplotlib.backends.backend_cairo.RendererCairo.draw_image:22",
@@ -723,6 +719,9 @@
     "ImageComparisonTest": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:706"
     ],
+    "Line2D.pick": [
+      "doc/users/event_handling.rst:438"
+    ],
     "MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:119"
     ],
@@ -747,6 +746,9 @@
     ],
     "Quiver.pivot": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:44"
+    ],
+    "Rectangle.contains": [
+      "doc/users/event_handling.rst:150"
     ],
     "Size.from_any": [
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid.__init__:61",
@@ -786,7 +788,7 @@
     ],
     "autoscale_view": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.autoscale:19",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plot:121"
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plot:128"
     ],
     "ax.transAxes": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.indicate_inset:19",
@@ -798,6 +800,8 @@
     "axes.bbox": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.legend:128",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:129",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:129",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.SubFigure.legend:129",
       "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:87",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:129",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:128"
@@ -844,6 +848,8 @@
     "figure.bbox": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.legend:128",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:129",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:129",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.SubFigure.legend:129",
       "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:87",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:129",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:128"
