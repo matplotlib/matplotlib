@@ -70,6 +70,7 @@ and enable :ref:`interactive mode <controlling-interactive>` use the
 .. highlight:: ipython
 
 ::
+
    In [1]: %matplotlib
    Using matplotlib backend: Qt5Agg
 
