@@ -289,7 +289,6 @@ class GridHelperCurveLinear(GridHelperBase):
         """
         super().__init__()
         self.grid_info = None
-        self._old_values = None
         self._aux_trans = aux_trans
         self.grid_finder = GridFinder(aux_trans,
                                       extreme_finder,
@@ -302,16 +301,7 @@ class GridHelperCurveLinear(GridHelperBase):
         if aux_trans is not None:
             self.grid_finder.update_transform(aux_trans)
         self.grid_finder.update(**kw)
-        self.invalidate()
-
-    def _update(self, x1, x2, y1, y2):
-        """bbox in 0-based image coordinates"""
-        # update wcsgrid
-        if self.valid() and self._old_values == (x1, x2, y1, y2):
-            return
-        self._update_grid(x1, y1, x2, y2)
-        self._old_values = (x1, x2, y1, y2)
-        self._force_update = False
+        self._old_limits = None  # Force revalidation.
 
     def new_fixed_axis(self, loc,
                        nth_coord=None,

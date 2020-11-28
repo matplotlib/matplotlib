@@ -315,25 +315,26 @@ class AxisArtistHelperRectlinear:
 class GridHelperBase:
 
     def __init__(self):
-        self._force_update = True
+        self._force_update = True  # Remove together with invalidate()/valid().
         self._old_limits = None
         super().__init__()
 
     def update_lim(self, axes):
         x1, x2 = axes.get_xlim()
         y1, y2 = axes.get_ylim()
-
         if self._force_update or self._old_limits != (x1, x2, y1, y2):
-            self._update(x1, x2, y1, y2)
+            self._update_grid(x1, y1, x2, y2)
             self._force_update = False
             self._old_limits = (x1, x2, y1, y2)
 
-    def _update(self, x1, x2, y1, y2):
-        pass
+    def _update_grid(self, x1, y1, x2, y2):
+        """Cache relevant computations when the axes limits have changed."""
 
+    @_api.deprecated("3.4")
     def invalidate(self):
         self._force_update = True
 
+    @_api.deprecated("3.4")
     def valid(self):
         return not self._force_update
 
@@ -555,6 +556,7 @@ class Axes(maxes.Axes):
         children.extend(super().get_children())
         return children
 
+    @_api.deprecated("3.4")
     def invalidate_grid_helper(self):
         self._grid_helper.invalidate()
 
