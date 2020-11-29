@@ -251,7 +251,7 @@
     ],
     "matplotlib.axes._axes.Axes": [
       "doc/api/artist_api.rst:189",
-      "doc/api/axes_api.rst:617",
+      "doc/api/axes_api.rst:609",
       "lib/matplotlib/projections/polar.py:docstring of matplotlib.projections.polar.PolarAxes:1",
       "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:1",
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.Axes:1",
@@ -259,7 +259,7 @@
     ],
     "matplotlib.axes._base._AxesBase": [
       "doc/api/artist_api.rst:189",
-      "doc/api/axes_api.rst:617",
+      "doc/api/axes_api.rst:609",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:1"
     ],
     "matplotlib.backend_bases.FigureCanvas": [
@@ -831,6 +831,7 @@
       "lib/matplotlib/image.py:docstring of matplotlib.image.composite_images:9"
     ],
     "cleanup": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.setup:18",
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.setup:18"
     ],
     "colorbar.ColorbarBase.outline": [
@@ -895,7 +896,7 @@
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_ylim3d:24"
     ],
     "ipykernel.pylab.backend_inline": [
-      "doc/users/interactive.rst:256"
+      "doc/users/interactive.rst:257"
     ],
     "kde.covariance_factor": [
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:41"
@@ -1102,16 +1103,19 @@
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.FileMovieWriter.args_key": [
-      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.cleanup:1:<autosummary>:1"
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.clear_temp:1:<autosummary>:1"
     ],
     "matplotlib.animation.FileMovieWriter.bin_path": [
       "doc/api/_as_gen/matplotlib.animation.FileMovieWriter.rst:28:<autosummary>:1"
     ],
+    "matplotlib.animation.FileMovieWriter.cleanup": [
+      "doc/api/_as_gen/matplotlib.animation.FileMovieWriter.rst:28:<autosummary>:1"
+    ],
     "matplotlib.animation.FileMovieWriter.exec_key": [
-      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.cleanup:1:<autosummary>:1"
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.clear_temp:1:<autosummary>:1"
     ],
     "matplotlib.animation.FileMovieWriter.frame_size": [
-      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.cleanup:1:<autosummary>:1"
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.clear_temp:1:<autosummary>:1"
     ],
     "matplotlib.animation.FileMovieWriter.isAvailable": [
       "doc/api/_as_gen/matplotlib.animation.FileMovieWriter.rst:28:<autosummary>:1"
