@@ -20,6 +20,9 @@ def test_subplot():
 
 @image_comparison(['curvelinear3.png'], style='default', tol=0.01)
 def test_curvelinear3():
+    # Remove this lines when this test image is regenerated.
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
+
     fig = plt.figure(figsize=(5, 5))
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +
@@ -74,8 +77,9 @@ def test_curvelinear3():
 
 @image_comparison(['curvelinear4.png'], style='default', tol=0.015)
 def test_curvelinear4():
-    # Remove this line when this test image is regenerated.
+    # Remove these lines when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
 
     fig = plt.figure(figsize=(5, 5))
 

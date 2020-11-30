@@ -19,6 +19,9 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
 @image_comparison(['custom_transform.png'], style='default',
                   tol=0.03 if platform.machine() == 'x86_64' else 0.034)
 def test_custom_transform():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
+
     class MyTransform(Transform):
         input_dims = output_dims = 2
 
@@ -82,8 +85,9 @@ def test_custom_transform():
 @image_comparison(['polar_box.png'], style='default',
                   tol={'aarch64': 0.04}.get(platform.machine(), 0.03))
 def test_polar_box():
-    # Remove this line when this test image is regenerated.
+    # Remove these lines when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
 
     fig = plt.figure(figsize=(5, 5))
 
@@ -145,8 +149,9 @@ def test_polar_box():
 
 @image_comparison(['axis_direction.png'], style='default', tol=0.03)
 def test_axis_direction():
-    # Remove this line when this test image is regenerated.
+    # Remove these lines when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
 
     fig = plt.figure(figsize=(5, 5))
 
