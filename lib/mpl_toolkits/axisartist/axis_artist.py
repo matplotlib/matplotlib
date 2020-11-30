@@ -62,7 +62,7 @@ the same side of the ticklabels, ::
 
 The following attributes can be customized (use the ``set_xxx`` methods):
 
-* `Ticks`: ticksize, tick_out
+* `Ticks`: ticksize, tickdir
 * `TickLabels`: pad
 * `AxisLabel`: pad
 """
@@ -109,12 +109,12 @@ class Ticks(AttributeCopier, Line2D):
     Ticks are derived from `.Line2D`, and note that ticks themselves
     are markers. Thus, you should use set_mec, set_mew, etc.
 
-    To change the tick size (length), you need to use
-    `set_ticksize`. To change the direction of the ticks (ticks are
-    in opposite direction of ticklabels by default), use
-    ``set_tick_out(False)``
+    To change the tick size (length), use set_ticksize.  To change the
+    direction of the ticks, use set_tickdir ("out" corresponds to the side of
+    the label, "in" to the opposite side).
     """
 
+    # tick_out is mostly deprecated in favor of tickdir.
     def __init__(self, ticksize, tick_out=False, *, axis=None, **kwargs):
         self._ticksize = ticksize
         self.locs_angles_labels = []
@@ -152,13 +152,24 @@ class Ticks(AttributeCopier, Line2D):
     def get_markeredgewidth(self):
         return self.get_attribute_from_ref_artist("markeredgewidth")
 
+    def set_tickdir(self, tickdir):
+        _api.check_in_list(self._tick_paths, tickdir=tickdir)
+        self._tickdir = tickdir
+
+    def get_tickdir(self):
+        return self._tickdir
+
     def set_tick_out(self, b):
         """Set whether ticks are drawn inside or outside the axes."""
-        self._tick_out = b
+        self.set_tickdir({True: "out", False: "in"}[bool(b)])
 
     def get_tick_out(self):
         """Return whether ticks are drawn inside or outside the axes."""
-        return self._tick_out
+        if self._tickdir == "out":
+            return True
+        elif self._tickdir == "in":
+            return False
+        raise ValueError(f"tickdir is {self._tickdir}")
 
     def set_ticksize(self, ticksize):
         """Set length of the ticks in points."""
@@ -171,7 +182,11 @@ class Ticks(AttributeCopier, Line2D):
     def set_locs_angles(self, locs_angles):
         self.locs_angles = locs_angles
 
-    _tickvert_path = Path([[0., 0.], [1., 0.]])
+    _tick_paths = {
+        "out": Path([[0, 0], [-1, 0]]),
+        "in": Path([[0, 0], [1, 0]]),
+        "inout": Path([[-1/2, 0], [1/2, 0]]),
+    }
 
     def draw(self, renderer):
         if not self.get_visible():
@@ -185,15 +200,14 @@ class Ticks(AttributeCopier, Line2D):
         path_trans = self.get_transform()
         marker_transform = (Affine2D()
                             .scale(renderer.points_to_pixels(self._ticksize)))
-        if self.get_tick_out():
-            marker_transform.rotate_deg(180)
+        tick_path = self._tick_paths[self._tickdir]
 
         for loc, angle in self.locs_angles:
             locs = path_trans.transform_non_affine(np.array([loc]))
             if self.axes and not self.axes.viewLim.contains(*locs[0]):
                 continue
             renderer.draw_markers(
-                gc, self._tickvert_path,
+                gc, tick_path,
                 marker_transform + Affine2D().rotate_deg(angle),
                 Path(locs), path_trans.get_affine())
 
@@ -868,12 +882,14 @@ class AxisArtist(martist.Artist):
             kwargs.get(
                 "major_tick_size",
                 mpl.rcParams[f"{axis_name}tick.major.size"]),
-            axis=self.axis, transform=trans)
+            axis=self.axis, transform=trans,
+            tickdir=mpl.rcParams[f"{axis_name}tick.direction"])
         self.minor_ticks = Ticks(
             kwargs.get(
                 "minor_tick_size",
                 mpl.rcParams[f"{axis_name}tick.minor.size"]),
-            axis=self.axis, transform=trans)
+            axis=self.axis, transform=trans,
+            tickdir=mpl.rcParams[f"{axis_name}tick.direction"])
 
         size = mpl.rcParams[f"{axis_name}tick.labelsize"]
         self.major_ticklabels = TickLabels(
@@ -925,13 +941,13 @@ class AxisArtist(martist.Artist):
             renderer = self.figure._get_renderer()
 
         dpi_cor = renderer.points_to_pixels(1.)
-        if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
-            ticklabel_pad = self.major_ticks._ticksize * dpi_cor
-            self.major_ticklabels._external_pad = ticklabel_pad
-            self.minor_ticklabels._external_pad = ticklabel_pad
-        else:
-            self.major_ticklabels._external_pad = 0
-            self.minor_ticklabels._external_pad = 0
+        multiplier = (
+            self.major_ticks.get_visible()
+            * {"out": 1, "inout": .5, "in": 0}[self.major_ticks._tickdir])
+        self.major_ticklabels._set_external_pad(
+            multiplier * self.major_ticks._ticksize * dpi_cor)
+        self.minor_ticklabels._set_external_pad(
+            multiplier * self.major_ticks._ticksize * dpi_cor)
 
         majortick_iter, minortick_iter = \
             self._axis_artist_helper.get_tick_iterators(self.axes)
@@ -1006,7 +1022,7 @@ class AxisArtist(martist.Artist):
             return
 
         if self._ticklabel_add_angle != self._axislabel_add_angle:
-            if ((self.major_ticks.get_visible()
+            if ((self.major_ticks.get_visible()  # ???
                  and not self.major_ticks.get_tick_out())
                 or (self.minor_ticks.get_visible()
                     and not self.major_ticks.get_tick_out())):

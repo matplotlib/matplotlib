@@ -78,8 +78,9 @@ def test_ticklabels():
 
 @image_comparison(['axis_artist.png'], style='default')
 def test_axis_artist():
-    # Remove this line when this test image is regenerated.
+    # Remove these lines when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
 
     fig, ax = plt.subplots()
 

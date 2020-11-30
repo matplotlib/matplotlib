@@ -9,8 +9,9 @@ from mpl_toolkits.axisartist import Axes, SubplotHost
 
 @image_comparison(['SubplotZero.png'], style='default')
 def test_SubplotZero():
-    # Remove this line when this test image is regenerated.
+    # Remove these lines when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
 
     fig = plt.figure()
 
@@ -30,8 +31,9 @@ def test_SubplotZero():
 
 @image_comparison(['Subplot.png'], style='default')
 def test_Subplot():
-    # Remove this line when this test image is regenerated.
+    # Remove these lines when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
 
     fig = plt.figure()
 
@@ -59,9 +61,10 @@ def test_Axes():
 
 @image_comparison(['ParasiteAxesAuxTrans_meshplot.png'],
                   remove_text=True, style='default', tol=0.075)
-def test_ParasiteAxesAuxTrans():
-    # Remove this line when this test image is regenerated.
+def test_ParasiteAxesAuxTrans(parasite_cls):
+    # Remove these lines when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
 
     data = np.ones((6, 6))
     data[2, 2] = 2
