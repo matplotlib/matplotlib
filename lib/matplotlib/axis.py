@@ -210,7 +210,14 @@ class Tick(martist.Artist):
         self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
-        """Calculate ``self._pad`` and ``self._tickmarkers``."""
+        """Set tick direction.  Valid values are 'out', 'in', 'inout'."""
+        if tickdir is None:
+            tickdir = mpl.rcParams[f'{self.__name__}.direction']
+        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
+        self._tickdir = tickdir
+        self._pad = self._base_pad + self.get_tick_padding()
+        self.stale = True
+        # Subclass overrides should compute _tickmarkers as appropriate here.
 
     def get_tickdir(self):
         return self._tickdir
@@ -445,19 +452,13 @@ class XTick(Tick):
         return self.axes.get_xaxis_text2_transform(self._pad)
 
     def apply_tickdir(self, tickdir):
-        """Set tick direction. Valid values are 'in', 'out', 'inout'."""
-        if tickdir is None:
-            tickdir = mpl.rcParams[f'{self.__name__}.direction']
-        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
-        self._tickdir = tickdir
-
-        if self._tickdir == 'in':
-            self._tickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
-        elif self._tickdir == 'inout':
-            self._tickmarkers = ('|', '|')
-        else:
-            self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
-        self._pad = self._base_pad + self.get_tick_padding()
+        # docstring inherited
+        super().apply_tickdir(tickdir)
+        self._tickmarkers = {
+            'out': (mlines.TICKDOWN, mlines.TICKUP),
+            'in': (mlines.TICKUP, mlines.TICKDOWN),
+            'inout': ('|', '|'),
+        }[self._tickdir]
         self.stale = True
 
     def update_position(self, loc):
@@ -518,17 +519,13 @@ class YTick(Tick):
         return self.axes.get_yaxis_text2_transform(self._pad)
 
     def apply_tickdir(self, tickdir):
-        if tickdir is None:
-            tickdir = mpl.rcParams[f'{self.__name__}.direction']
-        self._tickdir = tickdir
-
-        if self._tickdir == 'in':
-            self._tickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
-        elif self._tickdir == 'inout':
-            self._tickmarkers = ('_', '_')
-        else:
-            self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
-        self._pad = self._base_pad + self.get_tick_padding()
+        # docstring inherited
+        super().apply_tickdir(tickdir)
+        self._tickmarkers = {
+            'out': (mlines.TICKLEFT, mlines.TICKRIGHT),
+            'in': (mlines.TICKRIGHT, mlines.TICKLEFT),
+            'inout': ('_', '_'),
+        }[self._tickdir]
         self.stale = True
 
     def update_position(self, loc):
