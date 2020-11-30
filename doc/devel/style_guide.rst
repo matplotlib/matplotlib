@@ -3,22 +3,44 @@
 Style Guide
 ===========
 
+This guide is for contributors to understand conventions and expectations for
+quality control of Matplotlib written content.
+
 Expository Language
 ===================
+
+For explanatory writing, the following guidelines are for clear and concise
+language use.
 
 Terminology
 -----------
 
-+-----------------------+--------------------------+------------------------+
-| Term                  | Description              |                        |
-+-----------------------+--------------------------+------------------------+
-| Figure                |                          |                        |
-+-----------------------+--------------------------+------------------------+
-| Axes                  |                          |                        |
-+-----------------------+--------------------------+------------------------+
-| Object Oriented       |                          |                        |
-| Programming (OOP)     |                          |                        |
-+-----------------------+--------------------------+------------------------+
+There are several key terms in Matplotlib that are standards for 
+reliability and consistency in documentation. They are case-sensitive and
+are not interchangeable.
+
++----------------------+--------------------------+-------------------------+
+| Term                 | Description              | Correct    | Incorrect  |
++----------------------+--------------------------+-------------------------+
+| Figure               | Workign space for        |            |            |
+|                      | programming.             |            |            |
++----------------------+--------------------------+-------------------------+
+| Axes                 | Subplots within Figure.  |            |            |
+|                      | Contains Figure elements |            |            |
+|                      | and is responsible for   |            |            |
+|                      | plotting and configuring |            |            |
+|                      | additional details.      |            |            |
++----------------------+--------------------------+-------------------------+
+| Axis                 | Refers to visible object |            |            |
+|                      | corresponding to labeling|            |            |
+|                      | of plotted data.         |            |            |
++----------------------+--------------------------+-------------------------+
+| Artist               | Broad Matplotlib object  |            |            |
+|                      | that displays visuals.   |            |            |
++----------------------+--------------------------+-------------------------+
+| Object Oriented      | Explicit approach of     |            |            |
+| Programming (OOP)    | programing in Matplotlib.|            |            |
++----------------------+--------------------------+-------------------------+
 
 
 Grammar
@@ -35,7 +57,11 @@ an action.
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
 +------------------------------------+------------------------------------+
-|                                    |                                    |
+| Users install Matplotlib from the  | You can install Matplotlib from the|
+| source directory using the Python  | source directory. You can find     |
+| ``pip`` installer program.         | additional support if you are      |
+| Depending on your operating system,| having troulbe with your           |
+| you may need additional support.   | installation.                      |
 +------------------------------------+------------------------------------+
 
 Tense
@@ -46,18 +72,27 @@ or auxiliary verbs when possible.
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
 +------------------------------------+------------------------------------+
-|                                    |                                    |
+| The fundamental ideas behind       | Matplotlib will take data and      |
+| Matplotlib for visualization       | transform it through functions and |
+| involve taking data and            | methods. This should be the basic  |
+| transforming it thorugh functions  | fundamental idea behind Matplotlib |
+| and methods.                       | for visualizations.                |
 +------------------------------------+------------------------------------+
 
 Voice
 ^^^^^
 Write in active sentences. Passive voice is best for situations or condtions
-for warning prompts.
+related to warning prompts.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
 +------------------------------------+------------------------------------+
-|                                    |                                    |
+| The function ``plot`` generates the| The graph is generated by the      |
+| graph.                             | ``plot`` function.                 |
++------------------------------------+------------------------------------+
+| An error message is returned by the| You will see an error message from |
+| function if there are no arguments.| the function if there are no       |
+|                                    | arguments.                         |
 +------------------------------------+------------------------------------+
 
 Sentence structure
@@ -69,14 +104,30 @@ referenes and subordinating conjunctive prhases.
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
 +------------------------------------+------------------------------------+
-|                                    |                                    |
+| The ``pyplot`` module in Matplotlib| The ``pyplot`` module in Matplotlib|
+| is a collection of functions. These| is a collection of functions which |
+| functions create, manage, and      | create, manage, and manipulate the |
+| manipulate the current Figure and  | current Figure and plotting area.  |
+| plotting area.                     |                                    |
++------------------------------------+------------------------------------+
+| The ``plot`` function plots data   | The ``plot`` function plots data   |
+| to the respective Axes. The Axes   | within its respective Axes for its |
+| corresponds to the respective      | respective Figure.                 |
+| Figure.                            |                                    |
 +------------------------------------+------------------------------------+
 
 Formatting
 ==========
 
+Matplotlib uses reStructuredText Markup for documentation. Sphinx helps to
+transform these documents into proper formats for access and visibility.
+
 reStructuredText standards
 --------------------------
+
+https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html
+https://docutils.sourceforge.io/docs/user/rst/quickref.html
+
 
 Lists
 ^^^^^
@@ -86,7 +137,18 @@ Numbered Lists are exclusively for performing actions in specific order.
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
 +------------------------------------+------------------------------------+
-|                                    |                                    |
+| The example uses three graphs.     | The example uses three graphs.     |
+| - Bar                              |  1. Bar                            |
+| - Line                             |  2. Line                           |
+| - Pie                              |  3. Pie                            |
++------------------------------------+------------------------------------+
+| These three steps help to get      | The following steps are important  |
+| started using Matplotlib.          | to get started using Matplotlib.   |
+| 1. Import the Matplotlib library.  |  - Import the Matplotlib library.  |
+| 2. Import the necessary modules.   |  - Import the necessary modules.   |
+| 3. Set and assign data to work on. |  - Set and assign data to work on. |
+| 4. Transform data with methods and |  - Transform data with methods and |
+|    functions.                      |    functions.                      |
 +------------------------------------+------------------------------------+
 
 Additional Resources
@@ -95,3 +157,9 @@ Additional Resources
 * `Red Hat Style Guide <https://stylepedia.net/style/#grammar>`_
 * `IBM Style Guide <https://www.ibm.com/developerworks/library/styleguidelines/>`_
 * `Google Developer Style Guide <https://developers.google.com/style>`_
+
++------------------------------------+------------------------------------+
+| Correct                            | Incorrect                          |
++------------------------------------+------------------------------------+
+|                                    |                                    |
++------------------------------------+------------------------------------+

@@ -92,8 +92,9 @@ started with Matplotlib.
 # library. Install Matplotlib for your own development environment manually or
 # use a third-party package distribution.
 #
-# The :ref:`installation-guide` contains more information about install
-# methods and resources for third-party package distributions.
+# The `Installation Guide <https://matplotlib.org/users/installing.html>`_
+# page contains more information about install methods and resources for
+# third-party package distributions.
 #
 # .. seealso::
 #
@@ -119,14 +120,18 @@ started with Matplotlib.
 import matplotlib.pyplot as plt
 import numpy as np
 
+from functools import partial
+
 ##############################################################################
 #
-# The ``pyplot`` module in Matplotlib is a collection of functions. The
-# module's functions create, manage, and manipulate the current Figure and the
-# plotting area.
-#
-# NumPy is a common scientific Python library that benefits users with
-# additional robust tools for manipulating data.
+# - The ``pyplot`` module in Matplotlib is a collection of functions. The
+#   module's functions create, manage, and manipulate the current Figure and
+#   the plotting area.
+# - NumPy is a common scientific Python library that benefits users with
+#   additional robust tools for manipulating data.
+# - The ``functools`` module helps manage functions that act on or return
+#   otherfunctions. The `Pie Chart Examples`_ section contains more
+#   information about the purpose of this module.
 #
 # Two Approaches for Creating Graphs
 # ----------------------------------
@@ -154,9 +159,9 @@ import numpy as np
 # .. note::
 #
 #     The Matplotlib community does not recommend interchanging explicit and
-#     implicit strategies. When using one as standard, all code should follow
-#     the same strategy. Switching back and forth between explicit and
-#     implicit programming may yield errors.
+#     implicit strategies. When using one as standard, all code following
+#     the same strategy reduces troubleshooting issues. Switching back and
+#     forth between explicit and implicit programming may yield errors.
 #
 # For other techniques of creating plots with Matplotlib, refer to
 # :ref:`user_interfaces`.
@@ -189,8 +194,12 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 #
 # .. note::
 #
-#    Other containers, such as `pandas` data objects, may not work as
-#    intended.
+#    Other containers, such as data objects from various libraries, may not
+#    work as intended.
+#
+# The following plots are identical. Each uses a different approach to graph
+# the data. The results do not change for either approach when using the same
+# data points.
 #
 # Explicit: Object Oriented Programming (OOP)
 # --------------------------------------------
@@ -210,15 +219,17 @@ x = months
 y1 = income
 y2 = chk_acct_09
 y3 = svg_acct_09
+y4 = chk_acct_10
+y5 = svg_acct_10
 # Assigning sample data to labeled variables.
 
 fig, ax = plt.subplots()
 # Explicit Figure & Axes unpacked separately with module.
 # Conventional object abbreviations are `fig` and `ax`, respectively.
 
-ax.plot(x, y1, label='Checking Account')
-ax.plot(x, y2, label='Savings Account')
-ax.plot(x, y3, label='Income')
+ax.plot(x, y1, label='Income')
+ax.plot(x, y2, label='Checking Account')
+ax.plot(x, y3, label='Savings Account')
 # Single explicit Axes graphs multiple data points.
 
 ax.set_xlabel('Month')
@@ -254,19 +265,16 @@ plt.show()
 
 # Implicit programming with pyplot
 
-y4 = chk_acct_10
-y5 = svg_acct_10
-# Assigning former data to labeled variable.
 # Previous variables are still referenced.
 
 plt.plot(x, y1, label='Income')
-plt.plot(x, y4, label='Checking Account')
-plt.plot(x, y5, label='Savings Account')
+plt.plot(x, y2, label='Checking Account')
+plt.plot(x, y3, label='Savings Account')
 # Module plots multiple data points on implicitly generated Axes.
 
 plt.xlabel('Month')
 plt.ylabel('USD')
-plt.title("Personal Financial Tracking from 2010")
+plt.title("Personal Financial Tracking from 2009")
 plt.legend()
 # Module methods generate parts of Figure.
 
@@ -354,7 +362,7 @@ plt.show()
 # Explicit and implicit approaches use different methods and are not
 # interchangeable.
 #
-# The table below compares common Artists and their different methods.
+# The table below compares formatter Artists and their different methods.
 #
 # +-----------------------+--------------------------+------------------------+
 # | Artist                | Explicit                 | Implicit               |
@@ -364,16 +372,29 @@ plt.show()
 # |                       | artists.                 | on most recent Figure  |
 # |                       |                          | or Axes.               |
 # +-----------------------+--------------------------+------------------------+
-# | X-axis labels         | ``ax.set_xticks()``      | ``plt.xlabel()``       |
+# | X-axis labels         | ``ax.set_xticks()``      | ``plt.xticks()``       |
 # |                       | ``ax.set_xticklabels()`` |                        |
 # +-----------------------+--------------------------+------------------------+
-# | Y-axis labels         | ``ax.set_yticks()``      | ``plt.ylabel()``       |
+# | Y-axis labels         | ``ax.set_yticks()``      | ``plt.yticks()``       |
 # |                       | ``ax.set_yticklabels()`` |                        |
 # +-----------------------+--------------------------+------------------------+
 # | Title (Axes)          | ``ax.set_title()``       | ``plt.title()``        |
 # +-----------------------+--------------------------+------------------------+
+#
+# The following table represents common Artists for transforming data. These
+# methods often overlap in naming conventions and make use of identical keyword
+# arguments and other parameters.
+#
+# +-----------------------+--------------------------+------------------------+
+# | Artist                | Explicit                 | Implicit               |
+# +=======================+==========================+========================+
+# | Plot                  | ``ax.plot()``            | ``plt.plot()``         |
+# +-----------------------+--------------------------+------------------------+
+# | Pie                   | ``ax.pie()``             | ``plt.pie()``          |
+# +-----------------------+--------------------------+------------------------+
 # | Legend (Axes)         | ``ax.legend()``          | ``plt.legend()``       |
 # +-----------------------+--------------------------+------------------------+
+#
 #
 # The term ``ax`` refers to an assigned variable for a specific Axes. Using
 # explicit programming requires additional tasks of setting objects prior to
@@ -428,7 +449,8 @@ def autopct_format(percent, group):
     """
     value = int(percent/100.*np.sum(group))
     return f'${value:<4}\n{percent:1.1f}%'
-# This function is used as a lambda for formatting labels in wedges.
+# This function is used in conjunction with the functools partial function
+# for formatting labels in wedges.
 
 ##############################################################################
 #
@@ -473,9 +495,9 @@ plt.show()
 #   There are minor differences in the method names. Overall, each method
 #   performs the same action through the different approaches.
 #
-# These pie charts are simple in that there is not much distinguishing
-# information. Keyword arguments and Artists add the ability to implement
-# more ways of displaying content.
+# These pie charts are simple and do not have distinguishing information.
+# Keyword arguments and Artists add the ability to implement more ways of
+# displaying content.
 #
 # Additional Customization
 # ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -517,10 +539,11 @@ plt.show()
 
 ##############################################################################
 #
-# In the pie chart below, there are additional keyword arguments to further
+# The following pie chart has additional keyword arguments to further
 # customize the visual. Also, the ``legend`` as an Artist has parameters that
 # enable more specification for the information displayed. For more, see the
-# :ref:`legend-guide`
+# `Legend Guide
+# <https://matplotlib.org/tutorials/intermediate/legend_guide.html?highlight=legend%20guide>`_
 
 # Explicit
 
@@ -534,9 +557,10 @@ budget_pie = ax.pie(budget,
                     # in removing redundant information from the previous
                     # pie chart.
                     explode=explode,
-                    autopct=lambda pct: autopct_format(pct, budget),
+                    autopct=partial(autopct_format, group=budget),
                     # The autopct keyword argument in this instance uses a
-                    # function in a lambda to return a formatted string.
+                    # function callable with the functools.partial function
+                    # to return a formatted string. See Note below for more.
                     startangle=45,
                     pctdistance=0.85,
                     # The pctdistance keyword argument places the autopct
@@ -553,8 +577,8 @@ budget_pie = ax.pie(budget,
                     shadow=True)
 
 wedges, texts, autotexts = budget_pie
-# The pie() method unpacks into three objects, wedges, texts, and autotexts.
-# These Artists have their own methods for addtional customization.
+# The pie() method unpacks into three Artist objects, wedges, texts, and
+# autotexts. These Artists have their own methods for addtional customization.
 
 ax.legend(wedges,
           # The wedges variable unpacked from the method serve as the handles
@@ -589,7 +613,17 @@ plt.show()
 
 ##############################################################################
 #
+# .. note::
 #
+#   The ``partial`` function in functools works as a callable for simplifying
+#   a function's arguments. In the ``autopct`` keyword argument, only one
+#   argument is provided, the data acting as a percentage equivalent. The
+#   ``autopct_format`` function requires two arguments, so ``partial`` takes
+#   the argument for ``group`` and sets it to ``budget``. This smaller
+#   signature object then behaves as a function with one fewer argument. For
+#   details about the functools module, see
+#   `functools
+#   <https://docs.python.org/3/library/functools.html#module-functools>`_.
 #
 # Multiple Graphs within a Figure
 # -------------------------------
@@ -650,72 +684,43 @@ plt.show()
 # approach must refer to an explicitly generated Axes after creating both the
 # Figure and Axes.
 #
-# In the unpacking process, numerous Axes can also be assigned to the single
-# variable. To reference a specific Axes, you can index the location of the
-# respective Axes as a matrix through the single variable as well.
+# In the unpacking process, numerous Axes are assigned to a single variable.
+# To reference a specific Axes, indexing the location of the respective Axes
+# as a matrix through the single variable works as well.
+#
+# The code below demonstrates indexing multiple Axes::
+#
+#   fig, ax = plt.subplots(2,2)
+#
+#   ax[0,0].plot([1,2,3],[1,2,3])
+#   ax[0,1].plot([3,2,1],[3,2,1])
+#   ax[1,0].plot([3,2,1],[3,2,1])
+#   ax[1,1].plot([1,2,3],[1,2,3])
 #
 # .. note::
 #
-#   The code below demonstrates indexing multiple Axes.
+#   The method `~.subplot_mosaic` also works to label Axes
+#   with contextual names. The link contains more info for using the method.
+#   Below is a code example.
 #   ::
 #
-#       fig, ax = plt.subplots(2,2)
+#       fig = plt.figure()
+#       ax_dict = fig.subplot_mosaic([['bar', 'plot'],
+#                                    ['hist', 'image']])
 #
-#       ax[0,0].plot([1,2,3],[1,2,3])
-#       ax[0,1].plot([3,2,1],[3,2,1])
-#       ax[1,0].plot([3,2,1],[3,2,1])
-#       ax[1,1].plot([1,2,3],[1,2,3])
+#       ax_dict['bar'].bar([1,2,3],[1,2,3])
+#       ax_dict['plot'].plot([3,2,1],[3,2,1])
+#       ax_dict['hist'].hist(hist_data)
+#       ax_dict['image'].imshow([[1,2], [2,1]])
 #
 # Implicit
 # ^^^^^^^^
-
-# Implicit with pyplot
-
-plt.subplot(1, 2, 1)
-# Module implicitly manages a matrix size of (1, 2) for row & column
-# to work on the first implicit Axes.
-
-plt.plot(x, y1, label='Income')
-plt.plot(x, y2, label='Checking')
-plt.plot(x, y3, color='green', label='Savings')
-# Module plots data on first implicit Axes.
-
-plt.xticks(x, months, rotation=270)
-plt.title('2009', fontsize='small')
-# Module methods generate parts of Figure for first implicit Axes.
-
-plt.subplot(1, 2, 2)
-# Module implicitly manages matching matrix size to work on second implicit
-# Axes.
-
-plt.plot(x, y1, label='Income')
-plt.plot(x, y4, label='Checking')
-plt.plot(x, y5, color='green', label='Savings')
-# Module plots data on second implicit Axes.
-
-plt.xticks(x, months, rotation=270)
-plt.title('2009', fontsize='small')
-plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
-# Module methods generate parts of Figure for second implicit Axes.
-
-plt.suptitle('Personal Financial Tracking')
-plt.tight_layout()
-# Module methods for managing Figure elements.
-
-plt.show()
-# Module displays the Figure.
-
-##############################################################################
 #
-# The ``pyplot`` example above uses two Axes to graph data. In each instance,
-# Matplotlib auotmatically manages the specific Axes so that each action of
-# plotting data does not interfere with the previous instance.
-#
-# .. note::
-#
-#   There are limitations for customizing the implicit approach without
-#   referencing specific Axes and Artists within the Figure. For more
-#   advanced configurations, the explicit approach is recommended.
+# There are limitations for customizing the implicit approach without
+# referencing specific Axes and Artists within the Figure. For more advanced
+# configurations, the explicit approach offers more flexibility and control.
+# The Matplotlib community recommends users to use explicit programming for
+# these tasks.
 #
 # Generalized Function Guidelines
 # -------------------------------
