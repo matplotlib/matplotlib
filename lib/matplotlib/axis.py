@@ -148,7 +148,7 @@ class Tick(martist.Artist):
             grid_alpha = mpl.rcParams["grid.alpha"]
         grid_kw = {k[5:]: v for k, v in kw.items()}
 
-        self.apply_tickdir(tickdir)
+        self._apply_tickdir(tickdir)
 
         self.tick1line = mlines.Line2D(
             [], [],
@@ -209,15 +209,18 @@ class Tick(martist.Artist):
         _api.check_in_list(['auto', 'default'], labelrotation=mode)
         self._labelrotation = (mode, angle)
 
-    def apply_tickdir(self, tickdir):
+    def _apply_tickdir(self, tickdir):
         """Set tick direction.  Valid values are 'out', 'in', 'inout'."""
+        # Overriding subclasses should also compute _tickmarkers here.
         if tickdir is None:
             tickdir = mpl.rcParams[f'{self.__name__}.direction']
         _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
         self._pad = self._base_pad + self.get_tick_padding()
         self.stale = True
-        # Subclass overrides should compute _tickmarkers as appropriate here.
+
+    apply_tickdir = _api.deprecate_privatize_attribute(
+        "3.5", alternative="axis.set_tick_params")
 
     def get_tickdir(self):
         return self._tickdir
@@ -363,15 +366,15 @@ class Tick(martist.Artist):
             # convenient to leave it here.
             self._width = kw.pop('width', self._width)
             self._base_pad = kw.pop('pad', self._base_pad)
-            # apply_tickdir uses _size and _base_pad to make _pad,
+            # _apply_tickdir uses _size and _base_pad to make _pad,
             # and also makes _tickmarkers.
-            self.apply_tickdir(kw.pop('tickdir', self._tickdir))
+            self._apply_tickdir(kw.pop('tickdir', self._tickdir))
             self.tick1line.set_marker(self._tickmarkers[0])
             self.tick2line.set_marker(self._tickmarkers[1])
             for line in (self.tick1line, self.tick2line):
                 line.set_markersize(self._size)
                 line.set_markeredgewidth(self._width)
-            # _get_text1_transform uses _pad from apply_tickdir.
+            # _get_text1_transform uses _pad from _apply_tickdir.
             trans = self._get_text1_transform()[0]
             self.label1.set_transform(trans)
             trans = self._get_text2_transform()[0]
@@ -451,9 +454,9 @@ class XTick(Tick):
     def _get_text2_transform(self):
         return self.axes.get_xaxis_text2_transform(self._pad)
 
-    def apply_tickdir(self, tickdir):
+    def _apply_tickdir(self, tickdir):
         # docstring inherited
-        super().apply_tickdir(tickdir)
+        super()._apply_tickdir(tickdir)
         self._tickmarkers = {
             'out': (mlines.TICKDOWN, mlines.TICKUP),
             'in': (mlines.TICKUP, mlines.TICKDOWN),
@@ -518,9 +521,9 @@ class YTick(Tick):
     def _get_text2_transform(self):
         return self.axes.get_yaxis_text2_transform(self._pad)
 
-    def apply_tickdir(self, tickdir):
+    def _apply_tickdir(self, tickdir):
         # docstring inherited
-        super().apply_tickdir(tickdir)
+        super()._apply_tickdir(tickdir)
         self._tickmarkers = {
             'out': (mlines.TICKLEFT, mlines.TICKRIGHT),
             'in': (mlines.TICKRIGHT, mlines.TICKLEFT),
