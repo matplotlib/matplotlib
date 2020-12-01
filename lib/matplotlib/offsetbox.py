@@ -1380,7 +1380,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             Other parameters are identical to `.Annotation`.
         """
 
-        martist.Artist.__init__(self, **kwargs)
+        martist.Artist.__init__(self)
         mtext._AnnotationBase.__init__(self,
                                        xy,
                                        xycoords=xycoords,
@@ -1423,6 +1423,9 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         self.patch.set_boxstyle("square", pad=pad)
         if bboxprops:
             self.patch.set(**bboxprops)
+
+        if len(kwargs):
+            self.update(kwargs)
 
     @property
     def xyann(self):
