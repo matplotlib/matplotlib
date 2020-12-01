@@ -272,6 +272,7 @@ class Line2D(Artist):
                  linewidth=None,  # all Nones default to rc
                  linestyle=None,
                  color=None,
+                 gapcolor=None,
                  marker=None,
                  markersize=None,
                  markeredgewidth=None,
@@ -363,6 +364,9 @@ class Line2D(Artist):
             self._marker = MarkerStyle(marker, fillstyle)
         else:
             self._marker = marker
+
+        self._gapcolor = None
+        self.set_gapcolor(gapcolor)
 
         self._markevery = None
         self._markersize = None
@@ -754,9 +758,6 @@ class Line2D(Artist):
                 self._set_gc_clip(gc)
                 gc.set_url(self.get_url())
 
-                lc_rgba = mcolors.to_rgba(self._color, self._alpha)
-                gc.set_foreground(lc_rgba, isRGBA=True)
-
                 gc.set_antialiased(self._antialiased)
                 gc.set_linewidth(self._linewidth)
 
@@ -771,6 +772,26 @@ class Line2D(Artist):
                 gc.set_snap(self.get_snap())
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
+
+                # We first draw a path within the gaps if needed.
+                if self.is_dashed() and self._gapcolor is not None:
+                    lc_rgba = mcolors.to_rgba(self._gapcolor, self._alpha)
+                    gc.set_foreground(lc_rgba, isRGBA=True)
+
+                    # Define the inverse pattern by moving the last gap to the
+                    # start of the sequence.
+                    dashes = self._dash_pattern[1]
+                    gaps = dashes[-1:] + dashes[:-1]
+                    # Set the offset so that this new first segment is skipped
+                    # (see backend_bases.GraphicsContextBase.set_dashes for
+                    # offset definition).
+                    offset_gaps = self._dash_pattern[0] + dashes[-1]
+
+                    gc.set_dashes(offset_gaps, gaps)
+                    renderer.draw_path(gc, tpath, affine.frozen())
+
+                lc_rgba = mcolors.to_rgba(self._color, self._alpha)
+                gc.set_foreground(lc_rgba, isRGBA=True)
 
                 gc.set_dashes(*self._dash_pattern)
                 renderer.draw_path(gc, tpath, affine.frozen())
@@ -875,6 +896,14 @@ class Line2D(Artist):
         See also `~.Line2D.set_drawstyle`.
         """
         return self._drawstyle
+
+    def get_gapcolor(self):
+        """
+        Return the line gapcolor.
+
+        See also `~.Line2D.set_gapcolor`.
+        """
+        return self._gapcolor
 
     def get_linestyle(self):
         """
@@ -1066,6 +1095,29 @@ class Line2D(Artist):
             self._invalidx = True
         self._drawstyle = drawstyle
 
+    def set_gapcolor(self, gapcolor):
+        """
+        Set a color to fill the gaps in the dashed line style.
+
+        .. note::
+
+            Striped lines are created by drawing two interleaved dashed lines.
+            There can be overlaps between those two, which may result in
+            artifacts when using transparency.
+
+            This functionality is experimental and may change.
+
+        Parameters
+        ----------
+        gapcolor : color or None
+            The color with which to fill the gaps. If None, the gaps are
+            unfilled.
+        """
+        if gapcolor is not None:
+            mcolors._check_color_like(color=gapcolor)
+        self._gapcolor = gapcolor
+        self.stale = True
+
     def set_linewidth(self, w):
         """
         Set the line width in points.
@@ -1247,6 +1299,9 @@ class Line2D(Artist):
         For example, (5, 2, 1, 2) describes a sequence of 5 point and 1 point
         dashes separated by 2 point spaces.
 
+        See also `~.Line2D.set_gapcolor`, which allows those spaces to be
+        filled with a color.
+
         Parameters
         ----------
         seq : sequence of floats (on/off ink in points) or (None, None)
@@ -1264,6 +1319,7 @@ class Line2D(Artist):
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
         self._color = other._color
+        self._gapcolor = other._gapcolor
         self._markersize = other._markersize
         self._markerfacecolor = other._markerfacecolor
         self._markerfacecoloralt = other._markerfacecoloralt
