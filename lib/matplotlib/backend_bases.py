@@ -966,6 +966,23 @@ class GraphicsContextBase:
                     "All values in the dash list must be positive")
         self._dashes = dash_offset, dash_list
 
+    def set_complementarydashes(self, dash_offset, dash_list):
+
+        if dash_list is not None:
+            dl = np.asarray(dash_list)
+            if np.any(dl < 0.0):
+                raise ValueError(
+                    "All values in the dash list must be positive")
+
+        if len(dash_list) ==2 :
+            dash_list = [dash_list[0], dash_list[1], dash_list[0], dash_list[1]]
+
+        new_dash_list = dash_list[1:4] + [dash_list[0]]
+        new_dash_offset = dash_offset + dash_list[1] + dash_list[2]+ dash_list[3]
+
+        self._dashes = new_dash_offset, new_dash_list
+
+
     def set_foreground(self, fg, isRGBA=False):
         """
         Set the foreground color.

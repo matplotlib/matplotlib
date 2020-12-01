@@ -201,6 +201,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
+    "offcolor" : ["oc"],
     "drawstyle": ["ds"],
     "linestyle": ["ls"],
     "linewidth": ["lw"],
@@ -271,6 +272,7 @@ class Line2D(Artist):
                  linewidth=None,  # all Nones default to rc
                  linestyle=None,
                  color=None,
+                 offcolor=None,
                  marker=None,
                  markersize=None,
                  markeredgewidth=None,
@@ -311,7 +313,6 @@ class Line2D(Artist):
 
         if linewidth is None:
             linewidth = rcParams['lines.linewidth']
-
         if linestyle is None:
             linestyle = rcParams['lines.linestyle']
         if marker is None:
@@ -322,7 +323,6 @@ class Line2D(Artist):
             markeredgecolor = rcParams['lines.markeredgecolor']
         if color is None:
             color = rcParams['lines.color']
-
         if markersize is None:
             markersize = rcParams['lines.markersize']
         if antialiased is None:
@@ -367,6 +367,9 @@ class Line2D(Artist):
         self._color = None
         self.set_color(color)
         self._marker = MarkerStyle(marker, fillstyle)
+
+        self._offcolor = None
+        self.set_offcolor(offcolor)
 
         self._markevery = None
         self._markersize = None
@@ -765,9 +768,6 @@ class Line2D(Artist):
                 self._set_gc_clip(gc)
                 gc.set_url(self.get_url())
 
-                lc_rgba = mcolors.to_rgba(self._color, self._alpha)
-                gc.set_foreground(lc_rgba, isRGBA=True)
-
                 gc.set_antialiased(self._antialiased)
                 gc.set_linewidth(self._linewidth)
 
@@ -783,9 +783,23 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
+
+                # We first draw the path below if needed
+                if self.is_dashed() and self._offcolor is not None:
+                    lc_rgba = mcolors.to_rgba(self._offcolor, self._alpha)
+                    gc.set_foreground(lc_rgba, isRGBA=True)
+                    gc.set_complementarydashes(self._dashOffset, self._dashSeq)
+                    renderer.draw_path(gc, tpath, affine.frozen())
+                
+                lc_rgba = mcolors.to_rgba(self._color, self._alpha)
+                gc.set_foreground(lc_rgba, isRGBA=True)
+
                 gc.set_dashes(self._dashOffset, self._dashSeq)
                 renderer.draw_path(gc, tpath, affine.frozen())
+
                 gc.restore()
+
+
 
         if self._marker and self._markersize > 0:
             gc = renderer.new_gc()
@@ -878,6 +892,14 @@ class Line2D(Artist):
         See also `~.Line2D.set_color`.
         """
         return self._color
+
+    def get_offcolor(self):
+        """
+        Return the line offcolor.
+
+        See also `~.Line2D.set_offcolor`.
+        """
+        return self._offcolor
 
     def get_drawstyle(self):
         """
@@ -1044,6 +1066,23 @@ class Line2D(Artist):
             _api.check_in_list(get_named_colors_mapping(),
                                _print_supported_values=False, color=color)
         self._color = color
+        self.stale = True
+
+    def set_offcolor(self, offcolor):
+        """
+        Set the offcolor of the line.
+        By default set at 'None'
+
+        Parameters
+        ----------
+        offcolor : color or None
+        """
+
+        if offcolor is not None :
+            if not is_color_like(offcolor) and offcolor != 'auto':
+                _api.check_in_list(get_named_colors_mapping(),
+                                _print_supported_values=False, color=offcolor)
+        self._offcolor = offcolor
         self.stale = True
 
     def set_drawstyle(self, drawstyle):
@@ -1284,6 +1323,7 @@ class Line2D(Artist):
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
         self._color = other._color
+        self._offcolor = other._offcolor
         self._markersize = other._markersize
         self._markerfacecolor = other._markerfacecolor
         self._markerfacecoloralt = other._markerfacecoloralt
