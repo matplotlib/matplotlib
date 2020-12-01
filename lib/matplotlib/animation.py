@@ -349,12 +349,8 @@ class MovieWriter(AbstractMovieWriter):
         # All frames must have the same size to save the movie correctly.
         self.fig.set_size_inches(self._w, self._h)
         # Save the figure data to the sink, using the frame format and dpi.
-        self.fig.savefig(self._frame_sink(), format=self.frame_format,
+        self.fig.savefig(self._proc.stdin, format=self.frame_format,
                          dpi=self.dpi, **savefig_kwargs)
-
-    def _frame_sink(self):
-        """Return the place to which frames should be written."""
-        return self._proc.stdin
 
     def _args(self):
         """Assemble list of encoder-specific command-line arguments."""
@@ -363,7 +359,6 @@ class MovieWriter(AbstractMovieWriter):
     def _cleanup(self):  # Inline to finish() once cleanup() is removed.
         """Clean-up and collect the process used to write the movie file."""
         out, err = self._proc.communicate()
-        self._frame_sink().close()
         # Use the encoding/errors that universal_newlines would use.
         out = TextIOWrapper(BytesIO(out)).read()
         err = TextIOWrapper(BytesIO(err)).read()
@@ -483,30 +478,18 @@ class FileMovieWriter(MovieWriter):
         # for extension and the prefix.
         return self.fname_format_str % (self.temp_prefix, self.frame_format)
 
-    def _frame_sink(self):
-        # Creates a filename for saving using the basename and the current
-        # counter.
-        path = Path(self._base_temp_name() % self._frame_counter)
-
-        # Save the filename so we can delete it later if necessary
-        self._temp_paths.append(path)
-        _log.debug('FileMovieWriter.frame_sink: saving frame %d to path=%s',
-                   self._frame_counter, path)
-        self._frame_counter += 1  # Ensures each created name is 'unique'
-
-        # This file returned here will be closed once it's used by savefig()
-        # because it will no longer be referenced and will be gc-ed.
-        return open(path, 'wb')
-
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
         # Overloaded to explicitly close temp file.
-        _log.debug('MovieWriter.grab_frame: Grabbing frame.')
-        # Tell the figure to save its data to the sink, using the
-        # frame format and dpi.
-        with self._frame_sink() as myframesink:
-            self.fig.savefig(myframesink, format=self.frame_format,
-                             dpi=self.dpi, **savefig_kwargs)
+        # Creates a filename for saving using basename and counter.
+        path = Path(self._base_temp_name() % self._frame_counter)
+        self._temp_paths.append(path)  # Record the filename for later cleanup.
+        self._frame_counter += 1  # Ensures each created name is unique.
+        _log.debug('FileMovieWriter.grab_frame: Grabbing frame %d to path=%s',
+                   self._frame_counter, path)
+        with open(path, 'wb') as sink:  # Save figure to the sink.
+            self.fig.savefig(sink, format=self.frame_format, dpi=self.dpi,
+                             **savefig_kwargs)
 
     def finish(self):
         # Call run here now that all frame grabbing is done. All temp files
