@@ -335,7 +335,12 @@ class MovieWriter(AbstractMovieWriter):
 
     def finish(self):
         """Finish any processing for writing the movie."""
-        self.cleanup()
+        overridden_cleanup = cbook._deprecate_method_override(
+            __class__.cleanup, self, since="3.4", alternative="finish()")
+        if overridden_cleanup is not None:
+            overridden_cleanup()
+        else:
+            self._cleanup()  # Inline _cleanup() once cleanup() is removed.
 
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
@@ -355,7 +360,7 @@ class MovieWriter(AbstractMovieWriter):
         """Assemble list of encoder-specific command-line arguments."""
         return NotImplementedError("args needs to be implemented by subclass.")
 
-    def cleanup(self):
+    def _cleanup(self):  # Inline to finish() once cleanup() is removed.
         """Clean-up and collect the process used to write the movie file."""
         out, err = self._proc.communicate()
         self._frame_sink().close()
@@ -373,6 +378,10 @@ class MovieWriter(AbstractMovieWriter):
         if self._proc.returncode:
             raise subprocess.CalledProcessError(
                 self._proc.returncode, self._proc.args, out, err)
+
+    @_api.deprecated("3.4")
+    def cleanup(self):
+        self._cleanup()
 
     @classmethod
     def bin_path(cls):
@@ -505,8 +514,8 @@ class FileMovieWriter(MovieWriter):
         self._run()
         super().finish()  # Will call clean-up
 
-    def cleanup(self):
-        super().cleanup()
+    def _cleanup(self):  # Inline to finish() once cleanup() is removed.
+        super()._cleanup()
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
