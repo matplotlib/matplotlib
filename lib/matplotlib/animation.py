@@ -634,9 +634,15 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-r', str(self.fps),
+        args = [self.bin_path(), '-r', str(self.fps),
                 '-i', self._base_temp_name(),
-                '-vframes', str(self._frame_counter)] + self.output_args
+                '-vframes', str(self._frame_counter)]
+        # Logging is quieted because subprocess.PIPE has limited buffer size.
+        # If you have a lot of frames in your animation and set logging to
+        # DEBUG, you will have a buffer overrun.
+        if _log.getEffectiveLevel() > logging.DEBUG:
+            args += ['-loglevel', 'error']
+        return [*args, *self.output_args]
 
 
 # Base class of avconv information.  AVConv has identical arguments to FFMpeg.
