@@ -182,9 +182,7 @@ def test_gca():
     # with a spec of 111.
     with pytest.warns(
             MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments is deprecated'), \
-        pytest.raises(
-            ValueError, match=r'arguments passed to gca\(\) did not match'):
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
         # Changing the projection will raise an exception
         fig.gca(polar=True)
 

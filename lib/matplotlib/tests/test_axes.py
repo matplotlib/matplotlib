@@ -2408,9 +2408,7 @@ def test_as_mpl_axes_api():
     # try getting the axes given a different polar projection
     with pytest.warns(
             MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments is deprecated'), \
-        pytest.raises(
-            ValueError, match=r'arguments passed to gca\(\) did not match'):
+            match=r'Calling gca\(\) with keyword arguments is deprecated'):
         ax_via_gca = plt.gca(projection=prj2)
     # try getting the axes given an == (not is) polar projection
     with pytest.warns(
