@@ -1,0 +1,13 @@
+/*
+ * plot_directive.css
+ * ~~~~~~~~~~~~
+ *
+ * Stylesheet controlling images created using the `plot` directive within
+ * Sphinx.
+ *
+ */
+
+img.plot-directive {
+    border: 0;
+    max-width: 100%;
+}
