@@ -58,3 +58,7 @@ def test_tinypages(tmpdir):
     assert b'Plot 17 uses the caption option.' in html_contents
     # check if figure caption made it into html file
     assert b'This is the caption for plot 18.' in html_contents
+    # check if the custom classes made it into the html file
+    assert b'plot-directive my-class my-other-class' in html_contents
+    # check that the multi-image caption is applied twice
+    assert html_contents.count(b'This caption applies to both plots.') == 2

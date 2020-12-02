@@ -141,3 +141,23 @@ using the :caption: option:
 
 .. plot:: range4.py
    :caption: This is the caption for plot 18.
+
+Plot 19 uses shows that the "plot-directive" class is still appended, even if
+we request other custom classes:
+
+.. plot:: range4.py
+   :class: my-class my-other-class
+
+    Should also have a caption.
+
+Plot 20 shows that the default template correctly prints the multi-image
+scenario:
+
+.. plot::
+   :caption: This caption applies to both plots.
+
+   plt.figure()
+   plt.plot(range(6))
+
+   plt.figure()
+   plt.plot(range(4))
