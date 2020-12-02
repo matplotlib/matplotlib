@@ -200,7 +200,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
 
 @cbook._define_aliases({
     "antialiased": ["aa"],
-    "color": ["c"],
+    "color" : ["c"],
     "offcolor" : ["oc"],
     "drawstyle": ["ds"],
     "linestyle": ["ls"],
@@ -783,23 +783,19 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-
                 # We first draw the path below if needed
                 if self.is_dashed() and self._offcolor is not None:
                     lc_rgba = mcolors.to_rgba(self._offcolor, self._alpha)
                     gc.set_foreground(lc_rgba, isRGBA=True)
-                    gc.set_complementarydashes(self._dashOffset, self._dashSeq)
+                    gc.set_dashes(None, None)
                     renderer.draw_path(gc, tpath, affine.frozen())
                 
                 lc_rgba = mcolors.to_rgba(self._color, self._alpha)
                 gc.set_foreground(lc_rgba, isRGBA=True)
-
                 gc.set_dashes(self._dashOffset, self._dashSeq)
                 renderer.draw_path(gc, tpath, affine.frozen())
 
                 gc.restore()
-
-
 
         if self._marker and self._markersize > 0:
             gc = renderer.new_gc()
@@ -1094,7 +1090,7 @@ class Line2D(Artist):
         Parameters
         ----------
         drawstyle : {'default', 'steps', 'steps-pre', 'steps-mid', \
-'steps-post'}, default: 'default'
+        'steps-post'}, default: 'default'
             For 'default', the points are connected with straight lines.
 
             The steps variants connect the points with step-like lines,

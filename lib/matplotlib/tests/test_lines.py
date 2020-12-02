@@ -258,6 +258,12 @@ def test_marker_as_markerstyle():
 
     assert_array_equal(line2.get_marker().vertices, triangle1.vertices)
     assert_array_equal(line3.get_marker().vertices, triangle1.vertices)
+    
+
+@image_comparison(['striped_lines'], extensions=['png'])
+def text_striped_lines():
+    fig, ax = plt.subplots()
+    ax.plot(range(10), color = 'orange', offcolor = 'blue', linestyle= '--', lw=5)
 
 
 @check_figures_equal()
