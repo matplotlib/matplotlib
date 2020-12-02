@@ -19,28 +19,34 @@ There are several key terms in Matplotlib that are standards for
 reliability and consistency in documentation. They are case-sensitive and
 are not interchangeable.
 
-+----------------------+--------------------------+-------------------------+
-| Term                 | Description              | Correct    | Incorrect  |
-+----------------------+--------------------------+-------------------------+
-| Figure               | Workign space for        |            |            |
-|                      | programming.             |            |            |
-+----------------------+--------------------------+-------------------------+
-| Axes                 | Subplots within Figure.  |            |            |
-|                      | Contains Figure elements |            |            |
-|                      | and is responsible for   |            |            |
-|                      | plotting and configuring |            |            |
-|                      | additional details.      |            |            |
-+----------------------+--------------------------+-------------------------+
-| Axis                 | Refers to visible object |            |            |
-|                      | corresponding to labeling|            |            |
-|                      | of plotted data.         |            |            |
-+----------------------+--------------------------+-------------------------+
-| Artist               | Broad Matplotlib object  |            |            |
-|                      | that displays visuals.   |            |            |
-+----------------------+--------------------------+-------------------------+
-| Object Oriented      | Explicit approach of     |            |            |
-| Programming (OOP)    | programing in Matplotlib.|            |            |
-+----------------------+--------------------------+-------------------------+
++------------------+--------------------------+--------------+--------------+
+| Term             | Description              | Correct      | Incorrect    |
++==================+==========================+==============+==============+
+| Figure           | Matplotlib working space |- One Figure  |- One figure  |
+|                  | for programming.         |- 11 Figures  |- 11 figures  |
++------------------+--------------------------+--------------+--------------+
+| Axes             | Subplots within Figure.  | - One Axes   | - One axes   |
+|                  | Contains Figure elements | - Four Axes  | - Four Axeses|
+|                  | and is responsible for   | - 32 Axes    | - 32 Axii    |
+|                  | plotting and configuring |              |              |
+|                  | additional details.      |              |              |
++------------------+--------------------------+--------------+--------------+
+| Artist           | Broad Matplotlib object  | - One Artist | - One artist |
+|                  | that displays visuals.   | - Two Artists| - Two artists|
++------------------+--------------------------+--------------+--------------+
+| Axis             | Refers to visible object | - One Axis   | - One axis   |
+|                  | corresponding to labeling| - Four Axis  | - Four Axises|
+|                  | of plotted data.         |   objects    | - 32 Axes    |
++------------------+--------------------------+--------------+--------------+
+| Explicit,        | Explicit approach of     | - Explicit   | - object     |
+| Object Oriented  | programing in Matplotlib.| - explicit   |   oriented   |
+| Programming (OOP)|                          | - OOP        | - OO-style   |
++------------------+--------------------------+--------------+--------------+
+| Implicit,        | Implicit approach of     | - Implicit   | - MATLAB like|
+| ``pyplot``       | programming in Matplotlib| - implicit   | - Pyplot     |
+|                  | with ``pyplot`` module.  | - ``pyplot`` | - pyplot     |
+|                  |                          |              |   interface  |
++------------------+--------------------------+--------------+--------------+
 
 
 Grammar
@@ -52,11 +58,11 @@ The audience is the "user" in the documentation. A "user" is a person
 programming in Python with the Matplotlib library.
 
 Use second-person sentences for instructions directed at user for specifying
-an action.
+an action or a possessive reference.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
-+------------------------------------+------------------------------------+
++====================================+====================================+
 | Users install Matplotlib from the  | You can install Matplotlib from the|
 | source directory using the Python  | source directory. You can find     |
 | ``pip`` installer program.         | additional support if you are      |
@@ -71,12 +77,12 @@ or auxiliary verbs when possible.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
-+------------------------------------+------------------------------------+
++====================================+====================================+
 | The fundamental ideas behind       | Matplotlib will take data and      |
 | Matplotlib for visualization       | transform it through functions and |
-| involve taking data and            | methods. This should be the basic  |
-| transforming it thorugh functions  | fundamental idea behind Matplotlib |
-| and methods.                       | for visualizations.                |
+| involve taking data and            | methods. They can generate many    |
+| transforming it through functions  | kinds of visuals. These will be the|
+| and methods.                       | fundamentals for using Matplotlib. |
 +------------------------------------+------------------------------------+
 
 Voice
@@ -86,7 +92,7 @@ related to warning prompts.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
-+------------------------------------+------------------------------------+
++====================================+====================================+
 | The function ``plot`` generates the| The graph is generated by the      |
 | graph.                             | ``plot`` function.                 |
 +------------------------------------+------------------------------------+
@@ -97,13 +103,13 @@ related to warning prompts.
 
 Sentence structure
 ^^^^^^^^^^^^^^^^^^
-Write wih short sentences using Subject-Verb-Object order regularly. Limit
+Write with short sentences using Subject-Verb-Object order regularly. Limit
 how frequently coordinating conjunctions appear in sentences. Avoid pronoun
 referenes and subordinating conjunctive prhases.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
-+------------------------------------+------------------------------------+
++====================================+====================================+
 | The ``pyplot`` module in Matplotlib| The ``pyplot`` module in Matplotlib|
 | is a collection of functions. These| is a collection of functions which |
 | functions create, manage, and      | create, manage, and manipulate the |
@@ -115,18 +121,23 @@ referenes and subordinating conjunctive prhases.
 | corresponds to the respective      | respective Figure.                 |
 | Figure.                            |                                    |
 +------------------------------------+------------------------------------+
+| The implicit approach is a         | Users that wish to have convenient |
+| convenient shortcut for            | shortcuts for generating plots use |
+| generating simple plots.           | the implicit approach.             |
++------------------------------------+------------------------------------+
+
 
 Formatting
 ==========
 
 Matplotlib uses reStructuredText Markup for documentation. Sphinx helps to
-transform these documents into proper formats for access and visibility.
+transform these documents into appropriate formats for accessibility and
+visibility.
 
 reStructuredText standards
 --------------------------
-
-https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html
-https://docutils.sourceforge.io/docs/user/rst/quickref.html
+- https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html
+- https://docutils.sourceforge.io/docs/user/rst/quickref.html
 
 
 Lists
@@ -136,19 +147,21 @@ Numbered Lists are exclusively for performing actions in specific order.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
-+------------------------------------+------------------------------------+
++====================================+====================================+
 | The example uses three graphs.     | The example uses three graphs.     |
-| - Bar                              |  1. Bar                            |
-| - Line                             |  2. Line                           |
-| - Pie                              |  3. Pie                            |
 +------------------------------------+------------------------------------+
-| These three steps help to get      | The following steps are important  |
+| - Bar                              | 1. Bar                             |
+| - Line                             | 2. Line                            |
+| - Pie                              | 3. Pie                             |
++------------------------------------+------------------------------------+
+| These four steps help to get       | The following steps are important  |
 | started using Matplotlib.          | to get started using Matplotlib.   |
-| 1. Import the Matplotlib library.  |  - Import the Matplotlib library.  |
-| 2. Import the necessary modules.   |  - Import the necessary modules.   |
-| 3. Set and assign data to work on. |  - Set and assign data to work on. |
-| 4. Transform data with methods and |  - Transform data with methods and |
-|    functions.                      |    functions.                      |
++------------------------------------+------------------------------------+
+|  1. Import the Matplotlib library. |  - Import the Matplotlib library.  |
+|  2. Import the necessary modules.  |  - Import the necessary modules.   |
+|  3. Set and assign data to work on.|  - Set and assign data to work on. |
+|  4. Transform data with methods and|  - Transform data with methods and |
+|     functions.                     |    functions.                      |
 +------------------------------------+------------------------------------+
 
 Additional Resources
@@ -158,8 +171,3 @@ Additional Resources
 * `IBM Style Guide <https://www.ibm.com/developerworks/library/styleguidelines/>`_
 * `Google Developer Style Guide <https://developers.google.com/style>`_
 
-+------------------------------------+------------------------------------+
-| Correct                            | Incorrect                          |
-+------------------------------------+------------------------------------+
-|                                    |                                    |
-+------------------------------------+------------------------------------+

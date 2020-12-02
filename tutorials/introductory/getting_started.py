@@ -6,8 +6,8 @@
 Getting Started
 ***************
 
-This tutorial covers basic usage patterns and best-practices to help you get
-started with Matplotlib.
+This tutorial covers basic usage patterns and best practices to help get
+started using Matplotlib.
 """
 
 ##############################################################################
@@ -42,13 +42,16 @@ started with Matplotlib.
 # | configurations of graphs.          | environments.                      |
 # +------------------------------------+------------------------------------+
 # | Recommended to new users for       | Most useful for users coming from  |
-# | learning fundamentals.             | MATLAB.                            |
+# | learning fundamentals.             | MATLAB. Users already familiar with|
+# |                                    | Matplotlib also benefit from using |
+# |                                    | ``pyplot`` for convenient          |
+# |                                    | shortcuts.                         |
 # +------------------------------------+------------------------------------+
 #
 # Explicit programming helps users generalize code and is useful for repeated
 # uses or larger projects. This is also a more robust way of controlling
 # customizations for visualizations. Users looking to have control over every
-# part of the graph can call methods on each item. Most users benefit using
+# part of the graph call methods on each item. Most users benefit using
 # explicit programming for regular Matplotlib use as the user manages each
 # element of building a graph.
 #
@@ -56,12 +59,17 @@ started with Matplotlib.
 # plots and for interactive environments, such as Jupyter Notebooks. Users
 # familiar with MATLAB or would like to have Matplotlib automatically create
 # and manage parts of the visualization benefit from using the ``pyplot``
-# module to graph data. New users to Matplotlib may experience difficulty
-# understanding how elements of a visualization work together when using the
-# implicit approach.
+# module to graph data. Using implicit programming acts as a convenient
+# shortcut for generating visualizations. New users to Matplotlib may
+# experience difficulty understanding how elements of a visualization work
+# together when using the implicit approach.
 #
 # Examples
 # --------
+#
+# The table below depicts the two alternative approaches to plotting a
+# simple graph. The image following the table is the visualization of the
+# programming.
 #
 # +------------------------------------+------------------------------------+
 # | Explicit, Object Oriented          | Implicit, ``pyplot``               |
@@ -80,6 +88,11 @@ started with Matplotlib.
 # |                                    | the data.                          |
 # +------------------------------------+------------------------------------+
 #
+# .. image:: ../../_static/getting_started_example.png
+#
+# .. note::
+#
+#     The example image is identical for both explicit and implicit code.
 #
 # Requirements
 # ============
@@ -114,23 +127,30 @@ started with Matplotlib.
 #
 # The common convention for preparing to plot data involves importing the
 # Matplotlib library module ``pyplot`` with the abbreviation ``plt`` for
-# convenience. Both explicit and implicit programming require the following
-# code.
+# convenience. Both explicit and implicit programming require the module.
+#
+# The other library imports are for support. Explanations on their purposes
+# are included below.
 
 import matplotlib.pyplot as plt
+
+##############################################################################
+#
+# - The ``pyplot`` module in Matplotlib is a collection of functions. The
+#   module's functions create, manage, and manipulate the current Figure and
+#   the plotting area. The abbreviation as ``plt`` is the standard shortcut.
+#
+
 import numpy as np
 
 from functools import partial
 
 ##############################################################################
 #
-# - The ``pyplot`` module in Matplotlib is a collection of functions. The
-#   module's functions create, manage, and manipulate the current Figure and
-#   the plotting area.
 # - NumPy is a common scientific Python library that benefits users with
-#   additional robust tools for manipulating data.
+#   additional tools for manipulating data.
 # - The ``functools`` module helps manage functions that act on or return
-#   otherfunctions. The `Pie Chart Examples`_ section contains more
+#   other functions. The `Pie Chart Examples`_ section note contains more
 #   information about the purpose of this module.
 #
 # Two Approaches for Creating Graphs
@@ -144,13 +164,13 @@ from functools import partial
 # +------------------------------------+------------------------------------+
 # | Explicit                           | Implicit                           |
 # +====================================+====================================+
-# | * Code has explicit references to  | * The programming is designed to   |
+# | - Code has explicit references to  | - The programming is designed to   |
 # |   objects. Users manage objects for|   remember preceding events or     |
 # |   the specific Figure and Axes and |   interactions. This preserved     |
 # |   call on methods for manipulating |   state allows Matplotlib to       |
 # |   data.                            |   automatically manage a Figure and|
-# | * Object Oriented Programming      |   Axes.                            |
-# |   allows for robust control and is | * The module ``pyplot`` operates   |
+# | - Object Oriented Programming      |   Axes.                            |
+# |   allows for robust control and is | - The module ``pyplot`` operates   |
 # |   useful for generalized code.     |   similarly to MATLAB and is       |
 # |                                    |   convenient for interactive       |
 # |                                    |   environments.                    |
@@ -170,7 +190,7 @@ from functools import partial
 # ----
 #
 # The Matplotlib library manages data in the form of iterables and/or
-# sequenced items. These can also take the form of NumPy arrays like
+# sequenced items. These also take the form of NumPy arrays like
 # `numpy.array` or `numpy.ma.masked_array`. All plotting functions take these
 # data structures.
 #
@@ -197,17 +217,18 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 #    Other containers, such as data objects from various libraries, may not
 #    work as intended.
 #
-# The following plots are identical. Each uses a different approach to graph
-# the data. The results do not change for either approach when using the same
-# data points.
+# Explicit and implicit examples of a basic line plot are below. Both of the
+# following plots are identical. Each uses a different approach to graph the
+# data. The results do not change for either approach when using the same data
+# points.
 #
 # Explicit: Object Oriented Programming (OOP)
 # --------------------------------------------
 #
-# To use explicit programming for Matplotlib involves using a single instance
-# of the ``pyplot`` module. This unpacks a set of an explicit Figure and Axes.
-# There can be more than one Axes; however, each Axes can only be on one
-# Figure.
+# Explicit programming for Matplotlib involves using a single instance of the
+# ``pyplot`` module. This unpacks a set of an explicit Figure and Axes.
+# More than one Axes is configurable; however, each Axes only corresponds to a
+# single Figure.
 #
 # Each Axes has its own methods to graph data. In addition, each Axes
 # also uses separate methods to create and manage parts of a Figure. These
@@ -243,25 +264,23 @@ plt.show()
 
 ##############################################################################
 #
-# For the OOP example, the Figure and Axes are unpacked from the module using
-# a single instance of ``pyplot``. This convention uses ``plt.subplots()``
-# and defaults to one Figure, ``fig``, and one Axes, ``ax``. The
-# `Configuration`_ section below contains additional information about
-# manipulating visuals, multiple visulizations, and other modifications.
+# The module for the OOP example unpacks the Figure and Axes using a single
+# instance of ``pyplot``. This convention uses ``plt.subplots()`` and defaults
+# to one Figure, ``fig``, and one Axes, ``ax``. The `Configuration`_ section
+# below contains additional information about manipulating visuals, multiple
+# visulizations, and other modifications.
 #
-# Using the OOP approach allows for ``fig`` and ``ax`` to use separate methods
-# to manipulate the visualization. Instead of using the module ``pyplot`` for
-# all instances of managing objects, the specfic Axes refers to OOP usage and
-# manages the respective data.
+# Using explicit programming allows for ``fig`` and ``ax`` to use separate
+# methods to manipulate the visualization. Specific Figures and Axes refer to
+# methods in OOP conventions for managing respective data.
 #
 # Implicit: ``pyplot``
 # --------------------
 #
 # Implicit programming for Matplotlib centers around using the ``pyplot``
-# module. The Figure and Axes are automatically generated by the module.
-# The methods and functions within the module take incoming data as arguments.
-# Additional parts of the Figure are also available through the module
-# methods.
+# module. The module automatically generates Figure and Axes. Methods and
+# functions within the module take incoming data as arguments. Additional parts
+# of the Figure are also available through the module methods.
 
 # Implicit programming with pyplot
 
@@ -287,7 +306,7 @@ plt.show()
 # actionable tasks for the data. The ``plt.plot`` plots data as a line graph
 # with various keyword arguments as customizable options. The module also
 # includes other methods for generating parts of the visualization. These parts
-# use different methods from the OOP approach.
+# use different methods from the explicit approach.
 #
 # .. note::
 #
@@ -308,15 +327,29 @@ plt.show()
 #
 # The image below depicts each visible element of a Matplotlib graph. The
 # graphic uses Matplotlib to display and highlight each individual part of the
-# visualization. To see how the programming operates, the source code is
+# visualization. To view the programming for the image, the source code is
 # available at :ref:`sphx_glr_gallery_showcase_anatomy.py`.
+#
+#
+# .. image:: ../../_static/anatomy.png
+#
 #
 # .. note::
 #
 #     ``Figure`` and ``Axes`` identify empty regions of the diagram;
-#     however, these elements are foundational in operation.
+#     however, these elements are foundational in operation. The example below
+#     illustrates an empty Figure and respective Axes. Matplotlib also
+#     automatically generates certain Artists for the visualization even
+#     without assigned data.
 #
-# .. image:: ../../_static/anatomy.png
+
+fig, ax = plt.subplots()
+# Explicit Figure and Axes unpacked from module function.
+# No data transformed for visualizations.
+plt.show()
+# Module displays empty Figure and Axes.
+
+##############################################################################
 #
 # :class:`~matplotlib.figure.Figure`
 #
@@ -330,11 +363,11 @@ plt.show()
 # Figure can contain multiple Axes, but each Axes is specific to one
 # Figure.
 #
-# In a Figure, each Axes can contain any number of visual elements. An Axes may
-# have more than one type of visualization of data. From the `Plotting`_
-# section above, the Axes in both explicit and implicit strategies contain
-# multiple types of visualizations of data on a single Axes. Each of these
-# types are specific to the Axes they are in.
+# In a Figure, each Axes contains any number of visual elements. Axes are
+# configurable for more than one type of visualization of data. From the
+# `Plotting`_ section above, the Axes in both explicit and implicit strategies
+# contain multiple types of visualizations of data on a single Axes. Each of
+# these types are specific to the Axes they are in.
 #
 # Other Components
 # ^^^^^^^^^^^^^^^^
@@ -349,20 +382,17 @@ plt.show()
 # .. note::
 #
 #   Axes and Axis are not synonymous. Axis refers to
-#   :class:`~matplotlib.axis.Axis`.
+#   :class:`~matplotlib.axis.Axis`, a separate Matplotlib object.
 #
 # Manipulating Artists
 # --------------------
 #
 # With simple plots, Matplotlib automatically generates the basic elements of
-# a graph. For more control over the visual, use Artists and its methods.
+# a graph. For more control over the visual, use Artists and methods.
 #
 # Matplotlib generates additional visual elements as Artists in the form of
-# objects. As Artists, each has its own respective methods and functions.
-# Explicit and implicit approaches use different methods and are not
-# interchangeable.
-#
-# The table below compares formatter Artists and their different methods.
+# objects. As Artists, each has respective methods and functions. Explicit and
+# implicit approaches use different methods and are not interchangeable.
 #
 # +-----------------------+--------------------------+------------------------+
 # | Artist                | Explicit                 | Implicit               |
@@ -372,18 +402,31 @@ plt.show()
 # |                       | artists.                 | on most recent Figure  |
 # |                       |                          | or Axes.               |
 # +-----------------------+--------------------------+------------------------+
-# | X-axis labels         | ``ax.set_xticks()``      | ``plt.xticks()``       |
+#
+# The table below compares common formatter Artists and their different
+# methods. These Artists label and identify parts of a visualization.
+#
+# The term ``ax`` refers to an assigned variable for a specific Axes. Using
+# explicit programming may require additional tasks of setting objects prior
+# to assigning labels. Whereas with implicit programming, the module manages
+# those tasks without specification.
+#
+# +-----------------------+--------------------------+------------------------+
+# | Artist                | Explicit                 | Implicit               |
+# +=======================+==========================+========================+
+# | X-Axis labels         | ``ax.set_xticks()``      | ``plt.xticks()``       |
 # |                       | ``ax.set_xticklabels()`` |                        |
 # +-----------------------+--------------------------+------------------------+
-# | Y-axis labels         | ``ax.set_yticks()``      | ``plt.yticks()``       |
+# | Y-Axis labels         | ``ax.set_yticks()``      | ``plt.yticks()``       |
 # |                       | ``ax.set_yticklabels()`` |                        |
 # +-----------------------+--------------------------+------------------------+
 # | Title (Axes)          | ``ax.set_title()``       | ``plt.title()``        |
 # +-----------------------+--------------------------+------------------------+
 #
-# The following table represents common Artists for transforming data. These
-# methods often overlap in naming conventions and make use of identical keyword
-# arguments and other parameters.
+# The following table represents common Artists for transforming data. The
+# Artists in this table generate data visualizations from transformations.
+# These methods often overlap in naming conventions and make use of identical
+# keyword arguments and other parameters.
 #
 # +-----------------------+--------------------------+------------------------+
 # | Artist                | Explicit                 | Implicit               |
@@ -395,37 +438,31 @@ plt.show()
 # | Legend (Axes)         | ``ax.legend()``          | ``plt.legend()``       |
 # +-----------------------+--------------------------+------------------------+
 #
-#
-# The term ``ax`` refers to an assigned variable for a specific Axes. Using
-# explicit programming requires additional tasks of setting objects prior to
-# assigning labels. Whereas with implicit programming, the module manages
-# those tasks without specification.
-#
-# For additional information about available methods, see the table below.
+# For complete information about available methods, refer to the table below.
 #
 # +------------------------------------+------------------------------------+
-# | Explicit                           | :class:`matplotlib.axes.Axes`      |
-# +------------------------------------+------------------------------------+
-# | Implicit                           | :mod:`matplotlib.pyplot`           |
+# | Explicit                           | Implicit                           |
+# +====================================+====================================+
+# | :class:`matplotlib.axes.Axes`      | :mod:`matplotlib.pyplot`           |
 # +------------------------------------+------------------------------------+
 #
 #
 # Pie Chart Examples
 # ------------------
 #
-# Matplotlib pie charts create wedges based on data and manipulate the size of
-# the Artists based on the ratio of the slice to the sum of the data. The
-# ``.pie()`` method is similar for both explicit and implicit approaches.
+# Matplotlib pie charts create wedges based on data. They manipulate the size
+# of the Artists based on the ratio of the wedge to the sum of the data. The
+# ``.pie()`` method is similar in both explicit and implicit approaches.
 #
 # The code below illustrates various levels of configuration in keyword
 # arguments as well as Artist methods for both explicit and implicit
 # programming.
 #
 
-# Data
+# Sample data for monthly spending averages.
 
 budget = [475, 300, 125, 50]
-# Data points are represented in wedge size compared to total sum.
+# Data points correspond to wedge size as a ratio of total sum.
 # Matplotlib methods calculate these values automatically based on input.
 
 descriptions = ['Shared house\nin Philadelphia',
@@ -433,7 +470,7 @@ descriptions = ['Shared house\nin Philadelphia',
                 'Groceries\n& takeout',
                 'Treasury bonds']
 categories = ['Rent', 'Bills', 'Food', 'Savings']
-# These lists of strings contribute to labeling corresponding data.
+# Lists of strings contribute to labeling corresponding data.
 
 colors = ['#1f77b4', '#ff7f0e', '#d62728', '#2ca02c']
 # Hex color codes determine respective wedge color.
@@ -446,10 +483,23 @@ def autopct_format(percent, group):
     """
     Takes percent equivalent and calculates original value from data.
     Returns fstring of value new line above percentage.
+
+    Parameters
+    ----------
+    percent : float
+        Number as percentage equivalent
+    group : array
+        Collection of values
+
+    Returns
+    -------
+    formatted : fstring
+        Formatted string with symbols, spacing, and line breaks
     """
     value = int(percent/100.*np.sum(group))
-    return f'${value:<4}\n{percent:1.1f}%'
-# This function is used in conjunction with the functools partial function
+    formatted = f'${value:<4}\n{percent:1.1f}%'
+    return formatted
+# This function operates in conjunction with the functools partial function
 # for formatting labels in wedges.
 
 ##############################################################################
@@ -460,7 +510,7 @@ def autopct_format(percent, group):
 # The following two plots are identical. Both the explicit and implicit
 # approaches generate the exact same plot when using the same variables.
 #
-# See `matplotlib.axes.Axes.pie` and `matplotlib.pyplot.pie` for more
+# Review `matplotlib.axes.Axes.pie` and `matplotlib.pyplot.pie` for more
 # information about the APIs for explicit and implicit, respectively.
 
 # Explicit
@@ -484,7 +534,7 @@ plt.pie(budget, colors=colors, labels=categories)
 plt.legend()
 plt.title('Average Monthly Income Expenses')
 plt.axis('equal')
-# The pyplot module contains an identical method for aspect ratio setting.
+# The pyplot module contains an identical method for setting aspect ratio.
 
 plt.show()
 
@@ -504,7 +554,7 @@ plt.show()
 #
 # Many methods contain optional keyword arguments for further configuration.
 # In the examples for explicit programming below, there are values and
-# functions in keyword arguments that format the Artists. These changes also
+# functions in keyword arguments for formatting the Artists. These changes also
 # apply to implicit programming, though with varying method names.
 #
 # The pie chart below adds configurations with keyword arguments for
@@ -519,11 +569,11 @@ ax.pie(budget,
        colors=colors,
        labels=categories,
        explode=explode,
-       # The explode keyword argument uses the explode variable from data to
+       # The explode keyword argument uses the explode variable data to
        # separate respective wedges from the center.
        autopct='%1.1f%%',
        # The autopct keyword argument takes formatting strings and functions
-       # to generate text within the wedge. '%1.1f%%' uses string formatters.
+       # to generate text within the wedge. '%1.1f%%' is a string formatter.
        startangle=-80,
        # The startangle keyword argument changes where the first wedge spans.
        # Angles start at 0 degrees on the X-axis and move counterclockwise.
@@ -543,7 +593,7 @@ plt.show()
 # customize the visual. Also, the ``legend`` as an Artist has parameters that
 # enable more specification for the information displayed. For more, see the
 # `Legend Guide
-# <https://matplotlib.org/tutorials/intermediate/legend_guide.html?highlight=legend%20guide>`_
+# <https://matplotlib.org/tutorials/intermediate/legend_guide.html?highlight=legend%20guide>`_.
 
 # Explicit
 
@@ -552,15 +602,14 @@ fig, ax = plt.subplots()
 budget_pie = ax.pie(budget,
                     colors=colors,
                     labels=descriptions,
-                    # Instead of using the categories data as a label, the
-                    # descriptions act as text to label the wedges. This aids
-                    # in removing redundant information from the previous
+                    # Descriptions now act as text labels for the wedges.
+                    # This removes redundant information from the previous
                     # pie chart.
                     explode=explode,
                     autopct=partial(autopct_format, group=budget),
-                    # The autopct keyword argument in this instance uses a
-                    # function callable with the functools.partial function
-                    # to return a formatted string. See Note below for more.
+                    # The autopct keyword argument calls a function as well.
+                    # The functools partial function returns a formatted
+                    # string. See Note below for more.
                     startangle=45,
                     pctdistance=0.85,
                     # The pctdistance keyword argument places the autopct
@@ -570,21 +619,21 @@ budget_pie = ax.pie(budget,
                     # The labeldistance keyword argument specifies the float as
                     # a percentage of the radius to place labels.
                     wedgeprops=dict(width=0.3),
-                    # The wedgeprops keyword argument can also take
-                    # dictionaries to pass on to the artists. In this
-                    # instance, the float for width sets the wedge size as a
-                    # percentage of the radius starting from the outer edge.
+                    # The wedgeprops keyword argument also takes dictionaries
+                    # to pass on to the artists. The float for width sets the
+                    # wedge size as a percentage of the radius starting from
+                    # the outer edge.
                     shadow=True)
 
 wedges, texts, autotexts = budget_pie
-# The pie() method unpacks into three Artist objects, wedges, texts, and
-# autotexts. These Artists have their own methods for addtional customization.
+# The pie() method unpacks into three Artist objects. The Artists wedges,
+# texts, and autotexts have their own methods for addtional customization.
 
 ax.legend(wedges,
           # The wedges variable unpacked from the method serve as the handles
           # for the legend.
           categories,
-          # The information from the data categories correspond to each
+          # The information from the data categories corresponds to each
           # respective wedge instead of redundant labeling from the previous
           # pie chart.
           title='Categories',
@@ -592,13 +641,12 @@ ax.legend(wedges,
           bbox_to_anchor=(0.125, 0.5),
           # This keyword argument in conjunction with loc places the legend
           # at a specific point. The tuple floats are coordinates for the
-          # Figure.
+          # Figure in terms of row and column of Axes.
           loc='center right'
           # The loc keyword argument works in conjunction with bbox_to_anchor
-          # and in this instance, determines the part of the legend for
-          # placement. Without bbox_to_anchor, Matplotlib automatically
-          # manages coordinates in relation to specifications of the
-          # parameters of loc.
+          # and determines the part of the legend for placement. Without
+          # bbox_to_anchor, Matplotlib automatically manages coordinates in
+          # relation to specifications of the parameters of loc.
           )
 
 ax.set_title('Average Monthly Income Expenses')
@@ -631,7 +679,10 @@ plt.show()
 # For multiple graphs using a single Figure, explicit and implicit approaches
 # use a similar convention for mapping out multiple Axes. Matplotlib manages
 # more than one Axes in a two-dimensional matrix. They are arranged by row
-# amount and then by column amount. The third argument represents the specific
+# amount and then by column amount.
+#
+# Implicit coding uses a separate method with a similar name. The method
+# ``plt.subplot`` also includes a third argument to represent the specific
 # Axes involved.
 #
 # When looking for more complex solutions to multiple graphs within a Figure,
@@ -647,7 +698,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2,
                                figsize=[8, 4],
                                constrained_layout=True)
 # Figure and two Axes unpacked from arguments (1, 2) as row & column.
-# Keyword arguments provide additional details of sharing Y-axis, Figure size
+# Keyword arguments provide additional details of sharing Y-Axis, Figure size
 # and layout formatting.
 
 fig.suptitle('Personal Financial Tracking \'09 - \'10')
@@ -662,7 +713,7 @@ ax1.set_xticks(months)
 ax1.set_xticklabels(months, rotation=270)
 ax1.set_title('2009', fontsize='small')
 ax1.legend(loc='upper left')
-# First explicit Axes object uses separate methods for ticks on the X-axis,
+# First explicit Axes object uses separate methods for ticks on the X-Axis,
 # title, and legend. Keyword arguments are for additional configurations.
 
 ax2.plot(x, y1, label='Income')
@@ -680,9 +731,9 @@ plt.show()
 
 ##############################################################################
 #
-# The OOP example above also uses two Axes to graph the data. However, the OOP
-# approach must refer to an explicitly generated Axes after creating both the
-# Figure and Axes.
+# The explicit example above also uses two Axes to graph the data. However,
+# the explicit approach refers to an explicitly generated Axes after creating
+# both the Figure and Axes.
 #
 # In the unpacking process, numerous Axes are assigned to a single variable.
 # To reference a specific Axes, indexing the location of the respective Axes
@@ -697,21 +748,21 @@ plt.show()
 #   ax[1,0].plot([3,2,1],[3,2,1])
 #   ax[1,1].plot([1,2,3],[1,2,3])
 #
-# .. note::
 #
-#   The method `~.subplot_mosaic` also works to label Axes
-#   with contextual names. The link contains more info for using the method.
-#   Below is a code example.
-#   ::
+# The method `matplotlib.figure.Figure.subplot_mosaic` also generates Axes in
+# a layout with contextual names. The link contains more info for using the
+# method.
 #
-#       fig = plt.figure()
-#       ax_dict = fig.subplot_mosaic([['bar', 'plot'],
-#                                    ['hist', 'image']])
+# See code example below::
 #
-#       ax_dict['bar'].bar([1,2,3],[1,2,3])
-#       ax_dict['plot'].plot([3,2,1],[3,2,1])
-#       ax_dict['hist'].hist(hist_data)
-#       ax_dict['image'].imshow([[1,2], [2,1]])
+#   fig = plt.figure()
+#   ax_dict = fig.subplot_mosaic([['bar', 'plot'],
+#                                ['hist', 'image']])
+#
+#   ax_dict['bar'].bar([1,2,3],[1,2,3])
+#   ax_dict['plot'].plot([3,2,1],[3,2,1])
+#   ax_dict['hist'].hist(hist_data)
+#   ax_dict['image'].imshow([[1,2], [2,1]])
 #
 # Implicit
 # ^^^^^^^^
@@ -719,14 +770,14 @@ plt.show()
 # There are limitations for customizing the implicit approach without
 # referencing specific Axes and Artists within the Figure. For more advanced
 # configurations, the explicit approach offers more flexibility and control.
-# The Matplotlib community recommends users to use explicit programming for
-# these tasks.
+# The Matplotlib community recommends using explicit programming for these
+# tasks.
 #
 # Generalized Function Guidelines
 # -------------------------------
 #
-# For users with that have recurring plots and graphs, the Matplotlib
-# community recommends a signature function similar to the format below.
+# For users that have recurring plots and graphs, the signature function
+# similar to the format below serves as a reusable template.
 
 
 def my_plotter(ax, data1, data2, param_dict):
@@ -757,4 +808,11 @@ def my_plotter(ax, data1, data2, param_dict):
 #
 # Additional Resources
 # ====================
+#
+# - :ref:`tutorials`
+#   More on detailed guides and specific topics.
+# - :ref:`gallery`
+#   Collection of visualizations and demonstrative examples.
+# - `External Resources <https://matplotlib.org/resources/index.html>`_
+#   Curated content from other users.
 #
