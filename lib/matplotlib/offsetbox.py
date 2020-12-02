@@ -1424,8 +1424,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         if bboxprops:
             self.patch.set(**bboxprops)
 
-        if len(kwargs):
-            self.update(kwargs)
+        self.update(kwargs)
 
     @property
     def xyann(self):
