@@ -1415,7 +1415,6 @@ class _AxLine(Line2D):
         self._slope = slope
         self._xy1 = xy1
         self._xy2 = xy2
-        self._transform = kwargs.get("transform")
 
     def get_transform(self):
         ax = self.axes
