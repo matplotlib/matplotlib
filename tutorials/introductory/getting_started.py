@@ -369,6 +369,10 @@ plt.show()
 # contain multiple types of visualizations of data on a single Axes. Each of
 # these types are specific to the Axes they are in.
 #
+# Matplotlib Axes also intergrate with other Python libraries. In Axes-based
+# interfaces, other libraries take an Axes object as input. Libraries such as
+# `pandas` and `Seaborn <https://seaborn.pydata.org>`_ act on specific Axes.
+#
 # Other Components
 # ^^^^^^^^^^^^^^^^
 #
@@ -438,7 +442,32 @@ plt.show()
 # | Legend (Axes)         | ``ax.legend()``          | ``plt.legend()``       |
 # +-----------------------+--------------------------+------------------------+
 #
-# For complete information about available methods, refer to the table below.
+# Supplemental Resources
+# ^^^^^^^^^^^^^^^^^^^^^^
+#
+# Customizations with robust options have their own guides and tutorials. The
+# topics below include common in-depth documents for additional support.
+#
+# +------------------------------+--------------------------------------------+
+# | Topic                        | Tutorial                                   |
+# +==============================+============================================+
+# | :ref:`tutorials-introductory`| :doc:`/tutorials/introductory/customizing` |
+# +------------------------------+--------------------------------------------+
+# | :ref:`tutorials-intermediate`| :doc:`/tutorials/intermediate/legend_guide`|
+# +------------------------------+--------------------------------------------+
+# | :ref:`tutorials-colors`      | :doc:`/tutorials/colors/colors`            |
+# |                              +--------------------------------------------+
+# |                              | :doc:`/tutorials/colors/colormaps`         |
+# +------------------------------+--------------------------------------------+
+# | :ref:`tutorials-text`        | :doc:`/tutorials/text/text_intro`          |
+# |                              +--------------------------------------------+
+# |                              | :doc:`/tutorials/text/text_props`          |
+# |                              +--------------------------------------------+
+# |                              | :doc:`/tutorials/text/annotations`         |
+# +------------------------------+--------------------------------------------+
+#
+# For complete information about available methods for Artists, refer to the
+# table below.
 #
 # +------------------------------------+------------------------------------+
 # | Explicit                           | Implicit                           |
@@ -592,8 +621,7 @@ plt.show()
 # The following pie chart has additional keyword arguments to further
 # customize the visual. Also, the ``legend`` as an Artist has parameters that
 # enable more specification for the information displayed. For more, see the
-# `Legend Guide
-# <https://matplotlib.org/tutorials/intermediate/legend_guide.html?highlight=legend%20guide>`_.
+# :doc:`/tutorials/intermediate/legend_guide`.
 
 # Explicit
 
@@ -743,10 +771,10 @@ plt.show()
 #
 #   fig, ax = plt.subplots(2,2)
 #
-#   ax[0,0].plot([1,2,3],[1,2,3])
+#   ax[0,0].bar([1,2,3],[1,2,3])
 #   ax[0,1].plot([3,2,1],[3,2,1])
-#   ax[1,0].plot([3,2,1],[3,2,1])
-#   ax[1,1].plot([1,2,3],[1,2,3])
+#   ax[1,0].hist(hist_data)
+#   ax[1,1].imshow([[1,2], [2,1]])
 #
 #
 # The method `matplotlib.figure.Figure.subplot_mosaic` also generates Axes in

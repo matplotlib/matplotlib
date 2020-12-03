@@ -16,27 +16,30 @@ Terminology
 -----------
 
 There are several key terms in Matplotlib that are standards for 
-reliability and consistency in documentation. They are case-sensitive and
-are not interchangeable.
+reliability and consistency in documentation. They are case-sensitive and are
+not interchangeable.
 
 +------------------+--------------------------+--------------+--------------+
 | Term             | Description              | Correct      | Incorrect    |
 +==================+==========================+==============+==============+
-| Figure           | Matplotlib working space |- One Figure  |- One figure  |
+| Figure_          | Matplotlib working space |- One Figure  |- One figure  |
 |                  | for programming.         |- 11 Figures  |- 11 figures  |
 +------------------+--------------------------+--------------+--------------+
-| Axes             | Subplots within Figure.  | - One Axes   | - One axes   |
+| Axes_            | Subplots within Figure.  | - One Axes   | - One axes   |
 |                  | Contains Figure elements | - Four Axes  | - Four Axeses|
 |                  | and is responsible for   | - 32 Axes    | - 32 Axii    |
 |                  | plotting and configuring |              |              |
 |                  | additional details.      |              |              |
 +------------------+--------------------------+--------------+--------------+
-| Artist           | Broad Matplotlib object  | - One Artist | - One artist |
+| Artist_          | Broad Matplotlib object  | - One Artist | - One artist |
 |                  | that displays visuals.   | - Two Artists| - Two artists|
 +------------------+--------------------------+--------------+--------------+
-| Axis             | Refers to visible object | - One Axis   | - One axis   |
-|                  | corresponding to labeling| - Four Axis  | - Four Axises|
-|                  | of plotted data.         |   objects    | - 32 Axes    |
+| Axis_            | Human-readable single    | - One Axis   | - One Axis   |
+|                  | dimensional object       |   object     | - One axis   |
+|                  | of reference marks       | - Four Axis  | - Four Axises|
+|                  | containing ticks, tick   |   objects    | - 32 Axes    |
+|                  | labels, spines, and      | - 32 Axis    |              |
+|                  | edges.                   |   objects    |              |
 +------------------+--------------------------+--------------+--------------+
 | Explicit,        | Explicit approach of     | - Explicit   | - object     |
 | Object Oriented  | programing in Matplotlib.| - explicit   |   oriented   |
@@ -48,26 +51,29 @@ are not interchangeable.
 |                  |                          |              |   interface  |
 +------------------+--------------------------+--------------+--------------+
 
+.. _Figure: :class:`~matplotlib.figure.Figure`
+.. _Axes: :class:`~matplotlib.axes.Axes`
+.. _Artist: :class:`~matplotlib.artist.Artist`
+.. _Axis: :class:`matplotlib.axis.Axis`
+
 
 Grammar
 -------
 
 Subject
 ^^^^^^^
-The audience is the "user" in the documentation. A "user" is a person
-programming in Python with the Matplotlib library.
-
-Use second-person sentences for instructions directed at user for specifying
-an action or a possessive reference.
+Use second-person imperative sentences for directed instructions specifying an
+action. Second-person pronouns are for individual-specific contexts and
+possessive reference.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
 +====================================+====================================+
-| Users install Matplotlib from the  | You can install Matplotlib from the|
-| source directory using the Python  | source directory. You can find     |
-| ``pip`` installer program.         | additional support if you are      |
-| Depending on your operating system,| having troulbe with your           |
-| you may need additional support.   | installation.                      |
+| Install Matplotlib from the source | You can install Matplotlib from the|
+| directory using the Python ``pip`` | source directory. You can find     |
+| installer program. Depending on    | additional support if you are      |
+| your operating system, you may need| having trouble with your           |
+| additional support.                | installation.                      |
 +------------------------------------+------------------------------------+
 
 Tense
@@ -105,7 +111,7 @@ Sentence structure
 ^^^^^^^^^^^^^^^^^^
 Write with short sentences using Subject-Verb-Object order regularly. Limit
 how frequently coordinating conjunctions appear in sentences. Avoid pronoun
-referenes and subordinating conjunctive prhases.
+references and subordinating conjunctive phrases.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
@@ -136,14 +142,14 @@ visibility.
 
 reStructuredText standards
 --------------------------
-- https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html
-- https://docutils.sourceforge.io/docs/user/rst/quickref.html
+- `reStructuredText Specifications <https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html>`_
+- `Quick Reference Document <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
 
 
 Lists
 ^^^^^
-Bulleted lists are for items that do not require sequencing.
-Numbered Lists are exclusively for performing actions in specific order.
+Bulleted lists are for items that do not require sequencing. Numbered lists are
+exclusively for performing actions in a determined order.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
@@ -167,7 +173,7 @@ Numbered Lists are exclusively for performing actions in specific order.
 Additional Resources
 ====================
 
-* `Red Hat Style Guide <https://stylepedia.net/style/#grammar>`_
-* `IBM Style Guide <https://www.ibm.com/developerworks/library/styleguidelines/>`_
 * `Google Developer Style Guide <https://developers.google.com/style>`_
+* `IBM Style Guide <https://www.ibm.com/developerworks/library/styleguidelines/>`_
+* `Red Hat Style Guide <https://stylepedia.net/style/#grammar>`_
 
