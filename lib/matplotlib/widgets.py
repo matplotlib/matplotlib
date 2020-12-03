@@ -11,7 +11,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 
 from contextlib import ExitStack
 import copy
-from numbers import Integral
+from numbers import Integral, Number
 
 import numpy as np
 
@@ -251,7 +251,7 @@ class Slider(AxesWidget):
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
-                 orientation='horizontal', **kwargs):
+                 orientation='horizontal', *, initcolor='r', **kwargs):
         """
         Parameters
         ----------
@@ -291,11 +291,16 @@ class Slider(AxesWidget):
         dragging : bool, default: True
             If True the slider can be dragged by the mouse.
 
-        valstep : float, default: None
-            If given, the slider will snap to multiples of *valstep*.
+        valstep : float or array-like, default: None
+            If a float, the slider will snap to multiples of *valstep*.
+            If an array the slider will snap to the values in the array.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
+
+        initcolor : color, default: 'r'
+            The color of the line at the *valinit* position. Set to ``'none'``
+            for no line.
 
         Notes
         -----
@@ -333,10 +338,10 @@ class Slider(AxesWidget):
         self.valinit = valinit
         if orientation == 'vertical':
             self.poly = ax.axhspan(valmin, valinit, 0, 1, **kwargs)
-            self.hline = ax.axhline(valinit, 0, 1, color='r', lw=1)
+            self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1)
         else:
             self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
-            self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
+            self.vline = ax.axvline(valinit, 0, 1, color=initcolor, lw=1)
 
         if orientation == 'vertical':
             ax.set_ylim((valmin, valmax))
@@ -386,9 +391,16 @@ class Slider(AxesWidget):
 
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
-        if self.valstep:
+        if isinstance(self.valstep, Number):
             val = (self.valmin
                    + round((val - self.valmin) / self.valstep) * self.valstep)
+        elif self.valstep is not None:
+            valstep = np.asanyarray(self.valstep)
+            if valstep.ndim != 1:
+                raise ValueError(
+                    f"valstep must have 1 dimension but has {valstep.ndim}"
+                )
+            val = valstep[np.argmin(np.abs(valstep - val))]
 
         if val <= self.valmin:
             if not self.closedmin:

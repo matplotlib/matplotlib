@@ -24,3 +24,16 @@ ax.set_ylim(-2, 2)
 cursor = Cursor(ax, useblit=True, color='red', linewidth=2)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.widgets.Cursor

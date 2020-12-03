@@ -63,3 +63,18 @@ radio.on_clicked(colorfunc)
 colorfunc(radio.value_selected)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.widgets.Button
+matplotlib.widgets.RadioButtons
+matplotlib.widgets.Slider
