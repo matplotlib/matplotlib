@@ -39,7 +39,7 @@ started using Matplotlib.
 # +------------------------------------+------------------------------------+
 # | Useful for repeated code use,      | Helpful for quickly graphing data  |
 # | generalization, robust             | when using interactive             |
-# | configurations of graphs.          | environments.                      |
+# | configurations of visuals.         | environments.                      |
 # +------------------------------------+------------------------------------+
 # | Recommended to new users for       | Most useful for users coming from  |
 # | learning fundamentals.             | MATLAB. Users already familiar with|
@@ -77,8 +77,8 @@ started using Matplotlib.
 # +====================================+====================================+
 # | ::                                 | ::                                 |
 # |                                    |                                    |
-# |     fig, ax = plt.subplots()       |    plt.plot([1,2,3],[1,2,3])       |
-# |     ax.plot([1,2,3],[1,2,3])       |                                    |
+# |     fig, ax = plt.subplots()       |    plt.plot([1, 2, 3],[1, 2, 3])   |
+# |     ax.plot([1, 2, 3],[1, 2, 3])   |                                    |
 # |                                    |                                    |
 # +------------------------------------+------------------------------------+
 # | `.pyplot.subplots` generates a     | :mod:`matplotlib.pyplot` creates   |
@@ -87,12 +87,16 @@ started using Matplotlib.
 # | `.Axes.plot` plots the data.       | elements and `.pyplot.plot` plots  |
 # |                                    | the data.                          |
 # +------------------------------------+------------------------------------+
-#
-# .. image:: ../../_static/getting_started_example.png
+# | .. plot::                          | .. plot::                          |
+# |                                    |                                    |
+# |     fig, ax = plt.subplots()       |     plt.plot([1,2,3],[1,2,3])      |
+# |     ax.plot([1, 2, 3],[1, 2, 3])   |                                    |
+# |                                    |                                    |
+# +------------------------------------+------------------------------------+
 #
 # .. note::
 #
-#     The example image is identical for both explicit and implicit code.
+#     The example graphs are identical for both explicit and implicit code.
 #
 # Requirements
 # ============
@@ -264,15 +268,18 @@ plt.show()
 
 ##############################################################################
 #
-# The module for the OOP example unpacks the Figure and Axes using a single
-# instance of ``pyplot``. This convention uses ``plt.subplots()`` and defaults
-# to one Figure, ``fig``, and one Axes, ``ax``. The `Configuration`_ section
-# below contains additional information about manipulating visuals, multiple
-# visulizations, and other modifications.
+# The module ``pyplot`` for the OOP example unpacks the Figure and Axes.
+# This convention uses ``plt.subplots()`` and defaults to one Figure, ``fig``,
+# and one Axes, ``ax``. The variable names are common shorthand terms. Any
+# naming conventions also work.
+#
+# The `Configuration`_ section below contains additional information about
+# manipulating visuals, multiple visualizations, and other modifications.
 #
 # Using explicit programming allows for ``fig`` and ``ax`` to use separate
-# methods to manipulate the visualization. Specific Figures and Axes refer to
-# methods in OOP conventions for managing respective data.
+# methods to manipulate the visualization. Specific Figures and Axes manage
+# data components with their own respective methods.
+#
 #
 # Implicit: ``pyplot``
 # --------------------
@@ -327,8 +334,8 @@ plt.show()
 #
 # The image below depicts each visible element of a Matplotlib graph. The
 # graphic uses Matplotlib to display and highlight each individual part of the
-# visualization. To view the programming for the image, the source code is
-# available at :ref:`sphx_glr_gallery_showcase_anatomy.py`.
+# visualization. To view source code for the image, see
+# :ref:`sphx_glr_gallery_showcase_anatomy.py`.
 #
 #
 # .. image:: ../../_static/anatomy.png
@@ -369,7 +376,7 @@ plt.show()
 # contain multiple types of visualizations of data on a single Axes. Each of
 # these types are specific to the Axes they are in.
 #
-# Matplotlib Axes also intergrate with other Python libraries. In Axes-based
+# Matplotlib Axes also integrate with other Python libraries. In Axes-based
 # interfaces, other libraries take an Axes object as input. Libraries such as
 # `pandas` and `Seaborn <https://seaborn.pydata.org>`_ act on specific Axes.
 #
@@ -378,10 +385,10 @@ plt.show()
 #
 # :class:`~matplotlib.artist.Artist`
 #
-# Artists are broad Matplotlib objects that display visuals. These are the
-# visible elements when the Figure is rendered. They correspond to a specific
-# Axes and cannot be shared or transferred. In Matplotlib programming, all
-# objects for display are Artists.
+# Artists are a broad variety of Matplotlib objects. They display visuals and
+# are the visible elements when the Figure is rendered. They correspond to a
+# specific Axes and cannot be shared or transferred. In Matplotlib programming,
+# all objects for display are Artists.
 #
 # .. note::
 #
@@ -511,7 +518,7 @@ explode = [0, 0.1, 0.15, 0.35]
 def autopct_format(percent, group):
     """
     Takes percent equivalent and calculates original value from data.
-    Returns fstring of value new line above percentage.
+    Returns string of value new line above percentage.
 
     Parameters
     ----------

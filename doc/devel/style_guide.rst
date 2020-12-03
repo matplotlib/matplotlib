@@ -93,7 +93,7 @@ or auxiliary verbs when possible.
 
 Voice
 ^^^^^
-Write in active sentences. Passive voice is best for situations or condtions
+Write in active sentences. Passive voice is best for situations or conditions
 related to warning prompts.
 
 +------------------------------------+------------------------------------+
@@ -169,6 +169,41 @@ exclusively for performing actions in a determined order.
 |  4. Transform data with methods and|  - Transform data with methods and |
 |     functions.                     |    functions.                      |
 +------------------------------------+------------------------------------+
+
+Tables
+^^^^^^
+Use ASCII tables with reStructuredText standards in organizing content. 
+Markdown tables and the csv-table directive are not accepted.
+
++--------------------------------+----------------------------------------+
+| Correct                        | Incorrect                              |
++================================+========================================+
+| +----------+----------+        | ::                                     |
+| | Correct  | Incorrect|        |                                        |
+| +==========+==========+        |     | Correct | Incorrect |            |
+| | OK       | Not OK   |        |     | ------- | --------- |            |
+| +----------+----------+        |     | OK      | Not OK    |            |
+|                                |                                        |
++--------------------------------+----------------------------------------|
+| ::                             | ::                                     |
+|                                |                                        |
+|     +----------+----------+    |     .. csv-table::                     |
+|     | Correct  | Incorrect|    |        :header: "correct", "incorrect" |
+|     +==========+==========+    |        :widths: 10, 10                 |
+|     | OK       | Not OK   |    |                                        |
+|     +----------+----------+    |        "OK   ", "Not OK"               |
+|                                |                                        |
++--------------------------------+                                        |
+| ::                             |                                        |
+|                                |                                        |
+|     ===========  ===========   |                                        |
+|       Correct     Incorrect    |                                        |
+|     ===========  ===========   |                                        |
+|     OK           Not OK        |                                        |
+|     ===========  ===========   |                                        |
+|                                |                                        |
++--------------------------------+----------------------------------------+
+
 
 Additional Resources
 ====================
