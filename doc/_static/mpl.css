@@ -89,7 +89,7 @@ table.highlighttable td {
     padding: 0 0.5em 0 0.5em;
 }
 
-cite, code, tt {
+cite, code, tt, dl.value-list dt {
     font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
     font-size: 0.95em;
     letter-spacing: 0.01em;
@@ -730,7 +730,6 @@ td.field-body table.property-table tr:last-of-type td {
     border-bottom-color: #888;
 }
 
-
 /* function and class description */
 .descclassname {
     color: #aaa;
@@ -804,6 +803,22 @@ dl.class > dd {
 .descname {
     font-family: monospace;
     font-size: 14px;
+}
+
+/* custom tables for lists of allowed values in "mpl._types" */
+dl.value-list {
+    display: grid;
+}
+
+dl.value-list dt {
+    grid-column: 1;
+    margin: 4px 0;
+}
+
+dl.value-list dd {
+    grid-column: 2;
+    margin: 4px 0 4px 20px;
+    padding: 0;
 }
 
 /* parameter section table */

@@ -4,9 +4,6 @@
 
 .. automodule:: matplotlib._types
    :no-members:
-   :show-inheritance:
-
-   .. autodata:: _AutoStringNameEnum
 
    .. autoclass:: JoinStyle
       :members: demo
