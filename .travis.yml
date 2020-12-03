@@ -75,7 +75,7 @@ matrix:
   include:
     - python: 3.6
       env:
-        - PINNEDVERS='-c requirements/testing/travis36minver.txt'
+        - PINNEDVERS='-c requirements/testing/minver.txt'
         - DELETE_FONT_CACHE=1
     - python: 3.7
       env:
