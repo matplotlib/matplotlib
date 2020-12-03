@@ -1,7 +1,7 @@
 supxlabel and supylabel
 -----------------------
 
-It is possible to add x and ylabels to a whole figure, analogous to
+It is possible to add x- and y-labels to a whole figure, analogous to
 `.FigureBase.suptitle` using the new `.FigureBase.supxlabel` and
 `.FigureBase.supylabel` methods.
 
