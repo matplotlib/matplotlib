@@ -35,7 +35,7 @@
 .. _PyPi: https://badge.fury.io/py/matplotlib
 
 .. |Downloads| image:: https://pepy.tech/badge/matplotlib/month
-.. _Downloads: https://pepy.tech/project/matplotlib/month
+.. _Downloads: https://pepy.tech/project/matplotlib
 
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: https://numfocus.org
