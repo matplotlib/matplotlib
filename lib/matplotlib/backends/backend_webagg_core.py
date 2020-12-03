@@ -118,7 +118,7 @@ def _handle_key(key):
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
-    supports_blit = False
+    supports_blit = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -152,6 +152,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             super().draw()
         finally:
             self.manager.refresh_all()  # Swap the frames.
+
+    def blit(self, bbox=None):
+        self._png_is_old = True
+        self.manager.refresh_all()
 
     def draw_idle(self):
         self.send_event("draw")
@@ -189,18 +193,14 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 output = buff
             else:
                 self.set_image_mode('diff')
-                last_buffer = (np.frombuffer(self._last_renderer.buffer_rgba(),
-                                             dtype=np.uint32)
-                               .reshape((renderer.height, renderer.width)))
-                diff = buff != last_buffer
+                diff = buff != self._last_buff
                 output = np.where(diff, buff, 0)
 
             buf = BytesIO()
             data = output.view(dtype=np.uint8).reshape((*output.shape, 4))
             Image.fromarray(data).save(buf, format="png")
-            # Swap the renderer frames
-            self._renderer, self._last_renderer = (
-                self._last_renderer, renderer)
+            # store the current buffer so we can compute the next diff
+            np.copyto(self._last_buff, buff)
             self._force_full = False
             self._png_is_old = False
             return buf.getvalue()
@@ -220,9 +220,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         if need_new_renderer:
             self._renderer = backend_agg.RendererAgg(
                 w, h, self.figure.dpi)
-            self._last_renderer = backend_agg.RendererAgg(
-                w, h, self.figure.dpi)
             self._lastKey = key
+            self._last_buff = np.copy(np.frombuffer(
+                self._renderer.buffer_rgba(), dtype=np.uint32
+            ).reshape((self._renderer.height, self._renderer.width)))
 
         elif cleared:
             self._renderer.clear()
