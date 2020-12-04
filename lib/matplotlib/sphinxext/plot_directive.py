@@ -344,7 +344,6 @@ def split_code_at_show(text):
 # Template
 # -----------------------------------------------------------------------------
 
-
 TEMPLATE = """
 {{ source_code }}
 
@@ -379,9 +378,8 @@ TEMPLATE = """
         `{{ fmt }} <{{ dest_dir }}/{{ img.basename }}.{{ fmt }}>`__
         {%- endfor -%}
         )
-      {%- endif -%}
-
-      {{ caption }}
+      {%- endif %}
+{{ caption }}  {# appropriate leading whitespace added beforehand #}
    {% endfor %}
 
 .. only:: not html
@@ -392,7 +390,7 @@ TEMPLATE = """
       {{ option }}
       {% endfor %}
 
-      {{ caption }}
+{{ caption }}  {# appropriate leading whitespace added beforehand #}
    {% endfor %}
 
 """
@@ -632,9 +630,12 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     options.setdefault('include-source', config.plot_include_source)
     if 'class' in options:
-        options['class'] = options['class'] + ' plot-directive'
+        # classes are parsed into a list of string, and output by simply
+        # printing the list, abusing the fact that RST guarantees to strip
+        # non-conforming characters
+        options['class'] = ['plot-directive'] + options['class']
     else:
-        options.setdefault('class', 'plot-directive')
+        options.setdefault('class', ['plot-directive'])
     keep_context = 'context' in options
     context_opt = None if not keep_context else options['context']
 
