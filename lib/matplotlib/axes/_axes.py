@@ -5298,7 +5298,7 @@ default: :rc:`scatter.edgecolors`
             Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
             'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
-            'sinc', 'lanczos'.
+            'sinc', 'lanczos', 'blackman'.
 
             If *interpolation* is 'none', then no interpolation is performed
             on the Agg, ps, pdf and svg backends. Other backends will fall back

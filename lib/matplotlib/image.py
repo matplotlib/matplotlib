@@ -855,7 +855,7 @@ class AxesImage(_ImageBase):
         Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
-        'sinc', 'lanczos'.
+        'sinc', 'lanczos', 'blackman'.
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the axes. The convention 'upper' is typically used for
