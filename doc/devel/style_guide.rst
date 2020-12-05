@@ -22,8 +22,8 @@ not interchangeable.
 +------------------+--------------------------+--------------+--------------+
 | Term             | Description              | Correct      | Incorrect    |
 +==================+==========================+==============+==============+
-| Figure_          | Matplotlib working space |- One Figure  |- One figure  |
-|                  | for programming.         |- 11 Figures  |- 11 figures  |
+| Figure_          | Matplotlib working space | - One Figure | - One figure |
+|                  | for programming.         | - 11 Figures | - 11 figures |
 +------------------+--------------------------+--------------+--------------+
 | Axes_            | Subplots within Figure.  | - One Axes   | - One axes   |
 |                  | Contains Figure elements | - Four Axes  | - Four Axeses|
@@ -31,8 +31,9 @@ not interchangeable.
 |                  | plotting and configuring |              |              |
 |                  | additional details.      |              |              |
 +------------------+--------------------------+--------------+--------------+
-| Artist_          | Broad Matplotlib object  | - One Artist | - One artist |
-|                  | that displays visuals.   | - Two Artists| - Two artists|
+| Artist_          | Broad variety of         | - One Artist | - One artist |
+|                  | Matplotlib objects that  | - Two Artists| - Two artists|
+|                  | display visuals.         |              |              |
 +------------------+--------------------------+--------------+--------------+
 | Axis_            | Human-readable single    | - One Axis   | - One Axis   |
 |                  | dimensional object       |   object     | - One axis   |
@@ -145,7 +146,6 @@ reStructuredText standards
 - `reStructuredText Specifications <https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html>`_
 - `Quick Reference Document <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
 
-
 Lists
 ^^^^^
 Bulleted lists are for items that do not require sequencing. Numbered lists are
@@ -184,7 +184,7 @@ Markdown tables and the csv-table directive are not accepted.
 | | OK       | Not OK   |        |     | ------- | --------- |            |
 | +----------+----------+        |     | OK      | Not OK    |            |
 |                                |                                        |
-+--------------------------------+----------------------------------------|
++--------------------------------+----------------------------------------+
 | ::                             | ::                                     |
 |                                |                                        |
 |     +----------+----------+    |     .. csv-table::                     |

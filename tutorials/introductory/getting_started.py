@@ -229,10 +229,10 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 # Explicit: Object Oriented Programming (OOP)
 # --------------------------------------------
 #
-# Explicit programming for Matplotlib involves using a single instance of the
-# ``pyplot`` module. This unpacks a set of an explicit Figure and Axes.
-# More than one Axes is configurable; however, each Axes only corresponds to a
-# single Figure.
+# Explicit programming for Matplotlib involves calling the method ``subplots``
+# in the ``pyplot`` module once. This unpacks a group of an explicit Figure and
+# Axes. More than one Axes is configurable; however, each Axes only corresponds
+# to a single Figure.
 #
 # Each Axes has its own methods to graph data. In addition, each Axes
 # also uses separate methods to create and manage parts of a Figure. These
@@ -410,7 +410,7 @@ plt.show()
 # +=======================+==========================+========================+
 # | Visible elements from | Each specific Axes has   | The ``pyplot`` module  |
 # | rendered Figure.      | its own method for       | manages Artists based  |
-# |                       | artists.                 | on most recent Figure  |
+# |                       | Artists.                 | on most recent Figure  |
 # |                       |                          | or Axes.               |
 # +-----------------------+--------------------------+------------------------+
 #
@@ -655,7 +655,7 @@ budget_pie = ax.pie(budget,
                     # a percentage of the radius to place labels.
                     wedgeprops=dict(width=0.3),
                     # The wedgeprops keyword argument also takes dictionaries
-                    # to pass on to the artists. The float for width sets the
+                    # to pass on to the Artists. The float for width sets the
                     # wedge size as a percentage of the radius starting from
                     # the outer edge.
                     shadow=True)
@@ -703,8 +703,8 @@ plt.show()
 #   argument is provided, the data acting as a percentage equivalent. The
 #   ``autopct_format`` function requires two arguments, so ``partial`` takes
 #   the argument for ``group`` and sets it to ``budget``. This smaller
-#   signature object then behaves as a function with one fewer argument. For
-#   details about the functools module, see
+#   signature object then behaves as the same function with one fewer argument.
+#   For details about the functools module, see
 #   `functools
 #   <https://docs.python.org/3/library/functools.html#module-functools>`_.
 #
