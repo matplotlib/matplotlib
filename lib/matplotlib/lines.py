@@ -1430,7 +1430,7 @@ class _AxLine(Line2D):
                 if np.allclose(y1, y2):
                     raise ValueError(
                         f"Cannot draw a line through two identical points "
-                        f"(x={self.get_xdata()}, y={self.get_ydata()})")
+                        f"(x={(x1, x2)}, y={(y1, y2)})")
                 slope = np.inf
             else:
                 slope = dy / dx
