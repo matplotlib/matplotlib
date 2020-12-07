@@ -2700,7 +2700,7 @@ class SymmetricalLogLocator(Locator):
             ticklocs = decades
             # if there is not enough ticks to show on the graph
             if len(ticklocs) <= 3:
-                subs= np.linspace(vmin, vmax, 7)
+                subs = np.linspace(vmin, vmax, 7)
                 ticklocs.extend(subs)
 
         return self.raise_if_exceeds(np.array(ticklocs))
