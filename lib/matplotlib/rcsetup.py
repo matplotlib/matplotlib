@@ -19,6 +19,7 @@ import logging
 from numbers import Number
 import operator
 import re
+import warnings
 
 import numpy as np
 
@@ -26,6 +27,7 @@ from matplotlib import _api, animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
+from matplotlib.hatch import Hatch
 from matplotlib._types import JoinStyle, CapStyle
 
 # Don't let the original cycler collide with our validating cycler
@@ -726,25 +728,6 @@ validate_grid_axis = ValidateInStrings(
     'axes.grid.axis', ['x', 'y', 'both'], _deprecated_since="3.3")
 
 
-def validate_hatch(s):
-    r"""
-    Validate a hatch pattern.
-    A hatch pattern string can have any sequence of the following
-    characters: ``\ / | - + * . x o O``.
-    """
-    if not isinstance(s, str):
-        raise ValueError("Hatch pattern must be a string")
-    cbook._check_isinstance(str, hatch_pattern=s)
-    unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
-    if unknown:
-        raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
-    return s
-
-
-validate_hatchlist = _listify_validator(validate_hatch)
-validate_dashlist = _listify_validator(validate_floatlist)
-
-
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
                                     allow_stringlist=True),
@@ -762,9 +745,11 @@ _prop_validators = {
         'markevery': validate_markeverylist,
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
-        'hatch': validate_hatchlist,
-        'dashes': validate_dashlist,
+        'hatch': _listify_validator(Hatch),
+        'dashes': _listify_validator(validate_floatlist),
     }
+
+
 _prop_aliases = {
         'c': 'color',
         'lw': 'linewidth',
@@ -968,6 +953,21 @@ def _convert_validator_spec(key, conv):
         return ValidateInStrings(key, conv, ignorecase=ignorecase)
     else:
         return conv
+
+
+@_api.deprecated('3.4')
+def validate_hatch(s):
+    r"""
+    Validate a hatch pattern.
+    A hatch pattern string can have any sequence of the following
+    characters: ``\ / | - + * . x o O``.
+    """
+    with warnings.catch_warnings(record=True) as w:
+        # MatplotlibDeprecationWarning if the hatch pattern is invalid.
+        Hatch(s)
+        if len(w) > 0:
+            raise w[0]
+    return s
 
 
 # Mapping of rcParams to validators.

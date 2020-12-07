@@ -1025,7 +1025,7 @@ class GraphicsContextBase:
         """Get the current hatch style."""
         return self._hatch
 
-    def get_hatch_path(self, density=6.0):
+    def get_hatch_path(self, density=None):
         """Return a `.Path` for the current hatch."""
         hatch = self.get_hatch()
         if hatch is None:

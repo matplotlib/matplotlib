@@ -1014,14 +1014,14 @@ class Path:
 
     @staticmethod
     @lru_cache(8)
-    def hatch(hatchpattern, density=6):
+    def hatch(hatchpattern, density=None):
         """
         Given a hatch specifier, *hatchpattern*, generates a Path that
         can be used in a repeated hatching pattern.  *density* is the
         number of lines per unit square.
         """
-        from matplotlib.hatch import get_path
-        return (get_path(hatchpattern, density)
+        from matplotlib.hatch import Hatch
+        return (Hatch(hatchpattern, density).path
                 if hatchpattern is not None else None)
 
     def clip_to_bbox(self, bbox, inside=True):

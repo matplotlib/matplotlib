@@ -15,7 +15,8 @@ import numpy as np
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
-               hatch as mhatch, lines as mlines, path as mpath, transforms)
+               lines as mlines, path as mpath, transforms)
+from .hatch import Hatch
 from ._types import JoinStyle, CapStyle
 import warnings
 
@@ -139,10 +140,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             Forwarded to `.ScalarMappable`. The default of
             ``None`` will result in :rc:`image.cmap` being used.
         hatch : str, optional
-            Hatching pattern to use in filled paths, if any. Valid strings are
-            ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']. See
-            :doc:`/gallery/shapes_and_collections/hatch_style_reference` for
-            the meaning of each hatch type.
+            Hatching pattern to use in filled paths, if any. Primitives
+            available are %(Hatch)s. See `~.hatch.Hatch` for how to construct
+            more complex hatch patterns.
         pickradius : float, default: 5.0
             If ``pickradius <= 0``, then `.Collection.contains` will return
             ``True`` whenever the test point is inside of one of the polygons
@@ -492,44 +492,22 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_hatch(self, hatch):
         r"""
-        Set the hatching pattern
-
-        *hatch* can be one of::
-
-          /   - diagonal hatching
-          \   - back diagonal
-          |   - vertical
-          -   - horizontal
-          +   - crossed
-          x   - crossed diagonal
-          o   - small circle
-          O   - large circle
-          .   - dots
-          *   - stars
-
-        Letters can be combined, in which case all the specified
-        hatchings are done.  If same letter repeats, it increases the
-        density of hatching of that pattern.
-
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
-
-        Unlike other properties such as linewidth and colors, hatching
-        can only be specified for the collection as a whole, not separately
-        for each member.
+        Set the hatching pattern.
 
         Parameters
         ----------
-        hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
+        hatch : `.Hatch`-like or str
+            The built-in hatching patterns are %(Hatch)s. Multiple hatch types
+            can be combined (e.g. ``'|-'`` is equivalent to ``'+'``) and
+            repeating a character increases the density of that pattern. For
+            more advanced usage, see the `.Hatch` docs.
         """
-        # Use validate_hatch(list) after deprecation.
-        mhatch._validate_hatch_pattern(hatch)
-        self._hatch = hatch
+        self._hatch = Hatch(hatch)
         self.stale = True
 
     def get_hatch(self):
         """Return the current hatching pattern."""
-        return self._hatch
+        return self._hatch._pattern_spec
 
     def set_offsets(self, offsets):
         """

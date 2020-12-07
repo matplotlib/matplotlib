@@ -9,8 +9,8 @@ from collections import namedtuple
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, artist, cbook, colors, docstring, hatch as mhatch,
-               lines as mlines, transforms)
+from . import (_api, artist, cbook, colors, docstring,
+               hatch as mhatch, lines as mlines, transforms)
 from .bezier import (
     NonIntersectingPathException, get_cos_sin, get_intersection,
     get_parallels, inside_circle, make_wedged_bezier2,
@@ -510,38 +510,20 @@ class Patch(artist.Artist):
         r"""
         Set the hatching pattern.
 
-        *hatch* can be one of::
-
-          /   - diagonal hatching
-          \   - back diagonal
-          |   - vertical
-          -   - horizontal
-          +   - crossed
-          x   - crossed diagonal
-          o   - small circle
-          O   - large circle
-          .   - dots
-          *   - stars
-
-        Letters can be combined, in which case all the specified
-        hatchings are done.  If same letter repeats, it increases the
-        density of hatching of that pattern.
-
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
-
         Parameters
         ----------
-        hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
+        hatch : `.Hatch`-like or str
+            The built-in hatching patterns are %(Hatch)s. Multiple hatch types
+            can be combined (e.g. ``'|-'`` is equivalent to ``'+'``) and
+            repeating a character increases the density of that pattern. For
+            more advanced usage, see the `.Hatch` docs.
         """
-        # Use validate_hatch(list) after deprecation.
-        mhatch._validate_hatch_pattern(hatch)
-        self._hatch = hatch
+        self._hatch = mhatch.Hatch(hatch)
         self.stale = True
 
     def get_hatch(self):
         """Return the hatching pattern."""
-        return self._hatch
+        return self._hatch._pattern_spec
 
     @contextlib.contextmanager
     def _bind_draw_path_function(self, renderer):
