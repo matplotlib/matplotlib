@@ -358,32 +358,52 @@ latex_elements['fontenc'] = r'''
 \usepackage{fontspec}
 \defaultfontfeatures[\rmfamily,\sffamily,\ttfamily]{}
 '''
+
 # Sphinx 2.0 adopts GNU FreeFont by default, but it does not have all
 # the Unicode codepoints needed for the section about Mathtext
 # "Writing mathematical expressions"
-latex_elements['fontpkg'] = r"""
-\setmainfont{XITS}[
+fontpkg = r"""
+\IfFontExistsTF{XITS}{
+ \setmainfont{XITS}
+}{
+ \setmainfont{XITS}[
+  Extension      = .otf,
   UprightFont    = *-Regular,
   ItalicFont     = *-Italic,
   BoldFont       = *-Bold,
   BoldItalicFont = *-BoldItalic,
-]
-\setsansfont{FreeSans}[
+]}
+\IfFontExistsTF{FreeSans}{
+ \setsansfont{FreeSans}
+}{
+ \setsansfont{FreeSans}[
+  Extension      = .otf,
   UprightFont    = *,
   ItalicFont     = *Oblique,
   BoldFont       = *Bold,
   BoldItalicFont = *BoldOblique,
-]
-\setmonofont{FreeMono}[
+]}
+\IfFontExistsTF{FreeMono}{
+ \setmonofont{FreeMono}
+}{
+ \setmonofont{FreeMono}[
+  Extension      = .otf,
   UprightFont    = *,
   ItalicFont     = *Oblique,
   BoldFont       = *Bold,
   BoldItalicFont = *BoldOblique,
-]
+]}
 % needed for \mathbb (blackboard alphabet) to actually work
 \usepackage{unicode-math}
-\setmathfont{XITS Math}
+\IfFontExistsTF{XITS Math}{
+ \setmathfont{XITS Math}
+}{
+ \setmathfont{XITSMath-Regular}[
+  Extension      = .otf,
+]}
 """
+latex_elements['fontpkg'] = fontpkg
+
 # Sphinx <1.8.0 or >=2.0.0 does this by default, but the 1.8.x series
 # did not for latex_engine = 'xelatex' (as it used Latin Modern font).
 # We need this for code-blocks as FreeMono has wide glyphs.
