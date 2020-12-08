@@ -6415,10 +6415,7 @@ default: :rc:`scatter.edgecolors`
             Ignored if *histtype* is 'step' or 'stepfilled'.
 
         log : bool, default: False
-            If ``True``, the histogram axis will be set to a log scale. If
-            *log* is ``True`` and *x* is a 1D array, empty bins will be
-            filtered out and only the non-empty ``(n, bins, patches)``
-            will be returned.
+            If ``True``, the histogram axis will be set to a log scale.
 
         color : color or array-like of colors or None, default: None
             Color or sequence of colors, one per dataset.  Default (``None``)
