@@ -230,6 +230,12 @@ class Button(AxesWidget):
 
 
 class SliderBase(AxesWidget):
+    """
+    The base class for constructing Slider widgets. Not intended for direct
+    usage.
+
+    For the slider to remain responsive you must maintain a reference to it.
+    """
     def __init__(self, ax, orientation, closedmin, closedmax,
                  valmin, valmax, valfmt, dragging, valstep):
         if ax.name == '3d':
@@ -526,11 +532,12 @@ class Slider(SliderBase):
 
 class RangeSlider(SliderBase):
     """
-    A slider representing a floating point range.
+    A slider representing a range of floating point values. Defines the min and
+    max of the range via the *val* attribute as a tuple of (min, max).
 
-    Create a slider from *valmin* to *valmax* in axes *ax*. For the slider to
-    remain responsive you must maintain a reference to it. Call
-    :meth:`on_changed` to connect to the slider event.
+    Create a slider that defines a range contained within [*valmin*, *valmax*]
+    in axes *ax*. For the slider to remain responsive you must maintain a
+    reference to it. Call :meth:`on_changed` to connect to the slider event.
 
     Attributes
     ----------
@@ -724,14 +731,13 @@ class RangeSlider(SliderBase):
         if self.valfmt is not None:
             return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
         else:
-            # fmt.get_offset is actually the multiplicative factor, if any.
             _, s1, s2, _ = self._fmt.format_ticks(
                 [self.valmin, *val, self.valmax]
             )
             # fmt.get_offset is actually the multiplicative factor, if any.
             s1 += self._fmt.get_offset()
             s2 += self._fmt.get_offset()
-            # use raw string to avoid issues with backslashes from
+            # Use f string to avoid issues with backslashes when cast to a str
             return f"({s1}, {s2})"
 
     def set_min(self, min):
