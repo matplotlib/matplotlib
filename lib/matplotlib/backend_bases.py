@@ -1471,7 +1471,8 @@ class MouseEvent(LocationEvent):
 class PickEvent(Event):
     """
     A pick event, fired when the user picks a location on the canvas
-    sufficiently close to an artist.
+    sufficiently close to an artist that has been made pickable with
+    `.Artist.set_picker`.
 
     Attrs: all the `Event` attributes plus
 
@@ -1480,7 +1481,8 @@ class PickEvent(Event):
     mouseevent : `MouseEvent`
         The mouse event that generated the pick.
     artist : `matplotlib.artist.Artist`
-        The picked artist.
+        The picked artist.  Note that artists are not pickable by default
+        (see `.Artist.set_picker`).
     other
         Additional attributes may be present depending on the type of the
         picked object; e.g., a `~.Line2D` pick may define different extra
@@ -1831,6 +1833,9 @@ class FigureCanvasBase:
 
         This method will be called by artists who are picked and will
         fire off `PickEvent` callbacks registered listeners.
+
+        Note that artists are not pickable by default (see
+        `.Artist.set_picker`).
         """
         s = 'pick_event'
         event = PickEvent(s, self, mouseevent, artist,
