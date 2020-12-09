@@ -12,6 +12,7 @@ import urllib.request
 import pytest
 
 import matplotlib as mpl
+from matplotlib import _c_internal_utils
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
@@ -40,8 +41,9 @@ def _get_testable_interactive_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if sys.platform == "linux" and not os.environ.get("DISPLAY"):
-            reason = "$DISPLAY is unset"
+        if (sys.platform == "linux" and
+                not _c_internal_utils.display_is_valid()):
+            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
         elif backend == 'macosx' and os.environ.get('TF_BUILD'):
@@ -276,7 +278,8 @@ import os
 import sys
 
 # make it look headless
-del os.environ['DISPLAY']
+os.environ.pop('DISPLAY', None)
+os.environ.pop('WAYLAND_DISPLAY', None)
 
 # we should fast-track to Agg
 import matplotlib.pyplot as plt
