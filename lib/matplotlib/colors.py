@@ -1096,6 +1096,7 @@ class Normalize:
         self.vmin = _sanitize_extrema(vmin)
         self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
+        self._scale = scale.LinearScale(axis=None)
 
     @staticmethod
     def process_value(value):
@@ -1628,6 +1629,8 @@ class BoundaryNorm(Normalize):
                              f"(1 region) but you passed in {boundaries!r}")
         self.Ncmap = ncolors
         self.extend = extend
+
+        self._scale = None  # don't use the default scale.
 
         self._n_regions = self.N - 1  # number of colors needed
         self._offset = 0
