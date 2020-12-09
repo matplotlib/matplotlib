@@ -25,6 +25,7 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
+import matplotlib.path as mpath
 from matplotlib.rcsetup import cycler, validate_axisbelow
 
 _log = logging.getLogger(__name__)
@@ -2094,7 +2095,9 @@ class _AxesBase(martist.Artist):
         if (isinstance(patch, mpatches.Rectangle) and
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
-        vertices = patch.get_path().vertices
+        vertices = np.array([v for s in patch.get_path().iter_segments()
+                             if s[1] != mpath.Path.CLOSEPOLY
+                             for v in s[0]]).reshape([-1,2])
         if vertices.size > 0:
             xys = patch.get_patch_transform().transform(vertices)
             if patch.get_data_transform() != self.transData:
