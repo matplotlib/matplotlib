@@ -34,6 +34,8 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib import rc_context
 from matplotlib.cbook import MatplotlibDeprecationWarning
+import sys
+import math
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -6924,3 +6926,15 @@ def test_bar_label_labels():
     labels = ax.bar_label(rects, labels=['A', 'B'])
     assert labels[0].get_text() == 'A'
     assert labels[1].get_text() == 'B'
+
+
+def test_patch_bounds():  # PR 19078
+    fig, ax = plt.subplots()
+    tol = 16*sys.float_info.epsilon
+    ax.add_patch(mpatches.Wedge((0, -1), 1.05, 60, 120, 0.1))
+    bounds = ax.dataLim.bounds
+    bot = 1.9*math.sin(15*math.pi/180)**2
+    assert abs(bounds[0]+0.525) < tol and \
+           abs(bounds[1]+(bot+0.05)) < tol and \
+           abs(bounds[2]-1.05) < tol and \
+           abs(bounds[3]-(bot+0.1)) < tol
