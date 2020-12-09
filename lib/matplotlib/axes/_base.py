@@ -2097,7 +2097,7 @@ class _AxesBase(martist.Artist):
             return
         vertices = np.array([v for s in patch.get_path().iter_segments()
                              if s[1] != mpath.Path.CLOSEPOLY
-                             for v in s[0]]).reshape([-1,2])
+                             for v in s[0]]).reshape([-1, 2])
         if vertices.size > 0:
             xys = patch.get_patch_transform().transform(vertices)
             if patch.get_data_transform() != self.transData:
