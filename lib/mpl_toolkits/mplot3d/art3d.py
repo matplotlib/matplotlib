@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
+    artist, cbook, transforms, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -296,6 +296,12 @@ class Line3DCollection(LineCollection):
         self._segments3d = segments
         super().set_segments([])
 
+    def get_paths(self):
+        xyzlist = [zip(*points) for points in self._segments3d]
+        segments_2d = [np.column_stack([xs, ys]) for xs, ys, zs in xyzlist]
+        self._paths = [mpath.Path(_seg) for _seg in segments_2d]
+        return self._paths
+
     @cbook._delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         """
@@ -344,6 +350,7 @@ class Patch3D(Patch):
         self._facecolor3d = Patch.get_facecolor(self)
 
     def get_path(self):
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]))
         return self._path2d
 
     def get_facecolor(self):
