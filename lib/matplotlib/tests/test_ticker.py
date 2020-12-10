@@ -446,9 +446,9 @@ class TestSymmetricalLogLocator:
     def test_min_ticks(self):
         """
         Create 6 graphs and test if all of theses graphs have 3 ticks minimum
-        on the y axis. Values have been choosen in order to cover all the cases.
-        With only positive/negative value, both positive and negative values,
-        with close values an with distant values.
+        on the y axis. Values have been choosen in order to cover all the
+        cases. With only positive/negative value, both positive and negative
+        values, with close values an with distant values.
         """
         st = [-2.5, -2, -1, -0.01, 2, 2.5]
         en = [-200, -2.005, 1, 0.01, 2.005, 200]
@@ -456,7 +456,7 @@ class TestSymmetricalLogLocator:
         for ax, s, e in zip(np.ravel(axen), st, en):
             y = np.linspace(s, e, 5)
             ax.plot(y)
-            ax.set_yscale('symlog', linthresh = 0.01, base = 10)
+            ax.set_yscale('symlog', linthresh=0.01, base=10)
             assert len(ax.yaxis.get_ticklabels()) >= 3
 
 
