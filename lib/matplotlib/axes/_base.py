@@ -3521,6 +3521,7 @@ class _AxesBase(martist.Artist):
             - `matplotlib.scale.LogScale`
             - `matplotlib.scale.SymmetricalLogScale`
             - `matplotlib.scale.LogitScale`
+            - `matplotlib.scale.FuncScale`
 
         Notes
         -----
@@ -3847,6 +3848,7 @@ class _AxesBase(martist.Artist):
             - `matplotlib.scale.LogScale`
             - `matplotlib.scale.SymmetricalLogScale`
             - `matplotlib.scale.LogitScale`
+            - `matplotlib.scale.FuncScale`
 
         Notes
         -----
