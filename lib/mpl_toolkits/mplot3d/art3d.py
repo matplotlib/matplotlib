@@ -297,10 +297,14 @@ class Line3DCollection(LineCollection):
         super().set_segments([])
 
     def get_paths(self):
+        """
+        returns paths for use in test_get_datalim
+        """
         if self.axes.M is not None:
             xyzdata = [proj3d.proj_trans_points(points, self.axes.M)
                        for points in self._segments3d]
-        else: xyzdata = [zip(*points) for points in self._segments3d]
+        else:
+            xyzdata = [zip(*points) for points in self._segments3d]
         segments_2d_ = [np.column_stack([xs, ys]) for xs, ys, zs in xyzdata]
         self._paths = [mpath.Path(_seg) for _seg in segments_2d_]
         return self._paths
