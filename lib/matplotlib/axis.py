@@ -741,7 +741,10 @@ class Axis(martist.Artist):
         return self._scale.name
 
     def _set_scale(self, value, **kwargs):
-        self._scale = mscale.scale_factory(value, self, **kwargs)
+        if not isinstance(value, mscale.ScaleBase):
+            self._scale = mscale.scale_factory(value, self, **kwargs)
+        else:
+            self._scale = value
         self._scale.set_default_locators_and_formatters(self)
 
         self.isDefault_majloc = True

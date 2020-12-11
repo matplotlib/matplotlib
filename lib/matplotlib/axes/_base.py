@@ -3510,7 +3510,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit", ...}
+        value : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
             The axis scale type to apply.
 
         **kwargs
@@ -3836,7 +3836,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit", ...}
+        value : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
             The axis scale type to apply.
 
         **kwargs
