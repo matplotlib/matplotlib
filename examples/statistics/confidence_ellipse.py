@@ -34,8 +34,8 @@ import matplotlib.transforms as transforms
 #
 # The radiuses of the ellipse can be controlled by n_std which is the number
 # of standard deviations. The default value is 3 which makes the ellipse
-# enclose 99.4% of the points it the data is normally distributed
-# like in these examples (3 standard deviations in 1-D contain 99.7% of the data, 
+# enclose 99.4% of the points if the data is normally distributed
+# like in these examples (3 standard deviations in 1-D contain 99.7% of the data,
 # which is 99.4% of the data in 2-D).
 
 
@@ -214,20 +214,3 @@ ax_kwargs.set_title('Using kwargs')
 
 fig.subplots_adjust(hspace=0.25)
 plt.show()
-
-#############################################################################
-#
-# No 68-95-99.7 Rule
-# """"""""""""""""""
-#
-# .. no_rule:
-# The well-known 68-95-99.7 rule states that in a normal distribution 68%
-# of the observations lie within +/- 1 standard deviation from the mean, 95%
-# within 2 standard deviations and 99.7% within 3 standard deviations.
-#
-# However this rule only holds for one-dimensional data.
-# To adjust this rule to two-dimensional data,
-# it suffices to square the probabilities
-# of 0.68, 0.95 and 99.7 to 0.462, 0.903 and 0.994, respectively.
-# If you wish, you can think of it as a new "46-90-99 Rule" for
-# two-dimensional data.
