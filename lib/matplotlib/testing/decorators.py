@@ -112,6 +112,7 @@ def remove_ticks_and_titles(figure):
     figure.suptitle("")
     null_formatter = ticker.NullFormatter()
     def remove_ticks(ax):
+        """Remove ticks in *ax* and all its child Axes."""
         ax.set_title("")
         ax.xaxis.set_major_formatter(null_formatter)
         ax.xaxis.set_minor_formatter(null_formatter)
