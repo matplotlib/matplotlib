@@ -1041,6 +1041,25 @@ class TestVoxels:
             ax.voxels(filled=filled, x=x, y=y, z=z)
 
 
+def test_line3d_get_datalim():
+    segments = [[(0, 0, 0), (1, 1, 1)]]
+    collection = art3d.Line3DCollection(segments)
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.add_collection3d(collection)
+    result = collection.get_datalim(ax.transData).get_points()
+    correct = mpl.transforms.Bbox([[0, 0], [1, 1]]).get_points()
+    np.testing.assert_almost_equal(result, correct)
+
+    segments = [[(-1, 0, 0), (5, 10, 10)]]
+    collection = art3d.Line3DCollection(segments)
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.add_collection3d(collection)
+    result = collection.get_datalim(ax.transData).get_points()
+    correct = mpl.transforms.Bbox([[-1, 0], [5, 10]]).get_points()
+    np.testing.assert_almost_equal(result, correct)
+
 def test_line3d_set_get_data_3d():
     x, y, z = [0, 1], [2, 3], [4, 5]
     x2, y2, z2 = [6, 7], [8, 9], [10, 11]
@@ -1051,7 +1070,6 @@ def test_line3d_set_get_data_3d():
     np.testing.assert_array_equal((x, y, z), line.get_data_3d())
     line.set_data_3d(x2, y2, z2)
     np.testing.assert_array_equal((x2, y2, z2), line.get_data_3d())
-
 
 @check_figures_equal(extensions=["png"])
 def test_inverted(fig_test, fig_ref):
