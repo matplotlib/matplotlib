@@ -260,8 +260,8 @@ class Axis(maxis.XAxis):
         lxyz = 0.5 * (edgep1 + edgep2)
 
         # A rough estimate; points are ambiguous since 3D plots rotate
-        ax_scale = self.axes.bbox.size / self.figure.bbox.size
-        ax_inches = np.multiply(ax_scale, self.figure.get_size_inches())
+        reltoinches = self.figure.dpi_scale_trans.inverted()
+        ax_inches = reltoinches.transform(self.axes.bbox.size)
         ax_points_estimate = sum(72. * ax_inches)
         deltas_per_point = 48 / ax_points_estimate
         default_offset = 21.
