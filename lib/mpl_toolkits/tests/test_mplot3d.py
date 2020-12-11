@@ -1050,7 +1050,6 @@ def test_line3d_get_datalim():
     result = collection.get_datalim(ax.transData).get_points()
     correct = mpl.transforms.Bbox([[0, 0], [1, 1]]).get_points()
     np.testing.assert_almost_equal(result, correct)
-
     segments = [[(-1, 0, 0), (5, 10, 10)]]
     collection = art3d.Line3DCollection(segments)
     fig = plt.figure()
@@ -1059,6 +1058,7 @@ def test_line3d_get_datalim():
     result = collection.get_datalim(ax.transData).get_points()
     correct = mpl.transforms.Bbox([[-1, 0], [5, 10]]).get_points()
     np.testing.assert_almost_equal(result, correct)
+
 
 def test_line3d_set_get_data_3d():
     x, y, z = [0, 1], [2, 3], [4, 5]
@@ -1070,6 +1070,7 @@ def test_line3d_set_get_data_3d():
     np.testing.assert_array_equal((x, y, z), line.get_data_3d())
     line.set_data_3d(x2, y2, z2)
     np.testing.assert_array_equal((x2, y2, z2), line.get_data_3d())
+
 
 @check_figures_equal(extensions=["png"])
 def test_inverted(fig_test, fig_ref):
