@@ -16,7 +16,7 @@ Matplotlib recognizes the following formats to specify a color:
 | string                               | - ``'#0f0f0f80'``                    |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive shorthand equivalent| - ``'#abc'`` as ``'#aabbcc'``        |
-| string of RGB orRGBA from duplicated | - ``'#abcd'`` as ``'#aabbccdd'``     |
+| string of RGB or RGBA from duplicated| - ``'#abcd'`` as ``'#aabbccdd'``     |
 | characters                           |                                      |
 +--------------------------------------+--------------------------------------+
 | String representation of float value | - ``'0.8'`` as light gray            |
@@ -54,7 +54,7 @@ Matplotlib recognizes the following formats to specify a color:
 | .. note:: Indexing occurs at         |                                      |
 |           rendering time and defaults|                                      |
 |           to black if cycle does not |                                      |
-|           inlcude color.             |                                      |
+|           include color.             |                                      |
 +--------------------------------------+--------------------------------------+
 
 .. _xkcd color survey: https://xkcd.com/color/rgb/
@@ -70,7 +70,7 @@ If the previous RGB of a pixel is ``RGBold`` and the RGB of the pixel of the
 added Artist is ``RGBnew`` with Alpha ``alpha``, then the RGB of the pixel
 updates to: ``RGB = RGBOld * (1 - Alpha) + RGBnew * Alpha``.
 
-Alpha of 1 indicates the new Artist completely covering the previous color.
+Alpha of 1 indicates the new Artist completely covers the previous color.
 Alpha of 0 indicates that pixel of the Artist is transparent.
 
 .. seealso::
@@ -83,7 +83,9 @@ Alpha of 0 indicates that pixel of the Artist is transparent.
 "CN" color selection
 --------------------
 
-"CN" colors convert to RGBA when creating Artists.
+"CN" colors convert to RGBA when creating Artists. The
+:doc:`/tutorials/intermediate/color_cycle` section contains additional
+information about controlling colors and style properties.
 """
 
 
