@@ -34,9 +34,9 @@ import matplotlib.transforms as transforms
 #
 # The radiuses of the ellipse can be controlled by n_std which is the number
 # of standard deviations. The default value is 3 which makes the ellipse
-# enclose 99.4% of the points - given the data is normally distributed
-# like in these examples. Why not 99.7%? See :ref:`No 68-95-99.7 Rule<no_rule>`
-# below for a brief explanation.
+# enclose 99.4% of the points it the data is normally distributed
+# like in these examples (3 standard deviations in 1-D contain 99.7% of the data, 
+# which is 99.4% of the data in 2-D).
 
 
 def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
@@ -231,4 +231,3 @@ plt.show()
 # of 0.68, 0.95 and 99.7 to 0.462, 0.903 and 0.994, respectively.
 # If you wish, you can think of it as a new "46-90-99 Rule" for
 # two-dimensional data.
-
