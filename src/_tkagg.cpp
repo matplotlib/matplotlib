@@ -33,6 +33,9 @@
 #define dlsym GetProcAddress
 #else
 #include <dlfcn.h>
+// Suppress -Wunused-function on POSIX, but not on Windows where that would
+// lead to PY_ARRAY_UNIQUE_SYMBOL being an unresolved external.
+#define NO_IMPORT_ARRAY
 #endif
 
 // Include our own excerpts from the Tcl / Tk headers
