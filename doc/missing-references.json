@@ -504,7 +504,7 @@
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:220",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:220",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.SubFigure.legend:220",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:178",
+      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:179",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:220",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:219"
     ]
@@ -522,11 +522,11 @@
   },
   "py:meth": {
     "AbstractPathEffect._update_gc": [
-      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimpleLineShadow:43",
-      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimplePatchShadow:42",
-      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.TickedStroke:59",
-      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withSimplePatchShadow:51",
-      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withTickedStroke:54"
+      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimpleLineShadow:44",
+      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimplePatchShadow:43",
+      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.TickedStroke:60",
+      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withSimplePatchShadow:52",
+      "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withTickedStroke:55"
     ],
     "FigureCanvasQTAgg.blit": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:199"
@@ -802,7 +802,7 @@
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:129",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:129",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.SubFigure.legend:129",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:87",
+      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:88",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:129",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:128"
     ],
@@ -851,7 +851,7 @@
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:129",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:129",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.SubFigure.legend:129",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:87",
+      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:88",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:129",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:128"
     ],
@@ -977,7 +977,7 @@
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.args_key": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.bin_path": [
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
@@ -986,13 +986,13 @@
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.exec_key": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.finish": [
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.frame_size": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.grab_frame": [
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
@@ -1001,13 +1001,16 @@
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.output_args": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.saving": [
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.setup": [
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.AVConvWriter.supported_formats": [
+      "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.ArtistAnimation.new_frame_seq": [
       "doc/api/_as_gen/matplotlib.animation.ArtistAnimation.rst:23:<autosummary>:1"
@@ -1070,7 +1073,7 @@
       "doc/api/_as_gen/matplotlib.animation.FFMpegFileWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.args_key": [
-      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.bin_path": [
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
@@ -1079,13 +1082,13 @@
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.exec_key": [
-      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.finish": [
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.frame_size": [
-      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.grab_frame": [
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
@@ -1094,13 +1097,16 @@
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.output_args": [
-      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:36:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.saving": [
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegWriter.setup": [
       "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.FFMpegWriter.supported_formats": [
+      "doc/api/_as_gen/matplotlib.animation.FFMpegWriter.rst:37:<autosummary>:1"
     ],
     "matplotlib.animation.FileMovieWriter.args_key": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.clear_temp:1:<autosummary>:1"
@@ -1122,6 +1128,9 @@
     ],
     "matplotlib.animation.FileMovieWriter.saving": [
       "doc/api/_as_gen/matplotlib.animation.FileMovieWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.FileMovieWriter.supported_formats": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FileMovieWriter.clear_temp:1:<autosummary>:1"
     ],
     "matplotlib.animation.FuncAnimation.pause": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.FuncAnimation.new_frame_seq:1:<autosummary>:1"
@@ -1202,7 +1211,7 @@
       "doc/api/_as_gen/matplotlib.animation.ImageMagickFileWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.args_key": [
-      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:37:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:38:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.bin_path": [
       "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:28:<autosummary>:1"
@@ -1211,16 +1220,16 @@
       "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.delay": [
-      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:37:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:38:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.exec_key": [
-      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:37:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:38:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.finish": [
       "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.frame_size": [
-      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:37:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:38:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.grab_frame": [
       "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:28:<autosummary>:1"
@@ -1229,13 +1238,16 @@
       "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.output_args": [
-      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:37:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:38:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.saving": [
       "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickWriter.setup": [
       "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.ImageMagickWriter.supported_formats": [
+      "doc/api/_as_gen/matplotlib.animation.ImageMagickWriter.rst:38:<autosummary>:1"
     ],
     "matplotlib.animation.MovieWriter.frame_size": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.MovieWriter.args_key:1:<autosummary>:1"

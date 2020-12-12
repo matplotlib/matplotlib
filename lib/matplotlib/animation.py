@@ -31,6 +31,7 @@ import uuid
 import warnings
 
 import numpy as np
+from PIL import Image
 
 import matplotlib as mpl
 from matplotlib._animation_data import (
@@ -263,6 +264,10 @@ class MovieWriter(AbstractMovieWriter):
     exec_key = cbook._deprecate_privatize_attribute("3.3")
     args_key = cbook._deprecate_privatize_attribute("3.3")
 
+    # Pipe-based writers only support RGBA, but file-based ones support more
+    # formats.
+    supported_formats = ["rgba"]
+
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
         """
@@ -296,8 +301,7 @@ class MovieWriter(AbstractMovieWriter):
 
         super().__init__(fps=fps, metadata=metadata, codec=codec,
                          bitrate=bitrate)
-
-        self.frame_format = 'rgba'
+        self.frame_format = self.supported_formats[0]
         self.extra_args = extra_args
 
     def _adjust_frame_size(self):
@@ -471,6 +475,10 @@ class FileMovieWriter(MovieWriter):
         if frame_format in self.supported_formats:
             self._frame_format = frame_format
         else:
+            cbook._warn_external(
+                f"Ignoring file format {frame_format!r} which is not "
+                f"supported by {type(self).__name__}; using "
+                f"{self.supported_formats[0]} instead.")
             self._frame_format = self.supported_formats[0]
 
     def _base_temp_name(self):
@@ -521,7 +529,6 @@ class PillowWriter(AbstractMovieWriter):
         self._frames = []
 
     def grab_frame(self, **savefig_kwargs):
-        from PIL import Image
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
@@ -736,15 +743,18 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
-
     """
 
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
                          'pbm', 'raw', 'rgba']
 
     def _args(self):
-        return ([self.bin_path(), '-delay', str(self.delay), '-loop', '0',
-                 '%s*.%s' % (self.temp_prefix, self.frame_format)]
+        # Force format: ImageMagick does not recognize 'raw'.
+        fmt = 'rgba:' if self.frame_format == 'raw' else ''
+        return ([self.bin_path(),
+                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
+                 '-delay', str(self.delay), '-loop', '0',
+                 '%s%s*.%s' % (fmt, self.temp_prefix, self.frame_format)]
                 + self.output_args)
 
 
