@@ -25,7 +25,7 @@ import numpy as np
 from matplotlib import _api, animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
-from matplotlib.colors import is_color_like
+from matplotlib.colors import Colormap, is_color_like
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
@@ -393,6 +393,13 @@ def validate_color(s):
 
 validate_colorlist = _listify_validator(
     validate_color, allow_stringlist=True, doc='return a list of colorspecs')
+
+
+def _validate_cmap(s):
+    cbook._check_isinstance((str, Colormap), cmap=s)
+    return s
+
+
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'], _deprecated_since="3.3")
 
@@ -1141,7 +1148,7 @@ _validators = {
 
     "image.aspect":          validate_aspect,  # equal, auto, a number
     "image.interpolation":   validate_string,
-    "image.cmap":            validate_string,  # gray, jet, etc.
+    "image.cmap":            _validate_cmap,  # gray, jet, etc.
     "image.lut":             validate_int,  # lookup table
     "image.origin":          ["upper", "lower"],
     "image.resample":        validate_bool,
