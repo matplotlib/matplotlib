@@ -197,6 +197,8 @@ def test_animation_repr_html(writer, html, want, anim):
         html = anim._repr_html_()
     if want is None:
         assert html is None
+        with pytest.warns(UserWarning):
+            del anim  # Animtion was never run, so will warn on cleanup.
     else:
         assert want in html
 
