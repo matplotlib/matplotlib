@@ -340,7 +340,7 @@ plt.show()
 
 ###############################################################################
 # All of the `~.pyplot.text` functions return a `matplotlib.text.Text`
-# instance.  Just as with with lines above, you can customize the properties by
+# instance.  Just as with lines above, you can customize the properties by
 # passing keyword arguments into the text functions or using `~.pyplot.setp`::
 #
 #   t = plt.xlabel('my data', fontsize=14, color='red')
