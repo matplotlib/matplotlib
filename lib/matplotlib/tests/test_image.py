@@ -718,7 +718,8 @@ def test_load_from_url():
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
     plt.imread(url)
-    plt.imread(urllib.request.urlopen(url))
+    with urllib.request.urlopen(url) as file:
+        plt.imread(file)
 
 
 @image_comparison(['log_scale_image'], remove_text=True)
