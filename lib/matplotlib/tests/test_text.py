@@ -709,3 +709,14 @@ def test_update_mutate_input():
     t.update(inp)
     assert inp['fontproperties'] == cache['fontproperties']
     assert inp['bbox'] == cache['bbox']
+   
+@image_comparison(['rotation_center_baseline.png'])
+def test_rotation():
+    plt.plot([0, 1], lw=0)
+    plt.axvline(.5, linewidth=.5, color='.5')
+    plt.axhline(.5, linewidth=.5, color='.5')
+    N = 4
+    r = 0
+    plt.text(.5, .5, 'pP', size=100, rotation=r/N*360, va='center_baseline', rotation_mode='anchor')
+    r = 2
+    plt.text(.5, .5, 'pP', size=100, rotation=r/N*360, va='center_baseline', rotation_mode='anchor')
