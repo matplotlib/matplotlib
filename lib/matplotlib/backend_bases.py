@@ -51,7 +51,7 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib._types import JoinStyle, CapStyle
+from matplotlib._enums import JoinStyle, CapStyle
 
 
 _log = logging.getLogger(__name__)

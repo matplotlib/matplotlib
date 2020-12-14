@@ -26,7 +26,7 @@ from matplotlib import _api, animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
-from matplotlib._types import JoinStyle, CapStyle
+from matplotlib._enums import JoinStyle, CapStyle
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler

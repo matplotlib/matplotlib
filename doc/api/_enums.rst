@@ -1,8 +1,8 @@
 **********************
-``matplotlib._types``
+``matplotlib._enums``
 **********************
 
-.. automodule:: matplotlib._types
+.. automodule:: matplotlib._enums
    :no-members:
 
    .. autoclass:: JoinStyle

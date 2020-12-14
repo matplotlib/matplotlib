@@ -16,7 +16,7 @@ from .bezier import (
     get_parallels, inside_circle, make_wedged_bezier2,
     split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
-from ._types import JoinStyle, CapStyle
+from ._enums import JoinStyle, CapStyle
 
 
 @cbook._define_aliases({

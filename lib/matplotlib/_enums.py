@@ -1,5 +1,5 @@
 """
-Matplotlib API concepts that would not otherwise merit a dedicated class.
+Enums representing sets of strings that Matplotlib uses as input parameters.
 
 Matplotlib often uses simple data types like strings or tuples to define a
 concept; e.g. the line capstyle can be specified as one of 'butt', 'round',
@@ -91,7 +91,7 @@ class JoinStyle(str, _AutoStringNameEnum):
     .. plot::
         :alt: Demo of possible JoinStyle's
 
-        from matplotlib._types import JoinStyle
+        from matplotlib._enums import JoinStyle
         JoinStyle.demo()
 
     """
@@ -165,7 +165,7 @@ class CapStyle(str, _AutoStringNameEnum):
     .. plot::
         :alt: Demo of possible CapStyle's
 
-        from matplotlib._types import CapStyle
+        from matplotlib._enums import CapStyle
         CapStyle.demo()
 
     """

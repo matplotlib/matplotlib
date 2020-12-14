@@ -134,7 +134,7 @@ import numpy as np
 from . import _api, cbook, rcParams
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
-from ._types import JoinStyle, CapStyle
+from ._enums import JoinStyle, CapStyle
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,

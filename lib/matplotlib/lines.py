@@ -17,7 +17,7 @@ from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
-from ._types import JoinStyle, CapStyle
+from ._enums import JoinStyle, CapStyle
 
 # Imported here for backward compatibility, even though they don't
 # really belong.

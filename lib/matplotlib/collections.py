@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
-from ._types import JoinStyle, CapStyle
+from ._enums import JoinStyle, CapStyle
 import warnings
 
 

@@ -3,13 +3,13 @@
 JoinStyle
 =========
 
-The `matplotlib._types.JoinStyle` controls how Matplotlib draws the corners
+The `matplotlib._enums.JoinStyle` controls how Matplotlib draws the corners
 where two different line segments meet. For more details, see the
-`~matplotlib._types.JoinStyle` docs.
+`~matplotlib._enums.JoinStyle` docs.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib._types import JoinStyle
+from matplotlib._enums import JoinStyle
 
 JoinStyle.demo()
 plt.show()
