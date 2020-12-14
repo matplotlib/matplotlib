@@ -1033,8 +1033,6 @@ class Line2D(Artist):
         """
         Return the label font as string
         """
-        if self._invalidy or self._invalidx:
-            self.recache()
         return self._labelfont
 
     def set_antialiased(self, b):
