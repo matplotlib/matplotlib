@@ -423,7 +423,7 @@ class Text(Artist):
             elif valign == 'baseline':
                 offsety = ymax1 - baseline
             elif valign == 'center_baseline':
-                offsety = ymax1 - baseline / 2.0
+                offsety = ymax1 - baseline - ymin1
             else:
                 offsety = ymin1
 
