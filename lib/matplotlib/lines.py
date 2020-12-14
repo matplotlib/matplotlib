@@ -208,6 +208,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
     "markerfacecolor": ["mfc"],
     "markerfacecoloralt": ["mfcalt"],
     "markersize": ["ms"],
+    "labelfont": ["lf"]
 })
 class Line2D(Artist):
     """
@@ -293,6 +294,7 @@ class Line2D(Artist):
                  pickradius=5,
                  drawstyle=None,
                  markevery=None,
+                 font=None,
                  **kwargs
                  ):
         """
@@ -1027,6 +1029,14 @@ class Line2D(Artist):
             self.recache()
         return self._xy
 
+    def get_labelfont(self):
+        """
+        Return the label font as string
+        """
+        if self._invalidy or self._invalidx:
+            self.recache()
+        return self._labelfont
+
     def set_antialiased(self, b):
         """
         Set whether to use antialiased rendering.
@@ -1263,6 +1273,15 @@ class Line2D(Artist):
         self._yorig = y
         self._invalidy = True
         self.stale = True
+
+    def set_labelfont(self, labelfont):
+        """
+        """
+        self._invalidy = True
+        if self._labelfont != labelfont:
+            self.stale = True
+        self._labelfont = labelfont
+
 
     def set_dashes(self, seq):
         """
