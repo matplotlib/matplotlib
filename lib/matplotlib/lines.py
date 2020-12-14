@@ -1282,7 +1282,6 @@ class Line2D(Artist):
             self.stale = True
         self._labelfont = labelfont
 
-
     def set_dashes(self, seq):
         """
         Set the dash sequence.

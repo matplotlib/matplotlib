@@ -264,3 +264,11 @@ def test_marker_as_markerstyle():
 def test_odd_dashes(fig_test, fig_ref):
     fig_test.add_subplot().plot([1, 2], dashes=[1, 2, 3])
     fig_ref.add_subplot().plot([1, 2], dashes=[1, 2, 3, 1, 2, 3])
+
+
+def test_labelfont():
+    # notice tick_params has labelfont
+    plt.plot(['ai','l','c3'], [4,5,6])
+    plt.ylabel('A Original set Y label', fontname='monospace', fontsize=20)
+    plt.tick_params(color='r', labelcolor='g', labelsize=10, labelfont='monospace')
+    plt.title('Testing testing 1234')
