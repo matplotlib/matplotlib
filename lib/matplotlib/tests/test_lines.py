@@ -268,7 +268,8 @@ def test_odd_dashes(fig_test, fig_ref):
 
 def test_labelfont():
     # notice tick_params has labelfont
-    plt.plot(['ai','l','c3'], [4,5,6])
+    plt.plot(['ai', 'l', 'c3'], [4, 5, 6])
     plt.ylabel('A Original set Y label', fontname='monospace', fontsize=20)
-    plt.tick_params(color='r', labelcolor='g', labelsize=10, labelfont='monospace')
+    plt.tick_params(color='r', labelcolor='g', labelsize=10,
+                    labelfont='monospace')
     plt.title('Testing testing 1234')
