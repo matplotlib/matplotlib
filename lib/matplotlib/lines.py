@@ -1277,7 +1277,6 @@ class Line2D(Artist):
     def set_labelfont(self, labelfont):
         """
         """
-        self._invalidy = True
         if self._labelfont != labelfont:
             self.stale = True
         self._labelfont = labelfont
