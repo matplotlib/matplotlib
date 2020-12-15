@@ -21,9 +21,7 @@ started using Matplotlib.
 # The library is accessible through a variety of operating systems and
 # programming environments. The fundamental ideas behind Matplotlib for
 # visualizations involve taking data and transforming it through functions and
-# methods. This process occurs on the backend and is not user-facing. For more
-# information regarding manipulating backend capabilities, see
-# :ref:`backends`.
+# methods. This process occurs internally and is not user-facing.
 #
 # There are two main ways of producing graphs with Matplotlib, explicit and
 # implicit. Explicit code, using Object Oriented Programming (OOP), and
@@ -57,12 +55,12 @@ started using Matplotlib.
 #
 # Implicit programming with ``pyplot`` is simpler. It is helpful for basic
 # plots and for interactive environments, such as Jupyter Notebooks. Users
-# familiar with MATLAB or would like to have Matplotlib automatically create
-# and manage parts of the visualization benefit from using the ``pyplot``
-# module to graph data. Using implicit programming acts as a convenient
-# shortcut for generating visualizations. New users to Matplotlib may
-# experience difficulty understanding how elements of a visualization work
-# together when using the implicit approach.
+# familiar with MATLAB or wish to have Matplotlib create and manage parts of
+# the visualization in state-based programming benefit from using ``pyplot``.
+# Using implicit programming acts as a convenient shortcut for generating
+# visualizations. New users to Matplotlib may experience difficulty
+# understanding how elements of a visualization work together when using the
+# implicit approach.
 #
 # Examples
 # --------
@@ -240,31 +238,31 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 
 # Explicit programming with OOP
 
+# Assigning sample data to labeled variables.
 x = months
 y1 = income
 y2 = chk_acct_09
 y3 = svg_acct_09
 y4 = chk_acct_10
 y5 = svg_acct_10
-# Assigning sample data to labeled variables.
 
-fig, ax = plt.subplots()
 # Explicit Figure & Axes unpacked separately with module.
 # Conventional object abbreviations are `fig` and `ax`, respectively.
+fig, ax = plt.subplots()
 
+# Single explicit Axes graphs multiple data points.
 ax.plot(x, y1, label='Income')
 ax.plot(x, y2, label='Checking Account')
 ax.plot(x, y3, label='Savings Account')
-# Single explicit Axes graphs multiple data points.
 
+# Explicit Axes use separate methods to manage parts of Figure.
 ax.set_xlabel('Month')
 ax.set_ylabel('USD')
 ax.set_title('Personal Financial Tracking from 2009')
 ax.legend()
-# Explicit Axes use separate methods to manage parts of Figure.
 
-plt.show()
 # The pyplot module displays the Figure.
+plt.show()
 
 ##############################################################################
 #
@@ -293,19 +291,19 @@ plt.show()
 
 # Previous variables are still referenced.
 
+# Module plots multiple data points on implicitly generated Axes.
 plt.plot(x, y1, label='Income')
 plt.plot(x, y2, label='Checking Account')
 plt.plot(x, y3, label='Savings Account')
-# Module plots multiple data points on implicitly generated Axes.
 
+# Module methods generate parts of Figure.
 plt.xlabel('Month')
 plt.ylabel('USD')
 plt.title("Personal Financial Tracking from 2009")
 plt.legend()
-# Module methods generate parts of Figure.
 
-plt.show()
 # The module displays the Figure.
+plt.show()
 
 ##############################################################################
 #
@@ -350,11 +348,12 @@ plt.show()
 #     without assigned data.
 #
 
-fig, ax = plt.subplots()
 # Explicit Figure and Axes unpacked from module function.
 # No data transformed for visualizations.
-plt.show()
+fig, ax = plt.subplots()
+
 # Module displays empty Figure and Axes.
+plt.show()
 
 ##############################################################################
 #
@@ -497,22 +496,25 @@ plt.show()
 
 # Sample data for monthly spending averages.
 
-budget = [475, 300, 125, 50]
 # Data points correspond to wedge size as a ratio of total sum.
 # Matplotlib methods calculate these values automatically based on input.
+budget = [475, 300, 125, 50]
 
+# Lists of strings contribute to labeling corresponding data.
 descriptions = ['Shared house\nin Philadelphia',
                 'Dog costs, phone,\nutilities',
                 'Groceries\n& takeout',
                 'Treasury bonds']
 categories = ['Rent', 'Bills', 'Food', 'Savings']
-# Lists of strings contribute to labeling corresponding data.
 
-colors = ['#1f77b4', '#ff7f0e', '#d62728', '#2ca02c']
 # Hex color codes determine respective wedge color.
+colors = ['#1f77b4', '#ff7f0e', '#d62728', '#2ca02c']
 
-explode = [0, 0.1, 0.15, 0.35]
 # List of floats represents percentage of radius to separate from center.
+explode = [0, 0.1, 0.15, 0.35]
+
+# This function operates in conjunction with the functools partial function
+# for formatting labels in wedges.
 
 
 def autopct_format(percent, group):
@@ -535,8 +537,7 @@ def autopct_format(percent, group):
     value = int(percent/100.*np.sum(group))
     formatted = f'${value:<4}\n{percent:1.1f}%'
     return formatted
-# This function operates in conjunction with the functools partial function
-# for formatting labels in wedges.
+
 
 ##############################################################################
 #
@@ -557,8 +558,7 @@ fig, ax = plt.subplots()
 ax.pie(budget, colors=colors, labels=categories)
 ax.legend()
 ax.set_title('Average Monthly Income Expenses')
-ax.axis('equal')
-# The axis method sets the aspect ratio of the visual as equal.
+ax.axis('equal')  # The axis method sets the aspect ratio as equal.
 
 plt.show()
 
@@ -569,8 +569,7 @@ plt.show()
 plt.pie(budget, colors=colors, labels=categories)
 plt.legend()
 plt.title('Average Monthly Income Expenses')
-plt.axis('equal')
-# The pyplot module contains an identical method for setting aspect ratio.
+plt.axis('equal')  # The pyplot module has identical method for aspect ratio.
 
 plt.show()
 
@@ -601,21 +600,20 @@ plt.show()
 
 fig, ax = plt.subplots()
 
+# The explode keyword argument uses explode variable data to separate
+# respective wedges from center.
+# The autopct keyword argument takes formatting strings and functions to
+# generate text within wedge. '%1.1f%%' is the string formatter.
+# The startangle keyword argument changes where first wedge spans. Angles start
+# at 0 degrees on X-axis and move counterclockwise.
+# The shadow keyword argument toggles a shadow on the visual.
 ax.pie(budget,
        colors=colors,
        labels=categories,
        explode=explode,
-       # The explode keyword argument uses the explode variable data to
-       # separate respective wedges from the center.
        autopct='%1.1f%%',
-       # The autopct keyword argument takes formatting strings and functions
-       # to generate text within the wedge. '%1.1f%%' is a string formatter.
        startangle=-80,
-       # The startangle keyword argument changes where the first wedge spans.
-       # Angles start at 0 degrees on the X-axis and move counterclockwise.
-       shadow=True
-       # The shadow keyword argument toggles a shadow on the visual.
-       )
+       shadow=True)
 
 ax.legend()
 ax.set_title('Average Monthly Income Expenses')
@@ -634,63 +632,54 @@ plt.show()
 
 fig, ax = plt.subplots()
 
+# Descriptions now act as text labels for wedges. This removes redundant
+# information from previous pie chart.
+# The autopct keyword argument calls a function as well. The functools partial
+# function returns a formatted string. See Note below for more.
+# The pctdistance keyword argument places autopct Artist at a location using
+# float as percentage of radius.
+# The labeldistance keyword argument specifies float as percentage of radius to
+# place labels.
+# The wedgeprops keyword argument also takes dictionaries to pass to Artists.
+# The float for width sets wedge size as percentage of radius starting from
+# outer edge.
 budget_pie = ax.pie(budget,
                     colors=colors,
                     labels=descriptions,
-                    # Descriptions now act as text labels for the wedges.
-                    # This removes redundant information from the previous
-                    # pie chart.
                     explode=explode,
                     autopct=partial(autopct_format, group=budget),
-                    # The autopct keyword argument calls a function as well.
-                    # The functools partial function returns a formatted
-                    # string. See Note below for more.
                     startangle=45,
                     pctdistance=0.85,
-                    # The pctdistance keyword argument places the autopct
-                    # Artist at a location using the float as a percentage of
-                    # the radius.
                     labeldistance=1.125,
-                    # The labeldistance keyword argument specifies the float as
-                    # a percentage of the radius to place labels.
                     wedgeprops=dict(width=0.3),
-                    # The wedgeprops keyword argument also takes dictionaries
-                    # to pass on to the Artists. The float for width sets the
-                    # wedge size as a percentage of the radius starting from
-                    # the outer edge.
                     shadow=True)
 
-wedges, texts, autotexts = budget_pie
 # The pie() method unpacks into three Artist objects. The Artists wedges,
 # texts, and autotexts have their own methods for addtional customization.
+wedges, texts, autotexts = budget_pie
 
+# The unpacked wedges variable serve as handles for legend.
+# Info from categories correspond to respective wedge instead of redundant
+# labeling from previous pie chart.
+# Legend has title keyword argument.
+# Keyword argument bbox_to_anchor with loc places legend at specific point.
+# Tuple floats are coordinates for Figure as row and column of Axes.
+# Keyword argument loc works with bbox_to_anchor to determine part of legend
+# for placement. Without bbox_to_anchor, Matplotlib automatically manages
+# coordinates in relation to parameters of loc.
 ax.legend(wedges,
-          # The wedges variable unpacked from the method serve as the handles
-          # for the legend.
           categories,
-          # The information from the data categories corresponds to each
-          # respective wedge instead of redundant labeling from the previous
-          # pie chart.
           title='Categories',
-          # The legend has a title keyword argument.
           bbox_to_anchor=(0.125, 0.5),
-          # This keyword argument in conjunction with loc places the legend
-          # at a specific point. The tuple floats are coordinates for the
-          # Figure in terms of row and column of Axes.
-          loc='center right'
-          # The loc keyword argument works in conjunction with bbox_to_anchor
-          # and determines the part of the legend for placement. Without
-          # bbox_to_anchor, Matplotlib automatically manages coordinates in
-          # relation to specifications of the parameters of loc.
-          )
+          loc='center right')
 
 ax.set_title('Average Monthly Income Expenses')
 ax.axis('equal')
 
-fig.tight_layout()
-# The Figure method tight_layout() manages the space between all Artists to
-# maximize visiblity on the Figure. This method also contains various
+# The Figure method tight_layout() manages space between all Artists to
+# maximize visiblity on Figure. This method also contains various
 # parameters for configuration.
+fig.tight_layout()
 
 plt.show()
 
@@ -728,41 +717,41 @@ plt.show()
 
 # Explicit with OOP
 
+# Figure and two Axes unpacked from matrix as row (1) & column (2).
+# Keyword arguments provide additional details of sharing Y-Axis, Figure size
+# and layout formatting.
 fig, (ax1, ax2) = plt.subplots(1, 2,
                                sharey='row',
                                figsize=[8, 4],
                                constrained_layout=True)
-# Figure and two Axes unpacked from arguments (1, 2) as row & column.
-# Keyword arguments provide additional details of sharing Y-Axis, Figure size
-# and layout formatting.
 
-fig.suptitle('Personal Financial Tracking \'09 - \'10')
 # Explicit Figure object has separate method for title.
+fig.suptitle('Personal Financial Tracking \'09 - \'10')
 
+# First explicit Axes object plots data with additional keyword arguments.
 ax1.plot(x, y1, label='Income')
 ax1.plot(x, y2, label='Checking')
 ax1.plot(x, y3, color='green', label='Savings')
-# First explicit Axes object plots data with additional keyword arguments.
 
+# First explicit Axes object uses separate methods for ticks on X-Axis,
+# title, and legend. Keyword arguments are for additional configurations.
 ax1.set_xticks(months)
 ax1.set_xticklabels(months, rotation=270)
 ax1.set_title('2009', fontsize='small')
 ax1.legend(loc='upper left')
-# First explicit Axes object uses separate methods for ticks on the X-Axis,
-# title, and legend. Keyword arguments are for additional configurations.
 
+# Explicit second Axes object plots data similarly to first explicit Axes.
 ax2.plot(x, y1, label='Income')
 ax2.plot(x, y4, label='Checking')
 ax2.plot(x, y5, color='green', label='Savings')
-# Explicit second Axes object plots data similarly to first explicit Axes.
 
+# Explicit second Axes object has separate methods as well.
 ax2.set_xticks(months)
 ax2.set_xticklabels(months, rotation=270)
 ax2.set_title('2010', fontsize='small')
-# Explicit second Axes object has separate methods as well.
 
+# The pyplot module displays Figure.
 plt.show()
-# The pyplot module displays the Figure.
 
 ##############################################################################
 #
