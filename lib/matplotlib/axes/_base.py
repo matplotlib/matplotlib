@@ -108,12 +108,12 @@ class _TransformedBoundsLocator:
         self._transform = transform
 
     def __call__(self, ax, renderer):
-        # Subtracting transFigure will typically rely on inverted(), freezing
-        # the transform; thus, this needs to be delayed until draw time as
-        # transFigure may otherwise change after this is evaluated.
+        # Subtracting transSubfigure will typically rely on inverted(),
+        # freezing the transform; thus, this needs to be delayed until draw
+        # time as transSubfigure may otherwise change after this is evaluated.
         return mtransforms.TransformedBbox(
             mtransforms.Bbox.from_bounds(*self._bounds),
-            self._transform - ax.figure.transFigure)
+            self._transform - ax.figure.transSubfigure)
 
 
 def _process_plot_format(fmt):
@@ -939,8 +939,8 @@ class _AxesBase(martist.Artist):
         Axes have two position attributes. The 'original' position is the
         position allocated for the Axes. The 'active' position is the
         position the Axes is actually drawn at. These positions are usually
-        the same unless a fixed aspect is set to the Axes. See `.set_aspect`
-        for details.
+        the same unless a fixed aspect is set to the Axes. See
+        `.Axes.set_aspect` for details.
 
         Parameters
         ----------
@@ -1371,7 +1371,7 @@ class _AxesBase(martist.Artist):
             etc.
             =====   =====================
 
-            See `.set_anchor` for further details.
+            See `~.Axes.set_anchor` for further details.
 
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
