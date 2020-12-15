@@ -16,8 +16,7 @@ from .cbook import (
 from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
-from .transforms import (
-    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath)
+from .transforms import Bbox, BboxTransformTo, TransformedPath
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -1412,34 +1411,57 @@ class _AxLine(Line2D):
     transform at draw time.
     """
 
+    def __init__(self, xy1, xy2, slope, **kwargs):
+        super().__init__([0, 1], [0, 1], **kwargs)
+
+        if (xy2 is None and slope is None or
+                xy2 is not None and slope is not None):
+            raise TypeError(
+                "Exactly one of 'xy2' and 'slope' must be given")
+
+        self._slope = slope
+        self._xy1 = xy1
+        self._xy2 = xy2
+
     def get_transform(self):
         ax = self.axes
-        (x1, y1), (x2, y2) = ax.transScale.transform([*zip(*self.get_data())])
-        dx = x2 - x1
-        dy = y2 - y1
-        if np.allclose(x1, x2):
-            if np.allclose(y1, y2):
-                raise ValueError(
-                    f"Cannot draw a line through two identical points "
-                    f"(x={self.get_xdata()}, y={self.get_ydata()})")
-            # First send y1 to 0 and y2 to 1.
-            return (Affine2D.from_values(1, 0, 0, 1 / dy, 0, -y1 / dy)
-                    + ax.get_xaxis_transform(which="grid"))
-        if np.allclose(y1, y2):
-            # First send x1 to 0 and x2 to 1.
-            return (Affine2D.from_values(1 / dx, 0, 0, 1, -x1 / dx, 0)
-                    + ax.get_yaxis_transform(which="grid"))
+        points_transform = self._transform + ax.transData.inverted()
+
+        if self._xy2 is not None:
+            # two points were given
+            (x1, y1), (x2, y2) = \
+                points_transform.transform([self._xy1, self._xy2])
+            dx = x2 - x1
+            dy = y2 - y1
+            if np.allclose(x1, x2):
+                if np.allclose(y1, y2):
+                    raise ValueError(
+                        f"Cannot draw a line through two identical points "
+                        f"(x={(x1, x2)}, y={(y1, y2)})")
+                slope = np.inf
+            else:
+                slope = dy / dx
+        else:
+            # one point and a slope were given
+            x1, y1 = points_transform.transform(self._xy1)
+            slope = self._slope
         (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
         # General case: find intersections with view limits in either
         # direction, and draw between the middle two points.
-        _, start, stop, _ = sorted([
-            (vxlo, y1 + (vxlo - x1) * dy / dx),
-            (vxhi, y1 + (vxhi - x1) * dy / dx),
-            (x1 + (vylo - y1) * dx / dy, vylo),
-            (x1 + (vyhi - y1) * dx / dy, vyhi),
-        ])
-        return (BboxTransformFrom(Bbox([*zip(*self.get_data())]))
-                + BboxTransformTo(Bbox([start, stop]))
+        if np.isclose(slope, 0):
+            start = vxlo, y1
+            stop = vxhi, y1
+        elif np.isinf(slope):
+            start = x1, vylo
+            stop = x1, vyhi
+        else:
+            _, start, stop, _ = sorted([
+                (vxlo, y1 + (vxlo - x1) * slope),
+                (vxhi, y1 + (vxhi - x1) * slope),
+                (x1 + (vylo - y1) / slope, vylo),
+                (x1 + (vyhi - y1) / slope, vyhi),
+            ])
+        return (BboxTransformTo(Bbox([start, stop]))
                 + ax.transLimits + ax.transAxes)
 
     def draw(self, renderer):

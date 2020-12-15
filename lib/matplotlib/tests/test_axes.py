@@ -4089,6 +4089,43 @@ def test_axline(fig_test, fig_ref):
     ax.axvline(-0.5, color='C5')
 
 
+@check_figures_equal()
+def test_axline_transaxes(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.axline((0, 0), slope=1, transform=ax.transAxes)
+    ax.axline((1, 0.5), slope=1, color='C1', transform=ax.transAxes)
+    ax.axline((0.5, 0.5), slope=0, color='C2', transform=ax.transAxes)
+    ax.axline((0.5, 0), (0.5, 1), color='C3', transform=ax.transAxes)
+
+    ax = fig_ref.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.plot([-1, 1], [-1, 1])
+    ax.plot([0, 1], [-1, 0], color='C1')
+    ax.plot([-1, 1], [0, 0], color='C2')
+    ax.plot([0, 0], [-1, 1], color='C3')
+
+
+@check_figures_equal()
+def test_axline_transaxes_panzoom(fig_test, fig_ref):
+    # test that it is robust against pan/zoom and
+    # figure resize after plotting
+    ax = fig_test.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.axline((0, 0), slope=1, transform=ax.transAxes)
+    ax.axline((0.5, 0.5), slope=2, color='C1', transform=ax.transAxes)
+    ax.axline((0.5, 0.5), slope=0, color='C2', transform=ax.transAxes)
+    ax.set(xlim=(0, 5), ylim=(0, 10))
+    fig_test.set_size_inches(3, 3)
+
+    ax = fig_ref.subplots()
+    ax.set(xlim=(0, 5), ylim=(0, 10))
+    fig_ref.set_size_inches(3, 3)
+    ax.plot([0, 5], [0, 5])
+    ax.plot([0, 5], [0, 10], color='C1')
+    ax.plot([0, 5], [5, 5], color='C2')
+
+
 def test_axline_args():
     """Exactly one of *xy2* and *slope* must be specified."""
     fig, ax = plt.subplots()
@@ -4103,6 +4140,10 @@ def test_axline_args():
     ax.set_yscale('log')
     with pytest.raises(TypeError):
         ax.axline((0, 0), slope=1)
+    ax.set_yscale('linear')
+    with pytest.raises(ValueError):
+        ax.axline((0, 0), (0, 0))  # two identical points are not allowed
+        plt.draw()
 
 
 @image_comparison(['vlines_basic', 'vlines_with_nan', 'vlines_masked'],

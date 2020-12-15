@@ -814,6 +814,11 @@ class Axes(_AxesBase):
         all other scales, and thus the behavior is undefined. Please specify
         the line using the points *xy1*, *xy2* for non-linear scales.
 
+        The *transform* keyword argument only applies to the points *xy1*,
+        *xy2*. The *slope* (if given) is always in data coordinates. This can
+        be used e.g. with ``ax.transAxes`` for drawing grid lines with a fixed
+        slope.
+
         Parameters
         ----------
         xy1, xy2 : (float, float)
@@ -829,8 +834,7 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            Valid kwargs are `.Line2D` properties, with the exception of
-            'transform':
+            Valid kwargs are `.Line2D` properties
 
             %(_Line2D_docstr)s
 
@@ -845,30 +849,17 @@ class Axes(_AxesBase):
 
             >>> axline((0, 0), (1, 1), linewidth=4, color='r')
         """
-        def _to_points(xy1, xy2, slope):
-            """
-            Check for a valid combination of input parameters and convert
-            to two points, if necessary.
-            """
-            if (xy2 is None and slope is None or
-                    xy2 is not None and slope is not None):
-                raise TypeError(
-                    "Exactly one of 'xy2' and 'slope' must be given")
-            if xy2 is None:
-                x1, y1 = xy1
-                xy2 = (x1, y1 + 1) if np.isinf(slope) else (x1 + 1, y1 + slope)
-            return xy1, xy2
-
-        if "transform" in kwargs:
-            raise TypeError("'transform' is not allowed as a kwarg; "
-                            "axline generates its own transform")
         if slope is not None and (self.get_xscale() != 'linear' or
                                   self.get_yscale() != 'linear'):
             raise TypeError("'slope' cannot be used with non-linear scales")
 
         datalim = [xy1] if xy2 is None else [xy1, xy2]
-        (x1, y1), (x2, y2) = _to_points(xy1, xy2, slope)
-        line = mlines._AxLine([x1, x2], [y1, y2], **kwargs)
+        if "transform" in kwargs:
+            # if a transform is passed (i.e. line points not in data space),
+            # data limits should not be adjusted.
+            datalim = []
+
+        line = mlines._AxLine(xy1, xy2, slope, **kwargs)
         # Like add_line, but correctly handling data limits.
         self._set_artist_props(line)
         if line.get_clip_path() is None:
