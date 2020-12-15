@@ -4453,7 +4453,6 @@ class _AxesBase(martist.Artist):
             if self_locator is not None:
                 return self_locator(self, renderer)
 
-
         return ax2
 
     def twiny(self):

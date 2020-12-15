@@ -478,3 +478,31 @@ def test_axes_class_tuple():
     fig = plt.figure()
     axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
     gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)
+    
+@image_comparison(['second_axis_with_colorbar.png'])
+def test_second_axis_with_colorbar():
+    X = np.array([1,2,3,4])
+    X2 = np.array([1,2,3,4])
+    Y = np.cos(X*20)
+    Z = np.sin(X*20)
+    
+    fig = plt.figure()
+    ax1 = plt.subplot(111)
+    ax2 = ax1.twiny()
+
+    ax1.minorticks_off()
+
+    SC = ax1.scatter(X, Y, c=Z)
+    ax1.set_xlabel("Original x-axis")
+
+    ax2.set_xlim(ax1.get_xlim())
+    ax2.set_xticks(X)
+    ax2.set_xticklabels(X2)
+    ax2.set_xlabel("Second x-axis")
+
+    # Colorbar.
+    the_divider = make_axes_locatable(ax1)
+    color_axis = the_divider.append_axes("right", size="2%", pad=0.1)
+    cbar = plt.colorbar(SC, cax=color_axis)
+    cbar.set_label('B', fontsize=10, labelpad=4, y=0.5)
+    cbar.ax.tick_params(labelsize=10)
