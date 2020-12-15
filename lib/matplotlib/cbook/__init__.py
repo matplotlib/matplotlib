@@ -104,6 +104,16 @@ class _StrongRef:
         return hash(self._obj)
 
 
+def _weak_or_strong_ref(func, callback):
+    """
+    Return a `WeakMethod` wrapping *func* if possible, else a `_StrongRef`.
+    """
+    try:
+        return weakref.WeakMethod(func, callback)
+    except TypeError:
+        return _StrongRef(func)
+
+
 class CallbackRegistry:
     """
     Handle registering and disconnecting for a set of signals and callbacks:
@@ -157,21 +167,37 @@ class CallbackRegistry:
         self.callbacks = {}
         self._cid_gen = itertools.count()
         self._func_cid_map = {}
+        # A hidden variable that marks cids that need to be pickled.
+        self._pickled_cids = set()
 
     def __getstate__(self):
-        # In general, callbacks may not be pickled, so we just drop them.
-        return {**vars(self), "callbacks": {}, "_func_cid_map": {}}
+        return {
+            **vars(self),
+            # In general, callbacks may not be pickled, so we just drop them,
+            # unless directed otherwise by self._pickled_cids.
+            "callbacks": {s: {cid: proxy() for cid, proxy in d.items()
+                              if cid in self._pickled_cids}
+                          for s, d in self.callbacks.items()},
+            # It is simpler to reconstruct this from callbacks in __setstate__.
+            "_func_cid_map": None,
+        }
+
+    def __setstate__(self, state):
+        vars(self).update(state)
+        self.callbacks = {
+            s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
+                for cid, func in d.items()}
+            for s, d in self.callbacks.items()}
+        self._func_cid_map = {
+            s: {proxy: cid for cid, proxy in d.items()}
+            for s, d in self.callbacks.items()}
 
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated."""
         self._func_cid_map.setdefault(s, {})
-        try:
-            proxy = weakref.WeakMethod(func, self._remove_proxy)
-        except TypeError:
-            proxy = _StrongRef(func)
+        proxy = _weak_or_strong_ref(func, self._remove_proxy)
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
-
         cid = next(self._cid_gen)
         self._func_cid_map[s][proxy] = cid
         self.callbacks.setdefault(s, {})
