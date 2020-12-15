@@ -11,6 +11,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
+import functools
 from functools import reduce
 from itertools import compress
 import math
@@ -110,12 +111,6 @@ class Axes3D(Axes):
 
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
-
-        if self.zaxis is not None:
-            self._zcid = self.zaxis.callbacks.connect(
-                'units finalize', lambda: self._on_units_changed(scalez=True))
-        else:
-            self._zcid = None
 
         self.mouse_init()
         self.figure.canvas.callbacks._pickled_cids.update({
@@ -475,14 +470,16 @@ class Axes3D(Axes):
         zhigh = tc[0][2] > tc[2][2]
         return xhigh, yhigh, zhigh
 
-    def _on_units_changed(self, scalex=False, scaley=False, scalez=False):
-        """
-        Callback for processing changes to axis units.
-
-        Currently forces updates of data limits and view limits.
-        """
+    def _unit_change_handler(self, axis_name, event=None):
+        # docstring inherited
+        if event is None:  # Allow connecting `self._unit_change_handler(name)`
+            return functools.partial(
+                self._unit_change_handler, axis_name, event=object())
+        _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
         self.relim()
-        self.autoscale_view(scalex=scalex, scaley=scaley, scalez=scalez)
+        self.autoscale_view(scalex=(axis_name == "x"),
+                            scaley=(axis_name == "y"),
+                            scalez=(axis_name == "z"))
 
     def update_datalim(self, xys, **kwargs):
         pass

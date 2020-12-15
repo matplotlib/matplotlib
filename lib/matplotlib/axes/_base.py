@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from contextlib import ExitStack
+import functools
 import inspect
 import itertools
 import logging
@@ -562,13 +563,10 @@ class _AxesBase(martist.Artist):
 
         self.update(kwargs)
 
-        if self.xaxis is not None:
-            self._xcid = self.xaxis.callbacks.connect(
-                'units finalize', lambda: self._on_units_changed(scalex=True))
-
-        if self.yaxis is not None:
-            self._ycid = self.yaxis.callbacks.connect(
-                'units finalize', lambda: self._on_units_changed(scaley=True))
+        for name, axis in self._get_axis_map().items():
+            axis.callbacks._pickled_cids.add(
+                axis.callbacks.connect(
+                    'units finalize', self._unit_change_handler(name)))
 
         rcParams = mpl.rcParams
         self.tick_params(
@@ -2150,14 +2148,17 @@ class _AxesBase(martist.Artist):
         container._remove_method = self.containers.remove
         return container
 
-    def _on_units_changed(self, scalex=False, scaley=False):
+    def _unit_change_handler(self, axis_name, event=None):
         """
-        Callback for processing changes to axis units.
-
-        Currently requests updates of data limits and view limits.
+        Process axis units changes: requests updates to data and view limits.
         """
+        if event is None:  # Allow connecting `self._unit_change_handler(name)`
+            return functools.partial(
+                self._unit_change_handler, axis_name, event=object())
+        _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
         self.relim()
-        self._request_autoscale_view(scalex=scalex, scaley=scaley)
+        self._request_autoscale_view(scalex=(axis_name == "x"),
+                                     scaley=(axis_name == "y"))
 
     def relim(self, visible_only=False):
         """
