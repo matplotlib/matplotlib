@@ -20,8 +20,8 @@ Matplotlib recognizes the following formats to specify a color:
 | characters                           |                                      |
 +--------------------------------------+--------------------------------------+
 | String representation of float value | - ``'0.8'`` as light gray            |
-| in closed interval ``[0, 1]``,       |                                      |
-| inclusive for gray level             |                                      |
+| in closed interval ``[0, 1]`` for    | - ``'0'`` as black                   |
+| black and white, respectively.       | - ``'1'`` as white                   |
 +--------------------------------------+--------------------------------------+
 | Single character shorthand notation  | - ``'b'`` as blue                    |
 | for shades of colors                 | - ``'g'`` as green                   |
@@ -62,16 +62,24 @@ Matplotlib recognizes the following formats to specify a color:
 "Red", "Green", and "Blue" are the intensities of those colors. In combination,
 they represent the colorspace.
 
-"Alpha" depends on the ``zorder`` of the Artist.  Matplotlib draws higher
-``zorder`` Artists on top of lower Artists. "Alpha" determines
-whether the lower Artist is covered by the higher.
+Matplotlib composes Artists based on ``zorder`` and then by the order added to
+an Axes. The alpha for an Artist controls how the RGB color of the new Artist
+combines with RGB colors already on the Axes.
 
-If the previous RGB of a pixel is ``RGBold`` and the RGB of the pixel of the
-added Artist is ``RGBnew`` with Alpha ``alpha``, then the RGB of the pixel
-updates to: ``RGB = RGBOld * (1 - Alpha) + RGBnew * Alpha``.
+The two Artists combine with alpha compositing. Matplotlib uses the equation
+below to compute the result of blending a new Artist.
+
+::
+
+    RGB_{new} = RGB_{below} * (1 - \\alpha) + RGB_{artist} * \\alpha
 
 Alpha of 1 indicates the new Artist completely covers the previous color.
-Alpha of 0 indicates that pixel of the Artist is transparent.
+Alpha of 0 for top color is not visible; however, it contributes to blending
+for intermediate values as the cumulative result of all previous Artists.
+
+.. note::
+
+    Re-ordering Artists is not commutative in Matplotlib.
 
 .. seealso::
 
