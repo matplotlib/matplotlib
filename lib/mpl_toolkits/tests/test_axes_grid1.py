@@ -478,11 +478,11 @@ def test_axes_class_tuple():
     fig = plt.figure()
     axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
     gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)
-    
+
 @image_comparison(['second_axis_with_colorbar.png'])
 def test_second_axis_with_colorbar():
-    X = np.array([1,2,3,4])
-    X2 = np.array([1,2,3,4])
+    X = np.array([1, 2, 3, 4])
+    X2 = np.array([1, 2, 3, 4])
     Y = np.cos(X*20)
     Z = np.sin(X*20)
     

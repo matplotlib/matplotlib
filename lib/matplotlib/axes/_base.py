@@ -4488,7 +4488,7 @@ class _AxesBase(martist.Artist):
             self_locator = self.get_axes_locator()
             if self_locator is not None:
                 return self_locator(self, renderer)
-                
+
         return ax2
 
     def get_shared_x_axes(self):
