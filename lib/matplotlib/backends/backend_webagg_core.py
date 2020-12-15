@@ -196,14 +196,15 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 diff = buff != self._last_buff
                 output = np.where(diff, buff, 0)
 
-            buf = BytesIO()
-            data = output.view(dtype=np.uint8).reshape((*output.shape, 4))
-            Image.fromarray(data).save(buf, format="png")
-            # store the current buffer so we can compute the next diff
+            # Store the current buffer so we can compute the next diff.
             np.copyto(self._last_buff, buff)
             self._force_full = False
             self._png_is_old = False
-            return buf.getvalue()
+
+            data = output.view(dtype=np.uint8).reshape((*output.shape, 4))
+            with BytesIO() as png:
+                Image.fromarray(data).save(png, format="png")
+                return png.getvalue()
 
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one so that we can do
