@@ -146,7 +146,7 @@ class Text(Artist):
 
         Valid keyword arguments are:
 
-        %(Text)s
+        %(Text_kwdoc)s
         """
         super().__init__()
         self._x, self._y = x, y
@@ -1276,7 +1276,7 @@ class Text(Artist):
         return self.set_family(fontname)
 
 
-docstring.interpd.update(Text=artist.kwdoc(Text))
+docstring.interpd.update(Text_kwdoc=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)
 
 

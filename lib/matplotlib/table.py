@@ -177,7 +177,7 @@ class Cell(Rectangle):
 
         Valid keyword arguments are:
 
-        %(Text)s
+        %(Text_kwdoc)s
         """
         self._text.update(kwargs)
         self.stale = True
