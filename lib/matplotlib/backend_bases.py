@@ -1729,6 +1729,9 @@ class FigureCanvasBase:
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
+        # We don't want to scale up the figure DPI more than once.
+        figure._original_dpi = figure.dpi
+        self._device_pixel_ratio = 1
 
     callbacks = property(lambda self: self.figure._canvas_callbacks)
     button_pick_id = property(lambda self: self.figure._button_pick_id)
@@ -2054,12 +2057,73 @@ class FigureCanvasBase:
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
 
+    @property
+    def device_pixel_ratio(self):
+        """
+        The ratio of physical to logical pixels used for the canvas on screen.
+
+        By default, this is 1, meaning physical and logical pixels are the same
+        size. Subclasses that support High DPI screens may set this property to
+        indicate that said ratio is different. All Matplotlib interaction,
+        unless working directly with the canvas, remains in logical pixels.
+
+        """
+        return self._device_pixel_ratio
+
+    def _set_device_pixel_ratio(self, ratio):
+        """
+        Set the ratio of physical to logical pixels used for the canvas.
+
+        Subclasses that support High DPI screens can set this property to
+        indicate that said ratio is different. The canvas itself will be
+        created at the physical size, while the client side will use the
+        logical size. Thus the DPI of the Figure will change to be scaled by
+        this ratio. Implementations that support High DPI screens should use
+        physical pixels for events so that transforms back to Axes space are
+        correct.
+
+        By default, this is 1, meaning physical and logical pixels are the same
+        size.
+
+        Parameters
+        ----------
+        ratio : float
+            The ratio of logical to physical pixels used for the canvas.
+
+        Returns
+        -------
+        bool
+            Whether the ratio has changed. Backends may interpret this as a
+            signal to resize the window, repaint the canvas, or change any
+            other relevant properties.
+        """
+        if self._device_pixel_ratio == ratio:
+            return False
+        # In cases with mixed resolution displays, we need to be careful if the
+        # device pixel ratio changes - in this case we need to resize the
+        # canvas accordingly. Some backends provide events that indicate a
+        # change in DPI, but those that don't will update this before drawing.
+        dpi = ratio * self.figure._original_dpi
+        self.figure._set_dpi(dpi, forward=False)
+        self._device_pixel_ratio = ratio
+        return True
+
     def get_width_height(self):
         """
-        Return the figure width and height in points or pixels
-        (depending on the backend), truncated to integers.
+        Return the figure width and height in integral points or pixels.
+
+        When the figure is used on High DPI screens (and the backend supports
+        it), the truncation to integers occurs after scaling by the device
+        pixel ratio.
+
+        Returns
+        -------
+        width, height : int
+            The size of the figure, in points or pixels, depending on the
+            backend.
         """
-        return int(self.figure.bbox.width), int(self.figure.bbox.height)
+        return tuple(int(size / self.device_pixel_ratio)
+                     for size in self.figure.bbox.max)
 
     @classmethod
     def get_supported_filetypes(cls):
