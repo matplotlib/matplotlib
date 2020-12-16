@@ -1215,7 +1215,7 @@ default: {va}
         **kwargs : `~matplotlib.text.Text` properties
             Other miscellaneous text parameters.
 
-            %(Text)s
+            %(Text_kwdoc)s
 
         See Also
         --------
