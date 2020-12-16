@@ -141,19 +141,31 @@ WRITER_OUTPUT = [
     ('html', 'movie.html'),
     ('null', 'movie.null')
 ]
-WRITER_OUTPUT += [
-    (writer, Path(output)) for writer, output in WRITER_OUTPUT]
+
+
+def gen_writers():
+    for writer, output in WRITER_OUTPUT:
+        if not animation.writers.is_available(writer):
+            mark = pytest.mark.skip(
+                f"writer '{writer}' not available on this system")
+            yield pytest.param(writer, None, output, marks=[mark])
+            yield pytest.param(writer, None, Path(output), marks=[mark])
+            continue
+
+        writer_class = animation.writers[writer]
+        for frame_format in getattr(writer_class, 'supported_formats', [None]):
+            yield writer, frame_format, output
+            yield writer, frame_format, Path(output)
 
 
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
+@pytest.mark.parametrize('writer, frame_format, output', gen_writers())
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
-def test_save_animation_smoketest(tmpdir, writer, output, anim):
-    if not animation.writers.is_available(writer):
-        pytest.skip("writer '%s' not available on this system" % writer)
-
+def test_save_animation_smoketest(tmpdir, writer, frame_format, output, anim):
+    if frame_format is not None:
+        plt.rcParams["animation.frame_format"] = frame_format
     anim = animation.FuncAnimation(**anim)
     dpi = None
     codec = None
