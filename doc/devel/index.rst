@@ -17,6 +17,7 @@ The Matplotlib Developers' Guide
    :maxdepth: 2
 
    contributing.rst
+   triage.rst
    testing.rst
    documenting_mpl.rst
    add_new_projection.rst
