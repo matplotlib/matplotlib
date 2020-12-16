@@ -10,21 +10,21 @@ Matplotlib recognizes the following formats to specify a color:
 +======================================+======================================+
 | RGB or RGBA (red, green, blue, alpha)| - ``(0.1, 0.2, 0.5)``                |
 | tuple of float values in a closed    | - ``(0.1, 0.2, 0.5, 0.3)``           |
-| interval [0, 1]                      |                                      |
+| interval [0, 1].                     |                                      |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive hex RGB or RGBA     | - ``'#0f0f0f'``                      |
-| string                               | - ``'#0f0f0f80'``                    |
+| string.                              | - ``'#0f0f0f80'``                    |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive shorthand equivalent| - ``'#abc'`` as ``'#aabbcc'``        |
 | string of RGB or RGBA from duplicated| - ``'#abcd'`` as ``'#aabbccdd'``     |
-| characters                           |                                      |
+| characters.                          |                                      |
 +--------------------------------------+--------------------------------------+
 | String representation of float value | - ``'0.8'`` as light gray            |
 | in closed interval ``[0, 1]`` for    | - ``'0'`` as black                   |
 | black and white, respectively.       | - ``'1'`` as white                   |
 +--------------------------------------+--------------------------------------+
 | Single character shorthand notation  | - ``'b'`` as blue                    |
-| for shades of colors                 | - ``'g'`` as green                   |
+| for shades of colors.                | - ``'g'`` as green                   |
 |                                      | - ``'r'`` as red                     |
 | .. note:: The colors green, cyan,    | - ``'c'`` as cyan                    |
 |           magenta, and yellow do not | - ``'m'`` as magenta                 |
@@ -34,10 +34,10 @@ Matplotlib recognizes the following formats to specify a color:
 +--------------------------------------+--------------------------------------+
 | Case-insensitive color name from     | - ``'xkcd:sky blue'``                |
 | `xkcd color survey`_ with ``'xkcd:'``| - ``'xkcd:eggshell'``                |
-| prefix                               |                                      |
+| prefix.                              |                                      |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive Tableau Colors from | - 'tab:blue'                         |
-| 'T10' categorical palette            | - 'tab:orange'                       |
+| 'T10' categorical palette.           | - 'tab:orange'                       |
 |                                      | - 'tab:green'                        |
 |                                      | - 'tab:red'                          |
 |                                      | - 'tab:purple'                       |
@@ -49,7 +49,7 @@ Matplotlib recognizes the following formats to specify a color:
 +--------------------------------------+--------------------------------------+
 | "CN" color spec where ``'C'``        | - ``'C0'``                           |
 | precedes a number acting as an index | - ``'C1'``                           |
-| into the default property cycle      +--------------------------------------+
+| into the default property cycle.     +--------------------------------------+
 |                                      | :rc:`axes.prop_cycle`                |
 | .. note:: Indexing occurs at         |                                      |
 |           rendering time and defaults|                                      |
@@ -75,7 +75,16 @@ below to compute the result of blending a new Artist.
 
 Alpha of 1 indicates the new Artist completely covers the previous color.
 Alpha of 0 for top color is not visible; however, it contributes to blending
-for intermediate values as the cumulative result of all previous Artists.
+for intermediate values as the cumulative result of all previous Artists. The
+following table contains examples.
+
++---------------+-------------------------------------------------------------+
+| Alpha value   | Visual                                                      |
++===============+=============================================================+
+| ``0.3``       | .. image:: ../../_static/color_zorder_A.png                 |
++---------------+-------------------------------------------------------------+
+| ``1``         | .. image:: ../../_static/color_zorder_B.png                 |
++---------------+-------------------------------------------------------------+
 
 .. note::
 
