@@ -628,8 +628,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     Frames are written to temporary files on disk and then stitched
     together at the end.
     """
-    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
-                         'pbm', 'raw', 'rgba']
+    supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
     def _args(self):
         # Returns the command line parameters for subprocess to use
@@ -759,8 +758,7 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     together at the end.
     """
 
-    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
-                         'pbm', 'raw', 'rgba']
+    supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
     def _args(self):
         # Force format: ImageMagick does not recognize 'raw'.
