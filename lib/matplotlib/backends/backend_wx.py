@@ -922,7 +922,8 @@ class FigureFrameWx(wx.Frame):
         _set_frame_icon(self)
 
         self.canvas = self.get_canvas(fig)
-        self.canvas.SetInitialSize(wx.Size(fig.bbox.width, fig.bbox.height))
+        w, h = map(math.ceil, fig.bbox.size)
+        self.canvas.SetInitialSize(wx.Size(w, h))
         self.canvas.SetFocus()
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
@@ -1070,7 +1071,8 @@ class FigureManagerWx(FigureManagerBase):
 
     def resize(self, width, height):
         # docstring inherited
-        self.canvas.SetInitialSize(wx.Size(width, height))
+        self.canvas.SetInitialSize(
+            wx.Size(math.ceil(width), math.ceil(height)))
         self.window.GetSizer().Fit(self.window)
 
 
