@@ -27,9 +27,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        if self._update_dpi():
-            # The dpi update triggered its own paintEvent.
-            return
         self._draw_idle()  # Only does something if a draw is pending.
 
         # If the canvas does not have a renderer, then give up and wait for

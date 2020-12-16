@@ -158,32 +158,38 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
 
 
 @pytest.mark.backend('Qt5Agg')
-def test_dpi_ratio_change():
+def test_pixel_ratio_change():
     """
-    Make sure that if _dpi_ratio changes, the figure dpi changes but the
+    Make sure that if the pixel ratio changes, the figure dpi changes but the
     widget remains the same physical size.
     """
 
-    prop = 'matplotlib.backends.backend_qt5.FigureCanvasQT._dpi_ratio'
-
-    with mock.patch(prop, new_callable=mock.PropertyMock) as p:
-
+    prop = 'matplotlib.backends.backend_qt5.FigureCanvasQT.devicePixelRatioF'
+    with mock.patch(prop) as p:
         p.return_value = 3
 
         fig = plt.figure(figsize=(5, 2), dpi=120)
         qt_canvas = fig.canvas
         qt_canvas.show()
 
-        from matplotlib.backends.backend_qt5 import qApp
+        def set_pixel_ratio(ratio):
+            p.return_value = ratio
+            # Make sure the mocking worked
+            assert qt_canvas._dpi_ratio == ratio
 
-        # Make sure the mocking worked
-        assert qt_canvas._dpi_ratio == 3
+            # The value here doesn't matter, as we can't mock the C++ QScreen
+            # object, but can override the functional wrapper around it.
+            # Emitting this event is simply to trigger the DPI change handler
+            # in Matplotlib in the same manner that it would occur normally.
+            screen.logicalDotsPerInchChanged.emit(96)
 
-        size = qt_canvas.size()
+            qt_canvas.draw()
+            qt_canvas.flush_events()
 
         qt_canvas.manager.show()
-        qt_canvas.draw()
-        qApp.processEvents()
+        size = qt_canvas.size()
+        screen = qt_canvas.window().windowHandle().screen()
+        set_pixel_ratio(3)
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 360
@@ -196,17 +202,7 @@ def test_dpi_ratio_change():
         assert qt_canvas.get_width_height() == (600, 240)
         assert (fig.get_size_inches() == (5, 2)).all()
 
-        p.return_value = 2
-
-        assert qt_canvas._dpi_ratio == 2
-
-        qt_canvas.draw()
-        qApp.processEvents()
-        # this second processEvents is required to fully run the draw.
-        # On `update` we notice the DPI has changed and trigger a
-        # resize event to refresh, the second processEvents is
-        # required to process that and fully update the window sizes.
-        qApp.processEvents()
+        set_pixel_ratio(2)
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 240
@@ -219,17 +215,7 @@ def test_dpi_ratio_change():
         assert qt_canvas.get_width_height() == (600, 240)
         assert (fig.get_size_inches() == (5, 2)).all()
 
-        p.return_value = 1.5
-
-        assert qt_canvas._dpi_ratio == 1.5
-
-        qt_canvas.draw()
-        qApp.processEvents()
-        # this second processEvents is required to fully run the draw.
-        # On `update` we notice the DPI has changed and trigger a
-        # resize event to refresh, the second processEvents is
-        # required to process that and fully update the window sizes.
-        qApp.processEvents()
+        set_pixel_ratio(1.5)
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 180
