@@ -639,7 +639,7 @@ class Table(Artist):
         return self._cells
 
 
-docstring.interpd.update(Table=artist.kwdoc(Table))
+docstring.interpd.update(Table_kwdoc=artist.kwdoc(Table))
 
 
 @docstring.dedent_interpd
@@ -723,7 +723,7 @@ def table(ax,
     **kwargs
         `.Table` properties.
 
-    %(Table)s
+    %(Table_kwdoc)s
     """
 
     if cellColours is None and cellText is None:

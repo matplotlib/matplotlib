@@ -70,7 +70,7 @@ class Axes3D(Axes):
         **kwargs
             Other optional keyword arguments:
 
-            %(Axes3D)s
+            %(Axes3D_kwdoc)s
 
         Notes
         -----
@@ -3291,7 +3291,7 @@ pivot='tail', normalize=False, **kwargs)
                     batch.append(axis_bb)
         return mtransforms.Bbox.union(batch)
 
-docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
+docstring.interpd.update(Axes3D_kwdoc=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
 
 

@@ -636,7 +636,7 @@ default: {va}
             arguments if another projection is used, see the actual Axes
             class.
 
-            %(Axes)s
+            %(Axes_kwdoc)s
 
         Notes
         -----
@@ -797,7 +797,7 @@ default: {va}
             the following table but there might also be other keyword
             arguments if another projection is used.
 
-            %(Axes)s
+            %(Axes_kwdoc)s
 
         Notes
         -----
@@ -1598,7 +1598,7 @@ default: {va}
         adheres to the given projection etc., and for Axes creation if
         the active Axes does not exist:
 
-        %(Axes)s
+        %(Axes_kwdoc)s
 
         """
         ckey, cax = self._axstack.current_key_axes()
@@ -3341,4 +3341,5 @@ def figaspect(arg):
     newsize = np.clip(newsize, figsize_min, figsize_max)
     return newsize
 
-docstring.interpd.update(Figure=martist.kwdoc(Figure))
+
+docstring.interpd.update(Figure_kwdoc=martist.kwdoc(Figure))

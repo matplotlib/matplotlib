@@ -210,7 +210,7 @@ def _picklable_subplot_class_constructor(axes_class):
     return subplot_class.__new__(subplot_class)
 
 
-docstring.interpd.update(Axes=martist.kwdoc(Axes))
+docstring.interpd.update(Axes_kwdoc=martist.kwdoc(Axes))
 docstring.dedent_interpd(Axes.__init__)
 
-docstring.interpd.update(Subplot=martist.kwdoc(Axes))
+docstring.interpd.update(Subplot_kwdoc=martist.kwdoc(Axes))
