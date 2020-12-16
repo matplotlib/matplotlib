@@ -117,8 +117,43 @@ def _handle_key(key):
     return key
 
 
+class TimerTornado(backend_bases.TimerBase):
+    def __init__(self, *args, **kwargs):
+        self._timer = None
+        super().__init__(*args, **kwargs)
+
+    def _timer_start(self):
+        self._timer_stop()
+        if self._single:
+            ioloop = tornado.ioloop.IOLoop.instance()
+            self._timer = ioloop.add_timeout(
+                datetime.timedelta(milliseconds=self.interval),
+                self._on_timer)
+        else:
+            self._timer = tornado.ioloop.PeriodicCallback(
+                self._on_timer,
+                max(self.interval, 1e-6))
+            self._timer.start()
+
+    def _timer_stop(self):
+        if self._timer is None:
+            return
+        elif self._single:
+            ioloop = tornado.ioloop.IOLoop.instance()
+            ioloop.remove_timeout(self._timer)
+        else:
+            self._timer.stop()
+        self._timer = None
+
+    def _timer_set_interval(self):
+        # Only stop and restart it if the timer has already been started
+        if self._timer is not None:
+            self._timer_stop()
+            self._timer_start()
+
+
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
-    supports_blit = True
+    _timer_cls = TimerTornado
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -478,8 +513,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         for filetype, ext in sorted(FigureCanvasWebAggCore.
                                     get_supported_filetypes_grouped().
                                     items()):
-            if ext[0] != 'pgf':  # pgf does not support BytesIO
-                extensions.append(ext[0])
+            extensions.append(ext[0])
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))
 
@@ -497,41 +531,6 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         payload = {'type': event_type, **kwargs}
         for s in self.web_sockets:
             s.send_json(payload)
-
-
-class TimerTornado(backend_bases.TimerBase):
-    def __init__(self, *args, **kwargs):
-        self._timer = None
-        super().__init__(*args, **kwargs)
-
-    def _timer_start(self):
-        self._timer_stop()
-        if self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            self._timer = ioloop.add_timeout(
-                datetime.timedelta(milliseconds=self.interval),
-                self._on_timer)
-        else:
-            self._timer = tornado.ioloop.PeriodicCallback(
-                self._on_timer,
-                max(self.interval, 1e-6))
-            self._timer.start()
-
-    def _timer_stop(self):
-        if self._timer is None:
-            return
-        elif self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            ioloop.remove_timeout(self._timer)
-        else:
-            self._timer.stop()
-        self._timer = None
-
-    def _timer_set_interval(self):
-        # Only stop and restart it if the timer has already been started
-        if self._timer is not None:
-            self._timer_stop()
-            self._timer_start()
 
 
 @_Backend.export

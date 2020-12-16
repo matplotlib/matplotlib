@@ -142,7 +142,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    _timer_cls = TimerTornado
+    pass
 
 
 class CommSocket:
