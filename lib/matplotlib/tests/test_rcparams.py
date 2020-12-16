@@ -10,7 +10,7 @@ from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
-from matplotlib import _api
+from matplotlib import _api, _c_internal_utils
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
@@ -476,7 +476,8 @@ def test_rcparams_reset_after_fail():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 def test_backend_fallback_headless(tmpdir):
     env = {**os.environ,
-           "DISPLAY": "", "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+           "DISPLAY": "", "WAYLAND_DISPLAY": "",
+           "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.run(
             [sys.executable, "-c",
@@ -487,8 +488,9 @@ def test_backend_fallback_headless(tmpdir):
             env=env, check=True)
 
 
-@pytest.mark.skipif(sys.platform == "linux" and not os.environ.get("DISPLAY"),
-                    reason="headless")
+@pytest.mark.skipif(
+    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    reason="headless")
 def test_backend_fallback_headful(tmpdir):
     pytest.importorskip("tkinter")
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
