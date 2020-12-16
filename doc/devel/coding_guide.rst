@@ -265,13 +265,6 @@ The current active branches are
   Documentation for the current release.  On a patch release, this will be
   replaced by a properly named branch for the new release.
 
-*v2.2.x*
-  Maintenance branch for Matplotlib 2.2 LTS.  Supports Python 2.7, 3.4+.
-
-*v2.2.N-doc*
-  Documentation for the current release.  On a patch release, this will be
-  replaced by a properly named branch for the new release.
-
 
 .. _pr-branch-selection:
 
