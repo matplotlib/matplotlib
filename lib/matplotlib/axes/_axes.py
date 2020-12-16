@@ -3463,7 +3463,6 @@ class Axes(_AxesBase):
             If a pair of floats, they indicate the percentiles at which to
             draw the whiskers (e.g., (5, 95)).  In particular, setting this to
             (0, 100) results in whiskers covering the whole range of the data.
-            "range" is a deprecated synonym for (0, 100).
 
             In the edge case where ``Q1 == Q3``, *whis* is automatically set
             to (0, 100) (cover the whole range of the data) if *autorange* is
@@ -4215,11 +4214,9 @@ class Axes(_AxesBase):
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
                       label_namer="y")
-    @cbook._delete_parameter("3.2", "verts")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
-                vmin=None, vmax=None, alpha=None, linewidths=None,
-                verts=None, edgecolors=None, *, plotnonfinite=False,
-                **kwargs):
+                vmin=None, vmax=None, alpha=None, linewidths=None, *,
+                edgecolors=None, plotnonfinite=False, **kwargs):
         """
         A scatter plot of *y* vs. *x* with varying marker size and/or color.
 
@@ -5088,7 +5085,6 @@ default: :rc:`scatter.edgecolors`
         """
 
         dep_dir = {"x": "y", "y": "x"}[ind_dir]
-        func_name = {"x": "fill_between", "y": "fill_betweenx"}[dep_dir]
 
         if not rcParams["_internal.classic_mode"]:
             kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
@@ -5111,10 +5107,8 @@ default: :rc:`scatter.edgecolors`
         else:
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
-                cbook.warn_deprecated(
-                    "3.2", message=f"Since %(since)s, the parameter *where* "
-                    f"must have the same size as {ind} in {func_name}(). This "
-                    "will become an error %(removal)s.")
+                raise ValueError(f"where size ({where.size}) does not match "
+                                 f"{ind_dir} size ({ind.size})")
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
 

@@ -569,6 +569,7 @@ _deprecated_map = {}
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
 _deprecated_ignore_map = {
+    'mpl_toolkits.legacy_colorbar': ('3.4', None),
 }
 
 # rcParams deprecated; can use None to suppress warnings; remain actually
@@ -811,7 +812,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
-                version, name=key, alternative=alt_key,
+                version, name=key, alternative=alt_key, obj_type='rcparam',
                 addendum="Please update your matplotlibrc.")
         else:
             version = 'master' if '.post' in __version__ else f'v{__version__}'
@@ -1193,10 +1194,8 @@ def _init_tests():
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
 
-@cbook._delete_parameter("3.2", "switch_backend_warn")
 @cbook._delete_parameter("3.3", "recursionlimit")
-def test(verbosity=None, coverage=False, switch_backend_warn=True,
-         recursionlimit=0, **kwargs):
+def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     """Run the matplotlib test suite."""
 
     try:

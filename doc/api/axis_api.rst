@@ -226,8 +226,6 @@ Other
    Axis.limit_range_for_scale
    Axis.reset_ticks
    Axis.set_default_intervals
-   Axis.get_smart_bounds
-   Axis.set_smart_bounds
 
 Discouraged
 -----------

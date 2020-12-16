@@ -166,8 +166,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, ticker, units
 
 __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
-           'epoch2num', 'num2epoch', 'mx2num', 'set_epoch',
-           'get_epoch', 'DateFormatter',
+           'epoch2num', 'num2epoch', 'set_epoch', 'get_epoch', 'DateFormatter',
            'ConciseDateFormatter', 'IndexDateFormatter', 'AutoDateFormatter',
            'DateLocator', 'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
@@ -1781,23 +1780,6 @@ def num2epoch(d):
           np.datetime64(get_epoch(), 's')).astype(float)
 
     return np.asarray(d) * SEC_PER_DAY - dt
-
-
-@_api.deprecated("3.2")
-def mx2num(mxdates):
-    """
-    Convert mx :class:`datetime` instance (or sequence of mx
-    instances) to the new date format.
-    """
-    scalar = False
-    if not np.iterable(mxdates):
-        scalar = True
-        mxdates = [mxdates]
-    ret = epoch2num([m.ticks() for m in mxdates])
-    if scalar:
-        return ret[0]
-    else:
-        return ret
 
 
 def date_ticker_factory(span, tz=None, numticks=5):

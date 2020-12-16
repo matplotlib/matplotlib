@@ -1,0 +1,57 @@
+``Axes`` methods and properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``axes.Axes.get_data_ratio_log``
+- ``axes.SubplotBase.rowNum``; use ``ax.get_subplotspec().rowspan.start``
+  instead
+- ``axes.SubplotBase.colNum``; use ``ax.get_subplotspec().colspan.start``
+  instead
+- the *verts* parameter to ``scatter`` (use *marker* instead)
+- Passing more than one positional argument to `~matplotlib.axes.Axes.axis`
+  will now raise an error.
+- Passing ``"range"`` to the *whis* parameter of `.Axes.boxplot` and
+  `.cbook.boxplot_stats` to mean "the whole data range" is  no longer
+  supported.
+- Passing scalars to parameter *where* in `.axes.Axes.fill_between` and
+  `.axes.Axes.fill_betweenx` is no longer accepted and non-matching sizes now
+  raise a `ValueError`.
+
+``dates`` functions
+~~~~~~~~~~~~~~~~~~~
+- ``dates.mx2num``
+
+``quiver`` methods
+~~~~~~~~~~~~~~~~~~
+
+- ``quiver.QuiverKey.quiverkey_doc`` has been removed; use
+  ``quiver.QuiverKey.__init__.__doc__`` instead.
+
+Smart bounds
+~~~~~~~~~~~~
+
+The "smart bounds" functionality on `~.axis.Axis` and `.Spine` has been
+deleted, and the following methods are removed:
+
+- ``Axis.set_smart_bounds`` and ``Axis.get_smart_bounds``
+- ``Spine.set_smart_bounds`` and ``Spine.get_smart_bounds``
+
+Testing
+~~~~~~~
+The *switch_backend_warn* parameter to ``matplotlib.test`` has no effect and
+has been removed.
+
+``tight_layout()``
+~~~~~~~~~~~~~~~~~~
+The *renderer* parameter to `.Figure.tight_layout` has been removed; this
+method now always uses the renderer instance cached on the `.Figure`.
+
+``axes_grid1``
+~~~~~~~~~~~~~~
+The ``mpl_toolkits.axes_grid1.colorbar`` module and its colorbar implementation
+have been removed in favor of :mod:`matplotlib.colorbar`. Additionally:
+
+- The *locator* parameter to ``colorbar()`` has been removed in favor of its
+  synonym *ticks* (which already existed previously, and is consistent with
+  :mod:`matplotlib.colorbar`).
+- The ``mpl_toolkits.legacy_colorbar`` rcParam has no effect and also has been
+  removed.

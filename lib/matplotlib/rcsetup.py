@@ -1448,8 +1448,6 @@ _validators = {
      # Additional arguments for convert movie writer (using pipes)
     "animation.convert_args": validate_stringlist,
 
-    "mpl_toolkits.legacy_colorbar": validate_bool,
-
     # Classic (pre 2.0) compatibility mode
     # This is used for things that are hard to make backward compatible
     # with a sane rcParam alone.  This does *not* turn on classic mode

@@ -3215,9 +3215,7 @@ class Figure(FigureBase):
             renderer = get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
-    @cbook._delete_parameter("3.2", "renderer")
-    def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
-                     rect=None):
+    def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """
         Adjust the padding between and around subplots.
 
@@ -3227,8 +3225,6 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        renderer : subclass of `~.backend_bases.RendererBase`, optional
-            Defaults to the renderer for the figure.  Deprecated.
         pad : float, default: 1.08
             Padding between the figure edge and the edges of subplots,
             as a fraction of the font size.
@@ -3254,8 +3250,7 @@ class Figure(FigureBase):
                                  "compatible with tight_layout, so results "
                                  "might be incorrect.")
 
-        if renderer is None:
-            renderer = get_renderer(self)
+        renderer = get_renderer(self)
         ctx = (renderer._draw_disabled()
                if hasattr(renderer, '_draw_disabled')
                else suppress())

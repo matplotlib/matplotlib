@@ -4,7 +4,6 @@ import platform
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import cbook
-from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox
@@ -83,10 +82,7 @@ def test_twin_axes_empty_and_removed():
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
-@pytest.mark.parametrize("legacy_colorbar", [False, True])
-def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
-    matplotlib.rcParams["mpl_toolkits.legacy_colorbar"] = legacy_colorbar
-
+def test_axesgrid_colorbar_log_smoketest():
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
                     nrows_ncols=(1, 1),
@@ -99,11 +95,7 @@ def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
     Z = 10000 * np.random.rand(10, 10)
     im = grid[0].imshow(Z, interpolation="nearest", norm=LogNorm())
 
-    if legacy_colorbar:
-        with pytest.warns(MatplotlibDeprecationWarning):
-            grid.cbar_axes[0].colorbar(im)
-    else:
-        grid.cbar_axes[0].colorbar(im)
+    grid.cbar_axes[0].colorbar(im)
 
 
 @image_comparison(['inset_locator.png'], style='default', remove_text=True)

@@ -98,16 +98,6 @@ class SubplotBase:
         # Now a no-op, as figbox/numRows/numCols are (deprecated) auto-updating
         # properties.
 
-    @_api.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
-    @property
-    def rowNum(self):
-        return self.get_subplotspec().rowspan.start
-
-    @_api.deprecated("3.2", alternative="ax.get_subplotspec().colspan.start")
-    @property
-    def colNum(self):
-        return self.get_subplotspec().colspan.start
-
     @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_first_row()")
     def is_first_row(self):
         return self.get_subplotspec().rowspan.start == 0

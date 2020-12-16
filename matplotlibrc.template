@@ -761,5 +761,3 @@
 #animation.convert_args:          # Additional arguments to pass to convert
 #animation.embed_limit:  20.0     # Limit, in MB, of size of base64 encoded
                                   # animation in HTML (i.e. IPython notebook)
-
-#mpl_toolkits.legacy_colorbar: True

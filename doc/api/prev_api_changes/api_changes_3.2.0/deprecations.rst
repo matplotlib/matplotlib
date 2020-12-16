@@ -142,6 +142,11 @@ Passing scalars to parameter *where* in ``fill_between()`` and
 broadcasted to the size of *x*. Non-matching sizes will raise a ``ValueError``
 in the future.
 
+``scatter()``
+~~~~~~~~~~~~~
+Passing the *verts* parameter to `.axes.Axes.scatter` is deprecated; use the
+*marker* parameter instead.
+
 ``tight_layout()``
 ~~~~~~~~~~~~~~~~~~
 The ``renderer`` parameter to `.Figure.tight_layout` is deprecated; this method
@@ -255,8 +260,8 @@ both 1) matplotlib's conftests have not been called and 2) nose is in
 During the deprecation period, to force the generation of nose base tests,
 import nose first.
 
-The ``switch_backend_warn`` parameter to ``matplotlib.test`` has no effect and
-is deprecated.
+The *switch_backend_warn* parameter to ``matplotlib.test`` has no effect and is
+deprecated.
 
 ``testing.jpl_units.UnitDbl.UnitDbl.checkUnits`` is deprecated.
 

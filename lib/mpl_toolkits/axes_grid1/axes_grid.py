@@ -4,7 +4,7 @@ import functools
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, ticker
+from matplotlib import _api, cbook
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
@@ -25,7 +25,6 @@ class CbarAxesBase:
         self._locator = None  # deprecated.
         super().__init__(*args, **kwargs)
 
-    @cbook._rename_parameter("3.2", "locator", "ticks")
     def colorbar(self, mappable, *, ticks=None, **kwargs):
 
         if self.orientation in ["top", "bottom"]:
@@ -33,27 +32,10 @@ class CbarAxesBase:
         else:
             orientation = "vertical"
 
-        if mpl.rcParams["mpl_toolkits.legacy_colorbar"]:
-            cbook.warn_deprecated(
-                "3.2", message="Since %(since)s, mpl_toolkits's own colorbar "
-                "implementation is deprecated; it will be removed "
-                "%(removal)s.  Set the 'mpl_toolkits.legacy_colorbar' rcParam "
-                "to False to use Matplotlib's default colorbar implementation "
-                "and suppress this deprecation warning.")
-            if ticks is None:
-                ticks = ticker.MaxNLocator(5)  # For backcompat.
-            from .colorbar import Colorbar
-            cb = Colorbar(
-                self, mappable, orientation=orientation, ticks=ticks, **kwargs)
-            self._cbid = mappable.callbacksSM.connect(
-                'changed', cb.update_normal)
-            mappable.colorbar = cb
-            self._locator = cb.cbar_axis.get_major_locator()
-        else:
-            cb = mpl.colorbar.Colorbar(
-                self, mappable, orientation=orientation, ticks=ticks, **kwargs)
-            self._cbid = mappable.colorbar_cid  # deprecated.
-            self._locator = cb.locator  # deprecated.
+        cb = mpl.colorbar.Colorbar(
+            self, mappable, orientation=orientation, ticks=ticks, **kwargs)
+        self._cbid = mappable.colorbar_cid  # deprecated in 3.3.
+        self._locator = cb.locator  # deprecated in 3.3.
 
         self._config_axes()
         return cb

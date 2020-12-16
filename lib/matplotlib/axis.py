@@ -673,7 +673,6 @@ class Axis(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         self._autolabelpos = True
-        self._smart_bounds = False  # Deprecated in 3.2
 
         self.label = mtext.Text(
             np.nan, np.nan,
@@ -1010,17 +1009,6 @@ class Axis(martist.Artist):
             bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
         return bbox, bbox2
 
-    @_api.deprecated("3.2")
-    def set_smart_bounds(self, value):
-        """Set the axis to have smart bounds."""
-        self._smart_bounds = value
-        self.stale = True
-
-    @_api.deprecated("3.2")
-    def get_smart_bounds(self):
-        """Return whether the axis has smart bounds."""
-        return self._smart_bounds
-
     def _update_ticks(self):
         """
         Update ticks (position and labels) using the current data interval of
@@ -1047,36 +1035,6 @@ class Axis(martist.Artist):
         view_low, view_high = self.get_view_interval()
         if view_low > view_high:
             view_low, view_high = view_high, view_low
-
-        if self._smart_bounds and ticks:  # _smart_bounds is deprecated in 3.2
-            # handle inverted limits
-            data_low, data_high = sorted(self.get_data_interval())
-            locs = np.sort([tick.get_loc() for tick in ticks])
-            if data_low <= view_low:
-                # data extends beyond view, take view as limit
-                ilow = view_low
-            else:
-                # data stops within view, take best tick
-                good_locs = locs[locs <= data_low]
-                if len(good_locs):
-                    # last tick prior or equal to first data point
-                    ilow = good_locs[-1]
-                else:
-                    # No ticks (why not?), take first tick
-                    ilow = locs[0]
-            if data_high >= view_high:
-                # data extends beyond view, take view as limit
-                ihigh = view_high
-            else:
-                # data stops within view, take best tick
-                good_locs = locs[locs >= data_high]
-                if len(good_locs):
-                    # first tick after or equal to last data point
-                    ihigh = good_locs[0]
-                else:
-                    # No ticks (why not?), take last tick
-                    ihigh = locs[-1]
-            ticks = [tick for tick in ticks if ilow <= tick.get_loc() <= ihigh]
 
         interval_t = self.get_transform().transform([view_low, view_high])
 
