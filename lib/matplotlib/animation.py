@@ -891,6 +891,22 @@ class HTMLWriter(FileMovieWriter):
                                              interval=interval,
                                              **mode_dict))
 
+        # duplicate the temporary file clean up logic from
+        # FileMovieWriter.cleanup.  We can not call the inherited
+        # versions of finished or cleanup because both assume that
+        # there is a subprocess that we either need to call to merge
+        # many frames together or that there is a subprocess call that
+        # we need to clean up.
+        if self._tmpdir:
+            _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
+            self._tmpdir.cleanup()
+        else:
+            if self._clear_temp:
+                _log.debug('MovieWriter: clearing temporary paths=%s',
+                           self._temp_paths)
+                for path in self._temp_paths:
+                    path.unlink()
+
 
 class Animation:
     """
