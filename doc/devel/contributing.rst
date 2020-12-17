@@ -14,18 +14,15 @@ https://github.com/matplotlib/matplotlib
 Contributor Incubator
 =====================
 
-Contributing to a major open source project can be intimidating! There
-may be technical (git / github), process (code review!), or impostor
-syndrome (your changes will be downloaded over 10M times a month)
-related barriers to YOU feeling like you can contribute to Matplotilb.
-If you are interested in becoming a regular contributor to Matplotlib,
-but are not sure where to start, please go to `gitter
-<https://gitter.im/matplotlib/matplotlib>`_ and asked to be added to
-``'#incubator'``.  This is a private gitter room moderated by core
-Matplotlib developers where you can get guidance and support for your
-first few PRs.  This is a place you can ask questions about anything:
-how to use git, github, how our PR review process works, technical questions
-about the code, or get "pre-review" on your PR.
+If you are interested in becoming a regular contributor to Matplotlib, but 
+don't know where to start or feel insecure about it, you can join our non-public 
+communication channel for new contributors. To do so, please go to gitter
+<https://gitter.im/matplotlib/matplotlib>`_ and ask to be added to '#incubator'.
+This is a private gitter room moderated by core Matplotlib developers where you can 
+get guidance and support for your first few PRs.  This is a place you can ask questions
+about anything: how to use git, github, how our PR review process works, technical questions
+about the code, what makes for good documentation or a blog post, how to get involved involved
+in community work, or get "pre-review" on your PR.
 
 
 .. _submitting-a-bug-report:
