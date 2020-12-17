@@ -8,10 +8,10 @@ import pytest
 
 from matplotlib import patches
 from matplotlib.path import Path
-from matplotlib.patches import Polygon
+from matplotlib.patches import Polygon, PathPatch
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import transforms
+from matplotlib.transforms import Bbox, Affine2D
 from matplotlib.backend_bases import MouseEvent
 
 
@@ -100,6 +100,50 @@ def test_exact_extents(path, extents):
     # Note that counterintuitively, path.get_extents() returns a Bbox, so we
     # have to get that Bbox's `.extents`.
     assert np.all(path.get_extents().extents == extents)
+
+
+@image_comparison(['stroked_bbox'], remove_text=True,
+                  extensions=['pdf', 'svg', 'png'])
+def test_stroked_extents():
+    markeredgewidth = 10
+    leg_length = 1
+    joinstyles = ['miter', 'round', 'bevel']
+    capstyles = ['butt', 'round', 'projecting']
+    # The common miterlimit defaults are 0, :math:`\sqrt{2}`, 4, and 10. These
+    # angles are chosen so that each successive one will trigger one of these
+    # default miter limits.
+    angles = [np.pi, np.pi/4, np.pi/8, np.pi/24]
+    # Each column tests one join style and one butt style, each row one angle
+    # and iterate through orientations
+    fig, axs = plt.subplots(len(joinstyles), len(angles), sharex=True,
+                            sharey=True)
+    # technically it *can* extend beyond this depending on miterlimit....
+    axs[0, 0].set_xlim([-1.5*leg_length, 1.5*leg_length])
+    axs[0, 0].set_ylim([-1.5*leg_length, 1.5*leg_length])
+    for i, (joinstyle, capstyle) in enumerate(zip(joinstyles, capstyles)):
+        for j, corner_angle in enumerate(angles):
+            rot_angle = (i*len(angles) + j) * 2*np.pi/12
+            # A path with two caps and one corner. the corner has:
+            # path.VertexInfo(apex=(0,0), np.pi + rot_angle + corner_angle/2,
+            #                 corner_angle)
+            vertices = leg_length*np.array(
+                [[1, 0], [0, 0], [np.cos(corner_angle), np.sin(corner_angle)]])
+            path = Path(vertices, [Path.MOVETO, Path.LINETO, Path.LINETO])
+            path = path.transformed(Affine2D().rotate(rot_angle))
+            patch = PathPatch(path, linewidth=markeredgewidth,
+                              joinstyle=joinstyle, capstyle=capstyle)
+            axs[i, j].add_patch(patch)
+            # plot the extents
+            data_to_pts = (Affine2D().scale(72)
+                           + fig.dpi_scale_trans.inverted()
+                           + axs[i, j].transData)
+            bbox = path.get_stroked_extents(markeredgewidth, data_to_pts,
+                                            joinstyle, capstyle)
+            bbox = bbox.transformed(data_to_pts.inverted())
+            axs[i, j].plot([bbox.x0, bbox.x0, bbox.x1, bbox.x1, bbox.x0],
+                           [bbox.y0, bbox.y1, bbox.y1, bbox.y0, bbox.y0],
+                           'r-.')
+            axs[i, j].axis('off')
 
 
 def test_point_in_path_nan():
@@ -289,7 +333,7 @@ def test_path_no_doubled_point_in_to_polygon():
     (r0, c0, r1, c1) = (1.0, 1.5, 2.1, 2.5)
 
     poly = Path(np.vstack((hand[:, 1], hand[:, 0])).T, closed=True)
-    clip_rect = transforms.Bbox([[r0, c0], [r1, c1]])
+    clip_rect = Bbox([[r0, c0], [r1, c1]])
     poly_clipped = poly.clip_to_bbox(clip_rect).to_polygons()[0]
 
     assert np.all(poly_clipped[-2] != poly_clipped[-1])
@@ -334,7 +378,7 @@ def test_path_intersect_path(phi):
     # test for the range of intersection angles
     eps_array = [1e-5, 1e-8, 1e-10, 1e-12]
 
-    transform = transforms.Affine2D().rotate(np.deg2rad(phi))
+    transform = Affine2D().rotate(np.deg2rad(phi))
 
     # a and b intersect at angle phi
     a = Path([(-2, 0), (2, 0)])

@@ -133,7 +133,7 @@ import numpy as np
 
 from . import _api, cbook, rcParams
 from .path import Path
-from .transforms import IdentityTransform, Affine2D
+from .transforms import IdentityTransform, Affine2D, Bbox
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
@@ -915,3 +915,29 @@ class MarkerStyle:
             self._alt_transform = Affine2D().translate(-0.5, -0.5)
             self._transform.rotate_deg(rotate)
             self._alt_transform.rotate_deg(rotate_alt)
+
+    def get_drawn_bbox(self, markersize, markeredgewidth, **kwargs):
+        """
+        Get size of bbox of marker directly from its path.
+
+        Parameters
+        ----------
+        markersize : float
+            "Size" of the marker, in points.
+        markeredgewidth : float, optional, default: 0
+            Width, in points, of the stroke used to create the marker's edge.
+        **kwargs
+            Forwarded to `~.path.Path.iter_angles`.
+
+        Returns
+        -------
+        bbox : matplotlib.transforms.Bbox
+            The extents of the marker including its edge (in points) if it were
+            centered at (0,0).
+        """
+        if np.isclose(markersize, 0):
+            return Bbox([[0, 0], [0, 0]])
+        scale = Affine2D().scale(markersize)
+        transform = scale + self._transform
+        return self._path.get_stroked_extents(markeredgewidth, transform,
+                                              self._joinstyle, self._capstyle)
