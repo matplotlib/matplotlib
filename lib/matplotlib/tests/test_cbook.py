@@ -14,7 +14,7 @@ import pytest
 from matplotlib import _api
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import MatplotlibDeprecationWarning, delete_masked_points
+from matplotlib.cbook import delete_masked_points
 
 
 class Test_delete_masked_points:
@@ -604,41 +604,6 @@ def test_safe_first_element_pandas_series(pd):
     s = pd.Series(range(5), index=range(10, 15))
     actual = cbook.safe_first_element(s)
     assert actual == 0
-
-
-def test_delete_parameter():
-    @cbook._delete_parameter("3.0", "foo")
-    def func1(foo=None):
-        pass
-
-    @cbook._delete_parameter("3.0", "foo")
-    def func2(**kwargs):
-        pass
-
-    for func in [func1, func2]:
-        func()  # No warning.
-        with pytest.warns(MatplotlibDeprecationWarning):
-            func(foo="bar")
-
-    def pyplot_wrapper(foo=_api.deprecation._deprecated_parameter):
-        func1(foo)
-
-    pyplot_wrapper()  # No warning.
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(foo="bar")
-
-
-def test_make_keyword_only():
-    @cbook._make_keyword_only("3.0", "arg")
-    def func(pre, arg, post=None):
-        pass
-
-    func(1, arg=2)  # Check that no warning is emitted.
-
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(1, 2)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(1, 2, 3)
 
 
 def test_warn_external(recwarn):

@@ -12,7 +12,8 @@ import math
 import numpy as np
 
 from matplotlib import (
-    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
+    _api, artist, cbook, colors as mcolors, lines, text as mtext,
+    path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -296,7 +297,7 @@ class Line3DCollection(LineCollection):
         self._segments3d = segments
         super().set_segments([])
 
-    @cbook._delete_parameter('3.4', 'renderer')
+    @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         """
         Project the points according to renderer matrix.
@@ -349,7 +350,7 @@ class Patch3D(Patch):
     def get_facecolor(self):
         return self._facecolor2d
 
-    @cbook._delete_parameter('3.4', 'renderer')
+    @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         s = self._segment3d
         xs, ys, zs = zip(*s)
@@ -375,7 +376,7 @@ class PathPatch3D(Patch3D):
         Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir)
         self._code3d = path.codes
 
-    @cbook._delete_parameter('3.4', 'renderer')
+    @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         s = self._segment3d
         xs, ys, zs = zip(*s)
@@ -486,7 +487,7 @@ class Patch3DCollection(PatchCollection):
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
 
-    @cbook._delete_parameter('3.4', 'renderer')
+    @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         # see _update_scalarmappable docstring for why this must be here
         _update_scalarmappable(self)
@@ -594,7 +595,7 @@ class Path3DCollection(PathCollection):
         super().set_linewidth(lw)
         self._linewidth3d = self.get_linewidth()
 
-    @cbook._delete_parameter('3.4', 'renderer')
+    @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         # see _update_scalarmappable docstring for why this must be here
         _update_scalarmappable(self)
@@ -844,7 +845,7 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = val
         self.stale = True
 
-    @cbook._delete_parameter('3.4', 'renderer')
+    @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
         """
         Perform the 3D projection for this object.

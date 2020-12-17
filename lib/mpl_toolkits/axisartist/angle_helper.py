@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from mpl_toolkits.axisartist.grid_finder import ExtremeFinderSimple
 
 
@@ -141,7 +141,7 @@ def select_step360(v1, v2, nv, include_last=True, threshold_factor=3600):
 
 
 class LocatorBase:
-    @cbook._rename_parameter("3.3", "den", "nbins")
+    @_api.rename_parameter("3.3", "den", "nbins")
     def __init__(self, nbins, include_last=True):
         self.nbins = nbins
         self._include_last = include_last

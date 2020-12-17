@@ -1194,7 +1194,7 @@ def _init_tests():
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
 
-@cbook._delete_parameter("3.3", "recursionlimit")
+@_api.delete_parameter("3.3", "recursionlimit")
 def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     """Run the matplotlib test suite."""
 

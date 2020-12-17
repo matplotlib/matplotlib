@@ -706,7 +706,7 @@ class TextArea(OffsetBox):
     child text.
     """
 
-    @cbook._delete_parameter("3.4", "minimumdescent")
+    @_api.delete_parameter("3.4", "minimumdescent")
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=False,
@@ -1480,7 +1480,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         self.prop = FontProperties(size=s)
         self.stale = True
 
-    @cbook._delete_parameter("3.3", "s")
+    @_api.delete_parameter("3.3", "s")
     def get_fontsize(self, s=None):
         """Return the fontsize in points."""
         return self.prop.get_size_in_points()

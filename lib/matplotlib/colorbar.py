@@ -411,7 +411,7 @@ class ColorbarBase:
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
 
-    @cbook._make_keyword_only("3.3", "cmap")
+    @_api.make_keyword_only("3.3", "cmap")
     def __init__(self, ax, cmap=None,
                  norm=None,
                  alpha=None,

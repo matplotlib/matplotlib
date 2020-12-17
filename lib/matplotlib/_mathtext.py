@@ -158,7 +158,7 @@ class Fonts:
         self.mathtext_backend.set_canvas_size(
             self.width, self.height, self.depth)
 
-    @cbook._rename_parameter("3.4", "facename", "font")
+    @_api.rename_parameter("3.4", "facename", "font")
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
         """
         At position (*ox*, *oy*), draw the glyph specified by the remaining
@@ -1551,7 +1551,7 @@ class Glue(Node):
 
     glue_subtype = cbook.deprecated("3.3")(property(lambda self: "normal"))
 
-    @cbook._delete_parameter("3.3", "copy")
+    @_api.delete_parameter("3.3", "copy")
     def __init__(self, glue_type, copy=False):
         super().__init__()
         if isinstance(glue_type, str):

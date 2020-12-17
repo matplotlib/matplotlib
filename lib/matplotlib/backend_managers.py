@@ -1,7 +1,6 @@
 import logging
 
-import matplotlib.cbook as cbook
-import matplotlib.widgets as widgets
+from matplotlib import _api, cbook, widgets
 from matplotlib.rcsetup import validate_stringlist
 import matplotlib.backend_tools as tools
 
@@ -183,7 +182,7 @@ class ToolManager:
         for k in self.get_tool_keymap(name):
             del self._keys[k]
 
-    @cbook._delete_parameter("3.3", "args")
+    @_api.delete_parameter("3.3", "args")
     def update_keymap(self, name, key, *args):
         """
         Set the keymap to associate with the specified tool.

@@ -638,7 +638,7 @@ class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
 
-    @cbook._delete_parameter("3.3", "props")
+    @_api.delete_parameter("3.3", "props")
     @docstring.dedent_interpd
     def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
@@ -2014,7 +2014,7 @@ class BoxStyle(_Style):
 
             __call__ = cls.__call__
 
-            @cbook._delete_parameter("3.4", "mutation_aspect")
+            @_api.delete_parameter("3.4", "mutation_aspect")
             def call_wrapper(
                     self, x0, y0, width, height, mutation_size,
                     mutation_aspect=_api.deprecation._deprecated_parameter):
@@ -3602,7 +3602,7 @@ class FancyBboxPatch(Patch):
         return s % (self._x, self._y, self._width, self._height)
 
     @docstring.dedent_interpd
-    @cbook._delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
+    @_api.delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
     def __init__(self, xy, width, height,
                  boxstyle="round", bbox_transmuter=None,
                  mutation_scale=1, mutation_aspect=1,
@@ -3893,7 +3893,7 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @docstring.dedent_interpd
-    @cbook._delete_parameter("3.4", "dpi_cor")
+    @_api.delete_parameter("3.4", "dpi_cor")
     def __init__(self, posA=None, posB=None, path=None,
                  arrowstyle="simple", connectionstyle="arc3",
                  patchA=None, patchB=None,
@@ -4240,7 +4240,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @docstring.dedent_interpd
-    @cbook._delete_parameter("3.4", "dpi_cor")
+    @_api.delete_parameter("3.4", "dpi_cor")
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",

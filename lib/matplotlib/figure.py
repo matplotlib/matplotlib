@@ -29,6 +29,7 @@ from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
     FigureCanvasBase, NonGuiException, MouseButton)
+import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
@@ -887,7 +888,7 @@ default: {va}
         ax.stale_callback = _stale_figure_callback
         return ax
 
-    @cbook._make_keyword_only("3.3", "sharex")
+    @_api.make_keyword_only("3.3", "sharex")
     def subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
                  squeeze=True, subplot_kw=None, gridspec_kw=None):
         """
