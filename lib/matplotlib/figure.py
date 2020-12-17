@@ -373,30 +373,24 @@ class FigureBase(Artist):
 
     def _suplabels(self, t, info, **kwargs):
         """
-        Add a centered {name} to the figure.
+        Add a centered %(name)s to the figure.
 
         Parameters
         ----------
         t : str
-            The {name} text.
-
-        x : float, default: {x0}
+            The %(name)s text.
+        x : float, default: %(x0)s
             The x location of the text in figure coordinates.
-
-        y : float, default: {y0}
+        y : float, default: %(y0)s
             The y location of the text in figure coordinates.
-
-        horizontalalignment, ha : {{'center', 'left', 'right'}}, default: {ha}
+        horizontalalignment, ha : {'center', 'left', 'right'}, default: %(ha)s
             The horizontal alignment of the text relative to (*x*, *y*).
-
-        verticalalignment, va : {{'top', 'center', 'bottom', 'baseline'}}, \
-default: {va}
+        verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
+default: %(va)s
             The vertical alignment of the text relative to (*x*, *y*).
-
         fontsize, size : default: :rc:`figure.titlesize`
             The font size of the text. See `.Text.set_size` for possible
             values.
-
         fontweight, weight : default: :rc:`figure.titleweight`
             The font weight of the text. See `.Text.set_weight` for possible
             values.
@@ -404,7 +398,7 @@ default: {va}
         Returns
         -------
         text
-            The `.Text` instance of the {name}.
+            The `.Text` instance of the %(name)s.
 
         Other Parameters
         ----------------
@@ -416,7 +410,6 @@ default: {va}
 
         **kwargs
             Additional kwargs are `matplotlib.text.Text` properties.
-
         """
 
         manual_position = ('x' in kwargs or 'y' in kwargs)
