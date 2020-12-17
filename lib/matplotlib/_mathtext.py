@@ -1551,7 +1551,7 @@ class Glue(Node):
 
     glue_subtype = cbook.deprecated("3.3")(property(lambda self: "normal"))
 
-    @cbook._delete_parameter("3.3", "copy")
+    @_api.delete_parameter("3.3", "copy")
     def __init__(self, glue_type, copy=False):
         super().__init__()
         if isinstance(glue_type, str):

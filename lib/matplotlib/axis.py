@@ -54,7 +54,7 @@ class Tick(martist.Artist):
         The right/top tick label.
 
     """
-    @cbook._delete_parameter("3.3", "label")
+    @_api.delete_parameter("3.3", "label")
     def __init__(self, axes, loc, label=None,
                  size=None,  # points
                  width=None,

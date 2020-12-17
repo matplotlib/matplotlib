@@ -28,12 +28,11 @@ import weakref
 import numpy as np
 
 import matplotlib
-from matplotlib import _c_internal_utils
+from matplotlib import _api, _c_internal_utils
 from matplotlib._api import (
     warn_external as _warn_external, classproperty as _classproperty)
 from matplotlib._api.deprecation import (
     deprecated, warn_deprecated,
-    _delete_parameter,
     _deprecate_method_override, _deprecate_privatize_attribute,
     MatplotlibDeprecationWarning, mplDeprecation)
 
@@ -1704,9 +1703,9 @@ def sanitize_sequence(data):
             else data)
 
 
-@_delete_parameter("3.3", "required")
-@_delete_parameter("3.3", "forbidden")
-@_delete_parameter("3.3", "allowed")
+@_api.delete_parameter("3.3", "required")
+@_api.delete_parameter("3.3", "forbidden")
+@_api.delete_parameter("3.3", "allowed")
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                      allowed=None):
     """

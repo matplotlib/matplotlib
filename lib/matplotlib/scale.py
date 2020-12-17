@@ -14,7 +14,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, docstring
+from matplotlib import _api, docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,

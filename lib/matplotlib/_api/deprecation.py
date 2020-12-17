@@ -350,7 +350,7 @@ class _deprecated_parameter_class:
 _deprecated_parameter = _deprecated_parameter_class()
 
 
-def _delete_parameter(since, name, func=None, **kwargs):
+def delete_parameter(since, name, func=None, **kwargs):
     """
     Decorator indicating that parameter *name* of *func* is being deprecated.
 
@@ -371,12 +371,12 @@ def _delete_parameter(since, name, func=None, **kwargs):
     --------
     ::
 
-        @_delete_parameter("3.1", "unused")
+        @_api.delete_parameter("3.1", "unused")
         def func(used_arg, other_arg, unused, more_args): ...
     """
 
     if func is None:
-        return functools.partial(_delete_parameter, since, name, **kwargs)
+        return functools.partial(delete_parameter, since, name, **kwargs)
 
     signature = inspect.signature(func)
     # Name of `**kwargs` parameter of the decorated function, typically

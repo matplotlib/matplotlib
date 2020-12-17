@@ -599,7 +599,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wildcards = '|'.join(wildcards)
         return wildcards, extensions, filter_index
 
-    @cbook._delete_parameter("3.4", "origin")
+    @_api.delete_parameter("3.4", "origin")
     def gui_repaint(self, drawDC=None, origin='WX'):
         """
         Performs update of the displayed image on the GUI canvas, using the

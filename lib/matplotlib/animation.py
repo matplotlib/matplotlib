@@ -407,7 +407,7 @@ class FileMovieWriter(MovieWriter):
         super().__init__(*args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
-    @cbook._delete_parameter("3.3", "clear_temp")
+    @_api.delete_parameter("3.3", "clear_temp")
     def setup(self, fig, outfile, dpi=None, frame_prefix=None,
               clear_temp=True):
         """

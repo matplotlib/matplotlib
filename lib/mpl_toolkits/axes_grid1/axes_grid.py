@@ -80,7 +80,7 @@ class Grid:
 
     _defaultAxesClass = Axes
 
-    @cbook._delete_parameter("3.3", "add_all")
+    @_api.delete_parameter("3.3", "add_all")
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -335,7 +335,7 @@ class ImageGrid(Grid):
 
     _defaultCbarAxesClass = CbarAxes
 
-    @cbook._delete_parameter("3.3", "add_all")
+    @_api.delete_parameter("3.3", "add_all")
     def __init__(self, fig,
                  rect,
                  nrows_ncols,

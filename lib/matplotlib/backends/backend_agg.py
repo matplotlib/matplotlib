@@ -522,12 +522,12 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     @_check_savefig_extra_args(
         extra_kwargs=["quality", "optimize", "progressive"])
-    @cbook._delete_parameter("3.3", "quality",
-                             alternative="pil_kwargs={'quality': ...}")
-    @cbook._delete_parameter("3.3", "optimize",
-                             alternative="pil_kwargs={'optimize': ...}")
-    @cbook._delete_parameter("3.3", "progressive",
-                             alternative="pil_kwargs={'progressive': ...}")
+    @_api.delete_parameter("3.3", "quality",
+                           alternative="pil_kwargs={'quality': ...}")
+    @_api.delete_parameter("3.3", "optimize",
+                           alternative="pil_kwargs={'optimize': ...}")
+    @_api.delete_parameter("3.3", "progressive",
+                           alternative="pil_kwargs={'progressive': ...}")
     def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
         """
         Write the figure to a JPEG file.

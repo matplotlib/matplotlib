@@ -2743,7 +2743,7 @@ class _AxesBase(martist.Artist):
 
     # Drawing
     @martist.allow_rasterization
-    @cbook._delete_parameter(
+    @_api.delete_parameter(
         "3.3", "inframe", alternative="Axes.redraw_in_frame()")
     def draw(self, renderer=None, inframe=False):
         # docstring inherited

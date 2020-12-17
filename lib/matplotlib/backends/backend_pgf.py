@@ -380,7 +380,7 @@ def _get_image_inclusion_command():
 
 class RendererPgf(RendererBase):
 
-    @cbook._delete_parameter("3.3", "dummy")
+    @_api.delete_parameter("3.3", "dummy")
     def __init__(self, figure, fh, dummy=False):
         """
         Create a new PGF renderer that translates any drawing instruction

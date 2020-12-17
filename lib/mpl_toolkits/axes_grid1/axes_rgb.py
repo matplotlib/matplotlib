@@ -1,11 +1,11 @@
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from .axes_divider import make_axes_locatable, Size
 from .mpl_axes import Axes
 
 
-@cbook._delete_parameter("3.3", "add_all")
+@_api.delete_parameter("3.3", "add_all")
 def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True, **kwargs):
     """
     Parameters
@@ -91,7 +91,7 @@ class RGBAxes:
 
     _defaultAxesClass = Axes
 
-    @cbook._delete_parameter("3.3", "add_all")
+    @_api.delete_parameter("3.3", "add_all")
     def __init__(self, *args, pad=0, add_all=True, **kwargs):
         """
         Parameters
