@@ -628,19 +628,6 @@ def test_delete_parameter():
         func(foo="bar")
 
 
-def test_make_keyword_only():
-    @cbook._make_keyword_only("3.0", "arg")
-    def func(pre, arg, post=None):
-        pass
-
-    func(1, arg=2)  # Check that no warning is emitted.
-
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(1, 2)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(1, 2, 3)
-
-
 def test_warn_external(recwarn):
     cbook._warn_external("oops")
     assert len(recwarn) == 1

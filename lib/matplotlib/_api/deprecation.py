@@ -433,14 +433,14 @@ def _delete_parameter(since, name, func=None, **kwargs):
     return wrapper
 
 
-def _make_keyword_only(since, name, func=None):
+def make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
     """
 
     if func is None:
-        return functools.partial(_make_keyword_only, since, name)
+        return functools.partial(make_keyword_only, since, name)
 
     signature = inspect.signature(func)
     POK = inspect.Parameter.POSITIONAL_OR_KEYWORD

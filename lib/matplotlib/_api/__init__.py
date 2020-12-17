@@ -17,7 +17,7 @@ import warnings
 
 from .deprecation import (
     deprecated, warn_deprecated,
-    rename_parameter, _delete_parameter, _make_keyword_only,
+    rename_parameter, _delete_parameter, make_keyword_only,
     _deprecate_method_override, _deprecate_privatize_attribute,
     suppress_matplotlib_deprecation_warning,
     MatplotlibDeprecationWarning)

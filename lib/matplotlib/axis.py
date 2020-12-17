@@ -1266,7 +1266,7 @@ class Axis(martist.Artist):
                 if ~np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
         return minor_locs
 
-    @cbook._make_keyword_only("3.3", "minor")
+    @_api.make_keyword_only("3.3", "minor")
     def get_ticklocs(self, minor=False):
         """Return this Axis' tick locations in data coordinates."""
         return self.get_minorticklocs() if minor else self.get_majorticklocs()
@@ -1738,7 +1738,7 @@ class Axis(martist.Artist):
 
     # Wrapper around set_ticklabels used to generate Axes.set_x/ytickabels; can
     # go away once the API of Axes.set_x/yticklabels becomes consistent.
-    @cbook._make_keyword_only("3.3", "fontdict")
+    @_api.make_keyword_only("3.3", "fontdict")
     def _set_ticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
         Set this Axis' labels with list of string labels.
