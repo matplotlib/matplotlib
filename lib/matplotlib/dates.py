@@ -802,6 +802,9 @@ class ConciseDateFormatter(ticker.Formatter):
         # 3: hours, 4: minutes, 5: seconds, 6: microseconds
         for level in range(5, -1, -1):
             if len(np.unique(tickdate[:, level])) > 1:
+                # if level is less than 2, a year is already present in the axis
+                if (level < 2):
+                    self.show_offset = False
                 break
             elif level == 0:
                 # all tickdate are the same, so only micros might be different
