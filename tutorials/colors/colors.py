@@ -62,9 +62,10 @@ Matplotlib recognizes the following formats to specify a color:
 "Red", "Green", and "Blue" are the intensities of those colors. In combination,
 they represent the colorspace.
 
-Matplotlib composes Artists based on ``zorder`` and then by the order added to
-an Axes. The alpha for an Artist controls how the RGB color of the new Artist
-combines with RGB colors already on the Axes.
+Matplotlib composes Artists based on the ``zorder`` keyword argument. If there
+are no specified values, Matplotlib defaults to the order of the Artists added
+to the Axes. The alpha for an Artist controls how the RGB color of the new
+Artist combines with RGB colors already on the Axes.
 
 The two Artists combine with alpha compositing. Matplotlib uses the equation
 below to compute the result of blending a new Artist.
