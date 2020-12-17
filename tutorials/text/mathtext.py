@@ -97,7 +97,7 @@ produces
 
 .. math::
 
-    \frac{3}{4} \binom{3}{4} \genfrac{}{}{0}{}{3}{4}
+    \frac{3}{4} \binom{3}{4} \genfrac{}{}{0pt}{}{3}{4}
 
 Fractions can be arbitrarily nested::
 
