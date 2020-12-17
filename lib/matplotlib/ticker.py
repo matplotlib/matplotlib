@@ -81,6 +81,19 @@ locator and pass it to the x or y axis instance. The relevant methods are::
 
 The default minor locator is `NullLocator`, i.e., no minor ticks on by default.
 
+.. note::
+    `Locator` instances should not be used with more than one
+    `~matplotlib.axis.Axis` or `~matplotlib.axes.Axes`. So instead of::
+
+        locator = MultipleLocator(5)
+        ax.xaxis.set_major_locator(locator)
+        ax2.xaxis.set_major_locator(locator)
+
+    do the following instead::
+
+        ax.xaxis.set_major_locator(MultipleLocator(5))
+        ax2.xaxis.set_major_locator(MultipleLocator(5))
+
 Tick formatting
 ---------------
 
