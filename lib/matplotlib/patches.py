@@ -84,7 +84,7 @@ class Patch(artist.Artist):
         self._fill = True  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
-                cbook._warn_external(
+                _api.warn_external(
                     "Setting the 'color' property will override "
                     "the edgecolor or facecolor properties.")
             self.set_color(color)

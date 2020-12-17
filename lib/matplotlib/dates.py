@@ -1409,7 +1409,7 @@ class AutoDateLocator(DateLocator):
                     break
             else:
                 if not (self.interval_multiples and freq == DAILY):
-                    cbook._warn_external(
+                    _api.warn_external(
                         f"AutoDateLocator was unable to pick an appropriate "
                         f"interval for this date range. It may be necessary "
                         f"to add an interval value to the AutoDateLocator's "
@@ -1448,7 +1448,7 @@ class AutoDateLocator(DateLocator):
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if date2num(dmin) > 70 * 365 and interval < 1000:
-                cbook._warn_external(
+                _api.warn_external(
                     'Plotting microsecond time intervals for dates far from '
                     f'the epoch (time origin: {get_epoch()}) is not well-'
                     'supported. See matplotlib.dates.set_epoch to change the '

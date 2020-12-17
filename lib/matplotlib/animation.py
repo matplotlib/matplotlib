@@ -475,7 +475,7 @@ class FileMovieWriter(MovieWriter):
         if frame_format in self.supported_formats:
             self._frame_format = frame_format
         else:
-            cbook._warn_external(
+            _api.warn_external(
                 f"Ignoring file format {frame_format!r} which is not "
                 f"supported by {type(self).__name__}; using "
                 f"{self.supported_formats[0]} instead.")

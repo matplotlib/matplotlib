@@ -210,12 +210,12 @@ def _create_pdf_info_dict(backend, metadata):
     }
     for k in info:
         if k not in keywords:
-            cbook._warn_external(f'Unknown infodict keyword: {k!r}. '
-                                 f'Must be one of {set(keywords)!r}.')
+            _api.warn_external(f'Unknown infodict keyword: {k!r}. '
+                               f'Must be one of {set(keywords)!r}.')
         elif not keywords[k](info[k]):
-            cbook._warn_external(f'Bad value for infodict keyword {k}. '
-                                 f'Got {info[k]!r} which is not '
-                                 f'{keywords[k].text_for_warning}.')
+            _api.warn_external(f'Bad value for infodict keyword {k}. '
+                               f'Got {info[k]!r} which is not '
+                               f'{keywords[k].text_for_warning}.')
     if 'Trapped' in info:
         info['Trapped'] = Name(info['Trapped'])
 

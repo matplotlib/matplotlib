@@ -209,8 +209,8 @@ class ToolManager:
                 key = [key]
             for k in key:
                 if k in self._keys:
-                    cbook._warn_external('Key %s changed from %s to %s' %
-                                         (k, self._keys[k], name))
+                    _api.warn_external(
+                        f'Key {k} changed from {self._keys[k]} to {name}')
                 self._keys[k] = name
 
     def remove_tool(self, name):
@@ -267,8 +267,8 @@ class ToolManager:
             raise ValueError('Impossible to find class for %s' % str(tool))
 
         if name in self._tools:
-            cbook._warn_external('A "Tool class" with the same name already '
-                                 'exists, not added')
+            _api.warn_external('A "Tool class" with the same name already '
+                               'exists, not added')
             return self._tools[name]
 
         tool_obj = tool_cls(self, name, *args, **kwargs)
@@ -437,7 +437,6 @@ class ToolManager:
             return name
         if name not in self._tools:
             if warn:
-                cbook._warn_external("ToolManager does not control tool "
-                                     "%s" % name)
+                _api.warn_external(f"ToolManager does not control tool {name}")
             return None
         return self._tools[name]

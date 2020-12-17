@@ -304,7 +304,7 @@ def switch_backend(newbackend):
 def _warn_if_gui_out_of_main_thread():
     if (_get_required_interactive_framework(_backend_mod)
             and threading.current_thread() is not threading.main_thread()):
-        cbook._warn_external(
+        _api.warn_external(
             "Starting a Matplotlib GUI outside of the main thread will likely "
             "fail.")
 
@@ -745,8 +745,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         all_labels = get_figlabels()
         if fig_label not in all_labels:
             if fig_label == 'all':
-                cbook._warn_external(
-                    "close('all') closes all existing figures.")
+                _api.warn_external("close('all') closes all existing figures.")
             num = next_num
         else:
             inum = all_labels.index(fig_label)
@@ -758,7 +757,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     if manager is None:
         max_open_warning = rcParams['figure.max_open_warning']
         if len(allnums) == max_open_warning >= 1:
-            cbook._warn_external(
+            _api.warn_external(
                 f"More than {max_open_warning} figures have been opened. "
                 f"Figures created through the pyplot interface "
                 f"(`matplotlib.pyplot.figure`) are retained until explicitly "
@@ -1213,9 +1212,9 @@ def subplot(*args, **kwargs):
     # intended to be the sharex argument is instead treated as a
     # subplot index for subplot()
     if len(args) >= 3 and isinstance(args[2], bool):
-        cbook._warn_external("The subplot index argument to subplot() appears "
-                             "to be a boolean. Did you intend to use "
-                             "subplots()?")
+        _api.warn_external("The subplot index argument to subplot() appears "
+                           "to be a boolean. Did you intend to use "
+                           "subplots()?")
     # Check for nrows and ncols, which are not valid subplot args:
     if 'nrows' in kwargs or 'ncols' in kwargs:
         raise TypeError("subplot() got an unexpected keyword argument 'ncols' "
@@ -2411,8 +2410,8 @@ def polar(*args, **kwargs):
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
         if not isinstance(gca(), PolarAxes):
-            cbook._warn_external('Trying to create polar plot on an axis '
-                                 'that does not have a polar projection.')
+            _api.warn_external('Trying to create polar plot on an axis '
+                               'that does not have a polar projection.')
     ax = gca(polar=True)
     ret = ax.plot(*args, **kwargs)
     return ret

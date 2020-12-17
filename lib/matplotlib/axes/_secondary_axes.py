@@ -1,7 +1,6 @@
 import numpy as np
 
 from matplotlib import _api
-import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
 from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
@@ -246,7 +245,7 @@ class SecondaryAxis(_AxesBase):
         Secondary axes cannot set the aspect ratio, so calling this just
         sets a warning.
         """
-        cbook._warn_external("Secondary axes can't set the aspect ratio")
+        _api.warn_external("Secondary axes can't set the aspect ratio")
 
     def set_color(self, color):
         """

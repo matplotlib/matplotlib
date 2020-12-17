@@ -766,9 +766,8 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     if NFFT is None:
         NFFT = 256  # same default as in _spectral_helper()
     if len(x) <= NFFT:
-        cbook._warn_external("Only one segment is calculated since parameter "
-                             "NFFT (=%d) >= signal length (=%d)." %
-                             (NFFT, len(x)))
+        _api.warn_external("Only one segment is calculated since parameter "
+                           f"NFFT (={NFFT}) >= signal length (={len(x)}).")
 
     spec, freqs, t = _spectral_helper(x=x, y=None, NFFT=NFFT, Fs=Fs,
                                       detrend_func=detrend, window=window,

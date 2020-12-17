@@ -219,7 +219,7 @@ make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
 def _set_ticks_on_axis_warn(*args, **kw):
     # a top level function which gets put in at the axes'
     # set_xticks and set_yticks by ColorbarBase.__init__.
-    cbook._warn_external("Use the colorbar set_ticks() method instead.")
+    _api.warn_external("Use the colorbar set_ticks() method instead.")
 
 
 class _ColorbarAutoLocator(ticker.MaxNLocator):
@@ -721,7 +721,7 @@ class ColorbarBase:
             if update_ticks:
                 self.update_ticks()
         else:
-            cbook._warn_external("set_ticks() must have been called.")
+            _api.warn_external("set_ticks() must have been called.")
         self.stale = True
 
     def minorticks_on(self):

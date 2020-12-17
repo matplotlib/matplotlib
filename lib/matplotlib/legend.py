@@ -28,7 +28,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, docstring, colors
+from matplotlib import _api, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -404,9 +404,9 @@ class Legend(Artist):
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
             if isinstance(label, str) and label.startswith('_'):
-                cbook._warn_external('The handle {!r} has a label of {!r} '
-                                     'which cannot be automatically added to'
-                                     ' the legend.'.format(handle, label))
+                _api.warn_external('The handle {!r} has a label of {!r} '
+                                   'which cannot be automatically added to'
+                                   ' the legend.'.format(handle, label))
             else:
                 _lab.append(label)
                 _hand.append(handle)
@@ -744,7 +744,7 @@ class Legend(Artist):
         for orig_handle, lab in zip(handles, labels):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
-                cbook._warn_external(
+                _api.warn_external(
                     "Legend does not support {!r} instances.\nA proxy artist "
                     "may be used instead.\nSee: "
                     "https://matplotlib.org/users/legend_guide.html"
@@ -1053,7 +1053,7 @@ class Legend(Artist):
         _, _, (l, b) = min(candidates)
 
         if self._loc_used_default and time.perf_counter() - start_time > 1:
-            cbook._warn_external(
+            _api.warn_external(
                 'Creating legend with loc="best" can be slow with large '
                 'amounts of data.')
 
@@ -1203,8 +1203,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     extra_args = ()
 
     if (handles is not None or labels is not None) and args:
-        cbook._warn_external("You have mixed positional and keyword "
-                             "arguments, some input may be discarded.")
+        _api.warn_external("You have mixed positional and keyword arguments, "
+                           "some input may be discarded.")
 
     # if got both handles and labels as kwargs, make same length
     if handles and labels:

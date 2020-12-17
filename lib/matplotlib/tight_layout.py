@@ -11,7 +11,7 @@ for some cases (for example, left or right margin is affected by xlabel).
 
 import numpy as np
 
-from matplotlib import cbook, rcParams
+from matplotlib import _api, rcParams
 from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import TransformedBbox, Bbox
 
@@ -134,14 +134,14 @@ def auto_adjust_subplotpars(
             margin_bottom += rel_height + pad_inches / fig_height_inch
 
     if margin_left + margin_right >= 1:
-        cbook._warn_external('Tight layout not applied. The left and right '
-                             'margins cannot be made large enough to '
-                             'accommodate all axes decorations. ')
+        _api.warn_external('Tight layout not applied. The left and right '
+                           'margins cannot be made large enough to '
+                           'accommodate all axes decorations. ')
         return None
     if margin_bottom + margin_top >= 1:
-        cbook._warn_external('Tight layout not applied. The bottom and top '
-                             'margins cannot be made large enough to '
-                             'accommodate all axes decorations. ')
+        _api.warn_external('Tight layout not applied. The bottom and top '
+                           'margins cannot be made large enough to '
+                           'accommodate all axes decorations. ')
         return None
 
     kwargs = dict(left=margin_left,
@@ -154,9 +154,9 @@ def auto_adjust_subplotpars(
         # axes widths:
         h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
         if h_axes < 0:
-            cbook._warn_external('Tight layout not applied. tight_layout '
-                                 'cannot make axes width small enough to '
-                                 'accommodate all axes decorations')
+            _api.warn_external('Tight layout not applied. tight_layout '
+                               'cannot make axes width small enough to '
+                               'accommodate all axes decorations')
             return None
         else:
             kwargs["wspace"] = hspace / h_axes
@@ -164,9 +164,9 @@ def auto_adjust_subplotpars(
         vspace = vspaces[1:-1, :].max() + vpad_inches / fig_height_inch
         v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
         if v_axes < 0:
-            cbook._warn_external('Tight layout not applied. tight_layout '
-                                 'cannot make axes height small enough to '
-                                 'accommodate all axes decorations')
+            _api.warn_external('Tight layout not applied. tight_layout '
+                               'cannot make axes height small enough to '
+                               'accommodate all axes decorations')
             return None
         else:
             kwargs["hspace"] = vspace / v_axes
@@ -289,14 +289,14 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         div_row, mod_row = divmod(max_nrows, rows)
         div_col, mod_col = divmod(max_ncols, cols)
         if mod_row != 0:
-            cbook._warn_external('tight_layout not applied: number of rows '
-                                 'in subplot specifications must be '
-                                 'multiples of one another.')
+            _api.warn_external('tight_layout not applied: number of rows '
+                               'in subplot specifications must be '
+                               'multiples of one another.')
             return {}
         if mod_col != 0:
-            cbook._warn_external('tight_layout not applied: number of '
-                                 'columns in subplot specifications must be '
-                                 'multiples of one another.')
+            _api.warn_external('tight_layout not applied: number of '
+                               'columns in subplot specifications must be '
+                               'multiples of one another.')
             return {}
 
         rowNum1, colNum1 = divmod(num1, cols)

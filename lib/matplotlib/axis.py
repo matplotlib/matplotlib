@@ -1390,9 +1390,9 @@ class Axis(martist.Artist):
                 raise ValueError(
                     "'b' and 'visible' specify inconsistent grid visibilities")
             if kwargs and not b:  # something false-like but not None
-                cbook._warn_external('First parameter to grid() is false, '
-                                     'but line properties are supplied. The '
-                                     'grid will be enabled.')
+                _api.warn_external('First parameter to grid() is false, '
+                                   'but line properties are supplied. The '
+                                   'grid will be enabled.')
                 b = True
         which = which.lower()
         _api.check_in_list(['major', 'minor', 'both'], which=which)
@@ -1604,8 +1604,8 @@ class Axis(martist.Artist):
         if (isinstance(formatter, mticker.FixedFormatter)
                 and len(formatter.seq) > 0
                 and not isinstance(level.locator, mticker.FixedLocator)):
-            cbook._warn_external('FixedFormatter should only be used together '
-                                 'with FixedLocator')
+            _api.warn_external('FixedFormatter should only be used together '
+                               'with FixedLocator')
 
         if level == self.major:
             self.isDefault_majfmt = False

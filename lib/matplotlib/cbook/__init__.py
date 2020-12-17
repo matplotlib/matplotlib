@@ -29,8 +29,7 @@ import numpy as np
 
 import matplotlib
 from matplotlib import _api, _c_internal_utils
-from matplotlib._api import (
-    warn_external as _warn_external, classproperty as _classproperty)
+from matplotlib._api import classproperty as _classproperty
 from matplotlib._api.deprecation import (
     deprecated, warn_deprecated,
     _deprecate_method_override, _deprecate_privatize_attribute,
@@ -348,8 +347,8 @@ def _local_over_kwdict(
             if out is None:
                 out = kwarg_val
             else:
-                _warn_external('"%s" keyword argument will be ignored' % key,
-                               warning_cls)
+                _api.warn_external(f'"{key}" keyword argument will be ignored',
+                                   warning_cls)
     return out
 
 

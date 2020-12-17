@@ -1714,7 +1714,7 @@ class Locator(TickHelper):
         Do nothing, and raise a warning. Any locator class not supporting the
         set_params() function will call this.
         """
-        cbook._warn_external(
+        _api.warn_external(
             "'set_params()' not defined for locator of type " +
             str(type(self)))
 
@@ -2557,7 +2557,7 @@ class LogLocator(Locator):
         if not np.isfinite(vmin) or not np.isfinite(vmax):
             vmin, vmax = 1, 10  # Initial range, no data plotted yet.
         elif vmax <= 0:
-            cbook._warn_external(
+            _api.warn_external(
                 "Data has no positive values, and therefore cannot be "
                 "log-scaled.")
             vmin, vmax = 1, 10
@@ -2852,7 +2852,7 @@ class LogitLocator(MaxNLocator):
         elif vmax <= 0 or vmin >= 1:
             # vmax <= 0 occurs when all values are negative
             # vmin >= 1 occurs when all values are greater than one
-            cbook._warn_external(
+            _api.warn_external(
                 "Data has no values between 0 and 1, and therefore cannot be "
                 "logit-scaled."
             )
@@ -2917,8 +2917,8 @@ class AutoMinorLocator(Locator):
     def __call__(self):
         """Return the locations of the ticks."""
         if self.axis.get_scale() == 'log':
-            cbook._warn_external('AutoMinorLocator does not work with '
-                                 'logarithmic scale')
+            _api.warn_external('AutoMinorLocator does not work with '
+                               'logarithmic scale')
             return []
 
         majorlocs = self.axis.get_majorticklocs()

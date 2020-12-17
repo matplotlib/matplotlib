@@ -346,7 +346,7 @@ def test_warn_external_frame_embedded_python():
     with patch.object(cbook, "sys") as mock_sys:
         mock_sys._getframe = Mock(return_value=None)
         with pytest.warns(UserWarning, match=r"\Adummy\Z"):
-            cbook._warn_external("dummy")
+            _api.warn_external("dummy")
 
 
 def test_to_prestep():
@@ -607,7 +607,7 @@ def test_safe_first_element_pandas_series(pd):
 
 
 def test_warn_external(recwarn):
-    cbook._warn_external("oops")
+    _api.warn_external("oops")
     assert len(recwarn) == 1
     assert recwarn[0].filename == __file__
 

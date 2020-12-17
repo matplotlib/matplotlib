@@ -416,7 +416,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # Cast to float64
                     if A.dtype not in (np.float32, np.float16):
                         if A.dtype != np.float64:
-                            cbook._warn_external(
+                            _api.warn_external(
                                 f"Casting input data from '{A.dtype}' to "
                                 f"'float64' for imshow")
                         scaled_dtype = np.float64
@@ -1580,8 +1580,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # semantics of duplicate keys in pnginfo is unclear.
             if "pnginfo" in pil_kwargs:
                 if metadata:
-                    cbook._warn_external("'metadata' is overridden by the "
-                                         "'pnginfo' entry in 'pil_kwargs'.")
+                    _api.warn_external("'metadata' is overridden by the "
+                                       "'pnginfo' entry in 'pil_kwargs'.")
             else:
                 metadata = {
                     "Software": (f"Matplotlib version{mpl.__version__}, "

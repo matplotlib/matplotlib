@@ -384,7 +384,7 @@ class GridHelperRectlinear(GridHelperBase):
                        ):
 
         if axes is None:
-            cbook._warn_external(
+            _api.warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
@@ -404,7 +404,7 @@ class GridHelperRectlinear(GridHelperBase):
                           ):
 
         if axes is None:
-            cbook._warn_external(
+            _api.warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
 

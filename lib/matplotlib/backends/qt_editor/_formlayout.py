@@ -46,7 +46,7 @@ import datetime
 import logging
 from numbers import Integral, Real
 
-from matplotlib import cbook, colors as mcolors
+from matplotlib import _api, colors as mcolors
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
 
 _log = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ def to_qcolor(color):
     try:
         rgba = mcolors.to_rgba(color)
     except ValueError:
-        cbook._warn_external('Ignoring invalid color %r' % color)
+        _api.warn_external(f'Ignoring invalid color {color!r}')
         return qcolor  # return invalid QColor
     qcolor.setRgbF(*rgba)
     return qcolor

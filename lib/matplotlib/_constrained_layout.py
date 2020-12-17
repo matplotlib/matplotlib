@@ -17,7 +17,7 @@ import logging
 
 import numpy as np
 
-import matplotlib.cbook as cbook
+from matplotlib import _api
 import matplotlib.transforms as mtransforms
 
 _log = logging.getLogger(__name__)
@@ -94,9 +94,9 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 gss.add(gs)
     gss = list(gss)
     if len(gss) == 0:
-        cbook._warn_external('There are no gridspecs with layoutgrids. '
-                             'Possibly did not call parent GridSpec with the'
-                             ' "figure" keyword')
+        _api.warn_external('There are no gridspecs with layoutgrids. '
+                           'Possibly did not call parent GridSpec with the'
+                           ' "figure" keyword')
 
     for _ in range(2):
         # do the algorithm twice.  This has to be done because decorations
@@ -122,9 +122,9 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             _reposition_axes(fig, renderer, h_pad=h_pad, w_pad=w_pad,
                              hspace=hspace, wspace=wspace)
         else:
-            cbook._warn_external('constrained_layout not applied because '
-                                 'axes sizes collapsed to zero.  Try making '
-                                 'figure larger or axes decorations smaller.')
+            _api.warn_external('constrained_layout not applied because '
+                               'axes sizes collapsed to zero.  Try making '
+                               'figure larger or axes decorations smaller.')
         _reset_margins(fig)
 
 

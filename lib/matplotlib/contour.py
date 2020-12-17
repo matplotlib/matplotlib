@@ -827,7 +827,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if self.filled:
             if self.linewidths is not None:
-                cbook._warn_external('linewidths is ignored by contourf')
+                _api.warn_external('linewidths is ignored by contourf')
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
             # Ensure allkinds can be zipped below.
@@ -878,9 +878,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.changed()  # set the colors
 
         if kwargs:
-            s = ", ".join(map(repr, kwargs))
-            cbook._warn_external('The following kwargs were not used by '
-                                 'contour: ' + s)
+            _api.warn_external(
+                'The following kwargs were not used by contour: ' +
+                ", ".join(map(repr, kwargs))
+            )
 
     def get_transform(self):
         """
@@ -1111,7 +1112,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             levels_in = self.levels[inside]
             if len(levels_in) == 0:
                 self.levels = [self.zmin]
-                cbook._warn_external(
+                _api.warn_external(
                     "No contour levels were found within the data range.")
 
         if self.filled and len(self.levels) < 2:
@@ -1433,8 +1434,7 @@ class QuadContourSet(ContourSet):
         self.zmin = float(z.min())
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
-            cbook._warn_external('Log scale: values of z <= 0 have been '
-                                 'masked')
+            _api.warn_external('Log scale: values of z <= 0 have been masked')
             self.zmin = float(z.min())
         self._process_contour_level_args(args)
         return (x, y, z)
