@@ -294,7 +294,7 @@ class _deprecate_privatize_attribute:
             property(lambda self: getattr(self, f"_{name}")), name=name))
 
 
-def _rename_parameter(since, old, new, func=None):
+def rename_parameter(since, old, new, func=None):
     """
     Decorator indicating that parameter *old* of *func* is renamed to *new*.
 
@@ -309,12 +309,12 @@ def _rename_parameter(since, old, new, func=None):
     --------
     ::
 
-        @_rename_parameter("3.1", "bad_name", "good_name")
+        @_api.rename_parameter("3.1", "bad_name", "good_name")
         def func(good_name): ...
     """
 
     if func is None:
-        return functools.partial(_rename_parameter, since, old, new)
+        return functools.partial(rename_parameter, since, old, new)
 
     signature = inspect.signature(func)
     assert old not in signature.parameters, (
@@ -459,7 +459,7 @@ def _make_keyword_only(since, name, func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # Don't use signature.bind here, as it would fail when stacked with
-        # _rename_parameter and an "old" argument name is passed in
+        # rename_parameter and an "old" argument name is passed in
         # (signature.bind would fail, but the actual call would succeed).
         idx = [*func.__signature__.parameters].index(name)
         if len(args) > idx:

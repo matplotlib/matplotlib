@@ -73,8 +73,8 @@ _log = logging.getLogger(__name__)
 
 
 _code_objs = {
-    cbook._rename_parameter:
-        cbook._rename_parameter("", "old", "new", lambda new: None).__code__,
+    _api.rename_parameter:
+        _api.rename_parameter("", "old", "new", lambda new: None).__code__,
     cbook._make_keyword_only:
         cbook._make_keyword_only("", "p", lambda p: None).__code__,
 }
@@ -84,9 +84,9 @@ def _copy_docstring_and_deprecators(method, func=None):
     if func is None:
         return functools.partial(_copy_docstring_and_deprecators, method)
     decorators = [docstring.copy(method)]
-    # Check whether the definition of *method* includes _rename_parameter or
-    # _make_keyword_only decorators; if so, propagate them to the pyplot
-    # wrapper as well.
+    # Check whether the definition of *method* includes @_api.rename_parameter
+    # or @_api._make_keyword_only decorators; if so, propagate them to the
+    # pyplot wrapper as well.
     while getattr(method, "__wrapped__", None) is not None:
         for decorator_maker, code in _code_objs.items():
             if method.__code__ is code:

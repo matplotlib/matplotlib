@@ -158,7 +158,7 @@ class Fonts:
         self.mathtext_backend.set_canvas_size(
             self.width, self.height, self.depth)
 
-    @cbook._rename_parameter("3.4", "facename", "font")
+    @_api.rename_parameter("3.4", "facename", "font")
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
         """
         At position (*ox*, *oy*), draw the glyph specified by the remaining

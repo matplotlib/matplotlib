@@ -39,8 +39,8 @@ def test_pyplot_up_to_date(tmpdir):
 
 
 def test_copy_docstring_and_deprecators(recwarn):
-    @mpl.cbook._rename_parameter("(version)", "old", "new")
-    @mpl.cbook._make_keyword_only("(version)", "kwo")
+    @mpl._api.rename_parameter("(version)", "old", "new")
+    @mpl._api.make_keyword_only("(version)", "kwo")
     def func(new, kwo=None):
         pass
 

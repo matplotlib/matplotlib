@@ -33,7 +33,7 @@ from matplotlib._api import (
     warn_external as _warn_external, classproperty as _classproperty)
 from matplotlib._api.deprecation import (
     deprecated, warn_deprecated,
-    _rename_parameter, _delete_parameter, _make_keyword_only,
+    _delete_parameter, _make_keyword_only,
     _deprecate_method_override, _deprecate_privatize_attribute,
     MatplotlibDeprecationWarning, mplDeprecation)
 
