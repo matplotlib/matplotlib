@@ -1701,4 +1701,4 @@ def kwdoc(artist):
             'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
 
 
-docstring.interpd.update(Artist=kwdoc(Artist))
+docstring.interpd.update(Artist_kwdoc=kwdoc(Artist))

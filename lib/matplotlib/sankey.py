@@ -429,7 +429,7 @@ class Sankey:
            properties, listed below.  For example, one may want to use
            ``fill=False`` or ``label="A legend entry"``.
 
-        %(Patch)s
+        %(Patch_kwdoc)s
 
         See Also
         --------

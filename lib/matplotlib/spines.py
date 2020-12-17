@@ -45,7 +45,7 @@ class Spine(mpatches.Patch):
         **kwargs
             Valid keyword arguments are:
 
-            %(Patch)s
+            %(Patch_kwdoc)s
         """
         super().__init__(**kwargs)
         self.axes = axes

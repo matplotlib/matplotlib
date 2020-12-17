@@ -184,7 +184,7 @@ Other Parameters
 **kwargs : `~matplotlib.collections.PolyCollection` properties, optional
     All other keyword arguments are passed on to `.PolyCollection`:
 
-    %(PolyCollection)s
+    %(PolyCollection_kwdoc)s
 
 See Also
 --------
@@ -888,7 +888,7 @@ Other Parameters
     The barbs can further be customized using `.PolyCollection` keyword
     arguments:
 
-    %(PolyCollection)s
+    %(PolyCollection_kwdoc)s
 """ % docstring.interpd.params
 
 docstring.interpd.update(barbs_doc=_barbs_doc)

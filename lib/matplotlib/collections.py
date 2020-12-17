@@ -2082,10 +2082,10 @@ class QuadMesh(Collection):
         self.stale = False
 
 
-patchstr = artist.kwdoc(Collection)
+_artist_kwdoc = artist.kwdoc(Collection)
 for k in ('QuadMesh', 'TriMesh', 'PolyCollection', 'BrokenBarHCollection',
           'RegularPolyCollection', 'PathCollection',
           'StarPolygonCollection', 'PatchCollection',
           'CircleCollection', 'Collection',):
-    docstring.interpd.update({k: patchstr})
-docstring.interpd.update(LineCollection=artist.kwdoc(LineCollection))
+    docstring.interpd.update({f'{k}_kwdoc': _artist_kwdoc})
+docstring.interpd.update(LineCollection_kwdoc=artist.kwdoc(LineCollection))

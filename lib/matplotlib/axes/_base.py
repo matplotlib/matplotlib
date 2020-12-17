@@ -503,7 +503,7 @@ class _AxesBase(martist.Artist):
         **kwargs
             Other optional keyword arguments:
 
-            %(Axes)s
+            %(Axes_kwdoc)s
 
         Returns
         -------
@@ -2955,7 +2955,7 @@ class _AxesBase(martist.Artist):
 
             Valid keyword arguments are:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         Notes
         -----

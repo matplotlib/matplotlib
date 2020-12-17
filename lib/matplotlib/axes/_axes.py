@@ -396,7 +396,7 @@ class Axes(_AxesBase):
         **kwargs
             Other keyword arguments are passed on to the `.Rectangle` patch:
 
-            %(Rectangle)s
+            %(Rectangle_kwdoc)s
 
         Returns
         -------
@@ -685,7 +685,7 @@ class Axes(_AxesBase):
             Valid keyword arguments are `.Line2D` properties, with the
             exception of 'transform':
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -752,7 +752,7 @@ class Axes(_AxesBase):
             Valid keyword arguments are `.Line2D` properties, with the
             exception of 'transform':
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -836,7 +836,7 @@ class Axes(_AxesBase):
         **kwargs
             Valid kwargs are `.Line2D` properties
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -904,7 +904,7 @@ class Axes(_AxesBase):
         ----------------
         **kwargs : `~matplotlib.patches.Polygon` properties
 
-        %(Polygon)s
+        %(Polygon_kwdoc)s
 
         See Also
         --------
@@ -951,7 +951,7 @@ class Axes(_AxesBase):
         ----------------
         **kwargs : `~matplotlib.patches.Polygon` properties
 
-        %(Polygon)s
+        %(Polygon_kwdoc)s
 
         See Also
         --------
@@ -1502,7 +1502,7 @@ class Axes(_AxesBase):
 
             Here is a list of available `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -1643,7 +1643,7 @@ class Axes(_AxesBase):
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -2214,7 +2214,7 @@ class Axes(_AxesBase):
 
         **kwargs : `.Rectangle` properties
 
-        %(Rectangle)s
+        %(Rectangle_kwdoc)s
 
         See Also
         --------
@@ -2483,7 +2483,7 @@ class Axes(_AxesBase):
 
         **kwargs : `.Rectangle` properties
 
-        %(Rectangle)s
+        %(Rectangle_kwdoc)s
 
         See Also
         --------
@@ -2544,7 +2544,7 @@ class Axes(_AxesBase):
 
             Supported keywords:
 
-            %(BrokenBarHCollection)s
+            %(BrokenBarHCollection_kwdoc)s
         """
         # process the unit information
         if len(xranges):
@@ -3133,7 +3133,7 @@ class Axes(_AxesBase):
 
             Valid kwargs for the marker properties are `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
@@ -4556,7 +4556,7 @@ default: :rc:`scatter.edgecolors`
         **kwargs : `~matplotlib.collections.PolyCollection` properties
             All other keyword arguments are passed on to `.PolyCollection`:
 
-            %(PolyCollection)s
+            %(PolyCollection_kwdoc)s
 
         """
         self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
@@ -5072,7 +5072,7 @@ default: :rc:`scatter.edgecolors`
             All other keyword arguments are passed on to `.PolyCollection`.
             They control the `.Polygon` properties:
 
-            %(PolyCollection)s
+            %(PolyCollection_kwdoc)s
 
         See Also
         --------
@@ -5677,7 +5677,7 @@ default: :rc:`scatter.edgecolors`
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.PolyCollection` constructor:
 
-        %(PolyCollection)s
+        %(PolyCollection_kwdoc)s
 
         See Also
         --------
@@ -5922,7 +5922,7 @@ default: :rc:`scatter.edgecolors`
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.QuadMesh` constructor:
 
-        %(QuadMesh)s
+        %(QuadMesh_kwdoc)s
 
         See Also
         --------
@@ -6963,7 +6963,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -7076,7 +7076,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -7166,7 +7166,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -7243,7 +7243,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -7309,7 +7309,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         See Also
         --------
@@ -7376,7 +7376,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
 
         References
         ----------
@@ -7626,7 +7626,7 @@ such objects
             For the marker style, you can pass any `.Line2D` property except
             for *linestyle*:
 
-            %(_Line2D_docstr)s
+            %(Line2D_kwdoc)s
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
