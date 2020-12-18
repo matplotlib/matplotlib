@@ -261,8 +261,8 @@ class MovieWriter(AbstractMovieWriter):
     # stored.  Third-party writers cannot meaningfully set these as they cannot
     # extend rcParams with new keys.
 
-    exec_key = cbook._deprecate_privatize_attribute("3.3")
-    args_key = cbook._deprecate_privatize_attribute("3.3")
+    exec_key = _api.deprecate_privatize_attribute("3.3")
+    args_key = _api.deprecate_privatize_attribute("3.3")
 
     # Pipe-based writers only support RGBA, but file-based ones support more
     # formats.
@@ -339,7 +339,7 @@ class MovieWriter(AbstractMovieWriter):
 
     def finish(self):
         """Finish any processing for writing the movie."""
-        overridden_cleanup = cbook._deprecate_method_override(
+        overridden_cleanup = _api.deprecate_method_override(
             __class__.cleanup, self, since="3.4", alternative="finish()")
         if overridden_cleanup is not None:
             overridden_cleanup()

@@ -271,7 +271,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     return deprecate
 
 
-class _deprecate_privatize_attribute:
+class deprecate_privatize_attribute:
     """
     Helper to deprecate public access to an attribute.
 
@@ -473,7 +473,7 @@ def make_keyword_only(since, name, func=None):
     return wrapper
 
 
-def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
+def deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
     """
     Return ``obj.method`` with a deprecation if it was overridden, else None.
 

@@ -203,7 +203,7 @@ class Fonts:
         result = self.mathtext_backend.get_results(
             box, self.get_used_characters())
         if self.destroy != TruetypeFonts.destroy.__get__(self):
-            destroy = cbook._deprecate_method_override(
+            destroy = _api.deprecate_method_override(
                 __class__.destroy, self, since="3.4")
             if destroy:
                 destroy()

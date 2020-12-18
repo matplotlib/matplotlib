@@ -127,7 +127,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.set_double_buffered(True)
         self.set_can_focus(True)
 
-        renderer_init = cbook._deprecate_method_override(
+        renderer_init = _api.deprecate_method_override(
             __class__._renderer_init, self, allow_empty=True, since="3.3",
             addendum="Please initialize the renderer, if needed, in the "
             "subclass' __init__; a fully empty _renderer_init implementation "

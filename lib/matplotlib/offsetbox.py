@@ -24,7 +24,7 @@ Container classes for `.Artist`\s.
 
 import numpy as np
 
-from matplotlib import _api, cbook, docstring, rcParams
+from matplotlib import _api, docstring, rcParams
 import matplotlib.artist as martist
 import matplotlib.path as mpath
 import matplotlib.text as mtext
@@ -1630,7 +1630,7 @@ class DraggableBase:
 
         if not ref_artist.pickable():
             ref_artist.set_picker(True)
-        overridden_picker = cbook._deprecate_method_override(
+        overridden_picker = _api.deprecate_method_override(
             __class__.artist_picker, self, since="3.3",
             addendum="Directly set the artist's picker if desired.")
         if overridden_picker is not None:
