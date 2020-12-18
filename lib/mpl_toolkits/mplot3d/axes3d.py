@@ -181,11 +181,11 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    w_xaxis = cbook.deprecated("3.1", alternative="xaxis", pending=True)(
+    w_xaxis = _api.deprecated("3.1", alternative="xaxis", pending=True)(
         property(lambda self: self.xaxis))
-    w_yaxis = cbook.deprecated("3.1", alternative="yaxis", pending=True)(
+    w_yaxis = _api.deprecated("3.1", alternative="yaxis", pending=True)(
         property(lambda self: self.yaxis))
-    w_zaxis = cbook.deprecated("3.1", alternative="zaxis", pending=True)(
+    w_zaxis = _api.deprecated("3.1", alternative="zaxis", pending=True)(
         property(lambda self: self.zaxis))
 
     def _get_axis_list(self):
@@ -406,8 +406,8 @@ class Axes3D(Axes):
             # the attributes listed below, and they are temporarily attached to
             # the _class_ in the `_setattr_cm` call. These can both be removed
             # once the deprecation expires
-            name: cbook.deprecated('3.4', name=name,
-                                   alternative=f'self.axes.{name}')(
+            name: _api.deprecated('3.4', name=name,
+                                  alternative=f'self.axes.{name}')(
                 property(lambda self, _value=getattr(self, name): _value))
             for name in ['M', 'vvec', 'eye', 'get_axis_position']
         }

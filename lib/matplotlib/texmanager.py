@@ -73,19 +73,19 @@ class TexManager:
         'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
-    cachedir = cbook.deprecated(
+    cachedir = _api.deprecated(
         "3.3", alternative="matplotlib.get_cachedir()")(
             property(lambda self: mpl.get_cachedir()))
-    rgba_arrayd = cbook.deprecated("3.3")(property(lambda self: {}))
+    rgba_arrayd = _api.deprecated("3.3")(property(lambda self: {}))
     _fonts = {}  # Only for deprecation period.
-    serif = cbook.deprecated("3.3")(property(
+    serif = _api.deprecated("3.3")(property(
         lambda self: self._fonts.get("serif", ('cmr', ''))))
-    sans_serif = cbook.deprecated("3.3")(property(
+    sans_serif = _api.deprecated("3.3")(property(
         lambda self: self._fonts.get("sans-serif", ('cmss', ''))))
-    cursive = cbook.deprecated("3.3")(property(
+    cursive = _api.deprecated("3.3")(property(
         lambda self:
         self._fonts.get("cursive", ('pzc', r'\usepackage{chancery}'))))
-    monospace = cbook.deprecated("3.3")(property(
+    monospace = _api.deprecated("3.3")(property(
         lambda self: self._fonts.get("monospace", ('cmtt', ''))))
 
     @functools.lru_cache()  # Always return the same instance.

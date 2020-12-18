@@ -432,7 +432,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    ctx = cbook.deprecated("3.3")(property(
+    ctx = _api.deprecated("3.3")(property(
         lambda self: self.canvas.get_property("window").cairo_create()))
 
     def __init__(self, canvas, window):

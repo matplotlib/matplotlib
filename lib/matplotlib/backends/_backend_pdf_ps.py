@@ -5,6 +5,7 @@ Common functionality between the PDF and PS backends.
 import functools
 
 import matplotlib as mpl
+from matplotlib import _api
 from .. import font_manager, ft2font
 from ..afm import AFM
 from ..backend_bases import RendererBase
@@ -27,7 +28,7 @@ class CharacterTracker:
     def __init__(self):
         self.used = {}
 
-    @mpl.cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     @property
     def used_characters(self):
         d = {}

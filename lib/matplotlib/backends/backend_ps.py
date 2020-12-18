@@ -223,9 +223,9 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
 
-    mathtext_parser = cbook.deprecated("3.4")(property(
+    mathtext_parser = _api.deprecated("3.4")(property(
         lambda self: MathTextParser("PS")))
-    used_characters = cbook.deprecated("3.3")(property(
+    used_characters = _api.deprecated("3.3")(property(
         lambda self: self._character_tracker.used_characters))
 
     def __init__(self, width, height, pswriter, imagedpi=72):

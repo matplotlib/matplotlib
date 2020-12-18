@@ -2118,11 +2118,11 @@ class MaxNLocator(Locator):
         """
         if args:
             if 'nbins' in kwargs:
-                cbook.deprecated("3.1",
-                                 message='Calling MaxNLocator with positional '
-                                         'and keyword parameter *nbins* is '
-                                         'considered an error and will fail '
-                                         'in future versions of matplotlib.')
+                _api.deprecated("3.1",
+                                message='Calling MaxNLocator with positional '
+                                        'and keyword parameter *nbins* is '
+                                        'considered an error and will fail '
+                                        'in future versions of matplotlib.')
             kwargs['nbins'] = args[0]
             if len(args) > 1:
                 raise ValueError(
