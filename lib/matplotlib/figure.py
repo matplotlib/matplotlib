@@ -3194,7 +3194,7 @@ class Figure(FigureBase):
         if self._layoutgrid is None:
             _api.warn_external("Calling figure.constrained_layout, but "
                                "figure not setup to do constrained layout. "
-                               " You either called GridSpec without the "
+                               "You either called GridSpec without the "
                                "figure keyword, you are using plt.subplot, "
                                "or you need to call figure or subplots "
                                "with the constrained_layout=True kwarg.")
