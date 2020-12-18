@@ -27,94 +27,27 @@ from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
-# http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
-_SHIFT_LUT = {59: ':',
-              61: '+',
-              173: '_',
-              186: ':',
-              187: '+',
-              188: '<',
-              189: '_',
-              190: '>',
-              191: '?',
-              192: '~',
-              219: '{',
-              220: '|',
-              221: '}',
-              222: '"'}
-
-_LUT = {8: 'backspace',
-        9: 'tab',
-        13: 'enter',
-        16: 'shift',
-        17: 'control',
-        18: 'alt',
-        19: 'pause',
-        20: 'caps',
-        27: 'escape',
-        32: ' ',
-        33: 'pageup',
-        34: 'pagedown',
-        35: 'end',
-        36: 'home',
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down',
-        45: 'insert',
-        46: 'delete',
-        91: 'super',
-        92: 'super',
-        93: 'select',
-        106: '*',
-        107: '+',
-        109: '-',
-        110: '.',
-        111: '/',
-        144: 'num_lock',
-        145: 'scroll_lock',
-        186: ':',
-        187: '=',
-        188: ',',
-        189: '-',
-        190: '.',
-        191: '/',
-        192: '`',
-        219: '[',
-        220: '\\',
-        221: ']',
-        222: "'"}
+_LUT = {'AltGraph': 'alt',
+        'CapsLock': 'caps',
+        'ArrowLeft': 'left',
+        'ArrowUp': 'up',
+        'ArrowRight': 'right',
+        'ArrowDown': 'down',
+        'NumLock': 'num_lock',
+        'ScrollLock': 'scroll_lock'}
 
 
 def _handle_key(key):
-    """Handle key codes"""
-    code = int(key[key.index('k') + 1:])
-    value = chr(code)
-    # letter keys
-    if 65 <= code <= 90:
-        if 'shift+' in key:
-            key = key.replace('shift+', '')
-        else:
-            value = value.lower()
-    # number keys
-    elif 48 <= code <= 57:
-        if 'shift+' in key:
-            value = ')!@#$%^&*('[int(value)]
-            key = key.replace('shift+', '')
-    # function keys
-    elif 112 <= code <= 123:
-        value = 'f%s' % (code - 111)
-    # number pad keys
-    elif 96 <= code <= 105:
-        value = '%s' % (code - 96)
-    # keys with shift alternatives
-    elif code in _SHIFT_LUT and 'shift+' in key:
-        key = key.replace('shift+', '')
-        value = _SHIFT_LUT[code]
-    elif code in _LUT:
-        value = _LUT[code]
-    key = key[:key.index('k')] + value
-    return key
+    """Handle key values"""
+    value = key
+    # Only set to lower if key value is an uppercase letter or
+    # a combination of a modifier and an uppercase letter
+    # (e.g. "ctrl+C", "A", and "ctrl+alt+T" must remain unaltered).
+    if not value[-1:].isupper():
+        value = value.lower()
+    if key in _LUT:
+        value = _LUT[key]
+    return value
 
 
 class TimerTornado(backend_bases.TimerBase):
