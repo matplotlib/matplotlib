@@ -227,12 +227,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self._update_figure_dpi()
         # In cases with mixed resolution displays, we need to be careful if the
         # dpi_ratio changes - in this case we need to resize the canvas
-        # accordingly. We could watch for screenChanged events from Qt, but
-        # the issue is that we can't guarantee this will be emitted *before*
-        # the first paintEvent for the canvas, so instead we keep track of the
-        # dpi_ratio value here and in paintEvent we resize the canvas if
-        # needed.
-        self._dpi_ratio_prev = None
+        # accordingly.
+        self._dpi_ratio_prev = self._dpi_ratio
 
         self._draw_pending = False
         self._is_drawing = False
@@ -253,12 +249,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def _dpi_ratio(self):
         return _devicePixelRatioF(self)
 
-    def _update_dpi(self):
-        # As described in __init__ above, we need to be careful in cases with
-        # mixed resolution displays if dpi_ratio is changing between painting
-        # events.
-        # Return whether we triggered a resizeEvent (and thus a paintEvent)
-        # from within this function.
+    def _update_pixel_ratio(self):
+        # We need to be careful in cases with mixed resolution displays if
+        # dpi_ratio changes.
         if self._dpi_ratio != self._dpi_ratio_prev:
             # We need to update the figure DPI.
             self._update_figure_dpi()
@@ -270,8 +263,20 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             self.resizeEvent(event)
             # resizeEvent triggers a paintEvent itself, so we exit this one
             # (after making sure that the event is immediately handled).
-            return True
-        return False
+
+    def _update_screen(self, screen):
+        # Handler for changes to a window's attached screen.
+        self._update_pixel_ratio()
+        if screen is not None:
+            screen.physicalDotsPerInchChanged.connect(self._update_pixel_ratio)
+            screen.logicalDotsPerInchChanged.connect(self._update_pixel_ratio)
+
+    def showEvent(self, event):
+        # Set up correct pixel ratio, and connect to any signal changes for it,
+        # once the window is shown (and thus has these attributes).
+        window = self.window().windowHandle()
+        window.screenChanged.connect(self._update_screen)
+        self._update_screen(window.screen())
 
     def get_width_height(self):
         w, h = FigureCanvasBase.get_width_height(self)
@@ -364,10 +369,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
     def resizeEvent(self, event):
-        # _dpi_ratio_prev will be set the first time the canvas is painted, and
-        # the rendered buffer is useless before anyways.
-        if self._dpi_ratio_prev is None:
-            return
         w = event.size().width() * self._dpi_ratio
         h = event.size().height() * self._dpi_ratio
         dpival = self.figure.dpi

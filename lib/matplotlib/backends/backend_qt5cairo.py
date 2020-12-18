@@ -17,7 +17,6 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
         super().draw()
 
     def paintEvent(self, event):
-        self._update_dpi()
         dpi_ratio = self._dpi_ratio
         width = int(dpi_ratio * self.width())
         height = int(dpi_ratio * self.height())
