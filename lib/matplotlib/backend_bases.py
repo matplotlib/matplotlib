@@ -1700,7 +1700,7 @@ class FigureCanvasBase:
 
     filetypes = _default_filetypes
 
-    @cbook._classproperty
+    @_api.classproperty
     def supports_blit(cls):
         """If this Canvas sub-class supports blitting."""
         return (hasattr(cls, "copy_from_bbox")

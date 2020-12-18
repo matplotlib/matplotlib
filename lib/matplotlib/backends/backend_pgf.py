@@ -752,7 +752,7 @@ class GraphicsContextPgf(GraphicsContextBase):
 class TmpDirCleaner:
     _remaining_tmpdirs = set()
 
-    @cbook._classproperty
+    @_api.classproperty
     @_api.deprecated("3.4")
     def remaining_tmpdirs(cls):
         return cls._remaining_tmpdirs
