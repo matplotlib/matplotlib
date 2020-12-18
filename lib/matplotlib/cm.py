@@ -500,7 +500,7 @@ class ScalarMappable:
             self._update_dict[key] = True
         self.stale = True
 
-    update_dict = cbook._deprecate_privatize_attribute("3.3")
+    update_dict = _api.deprecate_privatize_attribute("3.3")
 
     @_api.deprecated("3.3")
     def add_checker(self, checker):

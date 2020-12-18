@@ -1129,13 +1129,13 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         # and/or dc.GetContentScaleFactor()
         self._retinaFix = 'wxMac' in wx.PlatformInfo
 
-    prevZoomRect = cbook._deprecate_privatize_attribute("3.3")
-    retinaFix = cbook._deprecate_privatize_attribute("3.3")
-    savedRetinaImage = cbook._deprecate_privatize_attribute("3.3")
-    wxoverlay = cbook._deprecate_privatize_attribute("3.3")
-    zoomAxes = cbook._deprecate_privatize_attribute("3.3")
-    zoomStartX = cbook._deprecate_privatize_attribute("3.3")
-    zoomStartY = cbook._deprecate_privatize_attribute("3.3")
+    prevZoomRect = _api.deprecate_privatize_attribute("3.3")
+    retinaFix = _api.deprecate_privatize_attribute("3.3")
+    savedRetinaImage = _api.deprecate_privatize_attribute("3.3")
+    wxoverlay = _api.deprecate_privatize_attribute("3.3")
+    zoomAxes = _api.deprecate_privatize_attribute("3.3")
+    zoomStartX = _api.deprecate_privatize_attribute("3.3")
+    zoomStartY = _api.deprecate_privatize_attribute("3.3")
 
     @staticmethod
     def _icon(name):

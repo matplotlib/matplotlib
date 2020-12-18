@@ -179,7 +179,7 @@ class Tick(martist.Artist):
                            ("_get_gridline", "gridline"),
                            ("_get_text1", "label1"),
                            ("_get_text2", "label2")]:
-            overridden_method = cbook._deprecate_method_override(
+            overridden_method = _api.deprecate_method_override(
                 getattr(__class__, meth), self, since="3.3", message="Relying "
                 f"on {meth} to initialize Tick.{attr} is deprecated since "
                 f"%(since)s and will not work %(removal)s; please directly "

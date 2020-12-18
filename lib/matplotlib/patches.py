@@ -677,7 +677,7 @@ class Shadow(Patch):
         self._shadow_transform = transforms.Affine2D()
         self._update()
 
-    props = cbook._deprecate_privatize_attribute("3.3")
+    props = _api.deprecate_privatize_attribute("3.3")
 
     def _update(self):
         self.update_from(self.patch)
@@ -2006,7 +2006,7 @@ class BoxStyle(_Style):
         # This can go away once the deprecation period elapses, leaving _Base
         # as a fully abstract base class just providing docstrings, no logic.
         def __init_subclass__(cls):
-            transmute = cbook._deprecate_method_override(
+            transmute = _api.deprecate_method_override(
                 __class__.transmute, cls, since="3.4")
             if transmute:
                 cls.__call__ = transmute

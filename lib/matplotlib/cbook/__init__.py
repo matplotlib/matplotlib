@@ -32,9 +32,7 @@ from matplotlib import _api, _c_internal_utils
 from matplotlib._api import (
     warn_external as _warn_external, classproperty as _classproperty)
 from matplotlib._api.deprecation import (
-    deprecated, warn_deprecated,
-    _deprecate_method_override, _deprecate_privatize_attribute,
-    MatplotlibDeprecationWarning, mplDeprecation)
+    deprecated, warn_deprecated, MatplotlibDeprecationWarning, mplDeprecation)
 
 
 def _get_running_interactive_framework():

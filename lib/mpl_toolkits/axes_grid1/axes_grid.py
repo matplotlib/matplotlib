@@ -4,7 +4,7 @@ import functools
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook
+from matplotlib import _api
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
@@ -40,9 +40,9 @@ class CbarAxesBase:
         self._config_axes()
         return cb
 
-    cbid = cbook._deprecate_privatize_attribute(
+    cbid = _api.deprecate_privatize_attribute(
         "3.3", alternative="mappable.colorbar_cid")
-    locator = cbook._deprecate_privatize_attribute(
+    locator = _api.deprecate_privatize_attribute(
         "3.3", alternative=".colorbar().locator")
 
     def _config_axes(self):

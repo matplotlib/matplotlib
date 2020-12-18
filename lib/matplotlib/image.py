@@ -1026,7 +1026,7 @@ class NonUniformImage(AxesImage):
         """Return False. Do not use unsampled image."""
         return False
 
-    is_grayscale = cbook._deprecate_privatize_attribute("3.3")
+    is_grayscale = _api.deprecate_privatize_attribute("3.3")
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
@@ -1177,7 +1177,7 @@ class PcolorImage(AxesImage):
         if A is not None:
             self.set_data(x, y, A)
 
-    is_grayscale = cbook._deprecate_privatize_attribute("3.3")
+    is_grayscale = _api.deprecate_privatize_attribute("3.3")
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited

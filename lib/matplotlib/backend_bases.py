@@ -2876,7 +2876,7 @@ class NavigationToolbar2:
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
 
-        init = cbook._deprecate_method_override(
+        init = _api.deprecate_method_override(
             __class__._init_toolbar, self, allow_empty=True, since="3.3",
             addendum="Please fully initialize the toolbar in your subclass' "
             "__init__; a fully empty _init_toolbar implementation may be kept "
@@ -3093,7 +3093,7 @@ class NavigationToolbar2:
         id_drag = self.canvas.mpl_connect("motion_notify_event", self.drag_pan)
         self._pan_info = self._PanInfo(
             button=event.button, axes=axes, cid=id_drag)
-        press = cbook._deprecate_method_override(
+        press = _api.deprecate_method_override(
             __class__.press, self, since="3.3", message="Calling an "
             "overridden press() at pan start is deprecated since %(since)s "
             "and will be removed %(removal)s; override press_pan() instead.")
@@ -3117,7 +3117,7 @@ class NavigationToolbar2:
             'motion_notify_event', self.mouse_move)
         for ax in self._pan_info.axes:
             ax.end_pan()
-        release = cbook._deprecate_method_override(
+        release = _api.deprecate_method_override(
             __class__.press, self, since="3.3", message="Calling an "
             "overridden release() at pan stop is deprecated since %(since)s "
             "and will be removed %(removal)s; override release_pan() instead.")
@@ -3157,7 +3157,7 @@ class NavigationToolbar2:
         self._zoom_info = self._ZoomInfo(
             direction="in" if event.button == 1 else "out",
             start_xy=(event.x, event.y), axes=axes, cid=id_zoom)
-        press = cbook._deprecate_method_override(
+        press = _api.deprecate_method_override(
             __class__.press, self, since="3.3", message="Calling an "
             "overridden press() at zoom start is deprecated since %(since)s "
             "and will be removed %(removal)s; override press_zoom() instead.")
@@ -3193,7 +3193,7 @@ class NavigationToolbar2:
                 or (abs(event.y - start_y) < 5 and event.key != "x")):
             self._draw()
             self._zoom_info = None
-            release = cbook._deprecate_method_override(
+            release = _api.deprecate_method_override(
                 __class__.press, self, since="3.3", message="Calling an "
                 "overridden release() at zoom stop is deprecated since "
                 "%(since)s and will be removed %(removal)s; override "
@@ -3217,7 +3217,7 @@ class NavigationToolbar2:
         self._zoom_info = None
         self.push_current()
 
-        release = cbook._deprecate_method_override(
+        release = _api.deprecate_method_override(
             __class__.release, self, since="3.3", message="Calling an "
             "overridden release() at zoom stop is deprecated since %(since)s "
             "and will be removed %(removal)s; override release_zoom() "
