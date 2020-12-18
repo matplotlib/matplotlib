@@ -628,15 +628,28 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     Frames are written to temporary files on disk and then stitched
     together at the end.
     """
-    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
-                         'pbm', 'raw', 'rgba']
+    supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-r', str(self.fps),
-                '-i', self._base_temp_name(),
-                '-vframes', str(self._frame_counter)] + self.output_args
+        args = []
+        # For raw frames, we need to explicitly tell ffmpeg the metadata.
+        if self.frame_format in {'raw', 'rgba'}:
+            args += [
+                '-f', 'image2', '-vcodec', 'rawvideo',
+                '-video_size', '%dx%d' % self.frame_size,
+                '-pixel_format', 'rgba',
+                '-framerate', str(self.fps),
+            ]
+        args += ['-r', str(self.fps), '-i', self._base_temp_name(),
+                 '-vframes', str(self._frame_counter)]
+        # Logging is quieted because subprocess.PIPE has limited buffer size.
+        # If you have a lot of frames in your animation and set logging to
+        # DEBUG, you will have a buffer overrun.
+        if _log.getEffectiveLevel() > logging.DEBUG:
+            args += ['-loglevel', 'error']
+        return [self.bin_path(), *args, *self.output_args]
 
 
 # Base class of avconv information.  AVConv has identical arguments to FFMpeg.
@@ -745,8 +758,7 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     together at the end.
     """
 
-    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
-                         'pbm', 'raw', 'rgba']
+    supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
     def _args(self):
         # Force format: ImageMagick does not recognize 'raw'.
