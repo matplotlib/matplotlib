@@ -19,7 +19,7 @@ import re
 import warnings
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, rc_params_from_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ def _remove_blacklisted_style_params(d, warn=True):
     for key in d:  # prevent triggering RcParams.__getitem__('backend')
         if key in STYLE_BLACKLIST:
             if warn:
-                cbook._warn_external(
+                _api.warn_external(
                     "Style includes a parameter, '{0}', that is not related "
                     "to style.  Ignoring".format(key))
         else:

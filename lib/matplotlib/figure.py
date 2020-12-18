@@ -131,7 +131,7 @@ class _AxesStack(cbook.Stack):
         a_existing = self.get(key)
         if a_existing is not None:
             super().remove((key, a_existing))
-            cbook._warn_external(
+            _api.warn_external(
                 "key {!r} already existed; Axes is being replaced".format(key))
             # I don't think the above should ever happen.
 
@@ -1294,7 +1294,7 @@ default: %(va)s
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
-            cbook._warn_external(
+            _api.warn_external(
                 "This figure was using constrained_layout, but that is "
                 "incompatible with subplots_adjust and/or tight_layout; "
                 "disabling constrained_layout.")
@@ -1621,10 +1621,10 @@ default: %(va)s
                 if key == ckey and isinstance(cax, projection_class):
                     return cax
                 else:
-                    cbook._warn_external('Requested projection is different '
-                                         'from current axis projection, '
-                                         'creating new axis with requested '
-                                         'projection.')
+                    _api.warn_external('Requested projection is different '
+                                       'from current axis projection, '
+                                       'creating new axis with requested '
+                                       'projection.')
 
         # no axes found, so create one which spans the figure
         return self.add_subplot(1, 1, 1, **kwargs)
@@ -2426,7 +2426,7 @@ class Figure(FigureBase):
         try:
             self.canvas.manager.show()
         except NonGuiException as exc:
-            cbook._warn_external(str(exc))
+            _api.warn_external(str(exc))
 
     def get_axes(self):
         """
@@ -2930,7 +2930,7 @@ class Figure(FigureBase):
         restore_to_pylab = state.pop('_restore_to_pylab', False)
 
         if version != _mpl_version:
-            cbook._warn_external(
+            _api.warn_external(
                 f"This figure was saved with matplotlib version {version} and "
                 f"is unlikely to function correctly.")
 
@@ -3192,12 +3192,12 @@ class Figure(FigureBase):
 
         _log.debug('Executing constrainedlayout')
         if self._layoutgrid is None:
-            cbook._warn_external("Calling figure.constrained_layout, but "
-                                 "figure not setup to do constrained layout. "
-                                 " You either called GridSpec without the "
-                                 "figure keyword, you are using plt.subplot, "
-                                 "or you need to call figure or subplots "
-                                 "with the constrained_layout=True kwarg.")
+            _api.warn_external("Calling figure.constrained_layout, but "
+                               "figure not setup to do constrained layout. "
+                               "You either called GridSpec without the "
+                               "figure keyword, you are using plt.subplot, "
+                               "or you need to call figure or subplots "
+                               "with the constrained_layout=True kwarg.")
             return
         w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
@@ -3240,9 +3240,9 @@ class Figure(FigureBase):
         from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
-            cbook._warn_external("This figure includes Axes that are not "
-                                 "compatible with tight_layout, so results "
-                                 "might be incorrect.")
+            _api.warn_external("This figure includes Axes that are not "
+                               "compatible with tight_layout, so results "
+                               "might be incorrect.")
 
         renderer = get_renderer(self)
         ctx = (renderer._draw_disabled()

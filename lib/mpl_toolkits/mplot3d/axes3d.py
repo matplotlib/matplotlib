@@ -597,7 +597,7 @@ class Axes3D(Axes):
 
         if x is None and y is None and z is None:
             if tight is not True:
-                cbook._warn_external(f'ignoring tight={tight!r} in get mode')
+                _api.warn_external(f'ignoring tight={tight!r} in get mode')
             return self._xmargin, self._ymargin, self._zmargin
 
         if x is not None:
@@ -756,7 +756,7 @@ class Axes3D(Axes):
             right = old_right
 
         if left == right:
-            cbook._warn_external(
+            _api.warn_external(
                 f"Attempting to set identical left == right == {left} results "
                 f"in singular transformations; automatically expanding.")
         reverse = left > right
@@ -810,7 +810,7 @@ class Axes3D(Axes):
             top = old_top
 
         if bottom == top:
-            cbook._warn_external(
+            _api.warn_external(
                 f"Attempting to set identical bottom == top == {bottom} "
                 f"results in singular transformations; automatically "
                 f"expanding.")
@@ -865,7 +865,7 @@ class Axes3D(Axes):
             top = old_top
 
         if bottom == top:
-            cbook._warn_external(
+            _api.warn_external(
                 f"Attempting to set identical bottom == top == {bottom} "
                 f"results in singular transformations; automatically "
                 f"expanding.")
@@ -1570,7 +1570,7 @@ class Axes3D(Axes):
         if Z.ndim != 2:
             raise ValueError("Argument Z must be 2-dimensional.")
         if np.any(np.isnan(Z)):
-            cbook._warn_external(
+            _api.warn_external(
                 "Z contains NaN values. This may result in rendering "
                 "artifacts.")
 

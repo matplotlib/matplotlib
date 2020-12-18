@@ -628,7 +628,7 @@ class RendererPgf(RendererBase):
             return
 
         if not os.path.exists(getattr(self.fh, "name", "")):
-            cbook._warn_external(
+            _api.warn_external(
                 "streamed pgf-code does not support raster graphics, consider "
                 "using the pgf-to-pdf option.")
 

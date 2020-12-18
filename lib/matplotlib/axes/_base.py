@@ -269,7 +269,7 @@ class _process_plot_var_args:
                     label_namer_idx = 1
                 else:
                     if replaced[1] is not args[1]:  # case 2a)
-                        cbook._warn_external(
+                        _api.warn_external(
                             f"Second argument {args[1]!r} is ambiguous: could "
                             f"be a format string but is in 'data'; using as "
                             f"data.  If it was intended as data, set the "
@@ -2457,7 +2457,7 @@ class _AxesBase(martist.Artist):
 
         if x is None and y is None:
             if tight is not True:
-                cbook._warn_external(f'ignoring tight={tight!r} in get mode')
+                _api.warn_external(f'ignoring tight={tight!r} in get mode')
             return self._xmargin, self._ymargin
 
         if tight is not None:
@@ -3443,19 +3443,19 @@ class _AxesBase(martist.Artist):
             # so only grab the limits if we really need them.
             old_left, old_right = self.get_xlim()
             if left <= 0:
-                cbook._warn_external(
+                _api.warn_external(
                     'Attempted to set non-positive left xlim on a '
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 left = old_left
             if right <= 0:
-                cbook._warn_external(
+                _api.warn_external(
                     'Attempted to set non-positive right xlim on a '
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 right = old_right
         if left == right:
-            cbook._warn_external(
+            _api.warn_external(
                 f"Attempting to set identical left == right == {left} results "
                 f"in singular transformations; automatically expanding.")
         reverse = left > right
@@ -3769,19 +3769,19 @@ class _AxesBase(martist.Artist):
             # so only grab the limits if we really need them.
             old_bottom, old_top = self.get_ylim()
             if bottom <= 0:
-                cbook._warn_external(
+                _api.warn_external(
                     'Attempted to set non-positive bottom ylim on a '
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 bottom = old_bottom
             if top <= 0:
-                cbook._warn_external(
+                _api.warn_external(
                     'Attempted to set non-positive top ylim on a '
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 top = old_top
         if bottom == top:
-            cbook._warn_external(
+            _api.warn_external(
                 f"Attempting to set identical bottom == top == {bottom} "
                 f"results in singular transformations; automatically "
                 f"expanding.")
@@ -4068,7 +4068,7 @@ class _AxesBase(martist.Artist):
                     xzc + xwidth/2./scl, yzc + ywidth/2./scl]
         elif len(bbox) != 4:
             # should be len 3 or 4 but nothing else
-            cbook._warn_external(
+            _api.warn_external(
                 "Warning in _set_view_from_bbox: bounding box is not a tuple "
                 "of length 3 or 4. Ignoring the view change.")
             return
@@ -4212,7 +4212,7 @@ class _AxesBase(martist.Artist):
                 result = (mtransforms.Bbox(newpoints)
                           .transformed(p.trans_inverse))
             except OverflowError:
-                cbook._warn_external('Overflow while panning')
+                _api.warn_external('Overflow while panning')
                 return
         else:
             return

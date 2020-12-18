@@ -229,10 +229,10 @@ class BboxBase(TransformNode):
         @staticmethod
         def _check(points):
             if isinstance(points, np.ma.MaskedArray):
-                cbook._warn_external("Bbox bounds are a masked array.")
+                _api.warn_external("Bbox bounds are a masked array.")
             points = np.asarray(points)
             if any((points[1, :] - points[0, :]) == 0):
-                cbook._warn_external("Singular Bbox.")
+                _api.warn_external("Singular Bbox.")
 
     def frozen(self):
         return Bbox(self.get_points().copy())
@@ -1789,7 +1789,7 @@ class Affine2DBase(AffineBase):
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
-                cbook._warn_external(
+                _api.warn_external(
                     f'A non-numpy array of type {type(points)} was passed in '
                     f'for transformation, which results in poor performance.')
             return self._transform_affine(points)

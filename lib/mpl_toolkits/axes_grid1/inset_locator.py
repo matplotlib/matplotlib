@@ -2,7 +2,7 @@
 A collection of functions and objects for creating or placing inset axes.
 """
 
-from matplotlib import cbook, docstring
+from matplotlib import _api, docstring
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
@@ -474,10 +474,9 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     if bbox_transform in [parent_axes.transAxes,
                           parent_axes.figure.transFigure]:
         if bbox_to_anchor is None:
-            cbook._warn_external("Using the axes or figure transform "
-                                 "requires a bounding box in the respective "
-                                 "coordinates. "
-                                 "Using bbox_to_anchor=(0, 0, 1, 1) now.")
+            _api.warn_external("Using the axes or figure transform requires a "
+                               "bounding box in the respective coordinates. "
+                               "Using bbox_to_anchor=(0, 0, 1, 1) now.")
             bbox_to_anchor = (0, 0, 1, 1)
 
     if bbox_to_anchor is None:

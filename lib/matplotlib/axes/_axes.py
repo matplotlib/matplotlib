@@ -4722,9 +4722,8 @@ default: :rc:`scatter.edgecolors`
         # Set normalizer if bins is 'log'
         if bins == 'log':
             if norm is not None:
-                cbook._warn_external("Only one of 'bins' and 'norm' "
-                                     "arguments can be supplied, ignoring "
-                                     "bins={}".format(bins))
+                _api.warn_external("Only one of 'bins' and 'norm' arguments "
+                                   f"can be supplied, ignoring bins={bins}")
             else:
                 norm = mcolors.LogNorm()
             bins = None
@@ -5436,9 +5435,9 @@ default: :rc:`scatter.edgecolors`
         try:
             _api.check_in_list(_valid_shading, shading=shading)
         except ValueError as err:
-            cbook._warn_external(f"shading value '{shading}' not in list of "
-                                 f"valid values {_valid_shading}. Setting "
-                                 "shading='auto'.")
+            _api.warn_external(f"shading value '{shading}' not in list of "
+                               f"valid values {_valid_shading}. Setting "
+                               "shading='auto'.")
             shading = 'auto'
 
         if len(args) == 1:
@@ -5523,7 +5522,7 @@ default: :rc:`scatter.edgecolors`
                     if np.shape(X)[1] > 1:
                         dX = np.diff(X, axis=1)/2.
                         if not (np.all(dX >= 0) or np.all(dX <= 0)):
-                            cbook._warn_external(
+                            _api.warn_external(
                                 f"The input coordinates to {funcname} are "
                                 "interpreted as cell centers, but are not "
                                 "monotonically increasing or decreasing. "

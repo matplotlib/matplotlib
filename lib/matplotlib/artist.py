@@ -901,8 +901,7 @@ class Artist:
         rasterized : bool
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            cbook._warn_external(
-                "Rasterization of '%s' will be ignored" % self)
+            _api.warn_external(f"Rasterization of '{self}' will be ignored")
 
         self._rasterized = rasterized
 

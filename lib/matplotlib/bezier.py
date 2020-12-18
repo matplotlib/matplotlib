@@ -8,7 +8,7 @@ import warnings
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 
 
 # same algorithm as 3.8's math.comb
@@ -478,7 +478,7 @@ def get_parallels(bezier2, width):
                                       cmx - c2x, cmy - c2y)
 
     if parallel_test == -1:
-        cbook._warn_external(
+        _api.warn_external(
             "Lines do not intersect. A straight line is used instead.")
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, c2x, c2y)
         cos_t2, sin_t2 = cos_t1, sin_t1

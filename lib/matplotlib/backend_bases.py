@@ -3546,7 +3546,7 @@ class _Backend:
             try:
                 manager.show()  # Emits a warning for non-interactive backend.
             except NonGuiException as exc:
-                cbook._warn_external(str(exc))
+                _api.warn_external(str(exc))
         if cls.mainloop is None:
             return
         if block is None:

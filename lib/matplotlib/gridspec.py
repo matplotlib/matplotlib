@@ -286,7 +286,7 @@ class GridSpecBase:
         # instead treated as a bool for sharex.  This check should go away
         # once sharex becomes kwonly.
         if isinstance(sharex, Integral):
-            cbook._warn_external(
+            _api.warn_external(
                 "sharex argument to subplots() was an integer.  Did you "
                 "intend to use subplot() (without 's')?")
         _api.check_in_list(["all", "row", "col", "none"],
@@ -490,9 +490,9 @@ class GridSpec(GridSpecBase):
         subplotspec_list = tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
-            cbook._warn_external("This figure includes Axes that are not "
-                                 "compatible with tight_layout, so results "
-                                 "might be incorrect.")
+            _api.warn_external("This figure includes Axes that are not "
+                               "compatible with tight_layout, so results "
+                               "might be incorrect.")
 
         if renderer is None:
             renderer = tight_layout.get_renderer(figure)
