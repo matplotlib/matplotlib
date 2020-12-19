@@ -1085,6 +1085,11 @@ void quad2cubic(double x0, double y0,
     outy[2] = y2;
 }
 
+/* PyPy before v7.3.3 does not have Py_DTSF_ADD_DOT_0 */
+#ifndef Py_DTSF_ADD_DOT_0
+#define Py_DTSF_ADD_DOT_0 0x02
+#endif
+
 
 void __add_number(double val, char format_code, int precision,
                   std::string& buffer)

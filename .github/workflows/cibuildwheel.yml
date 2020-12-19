@@ -7,6 +7,10 @@ on:
       - v[0-9]+.[0-9]+.x
     tags:
       - v*
+  schedule:
+    # every Sunday at midnight, builds master and uploads to 
+    # https://anaconda.org/scipy-wheels-nightly/
+    - cron: '0 0 * * 0'
 
 jobs:
   build_wheels:
@@ -15,6 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-latest, macos-latest]
+          
 
     steps:
       - uses: actions/checkout@v2
@@ -39,10 +44,11 @@ jobs:
           python -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD: "cp39-*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
-          CIBW_MANYLINUX_I686_IMAGE: manylinux1
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2010
           CIBW_BEFORE_BUILD: pip install certifi numpy==1.19.3
           MPL_DISABLE_FH4: "yes"
+          CIBW_TEST_COMMAND: pytest matplotlib
 
       - name: Build wheels for CPython
         run: |
@@ -68,16 +74,14 @@ jobs:
           startsWith(github.ref, 'refs/heads/v3.3') ||
           startsWith(github.ref, 'refs/tags/v3.3')
 
-      - name: Build wheels for PyPy
+      - name: Build wheels for PyPy3.7
         run: |
           python -m cibuildwheel --output-dir dist
         env:
-          CIBW_BUILD: "pp3?-*"
+          CIBW_BUILD: "pp37-*"
           CIBW_BEFORE_BUILD: pip install certifi numpy==1.16
-        if: >
-          runner.os != 'Windows' && (
-          startsWith(github.ref, 'refs/heads/v3.3') ||
-          startsWith(github.ref, 'refs/tags/v3.3') )
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2010
 
       - name: Validate that LICENSE files are included in wheels
         run: |
@@ -87,3 +91,20 @@ jobs:
         with:
           name: wheels
           path: ./dist/*.whl
+
+    - name: Set token
+      if: github.event_name == "schedule"
+      run: |
+        echo "TOKEN=${{ secrets.SCIPY_WHEELS_NIGHTLY_ACCESS }}" >> $GITHUB_ENV;
+        echo "ANACONDA_ORG=https://anaconda.org/scipy-wheels-nightly" >> $GITHUB_ENV;
+
+    - name: Upload weekly wheels
+      if: env.TOKEN
+      run: |
+        set -ex
+        pip install git+https://github.com/Anaconda-Server/anaconda-client;
+        # The first -t option refers to the token, the second is the "type"
+        # option to the "upload" command
+        anaconda -t  ${TOKEN} upload \
+        --no-progress --force -u $ANACONDA_ORG \
+        ${BUILD_DIR}/wheelhouse/*.whl;
