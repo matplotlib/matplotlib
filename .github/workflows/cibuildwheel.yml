@@ -48,7 +48,6 @@ jobs:
           CIBW_MANYLINUX_I686_IMAGE: manylinux2010
           CIBW_BEFORE_BUILD: pip install certifi numpy==1.19.3
           MPL_DISABLE_FH4: "yes"
-          CIBW_TEST_COMMAND: pytest matplotlib
 
       - name: Build wheels for CPython
         run: |
@@ -107,4 +106,4 @@ jobs:
         # option to the "upload" command
         anaconda -t  ${TOKEN} upload \
         --no-progress --force -u $ANACONDA_ORG \
-        ${BUILD_DIR}/wheelhouse/*.whl;
+        ./dist/*.whl;
