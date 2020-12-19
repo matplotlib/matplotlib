@@ -15,6 +15,7 @@ from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
+from matplotlib.cbook import MatplotlibDeprecationWarning
 import numpy as np
 import pytest
 
@@ -154,30 +155,44 @@ def test_gca():
         assert fig.add_axes() is None
 
     ax0 = fig.add_axes([0, 0, 1, 1])
-    assert fig.gca(projection='rectilinear') is ax0
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        assert fig.gca(projection='rectilinear') is ax0
     assert fig.gca() is ax0
 
     ax1 = fig.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
-    assert fig.gca(projection='rectilinear') is ax1
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
     ax2 = fig.add_subplot(121, projection='polar')
     assert fig.gca() is ax2
-    assert fig.gca(polar=True) is ax2
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        assert fig.gca(polar=True) is ax2
 
     ax3 = fig.add_subplot(122)
     assert fig.gca() is ax3
 
-    # the final request for a polar axes will end up creating one
-    # with a spec of 111.
-    with pytest.warns(UserWarning):
-        # Changing the projection will throw a warning
-        assert fig.gca(polar=True) is not ax3
-    assert fig.gca(polar=True) is not ax2
-    assert fig.gca().get_subplotspec().get_geometry() == (1, 1, 0, 0)
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        assert fig.gca(polar=True) is ax3
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        assert fig.gca(polar=True) is not ax2
+    assert fig.gca().get_subplotspec().get_geometry() == (1, 2, 1, 1)
 
     fig.sca(ax1)
-    assert fig.gca(projection='rectilinear') is ax1
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
 
@@ -922,3 +937,121 @@ def test_subfigure_double():
     subfigsnest[1].supylabel('supylabel')
 
     axsRight = subfigs[1].subplots(2, 2)
+
+
+def test_axes_kwargs():
+    # plt.axes() always creates new axes, even if axes kwargs differ.
+    plt.figure()
+    ax = plt.axes()
+    ax1 = plt.axes()
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    plt.figure()
+    ax = plt.axes(projection='polar')
+    ax1 = plt.axes(projection='polar')
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    plt.figure()
+    ax = plt.axes(projection='polar')
+    ax1 = plt.axes()
+    assert ax is not None
+    assert ax1.name == 'rectilinear'
+    assert ax1 is not ax
+    plt.close()
+
+    # fig.add_axes() always creates new axes, even if axes kwargs differ.
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax1 = fig.add_axes([0, 0, 1, 1])
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
+    ax1 = fig.add_axes([0, 0, 1, 1], projection='polar')
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
+    ax1 = fig.add_axes([0, 0, 1, 1])
+    assert ax is not None
+    assert ax1.name == 'rectilinear'
+    assert ax1 is not ax
+    plt.close()
+
+    # fig.add_subplot() always creates new axes, even if axes kwargs differ.
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax1 = fig.add_subplot(1, 1, 1)
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection='polar')
+    ax1 = fig.add_subplot(1, 1, 1, projection='polar')
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection='polar')
+    ax1 = fig.add_subplot(1, 1, 1)
+    assert ax is not None
+    assert ax1.name == 'rectilinear'
+    assert ax1 is not ax
+    plt.close()
+
+    # plt.subplot() searches for axes with the same subplot spec, and if one
+    # exists, returns it, regardless of whether the axes kwargs were the same.
+    fig = plt.figure()
+    ax = plt.subplot(1, 2, 1)
+    ax1 = plt.subplot(1, 2, 1)
+    ax2 = plt.subplot(1, 2, 2)
+    ax3 = plt.subplot(1, 2, 1, projection='polar')
+    assert ax is not None
+    assert ax1 is ax
+    assert ax2 is not ax
+    assert ax3 is ax
+    assert ax.name == 'rectilinear'
+    assert ax3.name == 'rectilinear'
+    plt.close()
+
+    # plt.gca() returns an existing axes, unless there were no axes.
+    plt.figure()
+    ax = plt.gca()
+    ax1 = plt.gca()
+    assert ax is not None
+    assert ax1 is ax
+    plt.close()
+
+    # plt.gca() raises a DeprecationWarning if called with kwargs.
+    plt.figure()
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        ax = plt.gca(projection='polar')
+    ax1 = plt.gca()
+    assert ax is not None
+    assert ax1 is ax
+    assert ax1.name == 'polar'
+    plt.close()
+
+    # plt.gca() ignores keyword arguments if an axes already exists.
+    plt.figure()
+    ax = plt.gca()
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        ax1 = plt.gca(projection='polar')
+    assert ax is not None
+    assert ax1 is ax
+    assert ax1.name == 'rectilinear'
+    plt.close()

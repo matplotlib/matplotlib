@@ -899,7 +899,7 @@ def test_autoscale():
 @pytest.mark.parametrize('auto', (True, False, None))
 def test_unautoscale(axis, auto):
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     x = np.arange(100)
     y = np.linspace(-0.1, 0.1, 100)

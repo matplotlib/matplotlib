@@ -52,113 +52,6 @@ def _stale_figure_callback(self, val):
         self.figure.stale = val
 
 
-class _AxesStack(cbook.Stack):
-    """
-    Specialization of `.Stack`, to handle all tracking of `~.axes.Axes` in a
-    `.Figure`.
-
-    This stack stores ``key, (ind, axes)`` pairs, where:
-
-    * **key** is a hash of the args and kwargs used in generating the Axes.
-    * **ind** is a serial index tracking the order in which Axes were added.
-
-    AxesStack is a callable; calling it returns the current Axes.
-    The `current_key_axes` method returns the current key and associated Axes.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self._ind = 0
-
-    def as_list(self):
-        """
-        Return a list of the Axes instances that have been added to the figure.
-        """
-        ia_list = [a for k, a in self._elements]
-        ia_list.sort()
-        return [a for i, a in ia_list]
-
-    def get(self, key):
-        """
-        Return the Axes instance that was added with *key*.
-        If it is not present, return *None*.
-        """
-        item = dict(self._elements).get(key)
-        if item is None:
-            return None
-        _api.warn_deprecated(
-            "2.1",
-            message="Adding an axes using the same arguments as a previous "
-            "axes currently reuses the earlier instance.  In a future "
-            "version, a new instance will always be created and returned.  "
-            "Meanwhile, this warning can be suppressed, and the future "
-            "behavior ensured, by passing a unique label to each axes "
-            "instance.")
-        return item[1]
-
-    def _entry_from_axes(self, e):
-        ind, k = {a: (ind, k) for k, (ind, a) in self._elements}[e]
-        return (k, (ind, e))
-
-    def remove(self, a):
-        """Remove the Axes from the stack."""
-        super().remove(self._entry_from_axes(a))
-
-    def bubble(self, a):
-        """
-        Move the given Axes, which must already exist in the
-        stack, to the top.
-        """
-        return super().bubble(self._entry_from_axes(a))
-
-    def add(self, key, a):
-        """
-        Add Axes *a*, with key *key*, to the stack, and return the stack.
-
-        If *key* is unhashable, replace it by a unique, arbitrary object.
-
-        If *a* is already on the stack, don't add it again, but
-        return *None*.
-        """
-        # All the error checking may be unnecessary; but this method
-        # is called so seldom that the overhead is negligible.
-        _api.check_isinstance(Axes, a=a)
-        try:
-            hash(key)
-        except TypeError:
-            key = object()
-
-        a_existing = self.get(key)
-        if a_existing is not None:
-            super().remove((key, a_existing))
-            _api.warn_external(
-                "key {!r} already existed; Axes is being replaced".format(key))
-            # I don't think the above should ever happen.
-
-        if a in self:
-            return None
-        self._ind += 1
-        return super().push((key, (self._ind, a)))
-
-    def current_key_axes(self):
-        """
-        Return a tuple of ``(key, axes)`` for the active Axes.
-
-        If no Axes exists on the stack, then returns ``(None, None)``.
-        """
-        if not len(self._elements):
-            return self._default, self._default
-        else:
-            key, (index, axes) = self._elements[self._pos]
-            return key, axes
-
-    def __call__(self):
-        return self.current_key_axes()[1]
-
-    def __contains__(self, a):
-        return a in self.as_list()
-
-
 class SubplotParams:
     """
     A class to hold the parameters for a subplot.
@@ -249,7 +142,7 @@ class FigureBase(Artist):
         self.figure = self
         # list of child gridspecs for this figure
         self._gridspecs = []
-        self._localaxes = _AxesStack()  # keep track of axes at this level
+        self._localaxes = cbook.Stack()  # keep track of axes at this level
         self.artists = []
         self.lines = []
         self.patches = []
@@ -634,15 +527,6 @@ default: %(va)s
 
         Notes
         -----
-        If the figure already has an Axes with key (*args*,
-        *kwargs*) then it will simply make that Axes current and
-        return it.  This behavior is deprecated. Meanwhile, if you do
-        not want this behavior (i.e., you want to force the creation of a
-        new Axes), you must use a unique set of args and kwargs.  The Axes
-        *label* attribute has been exposed for this purpose: if you want
-        two Axes that are otherwise identical to be added to the figure,
-        make sure you give them unique labels.
-
         In rare circumstances, `.add_axes` may be called with a single
         argument, an Axes instance already created in the present figure but
         not in the figure's list of Axes.
@@ -661,8 +545,7 @@ default: %(va)s
 
             rect = l, b, w, h
             fig = plt.figure()
-            fig.add_axes(rect, label=label1)
-            fig.add_axes(rect, label=label2)
+            fig.add_axes(rect)
             fig.add_axes(rect, frameon=False, facecolor='g')
             fig.add_axes(rect, polar=True)
             ax = fig.add_axes(rect, projection='polar')
@@ -683,14 +566,6 @@ default: %(va)s
                     "add_axes() got multiple values for argument 'rect'")
             args = (kwargs.pop('rect'), )
 
-        # shortcut the projection "key" modifications later on, if an axes
-        # with the exact args/kwargs exists, return it immediately.
-        key = self._make_key(*args, **kwargs)
-        ax = self._axstack.get(key)
-        if ax is not None:
-            self.sca(ax)
-            return ax
-
         if isinstance(args[0], Axes):
             a = args[0]
             if a.get_figure() is not self:
@@ -701,19 +576,12 @@ default: %(va)s
             if not np.isfinite(rect).all():
                 raise ValueError('all entries in rect must be finite '
                                  'not {}'.format(rect))
-            projection_class, kwargs, key = \
-                self._process_projection_requirements(*args, **kwargs)
-
-            # check that an axes of this type doesn't already exist, if it
-            # does, set it as active and return it
-            ax = self._axstack.get(key)
-            if isinstance(ax, projection_class):
-                self.sca(ax)
-                return ax
+            projection_class, kwargs = self._process_projection_requirements(
+                *args, **kwargs)
 
             # create the new axes using the axes class given
             a = projection_class(self, rect, **kwargs)
-        return self._add_axes_internal(key, a)
+        return self._add_axes_internal(a)
 
     @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
@@ -793,17 +661,6 @@ default: %(va)s
 
             %(Axes_kwdoc)s
 
-        Notes
-        -----
-        If the figure already has a subplot with key (*args*,
-        *kwargs*) then it will simply make that subplot current and
-        return it.  This behavior is deprecated. Meanwhile, if you do
-        not want this behavior (i.e., you want to force the creation of a
-        new subplot), you must use a unique set of args and kwargs.  The Axes
-        *label* attribute has been exposed for this purpose: if you want
-        two subplots that are otherwise identical to be added to the figure,
-        make sure you give them unique labels.
-
         See Also
         --------
         .Figure.add_axes
@@ -840,10 +697,6 @@ default: %(va)s
             if ax.get_figure() is not self:
                 raise ValueError("The Subplot must have been created in "
                                  "the present figure")
-            # make a key for the subplot (which includes the axes object id
-            # in the hash)
-            key = self._make_key(*args, **kwargs)
-
         else:
             if not args:
                 args = (1, 1, 1)
@@ -853,28 +706,15 @@ default: %(va)s
             if (len(args) == 1 and isinstance(args[0], Integral)
                     and 100 <= args[0] <= 999):
                 args = tuple(map(int, str(args[0])))
-            projection_class, kwargs, key = \
-                self._process_projection_requirements(*args, **kwargs)
-            ax = self._axstack.get(key)  # search axes with this key in stack
-            if ax is not None:
-                if isinstance(ax, projection_class):
-                    # the axes already existed, so set it as active & return
-                    self.sca(ax)
-                    return ax
-                else:
-                    # Undocumented convenience behavior:
-                    # subplot(111); subplot(111, projection='polar')
-                    # will replace the first with the second.
-                    # Without this, add_subplot would be simpler and
-                    # more similar to add_axes.
-                    self._axstack.remove(ax)
+            projection_class, kwargs = self._process_projection_requirements(
+                *args, **kwargs)
             ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
-        return self._add_axes_internal(key, ax)
+        return self._add_axes_internal(ax)
 
-    def _add_axes_internal(self, key, ax):
+    def _add_axes_internal(self, ax):
         """Private helper for `add_axes` and `add_subplot`."""
-        self._axstack.add(key, ax)
-        self._localaxes.add(key, ax)
+        self._axstack.push(ax)
+        self._localaxes.push(ax)
         self.sca(ax)
         ax._remove_method = self.delaxes
         self.stale = True
@@ -1595,39 +1435,20 @@ default: %(va)s
         %(Axes_kwdoc)s
 
         """
-        ckey, cax = self._axstack.current_key_axes()
-        # if there exists an axes on the stack see if it matches
-        # the desired axes configuration
-        if cax is not None:
-
-            # if no kwargs are given just return the current axes
-            # this is a convenience for gca() on axes such as polar etc.
-            if not kwargs:
-                return cax
-
-            # if the user has specified particular projection detail
-            # then build up a key which can represent this
-            else:
-                projection_class, _, key = \
-                    self._process_projection_requirements(**kwargs)
-
-                # let the returned axes have any gridspec by removing it from
-                # the key
-                ckey = ckey[1:]
-                key = key[1:]
-
-                # if the cax matches this key then return the axes, otherwise
-                # continue and a new axes will be created
-                if key == ckey and isinstance(cax, projection_class):
-                    return cax
-                else:
-                    _api.warn_external('Requested projection is different '
-                                       'from current axis projection, '
-                                       'creating new axis with requested '
-                                       'projection.')
-
-        # no axes found, so create one which spans the figure
-        return self.add_subplot(1, 1, 1, **kwargs)
+        if kwargs:
+            _api.warn_deprecated(
+                "3.4",
+                message="Calling gca() with keyword arguments was deprecated "
+                "in Matplotlib %(since)s. Starting %(removal)s, gca() will "
+                "take no keyword arguments. The gca() function should only be "
+                "used to get the current axes, or if no axes exist, create "
+                "new axes with default keyword arguments. To create a new "
+                "axes with non-default arguments, use plt.axes() or "
+                "plt.subplot().")
+        if self._axstack.empty():
+            return self.add_subplot(1, 1, 1, **kwargs)
+        else:
+            return self._axstack()
 
     def _gci(self):
         # Helper for `~matplotlib.pyplot.gci`.  Do not use elsewhere.
@@ -1647,10 +1468,9 @@ default: %(va)s
         ``gci`` (get current image).
         """
         # Look first for an image in the current Axes:
-        cax = self._axstack.current_key_axes()[1]
-        if cax is None:
+        if self._axstack.empty():
             return None
-        im = cax._gci()
+        im = self._axstack()._gci()
         if im is not None:
             return im
 
@@ -1669,7 +1489,7 @@ default: %(va)s
         """
         Handle the args/kwargs to add_axes/add_subplot/gca, returning::
 
-            (axes_proj_class, proj_class_kwargs, proj_stack_key)
+            (axes_proj_class, proj_class_kwargs)
 
         which can be used for new Axes initialization/identification.
         """
@@ -1698,41 +1518,7 @@ default: %(va)s
                     f"projection must be a string, None or implement a "
                     f"_as_mpl_axes method, not {projection!r}")
 
-        # Make the key without projection kwargs, this is used as a unique
-        # lookup for axes instances
-        key = self._make_key(*args, **kwargs)
-
-        return projection_class, kwargs, key
-
-    def _make_key(self, *args, **kwargs):
-        """Make a hashable key out of args and kwargs."""
-
-        def fixitems(items):
-            # items may have arrays and lists in them, so convert them
-            # to tuples for the key
-            ret = []
-            for k, v in items:
-                # some objects can define __getitem__ without being
-                # iterable and in those cases the conversion to tuples
-                # will fail. So instead of using the np.iterable(v) function
-                # we simply try and convert to a tuple, and proceed if not.
-                try:
-                    v = tuple(v)
-                except Exception:
-                    pass
-                ret.append((k, v))
-            return tuple(ret)
-
-        def fixlist(args):
-            ret = []
-            for a in args:
-                if np.iterable(a):
-                    a = tuple(a)
-                ret.append(a)
-            return tuple(ret)
-
-        key = fixlist(args), fixitems(kwargs.items())
-        return key
+        return projection_class, kwargs
 
     def get_default_bbox_extra_artists(self):
         bbox_artists = [artist for artist in self.get_children()
@@ -2366,7 +2152,7 @@ class Figure(FigureBase):
 
         self.set_tight_layout(tight_layout)
 
-        self._axstack = _AxesStack()  # track all figure axes and current axes
+        self._axstack = cbook.Stack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
 
