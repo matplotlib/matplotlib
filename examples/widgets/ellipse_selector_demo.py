@@ -20,21 +20,19 @@ from matplotlib.widgets import EllipseSelector
 class EllipseROIStats(object):
     """
     Select a region of an image using 'EllipseSelector' and extract the data.
-    The extents and center of the ellipse drawn are used to create a patch
-    in the same area as the selector object. The patch is the then used to
+    The extents and center of the ellipse drawn are used to create a patch 
+    in the same area as the selector object. The patch is the then used to 
     generate a mask that can be used to extract data.
 
     Parameters
     ----------
     axis: `~matplotlib.axes.Axes`: Axes to interact with
-    fig: `~matplotlib.figure.Figure`: Figure on which to draw
-    fig_shape: `~matplotlib.ndarray`: Array containing image dimensions
-    img_data: `~matplotlib.ndarray`: Image array
+    img_data: `numpy.ndarray`: Image array
     """
 
-    def __init__(self, axis, fig, fig_shape, img_data):
-        self.ax = axis
-        self.fig = fig
+    def __init__(self, ax, img_data):
+        self.ax = ax
+        self.fig = ax.figure
 
         lineprop = dict(color='black', linestyle="-.", linewidth=2, alpha=1.0)
         state_mods = dict(move=' ', clear='escape')
@@ -42,7 +40,6 @@ class EllipseROIStats(object):
                                            drawtype='line', lineprops=lineprop,
                                            state_modifier_keys=state_mods,
                                            interactive=True)
-        self.fig_shape = fig_shape
         self.img = img_data
 
     def on_select(self, eclick, erelease):
@@ -80,7 +77,7 @@ class EllipseROIStats(object):
 
         # Generate a set of x and y coordinates that
         # will be used to fill a mask image.
-        m, n = self.fig_shape
+        m, n = self.img.shape
         x, y = np.meshgrid(np.arange(m), np.arange(n))
         x, y = x.flatten(), y.flatten()
         points = np.vstack((x, y)).T
