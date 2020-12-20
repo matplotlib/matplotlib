@@ -17,6 +17,7 @@ from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
+import matplotlib.path as mpath
 import matplotlib.artist as martist
 import matplotlib.transforms as mtransforms
 import matplotlib.ticker as mticker
@@ -2094,7 +2095,7 @@ class _AxesBase(martist.Artist):
         if (isinstance(patch, mpatches.Rectangle) and
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
-        vertices = patch.get_path().vertices
+        vertices = patch.get_path().vertices[patch.get_path().codes != mpath.Path.CLOSEPOLY]
         if vertices.size > 0:
             xys = patch.get_patch_transform().transform(vertices)
             if patch.get_data_transform() != self.transData:
