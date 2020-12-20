@@ -80,6 +80,8 @@ jobs:
               libxcb-randr0 \
               libxcb-render-util0 \
               libxcb-xinerama0 \
+              libxml2-dev \
+              libxslt1-dev \
               lmodern \
               fonts-freefont-otf \
               texlive-pictures \
