@@ -6859,6 +6859,7 @@ def test_ylabel_ha_with_position(ha):
     ax.yaxis.set_label_position("right")
     assert ax.yaxis.get_label().get_ha() == ha
 
+
 def test_patch_bounds():
     fig, ax = plt.subplots()
     tol = 16*sys.float_info.epsilon
