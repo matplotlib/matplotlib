@@ -25,7 +25,7 @@ backend_version = __version__
 SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Shift: 'shift',
                 QtCore.Qt.Key_Alt: 'alt',
-                QtCore.Qt.Key_Meta: 'super',
+                QtCore.Qt.Key_Meta: 'meta',
                 QtCore.Qt.Key_Return: 'enter',
                 QtCore.Qt.Key_Left: 'left',
                 QtCore.Qt.Key_Up: 'up',
