@@ -155,4 +155,4 @@ picked up by other Pythons.  If all these fail, please :ref:`let us know
 Install from source
 ===================
 
-See the :doc:`../../INSTALL`
+See the :doc:`INSTALL`
