@@ -91,19 +91,19 @@ jobs:
           name: wheels
           path: ./dist/*.whl
 
-    - name: Set token
-      if: github.event_name == "schedule"
-      run: |
-        echo "TOKEN=${{ secrets.SCIPY_WHEELS_NIGHTLY_ACCESS }}" >> $GITHUB_ENV;
-        echo "ANACONDA_ORG=https://anaconda.org/scipy-wheels-nightly" >> $GITHUB_ENV;
-
-    - name: Upload weekly wheels
-      if: env.TOKEN
-      run: |
-        set -ex
-        pip install git+https://github.com/Anaconda-Server/anaconda-client;
-        # The first -t option refers to the token, the second is the "type"
-        # option to the "upload" command
-        anaconda -t  ${TOKEN} upload \
-        --no-progress --force -u $ANACONDA_ORG \
-        ./dist/*.whl;
+      - name: Set token
+        if: github.event_name == "schedule"
+        run: |
+          echo "TOKEN=${{ secrets.SCIPY_WHEELS_NIGHTLY_ACCESS }}" >> $GITHUB_ENV;
+          echo "ANACONDA_ORG=https://anaconda.org/scipy-wheels-nightly" >> $GITHUB_ENV;
+   
+      - name: Upload weekly wheels
+        if: env.TOKEN
+        run: |
+          set -ex
+          pip install git+https://github.com/Anaconda-Server/anaconda-client;
+          # The first -t option refers to the token, the second is the "type"
+          # option to the "upload" command
+          anaconda -t  ${TOKEN} upload \
+          --no-progress --force -u $ANACONDA_ORG \
+          ./dist/*.whl;
