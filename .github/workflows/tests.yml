@@ -18,6 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name-suffix: "(Minimum Versions)"
@@ -80,7 +81,6 @@ jobs:
               libxcb-randr0 \
               libxcb-render-util0 \
               libxcb-xinerama0 \
-              libqpdf-dev \
               libxml2-dev \
               libxslt1-dev \
               lmodern \
