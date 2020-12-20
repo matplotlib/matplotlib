@@ -27,27 +27,56 @@ from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
-_LUT = {'AltGraph': 'alt',
-        'CapsLock': 'caps',
-        'ArrowLeft': 'left',
-        'ArrowUp': 'up',
-        'ArrowRight': 'right',
-        'ArrowDown': 'down',
-        'NumLock': 'num_lock',
-        'ScrollLock': 'scroll_lock'}
+_SPECIAL_KEYS_LUT = {'Alt': 'alt',
+                     'AltGraph': 'alt',
+                     'CapsLock': 'caps_lock',
+                     'Control': 'control',
+                     'Meta': 'meta',
+                     'NumLock': 'num_lock',
+                     'ScrollLock': 'scroll_lock',
+                     'Shift': 'shift',
+                     'Super': 'super',
+                     'Enter': 'enter',
+                     'Tab': 'tab',
+                     'ArrowDown': 'down',
+                     'ArrowLeft': 'left',
+                     'ArrowRight': 'right',
+                     'ArrowUp': 'up',
+                     'End': 'end',
+                     'Home': 'home',
+                     'PageDown': 'pagedown',
+                     'PageUp': 'pageup',
+                     'Backspace': 'backspace',
+                     'Delete': 'delete',
+                     'Insert': 'insert',
+                     'Escape': 'escape',
+                     'Pause': 'pause',
+                     'Select': 'select',
+                     'Dead': 'dead',
+                     'F1': 'f1',
+                     'F2': 'f2',
+                     'F3': 'f3',
+                     'F4': 'f4',
+                     'F5': 'f5',
+                     'F6': 'f6',
+                     'F7': 'f7',
+                     'F8': 'f8',
+                     'F9': 'f9',
+                     'F10': 'f10',
+                     'F11': 'f11',
+                     'F12': 'f12'}
 
 
 def _handle_key(key):
     """Handle key values"""
-    value = key
-    # Only set to lower if key value is an uppercase letter or
-    # a combination of a modifier and an uppercase letter
-    # (e.g. "ctrl+C", "A", and "ctrl+alt+T" must remain unaltered).
-    if not value[-1:].isupper():
-        value = value.lower()
-    if key in _LUT:
-        value = _LUT[key]
-    return value
+    value = key[key.index('k') + 1:]
+    if 'shift+' in key:
+        if len(value) == 1:
+            key = key.replace('shift+', '')
+    if value in _SPECIAL_KEYS_LUT:
+        value = _SPECIAL_KEYS_LUT[value]
+    key = key[:key.index('k')] + value
+    return key
 
 
 class TimerTornado(backend_bases.TimerBase):
@@ -207,7 +236,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_unknown_event(self, event):
         _log.warning('Unhandled message type {0}. {1}'.format(
-                     event['type'], event))
+            event['type'], event))
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing
@@ -247,6 +276,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.leave_notify_event()
         elif e_type == 'scroll':
             self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
+
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse
@@ -259,6 +289,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.key_press_event(key, guiEvent=guiEvent)
         elif e_type == 'key_release':
             self.key_release_event(key, guiEvent=guiEvent)
+
     handle_key_press = handle_key_release = _handle_key
 
     def handle_toolbar_button(self, event):
@@ -322,7 +353,6 @@ _ALLOWED_TOOL_ITEMS = {
 
 
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
-
     # Use the standard toolbar items + download button
     toolitems = [
         (text, tooltip_text, image_file, name_of_method)
@@ -442,8 +472,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         extensions = []
         for filetype, ext in sorted(FigureCanvasWebAggCore.
-                                    get_supported_filetypes_grouped().
-                                    items()):
+                                            get_supported_filetypes_grouped().
+                                            items()):
             extensions.append(ext[0])
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))
