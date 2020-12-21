@@ -2095,8 +2095,8 @@ class _AxesBase(martist.Artist):
         if (isinstance(patch, mpatches.Rectangle) and
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
-        vertices = patch.get_path().vertices[patch.\
-            get_path().codes != mpath.Path.CLOSEPOLY]
+        vertices = patch.get_path().\
+            vertices[patch.get_path().codes != mpath.Path.CLOSEPOLY]
         if vertices.size > 0:
             xys = patch.get_patch_transform().transform(vertices)
             if patch.get_data_transform() != self.transData:
