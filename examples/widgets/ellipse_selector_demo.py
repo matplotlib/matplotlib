@@ -122,7 +122,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     # Fixing random state for reproducibility
-    np.random.seed(18492187)
+    np.random.seed(19680801)
     
     random_im = np.random.rand(48, 48)
 
