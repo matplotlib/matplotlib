@@ -66,6 +66,7 @@ Basic
 
    Axes.bar
    Axes.barh
+   Axes.bar_label
 
    Axes.stem
    Axes.eventplot
