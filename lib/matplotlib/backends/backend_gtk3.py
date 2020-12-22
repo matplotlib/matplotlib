@@ -1,8 +1,8 @@
 import functools
 import logging
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
@@ -10,8 +10,6 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
-from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
 
 try:
     import gi
@@ -213,17 +211,21 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.draw_idle()
 
     def _get_key(self, event):
+        unikey = chr(Gdk.keyval_to_unicode(event.keyval))
         key = cbook._unikey_or_keysym_to_mplkey(
-            chr(Gdk.keyval_to_unicode(event.keyval)),
+            unikey,
             Gdk.keyval_name(event.keyval))
         modifiers = [
-                     (Gdk.ModifierType.MOD4_MASK, 'super'),
-                     (Gdk.ModifierType.MOD1_MASK, 'alt'),
-                     (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
-                    ]
+            (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
+            (Gdk.ModifierType.MOD1_MASK, 'alt'),
+            (Gdk.ModifierType.SHIFT_MASK, 'shift'),
+            (Gdk.ModifierType.MOD4_MASK, 'super'),
+        ]
         for key_mask, prefix in modifiers:
             if event.state & key_mask:
-                key = '{0}+{1}'.format(prefix, key)
+                if not (prefix == 'shift' and unikey.isprintable()):
+                    key = '{0}+{1}'.format(prefix, key)
+                break
         return key
 
     def configure_event(self, widget, event):
