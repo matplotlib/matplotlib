@@ -35,7 +35,7 @@ sys.path.append('.')
 # usage in the gallery.
 warnings.filterwarnings('error', append=True)
 
-# Strip backslahes in function's signature
+# Strip backslashes in function's signature
 # To be removed when numpydoc > 0.9.x
 strip_signature_backslash = True
 
