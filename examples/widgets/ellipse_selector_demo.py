@@ -3,10 +3,11 @@
 Ellipse Selector Demo
 =====================
 
-Interactively selecting data in a region of interest in an image by drawing an ellipse.
+Interactively selecting data in a region of interest in an image by drawing an
+ellipse.
 
-This example plots an image. You can then draw an ellipse shaped selection. To draw,
-click and drag to an extent within the image and then release.
+This example plots an image. You can then draw an ellipse shaped selection. To
+draw, click and drag to an extent within the image and then release.
 """
 
 import numpy as np
@@ -18,9 +19,8 @@ from matplotlib.widgets import EllipseSelector
 class EllipseROIStats(object):
     """
     Select a region of an image using 'EllipseSelector' and extract the data.
-    
-    The extents and center of the ellipse drawn are used to create a patch 
-    in the same area as the selector object. The patch is the then used to 
+    The extents and center of the ellipse drawn are used to create a patch
+    in the same area as the selector object. The patch is the then used to
     generate a mask that can be used to extract data.
 
     Parameters
@@ -35,7 +35,7 @@ class EllipseROIStats(object):
         self.ax = axis
         self.fig = fig
 
-        lineprop = dict(color = 'black', linestyle="-.", linewidth=2, alpha=1.0)
+        lineprop = dict(color='black', linestyle="-.", linewidth=2, alpha=1.0)
         state_mods = dict(move=' ', clear='escape')
         self.ellipse_roi = EllipseSelector(self.ax, onselect=self.on_select,
                                            drawtype='line', lineprops=lineprop,
@@ -43,7 +43,6 @@ class EllipseROIStats(object):
                                            interactive=True)
         self.fig_shape = fig_shape
         self.img = img_data
-
 
     def on_select(self, eclick, erelease):
         "eclick and erelease are matplotlib events at press and release."
@@ -56,10 +55,8 @@ class EllipseROIStats(object):
         self.y_start = eclick.ydata
         self.y_end = erelease.ydata
 
-        # Keep user from changing the points
-        # chosen.
-        extents = [self.x_start, self.x_end, \
-                   self.y_start, self.y_end]
+        # Have the ellipse be drawn
+        extents = [self.x_start, self.x_end, self.y_start, self.y_end]
         self.ellipse_roi.draw_shape(extents)
 
         # Parameters of the ellipse drawn
@@ -89,18 +86,18 @@ class EllipseROIStats(object):
 
         # Check if each point in the coordinates given
         # fall within the elliptical path drawn
-        self.mask = self.ellipse_path.contains_points \
-            (points, self.transform).reshape((m,n))
+        self.mask = self.ellipse_path.contains_points(points,
+                                                      self.transform).reshape(
+                                                      (m, n))
 
         self.masked_vals = self.img[self.mask]
-    
+
     def toggle_selector(self, event):
         if (event.key == "enter") and self.ellipse_roi.active:
-
             self.ax.lines.clear()
             self.ax.patches.clear()
             self.fig.canvas.draw_idle()
-            
+
             mean = np.mean(self.masked_vals)
             median = np.median(self.masked_vals)
             std = np.std(self.masked_vals)
@@ -111,19 +108,17 @@ class EllipseROIStats(object):
         if event.key in ['Q', 'q'] and not self.ellipse_roi.active:
             print('\nEllipseSelector deactivated.\n')
             self.ellipse_roi.set_active(False)
-            
+
         if event.key in ['A', 'a'] and not self.ellipse_roi.active:
             print('\nEllipseSelector activated.\n')
             self.ellipse_roi.set_active(True)
-
-
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     # Fixing random state for reproducibility
     np.random.seed(19680801)
-    
+
     random_im = np.random.rand(48, 48)
 
     fig, axis = plt.subplots(1, 1, figsize=(7, 7))
@@ -132,9 +127,8 @@ if __name__ == '__main__':
     fig_shape = random_im.shape
 
     selector = EllipseROIStats(axis, fig, fig_shape, random_im)
-            
 
-    shown_fig.figure.canvas.mpl_connect('key_press_event', \
+    shown_fig.figure.canvas.mpl_connect('key_press_event',
                                         selector.toggle_selector)
     axis.set_title("Press enter to show descriptive statistics.")
 
