@@ -1037,7 +1037,7 @@ class FontManager:
                     paths.extend(ttfpath.split(':'))
                 else:
                     paths.append(ttfpath)
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", name=pathname, obj_type="environment variable",
                     alternative="FontManager.addfont()")
         _log.debug('font search path %s', str(paths))

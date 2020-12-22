@@ -86,7 +86,7 @@ class _AxesStack(cbook.Stack):
         item = dict(self._elements).get(key)
         if item is None:
             return None
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "2.1",
             message="Adding an axes using the same arguments as a previous "
             "axes currently reuses the earlier instance.  In a future "
@@ -314,7 +314,7 @@ class FigureBase(Artist):
             Selects which ticklabels to rotate.
         """
         if which is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Support for passing which=None to mean "
                 "which='major' is deprecated since %(since)s and will be "
                 "removed %(removal)s.")
@@ -671,7 +671,7 @@ default: %(va)s
         """
 
         if not len(args) and 'rect' not in kwargs:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3",
                 message="Calling add_axes() without argument is "
                 "deprecated since %(since)s and will be removed %(removal)s. "
@@ -1162,7 +1162,7 @@ default: %(va)s
                 **kwargs)
         # check for third arg
         if len(extra_args):
-            # cbook.warn_deprecated(
+            # _api.warn_deprecated(
             #     "2.1",
             #     message="Figure.legend will accept no more than two "
             #     "positional arguments in the future.  Use "
@@ -1237,7 +1237,7 @@ default: %(va)s
             ax = self.gca()
             if (hasattr(mappable, "axes") and ax is not mappable.axes
                     and cax is None):
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.4", message="Starting from Matplotlib 3.6, colorbar() "
                     "will steal space from the mappable's axes, rather than "
                     "from the current axes, to place the colorbar.  To "

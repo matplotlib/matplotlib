@@ -4,7 +4,7 @@ Helper classes to adjust the positions of multiple axes at drawing time.
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from matplotlib.axes import SubplotBase
 from matplotlib.gridspec import SubplotSpec, GridSpec
 import matplotlib.transforms as mtransforms
@@ -450,7 +450,7 @@ class AxesDivider(Divider):
             main axes will be used.
         """
         if pad is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.2", message="In a future version, 'pad' will default to "
                 "rcParams['figure.subplot.wspace'].  Set pad=0 to keep the "
                 "old behavior.")
@@ -499,7 +499,7 @@ class AxesDivider(Divider):
             main axes will be used.
         """
         if pad is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.2", message="In a future version, 'pad' will default to "
                 "rcParams['figure.subplot.hspace'].  Set pad=0 to keep the "
                 "old behavior.")

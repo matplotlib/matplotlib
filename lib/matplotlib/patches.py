@@ -3655,7 +3655,7 @@ class FancyBboxPatch(Patch):
         self._height = height
 
         if boxstyle == "custom":
-            cbook._warn_deprecated(
+            _api.warn_deprecated(
                 "3.4", message="Support for boxstyle='custom' is deprecated "
                 "since %(since)s and will be removed %(removal)s; directly "
                 "pass a boxstyle instance as the boxstyle parameter instead.")
@@ -3770,7 +3770,7 @@ class FancyBboxPatch(Patch):
         except TypeError:
             # Don't apply aspect twice.
             path = boxstyle(x, y, width, height, m_scale, 1)
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.4", message="boxstyles must be callable without the "
                 "'mutation_aspect' parameter since %(since)s; support for the "
                 "old call signature will be removed %(removal)s.")

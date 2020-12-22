@@ -1,6 +1,6 @@
 import functools
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 import matplotlib.artist as martist
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
@@ -87,7 +87,7 @@ class ParasiteAxesBase:
 @functools.lru_cache(None)
 def parasite_axes_class_factory(axes_class=None):
     if axes_class is None:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for passing None to "
             "parasite_axes_class_factory is deprecated since %(since)s and "
             "will be removed %(removal)s; explicitly pass the default Axes "
@@ -150,7 +150,7 @@ class ParasiteAxesAuxTransBase:
 @functools.lru_cache(None)
 def parasite_axes_auxtrans_class_factory(axes_class=None):
     if axes_class is None:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for passing None to "
             "parasite_axes_auxtrans_class_factory is deprecated since "
             "%(since)s and will be removed %(removal)s; explicitly pass the "
@@ -320,7 +320,7 @@ class HostAxesBase:
 @functools.lru_cache(None)
 def host_axes_class_factory(axes_class=None):
     if axes_class is None:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for passing None to host_axes_class is "
             "deprecated since %(since)s and will be removed %(removed)s; "
             "explicitly pass the default Axes class instead.")

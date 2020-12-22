@@ -472,7 +472,7 @@ def get_cachedir():
 def get_data_path(*, _from_rc=None):
     """Return the path to Matplotlib data."""
     if _from_rc is not None:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.2",
             message=("Setting the datapath via matplotlibrc is deprecated "
                      "%(since)s and will be removed %(removal)s."),
@@ -495,7 +495,7 @@ def _get_data_path():
     if path.is_dir():
         return str(path)
 
-    cbook.warn_deprecated(
+    _api.warn_deprecated(
         "3.2", message="Matplotlib installs where the data is not in the "
         "mpl-data subdirectory of the package are deprecated since %(since)s "
         "and support for them will be removed %(removal)s.")
@@ -617,17 +617,16 @@ class RcParams(MutableMapping, dict):
         try:
             if key in _deprecated_map:
                 version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     version, name=key, obj_type="rcparam", alternative=alt_key)
                 key = alt_key
                 val = alt_val(val)
             elif key in _deprecated_remain_as_none and val is not None:
                 version, = _deprecated_remain_as_none[key]
-                cbook.warn_deprecated(
-                    version, name=key, obj_type="rcparam")
+                _api.warn_deprecated(version, name=key, obj_type="rcparam")
             elif key in _deprecated_ignore_map:
                 version, alt_key = _deprecated_ignore_map[key]
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     version, name=key, obj_type="rcparam", alternative=alt_key)
                 return
             elif key == 'backend':
@@ -647,13 +646,13 @@ class RcParams(MutableMapping, dict):
     def __getitem__(self, key):
         if key in _deprecated_map:
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
             return inverse_alt(dict.__getitem__(self, alt_key))
 
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
             return dict.__getitem__(self, alt_key) if alt_key else None
 
@@ -811,7 +810,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                                  fname, line_no, line.rstrip('\n'), msg)
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 version, name=key, alternative=alt_key, obj_type='rcparam',
                 addendum="Please update your matplotlibrc.")
         else:

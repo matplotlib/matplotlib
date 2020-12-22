@@ -1148,7 +1148,7 @@ def _add_disjoint_kwargs(d, **kwargs):
     """
     for k, v in kwargs.items():
         if k in d:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message=f"The {k!r} parameter to Colorbar has no "
                 "effect because it is overridden by the mappable; it is "
                 "deprecated since %(since)s and will be removed %(removal)s.")

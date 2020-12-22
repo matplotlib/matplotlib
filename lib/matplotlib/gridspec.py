@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, cbook, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutgrid as layoutgrid
 
@@ -618,7 +618,7 @@ class SubplotSpec:
                 return arg
             else:
                 if not isinstance(arg, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
+                    _api.warn_deprecated("3.3", message=message)
                     arg = str(arg)
                 try:
                     rows, cols, num = map(int, str(arg))
@@ -630,18 +630,18 @@ class SubplotSpec:
         elif len(args) == 3:
             rows, cols, num = args
             if not (isinstance(rows, Integral) and isinstance(cols, Integral)):
-                cbook.warn_deprecated("3.3", message=message)
+                _api.warn_deprecated("3.3", message=message)
                 rows, cols = map(int, [rows, cols])
             gs = GridSpec(rows, cols, figure=figure)
             if isinstance(num, tuple) and len(num) == 2:
                 if not all(isinstance(n, Integral) for n in num):
-                    cbook.warn_deprecated("3.3", message=message)
+                    _api.warn_deprecated("3.3", message=message)
                     i, j = map(int, num)
                 else:
                     i, j = num
             else:
                 if not isinstance(num, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
+                    _api.warn_deprecated("3.3", message=message)
                     num = int(num)
                 if num < 1 or num > rows*cols:
                     raise ValueError(

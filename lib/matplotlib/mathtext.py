@@ -24,7 +24,7 @@ import types
 import numpy as np
 from PIL import Image
 
-from matplotlib import _api, cbook, colors as mcolors, rcParams, _mathtext
+from matplotlib import _api, colors as mcolors, rcParams, _mathtext
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
 # Backcompat imports, all are deprecated as of 3.4.
@@ -434,7 +434,7 @@ class MathTextParser:
         with the same expression should be fast.
         """
         if _force_standard_ps_fonts:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.4",
                 removal="3.5",
                 message=(

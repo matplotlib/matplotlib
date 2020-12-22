@@ -2772,7 +2772,7 @@ class _AxesBase(martist.Artist):
     def draw(self, renderer=None, inframe=False):
         # docstring inherited
         if renderer is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Support for not passing the 'renderer' "
                 "parameter to Axes.draw() is deprecated since %(since)s and "
                 "will be removed %(removal)s.  Use axes.draw_artist(axes) "

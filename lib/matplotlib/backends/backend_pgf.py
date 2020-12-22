@@ -969,7 +969,7 @@ class PdfPages:
                     'moddate': 'ModDate',
                 }.get(key.lower(), key.lower().title())
                 if canonical != key:
-                    cbook.warn_deprecated(
+                    _api.warn_deprecated(
                         '3.3', message='Support for setting PDF metadata keys '
                         'case-insensitively is deprecated since %(since)s and '
                         'will be removed %(removal)s; '

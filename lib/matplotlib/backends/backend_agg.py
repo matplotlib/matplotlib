@@ -168,7 +168,7 @@ class RendererAgg(RendererBase):
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         if offset_position == "data":
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Support for offset_position='data' is "
                 "deprecated since %(since)s and will be removed %(removal)s.")
         return self._renderer.draw_path_collection(
@@ -219,7 +219,7 @@ class RendererAgg(RendererBase):
 
         if ismath in ["TeX", "TeX!"]:
             if ismath == "TeX!":
-                cbook._warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", message="Support for ismath='TeX!' is deprecated "
                     "since %(since)s and will be removed %(removal)s; use "
                     "ismath='TeX' instead.")
@@ -573,7 +573,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             quality = pil_kwargs["quality"] = \
                 dict.__getitem__(mpl.rcParams, "savefig.jpeg_quality")
             if quality not in [0, 75, 95]:  # default qualities.
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", name="savefig.jpeg_quality", obj_type="rcParam",
                     addendum="Set the quality using "
                     "`pil_kwargs={'quality': ...}`; the future default "

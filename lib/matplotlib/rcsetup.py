@@ -64,7 +64,7 @@ class ValidateInStrings:
     def __call__(self, s):
         if self._deprecated_since:
             name, = (k for k, v in globals().items() if v is self)
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 self._deprecated_since, name=name, obj_type="function")
         if self.ignorecase:
             s = s.lower()
@@ -184,7 +184,7 @@ def _validate_date_int_mult(s):
 
 def _validate_tex_preamble(s):
     if s is None or s == 'None':
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for setting the 'text.latex.preamble' or "
             "'pgf.preamble' rcParam to None is deprecated since %(since)s and "
             "will be removed %(removal)s; set it to an empty string instead.")
@@ -193,7 +193,7 @@ def _validate_tex_preamble(s):
         if isinstance(s, str):
             return s
         elif np.iterable(s):
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Support for setting the 'text.latex.preamble' "
                 "or 'pgf.preamble' rcParam to a list of strings is deprecated "
                 "since %(since)s and will be removed %(removal)s; set it to a "
@@ -213,7 +213,7 @@ def validate_axisbelow(s):
             if s == 'line':
                 return 'line'
             if s.lower().startswith('line'):
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", message=f"Support for setting axes.axisbelow to "
                     f"{s!r} to mean 'line' is deprecated since %(since)s and "
                     f"will be removed %(removal)s; set it to 'line' instead.")
@@ -464,7 +464,7 @@ def _validate_mathtext_fallback_to_cm(b):
     if b is None or b == 'none':
         return None
     else:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for setting the 'mathtext.fallback_to_cm' "
             "rcParam is deprecated since %(since)s and will be removed "
             "%(removal)s; use 'mathtext.fallback : 'cm' instead.")
@@ -563,7 +563,7 @@ def _validate_linestyle(ls):
             and len(ls[1]) % 2 == 0
             and all(isinstance(elem, Number) for elem in ls[1])):
         if ls[0] is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Passing the dash offset as None is deprecated "
                 "since %(since)s and support for it will be removed "
                 "%(removal)s; pass it as zero instead.")
@@ -581,12 +581,12 @@ def _deprecate_case_insensitive_join_cap(s):
     s_low = s.lower()
     if s != s_low:
         if s_low in ['miter', 'round', 'bevel']:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Case-insensitive capstyles are deprecated "
                 "since %(since)s and support for them will be removed "
                 "%(removal)s; please pass them in lowercase.")
         elif s_low in ['butt', 'round', 'projecting']:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Case-insensitive joinstyles are deprecated "
                 "since %(since)s and support for them will be removed "
                 "%(removal)s; please pass them in lowercase.")

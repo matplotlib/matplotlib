@@ -6,7 +6,7 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 
 import matplotlib
-from matplotlib import _api, cbook, cm
+from matplotlib import _api, cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
@@ -233,7 +233,7 @@ class StreamplotSet:
 
     def __init__(self, lines, arrows, **kwargs):
         if kwargs:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3",
                 message="Passing arbitrary keyword arguments to StreamplotSet "
                         "is deprecated since %(since) and will become an "

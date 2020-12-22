@@ -1630,7 +1630,7 @@ class EventCollection(LineCollection):
             else:
                 raise
             normalized = "horizontal" if is_horizontal else "vertical"
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Support for setting the orientation of "
                 f"EventCollection to {orientation!r} is deprecated since "
                 f"%(since)s and will be removed %(removal)s; please set it to "

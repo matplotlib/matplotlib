@@ -1036,7 +1036,7 @@ class Artist:
         with cbook._setattr_cm(self, eventson=False):
             for k, v in props.items():
                 if k != k.lower():
-                    cbook.warn_deprecated(
+                    _api.warn_deprecated(
                         "3.3", message="Case-insensitive properties were "
                         "deprecated in %(since)s and support will be removed "
                         "%(removal)s")
@@ -1156,7 +1156,7 @@ class Artist:
                 i_other = keys.index(other)
                 if i_other < i_color:
                     move_color_to_start = True
-                    cbook.warn_deprecated(
+                    _api.warn_deprecated(
                         "3.3", message=f"You have passed the {other!r} kwarg "
                         "before the 'color' kwarg.  Artist.set() currently "
                         "reorders the properties to apply 'color' first, but "

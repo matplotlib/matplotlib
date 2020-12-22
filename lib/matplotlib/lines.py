@@ -46,7 +46,7 @@ def _get_dash_pattern(style):
     elif isinstance(style, tuple):
         offset, dashes = style
         if offset is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Passing the dash offset as None is deprecated "
                 "since %(since)s and support for it will be removed "
                 "%(removal)s; pass it as zero instead.")
@@ -604,7 +604,7 @@ class Line2D(Artist):
         # docstring inherited
         if isinstance(p, Number) and not isinstance(p, bool):
             # After deprecation, the whole method can be deleted and inherited.
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Setting the line's pick radius via set_picker "
                 "is deprecated since %(since)s and will be removed "
                 "%(removal)s; use set_pickradius instead.")

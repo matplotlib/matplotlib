@@ -516,7 +516,7 @@ def _create_lookup_table(N, data, gamma=1.0):
 
 def _warn_if_global_cmap_modified(cmap):
     if getattr(cmap, '_global', False):
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3",
             message="You are modifying the state of a globally registered "
                     "colormap. In future versions, you will not be able to "
