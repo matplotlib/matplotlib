@@ -3,7 +3,6 @@ import decimal
 import io
 import os
 from pathlib import Path
-import sys
 from tempfile import NamedTemporaryFile
 
 import numpy as np
@@ -66,9 +65,9 @@ def test_multipage_properfinalize():
             fig, ax = plt.subplots()
             ax.set_title('This is a long title')
             fig.savefig(pdf, format="pdf")
-    pdfio.seek(0)
-    assert sum(b'startxref' in line for line in pdfio) == 1
-    assert sys.getsizeof(pdfio) < 40000
+    s = pdfio.getvalue()
+    assert s.count(b'startxref') == 1
+    assert len(s) < 40000
 
 
 def test_multipage_keep_empty():
