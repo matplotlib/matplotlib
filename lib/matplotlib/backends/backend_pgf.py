@@ -763,20 +763,16 @@ class GraphicsContextPgf(GraphicsContextBase):
 
 
 class TmpDirCleaner:
-    _remaining_tmpdirs = set()
-
-    @cbook._classproperty
-    def remaining_tmpdirs(cls):
-        return cls._remaining_tmpdirs
+    remaining_tmpdirs = set()
 
     @staticmethod
     def add(tmpdir):
-        TmpDirCleaner._remaining_tmpdirs.add(tmpdir)
+        TmpDirCleaner.remaining_tmpdirs.add(tmpdir)
 
     @staticmethod
     @atexit.register
     def cleanup_remaining_tmpdirs():
-        for tmpdir in TmpDirCleaner._remaining_tmpdirs:
+        for tmpdir in TmpDirCleaner.remaining_tmpdirs:
             error_message = "error deleting tmp directory {}".format(tmpdir)
             shutil.rmtree(
                 tmpdir,
