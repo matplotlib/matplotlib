@@ -68,9 +68,9 @@ if sys.platform == 'darwin':
 # Elements are (Modifier Flag, Qt Key) tuples.
 # Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
 _MODIFIER_KEYS = [
-    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
     (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
     (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
+    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
     (QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
 ]
 cursord = {
