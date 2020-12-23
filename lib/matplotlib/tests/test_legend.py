@@ -673,7 +673,9 @@ def test_no_warn_big_data_when_loc_specified():
     fig.draw_artist(legend)  # Check that no warning is emitted.
 
 
-@pytest.mark.parametrize('label_array', [['low', 'high'], ('low', 'high'), np.array(['low', 'high'])])
+@pytest.mark.parametrize('label_array', [['low', 'high'],
+                                         ('low', 'high'),
+                                         np.array(['low', 'high'])])
 def test_plot_multiple_input_multiple_label(label_array):
     # test ax.plot() with multidimensional input
     # and multiple labels
@@ -705,7 +707,9 @@ def test_plot_multiple_input_single_label(label):
     assert legend_texts == [str(label)] * 2
 
 
-@pytest.mark.parametrize('label_array', [['low', 'high'], ('low', 'high'), np.array(['low', 'high'])])
+@pytest.mark.parametrize('label_array', [['low', 'high'],
+                                         ('low', 'high'),
+                                         np.array(['low', 'high'])])
 def test_plot_single_input_multiple_label(label_array):
     # test ax.plot() with 1D array like input
     # and iterable label
