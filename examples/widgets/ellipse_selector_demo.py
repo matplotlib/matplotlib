@@ -1,4 +1,5 @@
 """
+
 =====================
 Ellipse Selector Demo
 =====================
@@ -119,7 +120,7 @@ if __name__ == '__main__':
     # Fixing random state for reproducibility
     np.random.seed(19680801)
 
-    random_im = np.random.rand(48, 48)
+    random_im = np.random.rand(5, 5)
 
     fig, axis = plt.subplots(1, 1, figsize=(7, 7))
 
