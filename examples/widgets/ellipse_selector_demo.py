@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
     random_im = np.random.rand(5, 5)
 
-    fig, axis = plt.subplots(1, 1, figsize=(7, 7))
+    fig, axis = plt.subplots(1, 1, figsize=(3.5, 3.5))
 
     shown_fig = axis.imshow(random_im, interpolation='bilinear')
     fig_shape = random_im.shape
