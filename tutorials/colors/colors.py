@@ -3,7 +3,8 @@
 Specifying Colors
 *****************
 
-Matplotlib recognizes the following formats to specify a color:
+Matplotlib recognizes the following formats in the table below to specify a
+color.
 
 +--------------------------------------+--------------------------------------+
 | Format                               | Example                              |
@@ -15,9 +16,9 @@ Matplotlib recognizes the following formats to specify a color:
 | Case-insensitive hex RGB or RGBA     | - ``'#0f0f0f'``                      |
 | string.                              | - ``'#0f0f0f80'``                    |
 +--------------------------------------+--------------------------------------+
-| Case-insensitive shorthand equivalent| - ``'#abc'`` as ``'#aabbcc'``        |
-| string of RGB or RGBA from duplicated| - ``'#abcd'`` as ``'#aabbccdd'``     |
-| characters.                          |                                      |
+| Case-insensitive RGB or RGBA string  | - ``'#abc'`` as ``'#aabbcc'``        |
+| equivalent hex shorthand of          | - ``'#fb1'`` as ``'#ffbb11'``        |
+| duplicated characters.               |                                      |
 +--------------------------------------+--------------------------------------+
 | String representation of float value | - ``'0.8'`` as light gray            |
 | in closed interval ``[0, 1]`` for    | - ``'0'`` as black                   |
@@ -31,6 +32,9 @@ Matplotlib recognizes the following formats to specify a color:
 |           coincide with X11/CSS4     | - ``'y'`` as yellow                  |
 |           colors.                    | - ``'k'`` as black                   |
 |                                      | - ``'w'`` as white                   |
++--------------------------------------+--------------------------------------+
+| Case-insensitive X11/CSS4 color name | - 'aquamarine'                       |
+| with no spaces.                      | - 'mediumseagreen'                   |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive color name from     | - ``'xkcd:sky blue'``                |
 | `xkcd color survey`_ with ``'xkcd:'``| - ``'xkcd:eggshell'``                |
@@ -59,13 +63,22 @@ Matplotlib recognizes the following formats to specify a color:
 
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 
+.. seealso::
+
+    The following links provide more information on colors in Matplotlib.
+        * :doc:`/gallery/color/color_demo` Example
+        * `matplotlib.colors` API
+        * :doc:`/gallery/color/named_colors` Example
+
 "Red", "Green", and "Blue" are the intensities of those colors. In combination,
 they represent the colorspace.
 
-Matplotlib composes Artists based on the ``zorder`` keyword argument. If there
-are no specified values, Matplotlib defaults to the order of the Artists added
-to the Axes. The alpha for an Artist controls how the RGB color of the new
-Artist combines with RGB colors already on the Axes.
+Matplotlib draws Artists based on the ``zorder`` parameter. If there are no
+specified values, Matplotlib defaults to the order of the Artists added to the
+Axes.
+
+The alpha for an Artist controls opacity. It indicates how the RGB color of the
+new Artist combines with RGB colors already on the Axes.
 
 The two Artists combine with alpha compositing. Matplotlib uses the equation
 below to compute the result of blending a new Artist.
@@ -91,12 +104,6 @@ following table contains examples.
 
     Re-ordering Artists is not commutative in Matplotlib.
 
-.. seealso::
-
-    The following links provide more information on colors in Matplotlib.
-        * :doc:`/gallery/color/color_demo` Example
-        * `matplotlib.colors` API
-        * :doc:`/gallery/color/named_colors` Example
 
 "CN" color selection
 --------------------
