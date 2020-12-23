@@ -15,12 +15,12 @@ jobs:
 
           If you have not heard from us in a while please feel free to
           ping `@matplotlib/developers` or anyone who has commented on the
-          PR.  Most of our reviewers are volunteers and it is easy for
+          PR.  Most of our reviewers are volunteers and sometimes
           things to fall through the cracks.
 
           You can also join us [on
-          gitter](https://gitter.im/matplotlib/matplotlib) if real-time
-          discussion would be useful.
+          gitter](https://gitter.im/matplotlib/matplotlib) for real-time
+          discussion.
 
           For details on testing, writing docs, and our review process
           please see [the developer
