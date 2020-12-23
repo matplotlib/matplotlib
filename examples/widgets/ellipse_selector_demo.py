@@ -45,7 +45,7 @@ class EllipseROIStats(object):
         self.img = img_data
 
     def on_select(self, eclick, erelease):
-        "eclick and erelease are matplotlib events at press and release."
+        """eclick and erelease are matplotlib events at press and release."""
 
         # Starting and ending column indicies
         self.x_start = eclick.xdata
