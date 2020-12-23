@@ -673,54 +673,49 @@ def test_no_warn_big_data_when_loc_specified():
     fig.draw_artist(legend)  # Check that no warning is emitted.
 
 
-def test_plot_multiple_input_multiple_label():
+@pytest.mark.parametrize('label_array', [['low', 'high'], ('low', 'high'), np.array(['low', 'high'])])
+def test_plot_multiple_input_multiple_label(label_array):
     # test ax.plot() with multidimensional input
     # and multiple labels
     x = [1, 2, 3]
     y = [[1, 2],
          [2, 5],
          [4, 9]]
-    label_arrays = [['low', 'high'],
-                    ('low', 'high'),
-                    np.array(['low', 'high'])]
-    for label in label_arrays:
-        fig, ax = plt.subplots()
-        ax.plot(x, y, label=label)
-        leg = ax.legend()
-        legend_texts = [entry.get_text() for entry in leg.get_texts()]
-        assert legend_texts == ['low', 'high']
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, label=label_array)
+    leg = ax.legend()
+    legend_texts = [entry.get_text() for entry in leg.get_texts()]
+    assert legend_texts == ['low', 'high']
 
 
-def test_plot_multiple_input_single_label():
+@pytest.mark.parametrize('label', ['one', 1, int])
+def test_plot_multiple_input_single_label(label):
     # test ax.plot() with multidimensional input
     # and single label
     x = [1, 2, 3]
     y = [[1, 2],
          [2, 5],
          [4, 9]]
-    labels = ['one', 1, int]
-    for label in labels:
-        fig, ax = plt.subplots()
-        ax.plot(x, y, label=label)
-        leg = ax.legend()
-        legend_texts = [entry.get_text() for entry in leg.get_texts()]
-        assert legend_texts == [str(label)] * 2
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, label=label)
+    leg = ax.legend()
+    legend_texts = [entry.get_text() for entry in leg.get_texts()]
+    assert legend_texts == [str(label)] * 2
 
 
-def test_plot_single_input_multiple_label():
+@pytest.mark.parametrize('label_array', [['low', 'high'], ('low', 'high'), np.array(['low', 'high'])])
+def test_plot_single_input_multiple_label(label_array):
     # test ax.plot() with 1D array like input
     # and iterable label
     x = [1, 2, 3]
     y = [2, 5, 6]
-    label_arrays = [['low', 'high'],
-                    ('low', 'high'),
-                    np.array(['low', 'high'])]
-    for label in label_arrays:
-        fig, ax = plt.subplots()
-        ax.plot(x, y, label=label)
-        leg = ax.legend()
-        assert len(leg.get_texts()) == 1
-        assert leg.get_texts()[0].get_text() == str(label)
+    fig, ax = plt.subplots()
+    ax.plot(x, y, label=label_array)
+    leg = ax.legend()
+    assert len(leg.get_texts()) == 1
+    assert leg.get_texts()[0].get_text() == str(label_array)
 
 
 def test_plot_multiple_label_incorrect_length_exception():
