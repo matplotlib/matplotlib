@@ -167,7 +167,7 @@ class FigureCanvasTk(FigureCanvasBase):
         super().__init__(figure)
         self._idle_draw_id = None
         self._event_loop_id = None
-        w, h = self.figure.bbox.size.astype(int)
+        w, h = self.get_width_height(physical=True)
         self._tkcanvas = tk.Canvas(
             master=master, background="white",
             width=w, height=h, borderwidth=0, highlightthickness=0)
@@ -176,6 +176,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
+        self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
         self._tkcanvas.bind("<Key>", self.key_press)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
@@ -209,6 +210,18 @@ class FigureCanvasTk(FigureCanvasBase):
 
         self._master = master
         self._tkcanvas.focus_set()
+
+    def _update_device_pixel_ratio(self, event=None):
+        # Tk gives scaling with respect to 72 DPI, but most (all?) screens are
+        # scaled vs 96 dpi, and pixel ratio settings are given in whole
+        # percentages, so round to 2 digits.
+        ratio = round(self._master.call('tk', 'scaling') / (96 / 72), 2)
+        if self._set_device_pixel_ratio(ratio):
+            # The easiest way to resize the canvas is to resize the canvas
+            # widget itself, since we implement all the logic for resizing the
+            # canvas backing store on that event.
+            w, h = self.get_width_height(physical=True)
+            self._tkcanvas.configure(width=w, height=h)
 
     def resize(self, event):
         width, height = event.width, event.height
@@ -845,6 +858,7 @@ class _BackendTk(_Backend):
         with _restore_foreground_window_at_end():
             if cbook._get_running_interactive_framework() is None:
                 cbook._setup_new_guiapp()
+                _c_internal_utils.Win32_SetDpiAwareness()
             window = tk.Tk(className="matplotlib")
             window.withdraw()
 

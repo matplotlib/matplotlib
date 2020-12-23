@@ -124,6 +124,15 @@ mpl_SetForegroundWindow(PyObject* module, PyObject *arg)
 #endif
 }
 
+static PyObject*
+mpl_SetDpiAwareness(PyObject* module)
+{
+#ifdef _WIN32
+    SetProcessDPIAware();
+#endif
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef functions[] = {
     {"display_is_valid", (PyCFunction)mpl_display_is_valid, METH_NOARGS,
      "display_is_valid()\n--\n\n"
@@ -151,6 +160,11 @@ static PyMethodDef functions[] = {
      "Win32_SetForegroundWindow(hwnd, /)\n--\n\n"
      "Wrapper for Windows' SetForegroundWindow.  On non-Windows platforms, \n"
      "a no-op."},
+    {"Win32_SetDpiAwareness",
+     (PyCFunction)mpl_SetDpiAwareness, METH_NOARGS,
+     "Win32_SetDpiAwareness()\n--\n\n"
+     "Set Windows' process DPI awareness to be enabled. On non-Windows\n"
+     "platforms, does nothing."},
     {NULL, NULL}};  // sentinel.
 static PyModuleDef util_module = {
     PyModuleDef_HEAD_INIT, "_c_internal_utils", "", 0, functions, NULL, NULL, NULL, NULL};
