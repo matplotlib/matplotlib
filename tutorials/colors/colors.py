@@ -33,30 +33,30 @@ color.
 |           colors.                    | - ``'k'`` as black                   |
 |                                      | - ``'w'`` as white                   |
 +--------------------------------------+--------------------------------------+
-| Case-insensitive X11/CSS4 color name | - 'aquamarine'                       |
-| with no spaces.                      | - 'mediumseagreen'                   |
+| Case-insensitive X11/CSS4 color name | - ``'aquamarine'``                   |
+| with no spaces.                      | - ``'mediumseagreen'``               |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive color name from     | - ``'xkcd:sky blue'``                |
 | `xkcd color survey`_ with ``'xkcd:'``| - ``'xkcd:eggshell'``                |
 | prefix.                              |                                      |
 +--------------------------------------+--------------------------------------+
-| Case-insensitive Tableau Colors from | - 'tab:blue'                         |
-| 'T10' categorical palette.           | - 'tab:orange'                       |
-|                                      | - 'tab:green'                        |
-|                                      | - 'tab:red'                          |
-|                                      | - 'tab:purple'                       |
-| .. note:: This is the default color  | - 'tab:brown'                        |
-|           cycle.                     | - 'tab:pink'                         |
-|                                      | - 'tab:gray'                         |
-|                                      | - 'tab:olive'                        |
-|                                      | - 'tab:cyan'                         |
+| Case-insensitive Tableau Colors from | - ``'tab:blue'``                     |
+| 'T10' categorical palette.           | - ``'tab:orange'``                   |
+|                                      | - ``'tab:green'``                    |
+|                                      | - ``'tab:red'``                      |
+|                                      | - ``'tab:purple'``                   |
+| .. note:: This is the default color  | - ``'tab:brown'``                    |
+|           cycle.                     | - ``'tab:pink'``                     |
+|                                      | - ``'tab:gray'``                     |
+|                                      | - ``'tab:olive'``                    |
+|                                      | - ``'tab:cyan'``                     |
 +--------------------------------------+--------------------------------------+
 | "CN" color spec where ``'C'``        | - ``'C0'``                           |
 | precedes a number acting as an index | - ``'C1'``                           |
 | into the default property cycle.     +--------------------------------------+
 |                                      | :rc:`axes.prop_cycle`                |
-| .. note:: Indexing occurs at         |                                      |
-|           rendering time and defaults|                                      |
+| .. note:: Matplotlib indexes color   |                                      |
+|           at draw time and defaults  |                                      |
 |           to black if cycle does not |                                      |
 |           include color.             |                                      |
 +--------------------------------------+--------------------------------------+
@@ -108,7 +108,7 @@ following table contains examples.
 "CN" color selection
 --------------------
 
-"CN" colors convert to RGBA when creating Artists. The
+Matplotlib converts "CN" colors to RGBA when drawing Artists. The
 :doc:`/tutorials/intermediate/color_cycle` section contains additional
 information about controlling colors and style properties.
 """
