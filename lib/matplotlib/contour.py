@@ -682,7 +682,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     %(contour_set_attributes)s
     """
 
-    ax = cbook.deprecated("3.3")(property(lambda self: self.axes))
+    ax = _api.deprecated("3.3")(property(lambda self: self.axes))
 
     def __init__(self, ax, *args,
                  levels=None, filled=False, linewidths=None, linestyles=None,

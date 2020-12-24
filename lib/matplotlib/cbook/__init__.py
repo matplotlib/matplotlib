@@ -30,7 +30,12 @@ import numpy as np
 import matplotlib
 from matplotlib import _api, _c_internal_utils
 from matplotlib._api.deprecation import (
-    deprecated, warn_deprecated, MatplotlibDeprecationWarning, mplDeprecation)
+    warn_deprecated, MatplotlibDeprecationWarning, mplDeprecation)
+
+
+@_api.deprecated("3.4")
+def deprecated(*args, **kwargs):
+    return _api.deprecated(*args, **kwargs)
 
 
 def _get_running_interactive_framework():
@@ -287,7 +292,7 @@ class silent_list(list):
             return "<an empty list>"
 
 
-@deprecated("3.3")
+@_api.deprecated("3.3")
 class IgnoredKeywordWarning(UserWarning):
     """
     A class for issuing warnings about keyword arguments that will be ignored
@@ -296,7 +301,7 @@ class IgnoredKeywordWarning(UserWarning):
     pass
 
 
-@deprecated("3.3", alternative="normalize_kwargs")
+@_api.deprecated("3.3", alternative="normalize_kwargs")
 def local_over_kwdict(local_var, kwargs, *keys):
     """
     Enforces the priority of a local variable over potentially conflicting
@@ -532,7 +537,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
-@deprecated("3.3", alternative="os.path.realpath and os.stat")
+@_api.deprecated("3.3", alternative="os.path.realpath and os.stat")
 @functools.lru_cache()
 def get_realpath_and_stat(path):
     realpath = os.path.realpath(path)

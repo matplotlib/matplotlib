@@ -351,7 +351,7 @@ for _cls_name in [
         *[c.__name__ for c in _mathtext.Node.__subclasses__()],
         "Ship", "Parser",
 ]:
-    globals()[_cls_name] = cbook.deprecated("3.4")(
+    globals()[_cls_name] = _api.deprecated("3.4")(
         type(_cls_name, (getattr(_mathtext, _cls_name),), {}))
 
 

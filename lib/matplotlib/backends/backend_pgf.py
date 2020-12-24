@@ -932,7 +932,7 @@ class PdfPages:
         '_info_dict',
         '_metadata',
     )
-    metadata = cbook.deprecated('3.3')(property(lambda self: self._metadata))
+    metadata = _api.deprecated('3.3')(property(lambda self: self._metadata))
 
     def __init__(self, filename, *, keep_empty=True, metadata=None):
         """

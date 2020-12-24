@@ -795,7 +795,7 @@ class HTMLWriter(FileMovieWriter):
     """Writer for JavaScript-based HTML movies."""
 
     supported_formats = ['png', 'jpeg', 'tiff', 'svg']
-    args_key = cbook.deprecated("3.3")(property(
+    args_key = _api.deprecated("3.3")(property(
         lambda self: 'animation.html_args'))
 
     @classmethod

@@ -2710,7 +2710,7 @@ class FigureManagerBase:
                 figure.canvas.manager.button_press_handler_id)
     """
 
-    statusbar = cbook.deprecated("3.3")(property(lambda self: None))
+    statusbar = _api.deprecated("3.3")(property(lambda self: None))
 
     def __init__(self, canvas, num):
         self.canvas = canvas

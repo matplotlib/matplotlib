@@ -156,10 +156,10 @@ import jinja2  # Sphinx dependency.
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
 import matplotlib.pyplot as plt
-from matplotlib import _pylab_helpers, cbook
+from matplotlib import _api, _pylab_helpers, cbook
 
 matplotlib.use("agg")
-align = cbook.deprecated(
+align = _api.deprecated(
     "3.4", alternative="docutils.parsers.rst.directives.images.Image.align")(
         Image.align)
 

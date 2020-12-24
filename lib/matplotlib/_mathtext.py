@@ -795,7 +795,7 @@ class StandardPsFonts(Fonts):
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
 
-    pswriter = cbook.deprecated("3.4")(property(lambda self: StringIO()))
+    pswriter = _api.deprecated("3.4")(property(lambda self: StringIO()))
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -1549,7 +1549,7 @@ class Glue(Node):
     it's easier to stick to what TeX does.)
     """
 
-    glue_subtype = cbook.deprecated("3.3")(property(lambda self: "normal"))
+    glue_subtype = _api.deprecated("3.3")(property(lambda self: "normal"))
 
     @_api.delete_parameter("3.3", "copy")
     def __init__(self, glue_type, copy=False):
