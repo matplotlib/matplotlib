@@ -11,19 +11,19 @@ Displays Agg images in the browser, with interactivity
 #   application, implemented with tornado.
 
 import datetime
+from io import BytesIO, StringIO
 import json
 import logging
 import os
-from io import BytesIO, StringIO
 from pathlib import Path
 
 import numpy as np
-import tornado
 from PIL import Image
+import tornado
 
 from matplotlib import _api, backend_bases
-from matplotlib.backend_bases import _Backend
 from matplotlib.backends import backend_agg
+from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
