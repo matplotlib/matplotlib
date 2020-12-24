@@ -1,7 +1,7 @@
 Meta key specified name change on Qt5 backend
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `matplotlib.backends.backend_qt5.SPECIAL_KEYS` dictionary
+The *matplotlib.backends.backend_qt5.SPECIAL_KEYS* dictionary
 contains keys that do *not* return their unicode name
 instead they have manually specified names. The name
-for `QtCore.Qt.Key_Meta` has changed to ``'meta'`` to be consistent.
+for *QtCore.Qt.Key_Meta* has changed to ``'meta'`` to be consistent.
