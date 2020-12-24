@@ -134,3 +134,17 @@ if __name__ == '__main__':
     axis.set_title("Press enter to show descriptive statistics.")
 
     plt.show()
+
+###############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches.Ellipse
+matplotlib.widgets.EllipseSelector
