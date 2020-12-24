@@ -293,7 +293,8 @@ class _process_plot_var_args:
                     replaced[label_namer_idx], args[label_namer_idx])
             args = replaced
 
-        if len(args) >= 4 and not cbook.is_scalar_or_string(kwargs.get("label")):
+        if len(args) >= 4 and not cbook.is_scalar_or_string(
+                kwargs.get("label")):
             raise ValueError("plot() with multiple groups of data (i.e., "
                              "pairs of x and y) does not support multiple "
                              "labels")
