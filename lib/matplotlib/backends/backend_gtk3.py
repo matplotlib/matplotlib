@@ -1,8 +1,8 @@
 import functools
 import logging
 import os
-import sys
 from pathlib import Path
+import sys
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
@@ -10,6 +10,8 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
+from matplotlib.figure import Figure
+from matplotlib.widgets import SubplotTool
 
 try:
     import gi

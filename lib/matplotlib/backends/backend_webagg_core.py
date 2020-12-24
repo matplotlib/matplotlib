@@ -11,19 +11,19 @@ Displays Agg images in the browser, with interactivity
 #   application, implemented with tornado.
 
 import datetime
-from io import BytesIO, StringIO
 import json
 import logging
 import os
+from io import BytesIO, StringIO
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 import tornado
+from PIL import Image
 
 from matplotlib import _api, backend_bases
-from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
+from matplotlib.backends import backend_agg
 
 _log = logging.getLogger(__name__)
 
@@ -236,7 +236,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_unknown_event(self, event):
         _log.warning('Unhandled message type {0}. {1}'.format(
-            event['type'], event))
+                     event['type'], event))
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing
@@ -276,7 +276,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.leave_notify_event()
         elif e_type == 'scroll':
             self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
-
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse
@@ -289,7 +288,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.key_press_event(key, guiEvent=guiEvent)
         elif e_type == 'key_release':
             self.key_release_event(key, guiEvent=guiEvent)
-
     handle_key_press = handle_key_release = _handle_key
 
     def handle_toolbar_button(self, event):
@@ -353,6 +351,7 @@ _ALLOWED_TOOL_ITEMS = {
 
 
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
+
     # Use the standard toolbar items + download button
     toolitems = [
         (text, tooltip_text, image_file, name_of_method)
@@ -472,8 +471,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         extensions = []
         for filetype, ext in sorted(FigureCanvasWebAggCore.
-                                            get_supported_filetypes_grouped().
-                                            items()):
+                                    get_supported_filetypes_grouped().
+                                    items()):
             extensions.append(ext[0])
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))
