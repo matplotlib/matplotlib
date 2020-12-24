@@ -6,6 +6,11 @@ Style Guide
 This guide is for contributors to understand conventions and expectations for
 quality control of Matplotlib written content.
 
+.. seealso::
+
+    For more information about contributing, see the :ref:`documenting-matplotlib`
+    section.
+
 Expository Language
 ===================
 
@@ -137,14 +142,63 @@ references and subordinating conjunctive phrases.
 Formatting
 ==========
 
+The following guidelines specify how to incorporate code and use appropriate
+formatting for Matplotlib documentation.
+
+Code
+----
+
+Matplotlib is a Python library and follows the same standards for
+documentation.
+
+Comments
+^^^^^^^^
+Examples of Python code have comments before or on the same line.
+
++---------------------------------------+---------------------------------+
+| Correct                               | Incorrect                       |
++=======================================+=================================+
+| ::                                    | ::                              |
+|                                       |                                 |
+|    # Data                             |    years = [2006, 2007, 2008]   |
+|    years = [2006, 2007, 2008]         |    # Data                       |
++---------------------------------------+                                 |
+| ::                                    |                                 |
+|                                       |                                 |
+|    years = [2006, 2007, 2008]  # Data |                                 |
++---------------------------------------+---------------------------------+
+
+Outputs
+^^^^^^^
+When generating visuals with Matplotlib using ``.py`` files in examples,
+display the visual with ``show()`` to provide display the visual.
+Keep the documentation clear of Python output lines.
+
++------------------------------------+------------------------------------+
+| Correct                            | Incorrect                          |
++====================================+====================================+
+| ::                                 | ::                                 |
+|                                    |                                    |
+|    plt.plot([1, 2, 3], [1, 2, 3])  |    plt.plot([1, 2, 3], [1, 2, 3])  |
+|    plt.show()                      |                                    |
++------------------------------------+------------------------------------+
+| ::                                 | ::                                 |
+|                                    |                                    |
+|    fig, ax = plt.subplots()        |    fig, ax = plt.subplots()        |
+|    ax.plot([1, 2, 3], [1, 2, 3])   |    ax.plot([1, 2, 3], [1, 2, 3])   |
+|    fig.show()                      |                                    |
++------------------------------------+------------------------------------+
+
+reStructuredText
+----------------
+
 Matplotlib uses reStructuredText Markup for documentation. Sphinx helps to
 transform these documents into appropriate formats for accessibility and
 visibility.
 
-reStructuredText standards
---------------------------
 - `reStructuredText Specifications <https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html>`_
 - `Quick Reference Document <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
+
 
 Lists
 ^^^^^
