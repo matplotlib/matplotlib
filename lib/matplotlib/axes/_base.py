@@ -294,8 +294,9 @@ class _process_plot_var_args:
             args = replaced
 
         if len(args) >= 4 and not cbook.is_scalar_or_string(kwargs["label"]):
-            raise ValueError("plot() with multiple groups of data (i.e., pairs"
-                             " of x and y) does not support multiple labels")
+            raise ValueError("plot() with multiple groups of data (i.e., "
+                             "pairs of x and y) does not support multiple "
+                             "labels")
 
         # Repeatedly grab (x, y) or (x, y, format) from the front of args and
         # massage them into arguments to plot() or fill().
