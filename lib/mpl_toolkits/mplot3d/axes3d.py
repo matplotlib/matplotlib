@@ -90,6 +90,7 @@ class Axes3D(Axes):
         self.zz_viewLim = Bbox.unit()
         self.xy_dataLim = Bbox.unit()
         self.zz_dataLim = Bbox.unit()
+        self._stale_viewlim_z = False
 
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
@@ -190,6 +191,24 @@ class Axes3D(Axes):
 
     def _get_axis_list(self):
         return super()._get_axis_list() + (self.zaxis, )
+
+    def _unstale_viewLim(self):
+        # We should arrange to store this information once per share-group
+        # instead of on every axis.
+        scalex = any(ax._stale_viewlim_x
+                     for ax in self._shared_x_axes.get_siblings(self))
+        scaley = any(ax._stale_viewlim_y
+                     for ax in self._shared_y_axes.get_siblings(self))
+        scalez = any(ax._stale_viewlim_z
+                     for ax in self._shared_z_axes.get_siblings(self))
+        if scalex or scaley or scalez:
+            for ax in self._shared_x_axes.get_siblings(self):
+                ax._stale_viewlim_x = False
+            for ax in self._shared_y_axes.get_siblings(self):
+                ax._stale_viewlim_y = False
+            for ax in self._shared_z_axes.get_siblings(self):
+                ax._stale_viewlim_z = False
+            self.autoscale_view(scalex=scalex, scaley=scaley, scalez=scalez)
 
     def unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
@@ -378,6 +397,8 @@ class Axes3D(Axes):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        self._unstale_viewLim()
+
         # draw the background patch
         self.patch.draw(renderer)
         self._frameon = False
@@ -477,9 +498,9 @@ class Axes3D(Axes):
                 self._unit_change_handler, axis_name, event=object())
         _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
         self.relim()
-        self.autoscale_view(scalex=(axis_name == "x"),
-                            scaley=(axis_name == "y"),
-                            scalez=(axis_name == "z"))
+        self._request_autoscale_view(scalex=(axis_name == "x"),
+                                     scaley=(axis_name == "y"),
+                                     scalez=(axis_name == "z"))
 
     def update_datalim(self, xys, **kwargs):
         pass
@@ -528,6 +549,24 @@ class Axes3D(Axes):
         """
         self._autoscaleZon = b
 
+    def set_xmargin(self, m):
+        # docstring inherited
+        scalez = self._stale_viewlim_z
+        super().set_xmargin(m)
+        # Superclass is 2D and will call _request_autoscale_view with defaults
+        # for unknown Axis, which would be scalez=True, but it shouldn't be for
+        # this call, so restore it.
+        self._stale_viewlim_z = scalez
+
+    def set_ymargin(self, m):
+        # docstring inherited
+        scalez = self._stale_viewlim_z
+        super().set_ymargin(m)
+        # Superclass is 2D and will call _request_autoscale_view with defaults
+        # for unknown Axis, which would be scalez=True, but it shouldn't be for
+        # this call, so restore it.
+        self._stale_viewlim_z = scalez
+
     def set_zmargin(self, m):
         """
         Set padding of Z data limits prior to autoscaling.
@@ -542,6 +581,7 @@ class Axes3D(Axes):
         if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
         self._zmargin = m
+        self._request_autoscale_view(scalex=False, scaley=False, scalez=True)
         self.stale = True
 
     def margins(self, *margins, x=None, y=None, z=None, tight=True):
@@ -639,8 +679,8 @@ class Axes3D(Axes):
                 self._autoscaleZon = scalez = bool(enable)
             else:
                 scalez = False
-        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
-                            scalez=scalez)
+        self._request_autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
+                                     scalez=scalez)
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
         # This updates the bounding boxes as to keep a record as to what the
@@ -655,6 +695,19 @@ class Axes3D(Axes):
                 np.column_stack([Z, Z]), not had_data)
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
+
+    # API could be better, right now this is just to match the old calls to
+    # autoscale_view() after each plotting method.
+    def _request_autoscale_view(self, tight=None, scalex=True, scaley=True,
+                                scalez=True):
+        if tight is not None:
+            self._tight = tight
+        if scalex:
+            self._stale_viewlim_x = True  # Else keep old state.
+        if scaley:
+            self._stale_viewlim_y = True
+        if scalez:
+            self._stale_viewlim_z = True
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True,
                        scalez=True):
@@ -766,6 +819,9 @@ class Axes3D(Axes):
         left, right = sorted([left, right], reverse=bool(reverse))
         self.xy_viewLim.intervalx = (left, right)
 
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_x_axes.get_siblings(self):
+            ax._stale_viewlim_x = False
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
@@ -821,6 +877,9 @@ class Axes3D(Axes):
             bottom, top = top, bottom
         self.xy_viewLim.intervaly = (bottom, top)
 
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_y_axes.get_siblings(self):
+            ax._stale_viewlim_y = False
         if auto is not None:
             self._autoscaleYon = bool(auto)
 
@@ -876,6 +935,9 @@ class Axes3D(Axes):
             bottom, top = top, bottom
         self.zz_viewLim.intervalx = (bottom, top)
 
+        # Mark viewlims as no longer stale without triggering an autoscale.
+        for ax in self._shared_z_axes.get_siblings(self):
+            ax._stale_viewlim_z = False
         if auto is not None:
             self._autoscaleZon = bool(auto)
 
@@ -1346,7 +1408,8 @@ class Axes3D(Axes):
             self.yaxis.get_major_locator().set_params(**kwargs)
         if _z:
             self.zaxis.get_major_locator().set_params(**kwargs)
-        self.autoscale_view(tight=tight, scalex=_x, scaley=_y, scalez=_z)
+        self._request_autoscale_view(tight=tight, scalex=_x, scaley=_y,
+                                     scalez=_z)
 
     def tick_params(self, axis='both', **kwargs):
         """

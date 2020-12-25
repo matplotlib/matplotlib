@@ -54,6 +54,8 @@ writer, without performing the availability check on subsequent writers, it is
 now possible to iterate over the registry, which will yield the names of the
 available classes.
 
+.. _api-changes-3-2-0-autoscaling:
+
 Autoscaling
 ~~~~~~~~~~~
 
