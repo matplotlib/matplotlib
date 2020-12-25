@@ -536,12 +536,11 @@ class FigureManagerQT(FigureManagerBase):
     """
 
     def __init__(self, canvas, num):
-        super().__init__(canvas, num)
         self.window = MainWindow()
+        super().__init__(canvas, num)
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
 
-        self.window.setWindowTitle("Figure %d" % num)
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 
