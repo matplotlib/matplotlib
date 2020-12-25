@@ -1,6 +1,7 @@
 """Tests for tinypages build using sphinx extensions."""
 
 import filecmp
+import os
 from pathlib import Path
 from subprocess import Popen, PIPE
 import sys
@@ -19,14 +20,14 @@ def test_tinypages(tmpdir):
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir),
            str(Path(__file__).parent / 'tinypages'), str(html_dir)]
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
+                 env={**os.environ, "MPLBACKEND": ""})
     out, err = proc.communicate()
 
     assert proc.returncode == 0, \
-        "sphinx build failed with stdout:\n{}\nstderr:\n{}\n".format(out, err)
+        f"sphinx build failed with stdout:\n{out}\nstderr:\n{err}\n"
     if err:
-        pytest.fail("sphinx build emitted the following warnings:\n{}"
-                    .format(err))
+        pytest.fail(f"sphinx build emitted the following warnings:\n{err}")
 
     assert html_dir.is_dir()
 
