@@ -28,7 +28,7 @@ colortuple = ('y', 'b')
 colors = np.empty(X.shape, dtype=str)
 for y in range(ylen):
     for x in range(xlen):
-        colors[x, y] = colortuple[(x + y) % len(colortuple)]
+        colors[y, x] = colortuple[(x + y) % len(colortuple)]
 
 # Plot the surface with face colors taken from the array we made.
 surf = ax.plot_surface(X, Y, Z, facecolors=colors, linewidth=0)
