@@ -98,13 +98,6 @@ commands:
             make html O="-T -Ainclude_analytics=$ANALYTICS"
             rm -r build/html/_sources
           working_directory: doc
-	  test_results:
-		python37
-			results.xml
-		python38
-			results.xml
-		python38min
-			results.xml
       - save_cache:
           key: sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
           paths:
@@ -118,9 +111,6 @@ commands:
           when: always
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
-      - store_test_results:
-	  path: test-results
-
 
 ##########################################
 # Here is where the real jobs are defined.
@@ -146,8 +136,6 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
-      - store_test_results:
-	  path: test_results
 
   docs-python38-min:
     docker:
@@ -169,8 +157,6 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
-      - store_test_results:
-	  path: test_results
 
   docs-python38:
     docker:
@@ -191,9 +177,6 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
-
-      - store_test_results:
-	  path: test_results
 
       - add_ssh_keys:
           fingerprints:
