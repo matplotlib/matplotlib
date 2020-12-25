@@ -1386,11 +1386,10 @@ class LineCollection(Collection):
         zorder : int, default: 2
            zorder of the lines once drawn.
         facecolors : color or list of color, default: 'none'
-           The facecolors of the LineCollection.
-           Setting to a value other than 'none' will lead to each line being
-           "filled in" as if there was an implicit line segment joining the
-           last and first points of that line back around to each other. In
-           order to manually specify what should count as the "interior" of
+           When setting *facecolors*, each line is interpreted as a boundary
+           for an area, implicitly closing the path from the last point to the
+           first point. The enclosed area is filled with *facecolor*.
+           In order to manually specify what should count as the "interior" of
            each line, please use `.PathCollection` instead, where the
            "interior" can be specified by appropriate usage of
            `~.path.Path.CLOSEPOLY`.

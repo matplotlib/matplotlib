@@ -1499,6 +1499,8 @@ class Axes(_AxesBase):
 
             If you make multiple lines with one plot call, the kwargs
             apply to all those lines.
+            In case if label object is iterable, each its element is
+            used as label for a separate line.
 
             Here is a list of available `.Line2D` properties:
 

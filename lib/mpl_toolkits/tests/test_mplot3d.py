@@ -895,6 +895,28 @@ def test_autoscale():
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
 
 
+@pytest.mark.parametrize('axis', ('x', 'y', 'z'))
+@pytest.mark.parametrize('auto', (True, False, None))
+def test_unautoscale(axis, auto):
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    x = np.arange(100)
+    y = np.linspace(-0.1, 0.1, 100)
+    ax.scatter(x, y)
+
+    get_autoscale_on = getattr(ax, f'get_autoscale{axis}_on')
+    set_lim = getattr(ax, f'set_{axis}lim')
+    get_lim = getattr(ax, f'get_{axis}lim')
+
+    post_auto = get_autoscale_on() if auto is None else auto
+
+    set_lim((-0.5, 0.5), auto=auto)
+    assert post_auto == get_autoscale_on()
+    fig.canvas.draw()
+    np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
+
+
 @mpl3d_image_comparison(['axes3d_ortho.png'], remove_text=False)
 def test_axes3d_ortho():
     fig = plt.figure()
@@ -1201,6 +1223,35 @@ def test_errorbar3d():
                 yuplims=True,
                 ecolor='purple', label='Error lines')
     ax.legend()
+
+
+@image_comparison(['stem3d.png'], style='mpl20')
+def test_stem3d():
+    fig, axs = plt.subplots(2, 3, figsize=(8, 6),
+                            constrained_layout=True,
+                            subplot_kw={'projection': '3d'})
+
+    theta = np.linspace(0, 2*np.pi)
+    x = np.cos(theta - np.pi/2)
+    y = np.sin(theta - np.pi/2)
+    z = theta
+
+    for ax, zdir in zip(axs[0], ['x', 'y', 'z']):
+        ax.stem(x, y, z, orientation=zdir)
+        ax.set_title(f'orientation={zdir}')
+
+    x = np.linspace(-np.pi/2, np.pi/2, 20)
+    y = np.ones_like(x)
+    z = np.cos(x)
+
+    for ax, zdir in zip(axs[1], ['x', 'y', 'z']):
+        markerline, stemlines, baseline = ax.stem(
+            x, y, z,
+            linefmt='C4-.', markerfmt='C1D', basefmt='C2',
+            orientation=zdir)
+        ax.set_title(f'orientation={zdir}')
+        markerline.set(markerfacecolor='none', markeredgewidth=2)
+        baseline.set_linewidth(3)
 
 
 @image_comparison(["equal_box_aspect.png"], style="mpl20")

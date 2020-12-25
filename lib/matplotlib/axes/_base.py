@@ -294,6 +294,12 @@ class _process_plot_var_args:
                     replaced[label_namer_idx], args[label_namer_idx])
             args = replaced
 
+        if len(args) >= 4 and not cbook.is_scalar_or_string(
+                kwargs.get("label")):
+            raise ValueError("plot() with multiple groups of data (i.e., "
+                             "pairs of x and y) does not support multiple "
+                             "labels")
+
         # Repeatedly grab (x, y) or (x, y, format) from the front of args and
         # massage them into arguments to plot() or fill().
 
@@ -447,8 +453,22 @@ class _process_plot_var_args:
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
             raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
-        result = (func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
-                  for j in range(max(ncx, ncy)))
+
+        label = kwargs.get('label')
+        n_datasets = max(ncx, ncy)
+        if n_datasets > 1 and not cbook.is_scalar_or_string(label):
+            if len(label) != n_datasets:
+                raise ValueError(f"label must be scalar or have the same "
+                                 f"length as the input data, but found "
+                                 f"{len(label)} for {n_datasets} datasets.")
+            labels = label
+        else:
+            labels = [label] * n_datasets
+
+        result = (func(x[:, j % ncx], y[:, j % ncy], kw,
+                       {**kwargs, 'label': label})
+                  for j, label in enumerate(labels))
+
         if return_kwargs:
             return list(result)
         else:
