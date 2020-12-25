@@ -34,8 +34,12 @@ def qt_core(request):
 
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
-    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+    pytest.param(
+        'Qt4Agg',
+        marks=pytest.mark.backend('Qt4Agg', skip_on_importerror=True)),
+    pytest.param(
+        'Qt5Agg',
+        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
 ])
 def test_fig_close(backend):
     # save the state of Gcf.figs
@@ -53,7 +57,7 @@ def test_fig_close(backend):
     assert init_figs == Gcf.figs
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_fig_signals(qt_core):
     # Create a figure
     plt.figure()
@@ -130,8 +134,12 @@ def test_fig_signals(qt_core):
 )
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
-    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+    pytest.param(
+        'Qt4Agg',
+        marks=pytest.mark.backend('Qt4Agg', skip_on_importerror=True)),
+    pytest.param(
+        'Qt5Agg',
+        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
 ])
 def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     """
@@ -157,7 +165,7 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     qt_canvas.keyPressEvent(_Event())
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_pixel_ratio_change():
     """
     Make sure that if the pixel ratio changes, the figure dpi changes but the
@@ -229,7 +237,7 @@ def test_pixel_ratio_change():
         assert (fig.get_size_inches() == (5, 2)).all()
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_subplottool():
     fig, ax = plt.subplots()
     with mock.patch(
@@ -238,7 +246,7 @@ def test_subplottool():
         fig.canvas.manager.toolbar.configure_subplots()
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_figureoptions():
     fig, ax = plt.subplots()
     ax.plot([1, 2])
@@ -250,7 +258,7 @@ def test_figureoptions():
         fig.canvas.manager.toolbar.edit_parameters()
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
@@ -270,7 +278,7 @@ def test_double_resize():
     assert window.height() == old_height
 
 
-@pytest.mark.backend("Qt5Agg")
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_canvas_reinit():
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 
