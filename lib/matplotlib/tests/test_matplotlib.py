@@ -56,4 +56,4 @@ def test_importable_with__OO():
         "import matplotlib.patches as mpatches"
     )
     cmd = [sys.executable, "-OO", "-c", program]
-    assert subprocess.call(cmd) == 0
+    assert subprocess.call(cmd, env={**os.environ, "MPLBACKEND": ""}) == 0
