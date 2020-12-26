@@ -1,0 +1,5 @@
+Extra positional parameters to ``plot_surface`` and ``plot_wireframe``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Positional parameters to `~.axes3d.Axes3D.plot_surface` and
+`~.axes3d.Axes3D.plot_wireframe` other than ``X``, ``Y``, and ``Z`` are
+deprecated.  Pass additional artist properties as keyword arguments instead.
