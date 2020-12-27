@@ -351,7 +351,7 @@ class Artist:
         --------
         add_callback
         """
-        self._callbacks.disconnect("pchanged", oid)
+        self._callbacks.disconnect(oid)
 
     def pchanged(self):
         """
