@@ -118,3 +118,13 @@ def test_curvelinear4():
     ax2.scatter(xx, yy)
     l, = ax2.plot(xx, yy, "k-")
     l.set_clip_path(ax1.patch)
+
+
+def test_axis_direction():
+    # Check that axis direction is propagated on a floating axis
+    fig = plt.figure()
+    ax = Subplot(fig, 111)
+    fig.add_subplot(ax)
+    ax.axis['y'] = ax.new_floating_axis(nth_coord=1, value=0,
+                                        axis_direction='left')
+    assert ax.axis['y']._axis_direction == 'left'
