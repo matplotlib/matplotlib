@@ -1,7 +1,6 @@
 import functools
 import importlib
 import os
-import re
 import signal
 import sys
 import traceback

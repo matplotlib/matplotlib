@@ -6,7 +6,6 @@ operations.
 import math
 import os
 import logging
-from numbers import Number
 from pathlib import Path
 
 import numpy as np
