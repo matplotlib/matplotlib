@@ -14,11 +14,9 @@ import numpy as np
 
 fig, ax = plt.subplots()
 # Move the left and bottom spines to x = 0 and y = 0, respectively.
-ax.spines["left"].set_position(("data", 0))
-ax.spines["bottom"].set_position(("data", 0))
+ax.spines[["left", "bottom"]].set_position(("data", 0))
 # Hide the top and right spines.
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
+ax.spines[["top", "right"]].set_visible(False)
 
 # Draw arrows (as black triangles: ">k"/"^k") at the end of the axes.  In each
 # case, one of the coordinates (0) is a data coordinate (i.e., y = 0 or x = 0,

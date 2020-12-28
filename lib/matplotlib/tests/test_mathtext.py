@@ -266,8 +266,7 @@ def test_mathtext_exceptions(math, msg):
 def test_single_minus_sign():
     plt.figure(figsize=(0.3, 0.3))
     plt.text(0.5, 0.5, '$-$')
-    for spine in plt.gca().spines.values():
-        spine.set_visible(False)
+    plt.gca().spines[:].set_visible(False)
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
 

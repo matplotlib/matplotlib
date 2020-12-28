@@ -48,10 +48,8 @@ class SecondaryAxis(_AxesBase):
         otheraxis.set_major_locator(mticker.NullLocator())
         otheraxis.set_ticks_position('none')
 
-        for st in self._otherstrings:
-            self.spines[st].set_visible(False)
-        for st in self._locstrings:
-            self.spines[st].set_visible(True)
+        self.spines[self._otherstrings].set_visible(False)
+        self.spines[self._locstrings].set_visible(True)
 
         if self._pos < 0.5:
             # flip the location strings...
@@ -257,13 +255,13 @@ class SecondaryAxis(_AxesBase):
         """
         if self._orientation == 'x':
             self.tick_params(axis='x', colors=color)
-            self.spines['bottom'].set_color(color)
-            self.spines['top'].set_color(color)
+            self.spines.bottom.set_color(color)
+            self.spines.top.set_color(color)
             self.xaxis.label.set_color(color)
         else:
             self.tick_params(axis='y', colors=color)
-            self.spines['left'].set_color(color)
-            self.spines['right'].set_color(color)
+            self.spines.left.set_color(color)
+            self.spines.right.set_color(color)
             self.yaxis.label.set_color(color)
 
 

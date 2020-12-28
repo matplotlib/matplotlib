@@ -89,8 +89,7 @@ plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
 
 # remove y axis and spines
 ax.yaxis.set_visible(False)
-for spine in ["left", "top", "right"]:
-    ax.spines[spine].set_visible(False)
+ax.spines[["left", "top", "right"]].set_visible(False)
 
 ax.margins(y=0.1)
 plt.show()
