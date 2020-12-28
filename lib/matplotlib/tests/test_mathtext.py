@@ -109,6 +109,7 @@ math_tests = [
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
+    r'$\sqrt[ab]{123}$',  # github issue #8665
 ]
 
 digits = "0123456789"
