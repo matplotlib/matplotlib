@@ -739,7 +739,14 @@ class Sankey:
             if label is None or angle is None:
                 label = ''
             elif self.unit is not None:
-                quantity = self.format % abs(number) + self.unit
+                if self.format is None:
+                    self.format = '%G'
+                if isinstance(self.format, str):
+                    quantity = self.format % abs(number) + self.unit
+                elif callable(self.format):
+                    quantity = self.format(100. * abs(number))
+                else:
+                    raise TypeError('format must be callable or a format string')
                 if label != '':
                     label += "\n"
                 label += quantity
