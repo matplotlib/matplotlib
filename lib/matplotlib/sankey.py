@@ -83,10 +83,10 @@ class Sankey:
         unit : str
             The physical unit associated with the flow quantities.  If *unit*
             is None, then none of the quantities are labeled.
-        format : str
-            A Python number formatting string to be used in labeling the flow
-            as a quantity (i.e., a number times a unit, where the unit is
-            given).
+        format : str or callable
+            A Python number formatting string or callable used to label the flows
+            with their quantities. If a format string is given, the label will be
+            ``format % quantity``. If a callable is given, it will be called.
         gap : float
             Space between paths that break in/break away to/from the top or
             bottom.
@@ -739,8 +739,7 @@ class Sankey:
             if label is None or angle is None:
                 label = ''
             elif self.unit is not None:
-                if self.format is None:
-                    self.format = '%G'
+
                 if isinstance(self.format, str):
                     quantity = self.format % abs(number) + self.unit
                 elif callable(self.format):
