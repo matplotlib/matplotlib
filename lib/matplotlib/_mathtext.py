@@ -2035,6 +2035,7 @@ class Parser:
         p.non_math         = Forward()
         p.operatorname     = Forward()
         p.overline         = Forward()
+        p.overset          = Forward()
         p.placeable        = Forward()
         p.rbrace           = Forward()
         p.rbracket         = Forward()
@@ -2053,6 +2054,7 @@ class Parser:
         p.symbol           = Forward()
         p.symbol_name      = Forward()
         p.token            = Forward()
+        p.underset         = Forward()
         p.unknown_symbol   = Forward()
 
         # Set names on everything -- very useful for debugging
@@ -2169,6 +2171,18 @@ class Parser:
             - (p.required_group | Error("Expected \\overline{value}"))
         )
 
+        p.overset <<= Group(
+            Suppress(Literal(r"\overset"))
+            - ((p.simple_group + p.simple_group)
+               | Error("Expected \\overset{body}{annotation}"))
+        )
+
+        p.underset <<= Group(
+            Suppress(Literal(r"\underset"))
+            - ((p.simple_group + p.simple_group)
+               | Error("Expected \\underset{body}{annotation}"))
+        )
+
         p.unknown_symbol <<= Combine(p.bslash + Regex("[A-Za-z]*"))
 
         p.operatorname <<= Group(
@@ -2190,6 +2204,8 @@ class Parser:
             | p.dfrac
             | p.binom
             | p.genfrac
+            | p.overset
+            | p.underset
             | p.sqrt
             | p.overline
             | p.operatorname
@@ -2842,6 +2858,38 @@ class Parser:
         return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
                              num, den)
 
+    def _genset(self, state, body, annotation, overunder):
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+
+        body.shrink()
+
+        cbody = HCentered([body])
+        cannotation = HCentered([annotation])
+        width = max(cbody.width, cannotation.width)
+        cbody.hpack(width, 'exactly')
+        cannotation.hpack(width, 'exactly')
+
+        vgap = thickness * 3
+        if overunder == "under":
+            vlist = Vlist([cannotation,                # annotation
+                           Vbox(0, vgap),              # space
+                           cbody                       # body
+                           ])
+            # Shift so the annotation sits in the same vertical position
+            shift_amount = cannotation.depth + cbody.height + vgap
+
+            vlist.shift_amount = shift_amount
+        else:
+            vlist = Vlist([cbody,                      # body
+                           Vbox(0, vgap),              # space
+                           cannotation                 # annotation
+                           ])
+
+        # To add horizontal gap between symbols: wrap the Vlist into
+        # an Hlist and extend it with an Hbox(0, horizontal_gap)
+        return vlist
+
     def sqrt(self, s, loc, toks):
         (root, body), = toks
         state = self.get_state()
@@ -2901,6 +2949,24 @@ class Parser:
 
         hlist = Hlist([rightside])
         return [hlist]
+
+    def overset(self, s, loc, toks):
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
+
+        state = self.get_state()
+        body, annotation = toks[0]
+
+        return self._genset(state, body, annotation, overunder="over")
+
+    def underset(self, s, loc, toks):
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
+
+        state = self.get_state()
+        body, annotation = toks[0]
+
+        return self._genset(state, body, annotation, overunder="under")
 
     def _auto_sized_delimiter(self, front, middle, back):
         state = self.get_state()
