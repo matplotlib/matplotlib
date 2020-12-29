@@ -16,7 +16,7 @@ Contributor Incubator
 
 If you are interested in becoming a regular contributor to Matplotlib, but 
 don't know where to start or feel insecure about it, you can join our non-public 
-communication channel for new contributors. To do so, please go to gitter
+communication channel for new contributors. To do so, please go to `gitter
 <https://gitter.im/matplotlib/matplotlib>`_ and ask to be added to '#incubator'.
 This is a private gitter room moderated by core Matplotlib developers where you can 
 get guidance and support for your first few PRs.  This is a place you can ask questions
