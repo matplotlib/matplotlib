@@ -1,6 +1,6 @@
 name: PR Greetings
 
-on: [pull_request]
+on: [pull_request_target]
 
 jobs:
   greeting:
