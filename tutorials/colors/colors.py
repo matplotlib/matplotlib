@@ -142,23 +142,22 @@ demo('seaborn')
 #
 # .. _xkcd-colors:
 #
-# xkcd v X11/CSS4
-# ---------------
+# Comparison between X11/CSS4 and xkcd colors
+# -------------------------------------------
 #
-# The xkcd colors come from a user survey conducted by the webcomic xkcd.
-# Details of the survey are available on the `xkcd blog
+# The xkcd colors come from a `user survey conducted by the webcomic xkcd
 # <https://blog.xkcd.com/2010/05/03/color-survey-results/>`__.
 #
-# There are 95 out of 148 colors with name collisions between the X11/CSS4
-# names and the xkcd names. Only three of these colors have the same hex
-# values.
+# 95 out of the 148 X11/CSS4 color names also appear in the xkcd color survey.
+# Almost all of them map to different color values in the X11/CSS4 and in
+# the xkcd palette. Only 'black', 'white' and 'cyan' are identical.
 #
 # For example, ``'blue'`` maps to ``'#0000FF'`` whereas ``'xkcd:blue'`` maps to
 # ``'#0343DF'``.  Due to these name collisions, all xkcd colors have the
 # ``'xkcd:'`` prefix.
 #
-# The visual below shows name collisions. Color names where hex values agree
-# are bold.
+# The visual below shows name collisions. Color names where color values agree
+# are in bold.
 
 import matplotlib._color_data as mcd
 import matplotlib.patches as mpatch
@@ -166,28 +165,33 @@ import matplotlib.patches as mpatch
 overlap = {name for name in mcd.CSS4_COLORS
            if "xkcd:" + name in mcd.XKCD_COLORS}
 
-fig = plt.figure(figsize=[4.8, 16])
+fig = plt.figure(figsize=[9, 5])
 ax = fig.add_axes([0, 0, 1, 1])
 
-for j, n in enumerate(sorted(overlap, reverse=True)):
-    weight = None
-    cn = mcd.CSS4_COLORS[n]
-    xkcd = mcd.XKCD_COLORS["xkcd:" + n].upper()
-    if cn == xkcd:
-        weight = 'bold'
+n_groups = 3
+n_rows = len(overlap) // n_groups + 1
 
-    r1 = mpatch.Rectangle((0, j), 1, 1, color=cn)
-    r2 = mpatch.Rectangle((1, j), 1, 1, color=xkcd)
-    txt = ax.text(2, j+.5, '  ' + n, va='center', fontsize=10,
-                  weight=weight)
-    ax.add_patch(r1)
-    ax.add_patch(r2)
-    ax.axhline(j, color='k')
+for j, color_name in enumerate(sorted(overlap)):
+    css4 = mcd.CSS4_COLORS[color_name]
+    xkcd = mcd.XKCD_COLORS["xkcd:" + color_name].upper()
 
-ax.text(.5, j + 1.5, 'X11', ha='center', va='center')
-ax.text(1.5, j + 1.5, 'xkcd', ha='center', va='center')
-ax.set_xlim(0, 3)
-ax.set_ylim(0, j + 2)
+    col_shift = (j // n_rows) * 3
+    y_pos = j % n_rows
+    text_args = dict(va='center', fontsize=10,
+                     weight='bold' if css4 == xkcd else None)
+    ax.add_patch(mpatch.Rectangle((0 + col_shift, y_pos), 1, 1, color=css4))
+    ax.add_patch(mpatch.Rectangle((1 + col_shift, y_pos), 1, 1, color=xkcd))
+    ax.text(0 + col_shift, y_pos + .5, '  ' + css4, alpha=0.5, **text_args)
+    ax.text(1 + col_shift, y_pos + .5, '  ' + xkcd, alpha=0.5, **text_args)
+    ax.text(2 + col_shift, y_pos + .5, '  ' + color_name, **text_args)
+
+for g in range(n_groups):
+    ax.hlines(range(n_rows), 3*g, 3*g + 2.8, color='0.7', linewidth=1)
+    ax.text(0.5 + 3*g, -0.5, 'X11', ha='center', va='center')
+    ax.text(1.5 + 3*g, -0.5, 'xkcd', ha='center', va='center')
+
+ax.set_xlim(0, 3 * n_groups)
+ax.set_ylim(n_rows, -1)
 ax.axis('off')
 
 plt.show()
