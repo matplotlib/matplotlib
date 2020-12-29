@@ -61,7 +61,7 @@ class LockDraw:
 
 class Widget:
     """
-    Abstract base class for GUI neutral widgets
+    Abstract base class for GUI neutral widgets.
     """
     drawon = True
     eventson = True
@@ -118,7 +118,7 @@ class AxesWidget(Widget):
 
     def connect_event(self, event, callback):
         """
-        Connect callback with an event.
+        Connect a callback function with an event.
 
         This should be used in lieu of ``figure.canvas.mpl_connect`` since this
         function stores callback ids for later clean up.
@@ -277,6 +277,7 @@ class SliderBase(AxesWidget):
         self._observers = cbook.CallbackRegistry()
 
     def _stepped_value(self, val):
+        """Return *val* coerced to closest number in the ``valstep`` grid."""
         if isinstance(self.valstep, Number):
             val = (self.valmin
                    + round((val - self.valmin) / self.valstep) * self.valstep)
@@ -291,17 +292,17 @@ class SliderBase(AxesWidget):
 
     def disconnect(self, cid):
         """
-        Remove the observer with connection id *cid*
+        Remove the observer with connection id *cid*.
 
         Parameters
         ----------
         cid : int
-            Connection id of the observer to be removed
+            Connection id of the observer to be removed.
         """
         self._observers.disconnect(cid)
 
     def reset(self):
-        """Reset the slider to the initial value"""
+        """Reset the slider to the initial value."""
         if self.val != self.valinit:
             self.set_val(self.valinit)
 
@@ -490,7 +491,7 @@ class Slider(SliderBase):
 
     def set_val(self, val):
         """
-        Set slider value to *val*
+        Set slider value to *val*.
 
         Parameters
         ----------
@@ -513,8 +514,7 @@ class Slider(SliderBase):
 
     def on_changed(self, func):
         """
-        When the slider value is changed call *func* with the new
-        slider value
+        Connect *func* as callback function to changes of the slider value.
 
         Parameters
         ----------
@@ -525,7 +525,7 @@ class Slider(SliderBase):
         Returns
         -------
         int
-            Connection id (which can be used to disconnect *func*)
+            Connection id (which can be used to disconnect *func*).
         """
         return self._observers.connect('changed', lambda val: func(val))
 
@@ -663,9 +663,7 @@ class RangeSlider(SliderBase):
         self.set_val(valinit)
 
     def _min_in_bounds(self, min):
-        """
-        Ensure the new min value is between valmin and self.val[1]
-        """
+        """Ensure the new min value is between valmin and self.val[1]."""
         if min <= self.valmin:
             if not self.closedmin:
                 return self.val[0]
@@ -676,9 +674,7 @@ class RangeSlider(SliderBase):
         return self._stepped_value(min)
 
     def _max_in_bounds(self, max):
-        """
-        Ensure the new max value is between valmax and self.val[0]
-        """
+        """Ensure the new max value is between valmax and self.val[0]."""
         if max >= self.valmax:
             if not self.closedmax:
                 return self.val[1]
@@ -692,9 +688,7 @@ class RangeSlider(SliderBase):
         return (self._min_in_bounds(val[0]), self._max_in_bounds(val[1]))
 
     def _update_val_from_pos(self, pos):
-        """
-        Given a position update the *val*
-        """
+        """Update the slider value based on a given position."""
         idx = np.argmin(np.abs(self.val - pos))
         if idx == 0:
             val = self._min_in_bounds(pos)
@@ -742,7 +736,7 @@ class RangeSlider(SliderBase):
 
     def set_min(self, min):
         """
-        Set the lower value of the slider to *min*
+        Set the lower value of the slider to *min*.
 
         Parameters
         ----------
@@ -752,7 +746,7 @@ class RangeSlider(SliderBase):
 
     def set_max(self, max):
         """
-        Set the lower value of the slider to *max*
+        Set the lower value of the slider to *max*.
 
         Parameters
         ----------
@@ -762,11 +756,11 @@ class RangeSlider(SliderBase):
 
     def set_val(self, val):
         """
-        Set slider value to *val*
+        Set slider value to *val*.
 
         Parameters
         ----------
-        val : tuple or arraylike of float
+        val : tuple or array-like of float
         """
         val = np.sort(np.asanyarray(val))
         if val.shape != (2,):
@@ -798,8 +792,7 @@ class RangeSlider(SliderBase):
 
     def on_changed(self, func):
         """
-        When the slider value is changed call *func* with the new
-        slider value
+        Connect *func* as callback function to changes of the slider value.
 
         Parameters
         ----------
@@ -810,7 +803,7 @@ class RangeSlider(SliderBase):
         Returns
         -------
         int
-            Connection id (which can be used to disconnect *func*)
+            Connection id (which can be used to disconnect *func*).
         """
         return self._observers.connect('changed', lambda val: func(val))
 
@@ -844,7 +837,7 @@ class CheckButtons(AxesWidget):
 
     def __init__(self, ax, labels, actives=None):
         """
-        Add check buttons to `matplotlib.axes.Axes` instance *ax*
+        Add check buttons to `matplotlib.axes.Axes` instance *ax*.
 
         Parameters
         ----------
@@ -1836,7 +1829,7 @@ class _SelectorWidget(AxesWidget):
         return False
 
     def _press(self, event):
-        """Button press handler."""
+        """Button press event handler."""
 
     def release(self, event):
         """Button release event handler and validator."""
@@ -2028,7 +2021,7 @@ class SpanSelector(_SelectorWidget):
         return super().ignore(event) or not self.visible
 
     def _press(self, event):
-        """on button press event"""
+        """Button press event handler."""
         self.rect.set_visible(self.visible)
         if self.span_stays:
             self.stay_rect.set_visible(False)
@@ -2046,7 +2039,7 @@ class SpanSelector(_SelectorWidget):
         return False
 
     def _release(self, event):
-        """on button release event"""
+        """Button release event handler."""
         if self.pressv is None:
             return
 
@@ -2077,7 +2070,7 @@ class SpanSelector(_SelectorWidget):
         return False
 
     def _onmove(self, event):
-        """on motion notify event"""
+        """Motion notify event handler."""
         if self.pressv is None:
             return
 
@@ -2156,7 +2149,7 @@ class ToolHandles:
         return self._markers.get_ydata()
 
     def set_data(self, pts, y=None):
-        """Set x and y positions of handles"""
+        """Set x and y positions of handles."""
         if y is not None:
             x = pts
             pts = np.array([x, y])
@@ -2341,7 +2334,7 @@ class RectangleSelector(_SelectorWidget):
         self._extents_on_press = None
 
     def _press(self, event):
-        """on button press event"""
+        """Button press event handler."""
         # make the drawn box/line visible get the click-coordinates,
         # button, ...
         if self.interactive and self.to_draw.get_visible():
@@ -2361,7 +2354,7 @@ class RectangleSelector(_SelectorWidget):
         self.set_visible(self.visible)
 
     def _release(self, event):
-        """on button release event"""
+        """Button release event handler."""
         if not self.interactive:
             self.to_draw.set_visible(False)
 
@@ -2404,7 +2397,7 @@ class RectangleSelector(_SelectorWidget):
         return False
 
     def _onmove(self, event):
-        """on motion notify event if box/line is wanted"""
+        """Motion notify event handler."""
         # resize an existing shape
         if self.active_handle and self.active_handle != 'C':
             x1, x2, y1, y2 = self._extents_on_press
@@ -2492,7 +2485,7 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def center(self):
-        """Center of rectangle"""
+        """Center of rectangle."""
         x0, y0, width, height = self._rect_bbox
         return x0 + width / 2., y0 + height / 2.
 
@@ -2537,7 +2530,7 @@ class RectangleSelector(_SelectorWidget):
             self.to_draw.set_data([xmin, xmax], [ymin, ymax])
 
     def _set_active_handle(self, event):
-        """Set active handle based on the location of the mouse event"""
+        """Set active handle based on the location of the mouse event."""
         # Note: event.xdata/ydata in data coordinates, event.x/y in pixels
         c_idx, c_dist = self._corner_handles.closest(event.x, event.y)
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
@@ -2802,7 +2795,7 @@ class PolygonSelector(_SelectorWidget):
         self.set_visible(True)
 
     def _press(self, event):
-        """Button press event handler"""
+        """Button press event handler."""
         # Check for selection of a tool handle.
         if ((self._polygon_completed or 'move_vertex' in self.state)
                 and len(self._xs) > 0):
@@ -2814,7 +2807,7 @@ class PolygonSelector(_SelectorWidget):
         self._xs_at_press, self._ys_at_press = self._xs.copy(), self._ys.copy()
 
     def _release(self, event):
-        """Button release event handler"""
+        """Button release event handler."""
         # Release active tool handle.
         if self._active_handle_idx >= 0:
             self._active_handle_idx = -1
@@ -2836,7 +2829,7 @@ class PolygonSelector(_SelectorWidget):
             self.onselect(self.verts)
 
     def onmove(self, event):
-        """Cursor move event handler and validator"""
+        """Cursor move event handler and validator."""
         # Method overrides _SelectorWidget.onmove because the polygon selector
         # needs to process the move callback even if there is no button press.
         # _SelectorWidget.onmove include logic to ignore move event if
@@ -2848,7 +2841,7 @@ class PolygonSelector(_SelectorWidget):
         return False
 
     def _onmove(self, event):
-        """Cursor move event handler"""
+        """Cursor move event handler."""
         # Move the active vertex (ToolHandle).
         if self._active_handle_idx >= 0:
             idx = self._active_handle_idx
@@ -2886,7 +2879,7 @@ class PolygonSelector(_SelectorWidget):
         self._draw_polygon()
 
     def _on_key_press(self, event):
-        """Key press event handler"""
+        """Key press event handler."""
         # Remove the pending vertex if entering the 'move_vertex' or
         # 'move_all' mode
         if (not self._polygon_completed
@@ -2895,7 +2888,7 @@ class PolygonSelector(_SelectorWidget):
             self._draw_polygon()
 
     def _on_key_release(self, event):
-        """Key release event handler"""
+        """Key release event handler."""
         # Add back the pending vertex if leaving the 'move_vertex' or
         # 'move_all' mode (by checking the released key)
         if (not self._polygon_completed
