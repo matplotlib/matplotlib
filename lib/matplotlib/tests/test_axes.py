@@ -109,10 +109,10 @@ def test_acorr(fig_test, fig_ref):
     x = np.random.normal(0, 1, Nx).cumsum()
     maxlags = Nx-1
 
-    fig_test, ax_test = plt.subplots()
+    ax_test = fig_test.subplots()
     ax_test.acorr(x, maxlags=maxlags)
 
-    fig_ref, ax_ref = plt.subplots()
+    ax_ref = fig_ref.subplots()
     # Normalized autocorrelation
     norm_auto_corr = np.correlate(x, x, mode="full")/np.dot(x, x)
     lags = np.arange(-maxlags, maxlags+1)
