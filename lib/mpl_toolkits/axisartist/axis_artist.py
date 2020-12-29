@@ -73,7 +73,7 @@ axislabel ha        right  center   right  center
 Ticks are by default direct opposite side of the ticklabels. To make ticks to
 the same side of the ticklabels, ::
 
-  ax.axis["bottom"].major_ticks.set_ticks_out(True)
+  ax.axis["bottom"].major_ticks.set_tick_out(True)
 
 The following attributes can be customized (use the ``set_xxx`` methods):
 
