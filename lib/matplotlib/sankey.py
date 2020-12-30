@@ -743,7 +743,7 @@ class Sankey:
                 if isinstance(self.format, str):
                     quantity = self.format % abs(number) + self.unit
                 elif callable(self.format):
-                    quantity = self.format(abs(number))
+                    quantity = self.format(number)
                 else:
                     raise TypeError(
                         'format must be callable or a format string')
