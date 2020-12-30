@@ -276,8 +276,9 @@ def convert(filename, cache):
 
     If *cache* is True, the result of the conversion is cached in
     `matplotlib.get_cachedir() + '/test_cache/'`.  The caching is based on a
-    hash of the exact contents of the input file.  There is no limit on the
-    size of the cache, so it may need to be manually cleared periodically.
+    hash of the exact contents of the input file.  Old cache entries are
+    automatically deleted as needed to keep the size of the cache capped to
+    twice the size of all baseline images.
     """
     path = Path(filename)
     if not path.exists():
