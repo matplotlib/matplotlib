@@ -41,7 +41,7 @@ from the axis as some gridlines can never pass any axis.
 
 import numpy as np
 
-from matplotlib import _api, cbook, rcParams
+from matplotlib import _api, rcParams
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes

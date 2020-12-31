@@ -12,20 +12,16 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 import functools
-from functools import reduce
-from itertools import compress
+import itertools
 import math
 import textwrap
 
 import numpy as np
 
-from matplotlib import artist
-from matplotlib import _api
+from matplotlib import _api, artist, cbook, docstring
 import matplotlib.axes as maxes
-import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
-import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
 import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
@@ -2709,7 +2705,7 @@ pivot='tail', normalize=False, **kwargs)
         masks = bcast[argi:]
         if masks:
             # combine the masks into one
-            mask = reduce(np.logical_or, masks)
+            mask = functools.reduce(np.logical_or, masks)
             # put mask on and compress
             input_args = [np.ma.array(k, mask=mask).compressed()
                           for k in input_args]
@@ -3202,7 +3198,7 @@ pivot='tail', normalize=False, **kwargs)
         def _apply_mask(arrays, mask):
             # Return, for each array in *arrays*, the elements for which *mask*
             # is True, without using fancy indexing.
-            return [[*compress(array, mask)] for array in arrays]
+            return [[*itertools.compress(array, mask)] for array in arrays]
 
         def _extract_errs(err, data, lomask, himask):
             # For separate +/- error values we need to unpack err
