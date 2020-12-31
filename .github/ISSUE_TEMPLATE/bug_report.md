@@ -43,7 +43,7 @@ Avoid using threads, as Matplotlib is (explicitly) not thread-safe.-->
 **Matplotlib version**
 <!--Please specify your platform and versions of the relevant libraries you are using:-->
   * Operating system:
-  * Matplotlib version: 
+  * Matplotlib version: (`import matplotlib; print(matplotlib.__version__)`)
   * Matplotlib backend (`print(matplotlib.get_backend())`):
   * Python version:
   * Jupyter version (if applicable):
