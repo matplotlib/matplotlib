@@ -21,7 +21,7 @@ from matplotlib.backend_bases import (
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
-from matplotlib.font_manager import findfont, get_font
+from matplotlib.font_manager import findfont, get_font, ttfFontProperty
 from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -94,6 +94,12 @@ def escape_attrib(s):
     return s
 
 
+def _quote_escape_attrib(s):
+    return ('"' + escape_cdata(s) + '"' if '"' not in s else
+            "'" + escape_cdata(s) + "'" if "'" not in s else
+            '"' + escape_attrib(s) + '"')
+
+
 def short_float_fmt(x):
     """
     Create a short string representation of a float, which is %f
@@ -159,8 +165,8 @@ class XMLWriter:
         for k, v in sorted({**attrib, **extra}.items()):
             if v:
                 k = escape_cdata(k)
-                v = escape_attrib(v)
-                self.__write(' %s="%s"' % (k, v))
+                v = _quote_escape_attrib(v)
+                self.__write(' %s=%s' % (k, v))
         self.__open = 1
         return len(self.__tags) - 1
 
@@ -1197,11 +1203,21 @@ class RendererSVG(RendererBase):
             # Sort the characters by font, and output one tspan for each.
             spans = OrderedDict()
             for font, fontsize, thetext, new_x, new_y in glyphs:
-                style = generate_css({
-                    'font-size': short_float_fmt(fontsize) + 'px',
-                    'font-family': font.family_name,
-                    'font-style': font.style_name.lower(),
-                    'font-weight': font.style_name.lower()})
+                entry = ttfFontProperty(font)
+                font_parts = ['font:']
+                if entry.style != 'normal':
+                    font_parts.append(entry.style)
+                if entry.variant != 'normal':
+                    font_parts.append(entry.variant)
+                if entry.weight != 400:
+                    font_parts.append(f'{entry.weight}')
+                font_parts.extend([
+                    f'{short_float_fmt(fontsize)}px',
+                    f'{entry.name!r}',  # ensure quoting
+                ])
+                if entry.stretch != 'normal':
+                    font_parts.extend(['; font-stretch:', entry.stretch])
+                style = ' '.join(font_parts)
                 if thetext == 32:
                     thetext = 0xa0  # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
