@@ -820,8 +820,8 @@ class Grouper:
     >>> grp.join(a, b)
     >>> grp.join(b, c)
     >>> grp.join(d, e)
-    >>> sorted(map(tuple, grp))
-    [(a, b, c), (d, e)]
+    >>> list(grp)
+    [[a, b, c], [d, e]]
     >>> grp.joined(a, b)
     True
     >>> grp.joined(a, c)
