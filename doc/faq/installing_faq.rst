@@ -155,40 +155,4 @@ picked up by other Pythons.  If all these fail, please :ref:`let us know
 Install from source
 ===================
 
-A C compiler is required.  Typically, on Linux, you will need ``gcc``, which
-should be installed using your distribution's package manager; on macOS, you
-will need xcode_; on Windows, you will need Visual Studio 2015 or later.
-
-.. _xcode: https://guide.macports.org/chunked/installing.html#installing.xcode
-
-Clone the main source using one of::
-
-   git clone git@github.com:matplotlib/matplotlib.git
-
-or::
-
-   git clone git://github.com/matplotlib/matplotlib.git
-
-and build and install with::
-
-   cd matplotlib
-   python -mpip install .
-
-If you want to be able to follow the development branch as it changes
-just replace the last step with::
-
-   python -mpip install -e .
-
-This creates links and installs the command line script in the appropriate
-places.
-
-Then, if you want to update your Matplotlib at any time, just do::
-
-   git pull
-
-When you run ``git pull``, if the output shows that only Python files have
-been updated, you are all set. If C files have changed, you need to run ``pip
-install -e .`` again to compile them.
-
-There is more information on :ref:`using git <using-git>` in the developer
-docs.
+See :ref:`install_from_source`.
