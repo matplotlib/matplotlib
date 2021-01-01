@@ -20,10 +20,10 @@ class Triangulation:
 
     Attributes
     ----------
-    edges : int array of shape (nedges, 2)
-        See `~.Triangulation.edges`
-    neighbors : int array of shape (ntri, 3)
-        See `~.Triangulation.neighbors`
+    triangles : int array-like of shape (ntri, 3)
+        For each triangle, the indices of the three points that make
+        up the triangle, ordered in an anticlockwise manner. If you want to
+        take the *mask* into account, use `get_masked_triangles` instead.
     mask : bool array of shape (ntri, 3)
         Masked out triangles.
     is_delaunay : bool
