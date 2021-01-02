@@ -85,9 +85,10 @@ class Sankey:
             is None, then none of the quantities are labeled.
         format : str or callable
             A Python number formatting string or callable used to label the
-            flows with their quantities. If a format string is given, the
-            label will be ``format % quantity``. If a callable is given, it
-            will be called with ``quantity`` as an argument.
+            flows with their quantities (i.e., a number times a unit, where the
+            unit is given). If a format string is given, the label will be
+            ``format % quantity``. If a callable is given, it will be called
+            with ``quantity`` as an argument.
         gap : float
             Space between paths that break in/break away to/from the top or
             bottom.
