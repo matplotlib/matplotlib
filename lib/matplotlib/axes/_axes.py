@@ -3146,7 +3146,9 @@ class Axes(_AxesBase):
 
             theta1 = theta2
 
-        if not frame:
+        if frame:
+            self._request_autoscale_view()
+        else:
             self.set(frame_on=False, xticks=[], yticks=[],
                      xlim=(-1.25 + center[0], 1.25 + center[0]),
                      ylim=(-1.25 + center[1], 1.25 + center[1]))
