@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#
+#....
 # This allows running the matplotlib tests from the command line: e.g.
 #
 #   $ python tests.py -v -d
