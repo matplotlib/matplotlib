@@ -14,7 +14,6 @@ Writing documentation
 Getting started
 ===============
 
-
 General file structure
 ----------------------
 
@@ -51,55 +50,12 @@ Setting up the doc build
 ------------------------
 
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
-using the Sphinx_ documentation generation tool. To build the documentation
-you will need to
+using the Sphinx_ documentation generation tool.
 
-1. set up an appropriate Python environment
-2. install additional external dependencies
-
-Setting up a dedicated Python environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*  create a clean virtual environment with no existing Matplotlib installation
-*  install the Python packages required for Matplotlib
-*  install the additional Python packages required to build the documentation.
-   They are listed in :file:`doc-requirements.txt`, which is shown below:
-
-   .. include:: ../../requirements/doc/doc-requirements.txt
-      :literal:
-
-.. note::
-
-  If you've already set up an
-  :ref:`environment for Matplotlib development <installing_for_devs>`, you
-  can reuse that and skip the first two steps.
-
-Install additional external dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Required:
-
-*  a minimal working LaTeX distribution
-*  `Graphviz <http://www.graphviz.org/download>`_
-*  the LaTeX packages *cm-super* and *dvipng*. If your OS bundles ``TexLive``,
-   then often the "complete" version of the installer will automatically include
-   these packages (e.g. "texlive-full" or "texlive-all").
-
-Optional, but recommended:
-
-*  `Inkscape <https://inkscape.org>`_
-*  `optipng <http://optipng.sourceforge.net>`_
-*  the font "Humor Sans" (aka the "XKCD" font), or the free alternative
-   `Comic Neue <http://comicneue.com/>`_.
-*  the font "Times New Roman"
-
-.. note::
-
-  The documentation will not build without LaTeX and Graphviz.  These are not
-  Python packages and must be installed separately. The documentation can be
-  built without Inkscape and optipng, but the build process will raise various
-  warnings. If the build process warns that you are missing fonts, make sure
-  your LaTeX distribution bundles cm-super or install it separately.
+To build the documentation you will need to
+:ref:`set up Matplotlib for development <installing_for_devs>`. Note in
+particular the :ref:`additional dependencies <doc-dependencies>` required to
+build the documentation.
 
 Building the docs
 -----------------

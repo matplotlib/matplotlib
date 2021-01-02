@@ -9,33 +9,20 @@ Matplotlib's testing infrastructure depends on pytest_. The tests are in
 infrastructure are in :mod:`matplotlib.testing`.
 
 .. _pytest: http://doc.pytest.org/en/latest/
-.. _Ghostscript: https://www.ghostscript.com/
-.. _Inkscape: https://inkscape.org
-.. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-flake8: https://pypi.org/project/pytest-flake8/
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
 .. _flake8: https://pypi.org/project/flake8/
 
+
+.. _testing_requirements:
+
 Requirements
 ------------
 
-Install the latest version of Matplotlib as documented in
-:ref:`installing_for_devs`.
-
-The following software is required to run the tests:
-
-- pytest_ (>=3.6)
-- Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (to render SVG files)
-
-Optionally you can install:
-
-- pytest-cov_ (>=2.3.1) to collect coverage information
-- pytest-flake8_ to test coding standards using flake8_
-- pytest-timeout_ to limit runtime in case of stuck tests
-- pytest-xdist_ to run tests in parallel
-
+To run the tests you will need to
+:ref:`set up Matplotlib for development <installing_for_devs>`. Note in
+particular the :ref:`additional dependencies <test-dependencies>` for testing.
 
 Running the tests
 -----------------
