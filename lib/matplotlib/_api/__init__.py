@@ -9,7 +9,7 @@ This documentation is only relevant for Matplotlib developers, not for users.
     in your own code.  We may change the API at any time with no warning.
 
 """
-
+import inspect
 import itertools
 import re
 import sys
@@ -171,3 +171,54 @@ def warn_external(message, category=None):
             break
         frame = frame.f_back
     warnings.warn(message, category, stacklevel)
+
+
+def validate_arg_types(arg_names, cls):
+    """
+    A decorator that converts the arguments given by *arg_names* to *cls*, and
+    raises an error if that's not possible.
+
+    Notes
+    -----
+    - Each argument in *arg_names* is casted to cls(argument) before the
+      original function is called.
+    - The default value in the function signature is allowed through, even if
+      it cannot be cast to *cls*. As an example, this is helpful when using
+      `None` to denote no value being passed.
+    """
+    from matplotlib.rcsetup import _make_type_validator
+    validator = _make_type_validator(cls)
+
+    def outer(func):
+        """
+        *func* is the decorated function.
+        """
+        sig = inspect.signature(func)
+        for arg_name in arg_names:
+            if arg_name not in sig.parameters:
+                raise ValueError(f'Argument name {arg_name} not in function signature')
+
+        def inner(*args, **kwargs):
+            """
+            *args* and *kwargs* are those passed to the decorated function.
+            """
+            sig_bound = sig.bind(*args, **kwargs)
+            for arg_name in arg_names:
+                if arg_name not in sig_bound.arguments:
+                    continue
+                val = sig_bound.arguments[arg_name]
+                if val == sig.parameters[arg_name].default:
+                    # Allow the default value through
+                    continue
+                try:
+                    # Try to cast to the desired class
+                    sig_bound.arguments[arg_name] = cls(val)
+                except (TypeError, ValueError) as e:
+                    raise ValueError(f"Could not convert argument '{arg_name}' "
+                                     f"with value '{val}' "
+                                     f"to type {cls}.") from e
+            return func(*sig_bound.args, **sig_bound.kwargs)
+
+        return inner
+
+    return outer

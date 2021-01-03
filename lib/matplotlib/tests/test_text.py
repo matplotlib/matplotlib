@@ -709,3 +709,8 @@ def test_update_mutate_input():
     t.update(inp)
     assert inp['fontproperties'] == cache['fontproperties']
     assert inp['bbox'] == cache['bbox']
+
+
+def test_argument_error_message():
+    with pytest.raises(ValueError, match="Could not convert argument 'rotation'"):
+        plt.figtext(.5, .5, "foo", rotation=[90])
