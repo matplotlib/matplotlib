@@ -475,7 +475,7 @@ def test_bbox_intersection():
     # r3 contains r2
     assert_bbox_eq(inter(r1, r3), r3)
     # no intersection
-    assert inter(r1, r4) is None
+    assert_bbox_eq(inter(r1, r4), mtransforms.Bbox.null())
     # single point
     assert_bbox_eq(inter(r1, r5), bbox_from_ext(1, 1, 1, 1))
 
@@ -573,8 +573,10 @@ def test_log_transform():
 
 def test_nan_overlap():
     a = mtransforms.Bbox([[0, 0], [1, 1]])
-    b = mtransforms.Bbox([[0, 0], [1, np.nan]])
-    assert not a.overlaps(b)
+    with pytest.warns(RuntimeWarning,
+                      match="invalid value encountered in less"):
+        b = mtransforms.Bbox([[0, 0], [1, np.nan]])
+        assert not a.overlaps(b)
 
 
 def test_transform_angles():

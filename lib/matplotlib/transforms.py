@@ -225,6 +225,10 @@ class BboxBase(TransformNode):
     is_bbox = True
     is_affine = True
 
+    @staticmethod
+    def _empty_set_points():
+        return np.array([[np.inf, np.inf], [-np.inf, -np.inf]])
+
     if DEBUG:
         @staticmethod
         def _check(points):
@@ -651,30 +655,60 @@ class BboxBase(TransformNode):
         return bbox
 
     @staticmethod
-    def union(bboxes):
+    def union(bboxes, null_as_empty=True):
         """Return a `Bbox` that contains all of the given *bboxes*."""
         if not len(bboxes):
             raise ValueError("'bboxes' cannot be empty")
-        # needed for 1.14.4 < numpy_version < 1.16
-        # can remove once we are at numpy >= 1.16
-        with np.errstate(invalid='ignore'):
-            x0 = np.min([bbox.xmin for bbox in bboxes])
-            x1 = np.max([bbox.xmax for bbox in bboxes])
-            y0 = np.min([bbox.ymin for bbox in bboxes])
-            y1 = np.max([bbox.ymax for bbox in bboxes])
+        if not null_as_empty:
+            cbook.warn_deprecated(
+                3.4, message="Previously, Bboxs with negative width or "
+                "height could cause surprising results when unioned. In order "
+                "to fix this, any Bbox with negative width or height will be "
+                "treated as Bbox.null() (the empty set) starting in the next "
+                "point release. To upgrade to this behavior now, please pass "
+                "null_as_empty=True.")
+            # needed for 1.14.4 < numpy_version < 1.16
+            # can remove once we are at numpy >= 1.16
+            with np.errstate(invalid='ignore'):
+                x0 = np.min([bbox.xmin for bbox in bboxes])
+                x1 = np.max([bbox.xmax for bbox in bboxes])
+                y0 = np.min([bbox.ymin for bbox in bboxes])
+                y1 = np.max([bbox.ymax for bbox in bboxes])
+        else:
+            # needed for 1.14.4 < numpy_version < 1.16
+            # can remove once we are at numpy >= 1.16
+            with np.errstate(invalid='ignore'):
+                x0 = np.min([bbox.x0 for bbox in bboxes])
+                x1 = np.max([bbox.x1 for bbox in bboxes])
+                y0 = np.min([bbox.y0 for bbox in bboxes])
+                y1 = np.max([bbox.y1 for bbox in bboxes])
         return Bbox([[x0, y0], [x1, y1]])
 
     @staticmethod
-    def intersection(bbox1, bbox2):
+    def intersection(bbox1, bbox2, null_as_empty=True):
         """
         Return the intersection of *bbox1* and *bbox2* if they intersect, or
         None if they don't.
         """
-        x0 = np.maximum(bbox1.xmin, bbox2.xmin)
-        x1 = np.minimum(bbox1.xmax, bbox2.xmax)
-        y0 = np.maximum(bbox1.ymin, bbox2.ymin)
-        y1 = np.minimum(bbox1.ymax, bbox2.ymax)
-        return Bbox([[x0, y0], [x1, y1]]) if x0 <= x1 and y0 <= y1 else None
+        if not null_as_empty:
+            cbook.warn_deprecated(
+                3.4, message="Previously, Bboxs with negative width or "
+                "height could cause surprising results under intersection. To "
+                "fix this, any Bbox with negative width or height will be "
+                "treated as Bbox.null() (the empty set) starting in the next "
+                "point release. To upgrade to this behavior now, please pass "
+                "null_as_empty=True.")
+            #TODO: should probably be nanmax...
+            x0 = np.maximum(bbox1.xmin, bbox2.xmin)
+            x1 = np.minimum(bbox1.xmax, bbox2.xmax)
+            y0 = np.maximum(bbox1.ymin, bbox2.ymin)
+            y1 = np.minimum(bbox1.ymax, bbox2.ymax)
+        else:
+            x0 = np.maximum(bbox1.x0, bbox2.x0)
+            x1 = np.minimum(bbox1.x1, bbox2.x1)
+            y0 = np.maximum(bbox1.y0, bbox2.y0)
+            y1 = np.minimum(bbox1.y1, bbox2.y1)
+        return Bbox([[x0, y0], [x1, y1]])
 
 
 class Bbox(BboxBase):
@@ -704,8 +738,8 @@ class Bbox(BboxBase):
 
     **Create from collections of points**
 
-    The "empty" object for accumulating Bboxs is the null bbox, which is a
-    stand-in for the empty set.
+    The "empty" object for accumulating Bboxs is the null bbox, which
+    represents the empty set.
 
         >>> Bbox.null()
         Bbox([[inf, inf], [-inf, -inf]])
@@ -713,7 +747,7 @@ class Bbox(BboxBase):
     Adding points to the null bbox will give you the bbox of those points.
 
         >>> box = Bbox.null()
-        >>> box.update_from_data_xy([[1, 1]])
+        >>> box.update_from_data_xy([[1, 1]], ignore=False)
         >>> box
         Bbox([[1.0, 1.0], [1.0, 1.0]])
         >>> box.update_from_data_xy([[2, 3], [3, 2]], ignore=False)
@@ -732,33 +766,54 @@ class Bbox(BboxBase):
         default value of ``ignore`` can be changed at any time by code with
         access to your Bbox, for example using the method `~.Bbox.ignore`.
 
-    **Properties of the ``null`` bbox**
+    **Create from a set of constraints**
+
+    The null object for accumulating Bboxs from constraints is the entire plane
+
+        >>> Bbox.unbounded()
+        Bbox([[-inf, -inf], [inf, inf]])
+
+    By repeatedly intersecting Bboxs, we can refine the Bbox as needed
+
+        >>> constraints = Bbox.unbounded()
+        >>> for box in [Bbox([[0, 0], [1, 1]]), Bbox([[-1, 1], [1, 1]])]:
+        ...     constraints = Bbox.intersection(box, constraints)
+        >>> constraints
+        Bbox([[0.0, 1.0], [1.0, 1.0]])
+
+    **Algebra of Bboxs**
+
+    The family of all BBoxs forms a ring of sets, once we include the empty set
+    (`Bbox.null`) and the full space (`Bbox.unbounded`).
+
+    The unbounded bbox is the identity for intersections (the "multiplicative"
+    identity)
+
+        >>> Bbox.intersection(Bbox([[1, 1], [3, 7]]), Bbox.unbounded())
+        Bbox([[1.0, 1.0], [3.0, 7.0]])
+
+    and union with the unbounded Bbox always returns the unbounded Bbox
+
+        >>> Bbox.union([Bbox([[0, 0], [0, 0]]), Bbox.unbounded()])
+        Bbox([[-inf, -inf], [inf, inf]])
+
+    The null Bbox is the identity for unions (the "additive" identity)
+
+        >>> Bbox.union([Bbox.null(), Bbox([[1, 1], [3, 7]])])
+        Bbox([[1.0, 1.0], [3.0, 7.0]])
+
+    and intersection with the null Bbox always returns the null Bbox
+
+        >>> Bbox.intersection(Bbox.null(), Bbox.unbounded())
+        Bbox([[inf, inf], [-inf, -inf]])
 
     .. note::
 
-        The current behavior of `Bbox.null()` may be surprising as it does
-        not have all of the properties of the "empty set", and as such does
-        not behave like a "zero" object in the mathematical sense. We may
-        change that in the future (with a deprecation period).
-
-    The null bbox is the identity for intersections
-
-        >>> Bbox.intersection(Bbox([[1, 1], [3, 7]]), Bbox.null())
-        Bbox([[1.0, 1.0], [3.0, 7.0]])
-
-    except with itself, where it returns the full space.
-
-        >>> Bbox.intersection(Bbox.null(), Bbox.null())
-        Bbox([[-inf, -inf], [inf, inf]])
-
-    A union containing null will always return the full space (not the other
-    set!)
-
-        >>> Bbox.union([Bbox([[0, 0], [0, 0]]), Bbox.null()])
-        Bbox([[-inf, -inf], [inf, inf]])
+        In order to ensure that there is a unique "empty set", all empty Bboxs
+        are automatically converted to ``Bbox([[inf, inf], [-inf, -inf]])``.
     """
 
-    def __init__(self, points, **kwargs):
+    def __init__(self, points, null_as_empty=True, **kwargs):
         """
         Parameters
         ----------
@@ -770,6 +825,18 @@ class Bbox(BboxBase):
         if points.shape != (2, 2):
             raise ValueError('Bbox points must be of the form '
                              '"[[x0, y0], [x1, y1]]".')
+        if np.any(np.diff(points, axis=0) < 0):
+            if null_as_empty:
+                points = self._empty_set_points()
+            else:
+                cbook.warn_deprecated(
+                    3.4, message="In order to guarantee that Bbox union and "
+                    "intersection can work correctly, Bboxs with negative "
+                    "width or height will always be converted to Bbox.null "
+                    "starting in the next point release. To silence this "
+                    "warning, explicitly pass explicitly set null_as_empty to "
+                    "True to enable this behavior now.")
+        self._null_as_empty = null_as_empty
         self._points = points
         self._minpos = np.array([np.inf, np.inf])
         self._ignore = True
@@ -789,32 +856,48 @@ class Bbox(BboxBase):
             super().invalidate()
 
     @staticmethod
-    def unit():
+    def unit(null_as_empty=True):
         """Create a new unit `Bbox` from (0, 0) to (1, 1)."""
-        return Bbox([[0, 0], [1, 1]])
+        return Bbox([[0, 0], [1, 1]], null_as_empty=null_as_empty)
 
     @staticmethod
-    def null():
+    def null(null_as_empty=True):
         """Create a new null `Bbox` from (inf, inf) to (-inf, -inf)."""
-        return Bbox([[np.inf, np.inf], [-np.inf, -np.inf]])
+        return Bbox(Bbox._empty_set_points(), null_as_empty=null_as_empty)
 
     @staticmethod
-    def from_bounds(x0, y0, width, height):
+    def unbounded(null_as_empty=True):
+        """Create a new unbounded `Bbox` from (-inf, -inf) to (inf, inf)."""
+        return Bbox([[-np.inf, -np.inf], [np.inf, np.inf]],
+                    null_as_empty=null_as_empty)
+
+    @staticmethod
+    def from_bounds(x0, y0, width, height, null_as_empty=True):
         """
         Create a new `Bbox` from *x0*, *y0*, *width* and *height*.
 
-        *width* and *height* may be negative.
+        If *width* or *height* are negative, `Bbox.null` is returned.
         """
-        return Bbox.from_extents(x0, y0, x0 + width, y0 + height)
+        if width < 0 or height < 0 or np.isnan(width) or np.isnan(height):
+            if null_as_empty:
+                return Bbox.null()
+            else:
+                cbook.warn_deprecated(
+                    3.4, message="As of the next point release, "
+                    "Bbox.from_bounds will return the null Bbox if *width* or "
+                    "*height* are negative. To enable this behavior now, pass "
+                    "null_as_empty=True.")
+        return Bbox.from_extents(x0, y0, x0 + width, y0 + height,
+                                 null_as_empty=null_as_empty)
 
     @staticmethod
-    def from_extents(*args):
+    def from_extents(*args, null_as_empty=True):
         """
         Create a new Bbox from *left*, *bottom*, *right* and *top*.
 
         The *y*-axis increases upwards.
         """
-        return Bbox(np.reshape(args, (2, 2)))
+        return Bbox(np.reshape(args, (2, 2)), null_as_empty=null_as_empty)
 
     def __format__(self, fmt):
         return (
@@ -906,41 +989,57 @@ class Bbox(BboxBase):
     @BboxBase.x0.setter
     def x0(self, val):
         self._points[0, 0] = val
+        if self._null_as_empty and self.x0 > self.x1:
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.y0.setter
     def y0(self, val):
         self._points[0, 1] = val
+        if self._null_as_empty and self.y0 > self.y1:
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.x1.setter
     def x1(self, val):
         self._points[1, 0] = val
+        if self._null_as_empty and self.x0 > self.x1:
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.y1.setter
     def y1(self, val):
         self._points[1, 1] = val
+        if self._null_as_empty and self.y0 > self.y1:
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.p0.setter
     def p0(self, val):
         self._points[0] = val
+        if self._null_as_empty and (self.y0 > self.y1 or self.x0 > self.x1):
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.p1.setter
     def p1(self, val):
         self._points[1] = val
+        if self._null_as_empty and (self.y0 > self.y1 or self.x0 > self.x1):
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.intervalx.setter
     def intervalx(self, interval):
         self._points[:, 0] = interval
+        if self._null_as_empty and self.x0 > self.x1:
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.intervaly.setter
     def intervaly(self, interval):
         self._points[:, 1] = interval
+        if self._null_as_empty and self.y0 > self.y1:
+            self._points = self._empty_set_points()
         self.invalidate()
 
     @BboxBase.bounds.setter
@@ -949,6 +1048,9 @@ class Bbox(BboxBase):
         points = np.array([[l, b], [l + w, b + h]], float)
         if np.any(self._points != points):
             self._points = points
+            if self._null_as_empty and \
+                    (self.y0 > self.y1 or self.x0 > self.x1):
+                self._points = self._empty_set_points()
             self.invalidate()
 
     @property
@@ -979,6 +1081,9 @@ class Bbox(BboxBase):
         """
         if np.any(self._points != points):
             self._points = points
+            if self._null_as_empty \
+                    and (self.y0 > self.y1 or self.x0 > self.x1):
+                self._points = self._empty_set_points()
             self.invalidate()
 
     def set(self, other):
@@ -987,6 +1092,9 @@ class Bbox(BboxBase):
         """
         if np.any(self._points != other.get_points()):
             self._points = other.get_points()
+            if self._null_as_empty \
+                    and (self.y0 > self.y1 or self.x0 > self.x1):
+                self._points = self._empty_set_points()
             self.invalidate()
 
     def mutated(self):
