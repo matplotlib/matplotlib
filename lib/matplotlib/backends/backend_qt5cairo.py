@@ -2,7 +2,7 @@ import ctypes
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_qt5 import QtCore, QtGui, _BackendQT5, FigureCanvasQT
-from .qt_compat import QT_API, _setDevicePixelRatio
+from .qt_compat import QT_API, _enum, _setDevicePixelRatio
 
 
 class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
@@ -25,11 +25,17 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
             self._renderer.set_width_height(width, height)
             self.figure.draw(self._renderer)
         buf = self._renderer.gc.ctx.get_target().get_data()
-        qimage = QtGui.QImage(buf, width, height,
-                              QtGui.QImage.Format_ARGB32_Premultiplied)
+        if QT_API == "PyQt6":
+            import sip
+            ptr = sip.voidptr(buf)
+        else:
+            ptr = buf
+        qimage = QtGui.QImage(
+            ptr, width, height,
+            _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied)
         # Adjust the buf reference count to work around a memory leak bug in
-        # QImage under PySide on Python 3.
-        if QT_API == 'PySide':
+        # QImage under PySide.
+        if QT_API in ('PySide', 'PySide2'):
             ctypes.c_long.from_address(id(buf)).value = 1
         _setDevicePixelRatio(qimage, self.device_pixel_ratio)
         painter = QtGui.QPainter(self)

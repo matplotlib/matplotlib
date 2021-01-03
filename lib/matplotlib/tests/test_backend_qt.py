@@ -136,13 +136,14 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     Catch the event.
     Assert sent and caught keys are the same.
     """
-    qt_mod = qt_core.Qt.NoModifier
+    from matplotlib.backends.qt_compat import _enum, _to_int
+    qt_mod = _enum("QtCore.Qt.KeyboardModifiers").NoModifier
     for mod in qt_mods:
-        qt_mod |= getattr(qt_core.Qt, mod)
+        qt_mod |= getattr(_enum("QtCore.Qt.KeyboardModifiers"), mod)
 
     class _Event:
         def isAutoRepeat(self): return False
-        def key(self): return getattr(qt_core.Qt, qt_key)
+        def key(self): return _to_int(getattr(_enum("QtCore.Qt.Key"), qt_key))
         def modifiers(self): return qt_mod
 
     def on_key_press(event):
@@ -229,9 +230,7 @@ def test_device_pixel_ratio_change():
 @pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_subplottool():
     fig, ax = plt.subplots()
-    with mock.patch(
-            "matplotlib.backends.backend_qt5.SubplotToolQt.exec_",
-            lambda self: None):
+    with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.configure_subplots()
 
 
@@ -241,9 +240,7 @@ def test_figureoptions():
     ax.plot([1, 2])
     ax.imshow([[1]])
     ax.scatter(range(3), range(3), c=range(3))
-    with mock.patch(
-            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
-            lambda self: None):
+    with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.edit_parameters()
 
 

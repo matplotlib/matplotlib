@@ -11,7 +11,7 @@ from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import (
     QtCore, QtGui, QtWidgets, _BackendQT5, FigureCanvasQT, FigureManagerQT,
     NavigationToolbar2QT, backend_version)
-from .qt_compat import QT_API, _setDevicePixelRatio
+from .qt_compat import QT_API, _enum, _setDevicePixelRatio
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
@@ -59,14 +59,20 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             # clear the widget canvas
             painter.eraseRect(rect)
 
-            qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
-                                  QtGui.QImage.Format_ARGB32_Premultiplied)
+            if QT_API == "PyQt6":
+                from PyQt6 import sip
+                ptr = sip.voidptr(buf)
+            else:
+                ptr = buf
+            qimage = QtGui.QImage(
+                ptr, buf.shape[1], buf.shape[0],
+                _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied)
             _setDevicePixelRatio(qimage, self.device_pixel_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
             # Adjust the buf reference count to work around a memory
-            # leak bug in QImage under PySide on Python 3.
+            # leak bug in QImage under PySide.
             if QT_API in ('PySide', 'PySide2'):
                 ctypes.c_long.from_address(id(buf)).value = 1
 

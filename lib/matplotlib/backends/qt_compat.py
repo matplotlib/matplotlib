@@ -2,8 +2,8 @@
 Qt binding and backend selector.
 
 The selection logic is as follows:
-- if any of PyQt5, or PySide2 have already been imported (checked in that
-  order), use it;
+- if any of PyQt6, PySide6, PyQt5, or PySide2 have already been
+  imported (checked in that order), use it;
 - otherwise, if the QT_API environment variable (used by Enthought) is set, use
   it to determine which binding to use (but do not change the backend based on
   it; i.e. if the Qt5Agg backend is requested but QT_API is set to "pyqt4",
@@ -11,6 +11,8 @@ The selection logic is as follows:
 - otherwise, use whatever the rcParams indicate.
 """
 
+import functools
+import operator
 import os
 import platform
 import sys
@@ -20,6 +22,8 @@ from packaging.version import parse as parse_version
 import matplotlib as mpl
 
 
+QT_API_PYQT6 = "PyQt6"
+QT_API_PYSIDE6 = "PySide6"
 QT_API_PYQT5 = "PyQt5"
 QT_API_PYSIDE2 = "PySide2"
 QT_API_PYQTv2 = "PyQt4v2"
@@ -30,12 +34,17 @@ if QT_API_ENV is not None:
     QT_API_ENV = QT_API_ENV.lower()
 # Mapping of QT_API_ENV to requested binding.  ETS does not support PyQt4v1.
 # (https://github.com/enthought/pyface/blob/master/pyface/qt/__init__.py)
-_ETS = {"pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
-        None: None}
-# First, check if anything is already imported.  Use ``sys.modules.get(name)``
-# rather than ``name in sys.modules`` as entries can also have been explicitly
-# set to None.
-if sys.modules.get("PyQt5.QtCore"):
+_ETS = {
+    "pyqt6": QT_API_PYQT6, "pyside6": QT_API_PYSIDE6,
+    "pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
+    None: None
+}
+# First, check if anything is already imported.
+if sys.modules.get("PyQt6.QtCore"):
+    QT_API = QT_API_PYQT6
+elif sys.modules.get("PySide6.QtCore"):
+    QT_API = QT_API_PYSIDE6
+elif sys.modules.get("PyQt5.QtCore"):
     QT_API = QT_API_PYQT5
 elif sys.modules.get("PySide2.QtCore"):
     QT_API = QT_API_PYSIDE2
@@ -51,20 +60,34 @@ elif dict.__getitem__(mpl.rcParams, "backend") in ["Qt5Agg", "Qt5Cairo"]:
         QT_API = None
 # A non-Qt backend was selected but we still got there (possible, e.g., when
 # fully manually embedding Matplotlib in a Qt app without using pyplot).
+elif QT_API_ENV is None:
+    QT_API = None
 else:
     try:
         QT_API = _ETS[QT_API_ENV]
     except KeyError as err:
         raise RuntimeError(
             "The environment variable QT_API has the unrecognized value {!r};"
-            "valid values are 'pyqt5', and 'pyside2'") from err
+            "valid values are {}".format(
+                QT_API, ", ".join(map(repr, _ETS)))) from None
 
 
-def _setup_pyqt5():
+def _setup_pyqt5plus():
     global QtCore, QtGui, QtWidgets, __version__, is_pyqt5, \
         _isdeleted, _getSaveFileName
 
-    if QT_API == QT_API_PYQT5:
+    if QT_API == QT_API_PYQT6:
+        from PyQt6 import QtCore, QtGui, QtWidgets, sip
+        __version__ = QtCore.PYQT_VERSION_STR
+        QtCore.Signal = QtCore.pyqtSignal
+        QtCore.Slot = QtCore.pyqtSlot
+        QtCore.Property = QtCore.pyqtProperty
+        _isdeleted = sip.isdeleted
+    elif QT_API == QT_API_PYSIDE6:
+        from PySide6 import QtCore, QtGui, QtWidgets, __version__
+        import shiboken6
+        def _isdeleted(obj): return not shiboken6.isValid(obj)
+    elif QT_API == QT_API_PYQT5:
         from PyQt5 import QtCore, QtGui, QtWidgets
         import sip
         __version__ = QtCore.PYQT_VERSION_STR
@@ -77,16 +100,18 @@ def _setup_pyqt5():
         import shiboken2
         def _isdeleted(obj): return not shiboken2.isValid(obj)
     else:
-        raise ValueError("Unexpected value for the 'backend.qt5' rcparam")
+        raise AssertionError(f"Unexpected QT_API: {QT_API}")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
 
 
-if QT_API in [QT_API_PYQT5, QT_API_PYSIDE2]:
-    _setup_pyqt5()
+if QT_API in [QT_API_PYQT6, QT_API_PYQT5, QT_API_PYSIDE6, QT_API_PYSIDE2]:
+    _setup_pyqt5plus()
 elif QT_API is None:  # See above re: dict.__getitem__.
     _candidates = [
-        (_setup_pyqt5, QT_API_PYQT5),
-        (_setup_pyqt5, QT_API_PYSIDE2),
+        (_setup_pyqt5plus, QT_API_PYQT6),
+        (_setup_pyqt5plus, QT_API_PYSIDE6),
+        (_setup_pyqt5plus, QT_API_PYQT5),
+        (_setup_pyqt5plus, QT_API_PYSIDE2),
     ]
     for _setup, QT_API in _candidates:
         try:
@@ -97,7 +122,7 @@ elif QT_API is None:  # See above re: dict.__getitem__.
     else:
         raise ImportError("Failed to import any qt binding")
 else:  # We should not get there.
-    raise AssertionError("Unexpected QT_API: {}".format(QT_API))
+    raise AssertionError(f"Unexpected QT_API: {QT_API}")
 
 
 # Fixes issues with Big Sur
@@ -113,6 +138,28 @@ if (sys.platform == 'darwin' and
 ETS = dict(pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
 
 QT_RC_MAJOR_VERSION = int(QtCore.qVersion().split(".")[0])
+
+
+# PyQt6 enum compat helpers.
+
+
+_to_int = operator.attrgetter("value") if QT_API == "PyQt6" else int
+
+
+@functools.lru_cache(None)
+def _enum(name):
+    # foo.bar.Enum.Entry (PyQt6) <=> foo.bar.Entry (non-PyQt6).
+    return operator.attrgetter(
+        name if QT_API == "PyQt6" else name.rpartition(".")[0]
+    )(sys.modules[QtCore.__package__])
+
+
+# Backports.
+
+
+def _exec(obj):
+    # exec on PyQt6, exec_ elsewhere.
+    obj.exec() if hasattr(obj, "exec") else obj.exec_()
 
 
 def _devicePixelRatioF(obj):
