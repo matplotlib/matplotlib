@@ -29,7 +29,7 @@ class EllipseROIStats(object):
     axis: `~matplotlib.axes.Axes`: Axes to interact with
     fig: `~matplotlib.figure.Figure`: Figure on which to draw
     fig_shape: `~matplotlib.ndarray`: Array containing image dimensions
-    img_data: `~matplotlib.ndarray`: Image array
+    img_data: `numpy.ndarray`: Image array
     """
 
     def __init__(self, ax, img_data):
