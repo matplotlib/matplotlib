@@ -79,6 +79,17 @@ plt.show()
 # the data, and is derived empirically.  In that case we can set the
 # forward and inverse transforms functions to be linear interpolations from the
 # one data set to the other.
+#
+# .. note ::
+#
+#   In order to properly handle the data margins, the mapping functions 
+#   (`forward` and `inverse` in this example) need to be defined beyond the 
+#   nominal plot limits.
+#
+#   In the specific case of the numpy linear interpolation, `numpy.interp`, 
+#   this condition can be arbitrarily enforced by providing optional kwargs 
+#   `left`, `right` such that values outside the data range are mapped 
+#   well outside the plot limits.
 
 fig, ax = plt.subplots(constrained_layout=True)
 xdata = np.arange(1, 11, 0.4)
