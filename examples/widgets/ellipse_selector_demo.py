@@ -124,7 +124,7 @@ if __name__ == '__main__':
 
     fig, axis = plt.subplots(1, 1, figsize=(3.5, 3.5))
 
-    shown_fig = axis.imshow(random_im, interpolation='bilinear')
+    shown_fig = axis.imshow(random_im)
     fig_shape = random_im.shape
 
     selector = EllipseROIStats(axis, fig, fig_shape, random_im)
