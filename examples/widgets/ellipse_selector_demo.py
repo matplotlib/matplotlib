@@ -32,7 +32,7 @@ class EllipseROIStats(object):
     img_data: `~matplotlib.ndarray`: Image array
     """
 
-    def __init__(self, axis, fig, fig_shape, img_data):
+    def __init__(self, ax, img_data):
         self.ax = axis
         self.fig = fig
 
