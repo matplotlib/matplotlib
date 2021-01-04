@@ -23,6 +23,7 @@ try:
     import threading
 except ImportError:
     import dummy_threading as threading
+import math
 from contextlib import nullcontext
 from math import radians, cos, sin
 
@@ -138,7 +139,7 @@ class RendererAgg(RendererBase):
         if (npts > nmax > 100 and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
             nch = np.ceil(npts / nmax)
-            chsize = int(np.ceil(npts / nch))
+            chsize = math.ceil(npts / nch)
             i0 = np.arange(0, npts, chsize)
             i1 = np.zeros_like(i0)
             i1[:-1] = i0[1:] - 1

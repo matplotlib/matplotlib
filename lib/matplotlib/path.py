@@ -9,6 +9,7 @@ such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
 visualisation.
 """
 
+import math
 from functools import lru_cache
 from weakref import WeakValueDictionary
 
@@ -945,7 +946,7 @@ class Path:
 
         # number of curve segments to make
         if n is None:
-            n = int(2 ** np.ceil((eta2 - eta1) / halfpi))
+            n = 2 ** math.ceil((eta2 - eta1) / halfpi)
         if n < 1:
             raise ValueError("n must be >= 1 or None")
 

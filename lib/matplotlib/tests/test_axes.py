@@ -3,6 +3,7 @@ import datetime
 from decimal import Decimal
 import io
 from itertools import product
+import math
 import platform
 from types import SimpleNamespace
 try:
@@ -4346,7 +4347,7 @@ def test_specgram():
     all_sides = ["default", "onesided", "twosided"]
     for y, NFFT in [(y_freqs, NFFT_freqs), (y_noise, NFFT_noise)]:
         noverlap = NFFT // 2
-        pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+        pad_to = 2 ** math.ceil(np.log2(NFFT))
         for ax, sides in zip(plt.figure().subplots(3), all_sides):
             ax.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                         pad_to=pad_to, sides=sides)
@@ -4383,7 +4384,7 @@ def test_specgram_magnitude():
     all_sides = ["default", "onesided", "twosided"]
     for y, NFFT in [(y_freqs, NFFT_freqs), (y_noise, NFFT_noise)]:
         noverlap = NFFT // 2
-        pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+        pad_to = 2 ** math.ceil(np.log2(NFFT))
         for ax, sides in zip(plt.figure().subplots(3), all_sides):
             ax.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                         pad_to=pad_to, sides=sides, mode="magnitude")
@@ -4420,7 +4421,7 @@ def test_specgram_angle():
     all_sides = ["default", "onesided", "twosided"]
     for y, NFFT in [(y_freqs, NFFT_freqs), (y_noise, NFFT_noise)]:
         noverlap = NFFT // 2
-        pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+        pad_to = 2 ** math.ceil(np.log2(NFFT))
         for mode in ["angle", "phase"]:
             for ax, sides in zip(plt.figure().subplots(3), all_sides):
                 ax.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
@@ -4486,7 +4487,7 @@ def test_psd_csd():
                   {"sides": "twosided", "return_line": True}]
     for ys, NFFT in [(ys_freqs, NFFT_freqs), (ys_noise, NFFT_noise)]:
         noverlap = NFFT // 2
-        pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+        pad_to = 2 ** math.ceil(np.log2(NFFT))
         for ax, kwargs in zip(plt.figure().subplots(3), all_kwargs):
             ret = ax.psd(np.concatenate(ys), NFFT=NFFT, Fs=Fs,
                          noverlap=noverlap, pad_to=pad_to, **kwargs)
@@ -4515,7 +4516,7 @@ def test_spectrum():
 
     fstims1 = [Fs/4, Fs/5, Fs/11]
     NFFT = int(1000 * Fs / min(fstims1))
-    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+    pad_to = 2 ** math.ceil(np.log2(NFFT))
 
     x = np.arange(0, n, 1/Fs)
     y_freqs = ((np.sin(2 * np.pi * np.outer(x, fstims1)) * 10**np.arange(3))

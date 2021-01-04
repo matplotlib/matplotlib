@@ -895,7 +895,7 @@ class ScalarFormatter(Formatter):
         if len(self.locs) < 2:
             # We needed the end points only for the loc_range calculation.
             locs = locs[:-2]
-        loc_range_oom = int(math.floor(math.log10(loc_range)))
+        loc_range_oom = math.floor(math.log10(loc_range))
         # first estimate:
         sigfigs = max(0, 3 - loc_range_oom)
         # refined estimate:
@@ -1306,7 +1306,7 @@ class LogitFormatter(Formatter):
         if all(
             is_decade(x, rtol=1e-7)
             or is_decade(1 - x, rtol=1e-7)
-            or (is_close_to_int(2 * x) and int(np.round(2 * x)) == 1)
+            or (is_close_to_int(2 * x) and round(2 * x) == 1)
             for x in locs
         ):
             # minor ticks are subsample from ideal, so no label
@@ -1352,7 +1352,7 @@ class LogitFormatter(Formatter):
             diff = np.sort(np.abs(locs - x))[1]
             precision = -np.log10(diff) + exponent
             precision = (
-                int(np.round(precision))
+                round(precision)
                 if is_close_to_int(precision)
                 else math.ceil(precision)
             )
@@ -1522,7 +1522,7 @@ class EngFormatter(Formatter):
             num = -num
 
         if num != 0:
-            pow10 = int(math.floor(math.log10(num) / 3) * 3)
+            pow10 = math.floor(math.log10(num) / 3) * 3
         else:
             pow10 = 0
             # Force num to zero, to avoid inconsistencies like
@@ -1863,7 +1863,7 @@ class FixedLocator(Locator):
         """
         if self.nbins is None:
             return self.locs
-        step = max(int(np.ceil(len(self.locs) / self.nbins)), 1)
+        step = max(math.ceil(len(self.locs) / self.nbins), 1)
         ticks = self.locs[::step]
         for i in range(1, step):
             ticks1 = self.locs[i::step]

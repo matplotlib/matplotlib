@@ -5,6 +5,7 @@ Classes for the ticks and x and y axis.
 import datetime
 import functools
 import logging
+import math
 
 import numpy as np
 
@@ -2258,7 +2259,7 @@ class XAxis(Axis):
         # is no more than 3:1
         size = self._get_tick_label_size('x') * 3
         if size > 0:
-            return int(np.floor(length / size))
+            return math.floor(length / size)
         else:
             return 2**31 - 1
 
@@ -2541,6 +2542,6 @@ class YAxis(Axis):
         # Having a spacing of at least 2 just looks good.
         size = self._get_tick_label_size('y') * 2
         if size > 0:
-            return int(np.floor(length / size))
+            return math.floor(length / size)
         else:
             return 2**31 - 1

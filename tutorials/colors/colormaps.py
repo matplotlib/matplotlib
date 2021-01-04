@@ -73,6 +73,8 @@ Colormaps are often split into several categories based on their function (see,
 
 # sphinx_gallery_thumbnail_number = 2
 
+import math
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -255,7 +257,7 @@ for cmap_category, cmap_list in cmaps.items():
     # Do subplots so that colormaps have enough space.
     # Default is 6 colormaps per subplot.
     dsub = _DSUBS.get(cmap_category, 6)
-    nsubplots = int(np.ceil(len(cmap_list) / dsub))
+    nsubplots = math.ceil(len(cmap_list) / dsub)
 
     # squeeze=False to handle similarly the case of a single subplot
     fig, axs = plt.subplots(nrows=nsubplots, squeeze=False,

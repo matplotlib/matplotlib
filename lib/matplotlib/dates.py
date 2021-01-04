@@ -325,7 +325,7 @@ def _from_ordinalf(x, tz=None):
         tz = _get_rc_timezone()
 
     dt = (np.datetime64(get_epoch()) +
-          np.timedelta64(int(np.round(x * MUSECONDS_PER_DAY)), 'us'))
+          np.timedelta64(round(x * MUSECONDS_PER_DAY), 'us'))
     if dt < np.datetime64('0001-01-01') or dt >= np.datetime64('10000-01-01'):
         raise ValueError(f'Date ordinal {x} converts to {dt} (using '
                          f'epoch {get_epoch()}), but Matplotlib dates must be '
@@ -556,7 +556,7 @@ def drange(dstart, dend, delta):
     step = delta.total_seconds() / SEC_PER_DAY
 
     # calculate the difference between dend and dstart in times of delta
-    num = int(np.ceil((f2 - f1) / step))
+    num = math.ceil((f2 - f1) / step)
 
     # calculate end of the interval which will be generated
     dinterval_end = dstart + num * delta
@@ -638,7 +638,7 @@ class IndexDateFormatter(ticker.Formatter):
 
     def __call__(self, x, pos=0):
         """Return the label for time *x* at position *pos*."""
-        ind = int(round(x))
+        ind = round(x)
         if ind >= len(self.t) or ind <= 0:
             return ''
         return num2date(self.t[ind], self.tz).strftime(self.fmt)

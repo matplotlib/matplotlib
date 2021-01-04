@@ -1,3 +1,5 @@
+import math
+
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
 import numpy as np
@@ -308,7 +310,7 @@ class TestSpectral:
         if pad_to_density is None:
             pad_to_density_real = NFFT_density_real
         elif pad_to_density < 0:
-            pad_to_density = int(2**np.ceil(np.log2(NFFT_density_real)))
+            pad_to_density = 2 ** math.ceil(np.log2(NFFT_density_real))
             pad_to_density_real = pad_to_density
         else:
             pad_to_density_real = pad_to_density

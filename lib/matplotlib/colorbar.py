@@ -581,7 +581,7 @@ class ColorbarBase:
             if self.boundaries is None:
                 if isinstance(self.norm, colors.NoNorm):
                     nv = len(self._values)
-                    base = 1 + int(nv / 10)
+                    base = 1 + nv // 10
                     locator = ticker.IndexLocator(base=base, offset=0)
                 elif isinstance(self.norm, colors.BoundaryNorm):
                     b = self.norm.boundaries

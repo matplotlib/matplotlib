@@ -1658,8 +1658,8 @@ class Axes3D(Axes):
             compute_strides = not has_stride
 
         if compute_strides:
-            rstride = int(max(np.ceil(rows / rcount), 1))
-            cstride = int(max(np.ceil(cols / ccount), 1))
+            rstride = max(math.ceil(rows / rcount), 1)
+            cstride = max(math.ceil(cols / ccount), 1)
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
@@ -1885,14 +1885,14 @@ class Axes3D(Axes):
             # So, only compute strides from counts
             # if counts were explicitly given
             if has_count:
-                rstride = int(max(np.ceil(rows / rcount), 1)) if rcount else 0
-                cstride = int(max(np.ceil(cols / ccount), 1)) if ccount else 0
+                rstride = max(math.ceil(rows / rcount), 1) if rcount else 0
+                cstride = max(math.ceil(cols / ccount), 1) if ccount else 0
         else:
             # If the strides are provided then it has priority.
             # Otherwise, compute the strides from the counts.
             if not has_stride:
-                rstride = int(max(np.ceil(rows / rcount), 1)) if rcount else 0
-                cstride = int(max(np.ceil(cols / ccount), 1)) if ccount else 0
+                rstride = max(math.ceil(rows / rcount), 1) if rcount else 0
+                cstride = max(math.ceil(cols / ccount), 1) if ccount else 0
 
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
@@ -2073,9 +2073,9 @@ class Axes3D(Axes):
                     continue
 
             stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
-            for i in range(int(round(nsteps)) - 1):
-                i1 = int(round(i * stepsize))
-                i2 = int(round((i + 1) * stepsize))
+            for i in range(round(nsteps) - 1):
+                i1 = round(i * stepsize)
+                i2 = round((i + 1) * stepsize)
                 polyverts.append([topverts[0][i1],
                                   topverts[0][i2],
                                   botverts[0][i2],

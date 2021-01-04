@@ -2,6 +2,7 @@
 Classes to support contour plotting and labelling for the Axes class.
 """
 
+import math
 from numbers import Integral
 
 import numpy as np
@@ -280,7 +281,7 @@ class ContourLabeler:
         Find good place to draw a label (relatively flat part of the contour).
         """
         ctr_size = len(linecontour)
-        n_blocks = int(np.ceil(ctr_size / labelwidth)) if labelwidth > 1 else 1
+        n_blocks = math.ceil(ctr_size / labelwidth) if labelwidth > 1 else 1
         block_size = ctr_size if n_blocks == 1 else int(labelwidth)
         # Split contour into blocks of length ``block_size``, filling the last
         # block by cycling the contour start (per `np.resize` semantics).  (Due
@@ -1217,7 +1218,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             else:
                 linewidths = list(linewidths)
                 if len(linewidths) < Nlev:
-                    nreps = int(np.ceil(Nlev / len(linewidths)))
+                    nreps = math.ceil(Nlev / len(linewidths))
                     linewidths = linewidths * nreps
                 if len(linewidths) > Nlev:
                     linewidths = linewidths[:Nlev]
@@ -1241,7 +1242,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             elif np.iterable(linestyles):
                 tlinestyles = list(linestyles)
                 if len(tlinestyles) < Nlev:
-                    nreps = int(np.ceil(Nlev / len(linestyles)))
+                    nreps = math.ceil(Nlev / len(linestyles))
                     tlinestyles = tlinestyles * nreps
                 if len(tlinestyles) > Nlev:
                     tlinestyles = tlinestyles[:Nlev]

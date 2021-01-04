@@ -14,6 +14,8 @@ For more information on colors in matplotlib see
 * the :doc:`/gallery/color/color_demo`.
 """
 
+import math
+
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -38,7 +40,7 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
 
     n = len(names)
     ncols = 4 - emptycols
-    nrows = n // ncols + int(n % ncols > 0)
+    nrows = math.ceil(n / ncols)
 
     width = cell_width * 4 + 2 * margin
     height = cell_height * nrows + margin + topmargin

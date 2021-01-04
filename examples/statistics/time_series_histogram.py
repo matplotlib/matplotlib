@@ -41,7 +41,7 @@ x = np.linspace(0, 4 * np.pi, num_points)
 # Generate unbiased Gaussian random walks
 Y = np.cumsum(np.random.randn(num_series, num_points), axis=-1)
 # Generate sinusoidal signals
-num_signal = int(round(SNR * num_series))
+num_signal = round(SNR * num_series)
 phi = (np.pi / 8) * np.random.randn(num_signal, 1)  # small random offset
 Y[-num_signal:] = (
     np.sqrt(np.arange(num_points))[None, :]  # random walk RMS scaling factor

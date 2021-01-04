@@ -6,6 +6,8 @@ Defines classes for path effects. The path effects are supported in `~.Text`,
    :doc:`/tutorials/advanced/patheffects_guide`
 """
 
+import math
+
 from matplotlib.backend_bases import RendererBase
 from matplotlib import colors as mcolors
 from matplotlib import patches as mpatches
@@ -468,7 +470,7 @@ class TickedStroke(AbstractPathEffect):
             s = np.concatenate(([0.0], np.cumsum(ds)))
             s_total = s[-1]
 
-            num = int(np.ceil(s_total / spacing_px)) - 1
+            num = math.ceil(s_total / spacing_px) - 1
             # Pick parameter values for ticks.
             s_tick = np.linspace(spacing_px/2, s_total - spacing_px/2, num)
 
