@@ -24,7 +24,7 @@ def test_zorder():
     yoff = np.zeros(len(colLabels))
     for row in reversed(data):
         yoff += row
-        cellText.append(['%1.1f' % (x/1000.0) for x in yoff])
+        cellText.append(['%1.1f' % (x / 1000) for x in yoff])
 
     t = np.linspace(0, 2*np.pi, 100)
     plt.plot(t, np.cos(t), lw=4, zorder=2)

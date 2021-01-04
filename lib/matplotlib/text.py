@@ -402,7 +402,7 @@ class Text(Artist):
             elif valign == 'baseline':
                 offsety = ymin + descent
             elif valign == 'center_baseline':
-                offsety = ymin + height - baseline / 2.0
+                offsety = ymin + height - baseline / 2
             else:
                 offsety = ymin
         else:
@@ -410,20 +410,20 @@ class Text(Artist):
             xmax1, ymax1 = corners_horiz[2]
 
             if halign == 'center':
-                offsetx = (xmin1 + xmax1) / 2.0
+                offsetx = (xmin1 + xmax1) / 2
             elif halign == 'right':
                 offsetx = xmax1
             else:
                 offsetx = xmin1
 
             if valign == 'center':
-                offsety = (ymin1 + ymax1) / 2.0
+                offsety = (ymin1 + ymax1) / 2
             elif valign == 'top':
                 offsety = ymax1
             elif valign == 'baseline':
                 offsety = ymax1 - baseline
             elif valign == 'center_baseline':
-                offsety = ymax1 - baseline / 2.0
+                offsety = ymax1 - baseline / 2
             else:
                 offsety = ymin1
 

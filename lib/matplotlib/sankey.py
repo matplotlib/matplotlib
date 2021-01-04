@@ -156,7 +156,7 @@ class Sankey:
         self.shoulder = shoulder
         self.offset = offset
         self.margin = margin
-        self.pitch = np.tan(np.pi * (1 - head_angle / 180.0) / 2.0)
+        self.pitch = np.tan(np.pi * (1 - head_angle / 180) / 2)
         self.tolerance = tolerance
 
         # Initialize the vertices of tight box around the diagram(s).
@@ -234,7 +234,7 @@ class Sankey:
             dipdepth = (flow / 2) * self.pitch
             if angle == RIGHT:
                 x -= length
-                dip = [x + dipdepth, y + flow / 2.0]
+                dip = [x + dipdepth, y + flow / 2]
                 path.extend([(Path.LINETO, [x, y]),
                              (Path.LINETO, dip),
                              (Path.LINETO, [x, y + flow]),
@@ -288,7 +288,7 @@ class Sankey:
             tipheight = (self.shoulder - flow / 2) * self.pitch
             if angle == RIGHT:
                 x += length
-                tip = [x + tipheight, y + flow / 2.0]
+                tip = [x + tipheight, y + flow / 2]
                 path.extend([(Path.LINETO, [x, y]),
                              (Path.LINETO, [x, y + self.shoulder]),
                              (Path.LINETO, tip),
@@ -303,7 +303,7 @@ class Sankey:
                 else:
                     sign = -1
 
-                tip = [x - flow / 2.0, y + sign * (length + tipheight)]
+                tip = [x - flow / 2, y + sign * (length + tipheight)]
                 if angle == UP:
                     quadrant = 3
                 else:
@@ -599,34 +599,24 @@ class Sankey:
 
         # Begin the subpaths, and smooth the transition if the sum of the flows
         # is nonzero.
-        urpath = [(Path.MOVETO, [(self.gap - trunklength / 2.0),  # Upper right
-                                 gain / 2.0]),
-                  (Path.LINETO, [(self.gap - trunklength / 2.0) / 2.0,
-                                 gain / 2.0]),
-                  (Path.CURVE4, [(self.gap - trunklength / 2.0) / 8.0,
-                                 gain / 2.0]),
-                  (Path.CURVE4, [(trunklength / 2.0 - self.gap) / 8.0,
-                                 -loss / 2.0]),
-                  (Path.LINETO, [(trunklength / 2.0 - self.gap) / 2.0,
-                                 -loss / 2.0]),
-                  (Path.LINETO, [(trunklength / 2.0 - self.gap),
-                                 -loss / 2.0])]
-        llpath = [(Path.LINETO, [(trunklength / 2.0 - self.gap),  # Lower left
-                                 loss / 2.0]),
-                  (Path.LINETO, [(trunklength / 2.0 - self.gap) / 2.0,
-                                 loss / 2.0]),
-                  (Path.CURVE4, [(trunklength / 2.0 - self.gap) / 8.0,
-                                 loss / 2.0]),
-                  (Path.CURVE4, [(self.gap - trunklength / 2.0) / 8.0,
-                                 -gain / 2.0]),
-                  (Path.LINETO, [(self.gap - trunklength / 2.0) / 2.0,
-                                 -gain / 2.0]),
-                  (Path.LINETO, [(self.gap - trunklength / 2.0),
-                                 -gain / 2.0])]
-        lrpath = [(Path.LINETO, [(trunklength / 2.0 - self.gap),  # Lower right
-                                 loss / 2.0])]
-        ulpath = [(Path.LINETO, [self.gap - trunklength / 2.0,  # Upper left
-                                 gain / 2.0])]
+        # upper right
+        urpath = [(Path.MOVETO, [(self.gap - trunklength / 2), gain / 2]),
+                  (Path.LINETO, [(self.gap - trunklength / 2) / 2, gain / 2]),
+                  (Path.CURVE4, [(self.gap - trunklength / 2) / 8, gain / 2]),
+                  (Path.CURVE4, [(trunklength / 2 - self.gap) / 8, -loss / 2]),
+                  (Path.LINETO, [(trunklength / 2 - self.gap) / 2, -loss / 2]),
+                  (Path.LINETO, [(trunklength / 2 - self.gap), -loss / 2])]
+        # lower left
+        llpath = [(Path.LINETO, [(trunklength / 2 - self.gap), loss / 2]),
+                  (Path.LINETO, [(trunklength / 2 - self.gap) / 2, loss / 2]),
+                  (Path.CURVE4, [(trunklength / 2 - self.gap) / 8, loss / 2]),
+                  (Path.CURVE4, [(self.gap - trunklength / 2) / 8, -gain / 2]),
+                  (Path.LINETO, [(self.gap - trunklength / 2) / 2, -gain / 2]),
+                  (Path.LINETO, [(self.gap - trunklength / 2), -gain / 2])]
+        # lower right
+        lrpath = [(Path.LINETO, [(trunklength / 2 - self.gap), loss / 2])]
+        # Upper left
+        ulpath = [(Path.LINETO, [self.gap - trunklength / 2, gain / 2])]
 
         # Add the subpaths and assign the locations of the tips and labels.
         tips = np.zeros((n, 2))

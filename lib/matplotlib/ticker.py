@@ -3007,9 +3007,9 @@ class OldAutoLocator(Locator):
             if d >= 5 * base:
                 ticksize = base
             elif d >= 2 * base:
-                ticksize = base / 2.0
+                ticksize = base / 2
             else:
-                ticksize = base / 5.0
+                ticksize = base / 5
             locator = MultipleLocator(ticksize)
 
         return locator

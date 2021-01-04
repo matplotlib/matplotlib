@@ -204,7 +204,7 @@ class RendererAgg(RendererBase):
         font.set_text(s, 0, flags=flags)
         font.draw_glyphs_to_bitmap(
             antialiased=mpl.rcParams['text.antialiased'])
-        d = font.get_descent() / 64.0
+        d = font.get_descent() / 64
         # The descent needs to be adjusted for the angle.
         xo, yo = font.get_bitmap_offset()
         xo /= 64.0

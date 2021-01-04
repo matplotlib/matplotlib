@@ -1751,7 +1751,7 @@ def rgb_to_hsv(arr):
     idx = (arr[..., 2] == arr_max) & ipos
     out[idx, 0] = 4. + (arr[idx, 0] - arr[idx, 1]) / delta[idx]
 
-    out[..., 0] = (out[..., 0] / 6.0) % 1.0
+    out[..., 0] = (out[..., 0] / 6) % 1.0
     out[..., 1] = s
     out[..., 2] = arr_max
 

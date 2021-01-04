@@ -53,7 +53,7 @@ class GeoAxes(Axes):
         self.grid(rcParams['axes.grid'])
 
         Axes.set_xlim(self, -np.pi, np.pi)
-        Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
+        Axes.set_ylim(self, -np.pi / 2, np.pi / 2)
 
     def _set_lim_and_transforms(self):
         # A (possibly non-linear) projection on the (already scaled) data
@@ -260,7 +260,7 @@ class AitoffAxes(GeoAxes):
             longitude, latitude = ll.T
 
             # Pre-compute some values
-            half_long = longitude / 2.0
+            half_long = longitude / 2
             cos_latitude = np.cos(latitude)
 
             alpha = np.arccos(cos_latitude * np.cos(half_long))
@@ -286,7 +286,7 @@ class AitoffAxes(GeoAxes):
             return AitoffAxes.AitoffTransform(self._resolution)
 
     def __init__(self, *args, **kwargs):
-        self._longitude_cap = np.pi / 2.0
+        self._longitude_cap = np.pi / 2
         super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
@@ -304,7 +304,7 @@ class HammerAxes(GeoAxes):
         def transform_non_affine(self, ll):
             # docstring inherited
             longitude, latitude = ll.T
-            half_long = longitude / 2.0
+            half_long = longitude / 2
             cos_latitude = np.cos(latitude)
             sqrt2 = np.sqrt(2.0)
             alpha = np.sqrt(1.0 + cos_latitude * np.cos(half_long))
@@ -331,7 +331,7 @@ class HammerAxes(GeoAxes):
             return HammerAxes.HammerTransform(self._resolution)
 
     def __init__(self, *args, **kwargs):
-        self._longitude_cap = np.pi / 2.0
+        self._longitude_cap = np.pi / 2
         super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
@@ -401,7 +401,7 @@ class MollweideAxes(GeoAxes):
             return MollweideAxes.MollweideTransform(self._resolution)
 
     def __init__(self, *args, **kwargs):
-        self._longitude_cap = np.pi / 2.0
+        self._longitude_cap = np.pi / 2
         super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()

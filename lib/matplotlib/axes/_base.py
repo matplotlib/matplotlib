@@ -1733,13 +1733,13 @@ class _AxesBase(martist.Artist):
 
         if adjust_y:
             yc = 0.5 * (ymin + ymax)
-            y0 = yc - Ysize / 2.0
-            y1 = yc + Ysize / 2.0
+            y0 = yc - Ysize / 2
+            y1 = yc + Ysize / 2
             self.set_ybound(y_trf.inverted().transform([y0, y1]))
         else:
             xc = 0.5 * (xmin + xmax)
-            x0 = xc - Xsize / 2.0
-            x1 = xc + Xsize / 2.0
+            x0 = xc - Xsize / 2
+            x1 = xc + Xsize / 2
             self.set_xbound(x_trf.inverted().transform([x0, x1]))
 
     def axis(self, *args, emit=True, **kwargs):

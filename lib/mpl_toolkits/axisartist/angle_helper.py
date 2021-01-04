@@ -15,10 +15,10 @@ def select_step_degree(dv):
     minsec_steps_  = [1,   2,   3,   5, 10, 15, 20, 30]
 
     minute_limits_ = np.array(minsec_limits_) / 60
-    minute_factors = [60.] * len(minute_limits_)
+    minute_factors = [60] * len(minute_limits_)
 
     second_limits_ = np.array(minsec_limits_) / 3600
-    second_factors = [3600.] * len(second_limits_)
+    second_factors = [3600] * len(second_limits_)
 
     degree_limits = [*second_limits_, *minute_limits_, *degree_limits_]
     degree_steps = [*minsec_steps_, *minsec_steps_, *degree_steps_]
@@ -41,10 +41,10 @@ def select_step_hour(dv):
     minsec_steps_  = [1,   2,   3,   4,   5,   6, 10, 12, 15, 20, 30]
 
     minute_limits_ = np.array(minsec_limits_) / 60
-    minute_factors = [60.] * len(minute_limits_)
+    minute_factors = [60] * len(minute_limits_)
 
     second_limits_ = np.array(minsec_limits_) / 3600
-    second_factors = [3600.] * len(second_limits_)
+    second_factors = [3600] * len(second_limits_)
 
     hour_limits = [*second_limits_, *minute_limits_, *hour_limits_]
     hour_steps = [*minsec_steps_, *minsec_steps_, *hour_steps_]
@@ -78,7 +78,7 @@ def select_step_sub(dv):
 
 
 def select_step(v1, v2, nv, hour=False, include_last=True,
-                threshold_factor=3600.):
+                threshold_factor=3600):
 
     if v1 > v2:
         v1, v2 = v2, v1
@@ -87,10 +87,10 @@ def select_step(v1, v2, nv, hour=False, include_last=True,
 
     if hour:
         _select_step = select_step_hour
-        cycle = 24.
+        cycle = 24
     else:
         _select_step = select_step_degree
-        cycle = 360.
+        cycle = 360
 
     # for degree
     if dv > 1 / threshold_factor:

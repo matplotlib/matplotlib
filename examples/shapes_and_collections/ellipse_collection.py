@@ -17,8 +17,8 @@ X, Y = np.meshgrid(x, y)
 
 XY = np.column_stack((X.ravel(), Y.ravel()))
 
-ww = X / 10.0
-hh = Y / 15.0
+ww = X / 10
+hh = Y / 15
 aa = X * 9
 
 

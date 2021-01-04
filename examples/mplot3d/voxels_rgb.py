@@ -13,12 +13,12 @@ import numpy as np
 def midpoints(x):
     sl = ()
     for i in range(x.ndim):
-        x = (x[sl + np.index_exp[:-1]] + x[sl + np.index_exp[1:]]) / 2.0
+        x = (x[sl + np.index_exp[:-1]] + x[sl + np.index_exp[1:]]) / 2
         sl += np.index_exp[:]
     return x
 
 # prepare some coordinates, and attach rgb values to each
-r, g, b = np.indices((17, 17, 17)) / 16.0
+r, g, b = np.indices((17, 17, 17)) / 16
 rc = midpoints(r)
 gc = midpoints(g)
 bc = midpoints(b)

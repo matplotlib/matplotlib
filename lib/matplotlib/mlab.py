@@ -930,7 +930,7 @@ class GaussianKDE:
 
     def silverman_factor(self):
         return np.power(
-            self.num_dp * (self.dim + 2.0) / 4.0, -1. / (self.dim + 4))
+            self.num_dp * (self.dim + 2) / 4, -1. / (self.dim + 4))
 
     #  Default method to calculate bandwidth, can be overwritten by subclass
     covariance_factor = scotts_factor
@@ -970,14 +970,14 @@ class GaussianKDE:
             for i in range(self.num_dp):
                 diff = self.dataset[:, i, np.newaxis] - points
                 tdiff = np.dot(self.inv_cov, diff)
-                energy = np.sum(diff * tdiff, axis=0) / 2.0
+                energy = np.sum(diff * tdiff, axis=0) / 2
                 result = result + np.exp(-energy)
         else:
             # loop over points
             for i in range(num_m):
                 diff = self.dataset - points[:, i, np.newaxis]
                 tdiff = np.dot(self.inv_cov, diff)
-                energy = np.sum(diff * tdiff, axis=0) / 2.0
+                energy = np.sum(diff * tdiff, axis=0) / 2
                 result[i] = np.sum(np.exp(-energy), axis=0)
 
         result = result / self.norm_factor

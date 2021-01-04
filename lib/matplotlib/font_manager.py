@@ -1195,7 +1195,7 @@ class FontManager:
             stretchval2 = int(stretch2)
         except ValueError:
             stretchval2 = stretch_dict.get(stretch2, 500)
-        return abs(stretchval1 - stretchval2) / 1000.0
+        return abs(stretchval1 - stretchval2) / 1000
 
     def score_weight(self, weight1, weight2):
         """

@@ -21,7 +21,7 @@ class UnitDbl:
         "deg": (1.745329251994330e-02, "rad"),
 
         "sec": (1, "sec"),
-        "min": (60.0, "sec"),
+        "min": (60, "sec"),
         "hour": (3600, "sec"),
         }
 

@@ -1889,7 +1889,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file._character_tracker.merge(*args, **kwargs)
 
     def get_image_magnification(self):
-        return self.image_dpi/72.0
+        return self.image_dpi / 72
 
     def draw_image(self, gc, x, y, im, transform=None):
         # docstring inherited

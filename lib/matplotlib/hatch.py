@@ -162,7 +162,7 @@ class SmallFilledCircles(SmallCircles):
 
 
 class Stars(Shapes):
-    size = 1.0 / 3.0
+    size = 1 / 3
     filled = True
 
     def __init__(self, hatch, density):

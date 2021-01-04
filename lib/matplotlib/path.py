@@ -773,7 +773,7 @@ class Path:
             theta = (2*np.pi/ns2 * np.arange(ns2 + 1))
             # This initial rotation is to make sure the polygon always
             # "points-up"
-            theta += np.pi / 2.0
+            theta += np.pi / 2
             r = np.ones(ns2 + 1)
             r[1::2] = innerCircle
             verts = (r * np.vstack((np.cos(theta), np.sin(theta)))).T
@@ -952,7 +952,7 @@ class Path:
 
         deta = (eta2 - eta1) / n
         t = np.tan(0.5 * deta)
-        alpha = np.sin(deta) * (np.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
+        alpha = np.sin(deta) * (np.sqrt(4 + 3 * t * t) - 1) / 3
 
         steps = np.linspace(eta1, eta2, n + 1, True)
         cos_eta = np.cos(steps)

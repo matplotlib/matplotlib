@@ -96,7 +96,7 @@ class Epoch:
         if frame != self._frame:
             t = self.convert(frame)
 
-        return t._jd + t._seconds / 86400.0
+        return t._jd + t._seconds / 86400
 
     def secondsPast(self, frame, jd):
         t = self

@@ -69,7 +69,7 @@ class GeoAxes(Axes):
         self.grid(rcParams['axes.grid'])
 
         Axes.set_xlim(self, -np.pi, np.pi)
-        Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
+        Axes.set_ylim(self, -np.pi / 2, np.pi / 2)
 
     def _set_lim_and_transforms(self):
         # A (possibly non-linear) projection on the (already scaled) data
@@ -427,7 +427,7 @@ class HammerAxes(GeoAxes):
             return HammerAxes.HammerTransform(self._resolution)
 
     def __init__(self, *args, **kwargs):
-        self._longitude_cap = np.pi / 2.0
+        self._longitude_cap = np.pi / 2
         super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()

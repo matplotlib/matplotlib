@@ -383,7 +383,7 @@ class Table(Artist):
         self.stale = True
 
     def _approx_text_height(self):
-        return (self.FONTSIZE / 72.0 * self.figure.dpi /
+        return (self.FONTSIZE / 72 * self.figure.dpi /
                 self._axes.bbox.height * 1.2)
 
     @allow_rasterization

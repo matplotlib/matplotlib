@@ -615,8 +615,8 @@ class BboxBase(TransformNode):
         """
         width = self.width
         height = self.height
-        deltaw = (sw * width - width) / 2.0
-        deltah = (sh * height - height) / 2.0
+        deltaw = (sw * width - width) / 2
+        deltah = (sh * height - height) / 2
         a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 

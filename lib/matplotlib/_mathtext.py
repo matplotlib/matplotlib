@@ -271,18 +271,18 @@ class TruetypeFonts(Fonts):
             num,
             flags=self.mathtext_backend.get_hinting_type())
 
-        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        xmin, ymin, xmax, ymax = [val / 64 for val in glyph.bbox]
         offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = types.SimpleNamespace(
-            advance = glyph.linearHoriAdvance/65536.0,
-            height  = glyph.height/64.0,
-            width   = glyph.width/64.0,
+            advance = glyph.linearHoriAdvance / 65536,
+            height  = glyph.height / 64,
+            width   = glyph.width / 64,
             xmin    = xmin,
             xmax    = xmax,
             ymin    = ymin+offset,
             ymax    = ymax+offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = glyph.horiBearingY/64.0 + offset,
+            iceberg = glyph.horiBearingY / 64 + offset,
             slanted = slanted
             )
 
@@ -307,14 +307,14 @@ class TruetypeFonts(Fonts):
             metrics = self.get_metrics(
                 fontname, mpl.rcParams['mathtext.default'], 'x', fontsize, dpi)
             return metrics.iceberg
-        xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0) * (dpi / 100.0)
+        xHeight = (pclt['xHeight'] / 64) * (fontsize / 12) * (dpi / 100)
         return xHeight
 
     def get_underline_thickness(self, font, fontsize, dpi):
         # This function used to grab underline thickness from the font
         # metrics, but that information is just too un-reliable, so it
         # is now hardcoded.
-        return ((0.75 / 12.0) * fontsize * dpi) / 72.0
+        return ((0.75 / 12) * fontsize * dpi) / 72
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
@@ -2503,7 +2503,7 @@ class Parser:
         if accent == 'mathring':
             accent_box.shrink()
             accent_box.shrink()
-        centered = HCentered([Hbox(sym.width / 4.0), accent_box])
+        centered = HCentered([Hbox(sym.width / 4), accent_box])
         centered.hpack(sym.width, 'exactly')
         return Vlist([
                 centered,

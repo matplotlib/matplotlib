@@ -15,7 +15,7 @@ fig, ax = plt.subplots()
 dt = 0.01
 t = np.arange(dt, 20.0, dt)
 
-ax.semilogx(t, np.exp(-t / 5.0))
+ax.semilogx(t, np.exp(-t / 5))
 ax.grid()
 
 plt.show()

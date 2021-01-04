@@ -618,7 +618,7 @@ class Line2D(Artist):
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
-            ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
+            ms = (self._markersize / 72 * self.figure.dpi) * 0.5
             bbox = bbox.padded(ms)
         return bbox
 

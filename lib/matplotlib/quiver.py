@@ -744,7 +744,7 @@ class Quiver(mcollections.PolyCollection):
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:
-            th = np.arange(0, 8, 1, np.float64) * (np.pi / 3.0)
+            th = np.arange(0, 8, 1, np.float64) * (np.pi / 3)
             x1 = np.cos(th) * self.minlength * 0.5
             y1 = np.sin(th) * self.minlength * 0.5
             X1 = np.repeat(x1[np.newaxis, :], N, axis=0)

@@ -78,7 +78,7 @@ def test_interp_nearest_vs_none():
 def test_figimage(suppressComposite):
     fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite
-    x, y = np.ix_(np.arange(100) / 100.0, np.arange(100) / 100)
+    x, y = np.ix_(np.arange(100) / 100, np.arange(100) / 100)
     z = np.sin(x**2 + y**2 - x*y)
     c = np.sin(20*x**2 + 50*y**2)
     img = z + c/5

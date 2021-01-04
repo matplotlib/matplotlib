@@ -297,7 +297,7 @@ def _dt64_to_ordinalf(d):
     extra = (d - dseconds).astype('timedelta64[ns]')
     t0 = np.datetime64(get_epoch(), 's')
     dt = (dseconds - t0).astype(np.float64)
-    dt += extra.astype(np.float64) / 1.0e9
+    dt += extra.astype(np.float64) / 1e9
     dt = dt / SEC_PER_DAY
 
     NaT_int = np.datetime64('NaT').astype(np.int64)

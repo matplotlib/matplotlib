@@ -56,8 +56,8 @@ class PlotPanel(wx.Panel):
     def init_plot_data(self):
         ax = self.fig.add_subplot()
 
-        x = np.arange(120.0) * 2 * np.pi / 60.0
-        y = np.arange(100.0) * 2 * np.pi / 50.0
+        x = np.arange(120.0) * 2 * np.pi / 60
+        y = np.arange(100.0) * 2 * np.pi / 50
         self.x, self.y = np.meshgrid(x, y)
         z = np.sin(self.x) + np.cos(self.y)
         self.im = ax.imshow(z, cmap=cm.RdBu, origin='lower')

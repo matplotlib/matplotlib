@@ -1448,7 +1448,7 @@ class PolarAxes(Axes):
         angle = np.deg2rad(self.get_rlabel_position())
         mode = ''
         if button == 1:
-            epsilon = np.pi / 45.0
+            epsilon = np.pi / 45
             t, r = self.transData.inverted().transform((x, y))
             if angle - epsilon <= t <= angle + epsilon:
                 mode = 'drag_r_labels'

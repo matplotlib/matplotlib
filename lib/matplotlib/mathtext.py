@@ -137,8 +137,8 @@ class MathtextBackendAgg(MathtextBackend):
         else:
             height = max(int(y2 - y1) - 1, 0)
             if height == 0:
-                center = (y2 + y1) / 2.0
-                y = int(center - (height + 1) / 2.0)
+                center = (y2 + y1) / 2
+                y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
             self.image.draw_rect_filled(int(x1), y, np.ceil(x2), y + height)
@@ -614,7 +614,7 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
     parser = MathTextParser('path')
     width, height, depth, _, _ = parser.parse(s, dpi=72, prop=prop)
 
-    fig = figure.Figure(figsize=(width / 72.0, height / 72.0))
+    fig = figure.Figure(figsize=(width / 72, height / 72))
     fig.text(0, depth/height, s, fontproperties=prop)
     backend_agg.FigureCanvasAgg(fig)
     fig.savefig(filename_or_obj, dpi=dpi, format=format)

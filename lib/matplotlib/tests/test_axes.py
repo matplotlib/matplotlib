@@ -262,7 +262,7 @@ def test_strmethodformatter_auto_formatter():
 @image_comparison(["twin_axis_locators_formatters"])
 def test_twin_axis_locators_formatters():
     vals = np.linspace(0, 1, num=5, endpoint=True)
-    locs = np.sin(np.pi * vals / 2.0)
+    locs = np.sin(np.pi * vals / 2)
 
     majl = plt.FixedLocator(locs)
     minl = plt.FixedLocator([0.1, 0.2, 0.3])
@@ -599,7 +599,7 @@ def test_fill_units():
     # generate some data
     t = units.Epoch("ET", dt=datetime.datetime(2009, 4, 27))
     value = 10.0 * units.deg
-    day = units.Duration("ET", 24.0 * 60.0 * 60.0)
+    day = units.Duration("ET", 24 * 60 * 60)
     dt = np.arange('2009-04-27', '2009-04-29', dtype='datetime64[D]')
     dtn = mdates.date2num(dt)
 
@@ -3805,7 +3805,7 @@ def test_mollweide_forward_inverse_closure():
 
     # set up 1-degree grid in longitude, latitude
     lon = np.linspace(-np.pi, np.pi, 360)
-    lat = np.linspace(-np.pi / 2.0, np.pi / 2.0, 180)
+    lat = np.linspace(-np.pi / 2, np.pi / 2, 180)
     lon, lat = np.meshgrid(lon, lat)
     ll = np.vstack((lon.flatten(), lat.flatten())).T
 

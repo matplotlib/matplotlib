@@ -333,7 +333,7 @@ class ContourLabeler:
         if lc is None:
             lc = []
         # Half the label width
-        hlw = lw / 2.0
+        hlw = lw / 2
 
         # Check if closed and, if so, rotate contour so label is at edge
         closed = _is_closed_polygon(slc)
