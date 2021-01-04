@@ -100,3 +100,18 @@ axs[1].hist2d(x, y, bins=40, norm=colors.LogNorm())
 axs[2].hist2d(x, y, bins=(80, 10), norm=colors.LogNorm())
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.hist
+matplotlib.pyplot.hist
+matplotlib.pyplot.hist2d
+matplotlib.ticker.PercentFormatter

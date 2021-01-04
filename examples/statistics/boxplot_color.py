@@ -51,3 +51,16 @@ for ax in [ax1, ax2]:
     ax.set_ylabel('Observed values')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.boxplot
+matplotlib.pyplot.boxplot

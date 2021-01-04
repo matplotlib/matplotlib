@@ -74,3 +74,18 @@ for ax in [ax1, ax2]:
 
 plt.subplots_adjust(bottom=0.15, wspace=0.05)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.violinplot
+matplotlib.pyplot.violinplot
+matplotlib.axes.Axes.vlines
+matplotlib.pyplot.vlines

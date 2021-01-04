@@ -288,3 +288,4 @@ per-file-ignores =
     examples/userdemo/custom_boxstyle01.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
     examples/widgets/*.py: E402
+    examples/statistics/*.py: E402
