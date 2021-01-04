@@ -9,8 +9,6 @@ In addition to the basic histogram, this demo shows a few optional features:
 * The *density* parameter, which normalizes bin heights so that the integral of
   the histogram is 1. The resulting histogram is an approximation of the
   probability density function.
-* Setting the face color of the bars.
-* Setting the opacity (alpha value).
 
 Selecting different bin counts and sizes can significantly affect the shape
 of a histogram. The Astropy docs have a great section_ on how to select these
