@@ -15,14 +15,16 @@ the mapping of numbers to emoji.
     # on Windows, this font may be necessary to display emojis
     plt.rcParams['font.family'] = "Segoe UI Emoji"
 
-    def display_in_cats(values, min_cats, max_cats):
 
+    def display_in_cats(values, min_cats, max_cats):
         def display_in_cat_scale(value):
             max_value = max(values, key=abs)
-            number_cats_to_show = max(min_cats, math.floor(abs(value) / max_value * max_cats))
+            number_cats_to_show = \
+                max(min_cats, math.floor(abs(value) / max_value * max_cats))
             return str(number_cats_to_show * '🐈')
 
         return display_in_cat_scale
+
 
     flows = [35, 15, 40, -20, -15, -5, -40, -10]
     orientations = [-1, 1, 0, 1, 1, 1, -1, -1]
@@ -41,6 +43,7 @@ the mapping of numbers to emoji.
 
     diagrams[0].texts[2].set_text('')
 
-    plt.title(f'Sankey flows measured in cats \n🐈 = {max(flows, key=abs) / max_cats}')
+    plt.title(f'Sankey flows measured in cats \n'
+              f'🐈 = {max(flows, key=abs) / max_cats}')
 
     plt.show()
