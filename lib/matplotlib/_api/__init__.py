@@ -211,3 +211,7 @@ def warn_external(message, category=None):
             break
         frame = frame.f_back
     warnings.warn(message, category, stacklevel)
+
+
+def is_string_like(x):
+    return isinstance(x, (str, bytes, bytearray))

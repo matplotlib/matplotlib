@@ -10,17 +10,81 @@ As an end-user you will not use these classes directly, but only the values
 they define.
 """
 
-from enum import Enum, auto
-from numbers import Number
+from enum import _EnumDict, EnumMeta, Enum, auto
+
+import numpy as np
 
 from matplotlib import _api, docstring
 
 
-class _AutoStringNameEnum(Enum):
-    """Automate the ``name = 'name'`` part of making a (str, Enum)."""
+class _AliasableStrEnumDict(_EnumDict):
+    """Helper for `_AliasableEnumMeta`."""
+    def __init__(self):
+        super().__init__()
+        self._aliases = {}
+        # adopt the Python 3.10 convention of "auto()" simply using the name of
+        # the attribute: https://bugs.python.org/issue42385
+        # this can be removed once we no longer support Python 3.9
+        self._generate_next_value \
+                = lambda name, start, count, last_values: name
 
-    def _generate_next_value_(name, start, count, last_values):
-        return name
+    def __setitem__(self, key, value):
+        # if a class attribute with this name has already been created,
+        # register this as an "alias"
+        if key in self:
+            self._aliases[value] = self[key]
+        else:
+            super().__setitem__(key, value)
+
+
+class _AliasableEnumMeta(EnumMeta):
+    """
+    Allow Enums to have multiple "values" which are equivalent.
+
+    For a discussion of several approaches to "value aliasing", see
+    https://stackoverflow.com/questions/24105268/is-it-possible-to-override-new-in-an-enum-to-parse-strings-to-an-instance
+    """
+    @classmethod
+    def __prepare__(metacls, cls, bases):
+        # a custom dict (_EnumDict) is used when handing the __prepared__
+        # class's namespace to EnumMeta.__new__. This way, when non-dunder,
+        # non-descriptor class-level variables are added to the class namespace
+        # during class-body execution, their values can be replaced with the
+        # singletons that will later be returned by Enum.__call__.
+
+        # We over-ride this dict to prevent _EnumDict's internal checks from
+        # throwing an error whenever preventing the same name is inserted
+        # twice. Instead, we add that name to a _aliases dict that can be
+        # used to look up the correct singleton later.
+        return _AliasableStrEnumDict()
+
+    def __new__(metacls, cls, bases, classdict):
+        # add our _aliases dict to the newly created class, so that it
+        # can be used by __call__.
+        enum_class = super().__new__(metacls, cls, bases, classdict)
+        enum_class._aliases_ = classdict._aliases
+        return enum_class
+
+    def __call__(cls, value, *args, **kw):
+        # convert the value to the "default" if it is an alias, and then simply
+        # forward to Enum
+        if value not in cls. _value2member_map_ and value in cls._aliases_:
+            value = cls._aliases_[value]
+        return super().__call__(value, *args, **kw)
+
+
+class _AliasableStringNameEnum(Enum, metaclass=_AliasableEnumMeta):
+    """
+    Convenience mix-in for easier construction of string enums.
+
+    Automates the ``name = 'name'`` part of making a (str, Enum), using the
+    semantics that have now been adopted as part of Python 3.10:
+    (bugs.python.org/issue42385).
+
+    In addition, allow multiple strings to be synonyms for the same underlying
+    Enum value. This allows us to easily have things like ``LineStyle('--') ==
+    LineStyle('dashed')`` work as expected.
+    """
 
     def __hash__(self):
         return str(self).__hash__()
@@ -43,7 +107,7 @@ def _deprecate_case_insensitive_join_cap(s):
     return s_low
 
 
-class JoinStyle(str, _AutoStringNameEnum):
+class JoinStyle(str, _AliasableStringNameEnum):
     """
     Define how the connection between two line segments is drawn.
 
@@ -139,7 +203,7 @@ JoinStyle.input_description = "{" \
         + "}"
 
 
-class CapStyle(str, _AutoStringNameEnum):
+class CapStyle(str, _AliasableStringNameEnum):
     r"""
     Define how the two endpoints (caps) of an unclosed line are drawn.
 
@@ -211,7 +275,7 @@ docstring.interpd.update({'JoinStyle': JoinStyle.input_description,
 
 
 #: Maps short codes for line style to their full name used by backends.
-_ls_mapper = {'': 'None', ' ': 'None', 'none': 'None',
+_ls_mapper = {'': 'none', ' ': 'none', 'none': 'none',
               '-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 _deprecated_lineStyles = {
     '-':    '_draw_solid',
@@ -224,7 +288,37 @@ _deprecated_lineStyles = {
 }
 
 
-class NamedLineStyle(str, _AutoStringNameEnum):
+def _validate_onoffseq(x):
+    """Raise a helpful error message for malformed onoffseq."""
+    err = 'In a custom LineStyle (offset, onoffseq), the onoffseq must '
+    if _api.is_string_like(x):
+        raise ValueError(err + 'not be a string.')
+    if not np.iterable(x):
+        raise ValueError(err + 'be iterable.')
+    if not len(x) % 2 == 0:
+        raise ValueError(err + 'be of even length.')
+    if not np.all(x > 0):
+        raise ValueError(err + 'have strictly positive, numerical elements.')
+
+
+class _NamedLineStyle(_AliasableStringNameEnum):
+    """A standardized way to refer to each named LineStyle internally."""
+    solid = auto()
+    solid = '-'
+    dashed = auto()
+    dashed = '--'
+    dotted = auto()
+    dotted = ':'
+    dashdot = auto()
+    dashdot = '-.'
+    none = auto()
+    none = 'None'
+    none = ' '
+    none = ''
+    custom = auto()
+
+
+class LineStyle:
     """
     Describe if the line is solid or dashed, and the dash pattern, if any.
 
@@ -239,7 +333,7 @@ class NamedLineStyle(str, _AutoStringNameEnum):
         ``'--'`` or  ``'dashed'``         dashed line
         ``'-.'`` or  ``'dashdot'``        dash-dotted line
         ``':'`` or ``'dotted'``           dotted line
-        ``'None'`` or ``' '`` or ``''``   draw nothing
+        ``'none'`` or ``' '`` or ``''``   draw nothing
         ===============================   =================
 
     However, for more fine-grained control, one can directly specify the
@@ -249,18 +343,17 @@ class NamedLineStyle(str, _AutoStringNameEnum):
 
     where ``onoffseq`` is an even length tuple specifying the lengths of each
     subsequent dash and space, and ``offset`` controls at which point in this
-    pattern the start of the line will begin (to allow you to e.g. prevent
-    corners from happening to land in between dashes).
+    pattern the start of the line will begin (allowing you to, for example,
+    prevent a sharp corner landing in between dashes and therefore not being
+    drawn).
 
-    For example, (5, 2, 1, 2) describes a sequence of 5 point and 1 point
-    dashes separated by 2 point spaces.
-
-    Setting ``onoffseq`` to ``None`` results in a solid *LineStyle*.
+    For example, the ``onoffseq`` (5, 2, 1, 2) describes a sequence of 5 point
+    and 1 point dashes separated by 2 point spaces.
 
     The default dashing patterns described in the table above are themselves
-    all described in this notation, and can therefore be customized by editing
-    the appropriate ``lines.*_pattern`` *rc* parameter, as described in
-    :doc:`/tutorials/introductory/customizing`.
+    defined under the hood using an offset and an onoffseq, and can therefore
+    be customized by editing the appropriate ``lines.*_pattern`` *rc*
+    parameter, as described in :doc:`/tutorials/introductory/customizing`.
 
     .. plot::
         :alt: Demo of possible LineStyle's.
@@ -271,22 +364,15 @@ class NamedLineStyle(str, _AutoStringNameEnum):
     .. note::
 
         In addition to directly taking a ``linestyle`` argument,
-        `~.lines.Line2D` exposes a ``~.lines.Line2D.set_dashes`` method that
-        can be used to create a new *LineStyle* by providing just the
-        ``onoffseq``, but does not let you customize the offset. This method is
-        called when using the keyword *dashes* to the cycler , as shown in
-        :doc:`property_cycle </tutorials/intermediate/color_cycle>`.
+        `~.lines.Line2D` exposes a ``~.lines.Line2D.set_dashes`` method (and
+        the :doc:`property_cycle </tutorials/intermediate/color_cycle>` has a
+        *dashes* keyword) that can be used to create a new *LineStyle* by
+        providing just the ``onoffseq``, but does not let you customize the
+        offset. This method simply sets the underlying linestyle, and is only
+        kept for backwards compatibility.
     """
-    solid = auto()
-    dashed = auto()
-    dotted = auto()
-    dashdot = auto()
-    none = auto()
-    custom = auto()
 
-class LineStyle(str):
-
-    def __init__(self, ls, scale=1):
+    def __init__(self, ls):
         """
         Parameters
         ----------
@@ -301,56 +387,58 @@ class LineStyle(str):
         """
 
         self._linestyle_spec = ls
-        if isinstance(ls, str):
-            if ls in [' ', '', 'None']:
-                ls = 'none'
-            if ls in _ls_mapper:
-                ls = _ls_mapper[ls]
-            Enum.__init__(self)
-            offset, onoffseq = None, None
+        if _api.is_string_like(ls):
+            self._name = _NamedLineStyle(ls)
+            self._offset, self._onoffseq = None, None
         else:
+            self._name = _NamedLineStyle('custom')
             try:
-                offset, onoffseq = ls
+                self._offset, self._onoffseq = ls
             except ValueError:  # not enough/too many values to unpack
-                raise ValueError('LineStyle should be a string or a 2-tuple, '
-                                 'instead received: ' + str(ls))
-        if offset is None:
+                raise ValueError('Custom LineStyle must be a 2-tuple (offset, '
+                                 'onoffseq), instead received: ' + str(ls))
+            _validate_onoffseq(self._onoffseq)
+        if self._offset is None:
             _api.warn_deprecated(
                 "3.3", message="Passing the dash offset as None is deprecated "
                 "since %(since)s and support for it will be removed "
                 "%(removal)s; pass it as zero instead.")
-            offset = 0
+            self._offset = 0
 
-        if onoffseq is not None:
-            # normalize offset to be positive and shorter than the dash cycle
-            dsum = sum(onoffseq)
-            if dsum:
-                offset %= dsum
-            if len(onoffseq) % 2 != 0:
-                raise ValueError('LineStyle onoffseq must be of even length.')
-            if not all(isinstance(elem, Number) for elem in onoffseq):
-                raise ValueError('LineStyle onoffseq must be list of floats.')
-        self._us_offset = offset
-        self._us_onoffseq = onoffseq
+    def __eq__(self, other):
+        if not isinstance(other, LineStyle):
+            other = LineStyle(other)
+        return self.get_dashes() == other.get_dashes()
 
     def __hash__(self):
-        if self == LineStyle.custom:
-            return (self._us_offset, tuple(self._us_onoffseq)).__hash__()
-        return _AutoStringNameEnum.__hash__(self)
+        if self._name == LineStyle.custom:
+            return (self._offset, tuple(self._onoffseq)).__hash__()
+        return _AliasableStringNameEnum.__hash__(self._name)
 
+    @staticmethod
+    def _normalize_offset(offset, onoffseq):
+        """Normalize offset to be positive and shorter than the dash cycle."""
+        dsum = sum(onoffseq)
+        if dsum:
+            offset %= dsum
+        return offset
+
+    def is_dashed(self):
+        offset, onoffseq = self.get_dashes()
+        return np.isclose(np.sum(onoffseq), 0)
 
     def get_dashes(self, lw=1):
         """
         Get the (scaled) dash sequence for this `.LineStyle`.
         """
-        # defer lookup until draw time
-        if self._us_offset is None or self._us_onoffseq is None:
-            self._us_offset, self._us_onoffseq = \
-                    LineStyle._get_dash_pattern(self.name)
-            # normalize offset to be positive and shorter than the dash cycle
-            dsum = sum(self._us_onoffseq)
-            self._us_offset %= dsum
-        return self._scale_dashes(self._us_offset, self._us_onoffseq, lw)
+        # named linestyle lookup happens at draw time (here)
+        if self._onoffseq is None:
+            offset, onoffseq = LineStyle._get_dash_pattern(self._name)
+        else:
+            offset, onoff_seq = self._offset, self._onoffseq
+        # force 0 <= offset < dash cycle length
+        offset = LineStyle._normalize_offset(offset, onoffseq)
+        return self._scale_dashes(offset, onoffseq, lw)
 
     @staticmethod
     def _scale_dashes(offset, dashes, lw):
@@ -461,7 +549,6 @@ class LineStyle(str):
 
         plt.tight_layout()
         plt.show()
-
 
 LineStyle._ls_mapper = _ls_mapper
 LineStyle._deprecated_lineStyles = _deprecated_lineStyles
