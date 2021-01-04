@@ -106,20 +106,39 @@ class BuildExtraLibraries(BuildExtCommand):
         """
 
         env = os.environ.copy()
-        if not setupext.config.getboolean('libs', 'enable_lto', fallback=True):
-            return env
         if sys.platform == 'win32':
             return env
+        enable_lto = setupext.config.getboolean('libs', 'enable_lto',
+                                                fallback=None)
 
+        if 'CFLAGS' in os.environ:
+            if '-fno-lto' in os.environ['CFLAGS']:
+                if enable_lto is True:
+                    raise ValueError('Configuration enable_lto=True, but '
+                                     'CFLAGS contains -fno-lto')
+                enable_lto = False
         cppflags = []
         if 'CPPFLAGS' in os.environ:
             cppflags.append(os.environ['CPPFLAGS'])
+            if '-fno-lto' in os.environ['CPPFLAGS']:
+                if enable_lto is True:
+                    raise ValueError('Configuration enable_lto=True, but '
+                                     'CPPFLAGS contains -fno-lto')
+                enable_lto = False
         cxxflags = []
         if 'CXXFLAGS' in os.environ:
             cxxflags.append(os.environ['CXXFLAGS'])
+            if '-fno-lto' in os.environ['CXXFLAGS']:
+                if enable_lto is True:
+                    raise ValueError('Configuration enable_lto=True, but '
+                                     'CXXFLAGS contains -fno-lto')
+                enable_lto = False
         ldflags = []
         if 'LDFLAGS' in os.environ:
             ldflags.append(os.environ['LDFLAGS'])
+
+        if enable_lto is False:
+            return env
 
         if has_flag(self.compiler, '-fvisibility=hidden'):
             for ext in self.extensions:
