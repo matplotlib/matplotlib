@@ -156,7 +156,7 @@ import jinja2  # Sphinx dependency.
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
 import matplotlib.pyplot as plt
-from matplotlib import _api, _pylab_helpers, cbook
+from matplotlib import _api, _pylab_helpers, cbook, sphinxext
 
 matplotlib.use("agg")
 align = _api.deprecated(
@@ -254,6 +254,13 @@ class PlotDirective(Directive):
             raise self.error(str(e))
 
 
+def _copy_css_file(app, exc):
+    if exc is None and app.builder.format == 'html':
+        src = sphinxext._static_path / Path('plot_directive.css')
+        dst = app.outdir / Path('_static')
+        shutil.copy(src, dst)
+
+
 def setup(app):
     setup.app = app
     setup.config = app.config
@@ -269,9 +276,9 @@ def setup(app):
     app.add_config_value('plot_apply_rcparams', False, True)
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
-
     app.connect('doctree-read', mark_plot_labels)
-
+    app.add_css_file('plot_directive.css')
+    app.connect('build-finished', _copy_css_file)
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
                 'version': matplotlib.__version__}
     return metadata
@@ -337,7 +344,6 @@ def split_code_at_show(text):
 # Template
 # -----------------------------------------------------------------------------
 
-
 TEMPLATE = """
 {{ source_code }}
 
@@ -374,7 +380,7 @@ TEMPLATE = """
         )
       {%- endif -%}
 
-      {{ caption }}
+      {{ caption }}  {# appropriate leading whitespace added beforehand #}
    {% endfor %}
 
 .. only:: not html
@@ -383,9 +389,9 @@ TEMPLATE = """
    .. figure:: {{ build_dir }}/{{ img.basename }}.*
       {% for option in options -%}
       {{ option }}
-      {% endfor %}
+      {% endfor -%}
 
-      {{ caption }}
+      {{ caption }}  {# appropriate leading whitespace added beforehand #}
    {% endfor %}
 
 """
@@ -521,7 +527,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
     """
     formats = get_plot_formats(config)
 
-    # -- Try to determine if all images already exist
+    # Try to determine if all images already exist
 
     code_pieces = split_code_at_show(code)
 
@@ -624,6 +630,13 @@ def run(arguments, content, options, state_machine, state, lineno):
     default_fmt = formats[0][0]
 
     options.setdefault('include-source', config.plot_include_source)
+    if 'class' in options:
+        # classes are parsed into a list of string, and output by simply
+        # printing the list, abusing the fact that RST guarantees to strip
+        # non-conforming characters
+        options['class'] = ['plot-directive'] + options['class']
+    else:
+        options.setdefault('class', ['plot-directive'])
     keep_context = 'context' in options
     context_opt = None if not keep_context else options['context']
 
@@ -743,8 +756,8 @@ def run(arguments, content, options, state_machine, state, lineno):
         errors = [sm]
 
     # Properly indent the caption
-    caption = '\n'.join('      ' + line.strip()
-                        for line in caption.split('\n'))
+    caption = '\n' + '\n'.join('      ' + line.strip()
+                               for line in caption.split('\n'))
 
     # generate output restructuredtext
     total_lines = []
