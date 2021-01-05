@@ -181,7 +181,7 @@ class _SVGConverter(_Converter):
                 # just be reported as a regular exception below).
                 "DISPLAY": "",
                 # Do not load any user options.
-                "INKSCAPE_PROFILE_DIR": os.devnull,
+                "INKSCAPE_PROFILE_DIR": self._tmpdir.name,
             }
             # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
             # deadlock when stderr is redirected to a pipe, so we redirect it
@@ -233,6 +233,15 @@ class _SVGConverter(_Converter):
             self._tmpdir.cleanup()
 
 
+class _SVGWithMatplotlibFontsConverter(_SVGConverter):
+    def __call__(self, orig, dest):
+        if not hasattr(self, "_tmpdir"):
+            self._tmpdir = TemporaryDirectory()
+            shutil.copytree(cbook._get_data_path("fonts/ttf"),
+                            Path(self._tmpdir.name, "fonts"))
+        return super().__call__(orig, dest)
+
+
 def _update_converter():
     try:
         mpl._get_executable_info("gs")
@@ -254,6 +263,7 @@ def _update_converter():
 #: extension to png format.
 converter = {}
 _update_converter()
+_svg_with_matplotlib_fonts_converter = _SVGWithMatplotlibFontsConverter()
 
 
 def comparable_formats():
@@ -303,7 +313,12 @@ def convert(filename, cache):
                 return str(newpath)
 
         _log.debug("For %s: converting to png.", filename)
-        converter[path.suffix[1:]](path, newpath)
+        convert = converter[path.suffix[1:]]
+        if path.suffix == ".svg":
+            contents = path.read_text()
+            if 'style="font:' in contents:  # for svg.fonttype = none.
+                convert = _svg_with_matplotlib_fonts_converter
+        convert(path, newpath)
 
         if cache_dir is not None:
             _log.debug("For %s: caching conversion result.", filename)

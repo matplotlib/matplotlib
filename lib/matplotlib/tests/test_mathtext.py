@@ -112,6 +112,8 @@ math_tests = [
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
+svg_only_math_tests = [
+]
 
 digits = "0123456789"
 uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -167,8 +169,6 @@ for fonts, chars in font_test_specs:
         for set in chars:
             font_tests.append(wrapper % set)
 
-font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
-
 
 @pytest.fixture
 def baseline_images(request, fontset, index):
@@ -190,6 +190,32 @@ def test_mathtext_rendering(baseline_images, fontset, index, test):
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
              horizontalalignment='center', verticalalignment='center')
+
+
+cur_svg_only_math_tests = list(
+    filter(lambda x: x[1] is not None, enumerate(svg_only_math_tests)))
+
+
+@pytest.mark.parametrize('index, test', cur_svg_only_math_tests,
+                         ids=[str(idx) for idx, _ in cur_svg_only_math_tests])
+@pytest.mark.parametrize('fontset', ['all'])
+@pytest.mark.parametrize('baseline_images', ['mathtext1'], indirect=True)
+@image_comparison(
+    baseline_images=None, extensions=['svg'],
+    savefig_kwarg={
+        'metadata': {  # Minimize svg size.
+            'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
+def test_mathtext_rendering_svg_only(baseline_images, fontset, index, test):
+    mpl.rcParams['svg.fonttype'] = 'none'
+    fig = plt.figure(figsize=(5.25, 5.25))
+    fig.patch.set_visible(False)  # Minimize svg size.
+    fontsets = ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif']
+    for i, fontset in enumerate(fontsets):
+        fig.text(0.5, (i + .5) / len(fontsets), test, math_fontfamily=fontset,
+                 horizontalalignment='center', verticalalignment='center')
+
+
+font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
 
 
 @pytest.mark.parametrize('index, test', font_tests,
