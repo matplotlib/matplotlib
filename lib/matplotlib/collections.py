@@ -274,11 +274,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # can properly have the axes limits set by their shape +
                 # offset.  LineCollections that have no offsets can
                 # also use this algorithm (like streamplot).
-                result = mpath.get_path_collection_extents(
-                    transform.get_affine(), paths, self.get_transforms(),
+                return mpath.get_path_collection_extents(
+                    transform.get_affine() - transData, paths,
+                    self.get_transforms(),
                     transOffset.transform_non_affine(offsets),
                     transOffset.get_affine().frozen())
-                return result.transformed(transData.inverted())
             if not self._offsetsNone:
                 # this is for collections that have their paths (shapes)
                 # in physical, axes-relative, or figure-relative units
@@ -290,9 +290,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # note A-B means A B^{-1}
                 offsets = np.ma.masked_invalid(offsets)
                 if not offsets.mask.all():
-                    points = np.row_stack((offsets.min(axis=0),
-                                           offsets.max(axis=0)))
-                    return transforms.Bbox(points)
+                    bbox = transforms.Bbox.null()
+                    bbox.update_from_data_xy(offsets)
+                    return bbox
         return transforms.Bbox.null()
 
     def get_window_extent(self, renderer):

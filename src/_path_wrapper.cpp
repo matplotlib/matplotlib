@@ -250,7 +250,8 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
         "NNi", outextents.pyobj(), outminpos.pyobj(), changed);
 }
 
-const char *Py_get_path_collection_extents__doc__ = "get_path_collection_extents(";
+const char *Py_get_path_collection_extents__doc__ = "get_path_collection_extents("
+    "master_transform, paths, transforms, offsets, offset_transform)";
 
 static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -295,7 +296,12 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
     extents(1, 0) = e.x1;
     extents(1, 1) = e.y1;
 
-    return extents.pyobj();
+    npy_intp minposdims[] = { 2 };
+    numpy::array_view<double, 1> minpos(minposdims);
+    minpos(0) = e.xm;
+    minpos(1) = e.ym;
+
+    return Py_BuildValue("NN", extents.pyobj(), minpos.pyobj());
 }
 
 const char *Py_point_in_path_collection__doc__ =
