@@ -44,3 +44,16 @@ ax3.set_title('different sample sizes')
 
 fig.tight_layout()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.hist
+matplotlib.pyplot.hist

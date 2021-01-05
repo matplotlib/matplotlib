@@ -214,3 +214,16 @@ ax_kwargs.set_title('Using kwargs')
 
 fig.subplots_adjust(hspace=0.25)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.transforms.Affine2D
+matplotlib.patches.Ellipse

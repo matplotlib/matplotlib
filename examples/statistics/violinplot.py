@@ -85,3 +85,16 @@ for ax in axs.flat:
 fig.suptitle("Violin Plotting Examples")
 fig.subplots_adjust(hspace=0.4)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.violinplot
+matplotlib.pyplot.violinplot

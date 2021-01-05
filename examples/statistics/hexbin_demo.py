@@ -42,3 +42,16 @@ cb = fig.colorbar(hb, ax=ax)
 cb.set_label('log10(N)')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.hexbin
+matplotlib.pyplot.hexbin

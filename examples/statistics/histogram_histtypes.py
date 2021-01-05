@@ -48,3 +48,16 @@ axs[1, 1].set_title('bar, unequal bins')
 
 fig.tight_layout()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.hist
+matplotlib.pyplot.hist

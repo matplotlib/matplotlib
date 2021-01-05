@@ -94,3 +94,17 @@ axes[2].set_title("2d histogram and linear color scale")
 toc = time.time()
 print(f"{toc-tic:.3f} sec. elapsed")
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.pcolormesh
+matplotlib.pyplot.pcolormesh
+matplotlib.figure.Figure.colorbar
