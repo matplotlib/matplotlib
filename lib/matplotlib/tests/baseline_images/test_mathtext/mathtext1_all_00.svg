@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg height="378pt" version="1.1" viewBox="0 0 378 378" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">*{stroke-linecap:butt;stroke-linejoin:round;}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sqrt[ab]{123}$ -->
+   <g transform="translate(173.16 344.124375)">
+    <text>
+     <tspan style="font: 5.88px 'cmmi10'" x="0 3.103652" y="-7.579999999999998">ab</tspan>
+     <tspan style="font: 10.008677px 'cmex10'" x="0.627344" y="-11.87375">p</tspan>
+     <tspan style="font: 12px 'cmr10'" x="12.127344 18.127344 24.127344" y="-0.25">123</tspan>
+    </text>
+    <rect height="0.75" width="21" x="10.627344" y="-12.5"/>
+   </g>
+  </g>
+  <g id="text_2">
+   <!-- $\sqrt[ab]{123}$ -->
+   <g transform="translate(172.74 269.28)">
+    <text>
+     <tspan style="font: italic 5.88px 'STIXGeneral'" x="0 2.945877" y="-7.61125">ab</tspan>
+     <tspan style="font: 12px 'STIXGeneral'" x="0.317876 12.953862 18.953847 24.953832" y="-0.6081249999999994 -0.140625 -0.140625 -0.140625">√123</tspan>
+    </text>
+    <rect height="0.75" width="20.999954" x="11.453862" y="-12.5"/>
+   </g>
+  </g>
+  <g id="text_3">
+   <!-- $\sqrt[ab]{123}$ -->
+   <g transform="translate(172.92 193.68)">
+    <text>
+     <tspan style="font: italic 5.88px 'STIXGeneral'" x="0 2.634236" y="-7.61125">𝘢𝘣</tspan>
+     <tspan style="font: 12px 'STIXGeneral'" x="-0.017279 12.618707 18.618692 24.618677" y="-0.6081249999999994 -0.125 -0.125 -0.125">√𝟣𝟤𝟥</tspan>
+    </text>
+    <rect height="0.75" width="20.999954" x="11.118707" y="-12.5"/>
+   </g>
+  </g>
+  <g id="text_4">
+   <!-- $\sqrt[ab]{123}$ -->
+   <g transform="translate(170.52 117.744375)">
+    <text>
+     <tspan style="font: oblique 5.88px 'DejaVu Sans'" x="0 3.603223" y="-8.18">ab</tspan>
+     <tspan style="font: 6.942918px 'STIXSizeOneSym'" x="3.636151" y="-2.4206249999999994">√</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="12.535138 20.169904 27.804669" y="-0.34375">123</tspan>
+    </text>
+    <rect height="0.75" width="25.904297" x="11.035138" y="-13.5"/>
+   </g>
+  </g>
+  <g id="text_5">
+   <!-- $\sqrt[ab]{123}$ -->
+   <g transform="translate(170.52 42.144375)">
+    <text>
+     <tspan style="font: italic 5.88px 'DejaVu Serif'" x="0 3.505605" y="-8.18">ab</tspan>
+     <tspan style="font: 6.942918px 'STIXSizeOneSym'" x="3.570116" y="-2.4206249999999994">√</tspan>
+     <tspan style="font: 12px 'DejaVu Serif'" x="12.469103 20.103868 27.738634" y="-0.34375">123</tspan>
+    </text>
+    <rect height="0.75" width="25.904297" x="10.969103" y="-13.5"/>
+   </g>
+  </g>
+ </g>
+</svg>

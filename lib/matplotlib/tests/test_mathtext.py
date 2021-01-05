@@ -113,6 +113,7 @@ math_tests = [
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
 svg_only_math_tests = [
+    r'$\sqrt[ab]{123}$',  # github issue #8665
 ]
 
 digits = "0123456789"
