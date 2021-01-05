@@ -185,7 +185,7 @@ ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
 QT_RC_MAJOR_VERSION = int(QtCore.qVersion().split(".")[0])
 
 if QT_RC_MAJOR_VERSION == 4:
-    mpl.cbook.warn_deprecated("3.3", name="support for Qt4")
+    _api.warn_deprecated("3.3", name="support for Qt4")
 
 
 def _devicePixelRatioF(obj):

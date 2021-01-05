@@ -30,12 +30,17 @@ import numpy as np
 import matplotlib
 from matplotlib import _api, _c_internal_utils
 from matplotlib._api.deprecation import (
-    warn_deprecated, MatplotlibDeprecationWarning, mplDeprecation)
+    MatplotlibDeprecationWarning, mplDeprecation)
 
 
 @_api.deprecated("3.4")
 def deprecated(*args, **kwargs):
     return _api.deprecated(*args, **kwargs)
+
+
+@_api.deprecated("3.4")
+def warn_deprecated(*args, **kwargs):
+    _api.warn_deprecated(*args, **kwargs)
 
 
 def _get_running_interactive_framework():
@@ -427,9 +432,9 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if "U" in flag:
-        warn_deprecated("3.3", message="Passing a flag containing 'U' to "
-                        "to_filehandle() is deprecated since %(since)s and "
-                        "will be removed %(removal)s.")
+        _api.warn_deprecated(
+            "3.3", message="Passing a flag containing 'U' to to_filehandle() "
+            "is deprecated since %(since)s and will be removed %(removal)s.")
         flag = flag.replace("U", "")
     if isinstance(fname, str):
         if fname.endswith('.gz'):
@@ -491,7 +496,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=False):
             if np_load:
                 return np.load(path)
             else:
-                warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", message="In a future release, get_sample_data "
                     "will automatically load numpy arrays.  Set np_load to "
                     "True to get the array and suppress this warning.  Set "

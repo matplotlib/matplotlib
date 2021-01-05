@@ -1,7 +1,7 @@
 import functools
 import uuid
 
-from matplotlib import _api, cbook, docstring
+from matplotlib import _api, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -180,7 +180,7 @@ def subplot_class_factory(axes_class=None):
     not have to be created for every type of Axes.
     """
     if axes_class is None:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for passing None to subplot_class_factory "
             "is deprecated since %(since)s; explicitly pass the default Axes "
             "class instead. This will become an error %(removal)s.")

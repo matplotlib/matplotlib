@@ -82,7 +82,7 @@ class _DeprecatedCmapDictWrapper(MutableMapping):
         return self._cmap_registry.get(key, default)
 
     def _warn_deprecated(self):
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3",
             message="The global colormaps dictionary is no longer "
                     "considered public API.",
@@ -279,7 +279,7 @@ class ScalarMappable:
         if vmin is not None or vmax is not None:
             self.set_clim(vmin, vmax)
             if norm is not None:
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.3",
                     message="Passing parameters norm and vmin/vmax "
                             "simultaneously is deprecated since %(since)s and "

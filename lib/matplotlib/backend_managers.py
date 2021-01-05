@@ -199,7 +199,7 @@ class ToolManager:
         self._remove_keys(name)
         for key in [key, *args]:
             if isinstance(key, str) and validate_stringlist(key) != [key]:
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", message="Passing a list of keys as a single "
                     "comma-separated string is deprecated since %(since)s and "
                     "support will be removed %(removal)s; pass keys as a list "

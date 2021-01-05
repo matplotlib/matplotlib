@@ -416,7 +416,7 @@ class RendererBase:
         Nurls = len(urls)
 
         if offset_position == "data":
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Support for offset_position='data' is "
                 "deprecated since %(since)s and will be removed %(removal)s.")
 
@@ -1191,7 +1191,7 @@ class TimerBase:
         pass it to `add_callback` as a `functools.partial` object.
         """
         if args or kwargs:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.1", message="In a future version, Timer.remove_callback "
                 "will not take *args, **kwargs anymore, but remove all "
                 "callbacks where the callable matches; to keep a specific "
@@ -1652,7 +1652,7 @@ def _check_savefig_extra_args(func=None, extra_kwargs=()):
         for arg in list(kwargs):
             if arg in accepted_kwargs:
                 continue
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 '3.3', name=name,
                 message='%(name)s() got unexpected keyword argument "'
                         + arg + '" which is no longer supported as of '
@@ -1967,7 +1967,7 @@ class FigureCanvasBase:
         else:
             x = None
             y = None
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 '3.0', removal='3.5', name='enter_notify_event',
                 message='Since %(since)s, %(name)s expects a location but '
                 'your backend did not pass one. This will become an error '
@@ -2607,7 +2607,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
         for a in canvas.figure.get_axes():
             if (event.x is not None and event.y is not None
                     and a.in_axes(event)):  # FIXME: Why only these?
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", message="Toggling axes navigation from the "
                     "keyboard is deprecated since %(since)s and will be "
                     "removed %(removal)s.")
@@ -2620,7 +2620,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             for i, a in enumerate(canvas.figure.get_axes()):
                 if (event.x is not None and event.y is not None
                         and a.in_axes(event)):  # FIXME: Why only these?
-                    cbook.warn_deprecated(
+                    _api.warn_deprecated(
                         "3.3", message="Toggling axes navigation from the "
                         "keyboard is deprecated since %(since)s and will be "
                         "removed %(removal)s.")

@@ -1719,7 +1719,7 @@ class FuncAnimation(TimedAnimation):
                     except StopIteration:
                         pass
                     else:
-                        cbook.warn_deprecated(
+                        _api.warn_deprecated(
                             "2.2", message="FuncAnimation.save has truncated "
                             "your animation to 100 frames.  In the future, no "
                             "such truncation will occur; please pass "

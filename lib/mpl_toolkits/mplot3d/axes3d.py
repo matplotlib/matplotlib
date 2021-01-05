@@ -445,7 +445,7 @@ class Axes3D(Axes):
                     # deprecation has expired.
                     return artist.do_3d_projection()
 
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.4",
                     message="The 'renderer' parameter of "
                     "do_3d_projection() was deprecated in Matplotlib "
@@ -1674,7 +1674,7 @@ class Axes3D(Axes):
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
         if shade is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.1",
                 message="Passing shade=None to Axes3D.plot_surface() is "
                         "deprecated since matplotlib 3.1 and will change its "
