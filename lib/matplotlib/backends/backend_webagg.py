@@ -225,7 +225,7 @@ class WebAggApplication(tornado.web.Application):
                                  mpl.rcParams['webagg.port_retries']):
             try:
                 app.listen(port, cls.address)
-            except socket.error as e:
+            except OSError as e:
                 if e.errno != errno.EADDRINUSE:
                     raise
             else:

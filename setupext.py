@@ -70,7 +70,7 @@ def download_or_cache(url, sha):
     if cache_dir is not None:  # Try to read from cache.
         try:
             data = (cache_dir / sha).read_bytes()
-        except IOError:
+        except OSError:
             pass
         else:
             if _get_hash(data) == sha:
@@ -95,7 +95,7 @@ def download_or_cache(url, sha):
             cache_dir.mkdir(parents=True, exist_ok=True)
             with open(cache_dir / sha, "xb") as fout:
                 fout.write(data)
-        except IOError:
+        except OSError:
             pass
 
     return BytesIO(data)
@@ -590,7 +590,7 @@ class FreeType(SetupPackage):
                 except Exception:
                     pass
             else:
-                raise IOError(
+                raise OSError(
                     f"Failed to download FreeType. Please download one of "
                     f"{target_urls} and extract it into {src_path} at the "
                     f"top-level of the source repository.")

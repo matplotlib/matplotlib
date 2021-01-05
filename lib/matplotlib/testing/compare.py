@@ -77,7 +77,7 @@ def make_external_conversion_command(cmd):
                 msg += "Standard output:\n%s\n" % stdout
             if stderr:
                 msg += "Standard error:\n%s\n" % stderr
-            raise IOError(msg)
+            raise OSError(msg)
 
     return convert
 
@@ -282,7 +282,7 @@ def convert(filename, cache):
     """
     path = Path(filename)
     if not path.exists():
-        raise IOError(f"{path} does not exist")
+        raise OSError(f"{path} does not exist")
     if path.suffix[1:] not in converter:
         import pytest
         pytest.skip(f"Don't know how to convert {path.suffix} files to png")
@@ -425,7 +425,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     # Convert the image to png
     expected = os.fspath(expected)
     if not os.path.exists(expected):
-        raise IOError('Baseline image %r does not exist.' % expected)
+        raise OSError('Baseline image %r does not exist.' % expected)
     extension = expected.split('.')[-1]
     if extension != 'png':
         actual = convert(actual, cache=True)

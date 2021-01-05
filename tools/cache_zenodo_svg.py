@@ -25,7 +25,7 @@ def download_or_cache(url, version):
     if cache_dir is not None:  # Try to read from cache.
         try:
             data = (cache_dir / version).read_bytes()
-        except IOError:
+        except OSError:
             pass
         else:
             return BytesIO(data)
@@ -40,7 +40,7 @@ def download_or_cache(url, version):
             cache_dir.mkdir(parents=True, exist_ok=True)
             with open(cache_dir / version, "xb") as fout:
                 fout.write(data)
-        except IOError:
+        except OSError:
             pass
 
     return BytesIO(data)

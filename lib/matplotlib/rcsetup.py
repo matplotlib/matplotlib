@@ -983,7 +983,7 @@ def validate_webagg_address(s):
         import socket
         try:
             socket.inet_aton(s)
-        except socket.error as e:
+        except OSError as e:
             raise ValueError(
                 "'webagg.address' is not a valid IP address") from e
         return s
