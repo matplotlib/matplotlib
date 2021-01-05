@@ -281,7 +281,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # "frontend" is the user facing code, i.e., the plotting code, whereas the
 # "backend" does all the hard work behind-the-scenes to make the figure.
 # There are two types of backends: user interface backends (for use in
-# pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
+# pygtk, wxpython, tkinter, qt4, qt5, or macosx; also referred to as
 # "interactive backends") and hardcopy backends to make image files
 # (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 #
