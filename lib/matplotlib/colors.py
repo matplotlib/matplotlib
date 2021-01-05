@@ -1449,12 +1449,14 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
             t_vmin, t_vmax = self._trf.transform([self.vmin, self.vmax])
             if not np.isfinite([t_vmin, t_vmax]).all():
                 raise ValueError("Invalid vmin or vmax")
+            value, is_scalar = self.process_value(value)
             rescaled = value * (t_vmax - t_vmin)
             rescaled += t_vmin
-            return (self._trf
-                    .inverted()
-                    .transform(rescaled)
-                    .reshape(np.shape(value)))
+            value = (self._trf
+                     .inverted()
+                     .transform(rescaled)
+                     .reshape(np.shape(value)))
+            return value[0] if is_scalar else value
 
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
