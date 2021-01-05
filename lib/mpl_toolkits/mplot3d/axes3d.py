@@ -1551,6 +1551,7 @@ class Axes3D(Axes):
 
     plot3D = plot
 
+    @_api.delete_parameter("3.4", "args", alternative="kwargs")
     def plot_surface(self, X, Y, Z, *args, norm=None, vmin=None,
                      vmax=None, lightsource=None, **kwargs):
         """
@@ -1822,6 +1823,7 @@ class Axes3D(Axes):
 
         return colors
 
+    @_api.delete_parameter("3.4", "args", alternative="kwargs")
     def plot_wireframe(self, X, Y, Z, *args, **kwargs):
         """
         Plot a 3D wireframe.
