@@ -660,7 +660,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
         # be too difficult given that the image is rectilinear
-        x, y = mouseevent.xdata, mouseevent.ydata
+        trans = self.get_transform().inverted()
+        x, y = trans.transform([mouseevent.x, mouseevent.y])
         xmin, xmax, ymin, ymax = self.get_extent()
         if xmin > xmax:
             xmin, xmax = xmax, xmin
@@ -982,13 +983,14 @@ class AxesImage(_ImageBase):
         if self.origin == 'upper':
             ymin, ymax = ymax, ymin
         arr = self.get_array()
-        data_extent = Bbox([[ymin, xmin], [ymax, xmax]])
-        array_extent = Bbox([[0, 0], arr.shape[:2]])
-        trans = BboxTransform(boxin=data_extent, boxout=array_extent)
-        point = trans.transform([event.ydata, event.xdata])
+        data_extent = Bbox([[xmin, ymin], [xmax, ymax]])
+        array_extent = Bbox([[0, 0], [arr.shape[1], arr.shape[0]]])
+        trans = self.get_transform().inverted()
+        trans += BboxTransform(boxin=data_extent, boxout=array_extent)
+        point = trans.transform([event.x, event.y])
         if any(np.isnan(point)):
             return None
-        i, j = point.astype(int)
+        j, i = point.astype(int)
         # Clip the coordinates at array bounds
         if not (0 <= i < arr.shape[0]) or not (0 <= j < arr.shape[1]):
             return None
