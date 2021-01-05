@@ -460,6 +460,17 @@ def test_LogNorm():
     assert_array_equal(ln([1, 6]), [0, 1.0])
 
 
+def test_LogNorm_inverse():
+    """
+    Test that lists work, and that the inverse works
+    """
+    norm = mcolors.LogNorm(vmin=0.1, vmax=10)
+    assert_array_almost_equal(norm([0.5, 0.4]), [0.349485, 0.30103])
+    assert_array_almost_equal([0.5, 0.4], norm.inverse([0.349485, 0.30103]))
+    assert_array_almost_equal(norm(0.4), [0.30103])
+    assert_array_almost_equal([0.4], norm.inverse([0.30103]))
+
+
 def test_PowerNorm():
     a = np.array([0, 0.5, 1, 1.5], dtype=float)
     pnorm = mcolors.PowerNorm(1)
