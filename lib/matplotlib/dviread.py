@@ -551,7 +551,7 @@ class DviFont:
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
-        cbook._check_isinstance(bytes, texname=texname)
+        _api.check_isinstance(bytes, texname=texname)
         self._scale = scale
         self._tfm = tfm
         self.texname = texname

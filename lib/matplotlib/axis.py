@@ -1599,7 +1599,7 @@ class Axis(martist.Artist):
               not isinstance(formatter, mticker.TickHelper)):
             formatter = mticker.FuncFormatter(formatter)
         else:
-            cbook._check_isinstance(mticker.Formatter, formatter=formatter)
+            _api.check_isinstance(mticker.Formatter, formatter=formatter)
 
         if (isinstance(formatter, mticker.FixedFormatter)
                 and len(formatter.seq) > 0
@@ -1624,7 +1624,7 @@ class Axis(martist.Artist):
         ----------
         locator : `~matplotlib.ticker.Locator`
         """
-        cbook._check_isinstance(mticker.Locator, locator=locator)
+        _api.check_isinstance(mticker.Locator, locator=locator)
         self.isDefault_majloc = False
         self.major.locator = locator
         if self.major.formatter:
@@ -1640,7 +1640,7 @@ class Axis(martist.Artist):
         ----------
         locator : `~matplotlib.ticker.Locator`
         """
-        cbook._check_isinstance(mticker.Locator, locator=locator)
+        _api.check_isinstance(mticker.Locator, locator=locator)
         self.isDefault_minloc = False
         self.minor.locator = locator
         if self.minor.formatter:

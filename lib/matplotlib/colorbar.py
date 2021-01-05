@@ -35,7 +35,7 @@ import textwrap
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
+from matplotlib import _api, collections, cm, colors, contour, ticker
 import matplotlib.artist as martist
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
@@ -429,7 +429,7 @@ class ColorbarBase:
                  extendrect=False,
                  label='',
                  ):
-        cbook._check_isinstance([colors.Colormap, None], cmap=cmap)
+        _api.check_isinstance([colors.Colormap, None], cmap=cmap)
         _api.check_in_list(
             ['vertical', 'horizontal'], orientation=orientation)
         _api.check_in_list(

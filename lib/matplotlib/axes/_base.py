@@ -1075,7 +1075,7 @@ class _AxesBase(martist.Artist):
         axes, and cannot be used if the x-axis is already being shared with
         another axes.
         """
-        cbook._check_isinstance(_AxesBase, other=other)
+        _api.check_isinstance(_AxesBase, other=other)
         if self._sharex is not None and other is not self._sharex:
             raise ValueError("x-axis is already shared")
         self._shared_x_axes.join(self, other)
@@ -1094,7 +1094,7 @@ class _AxesBase(martist.Artist):
         axes, and cannot be used if the y-axis is already being shared with
         another axes.
         """
-        cbook._check_isinstance(_AxesBase, other=other)
+        _api.check_isinstance(_AxesBase, other=other)
         if self._sharey is not None and other is not self._sharey:
             raise ValueError("y-axis is already shared")
         self._shared_y_axes.join(self, other)

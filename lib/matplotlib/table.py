@@ -19,7 +19,7 @@ The cell (0, 0) is positioned at the top left.
 Thanks to John Gill for providing the class and table.
 """
 
-from . import artist, cbook, docstring
+from . import _api, artist, docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
 from .text import Text
@@ -342,7 +342,7 @@ class Table(Artist):
         """
         Set a custom cell in a given position.
         """
-        cbook._check_isinstance(Cell, cell=cell)
+        _api.check_isinstance(Cell, cell=cell)
         try:
             row, col = position[0], position[1]
         except Exception as err:

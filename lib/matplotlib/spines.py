@@ -4,7 +4,7 @@ import functools
 import numpy as np
 
 import matplotlib
-from matplotlib import _api, cbook, docstring, rcParams
+from matplotlib import _api, docstring, rcParams
 from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -69,7 +69,7 @@ class Spine(mpatches.Patch):
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        cbook._check_isinstance(matplotlib.path.Path, path=path)
+        _api.check_isinstance(matplotlib.path.Path, path=path)
         self._path = path
 
         # To support drawing both linear and circular spines, this

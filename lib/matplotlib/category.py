@@ -17,7 +17,7 @@ import logging
 
 import numpy as np
 
-from matplotlib import cbook, ticker, units
+from matplotlib import _api, ticker, units
 
 
 _log = logging.getLogger(__name__)
@@ -217,7 +217,7 @@ class UnitData:
         convertible = True
         for val in OrderedDict.fromkeys(data):
             # OrderedDict just iterates over unique values in data.
-            cbook._check_isinstance((str, bytes), value=val)
+            _api.check_isinstance((str, bytes), value=val)
             if convertible:
                 # this will only be called so long as convertible is True.
                 convertible = self._str_is_convertible(val)

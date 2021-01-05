@@ -122,7 +122,7 @@ class _AxesStack(cbook.Stack):
         """
         # All the error checking may be unnecessary; but this method
         # is called so seldom that the overhead is negligible.
-        cbook._check_isinstance(Axes, a=a)
+        _api.check_isinstance(Axes, a=a)
         try:
             hash(key)
         except TypeError:
