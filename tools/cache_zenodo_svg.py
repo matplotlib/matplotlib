@@ -103,7 +103,7 @@ if __name__ == "__main__":
     target_dir.mkdir(exist_ok=True, parents=True)
     header = []
     footer = []
-    with open(citing, "r") as fin:
+    with open(citing) as fin:
         target = header
         for ln in fin:
             if target is not None:
