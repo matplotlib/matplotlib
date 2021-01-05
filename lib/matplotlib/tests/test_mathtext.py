@@ -114,6 +114,7 @@ math_tests = [
 # default) and only png outputs, in order to minimize the size of baseline
 # images.
 lightweight_math_tests = [
+    r'$\sqrt[ab]{123}$',  # github issue #8665
 ]
 
 digits = "0123456789"

@@ -2158,7 +2158,8 @@ class Parser:
 
         p.sqrt <<= Group(
             Suppress(Literal(r"\sqrt"))
-            - ((Optional(p.lbracket + p.int_literal + p.rbracket, default=None)
+            - ((Group(Optional(
+                p.lbracket + OneOrMore(~p.rbracket + p.token) + p.rbracket))
                 + p.required_group)
                | Error("Expected \\sqrt{value}"))
         )
@@ -2864,10 +2865,10 @@ class Parser:
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
-        if root is None:
+        if not root:
             root = Box(check.width * 0.5, 0., 0.)
         else:
-            root = Hlist([Char(x, state) for x in root])
+            root = Hlist(root)
             root.shrink()
             root.shrink()
 
