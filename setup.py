@@ -88,8 +88,8 @@ class NoopTestCommand(TestCommand):
 
 
 def _download_qhull_to(dest):
-    url = "http://www.qhull.org/download/qhull-2015-src-7.2.0.tgz"
-    sha = "78b010925c3b577adc3d58278787d7df08f7c8fb02c3490e375eab91bb58a436"
+    url = "http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"
+    sha = "b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e"
     if (dest / f"qhull-{LOCAL_QHULL_VERSION}").exists():
         return
     dest.mkdir(parents=True, exist_ok=True)

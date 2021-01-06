@@ -136,7 +136,7 @@ _freetype_hashes = {
 LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
-LOCAL_QHULL_VERSION = '2015.2'
+LOCAL_QHULL_VERSION = '2020.2'
 
 
 # matplotlib build options, which can be altered using setup.cfg
@@ -517,7 +517,7 @@ def add_qhull_flags(ext):
     else:
         qhull_path = Path(f'extern/qhull-{LOCAL_QHULL_VERSION}/src')
         ext.include_dirs.insert(0, str(qhull_path))
-        ext.sources.extend(map(str, sorted(qhull_path.glob('libqhull/*.c'))))
+        ext.sources.extend(map(str, sorted(qhull_path.glob('libqhull_r/*.c'))))
         if sysconfig.get_config_var("LIBM") == "-lm":
             ext.libraries.extend("m")
 
