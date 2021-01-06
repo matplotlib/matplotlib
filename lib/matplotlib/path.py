@@ -621,7 +621,12 @@ class Path:
         if self.codes is None:
             xys = self.vertices
         elif len(np.intersect1d(self.codes, [Path.CURVE3, Path.CURVE4])) == 0:
-            xys = self.vertices[self.codes != Path.CLOSEPOLY]
+            # Optimization for the straight line case.
+            # Instead of iterating through each curve, consider
+            # each line segment's end-points
+            # (recall that STOP and CLOSEPOLY vertices are ignored)
+            xys = self.vertices[np.isin(self.codes,
+                                        [Path.MOVETO, Path.LINETO])]
         else:
             xys = []
             for curve, code in self.iter_bezier(**kwargs):
