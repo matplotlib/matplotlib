@@ -82,13 +82,13 @@ plt.show()
 #
 # .. note ::
 #
-#   In order to properly handle the data margins, the mapping functions 
-#   (`forward` and `inverse` in this example) need to be defined beyond the 
+#   In order to properly handle the data margins, the mapping functions
+#   (`forward` and `inverse` in this example) need to be defined beyond the
 #   nominal plot limits.
 #
-#   In the specific case of the numpy linear interpolation, `numpy.interp`, 
-#   this condition can be arbitrarily enforced by providing optional kwargs 
-#   `left`, `right` such that values outside the data range are mapped 
+#   In the specific case of the numpy linear interpolation, `numpy.interp`,
+#   this condition can be arbitrarily enforced by providing optional kwargs
+#   `left`, `right` such that values outside the data range are mapped
 #   well outside the plot limits.
 
 fig, ax = plt.subplots(constrained_layout=True)
