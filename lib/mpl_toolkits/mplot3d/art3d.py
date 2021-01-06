@@ -393,10 +393,7 @@ def _get_patch_verts(patch):
     trans = patch.get_patch_transform()
     path = patch.get_path()
     polygons = path.to_polygons(trans)
-    if len(polygons):
-        return polygons[0]
-    else:
-        return []
+    return polygons[0] if len(polygons) else np.array([])
 
 
 def patch_2d_to_3d(patch, z=0, zdir='z'):
