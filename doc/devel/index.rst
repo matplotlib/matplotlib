@@ -18,6 +18,7 @@ The Matplotlib Developers' Guide
 
    contributing.rst
    triage.rst
+   development_setup.rst
    testing.rst
    documenting_mpl.rst
    add_new_projection.rst
