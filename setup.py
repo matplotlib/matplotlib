@@ -92,6 +92,7 @@ def _download_qhull():
         sha="b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e",
         dirname=f"qhull-{LOCAL_QHULL_VERSION}",
     )
+    shutil.copyfile(toplevel / "COPYING.txt", "LICENSE/LICENSE_QHULL")
 
 
 class BuildExtraLibraries(BuildExtCommand):
