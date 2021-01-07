@@ -26,6 +26,8 @@ QT_API_PYQTv2 = "PyQt4v2"
 QT_API_PYSIDE = "PySide"
 QT_API_PYQT = "PyQt4"   # Use the old sip v1 API (Py3 defaults to v2).
 QT_API_ENV = os.environ.get("QT_API")
+if QT_API_ENV is not None:
+    QT_API_ENV = QT_API_ENV.lower()
 # Mapping of QT_API_ENV to requested binding.  ETS does not support PyQt4v1.
 # (https://github.com/enthought/pyface/blob/master/pyface/qt/__init__.py)
 _ETS = {"pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
