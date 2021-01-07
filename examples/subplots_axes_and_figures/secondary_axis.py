@@ -42,7 +42,7 @@ plt.show()
 # Here is the case of converting from wavenumber to wavelength in a
 # log-log scale.
 #
-# .. note ::
+# .. note::
 #
 #   In this case, the xscale of the parent is logarithmic, so the child is
 #   made logarithmic as well.
