@@ -28,7 +28,6 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-import tarfile
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as BuildExtCommand
@@ -49,7 +48,7 @@ from distutils.dist import Distribution
 
 import setupext
 from setupext import (
-    download_or_cache, print_raw, print_status, LOCAL_QHULL_VERSION)
+    get_and_extract_tarball, print_raw, print_status, LOCAL_QHULL_VERSION)
 
 # Get the version from versioneer
 import versioneer
@@ -87,24 +86,17 @@ class NoopTestCommand(TestCommand):
               "'python setup.py test'. Please run 'pytest'.")
 
 
-def _download_qhull_to(dest):
-    url = "http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"
-    sha = "b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e"
-    if (dest / f"qhull-{LOCAL_QHULL_VERSION}").exists():
-        return
-    dest.mkdir(parents=True, exist_ok=True)
-    try:
-        buf = download_or_cache(url, sha)
-    except Exception:
-        raise IOError(f"Failed to download qhull.  Please download {url} and "
-                      f"extract it to {dest}.")
-    with tarfile.open(fileobj=buf, mode="r:gz") as tf:
-        tf.extractall(dest)
+def _download_qhull():
+    toplevel = get_and_extract_tarball(
+        urls=["http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"],
+        sha="b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e",
+        dirname=f"qhull-{LOCAL_QHULL_VERSION}",
+    )
 
 
 class BuildExtraLibraries(BuildExtCommand):
     def finalize_options(self):
-        _download_qhull_to(Path("extern"))
+        _download_qhull()
         self.distribution.ext_modules[:] = [
             ext
             for package in good_packages

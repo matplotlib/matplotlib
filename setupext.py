@@ -48,7 +48,7 @@ def _get_ssl_context():
     return ssl.create_default_context(cafile=certifi.where())
 
 
-def download_or_cache(url, sha):
+def get_from_cache_or_download(url, sha):
     """
     Get bytes from the given url or local cache.
 
@@ -86,7 +86,7 @@ def download_or_cache(url, sha):
     file_sha = _get_hash(data)
     if file_sha != sha:
         raise Exception(
-            f"The download file does not match the expected sha.  {url} was "
+            f"The downloaded file does not match the expected sha.  {url} was "
             f"expected to have {sha} but it had {file_sha}")
 
     if cache_dir is not None:  # Try to cache the downloaded file.
@@ -98,6 +98,45 @@ def download_or_cache(url, sha):
             pass
 
     return BytesIO(data)
+
+
+def get_and_extract_tarball(urls, sha, dirname):
+    """
+    Obtain a tarball (from cache or download) and extract it.
+
+    Parameters
+    ----------
+    urls : list[str]
+        URLs from which download is attempted (in order of attempt), if the
+        tarball is not in the cache yet.
+    sha : str
+        SHA256 hash of the tarball; used both as a cache key (by
+        `get_from_cache_or_download`) and to validate a downloaded tarball.
+    dirname : path-like
+        Directory where the tarball is extracted.
+    """
+    toplevel = Path("build", dirname)
+    if not toplevel.exists():  # Download it or load it from cache.
+        Path("build").mkdir(exist_ok=True)
+        for url in urls:
+            try:
+                tar_contents = get_from_cache_or_download(url, sha)
+                break
+            except Exception:
+                pass
+        else:
+            raise IOError(
+                f"Failed to download any of the following: {urls}.  "
+                f"Please download one of these urls and extract it into "
+                f"'build/' at the top-level of the source repository.")
+        print("Extracting {}".format(urllib.parse.urlparse(url).path))
+        with tarfile.open(fileobj=tar_contents, mode="r:gz") as tgz:
+            if os.path.commonpath(tgz.getnames()) != dirname:
+                raise IOError(
+                    f"The downloaded tgz file was expected to have {dirname} "
+                    f"as sole top-level directory, but that is not the case")
+            tgz.extractall("build")
+    return toplevel
 
 
 # SHA256 hashes of the FreeType tarballs
@@ -515,7 +554,7 @@ def add_qhull_flags(ext):
     if options.get("system_qhull"):
         ext.libraries.append("qhull")
     else:
-        qhull_path = Path(f'extern/qhull-{LOCAL_QHULL_VERSION}/src')
+        qhull_path = Path(f'build/qhull-{LOCAL_QHULL_VERSION}/src')
         ext.include_dirs.insert(0, str(qhull_path))
         ext.sources.extend(map(str, sorted(qhull_path.glob('libqhull_r/*.c'))))
         if sysconfig.get_config_var("LIBM") == "-lm":
@@ -560,46 +599,24 @@ class FreeType(SetupPackage):
         if options.get('system_freetype'):
             return
 
-        src_path = Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
-
-        # We've already built freetype
-        if sys.platform == 'win32':
-            libfreetype = 'libfreetype.lib'
-        else:
-            libfreetype = 'libfreetype.a'
-
-        # bailing because it is already built
-        if (src_path / 'objs' / '.libs' / libfreetype).is_file():
-            return
-
-        # do we need to download / load the source from cache?
-        if not src_path.exists():
-            os.makedirs('build', exist_ok=True)
-
-            tarball = f'freetype-{LOCAL_FREETYPE_VERSION}.tar.gz'
-            target_urls = [
+        tarball = f'freetype-{LOCAL_FREETYPE_VERSION}.tar.gz'
+        src_path = get_and_extract_tarball(
+            urls=[
                 (f'https://downloads.sourceforge.net/project/freetype'
                  f'/freetype2/{LOCAL_FREETYPE_VERSION}/{tarball}'),
                 (f'https://download.savannah.gnu.org/releases/freetype'
                  f'/{tarball}')
-            ]
+            ],
+            sha=LOCAL_FREETYPE_HASH,
+            dirname=f'freetype-{LOCAL_FREETYPE_VERSION}',
+        )
 
-            for tarball_url in target_urls:
-                try:
-                    tar_contents = download_or_cache(tarball_url,
-                                                     LOCAL_FREETYPE_HASH)
-                    break
-                except Exception:
-                    pass
-            else:
-                raise IOError(
-                    f"Failed to download FreeType. Please download one of "
-                    f"{target_urls} and extract it into {src_path} at the "
-                    f"top-level of the source repository.")
-
-            print(f"Extracting {tarball}")
-            with tarfile.open(fileobj=tar_contents, mode="r:gz") as tgz:
-                tgz.extractall("build")
+        if sys.platform == 'win32':
+            libfreetype = 'libfreetype.lib'
+        else:
+            libfreetype = 'libfreetype.a'
+        if (src_path / 'objs' / '.libs' / libfreetype).is_file():
+            return  # Bail out because we have already built FreeType.
 
         print(f"Building freetype in {src_path}")
         if sys.platform != 'win32':  # compilation on non-windows
