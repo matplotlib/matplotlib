@@ -110,6 +110,11 @@ math_tests = [
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
+# 'Lightweight' tests test only a single fontset (dejavusans, which is the
+# default) and only png outputs, in order to minimize the size of baseline
+# images.
+lightweight_math_tests = [
+]
 
 digits = "0123456789"
 uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -183,6 +188,17 @@ def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, text,
+             horizontalalignment='center', verticalalignment='center')
+
+
+@pytest.mark.parametrize('index, text', enumerate(lightweight_math_tests),
+                         ids=range(len(lightweight_math_tests)))
+@pytest.mark.parametrize('fontset', ['dejavusans'])
+@pytest.mark.parametrize('baseline_images', ['mathtext1'], indirect=True)
+@image_comparison(baseline_images=None, extensions=['png'])
+def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.text(0.5, 0.5, text, math_fontfamily=fontset,
              horizontalalignment='center', verticalalignment='center')
 
 
