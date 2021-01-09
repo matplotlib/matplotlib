@@ -18,6 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name-suffix: "(Minimum Versions)"
@@ -90,7 +91,6 @@ jobs:
               ttf-wqy-zenhei
             ;;
           macOS)
-            brew update
             brew install ccache
             ;;
           esac
