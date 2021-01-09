@@ -91,7 +91,6 @@ jobs:
               ttf-wqy-zenhei
             ;;
           macOS)
-            brew update
             brew install ccache
             ;;
           esac
