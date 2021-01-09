@@ -165,42 +165,37 @@ for fonts, chars in font_test_specs:
         for set in chars:
             font_tests.append(wrapper % set)
 
-font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
-
 
 @pytest.fixture
-def baseline_images(request, fontset, index):
+def baseline_images(request, fontset, index, text):
+    if text is None:
+        pytest.skip("test has been removed")
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-cur_math_tests = list(filter(lambda x: x[1] is not None, enumerate(math_tests)))
-
-
-@pytest.mark.parametrize('index, test', cur_math_tests,
-                         ids=[str(index) for index, _ in cur_math_tests])
-@pytest.mark.parametrize('fontset',
-                         ['cm', 'stix', 'stixsans', 'dejavusans',
-                          'dejavuserif'])
+@pytest.mark.parametrize(
+    'index, text', enumerate(math_tests), ids=range(len(math_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
-def test_mathtext_rendering(baseline_images, fontset, index, test):
+def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, test,
+    fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, test', font_tests,
-                         ids=[str(index) for index, _ in font_tests])
-@pytest.mark.parametrize('fontset',
-                         ['cm', 'stix', 'stixsans', 'dejavusans',
-                          'dejavuserif'])
+@pytest.mark.parametrize(
+    'index, text', enumerate(font_tests), ids=range(len(font_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
-def test_mathfont_rendering(baseline_images, fontset, index, test):
+def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, test,
+    fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
 
