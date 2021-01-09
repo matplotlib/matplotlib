@@ -1111,7 +1111,7 @@ class TextBox(AxesWidget):
             self._rendercursor()
             if self.eventson:
                 self._observers.process('change', self.text)
-                if key == "enter":
+                if key in ["enter", "return"]:
                     self._observers.process('submit', self.text)
 
     def set_val(self, val):
