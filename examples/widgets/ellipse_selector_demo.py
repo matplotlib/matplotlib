@@ -26,15 +26,13 @@ class EllipseROIStats(object):
 
     Parameters
     ----------
-    axis: `~matplotlib.axes.Axes`: Axes to interact with
-    fig: `~matplotlib.figure.Figure`: Figure on which to draw
-    fig_shape: `~matplotlib.ndarray`: Array containing image dimensions
-    img_data: `~matplotlib.ndarray`: Image array
+    ax: `~matplotlib.axes.Axes`: Axes to interact with
+    img_data: `numpy.ndarray`: Image array
     """
 
-    def __init__(self, axis, fig, fig_shape, img_data):
-        self.ax = axis
-        self.fig = fig
+    def __init__(self, ax, img_data):
+        self.ax = ax
+        self.fig = ax.figure
 
         lineprop = dict(color='black', linestyle="-.", linewidth=2, alpha=1.0)
         state_mods = dict(move=' ', clear='escape')
@@ -42,7 +40,6 @@ class EllipseROIStats(object):
                                            drawtype='line', lineprops=lineprop,
                                            state_modifier_keys=state_mods,
                                            interactive=True)
-        self.fig_shape = fig_shape
         self.img = img_data
 
     def on_select(self, eclick, erelease):
@@ -80,7 +77,7 @@ class EllipseROIStats(object):
 
         # Generate a set of x and y coordinates that
         # will be used to fill a mask image.
-        m, n = self.fig_shape
+        m, n = self.img.shape
         x, y = np.meshgrid(np.arange(m), np.arange(n))
         x, y = x.flatten(), y.flatten()
         points = np.vstack((x, y)).T
@@ -124,10 +121,9 @@ if __name__ == '__main__':
 
     fig, axis = plt.subplots(1, 1, figsize=(3.5, 3.5))
 
-    shown_fig = axis.imshow(random_im, interpolation='bilinear')
-    fig_shape = random_im.shape
+    shown_fig = axis.imshow(random_im)
 
-    selector = EllipseROIStats(axis, fig, fig_shape, random_im)
+    selector = EllipseROIStats(axis, random_im)
 
     shown_fig.figure.canvas.mpl_connect('key_press_event',
                                         selector.toggle_selector)
