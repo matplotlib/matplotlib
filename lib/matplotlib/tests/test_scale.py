@@ -7,6 +7,7 @@ from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 import numpy as np
 from numpy.testing import assert_allclose
+import copy
 import io
 import pytest
 
@@ -210,3 +211,9 @@ def test_pass_scale():
     ax.set_yscale(scale)
     assert ax.xaxis.get_scale() == 'log'
     assert ax.yaxis.get_scale() == 'log'
+
+
+def test_scale_deepcopy():
+    sc = mscale.LogScale(axis='x', base=10)
+    sc2 = copy.deepcopy(sc)
+    assert str(sc.get_transform()) == str(sc2.get_transform())

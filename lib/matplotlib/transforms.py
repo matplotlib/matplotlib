@@ -2062,6 +2062,12 @@ class IdentityTransform(Affine2DBase):
         # docstring inherited
         return self
 
+    def __deepcopy__(self, memo):
+        # The identity transform does not need to lock out deepcopy
+        return self
+
+    __copy__ = __deepcopy__
+
     __str__ = _make_str_method()
 
     def get_matrix(self):

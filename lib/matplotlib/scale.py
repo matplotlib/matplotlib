@@ -79,6 +79,17 @@ class ScaleBase:
         return vmin, vmax
 
 
+class _CopyableTransformMixin():
+    """
+    Mixin to support copy and deep copy on transforms.  This alows scales,
+    and hence norms, to be copyable.
+    """
+    def __deepcopy__(self, memo):
+        return self.frozen()
+
+    __copy__ = __deepcopy__
+
+
 class LinearScale(ScaleBase):
     """
     The default linear scale.
@@ -113,9 +124,9 @@ class LinearScale(ScaleBase):
         return IdentityTransform()
 
 
-class FuncTransform(Transform):
+class FuncTransform(_CopyableTransformMixin, Transform):
     """
-    A simple transform that takes and arbitrary function for the
+    A transform that takes and arbitrary function for the
     forward and inverse transform.
     """
 
@@ -191,7 +202,7 @@ class FuncScale(ScaleBase):
             axis.set_minor_locator(NullLocator())
 
 
-class LogTransform(Transform):
+class LogTransform(_CopyableTransformMixin, Transform):
     input_dims = output_dims = 1
 
     @_api.rename_parameter("3.3", "nonpos", "nonpositive")
@@ -233,7 +244,7 @@ class LogTransform(Transform):
         return InvertedLogTransform(self.base)
 
 
-class InvertedLogTransform(Transform):
+class InvertedLogTransform(_CopyableTransformMixin, Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base):
@@ -359,7 +370,7 @@ class FuncScaleLog(LogScale):
         return self._transform
 
 
-class SymmetricalLogTransform(Transform):
+class SymmetricalLogTransform(_CopyableTransformMixin, Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
@@ -391,7 +402,7 @@ class SymmetricalLogTransform(Transform):
                                                self.linscale)
 
 
-class InvertedSymmetricalLogTransform(Transform):
+class InvertedSymmetricalLogTransform(_CopyableTransformMixin, Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
@@ -494,7 +505,7 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
-class LogitTransform(Transform):
+class LogitTransform(_CopyableTransformMixin, Transform):
     input_dims = output_dims = 1
 
     @_api.rename_parameter("3.3", "nonpos", "nonpositive")
@@ -520,7 +531,7 @@ class LogitTransform(Transform):
         return "{}({!r})".format(type(self).__name__, self._nonpositive)
 
 
-class LogisticTransform(Transform):
+class LogisticTransform(_CopyableTransformMixin, Transform):
     input_dims = output_dims = 1
 
     @_api.rename_parameter("3.3", "nonpos", "nonpositive")
