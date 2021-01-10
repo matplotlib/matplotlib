@@ -1384,13 +1384,12 @@ class SubplotTool(Widget):
 
         self._sliders = []
         self._textboxes = []
+        gs_kw = {'width_ratios': [6, 1]}
         names = ["left", "bottom", "right", "top", "wspace", "hspace"]
         # The last subplot, removed below, keeps space for the "Reset" button.
         for name, axes in zip(names, toolfig.subplots(len(names) + 1, 2,
                                                       sharey=True,
-                                                      gridspec_kw={
-                                                                   'width_ratios': [6, 1]
-                                                                  })):
+                                                      gridspec_kw=gs_kw)):
             for ax in axes:
                 ax.set_navigate(False)
 
