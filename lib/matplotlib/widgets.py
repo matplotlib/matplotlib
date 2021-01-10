@@ -1219,6 +1219,14 @@ class TextBox(AxesWidget):
         self._observers.disconnect(cid)
 
 
+class NumericTextBox(TextBox):
+    """
+    An extension to `.TextBox` which only accepts float values.
+    """
+    # TODO: Implement Numeric Text Box
+    pass
+
+
 class RadioButtons(AxesWidget):
     """
     A GUI neutral radio button.
@@ -1371,19 +1379,38 @@ class SubplotTool(Widget):
 
         self.figure = toolfig
         self.targetfig = targetfig
-        toolfig.subplots_adjust(left=0.2, right=0.9)
+        toolfig.subplots_adjust(left=0.2, right=0.9, wspace=0.05)
         toolfig.suptitle("Click on slider to adjust subplot param")
 
         self._sliders = []
+        self._textboxes = []
         names = ["left", "bottom", "right", "top", "wspace", "hspace"]
         # The last subplot, removed below, keeps space for the "Reset" button.
-        for name, ax in zip(names, toolfig.subplots(len(names) + 1)):
-            ax.set_navigate(False)
-            slider = Slider(ax, name,
-                            0, 1, getattr(targetfig.subplotpars, name))
-            slider.on_changed(self._on_slider_changed)
+        for name, axes in zip(names, toolfig.subplots(len(names) + 1, 2,
+                                                      sharey=True,
+                                                      gridspec_kw={
+                                                                   'width_ratios': [6, 1]
+                                                                  })):
+            for ax in axes:
+                ax.set_navigate(False)
+
+            # TODO: Rounding up only until `NumericTextBox` gets implemented
+            initial_value = round(getattr(targetfig.subplotpars, name), 4)
+            slider = Slider(axes[0], name, 0, 1, initial_value)
+            # Disable the label display, to be replaced with the Text Box
+            slider.valtext.set_visible(False)
+            slider.on_changed(self._on_slider_change)
             self._sliders.append(slider)
-        toolfig.axes[-1].remove()
+
+            textbox = TextBox(axes[1], label=name, initial=initial_value)
+            # Disable the label display
+            textbox.label.set_visible(False)
+            textbox.on_text_change(self._on_text_change)
+            self._textboxes.append(textbox)
+
+        for _ in range(2):
+            toolfig.axes[-1].remove()
+
         (self.sliderleft, self.sliderbottom, self.sliderright, self.slidertop,
          self.sliderwspace, self.sliderhspace) = self._sliders
         for slider in [self.sliderleft, self.sliderbottom,
@@ -1406,10 +1433,24 @@ class SubplotTool(Widget):
         with cbook._setattr_cm(toolfig.subplotpars, validate=False):
             self.buttonreset.on_clicked(self._on_reset)
 
-    def _on_slider_changed(self, _):
-        self.targetfig.subplots_adjust(
-            **{slider.label.get_text(): slider.val
-               for slider in self._sliders})
+    def _on_text_change(self, _):
+        for slider, textbox in zip(self._sliders, self._textboxes):
+            # TODO: Rounding up only until `NumericTextBox` gets implemented
+            curr_val = round(float(textbox.text), 4)
+            if curr_val != round(slider.val, 4):
+                slider.set_val(curr_val)
+
+    def _on_slider_change(self, _):
+        for slider, textbox in zip(self._sliders, self._textboxes):
+            # TODO: Rounding up only until `NumericTextBox` gets implemented
+            curr_val = round(slider.val, 4)
+            # TODO: No check for non-numerals, will raise ValueError if can't
+            # be converted to float
+            if round(float(textbox.text), 4) != curr_val:
+                textbox.set_val(curr_val)
+            self.targetfig.subplots_adjust(**{textbox.label.get_text():
+                                              curr_val})
+
         if self.drawon:
             self.targetfig.canvas.draw()
 
