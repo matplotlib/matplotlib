@@ -6,11 +6,11 @@ Slider
 In this example, sliders are used to control the frequency and amplitude of
 a sine wave.
 
-For an example of having the slider snap to discrete values see
-:doc:`/gallery/widgets/slider_snap_demo`.
+See :doc:`/gallery/widgets/slider_snap_demo` for an example of having
+the ``Slider``s snap to discrete values.
 
-For an example of using a `matplotlib.widgets.RangeSlider` to define a range
-of values see :doc:`/gallery/widgets/range_slider`.
+See :doc:`/gallery/widgets/range_slider` for an example of using
+``RangeSlider``s to define a range of values.
 """
 import numpy as np
 import matplotlib.pyplot as plt
