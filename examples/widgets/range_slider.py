@@ -10,10 +10,10 @@ widget. The major difference is that RangeSlider's ``val`` attribute
 is a tuple of floats ``(lower val, upper val)`` rather than a single float.
 
 See :doc:`/gallery/widgets/slider_demo` for an example of using
-``Slider``s to control a single float.
+a ``Slider`` to control a single float.
 
 See :doc:`/gallery/widgets/slider_snap_demo` for an example of having
-the ``Slider``s snap to discrete values.
+the ``Slider`` snap to discrete values.
 """
 
 import numpy as np

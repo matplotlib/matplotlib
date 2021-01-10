@@ -10,10 +10,10 @@ Amp slider uses an array as the ``valstep`` argument to more densely sample
 the first part of its range.
 
 See :doc:`/gallery/widgets/slider_demo` for an example of using
-``Slider``s to control a single float.
+a ``Slider`` to control a single float.
 
 See :doc:`/gallery/widgets/range_slider` for an example of using
-``RangeSlider``s to define a range of values.
+a ``RangeSlider`` to define a range of values.
 """
 import numpy as np
 import matplotlib.pyplot as plt
