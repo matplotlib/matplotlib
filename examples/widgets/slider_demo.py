@@ -53,7 +53,7 @@ freq_slider = Slider(
 )
 
 # Make a vertically oriented slider to control the amplitude
-axamp = plt.axes([0.1, 0.15, 0.03, 0.65], facecolor=axcolor)
+axamp = plt.axes([0.1, 0.25, 0.0225, 0.63], facecolor=axcolor)
 amp_slider = Slider(
     ax=axamp,
     label="Amplitude",
