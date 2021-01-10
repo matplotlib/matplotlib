@@ -20,18 +20,19 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 
 
-def fxn(t, amp, freq):
-    return amp * np.sin(2 * np.pi * freq * t)
+# The parametrized function to be plotted
+def f(t, amplitude, frequency):
+    return amplitude * np.sin(2 * np.pi * frequency * t)
 
 t = np.arange(0.0, 1.0, 0.001)
 
 # Define initial parameters
-a0 = 5
-f0 = 3
+init_amplitude = 5
+init_frequency = 3
 
 # Create the figure and the `~.Line2D` that we will manipulate
 fig, ax = plt.subplots()
-line, = plt.plot(t, fxn(t, a0, f0), lw=2)
+line, = plt.plot(t, f(t, init_amplitude, init_frequency), lw=2)
 
 axcolor = 'lightgoldenrodyellow'
 ax.margins(x=0)
@@ -42,17 +43,29 @@ plt.subplots_adjust(left=0.25, bottom=0.25)
 # Make a horizontal slider to control the frequency.
 # This slider will snap to discrete values as defind by ``valstep``.
 axfreq = plt.axes([0.25, 0.1, 0.65, 0.03], facecolor=axcolor)
-freq_slider = Slider(axfreq, 'Freq', 0.1, 30.0, valinit=f0, valstep=5.0)
+freq_slider = Slider(
+    ax=axfreq,
+    label='Frequency',
+    valmin=0.1,
+    valmax=30.0,
+    valinit=init_amplitude,
+    valstep=5.0
+)
 
 # Make a vertically oriented slider to control the amplitude
 axamp = plt.axes([0.1, 0.15, 0.03, 0.65], facecolor=axcolor)
 amp_slider = Slider(
-    axamp, "Amp", 0.1, 10.0, valinit=a0, orientation="vertical"
+    ax=axamp,
+    label="Amplitude",
+    valmin=0.1,
+    valmax=10.0,
+    valinit=init_amplitude,
+    orientation="vertical"
 )
 
 
 def update(val):
-    line.set_ydata(fxn(t, amp_slider.val, freq_slider.val))
+    line.set_ydata(f(t, amp_slider.val, freq_slider.val))
     fig.canvas.draw_idle()
 
 
