@@ -34,7 +34,8 @@ class EllipseROIStats(object):
         self.ax = ax
         self.fig = ax.figure
 
-        lineprop = dict(color='black', linestyle="-.", linewidth=2, alpha=1.0)
+        lineprop = dict(color='black', linestyle="-.", linewidth=2,
+                        dashes=(3, 1), alpha=1.0)
         state_mods = dict(move=' ', clear='escape')
         self.ellipse_roi = EllipseSelector(self.ax, onselect=self.on_select,
                                            drawtype='line', lineprops=lineprop,
@@ -44,6 +45,9 @@ class EllipseROIStats(object):
 
     def on_select(self, eclick, erelease):
         """eclick and erelease are matplotlib events at press and release."""
+        # Remove previously drawn ellipse
+        self.ax.lines.clear()
+        self.ax.patches.clear()
 
         # Starting and ending column indicies
         self.x_start = eclick.xdata
@@ -65,6 +69,7 @@ class EllipseROIStats(object):
         # Instantiate a Patch object that matches
         # that of the drawn ellipse.
         ellipse = Ellipse(xy=center, width=width, height=height)
+        ellipse.linestyle = '-.'
         ellipse.set_fill(False)
 
         # Attributes of the Ellipse-patch object
@@ -89,12 +94,12 @@ class EllipseROIStats(object):
                                                       (m, n))
 
         self.masked_vals = self.img[self.mask]
+        self.fig.canvas.draw_idle()
 
     def toggle_selector(self, event):
         if (event.key == "enter") and self.ellipse_roi.active:
-            self.ax.lines.clear()
-            self.ax.patches.clear()
-            self.fig.canvas.draw_idle()
+            print('\nEllipseSelector deactivated.\n')
+            self.ellipse_roi.set_active(False)
 
             mean = np.mean(self.masked_vals)
             median = np.median(self.masked_vals)
@@ -102,10 +107,6 @@ class EllipseROIStats(object):
             print(f'mean:   {mean}\n')
             print(f'median: {median}\n')
             print(f'std.:   {std}\n')
-
-        if event.key in ['Q', 'q'] and not self.ellipse_roi.active:
-            print('\nEllipseSelector deactivated.\n')
-            self.ellipse_roi.set_active(False)
 
         if event.key in ['A', 'a'] and not self.ellipse_roi.active:
             print('\nEllipseSelector activated.\n')
@@ -120,7 +121,6 @@ if __name__ == '__main__':
     random_im = np.random.rand(5, 5)
 
     fig, axis = plt.subplots(1, 1, figsize=(3.5, 3.5))
-
     shown_fig = axis.imshow(random_im)
 
     selector = EllipseROIStats(axis, random_im)
