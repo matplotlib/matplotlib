@@ -310,16 +310,16 @@ def test_mathtext_fallback_valid():
         mpl.rcParams['mathtext.fallback'] = fallback
 
 
-@pytest.mark.xfail
 def test_mathtext_fallback_invalid():
     for fallback in ['abc', '']:
-        mpl.rcParams['mathtext.fallback'] = fallback
+        with pytest.raises(ValueError, match="not a valid fallback font name"):
+            mpl.rcParams['mathtext.fallback'] = fallback
 
 
-@pytest.mark.xfail
 def test_mathtext_fallback_to_cm_invalid():
     for fallback in [True, False]:
-        mpl.rcParams['mathtext.fallback_to_cm'] = fallback
+        with pytest.warns(_api.MatplotlibDeprecationWarning):
+            mpl.rcParams['mathtext.fallback_to_cm'] = fallback
 
 
 @pytest.mark.parametrize(
