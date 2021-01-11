@@ -21,7 +21,7 @@ from matplotlib.widgets import Slider, Button
 def f(t, amplitude, frequency):
     return amplitude * np.sin(2 * np.pi * frequency * t)
 
-t = np.arange(0.0, 1.0, 0.001)
+t = np.linspace(0, 1, 1000)
 
 # Define initial parameters
 init_amplitude = 5
@@ -30,6 +30,7 @@ init_frequency = 3
 # Create the figure and the line that we will manipulate
 fig, ax = plt.subplots()
 line, = plt.plot(t, f(t, init_amplitude, init_frequency), lw=2)
+ax.set_xlabel('Time [s]')
 
 axcolor = 'lightgoldenrodyellow'
 ax.margins(x=0)
@@ -41,10 +42,10 @@ plt.subplots_adjust(left=0.25, bottom=0.25)
 axfreq = plt.axes([0.25, 0.1, 0.65, 0.03], facecolor=axcolor)
 freq_slider = Slider(
     ax=axfreq,
-    label='Frequency',
+    label='Frequency [Hz]',
     valmin=0.1,
-    valmax=30.0,
-    valinit=init_amplitude,
+    valmax=30,
+    valinit=init_frequency,
 )
 
 # Make a vertically oriented slider to control the amplitude
@@ -52,8 +53,8 @@ axamp = plt.axes([0.1, 0.25, 0.0225, 0.63], facecolor=axcolor)
 amp_slider = Slider(
     ax=axamp,
     label="Amplitude",
-    valmin=0.1,
-    valmax=10.0,
+    valmin=0,
+    valmax=10,
     valinit=init_amplitude,
     orientation="vertical"
 )
