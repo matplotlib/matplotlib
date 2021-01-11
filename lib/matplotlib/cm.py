@@ -136,7 +136,7 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
     the registered colormap will be immutable.
 
     """
-    cbook._check_isinstance((str, None), name=name)
+    _api.check_isinstance((str, None), name=name)
     if name is None:
         try:
             name = cmap.name
@@ -448,7 +448,7 @@ class ScalarMappable:
         the norm of the mappable will reset the norm, locator, and formatters
         on the colorbar to default.
         """
-        cbook._check_isinstance((colors.Normalize, None), norm=norm)
+        _api.check_isinstance((colors.Normalize, None), norm=norm)
         in_init = self.norm is None
         if norm is None:
             norm = colors.Normalize()

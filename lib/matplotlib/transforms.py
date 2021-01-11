@@ -41,7 +41,7 @@ import math
 import numpy as np
 from numpy.linalg import inv
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
 from .path import Path
@@ -1054,7 +1054,7 @@ class TransformedBbox(BboxBase):
         """
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
-        cbook._check_isinstance(Transform, transform=transform)
+        _api.check_isinstance(Transform, transform=transform)
         if transform.input_dims != 2 or transform.output_dims != 2:
             raise ValueError(
                 "The input and output dimensions of 'transform' must be 2")
@@ -1660,7 +1660,7 @@ class TransformWrapper(Transform):
         *child*: A `Transform` instance.  This child may later
         be replaced with :meth:`set`.
         """
-        cbook._check_isinstance(Transform, child=child)
+        _api.check_isinstance(Transform, child=child)
         self._init(child)
         self.set_children(child)
 
@@ -1911,7 +1911,7 @@ class Affine2D(Affine2DBase):
         Set this transformation from the frozen copy of another
         `Affine2DBase` object.
         """
-        cbook._check_isinstance(Affine2DBase, other=other)
+        _api.check_isinstance(Affine2DBase, other=other)
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -2686,7 +2686,7 @@ class TransformedPath(TransformNode):
         path : `~.path.Path`
         transform : `Transform`
         """
-        cbook._check_isinstance(Transform, transform=transform)
+        _api.check_isinstance(Transform, transform=transform)
         super().__init__()
         self._path = path
         self._transform = transform

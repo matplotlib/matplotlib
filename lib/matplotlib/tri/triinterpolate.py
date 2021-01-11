@@ -4,7 +4,7 @@ Interpolation inside triangular grids.
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
@@ -31,7 +31,7 @@ class TriInterpolator:
     """
 
     def __init__(self, triangulation, z, trifinder=None):
-        cbook._check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
         self._z = np.asarray(z)
@@ -39,7 +39,7 @@ class TriInterpolator:
             raise ValueError("z array must have same length as triangulation x"
                              " and y arrays")
 
-        cbook._check_isinstance((TriFinder, None), trifinder=trifinder)
+        _api.check_isinstance((TriFinder, None), trifinder=trifinder)
         self._trifinder = trifinder or self._triangulation.get_trifinder()
 
         # Default scaling factors : 1.0 (= no scaling)
@@ -996,8 +996,7 @@ class _DOF_estimator:
     gradient coordinates.
     """
     def __init__(self, interpolator, **kwargs):
-        cbook._check_isinstance(
-            CubicTriInterpolator, interpolator=interpolator)
+        _api.check_isinstance(CubicTriInterpolator, interpolator=interpolator)
         self._pts = interpolator._pts
         self._tris_pts = interpolator._tris_pts
         self.z = interpolator._z
