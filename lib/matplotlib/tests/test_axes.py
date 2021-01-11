@@ -624,6 +624,17 @@ def test_fill_units():
     fig.autofmt_xdate()
 
 
+def test_plot_format_kwarg_redundant():
+    with pytest.warns(UserWarning, match="marker .* redundantly defined"):
+        plt.plot([0], [0], 'o', marker='x')
+    with pytest.warns(UserWarning, match="linestyle .* redundantly defined"):
+        plt.plot([0], [0], '-', linestyle='--')
+    with pytest.warns(UserWarning, match="color .* redundantly defined"):
+        plt.plot([0], [0], 'r', color='blue')
+    # smoke-test: should not warn
+    plt.errorbar([0], [0], fmt='none', color='blue')
+
+
 @image_comparison(['single_point', 'single_point'])
 def test_single_point():
     # Issue #1796: don't let lines.marker affect the grid
