@@ -16,6 +16,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
+import matplotlib.scale as mscale
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -1320,3 +1321,17 @@ def test_2d_to_rgba():
     rgba_1d = mcolors.to_rgba(color.reshape(-1))
     rgba_2d = mcolors.to_rgba(color.reshape((1, -1)))
     assert rgba_1d == rgba_2d
+
+
+def test_norm_deepcopy():
+    norm = mcolors.LogNorm()
+    norm.vmin = 0.0002
+    norm2 = copy.deepcopy(norm)
+    assert norm2.vmin == norm.vmin
+    assert isinstance(norm2._scale, mscale.LogScale)
+    norm = mcolors.Normalize()
+    norm.vmin = 0.0002
+    norm2 = copy.deepcopy(norm)
+    assert isinstance(norm2._scale, mscale.LinearScale)
+    assert norm2.vmin == norm.vmin
+    assert norm2._scale is not norm._scale
