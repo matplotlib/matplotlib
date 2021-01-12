@@ -398,8 +398,8 @@ class Slider(SliderBase):
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
-        `.Rectangle` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
+        `.Polygon` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
@@ -657,8 +657,8 @@ class RangeSlider(SliderBase):
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
-        `.Rectangle` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
+        `.Polygon` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
