@@ -84,7 +84,6 @@ class TransformNode:
     classes that are not really transforms, such as bounding boxes, since some
     transforms depend on bounding boxes to compute their values.
     """
-    _gid = 0
 
     # Invalidation may affect only the affine part.  If the
     # invalidation was "affine-only", the _invalid member is set to
