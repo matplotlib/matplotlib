@@ -403,12 +403,53 @@ class _process_plot_var_args:
         return seg, kwargs
 
     def _plot_args(self, tup, kwargs, return_kwargs=False):
+        """
+        Process the arguments of ``plot([x], y, [fmt], **kwargs)`` calls.
+
+        This processes a single set of ([x], y, [fmt]) parameters; i.e. for
+        ``plot(x, y, x2, y2)`` it will be called twice. Once for (x, y) and
+        once for (x2, y2).
+
+        x and y may be 2D and thus can still represent multiple datasets.
+
+        For multiple datasets, if the keyword argument *label* is a list, this
+        will unpack the list and assign the individual labels to the datasets.
+
+        Parameters
+        ----------
+        tup : tuple
+            A tuple of the positional parameters. This can be one of
+
+            - (y,)
+            - (x, y)
+            - (y, fmt)
+            - (x, y, fmt)
+
+        kwargs : dict
+            The keyword arguments passed to ``plot()``.
+
+        return_kwargs : bool
+            If true, return the effective keyword arguments after label
+            unpacking as well.
+
+        Returns
+        -------
+        result
+            If *return_kwargs* is false, a list of Artists representing the
+            dataset(s).
+            If *return_kwargs* is true, a list of (Artist, effective_kwargs)
+            representing the dataset(s). See *return_kwargs*.
+            The Artist is either `.Line2D` (if called from ``plot()``) or
+            `.Polygon` otherwise.
+        """
         if len(tup) > 1 and isinstance(tup[-1], str):
-            linestyle, marker, color = _process_plot_format(tup[-1])
-            tup = tup[:-1]
+            # xy is tup with fmt stripped (could still be (y,) only)
+            *xy, fmt = tup
+            linestyle, marker, color = _process_plot_format(fmt)
         elif len(tup) == 3:
             raise ValueError('third arg must be a format string')
         else:
+            xy = tup
             linestyle, marker, color = None, None, None
 
         # Don't allow any None value; these would be up-converted to one
@@ -417,16 +458,16 @@ class _process_plot_var_args:
             raise ValueError("x, y, and format string must not be None")
 
         kw = {}
-        for k, v in zip(('linestyle', 'marker', 'color'),
-                        (linestyle, marker, color)):
-            if v is not None:
-                kw[k] = v
+        for prop_name, val in zip(('linestyle', 'marker', 'color'),
+                                  (linestyle, marker, color)):
+            if val is not None:
+                kw[prop_name] = val
 
-        if len(tup) == 2:
-            x = _check_1d(tup[0])
-            y = _check_1d(tup[-1])
+        if len(xy) == 2:
+            x = _check_1d(xy[0])
+            y = _check_1d(xy[1])
         else:
-            x, y = index_of(tup[-1])
+            x, y = index_of(xy[-1])
 
         if self.axes.xaxis is not None:
             self.axes.xaxis.update_units(x)
@@ -445,10 +486,10 @@ class _process_plot_var_args:
             y = y[:, np.newaxis]
 
         if self.command == 'plot':
-            func = self._makeline
+            make_artist = self._makeline
         else:
             kw['closed'] = kwargs.get('closed', True)
-            func = self._makefill
+            make_artist = self._makefill
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
@@ -465,8 +506,8 @@ class _process_plot_var_args:
         else:
             labels = [label] * n_datasets
 
-        result = (func(x[:, j % ncx], y[:, j % ncy], kw,
-                       {**kwargs, 'label': label})
+        result = (make_artist(x[:, j % ncx], y[:, j % ncy], kw,
+                              {**kwargs, 'label': label})
                   for j, label in enumerate(labels))
 
         if return_kwargs:
