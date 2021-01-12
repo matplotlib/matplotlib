@@ -397,6 +397,12 @@
     "mpl_toolkits.axisartist.axisline_style.AxislineStyle._Base": [
       "lib/mpl_toolkits/axisartist/axisline_style.py:docstring of mpl_toolkits.axisartist.axisline_style.AxislineStyle.SimpleArrow:1"
     ],
+    "mpl_toolkits.axisartist.axisline_style._FancyAxislineStyle.FilledArrow": [
+      "<unknown>:1"
+    ],
+    "mpl_toolkits.axisartist.axisline_style._FancyAxislineStyle.SimpleArrow": [
+      "<unknown>:1"
+    ],
     "mpl_toolkits.axisartist.axislines.AxisArtistHelper._Base": [
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper.Fixed:1",
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper.Floating:1"
