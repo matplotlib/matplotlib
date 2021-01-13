@@ -2080,6 +2080,105 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
+class GradientLineCollection(LineCollection):
+    
+    def __color_for_position(self, percentage: float, gradient: list, alpha: float):
+        
+        lower_class_index, upper_class_index = 0, len(gradient) - 1
+        for class_index in range(len(gradient)):
+            if gradient[class_index][0] <= percentage:
+                lower_class_index = class_index
+        for class_index in range(len(gradient) - 1, -1, -1):
+            if percentage < gradient[class_index][0]:
+                upper_class_index = class_index
+        
+        if lower_class_index == upper_class_index:
+            return gradient[lower_class_index][1]
+        
+        color_slope = (
+            (percentage - gradient[lower_class_index][0]) /
+            (gradient[upper_class_index][0] - gradient[lower_class_index][0])
+        )
+        
+        rgba = []
+        for channel in range(4):
+            lower_class_color = gradient[lower_class_index][1][channel]
+            upper_class_color = gradient[upper_class_index][1][channel]
+            rgba.append((lower_class_color + color_slope * (upper_class_color - lower_class_color)))
+        
+        rgba[3] *= alpha
+        return rgba
+    
+    def __split_line(self, start_pos, end_pos, gradient: list, alpha=1.0, pieces=20):
+        
+        end_y, end_x = end_pos
+        start_y, start_x = start_pos
+        spacing_y, spacing_x = (end_y - start_y) / pieces, (end_x - start_x) / pieces
+        step_opacity = 255 / pieces
+        
+        segments, colors = [], []
+        for i in range(pieces):
+            
+            segments.append(
+                [
+                    [start_y + spacing_y * i, start_x + spacing_x * i],
+                    [start_y + spacing_y * (i + 1), start_x + spacing_x * (i + 1)]
+                ]
+            )
+            colors.append(
+                self.__color_for_position(
+                    percentage=float(i) / pieces, gradient=gradient, alpha=alpha
+                )
+            )
+        
+        return segments, colors
+    
+    def __init__(self, segments: list, pieces: int, gradient: list, **kwargs):
+        
+        # Number of old parameters should be expanded until (len(segments) * pieces)
+        new_segments = []
+        new_colors = []
+        new_kwargs = {}
+        
+        if "colors" in kwargs:
+            kwargs.pop("colors")
+        if "alpha" in kwargs:
+            alpha = kwargs["alpha"]
+            kwargs.pop("alpha")
+        else:
+            alpha = 1
+        
+        for kw, _ in kwargs.items():
+            new_kwargs.update({kw: []})
+        
+        gradient = sorted(
+            [(pos, mpl.colors.to_rgba(color)) for pos, color in gradient.items()],
+            key=lambda x: x[0]
+        )
+        
+        for i in range(len(segments)):
+            t_segments, t_colors = self.__split_line(
+                start_pos=segments[i][0],
+                end_pos=segments[i][1],
+                gradient=gradient,
+                alpha=alpha,
+                pieces=pieces,
+            )
+            new_segments += t_segments
+            new_colors += t_colors
+            
+            # Duplicate each value of lists in kwargs from 1 to 'pieces'
+            for kw, _ in kwargs.items():
+                for j in range(pieces):
+                    if type(kwargs[kw]) == type([]):
+                        new_kwargs[kw].append(kwargs[kw][i])
+                    else:
+                        new_kwargs[kw] = kwargs[kw]
+        
+        super(GradientLineCollection, self).__init__(new_segments, colors=new_colors, **new_kwargs)
+
+
+
 
 _artist_kwdoc = artist.kwdoc(Collection)
 for k in ('QuadMesh', 'TriMesh', 'PolyCollection', 'BrokenBarHCollection',
