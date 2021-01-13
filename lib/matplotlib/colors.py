@@ -361,11 +361,20 @@ def to_rgba_array(c, alpha=None):
 
     if len(c) == 0:
         return np.zeros((0, 4), float)
+
+    # Quick path if the whole sequence can be directly converted to a numpy
+    # array in one shot.
+    lens = {len(cc) if isinstance(cc, (list, tuple)) else -1 for cc in c}
+    if lens == {3}:
+        rgba = np.column_stack([c, np.ones(len(c))])
+    elif lens == {4}:
+        rgba = np.array(c)
     else:
-        if np.iterable(alpha):
-            return np.array([to_rgba(cc, aa) for cc, aa in zip(c, alpha)])
-        else:
-            return np.array([to_rgba(cc, alpha) for cc in c])
+        rgba = np.array([to_rgba(cc) for cc in c])
+
+    if alpha is not None:
+        rgba[:, 3] = alpha
+    return rgba
 
 
 def to_rgb(c):
@@ -914,13 +923,13 @@ class LinearSegmentedColormap(Colormap):
         else:
             vals = np.linspace(0, 1, len(colors))
 
-        cdict = dict(red=[], green=[], blue=[], alpha=[])
-        for val, color in zip(vals, colors):
-            r, g, b, a = to_rgba(color)
-            cdict['red'].append((val, r, r))
-            cdict['green'].append((val, g, g))
-            cdict['blue'].append((val, b, b))
-            cdict['alpha'].append((val, a, a))
+        r, g, b, a = to_rgba_array(colors).T
+        cdict = {
+            "red": np.column_stack([vals, r, r]),
+            "green": np.column_stack([vals, g, g]),
+            "blue": np.column_stack([vals, b, b]),
+            "alpha": np.column_stack([vals, a, a]),
+        }
 
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
