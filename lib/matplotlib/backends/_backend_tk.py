@@ -516,7 +516,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # over images because those use two-line messages which resize the
         # toolbar.
         self._label_filler = tk.Label(master=self,
-                         text='\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}')
+                                      text='\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}')
         self._label_filler.pack(side=tk.RIGHT)
 
         self.message = tk.StringVar(master=self)
