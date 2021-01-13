@@ -518,7 +518,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         self._label_filler = tk.Label(master=self)
         self._label_filler['text'] = '\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}'
         self._label_filler.pack(side=tk.RIGHT)
-        
+
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, textvariable=self.message)
         self._message_label.pack(side=tk.RIGHT)
