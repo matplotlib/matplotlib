@@ -751,6 +751,24 @@ def _open_file_or_url(fname):
             yield f
 
 
+def strip_comment(line):
+    """Strips comments at the end of the line.
+    Comments start with '#' but can be escaped ('\#').
+    """
+    splitline = line.split('#')
+    escaped_line = []
+    for i, segment in enumerate(splitline):
+        escape_at_end = segment.endswith('\\')
+        if escape_at_end and len(splitline) > i:
+            # this segment ended with \#
+            segment = segment[:-1]+'#'
+        escaped_line.append(segment)
+        if not escape_at_end:
+            break
+    parsed = ''.join(escaped_line).strip()
+    return parsed
+
+
 def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
     """
     Construct a `RcParams` instance from file *fname*.
@@ -773,7 +791,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
         try:
             for line_no, line in enumerate(fd, 1):
                 line = transform(line)
-                strippedline = line.split('#', 1)[0].strip()
+                strippedline = strip_comment(line).strip()
                 if not strippedline:
                     continue
                 tup = strippedline.split(':', 1)
