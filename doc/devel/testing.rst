@@ -1,18 +1,16 @@
 .. _testing:
 
-============================
-Developer's tips for testing
-============================
+=======
+Testing
+=======
 
-Matplotlib's testing infrastructure depends on pytest_. The tests are in
-:file:`lib/matplotlib/tests`, and customizations to the pytest testing
-infrastructure are in :mod:`matplotlib.testing`.
+Matplotlib uses the pytest_ framework.
+
+The tests are in :file:`lib/matplotlib/tests`, and customizations to the pytest
+testing infrastructure are in :mod:`matplotlib.testing`.
 
 .. _pytest: http://doc.pytest.org/en/latest/
-.. _pytest-flake8: https://pypi.org/project/pytest-flake8/
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
-.. _pytest-timeout: https://pypi.org/project/pytest-timeout/
-.. _flake8: https://pypi.org/project/flake8/
 
 
 .. _testing_requirements:
@@ -24,14 +22,23 @@ To run the tests you will need to
 :ref:`set up Matplotlib for development <installing_for_devs>`. Note in
 particular the :ref:`additional dependencies <test-dependencies>` for testing.
 
+.. note::
+
+   We will assume that you want to run the tests in a development setup.
+
+   While you can run the tests against a regular installed version of
+   Matplotlib, this is a far less common use case. You still need the
+   :ref:`additional dependencies <test-dependencies>` for testing.
+   You have to additionally get the reference images from the repository,
+   because they are not distributed with pre-built Matplotlib packages.
+
 Running the tests
 -----------------
 
-Running the tests is simple. Make sure you have pytest installed and run::
+In the root directory of your development repository run::
 
    pytest
 
-in the root directory of the repository.
 
 pytest can be configured via a lot of `command-line parameters`_. Some
 particularly useful ones are:
@@ -40,11 +47,7 @@ particularly useful ones are:
 ``-v`` or ``--verbose``        Be more verbose
 ``-n NUM``                     Run tests in parallel over NUM
                                processes (requires pytest-xdist_)
-``--timeout=SECONDS``          Set timeout for results from each test
-                               process (requires pytest-timeout_)
 ``--capture=no`` or ``-s``     Do not capture stdout
-``--flake8``                   Check coding standards using flake8_
-                               (requires pytest-flake8_)
 =============================  ===========
 
 To run a single test from the command line, you can provide a file path,
@@ -53,15 +56,6 @@ not need to be installed, but Matplotlib should be)::
 
   pytest lib/matplotlib/tests/test_simplification.py::test_clipping
 
-or, if tests are installed, a dot-separated path to the module, optionally
-followed by the function separated by two colons, such as::
-
-  pytest --pyargs matplotlib.tests.test_simplification::test_clipping
-
-If you want to run the full test suite, but want to save wall time try
-running the tests in parallel::
-
-  pytest --verbose -n 5
 
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
@@ -106,11 +100,6 @@ For numpy use::
   import numpy as np
   np.random.seed(19680801)
 
-and Python's random number generator::
-
-  import random
-  random.seed(19680801)
-
 The seed is John Hunter's birthday.
 
 Writing an image comparison test
@@ -150,26 +139,6 @@ then collect the drawn results and compare them.
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
 about their use.
-
-Known failing tests
--------------------
-
-If you're writing a test, you may mark it as a known failing test with the
-:func:`pytest.mark.xfail` decorator. This allows the test to be added to the
-test suite and run on the buildbots without causing undue alarm. For example,
-although the following test will fail, it is an expected failure::
-
-  import pytest
-
-  @pytest.mark.xfail
-  def test_simple_fail():
-      '''very simple example test that should fail'''
-      assert 1 + 1 == 3
-
-Note that the first argument to the :func:`~pytest.mark.xfail` decorator is a
-fail condition, which can be a value such as True, False, or may be a
-dynamically evaluated expression. If a condition is supplied, then a reason
-must also be supplied with the ``reason='message'`` keyword argument.
 
 Creating a new module in matplotlib.tests
 -----------------------------------------
