@@ -673,7 +673,7 @@ this example from `matplotlib.lines`:
 .. code-block:: python
 
   # in lines.py
-  docstring.interpd.update(Line2D=artist.kwdoc(Line2D))
+  docstring.interpd.update(Line2D_kwdoc=artist.kwdoc(Line2D))
 
 Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
 `matplotlib.axes.Axes.plot`:
@@ -686,13 +686,28 @@ Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
       """
       Some stuff omitted
 
-      The kwargs are Line2D properties:
-      %(_Line2D_docstr)s
+      Other Parameters
+      ----------------
+      scalex, scaley : bool, default: True
+          These parameters determine if the view limits are adapted to the
+          data limits. The values are passed on to `autoscale_view`.
 
-      kwargs scalex and scaley, if defined, are passed on
-      to autoscale_view to determine whether the x and y axes are
-      autoscaled; default True.  See Axes.autoscale_view for more
-      information
+      **kwargs : `.Line2D` properties, optional
+          *kwargs* are used to specify properties like a line label (for
+          auto legends), linewidth, antialiasing, marker face color.
+          Example::
+
+          >>> plot([1, 2, 3], [1, 2, 3], 'go-', label='line 1', linewidth=2)
+          >>> plot([1, 2, 3], [1, 4, 9], 'rs', label='line 2')
+
+          If you specify multiple lines with one plot call, the kwargs apply
+          to all those lines. In case the label object is iterable, each
+          element is used as labels for each set of data.
+
+          Here is a list of available `.Line2D` properties:
+
+          %(Line2D_kwdoc)s
+
       """
 
 Note there is a problem for `~matplotlib.artist.Artist` ``__init__`` methods,
