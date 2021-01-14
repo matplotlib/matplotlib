@@ -316,6 +316,8 @@ class Line3DCollection(LineCollection):
         return minz
 
     @artist.allow_rasterization
+    @_api.delete_parameter('3.4', 'project',
+                           alternative='Line3DCollection.do_3d_projection')
     def draw(self, renderer, project=False):
         if project:
             self.do_3d_projection()
