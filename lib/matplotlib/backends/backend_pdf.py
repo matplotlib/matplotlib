@@ -638,7 +638,7 @@ class PdfFile:
         if not opened:
             try:
                 self.tell_base = filename.tell()
-            except IOError:
+            except OSError:
                 fh = BytesIO()
                 self.original_file_like = filename
             else:
