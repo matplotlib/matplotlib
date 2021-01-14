@@ -352,6 +352,7 @@ class Axes(_AxesBase):
 
         return inset_ax
 
+    @docstring.dedent_interpd
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
                        facecolor='none', edgecolor='0.5', alpha=0.5,
                        zorder=4.99, **kwargs):
@@ -921,6 +922,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view(scalex=False)
         return p
 
+    @docstring.dedent_interpd
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         Add a vertical span (rectangle) across the Axes.
