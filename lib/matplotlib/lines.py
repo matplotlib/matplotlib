@@ -973,7 +973,7 @@ class Line2D(Artist):
 
     def get_data(self, orig=True):
         """
-        Return the xdata, ydata.
+        Return the line data as an ``(xdata, ydata)`` pair.
 
         If *orig* is *True*, return the original data.
         """
