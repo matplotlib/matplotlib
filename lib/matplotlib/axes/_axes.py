@@ -1497,10 +1497,9 @@ class Axes(_AxesBase):
             >>> plot([1, 2, 3], [1, 2, 3], 'go-', label='line 1', linewidth=2)
             >>> plot([1, 2, 3], [1, 4, 9], 'rs', label='line 2')
 
-            If you make multiple lines with one plot call, the kwargs
-            apply to all those lines.
-            In case if label object is iterable, each its element is
-            used as label for a separate line.
+            If you specify multiple lines with one plot call, the kwargs apply
+            to all those lines. In case the label object is iterable, each
+            element is used as labels for each set of data.
 
             Here is a list of available `.Line2D` properties:
 
