@@ -237,6 +237,10 @@ bbox_transform : None or `matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
+title_prop : None or `matplotlib.font_manager.FontProperties` or dict
+    The font properties of the legend's title. If None (default), the current
+    :data:`matplotlib.rcParams` will be used.
+
 title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
     The font size of the legend's title.
@@ -323,6 +327,7 @@ class Legend(Artist):
                                  # box, none use rc
                  shadow=None,
                  title=None,  # set a title for the legend
+                 title_prop=None,  # properties for the legend title
                  title_fontsize=None,  # the font size for the title
                  framealpha=None,  # set frame alpha
                  edgecolor=None,  # frame patch edgecolor
@@ -507,10 +512,22 @@ class Legend(Artist):
         self._loc_used_default = tmp  # ignore changes done by _set_loc
 
         # figure out title fontsize:
-        if title_fontsize is None:
-            title_fontsize = mpl.rcParams['legend.title_fontsize']
-        tprop = FontProperties(size=title_fontsize)
-        self.set_title(title, prop=tprop)
+        if title_prop is None:
+            if title_fontsize is None:
+                title_fontsize = mpl.rcParams["legend.title_fontsize"]
+            self.title_prop = FontProperties(
+                size=title_fontsize)
+        else:
+            self.title_prop = FontProperties._from_any(title_prop)
+            if isinstance(title_prop, dict) and "size" not in title_prop:
+                if title_fontsize is None:
+                    title_fontsize = mpl.rcParams["legend.title_fontsize"]
+                self.title_prop.set_size(title_fontsize)
+            else:
+                if title_fontsize is not None:
+                    self.title_prop.set_size(title_fontsize)
+
+        self.set_title(title, prop=self.title_prop)
         self._draggable = None
 
         # set the text color

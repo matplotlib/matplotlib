@@ -546,10 +546,25 @@ def test_window_extent_cached_renderer():
 
 def test_legend_title_fontsize():
     # test the title_fontsize kwarg
-    fig, ax = plt.subplots()
-    ax.plot(range(10))
-    leg = ax.legend(title='Aardvark', title_fontsize=22)
+    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+    axes = axes.flat
+    axes[0].plot(range(10))
+    leg = axes[0].legend(title='Aardvark', title_fontsize=22)
     assert leg.get_title().get_fontsize() == 22
+    axes[1].plot(range(10))
+    leg2 = axes[1].legend(title='Aardvark',
+                          title_prop={'family': 'serif', 'size': 22})
+    assert leg2.get_title().get_fontsize() == 22
+    axes[2].plot(range(10))
+    leg3 = axes[2].legend(title='Aardvark',
+                          title_prop={'family': 'serif'},
+                          title_fontsize=22)
+    assert leg3.get_title().get_fontsize() == 22
+    axes[3].plot(range(10))
+    leg4 = axes[3].legend(title='Aardvark',
+                          title_prop={'family': 'serif', 'size': 10},
+                          title_fontsize=22)
+    assert leg4.get_title().get_fontsize() == 22
 
 
 def test_legend_labelcolor_single():
