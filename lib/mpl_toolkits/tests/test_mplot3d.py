@@ -152,7 +152,7 @@ def test_contourf3d_fill():
     ax.set_zlim(-1, 1)
 
 
-@mpl3d_image_comparison(['tricontour.png'])
+@mpl3d_image_comparison(['tricontour.png'], tol=0.02)
 def test_tricontour():
     fig = plt.figure()
 

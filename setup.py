@@ -47,7 +47,8 @@ from distutils.errors import CompileError
 from distutils.dist import Distribution
 
 import setupext
-from setupext import print_raw, print_status
+from setupext import (
+    get_and_extract_tarball, print_raw, print_status, LOCAL_QHULL_VERSION)
 
 # Get the version from versioneer
 import versioneer
@@ -85,8 +86,18 @@ class NoopTestCommand(TestCommand):
               "'python setup.py test'. Please run 'pytest'.")
 
 
+def _download_qhull():
+    toplevel = get_and_extract_tarball(
+        urls=["http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"],
+        sha="b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e",
+        dirname=f"qhull-{LOCAL_QHULL_VERSION}",
+    )
+    shutil.copyfile(toplevel / "COPYING.txt", "LICENSE/LICENSE_QHULL")
+
+
 class BuildExtraLibraries(BuildExtCommand):
     def finalize_options(self):
+        _download_qhull()
         self.distribution.ext_modules[:] = [
             ext
             for package in good_packages
