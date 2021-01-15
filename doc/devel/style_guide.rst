@@ -171,7 +171,7 @@ Examples of Python code have comments before or on the same line.
 Outputs
 ^^^^^^^
 When generating visuals with Matplotlib using ``.py`` files in examples,
-display the visual with ``show()`` to provide display the visual.
+display the visual with `matplotlib.pyplot.show` to display the visual.
 Keep the documentation clear of Python output lines.
 
 +------------------------------------+------------------------------------+
