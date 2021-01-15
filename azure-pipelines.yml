@@ -81,7 +81,7 @@ steps:
         texlive-xetex texlive-luatex
       ;;
     darwin)
-      brew cask install xquartz
+      brew install --cask xquartz
       brew install pkg-config ffmpeg imagemagick mplayer ccache
       ;;
     win32)
