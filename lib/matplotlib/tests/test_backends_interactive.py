@@ -50,16 +50,14 @@ def _get_testable_interactive_backends():
             reason = "macosx backend fails on Azure"
         elif 'qt5' in backend and not have_qt5:
             reason = "no usable Qt5 bindings"
+        marks = []
         if reason:
-            backend = pytest.param(
-                backend,
-                marks=pytest.mark.skip(
-                    reason=f"Skipping {backend} because {reason}"))
+            marks.append(pytest.mark.skip(
+                reason=f"Skipping {backend} because {reason}"))
         elif backend.startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
-            backend = pytest.param(
-                backend,
-                marks=pytest.mark.xfail(reason='github #16849'))
+            marks.append(pytest.mark.xfail(reason='github #16849'))
+        backend = pytest.param(backend, marks=marks)
         backends.append(backend)
     return backends
 
@@ -216,16 +214,19 @@ def _test_thread_impl():
 
 _thread_safe_backends = _get_testable_interactive_backends()
 # Known unsafe backends. Remove the xfails if they start to pass!
-if "wx" in _thread_safe_backends:
-    _thread_safe_backends.remove("wx")
-    _thread_safe_backends.append(
-        pytest.param("wx", marks=pytest.mark.xfail(
-            raises=subprocess.CalledProcessError)))
-if "macosx" in _thread_safe_backends:
-    _thread_safe_backends.remove("macosx")
-    _thread_safe_backends.append(
-        pytest.param("macosx", marks=pytest.mark.xfail(
-            raises=subprocess.TimeoutExpired, strict=True)))
+for param in _thread_safe_backends:
+    backend = param.values[0]
+    if "cairo" in backend:
+        # Cairo backends save a cairo_t on the graphics context, and sharing
+        # these is not threadsafe.
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.CalledProcessError))
+    elif backend == "wx":
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.CalledProcessError))
+    elif backend == "macosx":
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.TimeoutExpired, strict=True))
 
 
 @pytest.mark.parametrize("backend", _thread_safe_backends)
