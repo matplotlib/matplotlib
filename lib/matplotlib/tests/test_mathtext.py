@@ -110,6 +110,12 @@ math_tests = [
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
+# 'Lightweight' tests test only a single fontset (dejavusans, which is the
+# default) and only png outputs, in order to minimize the size of baseline
+# images.
+lightweight_math_tests = [
+    r'$\sqrt[ab]{123}$',  # github issue #8665
+]
 
 digits = "0123456789"
 uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -165,42 +171,48 @@ for fonts, chars in font_test_specs:
         for set in chars:
             font_tests.append(wrapper % set)
 
-font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
-
 
 @pytest.fixture
-def baseline_images(request, fontset, index):
+def baseline_images(request, fontset, index, text):
+    if text is None:
+        pytest.skip("test has been removed")
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-cur_math_tests = list(filter(lambda x: x[1] is not None, enumerate(math_tests)))
-
-
-@pytest.mark.parametrize('index, test', cur_math_tests,
-                         ids=[str(index) for index, _ in cur_math_tests])
-@pytest.mark.parametrize('fontset',
-                         ['cm', 'stix', 'stixsans', 'dejavusans',
-                          'dejavuserif'])
+@pytest.mark.parametrize(
+    'index, text', enumerate(math_tests), ids=range(len(math_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
-def test_mathtext_rendering(baseline_images, fontset, index, test):
+def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, test,
+    fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, test', font_tests,
-                         ids=[str(index) for index, _ in font_tests])
-@pytest.mark.parametrize('fontset',
-                         ['cm', 'stix', 'stixsans', 'dejavusans',
-                          'dejavuserif'])
+@pytest.mark.parametrize('index, text', enumerate(lightweight_math_tests),
+                         ids=range(len(lightweight_math_tests)))
+@pytest.mark.parametrize('fontset', ['dejavusans'])
+@pytest.mark.parametrize('baseline_images', ['mathtext1'], indirect=True)
+@image_comparison(baseline_images=None, extensions=['png'])
+def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.text(0.5, 0.5, text, math_fontfamily=fontset,
+             horizontalalignment='center', verticalalignment='center')
+
+
+@pytest.mark.parametrize(
+    'index, text', enumerate(font_tests), ids=range(len(font_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
-def test_mathfont_rendering(baseline_images, fontset, index, test):
+def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, test,
+    fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
 
