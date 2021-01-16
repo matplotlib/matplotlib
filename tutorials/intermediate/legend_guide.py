@@ -151,7 +151,7 @@ line2, = plt.plot([3, 2, 1], label="Line 2", linewidth=4)
 first_legend = plt.legend(handles=[line1], loc='upper right')
 
 # Add the legend manually to the current Axes.
-ax = plt.gca().add_artist(first_legend)
+plt.gca().add_artist(first_legend)
 
 # Create another legend for the second line.
 plt.legend(handles=[line2], loc='lower right')
