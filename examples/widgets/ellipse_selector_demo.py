@@ -20,8 +20,8 @@ from matplotlib.widgets import EllipseSelector
 class EllipseROIStats(object):
     """
     Select a region of an image using 'EllipseSelector' and extract the data.
-    The extents and center of the ellipse drawn are used to create a patch 
-    in the same area as the selector object. The patch is the then used to 
+    The extents and center of the ellipse drawn are used to create a patch
+    in the same area as the selector object. The patch is the then used to
     generate a mask that can be used to extract data.
 
     Parameters
