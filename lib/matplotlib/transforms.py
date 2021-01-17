@@ -33,6 +33,7 @@ themselves.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
+import copy
 import functools
 import textwrap
 import weakref
@@ -138,11 +139,33 @@ class TransformNode:
             k: weakref.ref(v, lambda _, pop=self._parents.pop, k=k: pop(k))
             for k, v in self._parents.items() if v is not None}
 
-    def __copy__(self, *args):
-        raise NotImplementedError(
-            "TransformNode instances can not be copied. "
-            "Consider using frozen() instead.")
-    __deepcopy__ = __copy__
+    def __copy__(self):
+        other = copy.copy(super())
+        # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
+        # propagate back to `c`, i.e. we need to clear the parents of `a1`.
+        other._parents = {}
+        # If `c = a + b; c1 = copy(c)`, then modifications to `a` also need to
+        # be propagated to `c1`.
+        for key, val in vars(self).items():
+            if isinstance(val, TransformNode) and id(self) in val._parents:
+                other.set_children(val)  # val == getattr(other, key)
+        return other
+
+    def __deepcopy__(self, memo):
+        # We could deepcopy the entire transform tree, but nothing except
+        # `self` is accessible publicly, so we may as well just freeze `self`.
+        other = self.frozen()
+        if other is not self:
+            return other
+        # Some classes implement frozen() as returning self, which is not
+        # acceptable for deepcopying, so we need to handle them separately.
+        other = copy.deepcopy(super(), memo)
+        # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
+        # propagate back to `c`, i.e. we need to clear the parents of `a1`.
+        other._parents = {}
+        # If `c = a + b; c1 = copy(c)`, this creates a separate tree
+        # (`c1 = a1 + b1`) so nothing needs to be done.
+        return other
 
     def invalidate(self):
         """

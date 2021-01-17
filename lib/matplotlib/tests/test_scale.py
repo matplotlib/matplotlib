@@ -1,3 +1,5 @@
+import copy
+
 import matplotlib.pyplot as plt
 from matplotlib.scale import (
     LogTransform, InvertedLogTransform,
@@ -210,3 +212,10 @@ def test_pass_scale():
     ax.set_yscale(scale)
     assert ax.xaxis.get_scale() == 'log'
     assert ax.yaxis.get_scale() == 'log'
+
+
+def test_scale_deepcopy():
+    sc = mscale.LogScale(axis='x', base=10)
+    sc2 = copy.deepcopy(sc)
+    assert str(sc.get_transform()) == str(sc2.get_transform())
+    assert sc._transform is not sc2._transform
