@@ -357,7 +357,8 @@ class Axis(maxis.XAxis):
             self.gridlines.set_color(info['grid']['color'])
             self.gridlines.set_linewidth(info['grid']['linewidth'])
             self.gridlines.set_linestyle(info['grid']['linestyle'])
-            self.gridlines.draw(renderer, project=True)
+            self.gridlines.do_3d_projection()
+            self.gridlines.draw(renderer)
 
         # Draw ticks
         tickdir = info['tickdir']
