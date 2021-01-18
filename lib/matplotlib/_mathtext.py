@@ -2669,18 +2669,19 @@ class Parser:
                 sub.shrink()
                 width = max(width, sub.width)
 
+            vgap = rule_thickness * 3.0
             if super is not None:
                 hlist = HCentered([super])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([hlist, Kern(rule_thickness * 3.0)])
+                vlist.extend([hlist, Vbox(0, vgap)])
             hlist = HCentered([nucleus])
             hlist.hpack(width, 'exactly')
             vlist.append(hlist)
             if sub is not None:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([Kern(rule_thickness * 3.0), hlist])
-                shift = hlist.height
+                vlist.extend([Vbox(0, vgap), hlist])
+                shift = hlist.height + vgap
             vlist = Vlist(vlist)
             vlist.shift_amount = shift + nucleus.depth
             result = Hlist([vlist])
