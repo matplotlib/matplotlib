@@ -179,6 +179,14 @@ jobs:
                python -c 'import PySide2.QtCore' &&
                echo 'PySide2 is available' ||
                echo 'PySide2 is not available'
+             python -mpip install --upgrade pyqt6 &&
+               python -c 'import PyQt6.QtCore' &&
+               echo 'PyQt6 is available' ||
+               echo 'PyQt6 is not available'
+             python -mpip install --upgrade pyside6 &&
+               python -c 'import PySide6.QtCore' &&
+               echo 'PySide6 is available' ||
+               echo 'PySide6 is not available'
           fi
           python -m pip install --upgrade \
             -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-$(lsb_release -r -s) \

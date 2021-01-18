@@ -469,7 +469,7 @@ class FormDialog(QtWidgets.QDialog):
         for field in self.float_fields:
             if not is_edit_valid(field):
                 valid = False
-        for btn_type in ["Ok", "Cancel"]:
+        for btn_type in ["Ok", "Apply"]:
             btn = self.bbox.button(
                 getattr(_enum("QtWidgets.QDialogButtonBox.StandardButtons"),
                         btn_type))

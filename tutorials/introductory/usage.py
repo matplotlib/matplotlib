@@ -308,7 +308,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # #. Setting :rc:`backend` in your :file:`matplotlibrc` file::
 #
-#        backend : qt5agg   # use pyqt5 with antigrain (agg) rendering
+#        backend : qtagg   # use pyqt with antigrain (agg) rendering
 #
 #    See also :doc:`/tutorials/introductory/customizing`.
 #
@@ -319,14 +319,14 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 #    On Unix::
 #
-#         > export MPLBACKEND=qt5agg
+#         > export MPLBACKEND=qtagg
 #         > python simple_plot.py
 #
-#         > MPLBACKEND=qt5agg python simple_plot.py
+#         > MPLBACKEND=qtagg python simple_plot.py
 #
 #    On Windows, only the former is possible::
 #
-#         > set MPLBACKEND=qt5agg
+#         > set MPLBACKEND=qtagg
 #         > python simple_plot.py
 #
 #    Setting this environment variable will override the ``backend`` parameter
@@ -339,7 +339,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    :func:`matplotlib.use`::
 #
 #       import matplotlib
-#       matplotlib.use('qt5agg')
+#       matplotlib.use('qtagg')
 #
 #    This should be done before any figure is created, otherwise Matplotlib may
 #    fail to switch the backend and raise an ImportError.
@@ -364,14 +364,15 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # If, however, you want to write graphical user interfaces, or a web
 # application server
 # (:doc:`/gallery/user_interfaces/web_application_server_sgskip`), or need a
-# better understanding of what is going on, read on. To make things more easily
-# customizable for graphical user interfaces, Matplotlib separates the concept
-# of the renderer (the thing that actually does the drawing) from the canvas
-# (the place where the drawing goes). The canonical renderer for user
-# interfaces is ``Agg`` which uses the `Anti-Grain Geometry`_ C++ library to
-# make a raster (pixel) image of the figure; it is used by the ``Qt5Agg``,
-# ``GTK3Agg``, ``wxAgg``, ``TkAgg``, and ``macosx`` backends.  An alternative
-# renderer is based on the Cairo library, used by ``Qt5Cairo``, etc.
+# better understanding of what is going on, read on. To make things easily
+# more customizable for graphical user interfaces, Matplotlib separates
+# the concept of the renderer (the thing that actually does the drawing)
+# from the canvas (the place where the drawing goes).  The canonical
+# renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
+# Geometry`_ C++ library to make a raster (pixel) image of the figure; it
+# is used by the ``QtAgg``, ``GTK3Agg``, ``wxAgg``, ``TkAgg``, and
+# ``macosx`` backends.  An alternative renderer is based on the Cairo library,
+# used by ``QtCairo``, etc.
 #
 # For the rendering engines, users can also distinguish between `vector
 # <https://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -409,8 +410,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ========= ================================================================
 # Backend   Description
 # ========= ================================================================
-# Qt5Agg    Agg rendering in a Qt5_ canvas (requires PyQt5_).  This
-#           backend can be activated in IPython with ``%matplotlib qt5``.
+# QtAgg     Agg rendering in a Qt_ canvas (requires PyQt_ or `Qt for Python`_,
+#           a.k.a. PySide).  This backend can be activated in IPython with
+#           ``%matplotlib qt``.
 # ipympl    Agg rendering embedded in a Jupyter widget.  (requires ipympl).
 #           This backend can be enabled in a Jupyter notebook with
 #           ``%matplotlib ipympl``.
@@ -433,8 +435,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ========= ================================================================
 #
 # .. note::
-#    The names of builtin backends are case-insensitive. For example, 'Qt5Agg'
-#    and 'qt5agg' are equivalent.
+#    The names of builtin backends case-insensitive; e.g., 'QtAgg' and
+#    'qtagg' are equivalent.
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
@@ -447,8 +449,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _cairocffi: https://pythonhosted.org/cairocffi/
 # .. _wxPython: https://www.wxpython.org/
 # .. _TkInter: https://docs.python.org/3/library/tk.html
-# .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
-# .. _Qt5: https://doc.qt.io/qt-5/index.html
+# .. _PyQt: https://riverbankcomputing.com/software/pyqt/intro
+# .. _`Qt for Python`: https://doc.qt.io/qtforpython/
+# .. _Qt: https://qt.io/
 # .. _GTK: https://www.gtk.org/
 # .. _Tk: https://www.tcl.tk/
 # .. _wxWidgets: https://www.wxwidgets.org/
