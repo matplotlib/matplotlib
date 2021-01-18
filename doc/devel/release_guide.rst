@@ -342,13 +342,16 @@ matplotlib ::
   rsync -a ../matplotlib/doc/build/html/* 2.0.0
   cp ../matplotlib/doc/build/latex/Matplotlib.pdf 2.0.0
 
-which will copy the built docs over.  If this is a final release, also
-replace the top-level docs ::
+which will copy the built docs over.  If this is a final release, link the
+``stable`` subdirectory to the newest version::
 
   rsync -a 2.0.0/* ./
+  rm stable
+  ln -s 2.0.0/ stable
 
 You will need to manually edit :file:`versions.html` to show the last
-3 tagged versions.  Now commit and push everything to GitHub ::
+3 tagged versions.  You will also need to edit :file:`sitemap.xml` to include
+the newly released version.  Now commit and push everything to GitHub ::
 
   git add *
   git commit -a -m 'Updating docs for v2.0.0'
