@@ -2657,7 +2657,7 @@ class Parser:
             super.kern()
             super.hpack()
 
-        # Handle over/under symbols, such as sum or integral
+        # Handle over/under symbols, such as sum or prod
         if self.is_overunder(nucleus):
             vlist = []
             shift = 0.
