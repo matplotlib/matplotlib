@@ -115,6 +115,7 @@ math_tests = [
 # images.
 lightweight_math_tests = [
     r'$\sqrt[ab]{123}$',  # github issue #8665
+    r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
 ]
 
 digits = "0123456789"
@@ -246,6 +247,8 @@ def test_fontinfo():
         (r'$\left($', r'Expected "\right"'),
         (r'$\dfrac$', r'Expected \dfrac{num}{den}'),
         (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
+        (r'$\overset$', r'Expected \overset{body}{annotation}'),
+        (r'$\underset$', r'Expected \underset{body}{annotation}'),
     ],
     ids=[
         'hspace without value',
@@ -266,6 +269,8 @@ def test_fontinfo():
         'unclosed parentheses without sizing',
         'dfrac without parameters',
         'dfrac with empty parameters',
+        'overset without parameters',
+        'underset without parameters',
     ]
 )
 def test_mathtext_exceptions(math, msg):
