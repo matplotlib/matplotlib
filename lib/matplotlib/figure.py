@@ -23,7 +23,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import docstring, projections
-import matplotlib.artist as martist
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
@@ -593,7 +592,7 @@ default: %(va)s
             arguments if another projection is used, see the actual Axes
             class.
 
-            %(Axes_kwdoc)s
+            %(Axes:kwdoc)s
 
         Notes
         -----
@@ -731,7 +730,7 @@ default: %(va)s
             the following table but there might also be other keyword
             arguments if another projection is used.
 
-            %(Axes_kwdoc)s
+            %(Axes:kwdoc)s
 
         See Also
         --------
@@ -1101,7 +1100,7 @@ default: %(va)s
         **kwargs : `~matplotlib.text.Text` properties
             Other miscellaneous text parameters.
 
-            %(Text_kwdoc)s
+            %(Text:kwdoc)s
 
         See Also
         --------
@@ -1484,8 +1483,7 @@ default: %(va)s
         adheres to the given projection etc., and for Axes creation if
         the active Axes does not exist:
 
-        %(Axes_kwdoc)s
-
+        %(Axes:kwdoc)s
         """
         if kwargs:
             _api.warn_deprecated(
@@ -3181,6 +3179,3 @@ def figaspect(arg):
     # the min/max dimensions (we don't want figures 10 feet tall!)
     newsize = np.clip(newsize, figsize_min, figsize_max)
     return newsize
-
-
-docstring.interpd.update(Figure_kwdoc=martist.kwdoc(Figure))

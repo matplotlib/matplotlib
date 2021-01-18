@@ -103,6 +103,7 @@ def _get_textbox(text, renderer):
     return x_box, y_box, w_box, h_box
 
 
+@docstring.interpd
 @cbook._define_aliases({
     "color": ["c"],
     "fontfamily": ["family"],
@@ -146,7 +147,7 @@ class Text(Artist):
 
         Valid keyword arguments are:
 
-        %(Text_kwdoc)s
+        %(Text:kwdoc)s
         """
         super().__init__()
         self._x, self._y = x, y
@@ -1304,10 +1305,6 @@ class Text(Artist):
 
         """
         return self.set_family(fontname)
-
-
-docstring.interpd.update(Text_kwdoc=artist.kwdoc(Text))
-docstring.dedent_interpd(Text.__init__)
 
 
 class OffsetFrom:

@@ -2097,12 +2097,3 @@ class QuadMesh(Collection):
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
-
-
-_artist_kwdoc = artist.kwdoc(Collection)
-for k in ('QuadMesh', 'TriMesh', 'PolyCollection', 'BrokenBarHCollection',
-          'RegularPolyCollection', 'PathCollection',
-          'StarPolygonCollection', 'PatchCollection',
-          'CircleCollection', 'Collection',):
-    docstring.interpd.update({f'{k}_kwdoc': _artist_kwdoc})
-docstring.interpd.update(LineCollection_kwdoc=artist.kwdoc(LineCollection))

@@ -40,6 +40,7 @@ from . import proj3d
 from . import axis3d
 
 
+@docstring.interpd
 @cbook._define_aliases({
     "xlim3d": ["xlim"], "ylim3d": ["ylim"], "zlim3d": ["zlim"]})
 class Axes3D(Axes):
@@ -90,7 +91,7 @@ class Axes3D(Axes):
         **kwargs
             Other optional keyword arguments:
 
-            %(Axes3D_kwdoc)s
+            %(Axes3D:kwdoc)s
         """
 
         if rect is None:
@@ -3441,10 +3442,6 @@ pivot='tail', normalize=False, **kwargs)
         return stem_container
 
     stem3D = stem
-
-
-docstring.interpd.update(Axes3D_kwdoc=martist.kwdoc(Axes3D))
-docstring.dedent_interpd(Axes3D.__init__)
 
 
 def get_test_data(delta=0.05):

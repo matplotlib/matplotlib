@@ -195,6 +195,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
+@docstring.interpd
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
@@ -299,7 +300,7 @@ class Line2D(Artist):
 
         Additional keyword arguments are `.Line2D` properties:
 
-        %(Line2D_kwdoc)s
+        %(Line2D:kwdoc)s
 
         See :meth:`set_linestyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
@@ -1524,6 +1525,3 @@ lineStyles = Line2D._lineStyles
 lineMarkers = MarkerStyle.markers
 drawStyles = Line2D.drawStyles
 fillStyles = MarkerStyle.fillstyles
-
-docstring.interpd.update(Line2D_kwdoc=artist.kwdoc(Line2D))
-docstring.interpd(Line2D.__init__)

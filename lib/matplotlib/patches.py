@@ -23,6 +23,7 @@ from .path import Path
 from ._enums import JoinStyle, CapStyle
 
 
+@docstring.interpd
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
@@ -70,7 +71,7 @@ class Patch(artist.Artist):
         """
         The following kwarg properties are supported
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__()
 
@@ -631,16 +632,6 @@ class Patch(artist.Artist):
         return x, y
 
 
-_patch_kwdoc = artist.kwdoc(Patch)
-for k in ['Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
-          'FancyArrow', 'CirclePolygon', 'Ellipse', 'Arc', 'FancyBboxPatch',
-          'Patch']:
-    docstring.interpd.update({f'{k}_kwdoc': _patch_kwdoc})
-
-# define Patch.__init__ docstring after the class has been added to interpd
-docstring.dedent_interpd(Patch.__init__)
-
-
 class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
@@ -666,7 +657,7 @@ class Shadow(Patch):
         **kwargs
             Properties of the shadow patch. Supported keys are:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         super().__init__()
         self.patch = patch
@@ -751,7 +742,7 @@ class Rectangle(Patch):
         Other Parameters
         ----------------
         **kwargs : `.Patch` properties
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._x0 = xy[0]
@@ -905,7 +896,7 @@ class RegularPolygon(Patch):
         **kwargs
             `Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         self.xy = xy
         self.numvertices = numVertices
@@ -941,7 +932,7 @@ class PathPatch(Patch):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._path = path
@@ -988,7 +979,7 @@ class StepPatch(PathPatch):
 
         Other valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         self.orientation = orientation
         self._edges = np.asarray(edges)
@@ -1078,7 +1069,7 @@ class Polygon(Patch):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._closed = closed
@@ -1174,7 +1165,7 @@ class Wedge(Patch):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self.center = center
@@ -1282,7 +1273,7 @@ class Arrow(Patch):
         **kwargs
             Keyword arguments control the `Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
 
         See Also
         --------
@@ -1354,7 +1345,7 @@ class FancyArrow(Polygon):
         **kwargs
             `.Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         self._x = x
         self._y = y
@@ -1496,7 +1487,7 @@ class CirclePolygon(RegularPolygon):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(xy, resolution, radius, orientation=0, **kwargs)
 
@@ -1528,7 +1519,7 @@ class Ellipse(Patch):
         -----
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
 
@@ -1664,7 +1655,7 @@ class Annulus(Patch):
         **kwargs
             Keyword arguments control the `Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
 
@@ -1842,7 +1833,7 @@ class Circle(Ellipse):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(xy, radius * 2, radius * 2, **kwargs)
         self.radius = radius
@@ -1919,7 +1910,7 @@ class Arc(Ellipse):
             with the exception of *fill* and *facecolor* because filling is
             not supported.
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
@@ -3838,7 +3829,7 @@ class FancyBboxPatch(Patch):
         ----------------
         **kwargs : `.Patch` properties
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
 
         super().__init__(**kwargs)
@@ -4158,7 +4149,7 @@ default: 'arc3'
         **kwargs : `.Patch` properties, optional
             Here is a list of available `.Patch` properties:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
 
             In contrast to other patches, the default ``capstyle`` and
             ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
