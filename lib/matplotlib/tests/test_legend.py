@@ -544,27 +544,37 @@ def test_window_extent_cached_renderer():
     leg2.get_window_extent()
 
 
-def test_legend_title_fontsize():
+def test_legend_title_fontprop_fontsize():
     # test the title_fontsize kwarg
-    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+    fig, axes = plt.subplots(2, 3, figsize=(10, 6))
     axes = axes.flat
     axes[0].plot(range(10))
     leg = axes[0].legend(title='Aardvark', title_fontsize=22)
     assert leg.get_title().get_fontsize() == 22
     axes[1].plot(range(10))
     leg2 = axes[1].legend(title='Aardvark',
-                          title_prop={'family': 'serif', 'size': 22})
+                          title_fontproperties={'family': 'serif', 'size': 22})
     assert leg2.get_title().get_fontsize() == 22
     axes[2].plot(range(10))
     leg3 = axes[2].legend(title='Aardvark',
-                          title_prop={'family': 'serif'},
+                          title_fontproperties={'family': 'serif'},
                           title_fontsize=22)
     assert leg3.get_title().get_fontsize() == 22
     axes[3].plot(range(10))
     leg4 = axes[3].legend(title='Aardvark',
-                          title_prop={'family': 'serif', 'size': 10},
+                          title_fontproperties={'family': 'serif', 'size': 10},
                           title_fontsize=22)
     assert leg4.get_title().get_fontsize() == 22
+    mpl.rcParams['legend.title_fontsize'] = None
+    axes[4].plot(range(10))
+    leg5 = axes[4].legend(title='Aardvark',
+                          title_fontproperties={'family': 'serif'})
+    assert leg5.get_title().get_fontsize() == mpl.rcParams['font.size']
+    mpl.rcParams['legend.title_fontsize'] = 20
+    axes[5].plot(range(10))
+    leg6 = axes[5].legend(title='Aardvark',
+                          title_fontproperties={'family': 'serif'})
+    assert leg6.get_title().get_fontsize() == 20
 
 
 def test_legend_labelcolor_single():
