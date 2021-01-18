@@ -117,9 +117,6 @@ class _TransformedBoundsLocator:
             self._transform - ax.figure.transSubfigure)
 
 
-_FORMAT_UNSET = 'None'
-
-
 def _process_plot_format(fmt):
     """
     Convert a MATLAB style color/line style format string to a (*linestyle*,
@@ -134,7 +131,7 @@ def _process_plot_format(fmt):
 
     The format is absolute in the sense that if a linestyle or marker is not
     defined in *fmt*, there is no line or marker. This is expressed by
-    returning _FORMAT_UNSET for the respective quantity.
+    returning 'None' for the respective quantity.
 
     See Also
     --------
@@ -203,9 +200,9 @@ def _process_plot_format(fmt):
     if linestyle is None and marker is None:
         linestyle = mpl.rcParams['lines.linestyle']
     if linestyle is None:
-        linestyle = _FORMAT_UNSET
+        linestyle = 'None'
     if marker is None:
-        marker = _FORMAT_UNSET
+        marker = 'None'
 
     return linestyle, marker, color
 
@@ -471,13 +468,17 @@ class _process_plot_var_args:
                 # check for conflicts between fmt and kwargs
                 if (fmt.lower() != 'none'
                         and prop_name in kwargs
-                        and val != _FORMAT_UNSET):
+                        and val != 'None'):
                     # Technically ``plot(x, y, 'o', ls='--')`` is a conflict
                     # because 'o' implicitly unsets the linestyle
-                    # (linestyle=_FORMAT_UNSET).
+                    # (linestyle='None').
                     # We'll gracefully not warn in this case because an
                     # explicit set via kwargs can be seen as intention to
                     # override an implicit unset.
+                    # Note: We don't val.lower() != 'none' because val is not
+                    # necessarily a string (can be a tuple for colors). This
+                    # is safe, because *val* comes from _process_plot_format()
+                    # which only returns 'None'.
                     _api.warn_external(
                         f"{prop_name} is redundantly defined by the "
                         f"'{prop_name}' keyword argument and the fmt string "
