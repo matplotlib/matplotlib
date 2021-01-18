@@ -1,5 +1,4 @@
 import functools
-import importlib
 import os
 import signal
 import sys
@@ -100,18 +99,9 @@ def _create_qApp():
     if qApp is None:
         app = QtWidgets.QApplication.instance()
         if app is None:
-            # check for DISPLAY env variable on X11 build of Qt
-            if QtCore.qVersion() >= "5.":
-                try:
-                    importlib.import_module(
-                        # i.e. PyQt5.QtX11Extras or PySide2.QtX11Extras.
-                        f"{QtWidgets.__package__}.QtX11Extras")
-                    is_x11_build = True
-                except ImportError:
-                    is_x11_build = False
-            else:
-                is_x11_build = hasattr(QtGui, "QX11Info")
-            if is_x11_build and not mpl._c_internal_utils.display_is_valid():
+            # display_is_valid returns False only if on Linux and neither X11
+            # nor Wayland display can be opened.
+            if not mpl._c_internal_utils.display_is_valid():
                 raise RuntimeError('Invalid DISPLAY variable')
             try:
                 QtWidgets.QApplication.setAttribute(
