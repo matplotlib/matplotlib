@@ -1528,61 +1528,35 @@ class Axes(_AxesBase):
 
         **Markers**
 
-        ============================== ========================================
-        character                      description
-        ============================== ========================================
-        ``'.'``                        point marker
-        ``','``                        pixel marker
-        ``'o'``                        circle marker
-        ``'v'``                        triangle_down marker
-        ``'^'``                        triangle_up marker
-        ``'<'``                        triangle_left marker
-        ``'>'``                        triangle_right marker
-        ``'1'``                        tri_down marker
-        ``'2'``                        tri_up marker
-        ``'3'``                        tri_left marker
-        ``'4'``                        tri_right marker
-        ``'8'``                        octagon marker
-        ``'s'``                        square marker
-        ``'p'``                        pentagon marker
-        ``'P'``                        plus (filled) marker
-        ``'*'``                        star marker
-        ``'h'``                        hexagon1 marker
-        ``'H'``                        hexagon2 marker
-        ``'+'``                        plus marker
-        ``'x'``                        x marker
-        ``'X'``                        x (filled) marker
-        ``'D'``                        diamond marker
-        ``'d'``                        thin_diamond marker
-        ``'|'``                        vline marker
-        ``'_'``                        hline marker
-        ``0`` (``TICKLEFT``)           tickleft marker
-        ``1`` (``TICKRIGHT``)          tickright marker
-        ``2`` (``TICKUP``)             tickup marker
-        ``3`` (``TICKDOWN``)           tickdown marker
-        ``4`` (``CARETLEFT``)          caretleft marker
-        ``5`` (``CARETRIGHT``)         caretright marker
-        ``6`` (``CARETUP``)            caretup marker
-        ``7`` (``CARETDOWN``)          caretdown marker
-        ``8`` (``CARETLEFTBASE``)      caretleft (centered at base)
-        ``9`` (``CARETRIGHTBASE``)     caretright (centered at base)
-        ``10`` (``CARETUPBASE``)       caretup (centered at base)
-        ``11`` (``CARETDOWNBASE``)     caretdown (centered at base)
-        ``"None"``, ``" "`` or  ``""`` nothing
-        ``'$...$'``                    Render the string using mathtext.
-        ``verts``                      A list of (x, y) pairs used for Path
-                                       vertices. The center of the marker is
-                                       located at (0, 0) and the size is
-                                       normalized, such that the created path
-                                       is encapsulated inside the unit cell.
-        path                           A `~matplotlib.path.Path` instance.
-        ``(numsides, 0, angle)``       A regular polygon with ``numsides``
-                                       sides, rotated by ``angle``.
-        ``(numsides, 1, angle)``       A star-like symbol with ``numsides``
-                                       sides, rotated by ``angle``.
-        ``(numsides, 2, angle)``       An asterisk with ``numsides`` sides,
-                                       rotated by ``angle``.
-        ============================== ========================================
+        =============   ===============================
+        character       description
+        =============   ===============================
+        ``'.'``         point marker
+        ``','``         pixel marker
+        ``'o'``         circle marker
+        ``'v'``         triangle_down marker
+        ``'^'``         triangle_up marker
+        ``'<'``         triangle_left marker
+        ``'>'``         triangle_right marker
+        ``'1'``         tri_down marker
+        ``'2'``         tri_up marker
+        ``'3'``         tri_left marker
+        ``'4'``         tri_right marker
+        ``'8'``         octagon marker
+        ``'s'``         square marker
+        ``'p'``         pentagon marker
+        ``'P'``         plus (filled) marker
+        ``'*'``         star marker
+        ``'h'``         hexagon1 marker
+        ``'H'``         hexagon2 marker
+        ``'+'``         plus marker
+        ``'x'``         x marker
+        ``'X'``         x (filled) marker
+        ``'D'``         diamond marker
+        ``'d'``         thin_diamond marker
+        ``'|'``         vline marker
+        ``'_'``         hline marker
+        =============   ===============================
 
         **Line Styles**
 
