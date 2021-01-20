@@ -205,11 +205,13 @@ gradient = np.vstack((gradient, gradient))
 
 
 def plot_color_gradients(cmap_category, cmap_list, nrows):
-    fig, axs = plt.subplots(nrows=nrows, figsize=(6, 0.24 * nrows))
-    fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99)
-    axs[0].set_title(cmap_category + ' colormaps', fontsize=14)
+    fig, axs = plt.subplots(nrows=nrows + 1, figsize=(6, 0.29 * nrows))
+    fig.subplots_adjust(top=1, bottom=0, left=0.2, right=0.99)
+    axs[0].text(0.5, 0.5, cmap_category + " colormaps", fontsize=14,
+                transform=axs[0].transAxes, horizontalalignment="center",
+                verticalalignment="center")
 
-    for ax, name in zip(axs, cmap_list):
+    for ax, name in zip(axs[1:], cmap_list):
         ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
         pos = list(ax.get_position().bounds)
         x_text = pos[0] - 0.01
