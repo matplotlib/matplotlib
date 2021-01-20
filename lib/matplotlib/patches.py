@@ -3188,6 +3188,9 @@ class ArrowStyle(_Style):
 
     class _Bracket(_Base):
 
+        # angleA and angleB are deprecated as of 3.4, but delete_parameter is
+        # only applied on the public subclasses (to avoid triggering a spurious
+        # warning when None is forwarded by super-calls).
         def __init__(self, bracketA=None, bracketB=None,
                      widthA=1., widthB=1.,
                      lengthA=0.2, lengthB=0.2,
@@ -3267,6 +3270,8 @@ class ArrowStyle(_Style):
     class BracketAB(_Bracket):
         """An arrow with outward square brackets at both ends."""
 
+        @_api.delete_parameter("3.4", "angleA")
+        @_api.delete_parameter("3.4", "angleB")
         def __init__(self,
                      widthA=1., lengthA=0.2, angleA=None,
                      widthB=1., lengthB=0.2, angleB=None):
@@ -3299,6 +3304,7 @@ class ArrowStyle(_Style):
     class BracketA(_Bracket):
         """An arrow with an outward square bracket at its start."""
 
+        @_api.delete_parameter("3.4", "angleA")
         def __init__(self, widthA=1., lengthA=0.2, angleA=None):
             """
             Parameters
@@ -3319,6 +3325,7 @@ class ArrowStyle(_Style):
     class BracketB(_Bracket):
         """An arrow with an outward square bracket at its end."""
 
+        @_api.delete_parameter("3.4", "angleB")
         def __init__(self, widthB=1., lengthB=0.2, angleB=None):
             """
             Parameters
@@ -3339,6 +3346,8 @@ class ArrowStyle(_Style):
     class BarAB(_Bracket):
         """An arrow with vertical bars ``|`` at both ends."""
 
+        @_api.delete_parameter("3.4", "angleA")
+        @_api.delete_parameter("3.4", "angleB")
         def __init__(self,
                      widthA=1., angleA=None,
                      widthB=1., angleB=None):

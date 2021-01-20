@@ -1,0 +1,4 @@
+*angleA*, *angleB* parameters of bracket arrowstyles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Then *angleA* and *angleB* parameters of the ``]-``, ``-[``, ``]-[``, and ``|-|``
+arrowstyles have no effect and are deprecated.
