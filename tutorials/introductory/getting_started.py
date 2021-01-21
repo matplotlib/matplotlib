@@ -156,7 +156,7 @@ from functools import partial
 #   other functions. The `Pie Chart Examples`_ section note contains more
 #   information about the purpose of this module.
 #
-# 
+#
 #
 # Two Approaches for Creating Graphs
 # ----------------------------------
@@ -230,7 +230,7 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 # Explicit: Object Oriented Programming (OOP)
 # --------------------------------------------
 #
-# Explicit programming for Matplotlib involves calling the function 
+# Explicit programming for Matplotlib involves calling the function
 # `pyploy.subplots` in the ``pyplot`` module once. This returns a group of an
 # explicit Figure and Axes to be unpacked as part of variable assignment. More
 # than one Axes is configurable; however, each Axes only corresponds to a
@@ -376,7 +376,7 @@ plt.show()
 # In a Figure, each Axes contains any number of visual elements. Axes are
 # configurable for more than one type of visualization of data. From the
 # `Plotting`_ section above, the Axes in both explicit and implicit strategies
-# contain multiple types of visualizations of data on a single Axes. 
+# contain multiple types of visualizations of data on a single Axes.
 
 # Each of these types are specific to the Axes they are in. In the example, the
 # two plots each have one Axes. These Axes each have multiple plot lines. The
