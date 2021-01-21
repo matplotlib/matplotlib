@@ -111,7 +111,7 @@ class Artist:
         self._clippath = None
         self._clipon = True
         self._label = ''
-        self._picker = None
+        self._picker = False
         self._contains = None
         self._rasterized = False
         self._agg_filter = None
@@ -496,7 +496,7 @@ class Artist:
         --------
         set_picker, get_picker, pick
         """
-        return self.figure is not None and self._picker is not None
+        return self.figure is not None and self._picker
 
     def pick(self, mouseevent):
         """
@@ -539,14 +539,12 @@ class Artist:
 
         Parameters
         ----------
-        picker : None or bool or callable
+        picker : bool or callable
             This can be one of the following:
 
-            - *None*: Picking is disabled for this artist (default).
-
-            - A boolean: If *True* then picking will be enabled and the
-              artist will fire a pick event if the mouse event is over
-              the artist.
+            - A boolean: Whether picking is enabled, i.e. whether the
+              artist fires a pick event when the mouse event occurs over
+              the artist.  The default is False, i.e. picking is disabled.
 
             - A function: If picker is callable, it is a user supplied
               function which determines whether the artist is hit by the

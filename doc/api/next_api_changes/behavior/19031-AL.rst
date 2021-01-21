@@ -1,0 +1,7 @@
+``artist.set_picker(False)`` disables artist picking
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, setting the ``picker`` property of an artist to any non-None value,
+including ``False``, would keep picking enabled.  This was deemed a bug;
+now, truthy values enable picking and falsy ones disable it.  The default is
+now ``False`` instead of ``None``, but both mean that picking is disabled by
+default.
