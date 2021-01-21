@@ -384,7 +384,7 @@ class Matplotlib(SetupPackage):
             ])
         add_numpy_flags(ext)
         add_libagg_flags_and_sources(ext)
-        FreeType().add_flags(ext)
+        FreeType.add_flags(ext)
         yield ext
         # c_internal_utils
         ext = Extension(
@@ -412,7 +412,7 @@ class Matplotlib(SetupPackage):
                 "src/mplutils.cpp",
                 "src/py_converters.cpp",
             ])
-        FreeType().add_flags(ext)
+        FreeType.add_flags(ext)
         add_numpy_flags(ext)
         add_libagg_flags(ext)
         yield ext
@@ -569,7 +569,8 @@ def add_qhull_flags(ext):
 class FreeType(SetupPackage):
     name = "freetype"
 
-    def add_flags(self, ext):
+    @classmethod
+    def add_flags(cls, ext):
         ext.sources.insert(0, 'src/checkdep_freetype2.c')
         if options.get('system_freetype'):
             pkg_config_setup_extension(
