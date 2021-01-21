@@ -351,7 +351,7 @@ plt.show()
 #     automatically generates certain Artists for the visualization even
 #     without assigned data.
 #
-
+#
 # Explicit Figure and Axes unpacked from module function.
 # No data transformed for visualizations.
 fig, ax = plt.subplots()
@@ -377,7 +377,7 @@ plt.show()
 # configurable for more than one type of visualization of data. From the
 # `Plotting`_ section above, the Axes in both explicit and implicit strategies
 # contain multiple types of visualizations of data on a single Axes.
-
+#
 # Each of these types are specific to the Axes they are in. In the example, the
 # two plots each have one Axes. These Axes each have multiple plot lines. The
 # lines as objects are not shared between the two plots even though the data is
@@ -560,7 +560,6 @@ def autopct_format(percent, group):
 
 # Explicit
 
-
 fig, ax = plt.subplots()
 
 ax.pie(budget, colors=colors, labels=categories)
@@ -573,6 +572,8 @@ plt.show()
 ##############################################################################
 #
 #
+
+# Implicit
 
 plt.pie(budget, colors=colors, labels=categories)
 plt.legend()
