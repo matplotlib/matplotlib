@@ -1252,7 +1252,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             stats['whislo'] = np.min(wisklo)
 
         # compute a single array of outliers
-        stats['fliers'] = np.hstack([
+        stats['fliers'] = np.concatenate([
             x[x < stats['whislo']],
             x[x > stats['whishi']],
         ])

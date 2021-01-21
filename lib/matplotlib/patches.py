@@ -994,14 +994,14 @@ class StepPatch(PathPatch):
             x = np.repeat(self._edges[idx0:idx1+1], 2)
             y = np.repeat(self._values[idx0:idx1], 2)
             if self._baseline is None:
-                y = np.hstack((y[0], y, y[-1]))
+                y = np.concatenate([y[:1], y, y[-1:]])
             elif self._baseline.ndim == 0:  # single baseline value
-                y = np.hstack((self._baseline, y, self._baseline))
+                y = np.concatenate([[self._baseline], y, [self._baseline]])
             elif self._baseline.ndim == 1:  # baseline array
                 base = np.repeat(self._baseline[idx0:idx1], 2)[::-1]
                 x = np.concatenate([x, x[::-1]])
-                y = np.concatenate([np.hstack((base[-1], y, base[0],
-                                               base[0], base, base[-1]))])
+                y = np.concatenate([base[-1:], y, base[:1],
+                                    base[:1], base, base[-1:]])
             else:  # no baseline
                 raise ValueError('Invalid `baseline` specified')
             if self.orientation == 'vertical':
@@ -1179,13 +1179,16 @@ class Wedge(Patch):
             # followed by a reversed and scaled inner ring
             v1 = arc.vertices
             v2 = arc.vertices[::-1] * (self.r - self.width) / self.r
-            v = np.vstack([v1, v2, v1[0, :], (0, 0)])
-            c = np.hstack([arc.codes, arc.codes, connector, Path.CLOSEPOLY])
+            v = np.concatenate([v1, v2, [v1[0, :], (0, 0)]])
+            c = np.concatenate([
+                arc.codes, arc.codes, [connector, Path.CLOSEPOLY]])
             c[len(arc.codes)] = connector
         else:
             # Wedge doesn't need an inner ring
-            v = np.vstack([arc.vertices, [(0, 0), arc.vertices[0, :], (0, 0)]])
-            c = np.hstack([arc.codes, [connector, connector, Path.CLOSEPOLY]])
+            v = np.concatenate([
+                arc.vertices, [(0, 0), arc.vertices[0, :], (0, 0)]])
+            c = np.concatenate([
+                arc.codes, [connector, connector, Path.CLOSEPOLY]])
 
         # Shift and scale the wedge to the final location.
         v *= self.r
