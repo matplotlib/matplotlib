@@ -32,8 +32,8 @@ started using Matplotlib.
 # | Explicit, Object Oriented          | Implicit, ``pyplot``               |
 # | Programming (OOP)                  |                                    |
 # +====================================+====================================+
-# | Users explicitly create and manage | Automatically manages Figure and   |
-# | all Figure elements.               | Axes.                              |
+# | Users explicitly create and manage | The Matplotlib library implicitly  |
+# | all Figure elements.               | manages Figure and Axes.           |
 # +------------------------------------+------------------------------------+
 # | Useful for repeated code use,      | Helpful for quickly graphing data  |
 # | generalization, robust             | when using interactive             |
@@ -55,7 +55,7 @@ started using Matplotlib.
 #
 # Implicit programming with ``pyplot`` is simpler. It is helpful for basic
 # plots and for interactive environments, such as Jupyter Notebooks. Users
-# familiar with MATLAB or wish to have Matplotlib create and manage parts of
+# familiar with MATLAB or wishing to have Matplotlib create and manage parts of
 # the visualization in state-based programming benefit from using ``pyplot``.
 # Using implicit programming acts as a convenient shortcut for generating
 # visualizations. New users to Matplotlib may experience difficulty
@@ -75,20 +75,21 @@ started using Matplotlib.
 # +====================================+====================================+
 # | ::                                 | ::                                 |
 # |                                    |                                    |
-# |     fig, ax = plt.subplots()       |    plt.plot([1, 2, 3],[1, 2, 3])   |
-# |     ax.plot([1, 2, 3],[1, 2, 3])   |                                    |
+# |     fig, ax = plt.subplots()       |    plt.plot([1, 2, 3], [1, 2, 3])  |
+# |     ax.plot([1, 2, 3], [1, 2, 3])  |                                    |
 # |                                    |                                    |
 # +------------------------------------+------------------------------------+
 # | `.pyplot.subplots` generates a     | :mod:`matplotlib.pyplot` creates   |
 # | `~.figure.Figure` and one or       | implicit Figure and Axes if        |
 # | more `~.axes.Axes` explicitly.     | there are no pre-existing          |
 # | `.Axes.plot` plots the data.       | elements and `.pyplot.plot` plots  |
-# |                                    | the data.                          |
+# |                                    | the data. This also plots over any |
+# |                                    | existing Figure if applicable.     |
 # +------------------------------------+------------------------------------+
 # | .. plot::                          | .. plot::                          |
 # |                                    |                                    |
-# |     fig, ax = plt.subplots()       |     plt.plot([1,2,3],[1,2,3])      |
-# |     ax.plot([1, 2, 3],[1, 2, 3])   |                                    |
+# |     fig, ax = plt.subplots()       |     plt.plot([1, 2, 3], [1, 2, 3]) |
+# |     ax.plot([1, 2, 3], [1, 2, 3])  |                                    |
 # |                                    |                                    |
 # +------------------------------------+------------------------------------+
 #
@@ -103,7 +104,7 @@ started using Matplotlib.
 # higher* is required. Depending on your operating system, Python may already
 # be installed on your machine.
 #
-# Installing Maptlotlib is required in order to generate graphs with the
+# Installing Matplotlib is required in order to generate graphs with the
 # library. Install Matplotlib for your own development environment manually or
 # use a third-party package distribution.
 #
@@ -140,7 +141,7 @@ import matplotlib.pyplot as plt
 #
 # - The ``pyplot`` module in Matplotlib is a collection of functions. The
 #   module's functions create, manage, and manipulate the current Figure and
-#   the plotting area. The abbreviation as ``plt`` is the standard shortcut.
+#   the plotting area. The ``plt`` abbreviation is the standard shortcut.
 #
 
 import numpy as np
@@ -149,11 +150,13 @@ from functools import partial
 
 ##############################################################################
 #
-# - NumPy is a common scientific Python library that benefits users with
-#   additional tools for manipulating data.
+# - `NumPy <https://numpy.org/doc/stable/index.html#>`_ is a common scientific
+#   Python library that benefits users working with numerical data.
 # - The ``functools`` module helps manage functions that act on or return
 #   other functions. The `Pie Chart Examples`_ section note contains more
 #   information about the purpose of this module.
+#
+# 
 #
 # Two Approaches for Creating Graphs
 # ----------------------------------
@@ -227,18 +230,19 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 # Explicit: Object Oriented Programming (OOP)
 # --------------------------------------------
 #
-# Explicit programming for Matplotlib involves calling the method ``subplots``
-# in the ``pyplot`` module once. This unpacks a group of an explicit Figure and
-# Axes. More than one Axes is configurable; however, each Axes only corresponds
-# to a single Figure.
+# Explicit programming for Matplotlib involves calling the function 
+# `pyploy.subplots` in the ``pyplot`` module once. This returns a group of an
+# explicit Figure and Axes to be unpacked as part of variable assignment. More
+# than one Axes is configurable; however, each Axes only corresponds to a
+# single Figure.
 #
 # Each Axes has its own methods to graph data. In addition, each Axes
-# also uses separate methods to create and manage parts of a Figure. These
-# methods are different from those of the implicit programming approach.
+# also uses separate methods to create and manage objects within a Figure.
+# These methods are different from those of the implicit programming approach.
 
 # Explicit programming with OOP
 
-# Assigning sample data to labeled variables.
+# Assigning sample data to variables.
 x = months
 y1 = income
 y2 = chk_acct_09
@@ -266,24 +270,24 @@ plt.show()
 
 ##############################################################################
 #
-# The module ``pyplot`` for the OOP example unpacks the Figure and Axes.
-# This convention uses ``plt.subplots()`` and defaults to one Figure, ``fig``,
-# and one Axes, ``ax``. The variable names are common shorthand terms. Any
-# naming conventions also work.
+# The module ``pyplot`` for the explicit example uses a function that returns
+# the Figure and Axes. This convention uses ``plt.subplots()``. It defaults
+# to one Figure, ``fig``, and one Axes, ``ax``. The variable names are common
+# shorthand terms and any naming conventions also work.
 #
 # The `Configuration`_ section below contains additional information about
 # manipulating visuals, multiple visualizations, and other modifications.
 #
 # Using explicit programming allows for ``fig`` and ``ax`` to use separate
-# methods to manipulate the visualization. Specific Figures and Axes manage
-# data components with their own respective methods.
+# methods to manage objects within the visualization. Specific Figures and
+# Axes manage data components with their own respective methods.
 #
 #
 # Implicit: ``pyplot``
 # --------------------
 #
 # Implicit programming for Matplotlib centers around using the ``pyplot``
-# module. The module automatically generates Figure and Axes. Methods and
+# module. The module implicitly generates the Figure and Axes. Methods and
 # functions within the module take incoming data as arguments. Additional parts
 # of the Figure are also available through the module methods.
 
@@ -307,7 +311,7 @@ plt.show()
 
 ##############################################################################
 #
-# In the example above, the ``pyplot`` module contains its own methods of
+# In the example above, the ``pyplot`` module contains its own functions of
 # actionable tasks for the data. The ``plt.plot`` plots data as a line graph
 # with various keyword arguments as customizable options. The module also
 # includes other methods for generating parts of the visualization. These parts
@@ -364,7 +368,7 @@ plt.show()
 #
 # :class:`~matplotlib.axes.Axes`
 #
-# Axes are subplots within the Figure. They contain Figure elements and
+# Axes are subplots within the Figure. They contain Matplotlib objects and
 # are responsible for plotting and configuring additional details. Each
 # Figure can contain multiple Axes, but each Axes is specific to one
 # Figure.
@@ -372,8 +376,12 @@ plt.show()
 # In a Figure, each Axes contains any number of visual elements. Axes are
 # configurable for more than one type of visualization of data. From the
 # `Plotting`_ section above, the Axes in both explicit and implicit strategies
-# contain multiple types of visualizations of data on a single Axes. Each of
-# these types are specific to the Axes they are in.
+# contain multiple types of visualizations of data on a single Axes. 
+
+# Each of these types are specific to the Axes they are in. In the example, the
+# two plots each have one Axes. These Axes each have multiple plot lines. The
+# lines as objects are not shared between the two plots even though the data is
+# shared.
 #
 # Matplotlib Axes also integrate with other Python libraries. In Axes-based
 # interfaces, other libraries take an Axes object as input. Libraries such as
@@ -472,8 +480,8 @@ plt.show()
 # |                              | :doc:`/tutorials/text/annotations`         |
 # +------------------------------+--------------------------------------------+
 #
-# For complete information about available methods for Artists, refer to the
-# table below.
+# For complete information about available methods for creating new Artists,
+# refer to the table below.
 #
 # +------------------------------------+------------------------------------+
 # | Explicit                           | Implicit                           |
@@ -594,7 +602,7 @@ plt.show()
 #
 # The pie chart below adds configurations with keyword arguments for
 # ``explode``, ``autopct``, ``startangle``, and ``shadow``. These keyword
-# arguments help to manipulate the Artists.
+# arguments help to define the display of Artists.
 
 # Explicit
 
@@ -603,7 +611,7 @@ fig, ax = plt.subplots()
 # The explode keyword argument uses explode variable data to separate
 # respective wedges from center.
 # The autopct keyword argument takes formatting strings and functions to
-# generate text within wedge. '%1.1f%%' is the string formatter.
+# generate text within each wedge. '%1.1f%%' is the string formatter.
 # The startangle keyword argument changes where first wedge spans. Angles start
 # at 0 degrees on X-axis and move counterclockwise.
 # The shadow keyword argument toggles a shadow on the visual.
@@ -676,8 +684,8 @@ ax.legend(wedges,
 ax.set_title('Average Monthly Income Expenses')
 ax.axis('equal')
 
-# The Figure method tight_layout() manages space between all Artists to
-# maximize visiblity on Figure. This method also contains various
+# The Figure method tight_layout() adjusts spacing between all Artists to
+# maximize visiblity on the Figure. This method also contains various
 # parameters for configuration.
 fig.tight_layout()
 
@@ -759,18 +767,18 @@ plt.show()
 # the explicit approach refers to an explicitly generated Axes after creating
 # both the Figure and Axes.
 #
-# In the unpacking process, numerous Axes are assigned to a single variable.
+# In the unpacking process, multiple Axes are assigned to a single variable.
 # To reference a specific Axes, indexing the location of the respective Axes
 # as a matrix through the single variable works as well.
 #
 # The code below demonstrates indexing multiple Axes::
 #
-#   fig, ax = plt.subplots(2,2)
+#   fig, ax = plt.subplots(2, 2)
 #
-#   ax[0,0].bar([1,2,3],[1,2,3])
-#   ax[0,1].plot([3,2,1],[3,2,1])
+#   ax[0,0].bar([1, 2, 3], [1, 2, 3])
+#   ax[0,1].plot([3, 2, 1], [3, 2, 1])
 #   ax[1,0].hist(hist_data)
-#   ax[1,1].imshow([[1,2], [2,1]])
+#   ax[1,1].imshow([[1, 2], [2, 1]])
 #
 #
 # The method `matplotlib.figure.Figure.subplot_mosaic` also generates Axes in
@@ -783,10 +791,10 @@ plt.show()
 #   ax_dict = fig.subplot_mosaic([['bar', 'plot'],
 #                                ['hist', 'image']])
 #
-#   ax_dict['bar'].bar([1,2,3],[1,2,3])
-#   ax_dict['plot'].plot([3,2,1],[3,2,1])
+#   ax_dict['bar'].bar([1, 2, 3], [1, 2, 3])
+#   ax_dict['plot'].plot([3, 2, 1], [3, 2, 1])
 #   ax_dict['hist'].hist(hist_data)
-#   ax_dict['image'].imshow([[1,2], [2,1]])
+#   ax_dict['image'].imshow([[1, 2], [2, 1]])
 #
 # Implicit
 # ^^^^^^^^
@@ -816,7 +824,7 @@ def my_plotter(ax, data1, data2, param_dict):
         X data
     data2 : array
         Y data
-    param_dict : dict()
+    param_dict : dict
         Dictionary of keyword arguments passes to method
 
     Returns
