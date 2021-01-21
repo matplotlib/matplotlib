@@ -183,7 +183,7 @@ else:  # We should not get there.
 # Fixes issues with Big Sur
 # https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
 if (sys.platform == 'darwin' and
-    LooseVersion(QtCore.qVersion()) < LooseVersion('5.15.2')):
+        LooseVersion(QtCore.qVersion()) < LooseVersion('5.15.2')):
     os.environ['QT_MAC_WANTS_LAYER'] = '1'
 
 
