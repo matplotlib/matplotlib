@@ -199,12 +199,12 @@ cmaps['Miscellaneous'] = [
 # First, we'll show the range of each colormap. Note that some seem
 # to change more "quickly" than others.
 
-nrows = [len(cmap_list) for cmap_category, cmap_list in cmaps.items()]
 gradient = np.linspace(0, 1, 256)
 gradient = np.vstack((gradient, gradient))
 
 
-def plot_color_gradients(cmap_category, cmap_list, nrows):
+def plot_color_gradients(cmap_category, cmap_list):
+    nrows = len(cmap_list)
     fig, axs = plt.subplots(nrows=nrows + 1, figsize=(6, 0.29 * nrows))
     fig.subplots_adjust(top=1, bottom=0, left=0.2, right=0.99)
     axs[0].text(0.5, 0.5, cmap_category + " colormaps", fontsize=14,
@@ -223,8 +223,8 @@ def plot_color_gradients(cmap_category, cmap_list, nrows):
         ax.set_axis_off()
 
 
-for rows, (cmap_category, cmap_list) in zip(nrows, cmaps.items()):
-    plot_color_gradients(cmap_category, cmap_list, rows)
+for cmap_category, cmap_list in cmaps.items():
+    plot_color_gradients(cmap_category, cmap_list)
 
 plt.show()
 
