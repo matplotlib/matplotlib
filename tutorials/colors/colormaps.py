@@ -223,8 +223,8 @@ def plot_color_gradients(cmap_category, cmap_list, nrows):
         ax.set_axis_off()
 
 
-for i, (cmap_category, cmap_list) in enumerate(cmaps.items()):
-    plot_color_gradients(cmap_category, cmap_list, nrows[i])
+for rows, (cmap_category, cmap_list) in zip(nrows, cmaps.items()):
+    plot_color_gradients(cmap_category, cmap_list, rows)
 
 plt.show()
 
