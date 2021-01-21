@@ -441,7 +441,7 @@ class Matplotlib(SetupPackage):
             "matplotlib._qhull", ["src/qhull_wrap.c"],
             define_macros=[("MPL_DEVNULL", os.devnull)])
         add_numpy_flags(ext)
-        add_qhull_flags(ext)
+        Qhull.add_flags(ext)
         yield ext
         # tkagg
         ext = Extension(
@@ -548,17 +548,6 @@ def add_libagg_flags_and_sources(ext):
     ]
     ext.sources.extend(
         os.path.join("extern", "agg24-svn", "src", x) for x in agg_sources)
-
-
-def add_qhull_flags(ext):
-    if options.get("system_qhull"):
-        ext.libraries.append("qhull")
-    else:
-        qhull_path = Path(f'build/qhull-{LOCAL_QHULL_VERSION}/src')
-        ext.include_dirs.insert(0, str(qhull_path))
-        ext.sources.extend(map(str, sorted(qhull_path.glob('libqhull_r/*.c'))))
-        if sysconfig.get_config_var("LIBM") == "-lm":
-            ext.libraries.extend("m")
 
 
 # First compile checkdep_freetype2.c, which aborts the compilation either
@@ -685,6 +674,36 @@ class FreeType(SetupPackage):
             lib_path, = (src_path / "objs" / vc / msbuild_platform).glob(
                 "freetype*.lib")
             shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
+
+
+class Qhull(SetupPackage):
+    name = "qhull"
+    _extensions_to_update = []
+
+    @classmethod
+    def add_flags(cls, ext):
+        if options.get("system_qhull"):
+            ext.libraries.append("qhull_r")
+        else:
+            cls._extensions_to_update.append(ext)
+
+    def do_custom_build(self, env):
+        if options.get('system_qhull'):
+            return
+
+        toplevel = get_and_extract_tarball(
+            urls=["http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"],
+            sha="b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e",
+            dirname=f"qhull-{LOCAL_QHULL_VERSION}",
+        )
+        shutil.copyfile(toplevel / "COPYING.txt", "LICENSE/LICENSE_QHULL")
+
+        for ext in self._extensions_to_update:
+            qhull_path = Path(f'build/qhull-{LOCAL_QHULL_VERSION}/src')
+            ext.include_dirs.insert(0, str(qhull_path))
+            ext.sources.extend(map(str, sorted(qhull_path.glob('libqhull_r/*.c'))))
+            if sysconfig.get_config_var("LIBM") == "-lm":
+                ext.libraries.extend("m")
 
 
 class BackendMacOSX(OptionalPackage):
