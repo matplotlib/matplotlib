@@ -180,6 +180,13 @@ else:  # We should not get there.
     raise AssertionError("Unexpected QT_API: {}".format(QT_API))
 
 
+# Fixes issues with Big Sur
+# https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
+if (sys.platform == 'darwin' and
+    LooseVersion(QtCore.qVersion()) < LooseVersion('5.15.2')):
+    os.environ['QT_MAC_WANTS_LAYER'] = '1'
+
+
 # These globals are only defined for backcompatibility purposes.
 ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
            pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
