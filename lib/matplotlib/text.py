@@ -1675,7 +1675,9 @@ class Annotation(Text, _AnnotationBase):
 
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
-            positions *xy* and *xytext*.
+            positions *xy* and *xytext*. Note that the edge of the arrow pointing
+            to *xytext* will be centered on the text itself and may not point
+            directly to the coordinates given in *xytext*.
 
             If *arrowprops* does not contain the key 'arrowstyle' the
             allowed keys are:
