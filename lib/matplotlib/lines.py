@@ -534,7 +534,7 @@ class Line2D(Artist):
 
             For examples see :ref:`marker_fill_styles`.
         """
-        self._marker.set_fillstyle(fs)
+        self.set_marker(MarkerStyle(self._marker.get_marker(), fs))
         self.stale = True
 
     def set_markevery(self, every):
@@ -930,7 +930,8 @@ class Line2D(Artist):
             if rcParams['_internal.classic_mode']:
                 if self._marker.get_marker() in ('.', ','):
                     return self._color
-                if self._marker.is_filled() and self.get_fillstyle() != 'none':
+                if (self._marker.is_filled()
+                        and self._marker.get_fillstyle() != 'none'):
                     return 'k'  # Bad hard-wired default...
             return self._color
         else:
@@ -945,7 +946,7 @@ class Line2D(Artist):
         return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
-        if self.get_fillstyle() == 'none':
+        if self._marker.get_fillstyle() == 'none':
             return 'none'
         fc = self._markerfacecoloralt if alt else self._markerfacecolor
         if cbook._str_lower_equal(fc, 'auto'):
@@ -1166,7 +1167,7 @@ class Line2D(Artist):
             See `~matplotlib.markers` for full description of possible
             arguments.
         """
-        self._marker.set_marker(marker)
+        self._marker = MarkerStyle(marker, self._marker.get_fillstyle())
         self.stale = True
 
     def set_markeredgecolor(self, ec):
