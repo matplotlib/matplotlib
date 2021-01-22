@@ -1015,7 +1015,6 @@ _validators = {
     "backend":           validate_backend,
     "backend_fallback":  validate_bool,
     "toolbar":           _ignorecase(["none", "toolbar2", "toolmanager"]),
-    "datapath":          validate_any,  # see _get_data_path_cached
     "interactive":       validate_bool,
     "timezone":          validate_string,
 

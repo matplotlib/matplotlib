@@ -469,56 +469,9 @@ def get_cachedir():
 
 
 @_logged_cached('matplotlib data path: %s')
-def get_data_path(*, _from_rc=None):
+def get_data_path():
     """Return the path to Matplotlib data."""
-    if _from_rc is not None:
-        _api.warn_deprecated(
-            "3.2",
-            message=("Setting the datapath via matplotlibrc is deprecated "
-                     "%(since)s and will be removed %(removal)s."),
-            removal='3.4')
-        path = Path(_from_rc)
-        if path.is_dir():
-            return str(path)
-        else:
-            warnings.warn(f"You passed datapath: {_from_rc!r} in your "
-                          f"matplotribrc file ({matplotlib_fname()}). "
-                          "However this path does not exist, falling back "
-                          "to standard paths.")
-
-    return _get_data_path()
-
-
-@_logged_cached('(private) matplotlib data path: %s')
-def _get_data_path():
-    path = Path(__file__).with_name("mpl-data")
-    if path.is_dir():
-        return str(path)
-
-    _api.warn_deprecated(
-        "3.2", message="Matplotlib installs where the data is not in the "
-        "mpl-data subdirectory of the package are deprecated since %(since)s "
-        "and support for them will be removed %(removal)s.")
-
-    def get_candidate_paths():
-        # setuptools' namespace_packages may hijack this init file
-        # so need to try something known to be in Matplotlib, not basemap.
-        import matplotlib.afm
-        yield Path(matplotlib.afm.__file__).with_name('mpl-data')
-        # py2exe zips pure python, so still need special check.
-        if getattr(sys, 'frozen', None):
-            yield Path(sys.executable).with_name('mpl-data')
-            # Try again assuming we need to step up one more directory.
-            yield Path(sys.executable).parent.with_name('mpl-data')
-            # Try again assuming sys.path[0] is a dir not a exe.
-            yield Path(sys.path[0]) / 'mpl-data'
-
-    for path in get_candidate_paths():
-        if path.is_dir():
-            defaultParams['datapath'][0] = str(path)
-            return str(path)
-
-    raise RuntimeError('Could not find the matplotlib data files')
+    return str(Path(__file__).with_name("mpl-data"))
 
 
 def matplotlib_fname():
@@ -552,7 +505,7 @@ def matplotlib_fname():
             yield matplotlibrc
             yield os.path.join(matplotlibrc, 'matplotlibrc')
         yield os.path.join(get_configdir(), 'matplotlibrc')
-        yield os.path.join(_get_data_path(), 'matplotlibrc')
+        yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
         if os.path.exists(fname) and not os.path.isdir(fname):
@@ -576,7 +529,6 @@ _deprecated_ignore_map = {
 # listed in the rcParams (not included in _all_deprecated).
 # Values are tuples of (version,)
 _deprecated_remain_as_none = {
-    'datapath': ('3.2.1',),
     'animation.avconv_path': ('3.3',),
     'animation.avconv_args': ('3.3',),
     'animation.html_args': ('3.3',),
@@ -661,9 +613,6 @@ class RcParams(MutableMapping, dict):
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
-
-        elif key == "datapath":
-            return get_data_path()
 
         return dict.__getitem__(self, key)
 
@@ -847,12 +796,6 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
 
     with _api.suppress_matplotlib_deprecation_warning():
         config = RcParams({**rcParamsDefault, **config_from_file})
-
-    with _api.suppress_matplotlib_deprecation_warning():
-        if config['datapath'] is None:
-            config['datapath'] = _get_data_path()
-        else:
-            config['datapath'] = get_data_path(_from_rc=config['datapath'])
 
     if "".join(config['text.latex.preamble']):
         _log.info("""
