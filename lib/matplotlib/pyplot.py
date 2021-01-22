@@ -42,7 +42,7 @@ from matplotlib import cbook
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase, MouseButton
 from matplotlib.figure import Figure, figaspect
-from matplotlib.gridspec import GridSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import Artist
@@ -1037,11 +1037,11 @@ def axes(arg=None, **kwargs):
         # Creating a new axes with specified dimensions and some kwargs
         plt.axes((left, bottom, width, height), facecolor='w')
     """
-
+    fig = gcf()
     if arg is None:
-        return subplot(**kwargs)
+        return fig.add_subplot(**kwargs)
     else:
-        return gcf().add_axes(arg, **kwargs)
+        return fig.add_axes(arg, **kwargs)
 
 
 def delaxes(ax=None):
@@ -1221,7 +1221,18 @@ def subplot(*args, **kwargs):
                         "and/or 'nrows'.  Did you intend to call subplots()?")
 
     fig = gcf()
-    ax = fig.add_subplot(*args, **kwargs)
+
+    # First, search for an existing subplot with a matching spec.
+    key = SubplotSpec._from_subplot_args(fig, args)
+    ax = next(
+        (ax for ax in fig.axes
+         if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key),
+        None)
+
+    # If no existing axes match, then create a new one.
+    if ax is None:
+        ax = fig.add_subplot(*args, **kwargs)
+
     bbox = ax.bbox
     axes_to_delete = []
     for other_ax in fig.axes:
@@ -2409,10 +2420,13 @@ def polar(*args, **kwargs):
     """
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
-        if not isinstance(gca(), PolarAxes):
-            _api.warn_external('Trying to create polar plot on an axis '
+        ax = gca()
+        if isinstance(ax, PolarAxes):
+            return ax
+        else:
+            _api.warn_external('Trying to create polar plot on an Axes '
                                'that does not have a polar projection.')
-    ax = gca(polar=True)
+    ax = axes(polar=True)
     ret = ax.plot(*args, **kwargs)
     return ret
 

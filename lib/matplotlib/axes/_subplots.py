@@ -1,5 +1,4 @@
 import functools
-import uuid
 
 from matplotlib import _api, docstring
 import matplotlib.artist as martist
@@ -142,16 +141,7 @@ class SubplotBase:
             # which currently uses this internal API.
             if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
                 raise ValueError("Twinned Axes may share only one axis")
-        # The dance here with label is to force add_subplot() to create a new
-        # Axes (by passing in a label never seen before).  Note that this does
-        # not affect plot reactivation by subplot() as twin axes can never be
-        # reactivated by subplot().
-        sentinel = str(uuid.uuid4())
-        real_label = kwargs.pop("label", sentinel)
-        twin = self.figure.add_subplot(
-            self.get_subplotspec(), *args, label=sentinel, **kwargs)
-        if real_label is not sentinel:
-            twin.set_label(real_label)
+        twin = self.figure.add_subplot(self.get_subplotspec(), *args, **kwargs)
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
         self._twinned_axes.join(self, twin)
