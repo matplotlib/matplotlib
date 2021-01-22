@@ -2196,6 +2196,8 @@ class FigureCanvasBase:
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
+            cl_state = self.figure.get_constrained_layout()
+
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
             if bbox_inches:
@@ -2210,6 +2212,7 @@ class FigureCanvasBase:
                            else suppress())
                     with ctx:
                         self.figure.draw(renderer)
+                        self.figure.set_constrained_layout(False)
 
                     bbox_inches = self.figure.get_tightbbox(
                         renderer, bbox_extra_artists=bbox_extra_artists)
@@ -2241,6 +2244,7 @@ class FigureCanvasBase:
                 self.figure.set_facecolor(origfacecolor)
                 self.figure.set_edgecolor(origedgecolor)
                 self.figure.set_canvas(self)
+            self.figure.set_constrained_layout(cl_state)
             return result
 
     @classmethod
