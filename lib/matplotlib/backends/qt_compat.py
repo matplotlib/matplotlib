@@ -15,6 +15,7 @@ Support for PyQt4 is deprecated.
 
 from distutils.version import LooseVersion
 import os
+import platform
 import sys
 
 import matplotlib as mpl
@@ -183,8 +184,10 @@ else:  # We should not get there.
 # Fixes issues with Big Sur
 # https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
 if (sys.platform == 'darwin' and
-        LooseVersion(QtCore.qVersion()) < LooseVersion('5.15.2')):
-    os.environ['QT_MAC_WANTS_LAYER'] = '1'
+        LooseVersion(platform.mac_ver()[0]) >= LooseVersion("10.16") and
+        LooseVersion(QtCore.qVersion()) < LooseVersion("5.15.2") and
+        "QT_MAC_WANTS_LAYER" not in os.environ):
+    os.environ["QT_MAC_WANTS_LAYER"] = "1"
 
 
 # These globals are only defined for backcompatibility purposes.
