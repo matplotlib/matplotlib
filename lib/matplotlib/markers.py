@@ -519,15 +519,13 @@ class MarkerStyle:
         if not self._half_fill():
             self._path = Path.unit_rectangle()
         else:
-            # Build a bottom filled square out of two rectangles, one filled.
-            self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5],
-                               [0.0, 0.5], [0.0, 0.0]])
-            self._alt_path = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0],
-                                   [0.0, 1.0], [0.0, 0.5]])
+            self._path = self._alt_path = Path(  # Half-square.
+                [[0.0, 0.0], [1.0, 0.0], [1.0, 0.5], [0.0, 0.5], [0.0, 0.0]],
+                closed=True)
             fs = self.get_fillstyle()
             rotate = {'bottom': 0, 'right': 90, 'top': 180, 'left': 270}[fs]
             self._transform.rotate_deg(rotate)
-            self._alt_transform = self._transform
+            self._alt_transform = self._transform.frozen().rotate_deg(180)
 
         self._joinstyle = JoinStyle.miter
 
@@ -537,17 +535,21 @@ class MarkerStyle:
         if not self._half_fill():
             self._path = Path.unit_rectangle()
         else:
-            self._path = Path([[0, 0], [1, 0], [1, 1], [0, 0]])
-            self._alt_path = Path([[0, 0], [0, 1], [1, 1], [0, 0]])
+            eps = 1e-3  # Don't let the miter joins protrude.
+            self._path = self._alt_path = Path(
+                [[eps, eps], [eps, 0], [1, 0], [1, 1-eps], [1-eps, 1-eps],
+                 [eps, eps]], closed=True)
             fs = self.get_fillstyle()
-            rotate = {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs]
+            rotate = {'bottom': 0, 'right': 90, 'top': 180, 'left': 270}[fs]
             self._transform.rotate_deg(rotate)
-            self._alt_transform = self._transform
-        self._joinstyle = JoinStyle.miter
+            self._alt_transform = self._transform.frozen().rotate_deg(180)
+        self._joinstyle = 'miter'
 
     def _set_thin_diamond(self):
         self._set_diamond()
         self._transform.scale(0.6, 1.0)
+        if self._alt_transform:
+            self._alt_transform.scale(0.6, 1.0)
 
     def _set_pentagon(self):
         self._transform = Affine2D().scale(0.5)
