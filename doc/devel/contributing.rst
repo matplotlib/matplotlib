@@ -102,27 +102,29 @@ A brief overview is:
 
 3. Clone this copy to your local disk::
 
-      $ git clone https://github.com/YourLogin/matplotlib.git
+      git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
 
-4. Create a branch to hold your changes::
+4. Enter the directory and install the local version of Matplotlib. 
+   See ref`<installing_for_devs>` for instructions
 
-      $ git checkout -b my-feature origin/master
+5. Create a branch to hold your changes::
+
+      git checkout -b my-feature origin/master
 
    and start making changes. Never work in the ``master`` branch!
 
-5. Work on this copy, on your computer, using Git to do the version control.
+6. Work on this copy, on your computer, using Git to do the version control.
    When you're done editing e.g., ``lib/matplotlib/collections.py``, do::
 
-      $ git add lib/matplotlib/collections.py
-      $ git commit
+      git add lib/matplotlib/collections.py
+      git commit
 
    to record your changes in Git, then push them to GitHub with::
 
-      $ git push -u origin my-feature
+      git push -u origin my-feature
 
 Finally, go to the web page of your fork of the Matplotlib repo, and click
-'Pull request' to send your changes to the maintainers for review.  You may
-want to consider sending an email to the mailing list for more visibility.
+'Pull request' to send your changes to the maintainers for review.
 
 .. seealso::
 
