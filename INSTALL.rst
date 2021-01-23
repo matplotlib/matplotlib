@@ -38,26 +38,6 @@ Although not required, we suggest also installing ``IPython`` for
 interactive use.  To easily install a complete Scientific Python
 stack, see :ref:`install_scipy_dists` below.
 
-Test data
----------
-
-The wheels (:file:`*.whl`) on the `PyPI download page
-<https://pypi.org/project/matplotlib/>`_ do not contain test data
-or example code.
-
-If you want to try the many demos that come in the Matplotlib source
-distribution, download the :file:`*.tar.gz` file and look in the
-:file:`examples` subdirectory.
-
-To run the test suite:
-
-* extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
-  directories from the source distribution.
-* install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
-  MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
-  <https://inkscape.org/>`_.
-* run ``python -mpytest``.
-
 Third-party distributions of Matplotlib
 =======================================
 
