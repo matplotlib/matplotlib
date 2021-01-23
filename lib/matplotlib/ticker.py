@@ -2139,18 +2139,16 @@ class MaxNLocator(Locator):
             raise ValueError('steps argument must be an increasing sequence '
                              'of numbers between 1 and 10 inclusive')
         if steps[0] != 1:
-            steps = np.hstack((1, steps))
+            steps = np.concatenate([[1], steps])
         if steps[-1] != 10:
-            steps = np.hstack((steps, 10))
+            steps = np.concatenate([steps, [10]])
         return steps
 
     @staticmethod
     def _staircase(steps):
-        # Make an extended staircase within which the needed
-        # step will be found.  This is probably much larger
-        # than necessary.
-        flights = (0.1 * steps[:-1], steps, 10 * steps[1])
-        return np.hstack(flights)
+        # Make an extended staircase within which the needed step will be
+        # found.  This is probably much larger than necessary.
+        return np.concatenate([0.1 * steps[:-1], steps, [10 * steps[1]]])
 
     def set_params(self, **kwargs):
         """

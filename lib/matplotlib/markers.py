@@ -608,10 +608,10 @@ class MarkerStyle:
         else:
             verts = polypath.vertices
 
-            top = Path(np.vstack((verts[0:4, :], verts[7:10, :], verts[0])))
-            bottom = Path(np.vstack((verts[3:8, :], verts[3])))
-            left = Path(np.vstack((verts[0:6, :], verts[0])))
-            right = Path(np.vstack((verts[0], verts[5:10, :], verts[0])))
+            top = Path(np.concatenate([verts[0:4], verts[7:10], verts[0:1]]))
+            bottom = Path(np.concatenate([verts[3:8], verts[3:4]]))
+            left = Path(np.concatenate([verts[0:6], verts[0:1]]))
+            right = Path(np.concatenate([verts[0:1], verts[5:10], verts[0:1]]))
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -641,10 +641,10 @@ class MarkerStyle:
 
             # not drawing inside lines
             x = np.abs(np.cos(5 * np.pi / 6.))
-            top = Path(np.vstack(([-x, 0], verts[(1, 0, 5), :], [x, 0])))
-            bottom = Path(np.vstack(([-x, 0], verts[2:5, :], [x, 0])))
-            left = Path(verts[(0, 1, 2, 3), :])
-            right = Path(verts[(0, 5, 4, 3), :])
+            top = Path(np.concatenate([[(-x, 0)], verts[[1, 0, 5]], [(x, 0)]]))
+            bottom = Path(np.concatenate([[(-x, 0)], verts[2:5], [(x, 0)]]))
+            left = Path(verts[0:4])
+            right = Path(verts[[0, 5, 4, 3]])
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -675,11 +675,12 @@ class MarkerStyle:
 
             # not drawing inside lines
             x, y = np.sqrt(3) / 4, 3 / 4.
-            top = Path(verts[(1, 0, 5, 4, 1), :])
-            bottom = Path(verts[(1, 2, 3, 4), :])
-            left = Path(np.vstack(([x, y], verts[(0, 1, 2), :],
-                                   [-x, -y], [x, y])))
-            right = Path(np.vstack(([x, y], verts[(5, 4, 3), :], [-x, -y])))
+            top = Path(verts[[1, 0, 5, 4, 1]])
+            bottom = Path(verts[1:5])
+            left = Path(np.concatenate([
+                [(x, y)], verts[:3], [(-x, -y), (x, y)]]))
+            right = Path(np.concatenate([
+                [(x, y)], verts[5:2:-1], [(-x, -y)]]))
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom

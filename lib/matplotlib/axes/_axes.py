@@ -4810,8 +4810,8 @@ default: :rc:`scatter.edgecolors`
                     else:
                         lattice2[i, j] = np.nan
 
-            accum = np.hstack((lattice1.astype(float).ravel(),
-                               lattice2.astype(float).ravel()))
+            accum = np.concatenate([lattice1.astype(float).ravel(),
+                                    lattice2.astype(float).ravel()])
             good_idxs = ~np.isnan(accum)
 
         offsets = np.zeros((n, 2), float)
