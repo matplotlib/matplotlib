@@ -25,6 +25,19 @@ about the code, what makes for good documentation or a blog post, how to get inv
 in community work, or get "pre-review" on your PR.
 
 
+.. _new_contributors:
+
+Issues for New Contributors
+---------------------------
+
+New contributors should look for the following tags when looking for issues.
+We strongly recommend that new contributors tackle issues labeled
+`good first issue <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_
+as they are easy, well documented issues, that do not require an understanding of
+the different submodules of Matplotlib.
+This helps the contributor become familiar with the contribution
+workflow, and for the core devs to become acquainted with the contributor.
+
 .. _submitting-a-bug-report:
 
 Submitting a bug report
@@ -217,20 +230,6 @@ tools:
   * :ref:`documenting-matplotlib`
 
 
-
-.. _new_contributors:
-
-Issues for New Contributors
----------------------------
-
-New contributors should look for the following tags when looking for issues.
-We strongly recommend that new contributors tackle issues labeled
-`good first issue <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_
-as they are easy, well documented issues, that do not require an understanding of
-the different submodules of Matplotlib.
-This helps the contributor become familiar with the contribution
-workflow, and for the core devs to become acquainted with the contributor;
-besides which, we frequently underestimate how easy an issue is to solve!
 
 
 .. _contributing_documentation:
