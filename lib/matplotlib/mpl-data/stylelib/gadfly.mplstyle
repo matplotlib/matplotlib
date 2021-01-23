@@ -1,0 +1,70 @@
+# Gadfly plot theme inspired by the Gadfly plotting library for the Julia programming language: http://gadflyjl.org/stable/
+# For more details see: https://towardsdatascience.com/a-new-plot-theme-for-matplotlib-gadfly-2cffc745ff84
+
+lines.linewidth   : 2
+
+lines.markeredgecolor  : white    ## the default markeredgecolor
+lines.markeredgewidth  : 1     ## the line width around the marker symbol
+lines.markersize  : 7            ## markersize, in points
+
+patch.linewidth        : 1        ## edge width in points.
+patch.facecolor        : C0
+patch.edgecolor        : black   ## if forced, or patch is not filled
+
+boxplot.patchartist : True
+
+boxplot.flierprops.color           : C0
+boxplot.flierprops.marker          : o
+boxplot.flierprops.markerfacecolor : auto
+boxplot.flierprops.markeredgecolor : white
+boxplot.flierprops.markersize      : 7
+boxplot.flierprops.linestyle       : none
+boxplot.flierprops.linewidth       : 1.0
+
+boxplot.boxprops.color     : 9ae1f9
+boxplot.boxprops.linewidth : 0
+boxplot.boxprops.linestyle : -
+
+boxplot.whiskerprops.color     : C0
+boxplot.whiskerprops.linewidth : 1.0
+boxplot.whiskerprops.linestyle : -
+
+boxplot.capprops.color     : C0
+boxplot.capprops.linewidth : 1.0
+boxplot.capprops.linestyle : -
+
+boxplot.medianprops.color     : 9ae1f9
+boxplot.medianprops.linewidth : 1
+boxplot.medianprops.linestyle : -
+
+boxplot.meanprops.color           : C1
+boxplot.meanprops.marker          : ^
+boxplot.meanprops.markerfacecolor : C1
+boxplot.meanprops.markeredgecolor : C1
+boxplot.meanprops.markersize      :  7
+boxplot.meanprops.linestyle       : --
+boxplot.meanprops.linewidth       : 1.0
+
+text.color          : 707074
+
+axes.edgecolor      : D0D0E0   ## axes edge color
+axes.grid           : True   ## display grid or not
+axes.grid.axis      : both    ## which axis the grid should apply to
+axes.titlesize      : 18   ## fontsize of the axes title
+axes.labelsize      : 14  ## fontsize of the x any y labels
+axes.labelcolor     : 707074
+
+axes.spines.left   : False   ## display axis spines
+axes.spines.bottom : False
+axes.spines.top    : False
+axes.spines.right  : False
+axes.prop_cycle    : cycler('color', ['00BEFF', 'D4CA3A', 'FF6DAE', '67E1B5', 'EBACFA', '9E9E9E', 'F1988E', '5DB15A', 'E28544', '52B8AA'])
+
+xtick.color          : 707074  ## color of the tick labels
+xtick.labelsize      : 12 ## fontsize of the tick labels
+ytick.color          : 707074  ## color of the tick labels
+ytick.labelsize      : 12 ## fontsize of the tick labels
+
+grid.color       :   93939c    ## grid color
+grid.linestyle   :   --         ## solid
+grid.alpha       :   0.2       ## transparency, between 0.0 and 1.0
