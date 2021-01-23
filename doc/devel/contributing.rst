@@ -66,10 +66,10 @@ If you are reporting a bug, please do your best to include the following:
 
       >>> import matplotlib
       >>> matplotlib.__version__
-      '1.5.3'
+      '3.4.1'
       >>> import platform
       >>> platform.python_version()
-      '2.7.12'
+      '3.9.2'
 
 We have preloaded the issue creation page with a Markdown template that you can
 use to organize this information.
