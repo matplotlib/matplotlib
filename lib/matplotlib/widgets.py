@@ -330,8 +330,7 @@ class Slider(SliderBase):
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
                  orientation='horizontal', *, initcolor='r',
-                 track_color='lightgrey', handle_facecolor='white',
-                 handle_edgecolor='.75', handle_size=10, **kwargs):
+                 track_color='lightgrey', handle_style=None, **kwargs):
         """
         Parameters
         ----------
@@ -386,14 +385,16 @@ class Slider(SliderBase):
             The color of the background track. The track is accessible for
             further styling via the *track* attribute.
 
-        handle_facecolor : color, default: 'white'
-            The facecolor of the circular slider handle.
+        handle_style : dict
+            Properties of the slider handle. Supported values are
 
-        handle_edgecolor : color, default: '.75'
-            The edgecolor of the circle slider handle.
-
-        handle_size : int, default: 10
-            The size of the circular slider handle in points.
+            ========= ===== ======= ========================================
+            Key       Value Default Description
+            ========= ===== ======= ========================================
+            facecolor color 'white' The facecolor of the slider handle.
+            edgecolor color '.75'   The edgecolor of the slider handle.
+            size      int   10      The size of the slider handle in points.
+            ========= ===== ======= ========================================
 
         Notes
         -----
@@ -418,6 +419,15 @@ class Slider(SliderBase):
             valinit = valmin
         self.val = valinit
         self.valinit = valinit
+
+        marker_props = {}
+        defaults = {'facecolor':'white', 'edgecolor':'.75', 'size':10}
+        if handle_style is not None:
+            for k in ['facecolor', 'edgecolor', 'size']:
+                marker_props[f'marker{k}'] = handle_style.get(k, defaults[k])
+        else:
+            marker_props = {f'marker{k}': v for k, v in defaults.items()}
+
         if orientation == 'vertical':
             self.track = Rectangle(
                 (.25, 0), .5, 1,
@@ -441,9 +451,7 @@ class Slider(SliderBase):
         self._handle, = ax.plot(
             *handleXY,
             "o",
-            markersize=handle_size,
-            markeredgecolor=handle_edgecolor,
-            markerfacecolor=handle_facecolor,
+            **marker_props,
             clip_on=False
         )
 
@@ -598,9 +606,7 @@ class RangeSlider(SliderBase):
         valstep=None,
         orientation="horizontal",
         track_color='lightgrey',
-        handle_facecolor='white',
-        handle_edgecolor='.75',
-        handle_size=10,
+        handle_style=None,
         **kwargs,
     ):
         """
@@ -645,14 +651,16 @@ class RangeSlider(SliderBase):
             The color of the background track. The track is accessible for
             further styling via the *track* attribute.
 
-        handle_facecolor : color, default: 'white'
-            The facecolor of the circular slider handle.
+        handle_style : dict
+            Properties of the slider handles. Supported values are
 
-        handle_edgecolor : color, default: '.75'
-            The edgecolor of the circular slider handles.
-
-        handle_size : int, default: 10
-            The size of the circular slider handles in points.
+            ========= ===== ======= =========================================
+            Key       Value Default Description
+            ========= ===== ======= =========================================
+            facecolor color 'white' The facecolor of the slider handles.
+            edgecolor color '.75'   The edgecolor of the slider handles.
+            size      int   10      The size of the slider handles in points.
+            ========= ===== ======= =========================================
 
         Notes
         -----
@@ -675,6 +683,15 @@ class RangeSlider(SliderBase):
             valinit = self._value_in_bounds(valinit)
         self.val = valinit
         self.valinit = valinit
+
+        marker_props = {}
+        defaults = {'facecolor':'white', 'edgecolor':'.75', 'size':10}
+        if handle_style is not None:
+            for k in ['facecolor', 'edgecolor', 'size']:
+                marker_props[f'marker{k}'] = handle_style.get(k, defaults[k])
+        else:
+            marker_props = {f'marker{k}': v for k, v in defaults.items()}
+
         if orientation == "vertical":
             self.track = Rectangle(
                 (.25, 0), .5, 2,
@@ -699,17 +716,13 @@ class RangeSlider(SliderBase):
             ax.plot(
                 *handleXY_1,
                 "o",
-                markersize=handle_size,
-                markeredgecolor=handle_edgecolor,
-                markerfacecolor=handle_facecolor,
+                **marker_props,
                 clip_on=False
             )[0],
             ax.plot(
                 *handleXY_2,
                 "o",
-                markersize=handle_size,
-                markeredgecolor=handle_edgecolor,
-                markerfacecolor=handle_facecolor,
+                **marker_props,
                 clip_on=False
             )[0]
         ]
