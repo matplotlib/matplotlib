@@ -167,6 +167,22 @@ def _resample(
     Image object *image_obj*.
     """
 
+    # pre-decimate if data is ridiculously large compared to out_shape:
+    raty = int(data.shape[0] / out_shape[0])
+    if raty > 5e2:
+        raty = int(raty / 1000)
+        data = data[::raty, :]
+    else:
+        raty = 1
+    ratx = int(data.shape[1] / out_shape[1])
+    if ratx > 5e2:
+        ratx = int(ratx / 1000)
+        data = data[:, ::ratx]
+    else:
+        ratx = 1
+    if (ratx > 1) or (raty > 1):
+        transform = transform + Affine2D().scale(sx=ratx, sy=raty)
+
     # decide if we need to apply anti-aliasing if the data is upsampled:
     # compare the number of displayed pixels to the number of
     # the data pixels.
