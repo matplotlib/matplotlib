@@ -1,0 +1,5 @@
+``dates.YearLocator`` attribute
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The attribute ``YearLocator.replaced`` has been removed. For tick locations which
+required modifying this, a custom rrule and ``RRuleLocator`` can be used instead.
