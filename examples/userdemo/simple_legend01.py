@@ -17,7 +17,7 @@ ax.plot([3, 2, 1], label="test2")
 ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
            ncol=2, mode="expand", borderaxespad=0.)
 
-ax =fig.add_subplot(223)
+ax = fig.add_subplot(223)
 ax.plot([1, 2, 3], label="test1")
 ax.plot([3, 2, 1], label="test2")
 # Place a legend to the right of this smaller subplot.
