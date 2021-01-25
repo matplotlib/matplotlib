@@ -2198,19 +2198,25 @@ class FigureCanvasBase:
 
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
+
+            if (self.figure.get_constrained_layout() or
+                    bbox_inches == "tight"):
+                # we need to trigger a draw before printing to make sure
+                # CL works.  "tight" also needs a draw to get the right
+                # locations:
+                renderer = _get_renderer(
+                    self.figure,
+                    functools.partial(
+                        print_method, orientation=orientation)
+                )
+                ctx = (renderer._draw_disabled()
+                       if hasattr(renderer, '_draw_disabled')
+                       else suppress())
+                with ctx:
+                    self.figure.draw(renderer)
+
             if bbox_inches:
                 if bbox_inches == "tight":
-                    renderer = _get_renderer(
-                        self.figure,
-                        functools.partial(
-                            print_method, orientation=orientation)
-                    )
-                    ctx = (renderer._draw_disabled()
-                           if hasattr(renderer, '_draw_disabled')
-                           else suppress())
-                    with ctx:
-                        self.figure.draw(renderer)
-
                     bbox_inches = self.figure.get_tightbbox(
                         renderer, bbox_extra_artists=bbox_extra_artists)
                     if pad_inches is None:
@@ -2225,6 +2231,9 @@ class FigureCanvasBase:
             else:
                 _bbox_inches_restore = None
 
+            # we have already done CL above, so turn it off:
+            cl_state = self.figure.get_constrained_layout()
+            self.figure.set_constrained_layout(False)
             try:
                 result = print_method(
                     filename,
@@ -2241,6 +2250,8 @@ class FigureCanvasBase:
                 self.figure.set_facecolor(origfacecolor)
                 self.figure.set_edgecolor(origedgecolor)
                 self.figure.set_canvas(self)
+            # reset to cached state
+            self.figure.set_constrained_layout(cl_state)
             return result
 
     @classmethod
