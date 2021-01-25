@@ -443,8 +443,8 @@ register_projection(HammerAxes)
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     # Now make a simple example using the custom projection.
-    plt.subplot(projection="custom_hammer")
-    p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
-    plt.grid(True)
+    fig, ax = plt.subplots(subplot_kw={'projection': 'custom_hammer'})
+    ax.plot([-1, 1, 1], [-1, -1, 1], "o-")
+    ax.grid()
 
     plt.show()
