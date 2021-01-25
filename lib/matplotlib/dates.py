@@ -1154,15 +1154,9 @@ class DateLocator(ticker.Locator):
 class RRuleLocator(DateLocator):
     # use the dateutil rrule instance
 
-    def __init__(self, o, tz=None, interval_multiples=False):
+    def __init__(self, o, tz=None):
         super().__init__(tz)
         self.rule = o
-
-        # rrule cannot create interval multiples for YEARLY, this
-        # needs to be handled separately
-        self.mult_base = None
-        if interval_multiples and o._rrule._freq == YEARLY:
-            self.mult_base = ticker._Edge_integer(self._get_interval(), 0)
 
     def __call__(self):
         # if no data have been set, this will tank with a ValueError
@@ -1174,52 +1168,35 @@ class RRuleLocator(DateLocator):
         return self.tick_values(dmin, dmax)
 
     def tick_values(self, vmin, vmax):
-        if self.mult_base:
-            # start and stop need to be multiples of the interval
-            start, stop = self._get_intmult_limits(vmin, vmax)
-            vmin, vmax = start, stop
-
-        else:
-            delta = relativedelta(vmax, vmin)
-
-            # We need to cap at the endpoints of valid datetime
-            try:
-                start = vmin - delta
-            except (ValueError, OverflowError):
-                # cap
-                start = datetime.datetime(1, 1, 1, 0, 0, 0,
-                                          tzinfo=datetime.timezone.utc)
-
-            try:
-                stop = vmax + delta
-            except (ValueError, OverflowError):
-                # cap
-                stop = datetime.datetime(9999, 12, 31, 23, 59, 59,
-                                         tzinfo=datetime.timezone.utc)
-
-        self.rule.set(dtstart=start, until=stop)
-
-        dates = self.rule.between(vmin, vmax, True)
+        start, stop = self._create_rrule(vmin, vmax)
+        dates = self.rule.between(start, stop, True)
         if len(dates) == 0:
             return date2num([vmin, vmax])
         return self.raise_if_exceeds(date2num(dates))
 
-    def _get_intmult_limits(self, vmin, vmax):
-        # used for interval multiples when freq == YEARLY; make start and stop
-        # multiples of the interval but cap at the endpoints of valid datetime
-        ymin = max(self.mult_base.le(vmin.year) * self.mult_base.step, 1)
-        ymax = min(self.mult_base.ge(vmax.year) * self.mult_base.step, 9999)
+    def _create_rrule(self, vmin, vmax):
+        # set appropriate rrule dtstart and until and return
+        # start and end
+        delta = relativedelta(vmax, vmin)
 
-        c = self.rule._construct
-        replace = {'year': ymin,
-                   'month': getattr(c, 'bymonth', 1),
-                   'day': getattr(c, 'bymonthday', 1),
-                   'hour': 0, 'minute': 0, 'second': 0}
+        # We need to cap at the endpoints of valid datetime
+        try:
+            start = vmin - delta
+        except (ValueError, OverflowError):
+            # cap
+            start = datetime.datetime(1, 1, 1, 0, 0, 0,
+                                      tzinfo=datetime.timezone.utc)
 
-        start = vmin.replace(**replace)
-        stop = vmax.replace(year=ymax)
+        try:
+            stop = vmax + delta
+        except (ValueError, OverflowError):
+            # cap
+            stop = datetime.datetime(9999, 12, 31, 23, 59, 59,
+                                     tzinfo=datetime.timezone.utc)
 
-        return start, stop
+        self.rule.set(dtstart=start, until=stop)
+
+        return vmin, vmax
 
     def _get_unit(self):
         # docstring inherited
@@ -1459,7 +1436,9 @@ class AutoDateLocator(DateLocator):
         else:
             interval = 1
 
-        if use_rrule_locator[i]:
+        if (freq == YEARLY) and self.interval_multiples:
+            locator = YearLocator(interval, tz=self.tz)
+        elif use_rrule_locator[i]:
             _, bymonth, bymonthday, byhour, byminute, bysecond, _ = byranges
             rrule = rrulewrapper(self._freq, interval=interval,
                                  dtstart=dmin, until=dmax,
@@ -1467,8 +1446,7 @@ class AutoDateLocator(DateLocator):
                                  byhour=byhour, byminute=byminute,
                                  bysecond=bysecond)
 
-            locator = RRuleLocator(rrule, self.tz,
-                                   interval_multiples=self.interval_multiples)
+            locator = RRuleLocator(rrule, self.tz)
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if date2num(dmin) > 70 * 365 and interval < 1000:
@@ -1501,7 +1479,26 @@ class YearLocator(RRuleLocator):
         """
         rule = rrulewrapper(YEARLY, interval=base, bymonth=month,
                             bymonthday=day, **self.hms0d)
-        super().__init__(rule, tz, interval_multiples=True)
+        super().__init__(rule, tz)
+        self.base = ticker._Edge_integer(base, 0)
+
+    def _create_rrule(self, vmin, vmax):
+        # 'start' needs to be a multiple of the interval to create ticks on
+        # interval multiples when the tick frequency is YEARLY
+        ymin = max(self.base.le(vmin.year) * self.base.step, 1)
+        ymax = min(self.base.ge(vmax.year) * self.base.step, 9999)
+
+        c = self.rule._construct
+        replace = {'year': ymin,
+                   'month': c.get('bymonth', 1),
+                   'day': c.get('bymonthday', 1),
+                   'hour': 0, 'minute': 0, 'second': 0}
+
+        start = vmin.replace(**replace)
+        stop = start.replace(year=ymax)
+        self.rule.set(dtstart=start, until=stop)
+
+        return start, stop
 
 
 class MonthLocator(RRuleLocator):
