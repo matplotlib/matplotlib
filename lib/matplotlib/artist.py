@@ -1,4 +1,5 @@
 from collections import namedtuple
+import contextlib
 from functools import wraps
 import inspect
 import logging
@@ -1153,6 +1154,18 @@ class Artist:
         """A property batch setter.  Pass *kwargs* to set properties."""
         kwargs = cbook.normalize_kwargs(kwargs, self)
         return self.update(kwargs)
+
+    @contextlib.contextmanager
+    def _cm_set(self, **kwargs):
+        """
+        `.Artist.set` context-manager that restores original values at exit.
+        """
+        orig_vals = {k: getattr(self, f"get_{k}")() for k in kwargs}
+        try:
+            self.set(**kwargs)
+            yield
+        finally:
+            self.set(**orig_vals)
 
     def findobj(self, match=None, include_self=True):
         """
