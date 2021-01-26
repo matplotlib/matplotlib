@@ -96,11 +96,23 @@ ax.set(
 
 color = '0.4'  # color of the line of the corners
 # Get xlim,ylim and zlim
-xlim, ylim, zlim = list(map(np.array, [ax.get_xlim(), ax.get_ylim(), ax.get_zlim()]))
+xlim = np.array(ax.get_xlim())
+ylim = np.array(ax.get_ylim())
+zlim = np.array(ax.get_zlim())
+
 # Plot corners
-ax.plot(xlim*0+xlim[1], ylim,zlim*0, color, linewidth=1, zorder=1e4)
-ax.plot(xlim, ylim*0+ylim[0], zlim*0, color, linewidth=1, zorder=1e4)
-ax.plot(xlim*0+xlim[1], ylim*0+ylim[0], zlim, color, linewidth=1, zorder=1e4)
+ax.plot(
+    xlim*0+xlim[1], ylim, zlim*0, color,
+    linewidth=1, zorder=1e4,
+)
+ax.plot(
+    xlim, ylim*0+ylim[0], zlim*0, color,
+    linewidth=1, zorder=1e4,
+)
+ax.plot(
+    xlim*0+xlim[1], ylim*0+ylim[0], zlim, color,
+    linewidth=1, zorder=1e4,
+)
 
 # Set labels and zticks
 ax.set(
