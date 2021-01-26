@@ -1,26 +1,28 @@
-'''
+"""
 =================================
 3D surface plot using Matplotlib
 =================================
 by: Iury T. Simoes-Sousa (iuryt)
 
-The strategy is to select the data from each surface and plot contours separately.
+The strategy is to select the data from each surface and plot 
+contours separately.
 To use this feature you need to have gridded coordinates.
-The contour plot from Matplotlib has zdir argument that defines the normal coordinate to the plotted surface.
+
+The contour plot from Matplotlib has zdir argument that defines 
+the normal coordinate to the plotted surface.
+
 The offset argument defines the offset applied to the contourf surface.
-'''
-
-
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
 #Define dimensions
-Nx,Ny,Nz = 100,300,500
-X = xr.DataArray(np.arange(Nx),dims=['X'])
-Y = xr.DataArray(np.arange(Ny),dims=['Y'])
-Z = xr.DataArray(-np.arange(Nz),dims=['Z'])
+Nx, Ny, Nz = 100, 300, 500
+X = xr.DataArray(np.arange(Nx), dims=['X'])
+Y = xr.DataArray(np.arange(Ny), dims=['Y'])
+Z = xr.DataArray(-np.arange(Nz), dims=['Z'])
 
 #Create fake data 
 #This code works for da => ZYX. 
