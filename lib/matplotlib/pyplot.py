@@ -849,7 +849,7 @@ def get_current_fig_manager():
     The figure manager is a container for the actual backend-depended window
     that displays the figure on screen.
 
-    If if no current figure exists, a new one is created an its figure
+    If no current figure exists, a new one is created, and its figure
     manager is returned.
 
     Returns
