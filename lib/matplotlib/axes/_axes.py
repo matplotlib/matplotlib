@@ -416,7 +416,7 @@ class Axes(_AxesBase):
 
         if transform is None:
             transform = self.transData
-        kwargs.setdefault('label', 'indicate_inset')
+        kwargs.setdefault('label', '_indicate_inset')
 
         x, y, width, height = bounds
         rectangle_patch = mpatches.Rectangle(
