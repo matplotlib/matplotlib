@@ -365,9 +365,7 @@ class Matplotlib(SetupPackage):
         return {
             'matplotlib': [
                 'mpl-data/matplotlibrc',
-                *_pkg_data_helper('matplotlib', 'mpl-data/fonts'),
-                *_pkg_data_helper('matplotlib', 'mpl-data/images'),
-                *_pkg_data_helper('matplotlib', 'mpl-data/stylelib'),
+                *_pkg_data_helper('matplotlib', 'mpl-data'),
                 *_pkg_data_helper('matplotlib', 'backends/web_backend'),
                 '*.dll',  # Only actually matters on Windows.
             ],
@@ -477,21 +475,6 @@ class Matplotlib(SetupPackage):
             include_dirs=["extern"])
         add_numpy_flags(ext)
         yield ext
-
-
-class SampleData(OptionalPackage):
-    """
-    This handles the sample data that ships with matplotlib.  It is
-    technically optional, though most often will be desired.
-    """
-    name = "sample_data"
-
-    def get_package_data(self):
-        return {
-            'matplotlib': [
-                *_pkg_data_helper('matplotlib', 'mpl-data/sample_data'),
-            ],
-        }
 
 
 class Tests(OptionalPackage):
