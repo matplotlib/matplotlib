@@ -16,11 +16,10 @@ The offset argument defines the offset applied to the contourf surface.
 
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 
 # Define dimensions
 Nx, Ny, Nz = 100, 300, 500
-X,Y,Z = np.meshgrid(np.arange(Nx), np.arange(Ny), -np.arange(Nz))
+X, Y, Z = np.meshgrid(np.arange(Nx), np.arange(Ny), -np.arange(Nz))
 
 # Create fake data
 da = (((X+100)**2 + (Y-20)**2 + 2*Z)/1000+1)
@@ -40,9 +39,9 @@ fig = plt.figure(figsize=(7, 4))
 ax = fig.add_subplot(111, projection='3d')
 
 # Plot contour surfaces
-C = ax.contourf(X[:,:,0], Y[:,:,0], da[:,:,0], zdir='z', offset=0, **kw)
-C = ax.contourf(X[0,:,:], da[0,:,:], Z[0,:,:], zdir='y', offset=0, **kw)
-C = ax.contourf(da[:,-1,:], Y[:,-1,:], Z[:,-1,:], zdir='x', offset=X.max(), **kw)
+C = ax.contourf(X[:, :, 0], Y[:, :, 0], da[:, :, 0], zdir='z', offset=0, **kw)
+C = ax.contourf(X[0, :, :], da[0, :, :], Z[0, :, :], zdir='y', offset=0, **kw)
+C = ax.contourf(da[:, -1, :], Y[:, -1, :], Z[:, -1, :], zdir='x', offset=X.max(), **kw)
 # --
 
 
