@@ -521,3 +521,36 @@ def test_bboxtight():
 def test_bbox():
     fig, ax = plt.subplots(constrained_layout=True)
     ax.set_aspect(1.)
+
+def test_align_labels():
+    """
+    Tests for a bug in which constrained layout and align_ylabels on three
+    unevenly sized subplots, one of whose y tick labels include negative
+    numbers, drives the non-negative subplots' y labels off the edge of the plot
+
+    """
+
+    data = [0,1]
+
+    fig, (ax3, ax1, ax2) = plt.subplots(3, 1, constrained_layout=True,
+                                        figsize=(6.4,8),
+                                        gridspec_kw={"height_ratios":(1, 1, 0.7)})
+
+    ax1.plot(data, data)
+    ax1.set_ylabel("Label")
+
+    ax2.plot(data, data)
+    ax2.set_ylim(-1.5, 1.5)
+    ax2.set_ylabel("Label")
+
+    ax3.plot(data, data)
+    ax3.set_ylabel("Label")
+
+    fig.align_ylabels(axs=(ax3, ax1, ax2))
+
+    fig.canvas.draw()
+    after_align = (ax1.yaxis.label.get_window_extent(),
+                   ax2.yaxis.label.get_window_extent(),
+                   ax3.yaxis.label.get_window_extent())
+
+    assert round(after_align[0].x0, 5) == round(after_align[1].x0, 5) == round(after_align[2].x0, 5) > 1
