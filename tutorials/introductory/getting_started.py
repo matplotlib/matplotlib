@@ -351,7 +351,7 @@ plt.show()
 #     automatically generates certain Artists for the visualization even
 #     without assigned data.
 #
-#
+
 # Explicit Figure and Axes unpacked from module function.
 # No data transformed for visualizations.
 fig, ax = plt.subplots()
