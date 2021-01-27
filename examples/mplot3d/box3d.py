@@ -20,23 +20,13 @@ import xarray as xr
 
 # Define dimensions
 Nx, Ny, Nz = 100, 300, 500
-X = xr.DataArray(np.arange(Nx), dims=['X'])
-Y = xr.DataArray(np.arange(Ny), dims=['Y'])
-Z = xr.DataArray(-np.arange(Nz), dims=['Z'])
+X,Y,Z = np.meshgrid(np.arange(Nx), np.arange(Ny), -np.arange(Nz))
 
 # Create fake data
-# This code works for da => ZYX.
-# For da => XYZ or YXZ or ZYX you may have to change the plotting part.
-# or transpose the data before plotting
-da = xr.DataArray(
-    ((X+100)**2 + (Y-20)**2 + 2*Z)/1000+1,
-    coords={'X': X, 'Y': Y, 'Z': Z},
-    dims=['X', 'Y', 'Z']
-).T   # .T invert from XYZ to ZYX
+da = (((X+100)**2 + (Y-20)**2 + 2*Z)/1000+1)
 
-
-vmin = da.min().values
-vmax = da.max().values
+vmin = da.min()
+vmax = da.max()
 # Key arguments for contour plots
 kw = {
     'vmin': vmin,
@@ -49,49 +39,18 @@ kw = {
 fig = plt.figure(figsize=(7, 4))
 ax = fig.add_subplot(111, projection='3d')
 
-# Upper surface--
-# Select the surface at Z=0
-di = da.sel(Z=0, method='nearest')
-# Create the grid for plotting (required for 3D plots)
-dims = np.meshgrid(di[di.dims[1]].values, di[di.dims[0]].values)
-# Plot surface
-# zdir sets the normal axis and
-# offset is the surface offset at this normal axis
-C = ax.contourf(dims[0], dims[1], di.values, zdir='z', offset=0, **kw)
+# Plot contour surfaces
+C = ax.contourf(X[:,:,0], Y[:,:,0], da[:,:,0], zdir='z', offset=0, **kw)
+C = ax.contourf(X[0,:,:], da[0,:,:], Z[0,:,:], zdir='y', offset=0, **kw)
+C = ax.contourf(da[:,-1,:], Y[:,-1,:], Z[:,-1,:], zdir='x', offset=X.max(), **kw)
 # --
 
 
-# South surface--
-# Select the face at Y=0
-di = da.sel(Y=0)
-# Create the grid for plotting (required for 3D plots)
-dims = np.meshgrid(di[di.dims[1]].values, di[di.dims[0]].values)
-# Plot surface
-# zdir sets the normal axis and
-# offset is the surface offset at this normal axis
-C = ax.contourf(
-    dims[0], di.values, dims[1], zdir='y',
-    offset=di.Y.values, **kw,
-)
-
-# East surface--
-# Select the face at X=X.max()
-di = da.sel(X=da.X.max(), method='nearest')
-# Create the grid for plotting (required for 3D plots)
-dims = np.meshgrid(di[di.dims[1]].values, di[di.dims[0]].values)
-# Plot surface
-# zdir sets the normal axis and
-# offset is the surface offset at this normal axis
-C = ax.contourf(
-    di.values, dims[0], dims[1],
-    zdir='x', offset=di.X.values, **kw
-)
-
 # Set limits of the plot from coord limits
 ax.set(
-    xlim=[da.X.min(), da.X.max()],
-    ylim=[da.Y.min(), da.Y.max()],
-    zlim=[da.Z.min(), da.Z.max()],
+    xlim=[X.min(), X.max()],
+    ylim=[Y.min(), Y.max()],
+    zlim=[Z.min(), Z.max()],
 )
 
 color = '0.4'  # color of the line of the corners
