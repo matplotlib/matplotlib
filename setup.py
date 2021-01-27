@@ -111,31 +111,26 @@ class BuildExtraLibraries(BuildExtCommand):
         enable_lto = setupext.config.getboolean('libs', 'enable_lto',
                                                 fallback=None)
 
-        if 'CFLAGS' in os.environ:
-            if '-fno-lto' in os.environ['CFLAGS']:
-                if enable_lto is True:
-                    raise ValueError('Configuration enable_lto=True, but '
-                                     'CFLAGS contains -fno-lto')
-                enable_lto = False
-        cppflags = []
-        if 'CPPFLAGS' in os.environ:
-            cppflags.append(os.environ['CPPFLAGS'])
-            if '-fno-lto' in os.environ['CPPFLAGS']:
-                if enable_lto is True:
-                    raise ValueError('Configuration enable_lto=True, but '
-                                     'CPPFLAGS contains -fno-lto')
-                enable_lto = False
-        cxxflags = []
-        if 'CXXFLAGS' in os.environ:
-            cxxflags.append(os.environ['CXXFLAGS'])
-            if '-fno-lto' in os.environ['CXXFLAGS']:
-                if enable_lto is True:
-                    raise ValueError('Configuration enable_lto=True, but '
-                                     'CXXFLAGS contains -fno-lto')
-                enable_lto = False
-        ldflags = []
-        if 'LDFLAGS' in os.environ:
-            ldflags.append(os.environ['LDFLAGS'])
+        def prepare_flags(name, enable_lto):
+            """
+            Prepare *FLAGS from the environment.
+
+            If set, return them, and also check whether LTO is disabled in each
+            one, raising an error if Matplotlib config explicitly enabled LTO.
+            """
+            if name in os.environ:
+                if '-fno-lto' in os.environ[name]:
+                    if enable_lto is True:
+                        raise ValueError('Configuration enable_lto=True, but '
+                                         '{0} contains -fno-lto'.format(name))
+                    enable_lto = False
+                return [os.environ[name]], enable_lto
+            return [], enable_lto
+
+        _, enable_lto = prepare_flags('CFLAGS', enable_lto)  # Only check lto.
+        cppflags, enable_lto = prepare_flags('CPPFLAGS', enable_lto)
+        cxxflags, enable_lto = prepare_flags('CXXFLAGS', enable_lto)
+        ldflags, enable_lto = prepare_flags('LDFLAGS', enable_lto)
 
         if enable_lto is False:
             return env
