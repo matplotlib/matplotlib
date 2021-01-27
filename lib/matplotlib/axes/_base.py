@@ -3087,7 +3087,8 @@ class _AxesBase(martist.Artist):
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        mimage._draw_list_compositing_images(renderer, self, artists)
+        mimage._draw_list_compositing_images(
+            renderer, self, artists, self.figure.suppressComposite)
 
         renderer.close_group('axes')
         self.stale = False
