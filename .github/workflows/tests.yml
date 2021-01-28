@@ -32,6 +32,7 @@ jobs:
             python-version: 3.7
             extra-requirements: '-r requirements/testing/travis_extra.txt'
             XVFB_RUN: xvfb-run -a
+            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
           - os: ubuntu-16.04
             python-version: 3.8
             extra-requirements: '-r requirements/testing/travis_extra.txt'
