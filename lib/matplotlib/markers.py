@@ -424,22 +424,13 @@ class MarkerStyle:
     def _set_circle(self, reduction=1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
         self._snap_threshold = np.inf
-        fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = Path.unit_circle()
         else:
-            # build a right-half circle
-            if fs == 'bottom':
-                rotate = 270.
-            elif fs == 'top':
-                rotate = 90.
-            elif fs == 'left':
-                rotate = 180.
-            else:
-                rotate = 0.
-
             self._path = self._alt_path = Path.unit_circle_righthalf()
-            self._transform.rotate_deg(rotate)
+            fs = self.get_fillstyle()
+            self._transform.rotate_deg(
+                {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180.)
 
     def _set_pixel(self):
@@ -472,7 +463,6 @@ class MarkerStyle:
     def _set_triangle(self, rot, skip):
         self._transform = Affine2D().scale(0.5).rotate_deg(rot)
         self._snap_threshold = 5.0
-        fs = self.get_fillstyle()
 
         if not self._half_fill():
             self._path = self._triangle_path
@@ -482,6 +472,7 @@ class MarkerStyle:
                       self._triangle_path_d,
                       self._triangle_path_r]
 
+            fs = self.get_fillstyle()
             if fs == 'top':
                 self._path = mpaths[(0 + skip) % 4]
                 self._alt_path = mpaths[(2 + skip) % 4]
@@ -514,26 +505,16 @@ class MarkerStyle:
     def _set_square(self):
         self._transform = Affine2D().translate(-0.5, -0.5)
         self._snap_threshold = 2.0
-        fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = Path.unit_rectangle()
         else:
-            # build a bottom filled square out of two rectangles, one
-            # filled.  Use the rotation to support left, right, bottom
-            # or top
-            if fs == 'bottom':
-                rotate = 0.
-            elif fs == 'top':
-                rotate = 180.
-            elif fs == 'left':
-                rotate = 270.
-            else:
-                rotate = 90.
-
+            # Build a bottom filled square out of two rectangles, one filled.
             self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5],
                                [0.0, 0.5], [0.0, 0.0]])
             self._alt_path = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0],
                                    [0.0, 1.0], [0.0, 0.5]])
+            fs = self.get_fillstyle()
+            rotate = {'bottom': 0, 'right': 90, 'top': 180, 'left': 270}[fs]
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
 
@@ -542,20 +523,13 @@ class MarkerStyle:
     def _set_diamond(self):
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
         self._snap_threshold = 5.0
-        fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = Path.unit_rectangle()
         else:
             self._path = Path([[0, 0], [1, 0], [1, 1], [0, 0]])
             self._alt_path = Path([[0, 0], [0, 1], [1, 1], [0, 0]])
-            if fs == 'bottom':
-                rotate = 270.
-            elif fs == 'top':
-                rotate = 90.
-            elif fs == 'left':
-                rotate = 180.
-            else:
-                rotate = 0.
+            fs = self.get_fillstyle()
+            rotate = {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs]
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
         self._joinstyle = 'miter'
@@ -569,29 +543,20 @@ class MarkerStyle:
         self._snap_threshold = 5.0
 
         polypath = Path.unit_regular_polygon(5)
-        fs = self.get_fillstyle()
 
         if not self._half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
-
             y = (1 + np.sqrt(5)) / 4.
-            top = Path([verts[0], verts[1], verts[4], verts[0]])
-            bottom = Path([verts[1], verts[2], verts[3], verts[4], verts[1]])
+            top = Path(verts[[0, 1, 4, 0]])
+            bottom = Path(verts[[1, 2, 3, 4, 1]])
             left = Path([verts[0], verts[1], verts[2], [0, -y], verts[0]])
             right = Path([verts[0], verts[4], verts[3], [0, -y], verts[0]])
-
-            if fs == 'top':
-                mpath, mpath_alt = top, bottom
-            elif fs == 'bottom':
-                mpath, mpath_alt = bottom, top
-            elif fs == 'left':
-                mpath, mpath_alt = left, right
-            else:
-                mpath, mpath_alt = right, left
-            self._path = mpath
-            self._alt_path = mpath_alt
+            self._path, self._alt_path = {
+                'top': (top, bottom), 'bottom': (bottom, top),
+                'left': (left, right), 'right': (right, left),
+            }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
         self._joinstyle = 'miter'
@@ -600,29 +565,20 @@ class MarkerStyle:
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
 
-        fs = self.get_fillstyle()
         polypath = Path.unit_regular_star(5, innerCircle=0.381966)
 
         if not self._half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
-
             top = Path(np.concatenate([verts[0:4], verts[7:10], verts[0:1]]))
             bottom = Path(np.concatenate([verts[3:8], verts[3:4]]))
             left = Path(np.concatenate([verts[0:6], verts[0:1]]))
             right = Path(np.concatenate([verts[0:1], verts[5:10], verts[0:1]]))
-
-            if fs == 'top':
-                mpath, mpath_alt = top, bottom
-            elif fs == 'bottom':
-                mpath, mpath_alt = bottom, top
-            elif fs == 'left':
-                mpath, mpath_alt = left, right
-            else:
-                mpath, mpath_alt = right, left
-            self._path = mpath
-            self._alt_path = mpath_alt
+            self._path, self._alt_path = {
+                'top': (top, bottom), 'bottom': (bottom, top),
+                'left': (left, right), 'right': (right, left),
+            }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
         self._joinstyle = 'bevel'
@@ -631,32 +587,22 @@ class MarkerStyle:
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = None
 
-        fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
         if not self._half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
-
             # not drawing inside lines
             x = np.abs(np.cos(5 * np.pi / 6.))
             top = Path(np.concatenate([[(-x, 0)], verts[[1, 0, 5]], [(x, 0)]]))
             bottom = Path(np.concatenate([[(-x, 0)], verts[2:5], [(x, 0)]]))
             left = Path(verts[0:4])
             right = Path(verts[[0, 5, 4, 3]])
-
-            if fs == 'top':
-                mpath, mpath_alt = top, bottom
-            elif fs == 'bottom':
-                mpath, mpath_alt = bottom, top
-            elif fs == 'left':
-                mpath, mpath_alt = left, right
-            else:
-                mpath, mpath_alt = right, left
-
-            self._path = mpath
-            self._alt_path = mpath_alt
+            self._path, self._alt_path = {
+                'top': (top, bottom), 'bottom': (bottom, top),
+                'left': (left, right), 'right': (right, left),
+            }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
         self._joinstyle = 'miter'
@@ -665,14 +611,12 @@ class MarkerStyle:
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
         self._snap_threshold = None
 
-        fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
         if not self._half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
-
             # not drawing inside lines
             x, y = np.sqrt(3) / 4, 3 / 4.
             top = Path(verts[[1, 0, 5, 4, 1]])
@@ -681,18 +625,10 @@ class MarkerStyle:
                 [(x, y)], verts[:3], [(-x, -y), (x, y)]]))
             right = Path(np.concatenate([
                 [(x, y)], verts[5:2:-1], [(-x, -y)]]))
-
-            if fs == 'top':
-                mpath, mpath_alt = top, bottom
-            elif fs == 'bottom':
-                mpath, mpath_alt = bottom, top
-            elif fs == 'left':
-                mpath, mpath_alt = left, right
-            else:
-                mpath, mpath_alt = right, left
-
-            self._path = mpath
-            self._alt_path = mpath_alt
+            self._path, self._alt_path = {
+                'top': (top, bottom), 'bottom': (bottom, top),
+                'left': (left, right), 'right': (right, left),
+            }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
         self._joinstyle = 'miter'
@@ -701,7 +637,6 @@ class MarkerStyle:
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
 
-        fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(8)
 
         if not self._half_fill():
@@ -709,20 +644,12 @@ class MarkerStyle:
             self._path = polypath
         else:
             x = np.sqrt(2.) / 4.
-            half = Path([[0, -1], [0, 1], [-x, 1], [-1, x],
-                         [-1, -x], [-x, -1], [0, -1]])
-
-            if fs == 'bottom':
-                rotate = 90.
-            elif fs == 'top':
-                rotate = 270.
-            elif fs == 'right':
-                rotate = 180.
-            else:
-                rotate = 0.
-
-            self._transform.rotate_deg(rotate)
-            self._path = self._alt_path = half
+            self._path = self._alt_path = Path(
+                [[0, -1], [0, 1], [-x, 1], [-1, x],
+                 [-1, -x], [-x, -1], [0, -1]])
+            fs = self.get_fillstyle()
+            self._transform.rotate_deg(
+                {'left': 0, 'bottom': 90, 'right': 180, 'top': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180.0)
 
         self._joinstyle = 'miter'
@@ -854,65 +781,48 @@ class MarkerStyle:
         self._path = self._x_path
 
     _plus_filled_path = Path(
-        [(1/3, 0), (2/3, 0), (2/3, 1/3), (1, 1/3), (1, 2/3), (2/3, 2/3),
-         (2/3, 1), (1/3, 1), (1/3, 2/3), (0, 2/3), (0, 1/3), (1/3, 1/3),
-         (1/3, 0)], closed=True)
+        np.array([(-1, -3), (+1, -3), (+1, -1), (+3, -1), (+3, +1), (+1, +1),
+                  (+1, +3), (-1, +3), (-1, +1), (-3, +1), (-3, -1), (-1, -1),
+                  (-1, -3)]) / 6, closed=True)
     _plus_filled_path_t = Path(
-        [(1, 1/2), (1, 2/3), (2/3, 2/3), (2/3, 1), (1/3, 1), (1/3, 2/3),
-         (0, 2/3), (0, 1/2), (1, 1/2)], closed=True)
+        np.array([(+3, 0), (+3, +1), (+1, +1), (+1, +3),
+                  (-1, +3), (-1, +1), (-3, +1), (-3, 0),
+                  (+3, 0)]) / 6, closed=True)
 
     def _set_plus_filled(self):
-        self._transform = Affine2D().translate(-0.5, -0.5)
+        self._transform = Affine2D()
         self._snap_threshold = 5.0
         self._joinstyle = 'miter'
-        fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = self._plus_filled_path
         else:
             # Rotate top half path to support all partitions
-            if fs == 'top':
-                rotate, rotate_alt = 0, 180
-            elif fs == 'bottom':
-                rotate, rotate_alt = 180, 0
-            elif fs == 'left':
-                rotate, rotate_alt = 90, 270
-            else:
-                rotate, rotate_alt = 270, 90
-
-            self._path = self._plus_filled_path_t
-            self._alt_path = self._plus_filled_path_t
-            self._alt_transform = Affine2D().translate(-0.5, -0.5)
-            self._transform.rotate_deg(rotate)
-            self._alt_transform.rotate_deg(rotate_alt)
+            self._path = self._alt_path = self._plus_filled_path_t
+            fs = self.get_fillstyle()
+            self._transform.rotate_deg(
+                {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
+            self._alt_transform = self._transform.frozen().rotate_deg(180)
 
     _x_filled_path = Path(
-        [(0.25, 0), (0.5, 0.25), (0.75, 0), (1, 0.25), (0.75, 0.5), (1, 0.75),
-         (0.75, 1), (0.5, 0.75), (0.25, 1), (0, 0.75), (0.25, 0.5), (0, 0.25),
-         (0.25, 0)], closed=True)
+        np.array([(-1, -2), (0, -1), (+1, -2), (+2, -1), (+1, 0), (+2, +1),
+                  (+1, +2), (0, +1), (-1, +2), (-2, +1), (-1, 0), (-2, -1),
+                  (-1, -2)]) / 4,
+        closed=True)
     _x_filled_path_t = Path(
-        [(0.75, 0.5), (1, 0.75), (0.75, 1), (0.5, 0.75), (0.25, 1), (0, 0.75),
-         (0.25, 0.5), (0.75, 0.5)], closed=True)
+        np.array([(+1, 0), (+2, +1), (+1, +2), (0, +1),
+                  (-1, +2), (-2, +1), (-1, 0), (+1, 0)]) / 4,
+        closed=True)
 
     def _set_x_filled(self):
-        self._transform = Affine2D().translate(-0.5, -0.5)
+        self._transform = Affine2D()
         self._snap_threshold = 5.0
         self._joinstyle = 'miter'
-        fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = self._x_filled_path
         else:
             # Rotate top half path to support all partitions
-            if fs == 'top':
-                rotate, rotate_alt = 0, 180
-            elif fs == 'bottom':
-                rotate, rotate_alt = 180, 0
-            elif fs == 'left':
-                rotate, rotate_alt = 90, 270
-            else:
-                rotate, rotate_alt = 270, 90
-
-            self._path = self._x_filled_path_t
-            self._alt_path = self._x_filled_path_t
-            self._alt_transform = Affine2D().translate(-0.5, -0.5)
-            self._transform.rotate_deg(rotate)
-            self._alt_transform.rotate_deg(rotate_alt)
+            self._path = self._alt_path = self._x_filled_path_t
+            fs = self.get_fillstyle()
+            self._transform.rotate_deg(
+                {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
+            self._alt_transform = self._transform.frozen().rotate_deg(180)
