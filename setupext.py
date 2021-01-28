@@ -399,7 +399,6 @@ class Matplotlib(SetupPackage):
         ext = Extension(
             "matplotlib.backends._tkagg", [
                 "src/_tkagg.cpp",
-                "src/py_converters.cpp",
             ],
             include_dirs=["src"],
             # psapi library needed for finding Tcl/Tk at run time.
