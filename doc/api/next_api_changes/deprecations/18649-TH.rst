@@ -1,0 +1,7 @@
+``imread()`` reading from URLs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing a URL to `~.pyplot.imread()` is deprecated. Please open the URL for
+reading and directly use the Pillow API
+(``PIL.Image.open(urllib.request.urlopen(url))``, or
+``PIL.Image.open(io.BytesIO(requests.get(url).content))``) instead.
