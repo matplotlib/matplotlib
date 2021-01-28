@@ -18,6 +18,17 @@ def test_tinypages(tmpdir):
     shutil.copytree(Path(__file__).parent / 'tinypages', source_dir)
     html_dir = source_dir / '_build' / 'html'
     doctree_dir = source_dir / 'doctrees'
+    # Build the pages with warnings turned into errors
+    cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
+           '-d', str(doctree_dir),
+           str(Path(__file__).parent / 'tinypages'), str(html_dir)]
+    # On CI, gcov emits warnings (due to agg headers being included with the
+    # same name in multiple extension modules -- but we don't care about their
+    # coverage anyways); hide them using GCOV_ERROR_FILE.
+    proc = Popen(
+        cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
+        env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull})
+    out, err = proc.communicate()
 
     # Build the pages with warnings turned into errors
     build_sphinx_html(source_dir, doctree_dir, html_dir)
