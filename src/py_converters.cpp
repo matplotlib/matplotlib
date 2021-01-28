@@ -94,13 +94,6 @@ int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
     return 1;
 }
 
-int convert_voidptr(PyObject *obj, void *p)
-{
-    void **val = (void **)p;
-    *val = PyLong_AsVoidPtr(obj);
-    return *val != NULL ? 1 : !PyErr_Occurred();
-}
-
 int convert_double(PyObject *obj, void *p)
 {
     double *val = (double *)p;

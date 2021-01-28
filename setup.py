@@ -103,20 +103,34 @@ class BuildExtraLibraries(BuildExtCommand):
         """
 
         env = os.environ.copy()
-        if not setupext.config.getboolean('libs', 'enable_lto', fallback=True):
-            return env
         if sys.platform == 'win32':
             return env
+        enable_lto = setupext.config.getboolean('libs', 'enable_lto',
+                                                fallback=None)
 
-        cppflags = []
-        if 'CPPFLAGS' in os.environ:
-            cppflags.append(os.environ['CPPFLAGS'])
-        cxxflags = []
-        if 'CXXFLAGS' in os.environ:
-            cxxflags.append(os.environ['CXXFLAGS'])
-        ldflags = []
-        if 'LDFLAGS' in os.environ:
-            ldflags.append(os.environ['LDFLAGS'])
+        def prepare_flags(name, enable_lto):
+            """
+            Prepare *FLAGS from the environment.
+
+            If set, return them, and also check whether LTO is disabled in each
+            one, raising an error if Matplotlib config explicitly enabled LTO.
+            """
+            if name in os.environ:
+                if '-fno-lto' in os.environ[name]:
+                    if enable_lto is True:
+                        raise ValueError('Configuration enable_lto=True, but '
+                                         '{0} contains -fno-lto'.format(name))
+                    enable_lto = False
+                return [os.environ[name]], enable_lto
+            return [], enable_lto
+
+        _, enable_lto = prepare_flags('CFLAGS', enable_lto)  # Only check lto.
+        cppflags, enable_lto = prepare_flags('CPPFLAGS', enable_lto)
+        cxxflags, enable_lto = prepare_flags('CXXFLAGS', enable_lto)
+        ldflags, enable_lto = prepare_flags('LDFLAGS', enable_lto)
+
+        if enable_lto is False:
+            return env
 
         if has_flag(self.compiler, '-fvisibility=hidden'):
             for ext in self.extensions:
