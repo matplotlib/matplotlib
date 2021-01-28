@@ -147,6 +147,9 @@ class MarkerStyle:
     """
     A class representing marker types.
 
+    Instances are immutable. If you need to change anything, create a new
+    instance.
+
     Attributes
     ----------
     markers : list
@@ -228,8 +231,8 @@ class MarkerStyle:
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
         """
         self._marker_function = None
-        self.set_fillstyle(fillstyle)
-        self.set_marker(marker)
+        self._set_fillstyle(fillstyle)
+        self._set_marker(marker)
 
     def _recache(self):
         if self._marker_function is None:
@@ -256,7 +259,11 @@ class MarkerStyle:
     def get_fillstyle(self):
         return self._fillstyle
 
+    @_api.deprecated("3.4", alternative="a new marker")
     def set_fillstyle(self, fillstyle):
+        return self._set_fillstyle(fillstyle)
+
+    def _set_fillstyle(self, fillstyle):
         """
         Set the fillstyle.
 
@@ -281,7 +288,11 @@ class MarkerStyle:
     def get_marker(self):
         return self._marker
 
+    @_api.deprecated("3.4", alternative="a new marker")
     def set_marker(self, marker):
+        return self._set_marker(marker)
+
+    def _set_marker(self, marker):
         """
         Set the marker.
 
