@@ -637,7 +637,9 @@ table.docutils th {
     border-width: 1px 0px;
     border-color: #888;
     background-color: #f0f0f0;
-    width: 100px;
+    overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 table.docutils td {
