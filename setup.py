@@ -61,7 +61,6 @@ mpl_packages = [
     setupext.Platform(),
     setupext.FreeType(),
     setupext.Qhull(),
-    setupext.SampleData(),
     setupext.Tests(),
     setupext.BackendMacOSX(),
     ]
