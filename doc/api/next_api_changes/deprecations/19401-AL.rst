@@ -1,0 +1,3 @@
+``mpl_toolkits.axisartist.clip_path`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... with no replacement.

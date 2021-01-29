@@ -1,9 +1,12 @@
 import numpy as np
+
+from matplotlib import _api
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import Bbox
 
-from mpl_toolkits.axisartist.clip_path import clip_line_to_rect
+with _api.suppress_matplotlib_deprecation_warning():
+    from mpl_toolkits.axisartist.clip_path import clip_line_to_rect
 
 
 @image_comparison(['clip_path.png'], style='default')

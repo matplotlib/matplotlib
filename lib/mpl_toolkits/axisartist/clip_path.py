@@ -4,6 +4,9 @@ from matplotlib import _api
 import math
 
 
+_api.warn_deprecated("3.5", name=__name__, obj_type="module")
+
+
 def atan2(dy, dx):
     if dx == 0 and dy == 0:
         _api.warn_external("dx and dy are 0")
