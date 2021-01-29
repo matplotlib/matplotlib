@@ -23,9 +23,6 @@ strategy:
     Windows_py38:
       vmImage: 'windows-latest'
       python.version: '3.8'
-    Windows_pyPre:
-      vmImage: 'vs2017-win2016'
-      python.version: 'Pre'
   maxParallel: 4
 
 pool:
