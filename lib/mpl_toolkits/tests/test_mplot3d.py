@@ -233,6 +233,8 @@ def test_scatter3d():
     x = y = z = np.arange(10, 20)
     ax.scatter(x, y, z, c='b', marker='^')
     z[-1] = 0  # Check that scatter() copies the data.
+    # Ensure empty scatters do not break.
+    ax.scatter([], [], [], c='r', marker='X')
 
 
 @mpl3d_image_comparison(['scatter3d_color.png'])
