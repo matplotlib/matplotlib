@@ -297,10 +297,11 @@ class RendererWx(RendererBase):
         font = self.fontd.get(key)
         if font is not None:
             return font
+        size = self.points_to_pixels(prop.get_size_in_points())
         # Font colour is determined by the active wx.Pen
         # TODO: It may be wise to cache font information
         self.fontd[key] = font = wx.Font(  # Cache the font and gc.
-            pointSize=self.points_to_pixels(prop.get_size_in_points()),
+            pointSize=int(size + 0.5),
             family=self.fontnames.get(prop.get_name(), wx.ROMAN),
             style=self.fontangles[prop.get_style()],
             weight=self.fontweights[prop.get_weight()])
@@ -567,7 +568,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             raise RuntimeError("Event loop already running")
         timer = wx.Timer(self, id=wx.ID_ANY)
         if timeout > 0:
-            timer.Start(timeout * 1000, oneShot=True)
+            timer.Start(int(timeout * 1000), oneShot=True)
             self.Bind(wx.EVT_TIMER, self.stop_event_loop, id=timer.GetId())
         # Event loop handler for start/stop event loop
         self._event_loop = wx.GUIEventLoop()
