@@ -866,15 +866,21 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # sort by depth (furthest drawn first)
-        z_segments_2d = sorted(
-            ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-             for idx, ((xs, ys, zs), fc, ec)
-             in enumerate(zip(xyzlist, cface, cedge))),
-            key=lambda x: x[0], reverse=True)
+        if xyzlist:
+            # sort by depth (furthest drawn first)
+            z_segments_2d = sorted(
+                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
+                 for idx, ((xs, ys, zs), fc, ec)
+                 in enumerate(zip(xyzlist, cface, cedge))),
+                key=lambda x: x[0], reverse=True)
 
-        zzs, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
-            zip(*z_segments_2d)
+            _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
+                zip(*z_segments_2d)
+        else:
+            segments_2d = []
+            self._facecolors2d = np.empty((0, 4))
+            self._edgecolors2d = np.empty((0, 4))
+            idxs = []
 
         if self._codes3d is not None:
             codes = [self._codes3d[idx] for idx in idxs]
