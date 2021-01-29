@@ -8,7 +8,6 @@ from matplotlib.backend_tools import (ToolZoom, ToolPan, RubberbandBase,
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
-import os
 import numpy as np
 import pytest
 
@@ -75,7 +74,7 @@ def test_canvas_change():
 def test_non_gui_warning(monkeypatch):
     plt.subplots()
 
-    monkeypatch.setitem(os.environ, "DISPLAY", ":999")
+    monkeypatch.setenv("DISPLAY", ":999")
 
     with pytest.warns(UserWarning) as rec:
         plt.show()

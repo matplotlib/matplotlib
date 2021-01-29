@@ -179,7 +179,7 @@ LOCAL_QHULL_VERSION = '2020.2'
 
 
 # matplotlib build options, which can be altered using setup.cfg
-setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
+setup_cfg = os.environ.get('MPLSETUPCFG') or 'setup.cfg'
 config = configparser.ConfigParser()
 if os.path.exists(setup_cfg):
     config.read(setup_cfg)
@@ -213,7 +213,7 @@ def get_pkg_config():
     """
     if sys.platform == 'win32':
         return None
-    pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
+    pkg_config = os.environ.get('PKG_CONFIG') or 'pkg-config'
     if shutil.which(pkg_config) is None:
         print(
             "IMPORTANT WARNING:\n"
