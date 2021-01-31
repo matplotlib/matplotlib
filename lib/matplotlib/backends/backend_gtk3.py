@@ -127,6 +127,12 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         self.set_can_focus(True)
 
+        css = Gtk.CssProvider()
+        css.load_from_data(b".matplotlib-canvas { background-color: white; }")
+        style_ctx = self.get_style_context()
+        style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        style_ctx.add_class("matplotlib-canvas")
+
         renderer_init = _api.deprecate_method_override(
             __class__._renderer_init, self, allow_empty=True, since="3.3",
             addendum="Please initialize the renderer, if needed, in the "
