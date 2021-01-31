@@ -6,6 +6,10 @@ Z-value at mouse position of tricontour plot
 This example shows how a motion_notify_event can be used to display the z-value
 corresponding to the mouse cursor position.  The z-value is interpolated from
 the (x, y, z) data used to generate a tricontourf plot.
+
+Note that the tricontour plot is not used to determine the z-value, rather it
+is intended to help guide the user's mouse movements.  A tripcolor plot could
+be used instead.
 """
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
