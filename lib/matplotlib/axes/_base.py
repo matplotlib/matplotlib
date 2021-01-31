@@ -3303,9 +3303,9 @@ class _AxesBase(martist.Artist):
         xlabel : str
             The label text.
 
-        labelpad : float, default: None
+        labelpad : float, default: :rc:`axes.labelpad`
             Spacing in points from the axes bounding box including ticks
-            and tick labels.
+            and tick labels.  If None, the previous value is left as is.
 
         loc : {'left', 'center', 'right'}, default: :rc:`xaxis.labellocation`
             The label position. This is a high-level alternative for passing
@@ -3647,9 +3647,9 @@ class _AxesBase(martist.Artist):
         ylabel : str
             The label text.
 
-        labelpad : float, default: None
+        labelpad : float, default: :rc:`axes.labelpad`
             Spacing in points from the axes bounding box including ticks
-            and tick labels.
+            and tick labels.  If None, the previous value is left as is.
 
         loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
             The label position. This is a high-level alternative for passing
