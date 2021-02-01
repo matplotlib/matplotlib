@@ -579,6 +579,8 @@ default: %(va)s
             projection_class, kwargs = self._process_projection_requirements(
                 *args, **kwargs)
 
+            # remove this when deprecation for Axes3d(add=True) ends:
+            kwargs['add'] = False
             # create the new axes using the axes class given
             a = projection_class(self, rect, **kwargs)
         return self._add_axes_internal(a)
@@ -708,6 +710,10 @@ default: %(va)s
                 args = tuple(map(int, str(args[0])))
             projection_class, kwargs = self._process_projection_requirements(
                 *args, **kwargs)
+
+            # remove this when deprecation for Axes3d(add=True) ends:
+            kwargs['add'] = False
+
             ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
         return self._add_axes_internal(ax)
 

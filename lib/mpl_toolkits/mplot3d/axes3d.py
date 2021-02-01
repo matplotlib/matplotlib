@@ -97,6 +97,8 @@ class Axes3D(Axes):
             self._shared_z_axes.join(self, sharez)
             self._adjustable = 'datalim'
 
+        add = kwargs.pop("add", True)
+
         super().__init__(
             fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
         )
@@ -124,6 +126,14 @@ class Axes3D(Axes):
         # Calculate the pseudo-data width and height
         pseudo_bbox = self.transLimits.inverted().transform([(0, 0), (1, 1)])
         self._pseudo_w, self._pseudo_h = pseudo_bbox[1] - pseudo_bbox[0]
+
+        if add:
+            _api.warn_deprecated(
+                "3.4", message="Axes3D(fig) adding itself "
+                "to the figure is deprecated since %(since)s and will "
+                "no longer work %(removal)s; this is consistent with "
+                "other axes classes.  Use fig.add_subplot(projection='3d')")
+            self.figure.add_axes(self)
 
         # mplot3d currently manages its own spines and needs these turned off
         # for bounding box calculations

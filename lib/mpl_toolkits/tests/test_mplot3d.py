@@ -3,7 +3,7 @@ import itertools
 
 import pytest
 
-from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
+from mpl_toolkits.mplot3d import axes3d, proj3d, art3d
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseButton
 from matplotlib import cm
@@ -725,7 +725,7 @@ def test_add_collection3d_zs_scalar():
 @mpl3d_image_comparison(['axes3d_labelpad.png'], remove_text=False)
 def test_axes3d_labelpad():
     fig = plt.figure()
-    ax = fig.add_axes(Axes3D(fig))
+    ax = fig.add_subplot(projection='3d')
     # labelpad respects rcParams
     assert ax.xaxis.labelpad == mpl.rcParams['axes.labelpad']
     # labelpad can be set in set_label
@@ -1132,7 +1132,7 @@ def test_inverted_cla():
 
 def test_ax3d_tickcolour():
     fig = plt.figure()
-    ax = Axes3D(fig)
+    ax = fig.add_subplot(projection="3d")
 
     ax.tick_params(axis='x', colors='red')
     ax.tick_params(axis='y', colors='red')

@@ -645,6 +645,8 @@ class _AxesBase(martist.Artist):
         if yscale:
             self.set_yscale(yscale)
 
+        # remove when Axis3d deprecation expires and this kwarg is removed:
+        kwargs.pop('add', None)
         self.update(kwargs)
 
         for name, axis in self._get_axis_map().items():
