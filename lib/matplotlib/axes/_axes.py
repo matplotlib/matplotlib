@@ -6895,7 +6895,7 @@ such objects
             return tops[0], bins, patches[0]
         else:
             patch_type = ("BarContainer" if histtype.startswith("bar")
-                          else "List[Polygon]")
+                          else "list[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
     @_preprocess_data()

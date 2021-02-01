@@ -546,8 +546,8 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        every : None or int or (int, int) or slice or List[int] or float or \
-(float, float) or List[bool]
+        every : None or int or (int, int) or slice or list[int] or float or \
+(float, float) or list[bool]
             Which markers to plot.
 
             - every=None, every point will be plotted.
@@ -609,7 +609,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        p : float or callable[[Artist, Event], Tuple[bool, dict]]
+        p : float or callable[[Artist, Event], tuple[bool, dict]]
             If a float, it is used as the pick radius in points.
         """
         if callable(p):

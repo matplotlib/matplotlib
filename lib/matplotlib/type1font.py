@@ -46,10 +46,8 @@ class Type1Font:
     parts : tuple
         A 3-tuple of the cleartext part, the encrypted part, and the finale of
         zeros.
-
-    prop : Dict[str, Any]
+    prop : dict[str, Any]
         A dictionary of font properties.
-
     """
     __slots__ = ('parts', 'prop')
 

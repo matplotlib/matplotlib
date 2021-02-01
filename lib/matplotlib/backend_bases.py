@@ -1117,7 +1117,7 @@ class TimerBase:
         interval : int, default: 1000ms
             The time between timer events in milliseconds.  Will be stored as
             ``timer.interval``.
-        callbacks : List[Tuple[callable, Tuple, Dict]]
+        callbacks : list[tuple[callable, tuple, dict]]
             List of (func, args, kwargs) tuples that will be called upon
             timer events.  This list is accessible as ``timer.callbacks`` and
             can be manipulated directly, or the functions `add_callback` and
@@ -2405,7 +2405,7 @@ class FigureCanvasBase:
         interval : int
             Timer interval in milliseconds.
 
-        callbacks : List[Tuple[callable, Tuple, Dict]]
+        callbacks : list[tuple[callable, tuple, dict]]
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 

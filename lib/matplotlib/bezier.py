@@ -129,13 +129,13 @@ def find_bezier_t_intersecting_with_closedpath(
         A function returning x, y coordinates of the Bezier at parameter *t*.
         It must have the signature::
 
-            bezier_point_at_t(t: float) -> Tuple[float, float]
+            bezier_point_at_t(t: float) -> tuple[float, float]
 
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
         closed path. It must have the signature::
 
-            inside_closedpath(point: Tuple[float, float]) -> bool
+            inside_closedpath(point: tuple[float, float]) -> bool
 
     t0, t1 : float
         Start parameters for the search.
@@ -204,12 +204,12 @@ class BezierSegment:
 
         Parameters
         ----------
-        t : float (k,), array_like
+        t : float (k,) array_like
             Points at which to evaluate the curve.
 
         Returns
         -------
-        float (k, d), array_like
+        float (k, d) array_like
             Value of the curve for each point in *t*.
         """
         t = np.asarray(t)
@@ -217,7 +217,9 @@ class BezierSegment:
                 * np.power.outer(t, self._orders)) @ self._px
 
     def point_at_t(self, t):
-        """Evaluate curve at a single point *t*. Returns a Tuple[float*d]."""
+        """
+        Evaluate the curve at a single point, returning a tuple of *d* floats.
+        """
         return tuple(self(t))
 
     @property
@@ -407,7 +409,7 @@ def inside_circle(cx, cy, r):
 
     The returned function has the signature::
 
-        f(xy: Tuple[float, float]) -> bool
+        f(xy: tuple[float, float]) -> bool
     """
     r2 = r ** 2
 
