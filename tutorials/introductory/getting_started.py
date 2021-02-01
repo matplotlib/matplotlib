@@ -231,10 +231,10 @@ svg_acct_10 = [1550, 1600, 1650, 1700, 1750, 1800,
 # --------------------------------------------
 #
 # Explicit programming for Matplotlib involves calling the function
-# `pyploy.subplots` in the ``pyplot`` module once. This returns a group of an
-# explicit Figure and Axes to be unpacked as part of variable assignment. More
-# than one Axes is configurable; however, each Axes only corresponds to a
-# single Figure.
+# `matplotlib.pyplot.subplots` in the ``pyplot`` module once. This returns a
+# group of an explicit Figure and Axes to be unpacked as part of variable
+# assignment. More than one Axes is configurable; however, each Axes only
+# corresponds to a single Figure.
 #
 # Each Axes has its own methods to graph data. In addition, each Axes
 # also uses separate methods to create and manage objects within a Figure.
