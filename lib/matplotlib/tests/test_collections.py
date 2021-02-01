@@ -382,7 +382,6 @@ def test_EllipseCollection():
 
 @image_comparison(['polycollection_close.png'], remove_text=True)
 def test_polycollection_close():
-    from mpl_toolkits.mplot3d import Axes3D
 
     vertsQuad = [
         [[0., 0.], [0., 1.], [1., 1.], [1., 0.]],
@@ -391,7 +390,7 @@ def test_polycollection_close():
         [[3., 0.], [3., 1.], [4., 1.], [4., 0.]]]
 
     fig = plt.figure()
-    ax = fig.add_axes(Axes3D(fig))
+    ax = fig.add_subplot(projection='3d')
 
     colors = ['r', 'g', 'b', 'y', 'k']
     zpos = list(range(5))
