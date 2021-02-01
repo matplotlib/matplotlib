@@ -10,6 +10,7 @@
 # serve to show the default value.
 
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
@@ -158,7 +159,7 @@ sphinx_gallery_conf = {
         'numpy': 'https://docs.scipy.org/doc/numpy/',
         'scipy': 'https://docs.scipy.org/doc/scipy/reference/',
     },
-    'backreferences_dir': 'api/_as_gen',
+    'backreferences_dir': Path('api') / Path('_as_gen'),
     'subsection_order': gallery_order.sectionorder,
     'within_subsection_order': gallery_order.subsectionorder,
     'remove_config_comments': True,
