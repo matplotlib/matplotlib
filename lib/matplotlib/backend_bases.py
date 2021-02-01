@@ -1075,7 +1075,7 @@ class GraphicsContextBase:
             pixels.  If scale is `None`, or not provided, no sketch filter will
             be provided.
         length : float, default: 128
-             The length of the wiggle along the line, in pixels.
+            The length of the wiggle along the line, in pixels.
         randomness : float, default: 16
             The scale factor by which the length is shrunken or expanded.
         """
@@ -3430,7 +3430,7 @@ class ToolContainerBase:
             Name of the group that this tool belongs to.
         position : int
             Position of the tool within its group, if -1 it goes at the end.
-        image_file : str
+        image : str
             Filename of the image for the button or `None`.
         description : str
             Description of the tool, used for the tooltips.

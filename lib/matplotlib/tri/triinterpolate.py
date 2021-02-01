@@ -213,7 +213,7 @@ class TriInterpolator:
 
         Parameters
         ----------
-        return_index : {'z', 'dzdx', 'dzdy'}
+        return_key : {'z', 'dzdx', 'dzdy'}
             Identifies the requested values (z or its derivatives)
         tri_index : 1D int array
             Valid triangle index (-1 prohibited)
@@ -461,8 +461,8 @@ class CubicTriInterpolator(TriInterpolator):
         Returns
         -------
         array-like, shape (npts, 2)
-              Estimation of the gradient at triangulation nodes (stored as
-              degree of freedoms of reduced-HCT triangle elements).
+            Estimation of the gradient at triangulation nodes (stored as
+            degree of freedoms of reduced-HCT triangle elements).
         """
         if kind == 'user':
             if dz is None:
