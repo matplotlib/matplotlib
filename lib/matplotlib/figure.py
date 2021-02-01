@@ -1711,9 +1711,9 @@ default: %(va)s
 
             Returns
             -------
-            unique_ids : Set[object]
+            unique_ids : set
                 The unique non-sub layout entries in this layout
-            nested : Dict[Tuple[int, int]], 2D object array
+            nested : dict[tuple[int, int]], 2D object array
             """
             unique_ids = set()
             nested = {}
@@ -1735,19 +1735,16 @@ default: %(va)s
             Parameters
             ----------
             gs : GridSpec
-
             layout : 2D object array
                 The input converted to a 2D numpy array for this level.
-
-            unique_ids : Set[object]
+            unique_ids : set
                 The identified scalar labels at this level of nesting.
-
-            nested : Dict[Tuple[int, int]], 2D object array
-                The identified nested layouts if any.
+            nested : dict[tuple[int, int]], 2D object array
+                The identified nested layouts, if any.
 
             Returns
             -------
-            Dict[label, Axes]
+            dict[label, Axes]
                 A flat dict of all of the Axes created.
             """
             rows, cols = layout.shape

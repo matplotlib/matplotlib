@@ -151,7 +151,7 @@ def _create_pdf_info_dict(backend, metadata):
     backend : str
         The name of the backend to use in the Producer value.
 
-    metadata : Dict[str, Union[str, datetime, Name]]
+    metadata : dict[str, Union[str, datetime, Name]]
         A dictionary of metadata supplied by the user with information
         following the PDF specification, also defined in
         `~.backend_pdf.PdfPages` below.
@@ -161,7 +161,7 @@ def _create_pdf_info_dict(backend, metadata):
 
     Returns
     -------
-    Dict[str, Union[str, datetime, Name]]
+    dict[str, Union[str, datetime, Name]]
         A validated dictionary of metadata.
     """
 

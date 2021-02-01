@@ -285,7 +285,7 @@ class MovieWriter(AbstractMovieWriter):
             Extra command-line arguments passed to the underlying movie
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
-        metadata : Dict[str, str], default: {}
+        metadata : dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -1024,7 +1024,7 @@ class Animation:
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
 
-        metadata : Dict[str, str], default: {}
+        metadata : dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
             the output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.

@@ -915,18 +915,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         ----------
         variable_name : str
             The string used inside the inequality used on the labels.
-
         str_format : function: float -> str
             Function used to format the numbers in the labels.
 
         Returns
         -------
-        artists : List[`.Artist`]
+        artists : list[`.Artist`]
             A list of the artists.
-
-        labels : List[str]
+        labels : list[str]
             A list of the labels.
-
         """
         artists = []
         labels = []
@@ -1706,7 +1703,7 @@ class QuadContourSet(ContourSet):
             iterable is shorter than the number of contour levels
             it will be repeated as necessary.
 
-        hatches : List[str], optional
+        hatches : list[str], optional
             *Only applies to* `.contourf`.
 
             A list of cross hatch patterns to use on the filled areas.
