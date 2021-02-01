@@ -8,9 +8,9 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
-import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
+import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 

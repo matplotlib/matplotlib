@@ -17,6 +17,7 @@ from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
+from ._enums import JoinStyle, CapStyle
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -253,12 +254,12 @@ class Line2D(Artist):
     @_api.deprecated("3.4")
     @_api.classproperty
     def validCap(cls):
-        return ('butt', 'round', 'projecting')
+        return tuple(cs.value for cs in CapStyle)
 
     @_api.deprecated("3.4")
     @_api.classproperty
     def validJoin(cls):
-        return ('miter', 'round', 'bevel')
+        return tuple(js.value for js in JoinStyle)
 
     def __str__(self):
         if self._label != "":
@@ -1156,7 +1157,7 @@ class Line2D(Artist):
         self._dashOffset, self._dashSeq = _scale_dashes(
             self._us_dashOffset, self._us_dashSeq, self._linewidth)
 
-    @docstring.dedent_interpd
+    @docstring.interpd
     def set_marker(self, marker):
         """
         Set the line marker.
@@ -1311,97 +1312,100 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 
+    @docstring.interpd
     def set_dash_joinstyle(self, s):
         """
-        Set the join style for dashed lines.
+        How to join segments of the line if it `~Line2D.is_dashed`.
 
         Parameters
         ----------
-        s : {'miter', 'round', 'bevel'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.JoinStyle` or %(JoinStyle)s
         """
-        mpl.rcsetup.validate_joinstyle(s)
-        if self._dashjoinstyle != s:
+        js = JoinStyle(s)
+        if self._dashjoinstyle != js:
             self.stale = True
-        self._dashjoinstyle = s
+        self._dashjoinstyle = js
 
+    @docstring.interpd
     def set_solid_joinstyle(self, s):
         """
-        Set the join style for solid lines.
+        How to join segments if the line is solid (not `~Line2D.is_dashed`).
 
         Parameters
         ----------
-        s : {'miter', 'round', 'bevel'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.JoinStyle` or %(JoinStyle)s
         """
-        mpl.rcsetup.validate_joinstyle(s)
-        if self._solidjoinstyle != s:
+        js = JoinStyle(s)
+        if self._solidjoinstyle != js:
             self.stale = True
-        self._solidjoinstyle = s
+        self._solidjoinstyle = js
 
     def get_dash_joinstyle(self):
         """
-        Return the join style for dashed lines.
+        Return the `.JoinStyle` for dashed lines.
 
         See also `~.Line2D.set_dash_joinstyle`.
         """
-        return self._dashjoinstyle
+        return self._dashjoinstyle.name
 
     def get_solid_joinstyle(self):
         """
-        Return the join style for solid lines.
+        Return the `.JoinStyle` for solid lines.
 
         See also `~.Line2D.set_solid_joinstyle`.
         """
-        return self._solidjoinstyle
+        return self._solidjoinstyle.name
 
+    @docstring.interpd
     def set_dash_capstyle(self, s):
         """
-        Set the cap style for dashed lines.
+        How to draw the end caps if the line is `~Line2D.is_dashed`.
 
         Parameters
         ----------
-        s : {'butt', 'round', 'projecting'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.CapStyle` or %(CapStyle)s
         """
-        mpl.rcsetup.validate_capstyle(s)
-        if self._dashcapstyle != s:
+        cs = CapStyle(s)
+        if self._dashcapstyle != cs:
             self.stale = True
-        self._dashcapstyle = s
+        self._dashcapstyle = cs
 
+    @docstring.interpd
     def set_solid_capstyle(self, s):
         """
-        Set the cap style for solid lines.
+        How to draw the end caps if the line is solid (not `~Line2D.is_dashed`)
 
         Parameters
         ----------
-        s : {'butt', 'round', 'projecting'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.CapStyle` or %(CapStyle)s
         """
-        mpl.rcsetup.validate_capstyle(s)
-        if self._solidcapstyle != s:
+        cs = CapStyle(s)
+        if self._solidcapstyle != cs:
             self.stale = True
-        self._solidcapstyle = s
+        self._solidcapstyle = cs
 
     def get_dash_capstyle(self):
         """
-        Return the cap style for dashed lines.
+        Return the `.CapStyle` for dashed lines.
 
         See also `~.Line2D.set_dash_capstyle`.
         """
-        return self._dashcapstyle
+        return self._dashcapstyle.name
 
     def get_solid_capstyle(self):
         """
-        Return the cap style for solid lines.
+        Return the `.CapStyle` for solid lines.
 
         See also `~.Line2D.set_solid_capstyle`.
         """
-        return self._solidcapstyle
+        return self._solidcapstyle.name
 
     def is_dashed(self):
         """
         Return whether line has a dashed linestyle.
+
+        A custom linestyle is assumed to be dashed, we do not inspect the
+        ``onoffseq`` directly.
 
         See also `~.Line2D.set_linestyle`.
         """
@@ -1556,4 +1560,4 @@ docstring.interpd.update(Line2D_kwdoc=artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
-docstring.dedent_interpd(Line2D.__init__)
+docstring.interpd(Line2D.__init__)

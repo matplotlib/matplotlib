@@ -44,14 +44,14 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, backend_tools as tools, cbook, colors, textpath, tight_bbox,
-    transforms, widgets, get_backend, is_interactive, rcParams)
+    _api, backend_tools as tools, cbook, colors, docstring, textpath,
+    tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
 from matplotlib.path import Path
-from matplotlib.rcsetup import validate_joinstyle, validate_capstyle
 from matplotlib.transforms import Affine2D
+from matplotlib._enums import JoinStyle, CapStyle
 
 
 _log = logging.getLogger(__name__)
@@ -765,11 +765,11 @@ class GraphicsContextBase:
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
         self._antialiased = 1  # use 0, 1 not True, False for extension code
-        self._capstyle = 'butt'
+        self._capstyle = CapStyle('butt')
         self._cliprect = None
         self._clippath = None
         self._dashes = 0, None
-        self._joinstyle = 'round'
+        self._joinstyle = JoinStyle('round')
         self._linestyle = 'solid'
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
@@ -820,10 +820,8 @@ class GraphicsContextBase:
         return self._antialiased
 
     def get_capstyle(self):
-        """
-        Return the capstyle as a string in ('butt', 'round', 'projecting').
-        """
-        return self._capstyle
+        """Return the `.CapStyle`."""
+        return self._capstyle.name
 
     def get_clip_rectangle(self):
         """
@@ -867,8 +865,8 @@ class GraphicsContextBase:
         return self._forced_alpha
 
     def get_joinstyle(self):
-        """Return the line join style as one of ('miter', 'round', 'bevel')."""
-        return self._joinstyle
+        """Return the `.JoinStyle`."""
+        return self._joinstyle.name
 
     def get_linewidth(self):
         """Return the line width in points."""
@@ -919,10 +917,16 @@ class GraphicsContextBase:
         # Use ints to make life easier on extension code trying to read the gc.
         self._antialiased = int(bool(b))
 
+    @docstring.interpd
     def set_capstyle(self, cs):
-        """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
-        validate_capstyle(cs)
-        self._capstyle = cs
+        """
+        Set how to draw endpoints of lines.
+
+        Parameters
+        ----------
+        cs : `.CapStyle` or %(CapStyle)s
+        """
+        self._capstyle = CapStyle(cs)
 
     def set_clip_rectangle(self, rectangle):
         """Set the clip rectangle to a `.Bbox` or None."""
@@ -979,10 +983,16 @@ class GraphicsContextBase:
         else:
             self._rgb = colors.to_rgba(fg)
 
+    @docstring.interpd
     def set_joinstyle(self, js):
-        """Set the join style to be one of ('miter', 'round', 'bevel')."""
-        validate_joinstyle(js)
-        self._joinstyle = js
+        """
+        Set how to draw connections between line segments.
+
+        Parameters
+        ----------
+        js : `.JoinStyle` or %(JoinStyle)s
+        """
+        self._joinstyle = JoinStyle(js)
 
     def set_linewidth(self, w):
         """Set the linewidth in points."""
