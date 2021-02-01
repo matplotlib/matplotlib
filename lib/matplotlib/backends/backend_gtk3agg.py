@@ -23,10 +23,8 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         w, h = allocation.width, allocation.height
 
         if not len(self._bbox_queue):
-            Gtk.render_background(
-                self.get_style_context(), ctx,
-                allocation.x, allocation.y,
-                allocation.width, allocation.height)
+            ctx.set_source_rgb(1.0, 1.0, 1.0)
+            ctx.paint()
             bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
         else:
             bbox_queue = self._bbox_queue
