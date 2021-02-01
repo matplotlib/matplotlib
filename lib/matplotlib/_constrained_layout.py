@@ -74,15 +74,15 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     renderer : Renderer
         Renderer to use.
 
-     h_pad, w_pad : float
-       Padding around the axes elements in figure-normalized units.
+    h_pad, w_pad : float
+      Padding around the axes elements in figure-normalized units.
 
-     hspace, wspace : float
-        Fraction of the figure to dedicate to space between the
-        axes.  These are evenly spread between the gaps between the axes.
-        A value of 0.2 for a three-column layout would have a space
-        of 0.1 of the figure width between each column.
-        If h/wspace < h/w_pad, then the pads are used instead.
+    hspace, wspace : float
+       Fraction of the figure to dedicate to space between the
+       axes.  These are evenly spread between the gaps between the axes.
+       A value of 0.2 for a three-column layout would have a space
+       of 0.1 of the figure width between each column.
+       If h/wspace < h/w_pad, then the pads are used instead.
     """
 
     # list of unique gridspecs that contain child axes:
