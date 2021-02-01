@@ -421,7 +421,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        d : float
+        pr : float
             Pick radius, in points.
         """
         self._pickradius = pr
@@ -705,7 +705,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns
         -------
         linewidths, dashes : list
-             Will be the same length, dashes are scaled by paired linewidth
+            Will be the same length, dashes are scaled by paired linewidth
         """
         if mpl.rcParams['_internal.classic_mode']:
             return linewidths, dashes
@@ -1384,15 +1384,17 @@ class LineCollection(Collection):
         antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
             Whether to use antialiasing for each line.
         zorder : int, default: 2
-           zorder of the lines once drawn.
+            zorder of the lines once drawn.
+
         facecolors : color or list of color, default: 'none'
-           When setting *facecolors*, each line is interpreted as a boundary
-           for an area, implicitly closing the path from the last point to the
-           first point. The enclosed area is filled with *facecolor*.
-           In order to manually specify what should count as the "interior" of
-           each line, please use `.PathCollection` instead, where the
-           "interior" can be specified by appropriate usage of
-           `~.path.Path.CLOSEPOLY`.
+            When setting *facecolors*, each line is interpreted as a boundary
+            for an area, implicitly closing the path from the last point to the
+            first point. The enclosed area is filled with *facecolor*.
+            In order to manually specify what should count as the "interior" of
+            each line, please use `.PathCollection` instead, where the
+            "interior" can be specified by appropriate usage of
+            `~.path.Path.CLOSEPOLY`.
+
         **kwargs
             Forwareded to `.Collection`.
         """

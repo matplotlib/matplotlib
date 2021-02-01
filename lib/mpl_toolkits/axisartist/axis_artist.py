@@ -759,7 +759,7 @@ class AxisArtist(martist.Artist):
 
         Parameters
         ----------
-        tick_direction : {"+", "-"}
+        label_direction : {"+", "-"}
         """
         self._axislabel_add_angle = _api.check_getitem(
             {"+": 0, "-": 180}, label_direction=label_direction)
