@@ -638,8 +638,8 @@ table.docutils th {
     border-color: #888;
     background-color: #f0f0f0;
     overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 table.docutils td {
