@@ -1156,15 +1156,6 @@ def subplot(*args, **kwargs):
     If you do not want this behavior, use the `.Figure.add_subplot` method
     or the `.pyplot.axes` function instead.
 
-    If the figure already has a subplot with key (*args*,
-    *kwargs*) then it will simply make that subplot current and
-    return it.  This behavior is deprecated. Meanwhile, if you do
-    not want this behavior (i.e., you want to force the creation of a
-    new subplot), you must use a unique set of args and kwargs.  The axes
-    *label* attribute has been exposed for this purpose: if you want
-    two subplots that are otherwise identical to be added to the figure,
-    make sure you give them unique labels.
-
     In rare circumstances, `.Figure.add_subplot` may be called with a single
     argument, a subplot axes instance already created in the
     present figure but not in the figure's list of axes.
