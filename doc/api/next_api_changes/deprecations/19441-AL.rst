@@ -1,0 +1,4 @@
+``backend_gtk3.cursord``
+~~~~~~~~~~~~~~~~~~~~~~~~
+This dict is deprecated, in order to make the module importable on headless
+environments.

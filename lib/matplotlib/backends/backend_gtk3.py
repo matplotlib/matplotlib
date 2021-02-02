@@ -37,7 +37,7 @@ backend_version = "%s.%s.%s" % (
 
 try:
     _display = Gdk.Display.get_default()
-    cursord = {
+    cursord = {  # deprecated in Matplotlib 3.5.
         cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
         cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
         cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
@@ -45,9 +45,7 @@ try:
         cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
     }
 except TypeError as exc:
-    # Happens when running headless.  Convert to ImportError to cooperate with
-    # backend switching.
-    raise ImportError(exc) from exc
+    cursord = {}  # deprecated in Matplotlib 3.5.
 
 
 class TimerGTK3(TimerBase):
@@ -486,10 +484,22 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         escaped = GLib.markup_escape_text(s)
         self.message.set_markup(f'<small>{escaped}</small>')
 
+    @staticmethod
+    @functools.lru_cache()
+    def _mpl_to_gtk_cursor(mpl_cursor):
+        name = {
+            cursors.MOVE: "move",
+            cursors.HAND: "pointer",
+            cursors.POINTER: "default",
+            cursors.SELECT_REGION: "crosshair",
+            cursors.WAIT: "wait",
+        }[mpl_cursor]
+        return Gdk.Cursor.new_from_name(Gdk.Display.get_default(), name)
+
     def set_cursor(self, cursor):
         window = self.canvas.get_property("window")
         if window is not None:
-            window.set_cursor(cursord[cursor])
+            window.set_cursor(self._mpl_to_gtk_cursor(cursor))
             Gtk.main_iteration()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
