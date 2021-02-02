@@ -114,14 +114,14 @@ class TriInterpolator:
         The purpose of :meth:`_interpolate_multikeys` is to implement the
         following common tasks needed in all subclasses implementations:
 
-            - calculation of containing triangles
-            - dealing with more than one interpolation request at the same
-              location (e.g., if the 2 derivatives are requested, it is
-              unnecessary to compute the containing triangles twice)
-            - scaling according to self._unit_x, self._unit_y
-            - dealing with points outside of the grid (with fill value np.nan)
-            - dealing with multi-dimensional *x*, *y* arrays: flattening for
-              :meth:`_interpolate_params` call and final reshaping.
+        - calculation of containing triangles
+        - dealing with more than one interpolation request at the same
+          location (e.g., if the 2 derivatives are requested, it is
+          unnecessary to compute the containing triangles twice)
+        - scaling according to self._unit_x, self._unit_y
+        - dealing with points outside of the grid (with fill value np.nan)
+        - dealing with multi-dimensional *x*, *y* arrays: flattening for
+          :meth:`_interpolate_params` call and final reshaping.
 
         (Note that np.vectorize could do most of those things very well for
         you, but it does it by function evaluations over successive tuples of
@@ -214,9 +214,9 @@ class TriInterpolator:
         Parameters
         ----------
         return_key : {'z', 'dzdx', 'dzdy'}
-            Identifies the requested values (z or its derivatives)
+            The requested values (z or its derivatives).
         tri_index : 1D int array
-            Valid triangle index (-1 prohibited)
+            Valid triangle index (cannot be -1).
         x, y : 1D arrays, same shape as `tri_index`
             Valid locations where interpolation is requested.
 
@@ -245,8 +245,8 @@ class LinearTriInterpolator(TriInterpolator):
     z : array-like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
     trifinder : `~matplotlib.tri.TriFinder`, optional
-          If this is not specified, the Triangulation's default TriFinder will
-          be used by calling `.Triangulation.get_trifinder`.
+        If this is not specified, the Triangulation's default TriFinder will
+        be used by calling `.Triangulation.get_trifinder`.
 
     Methods
     -------
