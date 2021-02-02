@@ -1232,6 +1232,10 @@ def subplot(*args, **kwargs):
     # If no existing axes match, then create a new one.
     if ax is None:
         ax = fig.add_subplot(*args, **kwargs)
+    elif kwargs:
+        _api.warn_external(f"An Axes with subplot spec {args} already exists. "
+                           "The existing Axes will be returned, with all "
+                           "keyword arguments ignored.")
 
     bbox = ax.bbox
     axes_to_delete = []

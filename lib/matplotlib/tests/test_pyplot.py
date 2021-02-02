@@ -153,3 +153,11 @@ def test_nested_ion_ioff():
     with plt.ioff():
         plt.ion()
     assert not mpl.is_interactive()
+
+
+def test_subplot_warning():
+    ax1 = plt.subplot(2, 1, 1)
+    with pytest.warns(UserWarning, match='An Axes with subplot spec '
+                                         r'\(2, 1, 1\) already exists'):
+        ax2 = plt.subplot(2, 1, 1, polar=True)
+    assert ax1 is ax2
