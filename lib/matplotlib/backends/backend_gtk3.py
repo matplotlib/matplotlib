@@ -36,12 +36,13 @@ backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 try:
+    _display = Gdk.Display.get_default()
     cursord = {
-        cursors.MOVE:          Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-        cursors.HAND:          Gdk.Cursor.new(Gdk.CursorType.HAND2),
-        cursors.POINTER:       Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-        cursors.SELECT_REGION: Gdk.Cursor.new(Gdk.CursorType.TCROSS),
-        cursors.WAIT:          Gdk.Cursor.new(Gdk.CursorType.WATCH),
+        cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
+        cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
+        cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
+        cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
+        cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
     }
 except TypeError as exc:
     # Happens when running headless.  Convert to ImportError to cooperate with
