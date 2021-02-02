@@ -93,7 +93,7 @@ fig, axs = plt.subplots(1, 2, figsize=(7, 4), sharex=True, sharey=True,
                         constrained_layout=True)
 for ax, interp in zip(axs, ['nearest', 'antialiased']):
     pc = ax.imshow(a, interpolation=interp, cmap='RdBu_r', vmin=-1, vmax=1)
-    ax.set_title(f"'{interp}'", fontsize='small')
+    ax.set_title(f"'{interp}'")
 fig.colorbar(pc, ax=axs)
 plt.show()
 
@@ -111,15 +111,23 @@ cmap = cm.RdBu_r
 a_rgba = cmap(norm(a))
 for ax, interp in zip(axs, ['nearest', 'antialiased']):
     pc = ax.imshow(a_rgba, interpolation=interp)
-    ax.set_title(f"'{interp}'", fontsize='small')
+    ax.set_title(f"'{interp}'")
 plt.show()
 
 ###############################################################################
 # A concrete example of where antialiasing in data space may not be desirable
-# is given here, where the anti-aliasing returns white pixels in data space,
-# and (imperceptible) purple pixels in RGBA space:
+# is given here.  The middle circle is all -1 (maps to blue), and the outer
+# large circle is all +1 (maps to red). Data anti-aliasing smooths the
+# large jumps from -1 to +1 and makes some zeros in between that map to white.
+# While this is an accurate smoothing of the data, it is not a perceptually
+# correct antialiasing of the border between red and blue.  The RGBA
+# anti-aliasing smooths in colorspace instead, and creates some purple pixels
+# on the border between the two circles.  While purple is not in the colormap,
+# it indeed makes the transition between the two circles look correct.
+# The same can be argued for the striped region, where the background fades to
+# purple rather than fading to white.
 
-fig, axs = plt.subplots(1, 3, figsize=(5.5, 2), sharex=True, sharey=True,
+fig, axs = plt.subplots(1, 3, figsize=(5.5, 2.3), sharex=True, sharey=True,
                         constrained_layout=True)
 f0 = 10
 k = 100
