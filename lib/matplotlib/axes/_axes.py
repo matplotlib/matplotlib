@@ -2541,11 +2541,11 @@ class Axes(_AxesBase):
               value displayed will be the position of that end-point.
             - 'center': label placed in the center of the bar segment, and the
               value displayed will be the length of that segment.
-              (useful for stacked bars, i.e.
+              (useful for stacked bars, i.e.,
               :doc:`/gallery/lines_bars_and_markers/bar_label_demo`)
 
         padding : float, default: 0
-            Distance of label from the end of the bar.
+            Distance of label from the end of the bar, in points.
 
         **kwargs
             Any remaining keyword arguments are passed through to
