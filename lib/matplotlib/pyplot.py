@@ -1072,10 +1072,10 @@ def cla():
 @docstring.dedent_interpd
 def subplot(*args, **kwargs):
     """
-    Add a subplot to the current figure.
+    Add an Axes to the current figure or retrieve an existing Axes.
 
-    Wrapper of `.Figure.add_subplot` with a difference in
-    behavior explained in the notes section.
+    This is a wrapper of `.Figure.add_subplot` which provides additional
+    behavior when working with the implicit API (see the notes section).
 
     Call signatures::
 
@@ -1142,8 +1142,8 @@ def subplot(*args, **kwargs):
 
     Notes
     -----
-    Creating a subplot will delete any pre-existing subplot that overlaps
-    with it beyond sharing a boundary::
+    Creating a new Axes will delete any pre-existing Axes that
+    overlaps with it beyond sharing a boundary::
 
         import matplotlib.pyplot as plt
         # plot a line, implicitly creating a subplot(111)
@@ -1156,18 +1156,19 @@ def subplot(*args, **kwargs):
     If you do not want this behavior, use the `.Figure.add_subplot` method
     or the `.pyplot.axes` function instead.
 
-    If the figure already has a subplot with key (*args*,
-    *kwargs*) then it will simply make that subplot current and
-    return it.  This behavior is deprecated. Meanwhile, if you do
-    not want this behavior (i.e., you want to force the creation of a
-    new subplot), you must use a unique set of args and kwargs.  The axes
-    *label* attribute has been exposed for this purpose: if you want
-    two subplots that are otherwise identical to be added to the figure,
-    make sure you give them unique labels.
+    If no *kwargs* are passed and there exists an Axes in the location
+    specified by *args* then that Axes will be returned rather than a new
+    Axes being created.
 
-    In rare circumstances, `.Figure.add_subplot` may be called with a single
-    argument, a subplot axes instance already created in the
-    present figure but not in the figure's list of axes.
+    If *kwargs* are passed and there exists an Axes in the location
+    specified by *args*, the projection type is the same, and the
+    *kwargs* match with the existing Axes, then the existing Axes is
+    returned.  Otherwise a new Axes is created with the specified
+    parameters.  We save a reference to the *kwargs* which we us
+    for this comparison.  If any of the values in *kwargs* are
+    mutable we will not detect the case where they are mutated.
+    In these cases we suggest using `.Figure.add_subplot` and the
+    explicit Axes API rather than the implicit pyplot API.
 
     See Also
     --------
@@ -1183,10 +1184,10 @@ def subplot(*args, **kwargs):
         plt.subplot(221)
 
         # equivalent but more general
-        ax1=plt.subplot(2, 2, 1)
+        ax1 = plt.subplot(2, 2, 1)
 
         # add a subplot with no frame
-        ax2=plt.subplot(222, frameon=False)
+        ax2 = plt.subplot(222, frameon=False)
 
         # add a polar subplot
         plt.subplot(223, projection='polar')
@@ -1199,18 +1200,34 @@ def subplot(*args, **kwargs):
 
         # add ax2 to the figure again
         plt.subplot(ax2)
+
+        # make the first axes "current" again
+        plt.subplot(221)
+
     """
+    # Here we will only normalize `polar=True` vs `projection='polar'` and let
+    # downstream code deal with the rest.
+    unset = object()
+    projection = kwargs.get('projection', unset)
+    polar = kwargs.pop('polar', unset)
+    if polar is not unset and polar:
+        # if we got mixed messages from the user, raise
+        if projection is not unset and projection != 'polar':
+            raise ValueError(
+                f"polar={polar}, yet projection={projection!r}. "
+                "Only one of these arguments should be supplied."
+            )
+        kwargs['projection'] = projection = 'polar'
 
     # if subplot called without arguments, create subplot(1, 1, 1)
     if len(args) == 0:
         args = (1, 1, 1)
 
-    # This check was added because it is very easy to type
-    # subplot(1, 2, False) when subplots(1, 2, False) was intended
-    # (sharex=False, that is). In most cases, no error will
-    # ever occur, but mysterious behavior can result because what was
-    # intended to be the sharex argument is instead treated as a
-    # subplot index for subplot()
+    # This check was added because it is very easy to type subplot(1, 2, False)
+    # when subplots(1, 2, False) was intended (sharex=False, that is). In most
+    # cases, no error will ever occur, but mysterious behavior can result
+    # because what was intended to be the sharex argument is instead treated as
+    # a subplot index for subplot()
     if len(args) >= 3 and isinstance(args[2], bool):
         _api.warn_external("The subplot index argument to subplot() appears "
                            "to be a boolean. Did you intend to use "
@@ -1224,14 +1241,22 @@ def subplot(*args, **kwargs):
 
     # First, search for an existing subplot with a matching spec.
     key = SubplotSpec._from_subplot_args(fig, args)
-    ax = next(
-        (ax for ax in fig.axes
-         if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key),
-        None)
 
-    # If no existing axes match, then create a new one.
-    if ax is None:
+    for ax in fig.axes:
+        # if we found an axes at the position sort out if we can re-use it
+        if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key:
+            # if the user passed no kwargs, re-use
+            if kwargs == {}:
+                break
+            # if the axes class and kwargs are identical, reuse
+            elif ax._projection_init == fig._process_projection_requirements(
+                *args, **kwargs
+            ):
+                break
+    else:
+        # we have exhausted the known Axes and none match, make a new one!
         ax = fig.add_subplot(*args, **kwargs)
+
     fig.sca(ax)
 
     bbox = ax.bbox

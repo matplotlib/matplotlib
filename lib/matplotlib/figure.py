@@ -567,6 +567,7 @@ default: %(va)s
 
         if isinstance(args[0], Axes):
             a = args[0]
+            key = a._projection_init
             if a.get_figure() is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
@@ -575,12 +576,13 @@ default: %(va)s
             if not np.isfinite(rect).all():
                 raise ValueError('all entries in rect must be finite '
                                  'not {}'.format(rect))
-            projection_class, kwargs = self._process_projection_requirements(
+            projection_class, pkw = self._process_projection_requirements(
                 *args, **kwargs)
 
             # create the new axes using the axes class given
-            a = projection_class(self, rect, **kwargs)
-        return self._add_axes_internal(a)
+            a = projection_class(self, rect, **pkw)
+            key = (projection_class, pkw)
+        return self._add_axes_internal(a, key)
 
     @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
@@ -693,6 +695,7 @@ default: %(va)s
 
         if len(args) == 1 and isinstance(args[0], SubplotBase):
             ax = args[0]
+            key = ax._projection_init
             if ax.get_figure() is not self:
                 raise ValueError("The Subplot must have been created in "
                                  "the present figure")
@@ -705,17 +708,20 @@ default: %(va)s
             if (len(args) == 1 and isinstance(args[0], Integral)
                     and 100 <= args[0] <= 999):
                 args = tuple(map(int, str(args[0])))
-            projection_class, kwargs = self._process_projection_requirements(
+            projection_class, pkw = self._process_projection_requirements(
                 *args, **kwargs)
-            ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
-        return self._add_axes_internal(ax)
+            ax = subplot_class_factory(projection_class)(self, *args, **pkw)
+            key = (projection_class, pkw)
+        return self._add_axes_internal(ax, key)
 
-    def _add_axes_internal(self, ax):
+    def _add_axes_internal(self, ax, key):
         """Private helper for `add_axes` and `add_subplot`."""
         self._axstack.push(ax)
         self._localaxes.push(ax)
         self.sca(ax)
         ax._remove_method = self.delaxes
+        # this is to support plt.subplot's re-selection logic
+        ax._projection_init = key
         self.stale = True
         ax.stale_callback = _stale_figure_callback
         return ax

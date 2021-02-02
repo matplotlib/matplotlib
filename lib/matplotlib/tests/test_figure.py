@@ -939,53 +939,7 @@ def test_subfigure_double():
     axsRight = subfigs[1].subplots(2, 2)
 
 
-def test_axes_kwargs():
-    # plt.axes() always creates new axes, even if axes kwargs differ.
-    plt.figure()
-    ax = plt.axes()
-    ax1 = plt.axes()
-    assert ax is not None
-    assert ax1 is not ax
-    plt.close()
-
-    plt.figure()
-    ax = plt.axes(projection='polar')
-    ax1 = plt.axes(projection='polar')
-    assert ax is not None
-    assert ax1 is not ax
-    plt.close()
-
-    plt.figure()
-    ax = plt.axes(projection='polar')
-    ax1 = plt.axes()
-    assert ax is not None
-    assert ax1.name == 'rectilinear'
-    assert ax1 is not ax
-    plt.close()
-
-    # fig.add_axes() always creates new axes, even if axes kwargs differ.
-    fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1])
-    ax1 = fig.add_axes([0, 0, 1, 1])
-    assert ax is not None
-    assert ax1 is not ax
-    plt.close()
-
-    fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
-    ax1 = fig.add_axes([0, 0, 1, 1], projection='polar')
-    assert ax is not None
-    assert ax1 is not ax
-    plt.close()
-
-    fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
-    ax1 = fig.add_axes([0, 0, 1, 1])
-    assert ax is not None
-    assert ax1.name == 'rectilinear'
-    assert ax1 is not ax
-    plt.close()
-
+def test_add_subplot_kwargs():
     # fig.add_subplot() always creates new axes, even if axes kwargs differ.
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -1009,49 +963,27 @@ def test_axes_kwargs():
     assert ax1 is not ax
     plt.close()
 
-    # plt.subplot() searches for axes with the same subplot spec, and if one
-    # exists, returns it, regardless of whether the axes kwargs were the same.
+
+def test_add_axes_kwargs():
+    # fig.add_axes() always creates new axes, even if axes kwargs differ.
     fig = plt.figure()
-    ax = plt.subplot(1, 2, 1)
-    ax1 = plt.subplot(1, 2, 1)
-    ax2 = plt.subplot(1, 2, 2)
-    ax3 = plt.subplot(1, 2, 1, projection='polar')
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax1 = fig.add_axes([0, 0, 1, 1])
     assert ax is not None
-    assert ax1 is ax
-    assert ax2 is not ax
-    assert ax3 is ax
-    assert ax.name == 'rectilinear'
-    assert ax3.name == 'rectilinear'
+    assert ax1 is not ax
     plt.close()
 
-    # plt.gca() returns an existing axes, unless there were no axes.
-    plt.figure()
-    ax = plt.gca()
-    ax1 = plt.gca()
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
+    ax1 = fig.add_axes([0, 0, 1, 1], projection='polar')
     assert ax is not None
-    assert ax1 is ax
+    assert ax1 is not ax
     plt.close()
 
-    # plt.gca() raises a DeprecationWarning if called with kwargs.
-    plt.figure()
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        ax = plt.gca(projection='polar')
-    ax1 = plt.gca()
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
+    ax1 = fig.add_axes([0, 0, 1, 1])
     assert ax is not None
-    assert ax1 is ax
-    assert ax1.name == 'polar'
-    plt.close()
-
-    # plt.gca() ignores keyword arguments if an axes already exists.
-    plt.figure()
-    ax = plt.gca()
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        ax1 = plt.gca(projection='polar')
-    assert ax is not None
-    assert ax1 is ax
     assert ax1.name == 'rectilinear'
+    assert ax1 is not ax
     plt.close()

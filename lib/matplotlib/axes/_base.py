@@ -1237,6 +1237,7 @@ class _AxesBase(martist.Artist):
         self._mouseover_set = _OrderedSet()
         self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
+        self._projection_init = None  # strictly for pyplot.subplot
         self.legend_ = None
         self.collections = []  # collection.Collection instances
         self.containers = []
