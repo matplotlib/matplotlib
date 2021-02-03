@@ -161,3 +161,12 @@ def test_close():
     except TypeError as e:
         assert str(e) == "close() argument must be a Figure, an int, " \
                          "a string, or None, not <class 'float'>"
+
+
+def test_subplot_reuse():
+    ax1 = plt.subplot(121)
+    assert ax1 is plt.gca()
+    ax2 = plt.subplot(122)
+    assert ax2 is plt.gca()
+    ax1 = plt.subplot(121)
+    assert ax1 is plt.gca()

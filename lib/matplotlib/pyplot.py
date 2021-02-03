@@ -1232,6 +1232,7 @@ def subplot(*args, **kwargs):
     # If no existing axes match, then create a new one.
     if ax is None:
         ax = fig.add_subplot(*args, **kwargs)
+    fig.sca(ax)
 
     bbox = ax.bbox
     axes_to_delete = []
