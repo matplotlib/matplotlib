@@ -988,7 +988,8 @@ class StepPatch(PathPatch):
                              "Expected `len(values) + 1 == len(edges)`, but "
                              f"`len(values) = {self._values.size}` and "
                              f"`len(edges) = {self._edges.size}`.")
-        verts, codes = [], []
+        # Initializing with empty arrays allows supporting empty stairs.
+        verts, codes = [np.empty((0, 2))], [np.empty(0, dtype=Path.code_type)]
 
         _nan_mask = np.isnan(self._values)
         if self._baseline is not None:
