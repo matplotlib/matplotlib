@@ -4,14 +4,12 @@
 ===================
 by: Iury T. Simoes-Sousa (iuryt)
 
+Given data on a gridded volume ``X``, ``Y``, ``Z``, this example plots the
+data values on the volume surfaces.
+
 The strategy is to select the data from each surface and plot
-contours separately.
-To use this feature you need to have gridded coordinates.
-
-The contour plot from Matplotlib has zdir argument that defines
-the normal coordinate to the plotted surface.
-
-The offset argument defines the offset applied to the contourf surface.
+contours separately using `.Axes3D.contourf` with appropriate
+parameters *zdir* and *offset*.
 """
 
 import matplotlib.pyplot as plt
