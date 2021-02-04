@@ -1,7 +1,7 @@
 """
-=================================
-3D surface plot using Matplotlib
-=================================
+===================
+3D box surface plot
+===================
 by: Iury T. Simoes-Sousa (iuryt)
 
 The strategy is to select the data from each surface and plot
