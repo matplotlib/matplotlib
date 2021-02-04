@@ -24,14 +24,10 @@ X, Y, Z = np.meshgrid(np.arange(Nx), np.arange(Ny), -np.arange(Nz))
 # Create fake data
 data = (((X+100)**2 + (Y-20)**2 + 2*Z)/1000+1)
 
-vmin = da.min()
-vmax = da.max()
-# Key arguments for contour plots
 kw = {
-    'vmin': vmin,
-    'vmax': vmax,
-    'levels': np.linspace(vmin, vmax, 10),
-    'cmap': 'viridis',
+    'vmin': data.min(),
+    'vmax': data.max(),
+    'levels': np.linspace(data.min(), data.max(), 10),
 }
 
 # Create a figure with 3D ax
