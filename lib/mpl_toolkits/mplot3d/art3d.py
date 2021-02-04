@@ -344,13 +344,9 @@ class Patch3D(Patch):
         zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
                            for ((x, y), z) in zip(verts, zs)]
-        self._facecolor3d = Patch.get_facecolor(self)
 
     def get_path(self):
         return self._path2d
-
-    def get_facecolor(self):
-        return self._facecolor2d
 
     @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
@@ -359,8 +355,6 @@ class Patch3D(Patch):
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]))
-        # FIXME: coloring
-        self._facecolor2d = self._facecolor3d
         return min(vzs)
 
 
@@ -385,8 +379,6 @@ class PathPatch3D(Patch3D):
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
-        # FIXME: coloring
-        self._facecolor2d = self._facecolor3d
         return min(vzs)
 
 
