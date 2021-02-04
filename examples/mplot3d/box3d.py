@@ -2,7 +2,6 @@
 ===================
 3D box surface plot
 ===================
-by: Iury T. Simoes-Sousa (iuryt)
 
 Given data on a gridded volume ``X``, ``Y``, ``Z``, this example plots the
 data values on the volume surfaces.
