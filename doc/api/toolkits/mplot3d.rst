@@ -5,8 +5,8 @@ mplot3d API
 ***********
 
 .. note::
-   `.pyplot` cannot be used to add content to 3D plots, because it's function
-   sigantures are strictly 2D and cannot handle the additional information
+   `.pyplot` cannot be used to add content to 3D plots, because its function
+   signatures are strictly 2D and cannot handle the additional information
    needed for 3D. Instead, use the explicit API by calling the respective
    methods on the `.Axes3D` object.
 
