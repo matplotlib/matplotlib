@@ -297,16 +297,12 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
-
-        points : array-like, shape=(3, 2)
+        points : (3, 2) array-like
             Array of (x, y) points for the triangle.
-
-        colors : array-like, shape=(3, 4)
+        colors : (3, 4) array-like
             RGBA colors for each point of the triangle.
-
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
-
         """
         raise NotImplementedError
 
@@ -317,12 +313,10 @@ class RendererBase:
 
         Parameters
         ----------
-        points : array-like, shape=(N, 3, 2)
+        points : (N, 3, 2) array-like
             Array of *N* (x, y) points for the triangles.
-
-        colors : array-like, shape=(N, 3, 4)
+        colors : (N, 3, 4) array-like
             Array of *N* RGBA colors for each point of the triangles.
-
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
@@ -502,7 +496,7 @@ class RendererBase:
             The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        im : array-like, shape=(N, M, 4), dtype=np.uint8
+        im : (N, M, 4) array-like of np.uint8
             An array of RGBA pixels.
 
         transform : `matplotlib.transforms.Affine2DBase`

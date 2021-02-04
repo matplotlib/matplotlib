@@ -4,8 +4,8 @@ answer:
 http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-with-matplotlib
 
 (http://stackoverflow.com/users/66549/doug)
-
 """
+
 import numpy as np
 
 from matplotlib import _api
@@ -21,10 +21,9 @@ def stackplot(axes, x, *args,
 
     Parameters
     ----------
-    x : array-like (N)
+    x : (N,) array-like
 
-    y : 2D array (M, N) or sequence of array-like (N)
-
+    y : (M, N) array-like
         The data is assumed to be unstacked. Each of the following
         calls is legal::
 

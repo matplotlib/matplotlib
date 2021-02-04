@@ -242,7 +242,7 @@ class LinearTriInterpolator(TriInterpolator):
     ----------
     triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
-    z : array-like of shape (npoints,)
+    z : (npoints,) array-like
         Array of values, defined at grid points, to interpolate between.
     trifinder : `~matplotlib.tri.TriFinder`, optional
         If this is not specified, the Triangulation's default TriFinder will
@@ -305,7 +305,7 @@ class CubicTriInterpolator(TriInterpolator):
     ----------
     triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
-    z : array-like of shape (npoints,)
+    z : (npoints,) array-like
         Array of values, defined at grid points, to interpolate between.
     kind : {'min_E', 'geom', 'user'}, optional
         Choice of the smoothing algorithm, in order to compute

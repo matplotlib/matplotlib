@@ -204,12 +204,12 @@ class BezierSegment:
 
         Parameters
         ----------
-        t : float (k,) array_like
+        t : (k,) array-like
             Points at which to evaluate the curve.
 
         Returns
         -------
-        float (k, d) array_like
+        (k, d) array
             Value of the curve for each point in *t*.
         """
         t = np.asarray(t)
@@ -246,7 +246,7 @@ class BezierSegment:
 
         Returns
         -------
-        float, (n+1, d) array_like
+        (n+1, d) array
             Coefficients after expanding in polynomial basis, where :math:`n`
             is the degree of the bezier curve and :math:`d` its dimension.
             These are the numbers (:math:`C_j`) such that the curve can be
@@ -282,10 +282,10 @@ class BezierSegment:
 
         Returns
         -------
-        dims : int, array_like
+        dims : array of int
             Index :math:`i` of the partial derivative which is zero at each
             interior extrema.
-        dzeros : float, array_like
+        dzeros : array of float
             Of same size as dims. The :math:`t` such that :math:`d/dx_i B(t) =
             0`
         """
@@ -313,7 +313,7 @@ def split_bezier_intersecting_with_closedpath(
 
     Parameters
     ----------
-    bezier : array-like(N, 2)
+    bezier : (N, 2) array-like
         Control points of the Bezier segment. See `.BezierSegment`.
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the

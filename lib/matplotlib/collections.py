@@ -537,7 +537,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        offsets : array-like (N, 2) or (2,)
+        offsets : (N, 2) or (2,) array-like
         """
         offsets = np.asanyarray(offsets, float)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
@@ -1714,15 +1714,11 @@ class EllipseCollection(Collection):
         ----------
         widths : array-like
             The lengths of the first axes (e.g., major axis lengths).
-
         heights : array-like
             The lengths of second axes.
-
         angles : array-like
             The angles of the first axes, degrees CCW from the x-axis.
-
         units : {'points', 'inches', 'dots', 'width', 'height', 'x', 'y', 'xy'}
-
             The units in which majors and minors are given; 'width' and
             'height' refer to the dimensions of the axes, while 'x' and 'y'
             refer to the *offsets* data units. 'xy' differs from all others in

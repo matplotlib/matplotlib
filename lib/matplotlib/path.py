@@ -102,14 +102,11 @@ class Path:
 
         Parameters
         ----------
-        vertices : array-like
-            The ``(N, 2)`` float array, masked array or sequence of pairs
-            representing the vertices of the path.
-
-            If *vertices* contains masked values, they will be converted
-            to NaNs which are then handled correctly by the Agg
-            PathIterator and other consumers of path data, such as
-            :meth:`iter_segments`.
+        vertices : (N, 2) array-like
+            The path vertices, as an array, masked array or sequence of pairs.
+            Masked values, if any, will be converted to NaNs, which are then
+            handled correctly by the Agg PathIterator and other consumers of
+            path data, such as :meth:`iter_segments`.
         codes : array-like or None, optional
             n-length array integers representing the codes of the path.
             If not None, codes must be the same length as vertices.
