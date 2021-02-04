@@ -22,7 +22,7 @@ Nx, Ny, Nz = 100, 300, 500
 X, Y, Z = np.meshgrid(np.arange(Nx), np.arange(Ny), -np.arange(Nz))
 
 # Create fake data
-da = (((X+100)**2 + (Y-20)**2 + 2*Z)/1000+1)
+data = (((X+100)**2 + (Y-20)**2 + 2*Z)/1000+1)
 
 vmin = da.min()
 vmax = da.max()
