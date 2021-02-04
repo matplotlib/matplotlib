@@ -33,15 +33,15 @@ ax = fig.add_subplot(111, projection='3d')
 
 # Plot contour surfaces
 _ = ax.contourf(
-    X[:, :, 0], Y[:, :, 0], da[:, :, 0],
+    X[:, :, 0], Y[:, :, 0], data[:, :, 0],
     zdir='z', offset=0, **kw
 )
 _ = ax.contourf(
-    X[0, :, :], da[0, :, :], Z[0, :, :],
+    X[0, :, :], data[0, :, :], Z[0, :, :],
     zdir='y', offset=0, **kw
 )
 C = ax.contourf(
-    da[:, -1, :], Y[:, -1, :], Z[:, -1, :],
+    data[:, -1, :], Y[:, -1, :], Z[:, -1, :],
     zdir='x', offset=X.max(), **kw
 )
 # --
