@@ -30,13 +30,14 @@ in community work, or get "pre-review" on your PR.
 Issues for New Contributors
 ---------------------------
 
-New contributors should look for the following tags when looking for issues.
-We strongly recommend that new contributors tackle issues labeled
+While any contributions are welcome, we have marked some issues as
+particularly suited for new contributors by the label
 `good first issue <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_
-as they are easy, well documented issues, that do not require an understanding of
-the different submodules of Matplotlib.
-This helps the contributor become familiar with the contribution
-workflow, and for the core devs to become acquainted with the contributor.
+These are well documented issues, that do not require a deep understanding of
+the internals of Matplotlib. The issues may additionally be tagged with a
+difficulty. ``Difficulty: Easy`` is suited for people with little Python experience.
+``Difficulty: Medium`` and ``Difficulty: Hard`` are not trivial to solve and
+require more thought and programming experience.
 
 .. _submitting-a-bug-report:
 
