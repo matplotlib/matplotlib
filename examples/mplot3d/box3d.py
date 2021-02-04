@@ -51,31 +51,16 @@ C = ax.contourf(
 
 
 # Set limits of the plot from coord limits
-ax.set(
-    xlim=[X.min(), X.max()],
-    ylim=[Y.min(), Y.max()],
-    zlim=[Z.min(), Z.max()],
-)
+xmin, xmax = X.min(), X.max()
+ymin, ymax = Y.min(), Y.max()
+zmin, zmax = Z.min(), Z.max()
+ax.set(xlim=[xmin, xmax], ylim=[ymin, ymax], zlim=[zmin, zmax])
 
-color = '0.4'  # color of the line of the corners
-# Get xlim,ylim and zlim
-xlim = np.array(ax.get_xlim())
-ylim = np.array(ax.get_ylim())
-zlim = np.array(ax.get_zlim())
-
-# Plot corners
-ax.plot(
-    xlim*0+xlim[1], ylim, zlim*0, color,
-    linewidth=1, zorder=1e4,
-)
-ax.plot(
-    xlim, ylim*0+ylim[0], zlim*0, color,
-    linewidth=1, zorder=1e4,
-)
-ax.plot(
-    xlim*0+xlim[1], ylim*0+ylim[0], zlim, color,
-    linewidth=1, zorder=1e4,
-)
+# Plot edges
+edges_kw = dict(color='0.4', linewidth=1, zorder=1e3)
+ax.plot([xmax, xmax], [ymin, ymax], 0, **edges_kw)
+ax.plot([xmin, xmax], [ymin, ymin], 0, **edges_kw)
+ax.plot([xmax, xmax], [ymin, ymin], [zmin, zmax], **edges_kw)
 
 # Set labels and zticks
 ax.set(
