@@ -16,7 +16,7 @@ from .qt_compat import QT_API, _setDevicePixelRatio
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
-    def __init__(self, figure):
+    def __init__(self, figure=None):
         # Must pass 'figure' as kwarg to Qt base class.
         super().__init__(figure=figure)
 

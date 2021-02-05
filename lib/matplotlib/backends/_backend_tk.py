@@ -162,7 +162,7 @@ class FigureCanvasTk(FigureCanvasBase):
     @_api.delete_parameter(
         "3.4", "resize_callback",
         alternative="get_tk_widget().bind('<Configure>', ..., True)")
-    def __init__(self, figure, master=None, resize_callback=None):
+    def __init__(self, figure=None, master=None, resize_callback=None):
         super().__init__(figure)
         self._idle = True
         self._idle_callback = None

@@ -1709,10 +1709,13 @@ class FigureCanvasBase:
         return (hasattr(cls, "copy_from_bbox")
                 and hasattr(cls, "restore_region"))
 
-    def __init__(self, figure):
+    def __init__(self, figure=None):
+        from matplotlib.figure import Figure
         self._fix_ipython_backend2gui()
         self._is_idle_drawing = True
         self._is_saving = False
+        if figure is None:
+            figure = Figure()
         figure.set_canvas(self)
         self.figure = figure
         self.manager = None
