@@ -89,7 +89,6 @@ Matplotlib consists of the following submodules:
    dates_api.rst
    docstring_api.rst
    dviread.rst
-   _enums.rst
    figure_api.rst
    font_manager_api.rst
    fontconfig_pattern_api.rst
@@ -128,6 +127,7 @@ Matplotlib consists of the following submodules:
    units_api.rst
    widgets_api.rst
    _api_api.rst
+   _enums_api.rst
 
 Toolkits
 --------
