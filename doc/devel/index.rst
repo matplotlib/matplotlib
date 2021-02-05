@@ -17,7 +17,7 @@ require writing code at all. For example:
 If you have any questions on the
 process or how to fix something feel free to ask on `gitter
 <https://gitter.im/matplotlib/matplotlib>`_ for short questions and on
-`discourse <discourse.matplotlib.org>`_ for longer questions.
+`discourse <https://discourse.matplotlib.org>`_ for longer questions.
 
 .. raw:: html
 
