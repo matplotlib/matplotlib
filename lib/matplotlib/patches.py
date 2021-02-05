@@ -3207,7 +3207,7 @@ class ArrowStyle(_Style):
             self.scaleA, self.scaleB = scaleA, scaleB
 
         def _get_bracket(self, x0, y0,
-                         cos_t, sin_t, width, length):
+                         cos_t, sin_t, width, length, angle):
 
             # arrow from x0, y0 to x1, y1
             from matplotlib.bezier import get_normal_points
@@ -3223,6 +3223,10 @@ class ArrowStyle(_Style):
                            Path.LINETO,
                            Path.LINETO,
                            Path.LINETO]
+
+            if angle is not None:
+                trans = transforms.Affine2D().rotate_deg_around(x0, y0, angle)
+                vertices_arrow = trans.transform(vertices_arrow)
 
             return vertices_arrow, codes_arrow
 
@@ -3246,7 +3250,8 @@ class ArrowStyle(_Style):
                 cos_t, sin_t = get_cos_sin(x1, y1, x0, y0)
                 verticesA, codesA = self._get_bracket(x0, y0, cos_t, sin_t,
                                                       self.widthA * scaleA,
-                                                      self.lengthA * scaleA)
+                                                      self.lengthA * scaleA,
+                                                      self.angleA)
                 vertices_list.append(verticesA)
                 codes_list.append(codesA)
 
@@ -3259,7 +3264,8 @@ class ArrowStyle(_Style):
                 cos_t, sin_t = get_cos_sin(x1, y1, x0, y0)
                 verticesB, codesB = self._get_bracket(x0, y0, cos_t, sin_t,
                                                       self.widthB * scaleB,
-                                                      self.lengthB * scaleB)
+                                                      self.lengthB * scaleB,
+                                                      self.angleB)
                 vertices_list.append(verticesB)
                 codes_list.append(codesB)
 
