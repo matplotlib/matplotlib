@@ -51,10 +51,6 @@ class ToolManager:
     """
 
     def __init__(self, figure=None):
-        _log.warning('Treat the new Tool classes introduced in v1.5 as '
-                     'experimental for now, the API will likely change in '
-                     'version 2.1 and perhaps the rcParam as well')
-
         self._key_press_handler_id = None
 
         self._tools = {}
