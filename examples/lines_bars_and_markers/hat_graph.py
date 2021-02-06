@@ -22,7 +22,7 @@ def hat_graph(ax, xlabels, values, group_labels):
         The Axes to plot into.
     xlabels : list of str
         The category names to be displayed on the x-axis.
-    values : array-like (M, N)
+    values : (M, N) array-like
         The data values.
         Rows are the groups (len(group_labels) == M).
         Columns are the categories (len(xlabels) == N).

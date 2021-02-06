@@ -440,12 +440,12 @@ def _create_lookup_table(N, data, gamma=1.0):
     N : int
         The number of elements of the created lookup table; at least 1.
 
-    data : Mx3 array-like or callable
+    data : (M, 3) array-like or callable
         Defines the mapping :math:`f`.
 
-        If a Mx3 array-like, the rows define values (x, y0, y1). The x values
-        must start with x=0, end with x=1, and all x values be in increasing
-        order.
+        If a (M, 3) array-like, the rows define values (x, y0, y1).  The x
+        values must start with x=0, end with x=1, and all x values be in
+        increasing order.
 
         A value between :math:`x_i` and :math:`x_{i+1}` is mapped to the range
         :math:`y^1_{i-1} \ldots y^0_i` by linear interpolation.
@@ -581,7 +581,7 @@ class Colormap:
             return the RGBA values ``X*100`` percent along the Colormap line.
             For integers, X should be in the interval ``[0, Colormap.N)`` to
             return RGBA values *indexed* from the Colormap with index ``X``.
-        alpha : float, array-like, None
+        alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching X, or None.
         bytes : bool
@@ -1959,9 +1959,8 @@ class LightSource:
 
         Parameters
         ----------
-        elevation : array-like
-            A 2D array (or equivalent) of the height values used to generate an
-            illumination map
+        elevation : 2D array-like
+            The height values used to generate an illumination map
         vert_exag : number, optional
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in
@@ -2057,9 +2056,8 @@ class LightSource:
 
         Parameters
         ----------
-        data : array-like
-            A 2D array (or equivalent) of the height values used to generate a
-            shaded map.
+        data : 2D array-like
+            The height values used to generate a shaded map.
         cmap : `~matplotlib.colors.Colormap`
             The colormap used to color the *data* array. Note that this must be
             a `~matplotlib.colors.Colormap` instance.  For example, rather than

@@ -134,14 +134,10 @@ class RGBAxes:
 
         Parameters
         ----------
-        r : array-like
-            The red array
-        g : array-like
-            The green array
-        b : array-like
-            The blue array
+        r, g, b : array-like
+            The red, green, and blue arrays.
         kwargs : imshow kwargs
-            kwargs get unpacked into the imshow calls for the four images
+            kwargs get unpacked into the imshow calls for the four images.
 
         Returns
         -------

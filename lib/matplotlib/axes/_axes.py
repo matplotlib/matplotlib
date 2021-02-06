@@ -3622,7 +3622,7 @@ class Axes(_AxesBase):
             95% confidence intervals. Values between 1000 and 10000 are
             recommended.
 
-        usermedians : array-like, optional
+        usermedians : 1D array-like, optional
             A 1D array-like of length ``len(x)``.  Each entry that is not
             `None` forces the value of the median for the corresponding
             dataset.  For entries that are `None`, the medians are computed
@@ -5747,8 +5747,8 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        C : array-like
-            A scalar 2D array. The values will be color-mapped.
+        C : 2D array-like
+            The color-mapped values.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -5991,8 +5991,8 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        C : array-like
-            A scalar 2D array. The values will be color-mapped.
+        C : 2D array-like
+            The color-mapped values.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6227,7 +6227,7 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        C : array-like(M, N)
+        C : array-like
             The image data. Supported array shapes are:
 
             - (M, N): an image with scalar data. The data is visualized
@@ -7748,7 +7748,7 @@ such objects
 
         Parameters
         ----------
-        Z : array-like (M, N)
+        Z : (M, N) array-like
             The array to be plotted.
 
         precision : float or 'present', default: 0
@@ -7872,7 +7872,7 @@ such objects
 
         Parameters
         ----------
-        Z : array-like(M, N)
+        Z : (M, N) array-like
             The matrix to be displayed.
 
         Returns

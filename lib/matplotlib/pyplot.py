@@ -2368,7 +2368,7 @@ def matshow(A, fignum=None, **kwargs):
 
     Parameters
     ----------
-    A : array-like(M, N)
+    A : 2D array-like
         The matrix to be displayed.
 
     fignum : None or int or False
