@@ -216,6 +216,34 @@ jobs:
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report= --cov=lib --log-level=DEBUG
 
+      - name: Collect failed result_images
+        if: failure()
+        run: |
+          mkdir failed
+          failed_test=()
+          for folder in result_images/*; do
+              for filename in $folder/*; do
+                  if [[ $filename == *"-diff"* ]]; then
+                      testname="${filename/-failed-diff/*}"
+                      failed_test=(${failed_test[@]} $testname)
+                  fi
+              done
+          done
+          for path in "${failed_test[@]}"; do
+              # Has to fix paths with '[png]' -> '\[png\]'
+              parsed=`echo $path | sed 's/[]]/\\\\]/g' | sed 's/[[]/\\\\[/g'`
+              ls $parsed
+              cp $parsed failed/
+          done
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: failed_images-${{ matrix.python-version }}-${{ matrix.os }}
+          retention-days: 3
+          path: failed/
+
       - name: Filter C coverage
         run: |
           lcov --capture --directory . --output-file coverage.info
