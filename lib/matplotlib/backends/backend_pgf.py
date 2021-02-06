@@ -192,6 +192,12 @@ class LatexError(Exception):
         super().__init__(message)
         self.latex_output = latex_output
 
+    def __str__(self):
+        s, = self.args
+        if self.latex_output:
+            s += "\n" + self.latex_output
+        return s
+
 
 class LatexManager:
     """
@@ -286,7 +292,7 @@ class LatexManager:
         stdout, stderr = latex.communicate(test_input)
         if latex.returncode != 0:
             raise LatexError("LaTeX returned an error, probably missing font "
-                             "or error in preamble:\n%s" % stdout)
+                             "or error in preamble.", stdout)
 
         self.latex = None  # Will be set up on first use.
         self.str_cache = {}  # cache for strings already processed
