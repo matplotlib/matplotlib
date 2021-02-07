@@ -31,11 +31,13 @@ math_tests = [
     r'$x^2$',
     r'$x^2_y$',
     r'$x_y^2$',
-    r'$\prod_{i=\alpha_{i+1}}^\infty$',
+    (r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}f\left(i,j\right)'
+     r'\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)'
+     r"\sqrt[2]{\prod^\frac{x}{2\pi^2}_\infty}$"),
     r'$x = \frac{x+\frac{5}{2}}{\frac{y+3}{8}}$',
     r'$dz/dt = \gamma x^2 + {\rm sin}(2\pi y+\phi)$',
     r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$',
-    r'$\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)$',
+    None,
     r'Variable $i$ is good',
     r'$\Delta_i^j$',
     r'$\Delta^j_{i+1}$',
@@ -47,7 +49,7 @@ math_tests = [
     r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
-    r"$\sqrt[5]{\prod^\frac{x}{2\pi^2}_\infty}$",
+    None,
     r"$\sqrt[3]{x}=5$",
     r'$\frac{X}{\frac{X}{Y}}$',
     r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$",
@@ -89,11 +91,13 @@ math_tests = [
     r'${x}_{92}^{31415}+\pi $',
     r'${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$',
     r'${y}_{3}^{\prime \prime \prime }$',
+    # End of the MathML torture tests.
+
     r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
     r"$\left(2 \, a=b\right)$",  # Sage bug #8125
     r"$? ! &$",  # github issue #466
     None,
-    r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
+    None,
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
     r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
