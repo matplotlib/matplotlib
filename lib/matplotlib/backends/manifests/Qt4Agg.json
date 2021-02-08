@@ -1,0 +1,5 @@
+{
+  "name": "Qt4Agg",
+  "module": "matplotlib.backends.backend_qt4agg",
+  "interactive": true
+}

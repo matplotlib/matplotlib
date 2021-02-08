@@ -1,0 +1,5 @@
+{
+  "name": "WebAgg",
+  "module": "matplotlib.backends.backend_webagg",
+  "interactive": true
+}

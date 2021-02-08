@@ -255,6 +255,16 @@ if not (any('--' + opt in sys.argv
     with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
         fd.write(''.join(template_lines))
 
+
+share_prefix = str(Path('share') / 'matplotlib' / 'backends')
+backends_manifests_dir = Path(__file__).parent / 'lib' / 'matplotlib' / 'backends' / 'manifests'
+data_files = [
+    (
+        str(Path('share') / 'matplotlib' / 'backends'),
+        [str(manifest) for manifest in backends_manifests_dir.glob('*.json')]
+    ),
+]
+
 setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     name="matplotlib",
     version=__version__,
@@ -296,6 +306,7 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     # real extensions that can depend on numpy for the build.
     ext_modules=[Extension("", [])],
     package_data=package_data,
+    data_files=data_files,
 
     python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
     setup_requires=[

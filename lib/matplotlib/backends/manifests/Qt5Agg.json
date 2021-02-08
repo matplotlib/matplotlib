@@ -1,0 +1,5 @@
+{
+  "name": "Qt5Agg",
+  "module": "matplotlib.backends.backend_qt5agg",
+  "interactive": true
+}

@@ -1,0 +1,5 @@
+{
+  "name": "pgf",
+  "module": "matplotlib.backends.backend_pgf",
+  "interactive": false
+}

@@ -1,0 +1,5 @@
+{
+  "name": "svg",
+  "module": "matplotlib.backends.backend_svg",
+  "interactive": false
+}

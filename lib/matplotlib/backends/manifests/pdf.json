@@ -1,0 +1,5 @@
+{
+  "name": "pdf",
+  "module": "matplotlib.backends.backend_pdf",
+  "interactive": false
+}

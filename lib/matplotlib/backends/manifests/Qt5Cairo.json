@@ -1,0 +1,5 @@
+{
+  "name": "Qt5Cairo",
+  "module": "matplotlib.backends.backend_qt5cairo",
+  "interactive": true
+}

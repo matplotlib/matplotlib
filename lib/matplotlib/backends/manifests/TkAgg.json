@@ -1,0 +1,5 @@
+{
+  "name": "TkAgg",
+  "module": "matplotlib.backends.backend_tkagg",
+  "interactive": true
+}

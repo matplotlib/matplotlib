@@ -1,0 +1,5 @@
+{
+  "name": "qt4",
+  "module": "matplotlib.backends.backend_qt4",
+  "interactive": false
+}

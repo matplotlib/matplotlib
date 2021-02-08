@@ -1,0 +1,5 @@
+{
+  "name": "agg",
+  "module": "matplotlib.backends.backend_agg",
+  "interactive": false
+}

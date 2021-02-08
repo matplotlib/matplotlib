@@ -1,0 +1,5 @@
+{
+  "name": "WXAgg",
+  "module": "matplotlib.backends.backend_wxagg",
+  "interactive": true
+}

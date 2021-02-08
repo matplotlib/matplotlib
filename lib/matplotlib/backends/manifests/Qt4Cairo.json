@@ -1,0 +1,5 @@
+{
+  "name": "Qt4Cairo",
+  "module": "matplotlib.backends.backend_qt4cairo",
+  "interactive": true
+}

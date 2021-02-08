@@ -1,0 +1,5 @@
+{
+  "name": "cairo",
+  "module": "matplotlib.backends.backend_cairo",
+  "interactive": false
+}

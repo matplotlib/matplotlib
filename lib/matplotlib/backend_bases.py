@@ -2084,7 +2084,7 @@ class FigureCanvasBase:
         if backend is not None:
             # Return a specific canvas class, if requested.
             canvas_class = (
-                importlib.import_module(cbook._backend_module_name(backend))
+                importlib.import_module(cbook.backends[backend]['module'])
                 .FigureCanvas)
             if not hasattr(canvas_class, f"print_{fmt}"):
                 raise ValueError(

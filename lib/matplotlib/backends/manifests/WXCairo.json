@@ -1,0 +1,5 @@
+{
+  "name": "WXCairo",
+  "module": "matplotlib.backends.backend_wxcairo",
+  "interactive": true
+}

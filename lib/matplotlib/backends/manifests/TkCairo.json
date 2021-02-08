@@ -1,0 +1,5 @@
+{
+  "name": "TkCairo",
+  "module": "matplotlib.backends.backend_tkcairo",
+  "interactive": true
+}

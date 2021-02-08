@@ -1,0 +1,5 @@
+{
+  "name": "mixed",
+  "module": "matplotlib.backends.backend_mixed",
+  "interactive": false
+}

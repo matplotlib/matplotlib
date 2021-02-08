@@ -1,0 +1,5 @@
+{
+  "name": "MacOSX",
+  "module": "matplotlib.backends.backend_macosx",
+  "interactive": true
+}

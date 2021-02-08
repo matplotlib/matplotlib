@@ -1,0 +1,5 @@
+{
+  "name": "template",
+  "module": "matplotlib.backends.backend_template",
+  "interactive": false
+}

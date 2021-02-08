@@ -1,0 +1,5 @@
+{
+  "name": "nbAgg",
+  "module": "matplotlib.backends.backend_nbagg",
+  "interactive": true
+}

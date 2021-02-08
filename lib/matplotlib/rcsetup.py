@@ -23,7 +23,7 @@ import re
 import numpy as np
 
 from matplotlib import _api, animation, cbook
-from matplotlib.cbook import ls_mapper
+from matplotlib.cbook import ls_mapper, backends
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib._enums import JoinStyle, CapStyle
@@ -33,17 +33,9 @@ from cycler import Cycler, cycler as ccycler
 
 
 _log = logging.getLogger(__name__)
-# The capitalized forms are needed for ipython at present; this may
-# change for later versions.
-interactive_bk = ['GTK3Agg', 'GTK3Cairo',
-                  'MacOSX',
-                  'nbAgg',
-                  'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
-                  'TkAgg', 'TkCairo',
-                  'WebAgg',
-                  'WX', 'WXAgg', 'WXCairo']
-non_interactive_bk = ['agg', 'cairo',
-                      'pdf', 'pgf', 'ps', 'svg', 'template']
+
+interactive_bk = [name for name, backend in backends.items() if backend['interactive']]
+non_interactive_bk = [name for name, backend in backends.items() if not backend['interactive']]
 all_backends = interactive_bk + non_interactive_bk
 
 

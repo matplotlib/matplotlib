@@ -1,0 +1,5 @@
+{
+  "name": "GTK3Cairo",
+  "module": "matplotlib.backends.backend_gtk3cairo",
+  "interactive": true
+}

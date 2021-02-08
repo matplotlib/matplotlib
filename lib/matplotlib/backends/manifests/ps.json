@@ -1,0 +1,5 @@
+{
+  "name": "ps",
+  "module": "matplotlib.backends.backend_ps",
+  "interactive": false
+}

@@ -1,0 +1,5 @@
+{
+  "name": "GTK3Agg",
+  "module": "matplotlib.backends.backend_gtk3agg",
+  "interactive": true
+}

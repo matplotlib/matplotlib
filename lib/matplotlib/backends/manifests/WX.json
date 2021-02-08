@@ -1,0 +1,5 @@
+{
+  "name": "WX",
+  "module": "matplotlib.backends.backend_wx",
+  "interactive": true
+}

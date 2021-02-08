@@ -12,6 +12,8 @@ import contextlib
 import functools
 import gzip
 import itertools
+import json
+import logging
 import operator
 import os
 from pathlib import Path
@@ -32,6 +34,8 @@ from matplotlib import _api, _c_internal_utils
 from matplotlib._api.deprecation import (
     MatplotlibDeprecationWarning, mplDeprecation)
 
+
+_log = logging.getLogger(__name__)
 
 @_api.deprecated("3.4")
 def deprecated(*args, **kwargs):
@@ -2245,13 +2249,27 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return proc.stdout
 
 
-def _backend_module_name(name):
-    """
-    Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
-    or a custom backend -- "module://...") to the corresponding module name).
-    """
-    return (name[9:] if name.startswith("module://")
-            else "matplotlib.backends.backend_{}".format(name.lower()))
+def load_backends():
+    backends_dir = Path(sys.prefix) / 'share' / 'matplotlib' / 'backends'
+    manifests = [str(manifest) for manifest in backends_dir.glob('*.json')]
+
+    backends = {}
+    for manifest in manifests:
+        try:
+            with open(manifest, 'r') as fobj:
+                backend = json.load(fobj)
+                backends[backend['name']] = {
+                    'module': backend['module'],
+                    'interactive': backend['interactive']
+                }
+        except:
+            _log.warning('Error while loading {}'.format(manifest))
+
+    return backends
+
+
+# Load backends
+backends = load_backends()
 
 
 def _setup_new_guiapp():
