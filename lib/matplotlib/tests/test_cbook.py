@@ -185,6 +185,15 @@ class Test_callback_registry:
     def connect(self, s, func):
         return self.callbacks.connect(s, func)
 
+    def disconnect(self, cid):
+        return self.callbacks.disconnect(cid)
+
+    def count(self):
+        count1 = len(self.callbacks._func_cid_map.get(self.signal, []))
+        count2 = len(self.callbacks.callbacks.get(self.signal))
+        assert count1 == count2
+        return count1
+
     def is_empty(self):
         assert self.callbacks._func_cid_map == {}
         assert self.callbacks.callbacks == {}
@@ -216,6 +225,41 @@ class Test_callback_registry:
 
         # check we now have no callbacks registered
         self.is_empty()
+
+    @pytest.mark.xfail(reason="must be fixed")
+    def test_callback_disconnect(self):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = Test_callback_registry()
+
+        # test that we can add a callback
+        cid1 = self.connect(self.signal, mini_me.dummy)
+        assert type(cid1) == int
+        self.is_not_empty()
+
+        self.disconnect(cid1)
+
+        # check we now have no callbacks registered
+        self.is_empty()
+
+    def test_callback_wrong_disconnect(self):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = Test_callback_registry()
+
+        # test that we can add a callback
+        cid1 = self.connect(self.signal, mini_me.dummy)
+        assert type(cid1) == int
+        self.is_not_empty()
+
+        self.disconnect("foo")
+
+        # check we still have callbacks registered
+        self.is_not_empty()
 
     def dummy(self):
         pass
