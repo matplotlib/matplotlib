@@ -197,16 +197,17 @@ class CallbackRegistry:
             s: {proxy: cid for cid, proxy in d.items()}
             for s, d in self.callbacks.items()}
 
-    def connect(self, s, func):
+    @_api.rename_parameter("3.3.4", "s", "signal")
+    def connect(self, signal, func):
         """Register *func* to be called when signal *s* is generated."""
-        self._func_cid_map.setdefault(s, {})
+        self._func_cid_map.setdefault(signal, {})
         proxy = _weak_or_strong_ref(func, self._remove_proxy)
-        if proxy in self._func_cid_map[s]:
-            return self._func_cid_map[s][proxy]
+        if proxy in self._func_cid_map[signal]:
+            return self._func_cid_map[signal][proxy]
         cid = next(self._cid_gen)
-        self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, {})
-        self.callbacks[s][cid] = proxy
+        self._func_cid_map[signal][proxy] = cid
+        self.callbacks.setdefault(signal, {})
+        self.callbacks[signal][cid] = proxy
         return cid
 
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
