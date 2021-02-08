@@ -846,7 +846,7 @@ def cycler(*args, **kwargs):
     if len(args) == 1:
         if not isinstance(args[0], Cycler):
             raise TypeError("If only one positional argument given, it must "
-                            " be a Cycler instance.")
+                            "be a Cycler instance.")
         return validate_cycler(args[0])
     elif len(args) == 2:
         pairs = [(args[0], args[1])]
