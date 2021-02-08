@@ -18,6 +18,9 @@ from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
+# Need to import dates to register unit convertors
+import matplotlib.dates
+import matplotlib.units as munits
 # For clarity, names from _image are given explicitly in this module:
 import matplotlib._image as _image
 # For user convenience, the names from _image are also imported into
@@ -693,6 +696,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
+        A = self._convert_units(A)
         self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and
@@ -729,6 +733,16 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._imcache = None
         self._rgbacache = None
         self.stale = True
+
+    def _convert_units(self, A):
+        # Take the first element since units expects a 1D sequence, not 2D
+        converter = munits.registry.get_converter(A[0])
+        if converter is None:
+            return A
+
+        self.converter = converter
+        self.units = converter.default_units(A, self)
+        return converter.convert(A, self.units, self)
 
     def set_array(self, A):
         """

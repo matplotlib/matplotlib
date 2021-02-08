@@ -1174,6 +1174,17 @@ class Colorbar(ColorbarBase):
         self.mappable = mappable
         _add_disjoint_kwargs(kwargs, cmap=mappable.cmap, norm=mappable.norm)
 
+        # Set the formatter if
+        # - It isn't explicity specified
+        # - The mappable has a converter and units that provide a formatter
+        if 'format' not in kwargs:
+            if hasattr(mappable, 'converter') and hasattr(mappable, 'units'):
+                info = mappable.converter.axisinfo(mappable.units, self)
+                if info is None:
+                    pass
+                if info.majfmt is not None:
+                    kwargs['format'] = info.majfmt
+
         if isinstance(mappable, contour.ContourSet):
             cs = mappable
             _add_disjoint_kwargs(
