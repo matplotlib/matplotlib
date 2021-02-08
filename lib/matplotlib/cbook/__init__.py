@@ -216,12 +216,11 @@ class CallbackRegistry:
         if _is_finalizing():
             # Weakrefs can't be properly torn down at that point anymore.
             return
-        for signal, proxies in list(self._func_cid_map.items()):
-            try:
-                del self.callbacks[signal][proxies[proxy]]
+        for signal, proxy_to_cid in list(self._func_cid_map.items()):
+            cid = proxy_to_cid.pop(proxy, None)
+            if cid is not None:
+                del self.callbacks[signal][cid]
                 break
-            except KeyError:
-                pass
         else:
             # Not found
             return

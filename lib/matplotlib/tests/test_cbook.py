@@ -261,7 +261,6 @@ class Test_callback_registry:
         # check we still have callbacks registered
         self.is_not_empty()
 
-    @pytest.mark.xfail(reason="must be fixed")
     def test_registration_on_non_empty_registry(self):
         # ensure we start with an empty registry
         self.is_empty()
