@@ -226,7 +226,6 @@ class Test_callback_registry:
         # check we now have no callbacks registered
         self.is_empty()
 
-    @pytest.mark.xfail(reason="must be fixed")
     def test_callback_disconnect(self):
         # ensure we start with an empty registry
         self.is_empty()

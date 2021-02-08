@@ -224,6 +224,7 @@ class CallbackRegistry:
         else:
             # Not found
             return
+        # Clean up empty dicts
         if len(self.callbacks[signal]) == 0:
             del self.callbacks[signal]
             del self._func_cid_map[signal]
@@ -248,6 +249,10 @@ class CallbackRegistry:
             if current_cid == cid:
                 assert proxy is current_proxy
                 del proxy_to_cid[current_proxy]
+        # Clean up empty dicts
+        if len(self.callbacks[signal]) == 0:
+            del self.callbacks[signal]
+            del self._func_cid_map[signal]
 
     def process(self, s, *args, **kwargs):
         """
