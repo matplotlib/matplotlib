@@ -230,17 +230,20 @@ class CallbackRegistry:
 
         No error is raised if such a callback does not exist.
         """
-        for eventname, callbackd in list(self.callbacks.items()):
-            try:
-                del callbackd[cid]
-            except KeyError:
-                continue
-            else:
-                for signal, functions in list(self._func_cid_map.items()):
-                    for function, value in list(functions.items()):
-                        if value == cid:
-                            del functions[function]
-                return
+        # Clean up callbacks
+        for signal, cid_to_proxy in list(self.callbacks.items()):
+            proxy = cid_to_proxy.pop(cid, None)
+            if proxy is not None:
+                break
+        else:
+            # Not found
+            return
+
+        proxy_to_cid = self._func_cid_map[signal]
+        for current_proxy, current_cid in list(proxy_to_cid.items()):
+            if current_cid == cid:
+                assert proxy is current_proxy
+                del proxy_to_cid[current_proxy]
 
     def process(self, s, *args, **kwargs):
         """
