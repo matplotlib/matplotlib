@@ -71,7 +71,9 @@ pre {
     border: 1px solid #ccc;
     background-color: #f8f8f8;
     line-height: 140%;
-    overflow-x: auto;
+    overflow-x: ;
+
+    
 }
 
 td.linenos pre {
@@ -237,6 +239,7 @@ div.sphinxsidebar {
     width: 210px;
     float: right;
     text-align: left;
+    
 /*    margin-left: -100%; */
 }
 
@@ -247,13 +250,16 @@ div.sphinxsidebar ul {
     list-style: none;
     padding: 0;
     line-height: 130%;
+    
 }
 
 div.sphinxsidebar ul ul {
     list-style: square;
     margin-top: 6px;
     margin-bottom: 6px;
-    margin-left: 16px;
+    margin-left: 24px;
+    white-space: initial;
+    word-wrap: break-word;
 }
 
 div.sphinxsidebar #searchbox input {
