@@ -301,7 +301,7 @@ def _validate_onoffseq(x):
         raise ValueError(err + 'have strictly positive, numerical elements.')
 
 
-class _NamedLineStyle(_AliasableStringNameEnum):
+class _NamedLineStyle(str, _AliasableStringNameEnum):
     """A standardized way to refer to each named LineStyle internally."""
     solid = auto()
     solid = '-'
@@ -388,10 +388,10 @@ class LineStyle:
 
         self._linestyle_spec = ls
         if _api.is_string_like(ls):
-            self._name = _NamedLineStyle(ls)
-            self._offset, self._onoffseq = None, None
+            self._named = _NamedLineStyle(ls)
+            self._offset, self._onoffseq = 0, None
         else:
-            self._name = _NamedLineStyle('custom')
+            self._named = _NamedLineStyle('custom')
             try:
                 self._offset, self._onoffseq = ls
             except ValueError:  # not enough/too many values to unpack
@@ -400,9 +400,9 @@ class LineStyle:
             _validate_onoffseq(self._onoffseq)
         if self._offset is None:
             _api.warn_deprecated(
-                "3.3", message="Passing the dash offset as None is deprecated "
-                "since %(since)s and support for it will be removed "
-                "%(removal)s; pass it as zero instead.")
+                "3.3", message="Passing the dash offset as None is "
+                "deprecated since %(since)s and support for it will be "
+                "removed %(removal)s; pass it as zero instead.")
             self._offset = 0
 
     def __eq__(self, other):
@@ -411,13 +411,19 @@ class LineStyle:
         return self.get_dashes() == other.get_dashes()
 
     def __hash__(self):
-        if self._name == LineStyle.custom:
+        if self._named == 'custom':
             return (self._offset, tuple(self._onoffseq)).__hash__()
-        return _AliasableStringNameEnum.__hash__(self._name)
+        return self._named.__hash__()
+
+    def __repr__(self):
+        return self._named.__repr__() + ' with (offset, onoffseq) = ' \
+                + str(self.get_dashes())
 
     @staticmethod
     def _normalize_offset(offset, onoffseq):
         """Normalize offset to be positive and shorter than the dash cycle."""
+        if onoffseq is None:
+            return 0
         dsum = sum(onoffseq)
         if dsum:
             offset %= dsum
@@ -425,17 +431,18 @@ class LineStyle:
 
     def is_dashed(self):
         offset, onoffseq = self.get_dashes()
-        return np.isclose(np.sum(onoffseq), 0)
+        total_dash_length = np.sum(onoffseq)
+        return total_dash_length is None or np.isclose(total_dash_length, 0)
 
     def get_dashes(self, lw=1):
         """
         Get the (scaled) dash sequence for this `.LineStyle`.
         """
-        # named linestyle lookup happens at draw time (here)
-        if self._onoffseq is None:
-            offset, onoffseq = LineStyle._get_dash_pattern(self._name)
+        # named linestyle lookup happens each time dashes are requested
+        if self._named != 'custom':
+            offset, onoffseq = LineStyle._get_named_pattern(self._named)
         else:
-            offset, onoff_seq = self._offset, self._onoffseq
+            offset, onoffseq = self._offset, self._onoffseq
         # force 0 <= offset < dash cycle length
         offset = LineStyle._normalize_offset(offset, onoffseq)
         return self._scale_dashes(offset, onoffseq, lw)
@@ -451,7 +458,7 @@ class LineStyle:
         return scaled_offset, scaled_dashes
 
     @staticmethod
-    def _get_dash_pattern(style):
+    def _get_named_pattern(style):
         """Convert linestyle string to explicit dash pattern."""
         # import must be local for validator code to live here
         from . import rcParams
@@ -463,6 +470,10 @@ class LineStyle:
         elif style in ['dashed', 'dashdot', 'dotted']:
             offset = 0
             dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
+        else:
+            raise ValueError("Attempted to get dash pattern from RC for "
+                             "unknown dash name. Allowed values are 'dashed', "
+                             "'dashdot', and 'dotted'.")
         return offset, dashes
 
     @staticmethod
