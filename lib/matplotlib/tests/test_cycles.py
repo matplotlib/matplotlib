@@ -158,3 +158,32 @@ def test_invalid_input_forms():
         ax.set_prop_cycle(cycler(foobar=[1, 2]))
     with pytest.raises(ValueError):
         ax.set_prop_cycle(cycler(color='rgb', c='cmy'))
+
+
+@mpl.style.context("default")
+def test_cycler_sharing():
+    from matplotlib.axes._base import to_shareable_cycler
+
+    shared = to_shareable_cycler(plt.rcParams["axes.prop_cycle"])
+    fig, axs = plt.subplots(2)
+    axs[0].set_prop_cycle(shared)
+    axs[1].set_prop_cycle(shared)
+
+    axs[0].plot([0, 1])
+    axs[1].plot([0, 1])
+    # Check that fill uses a separate iterator.
+    axs[1].fill([2, 3, 4], [0, 1, 0])
+    axs[0].fill([2, 3, 4], [0, 1, 0])
+    # Check that the second axes goes back to the first color, even though it
+    # didn't use it on the first cycle.
+    for i in range(10):
+        axs[1].plot([5+i, 5+i], [0, 1])
+
+    assert mpl.colors.same_color([l.get_color() for l in axs[0].lines],
+                                 ["C0"])
+    assert mpl.colors.same_color([l.get_color() for l in axs[1].lines],
+                                 [f"C{i}" for i in "12345678901"])
+    assert mpl.colors.same_color([p.get_facecolor() for p in axs[0].patches],
+                                 ["C1"])
+    assert mpl.colors.same_color([p.get_facecolor() for p in axs[1].patches],
+                                 ["C0"])

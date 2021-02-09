@@ -208,6 +208,38 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     return linestyle, marker, color
 
 
+def to_shareable_cycler(cycler):
+    """
+    Return a copy of *cycler*, that can be shared across multiple Axes.
+
+    Plotting on any Axes will advance the joint property iterators of all Axes.
+    """
+    from cycler import Cycler
+    new = Cycler(cycler)
+    # This doesn't carry forward any previous shares, but that can easily be
+    # changed by checking first whether the dict exists.
+    new._cycling_iterators_cache = {}
+    return new
+
+
+def _get_cycling_iterator(cycler, name):
+    """
+    Return an `itertools.cycle()` over this *cycler*, intended for plotting
+    command *name*.
+
+    If this cycler is shareable (per `to_shareable_cycler`), then multiple
+    invocations with the same *cycler* and *name* will return the same
+    `itertools.cycle` instance (*name* only serves as a key for this purpose).
+    If this cycler is not shareable, then a new `itertools.cycle` instance is
+    returned every time.
+    """
+    if not hasattr(cycler, "_cycling_iterators_cache"):
+        return itertools.cycle(cycler)
+    if name not in cycler._cycling_iterators_cache:
+        cycler._cycling_iterators_cache[name] = itertools.cycle(cycler)
+    return cycler._cycling_iterators_cache[name]
+
+
 class _process_plot_var_args:
     """
     Process variable length arguments to `~.Axes.plot`, to support ::
@@ -235,7 +267,7 @@ class _process_plot_var_args:
     def set_prop_cycle(self, cycler):
         if cycler is None:
             cycler = mpl.rcParams['axes.prop_cycle']
-        self.prop_cycler = itertools.cycle(cycler)
+        self.prop_cycler = _get_cycling_iterator(cycler, self.command)
         self._prop_keys = cycler.keys  # This should make a copy
 
     def __call__(self, *args, data=None, **kwargs):
