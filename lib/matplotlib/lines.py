@@ -1432,7 +1432,8 @@ class _AxLine(Line2D):
 
     def get_transform(self):
         ax = self.axes
-        points_transform = self._transform + ax.transData.inverted()
+        points_transform = (self._transform + ax.transData.inverted() +
+                            ax.transScale)
 
         if self._xy2 is not None:
             # two points were given
