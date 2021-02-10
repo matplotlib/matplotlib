@@ -15,7 +15,6 @@ directory.
 
 import ast
 from functools import lru_cache, reduce
-import logging
 from numbers import Number
 import operator
 import re
@@ -32,7 +31,6 @@ from matplotlib._enums import JoinStyle, CapStyle
 from cycler import Cycler, cycler as ccycler
 
 
-_log = logging.getLogger(__name__)
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 interactive_bk = ['GTK3Agg', 'GTK3Cairo',

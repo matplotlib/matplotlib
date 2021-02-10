@@ -25,8 +25,6 @@ import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
 from matplotlib import _api, cbook
 
-# _log = logging.getLogger(__name__)
-
 
 class Cursors(IntEnum):  # Must subclass int for the macOS backend.
     """Backend-independent cursor types."""
@@ -80,9 +78,6 @@ class ToolBase:
     """
 
     def __init__(self, toolmanager, name):
-        # _api.warn_external(
-        #     'The new Tool classes introduced in v1.5 are experimental; their '
-        #     'API (including names) will likely change in future versions.')
         self._name = name
         self._toolmanager = toolmanager
         self._figure = None
