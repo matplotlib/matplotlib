@@ -723,7 +723,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 [event.ControlDown, 'ctrl', 'control'],
                 [event.AltDown, 'alt', 'alt'],
                 [event.ShiftDown, 'shift', 'shift'],):
-            if meth() and not key_name == key:
+            if meth() and key_name != key:
                 if not (key_name == 'shift' and key.isupper()):
                     key = '{0}+{1}'.format(prefix, key)
                 break
