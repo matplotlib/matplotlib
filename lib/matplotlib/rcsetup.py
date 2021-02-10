@@ -15,7 +15,6 @@ directory.
 
 import ast
 from functools import lru_cache, reduce
-import logging
 from numbers import Number
 import operator
 import re
@@ -32,7 +31,6 @@ from matplotlib._enums import JoinStyle, CapStyle
 from cycler import Cycler, cycler as ccycler
 
 
-_log = logging.getLogger(__name__)
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 interactive_bk = ['GTK3Agg', 'GTK3Cairo',
@@ -308,6 +306,16 @@ def validate_backend(s):
 validate_toolbar = ValidateInStrings(
     'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True,
     _deprecated_since="3.3")
+
+
+def _validate_toolbar(s):
+    s = ValidateInStrings(
+        'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)(s)
+    if s == 'toolmanager':
+        _api.warn_external(
+            "Treat the new Tool classes introduced in v1.5 as experimental "
+            "for now; the API and rcParam may change in future versions.")
+    return s
 
 
 @_api.deprecated("3.3")
@@ -984,7 +992,7 @@ def _convert_validator_spec(key, conv):
 _validators = {
     "backend":           validate_backend,
     "backend_fallback":  validate_bool,
-    "toolbar":           _ignorecase(["none", "toolbar2", "toolmanager"]),
+    "toolbar":           _validate_toolbar,
     "interactive":       validate_bool,
     "timezone":          validate_string,
 
