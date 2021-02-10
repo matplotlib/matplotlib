@@ -309,7 +309,15 @@ validate_toolbar = ValidateInStrings(
     'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True,
     _deprecated_since="3.3")
 
-
+def _validate_toolbar(s):
+    s = ValidateInStrings(
+        'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)(s)
+    if s == 'toolmanager':
+        _api.warn_external(
+            "Treat the new Tool classes introduced in v1.5 as experimental "
+            "for now; the API and rcParam may change in future versions.")
+    return s
+    
 @_api.deprecated("3.3")
 def _make_nseq_validator(cls, n=None, allow_none=False):
 
@@ -984,7 +992,8 @@ def _convert_validator_spec(key, conv):
 _validators = {
     "backend":           validate_backend,
     "backend_fallback":  validate_bool,
-    "toolbar":           _ignorecase(["none", "toolbar2", "toolmanager"]),
+    # "toolbar":           _ignorecase(["none", "toolbar2", "toolmanager"]),
+    "toolbar":           _validate_toolbar,
     "interactive":       validate_bool,
     "timezone":          validate_string,
 
