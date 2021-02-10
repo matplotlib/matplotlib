@@ -12,7 +12,6 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 """
 
 from enum import IntEnum
-# import logging
 import re
 import time
 from types import SimpleNamespace

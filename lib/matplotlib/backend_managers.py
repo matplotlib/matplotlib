@@ -1,5 +1,3 @@
-# import logging
-
 from matplotlib import _api, cbook, widgets
 from matplotlib.rcsetup import validate_stringlist
 import matplotlib.backend_tools as tools
