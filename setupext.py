@@ -179,7 +179,7 @@ LOCAL_QHULL_VERSION = '2020.2'
 
 
 # matplotlib build options, which can be altered using setup.cfg
-setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
+setup_cfg = os.environ.get('MPLSETUPCFG') or 'setup.cfg'
 config = configparser.ConfigParser()
 if os.path.exists(setup_cfg):
     config.read(setup_cfg)
@@ -213,7 +213,7 @@ def get_pkg_config():
     """
     if sys.platform == 'win32':
         return None
-    pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
+    pkg_config = os.environ.get('PKG_CONFIG') or 'pkg-config'
     if shutil.which(pkg_config) is None:
         print(
             "IMPORTANT WARNING:\n"
@@ -365,9 +365,7 @@ class Matplotlib(SetupPackage):
         return {
             'matplotlib': [
                 'mpl-data/matplotlibrc',
-                *_pkg_data_helper('matplotlib', 'mpl-data/fonts'),
-                *_pkg_data_helper('matplotlib', 'mpl-data/images'),
-                *_pkg_data_helper('matplotlib', 'mpl-data/stylelib'),
+                *_pkg_data_helper('matplotlib', 'mpl-data'),
                 *_pkg_data_helper('matplotlib', 'backends/web_backend'),
                 '*.dll',  # Only actually matters on Windows.
             ],
@@ -447,7 +445,6 @@ class Matplotlib(SetupPackage):
         ext = Extension(
             "matplotlib.backends._tkagg", [
                 "src/_tkagg.cpp",
-                "src/py_converters.cpp",
             ],
             include_dirs=["src"],
             # psapi library needed for finding Tcl/Tk at run time.
@@ -477,21 +474,6 @@ class Matplotlib(SetupPackage):
             include_dirs=["extern"])
         add_numpy_flags(ext)
         yield ext
-
-
-class SampleData(OptionalPackage):
-    """
-    This handles the sample data that ships with matplotlib.  It is
-    technically optional, though most often will be desired.
-    """
-    name = "sample_data"
-
-    def get_package_data(self):
-        return {
-            'matplotlib': [
-                *_pkg_data_helper('matplotlib', 'mpl-data/sample_data'),
-            ],
-        }
 
 
 class Tests(OptionalPackage):

@@ -114,14 +114,14 @@ class TriInterpolator:
         The purpose of :meth:`_interpolate_multikeys` is to implement the
         following common tasks needed in all subclasses implementations:
 
-            - calculation of containing triangles
-            - dealing with more than one interpolation request at the same
-              location (e.g., if the 2 derivatives are requested, it is
-              unnecessary to compute the containing triangles twice)
-            - scaling according to self._unit_x, self._unit_y
-            - dealing with points outside of the grid (with fill value np.nan)
-            - dealing with multi-dimensional *x*, *y* arrays: flattening for
-              :meth:`_interpolate_params` call and final reshaping.
+        - calculation of containing triangles
+        - dealing with more than one interpolation request at the same
+          location (e.g., if the 2 derivatives are requested, it is
+          unnecessary to compute the containing triangles twice)
+        - scaling according to self._unit_x, self._unit_y
+        - dealing with points outside of the grid (with fill value np.nan)
+        - dealing with multi-dimensional *x*, *y* arrays: flattening for
+          :meth:`_interpolate_params` call and final reshaping.
 
         (Note that np.vectorize could do most of those things very well for
         you, but it does it by function evaluations over successive tuples of
@@ -213,10 +213,10 @@ class TriInterpolator:
 
         Parameters
         ----------
-        return_index : {'z', 'dzdx', 'dzdy'}
-            Identifies the requested values (z or its derivatives)
+        return_key : {'z', 'dzdx', 'dzdy'}
+            The requested values (z or its derivatives).
         tri_index : 1D int array
-            Valid triangle index (-1 prohibited)
+            Valid triangle index (cannot be -1).
         x, y : 1D arrays, same shape as `tri_index`
             Valid locations where interpolation is requested.
 
@@ -242,11 +242,11 @@ class LinearTriInterpolator(TriInterpolator):
     ----------
     triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
-    z : array-like of shape (npoints,)
+    z : (npoints,) array-like
         Array of values, defined at grid points, to interpolate between.
     trifinder : `~matplotlib.tri.TriFinder`, optional
-          If this is not specified, the Triangulation's default TriFinder will
-          be used by calling `.Triangulation.get_trifinder`.
+        If this is not specified, the Triangulation's default TriFinder will
+        be used by calling `.Triangulation.get_trifinder`.
 
     Methods
     -------
@@ -305,7 +305,7 @@ class CubicTriInterpolator(TriInterpolator):
     ----------
     triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
-    z : array-like of shape (npoints,)
+    z : (npoints,) array-like
         Array of values, defined at grid points, to interpolate between.
     kind : {'min_E', 'geom', 'user'}, optional
         Choice of the smoothing algorithm, in order to compute
@@ -461,8 +461,8 @@ class CubicTriInterpolator(TriInterpolator):
         Returns
         -------
         array-like, shape (npts, 2)
-              Estimation of the gradient at triangulation nodes (stored as
-              degree of freedoms of reduced-HCT triangle elements).
+            Estimation of the gradient at triangulation nodes (stored as
+            degree of freedoms of reduced-HCT triangle elements).
         """
         if kind == 'user':
             if dz is None:

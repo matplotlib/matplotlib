@@ -156,7 +156,7 @@ import jinja2  # Sphinx dependency.
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
 import matplotlib.pyplot as plt
-from matplotlib import _api, _pylab_helpers, cbook, sphinxext
+from matplotlib import _api, _pylab_helpers, cbook
 
 matplotlib.use("agg")
 align = _api.deprecated(
@@ -256,7 +256,7 @@ class PlotDirective(Directive):
 
 def _copy_css_file(app, exc):
     if exc is None and app.builder.format == 'html':
-        src = sphinxext._static_path / Path('plot_directive.css')
+        src = cbook._get_data_path('plot_directive/plot_directive.css')
         dst = app.outdir / Path('_static')
         shutil.copy(src, dst)
 

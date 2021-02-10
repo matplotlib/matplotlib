@@ -191,7 +191,7 @@ class ToolManager:
         ----------
         name : str
             Name of the Tool.
-        keys : str or list of str
+        key : str or list of str
             Keys to associate with the tool.
         """
         if name not in self._tools:

@@ -1932,6 +1932,13 @@ def test_stairs_baseline_0(fig_test, fig_ref):
     ref_ax.set_ylim(0, None)
 
 
+def test_stairs_empty():
+    ax = plt.figure().add_subplot()
+    ax.stairs([], [42])
+    assert ax.get_xlim() == (39, 45)
+    assert ax.get_ylim() == (-0.06, 0.06)
+
+
 def test_stairs_invalid_nan():
     with pytest.raises(ValueError, match='Nan values in "edges"'):
         plt.stairs([1, 2], [0, np.nan, 1])
@@ -2140,6 +2147,17 @@ class TestScatter:
                            marker=mmarkers.MarkerStyle('o', fillstyle='none'),
                            linewidths=[1.1, 1.2, 1.3])
         assert coll.get_facecolors().shape == (0, 4)  # no facecolors
+        assert_array_equal(coll.get_edgecolors(), [[0.1, 0.1, 0.1, 1],
+                                                   [0.3, 0.3, 0.3, 1],
+                                                   [0.5, 0.5, 0.5, 1]])
+        assert_array_equal(coll.get_linewidths(), [1.1, 1.2, 1.3])
+
+    @pytest.mark.style('default')
+    def test_scatter_unfillable(self):
+        coll = plt.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
+                           marker='x',
+                           linewidths=[1.1, 1.2, 1.3])
+        assert_array_equal(coll.get_facecolors(), coll.get_edgecolors())
         assert_array_equal(coll.get_edgecolors(), [[0.1, 0.1, 0.1, 1],
                                                    [0.3, 0.3, 0.3, 1],
                                                    [0.5, 0.5, 0.5, 1]])
@@ -4452,7 +4470,7 @@ def test_specgram_angle():
 
 def test_specgram_fs_none():
     """Test axes.specgram when Fs is None, should not throw error."""
-    spec, freqs, t, im = plt.specgram(np.ones(300), Fs=None)
+    spec, freqs, t, im = plt.specgram(np.ones(300), Fs=None, scale='linear')
     xmin, xmax, freq0, freq1 = im.get_extent()
     assert xmin == 32 and xmax == 96
 
@@ -6939,3 +6957,13 @@ def test_patch_bounds():  # PR 19078
     bot = 1.9*np.sin(15*np.pi/180)**2
     np.testing.assert_array_almost_equal_nulp(
         np.array((-0.525, -(bot+0.05), 1.05, bot+0.1)), ax.dataLim.bounds, 16)
+
+
+@pytest.mark.style('default')
+def test_warn_ignored_scatter_kwargs():
+    with pytest.warns(UserWarning,
+                      match=r"You passed a edgecolor/edgecolors"):
+
+        c = plt.scatter(
+            [0], [0], marker="+", s=500, facecolor="r", edgecolor="b"
+        )

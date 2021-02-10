@@ -143,7 +143,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        bool array-like
+        array of bool
             Mask to apply to encapsulated triangulation.
             All the initially masked triangles remain masked in the
             *new_mask*.

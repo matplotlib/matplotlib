@@ -5,10 +5,11 @@ from matplotlib.backend_bases import (
     NavigationToolbar2, RendererBase)
 from matplotlib.backend_tools import (ToolZoom, ToolPan, RubberbandBase,
                                       ToolViewsPositions, _views_positions)
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
-import os
+
 import numpy as np
 import pytest
 
@@ -54,6 +55,10 @@ def test_uses_per_path():
     check(id, paths, tforms_matrices, offsets, facecolors[0:1], edgecolors)
 
 
+def test_canvas_ctor():
+    assert isinstance(FigureCanvasBase().figure, Figure)
+
+
 def test_get_default_filename(tmpdir):
     plt.rcParams['savefig.directory'] = str(tmpdir)
     fig = plt.figure()
@@ -75,7 +80,7 @@ def test_canvas_change():
 def test_non_gui_warning(monkeypatch):
     plt.subplots()
 
-    monkeypatch.setitem(os.environ, "DISPLAY", ":999")
+    monkeypatch.setenv("DISPLAY", ":999")
 
     with pytest.warns(UserWarning) as rec:
         plt.show()

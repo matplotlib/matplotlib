@@ -44,14 +44,14 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, backend_tools as tools, cbook, colors, textpath, tight_bbox,
-    transforms, widgets, get_backend, is_interactive, rcParams)
+    _api, backend_tools as tools, cbook, colors, docstring, textpath,
+    tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
 from matplotlib.path import Path
-from matplotlib.rcsetup import validate_joinstyle, validate_capstyle
 from matplotlib.transforms import Affine2D
+from matplotlib._enums import JoinStyle, CapStyle
 
 
 _log = logging.getLogger(__name__)
@@ -193,11 +193,7 @@ class RendererBase:
     def draw_markers(self, gc, marker_path, marker_trans, path,
                      trans, rgbFace=None):
         """
-        Draw a marker at each of the vertices in path.
-
-        This includes all vertices, including control points on curves.
-        To avoid that behavior, those vertices should be removed before
-        calling this function.
+        Draw a marker at each of *path*'s vertices (excluding control points).
 
         This provides a fallback implementation of draw_markers that
         makes multiple calls to :meth:`draw_path`.  Some backends may
@@ -208,13 +204,10 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
-
         marker_trans : `matplotlib.transforms.Transform`
             An affine transform applied to the marker.
-
         trans : `matplotlib.transforms.Transform`
             An affine transform applied to the path.
-
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -297,16 +290,12 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
-
-        points : array-like, shape=(3, 2)
+        points : (3, 2) array-like
             Array of (x, y) points for the triangle.
-
-        colors : array-like, shape=(3, 4)
+        colors : (3, 4) array-like
             RGBA colors for each point of the triangle.
-
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
-
         """
         raise NotImplementedError
 
@@ -317,12 +306,10 @@ class RendererBase:
 
         Parameters
         ----------
-        points : array-like, shape=(N, 3, 2)
+        points : (N, 3, 2) array-like
             Array of *N* (x, y) points for the triangles.
-
-        colors : array-like, shape=(N, 3, 4)
+        colors : (N, 3, 4) array-like
             Array of *N* RGBA colors for each point of the triangles.
-
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
@@ -502,7 +489,7 @@ class RendererBase:
             The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        im : array-like, shape=(N, M, 4), dtype=np.uint8
+        im : (N, M, 4) array-like of np.uint8
             An array of RGBA pixels.
 
         transform : `matplotlib.transforms.Affine2DBase`
@@ -765,11 +752,11 @@ class GraphicsContextBase:
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
         self._antialiased = 1  # use 0, 1 not True, False for extension code
-        self._capstyle = 'butt'
+        self._capstyle = CapStyle('butt')
         self._cliprect = None
         self._clippath = None
         self._dashes = 0, None
-        self._joinstyle = 'round'
+        self._joinstyle = JoinStyle('round')
         self._linestyle = 'solid'
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
@@ -820,10 +807,8 @@ class GraphicsContextBase:
         return self._antialiased
 
     def get_capstyle(self):
-        """
-        Return the capstyle as a string in ('butt', 'round', 'projecting').
-        """
-        return self._capstyle
+        """Return the `.CapStyle`."""
+        return self._capstyle.name
 
     def get_clip_rectangle(self):
         """
@@ -867,8 +852,8 @@ class GraphicsContextBase:
         return self._forced_alpha
 
     def get_joinstyle(self):
-        """Return the line join style as one of ('miter', 'round', 'bevel')."""
-        return self._joinstyle
+        """Return the `.JoinStyle`."""
+        return self._joinstyle.name
 
     def get_linewidth(self):
         """Return the line width in points."""
@@ -919,10 +904,16 @@ class GraphicsContextBase:
         # Use ints to make life easier on extension code trying to read the gc.
         self._antialiased = int(bool(b))
 
+    @docstring.interpd
     def set_capstyle(self, cs):
-        """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
-        validate_capstyle(cs)
-        self._capstyle = cs
+        """
+        Set how to draw endpoints of lines.
+
+        Parameters
+        ----------
+        cs : `.CapStyle` or %(CapStyle)s
+        """
+        self._capstyle = CapStyle(cs)
 
     def set_clip_rectangle(self, rectangle):
         """Set the clip rectangle to a `.Bbox` or None."""
@@ -979,10 +970,16 @@ class GraphicsContextBase:
         else:
             self._rgb = colors.to_rgba(fg)
 
+    @docstring.interpd
     def set_joinstyle(self, js):
-        """Set the join style to be one of ('miter', 'round', 'bevel')."""
-        validate_joinstyle(js)
-        self._joinstyle = js
+        """
+        Set how to draw connections between line segments.
+
+        Parameters
+        ----------
+        js : `.JoinStyle` or %(JoinStyle)s
+        """
+        self._joinstyle = JoinStyle(js)
 
     def set_linewidth(self, w):
         """Set the linewidth in points."""
@@ -1065,7 +1062,7 @@ class GraphicsContextBase:
             pixels.  If scale is `None`, or not provided, no sketch filter will
             be provided.
         length : float, default: 128
-             The length of the wiggle along the line, in pixels.
+            The length of the wiggle along the line, in pixels.
         randomness : float, default: 16
             The scale factor by which the length is shrunken or expanded.
         """
@@ -1107,7 +1104,7 @@ class TimerBase:
         interval : int, default: 1000ms
             The time between timer events in milliseconds.  Will be stored as
             ``timer.interval``.
-        callbacks : List[Tuple[callable, Tuple, Dict]]
+        callbacks : list[tuple[callable, tuple, dict]]
             List of (func, args, kwargs) tuples that will be called upon
             timer events.  This list is accessible as ``timer.callbacks`` and
             can be manipulated directly, or the functions `add_callback` and
@@ -1706,10 +1703,13 @@ class FigureCanvasBase:
         return (hasattr(cls, "copy_from_bbox")
                 and hasattr(cls, "restore_region"))
 
-    def __init__(self, figure):
+    def __init__(self, figure=None):
+        from matplotlib.figure import Figure
         self._fix_ipython_backend2gui()
         self._is_idle_drawing = True
         self._is_saving = False
+        if figure is None:
+            figure = Figure()
         figure.set_canvas(self)
         self.figure = figure
         self.manager = None
@@ -2198,19 +2198,25 @@ class FigureCanvasBase:
 
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
+
+            if (self.figure.get_constrained_layout() or
+                    bbox_inches == "tight"):
+                # we need to trigger a draw before printing to make sure
+                # CL works.  "tight" also needs a draw to get the right
+                # locations:
+                renderer = _get_renderer(
+                    self.figure,
+                    functools.partial(
+                        print_method, orientation=orientation)
+                )
+                ctx = (renderer._draw_disabled()
+                       if hasattr(renderer, '_draw_disabled')
+                       else suppress())
+                with ctx:
+                    self.figure.draw(renderer)
+
             if bbox_inches:
                 if bbox_inches == "tight":
-                    renderer = _get_renderer(
-                        self.figure,
-                        functools.partial(
-                            print_method, orientation=orientation)
-                    )
-                    ctx = (renderer._draw_disabled()
-                           if hasattr(renderer, '_draw_disabled')
-                           else suppress())
-                    with ctx:
-                        self.figure.draw(renderer)
-
                     bbox_inches = self.figure.get_tightbbox(
                         renderer, bbox_extra_artists=bbox_extra_artists)
                     if pad_inches is None:
@@ -2225,6 +2231,9 @@ class FigureCanvasBase:
             else:
                 _bbox_inches_restore = None
 
+            # we have already done CL above, so turn it off:
+            cl_state = self.figure.get_constrained_layout()
+            self.figure.set_constrained_layout(False)
             try:
                 result = print_method(
                     filename,
@@ -2241,6 +2250,8 @@ class FigureCanvasBase:
                 self.figure.set_facecolor(origfacecolor)
                 self.figure.set_edgecolor(origedgecolor)
                 self.figure.set_canvas(self)
+            # reset to cached state
+            self.figure.set_constrained_layout(cl_state)
             return result
 
     @classmethod
@@ -2384,7 +2395,7 @@ class FigureCanvasBase:
         interval : int
             Timer interval in milliseconds.
 
-        callbacks : List[Tuple[callable, Tuple, Dict]]
+        callbacks : list[tuple[callable, tuple, dict]]
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 
@@ -3409,7 +3420,7 @@ class ToolContainerBase:
             Name of the group that this tool belongs to.
         position : int
             Position of the tool within its group, if -1 it goes at the end.
-        image_file : str
+        image : str
             Filename of the image for the button or `None`.
         description : str
             Description of the tool, used for the tooltips.

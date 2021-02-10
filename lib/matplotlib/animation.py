@@ -285,7 +285,7 @@ class MovieWriter(AbstractMovieWriter):
             Extra command-line arguments passed to the underlying movie
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
-        metadata : Dict[str, str], default: {}
+        metadata : dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -891,6 +891,22 @@ class HTMLWriter(FileMovieWriter):
                                              interval=interval,
                                              **mode_dict))
 
+        # duplicate the temporary file clean up logic from
+        # FileMovieWriter.cleanup.  We can not call the inherited
+        # versions of finished or cleanup because both assume that
+        # there is a subprocess that we either need to call to merge
+        # many frames together or that there is a subprocess call that
+        # we need to clean up.
+        if self._tmpdir:
+            _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
+            self._tmpdir.cleanup()
+        else:
+            if self._clear_temp:
+                _log.debug('MovieWriter: clearing temporary paths=%s',
+                           self._temp_paths)
+                for path in self._temp_paths:
+                    path.unlink()
+
 
 class Animation:
     """
@@ -1024,7 +1040,7 @@ class Animation:
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
 
-        metadata : Dict[str, str], default: {}
+        metadata : dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
             the output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.

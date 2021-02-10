@@ -46,15 +46,16 @@ def identify_axes(ax_dict, fontsize=48):
 
     Parameters
     ----------
-    ax_dict : Dict[str, Axes]
+    ax_dict : dict[str, Axes]
         Mapping between the title / label and the Axes.
-
     fontsize : int, optional
-        How big the label should be
+        How big the label should be.
     """
     kw = dict(ha="center", va="center", fontsize=fontsize, color="darkgrey")
     for k, ax in ax_dict.items():
         ax.text(0.5, 0.5, k, transform=ax.transAxes, **kw)
+
+
 ###############################################################################
 # If we want a 2x2 grid we can use `.Figure.subplots` which returns a 2D array
 # of `.axes.Axes` which we can index into to do our plotting.

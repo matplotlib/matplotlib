@@ -136,7 +136,7 @@ class UniformTriRefiner(TriRefiner):
 
         Parameters
         ----------
-        z : array-like of length ``n_points``
+        z : (npoints,) array-like
             Values of the field to refine, defined at the nodes of the
             encapsulated triangulation. (``n_points`` is the number of points
             in the initial triangulation)

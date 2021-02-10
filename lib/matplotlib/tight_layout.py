@@ -30,9 +30,9 @@ def auto_adjust_subplotpars(
 
     Parameters
     ----------
-    nrows_ncols : Tuple[int, int]
+    nrows_ncols : tuple[int, int]
         Number of rows and number of columns of the grid.
-    num1num2_list : List[int]
+    num1num2_list : list[int]
         List of numbers specifying the area occupied by the subplot
     subplot_list : list of subplots
         List of subplots that will be used to calculate optimal subplot_params.
@@ -42,7 +42,7 @@ def auto_adjust_subplotpars(
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots, as a
         fraction of the font size.  Defaults to *pad*.
-    rect : Tuple[float, float, float, float]
+    rect : tuple[float, float, float, float]
         [left, bottom, right, top] in normalized (0, 1) figure coordinates.
     """
     rows, cols = nrows_ncols
@@ -237,7 +237,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots.  Defaults to
         *pad*.
-    rect : Tuple[float, float, float, float], optional
+    rect : tuple[float, float, float, float], optional
         (left, bottom, right, top) rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.
         Defaults to using the entire figure.
@@ -247,7 +247,6 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     subplotspec or None
         subplotspec kwargs to be passed to `.Figure.subplots_adjust` or
         None if tight_layout could not be accomplished.
-
     """
 
     subplot_list = []

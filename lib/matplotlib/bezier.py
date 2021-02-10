@@ -129,13 +129,13 @@ def find_bezier_t_intersecting_with_closedpath(
         A function returning x, y coordinates of the Bezier at parameter *t*.
         It must have the signature::
 
-            bezier_point_at_t(t: float) -> Tuple[float, float]
+            bezier_point_at_t(t: float) -> tuple[float, float]
 
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
         closed path. It must have the signature::
 
-            inside_closedpath(point: Tuple[float, float]) -> bool
+            inside_closedpath(point: tuple[float, float]) -> bool
 
     t0, t1 : float
         Start parameters for the search.
@@ -204,12 +204,12 @@ class BezierSegment:
 
         Parameters
         ----------
-        t : float (k,), array_like
+        t : (k,) array-like
             Points at which to evaluate the curve.
 
         Returns
         -------
-        float (k, d), array_like
+        (k, d) array
             Value of the curve for each point in *t*.
         """
         t = np.asarray(t)
@@ -217,7 +217,9 @@ class BezierSegment:
                 * np.power.outer(t, self._orders)) @ self._px
 
     def point_at_t(self, t):
-        """Evaluate curve at a single point *t*. Returns a Tuple[float*d]."""
+        """
+        Evaluate the curve at a single point, returning a tuple of *d* floats.
+        """
         return tuple(self(t))
 
     @property
@@ -244,7 +246,7 @@ class BezierSegment:
 
         Returns
         -------
-        float, (n+1, d) array_like
+        (n+1, d) array
             Coefficients after expanding in polynomial basis, where :math:`n`
             is the degree of the bezier curve and :math:`d` its dimension.
             These are the numbers (:math:`C_j`) such that the curve can be
@@ -280,10 +282,10 @@ class BezierSegment:
 
         Returns
         -------
-        dims : int, array_like
+        dims : array of int
             Index :math:`i` of the partial derivative which is zero at each
             interior extrema.
-        dzeros : float, array_like
+        dzeros : array of float
             Of same size as dims. The :math:`t` such that :math:`d/dx_i B(t) =
             0`
         """
@@ -311,7 +313,7 @@ def split_bezier_intersecting_with_closedpath(
 
     Parameters
     ----------
-    bezier : array-like(N, 2)
+    bezier : (N, 2) array-like
         Control points of the Bezier segment. See `.BezierSegment`.
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
@@ -407,7 +409,7 @@ def inside_circle(cx, cy, r):
 
     The returned function has the signature::
 
-        f(xy: Tuple[float, float]) -> bool
+        f(xy: tuple[float, float]) -> bool
     """
     r2 = r ** 2
 

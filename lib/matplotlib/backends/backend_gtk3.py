@@ -36,12 +36,13 @@ backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 try:
+    _display = Gdk.Display.get_default()
     cursord = {
-        cursors.MOVE:          Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-        cursors.HAND:          Gdk.Cursor.new(Gdk.CursorType.HAND2),
-        cursors.POINTER:       Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-        cursors.SELECT_REGION: Gdk.Cursor.new(Gdk.CursorType.TCROSS),
-        cursors.WAIT:          Gdk.Cursor.new(Gdk.CursorType.WATCH),
+        cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
+        cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
+        cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
+        cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
+        cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
     }
 except TypeError as exc:
     # Happens when running headless.  Convert to ImportError to cooperate with
@@ -101,7 +102,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                   | Gdk.EventMask.POINTER_MOTION_HINT_MASK
                   | Gdk.EventMask.SCROLL_MASK)
 
-    def __init__(self, figure):
+    def __init__(self, figure=None):
         FigureCanvasBase.__init__(self, figure)
         GObject.GObject.__init__(self)
 
@@ -124,7 +125,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         self.set_events(self.__class__.event_mask)
 
-        self.set_double_buffered(True)
         self.set_can_focus(True)
 
         renderer_init = _api.deprecate_method_override(
@@ -180,7 +180,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
     def motion_notify_event(self, widget, event):
         if event.is_hint:
-            t, x, y, state = event.window.get_pointer()
+            t, x, y, state = event.window.get_device_position(event.device)
         else:
             x, y = event.x, event.y
 
@@ -338,12 +338,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.toolbar = self._get_toolbar()
 
-        def add_widget(child):
-            child.show()
-            self.vbox.pack_end(child, False, False, 0)
-            size_request = child.size_request()
-            return size_request.height
-
         if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
@@ -351,7 +345,9 @@ class FigureManagerGTK3(FigureManagerBase):
 
         if self.toolbar is not None:
             self.toolbar.show()
-            h += add_widget(self.toolbar)
+            self.vbox.pack_end(self.toolbar, False, False, 0)
+            min_size, nat_size = self.toolbar.get_preferred_size()
+            h += nat_size.height
 
         self.window.set_default_size(w, h)
 

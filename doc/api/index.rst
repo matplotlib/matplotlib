@@ -127,6 +127,7 @@ Matplotlib consists of the following submodules:
    units_api.rst
    widgets_api.rst
    _api_api.rst
+   _enums_api.rst
 
 Toolkits
 --------

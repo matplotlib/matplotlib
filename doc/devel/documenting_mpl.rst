@@ -462,8 +462,9 @@ Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
 ``3D``, ``n-dimensional``. If you need to have variables denoting the
 sizes of the dimensions, use capital letters in brackets
-(``array-like (M, N)``). When referring to them in the text they are easier
-read and no special formatting is needed.
+(``(M, N) array-like``). When referring to them in the text they are easier
+read and no special formatting is needed. Use ``array`` instead of
+``array-like`` for return types if the returned object is indeed a numpy array.
 
 ``float`` is the implicit default dtype for array-likes. For other dtypes
 use ``array-like of int``.
@@ -471,9 +472,9 @@ use ``array-like of int``.
 Some possible uses::
 
   2D array-like
-  array-like (N)
-  array-like (M, N)
-  array-like (M, N, 3)
+  (N,) array-like
+  (M, N) array-like
+  (M, N, 3) array-like
   array-like of int
 
 Non-numeric homogeneous sequences are described as lists, e.g.::

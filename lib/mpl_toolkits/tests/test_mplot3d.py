@@ -233,6 +233,8 @@ def test_scatter3d():
     x = y = z = np.arange(10, 20)
     ax.scatter(x, y, z, c='b', marker='^')
     z[-1] = 0  # Check that scatter() copies the data.
+    # Ensure empty scatters do not break.
+    ax.scatter([], [], [], c='r', marker='X')
 
 
 @mpl3d_image_comparison(['scatter3d_color.png'])
@@ -580,6 +582,19 @@ def test_quiver3d_masked():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
+def test_patch_modification():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    circle = Circle((0, 0))
+    ax.add_patch(circle)
+    art3d.patch_2d_to_3d(circle)
+    circle.set_facecolor((1.0, 0.0, 0.0, 1))
+
+    assert mcolors.same_color(circle.get_facecolor(), (1, 0, 0, 1))
+    fig.canvas.draw()
+    assert mcolors.same_color(circle.get_facecolor(), (1, 0, 0, 1))
+
+
 @check_figures_equal(extensions=['png'])
 def test_patch_collection_modification(fig_test, fig_ref):
     # Test that modifying Patch3DCollection properties after creation works.
@@ -624,6 +639,14 @@ def test_poly_collection_2d_to_3d_empty():
     art3d.poly_collection_2d_to_3d(poly)
     assert isinstance(poly, art3d.Poly3DCollection)
     assert poly.get_paths() == []
+
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    ax.add_artist(poly)
+    minz = poly.do_3d_projection()
+    assert np.isnan(minz)
+
+    # Ensure drawing actually works.
+    fig.canvas.draw()
 
 
 @mpl3d_image_comparison(['poly3dcollection_alpha.png'])

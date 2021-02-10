@@ -344,13 +344,9 @@ class Patch3D(Patch):
         zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
                            for ((x, y), z) in zip(verts, zs)]
-        self._facecolor3d = Patch.get_facecolor(self)
 
     def get_path(self):
         return self._path2d
-
-    def get_facecolor(self):
-        return self._facecolor2d
 
     @_api.delete_parameter('3.4', 'renderer')
     def do_3d_projection(self, renderer=None):
@@ -359,8 +355,6 @@ class Patch3D(Patch):
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]))
-        # FIXME: coloring
-        self._facecolor2d = self._facecolor3d
         return min(vzs)
 
 
@@ -385,8 +379,6 @@ class PathPatch3D(Patch3D):
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
-        # FIXME: coloring
-        self._facecolor2d = self._facecolor3d
         return min(vzs)
 
 
@@ -763,7 +755,7 @@ class Poly3DCollection(PolyCollection):
         """
         Parameters
         ----------
-        verts : list of array-like Nx3
+        verts : list of (N, 3) array-like
             Each element describes a polygon as a sequence of ``N_i`` points
             ``(x, y, z)``.
         zsort : {'average', 'min', 'max'}, default: 'average'
@@ -866,15 +858,21 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # sort by depth (furthest drawn first)
-        z_segments_2d = sorted(
-            ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-             for idx, ((xs, ys, zs), fc, ec)
-             in enumerate(zip(xyzlist, cface, cedge))),
-            key=lambda x: x[0], reverse=True)
+        if xyzlist:
+            # sort by depth (furthest drawn first)
+            z_segments_2d = sorted(
+                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
+                 for idx, ((xs, ys, zs), fc, ec)
+                 in enumerate(zip(xyzlist, cface, cedge))),
+                key=lambda x: x[0], reverse=True)
 
-        zzs, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
-            zip(*z_segments_2d)
+            _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
+                zip(*z_segments_2d)
+        else:
+            segments_2d = []
+            self._facecolors2d = np.empty((0, 4))
+            self._edgecolors2d = np.empty((0, 4))
+            idxs = []
 
         if self._codes3d is not None:
             codes = [self._codes3d[idx] for idx in idxs]

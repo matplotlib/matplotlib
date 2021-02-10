@@ -122,7 +122,7 @@ def test_xelatex():
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default')
 def test_pdflatex():
-    if os.environ.get('APPVEYOR', False):
+    if os.environ.get('APPVEYOR'):
         pytest.xfail("pdflatex test does not work on appveyor due to missing "
                      "LaTeX fonts")
 

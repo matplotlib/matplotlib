@@ -25,6 +25,20 @@ about the code, what makes for good documentation or a blog post, how to get inv
 in community work, or get "pre-review" on your PR.
 
 
+.. _new_contributors:
+
+Issues for New Contributors
+---------------------------
+
+While any contributions are welcome, we have marked some issues as
+particularly suited for new contributors by the label
+`good first issue <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_
+These are well documented issues, that do not require a deep understanding of
+the internals of Matplotlib. The issues may additionally be tagged with a
+difficulty. ``Difficulty: Easy`` is suited for people with little Python experience.
+``Difficulty: Medium`` and ``Difficulty: Hard`` are not trivial to solve and
+require more thought and programming experience.
+
 .. _submitting-a-bug-report:
 
 Submitting a bug report
@@ -53,10 +67,10 @@ If you are reporting a bug, please do your best to include the following:
 
       >>> import matplotlib
       >>> matplotlib.__version__
-      '1.5.3'
+      '3.4.1'
       >>> import platform
       >>> platform.python_version()
-      '2.7.12'
+      '3.9.2'
 
 We have preloaded the issue creation page with a Markdown template that you can
 use to organize this information.
@@ -88,9 +102,6 @@ The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR).
 
-The best practices for using GitHub to make PRs to Matplotlib are
-documented in the :ref:`development-workflow` section.
-
 A brief overview is:
 
 1. `Create an account <https://github.com/join>`_ on GitHub if you do not
@@ -102,34 +113,36 @@ A brief overview is:
 
 3. Clone this copy to your local disk::
 
-      $ git clone https://github.com/YourLogin/matplotlib.git
+      git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
 
-4. Create a branch to hold your changes::
+4. Enter the directory and install the local version of Matplotlib. 
+   See ref`<installing_for_devs>` for instructions
 
-      $ git checkout -b my-feature origin/master
+5. Create a branch to hold your changes::
+
+      git checkout -b my-feature origin/master
 
    and start making changes. Never work in the ``master`` branch!
 
-5. Work on this copy, on your computer, using Git to do the version control.
+6. Work on this copy, on your computer, using Git to do the version control.
    When you're done editing e.g., ``lib/matplotlib/collections.py``, do::
 
-      $ git add lib/matplotlib/collections.py
-      $ git commit
+      git add lib/matplotlib/collections.py
+      git commit
 
    to record your changes in Git, then push them to GitHub with::
 
-      $ git push -u origin my-feature
+      git push -u origin my-feature
 
 Finally, go to the web page of your fork of the Matplotlib repo, and click
-'Pull request' to send your changes to the maintainers for review.  You may
-want to consider sending an email to the mailing list for more visibility.
+'Pull request' to send your changes to the maintainers for review.
 
 .. seealso::
 
   * `Git documentation <https://git-scm.com/documentation>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
   * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
-  * :ref:`development-workflow`
+  * :ref:`development-workflow` for best practices for Matplotlib
   * :ref:`using-git`
 
 Contributing pull requests
@@ -215,20 +228,6 @@ tools:
   * :ref:`documenting-matplotlib`
 
 
-
-.. _new_contributors:
-
-Issues for New Contributors
----------------------------
-
-New contributors should look for the following tags when looking for issues.
-We strongly recommend that new contributors tackle issues labeled
-`good first issue <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_
-as they are easy, well documented issues, that do not require an understanding of
-the different submodules of Matplotlib.
-This helps the contributor become familiar with the contribution
-workflow, and for the core devs to become acquainted with the contributor;
-besides which, we frequently underestimate how easy an issue is to solve!
 
 
 .. _contributing_documentation:

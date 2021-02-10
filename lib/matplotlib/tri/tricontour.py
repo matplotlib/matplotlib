@@ -153,15 +153,15 @@ triangulation : `.Triangulation`, optional
 x, y : array-like, optional
     The coordinates of the values in *Z*.
 
-triangles : int array-like of shape (ntri, 3), optional
+triangles : (ntri, 3) array-like of int, optional
     For each triangle, the indices of the three points that make up the
     triangle, ordered in an anticlockwise manner.  If not specified, the
     Delaunay triangulation is calculated.
 
-mask : bool array-like of shape (ntri), optional
+mask : (ntri,) array-like of bool, optional
     Which triangles are masked out.
 
-Z : array-like(N, M)
+Z : 2D array-like
     The height values over which the contour is drawn.
 
 levels : int or array-like, optional

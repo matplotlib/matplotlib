@@ -21,7 +21,6 @@ license_files = LICENSE/*
 # considered optional. All except 'tests' data (meaning the baseline
 # image files) are installed by default, but that can be changed here.
 #tests = False
-#sample_data = True
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, known as backends.

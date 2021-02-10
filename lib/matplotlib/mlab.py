@@ -5,7 +5,7 @@ the `numpy` and `scipy` libraries. What remains here is code for performing
 spectral computations.
 
 Spectral functions
--------------------
+------------------
 
 `cohere`
     Coherence (normalized cross spectral density)

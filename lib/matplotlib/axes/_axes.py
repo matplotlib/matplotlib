@@ -417,7 +417,7 @@ class Axes(_AxesBase):
 
         if transform is None:
             transform = self.transData
-        kwargs.setdefault('label', 'indicate_inset')
+        kwargs.setdefault('label', '_indicate_inset')
 
         x, y, width, height = bounds
         rectangle_patch = mpatches.Rectangle(
@@ -2541,11 +2541,11 @@ class Axes(_AxesBase):
               value displayed will be the position of that end-point.
             - 'center': label placed in the center of the bar segment, and the
               value displayed will be the length of that segment.
-              (useful for stacked bars, i.e.
+              (useful for stacked bars, i.e.,
               :doc:`/gallery/lines_bars_and_markers/bar_label_demo`)
 
         padding : float, default: 0
-            Distance of label from the end of the bar.
+            Distance of label from the end of the bar, in points.
 
         **kwargs
             Any remaining keyword arguments are passed through to
@@ -3622,7 +3622,7 @@ class Axes(_AxesBase):
             95% confidence intervals. Values between 1000 and 10000 are
             recommended.
 
-        usermedians : array-like, optional
+        usermedians : 1D array-like, optional
             A 1D array-like of length ``len(x)``.  Each entry that is not
             `None` forces the value of the median for the corresponding
             dataset.  For entries that are `None`, the medians are computed
@@ -4490,6 +4490,10 @@ default: :rc:`scatter.edgecolors`
                 "s must be a scalar, "
                 "or float array-like with the same size as x and y")
 
+        # get the original edgecolor the user passed before we normalize
+        orig_edgecolor = edgecolors
+        if edgecolors is None:
+            orig_edgecolor = kwargs.get('edgecolor', None)
         c, colors, edgecolors = \
             self._parse_scatter_color_args(
                 c, edgecolors, kwargs, x.size,
@@ -4518,6 +4522,36 @@ default: :rc:`scatter.edgecolors`
         path = marker_obj.get_path().transformed(
             marker_obj.get_transform())
         if not marker_obj.is_filled():
+            if orig_edgecolor is not None:
+                _api.warn_external(
+                    f"You passed a edgecolor/edgecolors ({orig_edgecolor!r}) "
+                    f"for an unfilled marker ({marker!r}).  Matplotlib is "
+                    "ignoring the edgecolor in favor of the facecolor.  This "
+                    "behavior may change in the future."
+                )
+            # We need to handle markers that can not be filled (like
+            # '+' and 'x') differently than markers that can be
+            # filled, but have their fillstyle set to 'none'.  This is
+            # to get:
+            #
+            #  - respecting the fillestyle if set
+            #  - maintaining back-compatibility for querying the facecolor of
+            #    the un-fillable markers.
+            #
+            # While not an ideal situation, but is better than the
+            # alternatives.
+            if marker_obj.get_fillstyle() == 'none':
+                # promote the facecolor to be the edgecolor
+                edgecolors = colors
+                # set the facecolor to 'none' (at the last chance) because
+                # we can not not fill a path if the facecolor is non-null.
+                # (which is defendable at the renderer level)
+                colors = 'none'
+            else:
+                # if we are not nulling the face color we can do this
+                # simpler
+                edgecolors = 'face'
+
             if linewidths is None:
                 linewidths = rcParams['lines.linewidth']
             elif np.iterable(linewidths):
@@ -4529,8 +4563,8 @@ default: :rc:`scatter.edgecolors`
 
         collection = mcoll.PathCollection(
                 (path,), scales,
-                facecolors=colors if marker_obj.is_filled() else 'none',
-                edgecolors=edgecolors if marker_obj.is_filled() else colors,
+                facecolors=colors,
+                edgecolors=edgecolors,
                 linewidths=linewidths,
                 offsets=offsets,
                 transOffset=kwargs.pop('transform', self.transData),
@@ -5713,8 +5747,8 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        C : array-like
-            A scalar 2D array. The values will be color-mapped.
+        C : 2D array-like
+            The color-mapped values.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -5957,8 +5991,8 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        C : array-like
-            A scalar 2D array. The values will be color-mapped.
+        C : 2D array-like
+            The color-mapped values.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6193,7 +6227,7 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        C : array-like(M, N)
+        C : array-like
             The image data. Supported array shapes are:
 
             - (M, N): an image with scalar data. The data is visualized
@@ -6861,7 +6895,7 @@ such objects
             return tops[0], bins, patches[0]
         else:
             patch_type = ("BarContainer" if histtype.startswith("bar")
-                          else "List[Polygon]")
+                          else "list[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
     @_preprocess_data()
@@ -7714,7 +7748,7 @@ such objects
 
         Parameters
         ----------
-        Z : array-like (M, N)
+        Z : (M, N) array-like
             The array to be plotted.
 
         precision : float or 'present', default: 0
@@ -7838,7 +7872,7 @@ such objects
 
         Parameters
         ----------
-        Z : array-like(M, N)
+        Z : (M, N) array-like
             The matrix to be displayed.
 
         Returns

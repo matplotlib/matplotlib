@@ -1765,9 +1765,8 @@ class Axes3D(Axes):
 
         Returns
         -------
-        normals : (..., 3) array-like
+        normals : (..., 3) array
             A normal vector estimated for the polygon.
-
         """
         if isinstance(polygons, np.ndarray):
             # optimization: polygons all have the same number of points, so can

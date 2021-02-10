@@ -1293,7 +1293,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         filename : str or path-like or file-like
             Output target; if a string, a file will be opened for writing.
 
-        metadata : Dict[str, Any], optional
+        metadata : dict[str, Any], optional
             Metadata in the SVG file defined as key-value pairs of strings,
             datetimes, or lists of strings, e.g., ``{'Creator': 'My software',
             'Contributor': ['Me', 'My Friend'], 'Title': 'Awesome'}``.

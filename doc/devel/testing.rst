@@ -225,3 +225,48 @@ you may (rarely) need to build very old versions of Matplotlib.  The following
 constraints need to be taken into account:
 
 - Matplotlib 1.3 (or earlier) requires numpy 1.8 (or earlier).
+
+Testing released versions of Matplotlib
+---------------------------------------
+Running the tests on an installation of a released version (e.g. PyPI package
+or conda package) also requires additional setup.
+
+.. note::
+
+   For an end-user, there is usually no need to run the tests on released
+   versions of Matplotlib. Official releases are tested before publishing.
+
+Install additional dependencies
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Install the :ref:`additional dependencies for testing <test-dependencies>`.
+
+Obtain the reference images
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Many tests compare the plot result against reference images. The reference
+images are not part of the regular packaged versions (pip wheels or conda
+packages). If you want to run tests with reference images, you need to obtain
+the reference images matching the version of Matplotlib you want to test.
+
+To do so, either download the matching source distribution
+``matplotlib-X.Y.Z.tar.gz`` from `PyPI <https://pypi.org/project/matplotlib/>`_
+or alternatively, clone the git repository and ``git checkout vX.Y.Z``. Copy
+the folder :file:`lib/matplotlib/tests/baseline_images` to the folder
+:file:`matplotlib/tests` of your the matplotlib installation to test.
+The correct target folder can be found using::
+
+    python -c "import matplotlib.tests; print(matplotlib.tests.__file__.rsplit('/', 1)[0])"
+
+An analogous copying of :file:`lib/mpl_toolkits/tests/baseline_images`
+is necessary for testing the :ref:`toolkits`.
+
+Run the tests
+^^^^^^^^^^^^^
+To run the all the tests on your installed version of Matplotlib::
+
+    pytest --pyargs matplotlib.tests
+
+The test discovery scope can be narrowed to single test modules or even single
+functions::
+
+    pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping
+

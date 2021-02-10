@@ -243,7 +243,7 @@ def _get_executable_info(name):
     """
     Get the version of some executable that Matplotlib optionally depends on.
 
-    .. warning:
+    .. warning::
        The list of executables that this function supports is set according to
        Matplotlib's internal needs, and may change without notice.
 
