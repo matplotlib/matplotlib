@@ -823,15 +823,17 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
+    @_api.delete_parameter("3.5", "args")
     def print_ps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'ps', *args, **kwargs)
+        return self._print_ps(outfile, 'ps', **kwargs)
 
+    @_api.delete_parameter("3.5", "args")
     def print_eps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'eps', *args, **kwargs)
+        return self._print_ps(outfile, 'eps', **kwargs)
 
     @_api.delete_parameter("3.4", "dpi")
     def _print_ps(
-            self, outfile, format, *args,
+            self, outfile, format, *,
             dpi=None, metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 

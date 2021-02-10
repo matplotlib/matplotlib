@@ -70,11 +70,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_agg.FigureCanvasAgg.draw(self)
         super().draw()
 
-    def print_png(self, filename, *args, **kwargs):
-        # Do this so we can save the resolution of figure in the PNG file
-        agg = self.switch_backends(backend_agg.FigureCanvasAgg)
-        return agg.print_png(filename, *args, **kwargs)
-
 
 class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
     pass
