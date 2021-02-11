@@ -1,12 +1,9 @@
 ``matplotlib.mathtext`` now supports *overset* and *underset* LaTeX symbols
 ---------------------------------------------------------------------------
 
-`.mathtext`, the default TeX layout engine which is shipped along with
-Matplotlib now supports symbols like *overset* and *underset*.
-
-The structure which should be followed: "\overset{body}{annotation}" or
-"\underset{body}{annotation}", where *body* would be the text "above" or
-"below" the *annotation* - the baseline character.
+`.mathtext` now supports *overset* and *underset*, called as 
+``\overset{body}{annotation}`` or ``\underset{body}{annotation}``, where 
+*annotation* is the text "above" or "below" the *body*.
 
 .. plot::
 
