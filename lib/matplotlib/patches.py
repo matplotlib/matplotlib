@@ -3293,7 +3293,9 @@ class ArrowStyle(_Style):
                 Length of the bracket.
 
             angleA : float, default: None
-                Angle between the bracket and the line.
+                Angle, in degrees, between the bracket and the line. Zero is
+                perpendicular to the line, and positive measures
+                counterclockwise.
 
             widthB : float, default: 1.0
                 Width of the bracket.
@@ -3302,7 +3304,9 @@ class ArrowStyle(_Style):
                 Length of the bracket.
 
             angleB : float, default: None
-                Angle between the bracket and the line.
+                Angle, in degrees, between the bracket and the line. Zero is
+                perpendicular to the line, and positive measures
+                counterclockwise.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=lengthA, angleA=angleA,
@@ -3343,7 +3347,9 @@ class ArrowStyle(_Style):
                 Length of the bracket.
 
             angleB : float, default: None
-                Angle between the bracket and the line.
+                Angle, in degrees, between the bracket and the line. Zero is
+                perpendicular to the line, and positive measures
+                counterclockwise.
             """
             super().__init__(None, True,
                              widthB=widthB, lengthB=lengthB, angleB=angleB)
@@ -3362,13 +3368,17 @@ class ArrowStyle(_Style):
                 Width of the bracket.
 
             angleA : float, default: None
-                Angle between the bracket and the line.
+                Angle, in degrees, between the bracket and the line. Zero is
+                perpendicular to the line, and positive measures
+                counterclockwise.
 
             widthB : float, default: 1.0
                 Width of the bracket.
 
             angleB : float, default: None
-                Angle between the bracket and the line.
+                Angle, in degrees, between the bracket and the line. Zero is
+                perpendicular to the line, and positive measures
+                counterclockwise.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=0, angleA=angleA,
