@@ -31,8 +31,8 @@ precompiled wheel for your OS and Python.
    TkAgg.
 
    For support of other GUI frameworks, LaTeX rendering, saving
-   animations and a larger selection of file formats, you need to
-   install :ref:`additional dependencies <install_requirements>`.
+   animations and a larger selection of file formats, you can
+   install :ref:`optional_dependencies`.
 
 Although not required, we suggest also installing ``IPython`` for
 interactive use.  To easily install a complete Scientific Python
@@ -72,6 +72,8 @@ Installing from source
 If you are interested in contributing to Matplotlib development,
 running the latest source code, or just like to build everything
 yourself, it is not difficult to build Matplotlib from source.
+
+First you need to install the :ref:`dependencies`.
 
 A C compiler is required.  Typically, on Linux, you will need ``gcc``, which
 should be installed using your distribution's package manager; on macOS, you
@@ -134,7 +136,6 @@ optional libraries that Matplotlib ships with are installed, and so on.  This
 file will be particularly useful to those packaging Matplotlib.
 
 .. _setup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template
-
 
 Building on Windows
 -------------------

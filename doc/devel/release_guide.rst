@@ -387,9 +387,8 @@ inclusion in their newsletter.
 Conda packages
 ==============
 
-The conda packaging scripts for Matplotlib are hosted at
-https://github.com/conda-forge/matplotlib-feedstock.
+The Matplotlib project itself does not release conda packages. In particular,
+the Matplotlib release manager is not responsible for conda packaging.
 
-This is for information only. The conda packages are not released by the
-Matplotlib project but by third parties. In particular, the Matplotlib release
-manager is not responsible for conda packaging.
+For information on the packaging of Matplotlib for conda-forge see
+https://github.com/conda-forge/matplotlib-feedstock.

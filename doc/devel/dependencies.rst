@@ -1,13 +1,15 @@
-.. _install_requirements:
+.. _dependencies:
 
 ============
 Dependencies
 ============
 
-Matplotlib will automatically install dependencies when you install with
-``pip``, so this section is mostly for your reference.
+Mandatory dependencies
+======================
 
-Matplotlib requires the following dependencies:
+When installing through a package manager like ``pip`` or ``conda``, the
+mandatory dependencies are automatically installed. This list is mainly for
+reference.
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.7)
 * `NumPy <https://numpy.org>`_ (>= 1.16)
@@ -18,11 +20,23 @@ Matplotlib requires the following dependencies:
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.2.1)
 
-Optionally, you can also install a number of packages to enable better user
-interface toolkits. See :ref:`what-is-a-backend` for more details on the
-optional Matplotlib backends and the capabilities they provide.
 
-* Tk_ (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends.
+.. _optional_dependencies:
+
+Optional dependencies
+=====================
+
+The following packages and tools are not required but extend the capabilities
+of Matplotlib.
+
+Backends
+--------
+
+Matplotlib figures can be rendered to various user interfaces. See
+:ref:`what-is-a-backend` for more details on the optional Matplotlib backends
+and the capabilities they provide.
+
+* Tk_ (>= 8.3, != 8.6.0 or 8.6.1) [#]_: for the Tk-based backends.
 * PyQt4_ (>= 4.6) or PySide_ (>= 1.0.3) [#]_: for the Qt4-based backends.
 * PyQt5_ or PySide2_: for the Qt5-based backends.
 * PyGObject_: for the GTK3-based backends [#]_.
@@ -42,37 +56,50 @@ optional Matplotlib backends and the capabilities they provide.
 .. _cairocffi: https://cairocffi.readthedocs.io/en/latest/
 .. _Tornado: https://pypi.org/project/tornado
 
+.. [#] Tk is part of most standard Python installations, but it's not part of
+       Python itself and thus may not be present in rare cases.
 .. [#] PySide cannot be pip-installed on Linux (but can be conda-installed).
 .. [#] If using pip (and not conda), PyGObject must be built from source; see
        https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html.
 .. [#] If using pip (and not conda) on Linux, wxPython wheels must be manually
        downloaded from https://wxpython.org/pages/downloads/.
 
-For better support of animation output format and image file formats, LaTeX,
-etc., you can install the following:
+Animations
+----------
 
 * `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs.
+
+Font handling and rendering
+---------------------------
+
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
   <https://ctan.org/pkg/cm-super>`__ ) and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with
-  LaTeX.
+  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
-FreeType and Qhull
-------------------
+C libraries
+===========
 
-Matplotlib depends on FreeType_ (>= 2.3), a font rendering library, and on
-Qhull_ (>= 2020.2), a library for computing triangulations.  By default,
-Matplotlib downloads and builds its own copies of FreeType (this is necessary
-to run the test suite, because different versions of FreeType rasterize
-characters differently) and of Qhull.  As an exception, Matplotlib defaults to
-the system version of FreeType on AIX.
+Matplotlib brings its own copies of the following libraries:
+
+- ``Agg``: the Anti-Grain Geometry C++ rendering engine
+- ``ttconv``: a TrueType font utility
+
+Additionally, Matplotlib depends on:
+
+- FreeType_ (>= 2.3): a font rendering library
+- QHull_ (>= 2020.2): a library for computing triangulations
 
 .. _FreeType: https://www.freetype.org/
 .. _Qhull: http://www.qhull.org/
+
+By default, Matplotlib downloads and builds its own copies of FreeType (this is
+necessary to run the test suite, because different versions of FreeType
+rasterize characters differently) and of Qhull.  As an exception, Matplotlib
+defaults to the system version of FreeType on AIX.
 
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`setup.cfg` file with the following contents:
@@ -92,9 +119,9 @@ This can be achieved using a package manager, e.g. for FreeType:
 
    # Pick ONE of the following:
    sudo apt install libfreetype6-dev  # Debian/Ubuntu
-   sudo dnf install freetype-devel  # Fedora
-   brew install freetype  # macOS with Homebrew
-   conda install freetype  # conda, any OS
+   sudo dnf install freetype-devel    # Fedora
+   brew install freetype              # macOS with Homebrew
+   conda install freetype             # conda, any OS
 
 (adapt accordingly for Qhull).
 
@@ -105,9 +132,9 @@ tool for locating FreeType:
 
    # Pick ONE of the following:
    sudo apt install pkg-config  # Debian/Ubuntu
-   sudo dnf install pkgconf  # Fedora
-   brew install pkg-config  # macOS with Homebrew
-   conda install pkg-config  # conda
+   sudo dnf install pkgconf     # Fedora
+   brew install pkg-config      # macOS with Homebrew
+   conda install pkg-config     # conda
    # Or point the PKG_CONFIG environment variable to the path to pkg-config:
    export PKG_CONFIG=...
 
@@ -129,13 +156,6 @@ and on Windows:
 
    set CL=/IC:\directory\containing\ft2build.h
    set LINK=/LIBPATH:C:\directory\containing\freetype.lib
-
-.. note::
-
-  Matplotlib always uses its own copies of the following libraries:
-
-  - ``Agg``: the Anti-Grain Geometry C++ rendering engine;
-  - ``ttconv``: a TrueType font utility.
 
 If you go this route but need to reset and rebuild to change your settings,
 remember to clear your artifacts before re-building::
