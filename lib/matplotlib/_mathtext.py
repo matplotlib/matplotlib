@@ -2859,32 +2859,32 @@ class Parser:
         return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
                              num, den)
 
-    def _genset(self, state, body, annotation, overunder):
+    def _genset(self, state, annotation, body, overunder):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
 
-        body.shrink()
+        annotation.shrink()
 
-        cbody = HCentered([body])
         cannotation = HCentered([annotation])
-        width = max(cbody.width, cannotation.width)
-        cbody.hpack(width, 'exactly')
+        cbody = HCentered([body])
+        width = max(cannotation.width, cbody.width)
         cannotation.hpack(width, 'exactly')
+        cbody.hpack(width, 'exactly')
 
         vgap = thickness * 3
         if overunder == "under":
-            vlist = Vlist([cannotation,                # annotation
-                           Vbox(0, vgap),              # space
-                           cbody                       # body
+            vlist = Vlist([cbody,                       # body
+                           Vbox(0, vgap),               # space
+                           cannotation                  # annotation
                            ])
-            # Shift so the annotation sits in the same vertical position
-            shift_amount = cannotation.depth + cbody.height + vgap
+            # Shift so the body sits in the same vertical position
+            shift_amount = cbody.depth + cannotation.height + vgap
 
             vlist.shift_amount = shift_amount
         else:
-            vlist = Vlist([cbody,                      # body
-                           Vbox(0, vgap),              # space
-                           cannotation                 # annotation
+            vlist = Vlist([cannotation,                 # annotation
+                           Vbox(0, vgap),               # space
+                           cbody                        # body
                            ])
 
         # To add horizontal gap between symbols: wrap the Vlist into
@@ -2956,18 +2956,18 @@ class Parser:
         assert len(toks[0]) == 2
 
         state = self.get_state()
-        body, annotation = toks[0]
+        annotation, body = toks[0]
 
-        return self._genset(state, body, annotation, overunder="over")
+        return self._genset(state, annotation, body, overunder="over")
 
     def underset(self, s, loc, toks):
         assert len(toks) == 1
         assert len(toks[0]) == 2
 
         state = self.get_state()
-        body, annotation = toks[0]
+        annotation, body = toks[0]
 
-        return self._genset(state, body, annotation, overunder="under")
+        return self._genset(state, annotation, body, overunder="under")
 
     def _auto_sized_delimiter(self, front, middle, back):
         state = self.get_state()
