@@ -908,7 +908,7 @@ def close(fig=None):
         _pylab_helpers.Gcf.destroy_fig(fig)
     else:
         raise TypeError("close() argument must be a Figure, an int, a string, "
-                        "or None, not '%s'")
+                        "or None, not %s" % type(fig))
 
 
 def clf():
