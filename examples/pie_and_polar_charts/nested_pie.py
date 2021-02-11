@@ -52,7 +52,7 @@ plt.show()
 # a circle. The cumulative sum of the values are used as the edges
 # of the bars.
 
-fig, ax = plt.subplots(subplot_kw=dict(polar=True))
+fig, ax = plt.subplots(subplot_kw=dict(projection="polar"))
 
 size = 0.3
 vals = np.array([[60., 32.], [37., 40.], [29., 10.]])
