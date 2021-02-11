@@ -1343,9 +1343,12 @@ class FigureCanvasSVG(FigureCanvasBase):
             return self.print_svg(gzipwriter)
 
     @_check_savefig_extra_args
-    def _print_svg(self, filename, fh, *, dpi=72, bbox_inches_restore=None,
+    @_api.delete_parameter("3.4", "dpi")
+    def _print_svg(self, filename, fh, *, dpi=None, bbox_inches_restore=None,
                    metadata=None):
-        self.figure.set_dpi(72.0)
+        if dpi is None:  # always use this branch after deprecation elapses.
+            dpi = self.figure.get_dpi()
+        self.figure.set_dpi(72)
         width, height = self.figure.get_size_inches()
         w, h = width * 72, height * 72
 
