@@ -147,34 +147,29 @@ We try to keep the tests categorized by the primary module they are
 testing.  For example, the tests related to the ``mathtext.py`` module
 are in ``test_mathtext.py``.
 
-Using Travis CI
----------------
+Using GitHub Actions for CI
+---------------------------
 
-`Travis CI <https://travis-ci.com/>`_ is a hosted CI system "in the
-cloud".
+`GitHub Actions <https://docs.github.com/en/actions>`_ is a hosted CI system
+"in the cloud".
 
-Travis is configured to receive notifications of new commits to GitHub
-repos (via GitHub "service hooks") and to run builds or tests when it
-sees these new commits. It looks for a YAML file called
-``.travis.yml`` in the root of the repository to see how to test the
-project.
+GitHub Actions is configured to receive notifications of new commits to GitHub
+repos and to run builds or tests when it sees these new commits. It looks for a
+YAML files in ``.github/workflows`` to see how to test the project.
 
-Travis CI is already enabled for the `main Matplotlib GitHub
-repository <https://github.com/matplotlib/matplotlib/>`_ -- for
-example, see `its Travis page
-<https://travis-ci.com/matplotlib/matplotlib>`_.
+GitHub Actions is already enabled for the `main Matplotlib GitHub repository
+<https://github.com/matplotlib/matplotlib/>`_ -- for example, see `the Tests
+workflows
+<https://github.com/matplotlib/matplotlib/actions?query=workflow%3ATests>`_.
 
-If you want to enable Travis CI for your personal Matplotlib GitHub
-repo, simply enable the repo to use Travis CI in either the Travis CI
-UI or the GitHub UI (Admin | Service Hooks). For details, see `the
-Travis CI Getting Started page
-<https://docs.travis-ci.com/user/getting-started/>`_.  This
-generally isn't necessary, since any pull request submitted against
-the main Matplotlib repository will be tested.
+GitHub Actions should be automatically enabled for your personal Matplotlib
+fork once the YAML workflow files are in it. It generally isn't necessary to
+look at these workflows, since any pull request submitted against the main
+Matplotlib repository will be tested.
 
-Once this is configured, you can see the Travis CI results at
-https://travis-ci.org/your_GitHub_user_name/matplotlib -- here's `an
-example <https://travis-ci.org/msabramo/matplotlib>`_.
+You can see the GitHub Actions results at
+https://github.com/your_GitHub_user_name/matplotlib/actions -- here's `an
+example <https://github.com/QuLogic/matplotlib/actions>`_.
 
 
 Using tox
