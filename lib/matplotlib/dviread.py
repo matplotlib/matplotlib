@@ -313,18 +313,26 @@ class Dvi:
         #   xxx comment
         #   down
         #   push
-        #     down, down
+        #     down
+        #     <push, push, xxx, right, xxx, pop, pop>  # if using xcolor
+        #     down
         #     push
         #       down (possibly multiple)
         #       push  <=  here, v is the baseline position.
         #         etc.
         # (dviasm is useful to explore this structure.)
+        # Thus, we use the vertical position at the first time the stack depth
+        # reaches 3, while at least three "downs" have been executed, as the
+        # baseline (the "down" count is necessary to handle xcolor).
+        downs = 0
         self._baseline_v = None
         while True:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
+            downs += self._dtable[byte].__name__ == "_down"
             if (self._baseline_v is None
-                    and len(getattr(self, "stack", [])) == 3):
+                    and len(getattr(self, "stack", [])) == 3
+                    and downs >= 4):
                 self._baseline_v = self.v
             if byte == 140:                         # end of page
                 return True
