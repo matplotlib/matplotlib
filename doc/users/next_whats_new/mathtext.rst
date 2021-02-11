@@ -2,7 +2,7 @@
 ---------------------------------------------------------------------------
 
 `.mathtext` now supports *overset* and *underset*, called as 
-``\overset{body}{annotation}`` or ``\underset{body}{annotation}``, where 
+``\overset{annotation}{body}`` or ``\underset{annotation}{body}``, where 
 *annotation* is the text "above" or "below" the *body*.
 
 .. plot::
