@@ -1508,9 +1508,9 @@ default: %(va)s
             if polar:
                 if projection is not None and projection != 'polar':
                     raise ValueError(
-                        "polar=True, yet projection=%r. "
-                        "Only one of these arguments should be supplied." %
-                        projection)
+                        f"polar={polar}, yet projection={projection!r}. "
+                        "Only one of these arguments should be supplied."
+                    )
                 projection = 'polar'
 
             if isinstance(projection, str) or projection is None:
