@@ -562,6 +562,13 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_tiff = print_tif
 
+    def adjust_bbox(self, filename, bbox_inches):
+        bbox = self.figure.dpi_scale_trans.transform_bbox(bbox_inches)
+        h = self.figure.bbox.height
+        img = Image.open(filename)
+        img = img.crop((bbox.x0, h - bbox.y1, bbox.x1, h - bbox.y0))
+        img.save(filename, format=img.format)  # TODO: also copy metadata
+
 
 @_Backend.export
 class _BackendAgg(_Backend):

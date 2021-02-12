@@ -6,6 +6,7 @@ from io import BytesIO, StringIO, TextIOWrapper
 import itertools
 import logging
 import os
+import pathlib
 import re
 import uuid
 
@@ -1344,6 +1345,17 @@ class FigureCanvasSVG(FigureCanvasBase):
     def draw(self):
         self.figure.draw_no_output()
         return super().draw()
+
+    def adjust_bbox(self, filename, bbox_inches):
+        bbox = self.figure.dpi_scale_trans.transform_bbox(bbox_inches)
+        buf = pathlib.Path(filename).read_text()
+        w, h, x, y = map(short_float_fmt, [
+            bbox.width, bbox.height,
+            bbox.x0, self.figure.bbox.height - bbox.y1])
+        buf = re.sub('width="[^"]*"', f'width="{w}pt"', buf, 1)
+        buf = re.sub('height="[^"]*"', f'height="{h}pt"', buf, 1)
+        buf = re.sub('viewBox="[^"]*"', f'viewBox="{x} {y} {w} {h}"', buf, 1)
+        pathlib.Path(filename).write_text(buf)
 
 
 FigureManagerSVG = FigureManagerBase

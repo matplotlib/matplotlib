@@ -2719,6 +2719,32 @@ class FigureCanvasPdf(FigureCanvasBase):
         self.figure.draw_no_output()
         return super().draw()
 
+    def adjust_bbox(self, filename, bbox_inches):
+        bbox = self.figure.dpi_scale_trans.transform_bbox(bbox_inches)
+        # What about PdfPages?
+        with open(filename, "a+b") as file:
+            file.seek(0)
+            buf = file.read()
+            page_pos = file.tell()
+            pageid = self.figure._cachedRenderer.file.pageList[-1].id
+            page_match = re.search(
+                rb"(?s)%d 0 obj\n.*?/MediaBox.*?\nendobj\n" % pageid, buf)
+            file.write(re.sub(br"/MediaBox \[[^]]*\]", b"/MediaBox %s"
+                              % pdfRepr(bbox.extents.tolist()), page_match[0]))
+            startxref_pos = file.tell()
+            file.write(b"xref\n")
+            file.write(b"0 1\n0000000000 65535 f \n")
+            file.write(b"%d 1\n%010d 00000 n \n" % (pageid, page_pos))
+            file.write(b"trailer\n")
+            trailer_match = re.search(
+                rb"(?s)trailer\n<< (.*) >>\nstartxref\n(\d+)\n%%EOF",
+                buf[buf.rfind(b"trailer\n"):])
+            file.write(
+                b"<< %s /Prev %s >>\n" % (trailer_match[1], trailer_match[2]))
+            file.write(b"startxref\n")
+            file.write(b"%d\n" % startxref_pos)
+            file.write(b"%%EOF\n")
+
 
 FigureManagerPdf = FigureManagerBase
 
