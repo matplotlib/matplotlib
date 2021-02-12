@@ -829,11 +829,14 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
+    @_api.delete_parameter("3.4", "dpi")
     def _print_ps(
             self, outfile, format, *args,
-            dpi=72, metadata=None, papertype=None, orientation='portrait',
+            dpi=None, metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 
+        if dpi is None:  # always use this branch after deprecation elapses.
+            dpi = self.figure.get_dpi()
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
         dsc_comments = {}

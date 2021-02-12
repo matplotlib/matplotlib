@@ -1573,7 +1573,7 @@ def _get_renderer(figure, print_method=None):
             print_method = getattr(
                 figure.canvas._get_output_canvas(None, fmt), f"print_{fmt}")
         try:
-            print_method(io.BytesIO(), dpi=figure.dpi)
+            print_method(io.BytesIO())
         except Done as exc:
             renderer, = figure._cachedRenderer, = exc.args
             return renderer
@@ -2235,14 +2235,16 @@ class FigureCanvasBase:
             cl_state = self.figure.get_constrained_layout()
             self.figure.set_constrained_layout(False)
             try:
-                result = print_method(
-                    filename,
-                    dpi=dpi,
-                    facecolor=facecolor,
-                    edgecolor=edgecolor,
-                    orientation=orientation,
-                    bbox_inches_restore=_bbox_inches_restore,
-                    **kwargs)
+                # _get_renderer may change the figure dpi (as vector formats
+                # force the figure dpi to 72), so we need to set it again here.
+                with cbook._setattr_cm(self.figure, dpi=dpi):
+                    result = print_method(
+                        filename,
+                        facecolor=facecolor,
+                        edgecolor=edgecolor,
+                        orientation=orientation,
+                        bbox_inches_restore=_bbox_inches_restore,
+                        **kwargs)
             finally:
                 if bbox_inches and restore_bbox:
                     restore_bbox()
