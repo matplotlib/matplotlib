@@ -415,11 +415,11 @@
                   # e.g. '1f77b4', instead of 1f77b4.
                   # See also https://matplotlib.org/tutorials/intermediate/color_cycle.html
                   # for more details on prop_cycle usage.
-#axes.autolimit_mode: data  # How to scale axes limits to the data.  By using:
-                            #     - "data" to use data limits, plus some margin
-                            #     - "round_numbers" move to the nearest "round" number
 #axes.xmargin:   .05  # x margin.  See `axes.Axes.margins`
 #axes.ymargin:   .05  # y margin.  See `axes.Axes.margins`
+#axes.autolimit_mode: data  # If "data", use axes.xmargin and axes.ymargin as is.
+                            # If "round_numbers", after application of margins, axis
+                            # limits are further expanded to the nearest "round" number.
 #polaraxes.grid: True  # display grid on polar axes
 #axes3d.grid:    True  # display grid on 3D axes
 
