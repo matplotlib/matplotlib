@@ -1178,7 +1178,10 @@ class Axes3D(Axes):
                 pass
 
         self._autoscaleZon = True
-        self._zmargin = 0
+        if self._projection is proj3d.ortho_transformation:
+            self._zmargin = rcParams['axes.zmargin']
+        else:
+            self._zmargin = 0.
 
         self.grid(rcParams['axes3d.grid'])
 

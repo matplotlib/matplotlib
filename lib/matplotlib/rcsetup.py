@@ -1190,6 +1190,7 @@ _validators = {
     "axes.autolimit_mode": ["data", "round_numbers"],
     "axes.xmargin": _range_validators["0 <= x <= 1"],  # margin added to xaxis
     "axes.ymargin": _range_validators["0 <= x <= 1"],  # margin added to yaxis
+    'axes.zmargin': _range_validators["0 <= x <= 1"],  # margin added to zaxis
 
     "polaraxes.grid": validate_bool,  # display polar grid or not
     "axes3d.grid":    validate_bool,  # display 3d grid

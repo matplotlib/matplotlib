@@ -947,6 +947,22 @@ def test_axes3d_ortho():
     ax.set_proj_type('ortho')
 
 
+@mpl3d_image_comparison(['axes3d_isometric.png'])
+def test_axes3d_isometric():
+    from itertools import combinations, product
+    fig, ax = plt.subplots(subplot_kw=dict(
+        projection='3d',
+        proj_type='ortho',
+        box_aspect=(4, 4, 4)
+    ))
+    r = (-1, 1)  # stackoverflow.com/a/11156353
+    for s, e in combinations(np.array(list(product(r, r, r))), 2):
+        if abs(s - e).sum() == r[1] - r[0]:
+            ax.plot3D(*zip(s, e), c='k')
+    ax.view_init(elev=np.degrees(np.arctan(1. / np.sqrt(2))), azim=-45)
+    ax.grid(True)
+
+
 @pytest.mark.parametrize('value', [np.inf, np.nan])
 @pytest.mark.parametrize(('setter', 'side'), [
     ('set_xlim3d', 'left'),
