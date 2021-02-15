@@ -1,0 +1,6 @@
+Colorbars now have pan and zoom functionality
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Interactive plots with colorbars can now be zoomed and panned on
+the colorbar axis. This adjusts the *vmin* and *vmax* of the
+``ScalarMappable`` associated with the colorbar.

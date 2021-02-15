@@ -1274,6 +1274,36 @@ class Colorbar:
             return self.ax.xaxis
         return self.ax.yaxis
 
+    def _get_view(self):
+        # docstring inherited
+        # An interactive view for a colorbar is the norm's vmin/vmax
+        return self.norm.vmin, self.norm.vmax
+
+    def _set_view(self, view):
+        # docstring inherited
+        # An interactive view for a colorbar is the norm's vmin/vmax
+        self.norm.vmin, self.norm.vmax = view
+
+    def _set_view_from_bbox(self, bbox, direction='in',
+                            mode=None, twinx=False, twiny=False):
+        # docstring inherited
+        # For colorbars, we use the zoom bbox to scale the norm's vmin/vmax
+        new_xbound, new_ybound = self.ax._prepare_view_from_bbox(
+            bbox, direction=direction, mode=mode, twinx=twinx, twiny=twiny)
+        if self.orientation == 'horizontal':
+            self.norm.vmin, self.norm.vmax = new_xbound
+        elif self.orientation == 'vertical':
+            self.norm.vmin, self.norm.vmax = new_ybound
+
+    def drag_pan(self, button, key, x, y):
+        # docstring inherited
+        points = self.ax._get_pan_points(button, key, x, y)
+        if points is not None:
+            if self.orientation == 'horizontal':
+                self.norm.vmin, self.norm.vmax = points[:, 0]
+            elif self.orientation == 'vertical':
+                self.norm.vmin, self.norm.vmax = points[:, 1]
+
 
 ColorbarBase = Colorbar  # Backcompat API
 
