@@ -661,9 +661,11 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
+# Deprecated in Matplotlib 3.5.
 URL_REGEX = re.compile(r'^http://|^https://|^ftp://|^file:')
 
 
+@_api.deprecated("3.5")
 def is_url(filename):
     """Return whether *filename* is an http, https, ftp, or file URL path."""
     return URL_REGEX.match(filename) is not None
@@ -682,7 +684,8 @@ def _get_ssl_context():
 
 @contextlib.contextmanager
 def _open_file_or_url(fname):
-    if not isinstance(fname, Path) and is_url(fname):
+    if (isinstance(fname, str)
+            and fname.startswith(('http://', 'https://', 'ftp://', 'file:'))):
         import urllib.request
         ssl_ctx = _get_ssl_context()
         if ssl_ctx is None:
