@@ -33,7 +33,7 @@ started using Matplotlib.
 # | Programming (OOP)                  |                                    |
 # +====================================+====================================+
 # | Users explicitly create and manage | The Matplotlib library implicitly  |
-# | all Figure elements.               | manages Figure and Axes.           |
+# | all plot elements.                 | manages Figure and Axes.           |
 # +------------------------------------+------------------------------------+
 # | Useful for repeated code use,      | Helpful for quickly graphing data  |
 # | generalization, robust             | when using interactive             |
@@ -373,7 +373,7 @@ plt.show()
 # Figure can contain multiple Axes, but each Axes is specific to one
 # Figure.
 #
-# In a Figure, each Axes contains any number of visual elements. Axes are
+# In a Figure, each Axes contains any number of plot elements. Axes are
 # configurable for more than one type of visualization of data. From the
 # `Plotting`_ section above, the Axes in both explicit and implicit strategies
 # contain multiple types of visualizations of data on a single Axes.
@@ -405,8 +405,8 @@ plt.show()
 # Manipulating Artists
 # --------------------
 #
-# With simple plots, Matplotlib automatically generates the basic elements of
-# a graph. For more control over the visual, use Artists and methods.
+# With simple plots, Matplotlib automatically generates the basic plot elements
+# of a graph. For more control over the visual, use Artists and methods.
 #
 # Matplotlib generates additional visual elements as Artists in the form of
 # objects. As Artists, each has respective methods and functions. Explicit and

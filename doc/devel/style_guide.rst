@@ -31,7 +31,7 @@ not interchangeable.
 |                  | for programming.         | - 11 Figures | - 11 figures |
 +------------------+--------------------------+--------------+--------------+
 | Axes_            | Subplots within Figure.  | - One Axes   | - One axes   |
-|                  | Contains Figure elements | - Four Axes  | - Four Axeses|
+|                  | Contains plot elements   | - Four Axes  | - Four Axeses|
 |                  | and is responsible for   | - 32 Axes    | - 32 Axii    |
 |                  | plotting and configuring |              |              |
 |                  | additional details.      |              |              |
@@ -116,8 +116,8 @@ related to warning prompts.
 Sentence structure
 ^^^^^^^^^^^^^^^^^^
 Write with short sentences using Subject-Verb-Object order regularly. Limit
-how frequently coordinating conjunctions appear in sentences. Avoid pronoun
-references and subordinating conjunctive phrases.
+coordinating conjunctions in sentences. Avoid pronoun references and
+subordinating conjunctive phrases.
 
 +------------------------------------+------------------------------------+
 | Correct                            | Incorrect                          |
