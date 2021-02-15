@@ -59,12 +59,8 @@ def test_canvas_ctor():
     assert isinstance(FigureCanvasBase().figure, Figure)
 
 
-def test_get_default_filename(tmpdir):
-    plt.rcParams['savefig.directory'] = str(tmpdir)
-    fig = plt.figure()
-    canvas = FigureCanvasBase(fig)
-    filename = canvas.get_default_filename()
-    assert filename == 'image.png'
+def test_get_default_filename():
+    assert plt.figure().canvas.get_default_filename() == 'image.png'
 
 
 def test_canvas_change():
