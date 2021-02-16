@@ -420,13 +420,8 @@ class Slider(SliderBase):
         self.val = valinit
         self.valinit = valinit
 
-        marker_props = {}
         defaults = {'facecolor':'white', 'edgecolor':'.75', 'size':10}
-        if handle_style is not None:
-            for k in ['facecolor', 'edgecolor', 'size']:
-                marker_props[f'marker{k}'] = handle_style.get(k, defaults[k])
-        else:
-            marker_props = {f'marker{k}': v for k, v in defaults.items()}
+        marker_props = {f'marker{k}': v for k, v in {**defaults, **handle_style}}
 
         if orientation == 'vertical':
             self.track = Rectangle(
