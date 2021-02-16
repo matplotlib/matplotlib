@@ -315,16 +315,11 @@ def test_pdf_eps_savefig_when_color_is_none(fig_test, fig_ref):
 
 
 @needs_usetex
-def test_failing_latex(tmpdir):
+def test_failing_latex():
     """Test failing latex subprocess call"""
-    path = str(tmpdir.join("tmpoutput.pdf"))
-
-    rcParams['text.usetex'] = True
-
-    # This fails with "Double subscript"
-    plt.xlabel("$22_2_2$")
+    plt.xlabel("$22_2_2$", usetex=True)  # This fails with "Double subscript"
     with pytest.raises(RuntimeError):
-        plt.savefig(path)
+        plt.savefig(io.BytesIO(), format="pdf")
 
 
 def test_empty_rasterized():
