@@ -87,15 +87,15 @@ def test_usetex_xcolor():
     mpl.rcParams['text.usetex'] = True
 
     fig = plt.figure()
-    t = fig.text(0.5, 0.5, "Some text 0123456789")
+    text = fig.text(0.5, 0.5, "Some text 0123456789")
     fig.canvas.draw()
-    pos = t.get_window_extent()
 
     mpl.rcParams['text.latex.preamble'] = r'\usepackage[dvipsnames]{xcolor}'
     fig = plt.figure()
-    t = fig.text(0.5, 0.5, "Some text 0123456789")
+    text2 = fig.text(0.5, 0.5, "Some text 0123456789")
     fig.canvas.draw()
-    np.testing.assert_array_equal(t.get_window_extent(), pos)
+    np.testing.assert_array_equal(text2.get_window_extent(),
+                                  text.get_window_extent())
 
 
 def test_textcomp_full():
