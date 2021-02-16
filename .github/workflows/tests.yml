@@ -141,7 +141,7 @@ jobs:
 
           # Install dependencies from PyPI.
           python -mpip install --upgrade $PRE \
-            cycler kiwisolver numpy pillow pyparsing python-dateutil \
+            cycler kiwisolver numpy pillow ptyprocess pyparsing python-dateutil \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 

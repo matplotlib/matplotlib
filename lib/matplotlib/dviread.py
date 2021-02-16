@@ -1040,7 +1040,50 @@ def _parse_enc(path):
             "Failed to parse {} as Postscript encoding".format(path))
 
 
+class _Kpsewhich:
+    @lru_cache()  # A singleton.
+    def __new__(cls):
+        self = object.__new__(cls)
+        self._proc = self._new_proc()
+        return self
+
+    def _new_proc(self):
+        from ptyprocess import PtyProcess  # Force unbuffered IO.
+        try:
+            # kpsewhich requires being passed at least argument, so query
+            # texmf.cnf and read that out.  This also serves as sentinel below.
+            proc = PtyProcess.spawn(
+                ["kpsewhich", "-interactive", "texmf.cnf"], echo=False)
+            self._sentinel = proc.readline()
+            return proc
+        except FileNotFoundError:
+            return None
+
+    def search(self, filename):
+        if filename == "texmf.cnf":
+            return self._sentinel
+        if self._proc is not None and not self._proc.isalive():
+            self._proc = self._new_proc()  # Give a 2nd chance if it crashed.
+        if self._proc is None or not self._proc.isalive():
+            return ""
+        # kpsewhich prints nothing if the file does not exist.  To detect this
+        # case without setting an arbitrary timeout, we additionally query for
+        # texmf.cnf, which is known to exist at `self._sentinel`.  We can then
+        # check whether the first query exists by comparing the first returned
+        # line to `self._sentinel`.  (This is also why we need to separately
+        # handle the case of querying texmf.cnf above.)
+        self._proc.write(os.fsencode(filename) + b"\ntexmf.cnf\n")
+        out = self._proc.readline()
+        if out == self._sentinel:
+            return ""
+        else:
+            self._proc.readline()  # flush the extra sentinel line.
+            # POSIX ptys actually emit \r\n.
+            return os.fsdecode(out).rstrip("\r\n")
+
+
 @lru_cache()
+@_api.delete_parameter("3.5", "format")
 def find_tex_file(filename, format=None):
     """
     Find a file in the texmf tree.
@@ -1072,25 +1115,36 @@ def find_tex_file(filename, format=None):
     if isinstance(format, bytes):
         format = format.decode('utf-8', errors='replace')
 
-    if os.name == 'nt':
-        # On Windows only, kpathsea can use utf-8 for cmd args and output.
-        # The `command_line_encoding` environment variable is set to force it
-        # to always use utf-8 encoding.  See Matplotlib issue #11848.
-        kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
-                  'encoding': 'utf-8'}
-    else:  # On POSIX, run through the equivalent of os.fsdecode().
-        kwargs = {'encoding': sys.getfilesystemencoding(),
-                  'errors': 'surrogatescape'}
+    if format is not None:  # Deprecated.
+        if os.name == 'nt':  # See below re: encoding.
+            kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
+                      'encoding': 'utf-8'}
+        else:  # On POSIX, run through the equivalent of os.fsdecode().
+            kwargs = {'encoding': sys.getfilesystemencoding(),
+                      'errors': 'surrogatescape'}
+        cmd = ['kpsewhich']
+        if format is not None:
+            cmd += ['--format=' + format]
+        cmd += [filename]
+        try:
+            result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
+        except (FileNotFoundError, RuntimeError):
+            return ''
+        return result.rstrip('\n')
 
-    cmd = ['kpsewhich']
-    if format is not None:
-        cmd += ['--format=' + format]
-    cmd += [filename]
-    try:
-        result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
-    except (FileNotFoundError, RuntimeError):
-        return ''
-    return result.rstrip('\n')
+    if os.name == "nt":
+        # On Windows only, kpathsea can use utf-8 for cmd args and output.
+        # The `command_line_encoding` environment variable is set to force
+        # it to always use utf-8 encoding.  See Matplotlib issue #11848.
+        try:
+            result = cbook._check_and_log_subprocess(
+                ["kpsewhich", filename], _log, encoding="utf-8",
+                env={**os.environ, "command_line_encoding": "utf-8"})
+        except (FileNotFoundError, RuntimeError):
+            return ""
+        return result.rstrip("\n")
+    else:
+        return _Kpsewhich().search(filename)
 
 
 @lru_cache()

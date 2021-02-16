@@ -309,6 +309,7 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         "pillow>=6.2.0",
         "pyparsing>=2.2.1",
         "python-dateutil>=2.7",
+        "ptyprocess;os_name=='posix'",
     ],
 
     cmdclass=cmdclass,
