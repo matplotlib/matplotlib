@@ -386,7 +386,7 @@ class Slider(SliderBase):
             further styling via the *track* attribute.
 
         handle_style : dict
-            Properties of the slider handle. Supported values are
+            Properties of the slider handle. Default values are
 
             ========= ===== ======= ========================================
             Key       Value Default Description
@@ -395,6 +395,10 @@ class Slider(SliderBase):
             edgecolor color '.75'   The edgecolor of the slider handle.
             size      int   10      The size of the slider handle in points.
             ========= ===== ======= ========================================
+
+            Other values will be transformed as marker{foo} and passed to the
+            `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
+            result in ``markerstyle = 'x'``.
 
         Notes
         -----
@@ -420,8 +424,10 @@ class Slider(SliderBase):
         self.val = valinit
         self.valinit = valinit
 
-        defaults = {'facecolor':'white', 'edgecolor':'.75', 'size':10}
-        marker_props = {f'marker{k}': v for k, v in {**defaults, **handle_style}}
+        defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        marker_props = {
+            f'marker{k}': v for k, v in {**defaults, **handle_style}
+        }
 
         if orientation == 'vertical':
             self.track = Rectangle(
@@ -647,7 +653,7 @@ class RangeSlider(SliderBase):
             further styling via the *track* attribute.
 
         handle_style : dict
-            Properties of the slider handles. Supported values are
+            Properties of the slider handles. Default values are
 
             ========= ===== ======= =========================================
             Key       Value Default Description
@@ -656,6 +662,10 @@ class RangeSlider(SliderBase):
             edgecolor color '.75'   The edgecolor of the slider handles.
             size      int   10      The size of the slider handles in points.
             ========= ===== ======= =========================================
+
+            Other values will be transformed as marker{foo} and passed to the
+            `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
+            result in ``markerstyle = 'x'``.
 
         Notes
         -----
@@ -679,13 +689,10 @@ class RangeSlider(SliderBase):
         self.val = valinit
         self.valinit = valinit
 
-        marker_props = {}
-        defaults = {'facecolor':'white', 'edgecolor':'.75', 'size':10}
-        if handle_style is not None:
-            for k in ['facecolor', 'edgecolor', 'size']:
-                marker_props[f'marker{k}'] = handle_style.get(k, defaults[k])
-        else:
-            marker_props = {f'marker{k}': v for k, v in defaults.items()}
+        defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        marker_props = {
+            f'marker{k}': v for k, v in {**defaults, **handle_style}
+        }
 
         if orientation == "vertical":
             self.track = Rectangle(
