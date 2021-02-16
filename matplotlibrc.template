@@ -417,6 +417,7 @@
                   # for more details on prop_cycle usage.
 #axes.xmargin:   .05  # x margin.  See `axes.Axes.margins`
 #axes.ymargin:   .05  # y margin.  See `axes.Axes.margins`
+#axes.zmargin:   .05  # z margin.  See `axes.Axes.margins`
 #axes.autolimit_mode: data  # If "data", use axes.xmargin and axes.ymargin as is.
                             # If "round_numbers", after application of margins, axis
                             # limits are further expanded to the nearest "round" number.
