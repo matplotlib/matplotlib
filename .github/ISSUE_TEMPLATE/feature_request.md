@@ -1,5 +1,5 @@
 ---
-name: Feature Request
+name: 🚀 Feature Request
 about: Suggest something to add to Matplotlib
 labels: New feature
 ---

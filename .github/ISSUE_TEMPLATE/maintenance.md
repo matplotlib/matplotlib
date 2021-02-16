@@ -1,5 +1,5 @@
 ---
-name: Maintenance
+name: 🔧 Maintenance
 about: Help improve performance, usability and/or consistency.
 labels: Maintenance
 ---

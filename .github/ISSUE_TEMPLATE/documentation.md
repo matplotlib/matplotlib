@@ -1,5 +1,5 @@
 ---
-name: Documentation improvement
+name: 📖 Documentation improvement
 about: Create a report to help us improve the documentation
 labels: Documentation
 ---
