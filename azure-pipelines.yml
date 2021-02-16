@@ -75,11 +75,12 @@ steps:
         texlive-latex-base \
         texlive-latex-extra \
         texlive-latex-recommended \
-        texlive-xetex texlive-luatex
+        texlive-xetex texlive-luatex \
+        ttf-wqy-zenhei
       ;;
     darwin)
       brew install --cask xquartz
-      brew install pkg-config ffmpeg imagemagick mplayer ccache
+      brew install pkg-config ffmpeg imagemagick mplayer ccache wqy-zenhei
       ;;
     win32)
       ;;
