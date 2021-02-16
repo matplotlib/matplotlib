@@ -80,7 +80,7 @@ steps:
       ;;
     darwin)
       brew install --cask xquartz
-      brew install pkg-config ffmpeg imagemagick mplayer ccache wqy-zenhei
+      brew install pkg-config ffmpeg imagemagick mplayer ccache
       ;;
     win32)
       ;;
