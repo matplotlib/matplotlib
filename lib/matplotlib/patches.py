@@ -1339,17 +1339,17 @@ class FancyArrow(Polygon):
 
             %(Patch_kwdoc)s
         """
-        self.x = x
-        self.y = y
-        self.dx = dx
-        self.dy = dy
-        self.width = width
-        self.length_includes_head = length_includes_head
-        self.head_width = head_width
-        self.head_length = head_length
-        self.shape = shape
-        self.overhang = overhang
-        self.head_starts_at_zero = head_starts_at_zero
+        self._x = x
+        self._y = y
+        self._dx = dx
+        self._dy = dy
+        self._width = width
+        self._length_includes_head = length_includes_head
+        self._head_width = head_width
+        self._head_length = head_length
+        self._shape = shape
+        self._overhang = overhang
+        self._head_starts_at_zero = head_starts_at_zero
         self._make_verts()
         super().__init__(self.verts, closed=True, **kwargs)
 
@@ -1377,35 +1377,35 @@ class FancyArrow(Polygon):
             Length of arrow head.
         """
         if x is not None:
-            self.x = x
+            self._x = x
         if y is not None:
-            self.y = y
+            self._y = y
         if dx is not None:
-            self.dx = dx
+            self._dx = dx
         if dy is not None:
-            self.dy = dy
+            self._dy = dy
         if width is not None:
-            self.width = width
+            self._width = width
         if head_width is not None:
-            self.head_width = head_width
+            self._head_width = head_width
         if head_length is not None:
-            self.head_length = head_length
+            self._head_length = head_length
         self._make_verts()
         self.set_xy(self.verts)
 
     def _make_verts(self):
-        if self.head_width is None:
-            head_width = 3 * self.width
+        if self._head_width is None:
+            head_width = 3 * self._width
         else:
-            head_width = self.head_width
-        if self.head_length is None:
+            head_width = self._head_width
+        if self._head_length is None:
             head_length = 1.5 * head_width
         else:
-            head_length = self.head_length
+            head_length = self._head_length
 
-        distance = np.hypot(self.dx, self.dy)
+        distance = np.hypot(self._dx, self._dy)
 
-        if self.length_includes_head:
+        if self._length_includes_head:
             length = distance
         else:
             length = distance + head_length
@@ -1413,7 +1413,8 @@ class FancyArrow(Polygon):
             self.verts = np.empty([0, 2])  # display nothing if empty
         else:
             # start by drawing horizontal arrow, point at (0, 0)
-            hw, hl, hs, lw = head_width, head_length, self.overhang, self.width
+            hw, hl = head_width, head_length
+            hs, lw = self._overhang, self._width
             left_half_arrow = np.array([
                 [0.0, 0.0],                 # tip
                 [-hl, -hw / 2],             # leftmost
@@ -1422,19 +1423,19 @@ class FancyArrow(Polygon):
                 [-length, 0],
             ])
             # if we're not including the head, shift up by head length
-            if not self.length_includes_head:
+            if not self._length_includes_head:
                 left_half_arrow += [head_length, 0]
             # if the head starts at 0, shift up by another head length
-            if self.head_starts_at_zero:
+            if self._head_starts_at_zero:
                 left_half_arrow += [head_length / 2, 0]
             # figure out the shape, and complete accordingly
-            if self.shape == 'left':
+            if self._shape == 'left':
                 coords = left_half_arrow
             else:
                 right_half_arrow = left_half_arrow * [1, -1]
-                if self.shape == 'right':
+                if self._shape == 'right':
                     coords = right_half_arrow
-                elif self.shape == 'full':
+                elif self._shape == 'full':
                     # The half-arrows contain the midpoint of the stem,
                     # which we can omit from the full arrow. Including it
                     # twice caused a problem with xpdf.
@@ -1443,15 +1444,15 @@ class FancyArrow(Polygon):
                 else:
                     raise ValueError("Got unknown shape: %s" % self.shape)
             if distance != 0:
-                cx = self.dx / distance
-                sx = self.dy / distance
+                cx = self._dx / distance
+                sx = self._dy / distance
             else:
                 # Account for division by zero
                 cx, sx = 0, 1
             M = [[cx, sx], [-sx, cx]]
             self.verts = np.dot(coords, M) + [
-                self.x + self.dx,
-                self.y + self.dy,
+                self._x + self._dx,
+                self._y + self._dy,
             ]
 
 
