@@ -1,0 +1,2 @@
+Matplotlib now requires numpy>=1.16
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
