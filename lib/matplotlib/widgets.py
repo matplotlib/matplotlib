@@ -425,8 +425,9 @@ class Slider(SliderBase):
         self.valinit = valinit
 
         defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        handle_style = {} if handle_style is None else handle_style
         marker_props = {
-            f'marker{k}': v for k, v in {**defaults, **handle_style}
+            f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
 
         if orientation == 'vertical':
@@ -690,8 +691,9 @@ class RangeSlider(SliderBase):
         self.valinit = valinit
 
         defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        handle_style = {} if handle_style is None else handle_style
         marker_props = {
-            f'marker{k}': v for k, v in {**defaults, **handle_style}
+            f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
 
         if orientation == "vertical":
