@@ -52,9 +52,7 @@ needs_ghostscript = pytest.mark.skipif(
 
 
 def _has_tex_package(package):
-    return (shutil.which("kpsewhich")
-            and subprocess.run(["kpsewhich", f"{package}.sty"],
-                               stdout=subprocess.PIPE).returncode == 0)
+    return bool(mpl.dviread.find_tex_file(f"{package}.sty"))
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
