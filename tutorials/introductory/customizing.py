@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /users/customizing
+
 Customizing Matplotlib with style sheets and rcParams
 =====================================================
 
