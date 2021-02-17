@@ -2,14 +2,13 @@ import datetime
 from io import BytesIO
 import os
 import shutil
-import subprocess
 
 import numpy as np
 import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.testing import check_for_pgf
+from matplotlib.testing import _has_tex_package, check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.backends.backend_pgf import PdfPages, common_texification
 from matplotlib.testing.decorators import (_image_directories,
@@ -27,10 +26,6 @@ needs_lualatex = pytest.mark.skipif(not check_for_pgf('lualatex'),
 needs_ghostscript = pytest.mark.skipif(
     "eps" not in mpl.testing.compare.converter,
     reason="This test needs a ghostscript installation")
-
-
-def _has_tex_package(package):
-    return bool(mpl.dviread.find_tex_file(f"{package}.sty"))
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
