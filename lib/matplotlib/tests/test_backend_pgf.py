@@ -1,16 +1,15 @@
 import datetime
 from io import BytesIO
 import os
-from pathlib import Path
 import shutil
 import subprocess
-from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.testing import check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.backends.backend_pgf import PdfPages, common_texification
 from matplotlib.testing.decorators import (_image_directories,
@@ -19,32 +18,11 @@ from matplotlib.testing.decorators import (_image_directories,
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
-
-def check_for(texsystem):
-    with TemporaryDirectory() as tmpdir:
-        tex_path = Path(tmpdir, "test.tex")
-        tex_path.write_text(r"""
-            \documentclass{minimal}
-            \usepackage{pgf}
-            \begin{document}
-            \typeout{pgfversion=\pgfversion}
-            \makeatletter
-            \@@end
-        """)
-        try:
-            subprocess.check_call(
-                [texsystem, "-halt-on-error", str(tex_path)], cwd=tmpdir,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except (OSError, subprocess.CalledProcessError):
-            return False
-        return True
-
-
-needs_xelatex = pytest.mark.skipif(not check_for('xelatex'),
+needs_xelatex = pytest.mark.skipif(not check_for_pgf('xelatex'),
                                    reason='xelatex + pgf is required')
-needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
+needs_pdflatex = pytest.mark.skipif(not check_for_pgf('pdflatex'),
                                     reason='pdflatex + pgf is required')
-needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
+needs_lualatex = pytest.mark.skipif(not check_for_pgf('lualatex'),
                                     reason='lualatex + pgf is required')
 needs_ghostscript = pytest.mark.skipif(
     "eps" not in mpl.testing.compare.converter,
@@ -338,7 +316,7 @@ def test_unknown_font(caplog):
 @pytest.mark.parametrize("texsystem", ("pdflatex", "xelatex", "lualatex"))
 @pytest.mark.backend("pgf")
 def test_minus_signs_with_tex(fig_test, fig_ref, texsystem):
-    if not check_for(texsystem):
+    if not check_for_pgf(texsystem):
         pytest.skip(texsystem + ' + pgf is required')
     mpl.rcParams["pgf.texsystem"] = texsystem
     fig_test.text(.5, .5, "$-1$")

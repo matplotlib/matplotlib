@@ -1584,6 +1584,12 @@ def _get_renderer(figure, print_method=None):
             figure.canvas = orig_canvas
 
 
+def _no_output_draw(figure):
+    renderer = _get_renderer(figure)
+    with renderer._draw_disabled():
+        figure.draw(renderer)
+
+
 def _is_non_interactive_terminal_ipython(ip):
     """
     Return whether we are in a a terminal IPython, but non interactive.
@@ -1621,7 +1627,9 @@ def _check_savefig_extra_args(func=None, extra_kwargs=()):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         name = 'savefig'  # Reasonable default guess.
-        public_api = re.compile(r'^savefig|print_[A-Za-z0-9]+$')
+        public_api = re.compile(
+            r'^savefig|print_[A-Za-z0-9]+|_no_output_draw$'
+        )
         seen_print_figure = False
         for frame, line in traceback.walk_stack(None):
             if frame is None:
@@ -1632,8 +1640,9 @@ def _check_savefig_extra_args(func=None, extra_kwargs=()):
                         frame.f_globals.get('__name__', '')):
                 if public_api.match(frame.f_code.co_name):
                     name = frame.f_code.co_name
-                    if name == 'print_figure':
+                    if name in ('print_figure', '_no_output_draw'):
                         seen_print_figure = True
+
             else:
                 break
 
@@ -2021,7 +2030,14 @@ class FigureCanvasBase:
             self.mouse_grabber = None
 
     def draw(self, *args, **kwargs):
-        """Render the `.Figure`."""
+        """
+        Render the `.Figure`.
+
+        It is important that this method actually walk the artist tree
+        even if not output is produced because this will trigger
+        deferred work (like computing limits auto-limits and tick
+        values) that users may want access to before saving to disk.
+        """
 
     def draw_idle(self, *args, **kwargs):
         """
