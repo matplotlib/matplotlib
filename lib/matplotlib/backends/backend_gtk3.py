@@ -227,7 +227,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
             if event.state & key_mask:
                 if not (prefix == 'shift' and unikey.isprintable()):
                     key = '{0}+{1}'.format(prefix, key)
-                break
         return key
 
     def configure_event(self, widget, event):

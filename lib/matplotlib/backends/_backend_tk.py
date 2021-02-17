@@ -352,7 +352,7 @@ class FigureCanvasTk(FigureCanvasBase):
                 if event.state & (1 << bitmask) and key_name not in key:
                     if not (prefix == 'shift' and unikey):
                         key = '{0}+{1}'.format(prefix, key)
-                    break
+
         return key
 
     def key_press(self, event):

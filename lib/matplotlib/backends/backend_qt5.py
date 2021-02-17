@@ -412,11 +412,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             else:
                 key = key.lower()
 
-        for mod in mods:
-            key = '{0}+{1}'.format(mod, key)
-            break
-
-        return key
+        return '+'.join(mods + [key])
 
     def flush_events(self):
         # docstring inherited

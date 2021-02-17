@@ -726,7 +726,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             if meth() and key_name != key:
                 if not (key_name == 'shift' and key.isupper()):
                     key = '{0}+{1}'.format(prefix, key)
-                break
 
         return key
 
