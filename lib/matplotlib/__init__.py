@@ -497,7 +497,7 @@ def matplotlib_fname():
 
     def gen_candidates():
         # rely on down-stream code to make absolute.  This protects us
-        # from having to directly get if the current working directory
+        # from having to directly get the current working directory
         # which can fail if the user has ended up with a cwd that is
         # non-existent.
         yield 'matplotlibrc'
