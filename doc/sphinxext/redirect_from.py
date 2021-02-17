@@ -83,6 +83,5 @@ def _generate_redirects(app, exception):
         else:
             p.parent.mkdir(parents=True, exist_ok=True)
             with p.open("x") as file:
-                logger.info('making refresh html file: ' + k +
-                            ' redirect to ' + v)
+                logger.info(f'making refresh html file: {k} redirect to {v}')
                 file.write(HTML_TEMPLATE.format(v=v))
