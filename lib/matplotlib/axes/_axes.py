@@ -5285,7 +5285,8 @@ default: :rc:`scatter.edgecolors`
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
 
-        ind, dep1, dep2 = np.broadcast_arrays(np.atleast_1d(ind), dep1, dep2)
+        ind, dep1, dep2 = np.broadcast_arrays(
+            np.atleast_1d(ind), dep1, dep2, subok=True)
 
         polys = []
         for idx0, idx1 in cbook.contiguous_regions(where):
