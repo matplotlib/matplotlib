@@ -2673,9 +2673,10 @@ class Figure(FigureBase):
 
     def draw_artist(self, a):
         """
-        Draw `.Artist` instance *a* only.
+        Draw `.Artist` *a* only.
 
-        This can only be called after the figure has been drawn.
+        This method can only be used after an initial draw of the figure,
+        because that creates and caches the renderer needed here.
         """
         if self._cachedRenderer is None:
             raise AttributeError("draw_artist can only be used after an "
