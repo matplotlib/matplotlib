@@ -366,7 +366,7 @@ class ScalarMappable:
 
         Parameters
         ----------
-        A : ndarray
+        A : ndarray or None
         """
         self._A = A
         self._update_dict['array'] = True

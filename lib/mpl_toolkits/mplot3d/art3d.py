@@ -640,7 +640,7 @@ def _update_scalarmappable(sm):
     With ScalarMappable objects if the data, colormap, or norm are
     changed, we need to update the computed colors.  This is handled
     by the base class method update_scalarmappable.  This method works
-    by, detecting if work needs to be done, and if so stashing it on
+    by detecting if work needs to be done, and if so stashing it on
     the ``self._facecolors`` attribute.
 
     With 3D collections we internally sort the components so that
@@ -698,9 +698,9 @@ def _update_scalarmappable(sm):
     copy_state = sm._update_dict['array']
     ret = sm.update_scalarmappable()
     if copy_state:
-        if sm._is_filled:
+        if sm._face_is_mapped:
             sm._facecolor3d = sm._facecolors
-        elif sm._is_stroked:
+        elif sm._edge_is_mapped:  # Should this be plain "if"?
             sm._edgecolor3d = sm._edgecolors
 
 
