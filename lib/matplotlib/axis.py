@@ -1833,14 +1833,31 @@ class Axis(martist.Artist):
             self.set_major_locator(mticker.FixedLocator(ticks))
             return self.get_major_ticks(len(ticks))
 
-    def _get_tick_boxes_siblings(self, xdir, renderer):
+    def _get_tick_boxes_siblings(self, renderer):
         """
         Get the bounding boxes for this `.axis` and its siblings
-        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
+        as set by `.Figure.align_xlabels` or  `.Figure.align_ylabels`.
 
         By default it just gets bboxes for self.
         """
-        raise NotImplementedError('Derived must override')
+        # Get the Grouper keeping track of x or y label groups for this figure.
+        axis_names = [
+            name for name, axis in self.axes._get_axis_map().items()
+            if name in self.figure._align_label_groups and axis is self]
+        if len(axis_names) != 1:
+            return [], []
+        axis_name, = axis_names
+        grouper = self.figure._align_label_groups[axis_name]
+        bboxes = []
+        bboxes2 = []
+        # If we want to align labels from other axes:
+        for ax in grouper.get_siblings(self.axes):
+            axis = ax._get_axis_map()[axis_name]
+            ticks_to_draw = axis._update_ticks()
+            tlb, tlb2 = axis._get_tick_bboxes(ticks_to_draw, renderer)
+            bboxes.extend(tlb)
+            bboxes2.extend(tlb2)
+        return bboxes, bboxes2
 
     def _update_label_position(self, renderer):
         """
@@ -2038,25 +2055,6 @@ class XAxis(Axis):
         }, position=position))
         self.label_position = position
         self.stale = True
-
-    def _get_tick_boxes_siblings(self, renderer):
-        """
-        Get the bounding boxes for this `.axis` and its siblings
-        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
-
-        By default it just gets bboxes for self.
-        """
-        bboxes = []
-        bboxes2 = []
-        # get the Grouper that keeps track of x-label groups for this figure
-        grp = self.figure._align_xlabel_grp
-        # if we want to align labels from other axes:
-        for nn, axx in enumerate(grp.get_siblings(self.axes)):
-            ticks_to_draw = axx.xaxis._update_ticks()
-            tlb, tlb2 = axx.xaxis._get_tick_bboxes(ticks_to_draw, renderer)
-            bboxes.extend(tlb)
-            bboxes2.extend(tlb2)
-        return bboxes, bboxes2
 
     def _update_label_position(self, renderer):
         """
@@ -2329,25 +2327,6 @@ class YAxis(Axis):
         }, position=position))
         self.label_position = position
         self.stale = True
-
-    def _get_tick_boxes_siblings(self, renderer):
-        """
-        Get the bounding boxes for this `.axis` and its siblings
-        as set by `.Figure.align_xlabels` or  `.Figure.align_ylablels`.
-
-        By default it just gets bboxes for self.
-        """
-        bboxes = []
-        bboxes2 = []
-        # get the Grouper that keeps track of y-label groups for this figure
-        grp = self.figure._align_ylabel_grp
-        # if we want to align labels from other axes:
-        for axx in grp.get_siblings(self.axes):
-            ticks_to_draw = axx.yaxis._update_ticks()
-            tlb, tlb2 = axx.yaxis._get_tick_bboxes(ticks_to_draw, renderer)
-            bboxes.extend(tlb)
-            bboxes2.extend(tlb2)
-        return bboxes, bboxes2
 
     def _update_label_position(self, renderer):
         """

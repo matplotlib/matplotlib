@@ -136,8 +136,7 @@ class FigureBase(Artist):
         # groupers to keep track of x and y labels we want to align.
         # see self.align_xlabels and self.align_ylabels and
         # axis._get_tick_boxes_siblings
-        self._align_xlabel_grp = cbook.Grouper()
-        self._align_ylabel_grp = cbook.Grouper()
+        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
 
         self.figure = self
         # list of child gridspecs for this figure
@@ -1203,7 +1202,7 @@ default: %(va)s
                     if (pos == 'top' and rowspan.start == rowspanc.start or
                             pos == 'bottom' and rowspan.stop == rowspanc.stop):
                         # grouper for groups of xlabels to align
-                        self._align_xlabel_grp.join(ax, axc)
+                        self._align_label_groups['x'].join(ax, axc)
 
     def align_ylabels(self, axs=None):
         """
@@ -1263,7 +1262,7 @@ default: %(va)s
                     if (pos == 'left' and colspan.start == colspanc.start or
                             pos == 'right' and colspan.stop == colspanc.stop):
                         # grouper for groups of ylabels to align
-                        self._align_ylabel_grp.join(ax, axc)
+                        self._align_label_groups['y'].join(ax, axc)
 
     def align_labels(self, axs=None):
         """
@@ -2154,12 +2153,6 @@ class Figure(FigureBase):
         self._cachedRenderer = None
 
         self.set_constrained_layout(constrained_layout)
-
-        # groupers to keep track of x and y labels we want to align.
-        # see self.align_xlabels and self.align_ylabels and
-        # axis._get_tick_boxes_siblings
-        self._align_xlabel_grp = cbook.Grouper()
-        self._align_ylabel_grp = cbook.Grouper()
 
         # list of child gridspecs for this figure
         self._gridspecs = []
