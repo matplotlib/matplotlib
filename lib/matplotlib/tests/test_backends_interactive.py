@@ -62,7 +62,7 @@ def _get_testable_interactive_backends():
     return backends
 
 
-_test_timeout = 10  # Empirically, 1s is not enough on Travis.
+_test_timeout = 10  # Empirically, 1s is not enough on CI.
 
 
 # The source of this function gets extracted and run in another process, so it
@@ -161,9 +161,6 @@ def test_interactive_backend(backend, toolbar):
     if backend == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
-        if toolbar == "toolbar2" and os.environ.get('TRAVIS'):
-            # See https://github.com/matplotlib/matplotlib/issues/18213
-            pytest.skip("toolbar2 for macosx is buggy on Travis.")
 
     proc = subprocess.run(
         [sys.executable, "-c",

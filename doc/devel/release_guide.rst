@@ -23,9 +23,9 @@ Release Guide
 Testing
 =======
 
-We use `Travis CI <https://travis-ci.org/matplotlib/matplotlib>`__ for
-continuous integration.  When preparing for a release, the final
-tagged commit should be tested locally before it is uploaded::
+We use `GitHub Actions <https://github.com/matplotlib/matplotlib/actions>`__
+for continuous integration.  When preparing for a release, the final tagged
+commit should be tested locally before it is uploaded::
 
    pytest -n 8 .
 
@@ -251,12 +251,12 @@ We distribute macOS, Windows, and many Linux wheels as well as a source tarball
 via PyPI.  Most builders should trigger automatically once the tag is pushed to
 GitHub:
 
-* Mac and manylinux wheels are built on Travis CI.  Builds are triggered by the
-  GitHub Action defined in :file:`.github/workflows/wheels.yml`, and wheels
-  will be available at the site defined in the `matplotlib-wheels repo
-  <https://github.com/MacPython/matplotlib-wheels>`__.
-* Windows wheels are built by Christoph Gohlke automatically and will be
-  `available at his site
+* Windows, macOS and manylinux wheels are built on GitHub Actions.  Builds are
+  triggered by the GitHub Action defined in
+  :file:`.github/workflows/cibuildwheel.yml`, and wheels will be available as
+  artifacts of the build.
+* Alternative Windows wheels are built by Christoph Gohlke automatically and
+  will be `available at his site
   <https://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib>`__ once built.
 * The auto-tick bot should open a pull request into the `conda-forge feedstock
   <https://github.com/conda-forge/matplotlib-feedstock>`__.  Review and merge

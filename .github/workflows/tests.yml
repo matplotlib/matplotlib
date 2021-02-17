@@ -30,12 +30,12 @@ jobs:
             XVFB_RUN: xvfb-run -a
           - os: ubuntu-16.04
             python-version: 3.7
-            extra-requirements: '-r requirements/testing/travis_extra.txt'
+            extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
           - os: ubuntu-16.04
             python-version: 3.8
-            extra-requirements: '-r requirements/testing/travis_extra.txt'
+            extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
           - os: macos-latest
             python-version: 3.8
@@ -142,7 +142,7 @@ jobs:
           # Install dependencies from PyPI.
           python -mpip install --upgrade $PRE \
             cycler kiwisolver numpy pillow pyparsing python-dateutil \
-            -r requirements/testing/travis_all.txt \
+            -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
           # Install optional dependencies from PyPI.

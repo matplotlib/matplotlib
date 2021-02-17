@@ -9,7 +9,6 @@ import warnings
 import numpy as np
 import pytest
 
-from matplotlib import font_manager as fm
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontProperties, fontManager, json_dump,
     json_load, get_font, get_fontconfig_fonts, is_opentype_cff_font,
@@ -111,12 +110,7 @@ def test_utf16m_sfnt():
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(findfont(fp)).name != "wqy-zenhei.ttc":
-        if not os.environ.get("TRAVIS") or sys.platform != "linux":
-            pytest.skip("Font may be missing")
-        # Travis appears to fail to pick up the ttc file sometimes.  Try to
-        # rebuild the cache and try again.
-        fm._rebuild()
-        assert Path(findfont(fp)).name == "wqy-zenhei.ttc"
+        pytest.skip("Font may be missing")
 
     fig, ax = plt.subplots()
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)

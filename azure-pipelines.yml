@@ -75,7 +75,8 @@ steps:
         texlive-latex-base \
         texlive-latex-extra \
         texlive-latex-recommended \
-        texlive-xetex texlive-luatex
+        texlive-xetex texlive-luatex \
+        ttf-wqy-zenhei
       ;;
     darwin)
       brew install --cask xquartz
@@ -91,7 +92,7 @@ steps:
 
 - bash: |
     python -m pip install --upgrade pip
-    python -m pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis_extra.txt ||
+    python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt ||
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: 'Install dependencies with pip'
 
