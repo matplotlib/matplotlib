@@ -2749,7 +2749,7 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        fname : str or path-like or file-like
+        fname : str or path-like or binary file-like
             A path, or a Python file-like object, or
             possibly some backend-dependent object such as
             `matplotlib.backends.backend_pdf.PdfPages`.
