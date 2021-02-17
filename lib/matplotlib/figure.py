@@ -813,7 +813,7 @@ default: %(va)s
             ax2.scatter(x, y)
 
             # Create four polar Axes and access them through the returned array
-            axes = fig.subplots(2, 2, subplot_kw=dict(polar=True))
+            axes = fig.subplots(2, 2, subplot_kw=dict(projection='polar'))
             axes[0, 0].plot(x, y)
             axes[1, 1].scatter(x, y)
 

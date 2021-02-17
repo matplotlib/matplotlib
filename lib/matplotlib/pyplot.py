@@ -1360,7 +1360,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         ax2.scatter(x, y)
 
         # Create four polar axes and access them through the returned array
-        fig, axs = plt.subplots(2, 2, subplot_kw=dict(polar=True))
+        fig, axs = plt.subplots(2, 2, subplot_kw=dict(projection="polar"))
         axs[0, 0].plot(x, y)
         axs[1, 1].scatter(x, y)
 
@@ -2426,7 +2426,7 @@ def polar(*args, **kwargs):
         else:
             _api.warn_external('Trying to create polar plot on an Axes '
                                'that does not have a polar projection.')
-    ax = axes(polar=True)
+    ax = axes(projection="polar")
     ret = ax.plot(*args, **kwargs)
     return ret
 
