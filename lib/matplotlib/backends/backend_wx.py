@@ -439,6 +439,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wx.WXK_CONTROL: 'control',
         wx.WXK_SHIFT: 'shift',
         wx.WXK_ALT: 'alt',
+        wx.WXK_CAPITAL: 'caps_lock',
         wx.WXK_LEFT: 'left',
         wx.WXK_UP: 'up',
         wx.WXK_RIGHT: 'right',
@@ -718,11 +719,13 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         else:
             key = None
 
-        for meth, prefix in (
-                [event.AltDown, 'alt'],
-                [event.ControlDown, 'ctrl'], ):
-            if meth():
-                key = '{0}+{1}'.format(prefix, key)
+        for meth, prefix, key_name in (
+                [event.ControlDown, 'ctrl', 'control'],
+                [event.AltDown, 'alt', 'alt'],
+                [event.ShiftDown, 'shift', 'shift'],):
+            if meth() and key_name != key:
+                if not (key_name == 'shift' and key.isupper()):
+                    key = '{0}+{1}'.format(prefix, key)
 
         return key
 

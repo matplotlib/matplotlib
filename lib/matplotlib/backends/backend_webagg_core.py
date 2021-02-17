@@ -27,92 +27,54 @@ from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
-# http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
-_SHIFT_LUT = {59: ':',
-              61: '+',
-              173: '_',
-              186: ':',
-              187: '+',
-              188: '<',
-              189: '_',
-              190: '>',
-              191: '?',
-              192: '~',
-              219: '{',
-              220: '|',
-              221: '}',
-              222: '"'}
-
-_LUT = {8: 'backspace',
-        9: 'tab',
-        13: 'enter',
-        16: 'shift',
-        17: 'control',
-        18: 'alt',
-        19: 'pause',
-        20: 'caps',
-        27: 'escape',
-        32: ' ',
-        33: 'pageup',
-        34: 'pagedown',
-        35: 'end',
-        36: 'home',
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down',
-        45: 'insert',
-        46: 'delete',
-        91: 'super',
-        92: 'super',
-        93: 'select',
-        106: '*',
-        107: '+',
-        109: '-',
-        110: '.',
-        111: '/',
-        144: 'num_lock',
-        145: 'scroll_lock',
-        186: ':',
-        187: '=',
-        188: ',',
-        189: '-',
-        190: '.',
-        191: '/',
-        192: '`',
-        219: '[',
-        220: '\\',
-        221: ']',
-        222: "'"}
+_SPECIAL_KEYS_LUT = {'Alt': 'alt',
+                     'AltGraph': 'alt',
+                     'CapsLock': 'caps_lock',
+                     'Control': 'control',
+                     'Meta': 'meta',
+                     'NumLock': 'num_lock',
+                     'ScrollLock': 'scroll_lock',
+                     'Shift': 'shift',
+                     'Super': 'super',
+                     'Enter': 'enter',
+                     'Tab': 'tab',
+                     'ArrowDown': 'down',
+                     'ArrowLeft': 'left',
+                     'ArrowRight': 'right',
+                     'ArrowUp': 'up',
+                     'End': 'end',
+                     'Home': 'home',
+                     'PageDown': 'pagedown',
+                     'PageUp': 'pageup',
+                     'Backspace': 'backspace',
+                     'Delete': 'delete',
+                     'Insert': 'insert',
+                     'Escape': 'escape',
+                     'Pause': 'pause',
+                     'Select': 'select',
+                     'Dead': 'dead',
+                     'F1': 'f1',
+                     'F2': 'f2',
+                     'F3': 'f3',
+                     'F4': 'f4',
+                     'F5': 'f5',
+                     'F6': 'f6',
+                     'F7': 'f7',
+                     'F8': 'f8',
+                     'F9': 'f9',
+                     'F10': 'f10',
+                     'F11': 'f11',
+                     'F12': 'f12'}
 
 
 def _handle_key(key):
-    """Handle key codes"""
-    code = int(key[key.index('k') + 1:])
-    value = chr(code)
-    # letter keys
-    if 65 <= code <= 90:
-        if 'shift+' in key:
+    """Handle key values"""
+    value = key[key.index('k') + 1:]
+    if 'shift+' in key:
+        if len(value) == 1:
             key = key.replace('shift+', '')
-        else:
-            value = value.lower()
-    # number keys
-    elif 48 <= code <= 57:
-        if 'shift+' in key:
-            value = ')!@#$%^&*('[int(value)]
-            key = key.replace('shift+', '')
-    # function keys
-    elif 112 <= code <= 123:
-        value = 'f%s' % (code - 111)
-    # number pad keys
-    elif 96 <= code <= 105:
-        value = '%s' % (code - 96)
-    # keys with shift alternatives
-    elif code in _SHIFT_LUT and 'shift+' in key:
-        key = key.replace('shift+', '')
-        value = _SHIFT_LUT[code]
-    elif code in _LUT:
-        value = _LUT[code]
+    if value in _SPECIAL_KEYS_LUT:
+        value = _SPECIAL_KEYS_LUT[value]
     key = key[:key.index('k')] + value
     return key
 

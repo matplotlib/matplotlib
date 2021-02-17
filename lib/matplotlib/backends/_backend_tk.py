@@ -317,7 +317,8 @@ class FigureCanvasTk(FigureCanvasBase):
             FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
     def _get_key(self, event):
-        key = cbook._unikey_or_keysym_to_mplkey(event.char, event.keysym)
+        unikey = event.char
+        key = cbook._unikey_or_keysym_to_mplkey(unikey, event.keysym)
 
         # add modifier keys to the key string. Bit details originate from
         # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
@@ -328,25 +329,29 @@ class FigureCanvasTk(FigureCanvasBase):
         # however this is not the case on "darwin", so double check that
         # we aren't adding repeat modifier flags to a modifier key.
         if sys.platform == 'win32':
-            modifiers = [(17, 'alt', 'alt'),
-                         (2, 'ctrl', 'control'),
+            modifiers = [(2, 'ctrl', 'control'),
+                         (17, 'alt', 'alt'),
+                         (0, 'shift', 'shift'),
                          ]
         elif sys.platform == 'darwin':
-            modifiers = [(3, 'super', 'super'),
+            modifiers = [(2, 'ctrl', 'control'),
                          (4, 'alt', 'alt'),
-                         (2, 'ctrl', 'control'),
+                         (0, 'shift', 'shift'),
+                         (3, 'super', 'super'),
                          ]
         else:
-            modifiers = [(6, 'super', 'super'),
+            modifiers = [(2, 'ctrl', 'control'),
                          (3, 'alt', 'alt'),
-                         (2, 'ctrl', 'control'),
+                         (0, 'shift', 'shift'),
+                         (6, 'super', 'super'),
                          ]
 
         if key is not None:
             # shift is not added to the keys as this is already accounted for
             for bitmask, prefix, key_name in modifiers:
                 if event.state & (1 << bitmask) and key_name not in key:
-                    key = '{0}+{1}'.format(prefix, key)
+                    if not (prefix == 'shift' and unikey):
+                        key = '{0}+{1}'.format(prefix, key)
 
         return key
 

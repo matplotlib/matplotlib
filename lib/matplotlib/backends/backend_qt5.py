@@ -25,7 +25,10 @@ backend_version = __version__
 SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Shift: 'shift',
                 QtCore.Qt.Key_Alt: 'alt',
-                QtCore.Qt.Key_Meta: 'super',
+                QtCore.Qt.Key_Meta: 'meta',
+                QtCore.Qt.Key_Super_L: 'super',
+                QtCore.Qt.Key_Super_R: 'super',
+                QtCore.Qt.Key_CapsLock: 'caps_lock',
                 QtCore.Qt.Key_Return: 'enter',
                 QtCore.Qt.Key_Left: 'left',
                 QtCore.Qt.Key_Up: 'up',
@@ -66,9 +69,9 @@ if sys.platform == 'darwin':
 # Elements are (Modifier Flag, Qt Key) tuples.
 # Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
 _MODIFIER_KEYS = [
-    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
     (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
     (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
+    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
     (QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
 ]
 cursord = {
