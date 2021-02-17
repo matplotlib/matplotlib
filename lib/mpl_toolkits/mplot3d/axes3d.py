@@ -14,6 +14,7 @@ from collections import defaultdict
 import functools
 import itertools
 import math
+from numbers import Integral
 import textwrap
 
 import numpy as np
@@ -3104,17 +3105,6 @@ pivot='tail', normalize=False, **kwargs)
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
-        try:
-            offset, errorevery = errorevery
-        except TypeError:
-            offset = 0
-
-        if errorevery < 1 or int(errorevery) != errorevery:
-            raise ValueError(
-                'errorevery must be positive integer or tuple of integers')
-        if int(offset) != offset:
-            raise ValueError("errorevery's starting index must be an integer")
-
         self._process_unit_info([("x", x), ("y", y), ("z", z)], kwargs,
                                 convert=False)
 
@@ -3126,6 +3116,34 @@ pivot='tail', normalize=False, **kwargs)
 
         if not len(x) == len(y) == len(z):
             raise ValueError("'x', 'y', and 'z' must have the same size")
+
+        if isinstance(errorevery, Integral):
+            errorevery = (0, errorevery)
+        if isinstance(errorevery, tuple):
+            if (len(errorevery) == 2 and
+                    isinstance(errorevery[0], Integral) and
+                    isinstance(errorevery[1], Integral)):
+                errorevery = slice(errorevery[0], None, errorevery[1])
+            else:
+                raise ValueError(
+                    f'errorevery={errorevery!r} is a not a tuple of two '
+                    f'integers')
+
+        elif isinstance(errorevery, slice):
+            pass
+
+        elif not isinstance(errorevery, str) and np.iterable(errorevery):
+            # fancy indexing
+            try:
+                x[errorevery]
+            except (ValueError, IndexError) as err:
+                raise ValueError(
+                    f"errorevery={errorevery!r} is iterable but not a valid "
+                    f"NumPy fancy index to match "
+                    f"'xerr'/'yerr'/'zerr'") from err
+        else:
+            raise ValueError(
+                f"errorevery={errorevery!r} is not a recognized value")
 
         label = kwargs.pop("label", None)
         kwargs['label'] = '_nolegend_'
@@ -3189,7 +3207,7 @@ pivot='tail', normalize=False, **kwargs)
         eb_cap_style['color'] = ecolor
 
         everymask = np.zeros(len(x), bool)
-        everymask[offset::errorevery] = True
+        everymask[errorevery] = True
 
         def _apply_mask(arrays, mask):
             # Return, for each array in *arrays*, the elements for which *mask*
