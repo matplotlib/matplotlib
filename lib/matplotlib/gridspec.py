@@ -309,17 +309,23 @@ class GridSpecBase:
 
         # turn off redundant tick labeling
         if sharex in ["col", "all"]:
-            # turn off all but the bottom row
-            for ax in axarr[:-1, :].flat:
-                ax.xaxis.set_tick_params(which='both',
-                                         labelbottom=False, labeltop=False)
-                ax.xaxis.offsetText.set_visible(False)
+            for ax in axarr[:-1, :].flat:  # Remove bottom labels/offsettexts.
+                ax.xaxis.set_tick_params(which="both", labelbottom=False)
+                if ax.xaxis.offsetText.get_position()[1] == 0:
+                    ax.xaxis.offsetText.set_visible(False)
+            for ax in axarr[1:, :].flat:  # Remove top labels/offsettexts.
+                ax.xaxis.set_tick_params(which="both", labeltop=False)
+                if ax.xaxis.offsetText.get_position()[1] == 1:
+                    ax.xaxis.offsetText.set_visible(False)
         if sharey in ["row", "all"]:
-            # turn off all but the first column
-            for ax in axarr[:, 1:].flat:
-                ax.yaxis.set_tick_params(which='both',
-                                         labelleft=False, labelright=False)
-                ax.yaxis.offsetText.set_visible(False)
+            for ax in axarr[:, 1:].flat:  # Remove left labels/offsettexts.
+                ax.yaxis.set_tick_params(which="both", labelleft=False)
+                if ax.yaxis.offsetText.get_position()[0] == 0:
+                    ax.yaxis.offsetText.set_visible(False)
+            for ax in axarr[:, :-1].flat:  # Remove right labels/offsettexts.
+                ax.yaxis.set_tick_params(which="both", labelright=False)
+                if ax.yaxis.offsetText.get_position()[0] == 1:
+                    ax.yaxis.offsetText.set_visible(False)
 
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one
