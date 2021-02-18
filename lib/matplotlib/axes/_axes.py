@@ -4507,6 +4507,11 @@ default: :rc:`scatter.edgecolors`
             x, y, s, c, colors, edgecolors, linewidths = \
                 cbook._combine_masks(
                     x, y, s, c, colors, edgecolors, linewidths)
+        # Unmask edgecolors if it was actually a single RGB or RGBA.
+        if (x.size in (3, 4)
+                and np.ma.is_masked(edgecolors)
+                and not np.ma.is_masked(orig_edgecolor)):
+            edgecolors = edgecolors.data
 
         scales = s   # Renamed for readability below.
 
