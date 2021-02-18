@@ -220,6 +220,7 @@ class CallbackRegistry:
             cid = proxy_to_cid.pop(proxy, None)
             if cid is not None:
                 del self.callbacks[signal][cid]
+                self._pickled_cids.discard(cid)
                 break
         else:
             # Not found
@@ -235,6 +236,7 @@ class CallbackRegistry:
 
         No error is raised if such a callback does not exist.
         """
+        self._pickled_cids.discard(cid)
         # Clean up callbacks
         for signal, cid_to_proxy in list(self.callbacks.items()):
             proxy = cid_to_proxy.pop(cid, None)
