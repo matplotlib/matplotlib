@@ -880,84 +880,74 @@ class PsfontsMap:
         """
         Parse the font mapping file.
 
-        The format is, AFAIK: texname fontname [effects and filenames]
-        Effects are PostScript snippets like ".177 SlantFont",
-        filenames begin with one or two less-than signs. A filename
-        ending in enc is an encoding file, other filenames are font
-        files. This can be overridden with a left bracket: <[foobar
-        indicates an encoding file named foobar.
+        The format is (partially) documented at
+        http://mirrors.ctan.org/systems/doc/pdftex/manual/pdftex-a.pdf
+        https://tug.org/texinfohtml/dvips.html#psfonts_002emap
+        Each line can have the following fields:
 
-        There is some difference between <foo.pfb and <<bar.pfb in
-        subsetting, but I have no example of << in my TeX installation.
+        - tfmname (first, only required field),
+        - psname (defaults to tfmname, must come immediately after tfmname if
+          present),
+        - fontflags (integer, must come immediately after psname if present,
+          ignored by us),
+        - special (SlantFont and ExtendFont, only field that is double-quoted),
+        - fontfile, encodingfile (optional, prefixed by <, <<, or <[; << always
+          precedes a font, <[ always precedes an encoding, < can precede either
+          but then an encoding file must have extension .enc; < and << also
+          request different font subsetting behaviors but we ignore that; < can
+          be separated from the filename by whitespace).
+
+        special, fontfile, and encodingfile can appear in any order.
         """
         # If the map file specifies multiple encodings for a font, we
         # follow pdfTeX in choosing the last one specified. Such
         # entries are probably mistakes but they have occurred.
         # http://tex.stackexchange.com/questions/10826/
-        # http://article.gmane.org/gmane.comp.tex.pdftex/4914
 
-        empty_re = re.compile(br'%|\s*$')
-        word_re = re.compile(
-            br'''(?x) (?:
-                 "<\[ (?P<enc1>  [^"]+    )" | # quoted encoding marked by [
-                 "<   (?P<enc2>  [^"]+.enc)" | # quoted encoding, ends in .enc
-                 "<<? (?P<file1> [^"]+    )" | # quoted font file name
-                 "    (?P<eff1>  [^"]+    )" | # quoted effects or font name
-                 <\[  (?P<enc3>  \S+      )  | # encoding marked by [
-                 <    (?P<enc4>  \S+  .enc)  | # encoding, ends in .enc
-                 <<?  (?P<file2> \S+      )  | # font file name
-                      (?P<eff2>  \S+      )    # effects or font name
-            )''')
-        effects_re = re.compile(
-            br'''(?x) (?P<slant> -?[0-9]*(?:\.[0-9]+)) \s* SlantFont
-                    | (?P<extend>-?[0-9]*(?:\.[0-9]+)) \s* ExtendFont''')
-
-        lines = (line.strip()
-                 for line in file
-                 if not empty_re.match(line))
-        for line in lines:
-            effects, encoding, filename = b'', None, None
-            words = word_re.finditer(line)
-
-            # The named groups are mutually exclusive and are
-            # referenced below at an estimated order of probability of
-            # occurrence based on looking at my copy of pdftex.map.
-            # The font names are probably unquoted:
-            w = next(words)
-            texname = w.group('eff2') or w.group('eff1')
-            w = next(words)
-            psname = w.group('eff2') or w.group('eff1')
-
-            for w in words:
-                # Any effects are almost always quoted:
-                eff = w.group('eff1') or w.group('eff2')
-                if eff:
-                    effects = eff
-                    continue
-                # Encoding files usually have the .enc suffix
-                # and almost never need quoting:
-                enc = (w.group('enc4') or w.group('enc3') or
-                       w.group('enc2') or w.group('enc1'))
-                if enc:
-                    if encoding is not None:
-                        _log.debug('Multiple encodings for %s = %s',
-                                   texname, psname)
-                    encoding = enc
-                    continue
-                # File names are probably unquoted:
-                filename = w.group('file2') or w.group('file1')
-
-            effects_dict = {}
-            for match in effects_re.finditer(effects):
-                slant = match.group('slant')
-                if slant:
-                    effects_dict['slant'] = float(slant)
-                else:
-                    effects_dict['extend'] = float(match.group('extend'))
-
-            self._font[texname] = PsFont(
-                texname=texname, psname=psname, effects=effects_dict,
-                encoding=encoding, filename=filename)
+        word_re = re.compile(br'"([^"]*)(?:"|$)|(\S+)')
+        for line in file:
+            if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
+                continue
+            tfmname = basename = special = encodingfile = fontfile = None
+            matches = word_re.finditer(line)
+            for match in matches:
+                quoted, unquoted = match.groups()
+                if unquoted:
+                    if unquoted.startswith(b"<<"):  # font
+                        fontfile = unquoted[2:]
+                    elif unquoted.startswith(b"<["):  # encoding
+                        encodingfile = unquoted[2:]
+                    elif unquoted.startswith(b"<"):  # font or encoding
+                        if unquoted == b"<":
+                            word = next(filter(None, next(matches).groups()))
+                            if unquoted.endswith(b".enc"):
+                                encodingfile = word
+                            else:
+                                fontfile = word
+                        else:
+                            if unquoted.endswith(b".enc"):
+                                encodingfile = unquoted[1:]
+                            else:
+                                fontfile = unquoted[1:]
+                    elif tfmname is None:
+                        tfmname = unquoted
+                    elif basename is None:
+                        basename = unquoted
+                elif quoted:
+                    special = quoted
+            if basename is None:
+                basename = tfmname
+            effects = {}
+            if special:
+                words = reversed(special.split())
+                for word in words:
+                    if word == b"SlantFont":
+                        effects["slant"] = float(next(words))
+                    elif word == b"ExtendFont":
+                        effects["extend"] = float(next(words))
+            self._font[tfmname] = PsFont(
+                texname=tfmname, psname=basename, effects=effects,
+                encoding=encodingfile, filename=fontfile)
 
 
 @_api.deprecated("3.3")
