@@ -838,7 +838,7 @@ class PsfontsMap:
     {'slant': 0.16700000000000001}
     >>> entry.filename
     """
-    __slots__ = ('_font', '_filename')
+    __slots__ = ('_filename', '_unparsed', '_parsed')
 
     # Create a filename -> PsfontsMap cache, so that calling
     # `PsfontsMap(filename)` with the same filename a second time immediately
@@ -846,16 +846,22 @@ class PsfontsMap:
     @lru_cache()
     def __new__(cls, filename):
         self = object.__new__(cls)
-        self._font = {}
         self._filename = os.fsdecode(filename)
+        # Some TeX distributions have enormous pdftex.map files which would
+        # take hundreds of milliseconds to parse, but it is easy enough to just
+        # store the unparsed lines (keyed by the first word, which is the
+        # texname) and parse them on-demand.
         with open(filename, 'rb') as file:
-            self._parse(file)
+            self._unparsed = {line.split(b' ', 1)[0]: line for line in file}
+        self._parsed = {}
         return self
 
     def __getitem__(self, texname):
         assert isinstance(texname, bytes)
+        if texname in self._unparsed:
+            self._parse_and_cache_line(self._unparsed.pop(texname))
         try:
-            result = self._font[texname]
+            return self._parsed[texname]
         except KeyError:
             fmt = ('A PostScript file for the font whose TeX name is "{0}" '
                    'could not be found in the file "{1}". The dviread module '
@@ -864,21 +870,14 @@ class PsfontsMap:
                    'This problem can often be solved by installing '
                    'a suitable PostScript font package in your (TeX) '
                    'package manager.')
-            msg = fmt.format(texname.decode('ascii'), self._filename)
-            msg = textwrap.fill(msg, break_on_hyphens=False,
-                                break_long_words=False)
-            _log.info(msg)
+            _log.info(textwrap.fill(
+                fmt.format(texname.decode('ascii'), self._filename),
+                break_on_hyphens=False, break_long_words=False))
             raise
-        fn, enc = result.filename, result.encoding
-        if fn is not None and not fn.startswith(b'/'):
-            fn = find_tex_file(fn)
-        if enc is not None and not enc.startswith(b'/'):
-            enc = find_tex_file(result.encoding)
-        return result._replace(filename=fn, encoding=enc)
 
-    def _parse(self, file):
+    def _parse_and_cache_line(self, line):
         """
-        Parse the font mapping file.
+        Parse a line in the font mapping file.
 
         The format is (partially) documented at
         http://mirrors.ctan.org/systems/doc/pdftex/manual/pdftex-a.pdf
@@ -904,50 +903,50 @@ class PsfontsMap:
         # entries are probably mistakes but they have occurred.
         # http://tex.stackexchange.com/questions/10826/
 
-        word_re = re.compile(br'"([^"]*)(?:"|$)|(\S+)')
-        for line in file:
-            if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
-                continue
-            tfmname = basename = special = encodingfile = fontfile = None
-            matches = word_re.finditer(line)
-            for match in matches:
-                quoted, unquoted = match.groups()
-                if unquoted:
-                    if unquoted.startswith(b"<<"):  # font
-                        fontfile = unquoted[2:]
-                    elif unquoted.startswith(b"<["):  # encoding
-                        encodingfile = unquoted[2:]
-                    elif unquoted.startswith(b"<"):  # font or encoding
-                        if unquoted == b"<":
-                            word = next(filter(None, next(matches).groups()))
-                            if unquoted.endswith(b".enc"):
-                                encodingfile = word
-                            else:
-                                fontfile = word
-                        else:
-                            if unquoted.endswith(b".enc"):
-                                encodingfile = unquoted[1:]
-                            else:
-                                fontfile = unquoted[1:]
-                    elif tfmname is None:
-                        tfmname = unquoted
-                    elif basename is None:
-                        basename = unquoted
-                elif quoted:
-                    special = quoted
-            if basename is None:
-                basename = tfmname
-            effects = {}
-            if special:
-                words = reversed(special.split())
-                for word in words:
-                    if word == b"SlantFont":
-                        effects["slant"] = float(next(words))
-                    elif word == b"ExtendFont":
-                        effects["extend"] = float(next(words))
-            self._font[tfmname] = PsFont(
-                texname=tfmname, psname=basename, effects=effects,
-                encoding=encodingfile, filename=fontfile)
+        if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
+            return
+        tfmname = basename = special = encodingfile = fontfile = None
+        matches = re.finditer(br'"([^"]*)(?:"|$)|(\S+)', line)
+        for match in matches:
+            quoted, unquoted = match.groups()
+            if unquoted:
+                if unquoted.startswith(b"<<"):  # font
+                    fontfile = unquoted[2:]
+                elif unquoted.startswith(b"<["):  # encoding
+                    encodingfile = unquoted[2:]
+                elif unquoted.startswith(b"<"):  # font or encoding
+                    word = (
+                        # <foo => foo
+                        unquoted[1:]
+                        # < by itself => read the next word
+                        or next(filter(None, next(matches).groups())))
+                    if word.endswith(b".enc"):
+                        encodingfile = word
+                    else:
+                        fontfile = word
+                elif tfmname is None:
+                    tfmname = unquoted
+                elif basename is None:
+                    basename = unquoted
+            elif quoted:
+                special = quoted
+        if basename is None:
+            basename = tfmname
+        effects = {}
+        if special:
+            words = reversed(special.split())
+            for word in words:
+                if word == b"SlantFont":
+                    effects["slant"] = float(next(words))
+                elif word == b"ExtendFont":
+                    effects["extend"] = float(next(words))
+        if encodingfile is not None and not encodingfile.startswith(b"/"):
+            encodingfile = find_tex_file(encodingfile)
+        if fontfile is not None and not fontfile.startswith(b"/"):
+            fontfile = find_tex_file(fontfile)
+        self._parsed[tfmname] = PsFont(
+            texname=tfmname, psname=basename, effects=effects,
+            encoding=encodingfile, filename=fontfile)
 
 
 @_api.deprecated("3.3")
