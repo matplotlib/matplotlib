@@ -64,6 +64,15 @@ class Axes3D(Axes):
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
+        auto_add_to_figure : bool, default: True
+            Prior to Matplotlib 3.4 Axes3D would add themselves
+            to their host Figure on init.  Other Axes class do not
+            do this.
+
+            This behavior is deprecated in 3.4, the default will
+            change to False in 3.5.  The keyword will be undocumented
+            and a non-False value will be an error in 3.6.
+
         **kwargs
             Other optional keyword arguments:
 
@@ -97,6 +106,8 @@ class Axes3D(Axes):
             self._shared_z_axes.join(self, sharez)
             self._adjustable = 'datalim'
 
+        auto_add_to_figure = kwargs.pop('auto_add_to_figure', True)
+
         super().__init__(
             fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
         )
@@ -128,6 +139,18 @@ class Axes3D(Axes):
         # mplot3d currently manages its own spines and needs these turned off
         # for bounding box calculations
         self.spines[:].set_visible(False)
+
+        if auto_add_to_figure:
+            _api.warn_deprecated(
+                "3.4", removal="3.6", message="Axes3D(fig) adding itself "
+                "to the figure is deprecated since %(since)s. "
+                "Pass the keyword argument auto_add_to_figure=False "
+                "and use fig.add_axes(ax) to suppress this warning. "
+                "The default value of auto_add_to_figure will change to "
+                "False in mpl3.5 and True values will "
+                "no longer work %(removal)s.  This is consistent with "
+                "other Axes classes.")
+            fig.add_axes(self)
 
     def set_axis_off(self):
         self._axis3don = False

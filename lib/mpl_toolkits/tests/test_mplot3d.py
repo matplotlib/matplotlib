@@ -6,12 +6,14 @@ import pytest
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseButton
+from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib import cm
 from matplotlib import colors as mcolors
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.testing.widgets import mock_event
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -725,7 +727,7 @@ def test_add_collection3d_zs_scalar():
 @mpl3d_image_comparison(['axes3d_labelpad.png'], remove_text=False)
 def test_axes3d_labelpad():
     fig = plt.figure()
-    ax = fig.add_axes(Axes3D(fig))
+    ax = fig.add_axes(Axes3D(fig, auto_add_to_figure=False))
     # labelpad respects rcParams
     assert ax.xaxis.labelpad == mpl.rcParams['axes.labelpad']
     # labelpad can be set in set_label
@@ -1148,7 +1150,8 @@ def test_inverted_cla():
 
 def test_ax3d_tickcolour():
     fig = plt.figure()
-    ax = Axes3D(fig)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax = Axes3D(fig)
 
     ax.tick_params(axis='x', colors='red')
     ax.tick_params(axis='y', colors='red')
