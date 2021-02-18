@@ -7,7 +7,7 @@ is desireable to redirect the old file to the new or existing file. This
 extension enables this with a simple html refresh.
 
 For example suppose ``doc/topic/old-page.rst`` is removed and its content
-included in ``doc/topic/new-page.rst``.  We use the ``redirect_from``
+included in ``doc/topic/new-page.rst``.  We use the ``redirect-from``
 directive in ``doc/topic/new-page.rst``::
 
     .. redirect-from:: /topic/old-page
