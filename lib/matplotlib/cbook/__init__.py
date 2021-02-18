@@ -199,7 +199,7 @@ class CallbackRegistry:
 
     @_api.rename_parameter("3.4", "s", "signal")
     def connect(self, signal, func):
-        """Register *func* to be called when signal *s* is generated."""
+        """Register *func* to be called when signal *signal* is generated."""
         self._func_cid_map.setdefault(signal, {})
         proxy = _weak_or_strong_ref(func, self._remove_proxy)
         if proxy in self._func_cid_map[signal]:
