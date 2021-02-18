@@ -218,7 +218,7 @@ class BasicUnit:
         return TaggedValue(array, self)
 
     def __array__(self, t=None, context=None):
-        ret = np.array([1])
+        ret = np.array(1)
         if t is not None:
             return ret.astype(t)
         else:
