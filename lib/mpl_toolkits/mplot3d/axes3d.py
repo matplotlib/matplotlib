@@ -14,6 +14,7 @@ from collections import defaultdict
 import functools
 import itertools
 import math
+from numbers import Integral
 import textwrap
 
 import numpy as np
@@ -22,6 +23,7 @@ from matplotlib import _api, artist, cbook, docstring
 import matplotlib.axes as maxes
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
+import matplotlib.lines as mlines
 import matplotlib.scale as mscale
 import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
@@ -3019,7 +3021,7 @@ pivot='tail', normalize=False, **kwargs)
                  barsabove=False, errorevery=1, ecolor=None, elinewidth=None,
                  capsize=None, capthick=None, xlolims=False, xuplims=False,
                  ylolims=False, yuplims=False, zlolims=False, zuplims=False,
-                 arrow_length_ratio=.4, **kwargs):
+                 **kwargs):
         """
         Plot lines and/or markers with errorbars around them.
 
@@ -3096,10 +3098,6 @@ pivot='tail', normalize=False, **kwargs)
             Used to avoid overlapping error bars when two series share x-axis
             values.
 
-        arrow_length_ratio : float, default: 0.4
-            Passed to :meth:`quiver`, the ratio of the arrow head with respect
-            to the quiver.
-
         Returns
         -------
         errlines : list
@@ -3124,34 +3122,14 @@ pivot='tail', normalize=False, **kwargs)
         """
         had_data = self.has_data()
 
-        plot_line = (fmt.lower() != 'none')
-        label = kwargs.pop("label", None)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
+        # anything that comes in as 'None', drop so the default thing
+        # happens down stream
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+        kwargs.setdefault('zorder', 2)
 
-        if fmt == '':
-            fmt_style_kwargs = {}
-        else:
-            fmt_style_kwargs = {k: v for k, v in
-                                zip(('linestyle', 'marker', 'color'),
-                                    _process_plot_format(fmt))
-                                if v is not None}
-
-        if fmt == 'none':
-            # Remove alpha=0 color that _process_plot_format returns
-            fmt_style_kwargs.pop('color')
-
-        if ('color' in kwargs or 'color' in fmt_style_kwargs):
-            base_style = {}
-            if 'color' in kwargs:
-                base_style['color'] = kwargs.pop('color')
-        else:
-            base_style = next(self._get_lines.prop_cycler)
-
-        base_style['label'] = '_nolegend_'
-        base_style.update(fmt_style_kwargs)
-        if 'color' not in base_style:
-            base_style['color'] = 'C0'
-        if ecolor is None:
-            ecolor = base_style['color']
+        self._process_unit_info([("x", x), ("y", y), ("z", z)], kwargs,
+                                convert=False)
 
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
@@ -3162,24 +3140,75 @@ pivot='tail', normalize=False, **kwargs)
         if not len(x) == len(y) == len(z):
             raise ValueError("'x', 'y', and 'z' must have the same size")
 
-        # make the style dict for the 'normal' plot line
-        if 'zorder' not in kwargs:
-            kwargs['zorder'] = 2
-        plot_line_style = {
-            **base_style,
-            **kwargs,
-            'zorder': (kwargs['zorder'] - .1 if barsabove else
-                       kwargs['zorder'] + .1),
-        }
+        if isinstance(errorevery, Integral):
+            errorevery = (0, errorevery)
+        if isinstance(errorevery, tuple):
+            if (len(errorevery) == 2 and
+                    isinstance(errorevery[0], Integral) and
+                    isinstance(errorevery[1], Integral)):
+                errorevery = slice(errorevery[0], None, errorevery[1])
+            else:
+                raise ValueError(
+                    f'errorevery={errorevery!r} is a not a tuple of two '
+                    f'integers')
 
-        # make the style dict for the line collections (the bars)
-        eb_lines_style = dict(base_style)
-        eb_lines_style.pop('marker', None)
-        eb_lines_style.pop('markerfacecolor', None)
-        eb_lines_style.pop('markeredgewidth', None)
-        eb_lines_style.pop('markeredgecolor', None)
-        eb_lines_style.pop('linestyle', None)
-        eb_lines_style['color'] = ecolor
+        elif isinstance(errorevery, slice):
+            pass
+
+        elif not isinstance(errorevery, str) and np.iterable(errorevery):
+            # fancy indexing
+            try:
+                x[errorevery]
+            except (ValueError, IndexError) as err:
+                raise ValueError(
+                    f"errorevery={errorevery!r} is iterable but not a valid "
+                    f"NumPy fancy index to match "
+                    f"'xerr'/'yerr'/'zerr'") from err
+        else:
+            raise ValueError(
+                f"errorevery={errorevery!r} is not a recognized value")
+
+        label = kwargs.pop("label", None)
+        kwargs['label'] = '_nolegend_'
+
+        # Create the main line and determine overall kwargs for child artists.
+        # We avoid calling self.plot() directly, or self._get_lines(), because
+        # that would call self._process_unit_info again, and do other indirect
+        # data processing.
+        (data_line, base_style), = self._get_lines._plot_args(
+            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+        art3d.line_2d_to_3d(data_line, zs=z)
+
+        # Do this after creating `data_line` to avoid modifying `base_style`.
+        if barsabove:
+            data_line.set_zorder(kwargs['zorder'] - .1)
+        else:
+            data_line.set_zorder(kwargs['zorder'] + .1)
+
+        # Add line to plot, or throw it away and use it to determine kwargs.
+        if fmt.lower() != 'none':
+            self.add_line(data_line)
+        else:
+            data_line = None
+            # Remove alpha=0 color that _process_plot_format returns.
+            base_style.pop('color')
+
+        if 'color' not in base_style:
+            base_style['color'] = 'C0'
+        if ecolor is None:
+            ecolor = base_style['color']
+
+        # Eject any marker information from line format string, as it's not
+        # needed for bars or caps.
+        base_style.pop('marker', None)
+        base_style.pop('markersize', None)
+        base_style.pop('markerfacecolor', None)
+        base_style.pop('markeredgewidth', None)
+        base_style.pop('markeredgecolor', None)
+        base_style.pop('linestyle', None)
+
+        # Make the style dict for the line collections (the bars).
+        eb_lines_style = {**base_style, 'color': ecolor}
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
@@ -3190,37 +3219,18 @@ pivot='tail', normalize=False, **kwargs)
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
-        # make the style dict for cap collections (the "hats")
-        eb_cap_style = dict(base_style)
-        # eject any marker information from format string
-        eb_cap_style.pop('marker', None)
-        eb_cap_style.pop('ls', None)
-        eb_cap_style['linestyle'] = 'none'
+        # Make the style dict for caps (the "hats").
+        eb_cap_style = {**base_style, 'linestyle': 'None'}
         if capsize is None:
-            capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
+            capsize = rcParams["errorbar.capsize"]
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
             eb_cap_style['markeredgewidth'] = capthick
         eb_cap_style['color'] = ecolor
 
-        if plot_line:
-            data_line = art3d.Line3D(x, y, z, **plot_line_style)
-            self.add_line(data_line)
-
-        try:
-            offset, errorevery = errorevery
-        except TypeError:
-            offset = 0
-
-        if errorevery < 1 or int(errorevery) != errorevery:
-            raise ValueError(
-                'errorevery must be positive integer or tuple of integers')
-        if int(offset) != offset:
-            raise ValueError("errorevery's starting index must be an integer")
-
         everymask = np.zeros(len(x), bool)
-        everymask[offset::errorevery] = True
+        everymask[errorevery] = True
 
         def _apply_mask(arrays, mask):
             # Return, for each array in *arrays*, the elements for which *mask*
@@ -3234,14 +3244,8 @@ pivot='tail', normalize=False, **kwargs)
             else:
                 low_err, high_err = err, err
 
-            # for compatibility with the 2d errorbar function, when both upper
-            # and lower limits specified, we need to draw the markers / line
-            common_mask = (lomask == himask) & everymask
-            _lomask = lomask | common_mask
-            _himask = himask | common_mask
-
-            lows = np.where(_lomask, data - low_err, data)
-            highs = np.where(_himask, data + high_err, data)
+            lows = np.where(lomask | ~everymask, data, data - low_err)
+            highs = np.where(himask | ~everymask, data, data + high_err)
 
             return lows, highs
 
@@ -3255,6 +3259,33 @@ pivot='tail', normalize=False, **kwargs)
         # the dictionary key is mapped by the `i_xyz` helper dictionary
         capmarker = {0: '|', 1: '|', 2: '_'}
         i_xyz = {'x': 0, 'y': 1, 'z': 2}
+
+        # Calculate marker size from points to quiver length. Because these are
+        # not markers, and 3D Axes do not use the normal transform stack, this
+        # is a bit involved. Since the quiver arrows will change size as the
+        # scene is rotated, they are given a standard size based on viewing
+        # them directly in planar form.
+        quiversize = eb_cap_style.get('markersize',
+                                      rcParams['lines.markersize']) ** 2
+        quiversize *= self.figure.dpi / 72
+        quiversize = self.transAxes.inverted().transform([
+            (0, 0), (quiversize, quiversize)])
+        quiversize = np.mean(np.diff(quiversize, axis=0))
+        # quiversize is now in Axes coordinates, and to convert back to data
+        # coordinates, we need to run it through the inverse 3D transform. For
+        # consistency, this uses a fixed azimuth and elevation.
+        with cbook._setattr_cm(self, azim=0, elev=0):
+            invM = np.linalg.inv(self.get_proj())
+        # azim=elev=0 produces the Y-Z plane, so quiversize in 2D 'x' is 'y' in
+        # 3D, hence the 1 index.
+        quiversize = np.dot(invM, np.array([quiversize, 0, 0, 0]))[1]
+        # Quivers use a fixed 15-degree arrow head, so scale up the length so
+        # that the size corresponds to the base. In other words, this constant
+        # corresponds to the equation tan(15) = (base / 2) / (arrow length).
+        quiversize *= 1.8660254037844388
+        eb_quiver_style = {**eb_cap_style,
+                           'length': quiversize, 'arrow_length_ratio': 1}
+        eb_quiver_style.pop('markersize', None)
 
         # loop over x-, y-, and z-direction and draw relevant elements
         for zdir, data, err, lolims, uplims in zip(
@@ -3276,18 +3307,16 @@ pivot='tail', normalize=False, **kwargs)
             lolims = np.broadcast_to(lolims, len(data)).astype(bool)
             uplims = np.broadcast_to(uplims, len(data)).astype(bool)
 
-            nolims = ~(lolims | uplims)
-
             # a nested list structure that expands to (xl,xh),(yl,yh),(zl,zh),
             # where x/y/z and l/h correspond to dimensions and low/high
             # positions of errorbars in a dimension we're looping over
             coorderr = [
-                _extract_errs(err * dir_vector[i], coord,
-                              ~lolims & everymask, ~uplims & everymask)
+                _extract_errs(err * dir_vector[i], coord, lolims, uplims)
                 for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
 
             # draws capmarkers - flat caps orthogonal to the error bars
+            nolims = ~(lolims | uplims)
             if nolims.any() and capsize > 0:
                 lo_caps_xyz = _apply_mask([xl, yl, zl], nolims & everymask)
                 hi_caps_xyz = _apply_mask([xh, yh, zh], nolims & everymask)
@@ -3305,24 +3334,12 @@ pivot='tail', normalize=False, **kwargs)
                 caplines.append(cap_lo)
                 caplines.append(cap_hi)
 
-            if (lolims | uplims).any():
-                limits = [
-                    _extract_errs(err*dir_vector[i], coord, uplims, lolims)
-                    for i, coord in enumerate([x, y, z])]
-
-                (xlo, xup), (ylo, yup), (zlo, zup) = limits
-                lomask = lolims & everymask
-                upmask = uplims & everymask
-                lolims_xyz = np.array(_apply_mask([xlo, ylo, zlo], upmask))
-                uplims_xyz = np.array(_apply_mask([xup, yup, zup], lomask))
-                lo_xyz = np.array(_apply_mask([x, y, z], upmask))
-                up_xyz = np.array(_apply_mask([x, y, z], lomask))
-                x0, y0, z0 = np.concatenate([lo_xyz, up_xyz], axis=-1)
-                dx, dy, dz = np.concatenate([lolims_xyz - lo_xyz,
-                                             uplims_xyz - up_xyz], axis=-1)
-                self.quiver(x0, y0, z0, dx, dy, dz,
-                            arrow_length_ratio=arrow_length_ratio,
-                            **eb_lines_style)
+            if lolims.any():
+                xh0, yh0, zh0 = _apply_mask([xh, yh, zh], lolims & everymask)
+                self.quiver(xh0, yh0, zh0, *dir_vector, **eb_quiver_style)
+            if uplims.any():
+                xl0, yl0, zl0 = _apply_mask([xl, yl, zl], uplims & everymask)
+                self.quiver(xl0, yl0, zl0, *-dir_vector, **eb_quiver_style)
 
             errline = art3d.Line3DCollection(np.array(coorderr).T,
                                              **eb_lines_style)
