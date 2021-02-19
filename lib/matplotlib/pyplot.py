@@ -1164,7 +1164,7 @@ def subplot(*args, **kwargs):
     specified by *args*, the projection type is the same, and the
     *kwargs* match with the existing Axes, then the existing Axes is
     returned.  Otherwise a new Axes is created with the specified
-    parameters.  We save a reference to the *kwargs* which we us
+    parameters.  We save a reference to the *kwargs* which we use
     for this comparison.  If any of the values in *kwargs* are
     mutable we will not detect the case where they are mutated.
     In these cases we suggest using `.Figure.add_subplot` and the
