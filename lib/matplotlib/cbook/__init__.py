@@ -197,16 +197,17 @@ class CallbackRegistry:
             s: {proxy: cid for cid, proxy in d.items()}
             for s, d in self.callbacks.items()}
 
-    def connect(self, s, func):
-        """Register *func* to be called when signal *s* is generated."""
-        self._func_cid_map.setdefault(s, {})
+    @_api.rename_parameter("3.4", "s", "signal")
+    def connect(self, signal, func):
+        """Register *func* to be called when signal *signal* is generated."""
+        self._func_cid_map.setdefault(signal, {})
         proxy = _weak_or_strong_ref(func, self._remove_proxy)
-        if proxy in self._func_cid_map[s]:
-            return self._func_cid_map[s][proxy]
+        if proxy in self._func_cid_map[signal]:
+            return self._func_cid_map[signal][proxy]
         cid = next(self._cid_gen)
-        self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, {})
-        self.callbacks[s][cid] = proxy
+        self._func_cid_map[signal][proxy] = cid
+        self.callbacks.setdefault(signal, {})
+        self.callbacks[signal][cid] = proxy
         return cid
 
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
@@ -215,14 +216,19 @@ class CallbackRegistry:
         if _is_finalizing():
             # Weakrefs can't be properly torn down at that point anymore.
             return
-        for signal, proxies in list(self._func_cid_map.items()):
-            try:
-                del self.callbacks[signal][proxies[proxy]]
-            except KeyError:
-                pass
-            if len(self.callbacks[signal]) == 0:
-                del self.callbacks[signal]
-                del self._func_cid_map[signal]
+        for signal, proxy_to_cid in list(self._func_cid_map.items()):
+            cid = proxy_to_cid.pop(proxy, None)
+            if cid is not None:
+                del self.callbacks[signal][cid]
+                self._pickled_cids.discard(cid)
+                break
+        else:
+            # Not found
+            return
+        # Clean up empty dicts
+        if len(self.callbacks[signal]) == 0:
+            del self.callbacks[signal]
+            del self._func_cid_map[signal]
 
     def disconnect(self, cid):
         """
@@ -230,17 +236,25 @@ class CallbackRegistry:
 
         No error is raised if such a callback does not exist.
         """
-        for eventname, callbackd in list(self.callbacks.items()):
-            try:
-                del callbackd[cid]
-            except KeyError:
-                continue
-            else:
-                for signal, functions in list(self._func_cid_map.items()):
-                    for function, value in list(functions.items()):
-                        if value == cid:
-                            del functions[function]
-                return
+        self._pickled_cids.discard(cid)
+        # Clean up callbacks
+        for signal, cid_to_proxy in list(self.callbacks.items()):
+            proxy = cid_to_proxy.pop(cid, None)
+            if proxy is not None:
+                break
+        else:
+            # Not found
+            return
+
+        proxy_to_cid = self._func_cid_map[signal]
+        for current_proxy, current_cid in list(proxy_to_cid.items()):
+            if current_cid == cid:
+                assert proxy is current_proxy
+                del proxy_to_cid[current_proxy]
+        # Clean up empty dicts
+        if len(self.callbacks[signal]) == 0:
+            del self.callbacks[signal]
+            del self._func_cid_map[signal]
 
     def process(self, s, *args, **kwargs):
         """
