@@ -2172,6 +2172,15 @@ class TestScatter:
         with pytest.raises(ValueError, match='float array-like'):
             plt.scatter(x, x, 'foo')
 
+    def test_scatter_edgecolor_RGB(self):
+        # Github issue 19066
+        coll = plt.scatter([1, 2, 3], [1, np.nan, np.nan],
+                            edgecolor=(1, 0, 0))
+        assert mcolors.same_color(coll.get_edgecolor(), (1, 0, 0))
+        coll = plt.scatter([1, 2, 3, 4], [1, np.nan, np.nan, 1],
+                            edgecolor=(1, 0, 0, 1))
+        assert mcolors.same_color(coll.get_edgecolor(), (1, 0, 0, 1))
+
     @check_figures_equal(extensions=["png"])
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
