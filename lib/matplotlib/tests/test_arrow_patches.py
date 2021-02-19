@@ -114,7 +114,8 @@ def test_fancyarrow_dash():
     ax.add_patch(e2)
 
 
-@image_comparison(['arrow_styles.png'], style='mpl20', remove_text=True)
+@image_comparison(['arrow_styles.png'], style='mpl20', remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.005)
 def test_arrow_styles():
     styles = mpatches.ArrowStyle.get_styles()
 
