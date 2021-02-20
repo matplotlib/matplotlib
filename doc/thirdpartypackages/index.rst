@@ -264,6 +264,14 @@ gr
 visualisation applications, which can be used as a high-performance Matplotlib
 backend.
 
+GUI integration
+***************
+
+wxmplot
+=======
+`WXMPlot <https://pypi.org/project/wxmplot/>`_ provides advanced wxPython
+widgets for plotting and image display of numerical data based on Matplotlib.
+
 Miscellaneous
 *************
 
