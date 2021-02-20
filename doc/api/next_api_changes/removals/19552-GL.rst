@@ -1,0 +1,5 @@
+ScalarMappable update checkers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``ScalarMappable.update_dict``, ``ScalarMappable.add_checker()``, and
+``ScalarMappable.check_update()`` have been removed. A callback can
+be registered in ``ScalarMappable.callbacksSM`` to be notified of updates.
