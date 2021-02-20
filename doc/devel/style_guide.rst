@@ -1,17 +1,17 @@
 
-===========
-Style Guide
-===========
+=========================
+Documentation Style Guide
+=========================
 
-This guide is for contributors to understand conventions and expectations for
-quality control of Matplotlib written content.
+This guide contains best practices for the language and formatting of Matplotlib
+documentation.
 
 .. seealso::
 
     For more information about contributing, see the :ref:`documenting-matplotlib`
     section.
 
-Expository Language
+Expository language
 ===================
 
 For explanatory writing, the following guidelines are for clear and concise
@@ -259,9 +259,13 @@ Markdown tables and the csv-table directive are not accepted.
 +--------------------------------+----------------------------------------+
 
 
-Additional Resources
+Additional resources
 ====================
+This style guide is not a comprehensive standard. For a more thorough
+reference of how to contribute to documentation, see the links below. These
+resources contain common best practices for writing documentation.  
 
+* `Python Developer's Guide <https://devguide.python.org/documenting/#documenting-python>`_
 * `Google Developer Style Guide <https://developers.google.com/style>`_
 * `IBM Style Guide <https://www.ibm.com/developerworks/library/styleguidelines/>`_
 * `Red Hat Style Guide <https://stylepedia.net/style/#grammar>`_
