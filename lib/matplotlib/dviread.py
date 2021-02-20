@@ -30,7 +30,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import _api, cbook, rcParams
+from matplotlib import _api, cbook, texmanager, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -1040,6 +1040,31 @@ def _parse_enc(path):
             "Failed to parse {} as Postscript encoding".format(path))
 
 
+class _LuatexKpathsea(texmanager._InteractiveTex):
+    @lru_cache()
+    def __new__(cls):
+        self = super().__new__(cls)
+        super(cls, self).__init__("luatex")
+        return self
+
+    def __init__(self):
+        pass  # Skip the super().__init__.
+
+    def find_tex_file(self, filename, format=None):
+        if format is not None:
+            filename = f"{filename}.{format}"
+        if "\\" in filename or "'" in filename:  # Skip unrealistic escapes.
+            raise ValueError(f"Invalid filename: {filename!r}")
+        # While kpse.find_file seems appropriate, it doesn't actually handle
+        # extensions in the filename (contrary to its docs), and mapping
+        # extension to format names (".pfb" -> "type1 fonts") would require a
+        # large hard-coded table.
+        self._stdin_writeln(r"\directlua{print(kpse.lookup('%s'))}" % filename)
+        val = self._expect_prompt().rstrip()
+        return ("" if val == "nil"
+                else os.fsdecode(val.encode(errors="surrogateescape")))
+
+
 @lru_cache()
 def find_tex_file(filename, format=None):
     """
@@ -1071,6 +1096,13 @@ def find_tex_file(filename, format=None):
         filename = filename.decode('utf-8', errors='replace')
     if isinstance(format, bytes):
         format = format.decode('utf-8', errors='replace')
+
+    try:
+        lk = _LuatexKpathsea()
+    except FileNotFoundError:
+        pass
+    else:
+        return lk.find_tex_file(filename, format)
 
     if os.name == 'nt':
         # On Windows only, kpathsea can use utf-8 for cmd args and output.

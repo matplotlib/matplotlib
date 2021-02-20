@@ -406,6 +406,9 @@
     "matplotlib.projections.geo.MollweideAxes": [
       "doc/api/artist_api.rst:189"
     ],
+    "matplotlib.texmanager._InteractiveTex": [
+      "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.LatexManager:1"
+    ],
     "matplotlib.text._AnnotationBase": [
       "doc/api/artist_api.rst:189",
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.AnnotationBbox:1",

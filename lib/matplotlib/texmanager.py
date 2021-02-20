@@ -29,6 +29,7 @@ from pathlib import Path
 import re
 import subprocess
 from tempfile import TemporaryDirectory
+import weakref
 
 import numpy as np
 
@@ -401,3 +402,77 @@ class TexManager:
                 page, = dvi
             # A total height (including the descent) needs to be returned.
             return page.width, page.height + page.descent, page.descent
+
+
+class _InteractiveTex:
+    """
+    Interactive tex process supporting communication through stdin and stdout.
+
+    The standard streams use utf-8 encoding (as this is the encoding used by
+    luatex and xetex), with the surrogateescape error handler.
+    """
+
+    class TexError(Exception):
+        def __init__(self, message, latex_output=""):
+            super().__init__(message)
+            self.latex_output = latex_output
+
+        def __str__(self):
+            s, = self.args
+            if self.latex_output:
+                s += "\n" + self.latex_output
+            return s
+
+    def __init__(self, cmd, header=""):
+        self._tmpdir = TemporaryDirectory()
+        self._finalize_tmpdir = weakref.finalize(self, self._tmpdir.cleanup)
+        self._texcmd = cmd
+        self._header = header
+        self._setup_tex_process(cmd, header)
+
+    def _stdin_writeln(self, s):
+        if self._tex.poll() is not None:
+            self._setup_tex_process(self._texcmd, self._header)
+        self._tex.stdin.write(s)
+        self._tex.stdin.write("\n")
+        self._tex.stdin.flush()
+
+    def _expect(self, s):
+        s = list(s)
+        chars = []
+        while True:
+            c = self._tex.stdout.read(1)
+            chars.append(c)
+            if chars[-len(s):] == s:
+                break
+            if not c:
+                self._tex.kill()
+                self._tex.communicate()  # See _setup_tex_process.
+                raise self.TexError("TeX process halted", "".join(chars))
+        return "".join(chars)
+
+    def _expect_prompt(self):
+        return self._expect("\n*")[:-2]
+
+    def _setup_tex_process(self, cmd, header):
+        # Open TeX process; register it for deletion.  On Windows, we must
+        # ensure that the subprocess has quit before being able to delete the
+        # tmpdir in which it runs; in order to do so, we must first `kill()`
+        # it, and then `communicate()` with it.
+        self._tex = subprocess.Popen(
+            [cmd, "-halt-on-error"], cwd=self._tmpdir.name,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            encoding="utf-8", errors="surrogateescape")
+
+        def finalize_tex(tex):
+            tex.kill()
+            tex.communicate()
+
+        self._finalize_tex = weakref.finalize(self, finalize_tex, self._tex)
+
+        self._stdin_writeln(header)
+        # Emit a marker once the header is handled, and wait for it to appear.
+        marker = "init-done"
+        self._stdin_writeln(r"\immediate\write17{%s}" % marker)
+        self._expect("*%s" % marker)
+        self._expect_prompt()
