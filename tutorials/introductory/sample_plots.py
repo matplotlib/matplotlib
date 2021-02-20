@@ -385,7 +385,7 @@ rendering of strings with the *usetex* option.
 EEG GUI
 =======
 
-You can embed Matplotlib into pygtk, wx, Tk, or Qt applications.
+You can embed Matplotlib into Qt, GTK, Tk, or wxWidgets applications.
 Here is a screenshot of an EEG viewer called `pbrain
 <https://github.com/nipy/pbrain>`__.
 

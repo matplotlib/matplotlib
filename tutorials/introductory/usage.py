@@ -271,7 +271,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # plotting windows pop up when they type commands.  Some people run
 # `Jupyter <https://jupyter.org>`_ notebooks and draw inline plots for
 # quick data analysis. Others embed Matplotlib into graphical user
-# interfaces like wxpython or pygtk to build rich applications.  Some
+# interfaces like PyQt or PyGObject to build rich applications.  Some
 # people use Matplotlib in batch scripts to generate postscript images
 # from numerical simulations, and still others run web application
 # servers to dynamically serve up graphs.
@@ -281,8 +281,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # "frontend" is the user facing code, i.e., the plotting code, whereas the
 # "backend" does all the hard work behind-the-scenes to make the figure.
 # There are two types of backends: user interface backends (for use in
-# pygtk, wxpython, tkinter, qt4, qt5, or macosx; also referred to as
-# "interactive backends") and hardcopy backends to make image files
+# PyQt/PySide, PyGObject, Tkinter, wxPython, or macOS/Cocoa); also referred to
+# as "interactive backends") and hardcopy backends to make image files
 # (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 #
 # Selecting a backend
