@@ -1127,7 +1127,12 @@ class PathCollection(_CollectionWithSizes):
             raise ValueError("Valid values for `prop` are 'colors' or "
                              f"'sizes'. You supplied '{prop}' instead.")
 
-        fmt.set_bounds(func(u).min(), func(u).max())
+        func_is_numeric = True
+        try:
+            fmt.set_bounds(func(u).min(), func(u).max())
+        except ValueError:
+            func_is_numeric = False
+
         if num == "auto":
             num = 9
             if len(u) <= num:
@@ -1135,6 +1140,14 @@ class PathCollection(_CollectionWithSizes):
         if num is None:
             values = u
             label_values = func(values)
+        elif not func_is_numeric:
+            # Values are not numerical so instead of interpolating just
+            # choose evenly distributed indexes instead:
+            label_values = func(u)
+            which_idxs = lambda m, n: np.rint(np.linspace(1, n, min(m, n)) - 1).astype(int)
+            cond = which_idxs(num, len(label_values))
+            values = u[cond]
+            label_values = label_values[cond]
         else:
             if prop == "colors":
                 arr = self.get_array()
