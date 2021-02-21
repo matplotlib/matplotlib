@@ -646,7 +646,14 @@ def test_pathcollection_legend_elements():
     h6, lab6 = sc.legend_elements(num=levels, prop="sizes", fmt="{x:g}")
     assert_array_equal(np.array(lab6).astype(float), levels[2:])
 
-    for l in [l1, l2, l3, l4]:
+    h, l = sc.legend_elements(prop="sizes", num=4, fmt="{x:.2f}",
+                              func=lambda x: str(x) + "Celcius")
+    actsizes = [line.get_markersize() for line in h]
+    labeledsizes = np.sqrt(np.array(l).astype(float)/2)
+    assert_array_almost_equal(actsizes, labeledsizes)
+    l7 = ax.legend(h, l, loc=5)
+
+    for l in [l1, l2, l3, l4, l7]:
         ax.add_artist(l)
 
     fig.canvas.draw()
