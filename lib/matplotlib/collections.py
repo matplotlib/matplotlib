@@ -1127,11 +1127,10 @@ class PathCollection(_CollectionWithSizes):
             raise ValueError("Valid values for `prop` are 'colors' or "
                              f"'sizes'. You supplied '{prop}' instead.")
 
-        func_is_numeric = True
-        try:
-            fmt.set_bounds(func(u).min(), func(u).max())
-        except ValueError:
-            func_is_numeric = False
+        func_value = np.asarray(func(u))
+        func_is_numeric = np.issubdtype(func_value.dtype, np.number)
+        if func_is_numeric:
+            fmt.set_bounds(min(func_value), max(func_value))
 
         if num == "auto":
             num = 9
