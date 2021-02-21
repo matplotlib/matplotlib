@@ -1141,10 +1141,12 @@ class PathCollection(_CollectionWithSizes):
             values = u
             label_values = func(values)
         elif not func_is_numeric:
-            # Values are not numerical so instead of interpolating just
-            # choose evenly distributed indexes instead:
+            # Values are not numerical so instead of interpolating
+            # just choose evenly distributed indexes instead:
+            def which_idxs(m, n):
+                out = np.rint(np.linspace(1, n, min(m, n)) - 1)
+                return out.astype(int)
             label_values = func(u)
-            which_idxs = lambda m, n: np.rint(np.linspace(1, n, min(m, n)) - 1).astype(int)
             cond = which_idxs(num, len(label_values))
             values = u[cond]
             label_values = label_values[cond]
