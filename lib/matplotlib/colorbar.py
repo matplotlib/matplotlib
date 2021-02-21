@@ -471,6 +471,7 @@ class Colorbar:
         self.ax.add_collection(self.dividers)
 
         self.locator = None
+        self.minorlocator = None
         self.formatter = None
         self.__scale = None  # linear, log10 for now.  Hopefully more?
 
@@ -1096,7 +1097,7 @@ class Colorbar:
         # vmax of the colorbar, not the norm.  This allows the situation
         # where the colormap has a narrower range than the colorbar, to
         # accommodate extra contours:
-        norm = copy.copy(self.norm)
+        norm = copy.deepcopy(self.norm)
         norm.vmin = self.vmin
         norm.vmax = self.vmax
         x = np.array([0.0, 1.0])
