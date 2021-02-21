@@ -41,7 +41,8 @@ us much more flexibility and power in customizing our plot.
 .. note::
 
    In general, try to use the object-oriented interface over the pyplot
-   interface.
+   interface for making the plots. However, for creating figures and axes
+   the pyplot interface with `~.pyplot.subplots` should be preferred.
 
 Our data
 ========
