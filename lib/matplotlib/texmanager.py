@@ -1,23 +1,23 @@
 r"""
-Support for embedded TeX expressions in Matplotlib via dvipng and dvips for the
-raster and PostScript backends.  The tex and dvipng/dvips information is cached
-in ~/.matplotlib/tex.cache for reuse between sessions.
+Support for embedded TeX expressions in Matplotlib.
 
 Requirements:
 
-* LaTeX
-* \*Agg backends: dvipng>=1.6
-* PS backend: psfrag, dvips, and Ghostscript>=9.0
-
-For raster output, you can get RGBA numpy arrays from TeX expressions
-as follows::
-
-  texmanager = TexManager()
-  s = "\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!"
-  Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1, 0, 0))
+* LaTeX.
+* \*Agg backends: dvipng>=1.6.
+* PS backend: PSfrag, dvips, and Ghostscript>=9.0.
+* PDF and SVG backends: if LuaTeX is present, it will be used to speed up some
+  post-processing steps, but note that it is not used to parse the TeX string
+  itself (only LaTeX is supported).
 
 To enable TeX rendering of all text in your Matplotlib figure, set
 :rc:`text.usetex` to True.
+
+TeX and dvipng/dvips processing results are cached
+in ~/.matplotlib/tex.cache for reuse between sessions.
+
+`TexManager.get_rgba` can also be used to directly obtain raster output as RGBA
+numpy arrays.
 """
 
 import functools
@@ -274,7 +274,15 @@ class TexManager:
         return alpha
 
     def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
-        """Return latex's rendering of the tex string as an rgba array."""
+        r"""
+        Return latex's rendering of the tex string as an rgba array.
+
+        Examples
+        --------
+        >>> texmanager = TexManager()
+        >>> s = r"\TeX\ is $\displaystyle\sum_n\frac{-e^{i\pi}}{2^n}$!"
+        >>> Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1, 0, 0))
+        """
         alpha = self.get_grey(tex, fontsize, dpi)
         rgba = np.empty((*alpha.shape, 4))
         rgba[..., :3] = mpl.colors.to_rgb(rgb)
