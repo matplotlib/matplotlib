@@ -459,8 +459,12 @@ class _InteractiveTex:
         # ensure that the subprocess has quit before being able to delete the
         # tmpdir in which it runs; in order to do so, we must first `kill()`
         # it, and then `communicate()` with it.
+        # Passing "\relax" makes that the first command interpreted by the tex
+        # instance, causing e.g. lualatex (used by dviread) to load (and
+        # report) the latex layers it need; doing so now avoids messing up
+        # later outputs.
         self._tex = subprocess.Popen(
-            [cmd, "-halt-on-error"], cwd=self._tmpdir.name,
+            [cmd, "-halt-on-error", r"\relax"], cwd=self._tmpdir.name,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             encoding="utf-8", errors="surrogateescape")
 

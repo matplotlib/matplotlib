@@ -1044,7 +1044,9 @@ class _LuatexKpathsea(texmanager._InteractiveTex):
     @lru_cache()
     def __new__(cls):
         self = super().__new__(cls)
-        super(cls, self).__init__("luatex")
+        # As of MiKTeX 20.7, luatex's interactive console errors ("! Emergency
+        # stop") as soon as a command is given, but lualatex works.  Go figure.
+        super(cls, self).__init__("lualatex")
         return self
 
     def __init__(self):
