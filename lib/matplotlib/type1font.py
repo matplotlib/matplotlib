@@ -148,20 +148,20 @@ class Type1Font:
         """
         pos = 0
         while pos < len(text):
-            match = (cls._comment_re.match(text[pos:]) or
-                     cls._whitespace_re.match(text[pos:]))
+            match = (cls._comment_re.match(text, pos) or
+                     cls._whitespace_re.match(text, pos))
             if match:
                 yield (_TokenType.whitespace, match.group())
-                pos += match.end()
+                pos = match.end()
             elif text[pos] == b'(':
                 start = pos
                 pos += 1
                 depth = 1
                 while depth:
-                    match = cls._instring_re.search(text[pos:])
+                    match = cls._instring_re.search(text, pos)
                     if match is None:
                         return
-                    pos += match.end()
+                    pos = match.end()
                     if match.group() == b'(':
                         depth += 1
                     elif match.group() == b')':
@@ -174,17 +174,17 @@ class Type1Font:
                 pos += 2
             elif text[pos] == b'<':
                 start = pos
-                pos += text[pos:].index(b'>')
+                pos = text.index(b'>', pos)
                 yield (_TokenType.string, text[start:pos])
             else:
-                match = cls._token_re.match(text[pos:])
+                match = cls._token_re.match(text, pos)
                 if match:
                     try:
                         float(match.group())
                         yield (_TokenType.number, match.group())
                     except ValueError:
                         yield (_TokenType.name, match.group())
-                    pos += match.end()
+                    pos = match.end()
                 else:
                     yield (_TokenType.delimiter, text[pos:pos + 1])
                     pos += 1
