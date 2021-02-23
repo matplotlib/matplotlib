@@ -2,25 +2,20 @@ Axes used to make colorbar now wrapped
 ======================================
 
 The axes used to place a colorbar is now wrapped by a new parent class
-(``ColorbarAxes``). This affects calls like::
+when the colorbar is instnatiated ``ColorbarAxes``::
 
     cb = fig.colorbar(im, cax=cax)
-    cax.tick_params()
 
-so that this will no longer affect the visible axes ticks.  Rather call
-methods on the axes stored on the colorbar object::
-
-    cb = fig.colorbar(im, cax=cax)
-    cb.ax.tick_params()
-
-If necessary, the original axes can be accessed via::
+So now ``cb.ax`` returns the parent ``ColorbarAxes`` and to get
+``cax`` back, you can do::
 
     assert cb.ax.parent_axes == cax
 
-This change means that the parent axes (``cb.ax.parent_axes``) handles the
+The parent axes (``cb.ax.parent_axes``) handles the
 placement of the colorbar axes object, and its aspect ratio, but the child
-axes (``cb.ax``)   handles all the tick parameters, labelling, and holds the
-artists that make up the colorbar.
+axes (``cb.ax``)  handles all the tick parameters, labelling, and holds the
+artists that make up the colorbar.  We have attempted to dispatch the
+appropriate colorbar methods to the appropriate axes.  
 
 Colorbar lines no longer clipped
 ================================

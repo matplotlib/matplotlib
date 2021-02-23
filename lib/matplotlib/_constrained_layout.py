@@ -451,6 +451,7 @@ def _get_pos_and_bbox(ax, renderer):
     pos = pos.transformed(fig.transSubfigure - fig.transFigure)
     try:
         tightbbox = ax.get_tightbbox(renderer=renderer, for_layout_only=True)
+        print('tight', tightbbox)
     except TypeError:
         tightbbox = ax.get_tightbbox(renderer=renderer)
 
@@ -458,6 +459,7 @@ def _get_pos_and_bbox(ax, renderer):
         bbox = pos
     else:
         bbox = tightbbox.transformed(fig.transFigure.inverted())
+    print('bbox', bbox)
     return pos, bbox
 
 

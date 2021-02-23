@@ -226,10 +226,10 @@ def _set_ticks_on_axis_warn(*args, **kw):
 
 class ColorbarAxes(Axes):
     """
-    Colorbar Axes are actually two axes, a parent axes that takes care of
+    ColorbarAxes packages two axes, a parent axes that takes care of
     positioning the axes, and an inset_axes that takes care of the drawing,
     labels, ticks, etc. The inset axes is used as a way to properly
-    position the triangles (or rectangles) that are used to indicate
+    position the extensions (triangles or rectangles) that are used to indicate
     over/under colors.
 
     Users should not normally instantiate this class, but it is the class
@@ -251,13 +251,8 @@ class ColorbarAxes(Axes):
         # map some features to the parent so users have access...
         self.parent_ax.tick_params = self.inner_ax.tick_params
 
-    def get_position(self, original=False):
-        # inherited
-        return self.parent_ax.get_position(original=original)
-
-    def set_position(self, pos, which='both'):
-        # inherited
-        self.parent_ax.set_position(pos, which=which)
+        for attr in ["get_position", "set_position", "set_aspect"]:
+            setattr(self, attr, getattr(self.parent_ax, attr))
 
     def _set_inner_bounds(self, bounds):
         """
@@ -265,9 +260,6 @@ class ColorbarAxes(Axes):
         """
         self.inner_ax._axes_locator = _TransformedBoundsLocator(
             bounds, self.parent_ax.transAxes)
-
-    def set_aspect(self, aspect, **kwargs):
-        self.parent_ax.set_aspect(aspect, **kwargs)
 
 
 class _ColorbarSpine(mspines.Spine):
@@ -566,16 +558,14 @@ class ColorbarBase:
         """
         # extend lengths are fraction of the *inner* part of colorbar,
         # not the total colorbar:
-        el = extendlen[0] if self._extend_lower() else 0
-        eu = extendlen[1] if self._extend_upper() else 0
-        tot = eu + el + 1
-        el = el / tot
-        eu = eu / tot
+        elower = extendlen[0] if self._extend_lower() else 0
+        eupper = extendlen[1] if self._extend_upper() else 0
+        tot = eupper + elower + 1
+        elower = elower / tot
+        eupper = eupper / tot
         width = 1 / tot
 
-        bounds = np.array([0.0, 0.0, 1.0, 1.0])
-        bounds[1] = el
-        bounds[3] = width
+        bounds = np.array([0.0, elower, 1.0, width])
 
         # make the inner axes smaller to make room for the extend rectangle
         top = bounds[1] + bounds[3]
@@ -605,9 +595,9 @@ class ColorbarBase:
             hatches = [None]
         if self._extend_lower:
             if not self.extendrect:
-                xy = np.array([[0.5, 0], [1, el], [0, el]])
+                xy = np.array([[0.5, 0], [1, elower], [0, elower]])
             else:
-                xy = np.array([[0, 0], [1., 0], [1, el], [0, el]])
+                xy = np.array([[0, 0], [1., 0], [1, elower], [0, elower]])
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             color = self.cmap(self.norm(self._values[0]))
@@ -618,9 +608,9 @@ class ColorbarBase:
             self.ax.parent_ax.add_patch(patch)
         if self._extend_upper:
             if not self.extendrect:
-                xy = np.array([[0.5, 1], [1, 1-eu], [0, 1-eu]])
+                xy = np.array([[0.5, 1], [1, 1-eupper], [0, 1-eupper]])
             else:
-                xy = np.array([[0, 1], [1, 1], [1, 1-eu], [0, 1-eu]])
+                xy = np.array([[0, 1], [1, 1], [1, 1-eupper], [0, 1-eupper]])
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             color = self.cmap(self.norm(self._values[-1]))
@@ -663,14 +653,14 @@ class ColorbarBase:
             xy = np.stack([X, Y], axis=-1)
         else:
             xy = np.stack([Y, X], axis=-1)
-        col = collections.LineCollection(xy, linewidths=linewidths)
+        col = collections.LineCollection(xy, linewidths=linewidths,
+                                         colors=colors)
 
         if erase and self.lines:
             for lc in self.lines:
                 lc.remove()
             self.lines = []
         self.lines.append(col)
-        col.set_color(colors)
 
         # make a clip path that is just a linewidth bigger than the axes...
         fac = np.max(linewidths) / 72
@@ -696,21 +686,9 @@ class ColorbarBase:
         ax = self.ax
         # Get the locator and formatter; defaults to self.locator if not None.
         self._get_ticker_locator_formatter()
-        #if (self.boundaries is not None and self.spacing == 'uniform'):
-        if False:
-            _log.debug('Using fixed locator on colorbar')
-            ticks, ticklabels, offset_string = self._ticker(self.locator,
-                                                            self.formatter)
-            self._long_axis().set_ticks(ticks)
-            self._long_axis().set_ticklabels(ticklabels)
-            fmt = self._long_axis().get_major_formatter()
-            fmt.set_offset_string(offset_string)
-        else:  # use auto locators...
-            _log.debug('Using auto colorbar locator %r on colorbar',
-                       self.locator)
-            self._long_axis().set_major_locator(self.locator)
-            self._long_axis().set_minor_locator(self.minorlocator)
-            self._long_axis().set_major_formatter(self.formatter)
+        self._long_axis().set_major_locator(self.locator)
+        self._long_axis().set_minor_locator(self.minorlocator)
+        self._long_axis().set_major_formatter(self.formatter)
 
     def _get_ticker_locator_formatter(self):
         """
@@ -787,7 +765,8 @@ class ColorbarBase:
         """
         Set tick labels.
 
-        update_ticks kwarg has no effect.
+        update_ticks : bool, default: True
+            This keyword argument is ignored and will be be removed.
         """
         if isinstance(self.locator, ticker.FixedLocator):
             self.formatter = ticker.FixedFormatter(ticklabels)
@@ -797,7 +776,7 @@ class ColorbarBase:
 
     def minorticks_on(self):
         """
-        Turn the minor ticks of the colorbar.
+        Turn on colorbar minor ticks.
         """
         self.ax.minorticks_on()
         self.minorlocator = self._long_axis().get_minor_locator()
