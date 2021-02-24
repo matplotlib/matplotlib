@@ -5096,12 +5096,13 @@ default: :rc:`scatter.edgecolors`
 
           quiver([X, Y], U, V, [C], **kw)
 
-        *X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
-        *C* optionally sets the color.
+        *X*, *Y* define the arrow locations, *U*, *V* define the arrow
+        directions, and *C* optionally sets the color.
 
         **Arrow size**
 
-        The default settings auto-scales the length of the arrows to a reasonable size.
+        The default settings auto-scales the length of the arrows to a
+        reasonable size.
         To change this behavior see the *scale* and *scale_units* parameters.
 
         **Arrow shape**
@@ -5123,37 +5124,40 @@ default: :rc:`scatter.edgecolors`
         X, Y : 1D or 2D array-like, optional
             The x and y coordinates of the arrow locations.
 
-            If not given, they will be generated as a uniform integer meshgrid based
-            on the dimensions of *U* and *V*.
+            If not given, they will be generated as a uniform integer meshgrid
+            based on the dimensions of *U* and *V*.
 
-            If *X* and *Y* are 1D but *U*, *V* are 2D, *X*, *Y* are expanded to 2D
-            using ``X, Y = np.meshgrid(X, Y)``. In this case ``len(X)`` and ``len(Y)``
-            must match the column and row dimensions of *U* and *V*.
+            If *X* and *Y* are 1D but *U*, *V* are 2D, *X*, *Y* are expanded
+            to 2D using ``X, Y = np.meshgrid(X, Y)``. In this case ``len(X)``
+            and ``len(Y)`` must match the column and row dimensions of *U*
+            and *V*.
 
         U, V : 1D or 2D array-like
             The x and y direction components of the arrow vectors.
 
-            They must have the same number of elements, matching the number of arrow
-            locations. *U* and *V* may be masked. Only locations unmasked in
-            *U*, *V*, and *C* will be drawn.
+            They must have the same number of elements, matching the number
+            of arrow locations. *U* and *V* may be masked. Only locations
+            unmasked in *U*, *V*, and *C* will be drawn.
 
         C : 1D or 2D array-like, optional
-            Numeric data that defines the arrow colors by colormapping via *norm* and
-            *cmap*.
+            Numeric data that defines the arrow colors by colormapping via
+            *norm* and *cmap*.
 
-            This does not support explicit colors. If you want to set colors directly,
-            use *color* instead.  The size of *C* must match the number of arrow
-            locations.
+            This does not support explicit colors. If you want to set colors
+            directly, use *color* instead.  The size of *C* must match the
+            number of arrow locations.
 
-        units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
-            The arrow dimensions (except for *length*) are measured in multiples of
-            this unit.
+        units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'},
+        default: 'width'
+            The arrow dimensions (except for *length*) are measured in
+            multiples of this unit.
 
             The following values are supported:
 
             - 'width', 'height': The width or height of the axis.
             - 'dots', 'inches': Pixels or inches based on the figure dpi.
-            - 'x', 'y', 'xy': *X*, *Y* or :math:`\\sqrt{X^2 + Y^2}` in data units.
+            - 'x', 'y', 'xy': *X*, *Y* or :math:`\\sqrt{X^2 + Y^2}` in data
+            units.
 
             The arrows scale differently depending on the units.  For
             'x' or 'y', the arrows get larger as one zooms in; for other
@@ -5166,8 +5170,9 @@ default: :rc:`scatter.edgecolors`
             Method for determining the angle of the arrows.
 
             - 'uv': The arrow axis aspect ratio is 1 so that
-              if *U* == *V* the orientation of the arrow on the plot is 45 degrees
-              counter-clockwise from the horizontal axis (positive to the right).
+              if *U* == *V* the orientation of the arrow on the plot is
+              45 degrees counter-clockwise from the horizontal axis
+              (positive to the right).
 
               Use this if the arrows symbolize a quantity that is not based on
               *X*, *Y* data coordinates.
@@ -5175,31 +5180,35 @@ default: :rc:`scatter.edgecolors`
             - 'xy': Arrows point from (x, y) to (x+u, y+v).
               Use this for plotting a gradient field, for example.
 
-            - Alternatively, arbitrary angles may be specified explicitly as an array
-              of values in degrees, counter-clockwise from the horizontal axis.
+            - Alternatively, arbitrary angles may be specified explicitly
+              as an array of values in degrees, counter-clockwise from the
+              horizontal axis.
 
-              In this case *U*, *V* is only used to determine the length of the
-              arrows.
+              In this case *U*, *V* is only used to determine the length of
+              the arrows.
 
             Note: inverting a data axis will correspondingly invert the
             arrows only with ``angles='xy'``.
 
         scale : float, optional
-            Number of data units per arrow length unit, e.g., m/s per plot width; a
-            smaller scale parameter makes the arrow longer. Default is *None*.
+            Number of data units per arrow length unit, e.g., m/s per plot
+            width; a smaller scale parameter makes the arrow longer.
+            Default is *None*.
 
-            If *None*, a simple autoscaling algorithm is used, based on the average
-            vector length and the number of vectors. The arrow length unit is given by
-            the *scale_units* parameter.
+            If *None*, a simple autoscaling algorithm is used, based on the
+            average vector length and the number of vectors. The arrow length
+            unit is given by the *scale_units* parameter.
 
-        scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, optional
-            If the *scale* kwarg is *None*, the arrow length unit. Default is *None*.
+        scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'},
+            optional
+            If the *scale* kwarg is *None*, the arrow length unit.
+            Default is *None*.
 
-            e.g. *scale_units* is 'inches', *scale* is 2.0, and ``(u, v) = (1, 0)``,
-            then the vector will be 0.5 inches long.
+            e.g. *scale_units* is 'inches', *scale* is 2.0, and
+            ``(u, v) = (1, 0)``, then the vector will be 0.5 inches long.
 
-            If *scale_units* is 'width' or 'height', then the vector will be half the
-            width/height of the axes.
+            If *scale_units* is 'width' or 'height', then the vector will be
+            half the width/height of the axes.
 
             If *scale_units* is 'x' then the vector will be 0.5 x-axis
             units. To plot vectors in the x-y plane, with u and v having
@@ -5229,20 +5238,20 @@ default: :rc:`scatter.edgecolors`
             is less than this, plot a dot (hexagon) of this diameter instead.
 
         pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
-            The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
-            rotates about this point.
+            The part of the arrow that is anchored to the *X*, *Y* grid.
+            The arrow rotates about this point.
 
             'mid' is a synonym for 'middle'.
 
         color : color or color sequence, optional
-            Explicit color(s) for the arrows. If *C* has been set, *color* has no
-            effect.
+            Explicit color(s) for the arrows. If *C* has been set, *color* has
+            no effect.
 
             This is a synonym for the `~.PolyCollection` *facecolor* parameter.
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.collections.PolyCollection` properties, optional
+        **kwargs : `~matplotlib.collections.PolyCollection` properties,optional
             All other keyword arguments are passed on to `.PolyCollection`:
 
             %(PolyCollection_kwdoc)s
