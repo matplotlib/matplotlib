@@ -652,8 +652,7 @@ def test_pathcollection_legend_elements():
         suffix = np.array([" Celcius"])
         return np.core.defchararray.add(x_str, suffix)
 
-    h, l = sc.legend_elements(prop="sizes", num=4, fmt="{x}",
-                              func=num2str)
+    h, l = sc.legend_elements(prop="sizes", num=4, func=num2str)
     actsizes = [line.get_markersize() for line in h]
     labeledsizes = num2str(s)
     assert len(actsizes) == 4
