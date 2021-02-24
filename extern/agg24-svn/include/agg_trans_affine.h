@@ -78,7 +78,7 @@ namespace agg
     //
     // The affine matrix is all you need to perform any linear transformation,
     // but all transformations have origin point (0,0). It means that we need to 
-    // use 2 translations if we want to rotate someting around (100,100):
+    // use 2 translations if we want to rotate something around (100,100):
     // 
     // m *= agg::trans_affine_translation(-100.0, -100.0);         // move to (0,0)
     // m *= agg::trans_affine_rotation(30.0 * 3.1415926 / 180.0);  // rotate
@@ -125,7 +125,7 @@ namespace agg
             parl_to_parl(src, dst);
         }
 
-        //---------------------------------- Parellelogram transformations
+        //---------------------------------- Parallelogram transformations
         // transform a parallelogram to another one. Src and dst are 
         // pointers to arrays of three points (double[6], x1,y1,...) that 
         // identify three corners of the parallelograms assuming implicit 
@@ -210,14 +210,14 @@ namespace agg
         }
 
         // Multiply the matrix by another one and return
-        // the result in a separete matrix.
+        // the result in a separate matrix.
         trans_affine operator * (const trans_affine& m) const
         {
             return trans_affine(*this).multiply(m);
         }
 
         // Multiply the matrix by inverse of another one 
-        // and return the result in a separete matrix.
+        // and return the result in a separate matrix.
         trans_affine operator / (const trans_affine& m) const
         {
             return trans_affine(*this).multiply_inv(m);

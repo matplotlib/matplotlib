@@ -49,7 +49,7 @@ namespace agg
         void point_size(double s)              { m_point_size = s; }
 
         // Event handlers. Just call them if the respective events
-        // in your system occure. The functions return true if redrawing
+        // in your system occur. The functions return true if redrawing
         // is required.
         virtual bool in_rect(double x, double y) const;
         virtual bool on_mouse_button_down(double x, double y);

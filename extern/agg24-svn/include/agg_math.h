@@ -286,7 +286,7 @@ namespace agg
     #else
 
         //This code is actually pure C and portable to most 
-        //arcitectures including 64bit ones. 
+        //architectures including 64bit ones. 
         unsigned t = val;
         int bit=0;
         unsigned shift = 11;
@@ -347,8 +347,8 @@ namespace agg
     //     x - value at which the Bessel function is required
     //--------------------
     // C++ Mathematical Library
-    // Convereted from equivalent FORTRAN library
-    // Converetd by Gareth Walker for use by course 392 computational project
+    // Converted from equivalent FORTRAN library
+    // Converted by Gareth Walker for use by course 392 computational project
     // All functions tested and yield the same results as the corresponding
     // FORTRAN versions.
     //
@@ -388,7 +388,7 @@ namespace agg
             m2 = m1;
         }
     
-        // Apply recurrence down from curent max order
+        // Apply recurrence down from current max order
         for(;;) 
         {
             double c3 = 0;
