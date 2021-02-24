@@ -464,6 +464,17 @@ class Patch3DCollection(PatchCollection):
         self.stale = True
 
     def set_3d_properties(self, zs, zdir):
+        """
+        Update the z values of the offsets. If there are more XY points in
+        the offsets than there are Z points then points without a Z offset
+        will not be drawn.
+
+        Parameters
+        ----------
+        zs : array-like
+            The new z values for the offsets.
+        zdir : {'x', 'y', 'z'}
+        """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
