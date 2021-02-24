@@ -1106,11 +1106,6 @@ class PathCollection(_CollectionWithSizes):
         handles = []
         labels = []
         hasarray = self.get_array() is not None
-        if fmt is None:
-            fmt = mpl.ticker.ScalarFormatter(useOffset=False, useMathText=True)
-        elif isinstance(fmt, str):
-            fmt = mpl.ticker.StrMethodFormatter(fmt)
-        fmt.create_dummy_axis()
 
         if prop == "colors":
             if not hasarray:
@@ -1129,6 +1124,18 @@ class PathCollection(_CollectionWithSizes):
 
         func_value = np.asarray(func(u))
         func_is_numeric = np.issubdtype(func_value.dtype, np.number)
+
+        if fmt is None:
+            if func_is_numeric:
+                fmt = mpl.ticker.ScalarFormatter(
+                    useOffset=False, useMathText=True
+                )
+            else:
+                fmt = mpl.ticker.StrMethodFormatter("{x}")
+        elif isinstance(fmt, str):
+            fmt = mpl.ticker.StrMethodFormatter(fmt)
+        fmt.create_dummy_axis()
+
         if func_is_numeric:
             fmt.set_bounds(min(func_value), max(func_value))
 
