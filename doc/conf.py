@@ -63,6 +63,7 @@ extensions = [
     'sphinxext.missing_references',
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
+    'sphinxext.redirect_from',
     'sphinx_copybutton',
 ]
 
