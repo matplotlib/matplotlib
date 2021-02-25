@@ -92,7 +92,7 @@ ax[2].set_title("default use_sticky_edges\nmargins(-0.2)")
 # with requested margins.
 #
 # While sticky edges don't increase the axis limits through extra margins,
-# negative margins are still taken into accout. This can be seen in
+# negative margins are still taken into account. This can be seen in
 # the reduced limits of the third image.
 #
 # Controlling autoscale
