@@ -9,9 +9,9 @@
 //
 //----------------------------------------------------------------------------
 //
-// The author gratefully acknowledges the support of David Turner, 
+// The author gratefully acknowleges the support of David Turner, 
 // Robert Wilhelm, and Werner Lemberg - the authors of the FreeType 
-// library - in producing this work. See http://www.freetype.org for details.
+// libray - in producing this work. See http://www.freetype.org for details.
 //
 //----------------------------------------------------------------------------
 // Contact: mcseem@antigrain.com

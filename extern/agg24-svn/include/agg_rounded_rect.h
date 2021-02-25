@@ -27,7 +27,7 @@ namespace agg
 {
     //------------------------------------------------------------rounded_rect
     //
-    // See Implementation agg_rounded_rect.cpp
+    // See Implemantation agg_rounded_rect.cpp
     //
     class rounded_rect
     {
