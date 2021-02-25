@@ -4908,7 +4908,7 @@ default: :rc:`scatter.edgecolors`
                 # make sure we have no zeros
                 accum += 1
 
-        # autoscale the norm with curren accum values if it hasn't
+        # autoscale the norm with current accum values if it hasn't
         # been set
         if norm is not None:
             if norm.vmin is None and norm.vmax is None:
