@@ -889,6 +889,40 @@ should ideally be named similar to :file:`imshow_mynewexample.py`.
 Miscellaneous
 =============
 
+Moving documentation
+--------------------
+
+Sometimes it is desirable to move or consolidate documentation.  With no
+action this will lead to links either going dead (404) or pointing to old
+versions of the documentation.  Preferable is to replace the old page
+with an html refresh that immediately redirects the viewer to the new
+page. So, for example we move ``/doc/topic/old_info.rst`` to
+``/doc/topic/new_info.rst``.  We remove ``/doc/topic/old_info.rst`` and
+in ``/doc/topic/new_info.rst`` we insert a ``redirect-from`` directive that
+tells sphinx to still make the old file with the html refresh/redirect in it
+(probably near the top of the file to make it noticeable)
+
+.. code-block:: rst
+
+   .. redirect-from:: /topic/old_info
+
+In the built docs this will yield an html file
+``/build/html/topic/old_info.html`` that has a refresh to ``new_info.html``.
+If the two files are in different subdirectories:
+
+.. code-block:: rst
+
+   .. redirect-from:: /old_topic/old_info2
+
+will yield an html file ``/build/html/old_topic/old_info2.html`` that has a
+(relative) refresh to ``../topic/new_info.html``.
+
+Use the full path for this directive, relative to the doc root at
+``http://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
+found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
+For clarity, do not use relative links.
+
+
 Adding animations
 -----------------
 
