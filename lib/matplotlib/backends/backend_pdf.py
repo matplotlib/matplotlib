@@ -2287,24 +2287,26 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             }
             self.file._annotations[-1][1].append(link_annotation)
 
-        # If fonttype != 3 or there are no multibyte characters, emit the whole
-        # string at once.
-        if fonttype != 3 or all(ord(char) <= 255 for char in s):
+        # If fonttype != 3 emit the whole string at once without manual
+        # kerning.
+        if fonttype != 3:
             self.file.output(Op.begin_text,
                              self.file.fontName(prop), fontsize, Op.selectfont)
             self._setup_textpos(x, y, angle)
-            self.file.output(self.encode_string(s, fonttype), Op.show,
-                             Op.end_text)
+            self.file.output(self.encode_string(s, fonttype),
+                             Op.show, Op.end_text)
 
         # There is no way to access multibyte characters of Type 3 fonts, as
         # they cannot have a CIDMap.  Therefore, in this case we break the
         # string into chunks, where each chunk contains either a string of
-        # consecutive 1-byte characters or a single multibyte character.  Each
-        # chunk is emitted with a separate command: 1-byte characters use the
-        # regular text show command (Tj), whereas multibyte characters use
-        # the XObject command (Do).  (If using Type 42 fonts, all of this
-        # complication is avoided, but of course, those fonts can not be
-        # subsetted.)
+        # consecutive 1-byte characters or a single multibyte character.
+        # A sequence of 1-byte characters is broken into multiple chunks to
+        # adjust the kerning between adjacent chunks.  Each chunk is emitted
+        # with a separate command: 1-byte characters use the regular text show
+        # command (TJ) with appropriate kerning between chunks, whereas
+        # multibyte characters use the XObject command (Do).  (If using Type
+        # 42 fonts, all of this complication is avoided, but of course,
+        # subsetting those fonts is complex/hard to implement.)
         else:
             # List of (start_x, [prev_kern, char, char, ...]), w/o zero kerns.
             singlebyte_chunks = []
