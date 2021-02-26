@@ -83,13 +83,6 @@ class Axes3D(Axes):
             Other optional keyword arguments:
 
             %(Axes3D_kwdoc)s
-
-        Notes
-        -----
-        .. versionadded:: 1.2.1
-            The *sharez* parameter.
-        .. versionadded:: TBD
-            The *computed_zorder* parameter.
         """
 
         if rect is None:
