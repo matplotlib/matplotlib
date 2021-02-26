@@ -1613,11 +1613,12 @@ class Axes(_AxesBase):
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-        Plot data that contains dates.
+        Plot co-ercing the axis to treat floats as dates.
 
         Similar to `.plot`, this plots *y* vs. *x* as lines or markers.
         However, the axis labels are formatted as dates depending on *xdate*
-        and *ydate*.
+        and *ydate*.  Note that `.plot` will work with `datetime` and
+        `numpy.datetime64` objects without resorting to this method.
 
         Parameters
         ----------
