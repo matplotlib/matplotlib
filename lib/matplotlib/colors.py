@@ -66,7 +66,7 @@ Matplotlib recognizes the following formats to specify a color:
 """
 
 import base64
-from collections.abc import Sized
+from collections.abc import Sized, Sequence
 import copy
 import functools
 import inspect
@@ -364,11 +364,14 @@ def to_rgba_array(c, alpha=None):
 
     # Quick path if the whole sequence can be directly converted to a numpy
     # array in one shot.
-    lens = {len(cc) if isinstance(cc, (list, tuple)) else -1 for cc in c}
-    if lens == {3}:
-        rgba = np.column_stack([c, np.ones(len(c))])
-    elif lens == {4}:
-        rgba = np.array(c)
+    if isinstance(c, Sequence):
+        lens = {len(cc) if isinstance(cc, (list, tuple)) else -1 for cc in c}
+        if lens == {3}:
+            rgba = np.column_stack([c, np.ones(len(c))])
+        elif lens == {4}:
+            rgba = np.array(c)
+        else:
+            rgba = np.array([to_rgba(cc) for cc in c])
     else:
         rgba = np.array([to_rgba(cc) for cc in c])
 
