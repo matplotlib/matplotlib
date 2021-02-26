@@ -830,12 +830,17 @@ with _api.suppress_matplotlib_deprecation_warning():
     rcParamsOrig = RcParams(rcParams.copy())
     # This also checks that all rcParams are indeed listed in the template.
     # Assigning to rcsetup.defaultParams is left only for backcompat.
-    defaultParams = rcsetup.defaultParams = {
-        # We want to resolve deprecated rcParams, but not backend...
-        key: [(rcsetup._auto_backend_sentinel if key == "backend" else
-               rcParamsDefault[key]),
-              validator]
-        for key, validator in rcsetup._validators.items()}
+    defaultParams = {}
+    for key, validator in rcsetup._validators.items():
+        if key == 'backend':
+            defaultParams['backend'] = rcsetup._auto_backend_sentinel
+        elif key in rcParamsDefault.keys():
+            defaultParams[key] = validator
+        else:
+            _api.warn_external(f'rcsetup key "{key}" not in the default'
+                                ' rcParams')
+    rcsetup.defaultParams = defaultParams
+
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
 
