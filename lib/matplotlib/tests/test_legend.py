@@ -413,6 +413,21 @@ def test_legend_stackplot():
     ax.legend(loc='best')
 
 
+@image_comparison(['legend_stackplot_sorted.png'])
+def test_legend_stackplot_updown_sort():
+    """Test up-down sorted legend for PolyCollection using stackplot."""
+    # related to #1341, #1943, and PR #3303
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 10, 10)
+    y1 = 1.0 * x
+    y2 = 2.0 * x + 1
+    y3 = 3.0 * x + 2
+    ax.stackplot(x, y1, y2, y3, labels=['y1', 'y2', 'y3'], top_to_bottom=True)
+    ax.set_xlim((0, 10))
+    ax.set_ylim((0, 70))
+    ax.legend(loc='best')
+
+
 def test_cross_figure_patch_legend():
     fig, ax = plt.subplots()
     fig2, ax2 = plt.subplots()

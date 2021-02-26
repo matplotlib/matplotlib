@@ -16,7 +16,7 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args,
-              labels=(), colors=None, baseline='zero',
+              labels=(), top_to_bottom=False, colors=None, baseline='zero',
               **kwargs):
     """
     Draw a stacked area plot.
@@ -30,7 +30,7 @@ def stackplot(axes, x, *args,
         calls is legal::
 
             stackplot(x, y)           # where y has shape (M, N)
-            stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
+            stackplot(x, y1, y2, y3)  # where y1, y2, y3 have length N
 
     baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
@@ -46,6 +46,14 @@ def stackplot(axes, x, *args,
     labels : list of str, optional
         A sequence of labels to assign to each data series. If unspecified,
         then no labels will be applied to artists.
+
+    top_to_bottom : bool, optional
+        When true, the top most component of the stackplot will be plotted
+        first. This has the effect that the top most plot component will appear
+        above the other plot components in the legend. That is, for
+        ``stackplot(x, y1, y2, y3)``, the legend will contain y3 above y2 and
+        y2 above y1.
+        The default behaviour is plotting the bottom area first.
 
     colors : list of color, optional
         A sequence of colors to be cycled through and used to color the stacked
@@ -70,9 +78,10 @@ def stackplot(axes, x, *args,
 
     y = np.row_stack(args)
 
-    labels = iter(labels)
+    iter_method = reversed if top_to_bottom else iter
+    labels = iter_method(labels)
     if colors is not None:
-        colors = itertools.cycle(colors)
+        colors = itertools.cycle(iter_method(colors))
     else:
         colors = (axes._get_lines.get_next_color() for _ in y)
 
@@ -111,17 +120,29 @@ def stackplot(axes, x, *args,
         first_line = center - 0.5 * total
         stack += first_line
 
-    # Color between x = 0 and the first array.
-    coll = axes.fill_between(x, first_line, stack[0, :],
-                             facecolor=next(colors), label=next(labels, None),
-                             **kwargs)
-    coll.sticky_edges.y[:] = [0]
-    r = [coll]
+    r = []
 
-    # Color between array i-1 and array i
-    for i in range(len(y) - 1):
-        r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
-                                   facecolor=next(colors),
-                                   label=next(labels, None),
-                                   **kwargs))
-    return r
+    def bottom_area():
+        # Color between x = 0 and the first array.
+        coll = axes.fill_between(x, first_line, stack[0, :],
+                                 facecolor=next(colors),
+                                 label=next(labels, None),
+                                 **kwargs)
+        coll.sticky_edges.y[:] = [0]
+        r.append(coll)
+
+    def not_bottom_areas():
+        # Color between array i-1 and array i
+        for i in iter_method(range(len(y) - 1)):
+            r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
+                                       facecolor=next(colors),
+                                       label=next(labels, None),
+                                       **kwargs))
+    if top_to_bottom:
+        not_bottom_areas()
+        bottom_area()
+    else:
+        bottom_area()
+        not_bottom_areas()
+
+    return list(iter_method(r))
