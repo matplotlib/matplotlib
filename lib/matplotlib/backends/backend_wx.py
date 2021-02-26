@@ -971,9 +971,7 @@ class FigureFrameWx(wx.Frame):
         _log.debug("%s - onClose()", type(self))
         self.canvas.close_event()
         self.canvas.stop_event_loop()
-        Gcf.destroy(self)
-        if self:
-            self.Destroy()
+        Gcf.destroy(self.figmgr)
 
     def GetToolBar(self):
         """Override wxFrame::GetToolBar as we don't have managed toolbar"""
@@ -992,9 +990,6 @@ class FigureFrameWx(wx.Frame):
             super().Destroy(*args, **kwargs)
             if self.toolbar is not None:
                 self.toolbar.Destroy()
-            wxapp = wx.GetApp()
-            if wxapp:
-                wxapp.Yield()
         return True
 
 
@@ -1043,10 +1038,7 @@ class FigureManagerWx(FigureManagerBase):
         _log.debug("%s - destroy()", type(self))
         frame = self.frame
         if frame:  # Else, may have been already deleted, e.g. when closing.
-            frame.Close()
-        wxapp = wx.GetApp()
-        if wxapp:
-            wxapp.Yield()
+            frame.Destroy()
 
     def full_screen_toggle(self):
         # docstring inherited
