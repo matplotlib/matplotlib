@@ -66,10 +66,15 @@ class Axes3D(Axes):
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
-        computed_zorder : bool, optional
-            If this option is True, draw order is computed automatically.
-            Otherwise, each collection and patch's zorder is used to determine
-            draw order. Defaults to True.
+        computed_zorder : bool, default: True
+            If True, the draw order is computed based on the average position
+            of the `.Artist`\s along the view direction.
+            Set to False if you want to manually control the order in which Artists
+            are drawn on top of each other using their *zorder* attribute. This
+            can be used for fine-tuning if the automatic order does not produce
+            the desired result. Note however, that a manual zorder will only be
+            correct for a limited view angle. If the figure is rotated by the user,
+            it will look wrong from certain angles.
         auto_add_to_figure : bool, default: True
             Prior to Matplotlib 3.4 Axes3D would add themselves
             to their host Figure on init.  Other Axes class do not
