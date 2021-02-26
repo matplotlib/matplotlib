@@ -2308,7 +2308,7 @@ def _unikey_or_keysym_to_mplkey(unikey, keysym):
     if key.endswith(("_l", "_r")):  # alt_l, ctrl_l, shift_l.
         key = key[:-2]
     key = {
-        "enter": "return",
+        "return": "enter",
         "prior": "pageup",  # Used by tk.
         "next": "pagedown",  # Used by tk.
     }.get(key, key)
