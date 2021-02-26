@@ -1427,13 +1427,13 @@ def test_subfigure_simple():
     ax = sf[1].add_subplot(1, 1, 1, projection='3d', label='other')
 
 
-@image_comparison(baseline_images=['force_zorder'], remove_text=True,
+@image_comparison(baseline_images=['computed_zorder'], remove_text=True,
                   extensions=['png'])
-def test_force_zorder():
+def test_computed_zorder():
     fig = plt.figure()
     ax1 = fig.add_subplot(221, projection='3d')
     ax2 = fig.add_subplot(222, projection='3d')
-    ax2.force_zorder = True
+    ax2.computed_zorder = False
 
     # create a horizontal plane
     corners = ((0, 0, 0), (0, 5, 0), (5, 5, 0), (5, 0, 0))
@@ -1456,7 +1456,7 @@ def test_force_zorder():
 
     ax3 = fig.add_subplot(223, projection='3d')
     ax4 = fig.add_subplot(224, projection='3d')
-    ax4.force_zorder = True
+    ax4.computed_zorder = False
 
     dim = 10
     X, Y = np.meshgrid((-dim, dim), (-dim, dim))
