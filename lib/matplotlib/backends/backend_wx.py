@@ -971,7 +971,14 @@ class FigureFrameWx(wx.Frame):
         _log.debug("%s - onClose()", type(self))
         self.canvas.close_event()
         self.canvas.stop_event_loop()
-        Gcf.destroy(self.figmgr)
+        # set FigureManagerWx.frame to None to prevent repeated attempts to close
+        # this frame from with the FigureManagerWx.destroy()
+        if self.figmgr is not None:
+            self.figmgr.frame = None 
+            # remove figure manager from Gcf.figs
+            Gcf.destroy(self.figmgr)
+        #carry on with wx close event propagation, frame & children destruction
+        event.Skip()
 
     def GetToolBar(self):
         """Override wxFrame::GetToolBar as we don't have managed toolbar"""
@@ -988,8 +995,9 @@ class FigureFrameWx(wx.Frame):
         # MPLBACKEND=wxagg python -c 'from pylab import *; plot()'.
         if self and not self.IsBeingDeleted():
             super().Destroy(*args, **kwargs)
-            if self.toolbar is not None:
-                self.toolbar.Destroy()
+            # This should not be necessary if the close event is allowed to propagate.
+            #if self.toolbar is not None:
+            #    self.toolbar.Destroy()
         return True
 
 
@@ -1038,7 +1046,9 @@ class FigureManagerWx(FigureManagerBase):
         _log.debug("%s - destroy()", type(self))
         frame = self.frame
         if frame:  # Else, may have been already deleted, e.g. when closing.
-            frame.Destroy()
+            # as this can be called from non gui thread from plt.close use 
+            # wx.CallAfter to esnure thread safety.
+            wx.CallAfter( frame.Close )
 
     def full_screen_toggle(self):
         # docstring inherited
