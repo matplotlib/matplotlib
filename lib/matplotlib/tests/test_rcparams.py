@@ -13,6 +13,7 @@ import matplotlib as mpl
 from matplotlib import _api, _c_internal_utils
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.rcsetup as rcsetup
 import numpy as np
 from matplotlib.rcsetup import (
     validate_bool,
@@ -29,6 +30,23 @@ from matplotlib.rcsetup import (
     validate_stringlist,
     _validate_linestyle,
     _listify_validator)
+
+
+def test_rc_validators_in_sync():
+    # make sure that matplotlibrc.template and rcsetup._validators
+    # are in sync.
+    rc = mpl._rc_params_in_file(
+            'matplotlibrc.template',
+            # Strip leading comment.
+            transform=lambda line: line[1:] if line.startswith("#") else line,
+            fail_on_error=True)
+    for key, validator in rcsetup._validators.items():
+        if (key not in mpl._deprecated_remain_as_none and
+                key not in mpl._deprecated_ignore_map and
+                key[0] != '_'):
+            assert key in list(rc.keys())
+    for key in list(rc.keys()):
+        assert key in list(rcsetup._validators.keys())
 
 
 def test_rcparams(tmpdir):
