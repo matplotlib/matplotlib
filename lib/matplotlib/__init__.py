@@ -833,9 +833,10 @@ with _api.suppress_matplotlib_deprecation_warning():
     defaultParams = {}
     for key, validator in rcsetup._validators.items():
         if key == 'backend':
-            defaultParams['backend'] = rcsetup._auto_backend_sentinel
+            defaultParams['backend'] = [rcsetup._auto_backend_sentinel,
+                                        validator]
         elif key in rcParamsDefault.keys():
-            defaultParams[key] = validator
+            defaultParams[key] = [rcParamsDefault[key], validator]
         else:
             _api.warn_external(f'rcsetup key "{key}" not in the default'
                                 ' rcParams')
