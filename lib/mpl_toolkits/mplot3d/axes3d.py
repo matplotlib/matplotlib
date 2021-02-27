@@ -49,7 +49,7 @@ class Axes3D(Axes):
     def __init__(
             self, fig, rect=None, *args,
             azim=-60, elev=30, sharez=None, proj_type='persp',
-            box_aspect=None,
+            box_aspect=None, computed_zorder=True,
             **kwargs):
         """
         Parameters
@@ -66,6 +66,15 @@ class Axes3D(Axes):
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
+        computed_zorder : bool, default: True
+            If True, the draw order is computed based on the average position
+            of the `.Artist`s along the view direction.
+            Set to False if you want to manually control the order in which
+            Artists are drawn on top of each other using their *zorder*
+            attribute. This can be used for fine-tuning if the automatic order
+            does not produce the desired result. Note however, that a manual
+            zorder will only be correct for a limited view angle. If the figure
+            is rotated by the user, it will look wrong from certain angles.
         auto_add_to_figure : bool, default: True
             Prior to Matplotlib 3.4 Axes3D would add themselves
             to their host Figure on init.  Other Axes class do not
@@ -79,11 +88,6 @@ class Axes3D(Axes):
             Other optional keyword arguments:
 
             %(Axes3D_kwdoc)s
-
-        Notes
-        -----
-        .. versionadded:: 1.2.1
-            The *sharez* parameter.
         """
 
         if rect is None:
@@ -92,6 +96,7 @@ class Axes3D(Axes):
         self.initial_azim = azim
         self.initial_elev = elev
         self.set_proj_type(proj_type)
+        self.computed_zorder = computed_zorder
 
         self.xy_viewLim = Bbox.unit()
         self.zz_viewLim = Bbox.unit()
@@ -477,20 +482,26 @@ class Axes3D(Axes):
                     "%(since)s and will be removed %(removal)s.")
                 return artist.do_3d_projection(renderer)
 
-            # Calculate projection of collections and patches and zorder them.
-            # Make sure they are drawn above the grids.
-            zorder_offset = max(axis.get_zorder()
-                                for axis in self._get_axis_list()) + 1
-            for i, col in enumerate(
-                    sorted(self.collections,
-                           key=do_3d_projection,
-                           reverse=True)):
-                col.zorder = zorder_offset + i
-            for i, patch in enumerate(
-                    sorted(self.patches,
-                           key=do_3d_projection,
-                           reverse=True)):
-                patch.zorder = zorder_offset + i
+            if self.computed_zorder:
+                # Calculate projection of collections and patches and zorder
+                # them. Make sure they are drawn above the grids.
+                zorder_offset = max(axis.get_zorder()
+                                    for axis in self._get_axis_list()) + 1
+                for i, col in enumerate(
+                        sorted(self.collections,
+                               key=do_3d_projection,
+                               reverse=True)):
+                    col.zorder = zorder_offset + i
+                for i, patch in enumerate(
+                        sorted(self.patches,
+                               key=do_3d_projection,
+                               reverse=True)):
+                    patch.zorder = zorder_offset + i
+            else:
+                for col in self.collections:
+                    col.do_3d_projection()
+                for patch in self.patches:
+                    patch.do_3d_projection()
 
             if self._axis3don:
                 # Draw panes first
@@ -3504,6 +3515,7 @@ pivot='tail', normalize=False, **kwargs)
         return stem_container
 
     stem3D = stem
+
 
 docstring.interpd.update(Axes3D_kwdoc=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
