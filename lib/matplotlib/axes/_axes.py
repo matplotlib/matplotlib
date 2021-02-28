@@ -7,12 +7,12 @@ from numbers import Integral, Number
 import numpy as np
 from numpy import ma
 
-#import matplotlib.category  # Register category unit converter as side-effect.
+import matplotlib.category  # Register category unit converter as side-effect.
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-#import matplotlib.dates  # Register date unit converter as side-effect.
+import matplotlib.dates  # Register date unit converter as side-effect.
 import matplotlib.docstring as docstring
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend

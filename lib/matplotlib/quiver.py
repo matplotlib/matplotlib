@@ -187,8 +187,8 @@ Other Parameters
     %(PolyCollection_kwdoc)s
 
 Returns
-----------------
-The new `matplotlib.quiver.Quiver` object.
+-------
+matplotlib.quiver.Quiver
 
 See Also
 --------
