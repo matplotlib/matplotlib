@@ -243,8 +243,8 @@ if not (any('--' + opt in sys.argv
             package_data.setdefault(key, [])
             package_data[key] = list(set(val + package_data[key]))
 
-    # Write the default matplotlibrc file
-    with open('matplotlibrc.template') as fd:
+    # Change the backend of the default matplotlibrc file
+    with open('lib/matplotlib/mpl-data/matplotlibrc') as fd:
         template_lines = fd.read().splitlines(True)
     backend_line_idx, = [  # Also asserts that there is a single such line.
         idx for idx, line in enumerate(template_lines)
