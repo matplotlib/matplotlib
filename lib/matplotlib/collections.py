@@ -1141,7 +1141,7 @@ class PathCollection(_CollectionWithSizes):
                 num = None
 
         if num is not None and label_values_are_numeric:
-            # Values are numerical but larger than the target
+            # Labels are numerical but larger than the target
             # number of elements, reduce to target using interpolation:
             if isinstance(num, mpl.ticker.Locator):
                 loc = num
@@ -1165,7 +1165,7 @@ class PathCollection(_CollectionWithSizes):
             ix = np.argsort(xarr)
             values = np.interp(label_values, xarr[ix], yarr[ix])
         elif num is not None and not label_values_are_numeric:
-            # Values are not numerical so instead of interpolating
+            # Labels are not numerical so instead of interpolating
             # just choose evenly distributed indexes instead:
             cond = np.round(np.linspace(0, len(label_values) - 1, num))
             cond = cond.astype(int)
