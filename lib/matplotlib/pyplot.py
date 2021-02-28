@@ -119,52 +119,41 @@ def install_repl_displayhook():
     global _IP_REGISTERED
     global _INSTALL_FIG_OBSERVER
 
-    class _NotIPython(Exception):
-        pass
-
-    # see if we have IPython hooks around, if use them
-
-    try:
-        if 'IPython' in sys.modules:
-            from IPython import get_ipython
-            ip = get_ipython()
-            if ip is None:
-                raise _NotIPython()
-
-            if _IP_REGISTERED:
-                return
-
-            def post_execute():
-                if matplotlib.is_interactive():
-                    draw_all()
-
-            # IPython >= 2
-            try:
-                ip.events.register('post_execute', post_execute)
-            except AttributeError:
-                # IPython 1.x
-                ip.register_post_execute(post_execute)
-
-            _IP_REGISTERED = post_execute
-            _INSTALL_FIG_OBSERVER = False
-
-            # trigger IPython's eventloop integration, if available
-            from IPython.core.pylabtools import backend2gui
-
-            ipython_gui_name = backend2gui.get(get_backend())
-            if ipython_gui_name:
-                ip.enable_gui(ipython_gui_name)
-        else:
-            _INSTALL_FIG_OBSERVER = True
-
-    # import failed or ipython is not running
-    except (ImportError, _NotIPython):
+    if _IP_REGISTERED:
+        return
+    # See if we have IPython hooks around, if so use them.
+    # Use ``sys.modules.get(name)`` rather than ``name in sys.modules`` as
+    # entries can also have been explicitly set to None.
+    mod_ipython = sys.modules.get("IPython")
+    if not mod_ipython:
         _INSTALL_FIG_OBSERVER = True
+        return
+    ip = mod_ipython.get_ipython()
+    if not ip:
+        _INSTALL_FIG_OBSERVER = True
+        return
+
+    def post_execute():
+        if matplotlib.is_interactive():
+            draw_all()
+
+    try:  # IPython >= 2
+        ip.events.register("post_execute", post_execute)
+    except AttributeError:  # IPython 1.x
+        ip.register_post_execute(post_execute)
+    _IP_REGISTERED = post_execute
+    _INSTALL_FIG_OBSERVER = False
+
+    from IPython.core.pylabtools import backend2gui
+    # trigger IPython's eventloop integration, if available
+    ipython_gui_name = backend2gui.get(get_backend())
+    if ipython_gui_name:
+        ip.enable_gui(ipython_gui_name)
 
 
 def uninstall_repl_displayhook():
     """
-    Uninstall the matplotlib display hook.
+    Uninstall the Matplotlib display hook.
 
     .. warning::
 
@@ -174,8 +163,8 @@ def uninstall_repl_displayhook():
     .. warning::
 
        If you are using vanilla python and have installed another
-       display hook this will reset ``sys.displayhook`` to what ever
-       function was there when matplotlib installed it's displayhook,
+       display hook, this will reset ``sys.displayhook`` to what ever
+       function was there when Matplotlib installed its displayhook,
        possibly discarding your changes.
     """
     global _IP_REGISTERED
