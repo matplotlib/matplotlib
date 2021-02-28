@@ -1105,62 +1105,44 @@ class PathCollection(_CollectionWithSizes):
         """
         handles = []
         labels = []
-        hasarray = self.get_array() is not None
 
         if prop == "colors":
-            if not hasarray:
+            arr = self.get_array()
+            if arr is None:
                 warnings.warn("Collection without array used. Make sure to "
                               "specify the values to be colormapped via the "
                               "`c` argument.")
                 return handles, labels
-            u = np.unique(self.get_array())
             size = kwargs.pop("size", mpl.rcParams["lines.markersize"])
         elif prop == "sizes":
-            u = np.unique(self.get_sizes())
+            arr = self.get_sizes()
             color = kwargs.pop("color", "k")
         else:
             raise ValueError("Valid values for `prop` are 'colors' or "
                              f"'sizes'. You supplied '{prop}' instead.")
 
-        func_value = np.asarray(func(u))
-        func_is_numeric = np.issubdtype(func_value.dtype, np.number)
+        # Get the unique values and its labels:
+        values = np.unique(arr)
+        label_values = np.asarray(func(values))
+        label_values_are_numeric = np.issubdtype(label_values.dtype, np.number)
 
-        if fmt is None:
-            if func_is_numeric:
-                fmt = mpl.ticker.ScalarFormatter(
-                    useOffset=False, useMathText=True
-                )
-            else:
-                fmt = mpl.ticker.StrMethodFormatter("{x}")
+        # Handle the label format:
+        if fmt is None and label_values_are_numeric:
+            fmt = mpl.ticker.ScalarFormatter(useOffset=False, useMathText=True)
+        elif fmt is None and not label_values_are_numeric:
+            fmt = mpl.ticker.StrMethodFormatter("{x}")
         elif isinstance(fmt, str):
             fmt = mpl.ticker.StrMethodFormatter(fmt)
         fmt.create_dummy_axis()
 
-        if func_is_numeric:
-            fmt.set_bounds(min(func_value), max(func_value))
-
         if num == "auto":
             num = 9
-            if len(u) <= num:
+            if len(values) <= num:
                 num = None
-        if num is None:
-            values = u
-            label_values = func(values)
-        elif not func_is_numeric:
-            # Values are not numerical so instead of interpolating
-            # just choose evenly distributed indexes instead:
-            def which_idxs(m, n):
-                out = np.rint(np.linspace(1, n, min(m, n)) - 1)
-                return out.astype(int)
-            label_values = func(u)
-            cond = which_idxs(num, len(label_values))
-            values = u[cond]
-            label_values = label_values[cond]
-        else:
-            if prop == "colors":
-                arr = self.get_array()
-            elif prop == "sizes":
-                arr = self.get_sizes()
+
+        if num is not None and label_values_are_numeric:
+            # Values are numerical but larger than the target
+            # number of elements, reduce to target using interpolation:
             if isinstance(num, mpl.ticker.Locator):
                 loc = num
             elif np.iterable(num):
@@ -1169,14 +1151,26 @@ class PathCollection(_CollectionWithSizes):
                 num = int(num)
                 loc = mpl.ticker.MaxNLocator(nbins=num, min_n_ticks=num-1,
                                              steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
-            label_values = loc.tick_values(func(arr).min(), func(arr).max())
-            cond = ((label_values >= func(arr).min()) &
-                    (label_values <= func(arr).max()))
+
+            lbl_vals_min = label_values.min()
+            lbl_vals_max = label_values.max()
+            fmt.set_bounds(lbl_vals_min, lbl_vals_max)
+
+            label_values = loc.tick_values(lbl_vals_min, lbl_vals_max)
+            cond = ((label_values >= lbl_vals_min) &
+                    (label_values <= lbl_vals_max))
             label_values = label_values[cond]
             yarr = np.linspace(arr.min(), arr.max(), 256)
             xarr = func(yarr)
             ix = np.argsort(xarr)
             values = np.interp(label_values, xarr[ix], yarr[ix])
+        elif num is not None and not label_values_are_numeric:
+            # Values are not numerical so instead of interpolating
+            # just choose evenly distributed indexes instead:
+            cond = np.round(np.linspace(0, len(label_values) - 1, num))
+            cond = cond.astype(int)
+            values = values[cond]
+            label_values = label_values[cond]
 
         kw = dict(markeredgewidth=self.get_linewidths()[0],
                   alpha=self.get_alpha())
