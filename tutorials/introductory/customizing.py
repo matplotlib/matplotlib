@@ -200,7 +200,7 @@ plt.plot(data)
 # A sample matplotlibrc file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# .. literalinclude:: ../../../matplotlibrc.template
+# .. literalinclude:: ../../../lib/matplotlib/mpl-data/matplotlibrc
 #
 #
 # .. _ggplot: https://ggplot2.tidyverse.org/
