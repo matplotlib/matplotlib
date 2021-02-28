@@ -1121,7 +1121,7 @@ class PathCollection(_CollectionWithSizes):
             raise ValueError("Valid values for `prop` are 'colors' or "
                              f"'sizes'. You supplied '{prop}' instead.")
 
-        # Get the unique values and its labels:
+        # Get the unique values and their labels:
         values = np.unique(arr)
         label_values = np.asarray(func(values))
         label_values_are_numeric = np.issubdtype(label_values.dtype, np.number)
