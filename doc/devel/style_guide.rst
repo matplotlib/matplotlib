@@ -21,28 +21,100 @@ Terminology
 -----------
 
 There are several key terms in Matplotlib that are standards for 
-reliability and consistency in documentation. They are case-sensitive and are
-not interchangeable.
+reliability and consistency in documentation. They are not interchangeable.
 
 +------------------+--------------------------+--------------+--------------+
 | Term             | Description              | Correct      | Incorrect    |
 +==================+==========================+==============+==============+
-| Figure_          | Matplotlib working space | - One Figure | - One figure |
-|                  | for programming.         | - 11 Figures | - 11 figures |
+| Figure_          | Matplotlib working space | - *For       | - "The figure|
+|                  | for programming.         |   Matplotlib |   is the     |
+|                  |                          |   objects*:  |   working    |
+|                  |                          |   Figure,    |   space for  |
+|                  |                          |   "The Figure|   visuals."  |
+|                  |                          |   is the     | - "Methods in|
+|                  |                          |   working    |   the Figure |
+|                  |                          |   space for  |   provide the|
+|                  |                          |   the visual.|   visuals."  |
+|                  |                          | - *Referring | - "The       |
+|                  |                          |   to class*: |   Figure_ on |
+|                  |                          |   Figure_ ,  |   the page is|
+|                  |                          |   "Methods   |   static."   |
+|                  |                          |   within the |              |
+|                  |                          |   Figure_    |              |
+|                  |                          |   provide the|              |
+|                  |                          |   visuals."  |              |
+|                  |                          | - *General   |              |
+|                  |                          |   objects*:  |              |
+|                  |                          |   figure,    |              |
+|                  |                          |   "All of the|              |
+|                  |                          |   figures for|              |
+|                  |                          |   this page  |              |
+|                  |                          |   are        |              |
+|                  |                          |   static."   |              |
 +------------------+--------------------------+--------------+--------------+
-| Axes_            | Subplots within Figure.  | - One Axes   | - One axes   |
-|                  | Contains plot elements   | - Four Axes  | - Four Axeses|
-|                  | and is responsible for   | - 32 Axes    | - 32 Axii    |
-|                  | plotting and configuring |              |              |
-|                  | additional details.      |              |              |
+| Axes_            | Subplots within Figure.  | - *For       | - "The axes  |
+|                  | Contains plot elements   |   Matplotlib |   methods    |
+|                  | and is responsible for   |   objects*:  |   transform  |
+|                  | plotting and configuring |   Axes, "An  |   the data." |
+|                  | additional details.      |   Axes is a  | - "Each Axes_|
+|                  |                          |   subplot    |   is specific|
+|                  |                          |   within the |   to a       |
+|                  |                          |   Figure."   |   Figure."   |
+|                  |                          | - *Referring | - "All of the|
+|                  |                          |   to class*: |   Axes are   |
+|                  |                          |   Axes_ ,    |   compatible |
+|                  |                          |   "Each Axes_|   with other |
+|                  |                          |   is specific|   libraries."|
+|                  |                          |   to one     |              |
+|                  |                          |   Figure."   |              |
+|                  |                          | - *General   |              |
+|                  |                          |   objects*:  |              |
+|                  |                          |   axes, "Both|              |
+|                  |                          |   explicit   |              |
+|                  |                          |   and        |              |
+|                  |                          |   implicit   |              |
+|                  |                          |   strategies |              |
+|                  |                          |   contain    |              |
+|                  |                          |   multiple   |              |
+|                  |                          |   types of   |              |
+|                  |                          |   data       |              |
+|                  |                          |   visuals    |              |
+|                  |                          |   on a single|              |
+|                  |                          |   axes."     |              |
 +------------------+--------------------------+--------------+--------------+
-| Artist_          | Broad variety of         | - One Artist | - One artist |
-|                  | Matplotlib objects that  | - Two Artists| - Two artists|
-|                  | display visuals.         |              |              |
+| Artist_          | Broad variety of         | - *For       | - "Configure |
+|                  | Matplotlib objects that  |   Matplotlib |   the legend |
+|                  | display visuals.         |   objects*:  |   artist with|
+|                  |                          |   Artist,    |   its        |
+|                  |                          |   "Artists   |   respective |
+|                  |                          |   display    |   method."   |
+|                  |                          |   visuals and| - "There are |
+|                  |                          |   are the    |   many       |
+|                  |                          |   visible    |   Artists_ in|
+|                  |                          |   elements   |   this       |
+|                  |                          |   when the   |   graph."    |
+|                  |                          |   rendering  | - "Some      |
+|                  |                          |   a Figure." |   Artists    |
+|                  |                          | - *Referring |   have an    |
+|                  |                          |   to class*: |   overlapping|
+|                  |                          |   Artist_ ,  |   naming     |
+|                  |                          |   "Each      |   convention |
+|                  |                          |   Artist_ has|   in both    |
+|                  |                          |   respective |   explicit   |
+|                  |                          |   methods and|   and        |
+|                  |                          |   functions."|   implicit   |
+|                  |                          | - *General   |   uses."     |
+|                  |                          |   objects*:  |              |
+|                  |                          |   artist,    |              |
+|                  |                          |   "The       |              |
+|                  |                          |   artists in |              |
+|                  |                          |   this table |              |
+|                  |                          |   generate   |              |
+|                  |                          |   visuals."  |              |
 +------------------+--------------------------+--------------+--------------+
 | Axis_            | Human-readable single    | - One Axis   | - One Axis   |
-|                  | dimensional object       |   object     | - One axis   |
-|                  | of reference marks       | - Four Axis  | - Four Axises|
+|                  | dimensional object       |   object     | - One axes   |
+|                  | of reference marks       | - Four axis  | - Four Axises|
 |                  | containing ticks, tick   |   objects    | - 32 Axes    |
 |                  | labels, spines, and      | - 32 Axis    |              |
 |                  | edges.                   |   objects    |              |
