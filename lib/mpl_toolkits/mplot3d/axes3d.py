@@ -68,7 +68,7 @@ class Axes3D(Axes):
             The projection type, default 'persp'.
         computed_zorder : bool, default: True
             If True, the draw order is computed based on the average position
-            of the `.Artist`s along the view direction.
+            of the `.Artist`\\s along the view direction.
             Set to False if you want to manually control the order in which
             Artists are drawn on top of each other using their *zorder*
             attribute. This can be used for fine-tuning if the automatic order
