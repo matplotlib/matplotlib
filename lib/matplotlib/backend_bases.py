@@ -1743,7 +1743,7 @@ class FigureCanvasBase:
         # `ipython --auto`).  This cannot be done at import time due to
         # ordering issues, so we do it when creating a canvas, and should only
         # be done once per class (hence the `lru_cache(1)`).
-        if "IPython" not in sys.modules:
+        if sys.modules.get("IPython") is None:
             return
         import IPython
         ip = IPython.get_ipython()
