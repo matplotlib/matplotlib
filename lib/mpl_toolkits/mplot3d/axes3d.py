@@ -68,7 +68,7 @@ class Axes3D(Axes):
             The projection type, default 'persp'.
         computed_zorder : bool, default: True
             If True, the draw order is computed based on the average position
-            of the `.Artist`s along the view direction.
+            of the `.Artist`\\s along the view direction.
             Set to False if you want to manually control the order in which
             Artists are drawn on top of each other using their *zorder*
             attribute. This can be used for fine-tuning if the automatic order
@@ -171,9 +171,6 @@ class Axes3D(Axes):
         """
         For artists in an axes, if the zaxis has units support,
         convert *z* using zaxis unit type
-
-        .. versionadded:: 1.2.1
-
         """
         return self.zaxis.convert_units(z)
 
@@ -539,27 +536,18 @@ class Axes3D(Axes):
     def get_autoscale_on(self):
         """
         Get whether autoscaling is applied for all axes on plot commands
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         return super().get_autoscale_on() and self.get_autoscalez_on()
 
     def get_autoscalez_on(self):
         """
         Get whether autoscaling for the z-axis is applied on plot commands
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         return self._autoscaleZon
 
     def set_autoscale_on(self, b):
         """
         Set whether autoscaling is applied on plot commands
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
 
         Parameters
         ----------
@@ -571,8 +559,6 @@ class Axes3D(Axes):
     def set_autoscalez_on(self, b):
         """
         Set whether autoscaling for the z-axis is applied on plot commands
-
-        .. versionadded:: 1.1.0
 
         Parameters
         ----------
@@ -606,8 +592,6 @@ class Axes3D(Axes):
         end of that interval before it is used in autoscaling.
 
         accepts: float in range 0 to 1
-
-        .. versionadded:: 1.1.0
         """
         if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
@@ -652,8 +636,6 @@ class Axes3D(Axes):
         if *xmargin* is not None, then *xmargin* times the X data
         interval will be added to each end of that interval before
         it is used in autoscaling.
-
-        .. versionadded:: 1.1.0
         """
         if margins and x is not None and y is not None and z is not None:
             raise TypeError('Cannot pass both positional and keyword '
@@ -690,8 +672,6 @@ class Axes3D(Axes):
         Note that this function behaves the same, but for all
         three axes.  Therefore, 'z' can be passed for *axis*,
         and 'both' applies to all three axes.
-
-        .. versionadded:: 1.1.0
         """
         if enable is None:
             scalex = True
@@ -747,13 +727,6 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.autoscale_view` for documentation.
         Note that this function applies to the 3D axes, and as such
         adds the *scalez* to the function arguments.
-
-        .. versionchanged:: 1.1.0
-            Function signature was changed to better match the 2D version.
-            *tight* is now explicitly a kwarg and placed first.
-
-        .. versionchanged:: 1.2.1
-            This is now fully functional.
         """
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
@@ -987,20 +960,10 @@ class Axes3D(Axes):
     def get_xlim3d(self):
         return tuple(self.xy_viewLim.intervalx)
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
-    if get_xlim3d.__doc__ is not None:
-        get_xlim3d.__doc__ += """
-        .. versionchanged:: 1.1.0
-            This function now correctly refers to the 3D x-limits
-        """
 
     def get_ylim3d(self):
         return tuple(self.xy_viewLim.intervaly)
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
-    if get_ylim3d.__doc__ is not None:
-        get_ylim3d.__doc__ += """
-        .. versionchanged:: 1.1.0
-            This function now correctly refers to the 3D y-limits.
-        """
 
     def get_zlim3d(self):
         """Get 3D z limits."""
@@ -1377,9 +1340,6 @@ class Axes3D(Axes):
     def get_zlabel(self):
         """
         Get the z-label text string.
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         label = self.zaxis.get_label()
         return label.get_text()
@@ -1410,8 +1370,6 @@ class Axes3D(Axes):
             Currently, this function does not behave the same as
             :meth:`matplotlib.axes.Axes.grid`, but it is intended to
             eventually support that behavior.
-
-        .. versionadded:: 1.1.0
         """
         # TODO: Operate on each axes separately
         if len(kwargs):
@@ -1429,9 +1387,6 @@ class Axes3D(Axes):
         parameters being set for all three axes.  Also, *axis*
         can also take a value of 'z' to apply parameters to the
         z axis.
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         _x = axis in ['x', 'both']
         _y = axis in ['y', 'both']
@@ -1465,8 +1420,6 @@ class Axes3D(Axes):
 
         .. note::
            Axes3D currently ignores some of these settings.
-
-        .. versionadded:: 1.1.0
         """
         _api.check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
@@ -1484,9 +1437,6 @@ class Axes3D(Axes):
     def invert_zaxis(self):
         """
         Invert the z-axis.
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
@@ -1494,8 +1444,6 @@ class Axes3D(Axes):
     def zaxis_inverted(self):
         """
         Returns True if the z-axis is inverted.
-
-        .. versionadded:: 1.1.0
         """
         bottom, top = self.get_zlim()
         return top < bottom
@@ -1503,8 +1451,6 @@ class Axes3D(Axes):
     def get_zbound(self):
         """
         Return the lower and upper z-axis bounds, in increasing order.
-
-        .. versionadded:: 1.1.0
         """
         bottom, top = self.get_zlim()
         if bottom < top:
@@ -1518,8 +1464,6 @@ class Axes3D(Axes):
 
         This method will honor axes inversion regardless of parameter order.
         It will not change the autoscaling setting (`.get_autoscalez_on()`).
-
-        .. versionadded:: 1.1.0
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
@@ -1626,8 +1570,6 @@ class Axes3D(Axes):
             Maximum number of samples used in each direction.  If the input
             data is larger, it will be downsampled (by slicing) to these
             numbers of points.  Defaults to 50.
-
-            .. versionadded:: 2.0
 
         rstride, cstride : int
             Downsampling stride in each direction.  These arguments are
@@ -1885,8 +1827,6 @@ class Axes3D(Axes):
             not sampled in the corresponding direction, producing a 3D line
             plot rather than a wireframe plot.  Defaults to 50.
 
-            .. versionadded:: 2.0
-
         rstride, cstride : int
             Downsampling stride in each direction.  These arguments are
             mutually exclusive with *rcount* and *ccount*.  If only one of
@@ -2033,8 +1973,6 @@ class Axes3D(Axes):
         --------
         .. plot:: gallery/mplot3d/trisurf3d.py
         .. plot:: gallery/mplot3d/trisurf3d_2.py
-
-        .. versionadded:: 1.2.0
         """
 
         had_data = self.has_data()
@@ -2196,9 +2134,6 @@ class Axes3D(Axes):
         """
         Create a 3D contour plot.
 
-        .. versionchanged:: 1.3.0
-            Added support for custom triangulations
-
         .. note::
             This method currently produces incorrect output due to a
             longstanding bug in 3D PolyCollection rendering.
@@ -2263,11 +2198,6 @@ class Axes3D(Axes):
         Returns
         -------
         matplotlib.contour.QuadContourSet
-
-        Notes
-        -----
-        .. versionadded:: 1.1.0
-            The *zdir* and *offset* parameters.
         """
         had_data = self.has_data()
 
@@ -2304,13 +2234,6 @@ class Axes3D(Axes):
         Returns
         -------
         matplotlib.tri.tricontour.TriContourSet
-
-        Notes
-        -----
-        .. versionadded:: 1.1.0
-            The *zdir* and *offset* parameters.
-        .. versionchanged:: 1.3.0
-            Added support for custom triangulations
         """
         had_data = self.has_data()
 
@@ -2818,8 +2741,6 @@ pivot='tail', normalize=False, **kwargs)
         ``filled[0, 0, 0]`` placed with its lower corner at the origin.
         Occluded faces are not plotted.
 
-        .. versionadded:: 2.1
-
         Parameters
         ----------
         filled : 3D np.array of bool
@@ -2854,12 +2775,8 @@ pivot='tail', normalize=False, **kwargs)
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
 
-            .. versionadded:: 3.1
-
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
-
-            .. versionadded:: 3.1
 
         **kwargs
             Additional keyword arguments to pass onto
