@@ -973,10 +973,9 @@ class FigureFrameWx(wx.Frame):
         self.canvas.stop_event_loop()
         # set FigureManagerWx.frame to None to prevent repeated attempts to
         # close this frame from FigureManagerWx.destroy()
-        if self.figmgr is not None:
-            self.figmgr.frame = None
-            # remove figure manager from Gcf.figs
-            Gcf.destroy(self.figmgr)
+        self.figmgr.frame = None
+        # remove figure manager from Gcf.figs
+        Gcf.destroy(self.figmgr)
         #carry on with wx close event propagation, frame & children destruction
         event.Skip()
 
