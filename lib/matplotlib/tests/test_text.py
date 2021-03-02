@@ -709,3 +709,8 @@ def test_update_mutate_input():
     t.update(inp)
     assert inp['fontproperties'] == cache['fontproperties']
     assert inp['bbox'] == cache['bbox']
+
+
+def test_invalid_color():
+    with pytest.raises(ValueError):
+        plt.figtext(.5, .5, "foo", c="foobar")
