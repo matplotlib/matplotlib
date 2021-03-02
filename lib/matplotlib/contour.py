@@ -852,12 +852,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             aa = self.antialiased
             if aa is not None:
                 aa = (self.antialiased,)
-            # Default zorder taken from LineCollection
+            # Default zorder taken from LineCollection, which is higher than
+            # for filled contours so that lines are displayed on top.
             self._contour_zorder = kwargs.pop('zorder', 2)
 
             self.collections[:] = [
-                mcoll.LineCollection(
-                    segs,
+                mcoll.PathCollection(
+                    self._make_paths(segs, None),
+                    facecolors="none",
                     antialiaseds=aa,
                     linewidths=width,
                     linestyles=[lstyle],
@@ -1024,7 +1026,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             return [mpath.Path(seg, codes=kind)
                     for seg, kind in zip(segs, kinds)]
         else:
-            return [mpath.Path(seg) for seg in segs]
+            # Explicit comparison of first and last points in segment is faster
+            # than the more elegant np.array_equal(seg[0], seg[-1]).
+            return [mpath.Path(seg, closed=(seg[0, 0] == seg[-1, 0]
+                    and seg[0, 1] == seg[-1, 1])) for seg in segs]
 
     def changed(self):
         tcolors = [(tuple(rgba),)
@@ -1038,7 +1043,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 # update the collection's hatch (may be None)
                 collection.set_hatch(hatch)
             else:
-                collection.set_color(color)
+                collection.set_edgecolor(color)
         for label, cv in zip(self.labelTexts, self.labelCValues):
             label.set_alpha(self.alpha)
             label.set_color(self.labelMappable.to_rgba(cv))
