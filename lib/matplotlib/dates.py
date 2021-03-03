@@ -2,18 +2,20 @@
 Matplotlib provides sophisticated date plotting capabilities, standing on the
 shoulders of python :mod:`datetime` and the add-on module :mod:`dateutil`.
 
-By default, Matpltolib uses the units machinery described in
-`~.matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
+By default, Matplotlib uses the units machinery described in
+`~matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
 objects when plotted on an x- or y-axis. The user does not
 need to do anything for dates to be formatted, but dates often have strict
 formatting needs, so this module provides many axis locators and formatters.
 A basic example using `numpy.datetime64` is::
 
     import numpy as np
-    fig, ax = plt.subplots()
+
     times = np.arange(np.datetime64('2001-01-02'),
                       np.datetime64('2002-02-03'), np.timedelta64(75, 'm'))
     y = np.random.randn(len(times))
+
+    fig, ax = plt.subplots()
     ax.plot(times, y)
 
 .. seealso::
