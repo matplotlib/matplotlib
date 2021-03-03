@@ -195,6 +195,9 @@ def test_gca():
         assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
 
+    # sca() should not change stored order of Axes, which is order added.
+    assert fig.axes == [ax0, ax1, ax2, ax3]
+
 
 def test_add_subplot_subclass():
     fig = plt.figure()
