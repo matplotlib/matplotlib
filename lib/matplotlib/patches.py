@@ -1570,24 +1570,22 @@ class Annulus(Patch):
     @docstring.dedent_interpd
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
         """
-        xy : array_like
-            center of annulus
-
+        xy : (float, float)
+            xy coordinates of annulus centre
         r : scalar or 1D array_like
             The radius, or semi-major axes
                 - If float: radius of the outer circle
                 - If array_like of size 2: semi-major and -minor axes of outer
                   ellipse
-
         width : float
-            width of the annulus
-
+            Width of the annulus
         angle: float, optional
-            rotation in degrees (anti-clockwise). Ignored for circular annuli
-            (`r` is a scalar)
+            Rotation angle in degrees (anti-clockwise). Ignored for circular 
+            annuli (ie. if `r` is a scalar).
 
         Valid kwargs are:
-        %(Patch)s
+        
+        %(Patch_kwdoc)s
         """
         Patch.__init__(self, **kwargs)
 
