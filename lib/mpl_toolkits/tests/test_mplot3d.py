@@ -1,5 +1,6 @@
 import functools
 import itertools
+import platform
 
 import pytest
 
@@ -1267,7 +1268,8 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20')
+@image_comparison(['stem3d.png'], style='mpl20',
+                  tol=0.0 if platform.machine() == 'x86_64' else 0.003)
 def test_stem3d():
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,
