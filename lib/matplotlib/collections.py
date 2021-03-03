@@ -1140,30 +1140,34 @@ class PathCollection(_CollectionWithSizes):
             if len(values) <= num:
                 num = None
 
-        if num is not None and label_values_are_numeric:
-            # Labels are numerical but larger than the target
-            # number of elements, reduce to target using interpolation:
-            if isinstance(num, mpl.ticker.Locator):
-                loc = num
-            elif np.iterable(num):
-                loc = mpl.ticker.FixedLocator(num)
-            else:
-                num = int(num)
-                loc = mpl.ticker.MaxNLocator(nbins=num, min_n_ticks=num-1,
-                                             steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
-
+        if label_values_are_numeric:
             lbl_vals_min = label_values.min()
             lbl_vals_max = label_values.max()
             fmt.set_bounds(lbl_vals_min, lbl_vals_max)
 
-            label_values = loc.tick_values(lbl_vals_min, lbl_vals_max)
-            cond = ((label_values >= lbl_vals_min) &
-                    (label_values <= lbl_vals_max))
-            label_values = label_values[cond]
-            yarr = np.linspace(arr.min(), arr.max(), 256)
-            xarr = func(yarr)
-            ix = np.argsort(xarr)
-            values = np.interp(label_values, xarr[ix], yarr[ix])
+            if num is not None:
+                # Labels are numerical but larger than the target
+                # number of elements, reduce to target using interpolation:
+                if isinstance(num, mpl.ticker.Locator):
+                    loc = num
+                elif np.iterable(num):
+                    loc = mpl.ticker.FixedLocator(num)
+                else:
+                    num = int(num)
+                    loc = mpl.ticker.MaxNLocator(
+                        nbins=num,
+                        min_n_ticks=num-1,
+                        steps=[1, 2, 2.5, 3, 5, 6, 8, 10]
+                    )
+
+                label_values = loc.tick_values(lbl_vals_min, lbl_vals_max)
+                cond = ((label_values >= lbl_vals_min) &
+                        (label_values <= lbl_vals_max))
+                label_values = label_values[cond]
+                yarr = np.linspace(arr.min(), arr.max(), 256)
+                xarr = func(yarr)
+                ix = np.argsort(xarr)
+                values = np.interp(label_values, xarr[ix], yarr[ix])
         elif num is not None and not label_values_are_numeric:
             # Labels are not numerical so instead of interpolating
             # just choose evenly distributed indexes instead:
@@ -1176,6 +1180,9 @@ class PathCollection(_CollectionWithSizes):
                   alpha=self.get_alpha())
         kw.update(kwargs)
 
+        if hasattr(fmt, "set_locs"):
+            fmt.set_locs(label_values)
+
         for val, lab in zip(values, label_values):
             if prop == "colors":
                 color = self.cmap(self.norm(val))
@@ -1186,8 +1193,6 @@ class PathCollection(_CollectionWithSizes):
             h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
                               marker=self.get_paths()[0], **kw)
             handles.append(h)
-            if hasattr(fmt, "set_locs"):
-                fmt.set_locs(label_values)
             labels.append(fmt(lab))
 
         return handles, labels
