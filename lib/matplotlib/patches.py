@@ -1552,7 +1552,6 @@ class Ellipse(Patch):
     angle = property(get_angle, set_angle)
 
 
-
 class Annulus(Patch):
     """
     An elliptical annulus.
@@ -1580,11 +1579,11 @@ class Annulus(Patch):
         width : float
             Width of the annulus
         angle: float, optional
-            Rotation angle in degrees (anti-clockwise). Ignored for circular 
+            Rotation angle in degrees (anti-clockwise). Ignored for circular
             annuli (ie. if `r` is a scalar).
 
         Valid kwargs are:
-        
+
         %(Patch_kwdoc)s
         """
         Patch.__init__(self, **kwargs)

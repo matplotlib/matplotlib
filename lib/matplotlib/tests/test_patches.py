@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-from matplotlib.patches import (Annulus, Patch, Polygon, Rectangle, 
+from matplotlib.patches import (Annulus, Patch, Polygon, Rectangle,
                                 FancyArrowPatch)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
@@ -639,6 +639,3 @@ def test_default_capstyle():
 def test_default_joinstyle():
     patch = Patch()
     assert patch.get_joinstyle() == 'miter'
-
-
-
