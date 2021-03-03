@@ -976,7 +976,7 @@ class FigureFrameWx(wx.Frame):
         self.figmgr.frame = None
         # remove figure manager from Gcf.figs
         Gcf.destroy(self.figmgr)
-        # Carry on with wx close event propagation, frame & children destruction
+        # Carry on with close event propagation, frame & children destruction
         event.Skip()
 
     def GetToolBar(self):
