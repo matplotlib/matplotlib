@@ -2209,7 +2209,8 @@ class Figure(FigureBase):
         try:
             self.canvas.manager.show()
         except NonGuiException as exc:
-            _api.warn_external(str(exc))
+            if warn:
+                _api.warn_external(str(exc))
 
     def get_axes(self):
         """
