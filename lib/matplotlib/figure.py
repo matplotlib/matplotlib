@@ -1976,27 +1976,22 @@ class SubFigure(FigureBase):
                     parent_pos=(self._subplotspec.rowspan,
                                 self._subplotspec.colspan))
 
-    def get_axes(self):
+    @property
+    def axes(self):
         """
-        Return a list of Axes in the SubFigure. You can access and modify the
-        Axes in the Figure through this list.
-
-        Do not modify the list itself. Instead, use `~.SubFigure.add_axes`,
-        `~.SubFigure.add_subplot` or `~.SubFigure.delaxes` to add or remove an
-        Axes.
-
-        Note: This is equivalent to the property `~.SubFigure.axes`.
-        """
-        return self._localaxes.as_list()
-
-    axes = property(get_axes, doc="""
         List of Axes in the SubFigure.  You can access and modify the Axes
         in the SubFigure through this list.
 
         Do not modify the list itself. Instead, use `~.SubFigure.add_axes`,
         `~.SubFigure.add_subplot` or `~.SubFigure.delaxes` to add or remove an
         Axes.
-        """)
+
+        Note: The `.SubFigure.axes` property and `~.SubFigure.get_axes` method
+        are equivalent.
+        """
+        return self._localaxes.as_list()
+
+    get_axes = axes.fget
 
     def draw(self, renderer):
         # docstring inherited
@@ -2211,25 +2206,21 @@ class Figure(FigureBase):
         except NonGuiException as exc:
             _api.warn_external(str(exc))
 
-    def get_axes(self):
+    @property
+    def axes(self):
         """
-        Return a list of Axes in the Figure. You can access and modify the
-        Axes in the Figure through this list.
+        List of Axes in the Figure. You can access and modify the Axes in the
+        Figure through this list.
 
         Do not modify the list itself. Instead, use `~Figure.add_axes`,
         `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an Axes.
 
-        Note: This is equivalent to the property `~.Figure.axes`.
+        Note: The `.Figure.axes` property and `~.Figure.get_axes` method are
+        equivalent.
         """
         return self._axstack.as_list()
 
-    axes = property(get_axes, doc="""
-        List of Axes in the Figure.  You can access and modify the Axes in the
-        Figure through this list.
-
-        Do not modify the list itself. Instead, use "`~Figure.add_axes`,
-        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an Axes.
-        """)
+    get_axes = axes.fget
 
     def _get_dpi(self):
         return self._dpi
