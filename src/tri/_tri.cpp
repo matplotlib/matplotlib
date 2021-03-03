@@ -14,7 +14,7 @@
 
 #define MOVETO 1
 #define LINETO 2
-
+#define CLOSEPOLY 79
 
 
 TriEdge::TriEdge()
@@ -600,27 +600,62 @@ void TriContourGenerator::clear_visited_flags(bool include_boundaries)
     }
 }
 
-PyObject* TriContourGenerator::contour_to_segs(const Contour& contour)
+PyObject* TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& contour)
 {
-    PyObject* segs = PyList_New(contour.size());
+    PyObject* vertices_list = PyList_New(contour.size());
+    if (vertices_list == 0)
+        throw std::runtime_error("Failed to create Python list");
+
+    PyObject* codes_list = PyList_New(contour.size());
+    if (codes_list == 0) {
+        Py_XDECREF(vertices_list);
+        throw std::runtime_error("Failed to create Python list");
+    }
+
     for (Contour::size_type i = 0; i < contour.size(); ++i) {
-        const ContourLine& line = contour[i];
-        npy_intp dims[2] = {static_cast<npy_intp>(line.size()),2};
-        PyArrayObject* py_line = (PyArrayObject*)PyArray_SimpleNew(
-                                                     2, dims, NPY_DOUBLE);
-        double* p = (double*)PyArray_DATA(py_line);
-        for (ContourLine::const_iterator it = line.begin(); it != line.end(); ++it) {
-            *p++ = it->x;
-            *p++ = it->y;
+        const ContourLine& contour_line = contour[i];
+        npy_intp npoints = static_cast<npy_intp>(contour_line.size());
+
+        npy_intp segs_dims[2] = {npoints, 2};
+        PyArrayObject* segs = (PyArrayObject*)PyArray_SimpleNew(
+                                                     2, segs_dims, NPY_DOUBLE);
+        double* segs_ptr = (double*)PyArray_DATA(segs);
+
+        npy_intp codes_dims[1] = {npoints};
+        PyArrayObject* codes = (PyArrayObject*)PyArray_SimpleNew(
+                                                1, codes_dims, NPY_UBYTE);
+        unsigned char* codes_ptr = (unsigned char*)PyArray_DATA(codes);
+
+        for (ContourLine::const_iterator it = contour_line.begin();
+             it != contour_line.end(); ++it) {
+            *segs_ptr++ = it->x;
+            *segs_ptr++ = it->y;
+            *codes_ptr++ = (it == contour_line.begin() ? MOVETO : LINETO);
         }
-        if (PyList_SetItem(segs, i, (PyObject*)py_line)) {
+
+        if (contour_line.size() > 1 &&
+            contour_line.front() == contour_line.back())
+            *(codes_ptr-1) = CLOSEPOLY;
+
+        if (PyList_SetItem(vertices_list, i, (PyObject*)segs) ||
+            PyList_SetItem(codes_list, i, (PyObject*)codes)) {
             Py_XDECREF(segs);
+            Py_XDECREF(codes);
             PyErr_SetString(PyExc_RuntimeError,
-                            "Unable to set contour segments");
+                            "Unable to set contour segments and kind codes");
             return NULL;
         }
     }
-    return segs;
+
+    PyObject* result = PyTuple_New(2);
+    if (PyTuple_SetItem(result, 0, (PyObject*)vertices_list) ||
+        PyTuple_SetItem(result, 1, (PyObject*)codes_list)) {
+        Py_XDECREF(result);
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Unable to set contour segments and kind codes");
+        return NULL;
+    }
+    return result;
 }
 
 PyObject* TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
@@ -640,22 +675,39 @@ PyObject* TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
     double* segs_ptr = (double*)PyArray_DATA(segs);
 
     // Create kinds array for code types.
-    npy_intp kinds_dims[1] = {n_points};
-    PyArrayObject* kinds = (PyArrayObject*)PyArray_SimpleNew(
-                                                1, kinds_dims, NPY_UBYTE);
-    unsigned char* kinds_ptr = (unsigned char*)PyArray_DATA(kinds);
+    npy_intp codes_dims[1] = {n_points};
+    PyArrayObject* codes = (PyArrayObject*)PyArray_SimpleNew(
+                                                1, codes_dims, NPY_UBYTE);
+    unsigned char* codes_ptr = (unsigned char*)PyArray_DATA(codes);
 
     for (line = contour.begin(); line != contour.end(); ++line) {
         for (point = line->begin(); point != line->end(); point++) {
             *segs_ptr++ = point->x;
             *segs_ptr++ = point->y;
-            *kinds_ptr++ = (point == line->begin() ? MOVETO : LINETO);
+            *codes_ptr++ = (point == line->begin() ? MOVETO : LINETO);
         }
     }
 
+    PyObject* vertices_list = PyList_New(0);
+    if (vertices_list == 0)
+        throw std::runtime_error("Failed to create Python list");
+
+    PyObject* codes_list = PyList_New(0);
+    if (codes_list == 0) {
+        Py_XDECREF(vertices_list);
+        throw std::runtime_error("Failed to create Python list");
+    }
+
+    if (PyList_Append(vertices_list, (PyObject*)segs) ||
+        PyList_Append(codes_list, (PyObject*)codes)) {
+        Py_XDECREF(vertices_list);
+        Py_XDECREF(codes_list);
+        throw std::runtime_error("Unable to add contour to vertices and codes lists");
+    }
+
     PyObject* result = PyTuple_New(2);
-    if (PyTuple_SetItem(result, 0, (PyObject*)segs) ||
-        PyTuple_SetItem(result, 1, (PyObject*)kinds)) {
+    if (PyTuple_SetItem(result, 0, (PyObject*)vertices_list) ||
+        PyTuple_SetItem(result, 1, (PyObject*)codes_list)) {
         Py_XDECREF(result);
         PyErr_SetString(PyExc_RuntimeError,
                         "Unable to set contour segments and kinds");
@@ -672,7 +724,7 @@ PyObject* TriContourGenerator::create_contour(const double& level)
     find_boundary_lines(contour, level);
     find_interior_lines(contour, level, false, false);
 
-    return contour_to_segs(contour);
+    return contour_line_to_segs_and_kinds(contour);
 }
 
 PyObject* TriContourGenerator::create_filled_contour(const double& lower_level,

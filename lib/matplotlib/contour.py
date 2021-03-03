@@ -830,9 +830,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 _api.warn_external('linewidths is ignored by contourf')
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
-            # Ensure allkinds can be zipped below.
-            if self.allkinds is None:
-                self.allkinds = [None] * len(self.allsegs)
             # Default zorder taken from Collection
             self._contour_zorder = kwargs.pop('zorder', 1)
 
@@ -858,7 +855,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
             self.collections[:] = [
                 mcoll.PathCollection(
-                    self._make_paths(segs, None),
+                    self._make_paths(segs, kinds),
                     facecolors="none",
                     antialiaseds=aa,
                     linewidths=width,
@@ -867,8 +864,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     transform=self.get_transform(),
                     zorder=self._contour_zorder,
                     label='_nolegend_')
-                for level, width, lstyle, segs
-                in zip(self.levels, tlinewidths, tlinestyles, self.allsegs)]
+                for level, width, lstyle, segs, kinds
+                in zip(self.levels, tlinewidths, tlinestyles, self.allsegs,
+                       self.allkinds)]
 
         for col in self.collections:
             self.axes.add_collection(col, autolim=False)
@@ -1000,11 +998,23 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return kwargs
 
     def _get_allsegs_and_allkinds(self):
-        """
-        Override in derived classes to create and return allsegs and allkinds.
-        allkinds can be None.
-        """
-        return self.allsegs, self.allkinds
+        """Compute ``allsegs`` and ``allkinds`` using C extension."""
+        allsegs = []
+        allkinds = []
+        if self.filled:
+            lowers, uppers = self._get_lowers_and_uppers()
+            for level, level_upper in zip(lowers, uppers):
+                vertices, kinds = \
+                    self._contour_generator.create_filled_contour(
+                        level, level_upper)
+                allsegs.append(vertices)
+                allkinds.append(kinds)
+        else:
+            for level in self.levels:
+                vertices, kinds = self._contour_generator.create_contour(level)
+                allsegs.append(vertices)
+                allkinds.append(kinds)
+        return allsegs, allkinds
 
     def _get_lowers_and_uppers(self):
         """
@@ -1022,14 +1032,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return (lowers, uppers)
 
     def _make_paths(self, segs, kinds):
-        if kinds is not None:
-            return [mpath.Path(seg, codes=kind)
-                    for seg, kind in zip(segs, kinds)]
-        else:
-            # Explicit comparison of first and last points in segment is faster
-            # than the more elegant np.array_equal(seg[0], seg[-1]).
-            return [mpath.Path(seg, closed=(seg[0, 0] == seg[-1, 0]
-                    and seg[0, 1] == seg[-1, 1])) for seg in segs]
+        return [mpath.Path(seg, codes=kind) for seg, kind in zip(segs, kinds)]
 
     def changed(self):
         tcolors = [(tuple(rgba),)
@@ -1395,25 +1398,6 @@ class QuadContourSet(ContourSet):
         self._contour_generator = contour_generator
 
         return kwargs
-
-    def _get_allsegs_and_allkinds(self):
-        """Compute ``allsegs`` and ``allkinds`` using C extension."""
-        allsegs = []
-        if self.filled:
-            lowers, uppers = self._get_lowers_and_uppers()
-            allkinds = []
-            for level, level_upper in zip(lowers, uppers):
-                vertices, kinds = \
-                    self._contour_generator.create_filled_contour(
-                        level, level_upper)
-                allsegs.append(vertices)
-                allkinds.append(kinds)
-        else:
-            allkinds = None
-            for level in self.levels:
-                vertices = self._contour_generator.create_contour(level)
-                allsegs.append(vertices)
-        return allsegs, allkinds
 
     def _contour_args(self, args, kwargs):
         if self.filled:
