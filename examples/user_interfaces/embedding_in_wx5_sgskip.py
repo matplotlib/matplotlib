@@ -44,8 +44,8 @@ class PlotNotebook(wx.Panel):
 
 
 def demo():
-    # alternatively you could use
-    #app = wx.App()
+    # Alternatively you could use:
+    # app = wx.App()
     # InspectableApp is a great debug tool, see:
     # http://wiki.wxpython.org/Widget%20Inspection%20Tool
     app = wit.InspectableApp()
