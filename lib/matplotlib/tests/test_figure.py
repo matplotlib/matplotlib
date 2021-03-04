@@ -760,6 +760,8 @@ class TestSubplotMosaic:
     def test_fail_list_of_str(self):
         with pytest.raises(ValueError, match='must be 2D'):
             plt.subplot_mosaic(['foo', 'bar'])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic(['foo'])
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
