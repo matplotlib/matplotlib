@@ -26,10 +26,10 @@ timer = fig.canvas.new_timer(interval=100)
 timer.add_callback(update_title, ax)
 timer.start()
 
-# Or could start the timer on first figure draw
-#def start_timer(event):
-#    timer.start()
-#    fig.canvas.mpl_disconnect(drawid)
-#drawid = fig.canvas.mpl_connect('draw_event', start_timer)
+# Or could start the timer on first figure draw:
+# def start_timer(event):
+#     timer.start()
+#     fig.canvas.mpl_disconnect(drawid)
+# drawid = fig.canvas.mpl_connect('draw_event', start_timer)
 
 plt.show()

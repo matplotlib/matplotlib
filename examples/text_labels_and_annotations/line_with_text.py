@@ -55,7 +55,6 @@ np.random.seed(19680801)
 fig, ax = plt.subplots()
 x, y = np.random.rand(2, 20)
 line = MyLine(x, y, mfc='red', ms=12, label='line label')
-#line.text.set_text('line label')
 line.text.set_color('red')
 line.text.set_fontsize(16)
 

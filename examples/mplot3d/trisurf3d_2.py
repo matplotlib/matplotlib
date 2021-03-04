@@ -17,9 +17,9 @@ import matplotlib.tri as mtri
 
 fig = plt.figure(figsize=plt.figaspect(0.5))
 
-#============
+# ==========
 # First plot
-#============
+# ==========
 
 # Make a mesh in the space of parameterisation variables u and v
 u = np.linspace(0, 2.0 * np.pi, endpoint=True, num=50)
@@ -43,9 +43,9 @@ ax.plot_trisurf(x, y, z, triangles=tri.triangles, cmap=plt.cm.Spectral)
 ax.set_zlim(-1, 1)
 
 
-#============
+# ===========
 # Second plot
-#============
+# ===========
 
 # Make parameter spaces radii and angles.
 n_angles = 36
