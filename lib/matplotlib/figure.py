@@ -1692,6 +1692,8 @@ default: %(va)s
 
             """
             r0, *rest = inp
+            if isinstance(r0, str):
+                raise ValueError('List layout specification must be 2D')
             for j, r in enumerate(rest, start=1):
                 if isinstance(r, str):
                     raise ValueError('List layout specification must be 2D')
