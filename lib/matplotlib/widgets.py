@@ -2475,7 +2475,7 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def edge_centers(self):
-        """Midpoint of rectangle edges from left, moving clockwise."""
+        """Midpoint of rectangle edges from left, moving anti-clockwise."""
         x0, y0, width, height = self._rect_bbox
         w = width / 2.
         h = height / 2.
