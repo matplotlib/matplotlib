@@ -49,7 +49,7 @@ def setup():
     set_reproducibility_for_testing()
 
 
-def check_for_pgf(texsystem):
+def _check_for_pgf(texsystem):
     """
     Check if a given TeX system + pgf is available
 
