@@ -1,6 +1,6 @@
 import re
 
-from matplotlib.testing import check_for_pgf
+from matplotlib.testing import _check_for_pgf
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
@@ -14,7 +14,7 @@ import matplotlib.path as path
 import numpy as np
 import pytest
 
-needs_xelatex = pytest.mark.skipif(not check_for_pgf('xelatex'),
+needs_xelatex = pytest.mark.skipif(not _check_for_pgf('xelatex'),
                                    reason='xelatex + pgf is required')
 
 
