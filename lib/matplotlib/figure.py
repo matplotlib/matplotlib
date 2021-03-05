@@ -2111,6 +2111,10 @@ class Figure(FigureBase):
         # a proxy property), but that actually need to be on the figure for
         # pickling.
         self._canvas_callbacks = cbook.CallbackRegistry()
+        self._button_pick_id = self._canvas_callbacks.connect(
+            'button_press_event', lambda event: self.canvas.pick(event))
+        self._scroll_pick_id = self._canvas_callbacks.connect(
+            'scroll_event', lambda event: self.canvas.pick(event))
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']
