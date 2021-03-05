@@ -8,7 +8,7 @@ import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.testing import _has_tex_package, check_for_pgf
+from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.backends.backend_pgf import PdfPages, common_texification
 from matplotlib.testing.decorators import (_image_directories,
@@ -17,11 +17,11 @@ from matplotlib.testing.decorators import (_image_directories,
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
-needs_xelatex = pytest.mark.skipif(not check_for_pgf('xelatex'),
+needs_xelatex = pytest.mark.skipif(not _check_for_pgf('xelatex'),
                                    reason='xelatex + pgf is required')
-needs_pdflatex = pytest.mark.skipif(not check_for_pgf('pdflatex'),
+needs_pdflatex = pytest.mark.skipif(not _check_for_pgf('pdflatex'),
                                     reason='pdflatex + pgf is required')
-needs_lualatex = pytest.mark.skipif(not check_for_pgf('lualatex'),
+needs_lualatex = pytest.mark.skipif(not _check_for_pgf('lualatex'),
                                     reason='lualatex + pgf is required')
 needs_ghostscript = pytest.mark.skipif(
     "eps" not in mpl.testing.compare.converter,
@@ -311,7 +311,7 @@ def test_unknown_font(caplog):
 @pytest.mark.parametrize("texsystem", ("pdflatex", "xelatex", "lualatex"))
 @pytest.mark.backend("pgf")
 def test_minus_signs_with_tex(fig_test, fig_ref, texsystem):
-    if not check_for_pgf(texsystem):
+    if not _check_for_pgf(texsystem):
         pytest.skip(texsystem + ' + pgf is required')
     mpl.rcParams["pgf.texsystem"] = texsystem
     fig_test.text(.5, .5, "$-1$")
