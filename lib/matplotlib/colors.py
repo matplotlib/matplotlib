@@ -184,13 +184,20 @@ def to_rgba(c, alpha=None):
     c : Matplotlib color or ``np.ma.masked``
 
     alpha : float, optional
-        If *alpha* is not ``None``, it forces the alpha value, except if *c* is
-        ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+        If *alpha* is given, force the alpha value of the returned RGBA tuple
+        to *alpha*.
+
+        If None, the alpha value from *c* is used. If *c* does not have an
+        alpha channel, then alpha defaults to 1.
+
+        *alpha* is ignored for the color value ``"none"`` (case-insensitive),
+        which always maps to ``(0, 0, 0, 0)``.
 
     Returns
     -------
     tuple
-        Tuple of ``(r, g, b, a)`` scalars.
+        Tuple of floats ``(r, g, b, a)``, where each channel (red, green, blue,
+        alpha) can assume values between 0 and 1.
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
@@ -215,8 +222,12 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     """
     Convert *c* to an RGBA color, with no support for color-cycle syntax.
 
-    If *alpha* is not ``None``, it forces the alpha value, except if *c* is
-    ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+    If *alpha* is given, force the alpha value of the returned RGBA tuple
+    to *alpha*. Otherwise, the alpha value from *c* is used, if it has alpha
+    information, or defaults to 1.
+
+    *alpha* is ignored for the color value ``"none"`` (case-insensitive),
+    which always maps to ``(0, 0, 0, 0)``.
     """
     orig_c = c
     if c is np.ma.masked:
@@ -310,16 +321,23 @@ def to_rgba_array(c, alpha=None):
         row for each masked value or row in *c*.
 
     alpha : float or sequence of floats, optional
-        If *alpha* is not ``None``, it forces the alpha value, except if *c* is
-        ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
+        If *alpha* is given, force the alpha value of the returned RGBA tuple
+        to *alpha*.
+
+        If None, the alpha value from *c* is used. If *c* does not have an
+        alpha channel, then alpha defaults to 1.
+
+        *alpha* is ignored for the color value ``"none"`` (case-insensitive),
+        which always maps to ``(0, 0, 0, 0)``.
+
         If *alpha* is a sequence and *c* is a single color, *c* will be
         repeated to match the length of *alpha*.
 
     Returns
     -------
     array
-        (n, 4) array of RGBA colors.
-
+        (n, 4) array of RGBA colors,  where each channel (red, green, blue,
+        alpha) can assume values between 0 and 1.
     """
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
