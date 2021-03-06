@@ -92,7 +92,7 @@ class _DeprecatedCmapDictWrapper(MutableMapping):
 
 
 _cmap_registry = _gen_cmap_registry()
-locals().update(_cmap_registry)
+globals().update(_cmap_registry)
 # This is no longer considered public API
 cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
 __builtin_cmaps = tuple(_cmap_registry)
