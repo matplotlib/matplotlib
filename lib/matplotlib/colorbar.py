@@ -546,10 +546,6 @@ class ColorbarBase:
         if self.filled:
             self._add_solids(X, Y, self._values[:, np.newaxis])
 
-    @_api.deprecated("3.3")
-    def config_axis(self):
-        self._config_axis()
-
     def _config_axis(self):
         """Set up long and short axis."""
         ax = self.ax
@@ -566,6 +562,8 @@ class ColorbarBase:
         short_axis.set_ticks([])
         short_axis.set_ticks([], minor=True)
         self.stale = True
+
+    config_axis = _api.deprecate_privatize_attribute("3.3")
 
     def _get_ticker_locator_formatter(self):
         """

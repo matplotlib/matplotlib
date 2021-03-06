@@ -3264,11 +3264,6 @@ class NavigationToolbar2:
                  for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
 
-    @_api.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
-    def draw(self):
-        """Redraw the canvases, update the locators."""
-        self._draw()
-
     # Can be removed once Locator.refresh() is removed, and replaced by an
     # inline call to self.canvas.draw_idle().
     def _draw(self):
@@ -3286,6 +3281,9 @@ class NavigationToolbar2:
             for loc in locators:
                 mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
         self.canvas.draw_idle()
+
+    draw = _api.deprecate_privatize_attribute(
+        "3.3", alternative="toolbar.canvas.draw_idle()")
 
     def _update_view(self):
         """

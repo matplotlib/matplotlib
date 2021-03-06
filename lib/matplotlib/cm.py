@@ -501,11 +501,5 @@ class ScalarMappable:
         self.stale = True
 
     update_dict = _api.deprecate_privatize_attribute("3.3")
-
-    @_api.deprecated("3.3")
-    def add_checker(self, checker):
-        return self._add_checker(checker)
-
-    @_api.deprecated("3.3")
-    def check_update(self, checker):
-        return self._check_update(checker)
+    add_checker = _api.deprecate_privatize_attribute("3.3")
+    check_update = _api.deprecate_privatize_attribute("3.3")
