@@ -1,6 +1,6 @@
 import re
 
-from matplotlib.testing import check_for_pgf
+from matplotlib.testing import _check_for_pgf
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
@@ -14,7 +14,7 @@ import matplotlib.path as path
 import numpy as np
 import pytest
 
-needs_xelatex = pytest.mark.skipif(not check_for_pgf('xelatex'),
+needs_xelatex = pytest.mark.skipif(not _check_for_pgf('xelatex'),
                                    reason='xelatex + pgf is required')
 
 
@@ -118,6 +118,19 @@ def test_location_event_position(x, y):
             ax.format_coord(x, y))
         ax.fmt_xdata = ax.fmt_ydata = lambda x: "foo"
         assert re.match("x=foo +y=foo", ax.format_coord(x, y))
+
+
+def test_pick():
+    fig = plt.figure()
+    fig.text(.5, .5, "hello", ha="center", va="center", picker=True)
+    fig.canvas.draw()
+    picks = []
+    fig.canvas.mpl_connect("pick_event", lambda event: picks.append(event))
+    start_event = MouseEvent(
+        "button_press_event", fig.canvas, *fig.transFigure.transform((.5, .5)),
+        MouseButton.LEFT)
+    fig.canvas.callbacks.process(start_event.name, start_event)
+    assert len(picks) == 1
 
 
 def test_interactive_zoom():

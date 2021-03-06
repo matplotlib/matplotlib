@@ -1726,15 +1726,13 @@ class FigureCanvasBase:
         self._button = None  # the button pressed
         self._key = None  # the key pressed
         self._lastx, self._lasty = None, None
-        self.button_pick_id = self.mpl_connect('button_press_event', self.pick)
-        self.scroll_pick_id = self.mpl_connect('scroll_event', self.pick)
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
 
-    @property
-    def callbacks(self):
-        return self.figure._canvas_callbacks
+    callbacks = property(lambda self: self.figure._canvas_callbacks)
+    button_pick_id = property(lambda self: self.figure._button_pick_id)
+    scroll_pick_id = property(lambda self: self.figure._scroll_pick_id)
 
     @classmethod
     @functools.lru_cache()
@@ -1743,7 +1741,7 @@ class FigureCanvasBase:
         # `ipython --auto`).  This cannot be done at import time due to
         # ordering issues, so we do it when creating a canvas, and should only
         # be done once per class (hence the `lru_cache(1)`).
-        if "IPython" not in sys.modules:
+        if sys.modules.get("IPython") is None:
             return
         import IPython
         ip = IPython.get_ipython()

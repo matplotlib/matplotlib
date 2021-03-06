@@ -1613,11 +1613,12 @@ class Axes(_AxesBase):
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-        Plot data that contains dates.
+        Plot co-ercing the axis to treat floats as dates.
 
         Similar to `.plot`, this plots *y* vs. *x* as lines or markers.
         However, the axis labels are formatted as dates depending on *xdate*
-        and *ydate*.
+        and *ydate*.  Note that `.plot` will work with `datetime` and
+        `numpy.datetime64` objects without resorting to this method.
 
         Parameters
         ----------
@@ -4908,7 +4909,7 @@ default: :rc:`scatter.edgecolors`
                 # make sure we have no zeros
                 accum += 1
 
-        # autoscale the norm with curren accum values if it hasn't
+        # autoscale the norm with current accum values if it hasn't
         # been set
         if norm is not None:
             if norm.vmin is None and norm.vmax is None:

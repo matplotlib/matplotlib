@@ -122,12 +122,10 @@ def check_in_list(_values, *, _print_supported_values=True, **kwargs):
     values = _values
     for key, val in kwargs.items():
         if val not in values:
+            msg = f"{val!r} is not a valid value for {key}"
             if _print_supported_values:
-                raise ValueError(
-                    f"{val!r} is not a valid value for {key}; "
-                    f"supported values are {', '.join(map(repr, values))}")
-            else:
-                raise ValueError(f"{val!r} is not a valid value for {key}")
+                msg += f"; supported values are {', '.join(map(repr, values))}"
+            raise ValueError(msg)
 
 
 def check_shape(_shape, **kwargs):

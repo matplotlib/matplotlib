@@ -807,6 +807,12 @@ class Bbox(BboxBase):
             self._check(self._points)
             super().invalidate()
 
+    def frozen(self):
+        # docstring inherited
+        frozen_bbox = super().frozen()
+        frozen_bbox._minpos = self.minpos.copy()
+        return frozen_bbox
+
     @staticmethod
     def unit():
         """Create a new unit `Bbox` from (0, 0) to (1, 1)."""

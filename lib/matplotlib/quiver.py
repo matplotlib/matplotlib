@@ -186,6 +186,10 @@ Other Parameters
 
     %(PolyCollection_kwdoc)s
 
+Returns
+-------
+matplotlib.quiver.Quiver
+
 See Also
 --------
 .Axes.quiverkey : Add a key to a quiver plot.

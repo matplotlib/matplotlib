@@ -520,9 +520,8 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
        timestep is more suited to the problem as this would be very hard
        to judge automatically otherwise.
 
-    This integrator is about 1.5 - 2x as fast as both the RK4 and RK45
-    solvers in most setups on my machine. I would recommend removing the
-    other two to keep things simple.
+    This integrator is about 1.5 - 2x as fast as RK4 and RK45 solvers (using
+    similar Python implementations) in most setups.
     """
     # This error is below that needed to match the RK4 integrator. It
     # is set for visual reasons -- too low and corners start

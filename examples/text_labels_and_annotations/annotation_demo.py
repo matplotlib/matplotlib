@@ -338,11 +338,8 @@ ax1.annotate('axes fraction : 1, 1', xy=(1, 1), xycoords='axes fraction',
 # It is also possible to generate draggable annotations
 
 an1 = ax1.annotate('Drag me 1', xy=(.5, .7), xycoords='data',
-                   #xytext=(.5, .7), textcoords='data',
                    ha="center", va="center",
-                   bbox=bbox_args,
-                   #arrowprops=arrow_args
-                   )
+                   bbox=bbox_args)
 
 an2 = ax1.annotate('Drag me 2', xy=(.5, .5), xycoords=an1,
                    xytext=(.5, .3), textcoords='axes fraction',

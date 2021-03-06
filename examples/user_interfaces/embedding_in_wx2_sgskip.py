@@ -47,8 +47,8 @@ class CanvasFrame(wx.Frame):
         self.toolbar.update()
 
 
-# alternatively you could use
-#class App(wx.App):
+# Alternatively you could use:
+# class App(wx.App):
 class App(WIT.InspectableApp):
     def OnInit(self):
         """Create the main window and insert the custom frame."""

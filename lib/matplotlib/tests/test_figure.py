@@ -188,12 +188,27 @@ def test_gca():
         assert fig.gca(polar=True) is not ax2
     assert fig.gca().get_subplotspec().get_geometry() == (1, 2, 1, 1)
 
+    # add_axes on an existing Axes should not change stored order, but will
+    # make it current.
+    fig.add_axes(ax0)
+    assert fig.axes == [ax0, ax1, ax2, ax3]
+    assert fig.gca() is ax0
+
+    # add_subplot on an existing Axes should not change stored order, but will
+    # make it current.
+    fig.add_subplot(ax2)
+    assert fig.axes == [ax0, ax1, ax2, ax3]
+    assert fig.gca() is ax2
+
     fig.sca(ax1)
     with pytest.warns(
             MatplotlibDeprecationWarning,
             match=r'Calling gca\(\) with keyword arguments was deprecated'):
         assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
+
+    # sca() should not change stored order of Axes, which is order added.
+    assert fig.axes == [ax0, ax1, ax2, ax3]
 
 
 def test_add_subplot_subclass():
@@ -241,6 +256,11 @@ def test_add_subplot_invalid():
                       match='Passing non-integers as three-element position '
                             'specification is deprecated'):
         fig.add_subplot(2.0, 2, 1)
+    _, ax = plt.subplots()
+    with pytest.raises(ValueError,
+                       match='The Subplot must have been created in the '
+                             'present figure'):
+        fig.add_subplot(ax)
 
 
 @image_comparison(['figure_suptitle'])
@@ -425,6 +445,12 @@ def test_invalid_figure_add_axes():
 
     with pytest.raises(TypeError, match="multiple values for argument 'rect'"):
         fig.add_axes([0, 0, 1, 1], rect=[0, 0, 1, 1])
+
+    _, ax = plt.subplots()
+    with pytest.raises(ValueError,
+                       match="The Axes must have been created in the present "
+                             "figure"):
+        fig.add_axes(ax)
 
 
 def test_subplots_shareax_loglabels():
@@ -760,6 +786,8 @@ class TestSubplotMosaic:
     def test_fail_list_of_str(self):
         with pytest.raises(ValueError, match='must be 2D'):
             plt.subplot_mosaic(['foo', 'bar'])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic(['foo'])
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])

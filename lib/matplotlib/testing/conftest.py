@@ -48,7 +48,7 @@ def mpl_test_settings(request):
 
             # special case Qt backend importing to avoid conflicts
             if backend.lower().startswith('qt4'):
-                if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
+                if any(sys.modules.get(k) for k in ('PyQt5', 'PySide2')):
                     pytest.skip('Qt5 binding already imported')
                 try:
                     import PyQt4
@@ -59,7 +59,7 @@ def mpl_test_settings(request):
                     except ImportError:
                         pytest.skip("Failed to import a Qt4 binding.")
             elif backend.lower().startswith('qt5'):
-                if any(k in sys.modules for k in ('PyQt4', 'PySide')):
+                if any(sys.modules.get(k) for k in ('PyQt4', 'PySide')):
                     pytest.skip('Qt4 binding already imported')
                 try:
                     import PyQt5

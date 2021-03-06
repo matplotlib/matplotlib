@@ -3,6 +3,7 @@ import multiprocessing
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import warnings
 
@@ -215,3 +216,42 @@ def test_missing_family(caplog):
         "findfont: Generic family 'sans' not found because none of the "
         "following families were found: this-font-does-not-exist",
     ]
+
+
+def _test_threading():
+    import threading
+    from matplotlib.ft2font import LOAD_NO_HINTING
+    import matplotlib.font_manager as fm
+
+    N = 10
+    b = threading.Barrier(N)
+
+    def bad_idea(n):
+        b.wait()
+        for j in range(100):
+            font = fm.get_font(fm.findfont("DejaVu Sans"))
+            font.set_text(str(n), 0.0, flags=LOAD_NO_HINTING)
+
+    threads = [
+        threading.Thread(target=bad_idea, name=f"bad_thread_{j}", args=(j,))
+        for j in range(N)
+    ]
+
+    for t in threads:
+        t.start()
+
+    for t in threads:
+        t.join()
+
+
+def test_fontcache_thread_safe():
+    pytest.importorskip('threading')
+    import inspect
+
+    proc = subprocess.run(
+        [sys.executable, "-c",
+         inspect.getsource(_test_threading) + '\n_test_threading()']
+    )
+    if proc.returncode:
+        pytest.fail("The subprocess returned with non-zero exit status "
+                    f"{proc.returncode}.")
