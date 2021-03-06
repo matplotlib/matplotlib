@@ -33,8 +33,10 @@ import re
 import subprocess
 import sys
 try:
+    import threading
     from threading import Timer
 except ImportError:
+    import dummy_threading as threading
     from dummy_threading import Timer
 
 import matplotlib as mpl
@@ -1394,7 +1396,12 @@ def is_opentype_cff_font(filename):
         return False
 
 
-_get_font = lru_cache(64)(ft2font.FT2Font)
+@lru_cache(64)
+def _get_font(filename, hinting_factor, *, _kerning_factor, thread_id):
+    return ft2font.FT2Font(
+        filename, hinting_factor, _kerning_factor=_kerning_factor)
+
+
 # FT2Font objects cannot be used across fork()s because they reference the same
 # FT_Library object.  While invalidating *all* existing FT2Fonts after a fork
 # would be too complicated to be worth it, the main way FT2Fonts get reused is
@@ -1409,8 +1416,10 @@ def get_font(filename, hinting_factor=None):
     filename = _cached_realpath(filename)
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
+    # also key on the thread ID to prevent segfaults with multi-threading
     return _get_font(filename, hinting_factor,
-                     _kerning_factor=rcParams['text.kerning_factor'])
+                     _kerning_factor=rcParams['text.kerning_factor'],
+                     thread_id=threading.get_ident())
 
 
 def _load_fontmanager(*, try_read_cache=True):
