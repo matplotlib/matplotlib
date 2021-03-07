@@ -59,6 +59,8 @@ def figure_edit(axes, parent=None):
 
     # Sorting for default labels (_lineXXX, _imageXXX).
     def cmp_key(label):
+        if type(label) == tuple:
+            label = label[0]
         match = re.match(r"(_line|_image)(\d+)", label)
         if match:
             return match.group(1), int(match.group(2))
@@ -66,12 +68,12 @@ def figure_edit(axes, parent=None):
             return label, 0
 
     # Get / Curves
-    linedict = {}
+    labeled_lines = []
     for line in axes.get_lines():
         label = line.get_label()
         if label == '_nolegend_':
             continue
-        linedict[label] = line
+        labeled_lines.append((label, line))
     curves = []
 
     def prepare_data(d, init):
@@ -101,9 +103,9 @@ def figure_edit(axes, parent=None):
                 sorted(short2name.items(),
                        key=lambda short_and_name: short_and_name[1]))
 
-    curvelabels = sorted(linedict, key=cmp_key)
-    for label in curvelabels:
-        line = linedict[label]
+    sorted_labels_and_curves = sorted(labeled_lines, key=cmp_key)
+
+    for label, line in sorted_labels_and_curves:
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
             keep_alpha=True)
@@ -205,7 +207,7 @@ def figure_edit(axes, parent=None):
 
         # Set / Curves
         for index, curve in enumerate(curves):
-            line = linedict[curvelabels[index]]
+            line = labeled_lines[index][1]
             (label, linestyle, drawstyle, linewidth, color, marker, markersize,
              markerfacecolor, markeredgecolor) = curve
             line.set_label(label)
