@@ -1180,6 +1180,10 @@ class PathCollection(_CollectionWithSizes):
         elif num is not None and not label_values_are_numeric:
             # Labels are not numerical so instead of interpolating
             # just choose evenly distributed indexes instead:
+            if isinstance(num, mpl.ticker.Locator) or np.iterable(num):
+                raise ValueError(
+                    "`num` only supports integers for non-numeric labels."
+                )
             cond = np.round(np.linspace(0, len(label_values) - 1, num))
             cond = cond.astype(int)
             values = values[cond]
@@ -1196,8 +1200,6 @@ class PathCollection(_CollectionWithSizes):
 
         for val, lab in zip(values, label_values):
             color, size = _get_color_and_size(val)
-            if prop == "sizes" and np.isclose(size, 0.0):
-                continue
             h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
                               marker=self.get_paths()[0], **kw)
             handles.append(h)
