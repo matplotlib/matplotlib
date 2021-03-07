@@ -148,8 +148,6 @@ class Tick(martist.Artist):
             grid_alpha = mpl.rcParams["grid.alpha"]
         grid_kw = {k[5:]: v for k, v in kw.items()}
 
-        self._apply_tickdir(tickdir)
-
         self.tick1line = mlines.Line2D(
             [], [],
             color=color, linestyle="none", zorder=zorder, visible=tick1On,
@@ -174,6 +172,9 @@ class Tick(martist.Artist):
         self.label2 = mtext.Text(
             np.nan, np.nan,
             fontsize=labelsize, color=labelcolor, visible=label2On)
+
+        self._apply_tickdir(tickdir)
+
         for meth, attr in [("_get_tick1line", "tick1line"),
                            ("_get_tick2line", "tick2line"),
                            ("_get_gridline", "gridline"),
@@ -211,16 +212,20 @@ class Tick(martist.Artist):
 
     def _apply_tickdir(self, tickdir):
         """Set tick direction.  Valid values are 'out', 'in', 'inout'."""
-        # Overriding subclasses should also compute _tickmarkers here.
+        # This method is responsible for updating `_pad`, and, in subclasses,
+        # for setting the tick{1,2}line markers as well.  From the user
+        # perspective this should always be called though _apply_params, which
+        # further updates ticklabel positions using the new pads.
         if tickdir is None:
             tickdir = mpl.rcParams[f'{self.__name__}.direction']
         _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
         self._pad = self._base_pad + self.get_tick_padding()
-        self.stale = True
 
-    apply_tickdir = _api.deprecate_privatize_attribute(
-        "3.5", alternative="axis.set_tick_params")
+    @_api.deprecated("3.5", alternative="axis.set_tick_params")
+    def apply_tickdir(self, tickdir):
+        self._apply_tickdir()
+        self.stale = True
 
     def get_tickdir(self):
         return self._tickdir
@@ -366,11 +371,9 @@ class Tick(martist.Artist):
             # convenient to leave it here.
             self._width = kw.pop('width', self._width)
             self._base_pad = kw.pop('pad', self._base_pad)
-            # _apply_tickdir uses _size and _base_pad to make _pad,
-            # and also makes _tickmarkers.
+            # _apply_tickdir uses _size and _base_pad to make _pad, and also
+            # sets the ticklines markers.
             self._apply_tickdir(kw.pop('tickdir', self._tickdir))
-            self.tick1line.set_marker(self._tickmarkers[0])
-            self.tick2line.set_marker(self._tickmarkers[1])
             for line in (self.tick1line, self.tick2line):
                 line.set_markersize(self._size)
                 line.set_markeredgewidth(self._width)
@@ -422,20 +425,13 @@ class XTick(Tick):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # x in data coords, y in axes coords
+        ax = self.axes
         self.tick1line.set(
-            xdata=[0], ydata=[0],
-            transform=self.axes.get_xaxis_transform(which="tick1"),
-            marker=self._tickmarkers[0],
-        )
+            data=([0], [0]), transform=ax.get_xaxis_transform("tick1"))
         self.tick2line.set(
-            xdata=[0], ydata=[1],
-            transform=self.axes.get_xaxis_transform(which="tick2"),
-            marker=self._tickmarkers[1],
-        )
+            data=([0], [1]), transform=ax.get_xaxis_transform("tick2"))
         self.gridline.set(
-            xdata=[0, 0], ydata=[0, 1],
-            transform=self.axes.get_xaxis_transform(which="grid"),
-        )
+            data=([0, 0], [0, 1]), transform=ax.get_xaxis_transform("grid"))
         # the y loc is 3 points below the min of y axis
         trans, va, ha = self._get_text1_transform()
         self.label1.set(
@@ -457,12 +453,13 @@ class XTick(Tick):
     def _apply_tickdir(self, tickdir):
         # docstring inherited
         super()._apply_tickdir(tickdir)
-        self._tickmarkers = {
+        mark1, mark2 = {
             'out': (mlines.TICKDOWN, mlines.TICKUP),
             'in': (mlines.TICKUP, mlines.TICKDOWN),
             'inout': ('|', '|'),
         }[self._tickdir]
-        self.stale = True
+        self.tick1line.set_marker(mark1)
+        self.tick2line.set_marker(mark2)
 
     def update_position(self, loc):
         """Set the location of tick in data coords with scalar *loc*."""
@@ -489,20 +486,13 @@ class YTick(Tick):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # x in axes coords, y in data coords
+        ax = self.axes
         self.tick1line.set(
-            xdata=[0], ydata=[0],
-            transform=self.axes.get_yaxis_transform(which="tick1"),
-            marker=self._tickmarkers[0],
-        )
+            data=([0], [0]), transform=ax.get_yaxis_transform("tick1"))
         self.tick2line.set(
-            xdata=[1], ydata=[0],
-            transform=self.axes.get_yaxis_transform(which="tick2"),
-            marker=self._tickmarkers[1],
-        )
+            data=([1], [0]), transform=ax.get_yaxis_transform("tick2"))
         self.gridline.set(
-            xdata=[0, 1], ydata=[0, 0],
-            transform=self.axes.get_yaxis_transform(which="grid"),
-        )
+            data=([0, 1], [0, 0]), transform=ax.get_yaxis_transform("grid"))
         # the y loc is 3 points below the min of y axis
         trans, va, ha = self._get_text1_transform()
         self.label1.set(
@@ -524,12 +514,13 @@ class YTick(Tick):
     def _apply_tickdir(self, tickdir):
         # docstring inherited
         super()._apply_tickdir(tickdir)
-        self._tickmarkers = {
+        mark1, mark2 = {
             'out': (mlines.TICKLEFT, mlines.TICKRIGHT),
             'in': (mlines.TICKRIGHT, mlines.TICKLEFT),
             'inout': ('_', '_'),
         }[self._tickdir]
-        self.stale = True
+        self.tick1line.set_marker(mark1)
+        self.tick2line.set_marker(mark2)
 
     def update_position(self, loc):
         """Set the location of tick in data coords with scalar *loc*."""
