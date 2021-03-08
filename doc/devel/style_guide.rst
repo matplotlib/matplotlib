@@ -32,25 +32,25 @@ reliability and consistency in documentation. They are not interchangeable.
 |                  |                          |   Figure,    |   space for  |
 |                  |                          |   "The Figure|   visuals."  |
 |                  |                          |   is the     | - "Methods in|
-|                  |                          |   working    |   the Figure |
+|                  |                          |   working    |   the figure |
 |                  |                          |   space for  |   provide the|
 |                  |                          |   the visual.|   visuals."  |
 |                  |                          | - *Referring | - "The       |
-|                  |                          |   to class*: |   Figure_ on |
-|                  |                          |   Figure_ ,  |   the page is|
-|                  |                          |   "Methods   |   static."   |
-|                  |                          |   within the |              |
-|                  |                          |   Figure_    |              |
+|                  |                          |   to class*: |   Figure_    |
+|                  |                          |   Figure_ ,  |   Four       |
+|                  |                          |   "Methods   |   leglock is |
+|                  |                          |   within the |   a wrestling|
+|                  |                          |   Figure_    |   move."     |
 |                  |                          |   provide the|              |
 |                  |                          |   visuals."  |              |
 |                  |                          | - *General   |              |
-|                  |                          |   objects*:  |              |
+|                  |                          |   language*: |              |
 |                  |                          |   figure,    |              |
-|                  |                          |   "All of the|              |
-|                  |                          |   figures for|              |
-|                  |                          |   this page  |              |
-|                  |                          |   are        |              |
-|                  |                          |   static."   |              |
+|                  |                          |   "Michelle  |              |
+|                  |                          |   Kwan is a  |              |
+|                  |                          |   famous     |              |
+|                  |                          |   figure     |              |
+|                  |                          |   skater."   |              |
 +------------------+--------------------------+--------------+--------------+
 | Axes_            | Subplots within Figure.  | - *For       | - "The axes  |
 |                  | Contains plot elements   |   Matplotlib |   methods    |
@@ -60,27 +60,31 @@ reliability and consistency in documentation. They are not interchangeable.
 |                  |                          |   subplot    |   is specific|
 |                  |                          |   within the |   to a       |
 |                  |                          |   Figure."   |   Figure."   |
-|                  |                          | - *Referring | - "All of the|
-|                  |                          |   to class*: |   Axes are   |
-|                  |                          |   Axes_ ,    |   compatible |
-|                  |                          |   "Each Axes_|   with other |
-|                  |                          |   is specific|   libraries."|
-|                  |                          |   to one     |              |
-|                  |                          |   Figure."   |              |
-|                  |                          | - *General   |              |
-|                  |                          |   objects*:  |              |
-|                  |                          |   axes, "Both|              |
-|                  |                          |   explicit   |              |
-|                  |                          |   and        |              |
-|                  |                          |   implicit   |              |
-|                  |                          |   strategies |              |
-|                  |                          |   contain    |              |
-|                  |                          |   multiple   |              |
-|                  |                          |   types of   |              |
-|                  |                          |   data       |              |
-|                  |                          |   visuals    |              |
-|                  |                          |   on a single|              |
+|                  |                          | - *Referring | - "The       |
+|                  |                          |   to class*: |   musicians  |
+|                  |                          |   Axes_ ,    |   on stage   |
+|                  |                          |   "Each Axes_|   call their |
+|                  |                          |   is specific|   guitars    |
+|                  |                          |   to one     |   Axes."     |
+|                  |                          |   Figure."   | - "The point |
+|                  |                          | - *General   |   where the  |
+|                  |                          |   language*: |   Axes meet  |
+|                  |                          |   axes, "Both|   is the     |
+|                  |                          |   loggers and|   origin of  |
+|                  |                          |   lumberjacks|   the        |
+|                  |                          |   use axes to|   coordinate |
+|                  |                          |   chop wood."|   system."   |
+|                  |                          |   OR "There  |              |
+|                  |                          |   are no     |              |
+|                  |                          |   standard   |              |
+|                  |                          |   names for  |              |
+|                  |                          |   the        |              |
+|                  |                          |   coordinates|              |
+|                  |                          |   in the     |              |
+|                  |                          |   three      |              |
 |                  |                          |   axes."     |              |
+|                  |                          |   (Plural of |              |
+|                  |                          |   axis)      |              |
 +------------------+--------------------------+--------------+--------------+
 | Artist_          | Broad variety of         | - *For       | - "Configure |
 |                  | Matplotlib objects that  |   Matplotlib |   the legend |
@@ -88,36 +92,62 @@ reliability and consistency in documentation. They are not interchangeable.
 |                  |                          |   Artist,    |   its        |
 |                  |                          |   "Artists   |   respective |
 |                  |                          |   display    |   method."   |
-|                  |                          |   visuals and| - "There are |
-|                  |                          |   are the    |   many       |
-|                  |                          |   visible    |   Artists_ in|
-|                  |                          |   elements   |   this       |
-|                  |                          |   when the   |   graph."    |
+|                  |                          |   visuals and| - "There is  |
+|                  |                          |   are the    |   an Artist_ |
+|                  |                          |   visible    |   for that   |
+|                  |                          |   elements   |   visual in  |
+|                  |                          |   when the   |   the graph."|
 |                  |                          |   rendering  | - "Some      |
 |                  |                          |   a Figure." |   Artists    |
-|                  |                          | - *Referring |   have an    |
-|                  |                          |   to class*: |   overlapping|
-|                  |                          |   Artist_ ,  |   naming     |
-|                  |                          |   "Each      |   convention |
-|                  |                          |   Artist_ has|   in both    |
-|                  |                          |   respective |   explicit   |
-|                  |                          |   methods and|   and        |
-|                  |                          |   functions."|   implicit   |
-|                  |                          | - *General   |   uses."     |
-|                  |                          |   objects*:  |              |
+|                  |                          | - *Referring |   became     |
+|                  |                          |   to class*: |   famous only|
+|                  |                          |   Artist_ ,  |   by         |
+|                  |                          |   "Each      |   accident." |
+|                  |                          |   Artist_ has|              |
+|                  |                          |   respective |              |
+|                  |                          |   methods and|              |
+|                  |                          |   functions."|              |
+|                  |                          | - *General   |              |
+|                  |                          |   language*: |              |
 |                  |                          |   artist,    |              |
 |                  |                          |   "The       |              |
-|                  |                          |   artists in |              |
-|                  |                          |   this table |              |
-|                  |                          |   generate   |              |
-|                  |                          |   visuals."  |              |
+|                  |                          |   artist in  |              |
+|                  |                          |   the museum |              |
+|                  |                          |   is from    |              |
+|                  |                          |   France."   |              |
 +------------------+--------------------------+--------------+--------------+
-| Axis_            | Human-readable single    | - One Axis   | - One Axis   |
-|                  | dimensional object       |   object     | - One axes   |
-|                  | of reference marks       | - Four axis  | - Four Axises|
-|                  | containing ticks, tick   |   objects    | - 32 Axes    |
-|                  | labels, spines, and      | - 32 Axis    |              |
-|                  | edges.                   |   objects    |              |
+| Axis_            | Human-readable single    | - *For       | - "Plot the  |
+|                  | dimensional object       |   Matplotlib |   graph onto |
+|                  | of reference marks       |   objects*:  |   the axis." |
+|                  | containing ticks, tick   |   Axis, "The | - "Each Axis |
+|                  | labels, spines, and      |   Axis for   |   is usually |
+|                  | edges.                   |   the bar    |   named after|
+|                  |                          |   chart is a |   the        |
+|                  |                          |   separate   |   coordinate |
+|                  |                          |   Artist."   |   which is   |
+|                  |                          |   (plural,   |   measured   |
+|                  |                          |   Axis       |   along it." |
+|                  |                          |   objects)   | - "In some   |
+|                  |                          | - *Referring |   computer   |
+|                  |                          |   to class*: |   graphics   |
+|                  |                          |   Axis_ ,    |   contexts,  |
+|                  |                          |   "The Axis_ |   the        |
+|                  |                          |   contains   |   ordinate   |
+|                  |                          |   respective |   Axis_ may  |
+|                  |                          |   XAxis and  |   be oriented|
+|                  |                          |   YAxis      |   downwards."|
+|                  |                          |   objects."  |              |
+|                  |                          | - *General   |              |
+|                  |                          |   language*: |              |
+|                  |                          |   axis,      |              |
+|                  |                          |   "Rotation  |              |
+|                  |                          |   around a   |              |
+|                  |                          |   fixed axis |              |
+|                  |                          |   is a       |              |
+|                  |                          |   special    |              |
+|                  |                          |   case of    |              |
+|                  |                          |   rotational |              |
+|                  |                          |   motion."   |              |
 +------------------+--------------------------+--------------+--------------+
 | Explicit,        | Explicit approach of     | - Explicit   | - object     |
 | Object Oriented  | programing in Matplotlib.| - explicit   |   oriented   |
