@@ -438,7 +438,7 @@ class Slider(SliderBase):
             )
             ax.add_patch(self.track)
             self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
-            self.hline = ax.axhline(valinit, .25, .75, color=initcolor, lw=1)
+            self.hline = ax.axhline(valinit, .15, .85, color=initcolor, lw=1)
             handleXY = [[0.5], [valinit]]
         else:
             self.track = Rectangle(
@@ -448,7 +448,12 @@ class Slider(SliderBase):
             )
             ax.add_patch(self.track)
             self.poly = ax.axvspan(valmin, valinit, .25, .75, **kwargs)
-            self.vline = ax.axvline(valinit, .25, .75, color=initcolor, lw=1)
+            # These asymmetric limits (.2, .9) minimize the asymmetry
+            # above and below the *poly* when rendered to pixels.
+            # This seems to be different for Horizontal and Vertical lines.
+            # For discussion see:
+            # https://github.com/matplotlib/matplotlib/pull/19265
+            self.vline = ax.axvline(valinit, .2, .9, color=initcolor, lw=1)
             handleXY = [[valinit], [0.5]]
         self._handle, = ax.plot(
             *handleXY,
