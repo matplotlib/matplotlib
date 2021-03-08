@@ -104,7 +104,6 @@ def figure_edit(axes, parent=None):
                        key=lambda short_and_name: short_and_name[1]))
 
     sorted_labels_and_curves = sorted(labeled_lines, key=cmp_key)
-
     for label, line in sorted_labels_and_curves:
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
