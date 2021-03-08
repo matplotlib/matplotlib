@@ -19,6 +19,7 @@ jobs:
         include:
           - os: ubuntu-18.04
             cibw_archs: "aarch64"
+            numpy-version: "1.16"
 
     steps:
       - name: Set up QEMU
@@ -40,7 +41,7 @@ jobs:
         id: numpy-aarch64-cache
         with:
           path: numpy-aarch64-cache/
-          key: numpy-aarch64-cache
+          key: numpy-aarch64-cache-${{ matrix.numpy-version }}
 
       - name: Install cibuildwheel
         run: |
