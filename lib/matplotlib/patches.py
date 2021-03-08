@@ -799,6 +799,10 @@ class Rectangle(Patch):
         """Return the height of the rectangle."""
         return self._height
 
+    def get_angle(self):
+        """Get the rotation angle in degrees."""
+        return self.angle
+
     def set_x(self, x):
         """Set the left coordinate of the rectangle."""
         self._x0 = x
@@ -807,6 +811,15 @@ class Rectangle(Patch):
     def set_y(self, y):
         """Set the bottom coordinate of the rectangle."""
         self._y0 = y
+        self.stale = True
+
+    def set_angle(self, angle):
+        """
+        Set the rotation angle in degrees.
+
+        The rotation is performed anti-clockwise around *xy*.
+        """
+        self.angle = angle
         self.stale = True
 
     def set_xy(self, xy):
