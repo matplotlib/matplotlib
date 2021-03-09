@@ -273,7 +273,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
 
 class deprecate_privatize_attribute:
     """
-    Helper to deprecate public access to an attribute.
+    Helper to deprecate public access to an attribute (or method).
 
     This helper should only be used at class scope, as follows::
 
@@ -283,7 +283,8 @@ class deprecate_privatize_attribute:
     where *all* parameters are forwarded to `deprecated`.  This form makes
     ``attr`` a property which forwards access to ``self._attr`` (same name but
     with a leading underscore), with a deprecation warning.  Note that the
-    attribute name is derived from *the name this helper is assigned to*.
+    attribute name is derived from *the name this helper is assigned to*.  This
+    helper also works for deprecating methods.
     """
 
     def __init__(self, *args, **kwargs):

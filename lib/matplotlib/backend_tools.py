@@ -613,11 +613,6 @@ class ToolViewsPositions(ToolBase):
             if a not in self.home_views[figure]:
                 self.home_views[figure][a] = a._get_view()
 
-    @_api.deprecated("3.3", alternative="self.figure.canvas.draw_idle()")
-    def refresh_locators(self):
-        """Redraw the canvases, update the locators."""
-        self._refresh_locators()
-
     # Can be removed once Locator.refresh() is removed, and replaced by an
     # inline call to self.figure.canvas.draw_idle().
     def _refresh_locators(self):
@@ -639,6 +634,9 @@ class ToolViewsPositions(ToolBase):
             for loc in locators:
                 mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
         self.figure.canvas.draw_idle()
+
+    refresh_locators = _api.deprecate_privatize_attribute(
+        "3.3", alternative="self.figure.canvas.draw_idle()")
 
     def home(self):
         """Recall the first view and position from the stack."""
