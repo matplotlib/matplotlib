@@ -1,5 +1,3 @@
-import ctypes
-
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_qt6 import QtCore, QtGui, _BackendQT6, FigureCanvasQT
 from .qt_compat import QT_API, _setDevicePixelRatio

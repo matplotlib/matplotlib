@@ -155,7 +155,8 @@ def _allow_super_init(__init__):
             next_coop_init = next(
                 cls for cls in mro[mro.index(QtWidgets.QWidget) + 1:]
                 if cls.__module__.split(".")[0] not in [
-                    "PyQt4", "sip", "PySide", "PySide2", "PySide6", "Shiboken"])
+                    "PyQt4", "sip", "PySide",
+                    "PySide2", "PySide6", "Shiboken"])
             next_coop_init.__init__(self, *args, **kwargs)
 
         @functools.wraps(__init__)

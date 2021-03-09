@@ -2,8 +2,6 @@
 Render to qt from agg.
 """
 
-import ctypes
-
 from matplotlib.transforms import Bbox
 
 from .. import cbook
