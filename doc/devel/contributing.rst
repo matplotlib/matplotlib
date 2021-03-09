@@ -6,7 +6,8 @@ Contributing
 
 This project is a community effort, and everyone is welcome to
 contribute. Everyone within the community
-is expected to abide by our `code of conduct <../../CODE_OF_CONDUCT.md>`_.
+is expected to abide by our
+`code of conduct <https://github.com/matplotlib/matplotlib/blob/master/CODE_OF_CONDUCT.md>`_.
 
 The project is hosted on
 https://github.com/matplotlib/matplotlib
@@ -14,11 +15,11 @@ https://github.com/matplotlib/matplotlib
 Contributor Incubator
 =====================
 
-If you are interested in becoming a regular contributor to Matplotlib, but 
-don't know where to start or feel insecure about it, you can join our non-public 
+If you are interested in becoming a regular contributor to Matplotlib, but
+don't know where to start or feel insecure about it, you can join our non-public
 communication channel for new contributors. To do so, please go to `gitter
 <https://gitter.im/matplotlib/matplotlib>`_ and ask to be added to '#incubator'.
-This is a private gitter room moderated by core Matplotlib developers where you can 
+This is a private gitter room moderated by core Matplotlib developers where you can
 get guidance and support for your first few PRs.  This is a place you can ask questions
 about anything: how to use git, github, how our PR review process works, technical questions
 about the code, what makes for good documentation or a blog post, how to get involved involved
@@ -115,7 +116,7 @@ A brief overview is:
 
       git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
 
-4. Enter the directory and install the local version of Matplotlib. 
+4. Enter the directory and install the local version of Matplotlib.
    See ref`<installing_for_devs>` for instructions
 
 5. Create a branch to hold your changes::
