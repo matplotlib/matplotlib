@@ -54,7 +54,8 @@ def get_unicode_index(symbol, math=True):
     # the ASCII-derived U+002D hyphen-minus, because minus sign is
     # unambiguous and because it is rendered with a more desirable
     # length, usually longer than a hyphen.
-    if symbol == '-':
+    # only use U+2212 if rcParams is configured that way
+    if symbol == '-' and rcParams['axes.unicode_minus']:
         return 0x2212
     try:  # This will succeed if symbol is a single unicode char
         return ord(symbol)
