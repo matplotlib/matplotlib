@@ -36,6 +36,10 @@ class TriContourSet(ContourSet):
             C = args[0]._contour_generator
             if self.levels is None:
                 self.levels = args[0].levels
+            self.zmin = args[0].zmin
+            self.zmax = args[0].zmax
+            self._mins = args[0]._mins
+            self._maxs = args[0]._maxs
         else:
             from matplotlib import _tri
             tri, z = self._contour_args(args, kwargs)
