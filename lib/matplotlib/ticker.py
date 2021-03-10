@@ -414,7 +414,7 @@ class FormatStrFormatter(Formatter):
 
     Negative numeric values will use a dash not a unicode minus,
     use mathtext to get a unicode minus by wrappping the format specifier
-    with $ (e.g. $%g$).
+    with $ (e.g. "$%g$").
     """
     def __init__(self, fmt):
         self.fmt = fmt
