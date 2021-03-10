@@ -823,7 +823,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.norm.vmax = vmax
         self._process_colors()
 
-        self.allsegs, self.allkinds = self._get_allsegs_and_allkinds()
+        if getattr(self, 'allsegs', None) is None:
+            self.allsegs, self.allkinds = self._get_allsegs_and_allkinds()
+        elif self.allkinds is None:
+            # allsegs specified in constructor may or may not have allkinds as
+            # well.  Must ensure allkinds can be zipped below.
+            self.allkinds = [None] * len(self.allsegs)
 
         if self.filled:
             if self.linewidths is not None:
@@ -1032,7 +1037,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return (lowers, uppers)
 
     def _make_paths(self, segs, kinds):
-        return [mpath.Path(seg, codes=kind) for seg, kind in zip(segs, kinds)]
+        if kinds is None:
+            return [mpath.Path(seg) for seg in segs]
+        else:
+            return [mpath.Path(seg, codes=kind) for seg, kind
+                    in zip(segs, kinds)]
 
     def changed(self):
         tcolors = [(tuple(rgba),)
