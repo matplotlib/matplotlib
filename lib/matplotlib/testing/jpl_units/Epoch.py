@@ -1,5 +1,6 @@
 """Epoch module."""
 
+import functools
 import operator
 import math
 import datetime as DT
@@ -106,43 +107,21 @@ class Epoch:
         delta = t._jd - jd
         return t._seconds + delta * 86400
 
-    def __eq__(self, rhs):
-        return self._cmp(rhs, operator.eq)
-
-    def __ne__(self, rhs):
-        return self._cmp(rhs, operator.ne)
-
-    def __lt__(self, rhs):
-        return self._cmp(rhs, operator.lt)
-
-    def __le__(self, rhs):
-        return self._cmp(rhs, operator.le)
-
-    def __gt__(self, rhs):
-        return self._cmp(rhs, operator.gt)
-
-    def __ge__(self, rhs):
-        return self._cmp(rhs, operator.ge)
-
-    def _cmp(self, rhs, op):
-        """
-        Compare two Epoch's.
-
-        = INPUT VARIABLES
-        - rhs     The Epoch to compare against.
-        - op      The function to do the comparison
-
-        = RETURN VALUE
-        - Returns op(self, rhs)
-        """
+    def _cmp(self, op, rhs):
+        """Compare Epochs *self* and *rhs* using operator *op*."""
         t = self
         if self._frame != rhs._frame:
             t = self.convert(rhs._frame)
-
         if t._jd != rhs._jd:
             return op(t._jd, rhs._jd)
-
         return op(t._seconds, rhs._seconds)
+
+    __eq__ = functools.partialmethod(_cmp, operator.eq)
+    __ne__ = functools.partialmethod(_cmp, operator.ne)
+    __lt__ = functools.partialmethod(_cmp, operator.lt)
+    __le__ = functools.partialmethod(_cmp, operator.le)
+    __gt__ = functools.partialmethod(_cmp, operator.gt)
+    __ge__ = functools.partialmethod(_cmp, operator.ge)
 
     def __add__(self, rhs):
         """
