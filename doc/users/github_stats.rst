@@ -7,10 +7,10 @@ GitHub stats for 2020/07/16 - 2021/03/10 (tag: v3.3.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 200 issues and merged 766 pull requests.
+We closed 200 issues and merged 767 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/53?closed=1>`__
 
-The following 182 authors contributed 3849 commits.
+The following 182 authors contributed 3854 commits.
 
 * A N U S H
 * Aaron Chiu
@@ -160,8 +160,8 @@ The following 182 authors contributed 3849 commits.
 * Sam Tygier
 * scott-vsi
 * shawnchen
-* shawnchen1996
 * ShawnChen1996
+* shawnchen1996
 * Sidharth Bansal
 * Spencer McCoubrey
 * Srihitha Maryada
@@ -197,8 +197,9 @@ The following 182 authors contributed 3849 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (766):
+Pull Requests (767):
 
+* :ghpull:`19680`: Backport PR #19402 on branch v3.4.x (Build aarch64 wheels)
 * :ghpull:`19678`: Backport PR #19671 on branch v3.4.x (Fix crash in early window raise in gtk3.)
 * :ghpull:`19671`: Fix crash in early window raise in gtk3.
 * :ghpull:`19402`: Build aarch64 wheels
