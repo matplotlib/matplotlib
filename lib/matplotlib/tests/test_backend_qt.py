@@ -11,11 +11,10 @@ import pytest
 
 
 try:
-    from matplotlib.backends.qt_compat import QtGui
+    from matplotlib.backends.qt_compat import QtGui, QtWidgets
+    from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt5 bindings')
-from matplotlib.backends.qt_compat import QtWidgets
-from matplotlib.backends.qt_editor import _formlayout
 
 
 @pytest.fixture
