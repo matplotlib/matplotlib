@@ -392,7 +392,14 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.show()
         self.canvas.draw()
         if mpl.rcParams['figure.raise_window']:
-            self.window.present()
+            if self.window.get_window():
+                self.window.present()
+            else:
+                # If this is called by a callback early during init,
+                # self.window (a GtkWindow) may not have an associated
+                # low-level GdkWindow (self.window.get_window()) yet, and
+                # present() would crash.
+                _api.warn_external("Cannot raise window yet to be setup")
 
     def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag

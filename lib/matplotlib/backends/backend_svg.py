@@ -1286,6 +1286,7 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     fixed_dpi = 72
 
+    @_api.delete_parameter("3.5", "args")
     def print_svg(self, filename, *args, **kwargs):
         """
         Parameters
@@ -1337,6 +1338,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             if detach:
                 fh.detach()
 
+    @_api.delete_parameter("3.5", "args")
     def print_svgz(self, filename, *args, **kwargs):
         with cbook.open_file_cm(filename, "wb") as fh, \
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:

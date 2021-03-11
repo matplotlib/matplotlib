@@ -843,7 +843,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\makeatother")
         writeln(fh, r"\endgroup")
 
-    def print_pgf(self, fname_or_fh, *args, **kwargs):
+    def print_pgf(self, fname_or_fh, **kwargs):
         """
         Output pgf macros for drawing the figure so it can be included and
         rendered in latex documents.
@@ -851,9 +851,9 @@ class FigureCanvasPgf(FigureCanvasBase):
         with cbook.open_file_cm(fname_or_fh, "w", encoding="utf-8") as file:
             if not cbook.file_requires_unicode(file):
                 file = codecs.getwriter("utf-8")(file)
-            self._print_pgf_to_fh(file, *args, **kwargs)
+            self._print_pgf_to_fh(file, **kwargs)
 
-    def print_pdf(self, fname_or_fh, *args, metadata=None, **kwargs):
+    def print_pdf(self, fname_or_fh, *, metadata=None, **kwargs):
         """Use LaTeX to compile a pgf generated figure to pdf."""
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
@@ -865,7 +865,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             tmppath = pathlib.Path(tmpdir)
 
             # print figure to pgf and compile it with latex
-            self.print_pgf(tmppath / "figure.pgf", *args, **kwargs)
+            self.print_pgf(tmppath / "figure.pgf", **kwargs)
 
             latexcode = """
 \\PassOptionsToPackage{pdfinfo={%s}}{hyperref}
@@ -891,14 +891,14 @@ class FigureCanvasPgf(FigureCanvasBase):
                  cbook.open_file_cm(fname_or_fh, "wb") as dest:
                 shutil.copyfileobj(orig, dest)  # copy file contents to target
 
-    def print_png(self, fname_or_fh, *args, **kwargs):
+    def print_png(self, fname_or_fh, **kwargs):
         """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
         converter = make_pdf_to_png_converter()
         with TemporaryDirectory() as tmpdir:
             tmppath = pathlib.Path(tmpdir)
             pdf_path = tmppath / "figure.pdf"
             png_path = tmppath / "figure.png"
-            self.print_pdf(pdf_path, *args, **kwargs)
+            self.print_pdf(pdf_path, **kwargs)
             converter(pdf_path, png_path, dpi=self.figure.dpi)
             with png_path.open("rb") as orig, \
                  cbook.open_file_cm(fname_or_fh, "wb") as dest:

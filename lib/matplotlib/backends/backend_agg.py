@@ -448,6 +448,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer.buffer_rgba()
 
     @_check_savefig_extra_args
+    @_api.delete_parameter("3.5", "args")
     def print_raw(self, filename_or_obj, *args):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
@@ -457,6 +458,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     print_rgba = print_raw
 
     @_check_savefig_extra_args
+    @_api.delete_parameter("3.5", "args")
     def print_png(self, filename_or_obj, *args,
                   metadata=None, pil_kwargs=None):
         """
@@ -528,6 +530,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                            alternative="pil_kwargs={'optimize': ...}")
     @_api.delete_parameter("3.3", "progressive",
                            alternative="pil_kwargs={'progressive': ...}")
+    @_api.delete_parameter("3.5", "args")
     def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
         """
         Write the figure to a JPEG file.
