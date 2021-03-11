@@ -1,10 +1,12 @@
 import copy
+from datetime import date, datetime
 import signal
 from unittest import mock
 
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.backends.qt_editor import _formlayout
 
 import pytest
 
@@ -13,6 +15,7 @@ try:
     from matplotlib.backends.qt_compat import QtGui
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt5 bindings')
+from matplotlib.backends.qt_compat import QtWidgets
 
 
 @pytest.fixture
@@ -259,6 +262,20 @@ def test_figureoptions():
 
 
 @pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_figureoptions_with_datetime_axes():
+    fig, ax = plt.subplots()
+    xydata = [
+        datetime(year=2021, month=1, day=1),
+        datetime(year=2021, month=2, day=1)
+    ]
+    ax.plot(xydata, xydata)
+    with mock.patch(
+            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
+            lambda self: None):
+        fig.canvas.manager.toolbar.edit_parameters()
+
+
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
@@ -295,3 +312,25 @@ def test_canvas_reinit():
     canvas = FigureCanvasQTAgg(fig)
     fig.stale = True
     assert called
+
+
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_form_widget_get_with_datetime_field():
+    if not QtWidgets.QApplication.instance():
+        QtWidgets.QApplication()
+    form = [("Field name", datetime(year=2021, month=3, day=11))]
+    widget = _formlayout.FormWidget(form)
+    widget.setup()
+    values = widget.get()
+    assert(values == [datetime(year=2021, month=3, day=11)])
+
+
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_form_widget_get_with_date_field():
+    if not QtWidgets.QApplication.instance():
+        QtWidgets.QApplication()
+    form = [("Field name", date(year=2021, month=3, day=11))]
+    widget = _formlayout.FormWidget(form)
+    widget.setup()
+    values = widget.get()
+    assert(values == [date(year=2021, month=3, day=11)])
