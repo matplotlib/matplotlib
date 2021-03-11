@@ -3,14 +3,14 @@
 GitHub Stats
 ============
 
-GitHub stats for 2020/07/16 - 2021/02/18 (tag: v3.3.0)
+GitHub stats for 2020/07/16 - 2021/03/10 (tag: v3.3.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 189 issues and merged 714 pull requests.
+We closed 200 issues and merged 766 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/53?closed=1>`__
 
-The following 174 authors contributed 3775 commits.
+The following 182 authors contributed 3849 commits.
 
 * A N U S H
 * Aaron Chiu
@@ -66,6 +66,7 @@ The following 174 authors contributed 3775 commits.
 * Evan Berkowitz
 * Federico Ariza
 * Forrest
+* Frank Sauerburger
 * FrankTheCodeMonkey
 * Greg Lucas
 * hannah
@@ -84,6 +85,7 @@ The following 174 authors contributed 3775 commits.
 * J. Scott Berg
 * Jae-Joon Lee
 * Jakub Klus
+* Janakarajan Natarajan
 * Jann Paul Mattern
 * jbhopkins
 * jeetvora331
@@ -102,6 +104,7 @@ The following 174 authors contributed 3775 commits.
 * Justin Abrokwah
 * Kate Perkins
 * kate-perkins
+* katrielester
 * kolibril13
 * kwgchi
 * Lee Johnston
@@ -127,6 +130,7 @@ The following 174 authors contributed 3775 commits.
 * McToel
 * Michael Grupp
 * Michaël Defferrard
+* Mihai Anton
 * Mohammad Aflah Khan
 * Neilzon Viloria
 * neok-m4700
@@ -136,8 +140,10 @@ The following 174 authors contributed 3775 commits.
 * parththak
 * Petar Mlinarić
 * Peter Williams
+* Phil Nagel
 * philip-sparks
 * Philipp Arras
+* Philipp Nagel
 * Pratyush Raj
 * Péter Leéh
 * rajpratyush
@@ -168,6 +174,8 @@ The following 174 authors contributed 3775 commits.
 * Tim Gates
 * Tim Hoffmann
 * Tobias Hangleiter
+* tohc1
+* Tom Charrett
 * Tom Neep
 * Tomas Fiers
 * ulijh
@@ -189,8 +197,60 @@ The following 174 authors contributed 3775 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (714):
+Pull Requests (766):
 
+* :ghpull:`19678`: Backport PR #19671 on branch v3.4.x (Fix crash in early window raise in gtk3.)
+* :ghpull:`19671`: Fix crash in early window raise in gtk3.
+* :ghpull:`19402`: Build aarch64 wheels
+* :ghpull:`19669`: Backport PR #19661 on branch v3.4.x (Fix CoC link)
+* :ghpull:`19668`: Backport PR #19663 on branch v3.4.x (ENH: add a copy method to colormaps)
+* :ghpull:`19663`: ENH: add a copy method to colormaps
+* :ghpull:`19661`: Fix CoC link
+* :ghpull:`19652`: Backport PR #19649 on branch v3.4.x (Use globals() instead of locals() for adding colormaps as names to cm module)
+* :ghpull:`19649`: Use globals() instead of locals() for adding colormaps as names to cm module
+* :ghpull:`19651`: Backport PR #19618 on branch v3.4.x (FIX: make the cache in font_manager._get_font keyed by thread id)
+* :ghpull:`19650`: Backport PR #19625 on branch v3.4.x (Restore _AxesStack to track a Figure's Axes order.)
+* :ghpull:`19647`: Backport PR #19645 on branch v3.4.x (Fix comment in RectangleSelector)
+* :ghpull:`19618`: FIX: make the cache in font_manager._get_font keyed by thread id
+* :ghpull:`19648`: Backport PR #19643 on branch v3.4.x (Don't turn check_for_pgf into public API.)
+* :ghpull:`19625`: Restore _AxesStack to track a Figure's Axes order.
+* :ghpull:`19643`: Don't turn check_for_pgf into public API.
+* :ghpull:`19645`: Fix comment in RectangleSelector
+* :ghpull:`19644`: Backport PR #19611 on branch v3.4.x (Fix double picks.)
+* :ghpull:`19611`: Fix double picks.
+* :ghpull:`19640`: Backport PR #19639 on branch v3.4.x (FIX: do not allow single element list of str in subplot_mosaic)
+* :ghpull:`19639`: FIX: do not allow single element list of str in subplot_mosaic
+* :ghpull:`19638`: Backport PR #19632 on branch v3.4.x (Fix handling of warn keyword in in Figure.show.)
+* :ghpull:`19637`: Backport PR #19582 on branch v3.4.x (Add kerning to single-byte strings in PDFs)
+* :ghpull:`19632`: Fix handling of warn keyword in in Figure.show.
+* :ghpull:`19582`: Add kerning to single-byte strings in PDFs
+* :ghpull:`19629`: Backport PR #19548 on branch v3.4.x (Increase tolerances for other arches.)
+* :ghpull:`19630`: Backport PR #19596 on branch v3.4.x (Fix for issue 17769: wx interactive figure close cause crash)
+* :ghpull:`19596`: Fix for issue 17769: wx interactive figure close cause crash
+* :ghpull:`19548`: Increase tolerances for other arches.
+* :ghpull:`19588`: MNT: let bad rcParam keys pass
+* :ghpull:`19616`: Backport PR #19577 on branch v3.4.x (Fix "return"->"enter" mapping in key names.)
+* :ghpull:`19617`: Backport PR #19571 on branch v3.4.x (Fail early when setting Text color to a non-colorlike.)
+* :ghpull:`19615`: Backport PR #19583 on branch v3.4.x (FIX: check for a set during color conversion)
+* :ghpull:`19614`: Backport PR #19597 on branch v3.4.x (Fix IPython import issue)
+* :ghpull:`19613`: Backport PR #19546 on branch v3.4.x (Move unrendered README.wx to thirdpartypackages/index.rst.)
+* :ghpull:`19583`: FIX: check for a set during color conversion
+* :ghpull:`19597`: Fix IPython import issue
+* :ghpull:`19571`: Fail early when setting Text color to a non-colorlike.
+* :ghpull:`19595`: Backport PR #19589 on branch v3.4.x (Changes linestyle parameter of flierprops)
+* :ghpull:`19577`: Fix "return"->"enter" mapping in key names.
+* :ghpull:`19589`: Changes linestyle parameter of flierprops
+* :ghpull:`19592`: Backport PR #19587 on branch v3.4.x (DOC: fix plot_date doc)
+* :ghpull:`19587`: DOC: fix plot_date doc
+* :ghpull:`19580`: Backport PR #19456 on branch v3.4.x (Doc implement reredirects)
+* :ghpull:`19579`: Backport PR #19567 on branch v3.4.x (DOC: fix typos)
+* :ghpull:`19456`: Doc implement reredirects
+* :ghpull:`19567`: DOC: fix typos
+* :ghpull:`19542`: Backport PR #19532 on branch v3.4.x (Add note on interaction between text wrapping and bbox_inches='tight')
+* :ghpull:`19549`: Backport PR #19545 on branch v3.4.x (Replace references to pygtk by pygobject in docs.)
+* :ghpull:`19546`: Move unrendered README.wx to thirdpartypackages/index.rst.
+* :ghpull:`19545`: Replace references to pygtk by pygobject in docs.
+* :ghpull:`19532`: Add note on interaction between text wrapping and bbox_inches='tight'
 * :ghpull:`19541`: MAINT: fix typo from #19438
 * :ghpull:`19480`: Fix CallbackRegistry memory leak
 * :ghpull:`19539`: In scatter, fix single rgb edgecolors handling
@@ -906,8 +966,19 @@ Pull Requests (714):
 * :ghpull:`17691`: ci: Print out reasons for not deploying docs.
 * :ghpull:`17099`: Make Spines accessable by the attributes.
 
-Issues (189):
+Issues (200):
 
+* :ghissue:`19594`: code of conduct link 404s
+* :ghissue:`19576`: duplicate pick events firing
+* :ghissue:`19560`: segfault due to font objects when multi-threading
+* :ghissue:`19598`: Axes order changed in 3.4.0rc1
+* :ghissue:`19631`: subplot mosaic 1 element list
+* :ghissue:`19581`: Missing kerning for single-byte strings in PDF
+* :ghissue:`17769`: interactive figure close with wxpython 4.1 causes freeze / crash (segfault?)
+* :ghissue:`19427`: Fix mistake in documentation
+* :ghissue:`19624`: Cannot add colorbar to figure after pickle
+* :ghissue:`19544`: Regression in 3.4.0rc1 in creating ListedColormap from a set
+* :ghissue:`5855`: plt.step(..., where="auto")
 * :ghissue:`19474`: Memory leak with CallbackRegistry
 * :ghissue:`19345`: legend is eating up huge amounts of memory
 * :ghissue:`19066`: plt.scatter, error with NaN values and edge color
