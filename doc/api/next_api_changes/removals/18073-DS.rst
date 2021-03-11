@@ -1,5 +1,0 @@
-``matplotlib.testing.disable_internet``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The entire ``matplotlib.testing.disable_internet`` sub-module has been removed.
-The `pytest-remotedata package <https://github.com/astropy/pytest-remotedata>`_
-can be used instead.
