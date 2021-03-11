@@ -6,7 +6,6 @@ from unittest import mock
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backends.qt_editor import _formlayout
 
 import pytest
 
@@ -16,6 +15,7 @@ try:
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt5 bindings')
 from matplotlib.backends.qt_compat import QtWidgets
+from matplotlib.backends.qt_editor import _formlayout
 
 
 @pytest.fixture
