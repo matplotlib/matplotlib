@@ -1570,23 +1570,23 @@ class Annulus(Patch):
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
         """
         xy : (float, float)
-            xy coordinates of annulus centre
-        r : scalar or 1D array_like
+            xy coordinates of annulus centre.
+        r : float or (float, float)
             The radius, or semi-major axes
                 - If float: radius of the outer circle
-                - If array_like of size 2: semi-major and -minor axes of outer
+                - If two floats: semi-major and -minor axes of outer
                   ellipse
         width : float
-            Width of the annulus
-        angle: float, optional
+            Width of the annulus.
+        angle: float, default=0
             Rotation angle in degrees (anti-clockwise). Ignored for circular
-            annuli (ie. if `r` is a scalar).
+            annuli (ie. if *r* is a scalar).
 
         Valid kwargs are:
 
         %(Patch_kwdoc)s
         """
-        Patch.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         if np.shape(r) == (2,):
             self.a, self.b = r
@@ -1594,11 +1594,11 @@ class Annulus(Patch):
             self.a = self.b = float(r)
         else:
             raise ValueError(
-                'r parameter should be either float, or array_like of size 2')
+                "Parameter 'r' must be one or two floats")
 
         if min(self.a, self.b) <= width:
             raise ValueError(
-                'Width of annulus should be smaller than semi-minor axis')
+                'Width of annulus must be smaller than semi-minor axis')
 
         self.center = xy
         self.width = width
