@@ -1,4 +1,4 @@
-.. _MEP-index:
+.. _cheatsheets-index:
 
 .. include:: README.rst
 
@@ -16,4 +16,4 @@
    :glob:
    :maxdepth: 1
 
-   cheatsheets*
+   excel.rst
