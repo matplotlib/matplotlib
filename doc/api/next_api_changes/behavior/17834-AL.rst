@@ -1,5 +1,0 @@
-``Colorbar.dividers`` changes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This attribute is now always a `.LineCollection` -- an empty one if
-``drawedges`` is False.  Its default colors and linewidth (:rc:`axes.edgecolor`,
-:rc:`axes.linewidth`) are now resolved at instantiation time, not at draw time.
