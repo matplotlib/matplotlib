@@ -1,3 +1,0 @@
-``ContourLabeler.get_label_coords`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-It is considered an internal helper.

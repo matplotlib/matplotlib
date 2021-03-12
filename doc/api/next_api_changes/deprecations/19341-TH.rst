@@ -1,5 +1,0 @@
-``MarkerStyle`` is considered immutable
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``MarkerStyle.set_fillstyle()`` and ``MarkerStyle.set_marker()`` are
-deprecated. Create a new ``MarkerStyle`` with the respective parameters
-instead.

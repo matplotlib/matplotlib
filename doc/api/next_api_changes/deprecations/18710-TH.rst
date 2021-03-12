@@ -1,3 +1,0 @@
-``Axis.cla()``, ``RadialAxis.cla()``, ``ThetaAxis.cla()`` and ``Spine.cla()``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-These methods are deprecated in favor of the respective ``clear()`` methods.

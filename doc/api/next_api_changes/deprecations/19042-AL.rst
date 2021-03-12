@@ -1,5 +1,0 @@
-``GridHelperBase`` invalidation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``GridHelperBase.invalidate``, ``GridHelperBase.valid``, and
-``axislines.Axes.invalidate_grid_helper`` methods are considered internal
-and deprecated.
