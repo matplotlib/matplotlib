@@ -5,8 +5,9 @@
 
 /* Carlogo font (similar to Calibri in the MPL logo) */
 @font-face {
-    font-family: 'CarlogoRegular';
+    font-family: 'Carlogo';
     font-style: normal;
+    font-weight: normal;
     src:    local('Carlito'),
             url('fonts/carlogo-regular.woff2') format('woff2'),
             url('fonts/carlogo-regular.woff') format('woff'),
@@ -14,17 +15,38 @@
 }
 
 @font-face {
-    font-family: 'CarlogoBold';
-    font-style: bold;
+    font-family: 'Carlogo';
+    font-style: normal;
+    font-weight: bold;
     src:    local('Carlito Bold'),
             url('fonts/carlogo-bold.woff2') format('woff2'),
             url('fonts/carlogo-bold.woff') format('woff'),
             url('fonts/carlogo-bold.ttf') format('truetype')
 }
 
+@font-face {
+    font-family: 'Carlogo';
+    font-style: italic;
+    font-weight: normal;
+    src:    local('Carlito Italic'),
+            url('fonts/carlogo-italic.woff2') format('woff2'),
+            url('fonts/carlogo-italic.woff') format('woff'),
+            url('fonts/carlogo-italic.ttf') format('truetype')
+}
+
+@font-face {
+    font-family: 'Carlogo';
+    font-style: italic;
+    font-weight: bold;
+    src:    local('Carlito Bold Italic'),
+            url('fonts/carlogo-bolditalic.woff2') format('woff2'),
+            url('fonts/carlogo-bolditalic.woff') format('woff'),
+            url('fonts/carlogo-bolditalic.ttf') format('truetype')
+}
+
 
 body {
-    font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
     font-size: 14px;
     line-height: 150%;
     text-align: center;
@@ -293,25 +315,37 @@ p {
 h1 {
     margin: 0.5em 0em;
     padding-top: 0.5em;
-    font-size: 2em;
+    font-size: 32px;
     color: #11557C;
 }
 
 h2 {
     margin: 0.5em 0 0.2em 0;
     padding-top: 0.5em;
-    font-size: 1.7em;
+    font-size: 24px;
 }
 
 h3 {
     margin: 0.2em 0 0.1em 0;
     padding-top: 0.5em;
-    font-size: 1.2em;
+    font-size: 18.72px;
+}
+
+h4 {
+    font-size: 16px;
+}
+
+h5 {
+    font-size: 13.28px;
+}
+
+h6 {
+    font-size: 12px;
 }
 
 h1, h2, h3, h4, h5, h6{
-    font-family: 'CarlogoBold', 'Carlito-bold', sans-serif;
-    font-weight: normal;
+    font-family: 'Carlogo', 'Carlito', sans-serif;
+    font-weight: bold;
 }
 
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
@@ -1165,7 +1199,7 @@ div.viewcode-block:target {
 /* new main nav */
 nav.main-nav{
     background-color: #002b47;
-    font-family: 'CarlogoRegular', 'Carlito', sans-serif;
+    font-family: 'Carlogo', 'Carlito', sans-serif;
     font-size: 16px;
   }
 
