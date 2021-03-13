@@ -59,13 +59,14 @@ def figure_edit(axes, parent=None):
 
     # Sorting for default labels (_lineXXX, _imageXXX).
     def cmp_key(label):
-        if type(label) == tuple:
-            label = label[0]
-        match = re.match(r"(_line|_image)(\d+)", label)
+        """
+        label should be a tuple consisting of the string label, and the object being sorted by label
+        """
+        match = re.match(r"(_line|_image)(\d+)", label[0])
         if match:
             return match.group(1), int(match.group(2))
         else:
-            return label, 0
+            return label[0], 0
 
     # Get / Curves
     labeled_lines = []
