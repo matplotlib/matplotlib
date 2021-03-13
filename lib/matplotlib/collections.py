@@ -1155,7 +1155,8 @@ class PathCollection(_CollectionWithSizes):
 
             if num is not None:
                 # Labels are numerical but larger than the target
-                # number of elements, reduce to target using interpolation:
+                # number of elements, reduce to target using matplotlibs
+                # ticker classes:
                 if isinstance(num, mpl.ticker.Locator):
                     loc = num
                 elif np.iterable(num):
@@ -1168,26 +1169,37 @@ class PathCollection(_CollectionWithSizes):
                         steps=[1, 2, 2.5, 3, 5, 6, 8, 10]
                     )
 
+                # Get nicely spaced label_values:
                 label_values = loc.tick_values(label_values_min,
                                                label_values_max)
+
+                # Remove extrapolated label_values:
                 cond = ((label_values >= label_values_min) &
                         (label_values <= label_values_max))
                 label_values = label_values[cond]
-                yarr = np.linspace(arr.min(), arr.max(), 256)
-                xarr = func(yarr)
-                ix = np.argsort(xarr)
-                values = np.interp(label_values, xarr[ix], yarr[ix])
+
+                # Get the corresponding values by creating a linear interpolant
+                # with small step size:
+                values_interp = np.linspace(values.min(), values.max(), 256)
+                label_values_interp = func(values_interp)
+                ix = np.argsort(values_interp)
+                values = np.interp(
+                    label_values, label_values_interp[ix], values_interp[ix]
+                )
         elif num is not None and not label_values_are_numeric:
-            # Labels are not numerical so instead of interpolating
-            # just choose evenly distributed indexes instead:
-            if isinstance(num, mpl.ticker.Locator) or np.iterable(num):
+            # Labels are not numerical so modifying label_values is not
+            # possible, instead filter the array with nicely distributed
+            # indexes:
+            if type(num) == int:
+                loc = mpl.ticker.LinearLocator(num)
+            else:
                 raise ValueError(
                     "`num` only supports integers for non-numeric labels."
                 )
-            cond = np.round(np.linspace(0, len(label_values) - 1, num))
-            cond = cond.astype(int)
-            values = values[cond]
-            label_values = label_values[cond]
+
+            ind = loc.tick_values(0, len(label_values) - 1).astype(int)
+            label_values = label_values[ind]
+            values = values[ind]
 
         # Some formatters requires set_locs:
         if hasattr(fmt, "set_locs"):
