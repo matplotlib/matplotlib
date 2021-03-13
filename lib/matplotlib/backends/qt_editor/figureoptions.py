@@ -133,17 +133,16 @@ def figure_edit(axes, parent=None):
     has_curve = bool(curves)
 
     # Get ScalarMappables.
-    mappabledict = {}
+    mappabledict = []
     for mappable in [*axes.images, *axes.collections]:
         label = mappable.get_label()
         if label == '_nolegend_' or mappable.get_array() is None:
             continue
-        mappabledict[label] = mappable
+        mappabledict.append((label, mappable))
     mappablelabels = sorted(mappabledict, key=cmp_key)
     mappables = []
     cmaps = [(cmap, name) for name, cmap in sorted(cm._cmap_registry.items())]
-    for label in mappablelabels:
-        mappable = mappabledict[label]
+    for label, mappable in mappablelabels:
         cmap = mappable.get_cmap()
         if cmap not in cm._cmap_registry.values():
             cmaps = [(cmap, cmap.name), *cmaps]
@@ -224,7 +223,7 @@ def figure_edit(axes, parent=None):
 
         # Set ScalarMappables.
         for index, mappable_settings in enumerate(mappables):
-            mappable = mappabledict[mappablelabels[index]]
+            mappable = mappabledict[index][1]
             if len(mappable_settings) == 5:
                 label, cmap, low, high, interpolation = mappable_settings
                 mappable.set_interpolation(interpolation)
