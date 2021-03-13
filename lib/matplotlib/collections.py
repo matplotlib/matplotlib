@@ -1180,10 +1180,12 @@ class PathCollection(_CollectionWithSizes):
 
                 # Get the corresponding values by creating a linear interpolant
                 # with small step size:
-                yarr = np.linspace(arr.min(), arr.max(), 256)
-                xarr = func(yarr)
-                ix = np.argsort(xarr)
-                values = np.interp(label_values, xarr[ix], yarr[ix])
+                values_interp = np.linspace(arr.min(), arr.max(), 256)
+                label_values_interp = func(values_interp)
+                ix = np.argsort(label_values_interp)
+                values = np.interp(
+                    label_values, label_values_interp[ix], values_interp[ix]
+                )
         elif num is not None and not label_values_are_numeric:
             # Labels are not numerical so modifying label_values is not
             # possible, instead filter the array with nicely distributed
