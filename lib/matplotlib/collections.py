@@ -1180,7 +1180,7 @@ class PathCollection(_CollectionWithSizes):
 
                 # Get the corresponding values by creating a linear interpolant
                 # with small step size:
-                values_interp = np.linspace(arr.min(), arr.max(), 256)
+                values_interp = np.linspace(values.min(), values.max(), 256)
                 label_values_interp = func(values_interp)
                 ix = np.argsort(label_values_interp)
                 values = np.interp(
