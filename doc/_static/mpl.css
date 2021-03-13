@@ -315,20 +315,32 @@ p {
 h1 {
     margin: 0.5em 0em;
     padding-top: 0.5em;
-    font-size: 2em;
+    font-size: 32px;
     color: #11557C;
 }
 
 h2 {
     margin: 0.5em 0 0.2em 0;
     padding-top: 0.5em;
-    font-size: 1.7em;
+    font-size: 24px;
 }
 
 h3 {
     margin: 0.2em 0 0.1em 0;
     padding-top: 0.5em;
-    font-size: 1.2em;
+    font-size: 18.72px;
+}
+
+h4 {
+    font-size: 16px;
+}
+
+h5 {
+    font-size: 13.28px;
+}
+
+h6 {
+    font-size: 12px;
 }
 
 h1, h2, h3, h4, h5, h6{
