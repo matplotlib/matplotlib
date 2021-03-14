@@ -60,8 +60,8 @@ def figure_edit(axes, parent=None):
     # Sorting for default labels (_lineXXX, _imageXXX).
     def cmp_key(label):
         """
-        label should be a tuple consisting of the string label,
-         and the object being sorted by label
+        Label should be a tuple consisting of the string label, 
+        and the object being sorted by label.
         """
         match = re.match(r"(_line|_image)(\d+)", label[0])
         if match:
