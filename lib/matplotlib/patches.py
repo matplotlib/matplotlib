@@ -1557,15 +1557,6 @@ class Annulus(Patch):
     An elliptical annulus.
     """
 
-    def __str__(self):
-        if self.a == self.b:
-            r = self.a
-        else:
-            r = (self.a, self.b)
-
-        return "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)" % \
-                (self.center[0], self.center[1], r, self.width, self.angle)
-
     @docstring.dedent_interpd
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
         """
@@ -1577,7 +1568,7 @@ class Annulus(Patch):
                 - If two floats: semi-major and -minor axes of outer
                   ellipse
         width : float
-            Width of the annulus.
+            Width (thickness) of the annulus ring.
         angle: float, default=0
             Rotation angle in degrees (anti-clockwise). Ignored for circular
             annuli (ie. if *r* is a scalar).
@@ -1593,29 +1584,118 @@ class Annulus(Patch):
         elif np.shape(r) == ():
             self.a = self.b = float(r)
         else:
-            raise ValueError(
-                "Parameter 'r' must be one or two floats")
+            raise ValueError("Parameter 'r' must be one or two floats")
 
         if min(self.a, self.b) <= width:
             raise ValueError(
                 'Width of annulus must be smaller than semi-minor axis')
 
-        self.center = xy
-        self.width = width
+        self._center = xy
+        self._width = width
         self.angle = angle
         self._path = None
+    
+    def __str__(self):
+        if self.a == self.b:
+            r = self.a
+        else:
+            r = (self.a, self.b)
 
+        return "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)" % \
+                (*self.center, r, self.width, self.angle)    
+        
+    def set_center(self, xy):
+        """
+        Set the center of the annulus.
+
+        Parameters
+        ----------
+        xy : (float, float)
+        """
+        self._center = xy
+        self.stale = True
+
+    def get_center(self):
+        """Return the center of the annulus."""
+        return self._center
+
+    center = property(get_center, set_center)
+    
+    def set_width(self, width):
+        """
+        Set the width (thickness) of the annulus ring.
+
+        Parameters
+        ----------
+        width : float
+        """
+        self._width = width
+        self.stale = True
+
+    def get_width(self):
+        """
+        Return the width (thickness) of the annulus ring.
+        """
+        return self._width
+
+    width = property(get_width, set_width)
+    
+    def set_angle(self, angle):
+        """
+        Set the tilt angle of the annulus.
+
+        Parameters
+        ----------
+        angle : float
+        """
+        self._angle = angle
+        self.stale = True
+
+    def get_angle(self):
+        """Return the angle of the annulus."""
+        return self._angle
+
+    angle = property(get_angle, set_angle)
+    
+    def set_semimajor(self, a):
+        """
+        Set the semi-major axis *a* of the annulus.
+        
+        Parameters
+        ----------
+        a : float
+        """
+        self.a = float(a)
+        self.stale = True
+        
+    def set_semiminor(self, b):
+        """
+        Set the semi-minor axis *b* of the annulus.
+        
+        Parameters
+        ----------
+        b : float
+        """
+        self.b = float(b)
+        self.stale = True
+    
+    def set_radii(self, radii):
+        """
+        Set the both the semi-major (*a*) and -minor radii (*b*) of the annulus.
+        
+        Parameters
+        ----------
+        radii : (float, float)
+        """
+        self.a, self.b = radii
+        self.stale = True
+    
     def _transform_verts(self, verts, a, b):
-        center = (self.convert_xunits(self.center[0]),
-                  self.convert_yunits(self.center[1]))
-        a = self.convert_xunits(a)
-        b = self.convert_yunits(b)
-        tr = transforms.Affine2D() \
-            .scale(a, b) \
+        return  transforms.Affine2D() \
+            .scale(*self._convert_xy_units((a, b))) \
             .rotate_deg(self.angle) \
-            .translate(*center)
-
-        return tr.transform(verts)
+            .translate(*self._convert_xy_units(self.center)) \
+            .transform(verts)
 
     def _recompute_path(self):
         # circular arc
