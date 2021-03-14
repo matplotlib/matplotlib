@@ -212,8 +212,6 @@ fancybox : bool, default: :rc:`legend.fancybox`
 shadow : bool or color, default: :rc:`legend.shadow`
     Whether to draw a shadow behind the legend.
     If value is a color, a shadow of that color will be applied.
-    If the value is neither boolean nor a valid color, behavior is that of
-    *True* and the shadow is the default color.
 
 framealpha : float, default: :rc:`legend.framealpha`
     The alpha transparency of the legend's background.
