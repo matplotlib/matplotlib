@@ -1594,7 +1594,7 @@ class Annulus(Patch):
         self._width = width
         self.angle = angle
         self._path = None
-    
+
     def __str__(self):
         if self.a == self.b:
             r = self.a
@@ -1602,8 +1602,8 @@ class Annulus(Patch):
             r = (self.a, self.b)
 
         return "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)" % \
-                (*self.center, r, self.width, self.angle)    
-        
+                (*self.center, r, self.width, self.angle)
+
     def set_center(self, xy):
         """
         Set the center of the annulus.
@@ -1620,7 +1620,7 @@ class Annulus(Patch):
         return self._center
 
     center = property(get_center, set_center)
-    
+
     def set_width(self, width):
         """
         Set the width (thickness) of the annulus ring.
@@ -1639,7 +1639,7 @@ class Annulus(Patch):
         return self._width
 
     width = property(get_width, set_width)
-    
+
     def set_angle(self, angle):
         """
         Set the tilt angle of the annulus.
@@ -1656,42 +1656,43 @@ class Annulus(Patch):
         return self._angle
 
     angle = property(get_angle, set_angle)
-    
+
     def set_semimajor(self, a):
         """
         Set the semi-major axis *a* of the annulus.
-        
+
         Parameters
         ----------
         a : float
         """
         self.a = float(a)
         self.stale = True
-        
+
     def set_semiminor(self, b):
         """
         Set the semi-minor axis *b* of the annulus.
-        
+
         Parameters
         ----------
         b : float
         """
         self.b = float(b)
         self.stale = True
-    
+
     def set_radii(self, radii):
         """
-        Set the both the semi-major (*a*) and -minor radii (*b*) of the annulus.
-        
+        Set the both the semi-major (*a*) and -minor radii (*b*) of the
+        annulus.
+
         Parameters
         ----------
         radii : (float, float)
         """
         self.a, self.b = radii
         self.stale = True
-    
+
     def _transform_verts(self, verts, a, b):
-        return  transforms.Affine2D() \
+        return transforms.Affine2D() \
             .scale(*self._convert_xy_units((a, b))) \
             .rotate_deg(self.angle) \
             .translate(*self._convert_xy_units(self.center)) \
