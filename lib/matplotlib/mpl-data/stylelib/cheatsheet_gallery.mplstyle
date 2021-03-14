@@ -1,0 +1,28 @@
+# from the Matplotlib cheatsheet as used in our gallery:
+
+
+axes.facecolor: white
+axes.edgecolor: black
+axes.linewidth: 1.0
+axes.grid: True
+axes.axisbelow: True       # grid/ticks are below elements (e.g., lines, text)
+
+xtick.color: 555555
+xtick.direction: out
+
+ytick.color: 555555
+ytick.direction: out
+
+grid.color: b0b0b0
+grid.linewidth: 0.7
+grid.linestyle: -    # solid line
+
+figure.facecolor: white
+figure.figsize: 2, 2
+# make it so the axes labels don't show up.  Obviously 
+# not good style for any quantitative analysis:
+figure.subplot.left: 0.01
+figure.subplot.right: 0.99
+figure.subplot.bottom: 0.01
+figure.subplot.top: 0.99
+
