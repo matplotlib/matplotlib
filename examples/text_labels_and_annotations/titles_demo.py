@@ -49,7 +49,7 @@ ax.xaxis.set_label_position('top')
 ax.set_xlabel('X-label')
 ax.set_title('Manual y', y=1.0, pad=-14)
 
-plt.rcParams['axes.titley'] = 1.0    # y is in axes-relative co-ordinates.
+plt.rcParams['axes.titley'] = 1.0    # y is in axes-relative coordinates.
 plt.rcParams['axes.titlepad'] = -14  # pad is in points...
 ax = axs[1]
 ax.plot(range(10))

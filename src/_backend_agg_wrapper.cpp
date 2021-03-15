@@ -95,7 +95,7 @@ int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
     Py_INCREF(self);
     buf->obj = (PyObject *)self;
     buf->buf = self->x->get_data();
-    buf->len = self->x->get_width() * self->x->get_height() * 4;
+    buf->len = (Py_ssize_t)self->x->get_width() * (Py_ssize_t)self->x->get_height() * 4;
     buf->readonly = 0;
     buf->format = (char *)"B";
     buf->ndim = 3;
@@ -531,7 +531,7 @@ int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
     Py_INCREF(self);
     buf->obj = (PyObject *)self;
     buf->buf = self->x->pixBuffer;
-    buf->len = self->x->get_width() * self->x->get_height() * 4;
+    buf->len = (Py_ssize_t)self->x->get_width() * (Py_ssize_t)self->x->get_height() * 4;
     buf->readonly = 0;
     buf->format = (char *)"B";
     buf->ndim = 3;

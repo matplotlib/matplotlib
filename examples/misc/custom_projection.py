@@ -48,7 +48,7 @@ class GeoAxes(Axes):
         self.xaxis = maxis.XAxis(self)
         self.yaxis = maxis.YAxis(self)
         # Do not register xaxis or yaxis with spines -- as done in
-        # Axes._init_axis() -- until GeoAxes.xaxis.cla() works.
+        # Axes._init_axis() -- until GeoAxes.xaxis.clear() works.
         # self.spines['geo'].register_axis(self.yaxis)
         self._update_transScale()
 
@@ -338,14 +338,16 @@ class GeoAxes(Axes):
     # so we override all of the following methods to disable it.
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
+
         This axes object does not support interactive zoom box.
         """
         return False
 
     def can_pan(self):
         """
-        Return *True* if this axes supports the pan/zoom button functionality.
+        Return whether this axes supports the pan/zoom button functionality.
+
         This axes object does not support interactive pan/zoom.
         """
         return False
@@ -441,8 +443,8 @@ register_projection(HammerAxes)
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     # Now make a simple example using the custom projection.
-    plt.subplot(projection="custom_hammer")
-    p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
-    plt.grid(True)
+    fig, ax = plt.subplots(subplot_kw={'projection': 'custom_hammer'})
+    ax.plot([-1, 1, 1], [-1, -1, 1], "o-")
+    ax.grid()
 
     plt.show()

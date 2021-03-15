@@ -164,9 +164,9 @@ def test_rc():
 def test_legend_expand():
     """Test expand mode"""
     legend_modes = [None, "expand"]
-    fig, axes_list = plt.subplots(len(legend_modes), 1)
+    fig, axs = plt.subplots(len(legend_modes), 1)
     x = np.arange(100)
-    for ax, mode in zip(axes_list, legend_modes):
+    for ax, mode in zip(axs, legend_modes):
         ax.plot(x, 50 - x, 'o', label='y=1')
         l1 = ax.legend(loc='upper left', mode=mode)
         ax.add_artist(l1)
@@ -286,7 +286,7 @@ class TestLegendFunction:
         lns, = ax.plot(th, np.sin(th), label='sin')
         lnc, = ax.plot(th, np.cos(th), label='cos')
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            # labels of lns, lnc are overwritten with explict ('a', 'b')
+            # labels of lns, lnc are overwritten with explicit ('a', 'b')
             ax.legend(labels=('a', 'b'), handles=(lnc, lns))
         Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
 
@@ -699,3 +699,65 @@ def test_no_warn_big_data_when_loc_specified():
         ax.plot(np.arange(5000), label=idx)
     legend = ax.legend('best')
     fig.draw_artist(legend)  # Check that no warning is emitted.
+
+
+@pytest.mark.parametrize('label_array', [['low', 'high'],
+                                         ('low', 'high'),
+                                         np.array(['low', 'high'])])
+def test_plot_multiple_input_multiple_label(label_array):
+    # test ax.plot() with multidimensional input
+    # and multiple labels
+    x = [1, 2, 3]
+    y = [[1, 2],
+         [2, 5],
+         [4, 9]]
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, label=label_array)
+    leg = ax.legend()
+    legend_texts = [entry.get_text() for entry in leg.get_texts()]
+    assert legend_texts == ['low', 'high']
+
+
+@pytest.mark.parametrize('label', ['one', 1, int])
+def test_plot_multiple_input_single_label(label):
+    # test ax.plot() with multidimensional input
+    # and single label
+    x = [1, 2, 3]
+    y = [[1, 2],
+         [2, 5],
+         [4, 9]]
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, label=label)
+    leg = ax.legend()
+    legend_texts = [entry.get_text() for entry in leg.get_texts()]
+    assert legend_texts == [str(label)] * 2
+
+
+@pytest.mark.parametrize('label_array', [['low', 'high'],
+                                         ('low', 'high'),
+                                         np.array(['low', 'high'])])
+def test_plot_single_input_multiple_label(label_array):
+    # test ax.plot() with 1D array like input
+    # and iterable label
+    x = [1, 2, 3]
+    y = [2, 5, 6]
+    fig, ax = plt.subplots()
+    ax.plot(x, y, label=label_array)
+    leg = ax.legend()
+    assert len(leg.get_texts()) == 1
+    assert leg.get_texts()[0].get_text() == str(label_array)
+
+
+def test_plot_multiple_label_incorrect_length_exception():
+    # check that excepton is raised if multiple labels
+    # are given, but number of on labels != number of lines
+    with pytest.raises(ValueError):
+        x = [1, 2, 3]
+        y = [[1, 2],
+             [2, 5],
+             [4, 9]]
+        label = ['high', 'low', 'medium']
+        fig, ax = plt.subplots()
+        ax.plot(x, y, label=label)

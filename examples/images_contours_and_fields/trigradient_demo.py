@@ -13,9 +13,9 @@ import matplotlib.cm as cm
 import numpy as np
 
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Electrical potential of a dipole
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 def dipole_potential(x, y):
     """The electric dipole potential V, at position *x*, *y*."""
     r_sq = x**2 + y**2
@@ -24,9 +24,9 @@ def dipole_potential(x, y):
     return (np.max(z) - z) / (np.max(z) - np.min(z))
 
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Creating a Triangulation
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # First create the x and y coordinates of the points.
 n_angles = 30
 n_radii = 10
@@ -50,23 +50,23 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
                          y[triang.triangles].mean(axis=1))
                 < min_radius)
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Refine data - interpolates the electrical potential V
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 refiner = UniformTriRefiner(triang)
 tri_refi, z_test_refi = refiner.refine_field(V, subdiv=3)
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Computes the electrical field (Ex, Ey) as gradient of electrical potential
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 tci = CubicTriInterpolator(triang, -V)
 # Gradient requested here at the mesh nodes but could be anywhere else:
 (Ex, Ey) = tci.gradient(triang.x, triang.y)
 E_norm = np.sqrt(Ex**2 + Ey**2)
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Plot the triangulation, the potential iso-contours and the vector field
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 fig, ax = plt.subplots()
 ax.set_aspect('equal')
 # Enforce the margins, and enlarge them to give room for the vectors.

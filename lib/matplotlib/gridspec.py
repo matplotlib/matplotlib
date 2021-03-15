@@ -5,8 +5,8 @@ r"""
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
 
-See the tutorial :ref:`sphx_glr_tutorials_intermediate_gridspec.py` for a
-comprehensive usage guide.
+See the tutorial :doc:`/tutorials/intermediate/gridspec` for a comprehensive
+usage guide.
 """
 
 import copy
@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, cbook, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutgrid as layoutgrid
 
@@ -214,7 +214,7 @@ class GridSpecBase:
                 gs = ax.get_subplotspec().get_gridspec()
                 if hasattr(gs, 'get_topmost_subplotspec'):
                     # This is needed for colorbar gridspec layouts.
-                    # This is probably OK becase this whole logic tree
+                    # This is probably OK because this whole logic tree
                     # is for when the user is doing simple things with the
                     # add_subplot command.  For complicated layouts
                     # like subgridspecs the proper gridspec is passed in...
@@ -266,61 +266,7 @@ class GridSpecBase:
         """
         Add all subplots specified by this `GridSpec` to its parent figure.
 
-        This utility wrapper makes it convenient to create common layouts of
-        subplots in a single call.
-
-        Parameters
-        ----------
-        sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
-            Controls sharing of properties among x (*sharex*) or y (*sharey*)
-            axes:
-
-            - True or 'all': x- or y-axis will be shared among all subplots.
-            - False or 'none': each subplot x- or y-axis will be independent.
-            - 'row': each subplot row will share an x- or y-axis.
-            - 'col': each subplot column will share an x- or y-axis.
-
-            When subplots have a shared x-axis along a column, only the x tick
-            labels of the bottom subplot are created. Similarly, when subplots
-            have a shared y-axis along a row, only the y tick labels of the
-            first column subplot are created. To later turn other subplots'
-            ticklabels on, use `~matplotlib.axes.Axes.tick_params`.
-
-            When subplots have a shared axis that has units, calling
-            `~matplotlib.axis.Axis.set_units` will update each axis with the
-            new units.
-
-        squeeze : bool, optional, default: True
-            - If True, extra dimensions are squeezed out from the returned
-              array of Axes:
-
-              - if only one subplot is constructed (nrows=ncols=1), the
-                resulting single Axes object is returned as a scalar.
-              - for Nx1 or 1xM subplots, the returned object is a 1D numpy
-                object array of Axes objects.
-              - for NxM, subplots with N>1 and M>1 are returned as a 2D array.
-
-            - If False, no squeezing at all is done: the returned Axes object
-              is always a 2D array containing Axes instances, even if it ends
-              up being 1x1.
-
-        subplot_kw : dict, optional
-            Dict with keywords passed to the `~.Figure.add_subplot` call used
-            to create each subplot.
-
-        Returns
-        -------
-        ax : `~.axes.Axes` object or array of Axes objects.
-            *ax* can be either a single `~matplotlib.axes.Axes` object or
-            an array of Axes objects if more than one subplot was created. The
-            dimensions of the resulting array can be controlled with the
-            squeeze keyword, see above.
-
-        See Also
-        --------
-        .pyplot.subplots
-        .Figure.add_subplot
-        .pyplot.subplot
+        See `.Figure.subplots` for detailed documentation.
         """
 
         figure = self.figure
@@ -337,9 +283,10 @@ class GridSpecBase:
         # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
         # In most cases, no error will ever occur, but mysterious behavior
         # will result because what was intended to be the subplot index is
-        # instead treated as a bool for sharex.
+        # instead treated as a bool for sharex.  This check should go away
+        # once sharex becomes kwonly.
         if isinstance(sharex, Integral):
-            cbook._warn_external(
+            _api.warn_external(
                 "sharex argument to subplots() was an integer.  Did you "
                 "intend to use subplot() (without 's')?")
         _api.check_in_list(["all", "row", "col", "none"],
@@ -362,17 +309,23 @@ class GridSpecBase:
 
         # turn off redundant tick labeling
         if sharex in ["col", "all"]:
-            # turn off all but the bottom row
-            for ax in axarr[:-1, :].flat:
-                ax.xaxis.set_tick_params(which='both',
-                                         labelbottom=False, labeltop=False)
-                ax.xaxis.offsetText.set_visible(False)
+            for ax in axarr[:-1, :].flat:  # Remove bottom labels/offsettexts.
+                ax.xaxis.set_tick_params(which="both", labelbottom=False)
+                if ax.xaxis.offsetText.get_position()[1] == 0:
+                    ax.xaxis.offsetText.set_visible(False)
+            for ax in axarr[1:, :].flat:  # Remove top labels/offsettexts.
+                ax.xaxis.set_tick_params(which="both", labeltop=False)
+                if ax.xaxis.offsetText.get_position()[1] == 1:
+                    ax.xaxis.offsetText.set_visible(False)
         if sharey in ["row", "all"]:
-            # turn off all but the first column
-            for ax in axarr[:, 1:].flat:
-                ax.yaxis.set_tick_params(which='both',
-                                         labelleft=False, labelright=False)
-                ax.yaxis.offsetText.set_visible(False)
+            for ax in axarr[:, 1:].flat:  # Remove left labels/offsettexts.
+                ax.yaxis.set_tick_params(which="both", labelleft=False)
+                if ax.yaxis.offsetText.get_position()[0] == 0:
+                    ax.yaxis.offsetText.set_visible(False)
+            for ax in axarr[:, :-1].flat:  # Remove right labels/offsettexts.
+                ax.yaxis.set_tick_params(which="both", labelright=False)
+                if ax.yaxis.offsetText.get_position()[0] == 1:
+                    ax.yaxis.offsetText.set_visible(False)
 
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one
@@ -543,9 +496,9 @@ class GridSpec(GridSpecBase):
         subplotspec_list = tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
-            cbook._warn_external("This figure includes Axes that are not "
-                                 "compatible with tight_layout, so results "
-                                 "might be incorrect.")
+            _api.warn_external("This figure includes Axes that are not "
+                               "compatible with tight_layout, so results "
+                               "might be incorrect.")
 
         if renderer is None:
             renderer = tight_layout.get_renderer(figure)
@@ -671,7 +624,7 @@ class SubplotSpec:
                 return arg
             else:
                 if not isinstance(arg, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
+                    _api.warn_deprecated("3.3", message=message)
                     arg = str(arg)
                 try:
                     rows, cols, num = map(int, str(arg))
@@ -683,18 +636,18 @@ class SubplotSpec:
         elif len(args) == 3:
             rows, cols, num = args
             if not (isinstance(rows, Integral) and isinstance(cols, Integral)):
-                cbook.warn_deprecated("3.3", message=message)
+                _api.warn_deprecated("3.3", message=message)
                 rows, cols = map(int, [rows, cols])
             gs = GridSpec(rows, cols, figure=figure)
             if isinstance(num, tuple) and len(num) == 2:
                 if not all(isinstance(n, Integral) for n in num):
-                    cbook.warn_deprecated("3.3", message=message)
+                    _api.warn_deprecated("3.3", message=message)
                     i, j = map(int, num)
                 else:
                     i, j = num
             else:
                 if not isinstance(num, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
+                    _api.warn_deprecated("3.3", message=message)
                     num = int(num)
                 if num < 1 or num > rows*cols:
                     raise ValueError(
@@ -737,7 +690,7 @@ class SubplotSpec:
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
 
-    @cbook.deprecated("3.3", alternative="rowspan, colspan")
+    @_api.deprecated("3.3", alternative="rowspan, colspan")
     def get_rows_columns(self):
         """
         Return the subplot row and column numbers as a tuple
@@ -759,7 +712,7 @@ class SubplotSpec:
     def colspan(self):
         """The columns spanned by this subplot, as a `range` object."""
         ncols = self.get_gridspec().ncols
-        # We explicitly support num2 refering to a column on num1's *left*, so
+        # We explicitly support num2 referring to a column on num1's *left*, so
         # we must sort the column indices here so that the range makes sense.
         c1, c2 = sorted([self.num1 % ncols, self.num2 % ncols])
         return range(c1, c2 + 1)
@@ -776,7 +729,7 @@ class SubplotSpec:
     def is_last_col(self):
         return self.colspan.stop == self.get_gridspec().ncols
 
-    @cbook._delete_parameter("3.4", "return_all")
+    @_api.delete_parameter("3.4", "return_all")
     def get_position(self, figure, return_all=False):
         """
         Update the subplot position from ``figure.subplotpars``.

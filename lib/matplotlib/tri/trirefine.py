@@ -4,7 +4,7 @@ Mesh refinement for triangular grids.
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib.tri.triinterpolate
 
@@ -40,7 +40,7 @@ class TriRefiner:
     """
 
     def __init__(self, triangulation):
-        cbook._check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
 
@@ -136,7 +136,7 @@ class UniformTriRefiner(TriRefiner):
 
         Parameters
         ----------
-        z : 1d-array-like of length ``n_points``
+        z : (npoints,) array-like
             Values of the field to refine, defined at the nodes of the
             encapsulated triangulation. (``n_points`` is the number of points
             in the initial triangulation)
@@ -151,15 +151,15 @@ class UniformTriRefiner(TriRefiner):
         -------
         refi_tri : `~matplotlib.tri.Triangulation`
              The returned refined triangulation.
-        refi_z : 1d array of length: *refi_tri* node count.
+        refi_z : 1D array of length: *refi_tri* node count.
              The returned interpolated field (at *refi_tri* nodes).
         """
         if triinterpolator is None:
             interp = matplotlib.tri.CubicTriInterpolator(
                 self._triangulation, z)
         else:
-            cbook._check_isinstance(matplotlib.tri.TriInterpolator,
-                                    triinterpolator=triinterpolator)
+            _api.check_isinstance(matplotlib.tri.TriInterpolator,
+                                  triinterpolator=triinterpolator)
             interp = triinterpolator
 
         refi_tri, found_index = self.refine_triangulation(

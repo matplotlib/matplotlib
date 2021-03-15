@@ -1,0 +1,5 @@
+``MovieWriter.cleanup`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cleanup logic is now fully implemented in `.MovieWriter.finish`.  Third-party
+movie writers should likewise move the relevant cleanup logic there, as
+overridden ``cleanup``\s will no longer be called in the future.

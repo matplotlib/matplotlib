@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import cbook, ticker as mticker
+from matplotlib import _api, ticker as mticker
 from matplotlib.transforms import Bbox, Transform
 from .clip_path import clip_line_to_rect
 
@@ -176,24 +176,26 @@ class GridFinder:
         return gi
 
     def update_transform(self, aux_trans):
-        if isinstance(aux_trans, Transform):
-            def transform_xy(x, y):
-                ll1 = np.column_stack([x, y])
-                ll2 = aux_trans.transform(ll1)
-                lon, lat = ll2[:, 0], ll2[:, 1]
-                return lon, lat
+        if not isinstance(aux_trans, Transform) and len(aux_trans) != 2:
+            raise TypeError("'aux_trans' must be either a Transform instance "
+                            "or a pair of callables")
+        self._aux_transform = aux_trans
 
-            def inv_transform_xy(x, y):
-                ll1 = np.column_stack([x, y])
-                ll2 = aux_trans.inverted().transform(ll1)
-                lon, lat = ll2[:, 0], ll2[:, 1]
-                return lon, lat
-
+    def transform_xy(self, x, y):
+        aux_trf = self._aux_transform
+        if isinstance(aux_trf, Transform):
+            return aux_trf.transform(np.column_stack([x, y])).T
         else:
-            transform_xy, inv_transform_xy = aux_trans
+            transform_xy, inv_transform_xy = aux_trf
+            return transform_xy(x, y)
 
-        self.transform_xy = transform_xy
-        self.inv_transform_xy = inv_transform_xy
+    def inv_transform_xy(self, x, y):
+        aux_trf = self._aux_transform
+        if isinstance(aux_trf, Transform):
+            return aux_trf.inverted().transform(np.column_stack([x, y])).T
+        else:
+            transform_xy, inv_transform_xy = aux_trf
+            return inv_transform_xy(x, y)
 
     def update(self, **kw):
         for k in kw:
@@ -224,7 +226,7 @@ class MaxNLocator(mticker.MaxNLocator):
         locs = super().__call__()
         return np.array(locs), len(locs), self._factor
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def set_factor(self, f):
         self._factor = f
 
@@ -239,7 +241,7 @@ class FixedLocator:
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
         return locs, len(locs), self._factor
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def set_factor(self, f):
         self._factor = f
 

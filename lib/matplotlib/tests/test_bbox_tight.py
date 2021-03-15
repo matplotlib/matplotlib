@@ -120,8 +120,8 @@ def test_noop_tight_bbox():
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     fig.add_axes(ax)
     ax.set_axis_off()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
 
     data = np.arange(x_size * y_size).reshape(y_size, x_size)
     ax.imshow(data, rasterized=True)

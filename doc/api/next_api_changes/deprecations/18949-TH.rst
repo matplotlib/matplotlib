@@ -1,0 +1,3 @@
+``AxisArtist.ZORDER``
+~~~~~~~~~~~~~~~~~~~~~
+use ``AxisArtist.zorder`` instead.

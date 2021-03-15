@@ -48,8 +48,7 @@ or as a string (with single-character Axes labels):
                ha='center', va='center', fontsize=36,
                color='darkgrey')
 
-See :ref:`sphx_glr_tutorials_provisional_mosaic.py` for more
-details and examples.
+See :doc:`/tutorials/provisional/mosaic` for more details and examples.
 
 ``GridSpec.subplots()``
 -----------------------

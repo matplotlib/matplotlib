@@ -38,26 +38,6 @@ Although not required, we suggest also installing ``IPython`` for
 interactive use.  To easily install a complete Scientific Python
 stack, see :ref:`install_scipy_dists` below.
 
-Test data
----------
-
-The wheels (:file:`*.whl`) on the `PyPI download page
-<https://pypi.org/project/matplotlib/>`_ do not contain test data
-or example code.
-
-If you want to try the many demos that come in the Matplotlib source
-distribution, download the :file:`*.tar.gz` file and look in the
-:file:`examples` subdirectory.
-
-To run the test suite:
-
-* extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
-  directories from the source distribution.
-* install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
-  MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
-  <https://inkscape.org/>`_.
-* run ``python -mpytest``.
-
 Third-party distributions of Matplotlib
 =======================================
 
@@ -93,11 +73,21 @@ If you are interested in contributing to Matplotlib development,
 running the latest source code, or just like to build everything
 yourself, it is not difficult to build Matplotlib from source.
 
+A C compiler is required.  Typically, on Linux, you will need ``gcc``, which
+should be installed using your distribution's package manager; on macOS, you
+will need xcode_; on Windows, you will need Visual Studio 2015 or later.
+
+.. _xcode: https://guide.macports.org/chunked/installing.html#installing.xcode
+
 The easiest way to get the latest development version to start contributing
 is to go to the git `repository <https://github.com/matplotlib/matplotlib>`_
 and run::
 
   git clone https://github.com/matplotlib/matplotlib.git
+  
+or::
+
+  git clone git@github.com:matplotlib/matplotlib.git
 
 If you're developing, it's better to do it in editable mode. The reason why
 is that pytest's test discovery only works for Matplotlib
@@ -105,16 +95,28 @@ if installation is done this way. Also, editable mode allows your code changes
 to be instantly propagated to your library code without reinstalling (though
 you will have to restart your python process / kernel)::
 
+  cd matplotlib
   python -m pip install -e .
 
 If you're not developing, it can be installed from the source directory with
-a simple::
+a simple (just replace the last step)::
 
   python -m pip install .
 
 To run the tests you will need to install some additional dependencies::
 
   python -m pip install -r requirements/dev/dev-requirements.txt
+  
+Then, if you want to update your Matplotlib at any time, just do::
+
+  git pull
+
+When you run ``git pull``, if the output shows that only Python files have
+been updated, you are all set. If C files have changed, you need to run ``pip
+install -e .`` again to compile them.
+
+There is more information on :ref:`using git <using-git>` in the developer
+docs.
 
 .. warning::
 
@@ -198,13 +200,15 @@ etc., you can install the following:
 FreeType and Qhull
 ------------------
 
-Matplotlib depends on `FreeType <https://www.freetype.org/>`_ (>=
-2.3), a font rendering library, and on `Qhull
-<http://www.qhull.org/>`_ (>= 2015.2), a library for computing
-triangulations.  By default (except on AIX) Matplotlib downloads and
-builds its own copy of FreeType (this is necessary to run the test
-suite, because different versions of FreeType rasterize characters
-differently), and uses its own copy of Qhull.
+Matplotlib depends on FreeType_ (>= 2.3), a font rendering library, and on
+Qhull_ (>= 2020.2), a library for computing triangulations.  By default,
+Matplotlib downloads and builds its own copies of FreeType (this is necessary
+to run the test suite, because different versions of FreeType rasterize
+characters differently) and of Qhull.  As an exception, Matplotlib defaults to
+the system version of FreeType on AIX.
+
+.. _FreeType: https://www.freetype.org/
+.. _Qhull: http://www.qhull.org/
 
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`setup.cfg` file with the following contents:

@@ -8,7 +8,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import cbook, mathtext
+from matplotlib import _api, mathtext
 
 
 # If test is removed, use None as placeholder
@@ -31,11 +31,13 @@ math_tests = [
     r'$x^2$',
     r'$x^2_y$',
     r'$x_y^2$',
-    r'$\prod_{i=\alpha_{i+1}}^\infty$',
+    (r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}f\left(i,j\right)'
+     r'\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)'
+     r"\sqrt[2]{\prod^\frac{x}{2\pi^2}_\infty}$"),
     r'$x = \frac{x+\frac{5}{2}}{\frac{y+3}{8}}$',
     r'$dz/dt = \gamma x^2 + {\rm sin}(2\pi y+\phi)$',
     r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$',
-    r'$\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)$',
+    None,
     r'Variable $i$ is good',
     r'$\Delta_i^j$',
     r'$\Delta^j_{i+1}$',
@@ -47,7 +49,7 @@ math_tests = [
     r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
-    r"$\sqrt[5]{\prod^\frac{x}{2\pi^2}_\infty}$",
+    None,
     r"$\sqrt[3]{x}=5$",
     r'$\frac{X}{\frac{X}{Y}}$',
     r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$",
@@ -89,11 +91,13 @@ math_tests = [
     r'${x}_{92}^{31415}+\pi $',
     r'${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$',
     r'${y}_{3}^{\prime \prime \prime }$',
+    # End of the MathML torture tests.
+
     r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
     r"$\left(2 \, a=b\right)$",  # Sage bug #8125
     r"$? ! &$",  # github issue #466
     None,
-    r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
+    None,
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
     r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
@@ -109,6 +113,13 @@ math_tests = [
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
+]
+# 'Lightweight' tests test only a single fontset (dejavusans, which is the
+# default) and only png outputs, in order to minimize the size of baseline
+# images.
+lightweight_math_tests = [
+    r'$\sqrt[ab]{123}$',  # github issue #8665
+    r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
 ]
 
 digits = "0123456789"
@@ -165,42 +176,48 @@ for fonts, chars in font_test_specs:
         for set in chars:
             font_tests.append(wrapper % set)
 
-font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
-
 
 @pytest.fixture
-def baseline_images(request, fontset, index):
+def baseline_images(request, fontset, index, text):
+    if text is None:
+        pytest.skip("test has been removed")
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-cur_math_tests = list(filter(lambda x: x[1] is not None, enumerate(math_tests)))
-
-
-@pytest.mark.parametrize('index, test', cur_math_tests,
-                         ids=[str(index) for index, _ in cur_math_tests])
-@pytest.mark.parametrize('fontset',
-                         ['cm', 'stix', 'stixsans', 'dejavusans',
-                          'dejavuserif'])
+@pytest.mark.parametrize(
+    'index, text', enumerate(math_tests), ids=range(len(math_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
-def test_mathtext_rendering(baseline_images, fontset, index, test):
+def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, test,
+    fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, test', font_tests,
-                         ids=[str(index) for index, _ in font_tests])
-@pytest.mark.parametrize('fontset',
-                         ['cm', 'stix', 'stixsans', 'dejavusans',
-                          'dejavuserif'])
+@pytest.mark.parametrize('index, text', enumerate(lightweight_math_tests),
+                         ids=range(len(lightweight_math_tests)))
+@pytest.mark.parametrize('fontset', ['dejavusans'])
+@pytest.mark.parametrize('baseline_images', ['mathtext1'], indirect=True)
+@image_comparison(baseline_images=None, extensions=['png'])
+def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.text(0.5, 0.5, text, math_fontfamily=fontset,
+             horizontalalignment='center', verticalalignment='center')
+
+
+@pytest.mark.parametrize(
+    'index, text', enumerate(font_tests), ids=range(len(font_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
-def test_mathfont_rendering(baseline_images, fontset, index, test):
+def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, test,
+    fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
 
@@ -234,6 +251,8 @@ def test_fontinfo():
         (r'$\left($', r'Expected "\right"'),
         (r'$\dfrac$', r'Expected \dfrac{num}{den}'),
         (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
+        (r'$\overset$', r'Expected \overset{body}{annotation}'),
+        (r'$\underset$', r'Expected \underset{body}{annotation}'),
     ],
     ids=[
         'hspace without value',
@@ -254,6 +273,8 @@ def test_fontinfo():
         'unclosed parentheses without sizing',
         'dfrac without parameters',
         'dfrac with empty parameters',
+        'overset without parameters',
+        'underset without parameters',
     ]
 )
 def test_mathtext_exceptions(math, msg):
@@ -266,8 +287,7 @@ def test_mathtext_exceptions(math, msg):
 def test_single_minus_sign():
     plt.figure(figsize=(0.3, 0.3))
     plt.text(0.5, 0.5, '$-$')
-    for spine in plt.gca().spines.values():
-        spine.set_visible(False)
+    plt.gca().spines[:].set_visible(False)
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
 
@@ -311,16 +331,16 @@ def test_mathtext_fallback_valid():
         mpl.rcParams['mathtext.fallback'] = fallback
 
 
-@pytest.mark.xfail
 def test_mathtext_fallback_invalid():
     for fallback in ['abc', '']:
-        mpl.rcParams['mathtext.fallback'] = fallback
+        with pytest.raises(ValueError, match="not a valid fallback font name"):
+            mpl.rcParams['mathtext.fallback'] = fallback
 
 
-@pytest.mark.xfail
 def test_mathtext_fallback_to_cm_invalid():
     for fallback in [True, False]:
-        mpl.rcParams['mathtext.fallback_to_cm'] = fallback
+        with pytest.warns(_api.MatplotlibDeprecationWarning):
+            mpl.rcParams['mathtext.fallback_to_cm'] = fallback
 
 
 @pytest.mark.parametrize(
@@ -357,7 +377,7 @@ def test_math_to_image(tmpdir):
 
 
 def test_mathtext_to_png(tmpdir):
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         mt = mathtext.MathTextParser('bitmap')
         mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
         mt.to_png(io.BytesIO(), '$x^2$')

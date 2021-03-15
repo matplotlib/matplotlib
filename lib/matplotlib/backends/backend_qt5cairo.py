@@ -2,11 +2,11 @@ import ctypes
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_qt5 import QtCore, QtGui, _BackendQT5, FigureCanvasQT
-from .qt_compat import QT_API, _setDevicePixelRatioF
+from .qt_compat import QT_API, _setDevicePixelRatio
 
 
 class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
-    def __init__(self, figure):
+    def __init__(self, figure=None):
         super().__init__(figure=figure)
         self._renderer = RendererCairo(self.figure.dpi)
         self._renderer.set_width_height(-1, -1)  # Invalid values.
@@ -17,7 +17,6 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
         super().draw()
 
     def paintEvent(self, event):
-        self._update_dpi()
         dpi_ratio = self._dpi_ratio
         width = int(dpi_ratio * self.width())
         height = int(dpi_ratio * self.height())
@@ -33,7 +32,7 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
         # QImage under PySide on Python 3.
         if QT_API == 'PySide':
             ctypes.c_long.from_address(id(buf)).value = 1
-        _setDevicePixelRatioF(qimage, dpi_ratio)
+        _setDevicePixelRatio(qimage, dpi_ratio)
         painter = QtGui.QPainter(self)
         painter.eraseRect(event.rect())
         painter.drawImage(0, 0, qimage)

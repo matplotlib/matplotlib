@@ -10,11 +10,14 @@
 # serve to show the default value.
 
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
+import warnings
 
 import matplotlib
+from matplotlib._api import MatplotlibDeprecationWarning
 import sphinx
 
 from datetime import datetime
@@ -28,7 +31,12 @@ sys.path.append('.')
 # General configuration
 # ---------------------
 
-# Strip backslahes in function's signature
+# Unless we catch the warning explicitly somewhere, a warning should cause the
+# docs build to fail. This is especially useful for getting rid of deprecated
+# usage in the gallery.
+warnings.filterwarnings('error', append=True)
+
+# Strip backslashes in function's signature
 # To be removed when numpydoc > 0.9.x
 strip_signature_backslash = True
 
@@ -55,6 +63,7 @@ extensions = [
     'sphinxext.missing_references',
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
+    'sphinxext.redirect_from',
     'sphinx_copybutton',
 ]
 
@@ -106,8 +115,19 @@ os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
 
+# we should ignore warnings coming from importing deprecated modules for
+# autodoc purposes, as this will disappear automatically when they are removed
+warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+                        module='importlib',  # used by sphinx.autodoc.importer
+                        message=r'(\n|.)*module was deprecated.*')
+
 autodoc_docstring_signature = True
 autodoc_default_options = {'members': None, 'undoc-members': None}
+
+# make sure to ignore warnings that stem from simply inspecting deprecated
+# class-level attributes
+warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+                        module='sphinx.util.inspect')
 
 # missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
 # for older sphinxes.
@@ -123,7 +143,7 @@ intersphinx_mapping = {
     'ipykernel': ('https://ipykernel.readthedocs.io/en/latest/', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'pytest': ('https://pytest.org/en/stable/', None),
+    'pytest': ('https://pytest.org/en/latest/', None),
     'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
@@ -140,7 +160,7 @@ sphinx_gallery_conf = {
         'numpy': 'https://docs.scipy.org/doc/numpy/',
         'scipy': 'https://docs.scipy.org/doc/scipy/reference/',
     },
-    'backreferences_dir': 'api/_as_gen',
+    'backreferences_dir': Path('api') / Path('_as_gen'),
     'subsection_order': gallery_order.sectionorder,
     'within_subsection_order': gallery_order.subsectionorder,
     'remove_config_comments': True,
@@ -324,32 +344,112 @@ latex_documents = [
 # the title page.
 latex_logo = None
 
+# Use Unicode aware LaTeX engine
+latex_engine = 'xelatex'  # or 'lualatex'
+
 latex_elements = {}
+
+# Keep babel usage also with xelatex (Sphinx default is polyglossia)
+# If this key is removed or changed, latex build directory must be cleaned
+latex_elements['babel'] = r'\usepackage{babel}'
+
+# Font configuration
+# Fix fontspec converting " into right curly quotes in PDF
+# cf https://github.com/sphinx-doc/sphinx/pull/6888/
+latex_elements['fontenc'] = r'''
+\usepackage{fontspec}
+\defaultfontfeatures[\rmfamily,\sffamily,\ttfamily]{}
+'''
+
+# Sphinx 2.0 adopts GNU FreeFont by default, but it does not have all
+# the Unicode codepoints needed for the section about Mathtext
+# "Writing mathematical expressions"
+fontpkg = r"""
+\IfFontExistsTF{XITS}{
+ \setmainfont{XITS}
+}{
+ \setmainfont{XITS}[
+  Extension      = .otf,
+  UprightFont    = *-Regular,
+  ItalicFont     = *-Italic,
+  BoldFont       = *-Bold,
+  BoldItalicFont = *-BoldItalic,
+]}
+\IfFontExistsTF{FreeSans}{
+ \setsansfont{FreeSans}
+}{
+ \setsansfont{FreeSans}[
+  Extension      = .otf,
+  UprightFont    = *,
+  ItalicFont     = *Oblique,
+  BoldFont       = *Bold,
+  BoldItalicFont = *BoldOblique,
+]}
+\IfFontExistsTF{FreeMono}{
+ \setmonofont{FreeMono}
+}{
+ \setmonofont{FreeMono}[
+  Extension      = .otf,
+  UprightFont    = *,
+  ItalicFont     = *Oblique,
+  BoldFont       = *Bold,
+  BoldItalicFont = *BoldOblique,
+]}
+% needed for \mathbb (blackboard alphabet) to actually work
+\usepackage{unicode-math}
+\IfFontExistsTF{XITS Math}{
+ \setmathfont{XITS Math}
+}{
+ \setmathfont{XITSMath-Regular}[
+  Extension      = .otf,
+]}
+"""
+latex_elements['fontpkg'] = fontpkg
+
+# Sphinx <1.8.0 or >=2.0.0 does this by default, but the 1.8.x series
+# did not for latex_engine = 'xelatex' (as it used Latin Modern font).
+# We need this for code-blocks as FreeMono has wide glyphs.
+latex_elements['fvset'] = r'\fvset{fontsize=\small}'
+# Fix fancyhdr complaining about \headheight being too small
+latex_elements['passoptionstopackages'] = r"""
+    \PassOptionsToPackage{headheight=14pt}{geometry}
+"""
+
 # Additional stuff for the LaTeX preamble.
 latex_elements['preamble'] = r"""
    % One line per author on title page
    \DeclareRobustCommand{\and}%
      {\end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}}%
-   % In the parameters section, place a newline after the Parameters
-   % header.  (This is stolen directly from Numpy's conf.py, since it
-   % affects Numpy-style docstrings).
+   \usepackage{etoolbox}
+   \AtBeginEnvironment{sphinxthebibliography}{\appendix\part{Appendices}}
    \usepackage{expdlist}
    \let\latexdescription=\description
    \def\description{\latexdescription{}{} \breaklabel}
-
-   \usepackage{amsmath}
-   \usepackage{amsfonts}
-   \usepackage{amssymb}
-   \usepackage{txfonts}
-
-   % The enumitem package provides unlimited nesting of lists and
-   % enums.  Sphinx may use this in the future, in which case this can
-   % be removed.  See
-   % https://bitbucket.org/birkenfeld/sphinx/issue/777/latex-output-too-deeply-nested
-   \usepackage{enumitem}
-   \setlistdepth{2048}
+   % But expdlist old LaTeX package requires fixes:
+   % 1) remove extra space
+   \makeatletter
+   \patchcmd\@item{{\@breaklabel} }{{\@breaklabel}}{}{}
+   \makeatother
+   % 2) fix bug in expdlist's way of breaking the line after long item label
+   \makeatletter
+   \def\breaklabel{%
+       \def\@breaklabel{%
+           \leavevmode\par
+           % now a hack because Sphinx inserts \leavevmode after term node
+           \def\leavevmode{\def\leavevmode{\unhbox\voidb@x}}%
+      }%
+   }
+   \makeatother
 """
+# Sphinx 1.5 provides this to avoid "too deeply nested" LaTeX error
+# and usage of "enumitem" LaTeX package is unneeded.
+# Value can be increased but do not set it to something such as 2048
+# which needlessly would trigger creation of thousands of TeX macros
+latex_elements['maxlistdepth'] = '10'
 latex_elements['pointsize'] = '11pt'
+
+# Better looking general index in PDF
+latex_elements['printindex'] = r'\footnotesize\raggedright\printindex'
 
 # Documents to append as an appendix to all manuals.
 latex_appendices = []
@@ -374,13 +474,6 @@ texinfo_documents = [
 # numpydoc config
 
 numpydoc_show_class_members = False
-
-latex_engine = 'xelatex'  # or 'lualatex'
-
-latex_elements = {
-    'babel': r'\usepackage{babel}',
-    'fontpkg': r'\setmainfont{DejaVu Serif}',
-}
 
 html4_writer = True
 

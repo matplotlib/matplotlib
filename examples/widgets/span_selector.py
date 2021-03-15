@@ -52,3 +52,16 @@ span = SpanSelector(ax1, onselect, 'horizontal', useblit=True,
 
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.widgets.SpanSelector

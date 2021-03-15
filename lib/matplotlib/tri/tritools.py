@@ -4,7 +4,7 @@ Tools for triangular grids.
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.tri import Triangulation
 
 
@@ -26,7 +26,7 @@ class TriAnalyzer:
     """
 
     def __init__(self, triangulation):
-        cbook._check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
     @property
@@ -143,7 +143,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        bool array-like
+        array of bool
             Mask to apply to encapsulated triangulation.
             All the initially masked triangles remain masked in the
             *new_mask*.
@@ -243,7 +243,7 @@ class TriAnalyzer:
         """
         Parameters
         ----------
-        valid : 1d bool array
+        valid : 1D bool array
             Validity mask.
 
         Returns

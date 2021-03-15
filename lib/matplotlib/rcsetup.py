@@ -15,7 +15,6 @@ directory.
 
 import ast
 from functools import lru_cache, reduce
-import logging
 from numbers import Number
 import operator
 import re
@@ -24,14 +23,14 @@ import numpy as np
 
 from matplotlib import _api, animation, cbook
 from matplotlib.cbook import ls_mapper
+from matplotlib.colors import Colormap, is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
-from matplotlib.colors import is_color_like
+from matplotlib._enums import JoinStyle, CapStyle
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
 
 
-_log = logging.getLogger(__name__)
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 interactive_bk = ['GTK3Agg', 'GTK3Cairo',
@@ -64,7 +63,7 @@ class ValidateInStrings:
     def __call__(self, s):
         if self._deprecated_since:
             name, = (k for k, v in globals().items() if v is self)
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 self._deprecated_since, name=name, obj_type="function")
         if self.ignorecase:
             s = s.lower()
@@ -159,7 +158,7 @@ def validate_color_or_bool(c):
         raise ValueError(f'Could not convert {c} to color or bool.')
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_bool_maybe_none(b):
     """Convert b to ``bool`` or raise, passing through *None*."""
     if isinstance(b, str):
@@ -179,9 +178,8 @@ def _validate_date_converter(s):
         return
     s = validate_string(s)
     if s not in ['auto', 'concise']:
-        cbook._warn_external(f'date.converter string must be "auto" '
-                             f'or "concise", not "{s}".  Check your '
-                             'matplotlibrc')
+        _api.warn_external(f'date.converter string must be "auto" or '
+                           f'"concise", not "{s}".  Check your matplotlibrc')
         return
     import matplotlib.dates as mdates
     mdates._rcParam_helper.set_converter(s)
@@ -197,7 +195,7 @@ def _validate_date_int_mult(s):
 
 def _validate_tex_preamble(s):
     if s is None or s == 'None':
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for setting the 'text.latex.preamble' or "
             "'pgf.preamble' rcParam to None is deprecated since %(since)s and "
             "will be removed %(removal)s; set it to an empty string instead.")
@@ -206,7 +204,7 @@ def _validate_tex_preamble(s):
         if isinstance(s, str):
             return s
         elif np.iterable(s):
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Support for setting the 'text.latex.preamble' "
                 "or 'pgf.preamble' rcParam to a list of strings is deprecated "
                 "since %(since)s and will be removed %(removal)s; set it to a "
@@ -226,7 +224,7 @@ def validate_axisbelow(s):
             if s == 'line':
                 return 'line'
             if s.lower().startswith('line'):
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", message=f"Support for setting axes.axisbelow to "
                     f"{s!r} to mean 'line' is deprecated since %(since)s and "
                     f"will be removed %(removal)s; set it to 'line' instead.")
@@ -258,7 +256,7 @@ def _make_type_validator(cls, *, allow_none=False):
             return None
         try:
             return cls(s)
-        except ValueError as e:
+        except (TypeError, ValueError) as e:
             raise ValueError(
                 f'Could not convert {s!r} to {cls.__name__}') from e
 
@@ -322,7 +320,17 @@ validate_toolbar = ValidateInStrings(
     _deprecated_since="3.3")
 
 
-@cbook.deprecated("3.3")
+def _validate_toolbar(s):
+    s = ValidateInStrings(
+        'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)(s)
+    if s == 'toolmanager':
+        _api.warn_external(
+            "Treat the new Tool classes introduced in v1.5 as experimental "
+            "for now; the API and rcParam may change in future versions.")
+    return s
+
+
+@_api.deprecated("3.3")
 def _make_nseq_validator(cls, n=None, allow_none=False):
 
     def validator(s):
@@ -348,12 +356,12 @@ def _make_nseq_validator(cls, n=None, allow_none=False):
     return validator
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_nseq_float(n):
     return _make_nseq_validator(float, n)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_nseq_int(n):
     return _make_nseq_validator(int, n)
 
@@ -405,6 +413,13 @@ def validate_color(s):
 
 validate_colorlist = _listify_validator(
     validate_color, allow_stringlist=True, doc='return a list of colorspecs')
+
+
+def _validate_cmap(s):
+    _api.check_isinstance((str, Colormap), cmap=s)
+    return s
+
+
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'], _deprecated_since="3.3")
 
@@ -470,7 +485,7 @@ def _validate_mathtext_fallback_to_cm(b):
     if b is None or b == 'none':
         return None
     else:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for setting the 'mathtext.fallback_to_cm' "
             "rcParam is deprecated since %(since)s and will be removed "
             "%(removal)s; use 'mathtext.fallback : 'cm' instead.")
@@ -569,7 +584,7 @@ def _validate_linestyle(ls):
             and len(ls[1]) % 2 == 0
             and all(isinstance(elem, Number) for elem in ls[1])):
         if ls[0] is None:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.3", message="Passing the dash offset as None is deprecated "
                 "since %(since)s and support for it will be removed "
                 "%(removal)s; pass it as zero instead.")
@@ -583,41 +598,10 @@ def _validate_linestyle(ls):
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
 
 
-def _deprecate_case_insensitive_join_cap(s):
-    s_low = s.lower()
-    if s != s_low:
-        if s_low in ['miter', 'round', 'bevel']:
-            cbook.warn_deprecated(
-                "3.3", message="Case-insensitive capstyles are deprecated "
-                "since %(since)s and support for them will be removed "
-                "%(removal)s; please pass them in lowercase.")
-        elif s_low in ['butt', 'round', 'projecting']:
-            cbook.warn_deprecated(
-                "3.3", message="Case-insensitive joinstyles are deprecated "
-                "since %(since)s and support for them will be removed "
-                "%(removal)s; please pass them in lowercase.")
-        # Else, error out at the check_in_list stage.
-    return s_low
-
-
-def validate_joinstyle(s):
-    s = _deprecate_case_insensitive_join_cap(s)
-    _api.check_in_list(['miter', 'round', 'bevel'], joinstyle=s)
-    return s
-
-
-def validate_capstyle(s):
-    s = _deprecate_case_insensitive_join_cap(s)
-    _api.check_in_list(['butt', 'round', 'projecting'], capstyle=s)
-    return s
-
-
 validate_fillstyle = ValidateInStrings(
     'markers.fillstyle', ['full', 'left', 'right', 'bottom', 'top', 'none'])
 
 
-validate_joinstylelist = _listify_validator(validate_joinstyle)
-validate_capstylelist = _listify_validator(validate_capstyle)
 validate_fillstylelist = _listify_validator(validate_fillstyle)
 
 
@@ -678,7 +662,7 @@ validate_svg_fonttype = ValidateInStrings(
     'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_hinting(s):
     return _validate_hinting(s)
 
@@ -696,7 +680,7 @@ validate_pgf_texsystem = ValidateInStrings(
     _deprecated_since="3.3")
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_movie_writer(s):
     # writers.list() would only list actually available writers, but
     # FFMpeg.isAvailable is slow and not worth paying for at every import.
@@ -776,7 +760,7 @@ def validate_hatch(s):
     """
     if not isinstance(s, str):
         raise ValueError("Hatch pattern must be a string")
-    cbook._check_isinstance(str, hatch_pattern=s)
+    _api.check_isinstance(str, hatch_pattern=s)
     unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
     if unknown:
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
@@ -794,8 +778,8 @@ _prop_validators = {
         'linestyle': _listify_validator(_validate_linestyle),
         'facecolor': validate_colorlist,
         'edgecolor': validate_colorlist,
-        'joinstyle': validate_joinstylelist,
-        'capstyle': validate_capstylelist,
+        'joinstyle': _listify_validator(JoinStyle),
+        'capstyle': _listify_validator(CapStyle),
         'fillstyle': validate_fillstylelist,
         'markerfacecolor': validate_colorlist,
         'markersize': validate_floatlist,
@@ -882,7 +866,7 @@ def cycler(*args, **kwargs):
     if len(args) == 1:
         if not isinstance(args[0], Cycler):
             raise TypeError("If only one positional argument given, it must "
-                            " be a Cycler instance.")
+                            "be a Cycler instance.")
         return validate_cycler(args[0])
     elif len(args) == 2:
         pairs = [(args[0], args[1])]
@@ -983,7 +967,7 @@ def validate_hist_bins(s):
                      " a sequence of floats".format(valid_strs))
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 def validate_webagg_address(s):
     if s is not None:
         import socket
@@ -1020,8 +1004,7 @@ def _convert_validator_spec(key, conv):
 _validators = {
     "backend":           validate_backend,
     "backend_fallback":  validate_bool,
-    "toolbar":           _ignorecase(["none", "toolbar2", "toolmanager"]),
-    "datapath":          validate_any,  # see _get_data_path_cached
+    "toolbar":           _validate_toolbar,
     "interactive":       validate_bool,
     "timezone":          validate_string,
 
@@ -1040,10 +1023,10 @@ _validators = {
     "lines.markeredgewidth": validate_float,
     "lines.markersize":      validate_float,  # markersize, in points
     "lines.antialiased":     validate_bool,  # antialiased (no jaggies)
-    "lines.dash_joinstyle":  validate_joinstyle,
-    "lines.solid_joinstyle": validate_joinstyle,
-    "lines.dash_capstyle":   validate_capstyle,
-    "lines.solid_capstyle":  validate_capstyle,
+    "lines.dash_joinstyle":  JoinStyle,
+    "lines.solid_joinstyle": JoinStyle,
+    "lines.dash_capstyle":   CapStyle,
+    "lines.solid_capstyle":  CapStyle,
     "lines.dashed_pattern":  validate_floatlist,
     "lines.dashdot_pattern": validate_floatlist,
     "lines.dotted_pattern":  validate_floatlist,
@@ -1153,7 +1136,7 @@ _validators = {
 
     "image.aspect":          validate_aspect,  # equal, auto, a number
     "image.interpolation":   validate_string,
-    "image.cmap":            validate_string,  # gray, jet, etc.
+    "image.cmap":            _validate_cmap,  # gray, jet, etc.
     "image.lut":             validate_int,  # lookup table
     "image.origin":          ["upper", "lower"],
     "image.resample":        validate_bool,
@@ -1219,6 +1202,7 @@ _validators = {
     "axes.autolimit_mode": ["data", "round_numbers"],
     "axes.xmargin": _range_validators["0 <= x <= 1"],  # margin added to xaxis
     "axes.ymargin": _range_validators["0 <= x <= 1"],  # margin added to yaxis
+    'axes.zmargin': _range_validators["0 <= x <= 1"],  # margin added to zaxis
 
     "polaraxes.grid": validate_bool,  # display polar grid or not
     "axes3d.grid":    validate_bool,  # display 3d grid
@@ -1292,15 +1276,14 @@ _validators = {
     "xtick.major.pad":     validate_float,     # distance to label in points
     "xtick.minor.pad":     validate_float,     # distance to label in points
     "xtick.color":         validate_color,     # color of xticks
-    "xtick.labelcolor":    validate_color_or_inherit,
-    # color of xtick labels
+    "xtick.labelcolor":    validate_color_or_inherit,  # color of xtick labels
     "xtick.minor.visible": validate_bool,      # visibility of minor xticks
     "xtick.minor.top":     validate_bool,      # draw top minor xticks
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
     "xtick.major.top":     validate_bool,      # draw top major xticks
     "xtick.major.bottom":  validate_bool,      # draw bottom major xticks
     "xtick.labelsize":     validate_fontsize,  # fontsize of xtick labels
-    "xtick.direction":     validate_string,    # direction of xticks
+    "xtick.direction":     ["out", "in", "inout"],  # direction of xticks
     "xtick.alignment":     ["center", "right", "left"],
 
     "ytick.left":          validate_bool,      # draw ticks on left side
@@ -1314,15 +1297,14 @@ _validators = {
     "ytick.major.pad":     validate_float,     # distance to label in points
     "ytick.minor.pad":     validate_float,     # distance to label in points
     "ytick.color":         validate_color,     # color of yticks
-    "ytick.labelcolor":    validate_color_or_inherit,
-    # color of ytick labels
+    "ytick.labelcolor":    validate_color_or_inherit,  # color of ytick labels
     "ytick.minor.visible": validate_bool,      # visibility of minor yticks
     "ytick.minor.left":    validate_bool,      # draw left minor yticks
     "ytick.minor.right":   validate_bool,      # draw right minor yticks
     "ytick.major.left":    validate_bool,      # draw left major yticks
     "ytick.major.right":   validate_bool,      # draw right major yticks
     "ytick.labelsize":     validate_fontsize,  # fontsize of ytick labels
-    "ytick.direction":     validate_string,    # direction of yticks
+    "ytick.direction":     ["out", "in", "inout"],  # direction of yticks
     "ytick.alignment":     [
         "center", "top", "bottom", "baseline", "center_baseline"],
 
@@ -1454,8 +1436,6 @@ _validators = {
     "animation.convert_path": validate_string,
      # Additional arguments for convert movie writer (using pipes)
     "animation.convert_args": validate_stringlist,
-
-    "mpl_toolkits.legacy_colorbar": validate_bool,
 
     # Classic (pre 2.0) compatibility mode
     # This is used for things that are hard to make backward compatible

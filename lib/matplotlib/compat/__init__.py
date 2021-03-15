@@ -1,4 +1,4 @@
-from matplotlib import cbook
+from matplotlib import _api
 
 
-cbook.warn_deprecated("3.3", name=__name__, obj_type="module")
+_api.warn_deprecated("3.3", name=__name__, obj_type="module")

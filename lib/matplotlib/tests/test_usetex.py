@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
+from matplotlib.testing import _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 
@@ -78,6 +79,23 @@ def test_minus_no_descent(fontsize):
         heights[vals] = ((np.array(fig.canvas.buffer_rgba())[..., 0] != 255)
                          .any(axis=1).sum())
     assert len({*heights.values()}) == 1
+
+
+@pytest.mark.skipif(not _has_tex_package('xcolor'),
+                    reason='xcolor is not available')
+def test_usetex_xcolor():
+    mpl.rcParams['text.usetex'] = True
+
+    fig = plt.figure()
+    text = fig.text(0.5, 0.5, "Some text 0123456789")
+    fig.canvas.draw()
+
+    mpl.rcParams['text.latex.preamble'] = r'\usepackage[dvipsnames]{xcolor}'
+    fig = plt.figure()
+    text2 = fig.text(0.5, 0.5, "Some text 0123456789")
+    fig.canvas.draw()
+    np.testing.assert_array_equal(text2.get_window_extent(),
+                                  text.get_window_extent())
 
 
 def test_textcomp_full():

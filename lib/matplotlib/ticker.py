@@ -81,6 +81,19 @@ locator and pass it to the x or y axis instance. The relevant methods are::
 
 The default minor locator is `NullLocator`, i.e., no minor ticks on by default.
 
+.. note::
+    `Locator` instances should not be used with more than one
+    `~matplotlib.axis.Axis` or `~matplotlib.axes.Axes`. So instead of::
+
+        locator = MultipleLocator(5)
+        ax.xaxis.set_major_locator(locator)
+        ax2.xaxis.set_major_locator(locator)
+
+    do the following instead::
+
+        ax.xaxis.set_major_locator(MultipleLocator(5))
+        ax2.xaxis.set_major_locator(MultipleLocator(5))
+
 Tick formatting
 ---------------
 
@@ -293,7 +306,7 @@ class Formatter(TickHelper):
         pass
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class IndexFormatter(Formatter):
     """
     Format the position x to the nearest i-th label where ``i = int(x + 0.5)``.
@@ -398,6 +411,10 @@ class FormatStrFormatter(Formatter):
 
     The format string should have a single variable format (%) in it.
     It will be applied to the value (not the position) of the tick.
+
+    Negative numeric values will use a dash not a unicode minus,
+    use mathtext to get a unicode minus by wrappping the format specifier
+    with $ (e.g. "$%g$").
     """
     def __init__(self, fmt):
         self.fmt = fmt
@@ -431,7 +448,7 @@ class StrMethodFormatter(Formatter):
         return self.fmt.format(x=x, pos=pos)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class OldScalarFormatter(Formatter):
     """
     Tick location is a plain old number.
@@ -1070,7 +1087,7 @@ class LogFormatter(Formatter):
         fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
         exponent = round(fx) if is_x_decade else np.floor(fx)
-        coeff = round(x / b ** exponent)
+        coeff = round(b ** (fx - exponent))
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1154,7 +1171,7 @@ class LogFormatterMathtext(LogFormatter):
         fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
         exponent = round(fx) if is_x_decade else np.floor(fx)
-        coeff = round(x / b ** exponent)
+        coeff = round(b ** (fx - exponent))
         if is_x_decade:
             fx = round(fx)
 
@@ -1186,7 +1203,7 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         """Return string for non-decade locations."""
         b = float(base)
         exponent = math.floor(fx)
-        coeff = b ** fx / b ** exponent
+        coeff = b ** (fx - exponent)
         if is_close_to_int(coeff):
             coeff = round(coeff)
         return r'$\mathdefault{%s%g\times%s^{%d}}$' \
@@ -1660,7 +1677,7 @@ def _if_refresh_overridden_call_and_emit_deprec(locator):
             "%(removal)s.  You are using a third-party locator that overrides "
             "the refresh() method; this locator should instead perform any "
             "required processing in __call__().")
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         locator.refresh()
 
 
@@ -1701,7 +1718,7 @@ class Locator(TickHelper):
         Do nothing, and raise a warning. Any locator class not supporting the
         set_params() function will call this.
         """
-        cbook._warn_external(
+        _api.warn_external(
             "'set_params()' not defined for locator of type " +
             str(type(self)))
 
@@ -1753,7 +1770,7 @@ class Locator(TickHelper):
         """
         return mtransforms.nonsingular(vmin, vmax)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def pan(self, numsteps):
         """Pan numticks (can be positive or negative)"""
         ticks = self()
@@ -1771,7 +1788,7 @@ class Locator(TickHelper):
         vmax += step
         self.axis.set_view_interval(vmin, vmax, ignore=True)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def zoom(self, direction):
         """Zoom in/out on axis; if direction is >0 zoom in, else zoom out."""
 
@@ -1781,7 +1798,7 @@ class Locator(TickHelper):
         step = 0.1 * interval * direction
         self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def refresh(self):
         """Refresh internal information based on current limits."""
 
@@ -2105,11 +2122,11 @@ class MaxNLocator(Locator):
         """
         if args:
             if 'nbins' in kwargs:
-                cbook.deprecated("3.1",
-                                 message='Calling MaxNLocator with positional '
-                                         'and keyword parameter *nbins* is '
-                                         'considered an error and will fail '
-                                         'in future versions of matplotlib.')
+                _api.deprecated("3.1",
+                                message='Calling MaxNLocator with positional '
+                                        'and keyword parameter *nbins* is '
+                                        'considered an error and will fail '
+                                        'in future versions of matplotlib.')
             kwargs['nbins'] = args[0]
             if len(args) > 1:
                 raise ValueError(
@@ -2126,18 +2143,16 @@ class MaxNLocator(Locator):
             raise ValueError('steps argument must be an increasing sequence '
                              'of numbers between 1 and 10 inclusive')
         if steps[0] != 1:
-            steps = np.hstack((1, steps))
+            steps = np.concatenate([[1], steps])
         if steps[-1] != 10:
-            steps = np.hstack((steps, 10))
+            steps = np.concatenate([steps, [10]])
         return steps
 
     @staticmethod
     def _staircase(steps):
-        # Make an extended staircase within which the needed
-        # step will be found.  This is probably much larger
-        # than necessary.
-        flights = (0.1 * steps[:-1], steps, 10 * steps[1])
-        return np.hstack(flights)
+        # Make an extended staircase within which the needed step will be
+        # found.  This is probably much larger than necessary.
+        return np.concatenate([0.1 * steps[:-1], steps, [10 * steps[1]]])
 
     def set_params(self, **kwargs):
         """
@@ -2353,6 +2368,8 @@ class LogLocator(Locator):
 
         Parameters
         ----------
+        base : float, default: 10.0
+            The base of the log used, so ticks are placed at ``base**n``.
         subs : None or str or sequence of float, default: (1.0,)
             Gives the multiples of integer powers of the base at which
             to place ticks.  The default places ticks only at
@@ -2364,7 +2381,11 @@ class LogLocator(Locator):
             placed only between integer powers; with ``'all'``, the
             integer powers are included.  A value of None is
             equivalent to ``'auto'``.
-
+        numticks : None or int, default: None
+            The maximum number of ticks to allow on a given axis. The default
+            of ``None`` will try to choose intelligently as long as this
+            Locator has already been assigned to an axis using
+            `~.axis.Axis.get_tick_space`, but otherwise falls back to 9.
         """
         if numticks is None:
             if mpl.rcParams['_internal.classic_mode']:
@@ -2473,6 +2494,13 @@ class LogLocator(Locator):
                   if mpl.rcParams['_internal.classic_mode'] else
                   (numdec + 1) // numticks + 1)
 
+        # if we have decided that the stride is as big or bigger than
+        # the range, clip the stride back to the available range - 1
+        # with a floor of 1.  This prevents getting axis with only 1 tick
+        # visible.
+        if stride >= numdec:
+            stride = max(1, numdec - 1)
+
         # Does subs include anything other than 1?  Essentially a hack to know
         # whether we're a major or a minor locator.
         have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
@@ -2531,7 +2559,7 @@ class LogLocator(Locator):
         if not np.isfinite(vmin) or not np.isfinite(vmax):
             vmin, vmax = 1, 10  # Initial range, no data plotted yet.
         elif vmax <= 0:
-            cbook._warn_external(
+            _api.warn_external(
                 "Data has no positive values, and therefore cannot be "
                 "log-scaled.")
             vmin, vmax = 1, 10
@@ -2826,7 +2854,7 @@ class LogitLocator(MaxNLocator):
         elif vmax <= 0 or vmin >= 1:
             # vmax <= 0 occurs when all values are negative
             # vmin >= 1 occurs when all values are greater than one
-            cbook._warn_external(
+            _api.warn_external(
                 "Data has no values between 0 and 1, and therefore cannot be "
                 "logit-scaled."
             )
@@ -2891,8 +2919,8 @@ class AutoMinorLocator(Locator):
     def __call__(self):
         """Return the locations of the ticks."""
         if self.axis.get_scale() == 'log':
-            cbook._warn_external('AutoMinorLocator does not work with '
-                                 'logarithmic scale')
+            _api.warn_external('AutoMinorLocator does not work with '
+                               'logarithmic scale')
             return []
 
         majorlocs = self.axis.get_majorticklocs()
@@ -2934,7 +2962,7 @@ class AutoMinorLocator(Locator):
                                   '%s type.' % type(self))
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class OldAutoLocator(Locator):
     """
     On autoscale this class picks the best MultipleLocator to set the

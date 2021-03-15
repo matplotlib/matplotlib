@@ -67,3 +67,18 @@ fig, ax = plt.subplots(1)
 _ = make_error_boxes(ax, x, y, xerr, yerr)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.errorbar
+matplotlib.pyplot.errorbar
+matplotlib.axes.Axes.add_collection
+matplotlib.collections.PatchCollection

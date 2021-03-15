@@ -4,6 +4,21 @@
 The Matplotlib Developers' Guide
 ################################
 
+Thank you for your interest in helping to improve Matplotlib! There are various
+ways to contribute to Matplotlib. All of them are super valuable but don't necessarily
+require writing code at all. For example:
+
+- contributing to the documentation
+- opening new issues for bugs
+- requesting new features
+- asking for clarification on things you find unclear
+- fixing bugs
+
+If you have any questions on the
+process or how to fix something feel free to ask on `gitter
+<https://gitter.im/matplotlib/matplotlib>`_ for short questions and on
+`discourse <https://discourse.matplotlib.org>`_ for longer questions.
+
 .. raw:: html
 
    <div style="margin: 2em 0;">
@@ -17,6 +32,8 @@ The Matplotlib Developers' Guide
    :maxdepth: 2
 
    contributing.rst
+   triage.rst
+   development_setup.rst
    testing.rst
    documenting_mpl.rst
    add_new_projection.rst

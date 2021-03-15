@@ -8,7 +8,7 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
@@ -454,7 +454,7 @@ class TestIndexFormatter:
                                           (2, 'label2'),
                                           (2.5, '')])
     def test_formatting(self, x, label):
-        with cbook._suppress_matplotlib_deprecation_warning():
+        with _api.suppress_matplotlib_deprecation_warning():
             formatter = mticker.IndexFormatter(['label0', 'label1', 'label2'])
         assert formatter(x) == label
 
@@ -527,18 +527,18 @@ class TestScalarFormatter:
     @pytest.mark.parametrize('left, right, offset', offset_data)
     def test_offset_value(self, left, right, offset):
         fig, ax = plt.subplots()
-        formatter = ax.get_xaxis().get_major_formatter()
+        formatter = ax.xaxis.get_major_formatter()
 
         with (pytest.warns(UserWarning, match='Attempting to set identical')
               if left == right else nullcontext()):
             ax.set_xlim(left, right)
-        ax.get_xaxis()._update_ticks()
+        ax.xaxis._update_ticks()
         assert formatter.offset == offset
 
         with (pytest.warns(UserWarning, match='Attempting to set identical')
               if left == right else nullcontext()):
             ax.set_xlim(right, left)
-        ax.get_xaxis()._update_ticks()
+        ax.xaxis._update_ticks()
         assert formatter.offset == offset
 
     @pytest.mark.parametrize('use_offset', use_offset_data)
@@ -881,6 +881,13 @@ class TestLogFormatter:
         temp_lf = mticker.LogFormatter()
         temp_lf.axis = FakeAxis()
         assert temp_lf(val) == str(val)
+
+    @pytest.mark.parametrize('val', [1e-323, 2e-323, 10e-323, 11e-323])
+    def test_LogFormatter_call_tiny(self, val):
+        # test coeff computation in __call__
+        temp_lf = mticker.LogFormatter()
+        temp_lf.axis = FakeAxis()
+        temp_lf(val)
 
 
 class TestLogitFormatter:
@@ -1362,3 +1369,13 @@ def test_bad_locator_subs(sub):
     ll = mticker.LogLocator()
     with pytest.raises(ValueError):
         ll.subs(sub)
+
+
+@pytest.mark.parametrize('numticks', [1, 2, 3, 9])
+@pytest.mark.style('default')
+def test_small_range_loglocator(numticks):
+    ll = mticker.LogLocator()
+    ll.set_params(numticks=numticks)
+    for top in [5, 7, 9, 11, 15, 50, 100, 1000]:
+        ticks = ll.tick_values(.5, top)
+        assert (np.diff(np.log10(ll.tick_values(6, 150))) == 1).all()

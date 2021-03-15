@@ -5,6 +5,13 @@ Auto-wrapping text
 
 Matplotlib can wrap text automatically, but if it's too long, the text will be
 displayed slightly outside of the boundaries of the axis anyways.
+
+Note: Auto-wrapping does not work together with
+``savefig(..., bbox_inches='tight')``. The 'tight' setting rescales the canvas
+to accommodate all content and happens before wrapping. This affects
+``%matplotlib inline`` in IPython and Jupyter notebooks where the inline
+setting uses ``bbox_inches='tight'`` by default when saving the image to
+embed.
 """
 
 import matplotlib.pyplot as plt

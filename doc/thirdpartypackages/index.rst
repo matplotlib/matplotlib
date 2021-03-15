@@ -243,7 +243,7 @@ mpl_interactions
 ================
 `mpl_interactions <https://mpl-interactions.readthedocs.io/en/latest/>`_
 makes it easy to create interactive plots controlled by sliders and other
-widgets. It also provides several handy capabilties such as manual
+widgets. It also provides several handy capabilities such as manual
 image segmentation, comparing cross-sections of arrays, and using the
 scroll wheel to zoom.
 
@@ -263,6 +263,14 @@ gr
 `gr <http://gr-framework.org/>`_ is a framework for cross-platform
 visualisation applications, which can be used as a high-performance Matplotlib
 backend.
+
+GUI integration
+***************
+
+wxmplot
+=======
+`WXMPlot <https://pypi.org/project/wxmplot/>`_ provides advanced wxPython
+widgets for plotting and image display of numerical data based on Matplotlib.
 
 Miscellaneous
 *************

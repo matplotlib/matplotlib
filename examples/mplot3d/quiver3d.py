@@ -3,7 +3,7 @@
 3D quiver plot
 ==============
 
-Demonstrates plotting directional arrows at points on a 3d meshgrid.
+Demonstrates plotting directional arrows at points on a 3D meshgrid.
 """
 
 import matplotlib.pyplot as plt

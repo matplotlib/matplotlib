@@ -1,0 +1,4 @@
+``sphinext.plot_directive.align``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  Use ``docutils.parsers.rst.directives.images.Image.align``
+instead.

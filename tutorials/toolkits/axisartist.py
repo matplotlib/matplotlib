@@ -121,7 +121,7 @@ and ticks.
    :align: center
    :scale: 50
 
-   Demo Curvelinear Grid
+   Demo CurveLinear Grid
 
 Floating Axes
 -------------
@@ -566,7 +566,7 @@ coordinates, or you may use Parasite Axes for convenience.::
    :align: center
    :scale: 50
 
-   Demo Curvelinear Grid
+   Demo CurveLinear Grid
 
 FloatingAxis
 ============

@@ -564,7 +564,7 @@ fig.suptitle('subplot2grid')
 # for each column, and ``bottom`` and ``top`` variables for each row, and
 # further it has a margin for each of left, right, bottom and top.  In each
 # row, the bottom/top margins are widened until all the decorators
-# in that row are accomodated.  Similarly for columns and the left/right
+# in that row are accommodated.  Similarly for columns and the left/right
 # margins.
 #
 #

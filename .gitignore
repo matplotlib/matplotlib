@@ -87,6 +87,7 @@ doc/_static/constrained_layout*.png
 .cache/
 .coverage
 .coverage.*
+*.py,cover
 cover/
 .noseids
 
@@ -105,3 +106,5 @@ lib/z.lib
 #########################
 lib/matplotlib/backends/web_backend/node_modules/
 lib/matplotlib/backends/web_backend/package-lock.json
+
+LICENSE/LICENSE_QHULL

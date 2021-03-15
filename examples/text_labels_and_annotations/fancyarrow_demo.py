@@ -1,7 +1,9 @@
 """
-===============
-Fancyarrow Demo
-===============
+================================
+Annotation arrow style reference
+================================
+
+Overview of the arrow styles available in `~.Axes.annotate`.
 
 """
 import matplotlib.patches as mpatches

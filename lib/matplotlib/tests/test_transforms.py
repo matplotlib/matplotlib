@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal)
@@ -458,6 +460,12 @@ def assert_bbox_eq(bbox1, bbox2):
     assert_array_equal(bbox1.bounds, bbox2.bounds)
 
 
+def test_bbox_frozen_copies_minpos():
+    bbox = mtransforms.Bbox.from_extents(0.0, 0.0, 1.0, 1.0, minpos=1.0)
+    frozen = bbox.frozen()
+    assert_array_equal(frozen.minpos, bbox.minpos)
+
+
 def test_bbox_intersection():
     bbox_from_ext = mtransforms.Bbox.from_extents
     inter = mtransforms.Bbox.intersection
@@ -696,3 +704,41 @@ def test_lockable_bbox(locked_element):
     assert getattr(locked, 'locked_' + locked_element) == 3
     for elem in other_elements:
         assert getattr(locked, elem) == getattr(orig, elem)
+
+
+def test_copy():
+    a = mtransforms.Affine2D()
+    b = mtransforms.Affine2D()
+    s = a + b
+    # Updating a dependee should invalidate a copy of the dependent.
+    s.get_matrix()  # resolve it.
+    s1 = copy.copy(s)
+    assert not s._invalid and not s1._invalid
+    a.translate(1, 2)
+    assert s._invalid and s1._invalid
+    assert (s1.get_matrix() == a.get_matrix()).all()
+    # Updating a copy of a dependee shouldn't invalidate a dependent.
+    s.get_matrix()  # resolve it.
+    b1 = copy.copy(b)
+    b1.translate(3, 4)
+    assert not s._invalid
+    assert (s.get_matrix() == a.get_matrix()).all()
+
+
+def test_deepcopy():
+    a = mtransforms.Affine2D()
+    b = mtransforms.Affine2D()
+    s = a + b
+    # Updating a dependee shouldn't invalidate a deepcopy of the dependent.
+    s.get_matrix()  # resolve it.
+    s1 = copy.deepcopy(s)
+    assert not s._invalid and not s1._invalid
+    a.translate(1, 2)
+    assert s._invalid and not s1._invalid
+    assert (s1.get_matrix() == mtransforms.Affine2D().get_matrix()).all()
+    # Updating a deepcopy of a dependee shouldn't invalidate a dependent.
+    s.get_matrix()  # resolve it.
+    b1 = copy.deepcopy(b)
+    b1.translate(3, 4)
+    assert not s._invalid
+    assert (s.get_matrix() == a.get_matrix()).all()

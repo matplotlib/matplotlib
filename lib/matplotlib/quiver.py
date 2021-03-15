@@ -84,7 +84,7 @@ C : 1D or 2D array-like, optional
     use *color* instead.  The size of *C* must match the number of arrow
     locations.
 
-units : {'width', 'height', 'dots', 'inches', 'x', 'y' 'xy'}, default: 'width'
+units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
     The arrow dimensions (except for *length*) are measured in multiples of
     this unit.
 
@@ -184,7 +184,11 @@ Other Parameters
 **kwargs : `~matplotlib.collections.PolyCollection` properties, optional
     All other keyword arguments are passed on to `.PolyCollection`:
 
-    %(PolyCollection)s
+    %(PolyCollection_kwdoc)s
+
+Returns
+-------
+matplotlib.quiver.Quiver
 
 See Also
 --------
@@ -374,11 +378,6 @@ class QuiverKey(martist.Artist):
             return True, {}
         return False, {}
 
-    @cbook.deprecated("3.2")
-    @property
-    def quiverkey_doc(self):
-        return self.__init__.__doc__
-
 
 def _parse_args(*args, caller_name='function'):
     """
@@ -514,7 +513,7 @@ class Quiver(mcollections.PolyCollection):
 
         self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
 
-    @cbook.deprecated("3.3", alternative="axes")
+    @_api.deprecated("3.3", alternative="axes")
     def ax(self):
         return self.axes
 
@@ -893,7 +892,7 @@ Other Parameters
     The barbs can further be customized using `.PolyCollection` keyword
     arguments:
 
-    %(PolyCollection)s
+    %(PolyCollection_kwdoc)s
 """ % docstring.interpd.params
 
 docstring.interpd.update(barbs_doc=_barbs_doc)

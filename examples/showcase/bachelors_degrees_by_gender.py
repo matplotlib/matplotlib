@@ -32,15 +32,12 @@ ax.set_prop_cycle(color=[
     '#17becf', '#9edae5'])
 
 # Remove the plot frame lines. They are unnecessary here.
-ax.spines['top'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['left'].set_visible(False)
+ax.spines[:].set_visible(False)
 
 # Ensure that the axis ticks only show up on the bottom and left of the plot.
 # Ticks on the right and top of the plot are generally unnecessary.
-ax.get_xaxis().tick_bottom()
-ax.get_yaxis().tick_left()
+ax.xaxis.tick_bottom()
+ax.yaxis.tick_left()
 
 fig.subplots_adjust(left=.06, right=.75, bottom=.02, top=.94)
 # Limit the range of the plot to only where the data is.

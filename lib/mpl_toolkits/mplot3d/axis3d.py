@@ -189,7 +189,7 @@ class Axis(maxis.XAxis):
         maxs = maxs + deltas / 4.
 
         vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        tc = self.axes.tunit_cube(vals, renderer.M)
+        tc = self.axes.tunit_cube(vals, self.axes.M)
         avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2]
                 for p1, p2, p3, p4 in self._PLANES]
         highs = np.array([avgz[2*i] < avgz[2*i+1] for i in range(3)])
@@ -237,8 +237,8 @@ class Axis(maxis.XAxis):
         edgep2 = edgep1.copy()
         edgep2[juggled[1]] = maxmin[juggled[1]]
         pep = np.asarray(
-            proj3d.proj_trans_points([edgep1, edgep2], renderer.M))
-        centpt = proj3d.proj_transform(*centers, renderer.M)
+            proj3d.proj_trans_points([edgep1, edgep2], self.axes.M))
+        centpt = proj3d.proj_transform(*centers, self.axes.M)
         self.line.set_data(pep[0], pep[1])
         self.line.draw(renderer)
 
@@ -260,8 +260,8 @@ class Axis(maxis.XAxis):
         lxyz = 0.5 * (edgep1 + edgep2)
 
         # A rough estimate; points are ambiguous since 3D plots rotate
-        ax_scale = self.axes.bbox.size / self.figure.bbox.size
-        ax_inches = np.multiply(ax_scale, self.figure.get_size_inches())
+        reltoinches = self.figure.dpi_scale_trans.inverted()
+        ax_inches = reltoinches.transform(self.axes.bbox.size)
         ax_points_estimate = sum(72. * ax_inches)
         deltas_per_point = 48 / ax_points_estimate
         default_offset = 21.
@@ -270,7 +270,7 @@ class Axis(maxis.XAxis):
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
-        tlx, tly, tlz = proj3d.proj_transform(*lxyz, renderer.M)
+        tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
             angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -291,7 +291,7 @@ class Axis(maxis.XAxis):
             outerindex = 1
 
         pos = move_from_center(outeredgep, centers, labeldeltas, axmask)
-        olx, oly, olz = proj3d.proj_transform(*pos, renderer.M)
+        olx, oly, olz = proj3d.proj_transform(*pos, self.axes.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
         angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -357,7 +357,8 @@ class Axis(maxis.XAxis):
             self.gridlines.set_color(info['grid']['color'])
             self.gridlines.set_linewidth(info['grid']['linewidth'])
             self.gridlines.set_linestyle(info['grid']['linestyle'])
-            self.gridlines.draw(renderer, project=True)
+            self.gridlines.do_3d_projection()
+            self.gridlines.draw(renderer)
 
         # Draw ticks
         tickdir = info['tickdir']
@@ -374,11 +375,11 @@ class Axis(maxis.XAxis):
             pos[tickdir] = (
                 edgep1[tickdir]
                 + info['tick']['outward_factor'] * ticksign * tickdelta)
-            x1, y1, z1 = proj3d.proj_transform(*pos, renderer.M)
+            x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
             pos[tickdir] = (
                 edgep1[tickdir]
                 - info['tick']['inward_factor'] * ticksign * tickdelta)
-            x2, y2, z2 = proj3d.proj_transform(*pos, renderer.M)
+            x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
 
             # Get position of label
             default_offset = 8.  # A rough estimate
@@ -389,7 +390,7 @@ class Axis(maxis.XAxis):
             axmask[index] = False
             pos[tickdir] = edgep1[tickdir]
             pos = move_from_center(pos, centers, labeldeltas, axmask)
-            lx, ly, lz = proj3d.proj_transform(*pos, renderer.M)
+            lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(

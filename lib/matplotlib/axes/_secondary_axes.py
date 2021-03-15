@@ -1,7 +1,6 @@
 import numpy as np
 
 from matplotlib import _api
-import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
 from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
@@ -49,10 +48,8 @@ class SecondaryAxis(_AxesBase):
         otheraxis.set_major_locator(mticker.NullLocator())
         otheraxis.set_ticks_position('none')
 
-        for st in self._otherstrings:
-            self.spines[st].set_visible(False)
-        for st in self._locstrings:
-            self.spines[st].set_visible(True)
+        self.spines[self._otherstrings].set_visible(False)
+        self.spines[self._locstrings].set_visible(True)
 
         if self._pos < 0.5:
             # flip the location strings...
@@ -126,8 +123,7 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         super().apply_aspect(position)
 
-    @cbook._make_keyword_only("3.2", "minor")
-    def set_ticks(self, ticks, minor=False):
+    def set_ticks(self, ticks, *, minor=False):
         """
         Set the x ticks with list of *ticks*
 
@@ -247,7 +243,7 @@ class SecondaryAxis(_AxesBase):
         Secondary axes cannot set the aspect ratio, so calling this just
         sets a warning.
         """
-        cbook._warn_external("Secondary axes can't set the aspect ratio")
+        _api.warn_external("Secondary axes can't set the aspect ratio")
 
     def set_color(self, color):
         """
@@ -259,13 +255,13 @@ class SecondaryAxis(_AxesBase):
         """
         if self._orientation == 'x':
             self.tick_params(axis='x', colors=color)
-            self.spines['bottom'].set_color(color)
-            self.spines['top'].set_color(color)
+            self.spines.bottom.set_color(color)
+            self.spines.top.set_color(color)
             self.xaxis.label.set_color(color)
         else:
             self.tick_params(axis='y', colors=color)
-            self.spines['left'].set_color(color)
-            self.spines['right'].set_color(color)
+            self.spines.left.set_color(color)
+            self.spines.right.set_color(color)
             self.yaxis.label.set_color(color)
 
 

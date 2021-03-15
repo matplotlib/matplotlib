@@ -1,7 +1,7 @@
 """
-=============
-Mathtext Demo
-=============
+========
+Mathtext
+========
 
 Use Matplotlib's internal LaTeX parser and layout engine.  For true LaTeX
 rendering, see the text.usetex option.

@@ -1,5 +1,6 @@
 import importlib
 import importlib.util
+import inspect
 import json
 import os
 import signal
@@ -11,6 +12,7 @@ import urllib.request
 import pytest
 
 import matplotlib as mpl
+from matplotlib import _c_internal_utils
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
@@ -39,115 +41,117 @@ def _get_testable_interactive_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if sys.platform == "linux" and not os.environ.get("DISPLAY"):
-            reason = "$DISPLAY is unset"
+        if (sys.platform == "linux" and
+                not _c_internal_utils.display_is_valid()):
+            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
         elif backend == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif 'qt5' in backend and not have_qt5:
             reason = "no usable Qt5 bindings"
+        marks = []
         if reason:
-            backend = pytest.param(
-                backend,
-                marks=pytest.mark.skip(
-                    reason=f"Skipping {backend} because {reason}"))
+            marks.append(pytest.mark.skip(
+                reason=f"Skipping {backend} because {reason}"))
         elif backend.startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
-            backend = pytest.param(
-                backend,
-                marks=pytest.mark.xfail(reason='github #16849'))
+            marks.append(pytest.mark.xfail(reason='github #16849'))
+        backend = pytest.param(backend, marks=marks)
         backends.append(backend)
     return backends
 
 
+_test_timeout = 10  # Empirically, 1s is not enough on CI.
+
+
+# The source of this function gets extracted and run in another process, so it
+# must be fully self-contained.
 # Using a timer not only allows testing of timers (on other backends), but is
 # also necessary on gtk3 and wx, where a direct call to key_press_event("q")
 # from draw_event causes breakage due to the canvas widget being deleted too
 # early.  Also, gtk3 redefines key_press_event with a different signature, so
 # we directly invoke it from the superclass instead.
-_test_script = """\
-import importlib
-import importlib.util
-import io
-import json
-import sys
-from unittest import TestCase
+def _test_interactive_impl():
+    import importlib.util
+    import io
+    import json
+    import sys
+    from unittest import TestCase
 
-import matplotlib as mpl
-from matplotlib import pyplot as plt, rcParams
-from matplotlib.backend_bases import FigureCanvasBase
-rcParams.update({
-    "webagg.open_in_browser": False,
-    "webagg.port_retries": 1,
-})
-if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
-    rcParams.update(json.loads(sys.argv[1]))
-backend = plt.rcParams["backend"].lower()
-assert_equal = TestCase().assertEqual
-assert_raises = TestCase().assertRaises
+    import matplotlib as mpl
+    from matplotlib import pyplot as plt, rcParams
+    from matplotlib.backend_bases import FigureCanvasBase
 
-if backend.endswith("agg") and not backend.startswith(("gtk3", "web")):
-    # Force interactive framework setup.
-    plt.figure()
+    rcParams.update({
+        "webagg.open_in_browser": False,
+        "webagg.port_retries": 1,
+    })
+    if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
+        rcParams.update(json.loads(sys.argv[1]))
+    backend = plt.rcParams["backend"].lower()
+    assert_equal = TestCase().assertEqual
+    assert_raises = TestCase().assertRaises
 
-    # Check that we cannot switch to a backend using another interactive
-    # framework, but can switch to a backend using cairo instead of agg, or a
-    # non-interactive backend.  In the first case, we use tkagg as the "other"
-    # interactive backend as it is (essentially) guaranteed to be present.
-    # Moreover, don't test switching away from gtk3 (as Gtk.main_level() is
-    # not set up at this point yet) and webagg (which uses no interactive
-    # framework).
+    if backend.endswith("agg") and not backend.startswith(("gtk3", "web")):
+        # Force interactive framework setup.
+        plt.figure()
 
-    if backend != "tkagg":
-        with assert_raises(ImportError):
-            mpl.use("tkagg", force=True)
+        # Check that we cannot switch to a backend using another interactive
+        # framework, but can switch to a backend using cairo instead of agg,
+        # or a non-interactive backend.  In the first case, we use tkagg as
+        # the "other" interactive backend as it is (essentially) guaranteed
+        # to be present.  Moreover, don't test switching away from gtk3 (as
+        # Gtk.main_level() is not set up at this point yet) and webagg (which
+        # uses no interactive framework).
 
-    def check_alt_backend(alt_backend):
-        mpl.use(alt_backend, force=True)
-        fig = plt.figure()
-        assert_equal(
-            type(fig.canvas).__module__,
-            "matplotlib.backends.backend_{}".format(alt_backend))
+        if backend != "tkagg":
+            with assert_raises(ImportError):
+                mpl.use("tkagg", force=True)
 
-    if importlib.util.find_spec("cairocffi"):
-        check_alt_backend(backend[:-3] + "cairo")
-    check_alt_backend("svg")
+        def check_alt_backend(alt_backend):
+            mpl.use(alt_backend, force=True)
+            fig = plt.figure()
+            assert_equal(
+                type(fig.canvas).__module__,
+                "matplotlib.backends.backend_{}".format(alt_backend))
 
-mpl.use(backend, force=True)
+        if importlib.util.find_spec("cairocffi"):
+            check_alt_backend(backend[:-3] + "cairo")
+        check_alt_backend("svg")
 
-fig, ax = plt.subplots()
-assert_equal(
-    type(fig.canvas).__module__,
-    "matplotlib.backends.backend_{}".format(backend))
+    mpl.use(backend, force=True)
 
-ax.plot([0, 1], [2, 3])
+    fig, ax = plt.subplots()
+    assert_equal(
+        type(fig.canvas).__module__,
+        "matplotlib.backends.backend_{}".format(backend))
 
-timer = fig.canvas.new_timer(1.)  # Test that floats are cast to int as needed.
-timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
-# Trigger quitting upon draw.
-fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
-fig.canvas.mpl_connect("close_event", print)
+    ax.plot([0, 1], [2, 3])
 
-result = io.BytesIO()
-fig.savefig(result, format='png')
+    timer = fig.canvas.new_timer(1.)  # Test floats casting to int as needed.
+    timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
+    # Trigger quitting upon draw.
+    fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
+    fig.canvas.mpl_connect("close_event", print)
 
-plt.show()
+    result = io.BytesIO()
+    fig.savefig(result, format='png')
 
-# Ensure that the window is really closed.
-plt.pause(0.5)
+    plt.show()
 
-# Test that saving works after interactive window is closed, but the figure is
-# not deleted.
-result_after = io.BytesIO()
-fig.savefig(result_after, format='png')
+    # Ensure that the window is really closed.
+    plt.pause(0.5)
 
-if not backend.startswith('qt5') and sys.platform == 'darwin':
-    # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS to
-    # not resize incorrectly.
-    assert_equal(result.getvalue(), result_after.getvalue())
-"""
-_test_timeout = 10  # Empirically, 1s is not enough on Travis.
+    # Test that saving works after interactive window is closed, but the figure
+    # is not deleted.
+    result_after = io.BytesIO()
+    fig.savefig(result_after, format='png')
+
+    if not backend.startswith('qt5') and sys.platform == 'darwin':
+        # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS
+        # to not resize incorrectly.
+        assert_equal(result.getvalue(), result_after.getvalue())
 
 
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
@@ -157,12 +161,11 @@ def test_interactive_backend(backend, toolbar):
     if backend == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
-        if toolbar == "toolbar2" and os.environ.get('TRAVIS'):
-            # See https://github.com/matplotlib/matplotlib/issues/18213
-            pytest.skip("toolbar2 for macosx is buggy on Travis.")
 
     proc = subprocess.run(
-        [sys.executable, "-c", _test_script,
+        [sys.executable, "-c",
+         inspect.getsource(_test_interactive_impl)
+         + "\n_test_interactive_impl()",
          json.dumps({"toolbar": toolbar})],
         env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
         timeout=_test_timeout,
@@ -173,14 +176,78 @@ def test_interactive_backend(backend, toolbar):
     assert proc.stdout.count("CloseEvent") == 1
 
 
+# The source of this function gets extracted and run in another process, so it
+# must be fully self-contained.
+def _test_thread_impl():
+    from concurrent.futures import ThreadPoolExecutor
+    import json
+    import sys
+
+    from matplotlib import pyplot as plt, rcParams
+
+    rcParams.update({
+        "webagg.open_in_browser": False,
+        "webagg.port_retries": 1,
+    })
+    if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
+        rcParams.update(json.loads(sys.argv[1]))
+
+    # Test artist creation and drawing does not crash from thread
+    # No other guarantees!
+    fig, ax = plt.subplots()
+    # plt.pause needed vs plt.show(block=False) at least on toolbar2-tkagg
+    plt.pause(0.5)
+
+    future = ThreadPoolExecutor().submit(ax.plot, [1, 3, 6])
+    future.result()  # Joins the thread; rethrows any exception.
+
+    fig.canvas.mpl_connect("close_event", print)
+    future = ThreadPoolExecutor().submit(fig.canvas.draw)
+    plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
+    future.result()  # Joins the thread; rethrows any exception.
+    plt.close()
+    fig.canvas.flush_events()  # pause doesn't process events after close
+
+
+_thread_safe_backends = _get_testable_interactive_backends()
+# Known unsafe backends. Remove the xfails if they start to pass!
+for param in _thread_safe_backends:
+    backend = param.values[0]
+    if "cairo" in backend:
+        # Cairo backends save a cairo_t on the graphics context, and sharing
+        # these is not threadsafe.
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.CalledProcessError))
+    elif backend == "wx":
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.CalledProcessError))
+    elif backend == "macosx":
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.TimeoutExpired, strict=True))
+
+
+@pytest.mark.parametrize("backend", _thread_safe_backends)
+@pytest.mark.flaky(reruns=3)
+def test_interactive_thread_safety(backend):
+    proc = subprocess.run(
+        [sys.executable, "-c",
+         inspect.getsource(_test_thread_impl) + "\n_test_thread_impl()"],
+        env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout, check=True,
+        stdout=subprocess.PIPE, universal_newlines=True)
+    assert proc.stdout.count("CloseEvent") == 1
+
+
 @pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
-    proc = subprocess.Popen([sys.executable, "-c", _test_script],
-                            env={**os.environ, "MPLBACKEND": "webagg",
-                                 "SOURCE_DATE_EPOCH": "0"})
+    proc = subprocess.Popen(
+        [sys.executable, "-c",
+         inspect.getsource(_test_interactive_impl)
+         + "\n_test_interactive_impl()"],
+        env={**os.environ, "MPLBACKEND": "webagg", "SOURCE_DATE_EPOCH": "0"})
     url = "http://{}:{}".format(
         mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
     timeout = time.perf_counter() + _test_timeout
@@ -209,7 +276,8 @@ import os
 import sys
 
 # make it look headless
-del os.environ['DISPLAY']
+os.environ.pop('DISPLAY', None)
+os.environ.pop('WAYLAND_DISPLAY', None)
 
 # we should fast-track to Agg
 import matplotlib.pyplot as plt

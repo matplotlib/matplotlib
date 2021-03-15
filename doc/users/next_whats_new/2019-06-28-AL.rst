@@ -1,0 +1,17 @@
+``Colormap.set_extremes`` and ``Colormap.with_extremes``
+````````````````````````````````````````````````````````
+
+Because the `.Colormap.set_bad`, `.Colormap.set_under` and `.Colormap.set_over`
+methods modify the colormap in place, the user must be careful to first make a
+copy of the colormap if setting the extreme colors e.g. for a builtin colormap.
+
+The new ``Colormap.with_extremes(bad=..., under=..., over=...)`` can be used to
+first copy the colormap and set the extreme colors on that copy.
+
+The new `.Colormap.set_extremes` method is provided for API symmetry with
+`.Colormap.with_extremes`, but note that it suffers from the same issue as the
+earlier individual setters.
+
+Additionally, it is now possible to set :rc:`image.cmap` to a `.Colormap`
+instance, such as a new colormap created with `~.Colormap.set_extremes`.  (This
+can only be done from Python code, not from the :file:`matplotlibrc` file.)

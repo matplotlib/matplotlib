@@ -1,6 +1,6 @@
 """
 ==========
-Polar Demo
+Polar plot
 ==========
 
 Demo of a line plot on a polar axis.

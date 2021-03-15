@@ -8,7 +8,7 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "numpy/ndarrayobject.h"
-#include "libqhull/qhull_a.h"
+#include "libqhull_r/qhull_ra.h"
 #include <stdio.h>
 
 
@@ -32,11 +32,11 @@ static const char* qhull_error_msg[6] = {
 /* Return the indices of the 3 vertices that comprise the specified facet (i.e.
  * triangle). */
 static void
-get_facet_vertices(const facetT* facet, int indices[3])
+get_facet_vertices(qhT* qh, const facetT* facet, int indices[3])
 {
     vertexT *vertex, **vertexp;
     FOREACHvertex_(facet->vertices)
-        *indices++ = qh_pointid(vertex->point);
+        *indices++ = qh_pointid(qh, vertex->point);
 }
 
 /* Return the indices of the 3 triangles that are neighbors of the specified
@@ -88,6 +88,8 @@ static PyObject*
 delaunay_impl(int npoints, const double* x, const double* y,
               int hide_qhull_errors)
 {
+	qhT qh_qh;                  /* qh variable type and name must be like */
+	qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
     coordT* points = NULL;
     facetT* facet;
     int i, ntri, max_facet_id;
@@ -148,7 +150,8 @@ delaunay_impl(int npoints, const double* x, const double* y,
     }
 
     /* Perform Delaunay triangulation. */
-    exitcode = qh_new_qhull(ndim, npoints, points, False,
+    qh_zero(qh, error_file);
+    exitcode = qh_new_qhull(qh, ndim, npoints, points, False,
                             "qhull d Qt Qbb Qc Qz", NULL, error_file);
     if (exitcode != qh_ERRnone) {
         PyErr_Format(PyExc_RuntimeError,
@@ -159,7 +162,7 @@ delaunay_impl(int npoints, const double* x, const double* y,
     }
 
     /* Split facets so that they only have 3 points each. */
-    qh_triangulate();
+    qh_triangulate(qh);
 
     /* Determine ntri and max_facet_id.
        Note that libqhull uses macros to iterate through collections. */
@@ -169,7 +172,7 @@ delaunay_impl(int npoints, const double* x, const double* y,
             ++ntri;
     }
 
-    max_facet_id = qh facet_id - 1;
+    max_facet_id = qh->facet_id - 1;
 
     /* Create array to map facet id to triangle index. */
     tri_indices = (int*)malloc((max_facet_id+1)*sizeof(int));
@@ -204,7 +207,7 @@ delaunay_impl(int npoints, const double* x, const double* y,
     FORALLfacets {
         if (!facet->upperdelaunay) {
             tri_indices[facet->id] = i++;
-            get_facet_vertices(facet, indices);
+            get_facet_vertices(qh, facet, indices);
             *triangles_ptr++ = (facet->toporient ? indices[0] : indices[2]);
             *triangles_ptr++ = indices[1];
             *triangles_ptr++ = (facet->toporient ? indices[2] : indices[0]);
@@ -224,8 +227,8 @@ delaunay_impl(int npoints, const double* x, const double* y,
     }
 
     /* Clean up. */
-    qh_freeqhull(!qh_ALL);
-    qh_memfreeshort(&curlong, &totlong);
+    qh_freeqhull(qh, !qh_ALL);
+    qh_memfreeshort(qh, &curlong, &totlong);
     if (curlong || totlong)
         PyErr_WarnEx(PyExc_RuntimeWarning,
                      "Qhull could not free all allocated memory", 1);
@@ -243,8 +246,8 @@ error:
     /* Clean up. */
     Py_XDECREF(triangles);
     Py_XDECREF(neighbors);
-    qh_freeqhull(!qh_ALL);
-    qh_memfreeshort(&curlong, &totlong);
+    qh_freeqhull(qh, !qh_ALL);
+    qh_memfreeshort(qh, &curlong, &totlong);
     /* Don't bother checking curlong and totlong as raising error anyway. */
     if (hide_qhull_errors)
         fclose(error_file);

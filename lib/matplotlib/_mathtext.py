@@ -18,10 +18,9 @@ from pyparsing import (
     ParseResults, QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
 
 import matplotlib as mpl
-from . import cbook
+from . import _api, cbook
 from ._mathtext_data import (
-    latex_to_bakoma, latex_to_cmex, latex_to_standard, stix_virtual_fonts,
-    tex2uni)
+    latex_to_bakoma, latex_to_standard, stix_virtual_fonts, tex2uni)
 from .afm import AFM
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import KERNING_DEFAULT
@@ -82,17 +81,17 @@ class Fonts:
         """
         Parameters
         ----------
-        default_font_prop: `~.font_manager.FontProperties`
+        default_font_prop : `~.font_manager.FontProperties`
             The default non-math font, or the base font for Unicode (generic)
             font rendering.
-        mathtext_backend: `MathtextBackend` subclass
+        mathtext_backend : `MathtextBackend` subclass
             Backend to which rendering is actually delegated.
         """
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
         self.used_characters = {}
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def destroy(self):
         """
         Fix any cyclical references before the object is about
@@ -159,7 +158,7 @@ class Fonts:
         self.mathtext_backend.set_canvas_size(
             self.width, self.height, self.depth)
 
-    @cbook._rename_parameter("3.4", "facename", "font")
+    @_api.rename_parameter("3.4", "facename", "font")
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
         """
         At position (*ox*, *oy*), draw the glyph specified by the remaining
@@ -204,7 +203,7 @@ class Fonts:
         result = self.mathtext_backend.get_results(
             box, self.get_used_characters())
         if self.destroy != TruetypeFonts.destroy.__get__(self):
-            destroy = cbook._deprecate_method_override(
+            destroy = _api.deprecate_method_override(
                 __class__.destroy, self, since="3.4")
             if destroy:
                 destroy()
@@ -235,7 +234,7 @@ class TruetypeFonts(Fonts):
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def destroy(self):
         self.glyphd = None
         super().destroy()
@@ -452,7 +451,7 @@ class UnicodeFonts(TruetypeFonts):
     This class will "fallback" on the Bakoma fonts when a required
     symbol can not be found in the font.
     """
-    use_cmex = True
+    use_cmex = True  # Unused; delete once mathtext becomes private.
 
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
@@ -497,22 +496,13 @@ class UnicodeFonts(TruetypeFonts):
         return fontname, uniindex
 
     def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
-        found_symbol = False
-
-        if self.use_cmex:
-            uniindex = latex_to_cmex.get(sym)
-            if uniindex is not None:
-                fontname = 'ex'
-                found_symbol = True
-
-        if not found_symbol:
-            try:
-                uniindex = get_unicode_index(sym, math)
-                found_symbol = True
-            except ValueError:
-                uniindex = ord('?')
-                _log.warning(
-                    "No TeX to unicode mapping for {!a}.".format(sym))
+        try:
+            uniindex = get_unicode_index(sym, math)
+            found_symbol = True
+        except ValueError:
+            uniindex = ord('?')
+            found_symbol = False
+            _log.warning("No TeX to unicode mapping for {!a}.".format(sym))
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
@@ -574,7 +564,7 @@ class UnicodeFonts(TruetypeFonts):
 
 
 class DejaVuFonts(UnicodeFonts):
-    use_cmex = False
+    use_cmex = False  # Unused; delete once mathtext becomes private.
 
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
@@ -677,7 +667,7 @@ class StixFonts(UnicodeFonts):
         4: 'STIXSizeFourSym',
         5: 'STIXSizeFiveSym',
     }
-    use_cmex = False
+    use_cmex = False  # Unused; delete once mathtext becomes private.
     cm_fallback = False
     _sans = False
 
@@ -805,10 +795,7 @@ class StandardPsFonts(Fonts):
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
 
-    @cbook.deprecated("3.4")
-    @property
-    def pswriter(self):
-        return StringIO()
+    pswriter = _api.deprecated("3.4")(property(lambda self: StringIO()))
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -1562,12 +1549,9 @@ class Glue(Node):
     it's easier to stick to what TeX does.)
     """
 
-    @cbook.deprecated("3.3")
-    @property
-    def glue_subtype(self):
-        return "normal"
+    glue_subtype = _api.deprecated("3.3")(property(lambda self: "normal"))
 
-    @cbook._delete_parameter("3.3", "copy")
+    @_api.delete_parameter("3.3", "copy")
     def __init__(self, glue_type, copy=False):
         super().__init__()
         if isinstance(glue_type, str):
@@ -1593,43 +1577,43 @@ class Glue(Node):
 # Some convenient ways to get common kinds of glue
 
 
-@cbook.deprecated("3.3", alternative="Glue('fil')")
+@_api.deprecated("3.3", alternative="Glue('fil')")
 class Fil(Glue):
     def __init__(self):
         super().__init__('fil')
 
 
-@cbook.deprecated("3.3", alternative="Glue('fill')")
+@_api.deprecated("3.3", alternative="Glue('fill')")
 class Fill(Glue):
     def __init__(self):
         super().__init__('fill')
 
 
-@cbook.deprecated("3.3", alternative="Glue('filll')")
+@_api.deprecated("3.3", alternative="Glue('filll')")
 class Filll(Glue):
     def __init__(self):
         super().__init__('filll')
 
 
-@cbook.deprecated("3.3", alternative="Glue('neg_fil')")
+@_api.deprecated("3.3", alternative="Glue('neg_fil')")
 class NegFil(Glue):
     def __init__(self):
         super().__init__('neg_fil')
 
 
-@cbook.deprecated("3.3", alternative="Glue('neg_fill')")
+@_api.deprecated("3.3", alternative="Glue('neg_fill')")
 class NegFill(Glue):
     def __init__(self):
         super().__init__('neg_fill')
 
 
-@cbook.deprecated("3.3", alternative="Glue('neg_filll')")
+@_api.deprecated("3.3", alternative="Glue('neg_filll')")
 class NegFilll(Glue):
     def __init__(self):
         super().__init__('neg_filll')
 
 
-@cbook.deprecated("3.3", alternative="Glue('ss')")
+@_api.deprecated("3.3", alternative="Glue('ss')")
 class SsGlue(Glue):
     def __init__(self):
         super().__init__('ss')
@@ -2051,6 +2035,7 @@ class Parser:
         p.non_math         = Forward()
         p.operatorname     = Forward()
         p.overline         = Forward()
+        p.overset          = Forward()
         p.placeable        = Forward()
         p.rbrace           = Forward()
         p.rbracket         = Forward()
@@ -2069,6 +2054,7 @@ class Parser:
         p.symbol           = Forward()
         p.symbol_name      = Forward()
         p.token            = Forward()
+        p.underset         = Forward()
         p.unknown_symbol   = Forward()
 
         # Set names on everything -- very useful for debugging
@@ -2174,7 +2160,8 @@ class Parser:
 
         p.sqrt <<= Group(
             Suppress(Literal(r"\sqrt"))
-            - ((Optional(p.lbracket + p.int_literal + p.rbracket, default=None)
+            - ((Group(Optional(
+                p.lbracket + OneOrMore(~p.rbracket + p.token) + p.rbracket))
                 + p.required_group)
                | Error("Expected \\sqrt{value}"))
         )
@@ -2182,6 +2169,18 @@ class Parser:
         p.overline <<= Group(
             Suppress(Literal(r"\overline"))
             - (p.required_group | Error("Expected \\overline{value}"))
+        )
+
+        p.overset <<= Group(
+            Suppress(Literal(r"\overset"))
+            - ((p.simple_group + p.simple_group)
+               | Error("Expected \\overset{body}{annotation}"))
+        )
+
+        p.underset <<= Group(
+            Suppress(Literal(r"\underset"))
+            - ((p.simple_group + p.simple_group)
+               | Error("Expected \\underset{body}{annotation}"))
         )
 
         p.unknown_symbol <<= Combine(p.bslash + Regex("[A-Za-z]*"))
@@ -2205,6 +2204,8 @@ class Parser:
             | p.dfrac
             | p.binom
             | p.genfrac
+            | p.overset
+            | p.underset
             | p.sqrt
             | p.overline
             | p.operatorname
@@ -2381,8 +2382,8 @@ class Parser:
     }
 
     def space(self, s, loc, toks):
-        assert len(toks) == 1
-        num = self._space_widths[toks[0]]
+        tok, = toks
+        num = self._space_widths[tok]
         box = self._make_space(num)
         return [box]
 
@@ -2390,7 +2391,7 @@ class Parser:
         return [self._make_space(float(toks[0]))]
 
     def symbol(self, s, loc, toks):
-        c = toks[0]
+        c, = toks
         try:
             char = Char(c, self.get_state())
         except ValueError as err:
@@ -2430,7 +2431,7 @@ class Parser:
     accentprefixed = symbol
 
     def unknown_symbol(self, s, loc, toks):
-        c = toks[0]
+        c, = toks
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
     _char_over_chars = {
@@ -2441,7 +2442,7 @@ class Parser:
     }
 
     def c_over_c(self, s, loc, toks):
-        sym = toks[0]
+        sym, = toks
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -2507,13 +2508,10 @@ class Parser:
     ])(set(_accent_map))
 
     def accent(self, s, loc, toks):
-        assert len(toks) == 1
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        if len(toks[0]) != 2:
-            raise ParseFatalException("Error parsing accent")
-        accent, sym = toks[0]
+        (accent, sym), = toks
         if accent in self._wide_accents:
             accent_box = AutoWidthChar(
                 '\\' + accent, sym.width, state, char_class=Accent)
@@ -2532,7 +2530,7 @@ class Parser:
 
     def function(self, s, loc, toks):
         hlist = self.operatorname(s, loc, toks)
-        hlist.function_name = toks[0]
+        hlist.function_name, = toks
         return hlist
 
     def operatorname(self, s, loc, toks):
@@ -2580,8 +2578,7 @@ class Parser:
         return []
 
     def font(self, s, loc, toks):
-        assert len(toks) == 1
-        name = toks[0]
+        name, = toks
         self.get_state().font = name
         return []
 
@@ -2677,7 +2674,7 @@ class Parser:
             super.kern()
             super.hpack()
 
-        # Handle over/under symbols, such as sum or integral
+        # Handle over/under symbols, such as sum or prod
         if self.is_overunder(nucleus):
             vlist = []
             shift = 0.
@@ -2689,18 +2686,19 @@ class Parser:
                 sub.shrink()
                 width = max(width, sub.width)
 
+            vgap = rule_thickness * 3.0
             if super is not None:
                 hlist = HCentered([super])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([hlist, Kern(rule_thickness * 3.0)])
+                vlist.extend([hlist, Vbox(0, vgap)])
             hlist = HCentered([nucleus])
             hlist.hpack(width, 'exactly')
             vlist.append(hlist)
             if sub is not None:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([Kern(rule_thickness * 3.0), hlist])
-                shift = hlist.height
+                vlist.extend([Vbox(0, vgap), hlist])
+                shift = hlist.height + vgap
             vlist = Vlist(vlist)
             vlist.shift_amount = shift + nucleus.depth
             result = Hlist([vlist])
@@ -2837,45 +2835,64 @@ class Parser:
         return result
 
     def genfrac(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 6
-
-        return self._genfrac(*tuple(toks[0]))
+        args, = toks
+        return self._genfrac(*args)
 
     def frac(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
         state = self.get_state()
-
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        num, den = toks[0]
-
+        (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.TEXTSTYLE,
                              num, den)
 
     def dfrac(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
         state = self.get_state()
-
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        num, den = toks[0]
-
+        (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.DISPLAYSTYLE,
                              num, den)
 
     def binom(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-        num, den = toks[0]
-
+        (num, den), = toks
         return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
                              num, den)
 
+    def _genset(self, state, annotation, body, overunder):
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+
+        annotation.shrink()
+
+        cannotation = HCentered([annotation])
+        cbody = HCentered([body])
+        width = max(cannotation.width, cbody.width)
+        cannotation.hpack(width, 'exactly')
+        cbody.hpack(width, 'exactly')
+
+        vgap = thickness * 3
+        if overunder == "under":
+            vlist = Vlist([cbody,                       # body
+                           Vbox(0, vgap),               # space
+                           cannotation                  # annotation
+                           ])
+            # Shift so the body sits in the same vertical position
+            shift_amount = cbody.depth + cannotation.height + vgap
+
+            vlist.shift_amount = shift_amount
+        else:
+            vlist = Vlist([cannotation,                 # annotation
+                           Vbox(0, vgap),               # space
+                           cbody                        # body
+                           ])
+
+        # To add horizontal gap between symbols: wrap the Vlist into
+        # an Hlist and extend it with an Hbox(0, horizontal_gap)
+        return vlist
+
     def sqrt(self, s, loc, toks):
-        root, body = toks[0]
+        (root, body), = toks
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -2897,10 +2914,10 @@ class Parser:
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
-        if root is None:
+        if not root:
             root = Box(check.width * 0.5, 0., 0.)
         else:
-            root = Hlist([Char(x, state) for x in root])
+            root = Hlist(root)
             root.shrink()
             root.shrink()
 
@@ -2915,10 +2932,7 @@ class Parser:
         return [hlist]
 
     def overline(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 1
-
-        body = toks[0][0]
+        (body,), = toks
 
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
@@ -2936,6 +2950,24 @@ class Parser:
 
         hlist = Hlist([rightside])
         return [hlist]
+
+    def overset(self, s, loc, toks):
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
+
+        state = self.get_state()
+        annotation, body = toks[0]
+
+        return self._genset(state, annotation, body, overunder="over")
+
+    def underset(self, s, loc, toks):
+        assert len(toks) == 1
+        assert len(toks[0]) == 2
+
+        state = self.get_state()
+        annotation, body = toks[0]
+
+        return self._genset(state, annotation, body, overunder="under")
 
     def _auto_sized_delimiter(self, front, middle, back):
         state = self.get_state()

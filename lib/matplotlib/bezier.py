@@ -8,7 +8,7 @@ import warnings
 
 import numpy as np
 
-import matplotlib.cbook as cbook
+from matplotlib import _api
 
 
 # same algorithm as 3.8's math.comb
@@ -129,13 +129,13 @@ def find_bezier_t_intersecting_with_closedpath(
         A function returning x, y coordinates of the Bezier at parameter *t*.
         It must have the signature::
 
-            bezier_point_at_t(t: float) -> Tuple[float, float]
+            bezier_point_at_t(t: float) -> tuple[float, float]
 
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
         closed path. It must have the signature::
 
-            inside_closedpath(point: Tuple[float, float]) -> bool
+            inside_closedpath(point: tuple[float, float]) -> bool
 
     t0, t1 : float
         Start parameters for the search.
@@ -204,12 +204,12 @@ class BezierSegment:
 
         Parameters
         ----------
-        t : float (k,), array_like
+        t : (k,) array-like
             Points at which to evaluate the curve.
 
         Returns
         -------
-        float (k, d), array_like
+        (k, d) array
             Value of the curve for each point in *t*.
         """
         t = np.asarray(t)
@@ -217,7 +217,9 @@ class BezierSegment:
                 * np.power.outer(t, self._orders)) @ self._px
 
     def point_at_t(self, t):
-        """Evaluate curve at a single point *t*. Returns a Tuple[float*d]."""
+        """
+        Evaluate the curve at a single point, returning a tuple of *d* floats.
+        """
         return tuple(self(t))
 
     @property
@@ -244,7 +246,7 @@ class BezierSegment:
 
         Returns
         -------
-        float, (n+1, d) array_like
+        (n+1, d) array
             Coefficients after expanding in polynomial basis, where :math:`n`
             is the degree of the bezier curve and :math:`d` its dimension.
             These are the numbers (:math:`C_j`) such that the curve can be
@@ -280,10 +282,10 @@ class BezierSegment:
 
         Returns
         -------
-        dims : int, array_like
+        dims : array of int
             Index :math:`i` of the partial derivative which is zero at each
             interior extrema.
-        dzeros : float, array_like
+        dzeros : array of float
             Of same size as dims. The :math:`t` such that :math:`d/dx_i B(t) =
             0`
         """
@@ -311,7 +313,7 @@ def split_bezier_intersecting_with_closedpath(
 
     Parameters
     ----------
-    bezier : array-like(N, 2)
+    bezier : (N, 2) array-like
         Control points of the Bezier segment. See `.BezierSegment`.
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
@@ -407,7 +409,7 @@ def inside_circle(cx, cy, r):
 
     The returned function has the signature::
 
-        f(xy: Tuple[float, float]) -> bool
+        f(xy: tuple[float, float]) -> bool
     """
     r2 = r ** 2
 
@@ -478,7 +480,7 @@ def get_parallels(bezier2, width):
                                       cmx - c2x, cmy - c2y)
 
     if parallel_test == -1:
-        cbook._warn_external(
+        _api.warn_external(
             "Lines do not intersect. A straight line is used instead.")
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, c2x, c2y)
         cos_t2, sin_t2 = cos_t1, sin_t1
@@ -593,7 +595,7 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     return path_left, path_right
 
 
-@cbook.deprecated(
+@_api.deprecated(
     "3.3", alternative="Path.cleaned() and remove the final STOP if needed")
 def make_path_regular(p):
     """
@@ -611,7 +613,7 @@ def make_path_regular(p):
         return p
 
 
-@cbook.deprecated("3.3", alternative="Path.make_compound_path()")
+@_api.deprecated("3.3", alternative="Path.make_compound_path()")
 def concatenate_paths(paths):
     """Concatenate a list of paths into a single path."""
     from .path import Path

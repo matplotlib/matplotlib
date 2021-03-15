@@ -2,7 +2,7 @@ import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.testing.widgets import do_event, get_ax
+from matplotlib.testing.widgets import do_event, get_ax, mock_event
 
 from numpy.testing import assert_allclose
 
@@ -267,6 +267,17 @@ def test_slider_valmin_valmax():
     assert slider.val == slider.valmax
 
 
+def test_slider_valstep_snapping():
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=11.4, valstep=1)
+    assert slider.val == 11
+
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=11.4, valstep=[0, 1, 5.5, 19.7])
+    assert slider.val == 5.5
+
+
 def test_slider_horizontal_vertical():
     fig, ax = plt.subplots()
     slider = widgets.Slider(ax=ax, label='', valmin=0, valmax=24,
@@ -285,6 +296,33 @@ def test_slider_horizontal_vertical():
     # check the dimension of the slider patch in axes units
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
     assert_allclose(box.bounds, [0, 0, 1, 10/24])
+
+
+@pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
+def test_range_slider(orientation):
+    if orientation == "vertical":
+        idx = [1, 0, 3, 2]
+    else:
+        idx = [0, 1, 2, 3]
+
+    fig, ax = plt.subplots()
+
+    slider = widgets.RangeSlider(
+        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation
+    )
+    box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
+    assert_allclose(box.get_points().flatten()[idx], [0.25, 0, 0.75, 1])
+
+    slider.set_val((0.2, 0.6))
+    assert_allclose(slider.val, (0.2, 0.6))
+    box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
+    assert_allclose(box.get_points().flatten()[idx], [0.2, 0, 0.6, 1])
+
+    slider.set_val((0.2, 0.1))
+    assert_allclose(slider.val, (0.1, 0.2))
+
+    slider.set_val((-1, 10))
+    assert_allclose(slider.val, (0, 1))
 
 
 def check_polygon_selector(event_sequence, expected_result, selections_count):
@@ -422,3 +460,43 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
     check_polygon_selector(event_sequence, expected_result, 1)
+
+
+@pytest.mark.parametrize(
+    "horizOn, vertOn",
+    [(True, True), (True, False), (False, True)],
+)
+def test_MultiCursor(horizOn, vertOn):
+    fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+
+    # useblit=false to avoid having to draw the figure to cache the renderer
+    multi = widgets.MultiCursor(
+        fig.canvas, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+    )
+
+    # Only two of the axes should have a line drawn on them.
+    if vertOn:
+        assert len(multi.vlines) == 2
+    if horizOn:
+        assert len(multi.hlines) == 2
+
+    # mock a motion_notify_event
+    # Can't use `do_event` as that helper requires the widget
+    # to have a single .ax attribute.
+    event = mock_event(ax1, xdata=.5, ydata=.25)
+    multi.onmove(event)
+
+    # the lines in the first two ax should both move
+    for l in multi.vlines:
+        assert l.get_xdata() == (.5, .5)
+    for l in multi.hlines:
+        assert l.get_ydata() == (.25, .25)
+
+    # test a move event in an axes not part of the MultiCursor
+    # the lines in ax1 and ax2 should not have moved.
+    event = mock_event(ax3, xdata=.75, ydata=.75)
+    multi.onmove(event)
+    for l in multi.vlines:
+        assert l.get_xdata() == (.5, .5)
+    for l in multi.hlines:
+        assert l.get_ydata() == (.25, .25)

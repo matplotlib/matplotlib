@@ -9,8 +9,6 @@ a faster generalization of `~.axes.Axes.pcolor`, but with some restrictions.
 This demo illustrates a bug in quadmesh with masked data.
 """
 
-import copy
-
 from matplotlib import cm, pyplot as plt
 import numpy as np
 
@@ -30,10 +28,8 @@ fig, axs = plt.subplots(nrows=1, ncols=3)
 axs[0].pcolormesh(Qx, Qz, Z, shading='gouraud')
 axs[0].set_title('Without masked values')
 
-# You can control the color of the masked region. We copy the default colormap
-# before modifying it.
-cmap = copy.copy(cm.get_cmap(plt.rcParams['image.cmap']))
-cmap.set_bad('y', 1.0)
+# You can control the color of the masked region.
+cmap = cm.get_cmap(plt.rcParams['image.cmap']).with_extremes(bad='y')
 axs[1].pcolormesh(Qx, Qz, Zm, shading='gouraud', cmap=cmap)
 axs[1].set_title('With masked values')
 

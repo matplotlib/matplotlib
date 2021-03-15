@@ -74,7 +74,7 @@ Previously, certain locator classes (`~.ticker.LogLocator`,
 tick locations that collided with major ticks when they were used as
 minor locators.  This logic has now moved to the `~.axis.Axis` class,
 and is used regardless of the locator class.  You can control this
-behavior via the `~.Axis.remove_overlaping_locs` attribute on
+behavior via the `~.Axis.remove_overlapping_locs` attribute on
 `~.axis.Axis`.
 
 If you were relying on both the major and minor tick labels to appear
@@ -236,18 +236,18 @@ Input that consists of multiple empty lists will now return a list of histogram
 values for each one of the lists. For example, an input of ``[[],[]]`` will
 return 2 lists of histogram values. Previously, a single list was returned.
 
-`.backend_bases.Timer.remove_callback` future signature change
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``backend_bases.TimerBase.remove_callback`` future signature change
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Currently, ``backend_bases.Timer.remove_callback(func, *args,
+Currently, ``backend_bases.TimerBase.remove_callback(func, *args,
 **kwargs)`` removes a callback previously added by
 ``backend_bases.Timer.add_callback(func, *args, **kwargs)``, but if
-``*args, **kwargs`` is not passed in (ex,
-``Timer.remove_callback(func)``), then the first callback with a
+``*args, **kwargs`` is not passed in (i.e.,
+``TimerBase.remove_callback(func)``), then the first callback with a
 matching ``func`` is removed, regardless of whether it was added with
 or without ``*args, **kwargs``.
 
-In a future version, ``Timer.remove_callback`` will always use the latter
+In a future version, `.TimerBase.remove_callback` will always use the latter
 behavior (not consider ``*args, **kwargs``); to specifically consider them, add
 the callback as a `functools.partial` object ::
 
@@ -256,7 +256,7 @@ the callback as a `functools.partial` object ::
    # later
    timer.remove_callback(cb)
 
-`.backend_bases.Timer.add_callback` was modified to return *func* to
+`.TimerBase.add_callback` was modified to return *func* to
 simplify the above usage (previously it returned None); this also
 allows using it as a decorator.
 
@@ -279,7 +279,7 @@ be set to `True` ::
 
 Individual line segments can be extracted from the
 `~.collections.LineCollection` using
-`~.collections.LineCollection.get_segements()`. See the
+`~.collections.LineCollection.get_segments()`. See the
 `~.collections.LineCollection` documentation for other methods to
 retrieve the collection properties.
 
@@ -767,12 +767,12 @@ The following signature related behaviours are deprecated:
   keyword.
 - The *interp_at_native* parameter to `.BboxImage`, which has had no effect
   since Matplotlib 2.0, is deprecated.
-- All arguments to the `~.cbook.deprecation.deprecated` decorator and
-  `~.cbook.deprecation.warn_deprecated` function, except the first one (the
-  version where the deprecation occurred), are now keyword-only.  The goal is
-  to avoid accidentally setting the "message" argument when the "name" (or
-  "alternative") argument was intended, as this has repeatedly occurred in the
-  past.
+- All arguments to the ``matplotlib.cbook.deprecation.deprecated`` decorator
+  and ``matplotlib.cbook.deprecation.warn_deprecated`` function, except the
+  first one (the version where the deprecation occurred), are now keyword-only.
+  The goal is to avoid accidentally setting the "message" argument when the
+  "name" (or "alternative") argument was intended, as this has repeatedly
+  occurred in the past.
 - The arguments of `matplotlib.testing.compare.calculate_rms` have been renamed
   from ``expectedImage, actualImage``, to ``expected_image, actual_image``.
 - Passing positional arguments to `.Axis.set_ticklabels` beyond *ticklabels*
@@ -796,10 +796,10 @@ Changes in parameter names
 - The *s* parameter to `.Annotation` (and indirectly `.Axes.annotate`) has
   been renamed to *text*.
 - The *tolerence* parameter to
-  `bezier.find_bezier_t_intersecting_with_closedpath`,
-  `bezier.split_bezier_intersecting_with_closedpath`,
-  `bezier.find_r_to_boundary_of_closedpath`,
-  `bezier.split_path_inout` and `bezier.check_if_parallel` has been renamed to
+  `.bezier.find_bezier_t_intersecting_with_closedpath`,
+  `.bezier.split_bezier_intersecting_with_closedpath`,
+  ``bezier.find_r_to_boundary_of_closedpath``,
+  `.bezier.split_path_inout` and `.bezier.check_if_parallel` has been renamed to
   *tolerance*.
 
 In each case, the old parameter name remains supported (it cannot be used
@@ -961,11 +961,11 @@ GUI / backend details
 
 - ``.get_py2exe_datafiles``
 - ``.tk_window_focus``
-- `.backend_gtk3.FileChooserDialog`
-- `.backend_gtk3.NavigationToolbar2GTK3.get_filechooser`
-- `.backend_gtk3.SaveFigureGTK3.get_filechooser`
-- `.NavigationToolbar2QT.adj_window` attribute. This is unused and always ``None``.
-- `.backend_wx.IDLE_DELAY` global variable
+- ``.backend_gtk3.FileChooserDialog``
+- ``.backend_gtk3.NavigationToolbar2GTK3.get_filechooser``
+- ``.backend_gtk3.SaveFigureGTK3.get_filechooser``
+- ``.NavigationToolbar2QT.adj_window`` attribute. This is unused and always ``None``.
+- ``.backend_wx.IDLE_DELAY`` global variable
   This is unused and only relevant to the now removed wx "idling" code (note that
   as it is a module-level global, no deprecation warning is emitted when
   accessing it).
@@ -1021,7 +1021,7 @@ Use `~.path.get_path_collection_extents` instead.
 
 Use ``not np.isfinite(path.vertices).all()`` instead.
 
-- `.bezier.find_r_to_boundary_of_closedpath` function is deprecated
+- ``.bezier.find_r_to_boundary_of_closedpath`` function is deprecated
 
 This has always returned None instead of the requested radius.
 
@@ -1076,8 +1076,8 @@ Undeprecations
 --------------
 The following API elements have been un-deprecated:
 
-- The *obj_type* keyword argument to the `~.cbook.deprecation.deprecated`
-  decorator.
+- The *obj_type* keyword argument to the
+  ``matplotlib.cbook.deprecation.deprecated`` decorator.
 - *xmin*, *xmax* keyword arguments to `.Axes.set_xlim` and *ymin*, *ymax*
   keyword arguments to `.Axes.set_ylim`
 

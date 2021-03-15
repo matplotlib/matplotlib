@@ -5,25 +5,18 @@ in ~/.matplotlib/tex.cache for reuse between sessions.
 
 Requirements:
 
-* latex
+* LaTeX
 * \*Agg backends: dvipng>=1.6
-* PS backend: psfrag, dvips, and Ghostscript>=8.60
-
-Backends:
-
-* \*Agg
-* PS
-* PDF
+* PS backend: psfrag, dvips, and Ghostscript>=9.0
 
 For raster output, you can get RGBA numpy arrays from TeX expressions
 as follows::
 
   texmanager = TexManager()
-  s = ('\TeX\ is Number '
-       '$\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!')
+  s = "\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!"
   Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1, 0, 0))
 
-To enable tex rendering of all text in your matplotlib figure, set
+To enable TeX rendering of all text in your Matplotlib figure, set
 :rc:`text.usetex` to True.
 """
 
@@ -40,7 +33,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, dviread, rcParams
+from matplotlib import _api, cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -80,42 +73,25 @@ class TexManager:
         'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
-    @cbook.deprecated("3.3", alternative="matplotlib.get_cachedir()")
-    @property
-    def cachedir(self):
-        return mpl.get_cachedir()
-
-    @cbook.deprecated("3.3")
-    @property
-    def rgba_arrayd(self):
-        return {}
+    cachedir = _api.deprecated(
+        "3.3", alternative="matplotlib.get_cachedir()")(
+            property(lambda self: mpl.get_cachedir()))
+    rgba_arrayd = _api.deprecated("3.3")(property(lambda self: {}))
+    _fonts = {}  # Only for deprecation period.
+    serif = _api.deprecated("3.3")(property(
+        lambda self: self._fonts.get("serif", ('cmr', ''))))
+    sans_serif = _api.deprecated("3.3")(property(
+        lambda self: self._fonts.get("sans-serif", ('cmss', ''))))
+    cursive = _api.deprecated("3.3")(property(
+        lambda self:
+        self._fonts.get("cursive", ('pzc', r'\usepackage{chancery}'))))
+    monospace = _api.deprecated("3.3")(property(
+        lambda self: self._fonts.get("monospace", ('cmtt', ''))))
 
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
         Path(cls.texcache).mkdir(parents=True, exist_ok=True)
         return object.__new__(cls)
-
-    _fonts = {}  # Only for deprecation period.
-
-    @cbook.deprecated("3.3")
-    @property
-    def serif(self):
-        return self._fonts.get("serif", ('cmr', ''))
-
-    @cbook.deprecated("3.3")
-    @property
-    def sans_serif(self):
-        return self._fonts.get("sans-serif", ('cmss', ''))
-
-    @cbook.deprecated("3.3")
-    @property
-    def cursive(self):
-        return self._fonts.get("cursive", ('pzc', r'\usepackage{chancery}'))
-
-    @cbook.deprecated("3.3")
-    @property
-    def monospace(self):
-        return self._fonts.get("monospace", ('cmtt', ''))
 
     def get_font_config(self):
         ff = rcParams['font.family']
@@ -231,7 +207,7 @@ class TexManager:
     _re_vbox = re.compile(
         r"MatplotlibBox:\(([\d.]+)pt\+([\d.]+)pt\)x([\d.]+)pt")
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def make_tex_preview(self, tex, fontsize):
         """
         Generate a tex file to render the tex string at a specific font size.
@@ -318,7 +294,7 @@ class TexManager:
                 (Path(tmpdir) / Path(dvifile).name).replace(dvifile)
         return dvifile
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def make_dvi_preview(self, tex, fontsize):
         """
         Generate a dvi file containing latex's layout of tex string.

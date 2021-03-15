@@ -32,7 +32,7 @@ class GeoAxes(Axes):
         self.xaxis = maxis.XAxis(self)
         self.yaxis = maxis.YAxis(self)
         # Do not register xaxis or yaxis with spines -- as done in
-        # Axes._init_axis() -- until GeoAxes.xaxis.cla() works.
+        # Axes._init_axis() -- until GeoAxes.xaxis.clear() works.
         # self.spines['geo'].register_axis(self.yaxis)
         self._update_transScale()
 
@@ -202,7 +202,7 @@ class GeoAxes(Axes):
 
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
 
         This axes object does not support interactive zoom box.
         """
@@ -210,7 +210,7 @@ class GeoAxes(Axes):
 
     def can_pan(self):
         """
-        Return *True* if this axes supports the pan/zoom button functionality.
+        Return whether this axes supports the pan/zoom button functionality.
 
         This axes object does not support interactive pan/zoom.
         """
@@ -264,10 +264,7 @@ class AitoffAxes(GeoAxes):
             cos_latitude = np.cos(latitude)
 
             alpha = np.arccos(cos_latitude * np.cos(half_long))
-            # Avoid divide-by-zero errors using same method as NumPy.
-            alpha[alpha == 0.0] = 1e-20
-            # We want unnormalized sinc.  numpy.sinc gives us normalized
-            sinc_alpha = np.sin(alpha) / alpha
+            sinc_alpha = np.sinc(alpha / np.pi)  # np.sinc is sin(pi*x)/(pi*x).
 
             x = (cos_latitude * np.sin(half_long)) / sinc_alpha
             y = np.sin(latitude) / sinc_alpha
@@ -282,7 +279,7 @@ class AitoffAxes(GeoAxes):
         def transform_non_affine(self, xy):
             # docstring inherited
             # MGDTODO: Math is hard ;(
-            return xy
+            return np.full_like(xy, np.nan)
 
         def inverted(self):
             # docstring inherited

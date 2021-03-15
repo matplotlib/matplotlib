@@ -2,6 +2,28 @@
 Matplotlib provides sophisticated date plotting capabilities, standing on the
 shoulders of python :mod:`datetime` and the add-on module :mod:`dateutil`.
 
+By default, Matplotlib uses the units machinery described in
+`~matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
+objects when plotted on an x- or y-axis. The user does not
+need to do anything for dates to be formatted, but dates often have strict
+formatting needs, so this module provides many axis locators and formatters.
+A basic example using `numpy.datetime64` is::
+
+    import numpy as np
+
+    times = np.arange(np.datetime64('2001-01-02'),
+                      np.datetime64('2002-02-03'), np.timedelta64(75, 'm'))
+    y = np.random.randn(len(times))
+
+    fig, ax = plt.subplots()
+    ax.plot(times, y)
+
+.. seealso::
+
+    - :doc:`/gallery/text_labels_and_annotations/date`
+    - :doc:`/gallery/ticks_and_spines/date_concise_formatter`
+    - :doc:`/gallery/ticks_and_spines/date_demo_convert`
+
 .. _date-format:
 
 Matplotlib date format
@@ -162,14 +184,11 @@ import dateutil.parser
 import dateutil.tz
 import numpy as np
 
-import matplotlib
-import matplotlib.units as units
-import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
+import matplotlib as mpl
+from matplotlib import _api, cbook, ticker, units
 
 __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
-           'epoch2num', 'num2epoch', 'mx2num', 'set_epoch',
-           'get_epoch', 'DateFormatter',
+           'epoch2num', 'num2epoch', 'set_epoch', 'get_epoch', 'DateFormatter',
            'ConciseDateFormatter', 'IndexDateFormatter', 'AutoDateFormatter',
            'DateLocator', 'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
@@ -187,7 +206,7 @@ UTC = datetime.timezone.utc
 
 def _get_rc_timezone():
     """Retrieve the preferred timezone from the rcParams dictionary."""
-    s = matplotlib.rcParams['timezone']
+    s = mpl.rcParams['timezone']
     if s == 'UTC':
         return UTC
     return dateutil.tz.gettz(s)
@@ -249,7 +268,7 @@ def set_epoch(epoch):
     If microsecond accuracy is desired, the date being plotted needs to be
     within approximately 70 years of the epoch. Matplotlib internally
     represents dates as days since the epoch, so floating point dynamic
-    range needs to be within a factor fo 2^52.
+    range needs to be within a factor of 2^52.
 
     `~.dates.set_epoch` must be called before any dates are converted
     (i.e. near the import section) or a RuntimeError will be raised.
@@ -275,33 +294,14 @@ def get_epoch():
 
     Returns
     -------
-    epoch: str
+    epoch : str
         String for the epoch (parsable by `numpy.datetime64`).
     """
     global _epoch
 
     if _epoch is None:
-        _epoch = matplotlib.rcParams['date.epoch']
+        _epoch = mpl.rcParams['date.epoch']
     return _epoch
-
-
-def _to_ordinalf(dt):
-    """
-    Convert :mod:`datetime` or :mod:`date` to the Gregorian date as UTC float
-    days, preserving hours, minutes, seconds and microseconds.  Return value
-    is a `float`.
-    """
-    # Convert to UTC
-    tzi = getattr(dt, 'tzinfo', None)
-    if tzi is not None:
-        dt = dt.astimezone(UTC)
-        dt = dt.replace(tzinfo=None)
-    dt64 = np.datetime64(dt)
-    return _dt64_to_ordinalf(dt64)
-
-
-# a version of _to_ordinalf that can operate on numpy arrays
-_to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
 
 
 def _dt64_to_ordinalf(d):
@@ -428,20 +428,29 @@ def date2num(d):
     if hasattr(d, "values"):
         # this unpacks pandas series or dataframes...
         d = d.values
-    if not np.iterable(d):
-        if (isinstance(d, np.datetime64) or
-                (isinstance(d, np.ndarray) and
-                 np.issubdtype(d.dtype, np.datetime64))):
-            return _dt64_to_ordinalf(d)
-        return _to_ordinalf(d)
 
-    else:
-        d = np.asarray(d)
-        if np.issubdtype(d.dtype, np.datetime64):
-            return _dt64_to_ordinalf(d)
+    # make an iterable, but save state to unpack later:
+    iterable = np.iterable(d)
+    if not iterable:
+        d = [d]
+
+    d = np.asarray(d)
+    # convert to datetime64 arrays, if not already:
+    if not np.issubdtype(d.dtype, np.datetime64):
+        # datetime arrays
         if not d.size:
+            # deals with an empty array...
             return d
-        return _to_ordinalf_np_vectorized(d)
+        tzi = getattr(d[0], 'tzinfo', None)
+        if tzi is not None:
+            # make datetime naive:
+            d = [dt.astimezone(UTC).replace(tzinfo=None) for dt in d]
+            d = np.asarray(d)
+        d = d.astype('datetime64[us]')
+
+    d = _dt64_to_ordinalf(d)
+
+    return d if iterable else d[0]
 
 
 def julian2num(j):
@@ -583,6 +592,12 @@ def drange(dstart, dend, delta):
     f2 = date2num(dinterval_end)  # new float-endpoint
     return np.linspace(f1, f2, num + 1)
 
+
+def _wrap_in_tex(text):
+    # Braces ensure dashes are not spaced like binary operators.
+    return '$\\mathdefault{' + text.replace('-', '{-}') + '}$'
+
+
 ## date tickers and formatters ###
 
 
@@ -592,12 +607,12 @@ class DateFormatter(ticker.Formatter):
     `~datetime.datetime.strftime` format string.
     """
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     @property
     def illegal_s(self):
         return re.compile(r"((^|[^%])(%%)*%s)")
 
-    def __init__(self, fmt, tz=None):
+    def __init__(self, fmt, tz=None, *, usetex=None):
         """
         Parameters
         ----------
@@ -605,20 +620,26 @@ class DateFormatter(ticker.Formatter):
             `~datetime.datetime.strftime` format string
         tz : `datetime.tzinfo`, default: :rc:`timezone`
             Ticks timezone.
+        usetex : bool, default: :rc:`text.usetex`
+            To enable/disable the use of TeX's math mode for rendering the
+            results of the formatter.
         """
         if tz is None:
             tz = _get_rc_timezone()
         self.fmt = fmt
         self.tz = tz
+        self._usetex = (usetex if usetex is not None else
+                        mpl.rcParams['text.usetex'])
 
     def __call__(self, x, pos=0):
-        return num2date(x, self.tz).strftime(self.fmt)
+        result = num2date(x, self.tz).strftime(self.fmt)
+        return _wrap_in_tex(result) if self._usetex else result
 
     def set_tzinfo(self, tz):
         self.tz = tz
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class IndexDateFormatter(ticker.Formatter):
     """Use with `.IndexLocator` to cycle format strings by index."""
 
@@ -685,6 +706,10 @@ class ConciseDateFormatter(ticker.Formatter):
     show_offset : bool, default: True
         Whether to show the offset or not.
 
+    usetex : bool, default: :rc:`text.usetex`
+        To enable/disable the use of TeX's math mode for rendering the results
+        of the formatter.
+
     Examples
     --------
     See :doc:`/gallery/ticks_and_spines/date_concise_formatter`
@@ -713,7 +738,7 @@ class ConciseDateFormatter(ticker.Formatter):
     """
 
     def __init__(self, locator, tz=None, formats=None, offset_formats=None,
-                 zero_formats=None, show_offset=True):
+                 zero_formats=None, show_offset=True, *, usetex=None):
         """
         Autoformat the date labels.  The default format is used to form an
         initial string, and then redundant elements are removed.
@@ -768,9 +793,12 @@ class ConciseDateFormatter(ticker.Formatter):
                                    '%Y-%b-%d %H:%M']
         self.offset_string = ''
         self.show_offset = show_offset
+        self._usetex = (usetex if usetex is not None else
+                        mpl.rcParams['text.usetex'])
 
     def __call__(self, x, pos=None):
-        formatter = DateFormatter(self.defaultfmt, self._tz)
+        formatter = DateFormatter(self.defaultfmt, self._tz,
+                                  usetex=self._usetex)
         return formatter(x, pos=pos)
 
     def format_ticks(self, values):
@@ -795,6 +823,9 @@ class ConciseDateFormatter(ticker.Formatter):
         # 3: hours, 4: minutes, 5: seconds, 6: microseconds
         for level in range(5, -1, -1):
             if len(np.unique(tickdate[:, level])) > 1:
+                # level is less than 2 so a year is already present in the axis
+                if (level < 2):
+                    self.show_offset = False
                 break
             elif level == 0:
                 # all tickdate are the same, so only micros might be different
@@ -837,8 +868,13 @@ class ConciseDateFormatter(ticker.Formatter):
         if self.show_offset:
             # set the offset string:
             self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
+            if self._usetex:
+                self.offset_string = _wrap_in_tex(self.offset_string)
 
-        return labels
+        if self._usetex:
+            return [_wrap_in_tex(l) for l in labels]
+        else:
+            return labels
 
     def get_offset(self):
         return self.offset_string
@@ -903,17 +939,36 @@ class AutoDateFormatter(ticker.Formatter):
     # Or more simply, perhaps just a format string for each
     # possibility...
 
-    def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d'):
+    def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d', *,
+                 usetex=None):
         """
-        Autoformat the date labels.  The default format is the one to use
-        if none of the values in ``self.scaled`` are greater than the unit
-        returned by ``locator._get_unit()``.
+        Autoformat the date labels.
+
+        Parameters
+        ----------
+        locator : `.ticker.Locator`
+            Locator that this axis is using.
+
+        tz : str, optional
+            Passed to `.dates.date2num`.
+
+        defaultfmt : str
+            The default format to use if none of the values in ``self.scaled``
+            are greater than the unit returned by ``locator._get_unit()``.
+
+        usetex : bool, default: :rc:`text.usetex`
+            To enable/disable the use of TeX's math mode for rendering the
+            results of the formatter. If any entries in ``self.scaled`` are set
+            as functions, then it is up to the customized function to enable or
+            disable TeX's math mode itself.
         """
         self._locator = locator
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
-        rcParams = matplotlib.rcParams
+        rcParams = mpl.rcParams
+        self._usetex = (usetex if usetex is not None else
+                        mpl.rcParams['text.usetex'])
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
             DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
@@ -938,7 +993,7 @@ class AutoDateFormatter(ticker.Formatter):
                    self.defaultfmt)
 
         if isinstance(fmt, str):
-            self._formatter = DateFormatter(fmt, self._tz)
+            self._formatter = DateFormatter(fmt, self._tz, usetex=self._usetex)
             result = self._formatter(x, pos)
         elif callable(fmt):
             result = fmt(x, pos)
@@ -1379,7 +1434,7 @@ class AutoDateLocator(DateLocator):
                     break
             else:
                 if not (self.interval_multiples and freq == DAILY):
-                    cbook._warn_external(
+                    _api.warn_external(
                         f"AutoDateLocator was unable to pick an appropriate "
                         f"interval for this date range. It may be necessary "
                         f"to add an interval value to the AutoDateLocator's "
@@ -1418,7 +1473,7 @@ class AutoDateLocator(DateLocator):
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if date2num(dmin) > 70 * 365 and interval < 1000:
-                cbook._warn_external(
+                _api.warn_external(
                     'Plotting microsecond time intervals for dates far from '
                     f'the epoch (time origin: {get_epoch()}) is not well-'
                     'supported. See matplotlib.dates.set_epoch to change the '
@@ -1750,23 +1805,6 @@ def num2epoch(d):
           np.datetime64(get_epoch(), 's')).astype(float)
 
     return np.asarray(d) * SEC_PER_DAY - dt
-
-
-@cbook.deprecated("3.2")
-def mx2num(mxdates):
-    """
-    Convert mx :class:`datetime` instance (or sequence of mx
-    instances) to the new date format.
-    """
-    scalar = False
-    if not np.iterable(mxdates):
-        scalar = True
-        mxdates = [mxdates]
-    ret = epoch2num([m.ticks() for m in mxdates])
-    if scalar:
-        return ret[0]
-    else:
-        return ret
 
 
 def date_ticker_factory(span, tz=None, numticks=5):

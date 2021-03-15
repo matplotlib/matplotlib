@@ -5,7 +5,7 @@ the `numpy` and `scipy` libraries. What remains here is code for performing
 spectral computations.
 
 Spectral functions
--------------------
+------------------
 
 `cohere`
     Coherence (normalized cross spectral density)
@@ -739,7 +739,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     Returns
     -------
     spectrum : array-like
-        2-D array, columns are the periodograms of successive segments.
+        2D array, columns are the periodograms of successive segments.
 
     freqs : array-like
         1-D array, frequencies corresponding to the rows in *spectrum*.
@@ -766,9 +766,8 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     if NFFT is None:
         NFFT = 256  # same default as in _spectral_helper()
     if len(x) <= NFFT:
-        cbook._warn_external("Only one segment is calculated since parameter "
-                             "NFFT (=%d) >= signal length (=%d)." %
-                             (NFFT, len(x)))
+        _api.warn_external("Only one segment is calculated since parameter "
+                           f"NFFT (={NFFT}) >= signal length (={len(x)}).")
 
     spec, freqs, t = _spectral_helper(x=x, y=None, NFFT=NFFT, Fs=Fs,
                                       detrend_func=detrend, window=window,
@@ -841,7 +840,7 @@ class GaussianKDE:
     ----------
     dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
-        array, otherwise a 2-D array with shape (# of dims, # of data).
+        array, otherwise a 2D array with shape (# of dims, # of data).
 
     bw_method : str, scalar or callable, optional
         The method used to calculate the estimator bandwidth.  This can be

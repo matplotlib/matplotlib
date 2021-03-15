@@ -119,12 +119,15 @@ Matplotlib consists of the following submodules:
    texmanager_api.rst
    textpath_api.rst
    ticker_api.rst
+   tight_bbox_api.rst
    tight_layout_api.rst
    transformations.rst
    tri_api.rst
    type1font.rst
    units_api.rst
    widgets_api.rst
+   _api_api.rst
+   _enums_api.rst
 
 Toolkits
 --------

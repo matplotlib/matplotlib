@@ -17,9 +17,7 @@ import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
-import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
-import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtransforms
 
 # Import needed for adding manual selection capability to clabel
@@ -51,7 +49,7 @@ class ContourLabeler:
     """Mixin to provide labelling capability to `.ContourSet`."""
 
     def clabel(self, levels=None, *,
-               fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
+               fontsize=None, inline=True, inline_spacing=5, fmt=None,
                colors=None, use_clabeltext=False, manual=False,
                rightside_up=True, zorder=None):
         """
@@ -92,14 +90,17 @@ class ContourLabeler:
             This spacing will be exact for labels at locations where the
             contour is straight, less so for labels on curved contours.
 
-        fmt : str or dict, default: '%1.3f'
-            A format string for the label.
+        fmt : `.Formatter` or str or callable or dict, optional
+            How the levels are formatted:
 
-            Alternatively, this can be a dictionary matching contour levels
-            with arbitrary strings to use for each contour level (i.e.,
-            fmt[level]=string), or it can be any callable, such as a
-            `.Formatter` instance, that returns a string when called with a
-            numeric contour level.
+            - If a `.Formatter`, it is used to format all levels at once, using
+              its `.Formatter.format_ticks` method.
+            - If a str, it is interpreted as a %-style format string.
+            - If a callable, it is called with one level at a time and should
+              return the corresponding label.
+            - If a dict, it should directly map levels to labels.
+
+            The default is to use a standard `.ScalarFormatter`.
 
         manual : bool or iterable, default: False
             If ``True``, contour labels will be placed manually using
@@ -144,6 +145,9 @@ class ContourLabeler:
         # labels method (case of automatic label placement) or
         # `BlockingContourLabeler` (case of manual label placement).
 
+        if fmt is None:
+            fmt = ticker.ScalarFormatter(useOffset=False)
+            fmt.create_dummy_axis()
         self.labelFmt = fmt
         self._use_clabeltext = use_clabeltext
         # Detect if manual selection is desired and remove from argument list.
@@ -208,11 +212,12 @@ class ContourLabeler:
                 or (np.ptp(linecontour, axis=0) > 1.2 * labelwidth).any())
 
     def too_close(self, x, y, lw):
-        """Return *True* if a label is already near this location."""
+        """Return whether a label is already near this location."""
         thresh = (1.2 * lw) ** 2
         return any((x - loc[0]) ** 2 + (y - loc[1]) ** 2 < thresh
                    for loc in self.labelXYs)
 
+    @_api.deprecated("3.4")
     def get_label_coords(self, distances, XX, YY, ysize, lw):
         """
         Return x, y, and the index of a label location.
@@ -243,20 +248,12 @@ class ContourLabeler:
         """
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
-        lev, ismath = text.Text()._preprocess_math(lev)
-        if ismath == 'TeX':
-            lw, _, _ = (texmanager.TexManager()
-                        .get_text_width_height_descent(lev, fsize))
-        elif ismath:
-            if not hasattr(self, '_mathtext_parser'):
-                self._mathtext_parser = mathtext.MathTextParser('agg')
-            _, _, _, _, _, img, _ = self._mathtext_parser.parse(
-                lev, dpi=72, prop=self.labelFontProps)
-            _, lw = np.shape(img)  # at dpi=72, the units are PostScript points
-        else:
-            # width is much less than "font size"
-            lw = len(lev) * fsize * 0.6
-        return lw
+        fig = self.axes.figure
+        width = (text.Text(0, 0, lev, figure=fig,
+                           size=fsize, fontproperties=self.labelFontProps)
+                 .get_window_extent(mpl.tight_layout.get_renderer(fig)).width)
+        width *= 72 / fig.dpi
+        return width
 
     def set_label_props(self, label, text, color):
         """Set the label properties - color, fontsize, text."""
@@ -269,49 +266,48 @@ class ContourLabeler:
         """Get the text of the label."""
         if isinstance(lev, str):
             return lev
+        elif isinstance(fmt, dict):
+            return fmt.get(lev, '%1.3f')
+        elif callable(getattr(fmt, "format_ticks", None)):
+            return fmt.format_ticks([*self.labelLevelList, lev])[-1]
+        elif callable(fmt):
+            return fmt(lev)
         else:
-            if isinstance(fmt, dict):
-                return fmt.get(lev, '%1.3f')
-            elif callable(fmt):
-                return fmt(lev)
-            else:
-                return fmt % lev
+            return fmt % lev
 
     def locate_label(self, linecontour, labelwidth):
         """
         Find good place to draw a label (relatively flat part of the contour).
         """
-
-        # Number of contour points
-        nsize = len(linecontour)
-        if labelwidth > 1:
-            xsize = int(np.ceil(nsize / labelwidth))
-        else:
-            xsize = 1
-        if xsize == 1:
-            ysize = nsize
-        else:
-            ysize = int(labelwidth)
-
-        XX = np.resize(linecontour[:, 0], (xsize, ysize))
-        YY = np.resize(linecontour[:, 1], (xsize, ysize))
-        # I might have fouled up the following:
-        yfirst = YY[:, :1]
-        ylast = YY[:, -1:]
-        xfirst = XX[:, :1]
-        xlast = XX[:, -1:]
-        s = (yfirst - YY) * (xlast - xfirst) - (xfirst - XX) * (ylast - yfirst)
-        L = np.hypot(xlast - xfirst, ylast - yfirst)
+        ctr_size = len(linecontour)
+        n_blocks = int(np.ceil(ctr_size / labelwidth)) if labelwidth > 1 else 1
+        block_size = ctr_size if n_blocks == 1 else int(labelwidth)
+        # Split contour into blocks of length ``block_size``, filling the last
+        # block by cycling the contour start (per `np.resize` semantics).  (Due
+        # to cycling, the index returned is taken modulo ctr_size.)
+        xx = np.resize(linecontour[:, 0], (n_blocks, block_size))
+        yy = np.resize(linecontour[:, 1], (n_blocks, block_size))
+        yfirst = yy[:, :1]
+        ylast = yy[:, -1:]
+        xfirst = xx[:, :1]
+        xlast = xx[:, -1:]
+        s = (yfirst - yy) * (xlast - xfirst) - (xfirst - xx) * (ylast - yfirst)
+        l = np.hypot(xlast - xfirst, ylast - yfirst)
         # Ignore warning that divide by zero throws, as this is a valid option
         with np.errstate(divide='ignore', invalid='ignore'):
-            dist = np.sum(np.abs(s) / L, axis=-1)
-        x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
-
-        # There must be a more efficient way...
-        lc = [tuple(l) for l in linecontour]
-        dind = lc.index((x, y))
-
-        return x, y, dind
+            distances = (abs(s) / l).sum(axis=-1)
+        # Labels are drawn in the middle of the block (``hbsize``) where the
+        # contour is the closest (per ``distances``) to a straight line, but
+        # not `too_close()` to a preexisting label.
+        hbsize = block_size // 2
+        adist = np.argsort(distances)
+        # If all candidates are `too_close()`, go back to the straightest part
+        # (``adist[0]``).
+        for idx in np.append(adist, adist[0]):
+            x, y = xx[idx, hbsize], yy[idx, hbsize]
+            if not self.too_close(x, y, labelwidth):
+                break
+        return x, y, (idx * block_size + hbsize) % ctr_size
 
     def calc_label_rot_and_inline(self, slc, ind, lw, lc=None, spacing=5):
         """
@@ -458,29 +454,27 @@ class ContourLabeler:
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
         """
-        Add a label near the point (x, y). If transform is None
-        (default), (x, y) is in data coordinates; if transform is
-        False, (x, y) is in display coordinates; otherwise, the
-        specified transform will be used to translate (x, y) into
-        display coordinates.
+        Add a label near the point ``(x, y)``.
 
         Parameters
         ----------
         x, y : float
             The approximate location of the label.
-
         inline : bool, default: True
             If *True* remove the segment of the contour beneath the label.
-
         inline_spacing : int, default: 5
             Space in pixels to leave on each side of label when placing
             inline. This spacing will be exact for labels at locations where
             the contour is straight, less so for labels on curved contours.
+        transform : `.Transform` or `False`, default: ``self.axes.transData``
+            A transform applied to ``(x, y)`` before labeling.  The default
+            causes ``(x, y)`` to be interpreted as data coordinates.  `False`
+            is a synonym for `.IdentityTransform`; i.e. ``(x, y)`` should be
+            interpreted as display coordinates.
         """
 
         if transform is None:
             transform = self.axes.transData
-
         if transform:
             x, y = transform.transform((x, y))
 
@@ -488,33 +482,20 @@ class ContourLabeler:
         conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
             x, y, self.labelIndiceList)[:5]
 
-        # The calc_label_rot_and_inline routine requires that (xmin, ymin)
+        # calc_label_rot_and_inline() requires that (xmin, ymin)
         # be a vertex in the path. So, if it isn't, add a vertex here
-
-        # grab the paths from the collections
-        paths = self.collections[conmin].get_paths()
-        # grab the correct segment
-        active_path = paths[segmin]
-        # grab its vertices
-        lc = active_path.vertices
-        # sort out where the new vertex should be added data-units
+        paths = self.collections[conmin].get_paths()  # paths of correct coll.
+        lc = paths[segmin].vertices  # vertices of correct segment
+        # Where should the new vertex be added in data-units?
         xcmin = self.axes.transData.inverted().transform([xmin, ymin])
-        # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
-            # insert new data into the vertex list
-            lc = np.row_stack([lc[:imin], xcmin, lc[imin:]])
-            # replace the path with the new one
+            # No vertex is close enough, so add a new point in the vertices and
+            # replace the path by the new one.
+            lc = np.insert(lc, imin, xcmin, axis=0)
             paths[segmin] = mpath.Path(lc)
 
         # Get index of nearest level in subset of levels used for labeling
         lmin = self.labelIndiceList.index(conmin)
-
-        # Coordinates of contour
-        paths = self.collections[conmin].get_paths()
-        lc = paths[segmin].vertices
-
-        # In pixel/screen space
-        slc = self.axes.transData.transform(lc)
 
         # Get label width for rotating labels and breaking contours
         lw = self.get_label_width(self.labelLevelList[lmin],
@@ -525,7 +506,8 @@ class ContourLabeler:
 
         # Figure out label rotation.
         rotation, nlc = self.calc_label_rot_and_inline(
-            slc, imin, lw, lc if inline else None, inline_spacing)
+            self.axes.transData.transform(lc),  # to pixel space.
+            imin, lw, lc if inline else None, inline_spacing)
 
         self.add_label(xmin, ymin, rotation, self.labelLevelList[lmin],
                        self.labelCValueList[lmin])
@@ -564,23 +546,14 @@ class ContourLabeler:
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
                 lc = linepath.vertices  # Line contour
-                slc0 = trans.transform(lc)  # Line contour in screen coords
-
-                # For closed polygons, add extra point to avoid division by
-                # zero in print_label and locate_label.  Other than these
-                # functions, this is not necessary and should probably be
-                # eventually removed.
-                if _is_closed_polygon(lc):
-                    slc = np.row_stack([slc0, slc0[1:2]])
-                else:
-                    slc = slc0
+                slc = trans.transform(lc)  # Line contour in screen coords
 
                 # Check if long enough for a label
                 if self.print_label(slc, lw):
                     x, y, ind = self.locate_label(slc, lw)
 
                     rotation, new = self.calc_label_rot_and_inline(
-                        slc0, ind, lw, lc if inline else None, inline_spacing)
+                        slc, ind, lw, lc if inline else None, inline_spacing)
 
                     # Actually add the label
                     add_label(x, y, rotation, lev, cvalue)
@@ -708,6 +681,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     %(contour_set_attributes)s
     """
+
+    ax = _api.deprecated("3.3")(property(lambda self: self.axes))
 
     def __init__(self, ax, *args,
                  levels=None, filled=False, linewidths=None, linestyles=None,
@@ -852,7 +827,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if self.filled:
             if self.linewidths is not None:
-                cbook._warn_external('linewidths is ignored by contourf')
+                _api.warn_external('linewidths is ignored by contourf')
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
             # Ensure allkinds can be zipped below.
@@ -903,14 +878,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.changed()  # set the colors
 
         if kwargs:
-            s = ", ".join(map(repr, kwargs))
-            cbook._warn_external('The following kwargs were not used by '
-                                 'contour: ' + s)
-
-    @cbook.deprecated("3.3")
-    @property
-    def ax(self):
-        return self.axes
+            _api.warn_external(
+                'The following kwargs were not used by contour: ' +
+                ", ".join(map(repr, kwargs))
+            )
 
     def get_transform(self):
         """
@@ -944,18 +915,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         ----------
         variable_name : str
             The string used inside the inequality used on the labels.
-
         str_format : function: float -> str
             Function used to format the numbers in the labels.
 
         Returns
         -------
-        artists : List[`.Artist`]
+        artists : list[`.Artist`]
             A list of the artists.
-
-        labels : List[str]
+        labels : list[str]
             A list of the labels.
-
         """
         artists = []
         labels = []
@@ -1141,7 +1109,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             levels_in = self.levels[inside]
             if len(levels_in) == 0:
                 self.levels = [self.zmin]
-                cbook._warn_external(
+                _api.warn_external(
                     "No contour levels were found within the data range.")
 
         if self.filled and len(self.levels) < 2:
@@ -1331,7 +1299,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # Nonetheless, improvements could probably be made.
 
         if indices is None:
-            indices = list(range(len(self.levels)))
+            indices = range(len(self.levels))
 
         d2min = np.inf
         conmin = None
@@ -1463,8 +1431,7 @@ class QuadContourSet(ContourSet):
         self.zmin = float(z.min())
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
-            cbook._warn_external('Log scale: values of z <= 0 have been '
-                                 'masked')
+            _api.warn_external('Log scale: values of z <= 0 have been masked')
             self.zmin = float(z.min())
         self._process_contour_level_args(args)
         return (x, y, z)
@@ -1555,12 +1522,6 @@ class QuadContourSet(ContourSet):
         return np.meshgrid(x, y)
 
     _contour_doc = """
-        Plot contours.
-
-        Call signature::
-
-            contour([X, Y,] Z, [levels], **kwargs)
-
         `.contour` and `.contourf` draw contour lines and filled contours,
         respectively.  Except as noted, function signatures and return values
         are the same for both versions.
@@ -1570,7 +1531,7 @@ class QuadContourSet(ContourSet):
         X, Y : array-like, optional
             The coordinates of the values in *Z*.
 
-            *X* and *Y* must both be 2-D with the same shape as *Z* (e.g.
+            *X* and *Y* must both be 2D with the same shape as *Z* (e.g.
             created via `numpy.meshgrid`), or they must both be 1-D such
             that ``len(X) == M`` is the number of columns in *Z* and
             ``len(Y) == N`` is the number of rows in *Z*.
@@ -1578,7 +1539,7 @@ class QuadContourSet(ContourSet):
             If not given, they are assumed to be integer indices, i.e.
             ``X = range(M)``, ``Y = range(N)``.
 
-        Z : array-like(N, M)
+        Z : (M, N) array-like
             The height values over which the contour is drawn.
 
         levels : int or array-like, optional
@@ -1742,7 +1703,7 @@ class QuadContourSet(ContourSet):
             iterable is shorter than the number of contour levels
             it will be repeated as necessary.
 
-        hatches : List[str], optional
+        hatches : list[str], optional
             *Only applies to* `.contourf`.
 
             A list of cross hatch patterns to use on the filled areas.

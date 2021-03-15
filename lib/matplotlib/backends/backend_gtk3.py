@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 import matplotlib as mpl
-from matplotlib import backend_tools, cbook
+from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
@@ -36,12 +36,13 @@ backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 try:
+    _display = Gdk.Display.get_default()
     cursord = {
-        cursors.MOVE:          Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-        cursors.HAND:          Gdk.Cursor.new(Gdk.CursorType.HAND2),
-        cursors.POINTER:       Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-        cursors.SELECT_REGION: Gdk.Cursor.new(Gdk.CursorType.TCROSS),
-        cursors.WAIT:          Gdk.Cursor.new(Gdk.CursorType.WATCH),
+        cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
+        cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
+        cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
+        cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
+        cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
     }
 except TypeError as exc:
     # Happens when running headless.  Convert to ImportError to cooperate with
@@ -88,58 +89,6 @@ class TimerGTK3(TimerBase):
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk3"
     _timer_cls = TimerGTK3
-
-    keyvald = {65507: 'control',
-               65505: 'shift',
-               65513: 'alt',
-               65508: 'control',
-               65506: 'shift',
-               65514: 'alt',
-               65361: 'left',
-               65362: 'up',
-               65363: 'right',
-               65364: 'down',
-               65307: 'escape',
-               65470: 'f1',
-               65471: 'f2',
-               65472: 'f3',
-               65473: 'f4',
-               65474: 'f5',
-               65475: 'f6',
-               65476: 'f7',
-               65477: 'f8',
-               65478: 'f9',
-               65479: 'f10',
-               65480: 'f11',
-               65481: 'f12',
-               65300: 'scroll_lock',
-               65299: 'break',
-               65288: 'backspace',
-               65293: 'enter',
-               65379: 'insert',
-               65535: 'delete',
-               65360: 'home',
-               65367: 'end',
-               65365: 'pageup',
-               65366: 'pagedown',
-               65438: '0',
-               65436: '1',
-               65433: '2',
-               65435: '3',
-               65430: '4',
-               65437: '5',
-               65432: '6',
-               65429: '7',
-               65431: '8',
-               65434: '9',
-               65451: '+',
-               65453: '-',
-               65450: '*',
-               65455: '/',
-               65439: 'dec',
-               65421: 'enter',
-               }
-
     # Setting this as a static constant prevents
     # this resulting expression from leaking
     event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -153,7 +102,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                   | Gdk.EventMask.POINTER_MOTION_HINT_MASK
                   | Gdk.EventMask.SCROLL_MASK)
 
-    def __init__(self, figure):
+    def __init__(self, figure=None):
         FigureCanvasBase.__init__(self, figure)
         GObject.GObject.__init__(self)
 
@@ -176,10 +125,15 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         self.set_events(self.__class__.event_mask)
 
-        self.set_double_buffered(True)
         self.set_can_focus(True)
 
-        renderer_init = cbook._deprecate_method_override(
+        css = Gtk.CssProvider()
+        css.load_from_data(b".matplotlib-canvas { background-color: white; }")
+        style_ctx = self.get_style_context()
+        style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        style_ctx.add_class("matplotlib-canvas")
+
+        renderer_init = _api.deprecate_method_override(
             __class__._renderer_init, self, allow_empty=True, since="3.3",
             addendum="Please initialize the renderer, if needed, in the "
             "subclass' __init__; a fully empty _renderer_init implementation "
@@ -188,7 +142,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         if renderer_init:
             renderer_init()
 
-    @cbook.deprecated("3.3", alternative="__init__")
+    @_api.deprecated("3.3", alternative="__init__")
     def _renderer_init(self):
         pass
 
@@ -232,7 +186,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
     def motion_notify_event(self, widget, event):
         if event.is_hint:
-            t, x, y, state = event.window.get_pointer()
+            t, x, y, state = event.window.get_device_position(event.device)
         else:
             x, y = event.x, event.y
 
@@ -259,22 +213,20 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.draw_idle()
 
     def _get_key(self, event):
-        if event.keyval in self.keyvald:
-            key = self.keyvald[event.keyval]
-        elif event.keyval < 256:
-            key = chr(event.keyval)
-        else:
-            key = None
-
+        unikey = chr(Gdk.keyval_to_unicode(event.keyval))
+        key = cbook._unikey_or_keysym_to_mplkey(
+            unikey,
+            Gdk.keyval_name(event.keyval))
         modifiers = [
-                     (Gdk.ModifierType.MOD4_MASK, 'super'),
-                     (Gdk.ModifierType.MOD1_MASK, 'alt'),
-                     (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
-                    ]
+            (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
+            (Gdk.ModifierType.MOD1_MASK, 'alt'),
+            (Gdk.ModifierType.SHIFT_MASK, 'shift'),
+            (Gdk.ModifierType.MOD4_MASK, 'super'),
+        ]
         for key_mask, prefix in modifiers:
             if event.state & key_mask:
-                key = '{0}+{1}'.format(prefix, key)
-
+                if not (prefix == 'shift' and unikey.isprintable()):
+                    key = '{0}+{1}'.format(prefix, key)
         return key
 
     def configure_event(self, widget, event):
@@ -369,11 +321,10 @@ class FigureManagerGTK3(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
+        self.window = Gtk.Window()
         super().__init__(canvas, num)
 
-        self.window = Gtk.Window()
         self.window.set_wmclass("matplotlib", "Matplotlib")
-        self.set_window_title("Figure %d" % num)
         try:
             self.window.set_icon_from_file(window_icon)
         except Exception:
@@ -396,12 +347,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.toolbar = self._get_toolbar()
 
-        def add_widget(child):
-            child.show()
-            self.vbox.pack_end(child, False, False, 0)
-            size_request = child.size_request()
-            return size_request.height
-
         if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
             if self.toolbar:
@@ -409,7 +354,9 @@ class FigureManagerGTK3(FigureManagerBase):
 
         if self.toolbar is not None:
             self.toolbar.show()
-            h += add_widget(self.toolbar)
+            self.vbox.pack_end(self.toolbar, False, False, 0)
+            min_size, nat_size = self.toolbar.get_preferred_size()
+            h += nat_size.height
 
         self.window.set_default_size(w, h)
 
@@ -445,7 +392,14 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.show()
         self.canvas.draw()
         if mpl.rcParams['figure.raise_window']:
-            self.window.present()
+            if self.window.get_window():
+                self.window.present()
+            else:
+                # If this is called by a callback early during init,
+                # self.window (a GtkWindow) may not have an associated
+                # low-level GdkWindow (self.window.get_window()) yet, and
+                # present() would crash.
+                _api.warn_external("Cannot raise window yet to be setup")
 
     def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
@@ -489,6 +443,9 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
+    ctx = _api.deprecated("3.3")(property(
+        lambda self: self.canvas.get_property("window").cairo_create()))
+
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
@@ -540,11 +497,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.show_all()
 
         NavigationToolbar2.__init__(self, canvas)
-
-    @cbook.deprecated("3.3")
-    @property
-    def ctx(self):
-        return self.canvas.get_property("window").cairo_create()
 
     def set_message(self, s):
         escaped = GLib.markup_escape_text(s)
@@ -714,7 +666,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._message.set_label(s)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
     def __init__(self, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
@@ -890,10 +842,6 @@ Toolbar = ToolbarGTK3
 class _BackendGTK3(_Backend):
     FigureCanvas = FigureCanvasGTK3
     FigureManager = FigureManagerGTK3
-
-    @staticmethod
-    def trigger_manager_draw(manager):
-        manager.canvas.draw_idle()
 
     @staticmethod
     def mainloop():

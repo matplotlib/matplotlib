@@ -37,7 +37,13 @@
 
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
-#include "py_converters.h"
+
+static int convert_voidptr(PyObject *obj, void *p)
+{
+    void **val = (void **)p;
+    *val = PyLong_AsVoidPtr(obj);
+    return *val != NULL ? 1 : !PyErr_Occurred();
+}
 
 // Global vars for Tk functions.  We load these symbols from the tkinter
 // extension module or loaded Tk libraries at run-time.

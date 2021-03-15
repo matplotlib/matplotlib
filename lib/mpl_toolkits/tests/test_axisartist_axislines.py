@@ -1,12 +1,14 @@
 import numpy as np
+from matplotlib import _api
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import IdentityTransform
 
 from mpl_toolkits.axisartist.axislines import SubplotZero, Subplot
-from mpl_toolkits.axisartist import SubplotHost, ParasiteAxesAuxTrans
+from mpl_toolkits.axisartist import (
+    Axes, SubplotHost, ParasiteAxes, ParasiteAxesAuxTrans)
 
-from mpl_toolkits.axisartist import Axes
+import pytest
 
 
 @image_comparison(['SubplotZero.png'], style='default')
@@ -59,9 +61,10 @@ def test_Axes():
     fig.canvas.draw()
 
 
+@pytest.mark.parametrize('parasite_cls', [ParasiteAxes, ParasiteAxesAuxTrans])
 @image_comparison(['ParasiteAxesAuxTrans_meshplot.png'],
                   remove_text=True, style='default', tol=0.075)
-def test_ParasiteAxesAuxTrans():
+def test_ParasiteAxesAuxTrans(parasite_cls):
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
 
@@ -83,7 +86,8 @@ def test_ParasiteAxesAuxTrans():
         ax1 = SubplotHost(fig, 1, 3, i+1)
         fig.add_subplot(ax1)
 
-        ax2 = ParasiteAxesAuxTrans(ax1, IdentityTransform())
+        with _api.suppress_matplotlib_deprecation_warning():
+            ax2 = parasite_cls(ax1, IdentityTransform())
         ax1.parasites.append(ax2)
         if name.startswith('pcolor'):
             getattr(ax2, name)(xx, yy, data[:-1, :-1])

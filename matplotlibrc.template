@@ -211,15 +211,20 @@
 ## on font properties.  The 6 font properties used for font matching are
 ## given below with their default values.
 ##
-## The font.family property has five values:
+## The font.family property can take either a concrete font name (not supported
+## when rendering text with usetex), or one of the following five generic
+## values:
 ##     - 'serif' (e.g., Times),
 ##     - 'sans-serif' (e.g., Helvetica),
 ##     - 'cursive' (e.g., Zapf-Chancery),
 ##     - 'fantasy' (e.g., Western), and
 ##     - 'monospace' (e.g., Courier).
-## Each of these font families has a default list of font names in decreasing
-## order of priority associated with them.  When text.usetex is False,
-## font.family may also be one or more concrete font names.
+## Each of these values has a corresponding default list of font names
+## (font.serif, etc.); the first available font in the list is used.  Note that
+## for font.serif, font.sans-serif, and font.monospace, the first element of
+## the list (a DejaVu font) will always be used because DejaVu is shipped with
+## Matplotlib and is thus guaranteed to be available; the other entries are
+## left as examples of other possible values.
 ##
 ## The font.style property has three values: normal (or roman), italic
 ## or oblique.  The oblique style will be used for italic, if it is not
@@ -405,16 +410,17 @@
 #axes.prop_cycle: cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
                   # color cycle for plot lines as list of string color specs:
                   # single letter, long name, or web-style hex
-                  # As opposed to all other paramters in this file, the color
+                  # As opposed to all other parameters in this file, the color
                   # values must be enclosed in quotes for this parameter,
                   # e.g. '1f77b4', instead of 1f77b4.
                   # See also https://matplotlib.org/tutorials/intermediate/color_cycle.html
                   # for more details on prop_cycle usage.
-#axes.autolimit_mode: data  # How to scale axes limits to the data.  By using:
-                            #     - "data" to use data limits, plus some margin
-                            #     - "round_numbers" move to the nearest "round" number
 #axes.xmargin:   .05  # x margin.  See `axes.Axes.margins`
 #axes.ymargin:   .05  # y margin.  See `axes.Axes.margins`
+#axes.zmargin:   .05  # z margin.  See `axes.Axes.margins`
+#axes.autolimit_mode: data  # If "data", use axes.xmargin and axes.ymargin as is.
+                            # If "round_numbers", after application of margins, axis
+                            # limits are further expanded to the nearest "round" number.
 #polaraxes.grid: True  # display grid on polar axes
 #axes3d.grid:    True  # display grid on 3D axes
 
@@ -761,5 +767,3 @@
 #animation.convert_args:          # Additional arguments to pass to convert
 #animation.embed_limit:  20.0     # Limit, in MB, of size of base64 encoded
                                   # animation in HTML (i.e. IPython notebook)
-
-#mpl_toolkits.legacy_colorbar: True

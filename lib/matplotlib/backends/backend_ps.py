@@ -23,7 +23,7 @@ from matplotlib import _text_layout
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    GraphicsContextBase, RendererBase, _no_output_draw)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE
@@ -223,6 +223,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
 
+    mathtext_parser = _api.deprecated("3.4")(property(
+        lambda self: MathTextParser("PS")))
+    used_characters = _api.deprecated("3.3")(property(
+        lambda self: self._character_tracker.used_characters))
+
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
@@ -249,22 +254,12 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
 
-    @cbook.deprecated("3.3")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser("PS")
-
-    @cbook.deprecated("3.3")
-    @property
-    def used_characters(self):
-        return self._character_tracker.used_characters
-
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def track_characters(self, *args, **kwargs):
         """Keep track of which characters are required from each font."""
         self._character_tracker.track(*args, **kwargs)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def merge_used_characters(self, *args, **kwargs):
         self._character_tracker.merge(*args, **kwargs)
 
@@ -285,15 +280,29 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
+    @staticmethod
+    def _linejoin_cmd(linejoin):
+        # Support for directly passing integer values is for backcompat.
+        linejoin = {'miter': 0, 'round': 1, 'bevel': 2, 0: 0, 1: 1, 2: 2}[
+            linejoin]
+        return f"{linejoin:d} setlinejoin\n"
+
     def set_linejoin(self, linejoin, store=True):
         if linejoin != self.linejoin:
-            self._pswriter.write("%d setlinejoin\n" % linejoin)
+            self._pswriter.write(self._linejoin_cmd(linejoin))
             if store:
                 self.linejoin = linejoin
 
+    @staticmethod
+    def _linecap_cmd(linecap):
+        # Support for directly passing integer values is for backcompat.
+        linecap = {'butt': 0, 'round': 1, 'projecting': 2, 0: 0, 1: 1, 2: 2}[
+            linecap]
+        return f"{linecap:d} setlinecap\n"
+
     def set_linecap(self, linecap, store=True):
         if linecap != self.linecap:
-            self._pswriter.write("%d setlinecap\n" % linecap)
+            self._pswriter.write(self._linecap_cmd(linecap))
             if store:
                 self.linecap = linecap
 
@@ -312,13 +321,8 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             self.linedash = (offset, seq)
 
     def set_font(self, fontname, fontsize, store=True):
-        if mpl.rcParams['ps.useafm']:
-            return
         if (fontname, fontsize) != (self.fontname, self.fontsize):
-            out = ("/%s findfont\n"
-                   "%1.3f scalefont\n"
-                   "setfont\n" % (fontname, fontsize))
-            self._pswriter.write(out)
+            self._pswriter.write(f"/{fontname} {fontsize:1.3f} selectfont\n")
             if store:
                 self.fontname = fontname
                 self.fontsize = fontsize
@@ -365,6 +369,37 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         """
         return self.image_magnification
 
+    def _convert_path(self, path, transform, clip=False, simplify=None):
+        if clip:
+            clip = (0.0, 0.0, self.width * 72.0, self.height * 72.0)
+        else:
+            clip = None
+        return _path.convert_to_string(
+            path, transform, clip, simplify, None,
+            6, [b"m", b"l", b"", b"c", b"cl"], True).decode("ascii")
+
+    def _get_clip_cmd(self, gc):
+        clip = []
+        rect = gc.get_clip_rectangle()
+        if rect is not None:
+            clip.append("%s clipbox\n" % _nums_to_str(*rect.size, *rect.p0))
+        path, trf = gc.get_clip_path()
+        if path is not None:
+            key = (path, id(trf))
+            custom_clip_cmd = self._clip_paths.get(key)
+            if custom_clip_cmd is None:
+                custom_clip_cmd = "c%x" % len(self._clip_paths)
+                self._pswriter.write(f"""\
+/{custom_clip_cmd} {{
+{self._convert_path(path, trf, simplify=False)}
+clip
+newpath
+}} bind def
+""")
+                self._clip_paths[key] = custom_clip_cmd
+            clip.append(f"{custom_clip_cmd}\n")
+        return "".join(clip)
+
     def draw_image(self, gc, x, y, im, transform=None):
         # docstring inherited
 
@@ -392,20 +427,9 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             xscale = 1.0
             yscale = 1.0
 
-        bbox = gc.get_clip_rectangle()
-        clippath, clippath_trans = gc.get_clip_path()
-
-        clip = []
-        if bbox is not None:
-            clip.append('%s clipbox' % _nums_to_str(*bbox.size, *bbox.p0))
-        if clippath is not None:
-            id = self._get_clip_path(clippath, clippath_trans)
-            clip.append('%s' % id)
-        clip = '\n'.join(clip)
-
         self._pswriter.write(f"""\
 gsave
-{clip}
+{self._get_clip_cmd(gc)}
 {x:f} {y:f} translate
 [{matrix}] concat
 {xscale:f} {yscale:f} scale
@@ -417,32 +441,6 @@ currentfile DataString readhexstring pop
 {hexlines}
 grestore
 """)
-
-    def _convert_path(self, path, transform, clip=False, simplify=None):
-        if clip:
-            clip = (0.0, 0.0, self.width * 72.0, self.height * 72.0)
-        else:
-            clip = None
-        return _path.convert_to_string(
-            path, transform, clip, simplify, None,
-            6, [b'm', b'l', b'', b'c', b'cl'], True).decode('ascii')
-
-    def _get_clip_path(self, clippath, clippath_transform):
-        key = (clippath, id(clippath_transform))
-        pid = self._clip_paths.get(key)
-        if pid is None:
-            pid = 'c%x' % len(self._clip_paths)
-            clippath_bytes = self._convert_path(
-                clippath, clippath_transform, simplify=False)
-            self._pswriter.write(f"""\
-/{pid} {{
-{clippath_bytes}
-clip
-newpath
-}} bind def
-""")
-            self._clip_paths[key] = pid
-        return pid
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
@@ -477,10 +475,8 @@ newpath
         stroke = lw > 0 and alpha > 0
         if stroke:
             ps_cmd.append('%.1f setlinewidth' % lw)
-            jint = gc.get_joinstyle()
-            ps_cmd.append('%d setlinejoin' % jint)
-            cint = gc.get_capstyle()
-            ps_cmd.append('%d setlinecap' % cint)
+            ps_cmd.append(self._linejoin_cmd(gc.get_joinstyle()))
+            ps_cmd.append(self._linecap_cmd(gc.get_capstyle()))
 
         ps_cmd.append(self._convert_path(marker_path, marker_trans,
                                          simplify=False))
@@ -552,7 +548,7 @@ translate
 
         self._path_collection_id += 1
 
-    @cbook._delete_parameter("3.3", "ismath")
+    @_api.delete_parameter("3.3", "ismath")
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # docstring inherited
         if not hasattr(self, "psfrag"):
@@ -609,20 +605,16 @@ grestore
         if ismath == 'TeX':
             return self.draw_tex(gc, x, y, s, prop, angle)
 
-        elif ismath:
+        if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        elif mpl.rcParams['ps.useafm']:
-            self.set_color(*gc.get_rgb())
-
+        if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
-            fontname = font.get_fontname()
-            fontsize = prop.get_size_in_points()
-            scale = 0.001 * fontsize
+            scale = 0.001 * prop.get_size_in_points()
 
             thisx = 0
-            last_name = None
-            lines = []
+            last_name = None  # kerns returns 0 for None.
+            xs_names = []
             for c in s:
                 name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
                 try:
@@ -630,54 +622,33 @@ grestore
                 except KeyError:
                     name = 'question'
                     width = font.get_width_char('?')
-                if last_name is not None:
-                    kern = font.get_kern_dist_from_name(last_name, name)
-                else:
-                    kern = 0
+                kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
-
-                lines.append('%f 0 m /%s glyphshow' % (thisx, name))
-
+                xs_names.append((thisx, name))
                 thisx += width * scale
-
-            thetext = "\n".join(lines)
-            self._pswriter.write(f"""\
-gsave
-/{fontname} findfont
-{fontsize} scalefont
-setfont
-{x:f} {y:f} translate
-{angle:f} rotate
-{thetext}
-grestore
-""")
 
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0, flags=LOAD_NO_HINTING)
             self._character_tracker.track(font, s)
+            xs_names = [(item.x, font.get_glyph_name(item.glyph_idx))
+                        for item in _text_layout.layout(s, font)]
 
-            self.set_color(*gc.get_rgb())
-            ps_name = (font.postscript_name
-                       .encode('ascii', 'replace').decode('ascii'))
-            self.set_font(ps_name, prop.get_size_in_points())
-
-            thetext = '\n'.join(
-                '{:f} 0 m /{:s} glyphshow'
-                .format(item.x, font.get_glyph_name(item.glyph_idx))
-                for item in _text_layout.layout(s, font))
-            self._pswriter.write(f"""\
+        self.set_color(*gc.get_rgb())
+        ps_name = (font.postscript_name
+                   .encode("ascii", "replace").decode("ascii"))
+        self.set_font(ps_name, prop.get_size_in_points())
+        thetext = "\n".join(f"{x:f} 0 m /{name:s} glyphshow"
+                            for x, name in xs_names)
+        self._pswriter.write(f"""\
 gsave
+{self._get_clip_cmd(gc)}
 {x:f} {y:f} translate
 {angle:f} rotate
 {thetext}
 grestore
 """)
-
-    def new_gc(self):
-        # docstring inherited
-        return GraphicsContextPS()
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw the math text using matplotlib.mathtext."""
@@ -699,9 +670,7 @@ grestore
             if (font.postscript_name, fontsize) != lastfont:
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
-                    f"/{font.postscript_name} findfont\n"
-                    f"{fontsize} scalefont\n"
-                    f"setfont\n")
+                    f"/{font.postscript_name} {fontsize} selectfont\n")
             symbol_name = (
                 font.get_name_char(chr(num)) if isinstance(font, AFM) else
                 font.get_glyph_name(font.get_char_index(num)))
@@ -783,22 +752,13 @@ grestore
 
         if mightstroke:
             self.set_linewidth(gc.get_linewidth())
-            jint = gc.get_joinstyle()
-            self.set_linejoin(jint)
-            cint = gc.get_capstyle()
-            self.set_linecap(cint)
+            self.set_linejoin(gc.get_joinstyle())
+            self.set_linecap(gc.get_capstyle())
             self.set_linedash(*gc.get_dashes())
             self.set_color(*gc.get_rgb()[:3])
         write('gsave\n')
 
-        cliprect = gc.get_clip_rectangle()
-        if cliprect:
-            write('%1.4g %1.4g %1.4g %1.4g clipbox\n'
-                  % (*cliprect.size, *cliprect.p0))
-        clippath, clippath_trans = gc.get_clip_path()
-        if clippath:
-            id = self._get_clip_path(clippath, clippath_trans)
-            write('%s\n' % id)
+        write(self._get_clip_cmd(gc))
 
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
@@ -839,6 +799,7 @@ def _is_transparent(rgb_or_rgba):
         return False
 
 
+@_api.deprecated("3.4", alternative="GraphicsContextBase")
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]
@@ -862,17 +823,22 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
+    @_api.delete_parameter("3.5", "args")
     def print_ps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'ps', *args, **kwargs)
+        return self._print_ps(outfile, 'ps', **kwargs)
 
+    @_api.delete_parameter("3.5", "args")
     def print_eps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'eps', *args, **kwargs)
+        return self._print_ps(outfile, 'eps', **kwargs)
 
+    @_api.delete_parameter("3.4", "dpi")
     def _print_ps(
-            self, outfile, format, *args,
-            dpi=72, metadata=None, papertype=None, orientation='portrait',
+            self, outfile, format, *,
+            dpi=None, metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 
+        if dpi is None:  # always use this branch after deprecation elapses.
+            dpi = self.figure.get_dpi()
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
         dsc_comments = {}
@@ -1164,6 +1130,10 @@ showpage
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
+
+    def draw(self):
+        _no_output_draw(self.figure)
+        return super().draw()
 
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,

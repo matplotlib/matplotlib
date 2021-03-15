@@ -1,7 +1,7 @@
 """
-=================
-Demo Axes Divider
-=================
+============
+Axes Divider
+============
 
 Axes divider to calculate location of axes and
 create a divider for them using existing axes instances.

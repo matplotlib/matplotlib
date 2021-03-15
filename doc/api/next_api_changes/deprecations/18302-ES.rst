@@ -1,0 +1,26 @@
+3D properties on renderers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The properties of the 3D Axes that were placed on the Renderer during draw are
+now deprecated:
+
+* ``renderer.M``
+* ``renderer.eye``
+* ``renderer.vvec``
+* ``renderer.get_axis_position``
+
+These attributes are all available via `.Axes3D`, which can be accessed via
+``self.axes`` on all `.Artist`\s.
+
+*renderer* argument of ``do_3d_projection`` method for ``Collection3D``/``Patch3D``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *renderer* argument for the ``do_3d_projection`` method on ``Collection3D``
+and ``Patch3D`` is no longer necessary, and passing it during draw is
+deprecated.
+
+*project* argument of ``draw`` method for ``Line3DCollection``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *project* argument for the ``draw`` method on ``Line3DCollection`` is
+deprecated. Call `.Line3DCollection.do_3d_projection` explicitly instead.

@@ -6,7 +6,7 @@ from docutils.parsers.rst import Directive, directives
 import sphinx
 
 import matplotlib as mpl
-from matplotlib import cbook, mathtext
+from matplotlib import _api, mathtext
 
 
 # Define LaTeX math node:
@@ -52,7 +52,7 @@ def latex2png(latex, filename, fontset='cm'):
             depth = mathtext.math_to_image(
                 latex, filename, dpi=100, format="png")
         except Exception:
-            cbook._warn_external(f"Could not render math expression {latex}")
+            _api.warn_external(f"Could not render math expression {latex}")
             depth = 0
     return depth
 

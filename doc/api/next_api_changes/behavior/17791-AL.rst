@@ -1,0 +1,28 @@
+Harmonized key event data across backends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The different backends wth key translation support, now handle 'shift'
+as a sometimes modifier, where the 'shift' prefix won't be added if a
+key translation was made.
+
+The *matplotlib.backends.backend_qt5.SPECIAL_KEYS* dictionary contains
+keys that do *not* return their unicode name instead they have
+manually specified names. The name for *QtCore.Qt.Key_Meta* has
+changed to 'meta' to be consistent with the other GUI backends.
+
+The WebAgg backend now handles key translations correctly on non-US
+keyboard layouts.
+
+
+**GTK/Tk key name changes**
+
+The handling of non-ASCII keypresses (as reported in the KeyEvent passed to
+``key_press_event``-handlers) in the GTK and Tk backends now correctly reports
+Unicode characters (e.g., €), and better respects NumLock on the numpad.
+
+The following key names have changed; the new names are consistent with those
+reported by the Qt backends:
+
+- The "Break/Pause" key (keysym 0xff13) is now reported as "pause" instead of
+  "break" (this is also consistent with the X key name).
+- The numpad "delete" key is now reported as "delete" instead of "dec".

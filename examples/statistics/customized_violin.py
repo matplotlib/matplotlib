@@ -28,7 +28,7 @@ def adjacent_values(vals, q1, q3):
 
 
 def set_axis_style(ax, labels):
-    ax.get_xaxis().set_tick_params(direction='out')
+    ax.xaxis.set_tick_params(direction='out')
     ax.xaxis.set_ticks_position('bottom')
     ax.set_xticks(np.arange(1, len(labels) + 1))
     ax.set_xticklabels(labels)
@@ -74,3 +74,18 @@ for ax in [ax1, ax2]:
 
 plt.subplots_adjust(bottom=0.15, wspace=0.05)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.violinplot
+matplotlib.pyplot.violinplot
+matplotlib.axes.Axes.vlines
+matplotlib.pyplot.vlines

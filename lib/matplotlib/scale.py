@@ -14,7 +14,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, docstring
+from matplotlib import _api, docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
@@ -194,7 +194,7 @@ class FuncScale(ScaleBase):
 class LogTransform(Transform):
     input_dims = output_dims = 1
 
-    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, base, nonpositive='clip'):
         super().__init__()
         if base <= 0 or base == 1:
@@ -256,12 +256,12 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    @cbook.deprecated("3.3", alternative="scale.LogTransform")
+    @_api.deprecated("3.3", alternative="scale.LogTransform")
     @property
     def LogTransform(self):
         return LogTransform
 
-    @cbook.deprecated("3.3", alternative="scale.InvertedLogTransform")
+    @_api.deprecated("3.3", alternative="scale.InvertedLogTransform")
     @property
     def InvertedLogTransform(self):
         return InvertedLogTransform
@@ -287,9 +287,9 @@ class LogScale(ScaleBase):
         # The following is to emit the right warnings depending on the axis
         # used, as the *old* kwarg names depended on the axis.
         axis_name = getattr(axis, "axis_name", "x")
-        @cbook._rename_parameter("3.3", f"base{axis_name}", "base")
-        @cbook._rename_parameter("3.3", f"subs{axis_name}", "subs")
-        @cbook._rename_parameter("3.3", f"nonpos{axis_name}", "nonpositive")
+        @_api.rename_parameter("3.3", f"base{axis_name}", "base")
+        @_api.rename_parameter("3.3", f"subs{axis_name}", "subs")
+        @_api.rename_parameter("3.3", f"nonpos{axis_name}", "nonpositive")
         def __init__(*, base=10, subs=None, nonpositive="clip"):
             return base, subs, nonpositive
 
@@ -452,12 +452,12 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    @cbook.deprecated("3.3", alternative="scale.SymmetricalLogTransform")
+    @_api.deprecated("3.3", alternative="scale.SymmetricalLogTransform")
     @property
     def SymmetricalLogTransform(self):
         return SymmetricalLogTransform
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.3", alternative="scale.InvertedSymmetricalLogTransform")
     @property
     def InvertedSymmetricalLogTransform(self):
@@ -466,10 +466,10 @@ class SymmetricalLogScale(ScaleBase):
     def __init__(self, axis, **kwargs):
         axis_name = getattr(axis, "axis_name", "x")
         # See explanation in LogScale.__init__.
-        @cbook._rename_parameter("3.3", f"base{axis_name}", "base")
-        @cbook._rename_parameter("3.3", f"linthresh{axis_name}", "linthresh")
-        @cbook._rename_parameter("3.3", f"subs{axis_name}", "subs")
-        @cbook._rename_parameter("3.3", f"linscale{axis_name}", "linscale")
+        @_api.rename_parameter("3.3", f"base{axis_name}", "base")
+        @_api.rename_parameter("3.3", f"linthresh{axis_name}", "linthresh")
+        @_api.rename_parameter("3.3", f"subs{axis_name}", "subs")
+        @_api.rename_parameter("3.3", f"linscale{axis_name}", "linscale")
         def __init__(*, base=10, linthresh=2, subs=None, linscale=1):
             return base, linthresh, subs, linscale
 
@@ -497,7 +497,7 @@ class SymmetricalLogScale(ScaleBase):
 class LogitTransform(Transform):
     input_dims = output_dims = 1
 
-    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
         super().__init__()
         _api.check_in_list(['mask', 'clip'], nonpositive=nonpositive)
@@ -523,7 +523,7 @@ class LogitTransform(Transform):
 class LogisticTransform(Transform):
     input_dims = output_dims = 1
 
-    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
         super().__init__()
         self._nonpositive = nonpositive
@@ -548,7 +548,7 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, axis, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""

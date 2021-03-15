@@ -1,14 +1,11 @@
 import functools
-import importlib
 import os
-import re
 import signal
 import sys
 import traceback
 
-import matplotlib
-
-from matplotlib import backend_tools, cbook
+import matplotlib as mpl
+from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
@@ -18,7 +15,7 @@ from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, __version__, QT_API,
-    _devicePixelRatioF, _isdeleted, _setDevicePixelRatioF,
+    _devicePixelRatioF, _isdeleted, _setDevicePixelRatio,
 )
 
 backend_version = __version__
@@ -28,7 +25,10 @@ backend_version = __version__
 SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Shift: 'shift',
                 QtCore.Qt.Key_Alt: 'alt',
-                QtCore.Qt.Key_Meta: 'super',
+                QtCore.Qt.Key_Meta: 'meta',
+                QtCore.Qt.Key_Super_L: 'super',
+                QtCore.Qt.Key_Super_R: 'super',
+                QtCore.Qt.Key_CapsLock: 'caps_lock',
                 QtCore.Qt.Key_Return: 'enter',
                 QtCore.Qt.Key_Left: 'left',
                 QtCore.Qt.Key_Up: 'up',
@@ -69,9 +69,9 @@ if sys.platform == 'darwin':
 # Elements are (Modifier Flag, Qt Key) tuples.
 # Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
 _MODIFIER_KEYS = [
-    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
     (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
     (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
+    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
     (QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
 ]
 cursord = {
@@ -102,26 +102,19 @@ def _create_qApp():
     if qApp is None:
         app = QtWidgets.QApplication.instance()
         if app is None:
-            # check for DISPLAY env variable on X11 build of Qt
-            if QtCore.qVersion() >= "5.":
-                try:
-                    importlib.import_module(
-                        # i.e. PyQt5.QtX11Extras or PySide2.QtX11Extras.
-                        f"{QtWidgets.__package__}.QtX11Extras")
-                    is_x11_build = True
-                except ImportError:
-                    is_x11_build = False
-            else:
-                is_x11_build = hasattr(QtGui, "QX11Info")
-            if is_x11_build:
-                display = os.environ.get('DISPLAY')
-                if display is None or not re.search(r':\d', display):
-                    raise RuntimeError('Invalid DISPLAY variable')
-
+            # display_is_valid returns False only if on Linux and neither X11
+            # nor Wayland display can be opened.
+            if not mpl._c_internal_utils.display_is_valid():
+                raise RuntimeError('Invalid DISPLAY variable')
             try:
                 QtWidgets.QApplication.setAttribute(
                     QtCore.Qt.AA_EnableHighDpiScaling)
             except AttributeError:  # Attribute only exists for Qt>=5.6.
+                pass
+            try:
+                QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
+                    QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+            except AttributeError:  # Added in Qt>=5.14.
                 pass
             qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
@@ -216,22 +209,18 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                }
 
     @_allow_super_init
-    def __init__(self, figure):
+    def __init__(self, figure=None):
         _create_qApp()
         super().__init__(figure=figure)
 
         # We don't want to scale up the figure DPI more than once.
         # Note, we don't handle a signal for changing DPI yet.
-        figure._original_dpi = figure.dpi
+        self.figure._original_dpi = self.figure.dpi
         self._update_figure_dpi()
         # In cases with mixed resolution displays, we need to be careful if the
         # dpi_ratio changes - in this case we need to resize the canvas
-        # accordingly. We could watch for screenChanged events from Qt, but
-        # the issue is that we can't guarantee this will be emitted *before*
-        # the first paintEvent for the canvas, so instead we keep track of the
-        # dpi_ratio value here and in paintEvent we resize the canvas if
-        # needed.
-        self._dpi_ratio_prev = None
+        # accordingly.
+        self._dpi_ratio_prev = self._dpi_ratio
 
         self._draw_pending = False
         self._is_drawing = False
@@ -252,12 +241,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def _dpi_ratio(self):
         return _devicePixelRatioF(self)
 
-    def _update_dpi(self):
-        # As described in __init__ above, we need to be careful in cases with
-        # mixed resolution displays if dpi_ratio is changing between painting
-        # events.
-        # Return whether we triggered a resizeEvent (and thus a paintEvent)
-        # from within this function.
+    def _update_pixel_ratio(self):
+        # We need to be careful in cases with mixed resolution displays if
+        # dpi_ratio changes.
         if self._dpi_ratio != self._dpi_ratio_prev:
             # We need to update the figure DPI.
             self._update_figure_dpi()
@@ -269,8 +255,20 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             self.resizeEvent(event)
             # resizeEvent triggers a paintEvent itself, so we exit this one
             # (after making sure that the event is immediately handled).
-            return True
-        return False
+
+    def _update_screen(self, screen):
+        # Handler for changes to a window's attached screen.
+        self._update_pixel_ratio()
+        if screen is not None:
+            screen.physicalDotsPerInchChanged.connect(self._update_pixel_ratio)
+            screen.logicalDotsPerInchChanged.connect(self._update_pixel_ratio)
+
+    def showEvent(self, event):
+        # Set up correct pixel ratio, and connect to any signal changes for it,
+        # once the window is shown (and thus has these attributes).
+        window = self.window().windowHandle()
+        window.screenChanged.connect(self._update_screen)
+        self._update_screen(window.screen())
 
     def get_width_height(self):
         w, h = FigureCanvasBase.get_width_height(self)
@@ -363,10 +361,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
     def resizeEvent(self, event):
-        # _dpi_ratio_prev will be set the first time the canvas is painted, and
-        # the rendered buffer is useless before anyways.
-        if self._dpi_ratio_prev is None:
-            return
         w = event.size().width() * self._dpi_ratio
         h = event.size().height() * self._dpi_ratio
         dpival = self.figure.dpi
@@ -534,12 +528,11 @@ class FigureManagerQT(FigureManagerBase):
     """
 
     def __init__(self, canvas, num):
-        super().__init__(canvas, num)
         self.window = MainWindow()
+        super().__init__(canvas, num)
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
 
-        self.window.setWindowTitle("Figure %d" % num)
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 
@@ -567,7 +560,7 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window.setCentralWidget(self.canvas)
 
-        if matplotlib.is_interactive():
+        if mpl.is_interactive():
             self.window.show()
             self.canvas.draw_idle()
 
@@ -601,9 +594,9 @@ class FigureManagerQT(FigureManagerBase):
     def _get_toolbar(self, canvas, parent):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if matplotlib.rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2QT(canvas, parent, True)
-        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+        elif mpl.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarQt(self.toolmanager, self.window)
         else:
             toolbar = None
@@ -619,7 +612,7 @@ class FigureManagerQT(FigureManagerBase):
 
     def show(self):
         self.window.show()
-        if matplotlib.rcParams['figure.raise_window']:
+        if mpl.rcParams['figure.raise_window']:
             self.window.activateWindow()
             self.window.raise_()
 
@@ -687,17 +680,17 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
+    @_api.deprecated("3.3", alternative="self.canvas.parent()")
     @property
     def parent(self):
         return self.canvas.parent()
 
-    @cbook.deprecated("3.3", alternative="self.canvas.setParent()")
+    @_api.deprecated("3.3", alternative="self.canvas.setParent()")
     @parent.setter
     def parent(self, value):
         pass
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
     @property
     def basedir(self):
@@ -711,7 +704,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if QtCore.qVersion() >= '5.':
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
-        _setDevicePixelRatioF(pm, _devicePixelRatioF(self))
+        _setDevicePixelRatio(pm, _devicePixelRatioF(self))
         if self.palette().color(self.backgroundRole()).value() < 128:
             icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
@@ -792,8 +785,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         sorted_filetypes = sorted(filetypes.items())
         default_filetype = self.canvas.get_default_filetype()
 
-        startpath = os.path.expanduser(
-            matplotlib.rcParams['savefig.directory'])
+        startpath = os.path.expanduser(mpl.rcParams['savefig.directory'])
         start = os.path.join(startpath, self.canvas.get_default_filename())
         filters = []
         selectedFilter = None
@@ -811,8 +803,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if fname:
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
-                matplotlib.rcParams['savefig.directory'] = (
-                    os.path.dirname(fname))
+                mpl.rcParams['savefig.directory'] = os.path.dirname(fname)
             try:
                 self.canvas.figure.savefig(fname)
             except Exception as e:
@@ -962,7 +953,7 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         self.widgetForAction(self._message_action).setText(s)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
@@ -1024,10 +1015,6 @@ backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 class _BackendQT5(_Backend):
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
-
-    @staticmethod
-    def trigger_manager_draw(manager):
-        manager.canvas.draw_idle()
 
     @staticmethod
     def mainloop():

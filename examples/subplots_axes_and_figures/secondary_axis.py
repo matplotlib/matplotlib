@@ -42,7 +42,7 @@ plt.show()
 # Here is the case of converting from wavenumber to wavelength in a
 # log-log scale.
 #
-# .. note ::
+# .. note::
 #
 #   In this case, the xscale of the parent is logarithmic, so the child is
 #   made logarithmic as well.
@@ -57,15 +57,20 @@ ax.set_ylabel('PSD')
 ax.set_title('Random spectrum')
 
 
-def forward(x):
-    return 1 / x
+def one_over(x):
+    """Vectorized 1/x, treating x==0 manually"""
+    x = np.array(x).astype(float)
+    near_zero = np.isclose(x, 0)
+    x[near_zero] = np.inf
+    x[~near_zero] = 1 / x[~near_zero]
+    return x
 
 
-def inverse(x):
-    return 1 / x
+# the function "1/x" is its own inverse
+inverse = one_over
 
 
-secax = ax.secondary_xaxis('top', functions=(forward, inverse))
+secax = ax.secondary_xaxis('top', functions=(one_over, inverse))
 secax.set_xlabel('period [s]')
 plt.show()
 
@@ -74,6 +79,17 @@ plt.show()
 # the data, and is derived empirically.  In that case we can set the
 # forward and inverse transforms functions to be linear interpolations from the
 # one data set to the other.
+#
+# .. note::
+#
+#   In order to properly handle the data margins, the mapping functions
+#   (``forward`` and ``inverse`` in this example) need to be defined beyond the
+#   nominal plot limits.
+#
+#   In the specific case of the numpy linear interpolation, `numpy.interp`,
+#   this condition can be arbitrarily enforced by providing optional kwargs
+#   *left*, *right* such that values outside the data range are mapped
+#   well outside the plot limits.
 
 fig, ax = plt.subplots(constrained_layout=True)
 xdata = np.arange(1, 11, 0.4)

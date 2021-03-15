@@ -3,29 +3,26 @@
 Date tick labels
 ================
 
-Show how to make date plots in Matplotlib using date tick locators and
-formatters.  See :doc:`/gallery/ticks_and_spines/major_minor_demo` for more
-information on controlling major and minor ticks.
-
 Matplotlib date plotting is done by converting date instances into
 days since an epoch (by default 1970-01-01T00:00:00). The
 :mod:`matplotlib.dates` module provides the converter functions `.date2num`
-and `.num2date`, which convert `datetime.datetime` and `numpy.datetime64`
+and `.num2date` that convert `datetime.datetime` and `numpy.datetime64`
 objects to and from Matplotlib's internal representation.  These data
-types are registered with with the unit conversion mechanism described in
+types are registered with the unit conversion mechanism described in
 :mod:`matplotlib.units`, so the conversion happens automatically for the user.
 The registration process also sets the default tick ``locator`` and
 ``formatter`` for the axis to be `~.matplotlib.dates.AutoDateLocator` and
-`~.matplotlib.dates.AutoDateFormatter`.  These can be changed manually with
-`.Axis.set_major_locator` and `.Axis.set_major_formatter`; see for example
-:doc:`/gallery/ticks_and_spines/date_demo_convert`.
+`~.matplotlib.dates.AutoDateFormatter`.
 
-An alternative formatter is the `~.matplotlib.dates.ConciseDateFormatter`
-as described at :doc:`/gallery/ticks_and_spines/date_concise_formatter`,
-which often removes the need to rotate the tick labels.
+An alternative formatter is the `~.dates.ConciseDateFormatter`,
+used in the second ``Axes`` below (see
+:doc:`/gallery/ticks_and_spines/date_concise_formatter`), which often
+removes the need to rotate the tick labels. The last ``Axes``
+formats the dates manually, using `~.dates.DateFormatter` to
+format the dates using the format strings documented at
+`datetime.date.strftime`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.cbook as cbook
@@ -36,32 +33,32 @@ import matplotlib.cbook as cbook
 # column.
 data = cbook.get_sample_data('goog.npz', np_load=True)['price_data']
 
-fig, ax = plt.subplots()
-ax.plot('date', 'adj_close', data=data)
+fig, axs = plt.subplots(3, 1, figsize=(6.4, 7), constrained_layout=True)
+# common to all three:
+for ax in axs:
+    ax.plot('date', 'adj_close', data=data)
+    # Major ticks every half year, minor ticks every month,
+    ax.xaxis.set_major_locator(mdates.MonthLocator(bymonth=(1, 7)))
+    ax.xaxis.set_minor_locator(mdates.MonthLocator())
+    ax.grid(True)
+    ax.set_ylabel(r'Price [\$]')
 
-# Major ticks every 6 months
-fmt_half_year = mdates.MonthLocator(interval=6)
-ax.xaxis.set_major_locator(fmt_half_year)
+# different formats:
+ax = axs[0]
+ax.set_title('DefaultFormatter', loc='left', y=0.85, x=0.02, fontsize='medium')
 
-# Minor ticks every month
-fmt_month = mdates.MonthLocator()
-ax.xaxis.set_minor_locator(fmt_month)
+ax = axs[1]
+ax.set_title('ConciseFormatter', loc='left', y=0.85, x=0.02, fontsize='medium')
+ax.xaxis.set_major_formatter(
+    mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
 
-# Text in the x axis will be displayed in 'YYYY-mm' format
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-
-# Round to nearest years.
-datemin = np.datetime64(data['date'][0], 'Y')
-datemax = np.datetime64(data['date'][-1], 'Y') + np.timedelta64(1, 'Y')
-ax.set_xlim(datemin, datemax)
-
-# Format the coords message box
-ax.format_xdata = mdates.DateFormatter('%Y-%m')
-ax.format_ydata = lambda x: '$%1.2f' % x  # format the price.
-ax.grid(True)
-
-# rotates and right aligns the x labels, and moves the bottom of the
-# axes up to make room for them
-fig.autofmt_xdate()
+ax = axs[2]
+ax.set_title('Manual DateFormatter', loc='left', y=0.85, x=0.02,
+             fontsize='medium')
+# Text in the x axis will be displayed in 'YYYY-mm' format.
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%b'))
+# Rotates and right-aligns the x labels so they don't crowd each other.
+for label in ax.get_xticklabels(which='major'):
+    label.set(rotation=30, horizontalalignment='right')
 
 plt.show()

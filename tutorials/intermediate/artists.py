@@ -5,13 +5,12 @@ Artist tutorial
 
 Using Artist objects to render on the canvas.
 
-There are three layers to the matplotlib API.
+There are three layers to the Matplotlib API.
 
 * the :class:`matplotlib.backend_bases.FigureCanvas` is the area onto which
   the figure is drawn
-* the :class:`matplotlib.backend_bases.Renderer` is
-  the object which knows how to draw on the
-  :class:`~matplotlib.backend_bases.FigureCanvas`
+* the :class:`matplotlib.backend_bases.Renderer` is the object which knows how
+  to draw on the :class:`~matplotlib.backend_bases.FigureCanvas`
 * and the :class:`matplotlib.artist.Artist` is the object that knows how to use
   a renderer to paint onto the canvas.
 
@@ -47,7 +46,7 @@ for us::
     ax = fig.add_subplot(2, 1, 1) # two rows, one column, first plot
 
 The :class:`~matplotlib.axes.Axes` is probably the most important
-class in the matplotlib API, and the one you will be working with most
+class in the Matplotlib API, and the one you will be working with most
 of the time.  This is because the ``Axes`` is the plotting area into
 which most of the objects go, and the ``Axes`` has many special helper
 methods (:meth:`~matplotlib.axes.Axes.plot`,
@@ -83,8 +82,8 @@ In this example, ``ax`` is the ``Axes`` instance created by the
 ``fig.add_subplot`` call above (remember ``Subplot`` is just a
 subclass of ``Axes``) and when you call ``ax.plot``, it creates a
 ``Line2D`` instance and adds it to the :attr:`Axes.lines
-<matplotlib.axes.Axes.lines>` list.  In the interactive `ipython
-<http://ipython.org/>`_ session below, you can see that the
+<matplotlib.axes.Axes.lines>` list.  In the interactive `IPython
+<https://ipython.org/>`_ session below, you can see that the
 ``Axes.lines`` list is length one and contains the same line that was
 returned by the ``line, = ax.plot...`` call:
 
@@ -170,7 +169,7 @@ plt.show()
 # ==========  =================================================================
 # alpha       The transparency - a scalar from 0-1
 # animated    A boolean that is used to facilitate animated drawing
-# axes        The axes that the Artist lives in, possibly None
+# axes        The Axes that the Artist lives in, possibly None
 # clip_box    The bounding box that clips the Artist
 # clip_on     Whether clipping is enabled
 # clip_path   The path the artist is clipped to
@@ -183,7 +182,7 @@ plt.show()
 # visible     A boolean whether the artist should be drawn
 # zorder      A number which determines the drawing order
 # rasterized  Boolean; Turns vectors into raster graphics (for compression &
-#             eps transparency)
+#             EPS transparency)
 # ==========  =================================================================
 #
 # Each of the properties is accessed with an old-fashioned setter or
@@ -307,33 +306,33 @@ plt.show()
 #     In [160]: print(fig.axes)
 #     [<AxesSubplot:>, <matplotlib.axes._axes.Axes object at 0x7f0768702be0>]
 #
-# Because the figure maintains the concept of the "current axes" (see
+# Because the figure maintains the concept of the "current Axes" (see
 # :meth:`Figure.gca <matplotlib.figure.Figure.gca>` and
 # :meth:`Figure.sca <matplotlib.figure.Figure.sca>`) to support the
-# pylab/pyplot state machine, you should not insert or remove axes
-# directly from the axes list, but rather use the
+# pylab/pyplot state machine, you should not insert or remove Axes
+# directly from the Axes list, but rather use the
 # :meth:`~matplotlib.figure.Figure.add_subplot` and
 # :meth:`~matplotlib.figure.Figure.add_axes` methods to insert, and the
-# :meth:`~matplotlib.figure.Figure.delaxes` method to delete.  You are
-# free however, to iterate over the list of axes or index into it to get
+# `Axes.remove <matplotlib.artist.Artist.remove>` method to delete.  You are
+# free however, to iterate over the list of Axes or index into it to get
 # access to ``Axes`` instances you want to customize.  Here is an
-# example which turns all the axes grids on::
+# example which turns all the Axes grids on::
 #
 #     for ax in fig.axes:
 #         ax.grid(True)
 #
 #
-# The figure also has its own text, lines, patches and images, which you
-# can use to add primitives directly.  The default coordinate system for
-# the ``Figure`` will simply be in pixels (which is not usually what you
-# want) but you can control this by setting the transform property of
-# the ``Artist`` you are adding to the figure.
+# The figure also has its own ``images``, ``lines``, ``patches`` and ``text``
+# attributes, which you can use to add primitives directly. When doing so, the
+# default coordinate system for the ``Figure`` will simply be in pixels (which
+# is not usually what you want). If you instead use Figure-level methods to add
+# Artists (e.g., using `.Figure.text` to add text), then the default coordinate
+# system will be "figure coordinates" where (0, 0) is the bottom-left of the
+# figure and (1, 1) is the top-right of the figure.
 #
-# .. TODO: Is that still true?
-#
-# More useful is "figure coordinates" where (0, 0) is the bottom-left of
-# the figure and (1, 1) is the top-right of the figure which you can
-# obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
+# As with all ``Artist``\s, you can control this coordinate system by setting
+# the transform property. You can explicitly use "figure coordinates" by
+# setting the ``Artist`` transform to :attr:`fig.transFigure
 # <matplotlib.figure.Figure.transFigure>`:
 
 import matplotlib.lines as lines
@@ -347,23 +346,22 @@ fig.lines.extend([l1, l2])
 plt.show()
 
 ###############################################################################
-# Here is a summary of the Artists the figure contains
-#
-# .. TODO: Add xrefs to this table
+# Here is a summary of the Artists the Figure contains
 #
 # ================ ============================================================
 # Figure attribute Description
 # ================ ============================================================
-# axes             A list of Axes instances (includes Subplot)
-# patch            The Rectangle background
-# images           A list of FigureImage patches -
+# axes             A list of `~.axes.Axes` instances (includes Subplot)
+# patch            The `.Rectangle` background
+# images           A list of `.FigureImage` patches -
 #                  useful for raw pixel display
-# legends          A list of Figure Legend instances
-#                  (different from Axes.legends)
-# lines            A list of Figure Line2D instances
-#                  (rarely used, see Axes.lines)
-# patches          A list of Figure patches (rarely used, see Axes.patches)
-# texts            A list Figure Text instances
+# legends          A list of Figure `.Legend` instances
+#                  (different from ``Axes.legends``)
+# lines            A list of Figure `.Line2D` instances
+#                  (rarely used, see ``Axes.lines``)
+# patches          A list of Figure `.Patch`\s
+#                  (rarely used, see ``Axes.patches``)
+# texts            A list Figure `.Text` instances
 # ================ ============================================================
 #
 # .. _axes-container:
@@ -538,20 +536,21 @@ plt.show()
 # below summarizes a small sampling of them, the kinds of ``Artist`` they
 # create, and where they store them
 #
-# ==============================  ====================  =======================
-# Helper method                   Artist                Container
-# ==============================  ====================  =======================
-# ax.annotate - text annotations  Annotate              ax.texts
-# ax.bar  - bar charts            Rectangle             ax.patches
-# ax.errorbar - error bar plots   Line2D and Rectangle  ax.lines and ax.patches
-# ax.fill - shared area           Polygon               ax.patches
-# ax.hist - histograms            Rectangle             ax.patches
-# ax.imshow - image data          AxesImage             ax.images
-# ax.legend - axes legends        Legend                ax.legends
-# ax.plot - xy plots              Line2D                ax.lines
-# ax.scatter - scatter charts     PolygonCollection     ax.collections
-# ax.text - text                  Text                  ax.texts
-# ==============================  ====================  =======================
+# =========================================  =================  ===============
+# Axes helper method                         Artist             Container
+# =========================================  =================  ===============
+# `~.axes.Axes.annotate` - text annotations  `.Annotation`      ax.texts
+# `~.axes.Axes.bar` - bar charts             `.Rectangle`       ax.patches
+# `~.axes.Axes.errorbar` - error bar plots   `.Line2D` and      ax.lines and
+#                                            `.Rectangle`       ax.patches
+# `~.axes.Axes.fill` - shared area           `.Polygon`         ax.patches
+# `~.axes.Axes.hist` - histograms            `.Rectangle`       ax.patches
+# `~.axes.Axes.imshow` - image data          `.AxesImage`       ax.images
+# `~.axes.Axes.legend` - Axes legends        `.Legend`          ax.legends
+# `~.axes.Axes.plot` - xy plots              `.Line2D`          ax.lines
+# `~.axes.Axes.scatter` - scatter charts     `.PolyCollection`  ax.collections
+# `~.axes.Axes.text` - text                  `.Text`            ax.texts
+# =========================================  =================  ===============
 #
 #
 # In addition to all of these ``Artists``, the ``Axes`` contains two
@@ -572,20 +571,20 @@ plt.show()
 #
 # Below is a summary of the Artists that the Axes contains
 #
-# ==============    ======================================
+# ==============    =========================================
 # Axes attribute    Description
-# ==============    ======================================
-# artists           A list of Artist instances
-# patch             Rectangle instance for Axes background
-# collections       A list of Collection instances
-# images            A list of AxesImage
-# legends           A list of Legend instances
-# lines             A list of Line2D instances
-# patches           A list of Patch instances
-# texts             A list of Text instances
-# xaxis             matplotlib.axis.XAxis instance
-# yaxis             matplotlib.axis.YAxis instance
-# ==============    ======================================
+# ==============    =========================================
+# artists           A list of `.Artist` instances
+# patch             `.Rectangle` instance for Axes background
+# collections       A list of `.Collection` instances
+# images            A list of `.AxesImage`
+# legends           A list of `.Legend` instances
+# lines             A list of `.Line2D` instances
+# patches           A list of `.Patch` instances
+# texts             A list of `.Text` instances
+# xaxis             A `matplotlib.axis.XAxis` instance
+# yaxis             A `matplotlib.axis.YAxis` instance
+# ==============    =========================================
 #
 # .. _axis-container:
 #
@@ -640,28 +639,35 @@ axis.get_ticklines(minor=True)
 # (these have corresponding setters where useful, such as
 # :meth:`~matplotlib.axis.Axis.set_major_formatter`.)
 #
-# ====================  =====================================================
-# Accessor method       Description
-# ====================  =====================================================
-# get_scale             The scale of the axis, e.g., 'log' or 'linear'
-# get_view_interval     The interval instance of the axis view limits
-# get_data_interval     The interval instance of the axis data limits
-# get_gridlines         A list of grid lines for the Axis
-# get_label             The axis label - a Text instance
-# get_ticklabels        A list of Text instances - keyword minor=True|False
-# get_ticklines         A list of Line2D instances - keyword minor=True|False
-# get_ticklocs          A list of Tick locations - keyword minor=True|False
-# get_major_locator     The `.ticker.Locator` instance for major ticks
-# get_major_formatter   The `.ticker.Formatter` instance for major ticks
-# get_minor_locator     The `.ticker.Locator` instance for minor ticks
-# get_minor_formatter   The `.ticker.Formatter` instance for minor ticks
-# get_major_ticks       A list of Tick instances for major ticks
-# get_minor_ticks       A list of Tick instances for minor ticks
-# grid                  Turn the grid on or off for the major or minor ticks
-# ====================  =====================================================
+# =============================  ==============================================
+# Axis accessor method           Description
+# =============================  ==============================================
+# `~.Axis.get_scale`             The scale of the Axis, e.g., 'log' or 'linear'
+# `~.Axis.get_view_interval`     The interval instance of the Axis view limits
+# `~.Axis.get_data_interval`     The interval instance of the Axis data limits
+# `~.Axis.get_gridlines`         A list of grid lines for the Axis
+# `~.Axis.get_label`             The Axis label - a `.Text` instance
+# `~.Axis.get_offset_text`       The Axis offset text - a `.Text` instance
+# `~.Axis.get_ticklabels`        A list of `.Text` instances -
+#                                keyword minor=True|False
+# `~.Axis.get_ticklines`         A list of `.Line2D` instances -
+#                                keyword minor=True|False
+# `~.Axis.get_ticklocs`          A list of Tick locations -
+#                                keyword minor=True|False
+# `~.Axis.get_major_locator`     The `.ticker.Locator` instance for major ticks
+# `~.Axis.get_major_formatter`   The `.ticker.Formatter` instance for major
+#                                ticks
+# `~.Axis.get_minor_locator`     The `.ticker.Locator` instance for minor ticks
+# `~.Axis.get_minor_formatter`   The `.ticker.Formatter` instance for minor
+#                                ticks
+# `~.axis.Axis.get_major_ticks`  A list of `.Tick` instances for major ticks
+# `~.axis.Axis.get_minor_ticks`  A list of `.Tick` instances for minor ticks
+# `~.Axis.grid`                  Turn the grid on or off for the major or minor
+#                                ticks
+# =============================  ==============================================
 #
 # Here is an example, not recommended for its beauty, which customizes
-# the axes and tick properties
+# the Axes and Tick properties.
 
 # plt.figure creates a matplotlib.figure.Figure instance
 fig = plt.figure()
@@ -701,15 +707,15 @@ plt.show()
 # and lower ticks.  Each of these is accessible directly as an attribute
 # of the ``Tick``.
 #
-# ==============   ==========================================================
-# Tick attribute   Description
-# ==============   ==========================================================
-# tick1line        Line2D instance
-# tick2line        Line2D instance
-# gridline         Line2D instance
-# label1           Text instance
-# label2           Text instance
-# ==============   ==========================================================
+# ==============  ==========================================================
+# Tick attribute  Description
+# ==============  ==========================================================
+# tick1line       A `.Line2D` instance
+# tick2line       A `.Line2D` instance
+# gridline        A `.Line2D` instance
+# label1          A `.Text` instance
+# label2          A `.Text` instance
+# ==============  ==========================================================
 #
 # Here is an example which sets the formatter for the right side ticks with
 # dollar signs and colors them green on the right side of the yaxis.

@@ -29,7 +29,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
     : width(width),
       height(height),
       dpi(dpi),
-      NUMBYTES(width * height * 4),
+      NUMBYTES((size_t)width * (size_t)height * 4),
       pixBuffer(NULL),
       renderingBuffer(),
       alphaBuffer(NULL),

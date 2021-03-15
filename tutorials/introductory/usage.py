@@ -18,7 +18,7 @@ import numpy as np
 #
 # Matplotlib graphs your data on `~.figure.Figure`\s (i.e., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes` (i.e., an
-# area where points can be specified in terms of x-y coordinates (or theta-r
+# area where points can be specified in terms of x-y coordinates, or theta-r
 # in a polar plot, or x-y-z in a 3D plot, etc.).  The simplest way of
 # creating a figure with an axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the axes:
@@ -271,7 +271,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # plotting windows pop up when they type commands.  Some people run
 # `Jupyter <https://jupyter.org>`_ notebooks and draw inline plots for
 # quick data analysis. Others embed Matplotlib into graphical user
-# interfaces like wxpython or pygtk to build rich applications.  Some
+# interfaces like PyQt or PyGObject to build rich applications.  Some
 # people use Matplotlib in batch scripts to generate postscript images
 # from numerical simulations, and still others run web application
 # servers to dynamically serve up graphs.
@@ -281,8 +281,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # "frontend" is the user facing code, i.e., the plotting code, whereas the
 # "backend" does all the hard work behind-the-scenes to make the figure.
 # There are two types of backends: user interface backends (for use in
-# pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
-# "interactive backends") and hardcopy backends to make image files
+# PyQt/PySide, PyGObject, Tkinter, wxPython, or macOS/Cocoa); also referred to
+# as "interactive backends") and hardcopy backends to make image files
 # (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 #
 # Selecting a backend
@@ -364,8 +364,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Linux package named ``python-tk`` (or similar).
 #
 # If, however, you want to write graphical user interfaces, or a web
-# application server (:ref:`howto-webapp`), or need a better
-# understanding of what is going on, read on. To make things a little
+# application server
+# (:doc:`/gallery/user_interfaces/web_application_server_sgskip`), or need a
+# better understanding of what is going on, read on. To make things a little
 # more customizable for graphical user interfaces, Matplotlib separates
 # the concept of the renderer (the thing that actually does the drawing)
 # from the canvas (the place where the drawing goes).  The canonical
@@ -411,29 +412,29 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ========= ================================================================
 # Backend   Description
 # ========= ================================================================
-# Qt5Agg    Agg rendering in a :term:`Qt5` canvas (requires PyQt5_).  This
+# Qt5Agg    Agg rendering in a Qt5_ canvas (requires PyQt5_).  This
 #           backend can be activated in IPython with ``%matplotlib qt5``.
 # ipympl    Agg rendering embedded in a Jupyter widget.  (requires ipympl).
 #           This backend can be enabled in a Jupyter notebook with
 #           ``%matplotlib ipympl``.
-# GTK3Agg   Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_,
+# GTK3Agg   Agg rendering to a GTK_ 3.x canvas (requires PyGObject_,
 #           and pycairo_ or cairocffi_).  This backend can be activated in
 #           IPython with ``%matplotlib gtk3``.
 # macosx    Agg rendering into a Cocoa canvas in OSX.  This backend can be
 #           activated in IPython with ``%matplotlib osx``.
-# TkAgg     Agg rendering to a :term:`Tk` canvas (requires TkInter_). This
+# TkAgg     Agg rendering to a Tk_ canvas (requires TkInter_). This
 #           backend can be activated in IPython with ``%matplotlib tk``.
 # nbAgg     Embed an interactive figure in a Jupyter classic notebook.  This
 #           backend can be enabled in Jupyter notebooks via
 #           ``%matplotlib notebook``.
 # WebAgg    On ``show()`` will start a tornado server with an interactive
 #           figure.
-# GTK3Cairo Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_,
+# GTK3Cairo Cairo rendering to a GTK_ 3.x canvas (requires PyGObject_,
 #           and pycairo_ or cairocffi_).
-# Qt4Agg    Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or
+# Qt4Agg    Agg rendering to a Qt4_ canvas (requires PyQt4_ or
 #           ``pyside``).  This backend can be activated in IPython with
 #           ``%matplotlib qt4``.
-# wxAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
+# wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 #           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
 #
@@ -454,6 +455,11 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _TkInter: https://docs.python.org/3/library/tk.html
 # .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
+# .. _Qt5: https://doc.qt.io/qt-5/index.html
+# .. _GTK: https://www.gtk.org/
+# .. _Tk: https://www.tcl.tk/
+# .. _Qt4: https://doc.qt.io/archives/qt-4.8/index.html
+# .. _wxWidgets: https://www.wxwidgets.org/
 #
 # ipympl
 # ^^^^^^

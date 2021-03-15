@@ -730,7 +730,7 @@ def test_triinterp_transformations():
             matest.assert_array_almost_equal(interpz, interp_z0[interp_key])
 
 
-@image_comparison(['tri_smooth_contouring.png'], remove_text=True, tol=0.07)
+@image_comparison(['tri_smooth_contouring.png'], remove_text=True, tol=0.072)
 def test_tri_smooth_contouring():
     # Image comparison based on example tricontour_smooth_user.
     n_angles = 20

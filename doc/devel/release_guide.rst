@@ -2,9 +2,9 @@
 
 .. _release-guide:
 
-===============
- Release Guide
-===============
+=============
+Release Guide
+=============
 
 
 .. admonition::  This document is only relevant for Matplotlib release managers.
@@ -17,17 +17,15 @@
    This assumes that a read-only remote for the canonical repository is
    ``remote`` and a read/write remote is ``DANGER``
 
-All Releases
-============
 
 .. _release-testing:
 
 Testing
--------
+=======
 
-We use `Travis CI <https://travis-ci.org/matplotlib/matplotlib>`__ for
-continuous integration.  When preparing for a release, the final
-tagged commit should be tested locally before it is uploaded::
+We use `GitHub Actions <https://github.com/matplotlib/matplotlib/actions>`__
+for continuous integration.  When preparing for a release, the final tagged
+commit should be tested locally before it is uploaded::
 
    pytest -n 8 .
 
@@ -48,7 +46,7 @@ is currently broken::
 .. _release_ghstats:
 
 GitHub Stats
-------------
+============
 
 
 We automatically extract GitHub issue, PRs, and authors from GitHub via the
@@ -88,16 +86,23 @@ most common issue is ``*`` which is interpreted as unclosed markup).
 .. _release_chkdocs:
 
 Update and Validate the Docs
-----------------------------
+============================
 
 Merge ``*-doc`` branch
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 Merge the most recent 'doc' branch (e.g., ``v3.2.0-doc``) into the branch you
 are going to tag on and delete the doc branch on GitHub.
 
+Update supported versions in Security Policy
+--------------------------------------------
+
+When making major or minor releases, update the supported versions in the
+Security Policy in :file:`SECURITY.md`.  Commonly, this may be one or two
+previous minor releases, but is dependent on release managers.
+
 Update "What's New" and "API changes"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------
 
 Before tagging major and minor releases, the "what's new" and "API changes"
 listings should be updated.  This is not needed for micro releases.
@@ -119,7 +124,7 @@ Similarly for the "API changes",
 In both cases step 3 will have to be un-done right after the release.
 
 Verify that docs build
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 Finally, make sure that the docs build cleanly ::
 
@@ -143,7 +148,7 @@ CI, this should only flag failed external links.
 .. _release_tag:
 
 Create release commit and tag
------------------------------
+=============================
 
 To create the tag, first create an empty commit with a very terse set of the release notes
 in the commit message ::
@@ -212,7 +217,7 @@ On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
 .. _release_DOI:
 
 Release Management / DOI
-------------------------
+========================
 
 Via the `GitHub UI
 <https://github.com/matplotlib/matplotlib/releases>`__, turn the newly
@@ -240,18 +245,18 @@ to :file:`tools/cache_zenodo_svg.py`, and the changes to
 .. _release_bld_bin:
 
 Building binaries
------------------
+=================
 
 We distribute macOS, Windows, and many Linux wheels as well as a source tarball
 via PyPI.  Most builders should trigger automatically once the tag is pushed to
 GitHub:
 
-* Mac and manylinux wheels are built on Travis CI.  Builds are triggered by the
-  GitHub Action defined in :file:`.github/workflows/wheels.yml`, and wheels
-  will be available at the site defined in the `matplotlib-wheels repo
-  <https://github.com/MacPython/matplotlib-wheels>`__.
-* Windows wheels are built by Christoph Gohlke automatically and will be
-  `available at his site
+* Windows, macOS and manylinux wheels are built on GitHub Actions.  Builds are
+  triggered by the GitHub Action defined in
+  :file:`.github/workflows/cibuildwheel.yml`, and wheels will be available as
+  artifacts of the build.
+* Alternative Windows wheels are built by Christoph Gohlke automatically and
+  will be `available at his site
   <https://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib>`__ once built.
 * The auto-tick bot should open a pull request into the `conda-forge feedstock
   <https://github.com/conda-forge/matplotlib-feedstock>`__.  Review and merge
@@ -279,7 +284,7 @@ This can be done ahead of collecting all of the binaries and uploading to pypi.
 .. _release_upload_bin:
 
 Make distribution and upload to PyPI
-------------------------------------
+====================================
 
 Once you have collected all of the wheels (expect this to take about a
 day), generate the tarball ::
@@ -304,7 +309,7 @@ Congratulations, you have now done the second scariest part!
 .. _release_docs:
 
 Build and Deploy Documentation
-------------------------------
+==============================
 
 To build the documentation you must have the tagged version installed, but
 build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
@@ -337,13 +342,16 @@ matplotlib ::
   rsync -a ../matplotlib/doc/build/html/* 2.0.0
   cp ../matplotlib/doc/build/latex/Matplotlib.pdf 2.0.0
 
-which will copy the built docs over.  If this is a final release, also
-replace the top-level docs ::
+which will copy the built docs over.  If this is a final release, link the
+``stable`` subdirectory to the newest version::
 
   rsync -a 2.0.0/* ./
+  rm stable
+  ln -s 2.0.0/ stable
 
 You will need to manually edit :file:`versions.html` to show the last
-3 tagged versions.  Now commit and push everything to GitHub ::
+3 tagged versions.  You will also need to edit :file:`sitemap.xml` to include
+the newly released version.  Now commit and push everything to GitHub ::
 
   git add *
   git commit -a -m 'Updating docs for v2.0.0'
@@ -358,7 +366,7 @@ and update the live web page (remember to clear your browser cache).
 
 
 Announcing
-----------
+==========
 
 The final step is to announce the release to the world.  A short
 version of the release notes along with acknowledgments should be sent to

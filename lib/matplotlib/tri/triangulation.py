@@ -9,22 +9,22 @@ class Triangulation:
 
     Parameters
     ----------
-    x, y : array-like of shape (npoints)
+    x, y : (npoints,) array-like
         Coordinates of grid points.
-    triangles : int array-like of shape (ntri, 3), optional
+    triangles : (ntri, 3) array-like of int, optional
         For each triangle, the indices of the three points that make
         up the triangle, ordered in an anticlockwise manner.  If not
         specified, the Delaunay triangulation is calculated.
-    mask : bool array-like of shape (ntri), optional
+    mask : (ntri,) array-like of bool, optional
         Which triangles are masked out.
 
     Attributes
     ----------
-    edges : int array of shape (nedges, 2)
-        See `~.Triangulation.edges`
-    neighbors : int array of shape (ntri, 3)
-        See `~.Triangulation.neighbors`
-    mask : bool array of shape (ntri, 3)
+    triangles : (ntri, 3) array of int
+        For each triangle, the indices of the three points that make
+        up the triangle, ordered in an anticlockwise manner. If you want to
+        take the *mask* into account, use `get_masked_triangles` instead.
+    mask : (ntri, 3) array of bool
         Masked out triangles.
     is_delaunay : bool
         Whether the Triangulation is a calculated Delaunay
@@ -41,7 +41,7 @@ class Triangulation:
         self.x = np.asarray(x, dtype=np.float64)
         self.y = np.asarray(y, dtype=np.float64)
         if self.x.shape != self.y.shape or self.x.ndim != 1:
-            raise ValueError("x and y must be equal-length 1-D arrays")
+            raise ValueError("x and y must be equal-length 1D arrays")
 
         self.mask = None
         self._edges = None

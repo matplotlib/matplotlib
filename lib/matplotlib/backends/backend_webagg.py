@@ -48,12 +48,7 @@ webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
-    _timer_cls = TimerTornado
-
-    def show(self):
-        # show the figure window
-        global show  # placates pyflakes: created by @_Backend.export below
-        show()
+    pass
 
 
 class WebAggApplication(tornado.web.Application):
@@ -305,10 +300,6 @@ def ipython_inline_display(figure):
 class _BackendWebAgg(_Backend):
     FigureCanvas = FigureCanvasWebAgg
     FigureManager = core.FigureManagerWebAgg
-
-    @staticmethod
-    def trigger_manager_draw(manager):
-        manager.canvas.draw_idle()
 
     @staticmethod
     def show():

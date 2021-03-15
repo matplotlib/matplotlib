@@ -109,29 +109,16 @@ def test_contour_uniform_z():
     assert len(record) == 1
 
 
-@image_comparison(['contour_manual_labels'],
-                  savefig_kwarg={'dpi': 200}, remove_text=True, style='mpl20')
+@image_comparison(['contour_manual_labels'], remove_text=True, style='mpl20')
 def test_contour_manual_labels():
-
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
     plt.figure(figsize=(6, 2), dpi=200)
     cs = plt.contour(x, y, z)
-    pts = np.array([(1.5, 3.0), (1.5, 4.4), (1.5, 6.0)])
+    pts = np.array([(1.0, 3.0), (1.0, 4.4), (1.0, 6.0)])
     plt.clabel(cs, manual=pts)
-
-
-@image_comparison(['contour_labels_size_color.png'],
-                  remove_text=True, style='mpl20')
-def test_contour_labels_size_color():
-
-    x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
-    z = np.max(np.dstack([abs(x), abs(y)]), 2)
-
-    plt.figure(figsize=(6, 2))
-    cs = plt.contour(x, y, z)
-    pts = np.array([(1.5, 3.0), (1.5, 4.4), (1.5, 6.0)])
+    pts = np.array([(2.0, 3.0), (2.0, 4.4), (2.0, 6.0)])
     plt.clabel(cs, manual=pts, fontsize='small', colors=('r', 'g'))
 
 
@@ -405,3 +392,9 @@ def test_contour_linewidth(
         X = np.arange(4*3).reshape(4, 3)
         cs = ax.contour(X, linewidths=call_linewidths)
         assert cs.tlinewidths[0][0] == expected
+
+
+@pytest.mark.backend("pdf")
+def test_label_nonagg():
+    # This should not crash even if the canvas doesn't have a get_renderer().
+    plt.clabel(plt.contour([[1, 2], [3, 4]]))

@@ -1,0 +1,5 @@
+``pyplot.gca()``, ``Figure.gca``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing keyword arguments to `.pyplot.gca` or `.figure.Figure.gca` will not be
+supported in a future release.

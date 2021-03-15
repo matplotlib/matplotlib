@@ -29,7 +29,6 @@ See :ref:`axes_grid1_users-guide-index` for a guide on the usage of axes_grid1.
    axes_grid1.axes_grid
    axes_grid1.axes_rgb
    axes_grid1.axes_size
-   axes_grid1.colorbar
    axes_grid1.inset_locator
    axes_grid1.mpl_axes
    axes_grid1.parasite_axes

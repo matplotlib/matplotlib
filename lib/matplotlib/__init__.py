@@ -104,7 +104,7 @@ import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import cbook, docstring, rcsetup
+from . import _api, cbook, docstring, rcsetup
 from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import validate_backend, cycler
@@ -143,10 +143,10 @@ def _check_versions():
 
     for modname, minver in [
             ("cycler", "0.10"),
-            ("dateutil", "2.1"),
+            ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.15"),
-            ("pyparsing", "2.0.1"),
+            ("numpy", "1.16"),
+            ("pyparsing", "2.2.1"),
     ]:
         module = importlib.import_module(modname)
         if LooseVersion(module.__version__) < minver:
@@ -243,7 +243,7 @@ def _get_executable_info(name):
     """
     Get the version of some executable that Matplotlib optionally depends on.
 
-    .. warning:
+    .. warning::
        The list of executables that this function supports is set according to
        Matplotlib's internal needs, and may change without notice.
 
@@ -324,7 +324,6 @@ def _get_executable_info(name):
         # try without it:
         return impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
     elif name == "magick":
-        path = None
         if sys.platform == "win32":
             # Check the registry to avoid confusing ImageMagick's convert with
             # Windows's builtin convert.exe.
@@ -339,18 +338,24 @@ def _get_executable_info(name):
                         binpath = winreg.QueryValueEx(hkey, "BinPath")[0]
                 except OSError:
                     pass
+            path = None
             if binpath:
                 for name in ["convert.exe", "magick.exe"]:
                     candidate = Path(binpath, name)
                     if candidate.exists():
                         path = str(candidate)
                         break
+            if path is None:
+                raise ExecutableNotFoundError(
+                    "Failed to find an ImageMagick installation")
         else:
             path = "convert"
-        if path is None:
+        info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+        if info.version == "7.0.10-34":
+            # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
-                "Failed to find an ImageMagick installation")
-        return impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+                f"You have ImageMagick {info.version}, which is unsupported")
+        return info
     elif name == "pdftops":
         info = impl(["pdftops", "-v"], "^pdftops version (.*)",
                     ignore_exit_code=True)
@@ -464,56 +469,9 @@ def get_cachedir():
 
 
 @_logged_cached('matplotlib data path: %s')
-def get_data_path(*, _from_rc=None):
+def get_data_path():
     """Return the path to Matplotlib data."""
-    if _from_rc is not None:
-        cbook.warn_deprecated(
-            "3.2",
-            message=("Setting the datapath via matplotlibrc is deprecated "
-                     "%(since)s and will be removed %(removal)s."),
-            removal='3.4')
-        path = Path(_from_rc)
-        if path.is_dir():
-            return str(path)
-        else:
-            warnings.warn(f"You passed datapath: {_from_rc!r} in your "
-                          f"matplotribrc file ({matplotlib_fname()}). "
-                          "However this path does not exist, falling back "
-                          "to standard paths.")
-
-    return _get_data_path()
-
-
-@_logged_cached('(private) matplotlib data path: %s')
-def _get_data_path():
-    path = Path(__file__).with_name("mpl-data")
-    if path.is_dir():
-        return str(path)
-
-    cbook.warn_deprecated(
-        "3.2", message="Matplotlib installs where the data is not in the "
-        "mpl-data subdirectory of the package are deprecated since %(since)s "
-        "and support for them will be removed %(removal)s.")
-
-    def get_candidate_paths():
-        # setuptools' namespace_packages may hijack this init file
-        # so need to try something known to be in Matplotlib, not basemap.
-        import matplotlib.afm
-        yield Path(matplotlib.afm.__file__).with_name('mpl-data')
-        # py2exe zips pure python, so still need special check.
-        if getattr(sys, 'frozen', None):
-            yield Path(sys.executable).with_name('mpl-data')
-            # Try again assuming we need to step up one more directory.
-            yield Path(sys.executable).parent.with_name('mpl-data')
-            # Try again assuming sys.path[0] is a dir not a exe.
-            yield Path(sys.path[0]) / 'mpl-data'
-
-    for path in get_candidate_paths():
-        if path.is_dir():
-            defaultParams['datapath'][0] = str(path)
-            return str(path)
-
-    raise RuntimeError('Could not find the matplotlib data files')
+    return str(Path(__file__).with_name("mpl-data"))
 
 
 def matplotlib_fname():
@@ -538,7 +496,11 @@ def matplotlib_fname():
     """
 
     def gen_candidates():
-        yield os.path.join(os.getcwd(), 'matplotlibrc')
+        # rely on down-stream code to make absolute.  This protects us
+        # from having to directly get the current working directory
+        # which can fail if the user has ended up with a cwd that is
+        # non-existent.
+        yield 'matplotlibrc'
         try:
             matplotlibrc = os.environ['MATPLOTLIBRC']
         except KeyError:
@@ -547,7 +509,7 @@ def matplotlib_fname():
             yield matplotlibrc
             yield os.path.join(matplotlibrc, 'matplotlibrc')
         yield os.path.join(get_configdir(), 'matplotlibrc')
-        yield os.path.join(_get_data_path(), 'matplotlibrc')
+        yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
         if os.path.exists(fname) and not os.path.isdir(fname):
@@ -564,13 +526,13 @@ _deprecated_map = {}
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
 _deprecated_ignore_map = {
+    'mpl_toolkits.legacy_colorbar': ('3.4', None),
 }
 
 # rcParams deprecated; can use None to suppress warnings; remain actually
 # listed in the rcParams (not included in _all_deprecated).
 # Values are tuples of (version,)
 _deprecated_remain_as_none = {
-    'datapath': ('3.2.1',),
     'animation.avconv_path': ('3.3',),
     'animation.avconv_args': ('3.3',),
     'animation.html_args': ('3.3',),
@@ -611,17 +573,16 @@ class RcParams(MutableMapping, dict):
         try:
             if key in _deprecated_map:
                 version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     version, name=key, obj_type="rcparam", alternative=alt_key)
                 key = alt_key
                 val = alt_val(val)
             elif key in _deprecated_remain_as_none and val is not None:
                 version, = _deprecated_remain_as_none[key]
-                cbook.warn_deprecated(
-                    version, name=key, obj_type="rcparam")
+                _api.warn_deprecated(version, name=key, obj_type="rcparam")
             elif key in _deprecated_ignore_map:
                 version, alt_key = _deprecated_ignore_map[key]
-                cbook.warn_deprecated(
+                _api.warn_deprecated(
                     version, name=key, obj_type="rcparam", alternative=alt_key)
                 return
             elif key == 'backend':
@@ -641,13 +602,13 @@ class RcParams(MutableMapping, dict):
     def __getitem__(self, key):
         if key in _deprecated_map:
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
             return inverse_alt(dict.__getitem__(self, alt_key))
 
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
             return dict.__getitem__(self, alt_key) if alt_key else None
 
@@ -657,15 +618,12 @@ class RcParams(MutableMapping, dict):
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
 
-        elif key == "datapath":
-            return get_data_path()
-
         return dict.__getitem__(self, key)
 
     def __repr__(self):
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
-        with cbook._suppress_matplotlib_deprecation_warning():
+        with _api.suppress_matplotlib_deprecation_warning():
             repr_split = pprint.pformat(dict(self), indent=1,
                                         width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
@@ -676,7 +634,7 @@ class RcParams(MutableMapping, dict):
 
     def __iter__(self):
         """Yield sorted list of keys."""
-        with cbook._suppress_matplotlib_deprecation_warning():
+        with _api.suppress_matplotlib_deprecation_warning():
             yield from sorted(dict.__iter__(self))
 
     def __len__(self):
@@ -707,26 +665,38 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
+# Deprecated in Matplotlib 3.5.
 URL_REGEX = re.compile(r'^http://|^https://|^ftp://|^file:')
 
 
+@_api.deprecated("3.5")
 def is_url(filename):
-    """Return True if string is an http, ftp, or file URL path."""
+    """Return whether *filename* is an http, https, ftp, or file URL path."""
     return URL_REGEX.match(filename) is not None
 
 
 @functools.lru_cache()
 def _get_ssl_context():
-    import certifi
+    try:
+        import certifi
+    except ImportError:
+        _log.debug("Could not import certifi.")
+        return None
     import ssl
     return ssl.create_default_context(cafile=certifi.where())
 
 
 @contextlib.contextmanager
 def _open_file_or_url(fname):
-    if not isinstance(fname, Path) and is_url(fname):
+    if (isinstance(fname, str)
+            and fname.startswith(('http://', 'https://', 'ftp://', 'file:'))):
         import urllib.request
-        with urllib.request.urlopen(fname, context=_get_ssl_context()) as f:
+        ssl_ctx = _get_ssl_context()
+        if ssl_ctx is None:
+            _log.debug(
+                "Could not get certifi ssl context, https may not work."
+            )
+        with urllib.request.urlopen(fname, context=ssl_ctx) as f:
             yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
@@ -796,8 +766,8 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                                  fname, line_no, line.rstrip('\n'), msg)
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
-            cbook.warn_deprecated(
-                version, name=key, alternative=alt_key,
+            _api.warn_deprecated(
+                version, name=key, alternative=alt_key, obj_type='rcparam',
                 addendum="Please update your matplotlibrc.")
         else:
             version = 'master' if '.post' in __version__ else f'v{__version__}'
@@ -831,14 +801,8 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
     if not use_default_template:
         return config_from_file
 
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         config = RcParams({**rcParamsDefault, **config_from_file})
-
-    with cbook._suppress_matplotlib_deprecation_warning():
-        if config['datapath'] is None:
-            config['datapath'] = _get_data_path()
-        else:
-            config['datapath'] = get_data_path(_from_rc=config['datapath'])
 
     if "".join(config['text.latex.preamble']):
         _log.info("""
@@ -865,10 +829,10 @@ dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
 rcParams = RcParams()  # The global instance.
 dict.update(rcParams, dict.items(rcParamsDefault))
 dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
-with cbook._suppress_matplotlib_deprecation_warning():
+with _api.suppress_matplotlib_deprecation_warning():
     rcParamsOrig = RcParams(rcParams.copy())
     # This also checks that all rcParams are indeed listed in the template.
-    # Assiging to rcsetup.defaultParams is left only for backcompat.
+    # Assigning to rcsetup.defaultParams is left only for backcompat.
     defaultParams = rcsetup.defaultParams = {
         # We want to resolve deprecated rcParams, but not backend...
         key: [(rcsetup._auto_backend_sentinel if key == "backend" else
@@ -973,7 +937,7 @@ def rcdefaults():
     """
     # Deprecation warnings were already handled when creating rcParamsDefault,
     # no need to reemit them here.
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rcParams.clear()
         rcParams.update({k: v for k, v in rcParamsDefault.items()
@@ -989,7 +953,7 @@ def rc_file_defaults():
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
     # need to reemit them here.
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rcParams.update({k: rcParamsOrig[k] for k in rcParamsOrig
                          if k not in STYLE_BLACKLIST})
@@ -1014,7 +978,7 @@ def rc_file(fname, *, use_default_template=True):
     """
     # Deprecation warnings were already handled in rc_params_from_file, no need
     # to reemit them here.
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rc_from_file = rc_params_from_file(
             fname, use_default_template=use_default_template)
@@ -1179,10 +1143,8 @@ def _init_tests():
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
 
-@cbook._delete_parameter("3.2", "switch_backend_warn")
-@cbook._delete_parameter("3.3", "recursionlimit")
-def test(verbosity=None, coverage=False, switch_backend_warn=True,
-         recursionlimit=0, **kwargs):
+@_api.delete_parameter("3.3", "recursionlimit")
+def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     """Run the matplotlib test suite."""
 
     try:

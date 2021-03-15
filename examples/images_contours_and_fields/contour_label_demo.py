@@ -27,31 +27,21 @@ Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
 ###############################################################################
-# Make contour labels using creative float classes
-# Follows suggestion of Manuel Metz
-
-# Define a class that forces representation of float to look a certain way
-# This remove trailing zero so '1.0' becomes '1'
+# Make contour labels with custom level formatters
 
 
-class nf(float):
-    def __repr__(self):
-        s = f'{self:.1f}'
-        return f'{self:.0f}' if s[-1] == '0' else s
+# This custom formatter removes trailing zeros, e.g. "1.0" becomes "1", and
+# then adds a percent sign.
+def fmt(x):
+    s = f"{x:.1f}"
+    if s.endswith("0"):
+        s = f"{x:.0f}"
+    return rf"{s} \%" if plt.rcParams["text.usetex"] else f"{s} %"
 
 
 # Basic contour plot
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z)
-
-# Recast levels to new class
-CS.levels = [nf(val) for val in CS.levels]
-
-# Label levels with specially formatted floats
-if plt.rcParams["text.usetex"]:
-    fmt = r'%r \%%'
-else:
-    fmt = '%r %%'
 
 ax.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
 

@@ -1,7 +1,10 @@
+import copy
+
 import matplotlib.pyplot as plt
 from matplotlib.scale import (
     LogTransform, InvertedLogTransform,
     SymmetricalLogTransform)
+import matplotlib.scale as mscale
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 import numpy as np
@@ -198,3 +201,21 @@ def test_function_scale():
     ax.plot(x, x)
     ax.set_xscale('function', functions=(forward, inverse))
     ax.set_xlim(1, 1000)
+
+
+def test_pass_scale():
+    # test passing a scale object works...
+    fig, ax = plt.subplots()
+    scale = mscale.LogScale(axis=None)
+    ax.set_xscale(scale)
+    scale = mscale.LogScale(axis=None)
+    ax.set_yscale(scale)
+    assert ax.xaxis.get_scale() == 'log'
+    assert ax.yaxis.get_scale() == 'log'
+
+
+def test_scale_deepcopy():
+    sc = mscale.LogScale(axis='x', base=10)
+    sc2 = copy.deepcopy(sc)
+    assert str(sc.get_transform()) == str(sc2.get_transform())
+    assert sc._transform is not sc2._transform

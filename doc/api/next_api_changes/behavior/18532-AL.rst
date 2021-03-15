@@ -1,0 +1,4 @@
+Consistent behavior of ``draw_if_interactive()`` across backends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.pyplot.draw_if_interactive` no longer shows the window (if it was previously
+unshown) on the tk and nbagg backends, consistently with all other backends.

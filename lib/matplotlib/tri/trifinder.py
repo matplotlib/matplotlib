@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.tri import Triangulation
 
 
@@ -17,7 +17,7 @@ class TriFinder:
     """
 
     def __init__(self, triangulation):
-        cbook._check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
 

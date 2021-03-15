@@ -1,0 +1,8 @@
+``ps.useafm`` deprecated for mathtext
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Outputting mathtext using only standard PostScript fonts has likely
+been broken for a while (issue `#18722
+<https://github.com/matplotlib/matplotlib/issues/18722>`_). In
+Matplotlib 3.5, the setting ``ps.useafm`` will have no effect on
+mathtext.

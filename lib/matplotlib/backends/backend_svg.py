@@ -14,10 +14,10 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
      _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-     RendererBase)
+     RendererBase, _no_output_draw)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
@@ -311,7 +311,7 @@ class RendererSVG(RendererBase):
         self._write_metadata(metadata)
         self._write_default_style()
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     @property
     def mathtext_parser(self):
         return MathTextParser('SVG')
@@ -1238,7 +1238,7 @@ class RendererSVG(RendererBase):
 
             writer.end('g')
 
-    @cbook._delete_parameter("3.3", "ismath")
+    @_api.delete_parameter("3.3", "ismath")
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # docstring inherited
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
@@ -1286,6 +1286,7 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     fixed_dpi = 72
 
+    @_api.delete_parameter("3.5", "args")
     def print_svg(self, filename, *args, **kwargs):
         """
         Parameters
@@ -1293,7 +1294,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         filename : str or path-like or file-like
             Output target; if a string, a file will be opened for writing.
 
-        metadata : Dict[str, Any], optional
+        metadata : dict[str, Any], optional
             Metadata in the SVG file defined as key-value pairs of strings,
             datetimes, or lists of strings, e.g., ``{'Creator': 'My software',
             'Contributor': ['Me', 'My Friend'], 'Title': 'Awesome'}``.
@@ -1337,15 +1338,19 @@ class FigureCanvasSVG(FigureCanvasBase):
             if detach:
                 fh.detach()
 
+    @_api.delete_parameter("3.5", "args")
     def print_svgz(self, filename, *args, **kwargs):
         with cbook.open_file_cm(filename, "wb") as fh, \
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
             return self.print_svg(gzipwriter)
 
     @_check_savefig_extra_args
-    def _print_svg(self, filename, fh, *, dpi=72, bbox_inches_restore=None,
+    @_api.delete_parameter("3.4", "dpi")
+    def _print_svg(self, filename, fh, *, dpi=None, bbox_inches_restore=None,
                    metadata=None):
-        self.figure.set_dpi(72.0)
+        if dpi is None:  # always use this branch after deprecation elapses.
+            dpi = self.figure.get_dpi()
+        self.figure.set_dpi(72)
         width, height = self.figure.get_size_inches()
         w, h = width * 72, height * 72
 
@@ -1359,6 +1364,10 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     def get_default_filetype(self):
         return 'svg'
+
+    def draw(self):
+        _no_output_draw(self.figure)
+        return super().draw()
 
 
 FigureManagerSVG = FigureManagerBase

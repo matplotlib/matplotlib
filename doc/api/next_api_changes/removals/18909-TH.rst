@@ -1,0 +1,3 @@
+``Artist.eventson`` and ``Container.eventson``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes have no effect and thus have been removed.

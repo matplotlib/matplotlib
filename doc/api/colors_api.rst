@@ -20,6 +20,7 @@ Classes
 
    BoundaryNorm
    Colormap
+   CenteredNorm
    LightSource
    LinearSegmentedColormap
    ListedColormap
@@ -29,6 +30,7 @@ Classes
    PowerNorm
    SymLogNorm
    TwoSlopeNorm
+   FuncNorm
 
 Functions
 ---------

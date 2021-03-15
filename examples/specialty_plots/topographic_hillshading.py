@@ -24,7 +24,7 @@ from matplotlib.colors import LightSource
 
 dem = get_sample_data('jacksboro_fault_dem.npz', np_load=True)
 z = dem['elevation']
-#-- Optional dx and dy for accurate vertical exaggeration ---------------------
+# -- Optional dx and dy for accurate vertical exaggeration --------------------
 # If you need topographically accurate vertical exaggeration, or you don't want
 # to guess at what *vert_exag* should be, you'll need to specify the cellsize
 # of the grid (i.e. the *dx* and *dy* parameters).  Otherwise, any *vert_exag*
@@ -36,7 +36,7 @@ z = dem['elevation']
 dx, dy = dem['dx'], dem['dy']
 dy = 111200 * dy
 dx = 111200 * dx * np.cos(np.radians(dem['ymin']))
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Shade from the northwest, with the sun 45 degrees from horizontal
 ls = LightSource(azdeg=315, altdeg=45)

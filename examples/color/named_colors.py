@@ -68,7 +68,7 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
 
         ax.add_patch(
             Rectangle(xy=(swatch_start_x, y-9), width=swatch_width,
-                      height=18, facecolor=colors[name])
+                      height=18, facecolor=colors[name], edgecolor='0.7')
         )
 
     return fig
@@ -78,12 +78,12 @@ plot_colortable(mcolors.BASE_COLORS, "Base Colors",
 plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette",
                 sort_colors=False, emptycols=2)
 
-#sphinx_gallery_thumbnail_number = 3
+# sphinx_gallery_thumbnail_number = 3
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
 
 # Optionally plot the XKCD colors (Caution: will produce large figure)
-#xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
-#xkcd_fig.savefig("XKCD_Colors.png")
+# xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
+# xkcd_fig.savefig("XKCD_Colors.png")
 
 plt.show()
 

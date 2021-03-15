@@ -1,12 +1,12 @@
 import numpy as np
 from math import degrees
-from matplotlib import cbook
+from matplotlib import _api
 import math
 
 
 def atan2(dy, dx):
     if dx == 0 and dy == 0:
-        cbook._warn_external("dx and dy are 0")
+        _api.warn_external("dx and dy are 0")
         return 0
     else:
         return math.atan2(dy, dx)

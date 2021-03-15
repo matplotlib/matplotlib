@@ -8,17 +8,19 @@ setup.cfg.template for more information.
 # and/or pip.
 import sys
 
-min_version = (3, 7)
+py_min_version = (3, 7)  # minimal supported python version
+since_mpl_version = (3, 4)  # py_min_version is required since this mpl version
 
-if sys.version_info < min_version:
+if sys.version_info < py_min_version:
     error = """
-Beginning with Matplotlib 3.1, Python {0} or above is required.
-You are using Python {1}.
+Beginning with Matplotlib {0}, Python {1} or above is required.
+You are using Python {2}.
 
 This may be due to an out of date pip.
 
 Make sure you have pip >= 9.0.1.
-""".format('.'.join(str(n) for n in min_version),
+""".format('.'.join(str(n) for n in since_mpl_version),
+           '.'.join(str(n) for n in py_min_version),
            '.'.join(str(n) for n in sys.version_info[:3]))
     sys.exit(error)
 
@@ -58,7 +60,7 @@ mpl_packages = [
     setupext.Python(),
     setupext.Platform(),
     setupext.FreeType(),
-    setupext.SampleData(),
+    setupext.Qhull(),
     setupext.Tests(),
     setupext.BackendMacOSX(),
     ]
@@ -103,20 +105,34 @@ class BuildExtraLibraries(BuildExtCommand):
         """
 
         env = os.environ.copy()
-        if not setupext.config.getboolean('libs', 'enable_lto', fallback=True):
-            return env
         if sys.platform == 'win32':
             return env
+        enable_lto = setupext.config.getboolean('libs', 'enable_lto',
+                                                fallback=None)
 
-        cppflags = []
-        if 'CPPFLAGS' in os.environ:
-            cppflags.append(os.environ['CPPFLAGS'])
-        cxxflags = []
-        if 'CXXFLAGS' in os.environ:
-            cxxflags.append(os.environ['CXXFLAGS'])
-        ldflags = []
-        if 'LDFLAGS' in os.environ:
-            ldflags.append(os.environ['LDFLAGS'])
+        def prepare_flags(name, enable_lto):
+            """
+            Prepare *FLAGS from the environment.
+
+            If set, return them, and also check whether LTO is disabled in each
+            one, raising an error if Matplotlib config explicitly enabled LTO.
+            """
+            if name in os.environ:
+                if '-fno-lto' in os.environ[name]:
+                    if enable_lto is True:
+                        raise ValueError('Configuration enable_lto=True, but '
+                                         '{0} contains -fno-lto'.format(name))
+                    enable_lto = False
+                return [os.environ[name]], enable_lto
+            return [], enable_lto
+
+        _, enable_lto = prepare_flags('CFLAGS', enable_lto)  # Only check lto.
+        cppflags, enable_lto = prepare_flags('CPPFLAGS', enable_lto)
+        cxxflags, enable_lto = prepare_flags('CXXFLAGS', enable_lto)
+        ldflags, enable_lto = prepare_flags('LDFLAGS', enable_lto)
+
+        if enable_lto is False:
+            return env
 
         if has_flag(self.compiler, '-fvisibility=hidden'):
             for ext in self.extensions:
@@ -281,10 +297,10 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     ext_modules=[Extension("", [])],
     package_data=package_data,
 
-    python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
+    python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
     setup_requires=[
         "certifi>=2020.06.20",
-        "numpy>=1.15",
+        "numpy>=1.16",
     ],
     install_requires=[
         "cycler>=0.10",

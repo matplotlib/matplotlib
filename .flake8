@@ -49,15 +49,18 @@ per-file-ignores =
     tools/subset.py: E221, E251, E261, E302, E501
 
     lib/matplotlib/__init__.py: F401
+    lib/matplotlib/_api/__init__.py: F401
     lib/matplotlib/_cm.py: E202, E203, E302
     lib/matplotlib/_mathtext.py: E221, E251
     lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/animation.py: F401
+    lib/matplotlib/_animation_data.py: E501
     lib/matplotlib/axes/__init__.py: F401, F403
     lib/matplotlib/axes/_axes.py: F401
     lib/matplotlib/backends/backend_*.py: F401
     lib/matplotlib/backends/qt_editor/formlayout.py: F401, F403
     lib/matplotlib/cbook/__init__.py: F401
+    lib/matplotlib/cbook/deprecation.py: F401
     lib/matplotlib/font_manager.py: E221, E251, E501
     lib/matplotlib/image.py: F401, F403
     lib/matplotlib/lines.py: F401
@@ -177,6 +180,7 @@ per-file-ignores =
     examples/misc/agg_buffer.py: E402
     examples/misc/histogram_path.py: E402
     examples/misc/print_stdout_sgskip.py: E402
+    examples/misc/rasterization_demo.py: E402
     examples/misc/svg_filter_line.py: E402
     examples/misc/svg_filter_pie.py: E402
     examples/misc/table_demo.py: E201
@@ -283,4 +287,5 @@ per-file-ignores =
     examples/userdemo/connectionstyle_demo.py: E402
     examples/userdemo/custom_boxstyle01.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
-    examples/widgets/textbox.py: E402
+    examples/widgets/*.py: E402
+    examples/statistics/*.py: E402

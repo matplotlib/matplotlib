@@ -1,7 +1,7 @@
 """
-===============
-Demo Axes Grid2
-===============
+==========
+Axes Grid2
+==========
 
 Grid of images with shared xaxis and yaxis.
 """
@@ -11,9 +11,6 @@ from matplotlib import cbook
 import matplotlib.colors
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-
-
-plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def add_inner_title(ax, title, loc, **kwargs):
@@ -61,10 +58,6 @@ for ax, im_title in zip(grid, ["Image 1", "Image 2", "Image 3"]):
 
 for ax, z in zip(grid, ZS):
     ax.cax.toggle_label(True)
-    #axis = ax.cax.axis[ax.cax.orientation]
-    #axis.label.set_text("counts s$^{-1}$")
-    #axis.label.set_size(10)
-    #axis.major_ticklabels.set_size(6)
 
 grid[0].set_xticks([-2, 0])
 grid[0].set_yticks([-2, 0, 2])

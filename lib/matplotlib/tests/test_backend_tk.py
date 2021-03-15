@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-_test_timeout = 10  # Empirically, 1s is not enough on Travis.
+_test_timeout = 10  # Empirically, 1s is not enough on CI.
 
 # NOTE: TkAgg tests seem to have interactions between tests,
 # So isolate each test in a subprocess. See GH#18261

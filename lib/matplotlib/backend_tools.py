@@ -12,7 +12,6 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 """
 
 from enum import IntEnum
-import logging
 import re
 import time
 from types import SimpleNamespace
@@ -23,9 +22,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
-import matplotlib.cbook as cbook
-
-_log = logging.getLogger(__name__)
+from matplotlib import _api, cbook
 
 
 class Cursors(IntEnum):  # Must subclass int for the macOS backend.
@@ -80,9 +77,6 @@ class ToolBase:
     """
 
     def __init__(self, toolmanager, name):
-        cbook._warn_external(
-            'The new Tool classes introduced in v1.5 are experimental; their '
-            'API (including names) will likely change in future versions.')
         self._name = name
         self._toolmanager = toolmanager
         self._figure = None
@@ -404,7 +398,7 @@ class _ToolEnableAllNavigation(ToolBase):
         mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class ToolEnableAllNavigation(_ToolEnableAllNavigation):
     pass
 
@@ -419,7 +413,7 @@ class _ToolEnableNavigation(ToolBase):
         mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
 
 
-@cbook.deprecated("3.3")
+@_api.deprecated("3.3")
 class ToolEnableNavigation(_ToolEnableNavigation):
     pass
 
@@ -619,11 +613,6 @@ class ToolViewsPositions(ToolBase):
             if a not in self.home_views[figure]:
                 self.home_views[figure][a] = a._get_view()
 
-    @cbook.deprecated("3.3", alternative="self.figure.canvas.draw_idle()")
-    def refresh_locators(self):
-        """Redraw the canvases, update the locators."""
-        self._refresh_locators()
-
     # Can be removed once Locator.refresh() is removed, and replaced by an
     # inline call to self.figure.canvas.draw_idle().
     def _refresh_locators(self):
@@ -645,6 +634,9 @@ class ToolViewsPositions(ToolBase):
             for loc in locators:
                 mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
         self.figure.canvas.draw_idle()
+
+    refresh_locators = _api.deprecate_privatize_attribute(
+        "3.3", alternative="self.figure.canvas.draw_idle()")
 
     def home(self):
         """Recall the first view and position from the stack."""
@@ -750,6 +742,9 @@ class ZoomPanBase(ToolToggleBase):
     def trigger(self, sender, event, data=None):
         self.toolmanager.get_tool(_views_positions).add_figure(self.figure)
         super().trigger(sender, event, data)
+        new_navigate_mode = self.name.upper() if self.toggled else None
+        for ax in self.figure.axes:
+            ax.set_navigate_mode(new_navigate_mode)
 
     def scroll_zoom(self, event):
         # https://gist.github.com/tacaswell/3144287

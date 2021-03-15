@@ -22,7 +22,7 @@ Classes used for blocking interaction with figure windows:
 import logging
 from numbers import Integral
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.backend_bases import MouseButton
 import matplotlib.lines as mlines
 
@@ -78,7 +78,7 @@ class BlockingInput:
 
     def __call__(self, n=1, timeout=30):
         """Blocking call to retrieve *n* events."""
-        cbook._check_isinstance(Integral, n=n)
+        _api.check_isinstance(Integral, n=n)
         self.n = n
         self.events = []
 
@@ -149,10 +149,9 @@ class BlockingMouseInput(BlockingInput):
         if event.key is None:
             # At least in OSX gtk backend some keys return None.
             return
-        key = event.key.lower()
-        if key in ['backspace', 'delete']:
+        if event.key in ['backspace', 'delete']:
             self.mouse_event_pop(event)
-        elif key in ['escape', 'enter']:
+        elif event.key in ['escape', 'enter']:
             self.mouse_event_stop(event)
         else:
             self.mouse_event_add(event)

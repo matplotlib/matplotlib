@@ -1480,7 +1480,7 @@ namespace agg
         tok.len = 0;
         if(m_src_string == 0 || m_start == -1) return tok;
 
-        register const char *pstr = m_src_string + m_start;
+        const char *pstr = m_src_string + m_start;
 
         if(*pstr == 0) 
         {

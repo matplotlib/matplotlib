@@ -3,7 +3,7 @@
 Draw flat objects in 3D plot
 ============================
 
-Demonstrate using pathpatch_2d_to_3d to 'draw' shapes and text on a 3D plot.
+Demonstrate using `.pathpatch_2d_to_3d` to 'draw' shapes and text on a 3D plot.
 """
 
 import numpy as np
@@ -16,11 +16,11 @@ import mpl_toolkits.mplot3d.art3d as art3d
 
 def text3d(ax, xyz, s, zdir="z", size=None, angle=0, usetex=False, **kwargs):
     """
-    Plots the string 's' on the axes 'ax', with position 'xyz', size 'size',
-    and rotation angle 'angle'.  'zdir' gives the axis which is to be treated
-    as the third dimension.  usetex is a boolean indicating whether the string
-    should be interpreted as latex or not.  Any additional keyword arguments
-    are passed on to transform_path.
+    Plots the string *s* on the axes *ax*, with position *xyz*, size *size*,
+    and rotation angle *angle*. *zdir* gives the axis which is to be treated as
+    the third dimension. *usetex* is a boolean indicating whether the string
+    should be run through a LaTeX subprocess or not.  Any additional keyword
+    arguments are forwarded to `.transform_path`.
 
     Note: zdir affects the interpretation of xyz.
     """

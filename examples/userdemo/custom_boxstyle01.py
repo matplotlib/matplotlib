@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 # ``bbox=dict(boxstyle=custom_box_style, ...)`` to `.Axes.text`.
 
 
-def custom_box_style(x0, y0, width, height, mutation_size, mutation_aspect=1):
+def custom_box_style(x0, y0, width, height, mutation_size):
     """
     Given the location and size of the box, return the path of the box around
     it.
@@ -38,11 +38,7 @@ def custom_box_style(x0, y0, width, height, mutation_size, mutation_aspect=1):
         Box location and size.
     mutation_size : float
         Mutation reference scale, typically the text font size.
-    mutation_aspect
-        Mutation aspect ratio.
     """
-    # We ignore mutation_aspect. This is okay in general.
-
     # padding
     mypad = 0.3
     pad = mutation_size * mypad
@@ -66,19 +62,17 @@ ax.text(0.5, 0.5, "Test", size=30, va="center", ha="center", rotation=30,
 
 
 ###############################################################################
-# Alternatively, custom box styles can be implemented as subclasses of
-# ``matplotlib.patches.BoxStyle._Base``, by overriding the ``transmute``
-# method, as demonstrated below.
+# Likewise, custom box styles can be implemented as classes that implement
+# ``__call__``.
 #
-# The subclass can then be registered into the ``BoxStyle._style_list`` dict,
+# The classes can then be registered into the ``BoxStyle._style_list`` dict,
 # which allows specifying the box style as a string,
 # ``bbox=dict(boxstyle="registered_name,param=value,...", ...)``.
-#
-# Note that this approach relies on internal APIs and is therefore not
+# Note that this registration relies on internal APIs and is therefore not
 # officially supported.
 
 
-class MyStyle(BoxStyle._Base):
+class MyStyle:
     """A simple box."""
 
     def __init__(self, pad=0.3):
@@ -93,7 +87,7 @@ class MyStyle(BoxStyle._Base):
         self.pad = pad
         super().__init__()
 
-    def transmute(self, x0, y0, width, height, mutation_size):
+    def __call__(self, x0, y0, width, height, mutation_size):
         """
         Given the location and size of the box, return the path of the box
         around it.
@@ -106,14 +100,6 @@ class MyStyle(BoxStyle._Base):
             Box location and size.
         mutation_size : float
             Reference scale for the mutation, typically the text font size.
-
-        Notes
-        -----
-        Unlike when defining the box style as a function (as in
-        `custom_box_style`), here there is no *mutation_aspect* parameter.
-        Matplotlib will first squeeze the box's y-axis by *mutation_aspect*
-        before calling the `transmute` method, and then later reexpand the
-        y-axis by the same amount.
         """
         # padding
         pad = mutation_size * self.pad

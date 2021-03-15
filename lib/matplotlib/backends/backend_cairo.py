@@ -6,6 +6,7 @@ A Cairo backend for matplotlib
 This backend depends on cairocffi or pycairo.
 """
 
+import functools
 import gzip
 import math
 
@@ -91,40 +92,40 @@ def _cairo_font_args_from_font_prop(prop):
     return name, slant, weight
 
 
-class RendererCairo(RendererBase):
-    @cbook.deprecated("3.3")
-    @property
-    def fontweights(self):
-        return {
-            100:          cairo.FONT_WEIGHT_NORMAL,
-            200:          cairo.FONT_WEIGHT_NORMAL,
-            300:          cairo.FONT_WEIGHT_NORMAL,
-            400:          cairo.FONT_WEIGHT_NORMAL,
-            500:          cairo.FONT_WEIGHT_NORMAL,
-            600:          cairo.FONT_WEIGHT_BOLD,
-            700:          cairo.FONT_WEIGHT_BOLD,
-            800:          cairo.FONT_WEIGHT_BOLD,
-            900:          cairo.FONT_WEIGHT_BOLD,
-            'ultralight': cairo.FONT_WEIGHT_NORMAL,
-            'light':      cairo.FONT_WEIGHT_NORMAL,
-            'normal':     cairo.FONT_WEIGHT_NORMAL,
-            'medium':     cairo.FONT_WEIGHT_NORMAL,
-            'regular':    cairo.FONT_WEIGHT_NORMAL,
-            'semibold':   cairo.FONT_WEIGHT_BOLD,
-            'bold':       cairo.FONT_WEIGHT_BOLD,
-            'heavy':      cairo.FONT_WEIGHT_BOLD,
-            'ultrabold':  cairo.FONT_WEIGHT_BOLD,
-            'black':      cairo.FONT_WEIGHT_BOLD,
-        }
+# Mappings used for deprecated properties in RendererCairo, see below.
+_f_weights = {
+    100:          cairo.FONT_WEIGHT_NORMAL,
+    200:          cairo.FONT_WEIGHT_NORMAL,
+    300:          cairo.FONT_WEIGHT_NORMAL,
+    400:          cairo.FONT_WEIGHT_NORMAL,
+    500:          cairo.FONT_WEIGHT_NORMAL,
+    600:          cairo.FONT_WEIGHT_BOLD,
+    700:          cairo.FONT_WEIGHT_BOLD,
+    800:          cairo.FONT_WEIGHT_BOLD,
+    900:          cairo.FONT_WEIGHT_BOLD,
+    'ultralight': cairo.FONT_WEIGHT_NORMAL,
+    'light':      cairo.FONT_WEIGHT_NORMAL,
+    'normal':     cairo.FONT_WEIGHT_NORMAL,
+    'medium':     cairo.FONT_WEIGHT_NORMAL,
+    'regular':    cairo.FONT_WEIGHT_NORMAL,
+    'semibold':   cairo.FONT_WEIGHT_BOLD,
+    'bold':       cairo.FONT_WEIGHT_BOLD,
+    'heavy':      cairo.FONT_WEIGHT_BOLD,
+    'ultrabold':  cairo.FONT_WEIGHT_BOLD,
+    'black':      cairo.FONT_WEIGHT_BOLD,
+}
+_f_angles = {
+    'italic':  cairo.FONT_SLANT_ITALIC,
+    'normal':  cairo.FONT_SLANT_NORMAL,
+    'oblique': cairo.FONT_SLANT_OBLIQUE,
+}
 
-    @cbook.deprecated("3.3")
-    @property
-    def fontangles(self):
-        return {
-            'italic':  cairo.FONT_SLANT_ITALIC,
-            'normal':  cairo.FONT_SLANT_NORMAL,
-            'oblique': cairo.FONT_SLANT_OBLIQUE,
-        }
+
+class RendererCairo(RendererBase):
+    fontweights = _api.deprecated("3.3")(property(lambda self: {*_f_weights}))
+    fontangles = _api.deprecated("3.3")(property(lambda self: {*_f_angles}))
+    mathtext_parser = _api.deprecated("3.4")(
+        property(lambda self: MathTextParser('Cairo')))
 
     def __init__(self, dpi):
         self.dpi = dpi
@@ -132,11 +133,6 @@ class RendererCairo(RendererBase):
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
         super().__init__()
-
-    @cbook.deprecated("3.4")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser('Cairo')
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
@@ -472,20 +468,8 @@ class FigureCanvasCairo(FigureCanvasBase):
         self.figure.draw(renderer)
         return surface
 
-    def print_pdf(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'pdf', *args, **kwargs)
-
-    def print_ps(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'ps', *args, **kwargs)
-
-    def print_svg(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'svg', *args, **kwargs)
-
-    def print_svgz(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'svgz', *args, **kwargs)
-
     @_check_savefig_extra_args
-    def _save(self, fo, fmt, *, orientation='portrait'):
+    def _save(self, fmt, fobj, *, orientation='portrait'):
         # save PDF/PS/SVG
 
         dpi = 72
@@ -501,22 +485,22 @@ class FigureCanvasCairo(FigureCanvasBase):
             if not hasattr(cairo, 'PSSurface'):
                 raise RuntimeError('cairo has not been compiled with PS '
                                    'support enabled')
-            surface = cairo.PSSurface(fo, width_in_points, height_in_points)
+            surface = cairo.PSSurface(fobj, width_in_points, height_in_points)
         elif fmt == 'pdf':
             if not hasattr(cairo, 'PDFSurface'):
                 raise RuntimeError('cairo has not been compiled with PDF '
                                    'support enabled')
-            surface = cairo.PDFSurface(fo, width_in_points, height_in_points)
+            surface = cairo.PDFSurface(fobj, width_in_points, height_in_points)
         elif fmt in ('svg', 'svgz'):
             if not hasattr(cairo, 'SVGSurface'):
                 raise RuntimeError('cairo has not been compiled with SVG '
                                    'support enabled')
             if fmt == 'svgz':
-                if isinstance(fo, str):
-                    fo = gzip.GzipFile(fo, 'wb')
+                if isinstance(fobj, str):
+                    fobj = gzip.GzipFile(fobj, 'wb')
                 else:
-                    fo = gzip.GzipFile(None, 'wb', fileobj=fo)
-            surface = cairo.SVGSurface(fo, width_in_points, height_in_points)
+                    fobj = gzip.GzipFile(None, 'wb', fileobj=fobj)
+            surface = cairo.SVGSurface(fobj, width_in_points, height_in_points)
         else:
             raise ValueError("Unknown format: {!r}".format(fmt))
 
@@ -536,7 +520,12 @@ class FigureCanvasCairo(FigureCanvasBase):
         ctx.show_page()
         surface.finish()
         if fmt == 'svgz':
-            fo.close()
+            fobj.close()
+
+    print_pdf = functools.partialmethod(_save, "pdf")
+    print_ps = functools.partialmethod(_save, "ps")
+    print_svg = functools.partialmethod(_save, "svg")
+    print_svgz = functools.partialmethod(_save, "svgz")
 
 
 @_Backend.export

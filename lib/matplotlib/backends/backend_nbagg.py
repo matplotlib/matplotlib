@@ -17,7 +17,7 @@ except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.kernel.comm import Comm
 
-from matplotlib import cbook, is_interactive
+from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import _Backend, NavigationToolbar2
 from matplotlib.backends.backend_webagg_core import (
@@ -142,7 +142,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    _timer_cls = TimerTornado
+    pass
 
 
 class CommSocket:
@@ -197,11 +197,14 @@ class CommSocket:
         self.comm.send({'data': json.dumps(content)})
 
     def send_binary(self, blob):
-        # The comm is ascii, so we always send the image in base64
-        # encoded data URL form.
-        data = b64encode(blob).decode('ascii')
-        data_uri = "data:image/png;base64,{0}".format(data)
-        self.comm.send({'data': data_uri})
+        if self.supports_binary:
+            self.comm.send({'blob': 'image/png'}, buffers=[blob])
+        else:
+            # The comm is ASCII, so we send the image in base64 encoded data
+            # URL form.
+            data = b64encode(blob).decode('ascii')
+            data_uri = "data:image/png;base64,{0}".format(data)
+            self.comm.send({'data': data_uri})
 
     def on_message(self, message):
         # The 'supports_binary' message is relevant to the
@@ -238,10 +241,6 @@ class _BackendNbAgg(_Backend):
 
         cid = canvas.mpl_connect('close_event', destroy)
         return manager
-
-    @staticmethod
-    def trigger_manager_draw(manager):
-        manager.show()
 
     @staticmethod
     def show(block=None):

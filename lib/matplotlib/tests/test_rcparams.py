@@ -10,7 +10,7 @@ from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, _c_internal_utils
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
@@ -126,7 +126,7 @@ def test_Bug_2543():
     # We filter warnings at this stage since a number of them are raised
     # for deprecated rcparams as they should. We don't want these in the
     # printed in the test suite.
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:
@@ -255,9 +255,7 @@ def generate_validator_testcases(valid):
                      for _ in ('1.5, 2.5', [1.5, 2.5], [1.5, 2.5],
                                (1.5, 2.5), np.array((1.5, 2.5)))),
          'fail': ((_, ValueError)
-                  for _ in ('aardvark', ('a', 1),
-                            (1, 2, 3)
-                            ))
+                  for _ in ('aardvark', ('a', 1), (1, 2, 3), (None, ), None))
          },
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',
@@ -505,7 +503,8 @@ def test_rcparams_reset_after_fail():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 def test_backend_fallback_headless(tmpdir):
     env = {**os.environ,
-           "DISPLAY": "", "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+           "DISPLAY": "", "WAYLAND_DISPLAY": "",
+           "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.run(
             [sys.executable, "-c",
@@ -516,8 +515,9 @@ def test_backend_fallback_headless(tmpdir):
             env=env, check=True)
 
 
-@pytest.mark.skipif(sys.platform == "linux" and not os.environ.get("DISPLAY"),
-                    reason="headless")
+@pytest.mark.skipif(
+    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    reason="headless")
 def test_backend_fallback_headful(tmpdir):
     pytest.importorskip("tkinter")
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}

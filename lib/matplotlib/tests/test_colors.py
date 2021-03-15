@@ -16,6 +16,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
+import matplotlib.scale as mscale
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -132,22 +133,32 @@ def test_colormap_dict_deprecate():
     # Make sure we warn on get and set access into cmap_d
     with pytest.warns(cbook.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
-        cm = plt.cm.cmap_d['viridis']
+        cmap = plt.cm.cmap_d['viridis']
 
     with pytest.warns(cbook.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
-        plt.cm.cmap_d['test'] = cm
+        plt.cm.cmap_d['test'] = cmap
 
 
 def test_colormap_copy():
-    cm = plt.cm.Reds
-    cm_copy = copy.copy(cm)
+    cmap = plt.cm.Reds
+    copied_cmap = copy.copy(cmap)
     with np.errstate(invalid='ignore'):
-        ret1 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
-    cm2 = copy.copy(cm_copy)
-    cm2.set_bad('g')
+        ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
+    cmap2 = copy.copy(copied_cmap)
+    cmap2.set_bad('g')
     with np.errstate(invalid='ignore'):
-        ret2 = cm_copy([-1, 0, .5, 1, np.nan, np.inf])
+        ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
+    assert_array_equal(ret1, ret2)
+    # again with the .copy method:
+    cmap = plt.cm.Reds
+    copied_cmap = cmap.copy()
+    with np.errstate(invalid='ignore'):
+        ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
+    cmap2 = copy.copy(copied_cmap)
+    cmap2.set_bad('g')
+    with np.errstate(invalid='ignore'):
+        ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
 
 
@@ -390,6 +401,56 @@ def test_BoundaryNorm():
     assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
 
 
+def test_CenteredNorm():
+    np.random.seed(0)
+
+    # Assert equivalence to symmetrical Normalize.
+    x = np.random.normal(size=100)
+    x_maxabs = np.max(np.abs(x))
+    norm_ref = mcolors.Normalize(vmin=-x_maxabs, vmax=x_maxabs)
+    norm = mcolors.CenteredNorm()
+    assert_array_almost_equal(norm_ref(x), norm(x))
+
+    # Check that vcenter is in the center of vmin and vmax
+    # when vcenter is set.
+    vcenter = int(np.random.normal(scale=50))
+    norm = mcolors.CenteredNorm(vcenter=vcenter)
+    norm.autoscale_None([1, 2])
+    assert norm.vmax + norm.vmin == 2 * vcenter
+
+    # Check that halfrange input works correctly.
+    x = np.random.normal(size=10)
+    norm = mcolors.CenteredNorm(vcenter=0.5, halfrange=0.5)
+    assert_array_almost_equal(x, norm(x))
+    norm = mcolors.CenteredNorm(vcenter=1, halfrange=1)
+    assert_array_almost_equal(x, 2 * norm(x))
+
+    # Check that halfrange input works correctly and use setters.
+    norm = mcolors.CenteredNorm()
+    norm.vcenter = 2
+    norm.halfrange = 2
+    assert_array_almost_equal(x, 4 * norm(x))
+
+    # Check that prior to adding data, setting halfrange first has same effect.
+    norm = mcolors.CenteredNorm()
+    norm.halfrange = 2
+    norm.vcenter = 2
+    assert_array_almost_equal(x, 4 * norm(x))
+
+    # Check that manual change of vcenter adjusts halfrange accordingly.
+    norm = mcolors.CenteredNorm()
+    assert norm.vcenter == 0
+    # add data
+    norm(np.linspace(-1.0, 0.0, 10))
+    assert norm.vmax == 1.0
+    assert norm.halfrange == 1.0
+    # set vcenter to 1, which should double halfrange
+    norm.vcenter = 1
+    assert norm.vmin == -1.0
+    assert norm.vmax == 3.0
+    assert norm.halfrange == 2.0
+
+
 @pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])
 def test_lognorm_invalid(vmin, vmax):
     # Check that invalid limits in LogNorm error
@@ -408,6 +469,17 @@ def test_LogNorm():
     """
     ln = mcolors.LogNorm(clip=True, vmax=5)
     assert_array_equal(ln([1, 6]), [0, 1.0])
+
+
+def test_LogNorm_inverse():
+    """
+    Test that lists work, and that the inverse works
+    """
+    norm = mcolors.LogNorm(vmin=0.1, vmax=10)
+    assert_array_almost_equal(norm([0.5, 0.4]), [0.349485, 0.30103])
+    assert_array_almost_equal([0.5, 0.4], norm.inverse([0.349485, 0.30103]))
+    assert_array_almost_equal(norm(0.4), [0.30103])
+    assert_array_almost_equal([0.4], norm.inverse([0.30103]))
 
 
 def test_PowerNorm():
@@ -474,6 +546,29 @@ def test_Normalize():
     # This returns exactly 0.5 when longdouble is extended precision (80-bit),
     # but only a value close to it when it is quadruple precision (128-bit).
     assert 0 < norm(1 + 50 * eps) < 1
+
+
+def test_FuncNorm():
+    def forward(x):
+        return (x**2)
+    def inverse(x):
+        return np.sqrt(x)
+
+    norm = mcolors.FuncNorm((forward, inverse), vmin=0, vmax=10)
+    expected = np.array([0, 0.25, 1])
+    input = np.array([0, 5, 10])
+    assert_array_almost_equal(norm(input), expected)
+    assert_array_almost_equal(norm.inverse(expected), input)
+
+    def forward(x):
+        return np.log10(x)
+    def inverse(x):
+        return 10**x
+    norm = mcolors.FuncNorm((forward, inverse), vmin=0.1, vmax=10)
+    lognorm = mcolors.LogNorm(vmin=0.1, vmax=10)
+    assert_array_almost_equal(norm([0.2, 5, 10]), lognorm([0.2, 5, 10]))
+    assert_array_almost_equal(norm.inverse([0.2, 5, 10]),
+                              lognorm.inverse([0.2, 5, 10]))
 
 
 def test_TwoSlopeNorm_autoscale():
@@ -1259,3 +1354,29 @@ def test_2d_to_rgba():
     rgba_1d = mcolors.to_rgba(color.reshape(-1))
     rgba_2d = mcolors.to_rgba(color.reshape((1, -1)))
     assert rgba_1d == rgba_2d
+
+
+def test_set_dict_to_rgba():
+    # downstream libraries do this...
+    # note we can't test this because it is not well-ordered
+    # so just smoketest:
+    colors = set([(0, .5, 1), (1, .2, .5), (.4, 1, .2)])
+    res = mcolors.to_rgba_array(colors)
+    palette = {"red": (1, 0, 0), "green": (0, 1, 0), "blue": (0, 0, 1)}
+    res = mcolors.to_rgba_array(palette.values())
+    exp = np.eye(3)
+    np.testing.assert_array_almost_equal(res[:, :-1], exp)
+
+
+def test_norm_deepcopy():
+    norm = mcolors.LogNorm()
+    norm.vmin = 0.0002
+    norm2 = copy.deepcopy(norm)
+    assert norm2.vmin == norm.vmin
+    assert isinstance(norm2._scale, mscale.LogScale)
+    norm = mcolors.Normalize()
+    norm.vmin = 0.0002
+    norm2 = copy.deepcopy(norm)
+    assert isinstance(norm2._scale, mscale.LinearScale)
+    assert norm2.vmin == norm.vmin
+    assert norm2._scale is not norm._scale

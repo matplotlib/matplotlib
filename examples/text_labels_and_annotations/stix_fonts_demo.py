@@ -1,7 +1,7 @@
 """
-===============
-STIX Fonts Demo
-===============
+==========
+STIX Fonts
+==========
 
 Demonstration of `STIX Fonts <https://www.stixfonts.org/>`_ used in LaTeX
 rendering.

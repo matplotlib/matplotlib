@@ -19,12 +19,15 @@ plt.rcParams.update({
     ])
 })
 
-plt.figure(figsize=(4.5, 2.5))
-plt.plot(range(5))
-plt.xlabel("unicode text: я, ψ, €, ü")
-plt.ylabel(r"\url{https://matplotlib.org}")
-plt.legend(["unicode math: $λ=∑_i^∞ μ_i^2$"])
-plt.tight_layout(.5)
+fig, ax = plt.subplots(figsize=(4.5, 2.5))
 
-plt.savefig("pgf_preamble.pdf")
-plt.savefig("pgf_preamble.png")
+ax.plot(range(5))
+
+ax.set_xlabel("unicode text: я, ψ, €, ü")
+ax.set_ylabel(r"\url{https://matplotlib.org}")
+ax.legend(["unicode math: $λ=∑_i^∞ μ_i^2$"])
+
+fig.tight_layout(pad=.5)
+
+fig.savefig("pgf_preamble.pdf")
+fig.savefig("pgf_preamble.png")

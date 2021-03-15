@@ -6,7 +6,6 @@ operations.
 import math
 import os
 import logging
-from numbers import Number
 from pathlib import Path
 
 import numpy as np
@@ -76,7 +75,7 @@ def composite_images(images, renderer, magnification=1.0):
 
     Returns
     -------
-    image : uint8 3d array
+    image : uint8 array (M, N, 4)
         The composited RGBA image.
     offset_x, offset_y : float
         The (left, bottom) offset where the composited image should be placed
@@ -416,7 +415,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # Cast to float64
                     if A.dtype not in (np.float32, np.float16):
                         if A.dtype != np.float64:
-                            cbook._warn_external(
+                            _api.warn_external(
                                 f"Casting input data from '{A.dtype}' to "
                                 f"'float64' for imshow")
                         scaled_dtype = np.float64
@@ -661,7 +660,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
         # be too difficult given that the image is rectilinear
-        x, y = mouseevent.xdata, mouseevent.ydata
+        trans = self.get_transform().inverted()
+        x, y = trans.transform([mouseevent.x, mouseevent.y])
         xmin, xmax, ymin, ymax = self.get_extent()
         if xmin > xmax:
             xmin, xmax = xmax, xmin
@@ -855,7 +855,7 @@ class AxesImage(_ImageBase):
         Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
-        'sinc', 'lanczos'.
+        'sinc', 'lanczos', 'blackman'.
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the axes. The convention 'upper' is typically used for
@@ -983,13 +983,14 @@ class AxesImage(_ImageBase):
         if self.origin == 'upper':
             ymin, ymax = ymax, ymin
         arr = self.get_array()
-        data_extent = Bbox([[ymin, xmin], [ymax, xmax]])
-        array_extent = Bbox([[0, 0], arr.shape[:2]])
-        trans = BboxTransform(boxin=data_extent, boxout=array_extent)
-        point = trans.transform([event.ydata, event.xdata])
+        data_extent = Bbox([[xmin, ymin], [xmax, ymax]])
+        array_extent = Bbox([[0, 0], [arr.shape[1], arr.shape[0]]])
+        trans = self.get_transform().inverted()
+        trans += BboxTransform(boxin=data_extent, boxout=array_extent)
+        point = trans.transform([event.x, event.y])
         if any(np.isnan(point)):
             return None
-        i, j = point.astype(int)
+        j, i = point.astype(int)
         # Clip the coordinates at array bounds
         if not (0 <= i < arr.shape[0]) or not (0 <= j < arr.shape[1]):
             return None
@@ -1008,6 +1009,8 @@ class AxesImage(_ImageBase):
 
 
 class NonUniformImage(AxesImage):
+    mouseover = False  # This class still needs its own get_cursor_data impl.
+
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
         Parameters
@@ -1024,7 +1027,7 @@ class NonUniformImage(AxesImage):
         """Return False. Do not use unsampled image."""
         return False
 
-    is_grayscale = cbook._deprecate_privatize_attribute("3.3")
+    is_grayscale = _api.deprecate_privatize_attribute("3.3")
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
@@ -1175,7 +1178,7 @@ class PcolorImage(AxesImage):
         if A is not None:
             self.set_data(x, y, A)
 
-    is_grayscale = cbook._deprecate_privatize_attribute("3.3")
+    is_grayscale = _api.deprecate_privatize_attribute("3.3")
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
@@ -1427,6 +1430,10 @@ def imread(fname, format=None):
     fname : str or file-like
         The image file to read: a filename, a URL or a file-like object opened
         in read-binary mode.
+
+        Passing a URL is deprecated.  Please open the URL
+        for reading and pass the result to Pillow, e.g. with
+        ``PIL.Image.open(urllib.request.urlopen(url))``.
     format : str, optional
         The image file format assumed for reading the data. If not
         given, the format is deduced from the filename.  If nothing can
@@ -1469,13 +1476,21 @@ def imread(fname, format=None):
     img_open = (
         PIL.PngImagePlugin.PngImageFile if ext == 'png' else PIL.Image.open)
     if isinstance(fname, str):
-
         parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
+            cbook.warn_deprecated(
+                "3.4", message="Directly reading images from URLs is "
+                "deprecated. Please open the URL for reading and pass the "
+                "result to Pillow, e.g. with "
+                "``PIL.Image.open(urllib.request.urlopen(url))``.")
             # hide imports to speed initial import on systems with slow linkers
             from urllib import request
-            with request.urlopen(fname,
-                                 context=mpl._get_ssl_context()) as response:
+            ssl_ctx = mpl._get_ssl_context()
+            if ssl_ctx is None:
+                _log.debug(
+                    "Could not get certifi ssl context, https may not work."
+                )
+            with request.urlopen(fname, context=ssl_ctx) as response:
                 import io
                 try:
                     response.seek(0)
@@ -1574,8 +1589,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # semantics of duplicate keys in pnginfo is unclear.
             if "pnginfo" in pil_kwargs:
                 if metadata:
-                    cbook._warn_external("'metadata' is overridden by the "
-                                         "'pnginfo' entry in 'pil_kwargs'.")
+                    _api.warn_external("'metadata' is overridden by the "
+                                       "'pnginfo' entry in 'pil_kwargs'.")
             else:
                 metadata = {
                     "Software": (f"Matplotlib version{mpl.__version__}, "

@@ -146,7 +146,7 @@ class Text(Artist):
 
         Valid keyword arguments are:
 
-        %(Text)s
+        %(Text_kwdoc)s
         """
         super().__init__()
         self._x, self._y = x, y
@@ -172,6 +172,8 @@ class Text(Artist):
 
     def update(self, kwargs):
         # docstring inherited
+        # make a copy so we do not mutate user input!
+        kwargs = dict(kwargs)
         sentinel = object()  # bbox can be None, so use another sentinel.
         # Update fontproperties first, as it has lowest priority.
         fontproperties = kwargs.pop("fontproperties", sentinel)
@@ -542,6 +544,14 @@ class Text(Artist):
         Parameters
         ----------
         wrap : bool
+
+        Notes
+        -----
+        Wrapping does not work together with
+        ``savefig(..., bbox_inches='tight')`` (which is also used internally
+        by ``%matplotlib inline`` in IPython/Jupyter). The 'tight' setting
+        rescales the canvas to accommodate all content and happens before
+        wrapping.
         """
         self._wrap = wrap
 
@@ -847,7 +857,7 @@ class Text(Artist):
     def get_verticalalignment(self):
         """
         Return the vertical alignment as a string.  Will be one of
-        'top', 'center', 'bottom' or 'baseline'.
+        'top', 'center', 'bottom', 'baseline' or 'center_baseline'.
         """
         return self._verticalalignment
 
@@ -924,6 +934,10 @@ class Text(Artist):
         ----------
         color : color
         """
+        # "auto" is only supported by axisartist, but we can just let it error
+        # out at draw time for simplicity.
+        if not cbook._str_equal(color, "auto"):
+            mpl.colors._check_color_like(color=color)
         # Make sure it is hashable, or get_prop_tup will fail.
         try:
             hash(color)
@@ -1274,7 +1288,7 @@ class Text(Artist):
         return self.set_family(fontname)
 
 
-docstring.interpd.update(Text=artist.kwdoc(Text))
+docstring.interpd.update(Text_kwdoc=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)
 
 
@@ -1428,6 +1442,8 @@ class _AnnotationBase:
         bbox_name, unit = s_
         # if unit is offset-like
         if bbox_name == "figure":
+            bbox0 = self.figure.figbbox
+        elif bbox_name == "subfigure":
             bbox0 = self.figure.bbox
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
@@ -1592,8 +1608,7 @@ class Annotation(Text, _AnnotationBase):
         Parameters
         ----------
         text : str
-            The text of the annotation.  *s* is a deprecated synonym for this
-            parameter.
+            The text of the annotation.
 
         xy : (float, float)
             The point *(x, y)* to annotate. The coordinate system is determined
@@ -1611,19 +1626,27 @@ class Annotation(Text, _AnnotationBase):
 
             - One of the following strings:
 
-              =================   =============================================
-              Value               Description
-              =================   =============================================
-              'figure points'     Points from the lower left of the figure
-              'figure pixels'     Pixels from the lower left of the figure
-              'figure fraction'   Fraction of figure from lower left
-              'axes points'       Points from lower left corner of axes
-              'axes pixels'       Pixels from lower left corner of axes
-              'axes fraction'     Fraction of axes from lower left
-              'data'              Use the coordinate system of the object being
-                                  annotated (default)
-              'polar'             *(theta, r)* if not native 'data' coordinates
-              =================   =============================================
+              ==================== ============================================
+              Value                Description
+              ==================== ============================================
+              'figure points'      Points from the lower left of the figure
+              'figure pixels'      Pixels from the lower left of the figure
+              'figure fraction'    Fraction of figure from lower left
+              'subfigure points'   Points from the lower left of the subfigure
+              'subfigure pixels'   Pixels from the lower left of the subfigure
+              'subfigure fraction' Fraction of subfigure from lower left
+              'axes points'        Points from lower left corner of axes
+              'axes pixels'        Pixels from lower left corner of axes
+              'axes fraction'      Fraction of axes from lower left
+              'data'               Use the coordinate system of the object
+                                   being annotated (default)
+              'polar'              *(theta, r)* if not native 'data'
+                                   coordinates
+              ==================== ============================================
+
+              Note that 'subfigure pixels' and 'figure pixels' are the same
+              for the parent figure, so users who want code that is usable in
+              a subfigure can use 'subfigure pixels'.
 
             - An `.Artist`: *xy* is interpreted as a fraction of the artist's
               `~matplotlib.transforms.Bbox`. E.g. *(0, 0)* would be the lower
@@ -1664,7 +1687,9 @@ class Annotation(Text, _AnnotationBase):
 
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
-            positions *xy* and *xytext*.
+            positions *xy* and *xytext*. Note that the edge of the arrow
+            pointing to *xytext* will be centered on the text itself and may
+            not point directly to the coordinates given in *xytext*.
 
             If *arrowprops* does not contain the key 'arrowstyle' the
             allowed keys are:
@@ -1749,9 +1774,9 @@ class Annotation(Text, _AnnotationBase):
         if (xytext is None and
                 textcoords is not None and
                 textcoords != xycoords):
-            cbook._warn_external("You have used the `textcoords` kwarg, but "
-                                 "not the `xytext` kwarg.  This can lead to "
-                                 "surprising results.")
+            _api.warn_external("You have used the `textcoords` kwarg, but "
+                               "not the `xytext` kwarg.  This can lead to "
+                               "surprising results.")
 
         # clean up textcoords and assign default
         if textcoords is None:
@@ -1868,7 +1893,7 @@ class Annotation(Text, _AnnotationBase):
             # Ignore frac--it is useless.
             frac = d.pop('frac', None)
             if frac is not None:
-                cbook._warn_external(
+                _api.warn_external(
                     "'frac' option in 'arrowprops' is no longer supported;"
                     " use 'headlength' to set the head length in points.")
             headlength = d.pop('headlength', 12)
@@ -1948,7 +1973,7 @@ class Annotation(Text, _AnnotationBase):
         """
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
-        if not self.get_visible():
+        if not self.get_visible() or not self._check_xy(renderer):
             return Bbox.unit()
         if renderer is not None:
             self._renderer = renderer
@@ -1966,6 +1991,12 @@ class Annotation(Text, _AnnotationBase):
             bboxes.append(self.arrow_patch.get_window_extent())
 
         return Bbox.union(bboxes)
+
+    def get_tightbbox(self, renderer):
+        # docstring inherited
+        if not self._check_xy(renderer):
+            return Bbox.null()
+        return super().get_tightbbox(renderer)
 
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)

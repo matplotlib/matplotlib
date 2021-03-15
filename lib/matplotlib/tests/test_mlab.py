@@ -80,33 +80,15 @@ class TestStride:
         assert_array_equal(y, x1)
 
 
-class TestWindow:
-    def setup(self):
-        np.random.seed(0)
-        n = 1000
-
-        self.sig_rand = np.random.standard_normal(n) + 100.
-        self.sig_ones = np.ones(n)
-
-    def test_window_none_rand(self):
-        res = mlab.window_none(self.sig_ones)
-        assert_array_equal(res, self.sig_ones)
-
-    def test_window_none_ones(self):
-        res = mlab.window_none(self.sig_rand)
-        assert_array_equal(res, self.sig_rand)
-
-    def test_window_hanning_rand(self):
-        targ = np.hanning(len(self.sig_rand)) * self.sig_rand
-        res = mlab.window_hanning(self.sig_rand)
-
-        assert_allclose(targ, res, atol=1e-06)
-
-    def test_window_hanning_ones(self):
-        targ = np.hanning(len(self.sig_ones))
-        res = mlab.window_hanning(self.sig_ones)
-
-        assert_allclose(targ, res, atol=1e-06)
+def test_window():
+    np.random.seed(0)
+    n = 1000
+    rand = np.random.standard_normal(n) + 100
+    ones = np.ones(n)
+    assert_array_equal(mlab.window_none(ones), ones)
+    assert_array_equal(mlab.window_none(rand), rand)
+    assert_array_equal(np.hanning(len(rand)) * rand, mlab.window_hanning(rand))
+    assert_array_equal(np.hanning(len(ones)), mlab.window_hanning(ones))
 
 
 class TestDetrend:
@@ -119,482 +101,147 @@ class TestDetrend:
 
         self.sig_off = self.sig_zeros + 100.
         self.sig_slope = np.linspace(-10., 90., n)
-
         self.sig_slope_mean = x - x.mean()
 
-        sig_rand = np.random.standard_normal(n)
-        sig_sin = np.sin(x*2*np.pi/(n/100))
+        self.sig_base = (
+            np.random.standard_normal(n) + np.sin(x*2*np.pi/(n/100)))
+        self.sig_base -= self.sig_base.mean()
 
-        sig_rand -= sig_rand.mean()
-        sig_sin -= sig_sin.mean()
+    def allclose(self, *args):
+        assert_allclose(*args, atol=1e-8)
 
-        self.sig_base = sig_rand + sig_sin
+    def test_detrend_none(self):
+        assert mlab.detrend_none(0.) == 0.
+        assert mlab.detrend_none(0., axis=1) == 0.
+        assert mlab.detrend(0., key="none") == 0.
+        assert mlab.detrend(0., key=mlab.detrend_none) == 0.
+        for sig in [
+                5.5, self.sig_off, self.sig_slope, self.sig_base,
+                (self.sig_base + self.sig_slope + self.sig_off).tolist(),
+                np.vstack([self.sig_base,  # 2D case.
+                           self.sig_base + self.sig_off,
+                           self.sig_base + self.sig_slope,
+                           self.sig_base + self.sig_off + self.sig_slope]),
+                np.vstack([self.sig_base,  # 2D transposed case.
+                           self.sig_base + self.sig_off,
+                           self.sig_base + self.sig_slope,
+                           self.sig_base + self.sig_off + self.sig_slope]).T,
+        ]:
+            if isinstance(sig, np.ndarray):
+                assert_array_equal(mlab.detrend_none(sig), sig)
+            else:
+                assert mlab.detrend_none(sig) == sig
 
-        self.atol = 1e-08
+    def test_detrend_mean(self):
+        for sig in [0., 5.5]:  # 0D.
+            assert mlab.detrend_mean(sig) == 0.
+            assert mlab.detrend(sig, key="mean") == 0.
+            assert mlab.detrend(sig, key=mlab.detrend_mean) == 0.
+        # 1D.
+        self.allclose(mlab.detrend_mean(self.sig_zeros), self.sig_zeros)
+        self.allclose(mlab.detrend_mean(self.sig_base), self.sig_base)
+        self.allclose(mlab.detrend_mean(self.sig_base + self.sig_off),
+                      self.sig_base)
+        self.allclose(mlab.detrend_mean(self.sig_base + self.sig_slope),
+                      self.sig_base + self.sig_slope_mean)
+        self.allclose(
+            mlab.detrend_mean(self.sig_base + self.sig_slope + self.sig_off),
+            self.sig_base + self.sig_slope_mean)
 
-    def test_detrend_none_0D_zeros(self):
-        input = 0.
-        targ = input
-        mlab.detrend_none(input)
-        assert input == targ
-
-    def test_detrend_none_0D_zeros_axis1(self):
-        input = 0.
-        targ = input
-        mlab.detrend_none(input, axis=1)
-        assert input == targ
-
-    def test_detrend_str_none_0D_zeros(self):
-        input = 0.
-        targ = input
-        mlab.detrend(input, key='none')
-        assert input == targ
-
-    def test_detrend_detrend_none_0D_zeros(self):
-        input = 0.
-        targ = input
-        mlab.detrend(input, key=mlab.detrend_none)
-        assert input == targ
-
-    def test_detrend_none_0D_off(self):
-        input = 5.5
-        targ = input
-        mlab.detrend_none(input)
-        assert input == targ
-
-    def test_detrend_none_1D_off(self):
-        input = self.sig_off
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
-
-    def test_detrend_none_1D_slope(self):
-        input = self.sig_slope
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
-
-    def test_detrend_none_1D_base(self):
-        input = self.sig_base
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
-
-    def test_detrend_none_1D_base_slope_off_list(self):
+    def test_detrend_mean_1d_base_slope_off_list_andor_axis0(self):
         input = self.sig_base + self.sig_slope + self.sig_off
-        targ = input.tolist()
-        res = mlab.detrend_none(input.tolist())
-        assert res == targ
+        target = self.sig_base + self.sig_slope_mean
+        self.allclose(mlab.detrend_mean(input, axis=0), target)
+        self.allclose(mlab.detrend_mean(input.tolist()), target)
+        self.allclose(mlab.detrend_mean(input.tolist(), axis=0), target)
 
-    def test_detrend_none_2D(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        input = np.vstack(arri)
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
+    def test_detrend_mean_2d(self):
+        input = np.vstack([self.sig_off,
+                           self.sig_base + self.sig_off])
+        target = np.vstack([self.sig_zeros,
+                            self.sig_base])
+        self.allclose(mlab.detrend_mean(input), target)
+        self.allclose(mlab.detrend_mean(input, axis=None), target)
+        self.allclose(mlab.detrend_mean(input.T, axis=None).T, target)
+        self.allclose(mlab.detrend(input), target)
+        self.allclose(mlab.detrend(input, axis=None), target)
+        self.allclose(
+            mlab.detrend(input.T, key="constant", axis=None), target.T)
 
-    def test_detrend_none_2D_T(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        input = np.vstack(arri)
-        targ = input
-        res = mlab.detrend_none(input.T)
-        assert_array_equal(res.T, targ)
+        input = np.vstack([self.sig_base,
+                           self.sig_base + self.sig_off,
+                           self.sig_base + self.sig_slope,
+                           self.sig_base + self.sig_off + self.sig_slope])
+        target = np.vstack([self.sig_base,
+                            self.sig_base,
+                            self.sig_base + self.sig_slope_mean,
+                            self.sig_base + self.sig_slope_mean])
+        self.allclose(mlab.detrend_mean(input.T, axis=0), target.T)
+        self.allclose(mlab.detrend_mean(input, axis=1), target)
+        self.allclose(mlab.detrend_mean(input, axis=-1), target)
+        self.allclose(mlab.detrend(input, key="default", axis=1), target)
+        self.allclose(mlab.detrend(input.T, key="mean", axis=0), target.T)
+        self.allclose(
+            mlab.detrend(input.T, key=mlab.detrend_mean, axis=0), target.T)
 
-    def test_detrend_mean_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend_mean(input)
-        assert_almost_equal(res, targ)
+    def test_detrend_ValueError(self):
+        for signal, kwargs in [
+                (self.sig_slope[np.newaxis], {"key": "spam"}),
+                (self.sig_slope[np.newaxis], {"key": 5}),
+                (5.5, {"axis": 0}),
+                (self.sig_slope, {"axis": 1}),
+                (self.sig_slope[np.newaxis], {"axis": 2}),
+        ]:
+            with pytest.raises(ValueError):
+                mlab.detrend(signal, **kwargs)
 
-    def test_detrend_str_mean_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend(input, key='mean')
-        assert_almost_equal(res, targ)
+    def test_detrend_mean_ValueError(self):
+        for signal, kwargs in [
+                (5.5, {"axis": 0}),
+                (self.sig_slope, {"axis": 1}),
+                (self.sig_slope[np.newaxis], {"axis": 2}),
+        ]:
+            with pytest.raises(ValueError):
+                mlab.detrend_mean(signal, **kwargs)
 
-    def test_detrend_detrend_mean_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend(input, key=mlab.detrend_mean)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_mean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend_mean(input)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_str_mean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key='mean')
-        assert_almost_equal(res, targ)
-
-    def test_detrend_detrend_mean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key=mlab.detrend_mean)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_mean_1D_zeros(self):
-        input = self.sig_zeros
-        targ = self.sig_zeros
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base(self):
-        input = self.sig_base
-        targ = self.sig_base
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base_off(self):
-        input = self.sig_base + self.sig_off
-        targ = self.sig_base
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base_slope(self):
-        input = self.sig_base + self.sig_slope
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base_slope_off(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_1D_base_slope_off_axis0(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input, axis=0)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_1D_base_slope_off_list(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input.tolist())
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_1D_base_slope_off_list_axis0(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input.tolist(), axis=0)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_2D_default(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_2D_none(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=None)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_none_T(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=None)
-        assert_allclose(res.T, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend_mean(input, axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axis1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axism1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=-1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_2D_default(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_2D_none(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, axis=None)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_str_mean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key='mean', axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_str_constant_2D_none_T(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key='constant', axis=None)
-        assert_allclose(res.T, targ,
-                        atol=1e-08)
-
-    def test_detrend_str_default_2D_axis1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key='default', axis=1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_detrend_mean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key=mlab.detrend_mean, axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_bad_key_str_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend(input, key='spam')
-
-    def test_detrend_bad_key_var_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend(input, key=5)
-
-    def test_detrend_mean_0D_d0_ValueError(self):
-        input = 5.5
-        with pytest.raises(ValueError):
-            mlab.detrend_mean(input, axis=0)
-
-    def test_detrend_0D_d0_ValueError(self):
-        input = 5.5
-        with pytest.raises(ValueError):
-            mlab.detrend(input, axis=0)
-
-    def test_detrend_mean_1D_d1_ValueError(self):
-        input = self.sig_slope
-        with pytest.raises(ValueError):
-            mlab.detrend_mean(input, axis=1)
-
-    def test_detrend_1D_d1_ValueError(self):
-        input = self.sig_slope
-        with pytest.raises(ValueError):
-            mlab.detrend(input, axis=1)
-
-    def test_detrend_mean_2D_d2_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend_mean(input, axis=2)
-
-    def test_detrend_2D_d2_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend(input, axis=2)
-
-    def test_detrend_linear_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend_linear(input)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_linear_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend_linear(input)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_str_linear_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key='linear')
-        assert_almost_equal(res, targ)
-
-    def test_detrend_detrend_linear_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key=mlab.detrend_linear)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_linear_1d_off(self):
-        input = self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_1d_slope(self):
-        input = self.sig_slope
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_1d_slope_off(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_str_linear_1d_slope_off(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend(input, key='linear')
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_detrend_linear_1d_slope_off(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend(input, key=mlab.detrend_linear)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_1d_slope_off_list(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input.tolist())
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_2D_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend_linear(input)
-
-    def test_detrend_str_linear_2d_slope_off_axis0(self):
-        arri = [self.sig_off,
+    def test_detrend_linear(self):
+        # 0D.
+        assert mlab.detrend_linear(0.) == 0.
+        assert mlab.detrend_linear(5.5) == 0.
+        assert mlab.detrend(5.5, key="linear") == 0.
+        assert mlab.detrend(5.5, key=mlab.detrend_linear) == 0.
+        for sig in [  # 1D.
+                self.sig_off,
                 self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key='linear', axis=0)
-        assert_allclose(res, targ, atol=self.atol)
+                self.sig_slope + self.sig_off,
+        ]:
+            self.allclose(mlab.detrend_linear(sig), self.sig_zeros)
 
-    def test_detrend_detrend_linear_1d_slope_off_axis1(self):
-        arri = [self.sig_off,
-                self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key=mlab.detrend_linear, axis=0)
-        assert_allclose(res, targ, atol=self.atol)
+    def test_detrend_str_linear_1d(self):
+        input = self.sig_slope + self.sig_off
+        target = self.sig_zeros
+        self.allclose(mlab.detrend(input, key="linear"), target)
+        self.allclose(mlab.detrend(input, key=mlab.detrend_linear), target)
+        self.allclose(mlab.detrend_linear(input.tolist()), target)
 
-    def test_detrend_str_linear_2d_slope_off_axis0_notranspose(self):
-        arri = [self.sig_off,
-                self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key='linear', axis=1)
-        assert_allclose(res, targ, atol=self.atol)
+    def test_detrend_linear_2d(self):
+        input = np.vstack([self.sig_off,
+                           self.sig_slope,
+                           self.sig_slope + self.sig_off])
+        target = np.vstack([self.sig_zeros,
+                            self.sig_zeros,
+                            self.sig_zeros])
+        self.allclose(
+            mlab.detrend(input.T, key="linear", axis=0), target.T)
+        self.allclose(
+            mlab.detrend(input.T, key=mlab.detrend_linear, axis=0), target.T)
+        self.allclose(
+            mlab.detrend(input, key="linear", axis=1), target)
+        self.allclose(
+            mlab.detrend(input, key=mlab.detrend_linear, axis=1), target)
 
-    def test_detrend_detrend_linear_1d_slope_off_axis1_notranspose(self):
-        arri = [self.sig_off,
-                self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key=mlab.detrend_linear, axis=1)
-        assert_allclose(res, targ, atol=self.atol)
+        with pytest.raises(ValueError):
+            mlab.detrend_linear(self.sig_slope[np.newaxis])
 
 
 @pytest.mark.parametrize('iscomplex', [False, True],

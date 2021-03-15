@@ -77,10 +77,8 @@ Trying to learn how to do a particular kind of plot?  Check out the
 Join our community!
 ~~~~~~~~~~~~~~~~~~~
 
-Matplotlib is a welcoming, inclusive project, and we follow the `Python
-Software Foundation Code of Conduct <coc_>`_ in everything we do.
-
-.. _coc: https://www.python.org/psf/conduct/
+Matplotlib is a welcoming, inclusive project, and everyone within the community
+is expected to abide by our `code of conduct <../CODE_OF_CONDUCT.md>`_.
 
 
 .. raw:: html

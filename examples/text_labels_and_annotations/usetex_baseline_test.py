@@ -30,8 +30,10 @@ class LatexPreviewSubplot(maxes.Axes):
         super().__init__(*args, **kwargs)
 
     def draw(self, renderer):
-        with plt.rc_context({"text.latex.preview": self.preview}):
-            super().draw(renderer)
+        from matplotlib import _api  # internal, *do not use*
+        with _api.suppress_matplotlib_deprecation_warning():
+            with plt.rc_context({"text.latex.preview": self.preview}):
+                super().draw(renderer)
 
 
 def test_window_extent(ax, usetex, preview):

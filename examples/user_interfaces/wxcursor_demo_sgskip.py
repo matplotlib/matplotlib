@@ -1,7 +1,7 @@
 """
-=============
-WXcursor Demo
-=============
+=====================
+Adding a cursor in WX
+=====================
 
 Example to draw a cursor and report the data coords in wx.
 """

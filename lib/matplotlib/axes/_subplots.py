@@ -1,7 +1,6 @@
 import functools
-import uuid
 
-from matplotlib import cbook, docstring
+from matplotlib import _api, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -47,7 +46,7 @@ class SubplotBase:
                 (axes_class,),
                 self.__getstate__())
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.4", alternative="get_subplotspec",
         addendum="(get_subplotspec returns a SubplotSpec instance.)")
     def get_geometry(self):
@@ -55,7 +54,7 @@ class SubplotBase:
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1 + 1  # for compatibility
 
-    @cbook.deprecated("3.4", alternative="set_subplotspec")
+    @_api.deprecated("3.4", alternative="set_subplotspec")
     def change_geometry(self, numrows, numcols, num):
         """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols,
@@ -76,51 +75,41 @@ class SubplotBase:
         """Return the `.GridSpec` instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
 
-    @cbook.deprecated(
+    @_api.deprecated(
         "3.4", alternative="get_subplotspec().get_position(self.figure)")
     @property
     def figbox(self):
         return self.get_subplotspec().get_position(self.figure)
 
-    @cbook.deprecated("3.4", alternative="get_gridspec().nrows")
+    @_api.deprecated("3.4", alternative="get_gridspec().nrows")
     @property
     def numRows(self):
         return self.get_gridspec().nrows
 
-    @cbook.deprecated("3.4", alternative="get_gridspec().ncols")
+    @_api.deprecated("3.4", alternative="get_gridspec().ncols")
     @property
     def numCols(self):
         return self.get_gridspec().ncols
 
-    @cbook.deprecated("3.4")
+    @_api.deprecated("3.4")
     def update_params(self):
         """Update the subplot position from ``self.figure.subplotpars``."""
         # Now a no-op, as figbox/numRows/numCols are (deprecated) auto-updating
         # properties.
 
-    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
-    @property
-    def rowNum(self):
-        return self.get_subplotspec().rowspan.start
-
-    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().colspan.start")
-    @property
-    def colNum(self):
-        return self.get_subplotspec().colspan.start
-
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_first_row()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_first_row()")
     def is_first_row(self):
         return self.get_subplotspec().rowspan.start == 0
 
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_last_row()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_last_row()")
     def is_last_row(self):
         return self.get_subplotspec().rowspan.stop == self.get_gridspec().nrows
 
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_first_col()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_first_col()")
     def is_first_col(self):
         return self.get_subplotspec().colspan.start == 0
 
-    @cbook.deprecated("3.4", alternative="ax.get_subplotspec().is_last_col()")
+    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_last_col()")
     def is_last_col(self):
         return self.get_subplotspec().colspan.stop == self.get_gridspec().ncols
 
@@ -137,12 +126,12 @@ class SubplotBase:
         if not lastrow:
             for label in self.get_xticklabels(which="both"):
                 label.set_visible(False)
-            self.get_xaxis().get_offset_text().set_visible(False)
+            self.xaxis.get_offset_text().set_visible(False)
             self.set_xlabel("")
         if not firstcol:
             for label in self.get_yticklabels(which="both"):
                 label.set_visible(False)
-            self.get_yaxis().get_offset_text().set_visible(False)
+            self.yaxis.get_offset_text().set_visible(False)
             self.set_ylabel("")
 
     def _make_twin_axes(self, *args, **kwargs):
@@ -152,16 +141,7 @@ class SubplotBase:
             # which currently uses this internal API.
             if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
                 raise ValueError("Twinned Axes may share only one axis")
-        # The dance here with label is to force add_subplot() to create a new
-        # Axes (by passing in a label never seen before).  Note that this does
-        # not affect plot reactivation by subplot() as twin axes can never be
-        # reactivated by subplot().
-        sentinel = str(uuid.uuid4())
-        real_label = kwargs.pop("label", sentinel)
-        twin = self.figure.add_subplot(
-            self.get_subplotspec(), *args, label=sentinel, **kwargs)
-        if real_label is not sentinel:
-            twin.set_label(real_label)
+        twin = self.figure.add_subplot(self.get_subplotspec(), *args, **kwargs)
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
         self._twinned_axes.join(self, twin)
@@ -190,7 +170,7 @@ def subplot_class_factory(axes_class=None):
     not have to be created for every type of Axes.
     """
     if axes_class is None:
-        cbook.warn_deprecated(
+        _api.warn_deprecated(
             "3.3", message="Support for passing None to subplot_class_factory "
             "is deprecated since %(since)s; explicitly pass the default Axes "
             "class instead. This will become an error %(removal)s.")
@@ -220,7 +200,7 @@ def _picklable_subplot_class_constructor(axes_class):
     return subplot_class.__new__(subplot_class)
 
 
-docstring.interpd.update(Axes=martist.kwdoc(Axes))
+docstring.interpd.update(Axes_kwdoc=martist.kwdoc(Axes))
 docstring.dedent_interpd(Axes.__init__)
 
-docstring.interpd.update(Subplot=martist.kwdoc(Axes))
+docstring.interpd.update(Subplot_kwdoc=martist.kwdoc(Axes))

@@ -192,15 +192,15 @@ Automated tests
 Whenever a pull request is created or updated, various automated test tools
 will run on all supported platforms and versions of Python.
 
-* Make sure the Linting, Travis, AppVeyor, CircleCI, and Azure pipelines are
-  passing before merging (All checks are listed at the bottom of the GitHub
-  page of your pull request). Here are some tips for finding the cause of the
-  test failure:
+* Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure
+  pipelines are passing before merging (All checks are listed at the bottom of
+  the GitHub page of your pull request). Here are some tips for finding the
+  cause of the test failure:
 
   - If *Linting* fails, you have a code style issue, which will be listed
     as annotations on the pull request's diff.
-  - If a Travis or AppVeyor run fails, search the log for ``FAILURES``. The
-    subsequent section will contain information on the failed tests.
+  - If a GitHub Actions or AppVeyor run fails, search the log for ``FAILURES``.
+    The subsequent section will contain information on the failed tests.
   - If CircleCI fails, likely you have some reStructuredText style issue in
     the docs. Search the CircleCI log for ``WARNING``.
   - If Azure pipelines fail with an image comparison error, you can find the
@@ -262,13 +262,6 @@ The current active branches are
   branched from this.  Supports Python 3.6+.
 
 *v3.N.M-doc*
-  Documentation for the current release.  On a patch release, this will be
-  replaced by a properly named branch for the new release.
-
-*v2.2.x*
-  Maintenance branch for Matplotlib 2.2 LTS.  Supports Python 2.7, 3.4+.
-
-*v2.2.N-doc*
   Documentation for the current release.  On a patch release, this will be
   replaced by a properly named branch for the new release.
 

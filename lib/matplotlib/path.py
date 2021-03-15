@@ -15,7 +15,7 @@ from weakref import WeakValueDictionary
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, _path, cbook
+from . import _api, _path
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 from .bezier import BezierSegment
 
@@ -102,14 +102,11 @@ class Path:
 
         Parameters
         ----------
-        vertices : array-like
-            The ``(N, 2)`` float array, masked array or sequence of pairs
-            representing the vertices of the path.
-
-            If *vertices* contains masked values, they will be converted
-            to NaNs which are then handled correctly by the Agg
-            PathIterator and other consumers of path data, such as
-            :meth:`iter_segments`.
+        vertices : (N, 2) array-like
+            The path vertices, as an array, masked array or sequence of pairs.
+            Masked values, if any, will be converted to NaNs, which are then
+            handled correctly by the Agg PathIterator and other consumers of
+            path data, such as :meth:`iter_segments`.
         codes : array-like or None, optional
             n-length array integers representing the codes of the path.
             If not None, codes must be the same length as vertices.
@@ -216,7 +213,7 @@ class Path:
     @property
     def codes(self):
         """
-        The list of codes in the `Path` as a 1-D numpy array.  Each
+        The list of codes in the `Path` as a 1D numpy array.  Each
         code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4`
         or `CLOSEPOLY`.  For codes that correspond to more than one
         vertex (`CURVE3` and `CURVE4`), that code will be repeated so
@@ -461,7 +458,7 @@ class Path:
                 raise ValueError("Invalid Path.code_type: " + str(code))
             prev_vert = verts[-2:]
 
-    @cbook._delete_parameter("3.3", "quantize")
+    @_api.delete_parameter("3.3", "quantize")
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 quantize=False, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
@@ -496,7 +493,11 @@ class Path:
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Return whether the (closed) path contains the given point.
+        Return whether the area enclosed by the path contains the given point.
+
+        The path is always treated as closed; i.e. if the last code is not
+        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        vertex is assumed.
 
         Parameters
         ----------
@@ -517,6 +518,17 @@ class Path:
         Returns
         -------
         bool
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (i.e. at the path shifted by *radius/2*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -531,7 +543,11 @@ class Path:
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Return whether the (closed) path contains the given point.
+        Return whether the area enclosed by the path contains the given points.
+
+        The path is always treated as closed; i.e. if the last code is not
+        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        vertex is assumed.
 
         Parameters
         ----------
@@ -541,7 +557,7 @@ class Path:
             If not ``None``, *points* will be compared to ``self`` transformed
             by *transform*; i.e. for a correct check, *transform* should
             transform the path into the coordinate system of *points*.
-        radius : float, default: 0.
+        radius : float, default: 0
             Add an additional margin on the path in coordinates of *points*.
             The path is extended tangentially by *radius/2*; i.e. if you would
             draw the path with a linewidth of *radius*, all points on the line
@@ -552,6 +568,17 @@ class Path:
         Returns
         -------
         length-N bool array
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (i.e. at the path shifted by *radius/2*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -591,7 +618,12 @@ class Path:
         if self.codes is None:
             xys = self.vertices
         elif len(np.intersect1d(self.codes, [Path.CURVE3, Path.CURVE4])) == 0:
-            xys = self.vertices[self.codes != Path.CLOSEPOLY]
+            # Optimization for the straight line case.
+            # Instead of iterating through each curve, consider
+            # each line segment's end-points
+            # (recall that STOP and CLOSEPOLY vertices are ignored)
+            xys = self.vertices[np.isin(self.codes,
+                                        [Path.MOVETO, Path.LINETO])]
         else:
             xys = []
             for curve, code in self.iter_bezier(**kwargs):
@@ -1039,6 +1071,7 @@ def get_path_collection_extents(
     from .transforms import Bbox
     if len(paths) == 0:
         raise ValueError("No paths provided")
-    return Bbox.from_extents(*_path.get_path_collection_extents(
+    extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
-        offsets, offset_transform))
+        offsets, offset_transform)
+    return Bbox.from_extents(*extents, minpos=minpos)

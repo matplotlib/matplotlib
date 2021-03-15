@@ -245,7 +245,7 @@ class ThetaLocator(mticker.Locator):
         else:
             return np.deg2rad(self.base())
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
@@ -257,7 +257,7 @@ class ThetaLocator(mticker.Locator):
         vmin, vmax = np.rad2deg((vmin, vmax))
         return np.deg2rad(self.base.view_limits(vmin, vmax))
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
@@ -378,10 +378,14 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majloc = True
         self.isDefault_majfmt = True
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
+
+    @_api.deprecated("3.4", alternative="ThetaAxis.clear()")
+    def cla(self):
+        self.clear()
 
     def _set_scale(self, value, **kwargs):
         super()._set_scale(value, **kwargs)
@@ -427,15 +431,15 @@ class RadialLocator(mticker.Locator):
         else:
             return [tick for tick in self.base() if tick > rorigin]
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
-    @cbook.deprecated("3.3")
+    @_api.deprecated("3.3")
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
@@ -680,10 +684,14 @@ class RadialAxis(maxis.YAxis):
                                              self.axes))
         self.isDefault_majloc = True
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
+
+    @_api.deprecated("3.4", alternative="RadialAxis.clear()")
+    def cla(self):
+        self.clear()
 
     def _set_scale(self, value, **kwargs):
         super()._set_scale(value, **kwargs)
@@ -810,7 +818,7 @@ class PolarAxes(Axes):
         # This is moved out of __init__ because non-separable axes don't use it
         self.xaxis = ThetaAxis(self)
         self.yaxis = RadialAxis(self)
-        # Calling polar_axes.xaxis.cla() or polar_axes.xaxis.cla()
+        # Calling polar_axes.xaxis.clear() or polar_axes.xaxis.clear()
         # results in weird artifacts. Therefore we disable this for
         # now.
         # self.spines['polar'].register_axis(self.yaxis)
@@ -937,8 +945,8 @@ class PolarAxes(Axes):
             pad_shift = _ThetaShift(self, pad, 'min')
         return self._yaxis_text_transform + pad_shift, 'center', halign
 
-    @cbook._delete_parameter("3.3", "args")
-    @cbook._delete_parameter("3.3", "kwargs")
+    @_api.delete_parameter("3.3", "args")
+    @_api.delete_parameter("3.3", "kwargs")
     def draw(self, renderer, *args, **kwargs):
         self._unstale_viewLim()
         thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
@@ -1420,7 +1428,7 @@ class PolarAxes(Axes):
 
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
 
         Polar axes do not support zoom boxes.
         """
@@ -1428,7 +1436,7 @@ class PolarAxes(Axes):
 
     def can_pan(self):
         """
-        Return *True* if this axes supports the pan/zoom button functionality.
+        Return whether this axes supports the pan/zoom button functionality.
 
         For polar axes, this is slightly misleading. Both panning and
         zooming are performed by the same button. Panning is performed
