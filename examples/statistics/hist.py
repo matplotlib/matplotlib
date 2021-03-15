@@ -12,7 +12,7 @@ from matplotlib import colors
 from matplotlib.ticker import PercentFormatter
 
 # Fixing random state for reproducibility
-np.random.seed(19680801)
+r = np.random.default_rng(seed=19680801)
 
 
 ###############################################################################
@@ -27,8 +27,8 @@ N_points = 100000
 n_bins = 20
 
 # Generate a normal distribution, center at x=0 and y=5
-x = np.random.randn(N_points)
-y = .4 * x + np.random.randn(100000) + 5
+x = r.standard_normal(N_points)
+y = .4 * x + r.standard_normal(100000) + 5
 
 fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
 
