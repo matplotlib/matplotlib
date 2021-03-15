@@ -9,7 +9,7 @@ Arrows are often used to annotate plots. This tutorial shows how to plot arrows
 that behave differently when the data limits on a plot are changed. In general,
 points on a plot can either be fixed in "data space" or "display space".
 Something plotted in data space moves when the data limits are altered - an
-example would the points in a scatter plot. Something plotted in display space
+example would be the points in a scatter plot. Something plotted in display space
 stays static when data limits are altered - an example would be a figure title
 or the axis labels.
 
