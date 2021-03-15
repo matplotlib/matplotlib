@@ -529,11 +529,6 @@ def test_shadow_color():
 def test_shadow_bad_type():
     # Ensure an error is thrown if the value of shadow
     # is neither colorlike nor bool
-    # fig, ax = plt.subplots()
-    # ax.plot(range(100), label="test")
-    # with pytest.raises(ValueError, match='valid color or bool') as e:
-    #     ax.legend(shadow='Aardvark')
-
     fig, ax = plt.subplots()
     ax.plot(range(100), label="test")
     with pytest.raises(ValueError, match="color or bool"):
