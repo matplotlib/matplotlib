@@ -48,11 +48,11 @@ dy = y_head - y_tail
 # but the anchor points move.
 
 fig, axs = plt.subplots(nrows=2)
-arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (dx, dy),
+arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (x_head, y_head),
                                  mutation_scale=100)
 axs[0].add_patch(arrow)
 
-arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (dx, dy),
+arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (x_head, y_head),
                                  mutation_scale=100)
 axs[1].add_patch(arrow)
 axs[1].set_xlim(0, 2)
@@ -73,12 +73,12 @@ axs[1].set_ylim(0, 2)
 # stays the same.
 
 fig, axs = plt.subplots(nrows=2)
-arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (dx, dy),
+arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (x_head, y_head),
                                  mutation_scale=100,
                                  transform=axs[0].transAxes)
 axs[0].add_patch(arrow)
 
-arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (dx, dy),
+arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (x_head, y_head),
                                  mutation_scale=100,
                                  transform=axs[1].transAxes)
 axs[1].add_patch(arrow)
