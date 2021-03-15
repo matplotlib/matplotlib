@@ -10,7 +10,7 @@ that behave differently when the data limits on a plot are changed. In general,
 points on a plot can either be fixed in "data space" or "display space".
 Something plotted in data space moves when the data limits are altered - an
 example would be the points in a scatter plot. Something plotted in display
-space stays static when data limits are altered - an example would be a 
+space stays static when data limits are altered - an example would be a
 figure title or the axis labels.
 
 Arrows consist of a head (and possibly a tail) and a stem drawn between a
