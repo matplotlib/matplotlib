@@ -39,8 +39,7 @@ dy = y_head - y_tail
 # -----------------------------------------------------------------------
 #
 # This is useful if you are annotating a plot, and don't want the arrow to
-# to change shape or position if you pan or scale the plot. Note that when
-# the axis limits change
+# to change shape or position if you pan or scale the plot. 
 #
 # In this case we use `.patches.FancyArrowPatch`
 #
@@ -63,14 +62,14 @@ axs[1].set_ylim(0, 2)
 # ---------------------------------------------------
 #
 # This is useful if you are annotating a plot, and don't want the arrow to
-# to change shape or position if you pan or scale the plot.
+# change shape or position if you pan or scale the plot.
 #
 # In this case we use `.patches.FancyArrowPatch`, and pass the keyword argument
 # ``transform=ax.transAxes`` where ``ax`` is the axes we are adding the patch
 # to.
 #
 # Note that when the axis limits are changed, the arrow shape and location
-# stays the same.
+# stay the same.
 
 fig, axs = plt.subplots(nrows=2)
 arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (dx, dy),
@@ -93,7 +92,7 @@ axs[1].set_ylim(0, 2)
 # In this case we use `.patches.Arrow`
 #
 # Note that when the axis limits are changed, the arrow shape and location
-# changes.
+# change.
 
 fig, axs = plt.subplots(nrows=2)
 
