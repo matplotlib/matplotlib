@@ -156,7 +156,7 @@ class XMLWriter:
         self.__tags.append(tag)
         self.__write(self.__indentation[:len(self.__tags) - 1])
         self.__write("<%s" % tag)
-        for k, v in sorted({**attrib, **extra}.items()):
+        for k, v in {**attrib, **extra}.items():
             if v:
                 k = escape_cdata(k)
                 v = escape_attrib(v)
@@ -264,7 +264,7 @@ def generate_transform(transform_list=[]):
 def generate_css(attrib={}):
     if attrib:
         output = StringIO()
-        attrib = sorted(attrib.items())
+        attrib = attrib.items()
         for k, v in attrib:
             k = escape_attrib(k)
             v = escape_attrib(v)
