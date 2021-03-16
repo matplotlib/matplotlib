@@ -2,7 +2,9 @@
 ``matplotlib.patches``
 **********************
 
-.. currentmodule:: matplotlib.patches
+
+.. inheritance-diagram:: matplotlib.patches
+   :parts: 1
 
 .. automodule:: matplotlib.patches
    :no-members:

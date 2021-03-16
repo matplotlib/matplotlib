@@ -1,3 +1,7 @@
+r"""
+Patches are `.Artist`\s with a face color and an edge color.
+"""
+
 import contextlib
 import functools
 import inspect
