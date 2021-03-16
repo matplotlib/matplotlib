@@ -23,4 +23,4 @@ with plt.style.context('cheatsheet_gallery'):
     ax.set_ylim(0, 8)
     ax.set_yticks(np.arange(1, 8))
 
-plt.show()
+    plt.show()

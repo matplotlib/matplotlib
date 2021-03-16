@@ -22,4 +22,4 @@ with plt.style.context('cheatsheet_gallery'):
     # plot stream plot
     ax.streamplot(X[1:, 1:], Y[1:, 1:], U, V, zorder=2)
 
-plt.show()
+    plt.show()

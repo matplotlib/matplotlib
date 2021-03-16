@@ -13,4 +13,4 @@ figure.subplot.top: 0.99
 
 # colors:
 image.cmap    : Oranges
-axes.prop_cycle : cycler('color', ['ff7f0e', '1f77b4', '2ca02c'])
+axes.prop_cycle: cycler('color', ['FF7F0E', '1F77B4', '2CA02C'])

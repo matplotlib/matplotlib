@@ -7,11 +7,10 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # plot
 with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
-    
+
     # make data
     X = [1, 2, 3, 4]
     colors = np.zeros((len(X), 4))
@@ -28,4 +27,4 @@ with plt.style.context('cheatsheet_gallery'):
     ax.set_ylim(0, 8)
     ax.set_yticks(np.arange(1, 8))
 
-plt.show()
+    plt.show()
