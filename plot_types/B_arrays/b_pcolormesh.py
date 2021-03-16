@@ -27,6 +27,6 @@ Z = Z[::8, :][:, xint]
 with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
 
-    # plot:
-    ax.pcolormesh(X, Y, Z, vmin=0, vmax=1.5)
+    ax.pcolormesh(X, Y, Z, vmin=0, vmax=1.5, shading='nearest')
+
     plt.show()
