@@ -130,10 +130,10 @@
 
 #markers.fillstyle: full  # {full, left, right, bottom, top, none}
 
-#pcolor.shading : flat
-#pcolormesh.snap : True  # Whether to snap the mesh to pixel boundaries. This
-                         # is provided solely to allow old test images to remain
-                         # unchanged. Set to False to obtain the previous behavior.
+#pcolor.shading: flat
+#pcolormesh.snap: True  # Whether to snap the mesh to pixel boundaries. This is
+                        # provided solely to allow old test images to remain
+                        # unchanged. Set to False to obtain the previous behavior.
 
 ## ***************************************************************************
 ## * PATCHES                                                                 *
@@ -321,10 +321,10 @@
 #text.hinting_factor: 8  # Specifies the amount of softness for hinting in the
                          # horizontal direction.  A value of 1 will hint to full
                          # pixels.  A value of 2 will hint to half pixels etc.
-#text.kerning_factor : 0  # Specifies the scaling factor for kerning values. This
-                          # is provided solely to allow old test images to remain
-                          # unchanged. Set to 6 to obtain previous behavior. Values
-                          # other than 0 or 6 have no defined meaning.
+#text.kerning_factor: 0  # Specifies the scaling factor for kerning values.  This
+                         # is provided solely to allow old test images to remain
+                         # unchanged.  Set to 6 to obtain previous behavior.
+                         # Values  other than 0 or 6 have no defined meaning.
 #text.antialiased: True  # If True (default), the text will be antialiased.
                          # This only affects the Agg backend.
 
@@ -584,12 +584,12 @@
 ## ***************************************************************************
 ## * IMAGES                                                                  *
 ## ***************************************************************************
-#image.aspect: equal                # {equal, auto} or a number
-#image.interpolation:  antialiased  # see help(imshow) for options
-#image.cmap:   viridis              # A colormap name, gray etc...
-#image.lut:    256                  # the size of the colormap lookup table
-#image.origin: upper                # {lower, upper}
-#image.resample:  True
+#image.aspect:          equal        # {equal, auto} or a number
+#image.interpolation:   antialiased  # see help(imshow) for options
+#image.cmap:            viridis      # A colormap name, gray etc...
+#image.lut:             256          # the size of the colormap lookup table
+#image.origin:          upper        # {lower, upper}
+#image.resample:        True
 #image.composite_image: True  # When True, all the images on a set of axes are
                               # combined into a single composite image before
                               # saving a figure as a vector graphics file,
@@ -700,7 +700,7 @@
 #pdf.compression:    6  # integer from 0 to 9
                         # 0 disables compression (good for debugging)
 #pdf.fonttype:       3  # Output Type 3 (Type3) or Type 42 (TrueType)
-#pdf.use14corefonts : False
+#pdf.use14corefonts: False
 #pdf.inheritcolor:   False
 
 ### SVG backend params
@@ -743,7 +743,7 @@
 #keymap.grid_minor: G           # switching on/off minor grids in current axes
 #keymap.yscale: l               # toggle scaling of y-axes ('log'/'linear')
 #keymap.xscale: k, L            # toggle scaling of x-axes ('log'/'linear')
-#keymap.copy: ctrl+c, cmd+c     # Copy figure to clipboard
+#keymap.copy: ctrl+c, cmd+c     # copy figure to clipboard
 
 
 ## ***************************************************************************
