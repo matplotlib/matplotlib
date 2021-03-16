@@ -49,7 +49,7 @@ See :doc:`/gallery/subplots_axes_and_figures/subfigures` for further details.
     subfigs = fig.subfigures(1, 2, wspace=0.07)
 
     axsLeft = subfigs[0].subplots(1, 2, sharey=True)
-    subfigs[0].set_facecolor('0.75')
+    subfigs[0].set_facecolor('#eee')
     for ax in axsLeft:
         pc = example_plot(ax)
     subfigs[0].suptitle('Left plots', fontsize='x-large')
@@ -125,14 +125,29 @@ Plotting methods
 
 `~.Axes.axline` now supports the *transform* parameter, which applies to the
 points *xy1*, *xy2*. The *slope* (if given) is always in data coordinates.
-This can be used e.g. with ``ax.transAxes`` for drawing grid lines with a fixed
-slope.
+
+For example, this can be used with ``ax.transAxes`` for drawing lines with a
+fixed slope. In the following plot, the line appears through the same point on
+both Axes, even though they show different data limits.
+
+.. plot::
+    :include-source:
+
+    fig, axs = plt.subplots(1, 2)
+
+    for i, ax in enumerate(axs):
+        ax.axline((0.25, 0), slope=2, transform=ax.transAxes)
+        ax.set(xlim=(i, i+5), ylim=(i, i+5))
 
 New automatic labeling for bar charts
 -------------------------------------
 
 A new `.Axes.bar_label` method has been added for auto-labeling bar charts.
-See :doc:`/gallery/lines_bars_and_markers/bar_label_demo` for examples.
+
+.. figure:: /gallery/lines_bars_and_markers/images/sphx_glr_bar_label_demo_001.png
+   :target: /gallery/lines_bars_and_markers/bar_label_demo.html
+
+   Example of the new automatic labeling.
 
 A list of hatches can be specified to `~.axes.Axes.bar` and `~.axes.Axes.barh`
 ------------------------------------------------------------------------------
@@ -171,7 +186,7 @@ cycler are not explicitly passed.
 For example, the following will cycle through the line styles:
 
 .. plot::
-    :include-source: True
+    :include-source:
 
     x = np.arange(0.1, 4, 0.5)
     y = np.exp(-x)
@@ -428,6 +443,37 @@ The `matplotlib.colors.Colormap` object now has image representations for
 IPython / Jupyter backends. Cells returning a colormap on the last line will
 display an image of the colormap.
 
+.. only:: html
+
+    .. code-block::
+
+        In[1]: cmap = plt.get_cmap('viridis').with_extremes(bad='r', under='g', over='b')
+
+        In[2]: cmap
+        Out[2]:
+
+.. raw:: html
+
+    <div style="vertical-align: middle;">
+        <strong>viridis</strong>
+    </div>
+    <div class="cmap">
+        <img alt="viridis colormap" title="viridis" style="border: 1px solid #555;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAABACAYAAABsv8+/AAAAFnRFWHRUaXRsZQB2aXJpZGlzIGNvbG9ybWFwrE0mCwAAABx0RVh0RGVzY3JpcHRpb24AdmlyaWRpcyBjb2xvcm1hcAtjl3IAAABKdEVYdEF1dGhvcgBNYXRwbG90bGliIHYzLjQuMHJjMy5wb3N0OS5kZXYwK2czZTQzMThmMjgwLCBodHRwczovL21hdHBsb3RsaWIub3JndvlliwAAAEx0RVh0U29mdHdhcmUATWF0cGxvdGxpYiB2My40LjByYzMucG9zdDkuZGV2MCtnM2U0MzE4ZjI4MCwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZ9pNs1oAAAIiSURBVHic7dZBkpswFEXRL9halpD9LyX0IDIUAhnHldk7Z+KS9BFUD7pu+9V+b1VV1Vr9/V36z3ldfd1ec0vfH9bH+f3z43su987uv9x7/7s9nM+e3/bz+vK8Tvfv863u54b7xvnrerx/dm8Nzw33LA/nl+ffv+d5/en99+tv3/O/73+cq/dzn+9v3z1fT/PbV98xnh9zk/P9O2bPv99vk7l2WQ/P1Tg3/Fubrh/2+73LZX7r+zWsx/P7e2Zz+289nA9zS/vz4dx5fv3n8/N71rp/77i/vp6rh/XrvcP7ruv77zjuPX//MX++7zo/vG+2P3zH7HvXGv8u57/netmvvl/n9b7fhv2+7vv7uk8c80v/7XNtOd0DAAQRAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQKAfbnCJh8XCmbQAAAAASUVORK5CYII=">
+    </div>
+    <div style="vertical-align: middle; max-width: 514px; display: flex; justify-content: space-between;">
+        <div style="float: left;">
+            <div title="#008000ff" style="display: inline-block; width: 1em; height: 1em; margin: 0; vertical-align: middle; border: 1px solid #555; background-color: #008000ff;"></div>
+            under
+        </div>
+        <div style="margin: 0 auto; display: inline-block;">
+            bad
+            <div title="#ff0000ff" style="display: inline-block; width: 1em; height: 1em; margin: 0; vertical-align: middle; border: 1px solid #555; background-color: #ff0000ff;"></div>
+        </div>
+        <div style="float: right;">
+            over
+            <div title="#0000ffff" style="display: inline-block; width: 1em; height: 1em; margin: 0; vertical-align: middle; border: 1px solid #555; background-color: #0000ffff;"></div>
+    </div>
+
 ``Colormap.set_extremes`` and ``Colormap.with_extremes``
 --------------------------------------------------------
 
@@ -533,8 +579,18 @@ labels for Axes not in the last row. This behavior is incorrect if rcParams
 specify that Axes should be labeled on the top (``rcParams["xtick.labeltop"] =
 True``) or on the right (``rcParams["ytick.labelright"] = True``).
 
-Such cases are now handled correctly (adjusting visibility as needed on the
-first row and last column of axes).
+Cases such as the following are now handled correctly (adjusting visibility as
+needed on the first row and last column of Axes):
+
+.. plot::
+    :include-source:
+
+    plt.rcParams["xtick.labelbottom"] = False
+    plt.rcParams["xtick.labeltop"] = True
+    plt.rcParams["ytick.labelleft"] = False
+    plt.rcParams["ytick.labelright"] = True
+
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
 
 An iterable object with labels can be passed to `.Axes.plot`
 ------------------------------------------------------------
@@ -544,6 +600,7 @@ When plotting multiple datasets by passing 2D data as *y* value to
 matching the number of columns in *y*.
 
 .. plot::
+    :include-source:
 
     x = [1, 2, 3]
 
@@ -563,6 +620,11 @@ Text transform can rotate text direction
 
 The new `.Text` parameter ``transform_rotates_text`` now sets whether rotations
 of the transform affect the text direction.
+
+.. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_text_rotation_relative_to_line_001.png
+   :target: /gallery/text_labels_and_annotations/text_rotation_relative_to_line.html
+
+   Example of the new *transform_rotates_text* parameter
 
 ``matplotlib.mathtext`` now supports *overset* and *underset* LaTeX symbols
 ---------------------------------------------------------------------------
@@ -598,7 +660,7 @@ trying to pick ticks at set intervals (i.e., day 1 and 15 of the month), versus
 evenly spaced ticks that start wherever the timeseries starts:
 
 .. plot::
-    :include-source: True
+    :include-source:
 
     dates = np.arange('2001-01-10', '2001-05-23', dtype='datetime64[D]')
     y = np.sin(dates.astype(float) / 10)
@@ -676,6 +738,9 @@ The errorbar function `.Axes.errorbar` is ported into the 3D Axes framework in
 its entirety, supporting features such as custom styling for error lines and
 cap marks, control over errorbar spacing, upper and lower limit marks.
 
+.. figure:: /gallery/mplot3d/images/sphx_glr_errorbar3d_001.png
+   :target: /gallery/mplot3d/errorbar3d.html
+
 Stem plots in 3D Axes
 ---------------------
 
@@ -725,6 +790,15 @@ New ``RangeSlider`` widget
 `.widgets.RangeSlider` allows for creating a slider that defines
 a range rather than a single value.
 
+.. plot::
+
+    fig, ax = plt.subplots(2, 1, figsize=(5, 1))
+    fig.subplots_adjust(left=0.2, right=0.8)
+
+    from matplotlib.widgets import Slider, RangeSlider
+    Slider(ax[0], 'Slider', 0, 1)
+    RangeSlider(ax[1], 'RangeSlider', 0, 1)
+
 Sliders can now snap to arbitrary values
 ----------------------------------------
 
@@ -736,9 +810,9 @@ Pausing and Resuming Animations
 -------------------------------
 
 The `.animation.Animation.pause` and `.animation.Animation.resume` methods
-allow you to pause and resume animations. These methods can be used as callbacks
-for event listeners on UI elements so that your plots can have some playback
-control UI.
+allow you to pause and resume animations. These methods can be used as
+callbacks for event listeners on UI elements so that your plots can have some
+playback control UI.
 
 
 Backend-specific improvements
