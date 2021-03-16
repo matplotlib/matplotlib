@@ -326,7 +326,7 @@
                           # unchanged. Set to 6 to obtain previous behavior. Values
                           # other than 0 or 6 have no defined meaning.
 #text.antialiased: True  # If True (default), the text will be antialiased.
-                         # This only affects the Agg backend.
+                         # This only affects raster outputs.
 
 ## The following settings allow you to select the fonts in math mode.
 #mathtext.fontset: dejavusans  # Should be 'dejavusans' (default),
