@@ -20,6 +20,6 @@ with plt.style.context('cheatsheet_gallery'):
     ax.imshow(Z, extent=[0, 8, 0, 8], interpolation="nearest",
               cmap=plt.get_cmap('Oranges'), vmin=0, vmax=1.6)
 
-    ax.set_xlim(0, 8), ax.set_xticks([])
-    ax.set_ylim(0, 8), ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     plt.show()

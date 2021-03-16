@@ -20,7 +20,9 @@ with plt.style.context('cheatsheet_gallery'):
     ax.barbs(X, Y, U, V, barbcolor="C1", flagcolor="C1",
              length=10, linewidth=1.5)
 
-ax.set_xlim(0, 8), ax.set_xticks(np.arange(1, 8))
-ax.set_ylim(0, 8), ax.set_yticks(np.arange(1, 8))
+ax.set_xlim(0, 8)
+ax.set_xticks(np.arange(1, 8))
+ax.set_ylim(0, 8)
+ax.set_yticks(np.arange(1, 8))
 
 plt.show()

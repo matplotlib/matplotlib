@@ -18,10 +18,11 @@ with plt.style.context('cheatsheet_gallery'):
                        showmeans=False, showmedians=False, showextrema=False)
     #style:
     for body in VP['bodies']:
-        body.set_facecolor('C1')
         body.set_alpha(0.9)
 
-ax.set_xlim(0, 8), ax.set_xticks(np.arange(1, 8))
-ax.set_ylim(0, 8), ax.set_yticks(np.arange(1, 8))
+ax.set_xlim(0, 8)
+ax.set_xticks(np.arange(1, 8))
+ax.set_ylim(0, 8)
+ax.set_yticks(np.arange(1, 8))
 
 plt.show()

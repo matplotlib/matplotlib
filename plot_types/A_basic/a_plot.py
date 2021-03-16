@@ -15,9 +15,10 @@ Y = 4 + 2 * np.sin(2 * X)
 with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
 
-    ax.plot(X, Y, color="C1", linewidth=2.0)
+    ax.plot(X, Y, linewidth=2.0)
 
-    ax.set_xlim(0, 8), ax.set_xticks(np.arange(1, 8))
-    ax.set_ylim(0, 8), ax.set_yticks(np.arange(1, 8))
-
+    ax.set_xlim(0, 8)
+    ax.set_xticks(np.arange(1, 8))
+    ax.set_ylim(0, 8)
+    ax.set_yticks(np.arange(1, 8))
     plt.show()

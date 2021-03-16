@@ -18,8 +18,8 @@ U = -np.diff(Z[:, 1:], axis=0)
 with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
     # contour stream function
-    ax.contour(X, Y, Z, colors='C0', alpha=0.5, zorder=1, linewidths=3)
+    ax.contour(X, Y, Z, colors='C1', alpha=0.5, zorder=1, linewidths=3)
     # plot stream plot
-    ax.streamplot(X[1:, 1:], Y[1:, 1:], U, V, color='C1', zorder=2)
+    ax.streamplot(X[1:, 1:], Y[1:, 1:], U, V, zorder=2)
 
 plt.show()

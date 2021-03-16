@@ -15,7 +15,7 @@ y = 1.2 * x + np.random.randn(5000)/3
 with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
 
-    ax.hexbin(x, y, gridsize=20, cmap=plt.get_cmap('Oranges'))
+    ax.hexbin(x, y, gridsize=20)
 
 ax.set_xlim(-2, 2)
 ax.set_ylim(-3, 3)

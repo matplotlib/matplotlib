@@ -24,7 +24,7 @@ with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
 
     ax.plot(x, y, '.k', alpha=0.5)
-    ax.tripcolor(x, y, z, cmap=plt.get_cmap('Oranges'))
+    ax.tripcolor(x, y, z)
 
     ax.set_xlim(-3, 3)
     ax.set_ylim(-3, 3)

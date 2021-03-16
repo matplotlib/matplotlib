@@ -16,7 +16,7 @@ levs = np.linspace(np.min(Z), np.max(Z), 7)
 with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
 
-    plt.contourf(X, Y, Z, levels=levs, cmap=plt.get_cmap('Oranges'))
+    plt.contourf(X, Y, Z, levels=levs)
     plt.contour(X, Y, Z, levels=levs, colors="white", linewidths=0.5)
 
     plt.show()

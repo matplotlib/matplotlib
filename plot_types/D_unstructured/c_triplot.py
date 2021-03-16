@@ -20,7 +20,7 @@ x = X[0, :][xsamp]
 with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
 
-    ax.triplot(x, y, color='C1')
+    ax.triplot(x, y)
 
     ax.set_xlim(-3, 3)
     ax.set_ylim(-3, 3)
