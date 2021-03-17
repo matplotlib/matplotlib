@@ -18,7 +18,7 @@ with plt.style.context('cheatsheet_gallery'):
     fig, ax = plt.subplots()
 
     ax.imshow(Z, extent=[0, 8, 0, 8], interpolation="nearest",
-              cmap=plt.get_cmap('Oranges'), vmin=0, vmax=1.6)
+              cmap=plt.get_cmap('Blues'), vmin=0, vmax=1.6)
 
     ax.set_xticks([])
     ax.set_yticks([])
