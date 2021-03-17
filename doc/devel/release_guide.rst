@@ -382,3 +382,13 @@ In addition, announcements should be made on social networks (twitter
 via the ``@matplotlib`` account, any other via personal accounts).
 `NumFOCUS <https://numfocus.org/>`__ should be contacted for
 inclusion in their newsletter.
+
+
+Conda packages
+==============
+
+The Matplotlib project itself does not release conda packages. In particular,
+the Matplotlib release manager is not responsible for conda packaging.
+
+For information on the packaging of Matplotlib for conda-forge see
+https://github.com/conda-forge/matplotlib-feedstock.
