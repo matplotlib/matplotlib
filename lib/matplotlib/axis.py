@@ -396,7 +396,7 @@ class Tick(martist.Artist):
             self.label2.set(rotation=self._labelrotation[1])
 
         label_kw = {k[5:]: v for k, v in kw.items()
-                    if k in ['labelsize', 'labelcolor']}
+                    if k in ['labelsize', 'labelcolor', 'labelfont']}
         self.label1.set(**label_kw)
         self.label2.set(**label_kw)
 
@@ -856,7 +856,7 @@ class Axis(martist.Artist):
     def _translate_tick_kw(kw):
         # The following lists may be moved to a more accessible location.
         kwkeys = ['size', 'width', 'color', 'tickdir', 'pad',
-                  'labelsize', 'labelcolor', 'zorder', 'gridOn',
+                  'labelsize', 'labelcolor', 'labelfont', 'zorder', 'gridOn',
                   'tick1On', 'tick2On', 'label1On', 'label2On',
                   'length', 'direction', 'left', 'bottom', 'right', 'top',
                   'labelleft', 'labelbottom', 'labelright', 'labeltop',
