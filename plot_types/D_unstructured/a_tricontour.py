@@ -6,6 +6,8 @@ tripcontour(x, y, z, [levels])
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.style.use('cheatsheet_gallery')
+
 # make structured data
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
 Z = (1 - X/2. + X**5 + Y**3)*np.exp(-X**2-Y**2)
@@ -20,14 +22,13 @@ x = X[0, :][xsamp]
 z = Z[ysamp, xsamp]
 
 # plot:
-with plt.style.context('cheatsheet_gallery'):
-    fig, ax = plt.subplots()
+fig, ax = plt.subplots()
 
-    ax.plot(x, y, '.k', alpha=0.5)
-    levs = np.linspace(np.min(Z), np.max(Z), 7)
-    ax.tricontourf(x, y, z, levels=levs)
+ax.plot(x, y, '.k', alpha=0.5)
+levs = np.linspace(np.min(Z), np.max(Z), 7)
+ax.tricontourf(x, y, z, levels=levs)
 
-    ax.set_xlim(-3, 3)
-    ax.set_ylim(-3, 3)
+ax.set_xlim(-3, 3)
+ax.set_ylim(-3, 3)
 
-    plt.show()
+plt.show()
