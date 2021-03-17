@@ -488,10 +488,6 @@ The new `.Colormap.set_extremes` method is provided for API symmetry with
 `.Colormap.with_extremes`, but note that it suffers from the same issue as the
 earlier individual setters.
 
-Additionally, it is now possible to set :rc:`image.cmap` to a `.Colormap`
-instance, such as a new colormap created with `~.Colormap.set_extremes`. (This
-can only be done from Python code, not from the :file:`matplotlibrc` file.)
-
 Get under/over/bad colors of Colormap objects
 ---------------------------------------------
 
@@ -700,6 +696,13 @@ same (TeX) font:
     ax.xaxis.set_major_formatter(ConciseDateFormatter(ax.xaxis.get_major_locator()))
     ax.set_xlabel('Date')
     ax.set_ylabel('Value')
+
+Setting *image.cmap* to a ``Colormap``
+--------------------------------------
+
+It is now possible to set :rc:`image.cmap` to a `.Colormap` instance, such as a
+colormap created with the new `~.Colormap.set_extremes` above. (This can only
+be done from Python code, not from the :file:`matplotlibrc` file.)
 
 The color of ticks and tick labels can be set independently using rcParams
 --------------------------------------------------------------------------
