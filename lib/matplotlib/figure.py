@@ -807,8 +807,7 @@ default: %(va)s
             Number of rows/columns of the subplot grid.
 
         sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
-            Controls sharing of properties among x (*sharex*) or y (*sharey*)
-            axes:
+            Controls sharing of x-axis (*sharex*) or y-axis (*sharey*):
 
             - True or 'all': x- or y-axis will be shared among all subplots.
             - False or 'none': each subplot x- or y-axis will be independent.
@@ -1672,8 +1671,8 @@ default: %(va)s
             layout = inspect.cleandoc(layout)
             return [list(ln) for ln in layout.strip('\n').split('\n')]
 
-    def subplot_mosaic(self, layout, *, subplot_kw=None, gridspec_kw=None,
-                       empty_sentinel='.'):
+    def subplot_mosaic(self, layout, *, sharex=False, sharey=False,
+                       subplot_kw=None, gridspec_kw=None, empty_sentinel='.'):
         """
         Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1683,7 +1682,6 @@ default: %(va)s
 
            This API is provisional and may be revised in the future based on
            early user feedback.
-
 
         Parameters
         ----------
@@ -1695,7 +1693,7 @@ default: %(va)s
                x = [['A panel', 'A panel', 'edge'],
                     ['C panel', '.',       'edge']]
 
-            Produces 4 Axes:
+            produces 4 Axes:
 
             - 'A panel' which is 1 row high and spans the first two columns
             - 'edge' which is 2 rows high and is on the right edge
@@ -1720,6 +1718,12 @@ default: %(va)s
 
             The string notation allows only single character Axes labels and
             does not support nesting but is very terse.
+
+        sharex, sharey : bool, default: False
+            If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
+            among all subplots.  In that case, tick label visibility and axis
+            units behave as for `subplots`.  If False, each subplot's x- or
+            y-axis will be independent.
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
@@ -1748,6 +1752,8 @@ default: %(va)s
         # special-case string input
         if isinstance(layout, str):
             layout = self._normalize_grid_string(layout)
+        # Only accept strict bools to allow a possible future API expansion.
+        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
 
         def _make_array(inp):
             """
@@ -1905,6 +1911,14 @@ default: %(va)s
         rows, cols = layout.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ret = _do_layout(gs, layout, *_identify_keys_and_nested(layout))
+        ax0 = next(iter(ret.values()))
+        for ax in ret.values():
+            if sharex:
+                ax.sharex(ax0)
+                ax._label_outer_xaxis()
+            if sharey:
+                ax.sharey(ax0)
+                ax._label_outer_yaxis()
         for k, ax in ret.items():
             if isinstance(k, str):
                 ax.set_label(k)
