@@ -22,6 +22,14 @@ being bumped:
 This is consistent with our :ref:`min_deps_policy` and `NEP29
 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`__
 
+Qhull downloaded at build-or-sdist time
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Much like FreeType, Qhull is now downloaded at build time, or upon creation of
+the sdist. To link against system Qhull, set the ``system_qhull`` option to
+`True` in the :file:`setup.cfg` file. Note that Matplotlib now requires the
+re-entrant version of Qhull (``qhull_r``).
+
 ``FigureBase`` class added, and ``Figure`` class made a child
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
