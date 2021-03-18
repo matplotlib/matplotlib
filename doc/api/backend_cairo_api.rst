@@ -1,6 +1,5 @@
-
-:mod:`matplotlib.backends.backend_cairo`
-========================================
+:mod:`.backend_cairo`
+=====================
 
 .. automodule:: matplotlib.backends.backend_cairo
    :members:

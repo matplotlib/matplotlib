@@ -1,3 +1,6 @@
+:mod:`.backend_qtagg`, :mod:`.backend_qtcairo`
+==============================================
+
 **NOTE** These backends are not documented here, to avoid adding a dependency
 to building the docs.
 
@@ -6,12 +9,7 @@ to building the docs.
 .. redirect-from:: /api/backend_qt5agg_api
 .. redirect-from:: /api/backend_qt5cairo_api
 
-:mod:`matplotlib.backends.backend_qt5agg`
-=========================================
-
+.. module:: matplotlib.backends.backend_qtagg
+.. module:: matplotlib.backends.backend_qtcairo
 .. module:: matplotlib.backends.backend_qt5agg
-
-:mod:`matplotlib.backends.backend_qt5cairo`
-===========================================
-
 .. module:: matplotlib.backends.backend_qt5cairo

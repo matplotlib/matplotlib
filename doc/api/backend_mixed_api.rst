@@ -1,6 +1,5 @@
-
-:mod:`matplotlib.backends.backend_mixed`
-========================================
+:mod:`.backend_mixed`
+=====================
 
 .. automodule:: matplotlib.backends.backend_mixed
    :members:

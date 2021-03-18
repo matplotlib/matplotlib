@@ -1,6 +1,5 @@
-
-:mod:`matplotlib.backends.backend_template`
-===========================================
+:mod:`.backend_template`
+========================
 
 .. automodule:: matplotlib.backends.backend_template
    :members:
