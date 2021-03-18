@@ -293,7 +293,6 @@ class RendererSVG(RendererBase):
         self._hatchd = OrderedDict()
         self._has_gouraud = False
         self._n_gradients = 0
-        self._fonts = OrderedDict()
 
         super().__init__()
         self._glyph_map = dict()
