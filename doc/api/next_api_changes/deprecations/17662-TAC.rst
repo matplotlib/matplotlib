@@ -2,8 +2,8 @@ Increase minimum supported versions of Python and dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-For Maptlotlib 3.4 the :ref:`minimum supported versions
-<install_requirements>` are being bumped
+For Maptlotlib 3.4 the :ref:`minimum supported versions <dependencies>`
+are being bumped
 
 +------------+-----------------+---------------+
 | Dependency |  min in mpl3.3  | min in mpl3.4 |

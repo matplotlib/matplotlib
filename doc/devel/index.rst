@@ -40,6 +40,7 @@ process or how to fix something feel free to ask on `gitter
    gitwash/index.rst
    coding_guide.rst
    release_guide.rst
+   dependencies.rst
    min_dep_policy.rst
    MEP/index
 
