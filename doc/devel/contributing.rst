@@ -78,6 +78,8 @@ use to organize this information.
 
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
 
+.. _request-a-new-feature:
+
 Requesting a new feature
 ========================
 
