@@ -812,7 +812,7 @@ class ConciseDateFormatter(ticker.Formatter):
         #    year, month, day etc.
         # fmt for most ticks at this level
         fmts = self.formats
-        # format beginnings of days, months, years, etc...
+        # format beginnings of days, months, years, etc.
         zerofmts = self.zero_formats
         # offset fmt are for the offset in the upper left of the
         # or lower right of the axis.
@@ -888,48 +888,48 @@ class AutoDateFormatter(ticker.Formatter):
     A `.Formatter` which attempts to figure out the best format to use.  This
     is most useful when used with the `AutoDateLocator`.
 
-    The AutoDateFormatter has a scale dictionary that maps the scale
-    of the tick (the distance in days between one major tick) and a
-    format string.  The default looks like this::
+    `.AutoDateFormatter` has a ``.scale`` dictionary that maps tick scales (the
+    interval in days between one major tick) to format strings; this dictionary
+    defaults to ::
 
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformat.year'],
             DAYS_PER_MONTH: rcParams['date.autoformat.month'],
-            1.0: rcParams['date.autoformat.day'],
-            1. / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
-            1. / (MINUTES_PER_DAY): rcParams['date.autoformat.minute'],
-            1. / (SEC_PER_DAY): rcParams['date.autoformat.second'],
-            1. / (MUSECONDS_PER_DAY): rcParams['date.autoformat.microsecond'],
+            1: rcParams['date.autoformat.day'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformat.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformat.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformat.microsecond'],
         }
 
-    The algorithm picks the key in the dictionary that is >= the
-    current scale and uses that format string.  You can customize this
-    dictionary by doing::
+    The formatter uses the format string corresponding to the lowest key in
+    the dictionary that is greater or equal to the current scale.  Dictionary
+    entries can be customized::
 
-    >>> locator = AutoDateLocator()
-    >>> formatter = AutoDateFormatter(locator)
-    >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
+        locator = AutoDateLocator()
+        formatter = AutoDateFormatter(locator)
+        formatter.scaled[1/(24*60)] = '%M:%S' # only show min and sec
 
-    A custom `.FuncFormatter` can also be used.  The following example shows
-    how to use a custom format function to strip trailing zeros from decimal
-    seconds and adds the date to the first ticklabel::
+    Custom callables can also be used instead of format strings.  The following
+    example shows how to use a custom format function to strip trailing zeros
+    from decimal seconds and adds the date to the first ticklabel::
 
-        >>> def my_format_function(x, pos=None):
-        ...     x = matplotlib.dates.num2date(x)
-        ...     if pos == 0:
-        ...         fmt = '%D %H:%M:%S.%f'
-        ...     else:
-        ...         fmt = '%H:%M:%S.%f'
-        ...     label = x.strftime(fmt)
-        ...     label = label.rstrip("0")
-        ...     label = label.rstrip(".")
-        ...     return label
-        >>> from matplotlib.ticker import FuncFormatter
-        >>> formatter.scaled[1/(24.*60.)] = FuncFormatter(my_format_function)
+        def my_format_function(x, pos=None):
+            x = matplotlib.dates.num2date(x)
+            if pos == 0:
+                fmt = '%D %H:%M:%S.%f'
+            else:
+                fmt = '%H:%M:%S.%f'
+            label = x.strftime(fmt)
+            label = label.rstrip("0")
+            label = label.rstrip(".")
+            return label
+
+        formatter.scaled[1/(24*60)] = my_format_function
     """
 
     # This can be improved by providing some user-level direction on
-    # how to choose the best format (precedence, etc...)
+    # how to choose the best format (precedence, etc.).
 
     # Perhaps a 'struct' that has a field for each time-type where a
     # zero would indicate "don't show" and a number would indicate
