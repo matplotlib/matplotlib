@@ -16,11 +16,6 @@ call their methods to add content and modify the apprearance.
   - :doc:`axes_api`: most plotting methods, Axes labels, access to 
     axis styling, etc.  
 
-   
-(Note that there is also a parallel `matplotlib.pyplot` API interface 
-that is considered useful for interactive work; see 
-:ref:`usage patterns <usage_patterns>`, below).
-
 Example: We create a Figure ``fig`` and Axes ``ax``. Then we call
 methods on them to plot data, add axis labels and a figure title.
  
