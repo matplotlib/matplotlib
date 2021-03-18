@@ -69,6 +69,25 @@ See :doc:`/gallery/subplots_axes_and_figures/subfigures` for further details.
 
     plt.show()
 
+Single-line string notation for ``subplot_mosaic``
+--------------------------------------------------
+
+`.Figure.subplot_mosaic` and `.pyplot.subplot_mosaic` now accept a single-line
+string, using semicolons to delimit rows. Namely, ::
+
+    plt.subplot_mosaic(
+        """
+        AB
+        CC
+        """)
+
+may be written as the shorter:
+
+.. plot::
+    :include-source:
+
+    plt.subplot_mosaic("AB;CC")
+
 Changes to behavior of Axes creation methods (``gca``, ``add_axes``, ``add_subplot``)
 -------------------------------------------------------------------------------------
 
@@ -219,6 +238,24 @@ must match the size of *x*).
                    errorevery=[False, True, True, False, True] * 3)
     ax[1].set_title('errorevery=[False, True, True, False, True] * 3')
 
+``hexbin`` supports data reference for *C* parameter
+----------------------------------------------------
+
+As with the *x* and *y* parameters, `.Axes.hexbin` now supports passing the *C*
+parameter using a data reference.
+
+.. plot::
+    :include-source:
+
+    data = {
+        'a': np.random.rand(1000),
+        'b': np.random.rand(1000),
+        'c': np.random.rand(1000),
+    }
+
+    fig, ax = plt.subplots()
+    ax.hexbin('a', 'b', C='c', data=data, gridsize=10)
+
 Support callable for formatting of Sankey labels
 ------------------------------------------------
 
@@ -348,6 +385,16 @@ nothing.
             ax.text(0.5, 2*i + j, arrowstyle,
                     verticalalignment='bottom', horizontalalignment='center')
             ax.add_patch(patch)
+
+``TickedStroke`` patheffect
+---------------------------
+
+The new `.TickedStroke` patheffect can be used to produce lines with a ticked
+style. This can be used to, e.g., distinguish the valid and invalid sides of
+the constraint boundaries in the solution space of optimizations.
+
+.. figure:: /gallery/misc/images/sphx_glr_tickedstroke_demo_002.png
+   :target: /gallery/misc/tickedstroke_demo.html
 
 
 Colors and colormaps
@@ -501,8 +548,8 @@ New ``cm.unregister_cmap`` function
 `.cm.unregister_cmap` allows users to remove a colormap that they have
 previously registered.
 
-New CenteredNorm for symmetrical data around a center
------------------------------------------------------
+New ``CenteredNorm`` for symmetrical data around a center
+---------------------------------------------------------
 
 In cases where data is symmetrical around a center, for example, positive and
 negative anomalies around a center zero, `~.matplotlib.colors.CenteredNorm` is
@@ -532,6 +579,41 @@ unsaturated color in its center.
 If the center of symmetry is different from 0, it can be set with the *vcenter*
 argument. To manually set the range of `~.matplotlib.colors.CenteredNorm`, use
 the *halfrange* argument.
+
+See :doc:`/tutorials/colors/colormapnorms` for an example and more details
+about data normalization.
+
+New ``FuncNorm`` for arbitrary normalizations
+---------------------------------------------
+
+The `.FuncNorm` allows for arbitrary normalization using functions for the
+forward and inverse.
+
+.. plot::
+
+    from matplotlib.colors import FuncNorm
+
+    def forward(x):
+        return x**2
+    def inverse(x):
+        return np.sqrt(x)
+
+    norm = FuncNorm((forward, inverse), vmin=0, vmax=3)
+
+    np.random.seed(20201004)
+    data = np.random.normal(size=(3, 4), loc=1)
+
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(data, norm=norm)
+    fig.colorbar(pc)
+    ax.set_title('squared normalization')
+
+    # add text annotation
+    for irow, data_row in enumerate(data):
+        for icol, val in enumerate(data_row):
+            ax.text(icol + 0.5, irow + 0.5, f'{val:.2f}', color='C0',
+                    size=16, va='center', ha='center')
+    plt.show()
 
 See :doc:`/tutorials/colors/colormapnorms` for an example and more details
 about data normalization.
@@ -634,6 +716,40 @@ of the transform affect the text direction.
     math_expr = r"$ x \overset{f}{\rightarrow} y \underset{f}{\leftarrow} z $"
     plt.text(0.4, 0.5, math_expr, usetex=False)
 
+*math_fontfamily* parameter to change ``Text`` font family
+----------------------------------------------------------
+
+The new *math_fontfamily* parameter may be used to change the family of fonts
+for each individual text element in a plot. If no parameter is set, the global
+value :rc:`mathtext.fontset` will be used.
+
+.. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_mathtext_fontfamily_example_001.png
+   :target: /gallery/text_labels_and_annotations/mathtext_fontfamily_example.html
+
+``TextArea``/``AnchoredText`` support *horizontalalignment*
+-----------------------------------------------------------
+
+The horizontal alignment of text in a `.TextArea` or `.AnchoredText` may now be
+specified, which is mostly effective for multiline text:
+
+.. plot::
+
+    from matplotlib.offsetbox import AnchoredText
+
+    fig, ax = plt.subplots()
+
+    text0 = AnchoredText("test\ntest long text", loc="center left",
+                         pad=0.2, prop={"ha": "left"})
+    ax.add_artist(text0)
+
+    text1 = AnchoredText("test\ntest long text", loc="center",
+                         pad=0.2, prop={"ha": "center"})
+    ax.add_artist(text1)
+
+    text2 = AnchoredText("test\ntest long text", loc="center right",
+                         pad=0.2, prop={"ha": "right"})
+    ax.add_artist(text2)
+
 PDF supports URLs on ``Text`` artists
 -------------------------------------
 
@@ -704,8 +820,8 @@ It is now possible to set :rc:`image.cmap` to a `.Colormap` instance, such as a
 colormap created with the new `~.Colormap.set_extremes` above. (This can only
 be done from Python code, not from the :file:`matplotlibrc` file.)
 
-The color of ticks and tick labels can be set independently using rcParams
---------------------------------------------------------------------------
+Tick and tick label colors can be set independently using rcParams
+------------------------------------------------------------------
 
 Previously, :rc:`xtick.color` defined both the tick color and the label color.
 The label color can now be set independently using :rc:`xtick.labelcolor`. It
@@ -818,6 +934,32 @@ callbacks for event listeners on UI elements so that your plots can have some
 playback control UI.
 
 
+Sphinx extensions
+=================
+
+``plot_directive`` *caption* option
+-----------------------------------
+
+Captions were previously supported when using the ``plot_directive`` directive
+with an external source file by specifying content::
+
+    .. plot:: path/to/plot.py
+
+        This is the caption for the plot.
+
+The ``:caption:`` option allows specifying the caption for both external::
+
+    .. plot:: path/to/plot.py
+        :caption: This is the caption for the plot.
+
+and inline plots::
+
+    .. plot::
+        :caption: This is a caption for the plot.
+
+        plt.plot([1, 2, 3])
+
+
 Backend-specific improvements
 =============================
 
@@ -834,3 +976,62 @@ significantly smaller file sizes.
 To ensure this happens do not place vector elements between raster ones.
 
 To inhibit this merging set ``Figure.suppressComposite`` to True.
+
+Support raw/rgba frame format in ``FFMpegFileWriter``
+-----------------------------------------------------
+
+When using `.FFMpegFileWriter`, the  *frame_format* may now be set to ``"raw"``
+or ``"rgba"``, which may be slightly faster than an image format, as no
+encoding/decoding need take place between Matplotlib and FFmpeg.
+
+nbAgg/WebAgg support middle-click and double-click
+--------------------------------------------------
+
+Double click events are now supported by the nbAgg and WebAgg backends.
+Formerly, WebAgg would report middle-click events as right clicks, but now
+reports the correct button type.
+
+nbAgg support binary communication
+----------------------------------
+
+If the web browser and notebook support binary websockets, nbAgg will now use
+them for slightly improved transfer of figure display.
+
+Indexed color for PNG images in PDF files when possible
+-------------------------------------------------------
+
+When PNG images have 256 colors or fewer, they are converted to indexed color
+before saving them in a PDF. This can result in a significant reduction in file
+size in some cases. This is particularly true for raster data that uses a
+colormap but no interpolation, such as Healpy mollview plots. Currently, this
+is only done for RGB images.
+
+Improved font subsettings in PDF/PS
+-----------------------------------
+
+Font subsetting in PDF and PostScript has been re-written from the embedded
+``ttconv`` C code to Python. Some composite characters and outlines may have
+changed slightly. This fixes ttc subsetting in PDF, and adds support for
+subsetting of type 3 OTF fonts, resulting in smaller files (much smaller when
+using CJK fonts), and avoids running into issues with type 42 embedding and
+certain PDF readers such as Acrobat Reader.
+
+Kerning added to strings in PDFs
+--------------------------------
+
+As with text produced in the Agg backend (see :ref:`the previous what's new
+entry <whats-new-3-2-0-kerning>` for examples), PDFs now include kerning in
+text strings. 
+
+Fully-fractional HiDPI in QtAgg
+-------------------------------
+
+Fully-fractional HiDPI (that is, HiDPI ratios that are not whole integers) was
+added in Qt 5.14, and is now supported by the QtAgg backend when using this
+version of Qt or newer.
+
+wxAgg supports fullscreen toggle
+--------------------------------
+
+The wxAgg backend supports toggling fullscreen using the :kbd:`f` shortcut, or
+the manager function `.FigureManagerBase.full_screen_toggle`.
