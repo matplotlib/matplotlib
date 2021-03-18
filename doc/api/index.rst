@@ -1,6 +1,11 @@
 API
 ===
 
+.. toctree::
+   :hidden:
+
+   api_changes
+
 For recent changes, see :doc:`api_changes`.
 
 Much of the library can be accessed by creating :doc:`Figure <figure_api>` 
