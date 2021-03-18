@@ -8,15 +8,20 @@ API
 
 For recent changes, see :doc:`api_changes`.
 
-Much of the library can be accessed by creating :doc:`Figure <figure_api>` 
-and :doc:`Axes <axes_api>` objects and accessing methods on them. 
+Much of the library is accessed by creating :doc:`Figure <figure_api>` 
+and :doc:`Axes <axes_api>` objects and calling methods on them. 
 
   - :doc:`figure_api`: axes creation, figure-level artists
   - :doc:`axes_api`: most plotting methods, axes labels, access to 
     axis styling, etc.  
 
-Simple example: note how the ``ax`` object has the `.axes.Axes.plot` method 
-that is used to create the line plot. 
+   
+(Note that there is also a parallel `matplotlib.pyplot` API interface 
+that is considered useful for interactive work; see 
+:ref:`usage patterns <usage_patterns>`, below).
+
+Simple example: the ``ax`` object has an `.axes.Axes.plot` method 
+that is used to create the line plot.   
  
 .. plot::
    :include-source:
@@ -125,7 +130,9 @@ Matplotlib. The following toolkits are included:
    toolkits/axisartist.rst
    toolkits/axes_grid.rst
 
-   
+
+.. _usage_patterns:
+
 Usage patterns
 --------------
 
