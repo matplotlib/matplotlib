@@ -1,5 +1,5 @@
 """
-A Cairo backend for matplotlib
+A Cairo backend for Matplotlib
 ==============================
 :Author: Steve Chaplin and others
 
