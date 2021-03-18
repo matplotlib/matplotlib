@@ -8,11 +8,12 @@ API
 
 For recent changes, see :doc:`api_changes`.
 
-Much of the library is accessed by creating :doc:`Figure <figure_api>` 
-and :doc:`Axes <axes_api>` objects and calling methods on them. 
+When using the library you will typically create
+:doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and 
+call their methods to add content and modify the apprearance.
 
-  - :doc:`figure_api`: axes creation, figure-level artists
-  - :doc:`axes_api`: most plotting methods, axes labels, access to 
+  - :doc:`figure_api`: axes creation, figure-level content
+  - :doc:`axes_api`: most plotting methods, Axes labels, access to 
     axis styling, etc.  
 
    
@@ -20,8 +21,8 @@ and :doc:`Axes <axes_api>` objects and calling methods on them.
 that is considered useful for interactive work; see 
 :ref:`usage patterns <usage_patterns>`, below).
 
-Simple example: the ``ax`` object has an `.axes.Axes.plot` method 
-that is used to create the line plot.   
+Example: We create a Figure ``fig`` and Axes ``ax``. Then we call
+methods on them to plot data, add axis labels and a figure title.
  
 .. plot::
    :include-source:
@@ -43,7 +44,7 @@ that is used to create the line plot.
 Modules
 -------
 
-Alphabetical list of all submodules:
+Alphabetical list of submodules:
 
 .. toctree::
    :maxdepth: 1
@@ -141,7 +142,7 @@ Below we describe several common approaches to plotting with Matplotlib.
 The pyplot API
 ^^^^^^^^^^^^^^
 
-`matplotlib.pyplot` is a collection of command style functions that make
+`matplotlib.pyplot` is a collection of functions that make
 Matplotlib work like MATLAB. Each pyplot function makes some change to a
 figure: e.g., creates a figure, creates a plotting area in a figure, plots
 some lines in a plotting area, decorates the plot with labels, etc.
