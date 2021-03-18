@@ -1,6 +1,7 @@
 """
-A PDF matplotlib backend
-Author: Jouni K Seppänen <jks@iki.fi>
+A PDF Matplotlib backend.
+
+Author: Jouni K Seppänen <jks@iki.fi> and others.
 """
 
 import codecs
