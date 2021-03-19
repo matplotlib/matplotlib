@@ -1,6 +1,0 @@
-
-Add ``cm.unregister_cmap`` function
------------------------------------
-
-`.cm.unregister_cmap` allows users to remove a colormap that they
-have previously registered.
