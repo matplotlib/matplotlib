@@ -397,7 +397,8 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if isinstance(self._picker, Number):
+        if (isinstance(self._picker, Number) and
+                not isinstance(self._picker, bool)):
             self.pickradius = self._picker
 
         self._xorig = np.asarray([])
