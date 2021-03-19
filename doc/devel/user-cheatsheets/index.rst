@@ -1,4 +1,4 @@
-.. _cheatsheets-index:
+.. _user-cheatsheets-index:
 
 .. include:: README.rst
 
@@ -8,12 +8,8 @@
    :Date: |today|
 
 .. toctree::
-   :maxdepth: 1
-
-   template
-
-.. toctree::
    :glob:
    :maxdepth: 1
 
-   excel.rst
+   matplotlib-for-excel-users
+   matplotlib-for-tableau-users

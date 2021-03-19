@@ -2,6 +2,9 @@
 Matplotlib for Excel users
 ===========================
 
+.. contents::
+    :local:
+
 Introduction
 --------------
 

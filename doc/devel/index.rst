@@ -41,9 +41,8 @@ process or how to fix something feel free to ask on `gitter
    coding_guide.rst
    release_guide.rst
    min_dep_policy.rst
-   switching_to_matplotlib.rst
    MEP/index
-   cheatsheets/index
+   user-cheatsheets/index
 
 .. toctree::
    :hidden:
