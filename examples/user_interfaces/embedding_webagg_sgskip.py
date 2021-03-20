@@ -11,10 +11,12 @@ Tornado-based server "on the side".
 The framework being used must support web sockets.
 """
 
+import argparse
 import io
 import json
 import mimetypes
 from pathlib import Path
+import socket
 
 try:
     import tornado
@@ -238,13 +240,23 @@ class MyApplication(tornado.web.Application):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', type=int, default=8080,
+                        help='Port to listen on (0 for a random port).')
+    args = parser.parse_args()
+
     figure = create_figure()
     application = MyApplication(figure)
 
     http_server = tornado.httpserver.HTTPServer(application)
-    http_server.listen(8080)
+    sockets = tornado.netutil.bind_sockets(args.port, '')
+    http_server.add_sockets(sockets)
 
-    print("http://127.0.0.1:8080/")
+    for s in sockets:
+        addr, port = s.getsockname()[:2]
+        if s.family is socket.AF_INET6:
+            addr = f'[{addr}]'
+        print(f"Listening on http://{addr}:{port}/")
     print("Press Ctrl+C to quit")
 
     tornado.ioloop.IOLoop.instance().start()
