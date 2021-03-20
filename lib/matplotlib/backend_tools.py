@@ -38,42 +38,31 @@ class ToolBase:
     """
     Base tool class.
 
-    A base tool, only implements `trigger` method or not method at all.
+    A base tool, only implements `trigger` method or no method at all.
     The tool is instantiated by `matplotlib.backend_managers.ToolManager`.
-
-    Attributes
-    ----------
-    toolmanager : `matplotlib.backend_managers.ToolManager`
-        ToolManager that controls this Tool.
-    figure : `FigureCanvas`
-        Figure instance that is affected by this Tool.
-    name : str
-        Used as **Id** of the tool, has to be unique among tools of the same
-        ToolManager.
     """
 
     default_keymap = None
     """
     Keymap to associate with this tool.
 
-    **String**: List of comma separated keys that will be used to call this
-    tool when the keypress event of ``self.figure.canvas`` is emitted.
+    ``list[str]``: List of keys that will trigger this tool when a keypress
+    event is emitted on ``self.figure.canvas``.
     """
 
     description = None
     """
     Description of the Tool.
 
-    **String**: If the Tool is included in the Toolbar this text is used
-    as a Tooltip.
+    `str`: Tooltip used if the Tool is included in a Toolbar.
     """
 
     image = None
     """
     Filename of the image.
 
-    **String**: Filename of the image to use in the toolbar. If None, the
-    *name* is used as a label in the toolbar button.
+    `str`: Filename of the image to use in a Toolbar.  If None, the *name* is
+    used as a label in the toolbar button.
     """
 
     def __init__(self, toolmanager, name):
@@ -81,23 +70,26 @@ class ToolBase:
         self._toolmanager = toolmanager
         self._figure = None
 
+    name = property(
+        lambda self: self._name,
+        doc="The tool id (str, must be unique among tools of a tool manager).")
+    toolmanager = property(
+        lambda self: self._toolmanager,
+        doc="The `.ToolManager` that controls this tool.")
+    canvas = property(
+        lambda self: self._figure.canvas if self._figure is not None else None,
+        doc="The canvas of the figure affected by this tool, or None.")
+
     @property
     def figure(self):
+        """The Figure affected by this tool, or None."""
         return self._figure
 
     @figure.setter
     def figure(self, figure):
-        self.set_figure(figure)
+        self._figure = figure
 
-    @property
-    def canvas(self):
-        if not self._figure:
-            return None
-        return self._figure.canvas
-
-    @property
-    def toolmanager(self):
-        return self._toolmanager
+    set_figure = figure.fset
 
     def _make_classic_style_pseudo_toolbar(self):
         """
@@ -108,22 +100,11 @@ class ToolBase:
         """
         return SimpleNamespace(canvas=self.canvas)
 
-    def set_figure(self, figure):
-        """
-        Assign a figure to the tool.
-
-        Parameters
-        ----------
-        figure : `.Figure`
-        """
-        self._figure = figure
-
     def trigger(self, sender, event, data=None):
         """
         Called when this tool gets used.
 
-        This method is called by
-        `matplotlib.backend_managers.ToolManager.trigger_tool`.
+        This method is called by `.ToolManager.trigger_tool`.
 
         Parameters
         ----------
@@ -136,17 +117,11 @@ class ToolBase:
         """
         pass
 
-    @property
-    def name(self):
-        """Tool Id."""
-        return self._name
-
     def destroy(self):
         """
         Destroy the tool.
 
-        This method is called when the tool is removed by
-        `matplotlib.backend_managers.ToolManager.remove_tool`.
+        This method is called by `.ToolManager.remove_tool`.
         """
         pass
 
@@ -167,10 +142,10 @@ class ToolToggleBase(ToolBase):
     """
 
     radio_group = None
-    """Attribute to group 'radio' like tools (mutually exclusive).
+    """
+    Attribute to group 'radio' like tools (mutually exclusive).
 
-    **String** that identifies the group or **None** if not belonging to a
-    group.
+    `str` that identifies the group or **None** if not belonging to a group.
     """
 
     cursor = None
@@ -217,7 +192,6 @@ class ToolToggleBase(ToolBase):
     @property
     def toggled(self):
         """State of the toggled tool."""
-
         return self._toggled
 
     def set_figure(self, figure):
