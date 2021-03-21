@@ -206,12 +206,12 @@ tools:
 
 * Code with a good unittest coverage (at least 70%, better 100%), check with::
 
-   python -mpip install coverage
-   python -mpytest --cov=matplotlib --showlocals -v
+   python -m pip install coverage
+   python -m pytest --cov=matplotlib --showlocals -v
 
 * No pyflakes warnings, check with::
 
-   python -mpip install pyflakes
+   python -m pip install pyflakes
    pyflakes path/to/module.py
 
 .. note::
