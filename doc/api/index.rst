@@ -44,6 +44,7 @@ Alphabetical list of submodules:
 
 .. toctree::
    :maxdepth: 1
+   :class: multicol-toc
 
    matplotlib_configuration_api.rst
    afm_api.rst
