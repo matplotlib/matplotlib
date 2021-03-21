@@ -15,7 +15,6 @@ import itertools
 import operator
 import os
 from pathlib import Path
-import re
 import shlex
 import subprocess
 import sys
@@ -565,14 +564,6 @@ def get_realpath_and_stat(path):
     stat = os.stat(realpath)
     stat_key = (stat.st_ino, stat.st_dev)
     return realpath, stat_key
-
-
-# A regular expression used to determine the amount of space to
-# remove.  It looks for the first sequence of spaces immediately
-# following the first newline, or at the beginning of the string.
-_find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
-# A cache to hold the regexs that actually remove the indent.
-_dedent_regex = {}
 
 
 class maxdict(dict):
