@@ -39,6 +39,8 @@ The Matplotlib Development Team is the set of all contributors to the
 matplotlib project.  A full list can be obtained from the git version
 control logs.
 
+.. _license-agreement:
+
 License agreement
 =================
 
