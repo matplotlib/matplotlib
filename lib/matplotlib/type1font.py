@@ -157,7 +157,7 @@ class Type1Font:
             if match:
                 yield (tok_whitespace, match.group())
                 pos = match.end()
-            elif text[pos] == b'(':
+            elif text[pos:pos+1] == b'(':
                 start = pos
                 pos += 1
                 depth = 1
@@ -176,7 +176,7 @@ class Type1Font:
             elif text[pos:pos + 2] in (b'<<', b'>>'):
                 yield (tok_delimiter, text[pos:pos + 2])
                 pos += 2
-            elif text[pos] == b'<':
+            elif text[pos:pos+1] == b'<':
                 start = pos
                 pos = text.index(b'>', pos)
                 yield (tok_string, text[start:pos])
