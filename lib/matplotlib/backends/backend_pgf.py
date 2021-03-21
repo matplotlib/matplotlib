@@ -855,38 +855,35 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def print_pdf(self, fname_or_fh, *, metadata=None, **kwargs):
         """Use LaTeX to compile a pgf generated figure to pdf."""
-        w, h = self.figure.get_figwidth(), self.figure.get_figheight()
+        w, h = self.figure.get_size_inches()
 
         info_dict = _create_pdf_info_dict('pgf', metadata or {})
-        hyperref_options = ','.join(
+        pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in info_dict.items())
 
+        # print figure to pgf and compile it with latex
         with TemporaryDirectory() as tmpdir:
             tmppath = pathlib.Path(tmpdir)
-
-            # print figure to pgf and compile it with latex
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
-
-            latexcode = """
-\\PassOptionsToPackage{pdfinfo={%s}}{hyperref}
-\\RequirePackage{hyperref}
-\\documentclass[12pt]{minimal}
-\\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
-%s
-%s
-\\usepackage{pgf}
-
-\\begin{document}
-\\centering
-\\input{figure.pgf}
-\\end{document}""" % (hyperref_options, w, h, get_preamble(), get_fontspec())
-            (tmppath / "figure.tex").write_text(latexcode, encoding="utf-8")
-
+            (tmppath / "figure.tex").write_text(
+                "\n".join([
+                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+                    r"\RequirePackage{hyperref}",
+                    r"\documentclass[12pt]{minimal}",
+                    r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
+                    % (w, h),
+                    get_preamble(),
+                    get_fontspec(),
+                    r"\usepackage{pgf}",
+                    r"\begin{document}",
+                    r"\centering",
+                    r"\input{figure.pgf}",
+                    r"\end{document}",
+                ]), encoding="utf-8")
             texcommand = mpl.rcParams["pgf.texsystem"]
             cbook._check_and_log_subprocess(
                 [texcommand, "-interaction=nonstopmode", "-halt-on-error",
                  "figure.tex"], _log, cwd=tmpdir)
-
             with (tmppath / "figure.pdf").open("rb") as orig, \
                  cbook.open_file_cm(fname_or_fh, "wb") as dest:
                 shutil.copyfileobj(orig, dest)  # copy file contents to target
@@ -990,36 +987,20 @@ class PdfPages:
         self._file = BytesIO()
 
     def _write_header(self, width_inches, height_inches):
-        hyperref_options = ','.join(
+        pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
-
-        latex_preamble = get_preamble()
-        latex_fontspec = get_fontspec()
-        latex_header = r"""\PassOptionsToPackage{{
-  pdfinfo={{
-    {metadata}
-  }}
-}}{{hyperref}}
-\RequirePackage{{hyperref}}
-\documentclass[12pt]{{minimal}}
-\usepackage[
-    paperwidth={width}in,
-    paperheight={height}in,
-    margin=0in
-]{{geometry}}
-{preamble}
-{fontspec}
-\usepackage{{pgf}}
-\setlength{{\parindent}}{{0pt}}
-
-\begin{{document}}%%
-""".format(
-            width=width_inches,
-            height=height_inches,
-            preamble=latex_preamble,
-            fontspec=latex_fontspec,
-            metadata=hyperref_options,
-        )
+        latex_header = "\n".join([
+            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+            r"\RequirePackage{hyperref}",
+            r"\documentclass[12pt]{minimal}",
+            r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
+            % (width_inches, height_inches),
+            get_preamble(),
+            get_fontspec(),
+            r"\usepackage{pgf}",
+            r"\setlength{\parindent}{0pt}",
+            r"\begin{document}%",
+        ])
         self._file.write(latex_header.encode('utf-8'))
 
     def __enter__(self):
