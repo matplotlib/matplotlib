@@ -40,11 +40,10 @@ methods on them to plot data, add axis labels and a figure title.
 Modules
 -------
 
-Alphabetical list of submodules:
+Alphabetical list of modules:
 
 .. toctree::
    :maxdepth: 1
-   :class: multicol-toc
 
    matplotlib_configuration_api.rst
    afm_api.rst
