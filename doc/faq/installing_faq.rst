@@ -56,7 +56,7 @@ dependencies will be installed as well.
 If, for some reason, you cannot use the package manager, you may use the wheels
 available on PyPI::
 
-   python -mpip install matplotlib
+   python -m pip install matplotlib
 
 or :ref:`build Matplotlib from source <install-from-git>`.
 

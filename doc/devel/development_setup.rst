@@ -58,7 +58,7 @@ development source directory.  This allows you to import your modified version
 of Matplotlib without re-installing after every change. Note that this is only
 true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
-``python -mpip install -ve .``
+``python -m pip install -ve .``
 
 .. _test-dependencies:
 
