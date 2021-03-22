@@ -41,7 +41,7 @@ precompiled wheel for your OS and Python.
 Third-party distributions
 =========================
 
-Various third-parties provide Matplotlib for their environements.
+Various third-parties provide Matplotlib for their environments.
 
 Conda packages
 ==============
