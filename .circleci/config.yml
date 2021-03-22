@@ -54,9 +54,9 @@ commands:
       - run:
           name: Upgrade pip, setuptools, wheel
           command: |
-            python -mpip install --upgrade --user pip
-            python -mpip install --upgrade --user wheel
-            python -mpip install --upgrade --user setuptools
+            python -m pip install --upgrade --user pip
+            python -m pip install --upgrade --user wheel
+            python -m pip install --upgrade --user setuptools
 
   deps-install:
     parameters:
@@ -67,14 +67,14 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
-            python -mpip install --user numpy<< parameters.numpy_version >> codecov coverage
-            python -mpip install --user -r requirements/doc/doc-requirements.txt
+            python -m pip install --user numpy<< parameters.numpy_version >> codecov coverage
+            python -m pip install --user -r requirements/doc/doc-requirements.txt
 
   mpl-install:
     steps:
       - run:
           name: Install Matplotlib
-          command: python -mpip install --user -ve .
+          command: python -m pip install --user -ve .
 
   doc-build:
     steps:
