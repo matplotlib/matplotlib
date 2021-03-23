@@ -297,17 +297,12 @@ packages as static images::
 
 as rendered on the page: :ref:`thirdparty-index`.
 
-Files can be included verbatim.  For instance the ``matplotlibrc`` file
-is important for customizing Matplotlib, and is included verbatim in the
-tutorial in :doc:`/tutorials/introductory/customizing`::
+Files can be included verbatim.  For instance the ``LICENSE`` file is included
+at :ref:`license-agreement` using ::
 
-    .. literalinclude:: ../../_static/matplotlibrc
+    .. literalinclude:: ../../LICENSE/LICENSE
 
-This is rendered at the bottom of :doc:`/tutorials/introductory/customizing`.
-Note that this is in a tutorial; see :ref:`writing-examples-and-tutorials`
-below.
-
-The examples directory is also copied to :file:`doc/gallery` by sphinx-gallery,
+The examples directory is copied to :file:`doc/gallery` by sphinx-gallery,
 so plots from the examples directory can be included using
 
 .. code-block:: rst
@@ -585,7 +580,7 @@ Setters and getters
 -------------------
 
 Artist properties are implemented using setter and getter methods (because
-Matplotlib predates the introductions of the `property` decorator in Python).
+Matplotlib predates the Python `property` decorator).
 By convention, these setters and getters are named ``set_PROPERTYNAME`` and
 ``get_PROPERTYNAME``; the list of properties thusly defined on an artist and
 their values can be listed by the `~.pyplot.setp` and `~.pyplot.getp` functions.
@@ -748,7 +743,7 @@ Adding figures
 --------------
 
 As above (see :ref:`rst-figures-and-includes`), figures in the examples gallery
-can be referenced with a ``:plot:`` directive pointing to the python script
+can be referenced with a ``.. plot::`` directive pointing to the python script
 that created the figure.  For instance the `~.Axes.legend` docstring references
 the file :file:`examples/text_labels_and_annotations/legend.py`:
 
@@ -963,18 +958,10 @@ google docs to the mplgithub account.
 Generating inheritance diagrams
 -------------------------------
 
-Class inheritance diagrams can be generated with the
-``inheritance-diagram`` directive.  To use it, provide the
-directive with a number of class or module names (separated by
-whitespace).  If a module name is provided, all classes in that module
-will be used.  All of the ancestors of these classes will be included
-in the inheritance diagram.
+Class inheritance diagrams can be generated with the Sphinx
+`inheritance-diagram`_ directive.
 
-A single option is available: *parts* controls how many of parts in
-the path to the class are shown.  For example, if *parts* == 1, the
-class ``matplotlib.patches.Patch`` is shown as ``Patch``.  If *parts*
-== 2, it is shown as ``patches.Patch``.  If *parts* == 0, the full
-path is shown.
+.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
 
 Example:
 
@@ -986,42 +973,6 @@ Example:
 .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
    :parts: 2
 
-.. _emacs-helpers:
-
-Emacs helpers
--------------
-
-There is an emacs mode `rst.el
-<http://docutils.sourceforge.net/tools/editors/emacs/rst.el>`_ which
-automates many important ReST tasks like building and updating
-table-of-contents, and promoting or demoting section headings.  Here
-is the basic ``.emacs`` configuration:
-
-.. code-block:: lisp
-
-    (require 'rst)
-    (setq auto-mode-alist
-          (append '(("\\.txt$" . rst-mode)
-                    ("\\.rst$" . rst-mode)
-                    ("\\.rest$" . rst-mode)) auto-mode-alist))
-
-Some helpful functions::
-
-    C-c TAB - rst-toc-insert
-
-      Insert table of contents at point
-
-    C-c C-u - rst-toc-update
-
-        Update the table of contents at point
-
-    C-c C-l rst-shift-region-left
-
-        Shift region to the left
-
-    C-c C-r rst-shift-region-right
-
-        Shift region to the right
 
 .. TODO: Add section about uploading docs
 
