@@ -264,7 +264,6 @@ class ScalarMappable:
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.callbacksSM = cbook.CallbackRegistry()
-        self._update_dict = {'array': False}
 
     def _scale_norm(self, norm, vmin, vmax):
         """
@@ -369,7 +368,6 @@ class ScalarMappable:
         A : ndarray or None
         """
         self._A = A
-        self._update_dict['array'] = True
 
     def get_array(self):
         """Return the data array."""
@@ -476,30 +474,10 @@ class ScalarMappable:
         self.norm.autoscale_None(self._A)
         self.changed()
 
-    def _add_checker(self, checker):
-        """
-        Add an entry to a dictionary of boolean flags
-        that are set to True when the mappable is changed.
-        """
-        self._update_dict[checker] = False
-
-    def _check_update(self, checker):
-        """Return whether mappable has changed since the last check."""
-        if self._update_dict[checker]:
-            self._update_dict[checker] = False
-            return True
-        return False
-
     def changed(self):
         """
         Call this whenever the mappable is changed to notify all the
         callbackSM listeners to the 'changed' signal.
         """
         self.callbacksSM.process('changed', self)
-        for key in self._update_dict:
-            self._update_dict[key] = True
         self.stale = True
-
-    update_dict = _api.deprecate_privatize_attribute("3.3")
-    add_checker = _api.deprecate_privatize_attribute("3.3")
-    check_update = _api.deprecate_privatize_attribute("3.3")

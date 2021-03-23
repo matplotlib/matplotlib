@@ -695,13 +695,11 @@ def _update_scalarmappable(sm):
     """
     if sm._A is None:
         return
-    copy_state = sm._update_dict['array']
-    ret = sm.update_scalarmappable()
-    if copy_state:
-        if sm._face_is_mapped:
-            sm._facecolor3d = sm._facecolors
-        elif sm._edge_is_mapped:  # Should this be plain "if"?
-            sm._edgecolor3d = sm._edgecolors
+    sm.update_scalarmappable()
+    if sm._face_is_mapped:
+        sm._facecolor3d = sm._facecolors
+    elif sm._edge_is_mapped:  # Should this be plain "if"?
+        sm._edgecolor3d = sm._edgecolors
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
