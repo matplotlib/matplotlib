@@ -16,13 +16,13 @@ Some key differences
 +---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
 | Excel                                                                                 | Matplotlib                                                                                                    |
 +=======================================================================================+===============================================================================================================+
-| In Excel commands and scripting is written in Visual Basic for Applications (VBA).    | Matplotlib is written in Python and uses Python for all its commands.                                         |
+| Commands and scripts are written in Visual Basic for Applications (VBA).    | Written in Python and uses Python for all its commands.                                         |
 +---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| In Excel you can use cells to create formulas.                                        | In matplotlib you can use different datastructures to store your data.                                        |
+| Cells can be used to create formulas.                                        | Ability to use different datastructures to store your data.                                        |
 +---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| You can use Excel to calculate formulas.                                              | For matplotlib you can use the core mechanics of Python but for more complex formulas NumPy or SciPy is used. |
+| Excel is used to calculate formulas.                                              | Ability to use the core mechanics of Python for simple formulas, but for more complex formulas NumPy or SciPy can be used. |
 +---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| In Excel you can use an user interface for tweaking the charts.                       | In matplotlib you need to use written code.                                                                   |
+| Ability to use the user interface for tweaking the charts.                        | Mandatory to use written code.                                                                   |
 +---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
 
 Basics
@@ -37,7 +37,7 @@ When using matplotlib you need to import the package into your program. For this
 
 Now we can use the different functions provided by numpy and pyplot by calling np and plt respectively.
 
-For the following plots we will use the following data stored in an array as upposed to the cells in an Excel sheet.
+For the following plots we will use the following data stored in an array as opposed to the cells in an Excel sheet.
 
 ::
 
