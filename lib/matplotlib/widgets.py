@@ -1616,7 +1616,14 @@ class Cursor(AxesWidget):
         self.background = None
         self.needclear = False
 
-    clear = _api.deprecate_privatize_attribute('3.5')
+    @_api.deprecated('3.5')
+    def clear(self, event):
+        """Internal event handler to clear the cursor."""
+        self._clear(event)
+        if self.ignore(event):
+            return
+        self.linev.set_visible(False)
+        self.lineh.set_visible(False)
 
     def _clear(self, event):
         """Internal event handler to clear the cursor."""
@@ -1624,8 +1631,6 @@ class Cursor(AxesWidget):
             return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-        self.linev.set_visible(False)
-        self.lineh.set_visible(False)
 
     onmove = _api.deprecate_privatize_attribute('3.5')
 
@@ -1644,15 +1649,15 @@ class Cursor(AxesWidget):
                 self.needclear = False
             return
         self.needclear = True
-        if not self.visible:
-            return
+
         self.linev.set_xdata((event.xdata, event.xdata))
+        self.linev.set_visible(self.visible and self.vertOn)
 
         self.lineh.set_ydata((event.ydata, event.ydata))
-        self.linev.set_visible(self.visible and self.vertOn)
         self.lineh.set_visible(self.visible and self.horizOn)
 
-        self._update()
+        if self.visible and (self.vertOn or self.horizOn):
+            self._update()
 
     def _update(self):
         if self.useblit:
@@ -1764,7 +1769,14 @@ class MultiCursor(Widget):
                 canvas.mpl_disconnect(cid)
             info["cids"].clear()
 
-    clear = _api.deprecate_privatize_attribute('3.5')
+    @_api.deprecated('3.5')
+    def clear(self, event):
+        """Clear the cursor."""
+        if self.ignore(event):
+            return
+        self._clear(event)
+        for line in self.vlines + self.hlines:
+            line.set_visible(False)
 
     def _clear(self, event):
         """Clear the cursor."""
@@ -1773,8 +1785,6 @@ class MultiCursor(Widget):
         if self.useblit:
             for canvas, info in self._canvas_infos.items():
                 info["background"] = canvas.copy_from_bbox(canvas.figure.bbox)
-        for line in self.vlines + self.hlines:
-            line.set_visible(False)
 
     onmove = _api.deprecate_privatize_attribute('3.5')
 
@@ -1784,8 +1794,6 @@ class MultiCursor(Widget):
                 or not event.canvas.widgetlock.available(self)):
             return
         self.needclear = True
-        if not self.visible:
-            return
         if self.vertOn:
             for line in self.vlines:
                 line.set_xdata((event.xdata, event.xdata))
@@ -1794,7 +1802,8 @@ class MultiCursor(Widget):
             for line in self.hlines:
                 line.set_ydata((event.ydata, event.ydata))
                 line.set_visible(self.visible)
-        self._update()
+        if self.visible and (self.vertOn or self.horizOn):
+            self._update()
 
     def _update(self):
         if self.useblit:
