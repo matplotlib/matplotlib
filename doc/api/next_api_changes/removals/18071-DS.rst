@@ -1,9 +1,0 @@
-`matplotlib.animation`
-~~~~~~~~~~~~~~~~~~~~~~
-
-The following `~.animation.MovieWriterRegistry` methods have been removed:
-
-- ``.set_dirty()`` - does nothing.
-- ``.ensure_not_dirty()`` - does nothing.
-- ``.reset_available_writers()`` - does nothing.
-- ``.avail()`` - use ``.list()`` instead to get a list of available writers.

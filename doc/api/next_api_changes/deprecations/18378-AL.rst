@@ -1,9 +1,0 @@
-Deprecation of mathtext internals
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The following API elements previously exposed by the :mod:`.mathtext` module
-are considered to be implementation details of and public access to them is
-deprecated: ``Fonts`` and all its subclasses, ``FontConstantsBase`` and all its
-subclasses, ``Node`` and all its subclasses, ``Ship``, ``ship``, ``Error``,
-``Parser``, ``SHRINK_FACTOR``, ``GROW_FACTOR``, ``NUM_SIZE_LEVELS``,
-``latex_to_bakoma``, ``latex_to_cmex``, ``latex_to_standard``,
-``stix_virtual_fonts``, ``tex2uni``.
