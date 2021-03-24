@@ -1600,8 +1600,8 @@ class Cursor(AxesWidget):
                  **lineprops):
         super().__init__(ax)
 
-        self.connect_event('motion_notify_event', self.onmove)
-        self.connect_event('draw_event', self.clear)
+        self.connect_event('motion_notify_event', self._onmove)
+        self.connect_event('draw_event', self._clear)
 
         self.visible = True
         self.horizOn = horizOn
@@ -1616,7 +1616,9 @@ class Cursor(AxesWidget):
         self.background = None
         self.needclear = False
 
-    def clear(self, event):
+    clear = _api.deprecate_privatize_attribute('3.5')
+
+    def _clear(self, event):
         """Internal event handler to clear the cursor."""
         if self.ignore(event):
             return
@@ -1625,7 +1627,9 @@ class Cursor(AxesWidget):
         self.linev.set_visible(False)
         self.lineh.set_visible(False)
 
-    def onmove(self, event):
+    onmove = _api.deprecate_privatize_attribute('3.5')
+
+    def _onmove(self, event):
         """Internal event handler to draw the cursor when the mouse moves."""
         if self.ignore(event):
             return
@@ -1749,8 +1753,8 @@ class MultiCursor(Widget):
         """Connect events."""
         for canvas, info in self._canvas_infos.items():
             info["cids"] = [
-                canvas.mpl_connect('motion_notify_event', self.onmove),
-                canvas.mpl_connect('draw_event', self.clear),
+                canvas.mpl_connect('motion_notify_event', self._onmove),
+                canvas.mpl_connect('draw_event', self._clear),
             ]
 
     def disconnect(self):
@@ -1760,7 +1764,9 @@ class MultiCursor(Widget):
                 canvas.mpl_disconnect(cid)
             info["cids"].clear()
 
-    def clear(self, event):
+    clear = _api.deprecate_privatize_attribute('3.5')
+
+    def _clear(self, event):
         """Clear the cursor."""
         if self.ignore(event):
             return
@@ -1770,7 +1776,9 @@ class MultiCursor(Widget):
         for line in self.vlines + self.hlines:
             line.set_visible(False)
 
-    def onmove(self, event):
+    onmove = _api.deprecate_privatize_attribute('3.5')
+
+    def _onmove(self, event):
         if (self.ignore(event)
                 or event.inaxes not in self.axes
                 or not event.canvas.widgetlock.available(self)):
