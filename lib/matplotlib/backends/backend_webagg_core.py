@@ -116,6 +116,10 @@ class TimerTornado(backend_bases.TimerBase):
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     _timer_cls = TimerTornado
+    # Webagg and friends having the right methods, but still
+    # having bugs in practice.  Do not advertise that it works until
+    # we can debug this.
+    supports_blit = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
