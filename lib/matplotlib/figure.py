@@ -2060,8 +2060,11 @@ class SubFigure(FigureBase):
 
     get_axes = axes.fget
 
-    def draw(self, renderer):
+    def draw(self, renderer=None):
         # docstring inherited
+        if renderer is None:
+            renderer = self.canvas.get_renderer()
+
         self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
