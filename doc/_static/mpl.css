@@ -439,7 +439,7 @@ div.note {
     border-color: #ccc;
 }
 
-div.seealso {
+div.seealso, div.admonition-references {
     background-color: #EAF1F7;
     border-color: #8EADCC;
     color: #3F5E7F;

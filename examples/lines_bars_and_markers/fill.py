@@ -76,18 +76,12 @@ ax3.fill(x, y, facecolor='none', edgecolor='purple', linewidth=3)
 
 plt.show()
 
-#############################################################################
+###############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill
-matplotlib.pyplot.fill
-matplotlib.axes.Axes.axis
-matplotlib.pyplot.axis
+#    - `matplotlib.axes.Axes.fill` / `matplotlib.pyplot.fill`
+#    - `matplotlib.axes.Axes.axis` / `matplotlib.pyplot.axis`

@@ -859,6 +859,35 @@ are delimited by a line of ``###`` characters:
 
 In this way text, code, and figures are output in a "notebook" style.
 
+References for sphinx-gallery
+-----------------------------
+
+The showcased Matplotlib functions should be listed in an admonition at the
+bottom as follows
+
+.. code-block:: python
+
+    ###############################################################################
+    #
+    # .. admonition:: References
+    #
+    #    The use of the following functions, methods, classes and modules is shown
+    #    in this example:
+    #
+    #    - `matplotlib.axes.Axes.fill` / `matplotlib.pyplot.fill`
+    #    - `matplotlib.axes.Axes.axis` / `matplotlib.pyplot.axis`
+
+This allows sphinx-gallery to place an entry to the example in the
+mini-gallery of the mentioned functions. Whether or not a function is mentioned
+here should be decided depending on if a mini-gallery link prominently helps
+to illustrate that function; e.g. mention ``matplotlib.pyplot.subplots`` only
+in examples that are about laying out subplots, not in every example that uses
+it.
+
+Functions that exist in ``pyplot`` as well as in Axes or Figure should mention
+both references no matter which one is used in the example code. The ``pyplot``
+reference should always be the second to mention; see the example above.
+
 Order of examples in the gallery
 --------------------------------
 
