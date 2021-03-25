@@ -67,8 +67,9 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
-            python -m pip install --user numpy<< parameters.numpy_version >> codecov coverage
-            python -m pip install --user -r requirements/doc/doc-requirements.txt
+            python -m pip install --user \
+                numpy<< parameters.numpy_version >> codecov coverage \
+                -r requirements/doc/doc-requirements.txt
 
   mpl-install:
     steps:
