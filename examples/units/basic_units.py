@@ -5,6 +5,7 @@ Basic Units
 
 """
 
+from distutils.version import LooseVersion
 import math
 
 import numpy as np
@@ -154,8 +155,9 @@ class TaggedValue(metaclass=TaggedValueMeta):
     def __len__(self):
         return len(self.value)
 
-    def __getitem__(self, key):
-        return TaggedValue(self.value[key], self.unit)
+    if LooseVersion(np.__version__) >= '1.20':
+        def __getitem__(self, key):
+            return TaggedValue(self.value[key], self.unit)
 
     def __iter__(self):
         # Return a generator expression rather than use `yield`, so that
