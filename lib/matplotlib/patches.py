@@ -2971,24 +2971,24 @@ class ArrowStyle(_Style):
     class _Curve(_Base):
         """
         A simple arrow which will work with any path instance. The
-        returned path is simply concatenation of the original path + at
+        returned path is the concatenation of the original path, and at
         most two paths representing the arrow head at the begin point and the
         at the end point. The arrow heads can be either open or closed.
         """
 
-        def __init__(self, beginarrow=None, endarrow=None,
-                     fillbegin=False, fillend=False,
-                     head_length=.2, head_width=.1):
+        beginarrow = endarrow = False  # Whether arrows are drawn.
+        fillbegin = fillend = False  # Whether arrows are filled.
+
+        def __init__(self, head_length=.4, head_width=.2):
             """
-            The arrows are drawn if *beginarrow* and/or *endarrow* are
-            true. *head_length* and *head_width* determines the size
-            of the arrow relative to the *mutation scale*.  The
-            arrowhead at the begin (or end) is closed if fillbegin (or
-            fillend) is True.
+            Parameters
+            ----------
+            head_length : float, default: 0.4
+                Length of the arrow head, relative to *mutation_scale*.
+            head_width : float, default: 0.2
+                Width of the arrow head, relative to *mutation_scale*.
             """
-            self.beginarrow, self.endarrow = beginarrow, endarrow
             self.head_length, self.head_width = head_length, head_width
-            self.fillbegin, self.fillend = fillbegin, fillend
             super().__init__()
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
@@ -3102,113 +3102,40 @@ class ArrowStyle(_Style):
     class Curve(_Curve):
         """A simple curve without any arrow head."""
 
-        def __init__(self):
-            super().__init__(beginarrow=False, endarrow=False)
+        def __init__(self):  # hide head_length, head_width
+            # These attributes (whose values come from backcompat) only matter
+            # if someone modifies beginarrow/etc. on an ArrowStyle instance.
+            super().__init__(head_length=.2, head_width=.1)
 
     @_register_style(_style_list, name="<-")
     class CurveA(_Curve):
         """An arrow with a head at its begin point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=False,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = True
 
     @_register_style(_style_list, name="->")
     class CurveB(_Curve):
         """An arrow with a head at its end point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=False, endarrow=True,
-                             head_length=head_length, head_width=head_width)
+        endarrow = True
 
     @_register_style(_style_list, name="<->")
     class CurveAB(_Curve):
         """An arrow with heads both at the begin and the end point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=True,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = endarrow = True
 
     @_register_style(_style_list, name="<|-")
     class CurveFilledA(_Curve):
         """An arrow with filled triangle head at the begin."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=False,
-                             fillbegin=True, fillend=False,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = fillbegin = True
 
     @_register_style(_style_list, name="-|>")
     class CurveFilledB(_Curve):
         """An arrow with filled triangle head at the end."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=False, endarrow=True,
-                             fillbegin=False, fillend=True,
-                             head_length=head_length, head_width=head_width)
+        endarrow = fillend = True
 
     @_register_style(_style_list, name="<|-|>")
     class CurveFilledAB(_Curve):
         """An arrow with filled triangle heads at both ends."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=True,
-                             fillbegin=True, fillend=True,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = endarrow = fillbegin = fillend = True
 
     class _Bracket(_Base):
 
