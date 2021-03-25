@@ -35,7 +35,6 @@ exclude =
     doc/gallery
     doc/tutorials
     # External files.
-    versioneer.py
     tools/gh_api.py
     tools/github_stats.py
     .tox

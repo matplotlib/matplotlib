@@ -323,7 +323,7 @@ New modules and files: installation
 
 * If you have added new files or directories, or reorganized existing
   ones, make sure the new files are included in the match patterns in
-  :file:`MANIFEST.in`, and/or in *package_data* in :file:`setup.py`.
+  in *package_data* in :file:`setupext.py`.
 
 C/C++ extensions
 ----------------

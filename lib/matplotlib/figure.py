@@ -22,8 +22,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import docstring, projections
-from matplotlib import __version__ as _mpl_version
-
 import matplotlib.artist as martist
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
@@ -2758,7 +2756,7 @@ class Figure(FigureBase):
         state["_cachedRenderer"] = None
 
         # add version information to the state
-        state['__mpl_version__'] = _mpl_version
+        state['__mpl_version__'] = mpl.__version__
 
         # check whether the figure manager (if any) is registered with pyplot
         from matplotlib import _pylab_helpers
@@ -2776,7 +2774,7 @@ class Figure(FigureBase):
         version = state.pop('__mpl_version__')
         restore_to_pylab = state.pop('_restore_to_pylab', False)
 
-        if version != _mpl_version:
+        if version != mpl.__version__:
             _api.warn_external(
                 f"This figure was saved with matplotlib version {version} and "
                 f"is unlikely to function correctly.")
