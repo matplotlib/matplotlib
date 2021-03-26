@@ -1,7 +1,7 @@
 Shadow parameter for Legend can be colorlike or bool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The parameter can now be any colorlike in addition to
+The *shadow* parameter can now be any colorlike in addition to
 a bool. If it is neither, a ValueError is thrown.
 
 An accessory validation function `~.rcsetup.validate_color_or_bool`

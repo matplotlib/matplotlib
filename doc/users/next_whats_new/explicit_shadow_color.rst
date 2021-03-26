@@ -1,7 +1,7 @@
 Legend shadow colors can be explicitly defined
 ----------------------------------------------
 
-The shadow parameter for the Legend constructor now
+The *shadow* parameter for the Legend constructor now
 accepts both color and bool. If it is a bool, the
 behavior is exactly the same as before.
 Any colorlike value sets the shadow to that color,

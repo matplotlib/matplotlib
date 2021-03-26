@@ -532,8 +532,7 @@ def test_shadow_bad_type():
     fig, ax = plt.subplots()
     ax.plot(range(100), label="test")
     with pytest.raises(ValueError, match="color or bool"):
-        x = plt.legend(loc="upper left", shadow="aardvark")
-        fig.canvas.draw()
+        ax.legend(loc="upper left", shadow="aardvark")
 
 
 def test_legend_title_empty():
