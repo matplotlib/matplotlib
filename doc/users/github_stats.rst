@@ -3,17 +3,16 @@
 GitHub Stats
 ============
 
-GitHub stats for 2020/07/16 - 2021/03/10 (tag: v3.3.0)
+GitHub stats for 2020/07/16 - 2021/03/25 (tag: v3.3.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 200 issues and merged 767 pull requests.
+We closed 204 issues and merged 772 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/53?closed=1>`__
 
-The following 182 authors contributed 3854 commits.
+The following 177 authors contributed 3852 commits.
 
 * A N U S H
-* Aaron Chiu
 * Adam Brown
 * Aditya Malhotra
 * aflah02
@@ -31,7 +30,6 @@ The following 182 authors contributed 3854 commits.
 * BaoGiang HoangVu
 * Ben Root
 * BH4
-* Bingyao Liu
 * Bradley Dice
 * Braxton Lamey
 * Brian McFee
@@ -39,6 +37,7 @@ The following 182 authors contributed 3854 commits.
 * Bryan Kok
 * Byron Boulton
 * Carsten Schelp
+* ceelo777
 * Charles
 * CharlesHe16
 * Christian Baumann
@@ -64,6 +63,7 @@ The following 182 authors contributed 3854 commits.
 * Eric Prestat
 * Erik Benkler
 * Evan Berkowitz
+* Ewan Sutherland
 * Federico Ariza
 * Forrest
 * Frank Sauerburger
@@ -101,7 +101,6 @@ The following 182 authors contributed 3854 commits.
 * John Peloquin
 * johnthagen
 * Jouni K. Seppänen
-* Justin Abrokwah
 * Kate Perkins
 * kate-perkins
 * katrielester
@@ -116,7 +115,6 @@ The following 182 authors contributed 3854 commits.
 * Léonard Gérard
 * majorwitty
 * mansoor96g
-* Marc Wouts
 * Maria Ilie
 * Maria-Alexandra Ilie
 * Marianne Corvellec
@@ -137,7 +135,6 @@ The following 182 authors contributed 3854 commits.
 * Nora Moseman
 * Pamela Wu
 * pankajchetry1168
-* parththak
 * Petar Mlinarić
 * Peter Williams
 * Phil Nagel
@@ -158,16 +155,13 @@ The following 182 authors contributed 3854 commits.
 * Ruth Comer
 * Ryan May
 * Sam Tygier
-* scott-vsi
 * shawnchen
-* ShawnChen1996
 * shawnchen1996
+* ShawnChen1996
 * Sidharth Bansal
-* Spencer McCoubrey
 * Srihitha Maryada
 * Stephen Sinclair
 * Struan Murray
-* tdpetrou
 * Theodor Athanasiadis
 * Thomas A Caswell
 * Thorvald Johannessen
@@ -197,11 +191,40 @@ The following 182 authors contributed 3854 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (767):
+Pull Requests (772):
 
+* :ghpull:`19775`: Fix deprecation for imread on URLs.
+* :ghpull:`19772`: Backport PR #19535 on branch v3.4.x (Fix example's BasicUnit array conversion.)
+* :ghpull:`19771`: Backport PR #19757 on branch v3.4.x (Fixed python -mpip typo)
+* :ghpull:`19770`: Backport PR #19739 on branch v3.4.x (Changed 'python -mpip' to 'python -m pip' for consistency)
+* :ghpull:`19535`: Fix example's BasicUnit array conversion.
+* :ghpull:`19767`: Backport PR #19766 on branch v3.4.x (Set colormap modification removal to 3.6.)
+* :ghpull:`19766`: Set colormap modification removal to 3.6.
+* :ghpull:`19764`: Backport PR #19762 on branch v3.4.x (FIX: do not report that webagg supports blitting)
+* :ghpull:`19762`: FIX: do not report that webagg supports blitting
+* :ghpull:`19689`: Prepare API docs for v3.4.0
+* :ghpull:`19761`: Backport PR #19746 on branch v3.4.x (Fix resizing in nbAgg.)
+* :ghpull:`19746`: Fix resizing in nbAgg.
+* :ghpull:`19757`: Fixed python -mpip typo
+* :ghpull:`19739`: Changed 'python -mpip' to 'python -m pip' for consistency
+* :ghpull:`19713`: DOC: Prepare What's new page for 3.4.0.
+* :ghpull:`19742`: Backport PR #19741 on branch v3.4.x (Only override pickradius when picker is not a bool.)
+* :ghpull:`19741`: Only override pickradius when picker is not a bool.
+* :ghpull:`19726`: Backport PR #19505 on branch v3.4.x (Move some advanced documentation away from Installation Guide)
+* :ghpull:`19505`: Move some advanced documentation away from Installation Guide
+* :ghpull:`19712`: Backport PR #19707 on branch v3.4.x (DOC: fix dx in Arrow guide)
+* :ghpull:`19711`: Backport PR #19709 on branch v3.4.x (Fix arrow_guide.py typo)
+* :ghpull:`19709`: Fix arrow_guide.py typo
+* :ghpull:`19707`: DOC: fix dx in Arrow guide
+* :ghpull:`19699`: Backport PR #19695 on branch v3.4.x (DOC: Increase size of headings)
+* :ghpull:`19695`: DOC: Increase size of headings
+* :ghpull:`19697`: Backport PR #19690 on branch v3.4.x (Only warn about existing redirects if content differs.)
+* :ghpull:`19690`: Only warn about existing redirects if content differs.
+* :ghpull:`19696`: Backport PR #19665 on branch v3.4.x (Changed FormatStrFormatter documentation to include how to get unicode minus)
 * :ghpull:`19680`: Backport PR #19402 on branch v3.4.x (Build aarch64 wheels)
 * :ghpull:`19678`: Backport PR #19671 on branch v3.4.x (Fix crash in early window raise in gtk3.)
 * :ghpull:`19671`: Fix crash in early window raise in gtk3.
+* :ghpull:`19665`: Changed FormatStrFormatter documentation to include how to get unicode minus
 * :ghpull:`19402`: Build aarch64 wheels
 * :ghpull:`19669`: Backport PR #19661 on branch v3.4.x (Fix CoC link)
 * :ghpull:`19668`: Backport PR #19663 on branch v3.4.x (ENH: add a copy method to colormaps)
@@ -229,7 +252,6 @@ Pull Requests (767):
 * :ghpull:`19630`: Backport PR #19596 on branch v3.4.x (Fix for issue 17769: wx interactive figure close cause crash)
 * :ghpull:`19596`: Fix for issue 17769: wx interactive figure close cause crash
 * :ghpull:`19548`: Increase tolerances for other arches.
-* :ghpull:`19588`: MNT: let bad rcParam keys pass
 * :ghpull:`19616`: Backport PR #19577 on branch v3.4.x (Fix "return"->"enter" mapping in key names.)
 * :ghpull:`19617`: Backport PR #19571 on branch v3.4.x (Fail early when setting Text color to a non-colorlike.)
 * :ghpull:`19615`: Backport PR #19583 on branch v3.4.x (FIX: check for a set during color conversion)
@@ -264,7 +286,6 @@ Pull Requests (767):
 * :ghpull:`18068`: Add note on writing binary formats to stdout using savefig()
 * :ghpull:`19507`: FIX: ensure we import when the user cwd does not exist
 * :ghpull:`19413`: FIX: allow add option for Axes3D(fig)
-* :ghpull:`19433`: DOC: fix an overlooked docs change from #19153
 * :ghpull:`19498`: Dedupe implementations of {XAxis,YAxis}._get_tick_boxes_siblings.
 * :ghpull:`19502`: Prefer projection="polar" over polar=True.
 * :ghpull:`18480`: Clarify color priorities in collections
@@ -291,7 +312,6 @@ Pull Requests (767):
 * :ghpull:`19478`: Fix trivial typo in error message.
 * :ghpull:`19449`: Switch array-like (M, N) to (M, N) array-like.
 * :ghpull:`19459`: Merge v3.3.4 into master
-* :ghpull:`19327`: Deprecate angleA/B parameters of bracket arrowstyles.
 * :ghpull:`18746`: Make figure parameter optional when constructing canvases.
 * :ghpull:`19455`: Add note that pyplot cannot be used for 3D.
 * :ghpull:`19457`: Use absolute link for discourse
@@ -300,13 +320,11 @@ Pull Requests (767):
 * :ghpull:`19435`: Replace gtk3 deprecated APIs that have simple replacements.
 * :ghpull:`19452`: Fix the docstring of draw_markers to match the actual behavior.
 * :ghpull:`19448`: Remove unnecessary facecolor cache in Patch3D.
-* :ghpull:`19436`: Add warning when subplot kwargs are ignored
 * :ghpull:`19396`: CI: remove win prerelease azure + add py39
 * :ghpull:`19426`: Support empty stairs.
 * :ghpull:`19399`: Fix empty Poly3DCollections
 * :ghpull:`19416`: fixes TypeError constructor returned NULL in wayland session
 * :ghpull:`19439`: Move cheatsheet focus to the cheatsheets away
-* :ghpull:`19434`: Always create a new subplot in plt.subplot()
 * :ghpull:`19425`: Add units to bar_label padding documentation.
 * :ghpull:`19422`: Style fixes to triintepolate docs.
 * :ghpull:`19421`: Switch to documenting generic collections in lowercase.
@@ -347,7 +365,6 @@ Pull Requests (767):
 * :ghpull:`19153`: MNT: Remove deprecated axes kwargs collision detection (version 2)
 * :ghpull:`19330`: Remove register storage class from Agg files.
 * :ghpull:`19324`: Improve FT2Font docstrings.
-* :ghpull:`19026`: Deprecate setting a Collection/Patch's pickradius via set_picker.
 * :ghpull:`19328`: Explain annotation behavior when used in conjunction with arrows
 * :ghpull:`19329`: Fix building against system qhull
 * :ghpull:`19331`: Skip an ImageMagick test if ffmpeg is unavailable.
@@ -367,7 +384,6 @@ Pull Requests (767):
 * :ghpull:`19281`: Make all transforms copiable (and thus scales, too).
 * :ghpull:`19294`: Deprecate project argument to Line3DCollection.draw.
 * :ghpull:`19307`: DOC: remove stray assignment in "multiple legends" example
-* :ghpull:`19201`: Create tiny mathtext baseline images using svg with non-embedded fonts.
 * :ghpull:`19303`: Extended the convolution filter for correct dilation
 * :ghpull:`19261`: Add machinery for png-only, single-font mathtext tests.
 * :ghpull:`16571`: Update Qhull to 2019.1 reentrant version
@@ -439,8 +455,6 @@ Pull Requests (767):
 * :ghpull:`19164`: docs: fix simple typo, backslahes -> backslashes
 * :ghpull:`19161`: Simplify test_backend_pdf::test_multipage_properfinalize.
 * :ghpull:`19141`: FIX: suppress offset text in ConciseDateFormatter when largest scale is in years
-* :ghpull:`17246`: ENH: Compressed layout for fixed-aspect axes
-* :ghpull:`15148`: WIP/ENH: negative and large datetimes
 * :ghpull:`19150`: Move from @cbook._classproperty to @_api.classproperty
 * :ghpull:`19144`: Move from cbook._warn_external() to _api.warn_external()
 * :ghpull:`19119`: Don't lose unit change handlers when pickling/unpickling.
@@ -471,7 +485,6 @@ Pull Requests (767):
 * :ghpull:`19097`: DOC: add FuncScale to set_x/yscale
 * :ghpull:`19089`: ENH: allow passing a scale instance to set_scale
 * :ghpull:`19086`: FIX: add a default scale to Normalize
-* :ghpull:`18887`: FIX: Generalize Colorbar Scale Handling
 * :ghpull:`19073`: Mention in a few more places that artists default to not-pickable.
 * :ghpull:`19079`: Remove incorrect statement about ``hist(..., log=True)``.
 * :ghpull:`19076`: Small improvements to aitoff projection.
@@ -584,7 +597,6 @@ Pull Requests (767):
 * :ghpull:`18814`: [Example] update Anscombe's Quartet
 * :ghpull:`18806`: DOC Use 'Axes' in _axes.py docstrings
 * :ghpull:`18799`: Remove unused wx private attribute.
-* :ghpull:`18771`: Add finer-grain control to Axes.ignore_existing_data_limits
 * :ghpull:`18772`: BF: text not drawn shouldn't count for tightbbox
 * :ghpull:`18793`: Consistently use axs to refer to a set of Axes (v2)
 * :ghpull:`18792`: Cmap cleanup
@@ -599,7 +611,6 @@ Pull Requests (767):
 * :ghpull:`18200`: Unpin pydocstyle
 * :ghpull:`18767`: Turn "How to use Matplotlib in a web application server" into a sphinx-gallery example
 * :ghpull:`18765`: Remove some unused tick private attributes.
-* :ghpull:`17939`: Interpret subplot_moasic(['foo', 'bar']) as 1 row 2 cols
 * :ghpull:`18688`: Shorter property deprecation.
 * :ghpull:`18748`: Allow dependabot to check GitHub actions daily
 * :ghpull:`18529`: Synchronize view limits of shared axes after setting ticks
@@ -716,7 +727,6 @@ Pull Requests (767):
 * :ghpull:`18531`: Unit handling improvements
 * :ghpull:`18523`: Don't leak file paths into PostScript metadata
 * :ghpull:`18526`: Templatize _image.resample to deduplicate it.
-* :ghpull:`11051`: Add PEP8-compliant aliases to transAxes, transData, etc.
 * :ghpull:`18522`: Remove mlab, toolkits, and misc deprecations
 * :ghpull:`18516`: Remove deprecated font-related things.
 * :ghpull:`18535`: Add a code of conduct link to github
@@ -755,8 +765,6 @@ Pull Requests (767):
 * :ghpull:`18445`: Warn if an animation is gc'd before doing anything.
 * :ghpull:`18452`: Move Axes ``__repr__`` from Subplot to AxesBase.
 * :ghpull:`15374`: Replace _prod_vectorized by @-multiplication.
-* :ghpull:`14920`: DOC: Declutter the matplotlibrc file.
-* :ghpull:`12116`: Binder jupytext
 * :ghpull:`13643`: RecangleSelector constructor does not handle marker_props
 * :ghpull:`18403`: DOC: Remove related topics entries from the sidebar
 * :ghpull:`18421`: Move {get,set}_{x,y}label to _AxesBase.
@@ -847,8 +855,6 @@ Pull Requests (767):
 * :ghpull:`18012`: Add explanatory text for rasterization demo
 * :ghpull:`18103`: Support data reference for hexbin() parameter C
 * :ghpull:`17826`: Add pause() and resume() methods to the base Animation class
-* :ghpull:`12270`: [WIP] Add the ability for unit converters to convert back to data with units
-* :ghpull:`9120`: Allow timedelta to be converted to an ordinalf
 * :ghpull:`18090`: Privatize cbook.format_approx.
 * :ghpull:`18080`: Reduce numerical precision in Type 1 fonts
 * :ghpull:`18044`: Super-ify parts of the code base, part 3
@@ -868,7 +874,6 @@ Pull Requests (767):
 * :ghpull:`18042`: scatter: Raise if unexpected type of ``s`` argument.
 * :ghpull:`18028`: Super-ify parts of the code base, part 1
 * :ghpull:`18029`: Remove some unused imports.
-* :ghpull:`11976`: don't share axes if share_all is False
 * :ghpull:`18018`: Cache realpath resolution in font_manager.
 * :ghpull:`18013`: Use argumentless ``super()`` more.
 * :ghpull:`17988`: add test with -OO
@@ -885,9 +890,6 @@ Pull Requests (767):
 * :ghpull:`12443`: Warn in colorbar() when mappable.axes != figure.gca().
 * :ghpull:`17926`: Deprecate hatch patterns with invalid values
 * :ghpull:`17922`: Rewrite the barcode example
-* :ghpull:`16997`: Feature Request (Issue #14661): Ability to show quartiles in violin plot
-* :ghpull:`12009`: Introduce new Tableau colors
-* :ghpull:`16788`: Adding png image return for inline backend figures with _repr_html_
 * :ghpull:`17890`: Properly use thin space after math text operator
 * :ghpull:`16090`: Change pcolormesh snapping (fixes alpha colorbar/grid issues) [AGG]
 * :ghpull:`17842`: Move "Request a new feature" from How-to to Contributing
@@ -900,7 +902,6 @@ Pull Requests (767):
 * :ghpull:`17924`: Remove the example "Easily creating subplots"
 * :ghpull:`17869`: FIX: new date rcParams weren't being evaluated
 * :ghpull:`17921`: Added density and combination hatching examples
-* :ghpull:`11380`: Simplify normalization of multiple images
 * :ghpull:`17159`: Merge consecutive rasterizations
 * :ghpull:`17895`: Use indexed color for PNG images in PDF files when possible
 * :ghpull:`17894`: DOC: Numpydoc format.
@@ -927,7 +928,6 @@ Pull Requests (767):
 * :ghpull:`17828`: API: treat xunits=None and yunits=None as "default"
 * :ghpull:`17839`: Avoid need to lock in dvi generation, to avoid deadlocks.
 * :ghpull:`17824`: Improve categorical converter error message
-* :ghpull:`17840`: Deprecate ColorbarBase.add_lines, simplify Colorbar.add_lines.
 * :ghpull:`17834`: Keep using a single dividers LineCollection instance in colorbar.
 * :ghpull:`17838`: Prefer colorbar(ScalarMappable(...)) to ColorbarBase in tutorial.
 * :ghpull:`17836`: More precise axes section names in docs
@@ -949,7 +949,6 @@ Pull Requests (767):
 * :ghpull:`17780`: Reorganize colorbar docstrings.
 * :ghpull:`17778`: Fix whatsnew confusing typo.
 * :ghpull:`17748`: Don't use bezier helpers in axisartist.
-* :ghpull:`15102`: Add a SymmetricalLogFormatter
 * :ghpull:`17700`: Remove remnants of macosx old-style toolbar.
 * :ghpull:`17753`: Support location="left"/"top" for gridspec-based colorbars.
 * :ghpull:`17761`: Update hard-coded results in artist tutorial
@@ -967,8 +966,12 @@ Pull Requests (767):
 * :ghpull:`17691`: ci: Print out reasons for not deploying docs.
 * :ghpull:`17099`: Make Spines accessable by the attributes.
 
-Issues (200):
+Issues (204):
 
+* :ghissue:`19701`: Notebook plotting regression in 3.4.0rc*
+* :ghissue:`19754`: add space in python -mpip
+* :ghissue:`18364`: ``Axes3d`` attaches itself to a figure, where as ``Axes`` does not
+* :ghissue:`19700`: Setting pickradius regression in 3.4.0rc
 * :ghissue:`19594`: code of conduct link 404s
 * :ghissue:`19576`: duplicate pick events firing
 * :ghissue:`19560`: segfault due to font objects when multi-threading
