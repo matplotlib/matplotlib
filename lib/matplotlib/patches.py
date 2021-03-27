@@ -1579,19 +1579,9 @@ class Annulus(Patch):
         """
         super().__init__(**kwargs)
 
-        if np.shape(r) == (2,):
-            self.a, self.b = r
-        elif np.shape(r) == ():
-            self.a = self.b = float(r)
-        else:
-            raise ValueError("Parameter 'r' must be one or two floats")
-
-        if min(self.a, self.b) <= width:
-            raise ValueError(
-                'Width of annulus must be smaller than semi-minor axis')
-
-        self._center = xy
-        self._width = width
+        self.set_radii(r)
+        self.center = xy
+        self.width = width
         self.angle = angle
         self._path = None
 
@@ -1613,6 +1603,7 @@ class Annulus(Patch):
         xy : (float, float)
         """
         self._center = xy
+        self._path = None
         self.stale = True
 
     def get_center(self):
@@ -1629,7 +1620,12 @@ class Annulus(Patch):
         ----------
         width : float
         """
+        if min(self.a, self.b) <= width:
+            raise ValueError(
+                'Width of annulus must be smaller than semi-minor axis')
+
         self._width = width
+        self._path = None
         self.stale = True
 
     def get_width(self):
@@ -1649,6 +1645,7 @@ class Annulus(Patch):
         angle : float
         """
         self._angle = angle
+        self._path = None
         self.stale = True
 
     def get_angle(self):
@@ -1666,6 +1663,7 @@ class Annulus(Patch):
         a : float
         """
         self.a = float(a)
+        self._path = None
         self.stale = True
 
     def set_semiminor(self, b):
@@ -1677,19 +1675,33 @@ class Annulus(Patch):
         b : float
         """
         self.b = float(b)
+        self._path = None
         self.stale = True
 
-    def set_radii(self, radii):
+    def set_radii(self, r):
         """
         Set the both the semi-major (*a*) and -minor radii (*b*) of the
         annulus.
 
         Parameters
         ----------
-        radii : (float, float)
+        r : (float, float)
         """
-        self.a, self.b = radii
+        if np.shape(r) == (2,):
+            self.a, self.b = r
+        elif np.shape(r) == ():
+            self.a = self.b = float(r)
+        else:
+            raise ValueError("Parameter 'r' must be one or two floats.")
+
+        self._path = None
         self.stale = True
+
+    def get_radii(self):
+        return self.a, self.b
+
+    # alias
+    radii = property(get_radii, set_radii)
 
     def _transform_verts(self, verts, a, b):
         return transforms.Affine2D() \
