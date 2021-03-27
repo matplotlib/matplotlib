@@ -90,19 +90,15 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.colors
-matplotlib.colors.rgb_to_hsv
-matplotlib.colors.to_rgba
-matplotlib.figure.Figure.get_size_inches
-matplotlib.figure.Figure.subplots_adjust
-matplotlib.axes.Axes.text
-matplotlib.patches.Rectangle
+#    - `matplotlib.colors`
+#    - `matplotlib.colors.rgb_to_hsv`
+#    - `matplotlib.colors.to_rgba`
+#    - `matplotlib.figure.Figure.get_size_inches`
+#    - `matplotlib.figure.Figure.subplots_adjust`
+#    - `matplotlib.axes.Axes.text`
+#    - `matplotlib.patches.Rectangle`

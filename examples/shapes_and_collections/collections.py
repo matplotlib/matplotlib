@@ -127,20 +127,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.figure.Figure
-matplotlib.collections
-matplotlib.collections.LineCollection
-matplotlib.collections.RegularPolyCollection
-matplotlib.axes.Axes.add_collection
-matplotlib.axes.Axes.autoscale_view
-matplotlib.transforms.Affine2D
-matplotlib.transforms.Affine2D.scale
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.collections`
+#    - `matplotlib.collections.LineCollection`
+#    - `matplotlib.collections.RegularPolyCollection`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.axes.Axes.autoscale_view`
+#    - `matplotlib.transforms.Affine2D`
+#    - `matplotlib.transforms.Affine2D.scale`

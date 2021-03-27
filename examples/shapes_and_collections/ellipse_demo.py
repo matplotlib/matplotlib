@@ -62,18 +62,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.Ellipse
-matplotlib.axes.Axes.add_artist
-matplotlib.artist.Artist.set_clip_box
-matplotlib.artist.Artist.set_alpha
-matplotlib.patches.Patch.set_facecolor
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.Ellipse`
+#    - `matplotlib.axes.Axes.add_artist`
+#    - `matplotlib.artist.Artist.set_clip_box`
+#    - `matplotlib.artist.Artist.set_alpha`
+#    - `matplotlib.patches.Patch.set_facecolor`

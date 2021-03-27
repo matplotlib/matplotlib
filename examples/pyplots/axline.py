@@ -42,18 +42,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.axhline
-matplotlib.pyplot.axvline
-matplotlib.pyplot.axline
-matplotlib.axes.Axes.axhline
-matplotlib.axes.Axes.axvline
-matplotlib.axes.Axes.axline
+#    - `matplotlib.axes.Axes.axhline` / `matplotlib.pyplot.axhline`
+#    - `matplotlib.axes.Axes.axvline` / `matplotlib.pyplot.axvline`
+#    - `matplotlib.axes.Axes.axline` / `matplotlib.pyplot.axline`
