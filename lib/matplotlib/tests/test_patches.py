@@ -334,6 +334,10 @@ def test_patch_str():
     expected = 'Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)'
     assert str(p) == expected
 
+    p = mpatches.Annulus(xy=(1, 2), r=(3, 4), width=1, angle=2)
+    expected = "Annulus(xy=(1, 2), r=(3, 4), width=1, angle=2)"
+    assert str(p) == expected
+
     p = mpatches.RegularPolygon((1, 2), 20, radius=5)
     assert str(p) == "RegularPolygon((1, 2), 20, radius=5, orientation=0)"
 
@@ -593,6 +597,27 @@ def test_annulus():
     ax.add_patch(cir)
     ax.add_patch(ell)
     ax.set_aspect('equal')
+
+
+@image_comparison(baseline_images=['annulus'], extensions=['png'])
+def test_annulus_setters():
+
+    fig, ax = plt.subplots()
+    cir = Annulus((0., 0.), 0.2, 0.01, fc='g')   # circular annulus
+    ell = Annulus((0., 0.), (1, 2), 0.1, 0,      # elliptical
+                  fc='m', ec='b', alpha=0.5, hatch='xxx')
+    ax.add_patch(cir)
+    ax.add_patch(ell)
+    ax.set_aspect('equal')
+
+    cir.center = (0.5, 0.5)
+    cir.radii = 0.2
+    cir.width = 0.05
+
+    ell.center = (0.5, 0.5)
+    ell.radii = (0.5, 0.3)
+    ell.width = 0.1
+    ell.angle = 45
 
 
 def test_degenerate_polygon():
