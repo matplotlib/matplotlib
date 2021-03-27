@@ -65,8 +65,11 @@ class RedirectFrom(Directive):
             raise ValueError(
                 f"{redirected_reldoc} is already noted as redirecting to "
                 f"{self.redirects[redirected_reldoc]}")
-        self.redirects[redirected_reldoc] = builder.get_relative_uri(
-            redirected_reldoc, current_doc)
+        try:
+            self.redirects[redirected_reldoc] = builder.get_relative_uri(
+                redirected_reldoc, current_doc)
+        except:
+            pass
         return []
 
 
