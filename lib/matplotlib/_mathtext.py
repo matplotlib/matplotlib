@@ -456,9 +456,6 @@ class UnicodeFonts(TruetypeFonts):
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         fallback_rc = mpl.rcParams['mathtext.fallback']
-        if mpl.rcParams['mathtext.fallback_to_cm'] is not None:
-            fallback_rc = ('cm' if mpl.rcParams['mathtext.fallback_to_cm']
-                           else None)
         font_cls = {'stix': StixFonts,
                     'stixsans': StixSansFonts,
                     'cm': BakomaFonts

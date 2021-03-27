@@ -463,23 +463,6 @@ def validate_font_properties(s):
     return s
 
 
-def _validate_mathtext_fallback_to_cm(b):
-    """
-    Temporary validate for fallback_to_cm, while deprecated
-
-    """
-    if isinstance(b, str):
-        b = b.lower()
-    if b is None or b == 'none':
-        return None
-    else:
-        _api.warn_deprecated(
-            "3.3", message="Support for setting the 'mathtext.fallback_to_cm' "
-            "rcParam is deprecated since %(since)s and will be removed "
-            "%(removal)s; use 'mathtext.fallback : 'cm' instead.")
-        return validate_bool_maybe_none(b)
-
-
 def _validate_mathtext_fallback(s):
     _fallback_fonts = ['cm', 'stix', 'stixsans']
     if isinstance(s, str):
@@ -1119,7 +1102,6 @@ _validators = {
                                 "stixsans", "custom"],
     "mathtext.default":        ["rm", "cal", "it", "tt", "sf", "bf", "default",
                                 "bb", "frak", "scr", "regular"],
-    "mathtext.fallback_to_cm": _validate_mathtext_fallback_to_cm,
     "mathtext.fallback":       _validate_mathtext_fallback,
 
     "image.aspect":          validate_aspect,  # equal, auto, a number
@@ -1440,7 +1422,6 @@ _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
     "animation.avconv_path": "avconv",
     "animation.avconv_args": [],
     "animation.html_args": [],
-    "mathtext.fallback_to_cm": None,
     "keymap.all_axes": ["a"],
     "savefig.jpeg_quality": 95,
     "text.latex.preview": False,
