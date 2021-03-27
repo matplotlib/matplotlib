@@ -714,11 +714,11 @@ class Legend(Artist):
         # legend items. Each legend item is HPacker packed with
         # legend handleBox and labelBox. handleBox is an instance of
         # offsetbox.DrawingArea which contains legend handle. labelBox
-        # is an instance of offsetbox.TextArea which contains legend
+        # is an instance of offsetbox. TextArea which contains legend
         # text.
 
         text_list = []  # the list of text instances
-        handle_list = []  # the list of text instances
+        handle_list = []  # the list of handle instances
         handles_and_labels = []
 
         label_prop = dict(verticalalignment='baseline',
