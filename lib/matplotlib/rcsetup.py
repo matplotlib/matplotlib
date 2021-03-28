@@ -1377,7 +1377,6 @@ _validators = {
     "keymap.grid_minor": validate_stringlist,
     "keymap.yscale":     validate_stringlist,
     "keymap.xscale":     validate_stringlist,
-    "keymap.all_axes":   validate_stringlist,
     "keymap.help":       validate_stringlist,
     "keymap.copy":       validate_stringlist,
 
@@ -1422,7 +1421,6 @@ _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
     "animation.avconv_path": "avconv",
     "animation.avconv_args": [],
     "animation.html_args": [],
-    "keymap.all_axes": ["a"],
     "savefig.jpeg_quality": 95,
     "text.latex.preview": False,
 }

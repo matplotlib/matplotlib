@@ -362,36 +362,6 @@ class ToolQuitAll(ToolBase):
         Gcf.destroy_all()
 
 
-class _ToolEnableAllNavigation(ToolBase):
-    """Tool to enable all axes for toolmanager interaction."""
-
-    description = 'Enable all axes toolmanager'
-    default_keymap = mpl.rcParams['keymap.all_axes']
-
-    def trigger(self, sender, event, data=None):
-        mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
-
-
-@_api.deprecated("3.3")
-class ToolEnableAllNavigation(_ToolEnableAllNavigation):
-    pass
-
-
-class _ToolEnableNavigation(ToolBase):
-    """Tool to enable a specific axes for toolmanager interaction."""
-
-    description = 'Enable one axes toolmanager'
-    default_keymap = ('1', '2', '3', '4', '5', '6', '7', '8', '9')
-
-    def trigger(self, sender, event, data=None):
-        mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
-
-
-@_api.deprecated("3.3")
-class ToolEnableNavigation(_ToolEnableNavigation):
-    pass
-
-
 class ToolGrid(ToolBase):
     """Tool to toggle the major grids of the figure."""
 
@@ -999,8 +969,6 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'fullscreen': ToolFullScreen,
                  'quit': ToolQuit,
                  'quit_all': ToolQuitAll,
-                 'allnav': _ToolEnableAllNavigation,
-                 'nav': _ToolEnableNavigation,
                  'xscale': ToolXScale,
                  'yscale': ToolYScale,
                  'position': ToolCursorPosition,
