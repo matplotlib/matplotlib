@@ -65,11 +65,7 @@ class RedirectFrom(Directive):
             raise ValueError(
                 f"{redirected_reldoc} is already noted as redirecting to "
                 f"{self.redirects[redirected_reldoc]}")
-        try:
-            self.redirects[redirected_reldoc] = builder.get_relative_uri(
-                redirected_reldoc, current_doc)
-        except:
-            pass
+        self.redirects[redirected_reldoc] = current_doc
         return []
 
 
@@ -79,7 +75,7 @@ def _generate_redirects(app, exception):
         return
     for k, v in RedirectFrom.redirects.items():
         p = Path(app.outdir, k + builder.out_suffix)
-        html = HTML_TEMPLATE.format(v=v)
+        html = HTML_TEMPLATE.format(v=builder.get_relative_uri(k, v))
         if p.is_file():
             if p.read_text() != html:
                 logger.warning(f'A redirect-from directive is trying to '
