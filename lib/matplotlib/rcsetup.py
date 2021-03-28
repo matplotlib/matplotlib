@@ -1318,7 +1318,6 @@ _validators = {
     'savefig.facecolor':    validate_color_or_auto,
     'savefig.edgecolor':    validate_color_or_auto,
     'savefig.orientation':  ['landscape', 'portrait'],
-    'savefig.jpeg_quality': validate_int,
     "savefig.format":       validate_string,
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
@@ -1420,7 +1419,6 @@ _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
     "animation.avconv_path": "avconv",
     "animation.avconv_args": [],
     "animation.html_args": [],
-    "savefig.jpeg_quality": 95,
 }
 _validators = {k: _convert_validator_spec(k, conv)
                for k, conv in _validators.items()}

@@ -831,7 +831,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self.gui_repaint(drawDC=drawDC)
 
     @_check_savefig_extra_args
-    def _print_image(self, filetype, filename, *, quality=None):
+    def _print_image(self, filetype, filename):
         origBitmap = self.bitmap
 
         self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
@@ -843,16 +843,6 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
         # image is the object that we call SaveFile on.
         image = self.bitmap
-        # set the JPEG quality appropriately.  Unfortunately, it is only
-        # possible to set the quality on a wx.Image object.  So if we
-        # are saving a JPEG, convert the wx.Bitmap to a wx.Image,
-        # and set the quality.
-        if filetype == wx.BITMAP_TYPE_JPEG:
-            if quality is None:
-                quality = dict.__getitem__(mpl.rcParams,
-                                           'savefig.jpeg_quality')
-            image = self.bitmap.ConvertToImage()
-            image.SetOption(wx.IMAGE_OPTION_QUALITY, str(quality))
 
         # Now that we have rendered into the bitmap, save it to the appropriate
         # file type and clean up.
