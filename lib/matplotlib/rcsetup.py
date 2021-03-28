@@ -1086,7 +1086,6 @@ _validators = {
     "text.color":          validate_color,
     "text.usetex":         validate_bool,
     "text.latex.preamble": _validate_tex_preamble,
-    "text.latex.preview":  validate_bool,
     "text.hinting":        _validate_hinting,
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
@@ -1422,7 +1421,6 @@ _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
     "animation.avconv_args": [],
     "animation.html_args": [],
     "savefig.jpeg_quality": 95,
-    "text.latex.preview": False,
 }
 _validators = {k: _convert_validator_spec(k, conv)
                for k, conv in _validators.items()}

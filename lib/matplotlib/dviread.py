@@ -30,7 +30,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import _api, cbook, rcParams
+from matplotlib import _api, cbook
 
 _log = logging.getLogger(__name__)
 
@@ -212,15 +212,8 @@ class Dvi:
         self.dpi = dpi
         self.fonts = {}
         self.state = _dvistate.pre
-        self.baseline = self._get_baseline(filename)
 
-    def _get_baseline(self, filename):
-        if dict.__getitem__(rcParams, 'text.latex.preview'):
-            baseline = Path(filename).with_suffix(".baseline")
-            if baseline.exists():
-                height, depth, width = baseline.read_bytes().split()
-                return float(depth)
-        return None
+    baseline = _api.deprecated("3.5")(property(lambda self: None))
 
     def __enter__(self):
         """Context manager enter method, does nothing."""
@@ -290,10 +283,7 @@ class Dvi:
 
         # convert from TeX's "scaled points" to dpi units
         d = self.dpi / (72.27 * 2**16)
-        if self.baseline is None:
-            descent = (maxy - maxy_pure) * d
-        else:
-            descent = self.baseline
+        descent = (maxy - maxy_pure) * d
 
         text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
                 for (x, y, f, g, w) in self.text]
@@ -958,55 +948,6 @@ class PsfontsMap:
             self._font[texname] = PsFont(
                 texname=texname, psname=psname, effects=effects_dict,
                 encoding=encoding, filename=filename)
-
-
-@_api.deprecated("3.3")
-class Encoding:
-    r"""
-    Parse a \*.enc file referenced from a psfonts.map style file.
-
-    The format this class understands is a very limited subset of PostScript.
-
-    Usage (subject to change)::
-
-      for name in Encoding(filename):
-          whatever(name)
-
-    Parameters
-    ----------
-    filename : str or path-like
-
-    Attributes
-    ----------
-    encoding : list
-        List of character names
-    """
-    __slots__ = ('encoding',)
-
-    def __init__(self, filename):
-        with open(filename, 'rb') as file:
-            _log.debug('Parsing TeX encoding %s', filename)
-            self.encoding = self._parse(file)
-            _log.debug('Result: %s', self.encoding)
-
-    def __iter__(self):
-        yield from self.encoding
-
-    @staticmethod
-    def _parse(file):
-        lines = (line.split(b'%', 1)[0].strip() for line in file)
-        data = b''.join(lines)
-        beginning = data.find(b'[')
-        if beginning < 0:
-            raise ValueError("Cannot locate beginning of encoding in {}"
-                             .format(file))
-        data = data[beginning:]
-        end = data.find(b']')
-        if end < 0:
-            raise ValueError("Cannot locate end of encoding in {}"
-                             .format(file))
-        data = data[:end]
-        return re.findall(br'/([^][{}<>\s]+)', data)
 
 
 # Note: this function should ultimately replace the Encoding class, which
