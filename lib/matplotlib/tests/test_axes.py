@@ -4913,9 +4913,10 @@ def test_pie_center_radius():
             autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0}, center=(1, 2), radius=1.5)
 
-    plt.annotate("Center point", xy=(1, 2), xytext=(1, 1.5),
+    plt.annotate("Center point", xy=(1, 2), xytext=(1, 1.3),
                  arrowprops=dict(arrowstyle="->",
-                                 connectionstyle="arc3"))
+                                 connectionstyle="arc3"),
+                 bbox=dict(boxstyle="square", facecolor="lightgrey"))
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
