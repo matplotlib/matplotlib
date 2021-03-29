@@ -386,10 +386,21 @@ void QuadContourGenerator::append_contour_line_to_vertices_and_codes(
     PyObject* vertices_list,
     PyObject* codes_list) const
 {
+    // Convert ContourLine to Python equivalent, and clear it for reuse.
+    // This function is called once for each line generated in create_contour().
+    // A line is either a closed line loop (in which case the last point is
+    // identical to the first) or an open line strip.  Two NumPy arrays are
+    // created for each line:
+    //   vertices is a double array of shape (npoints, 2) containing the (x, y)
+    //     coordinates of the points in the line
+    //   codes is a uint8 array of shape (npoints,) containing the 'kind codes'
+    //     which are defined in the Path class
+    // and they are appended to the Python lists vertices_list and codes_list
+    // respectively for return to the Python calling function.
+
     assert(vertices_list != 0 && "Null python vertices_list");
     assert(codes_list != 0 && "Null python codes_list");
 
-    // Convert ContourLine to python equivalent, and clear it.
     npy_intp npoints = static_cast<npy_intp>(contour_line.size());
 
     npy_intp vertices_dims[2] = {npoints, 2};
@@ -407,6 +418,7 @@ void QuadContourGenerator::append_contour_line_to_vertices_and_codes(
         *codes_ptr++ = (point == contour_line.begin() ? MOVETO : LINETO);
     }
 
+    // Closed line loop has identical first and last (x, y) points.
     if (contour_line.size() > 1 && contour_line.front() == contour_line.back())
         *(codes_ptr-1) = CLOSEPOLY;
 
@@ -425,6 +437,18 @@ void QuadContourGenerator::append_contour_to_vertices_and_codes(
     PyObject* vertices_list,
     PyObject* codes_list) const
 {
+    // Convert Contour to Python equivalent, and clear it for reuse.
+    // This function is called once for each polygon generated in
+    // create_filled_contour().  A polygon consists of an outer line loop
+    // (called the parent) and zero or more inner line loops or holes (called
+    // the children).  Two NumPy arrays are created for each polygon:
+    //   vertices is a double array of shape (npoints, 2) containing the (x, y)
+    //     coordinates of the points in the polygon (parent plus children)
+    //   codes is a uint8 array of shape (npoints,) containing the 'kind codes'
+    //     which are defined in the Path class
+    // and they are appended to the Python lists vertices_list and codes_list
+    // respectively for return to the Python calling function.
+
     assert(vertices_list != 0 && "Null python vertices_list");
     assert(codes_list != 0 && "Null python codes_list");
 
