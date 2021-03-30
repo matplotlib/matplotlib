@@ -304,7 +304,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # backend based on what is available on your system and on whether a GUI event
 # loop is already running. On Linux, if the environment variable
 # :envvar:`DISPLAY` is unset, the "event loop" is identified as "headless",
-# which causes a fallback to a noninteractive backend (agg).
+# which causes a fallback to a noninteractive backend (agg); in all other
+# cases, an interactive backend is preferred (usually, at least tkagg will be
+# available).
 #
 # Here is a detailed description of the configuration methods:
 #
