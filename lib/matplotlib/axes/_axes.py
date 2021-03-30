@@ -4547,8 +4547,8 @@ default: :rc:`scatter.edgecolors`
                 # promote the facecolor to be the edgecolor
                 edgecolors = colors
                 # set the facecolor to 'none' (at the last chance) because
-                # we can not not fill a path if the facecolor is non-null.
-                # (which is defendable at the renderer level)
+                # we can not fill a path if the facecolor is non-null
+                # (which is defendable at the renderer level).
                 colors = 'none'
             else:
                 # if we are not nulling the face color we can do this
