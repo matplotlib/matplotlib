@@ -250,8 +250,8 @@ class RendererCairo(RendererBase):
             ctx.set_font_size(prop.get_size_in_points() * self.dpi / 72)
             opts = cairo.FontOptions()
             opts.set_antialias(
-                cairo.Antialias.DEFAULT if mpl.rcParams["text.antialiased"]
-                else cairo.Antialias.NONE)
+                cairo.ANTIALIAS_DEFAULT if mpl.rcParams["text.antialiased"]
+                else cairo.ANTIALIAS_NONE)
             ctx.set_font_options(opts)
             if angle:
                 ctx.rotate(np.deg2rad(-angle))
@@ -357,7 +357,7 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_antialiased(self, b):
         self.ctx.set_antialias(
-            cairo.Antialias.DEFAULT if b else cairo.Antialias.NONE)
+            cairo.ANTIALIAS_DEFAULT if b else cairo.ANTIALIAS_NONE)
 
     def set_capstyle(self, cs):
         self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))
