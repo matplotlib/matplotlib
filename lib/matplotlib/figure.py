@@ -367,11 +367,15 @@ default: %(va)s
             Additional kwargs are `matplotlib.text.Text` properties.
         """
 
-        manual_position = ('x' in kwargs or 'y' in kwargs)
         suplab = getattr(self, info['name'])
 
-        x = kwargs.pop('x', info['x0'])
-        y = kwargs.pop('y', info['y0'])
+        x = kwargs.pop('x', None)
+        y = kwargs.pop('y', None)
+        autopos = x is None and y is None
+        if x is None:
+            x = info['x0']
+        if y is None:
+            y = info['y0']
 
         if 'horizontalalignment' not in kwargs and 'ha' not in kwargs:
             kwargs['horizontalalignment'] = info['ha']
@@ -394,8 +398,7 @@ default: %(va)s
             sup.remove()
         else:
             suplab = sup
-        if manual_position:
-            suplab.set_in_layout(False)
+        suplab._autopos = autopos
         setattr(self, info['name'], suplab)
         self.stale = True
         return suplab
