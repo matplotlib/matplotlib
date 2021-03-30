@@ -303,6 +303,7 @@ class RendererSVG(RendererBase):
         self._groupd = {}
         self._image_counter = itertools.count()
         self._clipd = {}
+        self._defs = {}
         self._markers = {}
         self._path_collection_id = 0
         self._hatchd = {}
@@ -328,6 +329,7 @@ class RendererSVG(RendererBase):
     def finalize(self):
         self._write_clips()
         self._write_hatches()
+        self._write_defs()
         self.writer.close(self._start_id)
         self.writer.flush()
 
@@ -460,6 +462,7 @@ class RendererSVG(RendererBase):
             'stroke-linejoin': 'round',
             'stroke-linecap': 'butt'})
         writer.start('defs')
+        self._defs['default_style'] = None
         writer.element('style', type='text/css', text='*{%s}' % default_style)
         writer.end('defs')
 
@@ -500,6 +503,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         writer.start('defs')
         for (path, face, stroke), oid in self._hatchd.values():
+            self._defs[oid] = None
             writer.start(
                 'pattern',
                 id=oid,
@@ -614,6 +618,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         writer.start('defs')
         for clip, oid in self._clipd.values():
+            self._defs[oid] = None
             writer.start('clipPath', id=oid)
             if len(clip) == 2:
                 clippath, clippath_trans = clip
@@ -629,6 +634,20 @@ class RendererSVG(RendererBase):
                     width=_short_float_fmt(w),
                     height=_short_float_fmt(h))
             writer.end('clipPath')
+        writer.end('defs')
+
+    def _write_defs(self):
+        if not len(self._defs):
+            return
+
+        writer = self.writer
+        writer.start('defs')
+        for declaration in self._defs.values():
+            # Skip over defs that were already written
+            if declaration is None:
+                continue
+            for func_name, args, kwargs in declaration:
+                getattr(writer, func_name)(*args, **kwargs)
         writer.end('defs')
 
     def open_group(self, s, gid=None):
@@ -693,9 +712,7 @@ class RendererSVG(RendererBase):
 
         if oid is None:
             oid = self._make_id('m', dictkey)
-            writer.start('defs')
-            writer.element('path', id=oid, d=path_data, style=style)
-            writer.end('defs')
+            self._defs[oid] = [('element', ['path'], dict(id=oid, d=path_data, style=style)),]
             self._markers[dictkey] = oid
 
         writer.start('g', **self._get_clip_attrs(gc))
@@ -735,16 +752,14 @@ class RendererSVG(RendererBase):
 
         writer = self.writer
         path_codes = []
-        writer.start('defs')
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
             d = self._convert_path(path, transform, simplify=False)
             oid = 'C{:x}_{:x}_{}'.format(
                 self._path_collection_id, i, self._make_id('', d))
-            writer.element('path', id=oid, d=d)
+            self._defs[oid] = [('element', ['path'], dict(id=oid, d=d)),]
             path_codes.append(oid)
-        writer.end('defs')
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
@@ -787,8 +802,6 @@ class RendererSVG(RendererBase):
             # Skip fully-transparent triangles
             return
 
-        writer = self.writer
-        writer.start('defs')
         for i in range(3):
             x1, y1 = transformed_points[i]
             x2, y2 = transformed_points[(i + 1) % 3]
@@ -808,33 +821,46 @@ class RendererSVG(RendererBase):
                 b2 = y1 - (m2 * x1)
                 xb = (-b1 + b2) / (m1 - m2)
                 yb = m2 * xb + b2
-
-            writer.start(
-                'linearGradient',
-                id=f"GR{self._n_gradients:x}_{i:d}",
-                gradientUnits="userSpaceOnUse",
-                x1=_short_float_fmt(x1), y1=_short_float_fmt(y1),
-                x2=_short_float_fmt(xb), y2=_short_float_fmt(yb))
-            writer.element(
-                'stop',
-                offset='1',
-                style=_generate_css({
-                    'stop-color': rgb2hex(avg_color),
-                    'stop-opacity': _short_float_fmt(rgba_color[-1])}))
-            writer.element(
-                'stop',
-                offset='0',
-                style=_generate_css({'stop-color': rgb2hex(rgba_color),
-                                    'stop-opacity': "0"}))
-
-            writer.end('linearGradient')
-
-        writer.end('defs')
+            oid = f'GR{self._n_gradients:x}_{i:d}',
+            self._defs[oid] = [
+                (
+                    'start', ['linearGradient'],
+                    dict(
+                        id=oid,
+                        gradientUnits="userSpaceOnUse",
+                        x1=_short_float_fmt(x1), y1=_short_float_fmt(y1),
+                        x2=_short_float_fmt(xb), y2=_short_float_fmt(yb)
+                    ),
+                ),
+                (
+                    'element', ['stop'],
+                    dict(
+                        offset='1',
+                        style=_generate_css(
+                            {
+                                'stop-color': rgb2hex(avg_color),
+                                'stop-opacity': _short_float_fmt(rgba_color[-1])
+                            }
+                        ),
+                    ),
+                ),
+                (
+                    'element', ['stop'],
+                    dict(
+                        offset='0',
+                        style=_generate_css(
+                            {'stop-color': rgb2hex(rgba_color), 'stop-opacity': "0"}
+                        ),
+                    ),
+                ),
+                ('end', ['linearGradient'], {}),
+            ]
 
         # triangle formation using "path"
         dpath = (f"M {_short_float_fmt(x1)},{_short_float_fmt(y1)}"
                  f" L {_short_float_fmt(x2)},{_short_float_fmt(y2)}"
                  f" {_short_float_fmt(x3)},{_short_float_fmt(y3)} Z")
+        writer = self.writer
 
         writer.element(
             'path',
@@ -999,16 +1025,15 @@ class RendererSVG(RendererBase):
         """
         writer = self.writer
         if glyph_map_new:
-            writer.start('defs')
             for char_id, (vertices, codes) in glyph_map_new.items():
                 char_id = self._adjust_char_id(char_id)
                 # x64 to go back to FreeType's internal (integral) units.
                 path_data = self._convert_path(
                     Path(vertices * 64, codes), simplify=False)
-                writer.element(
-                    'path', id=char_id, d=path_data,
-                    transform=_generate_transform([('scale', (1 / 64,))]))
-            writer.end('defs')
+                self._defs[char_id] = [(
+                    'element',
+                    ['path'], dict(id=char_id, d=path_data,
+                    transform=_generate_transform([('scale', (1 / 64,))]))),]
             self._glyph_map.update(glyph_map_new)
 
     def _adjust_char_id(self, char_id):
