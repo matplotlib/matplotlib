@@ -3414,6 +3414,16 @@ def test_errobar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
+def test_errorbar_fillstyle():
+    # Check that passing 'fillstyle' keyword will not result in errors
+    x = np.arange(5)
+    y = np.arange(5)
+
+    plotline, _, _ = plt.errorbar(x, y, xerr=1, yerr=1, ls='None',
+                                  marker='s', fillstyle='full')
+    assert plotline.get_fillstyle() == 'full'
+
+
 @check_figures_equal(extensions=['png'])
 def test_errorbar_with_prop_cycle(fig_test, fig_ref):
     ax = fig_ref.subplots()
