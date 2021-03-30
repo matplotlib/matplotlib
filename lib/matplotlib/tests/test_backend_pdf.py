@@ -227,13 +227,15 @@ def test_text_urls():
         with pikepdf.Pdf.open(fd) as pdf:
             annots = pdf.pages[0].Annots
 
-    for y, fragment in [('0.1', 'plain'), ('0.4', 'mathtext')]:
-        annot = next(
-            (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
-            None)
-        assert annot is not None
-        # Positions in points (72 per inch.)
-        assert annot.Rect[1] == decimal.Decimal(y) * 72
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            for y, fragment in [('0.1', 'plain'), ('0.4', 'mathtext')]:
+                annot = next(
+                    (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
+                    None)
+                assert annot is not None
+                # Positions in points (72 per inch.)
+                assert annot.Rect[1] == decimal.Decimal(y) * 72
 
 
 @needs_usetex
@@ -251,12 +253,14 @@ def test_text_urls_tex():
         with pikepdf.Pdf.open(fd) as pdf:
             annots = pdf.pages[0].Annots
 
-    annot = next(
-        (a for a in annots if a.A.URI == f'{test_url}tex'),
-        None)
-    assert annot is not None
-    # Positions in points (72 per inch.)
-    assert annot.Rect[1] == decimal.Decimal('0.7') * 72
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == f'{test_url}tex'),
+                None)
+            assert annot is not None
+            # Positions in points (72 per inch.)
+            assert annot.Rect[1] == decimal.Decimal('0.7') * 72
 
 
 def test_pdfpages_fspath():
