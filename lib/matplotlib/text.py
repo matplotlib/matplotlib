@@ -1949,7 +1949,10 @@ class Annotation(Text, _AnnotationBase):
             self._renderer = renderer
         if not self.get_visible() or not self._check_xy(renderer):
             return
+        # Update text positions before `Text.draw` would, so that the
+        # FancyArrowPatch is correctly positioned.
         self.update_positions(renderer)
+        self.update_bbox_position_size(renderer)
         if self.arrow_patch is not None:   # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
