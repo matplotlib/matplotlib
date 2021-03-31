@@ -464,7 +464,7 @@ Pull Requests (772):
 * :ghpull:`19140`: Fix the docstring of suptitle/subxlabel/supylabel.
 * :ghpull:`19132`: Normalize docstring interpolation label for kwdoc() property lists
 * :ghpull:`19134`: Switch internal API function calls from cbook to _api
-* :ghpull:`19138`: Added non-code contributions to incubator docs 
+* :ghpull:`19138`: Added non-code contributions to incubator docs
 * :ghpull:`19125`: DOC: contributor incubator
 * :ghpull:`18948`: DOC: Fix latexpdf build
 * :ghpull:`18753`: Remove several more deprecations
@@ -663,7 +663,7 @@ Pull Requests (772):
 * :ghpull:`18674`: Remove accidentally added swapfile.
 * :ghpull:`18673`: Small cleanups to parasite axes.
 * :ghpull:`18536`: axes3d panning
-* :ghpull:`18667`: TST: Lock cache directory during cleanup. 
+* :ghpull:`18667`: TST: Lock cache directory during cleanup.
 * :ghpull:`18672`: Created Border for color examples
 * :ghpull:`18661`: Define GridFinder.{,inv\_}transform_xy as normal methods.
 * :ghpull:`18656`: Fix some missing references.
@@ -697,7 +697,7 @@ Pull Requests (772):
 * :ghpull:`18577`: Random test cleanups
 * :ghpull:`18578`: Merge all axisartist axis_direction demos together.
 * :ghpull:`18588`: Use get_x/yaxis_transform more.
-* :ghpull:`18585`: FIx precision in pie and donut example 
+* :ghpull:`18585`: FIx precision in pie and donut example
 * :ghpull:`18564`: Prepare for merging SubplotBase into AxesBase.
 * :ghpull:`15127`: ENH/API: improvements to register_cmap
 * :ghpull:`18576`: DOC: prefer colormap over color map
@@ -796,7 +796,7 @@ Pull Requests (772):
 * :ghpull:`18251`: Merge v3.3.x into master
 * :ghpull:`18329`: Change default keymap in toolmanager example.
 * :ghpull:`18330`: Dedent rst list.
-* :ghpull:`18286`: Fix imshow to work with subclasses of ndarray. 
+* :ghpull:`18286`: Fix imshow to work with subclasses of ndarray.
 * :ghpull:`18320`: Make Colorbar outline into a Spine.
 * :ghpull:`18316`: Safely import pyplot if a GUI framework is already running.
 * :ghpull:`18321`: Capture output of CallbackRegistry exception test.
@@ -810,7 +810,7 @@ Pull Requests (772):
 * :ghpull:`18226`: Use CallbackRegistry in Widgets and some related cleanup
 * :ghpull:`18203`: Force locator and formatter inheritence
 * :ghpull:`18279`: boxplot: Add conf_intervals reference to notch docs.
-* :ghpull:`18276`: Fix autoscaling to exclude inifinite data limits when possible. 
+* :ghpull:`18276`: Fix autoscaling to exclude inifinite data limits when possible.
 * :ghpull:`18261`: Migrate tk backend tests into subprocesses
 * :ghpull:`17961`: DOCS: Remove How-to: Contributing
 * :ghpull:`18201`: Remove mpl.colors deprecations for 3.4
@@ -869,7 +869,7 @@ Pull Requests (772):
 * :ghpull:`18062`: Bump matplotlib.patches coverage
 * :ghpull:`17269`: Fix ConciseDateFormatter when plotting a range included in a second
 * :ghpull:`18063`: Remove un-used trivial setters and getters
-* :ghpull:`18025`: add figpager as a third party package 
+* :ghpull:`18025`: add figpager as a third party package
 * :ghpull:`18046`: Discourage references in section headings.
 * :ghpull:`18042`: scatter: Raise if unexpected type of ``s`` argument.
 * :ghpull:`18028`: Super-ify parts of the code base, part 1
@@ -911,7 +911,7 @@ Pull Requests (772):
 * :ghpull:`17902`: Fix figure size in path effects guide
 * :ghpull:`17899`: Add missing space in cairo error
 * :ghpull:`17888`: Add _repr_png_ and _repr_html_ to Colormap objects.
-* :ghpull:`17830`: Fix BoundaryNorm for multiple colors and one region 
+* :ghpull:`17830`: Fix BoundaryNorm for multiple colors and one region
 * :ghpull:`17883`: Remove Python 3.6 compatibility shims
 * :ghpull:`17889`: Minor doc fixes
 * :ghpull:`17879`: Link to style-file example page in style tutorial
@@ -1032,11 +1032,11 @@ Issues (204):
 * :ghissue:`19275`: Double specifications of plot attributes
 * :ghissue:`15066`: Feature request: stem3
 * :ghissue:`19209`: Segfault when trying to create gigapixel image with agg backend
-* :ghissue:`4321`: clabel ticks and axes limits with eps zoom output 
+* :ghissue:`4321`: clabel ticks and axes limits with eps zoom output
 * :ghissue:`16376`: ``SymLogNorm`` and ``SymLogScale`` give inconsistent results....
 * :ghissue:`19239`: _make_norm_from_scale needs to process values
 * :ghissue:`16552`: Scatter autoscaling still has issues with log scaling and zero values
-* :ghissue:`18417`: Documentation issue template should ask for matplotlib version 
+* :ghissue:`18417`: Documentation issue template should ask for matplotlib version
 * :ghissue:`19206`: matplotlib.cbook.Grouper: Example raise exception:
 * :ghissue:`19203`: Date Tick Labels example
 * :ghissue:`18581`: Add a check in check_figures_equal that the test did not accidentally plot on non-fixture figures
@@ -1044,7 +1044,7 @@ Issues (204):
 * :ghissue:`19099`: axisartist axis_direction bug
 * :ghissue:`19171`: 3D surface example bug for non-square grid
 * :ghissue:`18112`: set_{x,y,z}bound 3d limits are not persistent upon interactive rotation
-* :ghissue:`19078`: _update_patch_limits should not use CLOSEPOLY verticies for updating 
+* :ghissue:`19078`: _update_patch_limits should not use CLOSEPOLY verticies for updating
 * :ghissue:`16123`: test_dpi_ratio_change fails on Windows/Qt5Agg
 * :ghissue:`15796`: [DOC] PDF build of matplotlib own documentation crashes with LaTeX error "too deeply nested"
 * :ghissue:`19091`: 3D Axes don't work in SubFigures
@@ -1079,8 +1079,8 @@ Issues (204):
 * :ghissue:`18386`: Path3DCollection.set_color(self, c) does not change the color of scatter points.
 * :ghissue:`8946`: Axes with sharex can have divergent axes after setting tick markers
 * :ghissue:`2294`: tex option not respected by date x-axis
-* :ghissue:`4382`: use new binary comm in nbagg 
-* :ghissue:`17088`: ``projection`` kwarg could be better documented.  
+* :ghissue:`4382`: use new binary comm in nbagg
+* :ghissue:`17088`: ``projection`` kwarg could be better documented.
 * :ghissue:`18717`: Tick formatting issues on horizontal histogram with datetime on 3.3.2
 * :ghissue:`12636`: Characters doesn't display correctly when figure saved as pdf with a custom font
 * :ghissue:`18377`: Matplotlib picks a headless backend on Linux if Wayland is available but X11 isn't
@@ -1148,8 +1148,8 @@ Issues (204):
 * :ghissue:`5970`: pyplot.scatter raises obscure error when mistakenly passed a third string param
 * :ghissue:`17936`: documenattion and behavior do not match for suppressing (PDF) metadata
 * :ghissue:`17932`: latex textrm does not work in Cairo backend
-* :ghissue:`17714`: Universal fullscreen command 
-* :ghissue:`4584`: ColorbarBase draws edges in slightly wrong positions. 
+* :ghissue:`17714`: Universal fullscreen command
+* :ghissue:`4584`: ColorbarBase draws edges in slightly wrong positions.
 * :ghissue:`17878`: flipping of imshow in specgram
 * :ghissue:`6118`: consider using qtpy for qt abstraction layer
 * :ghissue:`17908`: rcParams restrictions on frame_formats are out of sync with supported values (HTMLWriter)
@@ -1160,7 +1160,7 @@ Issues (204):
 * :ghissue:`17855`: Add Hatch Example to gallery
 * :ghissue:`15821`: Should constrained_layout work as plt.figure() argument?
 * :ghissue:`15616`: Colormaps should have a ``_repr_html_`` that is an image of the colormap
-* :ghissue:`17579`: ``BoundaryNorm`` yield a ``ZeroDivisionError: division by zero`` 
+* :ghissue:`17579`: ``BoundaryNorm`` yield a ``ZeroDivisionError: division by zero``
 * :ghissue:`17652`: NEP 29 : Stop support fro Python 3.6 soon ?
 * :ghissue:`11095`: Repeated plot calls with xunits=None throws exception
 * :ghissue:`17733`: Rename "array" (and perhaps "fields") section of Axes API

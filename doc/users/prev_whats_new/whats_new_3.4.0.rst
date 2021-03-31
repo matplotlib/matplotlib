@@ -1021,7 +1021,7 @@ Kerning added to strings in PDFs
 
 As with text produced in the Agg backend (see :ref:`the previous what's new
 entry <whats-new-3-2-0-kerning>` for examples), PDFs now include kerning in
-text strings. 
+text strings.
 
 Fully-fractional HiDPI in QtAgg
 -------------------------------
