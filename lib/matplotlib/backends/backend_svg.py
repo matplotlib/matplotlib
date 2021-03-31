@@ -301,6 +301,7 @@ class RendererSVG(RendererBase):
         self.basename = basename
 
         self._groupd = {}
+        self._groupids = set()
         self._image_counter = itertools.count()
         self._clipd = {}
         self._defs = {}
@@ -656,7 +657,9 @@ class RendererSVG(RendererBase):
             self.writer.start('g', id=gid)
         else:
             self._groupd[s] = self._groupd.get(s, 0) + 1
-            self.writer.start('g', id=f"{s}_{self._groupd[s]:d}")
+            gid = f"{s}_{self._groupd[s]:d}"
+            self.writer.start('g', id=gid)
+        self._groupids.add(gid)
 
     def close_group(self, s):
         # docstring inherited
