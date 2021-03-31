@@ -496,7 +496,11 @@ def test_backend_fallback_headful(tmpdir):
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
     backend = subprocess.check_output(
         [sys.executable, "-c",
-         "import matplotlib.pyplot; print(matplotlib.get_backend())"],
+         "import matplotlib as mpl; "
+         "assert dict.__getitem__(mpl.rcParams, 'backend') == "
+         "mpl.rcsetup._auto_backend_sentinel; "
+         "import matplotlib.pyplot; "
+         "print(matplotlib.get_backend())"],
         env=env, universal_newlines=True)
     # The actual backend will depend on what's installed, but at least tkagg is
     # present.
