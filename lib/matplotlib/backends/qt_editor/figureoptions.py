@@ -10,6 +10,7 @@ import re
 from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
+from matplotlib.container import ErrorbarContainer
 
 
 LINESTYLES = {'-': 'Solid',
@@ -65,13 +66,23 @@ def figure_edit(axes, parent=None):
         else:
             return label, 0
 
-    # Get / Curves
+    # Obtain all the lines and Curves displayed on the plot
     linedict = {}
     for line in axes.get_lines():
         label = line.get_label()
         if label == '_nolegend_':
             continue
         linedict[label] = line
+
+    # Obtain errorbar plots, which are in containers
+    # TODO: bar charts?
+    for container in axes.containers:
+        label = container.get_label()
+        if label == '_nolegend_':
+            continue
+        elif isinstance(container, ErrorbarContainer):
+            # don't do anything but ErrorbarContainers to start with
+            linedict[label] = container
     curves = []
 
     def prepare_data(d, init):
@@ -103,7 +114,13 @@ def figure_edit(axes, parent=None):
 
     curvelabels = sorted(linedict, key=cmp_key)
     for label in curvelabels:
-        line = linedict[label]
+        o = linedict[label]
+        if isinstance(o, ErrorbarContainer):
+            # we'll change the bar/caps properties of the errorbar plot based
+            # on the properties of the host line
+            line = o[0]
+        else:
+            line = o
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
             keep_alpha=True)
@@ -205,7 +222,12 @@ def figure_edit(axes, parent=None):
 
         # Set / Curves
         for index, curve in enumerate(curves):
-            line = linedict[curvelabels[index]]
+            o = linedict[curvelabels[index]]
+            if isinstance(o, ErrorbarContainer):
+                # we'll change the host line of the errorbar plot first
+                line = o[0]
+            else:
+                line = o
             (label, linestyle, drawstyle, linewidth, color, marker, markersize,
              markerfacecolor, markeredgecolor) = curve
             line.set_label(label)
@@ -220,6 +242,19 @@ def figure_edit(axes, parent=None):
                 line.set_markersize(markersize)
                 line.set_markerfacecolor(markerfacecolor)
                 line.set_markeredgecolor(markeredgecolor)
+
+            if isinstance(o, ErrorbarContainer):
+                # now adjust bar/caps of errorbar plot based on changed
+                # characteristics of the host line
+                # We'll only do color to start with, make it the same color as
+                # the marker, because the errorbar is closely associated with
+                # it.
+                # TODO: adjust other characteristics of the errorbars? This
+                # will involve adjusting the Qt dialog.
+                for line in cbook.flatten(o[1:]):
+                    line.set_alpha(None)
+                    line.set_color(markerfacecolor)
+                    line.set_linewidth(linewidth)
 
         # Set ScalarMappables.
         for index, mappable_settings in enumerate(mappables):
