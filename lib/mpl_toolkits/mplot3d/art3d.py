@@ -555,7 +555,7 @@ class Path3DCollection(PathCollection):
         # depth-sorted version of that data into the private state used by the
         # base collection class in its draw method.
         #
-        # grab the current sizes and linewidths to preserve them
+        # Grab the current sizes and linewidths to preserve them.
         self._sizes3d = self._sizes
         self._linewidths3d = self._linewidths
         xs, ys, zs = self._offsets3d
@@ -639,8 +639,8 @@ class Path3DCollection(PathCollection):
 
     def get_edgecolor(self):
         # We need this check here to make sure we do not double-apply the depth
-        #  based alpha shading when the edge color is "face" which means the
-        #  edge colour should be identical to the face colour.
+        # based alpha shading when the edge color is "face" which means the
+        # edge colour should be identical to the face colour.
         if cbook._str_equal(self._edgecolors, 'face'):
             return self.get_facecolor()
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())

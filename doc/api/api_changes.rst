@@ -38,5 +38,4 @@ added to Matplotlib, see :ref:`whats-new`
       next_api_changes/development/*
       next_api_changes/removals/*
 
-.. include:: prev_api_changes/api_changes_3.3.1.rst
-.. include:: prev_api_changes/api_changes_3.3.0.rst
+.. include:: prev_api_changes/api_changes_3.4.0.rst

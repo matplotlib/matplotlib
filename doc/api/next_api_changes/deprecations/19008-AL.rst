@@ -1,5 +1,0 @@
-``FigureManagerBase.key_press`` and ``button_press``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-These methods, which incorrectly did nothing when using ``toolmanager``, are
-deprecated in favor of directly passing the event to the `.CallbackRegistry`
-via ``self.canvas.callbacks.process(event.name, event)``.

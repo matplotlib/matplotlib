@@ -1,5 +1,0 @@
-Removed support for single color strings in `~.colors.to_rgba_array`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Converting a string with single color characters (e.g. ``'cymk'``) in
-`~.colors.to_rgba_array` is no longer supported. Instead, the colors can be
-passed individually in a list (e.g. ``['c', 'y', 'm', 'k']``).

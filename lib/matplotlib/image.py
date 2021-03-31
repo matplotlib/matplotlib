@@ -1478,9 +1478,10 @@ def imread(fname, format=None):
     if isinstance(fname, str):
         parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.4", message="Directly reading images from URLs is "
-                "deprecated. Please open the URL for reading and pass the "
+                "deprecated since %(since)s and will no longer be supported "
+                "%(removal)s. Please open the URL for reading and pass the "
                 "result to Pillow, e.g. with "
                 "``PIL.Image.open(urllib.request.urlopen(url))``.")
             # hide imports to speed initial import on systems with slow linkers

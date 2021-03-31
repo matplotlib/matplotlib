@@ -943,8 +943,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         artist.Artist.update_from(self, other)
         self._antialiaseds = other._antialiaseds
+        self._mapped_colors = other._mapped_colors
+        self._edge_is_mapped = other._edge_is_mapped
         self._original_edgecolor = other._original_edgecolor
         self._edgecolors = other._edgecolors
+        self._face_is_mapped = other._face_is_mapped
         self._original_facecolor = other._original_facecolor
         self._facecolors = other._facecolors
         self._linewidths = other._linewidths

@@ -1,4 +1,0 @@
-Parameter minor in set_ticks() is keyword-only
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The parameter *minor* in `.Axis.set_ticks` and ``SecondaryAxis.set_ticks`` is
-now keyword-only.
