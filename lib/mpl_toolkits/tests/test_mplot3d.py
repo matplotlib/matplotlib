@@ -1427,3 +1427,16 @@ def test_subfigure_simple():
     sf = fig.subfigures(1, 2)
     ax = sf[0].add_subplot(1, 1, 1, projection='3d')
     ax = sf[1].add_subplot(1, 1, 1, projection='3d', label='other')
+
+
+@image_comparison(baseline_images=['scatter_spiral.png'],
+                  remove_text=True,
+                  style='default')
+def test_scatter_spiral():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    th = np.linspace(0, 2 * np.pi * 6, 256)
+    sc = ax.scatter(np.sin(th), np.cos(th), th, s=(1 + th * 5), c=th ** 2)
+
+    # force at least 1 draw!
+    fig.canvas.draw()
