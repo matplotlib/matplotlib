@@ -59,19 +59,23 @@ def figure_edit(axes, parent=None):
 
     # Sorting for default labels (_lineXXX, _imageXXX).
     def cmp_key(label):
-        match = re.match(r"(_line|_image)(\d+)", label)
+        """
+        Label should be a tuple consisting of the string label,
+        and the object being sorted by label.
+        """
+        match = re.match(r"(_line|_image)(\d+)", label[0])
         if match:
             return match.group(1), int(match.group(2))
         else:
-            return label, 0
+            return label[0], 0
 
     # Get / Curves
-    linedict = {}
+    labeled_lines = []
     for line in axes.get_lines():
         label = line.get_label()
         if label == '_nolegend_':
             continue
-        linedict[label] = line
+        labeled_lines.append((label, line))
     curves = []
 
     def prepare_data(d, init):
@@ -101,9 +105,7 @@ def figure_edit(axes, parent=None):
                 sorted(short2name.items(),
                        key=lambda short_and_name: short_and_name[1]))
 
-    curvelabels = sorted(linedict, key=cmp_key)
-    for label in curvelabels:
-        line = linedict[label]
+    for label, line in sorted(labeled_lines, key=cmp_key):
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
             keep_alpha=True)
@@ -132,17 +134,15 @@ def figure_edit(axes, parent=None):
     has_curve = bool(curves)
 
     # Get ScalarMappables.
-    mappabledict = {}
+    labeled_mappables = []
     for mappable in [*axes.images, *axes.collections]:
         label = mappable.get_label()
         if label == '_nolegend_' or mappable.get_array() is None:
             continue
-        mappabledict[label] = mappable
-    mappablelabels = sorted(mappabledict, key=cmp_key)
+        labeled_mappables.append((label, mappable))
     mappables = []
     cmaps = [(cmap, name) for name, cmap in sorted(cm._cmap_registry.items())]
-    for label in mappablelabels:
-        mappable = mappabledict[label]
+    for label, mappable in sorted(labeled_mappables, key=cmp_key):
         cmap = mappable.get_cmap()
         if cmap not in cm._cmap_registry.values():
             cmaps = [(cmap, cmap.name), *cmaps]
@@ -205,7 +205,7 @@ def figure_edit(axes, parent=None):
 
         # Set / Curves
         for index, curve in enumerate(curves):
-            line = linedict[curvelabels[index]]
+            line = labeled_lines[index][1]
             (label, linestyle, drawstyle, linewidth, color, marker, markersize,
              markerfacecolor, markeredgecolor) = curve
             line.set_label(label)
@@ -223,7 +223,7 @@ def figure_edit(axes, parent=None):
 
         # Set ScalarMappables.
         for index, mappable_settings in enumerate(mappables):
-            mappable = mappabledict[mappablelabels[index]]
+            mappable = labeled_mappables[index][1]
             if len(mappable_settings) == 5:
                 label, cmap, low, high, interpolation = mappable_settings
                 mappable.set_interpolation(interpolation)
