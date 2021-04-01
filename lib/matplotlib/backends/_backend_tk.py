@@ -251,68 +251,53 @@ class FigureCanvasTk(FigureCanvasBase):
         """
         return self._tkcanvas
 
+    def _event_mpl_coords(self, event):
+        # calling canvasx/canvasy allows taking scrollbars into account (i.e.
+        # the top of the widget may have been scrolled out of view).
+        return (self._tkcanvas.canvasx(event.x),
+                # flipy so y=0 is bottom of canvas
+                self.figure.bbox.height - self._tkcanvas.canvasy(event.y))
+
     def motion_notify_event(self, event):
-        x = event.x
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y
-        super().motion_notify_event(x, y, guiEvent=event)
+        super().motion_notify_event(
+            *self._event_mpl_coords(event), guiEvent=event)
 
     def enter_notify_event(self, event):
-        x = event.x
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y
-        super().enter_notify_event(guiEvent=event, xy=(x, y))
+        super().enter_notify_event(
+            guiEvent=event, xy=self._event_mpl_coords(event))
 
     def button_press_event(self, event, dblclick=False):
-        x = event.x
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
-
-        if sys.platform == 'darwin':
-            # 2 and 3 were reversed on the OSX platform I tested under tkagg.
-            if num == 2:
-                num = 3
-            elif num == 3:
-                num = 2
-
-        super().button_press_event(x, y, num,
-                                   dblclick=dblclick, guiEvent=event)
+        if sys.platform == 'darwin':  # 2 and 3 are reversed.
+            num = {2: 3, 3: 2}.get(num, num)
+        super().button_press_event(
+            *self._event_mpl_coords(event), num, dblclick=dblclick,
+            guiEvent=event)
 
     def button_dblclick_event(self, event):
         self.button_press_event(event, dblclick=True)
 
     def button_release_event(self, event):
-        x = event.x
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y
-
         num = getattr(event, 'num', None)
-
-        if sys.platform == 'darwin':
-            # 2 and 3 were reversed on the OSX platform I tested under tkagg.
-            if num == 2:
-                num = 3
-            elif num == 3:
-                num = 2
-
-        super().button_release_event(x, y, num, guiEvent=event)
+        if sys.platform == 'darwin':  # 2 and 3 are reversed.
+            num = {2: 3, 3: 2}.get(num, num)
+        super().button_release_event(
+            *self._event_mpl_coords(event), num, guiEvent=event)
 
     def scroll_event(self, event):
-        x = event.x
-        y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
         step = 1 if num == 4 else -1 if num == 5 else 0
-        super().scroll_event(x, y, step, guiEvent=event)
+        super().scroll_event(
+            *self._event_mpl_coords(event), step, guiEvent=event)
 
     def scroll_event_windows(self, event):
         """MouseWheel event processor"""
         # need to find the window that contains the mouse
         w = event.widget.winfo_containing(event.x_root, event.y_root)
         if w == self._tkcanvas:
-            x = event.x_root - w.winfo_rootx()
-            y = event.y_root - w.winfo_rooty()
-            y = self.figure.bbox.height - y
+            x = self._tkcanvas.canvasx(event.x_root - w.winfo_rootx())
+            y = (self.figure.bbox.height
+                 - self._tkcanvas.canvasy(event.y_root - w.winfo_rooty()))
             step = event.delta/120.
             FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
