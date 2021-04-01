@@ -113,17 +113,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.figure.Figure.add_axes
-matplotlib.figure.Figure.add_subplot
-matplotlib.figure.Figure.add_gridspec
-matplotlib.axes.Axes.scatter
-matplotlib.axes.Axes.hist
+#    - `matplotlib.figure.Figure.add_axes`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.figure.Figure.add_gridspec`
+#    - `matplotlib.axes.Axes.scatter`
+#    - `matplotlib.axes.Axes.hist`
