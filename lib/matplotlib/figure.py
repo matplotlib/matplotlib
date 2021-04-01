@@ -2843,31 +2843,6 @@ class Figure(FigureBase):
             The resolution in dots per inch.  If 'figure', use the figure's
             dpi value.
 
-        quality : int, default: :rc:`savefig.jpeg_quality`
-            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
-
-            The image quality, on a scale from 1 (worst) to 95 (best).
-            Values above 95 should be avoided; 100 disables portions of
-            the JPEG compression algorithm, and results in large files
-            with hardly any gain in image quality.
-
-            This parameter is deprecated.
-
-        optimize : bool, default: False
-            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
-
-            Whether the encoder should make an extra pass over the image
-            in order to select optimal encoder settings.
-
-            This parameter is deprecated.
-
-        progressive : bool, default: False
-            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
-
-            Whether the image should be stored as a progressive JPEG file.
-
-            This parameter is deprecated.
-
         facecolor : color or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
             facecolor.
