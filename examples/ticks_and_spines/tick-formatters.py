@@ -110,29 +110,25 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.subplots
-matplotlib.axes.Axes.text
-matplotlib.axis.Axis.set_major_formatter
-matplotlib.axis.Axis.set_major_locator
-matplotlib.axis.Axis.set_minor_locator
-matplotlib.axis.XAxis.set_ticks_position
-matplotlib.axis.YAxis.set_ticks_position
-matplotlib.ticker.FixedFormatter
-matplotlib.ticker.FixedLocator
-matplotlib.ticker.FormatStrFormatter
-matplotlib.ticker.FuncFormatter
-matplotlib.ticker.MultipleLocator
-matplotlib.ticker.NullFormatter
-matplotlib.ticker.NullLocator
-matplotlib.ticker.PercentFormatter
-matplotlib.ticker.ScalarFormatter
-matplotlib.ticker.StrMethodFormatter
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.axes.Axes.text`
+#    - `matplotlib.axis.Axis.set_major_formatter`
+#    - `matplotlib.axis.Axis.set_major_locator`
+#    - `matplotlib.axis.Axis.set_minor_locator`
+#    - `matplotlib.axis.XAxis.set_ticks_position`
+#    - `matplotlib.axis.YAxis.set_ticks_position`
+#    - `matplotlib.ticker.FixedFormatter`
+#    - `matplotlib.ticker.FixedLocator`
+#    - `matplotlib.ticker.FormatStrFormatter`
+#    - `matplotlib.ticker.FuncFormatter`
+#    - `matplotlib.ticker.MultipleLocator`
+#    - `matplotlib.ticker.NullFormatter`
+#    - `matplotlib.ticker.NullLocator`
+#    - `matplotlib.ticker.PercentFormatter`
+#    - `matplotlib.ticker.ScalarFormatter`
+#    - `matplotlib.ticker.StrMethodFormatter`

@@ -78,23 +78,20 @@ barpath = path.Path(verts, codes)
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.PathPatch
-matplotlib.path
-matplotlib.path.Path
-matplotlib.path.Path.make_compound_path_from_polys
-matplotlib.axes.Axes.add_patch
-matplotlib.collections.PathCollection
-
-# This example shows an alternative to
-matplotlib.collections.PolyCollection
-matplotlib.axes.Axes.hist
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.path.Path.make_compound_path_from_polys`
+#    - `matplotlib.axes.Axes.add_patch`
+#    - `matplotlib.collections.PathCollection`
+#
+#    This example shows an alternative to
+#
+#    - `matplotlib.collections.PolyCollection`
+#    - `matplotlib.axes.Axes.hist`

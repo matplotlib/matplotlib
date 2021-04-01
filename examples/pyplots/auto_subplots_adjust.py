@@ -41,20 +41,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.artist.Artist.get_window_extent
-matplotlib.transforms.Bbox
-matplotlib.transforms.Bbox.transformed
-matplotlib.transforms.Bbox.union
-matplotlib.transforms.Transform.inverted
-matplotlib.figure.Figure.subplots_adjust
-matplotlib.figure.SubplotParams
-matplotlib.backend_bases.FigureCanvasBase.mpl_connect
+#    - `matplotlib.artist.Artist.get_window_extent`
+#    - `matplotlib.transforms.Bbox`
+#    - `matplotlib.transforms.BboxBase.transformed`
+#    - `matplotlib.transforms.BboxBase.union`
+#    - `matplotlib.transforms.Transform.inverted`
+#    - `matplotlib.figure.Figure.subplots_adjust`
+#    - `matplotlib.figure.SubplotParams`
+#    - `matplotlib.backend_bases.FigureCanvasBase.mpl_connect`

@@ -24,18 +24,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.plot
-matplotlib.projections.polar
-matplotlib.projections.polar.PolarAxes
-matplotlib.projections.polar.PolarAxes.set_rticks
-matplotlib.projections.polar.PolarAxes.set_rmax
-matplotlib.projections.polar.PolarAxes.set_rlabel_position
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#    - `matplotlib.projections.polar`
+#    - `matplotlib.projections.polar.PolarAxes`
+#    - `matplotlib.projections.polar.PolarAxes.set_rticks`
+#    - `matplotlib.projections.polar.PolarAxes.set_rmax`
+#    - `matplotlib.projections.polar.PolarAxes.set_rlabel_position`

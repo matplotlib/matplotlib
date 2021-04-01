@@ -37,17 +37,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.collections
-matplotlib.collections.EllipseCollection
-matplotlib.axes.Axes.add_collection
-matplotlib.axes.Axes.autoscale_view
-matplotlib.cm.ScalarMappable.set_array
+#    - `matplotlib.collections`
+#    - `matplotlib.collections.EllipseCollection`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.axes.Axes.autoscale_view`
+#    - `matplotlib.cm.ScalarMappable.set_array`
