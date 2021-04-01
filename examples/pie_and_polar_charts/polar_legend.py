@@ -29,16 +29,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.plot
-matplotlib.axes.Axes.legend
-matplotlib.projections.polar
-matplotlib.projections.polar.PolarAxes
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#    - `matplotlib.projections.polar`
+#    - `matplotlib.projections.polar.PolarAxes`

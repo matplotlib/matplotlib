@@ -94,14 +94,10 @@ if __name__ == '__main__':
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.widgets.PolygonSelector
-matplotlib.path.Path
+#    - `matplotlib.widgets.PolygonSelector`
+#    - `matplotlib.path.Path`

@@ -25,14 +25,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import mpl_toolkits
-mpl_toolkits.mplot3d.Axes3D
-mpl_toolkits.mplot3d.Axes3D.plot_surface
+#    - `mpl_toolkits.mplot3d.axes3d.Axes3D`
+#    - `mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface`

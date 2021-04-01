@@ -40,17 +40,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.patches
-matplotlib.patches.PathPatch
-matplotlib.axes.Axes.add_patch
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.axes.Axes.add_patch`

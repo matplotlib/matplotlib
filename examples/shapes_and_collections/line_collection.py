@@ -86,19 +86,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.collections
-matplotlib.collections.LineCollection
-matplotlib.cm.ScalarMappable.set_array
-matplotlib.axes.Axes.add_collection
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.pyplot.sci
+#    - `matplotlib.collections`
+#    - `matplotlib.collections.LineCollection`
+#    - `matplotlib.cm.ScalarMappable.set_array`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.pyplot.sci`

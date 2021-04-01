@@ -24,18 +24,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.path.Path.unit_regular_star
-matplotlib.path.Path.unit_circle
-matplotlib.axes.Axes.plot
-matplotlib.pyplot.plot
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.path.Path.unit_regular_star`
+#    - `matplotlib.path.Path.unit_circle`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
