@@ -51,17 +51,13 @@ im = Image.fromarray(X)
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.backends.backend_agg.FigureCanvasAgg
-matplotlib.figure.Figure
-matplotlib.figure.Figure.add_subplot
-matplotlib.figure.Figure.savefig
-matplotlib.axes.Axes.plot
+#    - `matplotlib.backends.backend_agg.FigureCanvasAgg`
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.figure.Figure.savefig` / `matplotlib.pyplot.savefig`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
