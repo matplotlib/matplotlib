@@ -6,7 +6,7 @@ quiver([X, Y], U, V, ...)
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('cheatsheet_gallery')
+plt.style.use('mpl_plot_gallery')
 
 # make data
 T = np.linspace(0, 2*np.pi, 8)

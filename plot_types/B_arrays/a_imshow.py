@@ -7,7 +7,7 @@ imshow(Z, [cmap=], ...)
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('cheatsheet_gallery')
+plt.style.use('mpl_plot_gallery')
 
 # make data
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))

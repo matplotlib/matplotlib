@@ -6,7 +6,7 @@ hist(X, [bins],...)
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('cheatsheet_gallery')
+plt.style.use('mpl_plot_gallery')
 
 # make data
 np.random.seed(1)
