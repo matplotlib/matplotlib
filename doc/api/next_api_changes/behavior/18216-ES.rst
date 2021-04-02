@@ -1,0 +1,30 @@
+.. _Behavioral API Changes 3.5 - Axes children combined:
+
+``Axes`` children are no longer separated by type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Formerly, `.axes.Axes` children were separated by `.Artist` type, into sublists
+such as ``Axes.lines``. For methods that produced multiple elements (such as
+`.Axes.errorbar`), though individual parts would have similar *zorder*, this
+separation might cause them to be drawn at different times, causing
+inconsistent results when overlapping other Artists.
+
+Now, the children are no longer separated by type, and the sublist properties
+are generated dynamically when accessed. Consequently, Artists will now always
+appear in the correct sublist; e.g., if `.axes.Axes.add_line` is called on a
+`.Patch`, it will be appear in the ``Axes.patches`` sublist, _not_
+``Axes.lines``. The ``Axes.add_*`` methods will now warn if passed an
+unexpected type.
+
+Modification of the following sublists is still accepted, but deprecated:
+
+* ``Axes.artists``
+* ``Axes.collections``
+* ``Axes.images``
+* ``Axes.lines``
+* ``Axes.patches``
+* ``Axes.tables``
+* ``Axes.texts``
+
+To remove an Artist, use its `.Artist.remove` method. To add an Artist, use the
+corresponding ``Axes.add_*`` method.

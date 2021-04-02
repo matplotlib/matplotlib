@@ -2,6 +2,7 @@ import functools
 
 from matplotlib import _api
 import matplotlib.artist as martist
+import matplotlib.image as mimage
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
@@ -24,9 +25,18 @@ class ParasiteAxesBase:
         self._get_lines = self._parent_axes._get_lines
 
     def get_images_artists(self):
-        artists = {a for a in self.get_children() if a.get_visible()}
-        images = {a for a in self.images if a.get_visible()}
-        return list(images), list(artists - images)
+        artists = []
+        images = []
+
+        for a in self.get_children():
+            if not a.get_visible():
+                continue
+            if isinstance(a, mimage.AxesImage):
+                images.append(a)
+            else:
+                artists.append(a)
+
+        return images, artists
 
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given
@@ -203,8 +213,7 @@ class HostAxesBase:
 
     def draw(self, renderer):
 
-        orig_artists = list(self.artists)
-        orig_images = list(self.images)
+        orig_children_len = len(self._children)
 
         if hasattr(self, "get_axes_locator"):
             locator = self.get_axes_locator()
@@ -222,12 +231,11 @@ class HostAxesBase:
         for ax in self.parasites:
             ax.apply_aspect(rect)
             images, artists = ax.get_images_artists()
-            self.images.extend(images)
-            self.artists.extend(artists)
+            self._children.extend(images)
+            self._children.extend(artists)
 
         super().draw(renderer)
-        self.artists = orig_artists
-        self.images = orig_images
+        self._children = self._children[:orig_children_len]
 
     def cla(self):
         for ax in self.parasites:

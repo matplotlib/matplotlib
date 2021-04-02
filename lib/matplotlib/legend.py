@@ -35,9 +35,9 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
                                 StepPatch)
-from matplotlib.collections import (LineCollection, RegularPolyCollection,
-                                    CircleCollection, PathCollection,
-                                    PolyCollection)
+from matplotlib.collections import (
+    Collection, CircleCollection, LineCollection, PathCollection,
+    PolyCollection, RegularPolyCollection)
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 
@@ -826,18 +826,23 @@ class Legend(Artist):
             List of (x, y) offsets of all collection.
         """
         assert self.isaxes  # always holds, as this is only called internally
-        ax = self.parent
-        lines = [line.get_transform().transform_path(line.get_path())
-                 for line in ax.lines]
-        bboxes = [patch.get_bbox().transformed(patch.get_data_transform())
-                  if isinstance(patch, Rectangle) else
-                  patch.get_path().get_extents(patch.get_transform())
-                  for patch in ax.patches]
+        bboxes = []
+        lines = []
         offsets = []
-        for handle in ax.collections:
-            _, transOffset, hoffsets, _ = handle._prepare_points()
-            for offset in transOffset.transform(hoffsets):
-                offsets.append(offset)
+        for artist in self.parent._children:
+            if isinstance(artist, Line2D):
+                lines.append(
+                    artist.get_transform().transform_path(artist.get_path()))
+            elif isinstance(artist, Rectangle):
+                bboxes.append(
+                    artist.get_bbox().transformed(artist.get_data_transform()))
+            elif isinstance(artist, Patch):
+                bboxes.append(
+                    artist.get_path().get_extents(artist.get_transform()))
+            elif isinstance(artist, Collection):
+                _, transOffset, hoffsets, _ = artist._prepare_points()
+                for offset in transOffset.transform(hoffsets):
+                    offsets.append(offset)
         return bboxes, lines, offsets
 
     def get_children(self):
@@ -1114,13 +1119,17 @@ def _get_legend_handles(axs, legend_handler_map=None):
     """
     handles_original = []
     for ax in axs:
-        handles_original += (ax.lines + ax.patches +
-                             ax.collections + ax.containers)
+        handles_original += [
+            *(a for a in ax._children
+              if isinstance(a, (Line2D, Patch, Collection))),
+            *ax.containers]
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
-                handles_original += (axx.lines + axx.patches +
-                                     axx.collections + axx.containers)
+                handles_original += [
+                    *(a for a in axx._children
+                      if isinstance(a, (Line2D, Patch, Collection))),
+                    *axx.containers]
 
     handler_map = Legend.get_default_handler_map()
 

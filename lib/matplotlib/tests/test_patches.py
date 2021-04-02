@@ -148,17 +148,17 @@ def test_patch_alpha_coloring():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(cut_star1,
-                               linewidth=5, linestyle='dashdot',
-                               facecolor=(1, 0, 0, 0.5),
-                               edgecolor=(0, 0, 1, 0.75))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection([cut_star2],
                                       linewidth=5, linestyles='dashdot',
                                       facecolor=(1, 0, 0, 0.5),
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
@@ -178,19 +178,19 @@ def test_patch_alpha_override():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(cut_star1,
-                               linewidth=5, linestyle='dashdot',
-                               alpha=0.25,
-                               facecolor=(1, 0, 0, 0.5),
-                               edgecolor=(0, 0, 1, 0.75))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection([cut_star2],
                                       linewidth=5, linestyles='dashdot',
                                       alpha=0.25,
                                       facecolor=(1, 0, 0, 0.5),
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               alpha=0.25,
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
@@ -217,17 +217,17 @@ def test_patch_custom_linestyle():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(
-        cut_star1,
-        linewidth=5, linestyle=(0, (5, 7, 10, 7)),
-        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection(
         [cut_star2],
         linewidth=5, linestyles=[(0, (5, 7, 10, 7))],
         facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(
+        cut_star1,
+        linewidth=5, linestyle=(0, (5, 7, 10, 7)),
+        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
