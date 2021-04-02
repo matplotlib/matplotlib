@@ -172,6 +172,7 @@ import datetime
 import functools
 import logging
 import math
+import re
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -591,21 +592,12 @@ def drange(dstart, dend, delta):
 
 
 def _wrap_in_tex(text):
+    p = r'([a-zA-Z]+)'
+    ret_text = re.sub(p, r'}$\1$\\mathdefault{', text)
+
     # Braces ensure dashes are not spaced like binary operators.
-    p = re.compile("[a-zA-Z]+")
-    m = p.finditer(text)
-    cursor = 0
-    ret_text = ''
-
-    for i in m:
-        start = i.start()
-        end = i.end()
-
-        ret_text += '$\\mathdefault{'+text[cursor:start].replace('-', '{-}')
-        ret_text += '}$'+text[start:end]
-        cursor = end
-
-    ret_text += '$\\mathdefault{'+text[cursor:].replace('-', '{-}')+'}$'
+    ret_text = '$\\mathdefault{'+ret_text.replace('-', '{-}')+'}$'
+    ret_text = ret_text.replace('$\\mathdefault{}$', '')
     return ret_text
 
 
