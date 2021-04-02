@@ -37,17 +37,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-import mpl_toolkits
-matplotlib.figure.Figure.add_subplot
-mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface
-mpl_toolkits.mplot3d.axes3d.Axes3D.plot_wireframe
-mpl_toolkits.mplot3d.axes3d.Axes3D.set_zlim3d
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface`
+#    - `mpl_toolkits.mplot3d.axes3d.Axes3D.plot_wireframe`
+#    - `mpl_toolkits.mplot3d.axes3d.Axes3D.set_zlim3d`

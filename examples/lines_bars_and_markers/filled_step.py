@@ -225,15 +225,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill_betweenx
-matplotlib.axes.Axes.fill_between
-matplotlib.axis.Axis.set_major_locator
+#    - `matplotlib.axes.Axes.fill_betweenx` / `matplotlib.pyplot.fill_betweenx`
+#    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
+#    - `matplotlib.axis.Axis.set_major_locator`
