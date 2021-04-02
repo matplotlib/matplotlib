@@ -842,6 +842,12 @@ rcParamsDefault = _rc_params_in_file(
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
 dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
+# Normally, the default matplotlibrc file contains *no* entry for backend (the
+# corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
+# in that case.  However, packagers can set a different default backend
+# (resulting in a normal `#backend: foo` line) in which case we should *not*
+# fill in _auto_backend_sentinel.
+dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
 rcParams = RcParams()  # The global instance.
 dict.update(rcParams, dict.items(rcParamsDefault))
 dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))

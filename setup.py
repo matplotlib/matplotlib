@@ -194,16 +194,18 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
 
 
 def update_matplotlibrc(path):
-    # Update the matplotlibrc file if packagers want to change the default
-    # backend.
+    # If packagers want to change the default backend, insert a `#backend: ...`
+    # line.  Otherwise, use the default `##backend: Agg` which has no effect
+    # even after decommenting, which allows _auto_backend_sentinel to be filled
+    # in at import time.
     template_lines = path.read_text().splitlines(True)
     backend_line_idx, = [  # Also asserts that there is a single such line.
         idx for idx, line in enumerate(template_lines)
-        if line.startswith("#backend:")]
+        if "#backend:" in line]
     template_lines[backend_line_idx] = (
         "#backend: {}".format(setupext.options["backend"])
         if setupext.options["backend"]
-        else "#backend:")
+        else "##backend: Agg")
     path.write_text("".join(template_lines))
 
 
