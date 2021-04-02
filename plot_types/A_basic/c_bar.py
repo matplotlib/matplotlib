@@ -15,7 +15,7 @@ Y = np.random.uniform(2, 7, len(X))
 # plot
 fig, ax = plt.subplots()
 
-ax.bar(X, Y, bottom=0, width=1, edgecolor="white", linewidth=0.7)
+ax.bar(X, Y, width=1, edgecolor="white", linewidth=0.7)
 
 ax.set_xlim(0, 8)
 ax.set_xticks(np.arange(1, 8))
