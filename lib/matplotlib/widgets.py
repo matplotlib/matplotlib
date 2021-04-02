@@ -2359,16 +2359,16 @@ class RectangleSelector(_SelectorWidget):
             self.to_draw.set_visible(False)
 
         # update the eventpress and eventrelease with the resulting extents
-        x1, x2, y1, y2 = self.extents
-        self.eventpress.xdata = x1
-        self.eventpress.ydata = y1
-        xy1 = self.ax.transData.transform([x1, y1])
-        self.eventpress.x, self.eventpress.y = xy1
+        x0, x1, y0, y1 = self.extents
+        self.eventpress.xdata = x0
+        self.eventpress.ydata = y0
+        xy0 = self.ax.transData.transform([x0, y0])
+        self.eventpress.x, self.eventpress.y = xy0
 
-        self.eventrelease.xdata = x2
-        self.eventrelease.ydata = y2
-        xy2 = self.ax.transData.transform([x2, y2])
-        self.eventrelease.x, self.eventrelease.y = xy2
+        self.eventrelease.xdata = x1
+        self.eventrelease.ydata = y1
+        xy1 = self.ax.transData.transform([x1, y1])
+        self.eventrelease.x, self.eventrelease.y = xy1
 
         # calculate dimensions of box or line
         if self.spancoords == 'data':
@@ -2400,22 +2400,22 @@ class RectangleSelector(_SelectorWidget):
         """Motion notify event handler."""
         # resize an existing shape
         if self.active_handle and self.active_handle != 'C':
-            x1, x2, y1, y2 = self._extents_on_press
+            x0, x1, y0, y1 = self._extents_on_press
             if self.active_handle in ['E', 'W'] + self._corner_order:
-                x2 = event.xdata
+                x1 = event.xdata
             if self.active_handle in ['N', 'S'] + self._corner_order:
-                y2 = event.ydata
+                y1 = event.ydata
 
         # move existing shape
         elif (('move' in self.state or self.active_handle == 'C')
               and self._extents_on_press is not None):
-            x1, x2, y1, y2 = self._extents_on_press
+            x0, x1, y0, y1 = self._extents_on_press
             dx = event.xdata - self.eventpress.xdata
             dy = event.ydata - self.eventpress.ydata
+            x0 += dx
             x1 += dx
-            x2 += dx
+            y0 += dy
             y1 += dy
-            y2 += dy
 
         # new shape
         else:
@@ -2446,10 +2446,10 @@ class RectangleSelector(_SelectorWidget):
                 center[0] += dx
                 center[1] += dy
 
-            x1, x2, y1, y2 = (center[0] - dx, center[0] + dx,
+            x0, x1, y0, y1 = (center[0] - dx, center[0] + dx,
                               center[1] - dy, center[1] + dy)
 
-        self.extents = x1, x2, y1, y2
+        self.extents = x0, x1, y0, y1
 
     @property
     def _rect_bbox(self):
@@ -2552,13 +2552,13 @@ class RectangleSelector(_SelectorWidget):
             self.active_handle = self._edge_order[e_idx]
 
         # Save coordinates of rectangle at the start of handle movement.
-        x1, x2, y1, y2 = self.extents
-        # Switch variables so that only x2 and/or y2 are updated on move.
+        x0, x1, y0, y1 = self.extents
+        # Switch variables so that only x1 and/or y1 are updated on move.
         if self.active_handle in ['W', 'SW', 'NW']:
-            x1, x2 = x2, event.xdata
+            x0, x1 = x1, event.xdata
         if self.active_handle in ['N', 'NW', 'NE']:
-            y1, y2 = y2, event.ydata
-        self._extents_on_press = x1, x2, y1, y2
+            y0, y1 = y1, event.ydata
+        self._extents_on_press = x0, x1, y0, y1
 
     @property
     def geometry(self):
@@ -2616,10 +2616,10 @@ class EllipseSelector(RectangleSelector):
     _shape_klass = Ellipse
 
     def draw_shape(self, extents):
-        x1, x2, y1, y2 = extents
-        xmin, xmax = sorted([x1, x2])
-        ymin, ymax = sorted([y1, y2])
-        center = [x1 + (x2 - x1) / 2., y1 + (y2 - y1) / 2.]
+        x0, x1, y0, y1 = extents
+        xmin, xmax = sorted([x0, x1])
+        ymin, ymax = sorted([y0, y1])
+        center = [x0 + (x1 - x0) / 2., y0 + (y1 - y0) / 2.]
         a = (xmax - xmin) / 2.
         b = (ymax - ymin) / 2.
 
