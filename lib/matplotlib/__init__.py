@@ -769,6 +769,17 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
 
     for key, (val, line, line_no) in rc_temp.items():
         if key in rcsetup._validators:
+            # the backend parameter is special because the default value can
+            # not be expressed in the matplotlibrc file (the default is an
+            # internal sentinel to indicated that we should do backend fallback
+            # which picks the first importable interactive backend we find).
+            #
+            # This allows the backend parameter to be unset (as opposed to
+            # not present) in the matplotlibrc file.  This is important because
+            # the defaults are pulled from a (fully commented out) template
+            # including with the installation.
+            if key == 'backend' and val == '':
+                continue
             if fail_on_error:
                 config[key] = val  # try to convert to proper type or raise
             else:
