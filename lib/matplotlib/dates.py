@@ -592,7 +592,21 @@ def drange(dstart, dend, delta):
 
 def _wrap_in_tex(text):
     # Braces ensure dashes are not spaced like binary operators.
-    return '$\\mathdefault{' + text.replace('-', '{-}') + '}$'
+    p = re.compile("[a-zA-Z]+")
+    m = p.finditer(text)
+    cursor = 0
+    ret_text = ''
+
+    for i in m:
+        start = i.start()
+        end = i.end()
+
+        ret_text += '$\\mathdefault{'+text[cursor:start].replace('-', '{-}')
+        ret_text += '}$'+text[start:end]
+        cursor = end
+
+    ret_text += '$\\mathdefault{'+text[cursor:].replace('-', '{-}')+'}$'
+    return ret_text
 
 
 ## date tickers and formatters ###
