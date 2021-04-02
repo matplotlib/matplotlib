@@ -1134,6 +1134,12 @@ p.caption {
     font-weight: bold;
 }
 
+.sphx-glr-single-img{
+    width: 70%;
+    height: 70%;
+    max-width: 99%;
+}
+
 .sphx-glr-multi-img{
     max-width: 99% !important;
 }

@@ -148,6 +148,11 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
 
+def reset_hi_dpi(gallery_conf, fname):
+    import matplotlib
+    matplotlib.pyplot.rcdefaults()
+    matplotlib.rcParams['figure.dpi'] = 200
+    matplotlib.rcParams['savefig.dpi'] = 200
 
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
@@ -168,7 +173,9 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'compress_images': ('thumbnails', 'images'),
     'matplotlib_animations': True,
+    'reset_modules': (reset_hi_dpi),
 }
+
 
 plot_gallery = 'True'
 
