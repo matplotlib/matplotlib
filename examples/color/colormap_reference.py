@@ -71,16 +71,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.colors
-matplotlib.axes.Axes.imshow
-matplotlib.figure.Figure.text
-matplotlib.axes.Axes.set_axis_off
+#    - `matplotlib.colors`
+#    - `matplotlib.axes.Axes.imshow`
+#    - `matplotlib.figure.Figure.text`
+#    - `matplotlib.axes.Axes.set_axis_off`

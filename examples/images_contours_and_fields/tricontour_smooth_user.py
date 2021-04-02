@@ -78,19 +78,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.tricontour
-matplotlib.pyplot.tricontour
-matplotlib.axes.Axes.tricontourf
-matplotlib.pyplot.tricontourf
-matplotlib.tri
-matplotlib.tri.Triangulation
-matplotlib.tri.UniformTriRefiner
+#    - `matplotlib.axes.Axes.tricontour` / `matplotlib.pyplot.tricontour`
+#    - `matplotlib.axes.Axes.tricontourf` / `matplotlib.pyplot.tricontourf`
+#    - `matplotlib.tri`
+#    - `matplotlib.tri.Triangulation`
+#    - `matplotlib.tri.UniformTriRefiner`
