@@ -1411,14 +1411,13 @@ _validators = {
     "_internal.classic_mode": validate_bool
 }
 _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
-    # ... because it can"t be:
-    "backend": _auto_backend_sentinel,
     # ... because they are private:
     "_internal.classic_mode": False,
     # ... because they are deprecated:
     "animation.avconv_path": "avconv",
     "animation.avconv_args": [],
     "animation.html_args": [],
+    # backend is handled separately when constructing rcParamsDefault.
 }
 _validators = {k: _convert_validator_spec(k, conv)
                for k, conv in _validators.items()}
