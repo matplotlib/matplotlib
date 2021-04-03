@@ -13,64 +13,40 @@ Microsoft Excel is a spreadsheet program from Microsoft with the capability to m
 Some key differences
 ---------------------
 
-+---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| Excel                                                                                 | Matplotlib                                                                                                    |
-+=======================================================================================+===============================================================================================================+
-| Commands and scripts are written in Visual Basic for Applications (VBA).    | Written in Python and uses Python for all its commands.                                         |
-+---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| Cells can be used to create formulas.                                        | Ability to use different datastructures to store your data.                                        |
-+---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| Excel is used to calculate formulas.                                              | Ability to use the core mechanics of Python for simple formulas, but for more complex formulas NumPy or SciPy can be used. |
-+---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
-| Ability to use the user interface for tweaking the charts.                        | Mandatory to use written code.                                                                   |
-+---------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Excel                                                                                 | Matplotlib                                                                                                                     |
++=======================================================================================+================================================================================================================================+
+| Commands and scripts are written in Visual Basic for Applications (VBA).              | Written in Python and uses Python for all its commands.                                                                        |
++---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Cells can be used to create formulas.                                                 | Ability to use different datastructures to store your data.                                                                    |
++---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Excel is used to calculate formulas.                                                  | Ability to use the core mechanics of Python for simple formulas, but for more complex formulas NumPy or SciPy can be used.     |
++---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ability to use the user interface for tweaking the charts.                            | Mandatory to use written code.                                                                                                 |
++---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
 
 Basics
 --------
 
-When using matplotlib you need to import the package into your program. For this tutorial we import the pyplot package from matplotlib. It is also recommended to use NumPy for your calculations.
+When coming from an Office program a programming language might be intimidating. The first thing that you need to do is say goodbye to cells and say hello to arrays and lists. To get you started we will show you a basic example of an array. Let's say that you have ten values from A1\:A10. To write them in python it should look something like this\:
 
 ::
+    x = [1,2,3,4,5,6,7,10]
 
-    import numpy as np
-    from matplotlib import pyplot as plt
-
-Now we can use the different functions provided by numpy and pyplot by calling np and plt respectively.
-
-For the following plots we will use the following data stored in an array as opposed to the cells in an Excel sheet.
+Easy right? But in Excel you want to use your data also in other cells. To call a perticular value of x you need to call x with the correct index. This will look something like this\:
 
 ::
+    print(x[0]) # This will print 1
+    print(x[1]) # This will print 2
+    print(x[2]) # This will print 3
+    print(x[3]) # This will print 4
+    # etc...
 
-    x = [1,2,3,4,5,6,7,8,9,10] # In matplotlib you need to also define the x-axis
-    y = [10,1,9,2,8,3,7,4,6,5] # Mockup data for visualising the different plots
-    z = [1,10,2,9,3,8,4,7,5,6] # An extra dataset for particular plots
+When calling these values you can also use these values for different calculations. I suggest now looking in to the `Python Beginners Guide <https://wiki.python.org/moin/BeginnersGuide>`_ if you are not yet familiar with Python itself. If you know your way with Python but want to do some calculations (like sum) with you data before plotting I suggest looking in to the `Numpy Beginners Guide <https://numpy.org/doc/stable/user/absolute_beginners.html>`_.
 
-    theta = np.linspace(0,2*np.pi,10) # Array with length 10 and a range from 0 to 2*pi
+In the section plots_and_charts_ you will find a list of references to the different plots that matplotlib has to offer that look like Excel graphs. Feel free to use them any time you want. For more information on the usage of matplotlib see :doc:`/tutorials/introductory/usage`.
 
-
-The most basic plot would look like the following in written code:
-
-::
-
-    plt.figure()
-    plt.plot(x,y)
-    plt.show()
-
-For most plots you can add subsequential data by defining a new x- and y-axis or plotting again.
-
-::
-
-    plt.figure()
-    plt.plot(x,y,x,z)
-    plt.show
-
-    # OR
-
-    plt.figure()
-    plt.plot(x,y)
-    plt.plot(x,z)
-    plt.show()
-
+.. _plots_and_charts:
 
 Plots and charts
 ------------------
