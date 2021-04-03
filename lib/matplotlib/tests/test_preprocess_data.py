@@ -3,7 +3,7 @@ import re
 import numpy as np
 import pytest
 
-from matplotlib import _preprocess_data
+from matplotlib import _add_data_doc, _preprocess_data
 from matplotlib.axes import Axes
 from matplotlib.testing.decorators import check_figures_equal
 
@@ -194,35 +194,105 @@ def test_more_args_than_pos_parameter():
         func(None, "a", "b", "z", "z", data=data)
 
 
+def test_add_data_doc_kwargs():
+    """Test that the data docs is inserted before **kwargs."""
+    assert ("Data param should follow.\ndata : indexable object, optional" in
+            _add_data_doc("""\
+Some function.
+
+Parameters
+----------
+x
+    Data param should follow.
+**kwargs
+    Additional parameters.
+""", replace_names=['x']))
+
+
+def test_add_data_doc_after_params():
+    """
+    Test that the data docs is inserted at the end of Parameters section
+    that is followed by another section.
+    """
+    assert ("Data param should follow.\ndata : indexable object, optional" in
+            _add_data_doc("""\
+Some function.
+
+Parameters
+----------
+x
+    Data param should follow.
+
+Returns
+-------
+someting
+""", replace_names=['x']))
+
+
+def test_add_data_doc_after_params_last():
+    """
+    Test that the data docs is inserted at the end of Parameters section
+    that is not followed by further docs.
+    """
+    assert ("Data param should follow.\ndata : indexable object, optional" in
+            _add_data_doc("""\
+Some function.
+
+Parameters
+----------
+x
+    Data param should follow.
+""", replace_names=['x']))
+
+
 def test_docstring_addition():
     @_preprocess_data()
     def funcy(ax, *args, **kwargs):
-        """Funcy does nothing"""
+        """
+        Funcy does nothing.
 
-    assert re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments", funcy.__doc__)
+        Parameters
+        ----------
+        **kwargs
+            Text.
+        """
+
+    assert re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters", funcy.__doc__)
 
     @_preprocess_data(replace_names=[])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
 
-    assert not re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments", funcy.__doc__)
+    assert not re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters", funcy.__doc__)
 
     @_preprocess_data(replace_names=["bar"])
     def funcy(ax, x, y, z, bar=None):
-        """Funcy does nothing"""
+        """
+        Funcy does nothing.
 
-    assert not re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments .*: \*bar\*\.",
+        Parameters
+        ----------
+        **kwargs
+            Text.
+        """
+    assert not re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters .*: \*bar\*\.",
                          funcy.__doc__)
 
     @_preprocess_data(replace_names=["x", "t"])
     def funcy(ax, x, y, z, t=None):
-        """Funcy does nothing"""
+        """
+        Funcy does nothing.
 
-    assert not re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments .*: \*x\*, \*t\*\.",
+        Parameters
+        ----------
+        x, y, z
+            Text.
+        """
+    assert not re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters .*: \*x\*, \*t\*\.",
                          funcy.__doc__)
 
 

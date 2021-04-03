@@ -1247,20 +1247,11 @@ def _label_from_arg(y, default_name):
     return None
 
 
-_DATA_DOC_TITLE = """
+_DATA_KWARG = """\
+data : indexable object, optional
+{data_kwarg_message}
 
-Notes
------
-"""
-
-_DATA_DOC_APPENDIX = """
-
-.. note::
-    In addition to the above described arguments, this function can take
-    a *data* keyword argument. If such a *data* argument is given,
-{replaced}
-
-    Objects passed as **data** must support item access (``data[s]``) and
+    Objects passed as *data* must support item access (``data[s]``) and
     membership test (``s in data``).
 """
 
@@ -1287,17 +1278,45 @@ def _add_data_doc(docstring, replace_names):
             or replace_names is not None and len(replace_names) == 0):
         return docstring
     docstring = inspect.cleandoc(docstring)
-    repl = (
-        ("    every other argument can also be string ``s``, which is\n"
+
+    def find_insert_index(docstring):
+        # Try inserting before **kwargs docs
+        insert_index = docstring.find('\n**kwargs') + 1
+        if insert_index > 0:
+            return insert_index
+        # If **kwargs docs does not exist, insert as the last parameter.
+        # To do so, find the end of the parameters section:
+        # - find start of parameters section
+        # - find next section (defined by a line starting with '----'). This
+        #   seems the most reliable way as the parameters section may be quite
+        #   complex.
+        # - Go back to the previous empty line (A section title must be
+        #   preceededby an emtpy line.
+        param_string = '\nParameters\n----------\n'
+        i_params = docstring.find(param_string) + len(param_string)
+        i_next_heading = docstring.find('\n----', i_params)
+        if i_next_heading < 0:
+            return -1  # no next heading: append to end
+        insert_index = docstring.rfind('\n\n', i_params, i_next_heading) + 1
+        assert insert_index > 0
+        return insert_index
+
+    insert_index = find_insert_index(docstring)
+    data_kwarg_message = (
+        ("    If given, all parameters also accept a string ``s``, which is\n"
          "    interpreted as ``data[s]`` (unless this raises an exception).")
         if replace_names is None else
-        ("    the following arguments can also be string ``s``, which is\n"
-         "    interpreted as ``data[s]`` (unless this raises an exception):\n"
+        ("    If given, the following parameters also accept a string ``s``,\n"
+         "    which is interpreted as ``data[s]`` (unless this raises an\n"
+         "    exception):\n"
          "    " + ", ".join(map("*{}*".format, replace_names))) + ".")
-    addendum = _DATA_DOC_APPENDIX.format(replaced=repl)
-    if _DATA_DOC_TITLE not in docstring:
-        addendum = _DATA_DOC_TITLE + addendum
-    return docstring + addendum
+    if insert_index == -1:
+        return (docstring + '\n'
+                + _DATA_KWARG.format(data_kwarg_message=data_kwarg_message))
+    else:
+        return (docstring[:insert_index]
+                + _DATA_KWARG.format(data_kwarg_message=data_kwarg_message)
+                + docstring[insert_index:])
 
 
 def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
