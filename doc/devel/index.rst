@@ -42,7 +42,6 @@ process or how to fix something feel free to ask on `gitter
    release_guide.rst
    min_dep_policy.rst
    MEP/index
-   user-cheatsheets/index
 
 .. toctree::
    :hidden:

@@ -22,3 +22,4 @@ User's Guide
     license.rst
     ../citing.rst
     credits.rst
+    cheatsheets/index
