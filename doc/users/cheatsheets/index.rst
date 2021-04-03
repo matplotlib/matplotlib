@@ -1,4 +1,4 @@
-.. _user-cheatsheets-index:
+.. _cheatsheets-index:
 
 .. include:: README.rst
 
