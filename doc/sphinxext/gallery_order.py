@@ -68,12 +68,12 @@ list_all = [
 
     # **Plot Types
     # Basic
-    "plot", "scatter", "bar", "stem", "step", "pie", "fill_between",
+    "plot", "scatter_plot", "bar", "stem", "step", "pie", "fill_between",
     # Arrays
     "imshow", "pcolormesh", "contourf", "quiver", "streamplot",
     # Stats
-    "hist", "boxplot", "errorbar", "violin", "barbs", "eventplot",
-    "hist2d", "hexbin",
+    "hist_plot", "boxplot_plot", "errorbar_plot", "violin",
+    "barbs", "eventplot", "hist2d", "hexbin",
     # Unstructured
     "tricontour", "tripcolor", "triplot",
     ]
