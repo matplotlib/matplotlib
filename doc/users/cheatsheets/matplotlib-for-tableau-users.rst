@@ -68,36 +68,36 @@ Plots and charts
 +-------------------------------+-------------------------------+
 | Tableau                       | Matplotlib                    |
 +===============================+===============================+
-| Simple Bar Chart              | ``plt.bar(x,y)``              |
+| Simple Bar Chart              | `~Axes.bar`(x,y)              |
 +-------------------------------+-------------------------------+
-| Stacked Column                | ``plt.bar(x,y)``              |
-|                               | ``plt.bar(x,z,bottom=y)``     |
+| Stacked Column                | `~Axes.bar`(x,y)              |
+|                               | `~Axes.bar`(x,z,bottom=y)     |
 +-------------------------------+-------------------------------+
-| Simple Line Chart             | ``plt.plot(x,y)``             |
+| Simple Line Chart             | `~Axes.plot`(x,y)             |
 +-------------------------------+-------------------------------+
-| Multiple Measure Line Chart   | ``plt.stackplot(x,y,z)``      |
+| Multiple Measure Line Chart   | `~Axes.stackplot`(x,y,z)      |
 +-------------------------------+-------------------------------+
-| Line with markers             | ``plt.plot(x,y,'-o')``        |
+| Line with markers             | `~Axes.plot`(x,y,'-o')        |
 +-------------------------------+-------------------------------+
-| Simple Pie Chart              | ``plt.pie(y,labels=x)``       |
+| Simple Pie Chart              | `~Axes.pie`(y,labels=x)       |
 +-------------------------------+-------------------------------+
-| Bar                           | ``plt.barh(x,y)``             |
+| Bar                           | `~Axes.barh`(x,y)             |
 +-------------------------------+-------------------------------+
-|Stacked Bar Chart              | ``plt.barh(x,y)``             |
-|                               | ``plt.barh(x,z,left=y)``      |
+|Stacked Bar Chart              | `~Axes.barh`(x,y)             |
+|                               | `~Axes.barh`(x,z,left=y)      |
 +-------------------------------+-------------------------------+
-| Area                          | ``plt.plot(x,y)``             |
-|                               | ``plt.fill_between(x,0,y)``   |
+| Area                          | `~Axes.plot`(x,y)             |
+|                               | `~Axes.fill_between`(x,0,y)   |
 +-------------------------------+-------------------------------+
-| Simple Scatter Plot           | ``plt.scatter(x,y)``          |
+| Simple Scatter Plot           | `~Axes.scatter`(x,y)          |
 +-------------------------------+-------------------------------+
-| Radar                         | ``plt.polar(theta,y)``        |
+| Radar                         | `~Axes.polar`(theta,y)        |
 +-------------------------------+-------------------------------+
-| Radar with markers            | ``plt.polar(theta,y,'-o')``   |
+| Radar with markers            | `~Axes.polar`(theta,y,'-o')   |
 +-------------------------------+-------------------------------+
-| Histogram                     | ``plt.hist(y)``               |
+| Histogram                     | `~Axes.hist`(y)               |
 +-------------------------------+-------------------------------+
-| Box Plot                      | ``plt.boxplot(y)``            |
+| Box Plot                      | `~Axes.boxplot`(y)            |
 +-------------------------------+-------------------------------+
 | Tree map                      | no direct correlation         |
 +-------------------------------+-------------------------------+
