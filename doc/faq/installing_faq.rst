@@ -46,20 +46,6 @@ installation of the package.  In order to fully remove an installed Matplotlib:
 2. Delete any Matplotlib directories or eggs from your :ref:`installation
    directory <locating-matplotlib-install>`.
 
-Linux Notes
-===========
-
-To install Matplotlib at the system-level, we recommend that you use your
-distribution's package manager.  This will guarantee that Matplotlib's
-dependencies will be installed as well.
-
-If, for some reason, you cannot use the package manager, you may use the wheels
-available on PyPI::
-
-   python -m pip install matplotlib
-
-or :ref:`build Matplotlib from source <install-from-git>`.
-
 OSX Notes
 =========
 
