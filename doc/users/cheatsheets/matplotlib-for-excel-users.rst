@@ -54,34 +54,34 @@ Plots and charts
 +-----------------------+-------------------------------+
 | Excel                 | Matplotlib                    |
 +=======================+===============================+
-| Column                | ``plt.bar(x,y)``              |
+| Column                | `~.Axes.bar`(x,y)             |
 +-----------------------+-------------------------------+
-| Stacked Column        | ``plt.bar(x,y)``              |
-|                       | ``plt.bar(x,z,bottom=y)``     |
+| Stacked Column        | `~.Axes.bar`(x,y)             |
+|                       | `~.Axes.bar`(x,z,bottom=y)    |
 +-----------------------+-------------------------------+
-| Line                  | ``plt.plot(x,y)``             |
+| Line                  | `~.Axes.plot`(x,y)            |
 +-----------------------+-------------------------------+
-| Stacked Line          | ``plt.stackplot(x,y,z)``      |
+| Stacked Line          | `~.Axes.stackplot`(x,y,z)     |
 +-----------------------+-------------------------------+
-| Line with markers     | ``plt.plot(x,y,'-o')``        |
+| Line with markers     | `~.Axes.plot`(x,y,'-o')       |
 +-----------------------+-------------------------------+
-| Pie                   | ``plt.pie(y,labels=x)``       |
+| Pie                   | `~.Axes.pie`(y,labels=x)      |
 +-----------------------+-------------------------------+
-| Bar                   | ``plt.barh(x,y)``             |
+| Bar                   | `~.Axes.barh`(x,y)            |
 +-----------------------+-------------------------------+
-| Stacked Bar           | ``plt.barh(x,y)``             |
-|                       | ``plt.barh(x,z,left=y)``      |
+| Stacked Bar           | `~.Axes.barh`(x,y)            |
+|                       | `~.Axes.barh`(x,z,left=y)     |
 +-----------------------+-------------------------------+
-| Area                  | ``plt.plot(x,y)``             |
-|                       | ``plt.fill_between(x,0,y)``   |
+| Area                  | `~.Axes.plot`(x,y)            |
+|                       | `~.Axes.fill_between`(x,0,y)  |
 +-----------------------+-------------------------------+
-| Scatter               | ``plt.scatter(x,y)``          |
+| Scatter               | `~.Axes.scatter`(x,y)         |
 +-----------------------+-------------------------------+
-| Radar                 | ``plt.polar(theta,y)``        |
+| Radar                 | `~.Axes.polar`(theta,y)       |
 +-----------------------+-------------------------------+
-| Radar with markers    | ``plt.polar(theta,y,'-o')``   |
+| Radar with markers    | `~.Axes.polar`(theta,y,'-o')  |
 +-----------------------+-------------------------------+
-| Histogram             | ``plt.hist(y)``               |
+| Histogram             | `~.Axes.hist`(y)              |
 +-----------------------+-------------------------------+
-| Box and Whisker       | ``plt.boxplot(y)``            |
+| Box and Whisker       | `~.Axes.boxplot`(y)           |
 +-----------------------+-------------------------------+
