@@ -11,58 +11,34 @@ Matplotlib for Tableau users
 Introduction
 --------------
 
-Tableau is Business Intelligence tool that provides a highly customizable dashboard to preview your data, being highly customizable. 
-Although the usecase is slightly different, the visualization principles stay the same, with the same idioms and best practice, but a
+Tableau is a Business Intelligence tool that provides a highly customizable dashboard to preview your data, being highly customizable. 
+Although the use case is slightly different, the visualization principles stay the same, with the same idioms and best practice, but a
 different environment and API.
-
-Some key differences
----------------------
 
 Basics
 --------
 
-When using matplotlib you need to import the package into your program. For this tutorial we import the pyplot package from matplotlib. It is also recommended to use NumPy for your calculations.
+When coming from a GUI heavy software like Tableau a programming language might be intimidating. In Tableau, all your data is stored in your datasets. In Python and therefore also matplotlib your data is stored inside arrays and lists. When you have experience with Tableau you might also like to work with dictionaries (tableau_dictionary_example_). But let's first look into arrays. To write an array by hand with values from 1 to 10 will look in Python like this\:
 
 ::
 
-    import numpy as np
-    from matplotlib import pyplot as plt
+    x = [1,2,3,4,5,6,7,10]
 
-Now we can use the different functions provided by numpy and pyplot by calling np and plt respectively.
-
-For the following plots we will use the following data stored in an array as upposed to the cells in an Excel sheet.
+Easy right? To call a perticular value of x you need to call x with the correct index. This will look something like this\:
 
 ::
 
-    x = [1,2,3,4,5,6,7,8,9,10] # In matplotlib you need to also define the x-axis
-    y = [10,1,9,2,8,3,7,4,6,5] # Mockup data for visualising the different plots
-    z = [1,10,2,9,3,8,4,7,5,6] # An extra dataset for particular plots
+    print(x[0]) # This will print 1
+    print(x[1]) # This will print 2
+    print(x[2]) # This will print 3
+    print(x[3]) # This will print 4
+    # etc...
 
-    theta = np.linspace(0,2*np.pi,10) # Array with length 10 and a range from 0 to 2*pi
+When calling these values you can also use these values for different calculations. I suggest now looking into the `Python Beginners Guide <https://wiki.python.org/moin/BeginnersGuide>`_ if you are not yet familiar with Python itself. If you know your way with Python but want to do some calculations (like sum) with your data before plotting I suggest looking into the `Numpy Beginners Guide <https://numpy.org/doc/stable/user/absolute_beginners.html>`_.
 
+In the section plots_and_charts_tableau_ you will find a list of references to the different plots that matplotlib has to offer that look like Tableau graphs. Feel free to use them any time you want. For more information on the usage of matplotlib see :doc:`/tutorials/introductory/usage`.
 
-The most basic plot would look like the following in written code\:
-
-::
-
-    plt.figure()
-    plt.plot(x,y)
-    plt.show()
-
-For most plots you can add subsequential data by defining a new x- and y-axis or plotting again.
-
-::
-
-    plt.figure()
-    plt.plot(x,y,x,z)
-    plt.show
-
-    # OR
-
-    plt.figure()
-    plt.plot(x,y)
-    plt.plot(x,z)
-    plt.show()
+.. _plots_and_charts_tableau:
 
 
 Plots and charts
@@ -101,3 +77,42 @@ Plots and charts
 +-------------------------------+-----------------------------------------------------------------------+
 | Tree map                      | no direct correlation                                                 |
 +-------------------------------+-----------------------------------------------------------------------+
+
+.. _tableau_dictionary_example:
+
+Introduction to dictionaries
+-------------------------------
+
+Because of your experience with Tableau, you probably want to work with big sets of data and simply an array would not suffice. The easiest way to accomplish this is with dictionaries. Let's say that you normally have a dataset that has the following format\:
+
++------------------+---------------------+--------------------------+---------------+
+| Dog              | Number of females   | Number of males          | Total         |
++==================+=====================+==========================+===============+
+| Labrador         | 5                   | 10                       | 15            |
++------------------+---------------------+--------------------------+---------------+
+| Poodle           | 12                  | 7                        | 19            |    
++------------------+---------------------+--------------------------+---------------+
+| Chihuahua        | 4                   | 5                        | 9             |
++------------------+---------------------+--------------------------+---------------+
+
+This would look in a dictionary format like this\:
+
+::
+
+    dogs = {
+        'Dog' : (Labrador,Poodle,Chihauhau),
+        'Number of females' : (5,12,4),
+        'Number of males' : (10,7,5),
+        'Total' : (15,19,9)
+    }
+
+Then if you would like to only plot the number of females it would look like this:
+
+::
+
+    from matplotlib import pyplot as plt
+
+    fig, ax = plt.subplots()  # Create a figure containing a single axes.
+    ax.bar(dogs['Dog'], dogs['Number of females']) # Plot some data on the axes.
+
+For more information on dictionaries, you can look at the Python documentation for `dictionaries <https://docs.python.org/3/tutorial/datastructures.html#dictionaries>`_.

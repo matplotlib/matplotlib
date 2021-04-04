@@ -21,7 +21,7 @@ Some key differences
 +=======================================================================================+================================================================================================================================+
 | Commands and scripts are written in Visual Basic for Applications (VBA).              | Written in Python and uses Python for all its commands.                                                                        |
 +---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
-| Cells can be used to create formulas.                                                 | Ability to use different datastructures to store your data.                                                                    |
+| Cells can be used to create formulas.                                                 | Ability to use different data structures to store your data.                                                                   |
 +---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
 | Excel is used to calculate formulas.                                                  | Ability to use the core mechanics of Python for simple formulas, but for more complex formulas NumPy or SciPy can be used.     |
 +---------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
@@ -37,7 +37,7 @@ When coming from an Office program a programming language might be intimidating.
 
     x = [1,2,3,4,5,6,7,10]
 
-Easy right? But in Excel you want to use your data also in other cells. To call a perticular value of x you need to call x with the correct index. This will look something like this\:
+Easy right? But in Excel, you want to use your data also in other cells. To call a particular value of x you need to call x with the correct index. This will look something like this\:
 
 ::
 
@@ -47,11 +47,11 @@ Easy right? But in Excel you want to use your data also in other cells. To call 
     print(x[3]) # This will print 4
     # etc...
 
-When calling these values you can also use these values for different calculations. I suggest now looking in to the `Python Beginners Guide <https://wiki.python.org/moin/BeginnersGuide>`_ if you are not yet familiar with Python itself. If you know your way with Python but want to do some calculations (like sum) with you data before plotting I suggest looking in to the `Numpy Beginners Guide <https://numpy.org/doc/stable/user/absolute_beginners.html>`_.
+When calling these values you can also use these values for different calculations. I suggest now looking into the `Python Beginners Guide <https://wiki.python.org/moin/BeginnersGuide>`_ if you are not yet familiar with Python itself. If you know your way with Python but want to do some calculations (like sum) with your data before plotting I suggest looking into the `Numpy Beginners Guide <https://numpy.org/doc/stable/user/absolute_beginners.html>`_.
 
-In the section plots_and_charts_ you will find a list of references to the different plots that matplotlib has to offer that look like Excel graphs. Feel free to use them any time you want. For more information on the usage of matplotlib see :doc:`/tutorials/introductory/usage`.
+In the section plots_and_charts_excel_ you will find a list of references to the different plots that matplotlib has to offer that look like Excel graphs. Feel free to use them any time you want. For more information on the usage of matplotlib see :doc:`/tutorials/introductory/usage`.
 
-.. _plots_and_charts:
+.. _plots_and_charts_excel:
 
 Plots and charts
 ------------------
