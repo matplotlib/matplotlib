@@ -3714,6 +3714,28 @@ class Axes(_AxesBase):
         meanprops : dict, default: None
             The style of the mean.
 
+        Notes
+        -----
+        Box plots provide insight into distribution properties of the data.
+        However, they can be challenging to interpret for the unfamiliar
+        reader. The figure below illustrates the different visual features of
+        a box plot.
+
+        .. image:: /_static/boxplot_explanation.png
+           :alt: Illustration of box plot features
+           :scale: 50 %
+
+        The whiskers mark the range of the non-outlier data. The most common
+        definition of non-outlier is ``[Q1 - 1.5xIQR, Q3 + 1.5xIQR]``, which
+        is also the default in this function. Other whisker meanings can be
+        applied via the *whis* parameter.
+
+        See `Box plot <https://en.wikipedia.org/wiki/Box_plot>`_ on Wikipedia
+        for further information.
+
+        Violin plots (`~.Axes.violinplot`) add even more detail about the
+        statistical distribution by plotting the kernel density estimation
+        (KDE) as an estimation of the probability density function.
         """
 
         # Missing arguments default to rcParams.

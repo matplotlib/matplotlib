@@ -494,25 +494,6 @@ you're all done issuing commands and you want to draw the figure now.
    per script, and harmonized the behavior of interactive mode, across most
    backends.
 
-.. _howto-boxplot_violinplot:
-
-Interpreting box plots and violin plots
----------------------------------------
-
-Tukey's :doc:`box plots </gallery/statistics/boxplot_demo>` (Robert McGill,
-John W. Tukey and Wayne A. Larsen: "The American Statistician" Vol. 32, No. 1,
-Feb., 1978, pp. 12-16) are statistical plots that provide useful information
-about the data distribution such as skewness. However, bar plots with error
-bars are still the common standard in most scientific literature, and thus, the
-interpretation of box plots can be challenging for the unfamiliar reader. The
-figure below illustrates the different visual features of a box plot.
-
-.. figure:: ../_static/boxplot_explanation.png
-
-:doc:`Violin plots </gallery/statistics/violinplot>` are closely related to box
-plots but add useful information such as the distribution of the sample data
-(density trace).  Violin plots were added in Matplotlib 1.4.
-
 .. _how-to-threads:
 
 Working with threads
