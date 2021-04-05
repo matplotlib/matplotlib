@@ -2479,7 +2479,8 @@ class _AxesBase(martist.Artist):
         ----------
         datasets : list
             List of (axis_name, dataset) pairs (where the axis name is defined
-            as in `._get_axis_map`.
+            as in `._get_axis_map`).  Individual datasets can also be None
+            (which gets passed through).
         kwargs : dict
             Other parameters from which unit info (i.e., the *xunits*,
             *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
@@ -2526,7 +2527,8 @@ class _AxesBase(martist.Artist):
                 for dataset_axis_name, data in datasets:
                     if dataset_axis_name == axis_name and data is not None:
                         axis.update_units(data)
-        return [axis_map[axis_name].convert_units(data) if convert else data
+        return [axis_map[axis_name].convert_units(data)
+                if convert and data is not None else data
                 for axis_name, data in datasets]
 
     def in_axes(self, mouseevent):
