@@ -11,7 +11,7 @@ Matplotlib for Excel users
 Introduction
 --------------
 
-Microsoft Excel is a spreadsheet program from Microsoft with the capability to make charts of the different data inside the cells the user makes. Some users may have a familiarity with the Office program and might want to change to matplotlib for data plotting. This document aims to guide new matplotlib users by referencing the graphical capabilities of Microsoft Excel.
+Microsoft Excel is a spreadsheet program from Microsoft with the capability to create charts from the data stored inside the cells. Some users may have a familiarity with the Office program and might want to change to matplotlib for data plotting. This document aims to guide new matplotlib users by referencing the graphical capabilities of Microsoft Excel.
 
 Some key differences
 ---------------------

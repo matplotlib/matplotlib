@@ -11,20 +11,20 @@ Matplotlib for Tableau users
 Introduction
 --------------
 
-Tableau is a Business Intelligence tool that provides a highly customizable dashboard to preview your data, being highly customizable. 
-Although the use case is slightly different, the visualization principles stay the same, with the same idioms and best practice, but a
+Tableau is a Business Intelligence tool that provides a highly customizable dashboard to preview your data.
+Although the use cases of Tableau and matplotlib are slightly different, the visualization principles stay the same, with the same idioms and best practice, but a
 different environment and API.
 
 Basics
 --------
 
-When coming from a GUI heavy software like Tableau a programming language might be intimidating. In Tableau, all your data is stored in your datasets. In Python and therefore also matplotlib your data is stored inside arrays and lists. When you have experience with Tableau you might also like to work with dictionaries (tableau_dictionary_example_). But let's first look into arrays. To write an array by hand with values from 1 to 10 will look in Python like this\:
+When coming from a GUI heavy software like Tableau a programming language might be intimidating. In Tableau, all your data is stored in your datasets. In Python and therefore also matplotlib your data is stored inside arrays and lists. If you have experience with Tableau you might also like to work with dictionaries (tableau_dictionary_example_). But let's first look into arrays. To write an array by hand with values from 1 to 10 will look in Python like this\:
 
 ::
 
     x = [1,2,3,4,5,6,7,10]
 
-Easy right? To call a perticular value of x you need to call x with the correct index. This will look something like this\:
+Easy right? To call a particular value of x you need to call x with the correct index. This will look something like this\:
 
 ::
 
