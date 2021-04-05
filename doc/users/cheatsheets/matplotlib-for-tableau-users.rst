@@ -100,7 +100,7 @@ This would look in a dictionary format like this\:
 ::
 
     dogs = {
-        'Dog' : (Labrador,Poodle,Chihauhau),
+        'Dog' : ("Labrador","Poodle","Chihauhau"),
         'Number of females' : (5,12,4),
         'Number of males' : (10,7,5),
         'Total' : (15,19,9)
@@ -114,5 +114,7 @@ Then if you would like to only plot the number of females it would look like thi
 
     fig, ax = plt.subplots()  # Create a figure containing a single axes.
     ax.bar(dogs['Dog'], dogs['Number of females']) # Plot some data on the axes.
+
+    plt.show()
 
 For more information on dictionaries, you can look at the Python documentation for `dictionaries <https://docs.python.org/3/tutorial/datastructures.html#dictionaries>`_.
