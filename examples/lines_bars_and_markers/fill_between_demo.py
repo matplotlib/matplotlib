@@ -132,15 +132,10 @@ ax.fill_between(x, 0, 1, where=y > threshold,
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill_between
-matplotlib.pyplot.fill_between
-matplotlib.axes.Axes.get_xaxis_transform
+#    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
+#    - `matplotlib.axes.Axes.get_xaxis_transform`

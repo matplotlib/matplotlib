@@ -10,7 +10,6 @@ See also the :doc:`contour image example
 </gallery/images_contours_and_fields/contour_image>`.
 """
 
-import matplotlib
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
@@ -57,7 +56,7 @@ ax.set_title('Single color - negative contours dashed')
 ###############################################################################
 # You can set negative contours to be solid instead of dashed:
 
-matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
+plt.rcParams['contour.negative_linestyle'] = 'solid'
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z, 6, colors='k')  # Negative contours default to dashed.
 ax.clabel(CS, fontsize=9, inline=True)
@@ -111,20 +110,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.axes.Axes.clabel
-matplotlib.pyplot.clabel
-matplotlib.axes.Axes.set_position
-matplotlib.axes.Axes.get_position
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.axes.Axes.clabel` / `matplotlib.pyplot.clabel`
+#    - `matplotlib.axes.Axes.get_position`
+#    - `matplotlib.axes.Axes.set_position`
