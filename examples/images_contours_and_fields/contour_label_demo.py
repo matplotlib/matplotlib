@@ -10,7 +10,6 @@ See also the :doc:`contour demo example
 </gallery/images_contours_and_fields/contour_demo>`.
 """
 
-import matplotlib
 import numpy as np
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
@@ -76,17 +75,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.clabel
-matplotlib.pyplot.clabel
-matplotlib.ticker.LogFormatterMathtext
-matplotlib.ticker.TickHelper.create_dummy_axis
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.clabel` / `matplotlib.pyplot.clabel`
+#    - `matplotlib.ticker.LogFormatterMathtext`
+#    - `matplotlib.ticker.TickHelper.create_dummy_axis`

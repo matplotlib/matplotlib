@@ -16,7 +16,6 @@ just make up some data for little Johnny Doe.
 """
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
@@ -161,16 +160,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.axes.Axes.annotate
-matplotlib.pyplot.annotate
-matplotlib.axes.Axes.twinx
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.axes.Axes.annotate` / `matplotlib.pyplot.annotate`
+#    - `matplotlib.axes.Axes.twinx` / `matplotlib.pyplot.twinx`

@@ -19,7 +19,6 @@ The following lists a few use cases for `~.Axes.set_box_aspect`.
 #
 # Produce a square axes, no matter what the data limits are.
 
-import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -148,12 +147,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.set_box_aspect
+#    - `matplotlib.axes.Axes.set_box_aspect`
