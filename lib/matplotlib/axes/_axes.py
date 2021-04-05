@@ -3427,13 +3427,17 @@ class Axes(_AxesBase):
                 the note in the main docstring about this parameter's name.
             """
             try:
-                low, high = np.broadcast_to(err, (2, len(data)))
+                np.broadcast_to(err, (2, len(data)))
             except ValueError:
                 raise ValueError(
                     f"'{name}err' (shape: {np.shape(err)}) must be a scalar "
                     f"or a 1D or (2, n) array-like whose shape matches "
                     f"'{name}' (shape: {np.shape(data)})") from None
-            return data - low * ~lolims, data + high * ~uplims  # low, high
+            # This is like
+            #     low, high = np.broadcast_to(...)
+            #     return data - low * ~lolims, data + high * ~uplims
+            # except that broadcast_to would strip units.
+            return data + np.row_stack([-(1 - lolims), 1 - uplims]) * err
 
         if xerr is not None:
             left, right = extract_err('x', xerr, x, xlolims, xuplims)
