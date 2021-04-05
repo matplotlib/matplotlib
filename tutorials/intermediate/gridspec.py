@@ -28,7 +28,6 @@ How to create grid-shaped combinations of axes.
 
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -256,16 +255,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The usage of the following functions and methods is shown in this example:
-
-matplotlib.pyplot.subplots
-matplotlib.figure.Figure.add_gridspec
-matplotlib.figure.Figure.add_subplot
-matplotlib.gridspec.GridSpec
-matplotlib.gridspec.SubplotSpec.subgridspec
-matplotlib.gridspec.GridSpecFromSubplotSpec
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.figure.Figure.add_gridspec`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.gridspec.GridSpec`
+#    - `matplotlib.gridspec.SubplotSpec.subgridspec`
+#    - `matplotlib.gridspec.GridSpecFromSubplotSpec`
