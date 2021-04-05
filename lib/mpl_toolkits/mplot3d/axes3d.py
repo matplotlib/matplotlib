@@ -1045,17 +1045,24 @@ class Axes3D(Axes):
         """Currently not implemented for 3D axes, and returns *None*."""
         return None
 
-    def view_init(self, elev=None, azim=None):
+    def view_init(self, elev=None, azim=None, vertical_axis="z"):
         """
         Set the elevation and azimuth of the axes in degrees (not radians).
 
         This can be used to rotate the axes programmatically.
 
-        'elev' stores the elevation angle in the z plane (in degrees).
-        'azim' stores the azimuth angle in the (x, y) plane (in degrees).
-
-        if 'elev' or 'azim' are None (default), then the initial value
-        is used which was specified in the :class:`Axes3D` constructor.
+        Parameters
+        ----------
+        elev : number, default is None
+            Stores the elevation angle in the vertical plane in degrees.
+            If None then the initial value is used which was specified
+            in the :class:`Axes3D` constructor.
+        azim : number, default is None
+            Stores the azimuth angle in the horisontal plane in degrees.
+            If None then the initial value is used which was specified
+            in the :class:`Axes3D` constructor.
+        vertical_axis : string, default is "z"
+            Which axis to align vertically.
         """
 
         self.dist = 10
@@ -1069,6 +1076,20 @@ class Axes3D(Axes):
             self.azim = self.initial_azim
         else:
             self.azim = azim
+
+        if vertical_axis == "z":
+            self._vertical_axis = 2
+        elif vertical_axis == "y":
+            self._vertical_axis = 1
+        elif vertical_axis == "x":
+            self._vertical_axis = 0
+        else:
+            raise ValueError(
+                (
+                    "vertical_axis accepts only ('x', 'y', 'z')"
+                    f"got {vertical_axis}."
+                )
+            )
 
     def set_proj_type(self, proj_type):
         """
@@ -1091,39 +1112,46 @@ class Axes3D(Axes):
         # dist is the distance of the eye viewing point from the object
         # point.
 
-        relev, razim = np.pi * self.elev/180, np.pi * self.azim/180
-
-        xmin, xmax = self.get_xlim3d()
-        ymin, ymax = self.get_ylim3d()
-        zmin, zmax = self.get_zlim3d()
+        deg_to_rad = np.pi / 180
+        elev_rad = self.elev * deg_to_rad
+        azim_rad = self.azim * deg_to_rad
 
         # transform to uniform world coordinates 0-1, 0-1, 0-1
-        worldM = proj3d.world_transformation(xmin, xmax,
-                                             ymin, ymax,
-                                             zmin, zmax,
-                                             pb_aspect=self._box_aspect)
+        worldM = proj3d.world_transformation(
+            *self.get_xlim3d(),
+            *self.get_ylim3d(),
+            *self.get_zlim3d(),
+            pb_aspect=self._box_aspect,
+        )
 
-        # look into the middle of the new coordinates
+        # Look into the middle of the new coordinates:
         R = self._box_aspect / 2
 
-        xp = R[0] + np.cos(razim) * np.cos(relev) * self.dist
-        yp = R[1] + np.sin(razim) * np.cos(relev) * self.dist
-        zp = R[2] + np.sin(relev) * self.dist
-        E = np.array((xp, yp, zp))
+        # Coordinates for a point that can rotate:
+        p0 = self.dist * np.cos(elev_rad) * np.cos(azim_rad)
+        p1 = self.dist * np.cos(elev_rad) * np.sin(azim_rad)
+        p2 = self.dist * np.sin(elev_rad)
 
+        if self._vertical_axis == 2:
+            ps = [p0, p1, p2]
+        elif self._vertical_axis == 1:
+            ps = [p1, p2, p0]
+        elif self._vertical_axis == 0:
+            ps = [p2, p0, p1]
+        else:
+            raise ValueError("wrong")
+
+        E = R + np.array(ps)
         self.eye = E
         self.vvec = R - E
         self.vvec = self.vvec / np.linalg.norm(self.vvec)
 
-        if abs(relev) > np.pi/2:
-            # upside down
-            V = np.array((0, 0, -1))
-        else:
-            V = np.array((0, 0, 1))
-        zfront, zback = -self.dist, self.dist
+        # Something
+        V = np.zeros(3)
+        V[self._vertical_axis] = -1 if abs(elev_rad) > np.pi / 2 else 1
 
         viewM = proj3d.view_transformation(E, R, V)
-        projM = self._projection(zfront, zback)
+        projM = self._projection(-self.dist, self.dist)
         M0 = np.dot(viewM, worldM)
         M = np.dot(projM, M0)
         return M
