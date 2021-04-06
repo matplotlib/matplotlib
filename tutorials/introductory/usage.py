@@ -16,17 +16,10 @@ import numpy as np
 # A simple example
 # ================
 #
-<<<<<<< HEAD
-# Matplotlib graphs your data on `~.figure.Figure`\s (i.e., windows, Jupyter
-# widgets, etc.), each of which can contain one or more `~.axes.Axes` (i.e., an
-# area where points can be specified in terms of x-y coordinates, or theta-r
-# in a polar plot, or x-y-z in a 3D plot, etc.).  The simplest way of
-=======
 # Matplotlib graphs your data on `~.figure.Figure`\s (e.g., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes`, an
 # area where points can be specified in terms of x-y coordinates, or theta-r
 # in a polar plot, x-y-z in a 3D plot, etc.  The simplest way of
->>>>>>> DOCS: Usage Guide Prose Edits
 # creating a figure with an axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the axes:
 
@@ -105,7 +98,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # ------------------------------
 #
 # These are the objects most similar to a number line.
-# They place graph limits and generate ticks (the marks
+# They set graph limits and generate ticks (the marks
 # on the axis) and ticklabels (strings labeling the ticks).  The location of
 # the ticks is determined by a `~matplotlib.ticker.Locator` object and the
 # ticklabel strings are formatted by a `~matplotlib.ticker.Formatter`.  The
@@ -128,9 +121,9 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # =====================================
 #
 # All of plotting functions expect `numpy.array` or `numpy.ma.masked_array` as
-# input.  Classes that are similar to arrays such as `pandas` data objects
-# and `numpy.matrix` may not work as intended.  Common convention is to
-# convert these to `numpy.array` objects prior to plotting.
+# input.  Classes that are similar to arrays ('array-like') such as `pandas`
+# data objects and `numpy.matrix` may not work as intended.  Common convention
+# is to convert these to `numpy.array` objects prior to plotting.
 #
 # For example, to convert a `pandas.DataFrame` ::
 #
@@ -156,7 +149,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 #
 # So one can do (OO-style)
 
-x = np.linspace(0, 2, 100)  # This is data for plotting.
+x = np.linspace(0, 2, 100)  # Sample data.
 
 # Note that even in the OO-style, we use `.pyplot.figure` to create the figure.
 fig, ax = plt.subplots()  # Create a figure and an axes.
@@ -171,7 +164,7 @@ ax.legend()  # Add a legend.
 ###############################################################################
 # or (pyplot-style)
 
-x = np.linspace(0, 2, 100)  # This is the same data from the previous plot.
+x = np.linspace(0, 2, 100)  # Sample data.
 
 plt.plot(x, x, label='linear')  # Plot some data on the (implicit) axes.
 plt.plot(x, x**2, label='quadratic')  # etc.
@@ -210,10 +203,8 @@ plt.legend()
 #    nowadays and deprecated. It is only mentioned here because you may still
 #    encounter it in the wild.
 #
-# Typically users may need to make the same plots over and over
-# again, but with different data sets, which leads to the need to write
-# specialized functions to do the plotting.  The recommended function
-# signature is something like:
+# If you need to make the same plots over and over
+# again with different data sets, use the recommended signature function below.
 
 
 def my_plotter(ax, data1, data2, param_dict):
@@ -257,8 +248,7 @@ my_plotter(ax1, data1, data2, {'marker': 'x'})
 my_plotter(ax2, data3, data4, {'marker': 'o'})
 
 ###############################################################################
-# For these simple examples, this may seem over-engineered; however,
-# once graphs get slightly more complex, it becomes more convenient.
+# These examples provide convenience for more complex graphs.
 #
 #
 # .. _backends:
@@ -303,7 +293,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # Below is a more detailed description.
 #
-# If there are more than one configurations present, the last one from the
+# If there is more than one configuration present, the last one from the
 # list takes precedence; e.g. calling :func:`matplotlib.use()` will override
 # the setting in your :file:`matplotlibrc`.
 #
@@ -448,8 +438,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ========= ================================================================
 #
 # .. note::
-#    The names of builtin backends case-insensitive. For example, 'Qt5Agg' and
-#    'qt5agg' are equivalent.
+#    The names of builtin backends are case-insensitive. For example, 'Qt5Agg'
+#    and 'qt5agg' are equivalent.
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
@@ -696,7 +686,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Matplotlib currently defaults to a conservative simplification
 # threshold of ``1/9``. To change default settings to use a different
 # value, change the :file:`matplotlibrc` file. Alternatively, users
-# can create a new style for interactive plotting (with maxmial
+# can create a new style for interactive plotting (with maximal
 # simplification) and another style for publication quality plotting
 # (with minimal simplification) and activate them as necessary. See
 # :doc:`/tutorials/introductory/customizing` for instructions on
