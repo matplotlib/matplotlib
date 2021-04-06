@@ -436,64 +436,6 @@ the desired format::
     :doc:`/gallery/user_interfaces/web_application_server_sgskip` for
     information about running matplotlib inside of a web application.
 
-.. _howto-show:
-
-Use :func:`~matplotlib.pyplot.show`
------------------------------------
-
-When you want to view your plots on your display,
-the user interface backend will need to start the GUI mainloop.
-This is what :func:`~matplotlib.pyplot.show` does.  It tells
-Matplotlib to raise all of the figure windows created so far and start
-the mainloop. Because this mainloop is blocking by default (i.e., script
-execution is paused), you should only call this once per script, at the end.
-Script execution is resumed after the last window is closed. Therefore, if
-you are using Matplotlib to generate only images and do not want a user
-interface window, you do not need to call ``show`` (see :ref:`howto-batch`
-and :ref:`what-is-a-backend`).
-
-.. note::
-   Because closing a figure window unregisters it from pyplot, you must call
-   `~matplotlib.pyplot.savefig` *before* calling ``show`` if you wish to save
-   the figure as well as view it.
-
-Whether ``show`` blocks further execution of the script or the python
-interpreter depends on whether Matplotlib is set to use interactive mode.
-In non-interactive mode (the default setting), execution is paused
-until the last figure window is closed.  In interactive mode, the execution
-is not paused, which allows you to create additional figures (but the script
-won't finish until the last figure window is closed).
-
-Because it is expensive to draw, you typically will not want Matplotlib
-to redraw a figure many times in a script such as the following::
-
-    plot([1, 2, 3])          # draw here?
-    xlabel('time')           # and here?
-    ylabel('volts')          # and here?
-    title('a simple plot')   # and here?
-    show()
-
-However, it is *possible* to force Matplotlib to draw after every command,
-which might be what you want when working interactively at the
-python console (see :ref:`mpl-shell`), but in a script you want to
-defer all drawing until the call to ``show``.  This is especially
-important for complex figures that take some time to draw.
-:func:`~matplotlib.pyplot.show` is designed to tell Matplotlib that
-you're all done issuing commands and you want to draw the figure now.
-
-.. note::
-
-    :func:`~matplotlib.pyplot.show` should typically only be called at
-    most once per script and it should be the last line of your
-    script.  At that point, the GUI takes control of the interpreter.
-    If you want to force a figure draw, use
-    :func:`~matplotlib.pyplot.draw` instead.
-
-.. versionadded:: v1.0.0
-   Matplotlib 1.0.0 and 1.0.1 added support for calling ``show`` multiple times
-   per script, and harmonized the behavior of interactive mode, across most
-   backends.
-
 .. _how-to-threads:
 
 Working with threads
