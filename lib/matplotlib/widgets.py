@@ -2759,11 +2759,17 @@ class PolygonSelector(_SelectorWidget):
     Select a polygon region of an axes.
 
     Place vertices with each mouse click, and make the selection by completing
-    the polygon (clicking on the first vertex). Hold the *ctrl* key and click
-    and drag a vertex to reposition it (the *ctrl* key is not necessary if the
-    polygon has already been completed). Hold the *shift* key and click and
-    drag anywhere in the axes to move all vertices. Press the *esc* key to
-    start a new polygon.
+    the polygon (clicking on the first vertex). Once drawn indiviual vertices
+    can be moved by clicking and dragging with the left mouse button, or
+    deleted by clicking the right mouse button.
+
+    In addition, the following modifier keys can be used:
+
+    - Hold *ctrl* and click and drag a vertex to reposition it before the
+      polygon has been copleted.
+    - Hold the *shift* key and click and drag anywhere in the axes to move
+      all vertices.
+    - Press the *esc* key to start a new polygon.
 
     For the selector to remain responsive you must keep a reference to it.
 
@@ -2827,6 +2833,34 @@ class PolygonSelector(_SelectorWidget):
         self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
 
+    @property
+    def _nverts(self):
+        return len(self._xs)
+
+    def _remove_vertex(self, i):
+        """Remove vertex with index i."""
+        print(self._nverts)
+        if (self._nverts > 2 and
+                self._polygon_completed and
+                i in (0, self._nverts - 1)):
+            # If selecting the first or final vertex, remove both first and
+            # last vertex as they are the same for a closed polygon
+            self._xs.pop(0)
+            self._ys.pop(0)
+            self._xs.pop(-1)
+            self._ys.pop(-1)
+            # Close the polygon again by appending the new first vertex to the
+            # end
+            self._xs.append(self._xs[0])
+            self._ys.append(self._ys[0])
+        else:
+            self._xs.pop(i)
+            self._ys.pop(i)
+        if self._nverts <= 2:
+            # If only one point left, return to un-complete state to let user
+            # start drawing again
+            self._polygon_completed = False
+
     def _press(self, event):
         """Button press event handler."""
         # Check for selection of a tool handle.
@@ -2843,6 +2877,9 @@ class PolygonSelector(_SelectorWidget):
         """Button release event handler."""
         # Release active tool handle.
         if self._active_handle_idx >= 0:
+            if event.button == 3:
+                self._remove_vertex(self._active_handle_idx)
+                self._draw_polygon()
             self._active_handle_idx = -1
 
         # Complete the polygon.

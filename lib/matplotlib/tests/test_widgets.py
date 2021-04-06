@@ -416,6 +416,12 @@ def polygon_place_vertex(xdata, ydata):
             ('release', dict(xdata=xdata, ydata=ydata))]
 
 
+def polygon_remove_vertex(xdata, ydata):
+    return [('onmove', dict(xdata=xdata, ydata=ydata)),
+            ('press', dict(xdata=xdata, ydata=ydata, button=3)),
+            ('release', dict(xdata=xdata, ydata=ydata, button=3))]
+
+
 def test_polygon_selector():
     # Simple polygon
     expected_result = [(50, 50), (150, 50), (50, 150)]
@@ -564,3 +570,31 @@ def test_rect_visibility(fig_test, fig_ref):
     tool = widgets.RectangleSelector(ax_test, onselect,
                                      rectprops={'visible': False})
     tool.extents = (0.2, 0.8, 0.3, 0.7)
+
+
+# Change the order that the extra point is inserted in
+@pytest.mark.parametrize('idx', [1, 2, 3])
+def test_polygon_selector_remove(idx):
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [polygon_place_vertex(*verts[0]),
+                      polygon_place_vertex(*verts[1]),
+                      polygon_place_vertex(*verts[2]),
+                      # Finish the polygon
+                      polygon_place_vertex(*verts[0])]
+    # Add an extra point
+    event_sequence.insert(idx, polygon_place_vertex(200, 200))
+    # Remove the extra point
+    event_sequence.append(polygon_remove_vertex(200, 200))
+    # Flatten list of lists
+    event_sequence = sum(event_sequence, [])
+    check_polygon_selector(event_sequence, verts, 2)
+
+
+def test_polygon_selector_remove_first_point():
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = (polygon_place_vertex(*verts[0]) +
+                      polygon_place_vertex(*verts[1]) +
+                      polygon_place_vertex(*verts[2]) +
+                      polygon_place_vertex(*verts[0]) +
+                      polygon_remove_vertex(*verts[0]))
+    check_polygon_selector(event_sequence, verts[1:], 2)
