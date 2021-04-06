@@ -154,6 +154,7 @@ def reset_hi_dpi(gallery_conf, fname):
     matplotlib.pyplot.rcdefaults()
     matplotlib.rcParams['figure.dpi'] = 200
     matplotlib.rcParams['savefig.dpi'] = 200
+    
 
 
 # Sphinx gallery configuration
