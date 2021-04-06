@@ -2795,6 +2795,12 @@ class PolygonSelector(_SelectorWidget):
     Examples
     --------
     :doc:`/gallery/widgets/polygon_selector_demo`
+
+    Notes
+    -----
+    If only one point remains after removing points, the selector reverts to an
+    incomplete state and you can start drawing a new polygon from the existing
+    point.
     """
 
     def __init__(self, ax, onselect, useblit=False,
