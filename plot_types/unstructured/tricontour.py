@@ -28,7 +28,6 @@ ax.plot(x, y, '.k', alpha=0.5)
 levs = np.linspace(np.min(Z), np.max(Z), 7)
 ax.tricontourf(x, y, z, levels=levs)
 
-ax.set_xlim(-3, 3)
-ax.set_ylim(-3, 3)
+ax.set(xlim=(-3, 3), ylim=(-3, 3))
 
 plt.show()

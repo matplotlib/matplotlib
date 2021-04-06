@@ -18,9 +18,7 @@ fig, ax = plt.subplots()
 
 ax.eventplot(D, orientation="vertical", lineoffsets=X, linewidth=0.75)
 
-ax.set_xlim(0, 8)
-ax.set_xticks(np.arange(1, 8))
-ax.set_ylim(0, 8)
-ax.set_yticks(np.arange(1, 8))
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 8), yticks=np.arange(1, 8))
 
 plt.show()

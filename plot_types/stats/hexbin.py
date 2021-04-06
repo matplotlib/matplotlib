@@ -18,7 +18,6 @@ fig, ax = plt.subplots()
 
 ax.hexbin(x, y, gridsize=20)
 
-ax.set_xlim(-2, 2)
-ax.set_ylim(-3, 3)
+ax.set(xlim=(-2, 2), ylim=(-3, 3))
 
 plt.show()

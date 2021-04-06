@@ -23,7 +23,6 @@ fig, ax = plt.subplots()
 
 ax.triplot(x, y)
 
-ax.set_xlim(-3, 3)
-ax.set_ylim(-3, 3)
+ax.set(xlim=(-3, 3), ylim=(-3, 3))
 
 plt.show()

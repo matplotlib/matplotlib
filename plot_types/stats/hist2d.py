@@ -18,7 +18,6 @@ fig, ax = plt.subplots()
 
 ax.hist2d(x, y, bins=(np.arange(-3, 3, 0.1), np.arange(-3, 3, 0.1)))
 
-ax.set_xlim(-2, 2)
-ax.set_ylim(-3, 3)
+ax.set(xlim=(-2, 2), ylim=(-3, 3))
 
 plt.show()

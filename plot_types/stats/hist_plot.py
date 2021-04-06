@@ -17,9 +17,7 @@ fig, ax = plt.subplots()
 
 ax.hist(X, bins=8, linewidth=0.5, edgecolor="white")
 
-ax.set_xlim(0, 8)
-ax.set_xticks(np.arange(1, 8))
-ax.set_ylim(0, 80)
-ax.set_yticks(np.arange(1, 80, 10))
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 8), yticks=np.arange(1, 8))
 
 plt.show()
