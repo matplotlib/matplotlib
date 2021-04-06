@@ -253,44 +253,6 @@ over so that the tick labels fit in the figure:
 
     Auto Subplots Adjust
 
-.. _howto-ticks:
-
-Configure the tick widths
--------------------------
-
-Wherever possible, it is recommended to use the :meth:`~.axes.Axes.tick_params`
-or :meth:`~.axis.Axis.set_tick_params` methods to modify tick properties::
-
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots()
-    ax.plot(range(10))
-
-    ax.tick_params(width=10)
-
-    plt.show()
-
-For more control of tick properties that are not provided by the above methods,
-it is important to know that in Matplotlib, the ticks are *markers*.  All
-:class:`~matplotlib.lines.Line2D` objects support a line (solid, dashed, etc)
-and a marker (circle, square, tick).  The tick width is controlled by the
-``"markeredgewidth"`` property, so the above effect can also be achieved by::
-
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots()
-    ax.plot(range(10))
-
-    for line in ax.get_xticklines() + ax.get_yticklines():
-        line.set_markeredgewidth(10)
-
-    plt.show()
-
-The other properties that control the tick marker, and all markers,
-are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
-``markersize``.  For more information on configuring ticks, see
-:ref:`axis-container` and :ref:`tick-container`.
-
 .. _howto-align-label:
 
 Align my ylabels across multiple subplots
@@ -311,19 +273,6 @@ setting in the right subplots.
    :scale: 50
 
    Align Ylabels
-
-.. _date-index-plots:
-
-Skip dates where there is no data
----------------------------------
-
-When plotting time series, e.g., financial time series, one often wants to
-leave out days on which there is no data, e.g., weekends.  By passing in
-dates on the x-xaxis, you get large horizontal gaps on periods when there
-is not data. The solution is to pass in some proxy x-data, e.g., evenly
-sampled indices, and then use a custom formatter to format these as dates.
-:doc:`/gallery/text_labels_and_annotations/date_index_formatter` demonstrates
-how to use an 'index formatter' to achieve the desired plot.
 
 .. _howto-set-zorder:
 
