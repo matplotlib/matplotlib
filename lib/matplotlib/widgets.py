@@ -2759,14 +2759,14 @@ class PolygonSelector(_SelectorWidget):
     Select a polygon region of an axes.
 
     Place vertices with each mouse click, and make the selection by completing
-    the polygon (clicking on the first vertex). Once drawn indiviual vertices
+    the polygon (clicking on the first vertex). Once drawn individual vertices
     can be moved by clicking and dragging with the left mouse button, or
-    deleted by clicking the right mouse button.
+    removed by clicking the right mouse button.
 
     In addition, the following modifier keys can be used:
 
     - Hold *ctrl* and click and drag a vertex to reposition it before the
-      polygon has been copleted.
+      polygon has been completed.
     - Hold the *shift* key and click and drag anywhere in the axes to move
       all vertices.
     - Press the *esc* key to start a new polygon.
@@ -2839,7 +2839,6 @@ class PolygonSelector(_SelectorWidget):
 
     def _remove_vertex(self, i):
         """Remove vertex with index i."""
-        print(self._nverts)
         if (self._nverts > 2 and
                 self._polygon_completed and
                 i in (0, self._nverts - 1)):
@@ -2857,7 +2856,7 @@ class PolygonSelector(_SelectorWidget):
             self._xs.pop(i)
             self._ys.pop(i)
         if self._nverts <= 2:
-            # If only one point left, return to un-complete state to let user
+            # If only one point left, return to incomplete state to let user
             # start drawing again
             self._polygon_completed = False
 
