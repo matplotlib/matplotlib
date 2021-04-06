@@ -7,12 +7,6 @@ How-to
 .. contents::
    :backlinks: none
 
-
-.. _howto-plotting:
-
-How-to: Plotting
-================
-
 .. _howto-datetime64:
 
 Plot `numpy.datetime64` values
@@ -27,7 +21,6 @@ unnecessary when using pandas instead of Matplotlib directly. ::
 
   from pandas.plotting import register_matplotlib_converters
   register_matplotlib_converters()
-
 
 .. _howto-figure-empty:
 
@@ -84,11 +77,10 @@ You can also filter on class instances::
     for o in fig.findobj(text.Text):
         o.set_fontstyle('italic')
 
-
 .. _howto-supress_offset:
 
-How to prevent ticklabels from having an offset
------------------------------------------------
+Prevent ticklabels from having an offset
+----------------------------------------
 The default formatter will use an offset to reduce
 the length of the ticklabels.  To turn this feature
 off on a per-axis basis::
@@ -128,7 +120,6 @@ on individual elements, e.g.::
    ax.plot(x, y, alpha=0.5)
    ax.set_xlabel('volts', alpha=0.5)
 
-
 .. _howto-multipage:
 
 Save multiple plots to one pdf file
@@ -160,7 +151,6 @@ Finally, the multipage pdf object has to be closed::
 The same can be done using the pgf backend::
 
     from matplotlib.backends.backend_pgf import PdfPages
-
 
 .. _howto-subplots-adjust:
 
@@ -301,7 +291,6 @@ are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
 ``markersize``.  For more information on configuring ticks, see
 :ref:`axis-container` and :ref:`tick-container`.
 
-
 .. _howto-align-label:
 
 Align my ylabels across multiple subplots
@@ -341,7 +330,6 @@ how to use an 'index formatter' to achieve the desired plot.
 Control the depth of plot elements
 ----------------------------------
 
-
 Within an axes, the order that the various lines, markers, text,
 collections, etc appear is determined by the
 :meth:`~matplotlib.artist.Artist.set_zorder` property.  The default
@@ -377,8 +365,8 @@ some ratio which controls the ratio::
 
 .. _howto-twoscale:
 
-Multiple y-axis scales
-----------------------
+Draw multiple y-axis scales
+---------------------------
 
 A frequent request is to have two scales for the left and right
 y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
@@ -438,8 +426,8 @@ the desired format::
 
 .. _how-to-threads:
 
-Working with threads
---------------------
+Work with threads
+-----------------
 
 Matplotlib is not thread-safe: in fact, there are known race conditions
 that affect certain artists.  Hence, if you work with threads, it is your
