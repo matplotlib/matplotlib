@@ -1086,7 +1086,7 @@ class Axes3D(Axes):
         else:
             raise ValueError(
                 (
-                    "vertical_axis accepts only ('x', 'y', 'z')"
+                    "vertical_axis accepts only ('x', 'y', 'z'), "
                     f"got {vertical_axis}."
                 )
             )
@@ -1106,51 +1106,56 @@ class Axes3D(Axes):
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
+
+        def _roll_to_vertical(arr, _vertical_axis):
+            """Roll arrays to match the different vertical axis."""
+            return np.roll(arr, _vertical_axis - 2)
+
         # elev stores the elevation angle in the z plane
         # azim stores the azimuth angle in the x,y plane
-        #
-        # dist is the distance of the eye viewing point from the object
-        # point.
+        degrees_to_radians = np.pi / 180
+        elev_rad = self.elev * degrees_to_radians
+        azim_rad = self.azim * degrees_to_radians
 
-        deg_to_rad = np.pi / 180
-        elev_rad = self.elev * deg_to_rad
-        azim_rad = self.azim * deg_to_rad
-
-        # transform to uniform world coordinates 0-1, 0-1, 0-1
+        # Transform to uniform world coordinates 0-1, 0-1, 0-1
+        box_aspect = _roll_to_vertical(self._box_aspect, self._vertical_axis)
         worldM = proj3d.world_transformation(
             *self.get_xlim3d(),
             *self.get_ylim3d(),
             *self.get_zlim3d(),
-            pb_aspect=self._box_aspect,
+            pb_aspect=box_aspect,
         )
 
         # Look into the middle of the new coordinates:
-        R = self._box_aspect / 2
+        R = box_aspect / 2
 
-        # Coordinates for a point that can rotate:
-        p0 = self.dist * np.cos(elev_rad) * np.cos(azim_rad)
-        p1 = self.dist * np.cos(elev_rad) * np.sin(azim_rad)
-        p2 = self.dist * np.sin(elev_rad)
+        # Coordinates for a point that rotates around the box of data.
+        # p0, p1 corresponds to rotating the box only around the
+        # vertical axis.
+        # p2 corresponds to rotating the box only around the horizontal
+        # axis.
+        p0 = np.cos(elev_rad) * np.cos(azim_rad)
+        p1 = np.cos(elev_rad) * np.sin(azim_rad)
+        p2 = np.sin(elev_rad)
 
-        if self._vertical_axis == 2:
-            ps = [p0, p1, p2]
-        elif self._vertical_axis == 1:
-            ps = [p1, p2, p0]
-        elif self._vertical_axis == 0:
-            ps = [p2, p0, p1]
-        else:
-            raise ValueError("wrong")
+        # When changing vertical axis the coordinates changes as well.
+        # Roll the values to get the same behaviour as the default:
+        ps = _roll_to_vertical([p0, p1, p2], self._vertical_axis)
 
-        E = R + np.array(ps)
-        self.eye = E
-        self.vvec = R - E
+        # The coordinates for the eye viewing point. The eye is looking
+        # towards the middle of the box of data from a distance:
+        eye = R + self.dist * ps
+        self.eye = eye
+
+        # TODO: Is this being used somewhere?
+        self.vvec = R - eye
         self.vvec = self.vvec / np.linalg.norm(self.vvec)
 
         # Something
         V = np.zeros(3)
         V[self._vertical_axis] = -1 if abs(elev_rad) > np.pi / 2 else 1
 
-        viewM = proj3d.view_transformation(E, R, V)
+        viewM = proj3d.view_transformation(eye, R, V)
         projM = self._projection(-self.dist, self.dist)
         M0 = np.dot(viewM, worldM)
         M = np.dot(projM, M0)
