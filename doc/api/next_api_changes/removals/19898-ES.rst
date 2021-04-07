@@ -33,3 +33,32 @@ Statusbar classes and attributes
 The ``statusbar`` attribute of `.FigureManagerBase`,  as well as
 ``backend_bases.StatusbarBase`` and all its subclasses, and ``StatusBarWx``,
 have been removed, as messages are now displayed in the toolbar instead.
+
+Backend-specific internals
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following module-level classes/variables have been removed:
+
+* ``MODIFIER_KEYS``, ``SUPER``, ``ALT``, ``CTRL``, and ``SHIFT`` of
+  :mod:`matplotlib.backends.backend_qt5agg` and
+  :mod:`matplotlib.backends.backend_qt5cairo`
+* ``backend_pgf.GraphicsContextPgf``
+* ``backend_wx.DEBUG_MSG``
+
+The following parameters have been removed:
+
+* The *dummy* parameter of `.RendererPgf`
+
+The following class attributes have been removed:
+
+* ``RendererCairo.fontweights``, ``RendererCairo.fontangles``
+* ``backend_pgf.LatexManager.latex_stdin_utf8``
+* ``backend_pgf.PdfPages.metadata``
+* ``used_characters`` of `.RendererPdf`, `.PdfFile`, and `.RendererPS`
+
+The following class methods have been removed:
+
+* ``FigureCanvasGTK3._renderer_init``
+* ``track_characters`` and ``merge_used_characters`` of `.RendererPdf`,
+  `.PdfFile`, and `.RendererPS`
+* ``RendererWx.get_gc``

@@ -35,21 +35,6 @@ import wx
 
 _log = logging.getLogger(__name__)
 
-# Debugging settings here...
-# Debug level set here. If the debug level is less than 5, information
-# messages (progressively more info for lower value) are printed. In addition,
-# traceback is performed, and pdb activated, for all uncaught exceptions in
-# this case
-_DEBUG = 5
-_DEBUG_lvls = {1: 'Low ', 2: 'Med ', 3: 'High', 4: 'Error'}
-
-
-@_api.deprecated("3.3")
-def DEBUG_MSG(string, lvl=3, o=None):
-    if lvl >= _DEBUG:
-        print(f"{_DEBUG_lvls[lvl]}- {string} in {type(o)}")
-
-
 # the True dots per inch on the screen; should be display dependent; see
 # http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5
 # for some info about screen dpi
@@ -279,16 +264,6 @@ class RendererWx(RendererBase):
         self.gc = GraphicsContextWx(self.bitmap, self)
         self.gc.select()
         self.gc.unselect()
-        return self.gc
-
-    @_api.deprecated("3.3", alternative=".gc")
-    def get_gc(self):
-        """
-        Fetch the locally cached gc.
-        """
-        # This is a dirty hack to allow anything with access to a renderer to
-        # access the current graphics context
-        assert self.gc is not None, "gc must be defined"
         return self.gc
 
     def get_wx_font(self, s, prop):

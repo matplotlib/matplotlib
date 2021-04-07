@@ -351,7 +351,7 @@ PGF backend cleanups
 ~~~~~~~~~~~~~~~~~~~~
 The *dummy* parameter of `.RendererPgf` is deprecated.
 
-`.GraphicsContextPgf` is deprecated (use `.GraphicsContextBase` instead).
+``GraphicsContextPgf`` is deprecated (use `.GraphicsContextBase` instead).
 
 ``set_factor`` method of :mod:`mpl_toolkits.axisartist` locators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
