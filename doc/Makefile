@@ -20,6 +20,7 @@ clean:
 	rm -rf "$(SOURCEDIR)/build"
 	rm -rf "$(SOURCEDIR)/api/_as_gen"
 	rm -rf "$(SOURCEDIR)/gallery"
+	rm -rf "$(SOURCEDIR)/plot_types"
 	rm -rf "$(SOURCEDIR)/tutorials"
 	rm -rf "$(SOURCEDIR)/savefig"
 	rm -rf "$(SOURCEDIR)/sphinxext/__pycache__"
