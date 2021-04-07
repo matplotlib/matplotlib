@@ -9,7 +9,7 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    StatusbarBase, TimerBase, ToolContainerBase, cursors)
+    TimerBase, ToolContainerBase, cursors)
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -661,18 +661,6 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def set_message(self, s):
         self._message.set_label(s)
-
-
-@_api.deprecated("3.3")
-class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
-    def __init__(self, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        Gtk.Statusbar.__init__(self)
-        self._context = self.get_context_id('message')
-
-    def set_message(self, s):
-        self.pop(self._context)
-        self.push(self._context, s)
 
 
 class RubberbandGTK3(backend_tools.RubberbandBase):

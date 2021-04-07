@@ -575,7 +575,7 @@ This is deprecated; pass keys as a list of strings instead.
 
 Statusbar classes and attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``statusbar`` attribute of `.FigureManagerBase`, `.StatusbarBase` and all
+The ``statusbar`` attribute of `.FigureManagerBase`, ``StatusbarBase`` and all
 its subclasses, and ``StatusBarWx``, are deprecated, as messages are now
 displayed in the toolbar instead.
 

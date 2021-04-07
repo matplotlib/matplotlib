@@ -2777,8 +2777,6 @@ class FigureManagerBase:
                 figure.canvas.manager.button_press_handler_id)
     """
 
-    statusbar = _api.deprecated("3.3")(property(lambda self: None))
-
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
@@ -3452,29 +3450,6 @@ class ToolContainerBase:
             Message text.
         """
         raise NotImplementedError
-
-
-@_api.deprecated("3.3")
-class StatusbarBase:
-    """Base class for the statusbar."""
-    def __init__(self, toolmanager):
-        self.toolmanager = toolmanager
-        self.toolmanager.toolmanager_connect('tool_message_event',
-                                             self._message_cbk)
-
-    def _message_cbk(self, event):
-        """Capture the 'tool_message_event' and set the message."""
-        self.set_message(event.message)
-
-    def set_message(self, s):
-        """
-        Display a message on toolbar or in status bar.
-
-        Parameters
-        ----------
-        s : str
-            Message text.
-        """
 
 
 class _Backend:

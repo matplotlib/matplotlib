@@ -9,7 +9,7 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
+    TimerBase, cursors, ToolContainerBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
@@ -906,17 +906,6 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
 
     def set_message(self, s):
         self.widgetForAction(self._message_action).setText(s)
-
-
-@_api.deprecated("3.3")
-class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
-    def __init__(self, window, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        QtWidgets.QLabel.__init__(self)
-        window.statusBar().addWidget(self)
-
-    def set_message(self, s):
-        self.setText(s)
 
 
 class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):

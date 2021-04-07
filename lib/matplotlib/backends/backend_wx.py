@@ -21,7 +21,7 @@ import matplotlib as mpl
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
     GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
-    StatusbarBase, TimerBase, ToolContainerBase, cursors)
+    TimerBase, ToolContainerBase, cursors)
 
 from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -1205,21 +1205,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.EnableTool(self.wx_ids['Forward'], can_forward)
 
 
-@_api.deprecated("3.3")
-class StatusBarWx(wx.StatusBar):
-    """
-    A status bar is added to _FigureFrame to allow measurements and the
-    previously selected scroll function to be displayed as a user convenience.
-    """
-
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, -1)
-        self.SetFieldsCount(2)
-
-    def set_function(self, string):
-        self.SetStatusText("%s" % string, 1)
-
-
 # tools for matplotlib.backend_managers.ToolManager:
 
 class ToolbarWx(ToolContainerBase, wx.ToolBar):
@@ -1305,19 +1290,6 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 
     def set_message(self, s):
         self._label_text.SetLabel(s)
-
-
-@_api.deprecated("3.3")
-class StatusbarWx(StatusbarBase, wx.StatusBar):
-    """For use with ToolManager."""
-    def __init__(self, parent, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        wx.StatusBar.__init__(self, parent, -1)
-        self.SetFieldsCount(1)
-        self.SetStatusText("")
-
-    def set_message(self, s):
-        self.SetStatusText(s)
 
 
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):

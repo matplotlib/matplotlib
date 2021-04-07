@@ -27,3 +27,9 @@ NavigationToolbar2Wx attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``prevZoomRect``, ``retinaFix``, ``savedRetinaImage``, ``wxoverlay``,
 ``zoomAxes``, ``zoomStartX``, and ``zoomStartY`` attributes have been removed.
+
+Statusbar classes and attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``statusbar`` attribute of `.FigureManagerBase`,  as well as
+``backend_bases.StatusbarBase`` and all its subclasses, and ``StatusBarWx``,
+have been removed, as messages are now displayed in the toolbar instead.
