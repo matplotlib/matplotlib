@@ -62,3 +62,9 @@ The following class methods have been removed:
 * ``track_characters`` and ``merge_used_characters`` of `.RendererPdf`,
   `.PdfFile`, and `.RendererPS`
 * ``RendererWx.get_gc``
+
+Stricter PDF metadata keys in PGF
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Saving metadata in PDF with the PGF backend no longer changes keys to
+lowercase. Only the canonically cased keys listed in the PDF specification (and
+the `~.backend_pgf.PdfPages` documentation) are accepted.

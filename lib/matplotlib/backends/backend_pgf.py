@@ -953,19 +953,6 @@ class PdfPages:
         self._n_figures = 0
         self.keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
-        if metadata:
-            for key in metadata:
-                canonical = {
-                    'creationdate': 'CreationDate',
-                    'moddate': 'ModDate',
-                }.get(key.lower(), key.lower().title())
-                if canonical != key:
-                    _api.warn_deprecated(
-                        '3.3', message='Support for setting PDF metadata keys '
-                        'case-insensitively is deprecated since %(since)s and '
-                        'will be removed %(removal)s; '
-                        f'set {canonical} instead of {key}.')
-                    self._metadata[canonical] = self._metadata.pop(key)
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
 
