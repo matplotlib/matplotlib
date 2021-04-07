@@ -17,13 +17,10 @@ fig, ax = plt.subplots()
 
 VP = ax.violinplot(D, [2, 4, 6], widths=2,
                     showmeans=False, showmedians=False, showextrema=False)
-#style:
+# styling:
 for body in VP['bodies']:
     body.set_alpha(0.9)
-
-ax.set_xlim(0, 8)
-ax.set_xticks(np.arange(1, 8))
-ax.set_ylim(0, 8)
-ax.set_yticks(np.arange(1, 8))
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 8), yticks=np.arange(1, 8))
 
 plt.show()

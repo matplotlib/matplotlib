@@ -22,9 +22,7 @@ VP = ax.boxplot(D, positions=[2, 4, 6], widths=1.5, patch_artist=True,
                 whiskerprops={"color": "C0", "linewidth": 1.5},
                 capprops={"color": "C0", "linewidth": 1.5})
 
-ax.set_xlim(0, 8)
-ax.set_xticks(np.arange(1, 8))
-ax.set_ylim(0, 8)
-ax.set_yticks(np.arange(1, 8))
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 8), yticks=np.arange(1, 8))
 
 plt.show()
