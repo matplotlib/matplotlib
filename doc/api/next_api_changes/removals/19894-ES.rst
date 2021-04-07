@@ -8,3 +8,8 @@ recent versions of Python. Please use one of the Qt5 or Qt6 backends.
 ~~~~~~~~~~~~~~~~~~~~~~
 This function has been removed due to the release of PyQt6. The Qt version can
 be checked using ``QtCore.qVersion()``.
+
+``matplotlib.backends.qt_editor.formsubplottool``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This module has been removed.  Use
+``matplotlib.backends.backend_qt5.SubplotToolQt`` instead.
