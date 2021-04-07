@@ -7,21 +7,6 @@ How-to
 .. contents::
    :backlinks: none
 
-.. _howto-datetime64:
-
-Plot `numpy.datetime64` values
-------------------------------
-
-As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
-as `datetime.datetime` objects.
-
-If you prefer the pandas converters and locators, you can register them.  This
-is done automatically when calling a pandas plot function and may be
-unnecessary when using pandas instead of Matplotlib directly. ::
-
-  from pandas.plotting import register_matplotlib_converters
-  register_matplotlib_converters()
-
 .. _howto-figure-empty:
 
 Check whether a figure is empty
