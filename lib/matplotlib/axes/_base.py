@@ -652,7 +652,7 @@ class _AxesBase(martist.Artist):
         for name, axis in self._get_axis_map().items():
             axis.callbacks._pickled_cids.add(
                 axis.callbacks.connect(
-                    'units finalize', self._unit_change_handler(name)))
+                    'units', self._unit_change_handler(name)))
 
         rcParams = mpl.rcParams
         self.tick_params(
@@ -2402,6 +2402,8 @@ class _AxesBase(martist.Artist):
             return functools.partial(
                 self._unit_change_handler, axis_name, event=object())
         _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
+        for line in self.lines:
+            line.recache_always()
         self.relim()
         self._request_autoscale_view(scalex=(axis_name == "x"),
                                      scaley=(axis_name == "y"))
