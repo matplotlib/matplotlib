@@ -34,7 +34,7 @@ license_files = LICENSE/*
 # User-configurable options
 #
 # Default backend, one of: Agg, Cairo, GTK3Agg, GTK3Cairo, MacOSX, Pdf, Ps,
-# Qt4Agg, Qt5Agg, SVG, TkAgg, WX, WXAgg.
+# Qt5Agg, SVG, TkAgg, WX, WXAgg.
 #
 # The Agg, Ps, Pdf and SVG backends do not require external dependencies.  Do
 # not choose MacOSX if you have disabled the relevant extension modules.  The

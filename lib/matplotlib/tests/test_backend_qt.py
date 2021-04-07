@@ -21,22 +21,11 @@ def qt_core(request):
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
     QtCore = qt_compat.QtCore
 
-    if backend == 'Qt4Agg':
-        try:
-            py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
-        except AttributeError:
-            py_qt_ver = QtCore.__version_info__[0]
-        if py_qt_ver != 4:
-            pytest.skip('Qt4 is not available')
-
     return QtCore
 
 
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param(
-        'Qt4Agg',
-        marks=pytest.mark.backend('Qt4Agg', skip_on_importerror=True)),
     pytest.param(
         'Qt5Agg',
         marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
@@ -134,9 +123,6 @@ def test_fig_signals(qt_core):
 )
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param(
-        'Qt4Agg',
-        marks=pytest.mark.backend('Qt4Agg', skip_on_importerror=True)),
     pytest.param(
         'Qt5Agg',
         marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
