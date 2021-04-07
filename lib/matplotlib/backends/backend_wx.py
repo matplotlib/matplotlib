@@ -1110,21 +1110,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-        self._prevZoomRect = None
-        # for now, use alternate zoom-rectangle drawing on all
-        # Macs. N.B. In future versions of wx it may be possible to
-        # detect Retina displays with window.GetContentScaleFactor()
-        # and/or dc.GetContentScaleFactor()
-        self._retinaFix = 'wxMac' in wx.PlatformInfo
-
-    prevZoomRect = _api.deprecate_privatize_attribute("3.3")
-    retinaFix = _api.deprecate_privatize_attribute("3.3")
-    savedRetinaImage = _api.deprecate_privatize_attribute("3.3")
-    wxoverlay = _api.deprecate_privatize_attribute("3.3")
-    zoomAxes = _api.deprecate_privatize_attribute("3.3")
-    zoomStartX = _api.deprecate_privatize_attribute("3.3")
-    zoomStartY = _api.deprecate_privatize_attribute("3.3")
-
     @staticmethod
     def _icon(name):
         """
@@ -1197,35 +1182,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         cursor = wx.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
-
-    def press_zoom(self, event):
-        super().press_zoom(event)
-        if self.mode.name == 'ZOOM':
-            if not self._retinaFix:
-                self._wxoverlay = wx.Overlay()
-            else:
-                if event.inaxes is not None:
-                    self._savedRetinaImage = self.canvas.copy_from_bbox(
-                        event.inaxes.bbox)
-                    self._zoomStartX = event.xdata
-                    self._zoomStartY = event.ydata
-                    self._zoomAxes = event.inaxes
-
-    def release_zoom(self, event):
-        super().release_zoom(event)
-        if self.mode.name == 'ZOOM':
-            # When the mouse is released we reset the overlay and it
-            # restores the former content to the window.
-            if not self._retinaFix:
-                self._wxoverlay.Reset()
-                del self._wxoverlay
-            else:
-                del self._savedRetinaImage
-                if self._prevZoomRect:
-                    self._prevZoomRect.pop(0).remove()
-                    self._prevZoomRect = None
-                if self._zoomAxes:
-                    self._zoomAxes = None
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height

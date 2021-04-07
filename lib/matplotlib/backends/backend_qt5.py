@@ -651,22 +651,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    @_api.deprecated("3.3", alternative="self.canvas.parent()")
-    @property
-    def parent(self):
-        return self.canvas.parent()
-
-    @_api.deprecated("3.3", alternative="self.canvas.setParent()")
-    @parent.setter
-    def parent(self, value):
-        pass
-
-    @_api.deprecated(
-        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
-    @property
-    def basedir(self):
-        return str(cbook._get_data_path('images'))
-
     def _icon(self, name):
         """
         Construct a `.QIcon` from an image file *name*, including the extension

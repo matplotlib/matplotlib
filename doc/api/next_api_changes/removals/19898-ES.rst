@@ -1,0 +1,29 @@
+NavigationToolbar2._init_toolbar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Overriding this method to initialize third-party toolbars is no longer
+supported. Instead, the toolbar should be initialized in the ``__init__``
+method of the subclass (which should call the base-class' ``__init__`` as
+appropriate).
+
+NavigationToolbar2.press and .release
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These methods were called when pressing or releasing a mouse button, but *only*
+when an interactive pan or zoom was occurring (contrary to what the docs
+stated). They are no longer called; if you write a backend which needs to
+customize such events, please directly override
+``press_pan``/``press_zoom``/``release_pan``/``release_zoom`` instead.
+
+NavigationToolbar2QT.parent and .basedir
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes have been removed. In order to access the parent window, use
+``toolbar.canvas.parent()`` or ``toolbar.parent()``. The base directory to the
+icons is ``os.path.join(mpl.get_data_path(), "images")``.
+
+NavigationToolbar2QT.ctx
+~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute has been removed.
+
+NavigationToolbar2Wx attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``prevZoomRect``, ``retinaFix``, ``savedRetinaImage``, ``wxoverlay``,
+``zoomAxes``, ``zoomStartX``, and ``zoomStartY`` attributes have been removed.
