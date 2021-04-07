@@ -17,7 +17,6 @@ import platform
 import sys
 
 import matplotlib as mpl
-from matplotlib import _api
 
 
 QT_API_PYQT5 = "PyQt5"
@@ -79,10 +78,6 @@ def _setup_pyqt5():
     else:
         raise ValueError("Unexpected value for the 'backend.qt5' rcparam")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
-
-    @_api.deprecated("3.3", alternative="QtCore.qVersion()")
-    def is_pyqt5():
-        return True
 
 
 if QT_API in [QT_API_PYQT5, QT_API_PYSIDE2]:
