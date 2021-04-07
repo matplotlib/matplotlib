@@ -1347,7 +1347,7 @@ class _AxesBase(martist.Artist):
             )
 
         def __repr__(self):
-            return f'<Axes.ArtistList of {self._prop_name}>'
+            return f'<Axes.ArtistList of {len(self)} {self._prop_name}>'
 
         def __len__(self):
             return sum(self._type_check(artist)
