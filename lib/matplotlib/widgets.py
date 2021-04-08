@@ -1029,7 +1029,7 @@ class TextBox(AxesWidget):
 
         self.cursor_index = 0
 
-        self.cursor = ax.vlines(0, 0, 0, visible=False,
+        self.cursor = ax.vlines(0, 0, 0, visible=False, color="k", lw=1,
                                 transform=mpl.transforms.IdentityTransform())
 
         self.connect_event('button_press_event', self._click)
