@@ -5,13 +5,19 @@ Third party packages
 ********************
 
 Several external packages that extend or build on Matplotlib functionality are
-listed below.  They are maintained and distributed separately from Matplotlib
-and thus need to be installed individually.
+listed below. You can find more packages at `PyPI <https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Matplotlib>`_. 
+They are maintained and distributed separately from Matplotlib, 
+and thus need to be installed individually. 
 
-Please submit an issue or pull request on GitHub if you have created
-a package that you would like to have included.  We are also happy to
-host third party packages within the `Matplotlib GitHub Organization
+If you have a created a package that extends or builds on Matplotlib 
+and would like to have your package listed on this page, please submit 
+an issue or pull request on GitHub. The pull request should include a short 
+description of the library and an image demonstrating the functionality. 
+To be included in the PyPI listing, please include ``Framework :: Matplotlib`` 
+in the classifier list in the ``setup.py`` file for your package. We are also 
+happy to host third party packages within the `Matplotlib GitHub Organization
 <https://github.com/matplotlib>`_.
+
 
 Mapping toolkits
 ****************
