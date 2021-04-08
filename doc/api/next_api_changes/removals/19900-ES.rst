@@ -1,3 +1,13 @@
+mathtext ``Glue`` classes
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The following have been removed from `matplotlib.mathtext`:
+
+* *copy* parameter of ``mathtext.Glue``
+* ``mathtext.Glue.glue_subtype``
+* ``mathtext.GlueSpec``
+* ``Fil``, ``Fill``, ``Filll``, ``NegFil``, ``NegFill``, ``NegFilll``, and
+  ``SsGlue``; directly construct glue instances with ``Glue("fil")``, etc.
+
 *ismath* parameter of ``draw_tex``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *ismath* parameter of the ``draw_tex`` method of all renderer classes has
