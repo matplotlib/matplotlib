@@ -166,41 +166,12 @@ def _validate_date_int_mult(s):
     mdates._rcParam_helper.set_int_mult(s)
 
 
-def _validate_tex_preamble(s):
-    if s is None or s == 'None':
-        _api.warn_deprecated(
-            "3.3", message="Support for setting the 'text.latex.preamble' or "
-            "'pgf.preamble' rcParam to None is deprecated since %(since)s and "
-            "will be removed %(removal)s; set it to an empty string instead.")
-        return ""
-    try:
-        if isinstance(s, str):
-            return s
-        elif np.iterable(s):
-            _api.warn_deprecated(
-                "3.3", message="Support for setting the 'text.latex.preamble' "
-                "or 'pgf.preamble' rcParam to a list of strings is deprecated "
-                "since %(since)s and will be removed %(removal)s; set it to a "
-                "single string instead.")
-            return '\n'.join(s)
-        else:
-            raise TypeError
-    except TypeError as e:
-        raise ValueError('Could not convert "%s" to string' % s) from e
-
-
 def validate_axisbelow(s):
     try:
         return validate_bool(s)
     except ValueError:
         if isinstance(s, str):
             if s == 'line':
-                return 'line'
-            if s.lower().startswith('line'):
-                _api.warn_deprecated(
-                    "3.3", message=f"Support for setting axes.axisbelow to "
-                    f"{s!r} to mean 'line' is deprecated since %(since)s and "
-                    f"will be removed %(removal)s; set it to 'line' instead.")
                 return 'line'
     raise ValueError('%s cannot be interpreted as'
                      ' True, False, or "line"' % s)
@@ -466,25 +437,20 @@ def _validate_linestyle(ls):
         # nonsensically interpreted as sequences of numbers (codepoints).
         return np.iterable(x) and not isinstance(x, (str, bytes, bytearray))
 
-    # (offset, (on, off, on, off, ...))
-    if (_is_iterable_not_string_like(ls)
-            and len(ls) == 2
-            and isinstance(ls[0], (type(None), Number))
-            and _is_iterable_not_string_like(ls[1])
-            and len(ls[1]) % 2 == 0
-            and all(isinstance(elem, Number) for elem in ls[1])):
-        if ls[0] is None:
-            _api.warn_deprecated(
-                "3.3", message="Passing the dash offset as None is deprecated "
-                "since %(since)s and support for it will be removed "
-                "%(removal)s; pass it as zero instead.")
-            ls = (0, ls[1])
-        return ls
-    # For backcompat: (on, off, on, off, ...); the offset is implicitly None.
-    if (_is_iterable_not_string_like(ls)
-            and len(ls) % 2 == 0
-            and all(isinstance(elem, Number) for elem in ls)):
-        return (0, ls)
+    if _is_iterable_not_string_like(ls):
+        if len(ls) == 2 and _is_iterable_not_string_like(ls[1]):
+            # (offset, (on, off, on, off, ...))
+            offset, onoff = ls
+        else:
+            # For backcompat: (on, off, on, off, ...); the offset is implicit.
+            offset = 0
+            onoff = ls
+
+        if (isinstance(offset, Number)
+                and len(onoff) % 2 == 0
+                and all(isinstance(elem, Number) for elem in onoff)):
+            return (offset, onoff)
+
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
 
 
@@ -927,7 +893,7 @@ _validators = {
     # text props
     "text.color":          validate_color,
     "text.usetex":         validate_bool,
-    "text.latex.preamble": _validate_tex_preamble,
+    "text.latex.preamble": validate_string,
     "text.hinting":        ["default", "no_autohint", "force_autohint",
                             "no_hinting", "auto", "native", "either", "none"],
     "text.hinting_factor": validate_int,
@@ -1187,7 +1153,7 @@ _validators = {
 
     "pgf.texsystem": ["xelatex", "lualatex", "pdflatex"],  # latex variant used
     "pgf.rcfonts":   validate_bool,  # use mpl's rc settings for font config
-    "pgf.preamble":  _validate_tex_preamble,  # custom LaTeX preamble
+    "pgf.preamble":  validate_string,  # custom LaTeX preamble
 
     # write raster image data into the svg file
     "svg.image_inline": validate_bool,

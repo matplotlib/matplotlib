@@ -390,6 +390,7 @@ def generate_validator_testcases(valid):
                   ([1, 2, 3], ValueError),  # sequence with odd length
                   (1.23, ValueError),  # not a sequence
                   (("a", [1, 2]), ValueError),  # wrong explicit offset
+                  ((None, [1, 2]), ValueError),  # wrong explicit offset
                   ((1, [1, 2, 3]), ValueError),  # odd length sequence
                   (([1, 2], 1), ValueError),  # inverted offset/onoff
                   )
