@@ -223,12 +223,11 @@ class SetCursorBase(ToolBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._id_drag = None
-        self._cursor = None
+        self._current_tool = None
         self._default_cursor = cursors.POINTER
         self._last_cursor = self._default_cursor
         self.toolmanager.toolmanager_connect('tool_added_event',
                                              self._add_tool_cbk)
-
         # process current tools
         for tool in self.toolmanager.tools.values():
             self._add_tool(tool)
@@ -243,10 +242,9 @@ class SetCursorBase(ToolBase):
 
     def _tool_trigger_cbk(self, event):
         if event.tool.toggled:
-            self._cursor = event.tool.cursor
+            self._current_tool = event.tool
         else:
-            self._cursor = None
-
+            self._current_tool = None
         self._set_cursor_cbk(event.canvasevent)
 
     def _add_tool(self, tool):
@@ -264,16 +262,13 @@ class SetCursorBase(ToolBase):
     def _set_cursor_cbk(self, event):
         if not event:
             return
-
-        if not getattr(event, 'inaxes', False) or not self._cursor:
-            if self._last_cursor != self._default_cursor:
-                self.set_cursor(self._default_cursor)
-                self._last_cursor = self._default_cursor
-        elif self._cursor:
-            cursor = self._cursor
-            if cursor and self._last_cursor != cursor:
-                self.set_cursor(cursor)
-                self._last_cursor = cursor
+        if self._current_tool and getattr(event, "inaxes", None):
+            if self._last_cursor != self._current_tool.cursor:
+                self.set_cursor(self._current_tool.cursor)
+                self._last_cursor = self._current_tool.cursor
+        elif self._last_cursor != self._default_cursor:
+            self.set_cursor(self._default_cursor)
+            self._last_cursor = self._default_cursor
 
     def set_cursor(self, cursor):
         """

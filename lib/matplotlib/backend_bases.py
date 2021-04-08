@@ -2976,11 +2976,7 @@ class NavigationToolbar2:
         """
         Update the cursor after a mouse move event or a tool (de)activation.
         """
-        if not event.inaxes or not self.mode:
-            if self._lastCursor != cursors.POINTER:
-                self.set_cursor(cursors.POINTER)
-                self._lastCursor = cursors.POINTER
-        else:
+        if self.mode and event.inaxes:
             if (self.mode == _Mode.ZOOM
                     and self._lastCursor != cursors.SELECT_REGION):
                 self.set_cursor(cursors.SELECT_REGION)
@@ -2989,6 +2985,9 @@ class NavigationToolbar2:
                   and self._lastCursor != cursors.MOVE):
                 self.set_cursor(cursors.MOVE)
                 self._lastCursor = cursors.MOVE
+        elif self._lastCursor != cursors.POINTER:
+            self.set_cursor(cursors.POINTER)
+            self._lastCursor = cursors.POINTER
 
     @contextmanager
     def _wait_cursor_for_draw_cm(self):
