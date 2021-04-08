@@ -238,7 +238,7 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_axes_titlelocation``, ``validate_toolbar``,
 ``validate_ps_papersize``, ``validate_legend_loc``,
 ``validate_bool_maybe_none``, ``validate_hinting``,
-``validate_movie_writers``, ``validate_webagg_address``,
+``validate_movie_writer``, ``validate_webagg_address``,
 ``validate_nseq_float``, ``validate_nseq_int``.
 To test whether an rcParam value would be acceptable, one can test e.g. ``rc =
 RcParams(); rc[k] = v`` raises an exception.

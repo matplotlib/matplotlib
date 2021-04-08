@@ -21,7 +21,7 @@ import re
 
 import numpy as np
 
-from matplotlib import _api, animation, cbook
+from matplotlib import _api, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
@@ -138,21 +138,6 @@ def validate_bool(b):
     """Convert b to ``bool`` or raise."""
     if isinstance(b, str):
         b = b.lower()
-    if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
-        return True
-    elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
-        return False
-    else:
-        raise ValueError('Could not convert "%s" to bool' % b)
-
-
-@_api.deprecated("3.3")
-def validate_bool_maybe_none(b):
-    """Convert b to ``bool`` or raise, passing through *None*."""
-    if isinstance(b, str):
-        b = b.lower()
-    if b is None or b == 'none':
-        return None
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
         return True
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
@@ -303,11 +288,6 @@ def validate_backend(s):
     return backend
 
 
-validate_toolbar = ValidateInStrings(
-    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True,
-    _deprecated_since="3.3")
-
-
 def _validate_toolbar(s):
     s = ValidateInStrings(
         'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)(s)
@@ -316,42 +296,6 @@ def _validate_toolbar(s):
             "Treat the new Tool classes introduced in v1.5 as experimental "
             "for now; the API and rcParam may change in future versions.")
     return s
-
-
-@_api.deprecated("3.3")
-def _make_nseq_validator(cls, n=None, allow_none=False):
-
-    def validator(s):
-        """Convert *n* objects using ``cls``, or raise."""
-        if isinstance(s, str):
-            s = [x.strip() for x in s.split(',')]
-            if n is not None and len(s) != n:
-                raise ValueError(
-                    f'Expected exactly {n} comma-separated values, '
-                    f'but got {len(s)} comma-separated values: {s}')
-        else:
-            if n is not None and len(s) != n:
-                raise ValueError(
-                    f'Expected exactly {n} values, '
-                    f'but got {len(s)} values: {s}')
-        try:
-            return [cls(val) if not allow_none or val is not None else val
-                    for val in s]
-        except ValueError as e:
-            raise ValueError(
-                f'Could not convert all entries to {cls.__name__}s') from e
-
-    return validator
-
-
-@_api.deprecated("3.3")
-def validate_nseq_float(n):
-    return _make_nseq_validator(float, n)
-
-
-@_api.deprecated("3.3")
-def validate_nseq_int(n):
-    return _make_nseq_validator(int, n)
 
 
 def validate_color_or_inherit(s):
@@ -406,10 +350,6 @@ validate_colorlist = _listify_validator(
 def _validate_cmap(s):
     _api.check_isinstance((str, Colormap), cmap=s)
     return s
-
-
-validate_orientation = ValidateInStrings(
-    'orientation', ['landscape', 'portrait'], _deprecated_since="3.3")
 
 
 def validate_aspect(s):
@@ -478,19 +418,6 @@ def _validate_mathtext_fallback(s):
             "fallback off.")
 
 
-validate_fontset = ValidateInStrings(
-    'fontset',
-    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'],
-    _deprecated_since="3.3")
-validate_mathtext_default = ValidateInStrings(
-    'default', "rm cal it tt sf bf default bb frak scr regular".split(),
-    _deprecated_since="3.3")
-_validate_alignment = ValidateInStrings(
-    'alignment',
-    ['center', 'top', 'bottom', 'baseline', 'center_baseline'],
-    _deprecated_since="3.3")
-
-
 def validate_whiskers(s):
     try:
         return _listify_validator(validate_float, n=2)(s)
@@ -500,14 +427,6 @@ def validate_whiskers(s):
         except ValueError as e:
             raise ValueError("Not a valid whisker value ['range', float, "
                              "(float, float)]") from e
-
-
-validate_ps_papersize = ValidateInStrings(
-    'ps_papersize',
-    ['auto', 'letter', 'legal', 'ledger',
-     'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
-     'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10',
-     ], ignorecase=True, _deprecated_since="3.3")
 
 
 def validate_ps_distiller(s):
@@ -615,62 +534,6 @@ def validate_markevery(s):
 
 validate_markeverylist = _listify_validator(validate_markevery)
 
-validate_legend_loc = ValidateInStrings(
-    'legend_loc',
-    ['best',
-     'upper right',
-     'upper left',
-     'lower left',
-     'lower right',
-     'right',
-     'center left',
-     'center right',
-     'lower center',
-     'upper center',
-     'center'], ignorecase=True, _deprecated_since="3.3")
-
-validate_svg_fonttype = ValidateInStrings(
-    'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
-
-
-@_api.deprecated("3.3")
-def validate_hinting(s):
-    return _validate_hinting(s)
-
-
-# Replace by plain list in _prop_validators after deprecation period.
-_validate_hinting = ValidateInStrings(
-    'text.hinting',
-    ['default', 'no_autohint', 'force_autohint', 'no_hinting',
-     'auto', 'native', 'either', 'none'],
-    ignorecase=True)
-
-
-validate_pgf_texsystem = ValidateInStrings(
-    'pgf.texsystem', ['xelatex', 'lualatex', 'pdflatex'],
-    _deprecated_since="3.3")
-
-
-@_api.deprecated("3.3")
-def validate_movie_writer(s):
-    # writers.list() would only list actually available writers, but
-    # FFMpeg.isAvailable is slow and not worth paying for at every import.
-    if s in animation.writers._registered:
-        return s
-    else:
-        raise ValueError(f"Supported animation writers are "
-                         f"{sorted(animation.writers._registered)}")
-
-
-validate_movie_frame_fmt = ValidateInStrings(
-    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba', 'ppm',
-                               'sgi', 'bmp', 'pbm', 'svg'],
-    _deprecated_since="3.3")
-validate_axis_locator = ValidateInStrings(
-    'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
-validate_movie_html_fmt = ValidateInStrings(
-    'animation.html', ['html5', 'jshtml', 'none'], _deprecated_since="3.3")
-
 
 def validate_bbox(s):
     if isinstance(s, str):
@@ -717,10 +580,6 @@ _range_validators = {  # Slightly nicer (internal) API.
     "0 <= x < 1": _validate_greaterequal0_lessthan1,
     "0 <= x <= 1": _validate_greaterequal0_lessequal1,
 }
-
-
-validate_grid_axis = ValidateInStrings(
-    'axes.grid.axis', ['x', 'y', 'both'], _deprecated_since="3.3")
 
 
 def validate_hatch(s):
@@ -938,23 +797,6 @@ def validate_hist_bins(s):
                      " a sequence of floats".format(valid_strs))
 
 
-@_api.deprecated("3.3")
-def validate_webagg_address(s):
-    if s is not None:
-        import socket
-        try:
-            socket.inet_aton(s)
-        except socket.error as e:
-            raise ValueError(
-                "'webagg.address' is not a valid IP address") from e
-        return s
-    raise ValueError("'webagg.address' is not a valid IP address")
-
-
-validate_axes_titlelocation = ValidateInStrings(
-    'axes.titlelocation', ['left', 'center', 'right'], _deprecated_since="3.3")
-
-
 class _ignorecase(list):
     """A marker class indicating that a list-of-str is case-insensitive."""
 
@@ -1086,7 +928,8 @@ _validators = {
     "text.color":          validate_color,
     "text.usetex":         validate_bool,
     "text.latex.preamble": _validate_tex_preamble,
-    "text.hinting":        _validate_hinting,
+    "text.hinting":        ["default", "no_autohint", "force_autohint",
+                            "no_hinting", "auto", "native", "either", "none"],
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
     "text.antialiased":    validate_bool,
