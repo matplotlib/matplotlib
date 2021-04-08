@@ -1,3 +1,9 @@
+The ``TTFPATH`` and ``AFMPATH`` environment variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Support for the (undocumented) ``TTFPATH`` and ``AFMPATH`` environment
+variables has been removed. Register additional fonts using
+``matplotlib.font_manager.fontManager.addfont()``.
+
 mathtext ``Glue`` classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 The following have been removed from `matplotlib.mathtext`:
