@@ -7104,3 +7104,7 @@ def test_artist_sublists():
                       match='modification of the Axes.lines property'):
         ax.lines[1:1] = lines[1:-2]
     assert list(ax.lines) == lines
+
+    # Adding to other lists should produce a regular list.
+    assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
+    assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]
