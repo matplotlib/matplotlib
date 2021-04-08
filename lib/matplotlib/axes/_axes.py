@@ -7671,6 +7671,8 @@ such objects
         -----
         The parameters *detrend* and *scale_by_freq* do only apply when *mode*
         is set to 'psd'.
+        
+        Small value added to spec when calculating log to avoid divide by zero. 
         """
         if NFFT is None:
             NFFT = 256  # same default as in mlab.specgram()
@@ -7703,9 +7705,9 @@ such objects
             Z = spec
         elif scale == 'dB':
             if mode is None or mode == 'default' or mode == 'psd':
-                Z = 10. * np.log10(spec)
+                Z = 10. * np.log10(spec + 1e-9)
             else:
-                Z = 20. * np.log10(spec)
+                Z = 20. * np.log10(spec + 1e-9)
         else:
             raise ValueError('Unknown scale %s', scale)
 
