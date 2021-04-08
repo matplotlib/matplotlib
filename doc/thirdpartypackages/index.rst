@@ -13,7 +13,7 @@ If you have a created a package that extends or builds on Matplotlib
 and would like to have your package listed on this page, please submit 
 an issue or pull request on GitHub. The pull request should include a short 
 description of the library and an image demonstrating the functionality. 
-To be included in the PyPi listing, please include ``Framework :: Matplotlib`` 
+To be included in the PyPI listing, please include ``Framework :: Matplotlib`` 
 in the classifier list in the ``setup.py`` file for your package. We are also 
 happy to host third party packages within the `Matplotlib GitHub Organization
 
