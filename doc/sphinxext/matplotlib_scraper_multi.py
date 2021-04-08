@@ -1,7 +1,9 @@
 import sphinx_gallery.scrapers as scrapers
 import os
+import re
 from textwrap import indent
 from distutils.version import LooseVersion
+from sphinx_gallery.utils import optipng
 
 def _anim_rst(anim, image_path, gallery_conf):
     import matplotlib
@@ -38,7 +40,8 @@ _ANIMATION_RST = '''
 '''
 
 def matplotlib_scraper_multi(block, block_vars, gallery_conf, **kwargs):
-    """Scrape Matplotlib images, but with both high and low-def...
+    """
+    Scrape Matplotlib images, but with both high and low-def...
 
     Parameters
     ----------
@@ -95,8 +98,8 @@ def matplotlib_scraper_multi(block, block_vars, gallery_conf, **kwargs):
         # "kwargs" for subsequent figures processed by the loop
         these_kwargs = kwargs.copy()
         hikwargs = kwargs.copy()
-        hikwargs['dpi']=200
-        
+        hikwargs['dpi'] = 200
+
         for attr in ['facecolor', 'edgecolor']:
             fig_attr = getattr(fig, 'get_' + attr)()
             default_attr = matplotlib.rcParams['figure.' + attr]
@@ -128,10 +131,10 @@ def matplotlib_scraper_multi(block, block_vars, gallery_conf, **kwargs):
         rst = HLIST_HEADER + ''.join(image_rsts)
     return rst
 
-import re
 
 def figure_rst(figure_list, sources_dir, fig_titles=''):
-    """Generate RST for a list of image filenames.
+    """
+    Generate RST for a list of image filenames.
 
     Depending on whether we have one or more figures, we use a
     single rst call to 'image' or a horizontal list.
