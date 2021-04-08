@@ -1363,6 +1363,16 @@ class _AxesBase(martist.Artist):
                     for artist in self._axes._children
                     if self._type_check(artist)][key]
 
+        def __add__(self, other):
+            if isinstance(other, (list, _AxesBase.ArtistList)):
+                return [*self, *other]
+            return NotImplemented
+
+        def __radd__(self, other):
+            if isinstance(other, list):
+                return other + list(self)
+            return NotImplemented
+
         def insert(self, index, item):
             _api.warn_deprecated(
                 '3.5',
