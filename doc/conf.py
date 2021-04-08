@@ -64,6 +64,7 @@ extensions = [
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
     'sphinxext.redirect_from',
+    'sphinxext.sphinx_image_srcset',
     'sphinx_copybutton',
 ]
 
@@ -109,6 +110,7 @@ _check_dependencies()
 import sphinxext.gallery_order as gallery_order
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
+import sphinxext.matplotlib_scraper_multi as msm
 
 # On Linux, prevent plt.show() from emitting a non-GUI backend warning.
 os.environ.pop("DISPLAY", None)
@@ -168,6 +170,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'compress_images': ('thumbnails', 'images'),
     'matplotlib_animations': True,
+    'image_scrapers': (msm.matplotlib_scraper_multi),
 }
 
 plot_gallery = 'True'
