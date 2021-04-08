@@ -2049,7 +2049,7 @@ class Axes3D(Axes):
             topverts = art3d._paths_to_3d_segments(paths, z - dz)
             botverts = art3d._paths_to_3d_segments(paths, z + dz)
 
-            color = linec.get_color()[0]
+            color = linec.get_edgecolor()[0]
 
             polyverts = []
             normals = []
