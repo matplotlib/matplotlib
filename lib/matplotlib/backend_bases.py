@@ -2976,7 +2976,7 @@ class NavigationToolbar2:
         """
         Update the cursor after a mouse move event or a tool (de)activation.
         """
-        if self.mode and event.inaxes:
+        if self.mode and event.inaxes and event.inaxes.get_navigate():
             if (self.mode == _Mode.ZOOM
                     and self._lastCursor != cursors.SELECT_REGION):
                 self.set_cursor(cursors.SELECT_REGION)
