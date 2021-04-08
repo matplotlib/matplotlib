@@ -1563,15 +1563,17 @@ class Annulus(Patch):
         xy : (float, float)
             xy coordinates of annulus centre.
         r : float or (float, float)
-            The radius, or semi-major axes
-                - If float: radius of the outer circle
-                - If two floats: semi-major and -minor axes of outer
-                  ellipse
+            The radius, or semi-axes.
+                - If float: radius of the outer circle.
+                - If two floats: semi-major and -minor axes of outer ellipse.
         width : float
-            Width (thickness) of the annulus ring.
-        angle: float, default=0
-            Rotation angle in degrees (anti-clockwise). Ignored for circular
-            annuli (ie. if *r* is a scalar).
+            Width (thickness) of the annular ring. The width is measured inward
+            from the outer ellipse so that for the inner ellipse the semi-axes
+            are given by `r - width`. `width` must be less than or equal to the
+            semi-minor axis.
+        angle : float, default=0
+            Rotation angle in degrees (anti-clockwise from the positive
+            x-axis). Ignored for circular annuli (ie. if *r* is a scalar).
 
         Valid kwargs are:
 
@@ -1614,7 +1616,8 @@ class Annulus(Patch):
 
     def set_width(self, width):
         """
-        Set the width (thickness) of the annulus ring.
+        Set the width (thickness) of the annulus ring. The width is measured
+        inwards from the outer ellipse.
 
         Parameters
         ----------
@@ -1622,7 +1625,7 @@ class Annulus(Patch):
         """
         if min(self.a, self.b) <= width:
             raise ValueError(
-                'Width of annulus must be smaller than semi-minor axis')
+                'Width of annulus must be less than or equal semi-minor axis')
 
         self._width = width
         self._path = None
@@ -1700,7 +1703,6 @@ class Annulus(Patch):
     def get_radii(self):
         return self.a, self.b
 
-    # alias
     radii = property(get_radii, set_radii)
 
     def _transform_verts(self, verts, a, b):
