@@ -16,6 +16,7 @@ description of the library and an image demonstrating the functionality.
 To be included in the PyPI listing, please include ``Framework :: Matplotlib`` 
 in the classifier list in the ``setup.py`` file for your package. We are also 
 happy to host third party packages within the `Matplotlib GitHub Organization
+<https://github.com/matplotlib>`_.
 
 
 Mapping toolkits
