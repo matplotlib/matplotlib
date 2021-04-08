@@ -217,12 +217,8 @@ class RendererAgg(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
 
-        if ismath in ["TeX", "TeX!"]:
-            if ismath == "TeX!":
-                _api.warn_deprecated(
-                    "3.3", message="Support for ismath='TeX!' is deprecated "
-                    "since %(since)s and will be removed %(removal)s; use "
-                    "ismath='TeX' instead.")
+        _api.check_in_list(["TeX", True, False], ismath=ismath)
+        if ismath == "TeX":
             # todo: handle props
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()

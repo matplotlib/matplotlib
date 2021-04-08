@@ -2156,8 +2156,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    @_api.delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()

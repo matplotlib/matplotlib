@@ -548,8 +548,7 @@ translate
 
         self._path_collection_id += 1
 
-    @_api.delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         if not hasattr(self, "psfrag"):
             _log.warning(
