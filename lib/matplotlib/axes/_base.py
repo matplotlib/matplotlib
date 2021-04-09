@@ -1422,24 +1422,20 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        aspect : {'auto'} or num
+        aspect : {'auto', 'equal'} or float
             Possible values:
 
-            ========   =================================================
-            value      description
-            ========   =================================================
-            'auto'     automatic; fill the position rectangle with data.
-            num        a circle will be stretched such that the height
-                       is *num* times the width.  'equal' is a synonym
-                       for ``aspect=1``, i.e. same scaling for x and y.
-            ========   =================================================
+            - 'auto': fill the position rectangle with data.
+            - 'equal': same as ``aspect=1``, i.e. same scaling for x and y.
+            - *float*: A circle will be stretched such that the height
+              is *float* times the width.
 
         adjustable : None or {'box', 'datalim'}, optional
             If not ``None``, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
 
-        anchor : None or str or 2-tuple of float, optional
+        anchor : None or str or (float, float), optional
             If not ``None``, this defines where the Axes will be drawn if there
             is extra space due to aspect constraints. The most common way to
             to specify the anchor are abbreviations of cardinal directions:
