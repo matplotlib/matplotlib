@@ -626,14 +626,12 @@ PyObject* TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& con
         npy_intp npoints = static_cast<npy_intp>(contour_line.size());
 
         npy_intp segs_dims[2] = {npoints, 2};
-        PyArrayObject* segs = (PyArrayObject*)PyArray_SimpleNew(
-                                                     2, segs_dims, NPY_DOUBLE);
-        double* segs_ptr = (double*)PyArray_DATA(segs);
+        numpy::array_view<double, 2> segs(segs_dims);
+        double* segs_ptr = segs.data();
 
         npy_intp codes_dims[1] = {npoints};
-        PyArrayObject* codes = (PyArrayObject*)PyArray_SimpleNew(
-                                                1, codes_dims, NPY_UBYTE);
-        unsigned char* codes_ptr = (unsigned char*)PyArray_DATA(codes);
+        numpy::array_view<unsigned char, 1> codes(codes_dims);
+        unsigned char* codes_ptr = codes.data();
 
         for (ContourLine::const_iterator it = contour_line.begin();
              it != contour_line.end(); ++it) {
@@ -647,13 +645,8 @@ PyObject* TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& con
             contour_line.front() == contour_line.back())
             *(codes_ptr-1) = CLOSEPOLY;
 
-        if (PyList_SetItem(vertices_list, i, (PyObject*)segs) ||
-            PyList_SetItem(codes_list, i, (PyObject*)codes)) {
-            Py_XDECREF(segs);
-            Py_XDECREF(codes);
-            throw std::runtime_error(
-                "Unable to set contour segments and kind codes");
-        }
+        PyList_SET_ITEM(vertices_list, i, segs.pyobj());
+        PyList_SET_ITEM(codes_list, i, codes.pyobj());
     }
 
     PyObject* result = PyTuple_New(2);
@@ -696,15 +689,13 @@ PyObject* TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
 
     // Create segs array for point coordinates.
     npy_intp segs_dims[2] = {n_points, 2};
-    PyArrayObject* segs = (PyArrayObject*)PyArray_SimpleNew(
-                                                2, segs_dims, NPY_DOUBLE);
-    double* segs_ptr = (double*)PyArray_DATA(segs);
+    numpy::array_view<double, 2> segs(segs_dims);
+    double* segs_ptr = segs.data();
 
     // Create kinds array for code types.
     npy_intp codes_dims[1] = {n_points};
-    PyArrayObject* codes = (PyArrayObject*)PyArray_SimpleNew(
-                                                1, codes_dims, NPY_UBYTE);
-    unsigned char* codes_ptr = (unsigned char*)PyArray_DATA(codes);
+    numpy::array_view<unsigned char, 1> codes(codes_dims);
+    unsigned char* codes_ptr = codes.data();
 
     for (line = contour.begin(); line != contour.end(); ++line) {
         for (point = line->begin(); point != line->end(); point++) {
@@ -724,8 +715,8 @@ PyObject* TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
         throw std::runtime_error("Failed to create Python list");
     }
 
-    if (PyList_Append(vertices_list, (PyObject*)segs) ||
-        PyList_Append(codes_list, (PyObject*)codes)) {
+    if (PyList_Append(vertices_list, segs.pyobj_steal()) ||
+        PyList_Append(codes_list, codes.pyobj_steal())) {
         Py_XDECREF(vertices_list);
         Py_XDECREF(codes_list);
         throw std::runtime_error("Unable to add contour to vertices and codes lists");
