@@ -3536,26 +3536,38 @@ class Axes(_AxesBase):
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None):
         """
-        Make a box and whisker plot.
+        Draw a box and whisker plot.
 
-        Make a box and whisker plot for each column of *x* or each
-        vector in sequence *x*.  The box extends from the lower to
-        upper quartile values of the data, with a line at the median.
-        The whiskers extend from the box to show the range of the
-        data.  Flier points are those past the end of the whiskers.
+        The box extends from the first quartile (Q1) to the third
+        quartile (Q3) of the data, with a line at the median.  The
+        whiskers extend from the box by 1.5x the inter-quartile range
+        (IQR).  Flier points are those past the end of the whiskers.
+        See https://en.wikipedia.org/wiki/Box_plot for reference.
+
+        .. code-block:: none
+
+                  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
+                               |-----:-----|
+               o      |--------|     :     |--------|    o  o
+                               |-----:-----|
+             flier             <----------->            fliers
+                                    IQR
+
 
         Parameters
         ----------
         x : Array or a sequence of vectors.
-            The input data.
+            The input data.  If a 2D array, a boxplot is drawn for each column
+            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
+            array in *x*.
 
         notch : bool, default: False
-            Whether to draw a notched box plot (`True`), or a rectangular box
-            plot (`False`).  The notches represent the confidence interval (CI)
-            around the median.  The documentation for *bootstrap* describes how
-            the locations of the notches are computed by default, but their
-            locations may also be overridden by setting the *conf_intervals*
-            parameter.
+            Whether to draw a notched boxplot (`True`), or a rectangular
+            boxplot (`False`).  The notches represent the confidence interval
+            (CI) around the median.  The documentation for *bootstrap*
+            describes how the locations of the notches are computed by
+            default, but their locations may also be overridden by setting the
+            *conf_intervals* parameter.
 
             .. note::
 
@@ -3700,28 +3712,9 @@ class Axes(_AxesBase):
         meanprops : dict, default: None
             The style of the mean.
 
-        Notes
-        -----
-        Box plots provide insight into distribution properties of the data.
-        However, they can be challenging to interpret for the unfamiliar
-        reader. The figure below illustrates the different visual features of
-        a box plot.
-
-        .. image:: /_static/boxplot_explanation.png
-           :alt: Illustration of box plot features
-           :scale: 50 %
-
-        The whiskers mark the range of the non-outlier data. The most common
-        definition of non-outlier is ``[Q1 - 1.5xIQR, Q3 + 1.5xIQR]``, which
-        is also the default in this function. Other whisker meanings can be
-        applied via the *whis* parameter.
-
-        See `Box plot <https://en.wikipedia.org/wiki/Box_plot>`_ on Wikipedia
-        for further information.
-
-        Violin plots (`~.Axes.violinplot`) add even more detail about the
-        statistical distribution by plotting the kernel density estimation
-        (KDE) as an estimation of the probability density function.
+        See Also
+        --------
+        violinplot : Draw an estimate of the probability density function.
         """
 
         # Missing arguments default to rcParams.
