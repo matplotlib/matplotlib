@@ -3443,9 +3443,9 @@ def test_errobar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
-def test_errorbar_fillstyle_drawstyle():
-    # Check that passing 'fillstyle' and 'drawstyle' keyword will not
-    # result in errors
+def test_errorbar_line_specific_kwargs():
+    # Check that passing line-specific keyword arguments will not result in
+    # errors.
     x = np.arange(5)
     y = np.arange(5)
 
