@@ -82,14 +82,14 @@ at_least_3_unique_points(int npoints, const double* x, const double* y)
     return 0;
 }
 
-/* Delaunay implementation methyod.  If hide_qhull_errors is 1 then qhull error
+/* Delaunay implementation method.  If hide_qhull_errors is 1 then qhull error
  * messages are discarded; if it is 0 then they are written to stderr. */
 static PyObject*
 delaunay_impl(int npoints, const double* x, const double* y,
               int hide_qhull_errors)
 {
-	qhT qh_qh;                  /* qh variable type and name must be like */
-	qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
+    qhT qh_qh;                  /* qh variable type and name must be like */
+    qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
     coordT* points = NULL;
     facetT* facet;
     int i, ntri, max_facet_id;
@@ -182,7 +182,7 @@ delaunay_impl(int npoints, const double* x, const double* y,
         goto error;
     }
 
-    /* Allocate python arrays to return. */
+    /* Allocate Python arrays to return. */
     dims[0] = ntri;
     dims[1] = 3;
     triangles = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, NPY_INT);
@@ -259,7 +259,7 @@ error_before_qhull:
     return NULL;
 }
 
-/* Process python arguments and call Delaunay implementation method. */
+/* Process Python arguments and call Delaunay implementation method. */
 static PyObject*
 delaunay(PyObject *self, PyObject *args)
 {
