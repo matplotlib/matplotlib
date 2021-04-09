@@ -651,20 +651,22 @@ PyObject* TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& con
             PyList_SetItem(codes_list, i, (PyObject*)codes)) {
             Py_XDECREF(segs);
             Py_XDECREF(codes);
-            PyErr_SetString(PyExc_RuntimeError,
-                            "Unable to set contour segments and kind codes");
-            return NULL;
+            throw std::runtime_error(
+                "Unable to set contour segments and kind codes");
         }
     }
 
     PyObject* result = PyTuple_New(2);
-    if (PyTuple_SetItem(result, 0, (PyObject*)vertices_list) ||
-        PyTuple_SetItem(result, 1, (PyObject*)codes_list)) {
-        Py_XDECREF(result);
-        PyErr_SetString(PyExc_RuntimeError,
-                        "Unable to set contour segments and kind codes");
-        return NULL;
+    if (result == 0) {
+        Py_XDECREF(vertices_list);
+        Py_XDECREF(codes_list);
+        throw std::runtime_error("Failed to create Python tuple");
     }
+
+    // No error checking here as filling in a brand new pre-allocated result.
+    PyTuple_SET_ITEM(result, 0, vertices_list);
+    PyTuple_SET_ITEM(result, 1, codes_list);
+
     return result;
 }
 
@@ -730,13 +732,16 @@ PyObject* TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
     }
 
     PyObject* result = PyTuple_New(2);
-    if (PyTuple_SetItem(result, 0, (PyObject*)vertices_list) ||
-        PyTuple_SetItem(result, 1, (PyObject*)codes_list)) {
-        Py_XDECREF(result);
-        PyErr_SetString(PyExc_RuntimeError,
-                        "Unable to set contour segments and kinds");
-        return NULL;
+    if (result == 0) {
+        Py_XDECREF(vertices_list);
+        Py_XDECREF(codes_list);
+        throw std::runtime_error("Failed to create Python tuple");
     }
+
+    // No error checking here as filling in a brand new pre-allocated tuple.
+    PyTuple_SET_ITEM(result, 0, vertices_list);
+    PyTuple_SET_ITEM(result, 1, codes_list);
+
     return result;
 }
 
