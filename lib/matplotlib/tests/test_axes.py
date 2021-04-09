@@ -3443,14 +3443,21 @@ def test_errobar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
-def test_errorbar_fillstyle():
-    # Check that passing 'fillstyle' keyword will not result in errors
+def test_errorbar_fillstyle_drawstyle():
+    # Check that passing 'fillstyle' and 'drawstyle' keyword will not
+    # result in errors
     x = np.arange(5)
     y = np.arange(5)
 
     plotline, _, _ = plt.errorbar(x, y, xerr=1, yerr=1, ls='None',
-                                  marker='s', fillstyle='full')
+                                  marker='s', fillstyle='full',
+                                  drawstyle='steps-mid',
+                                  dash_capstyle='round',
+                                  dash_joinstyle='miter',
+                                  solid_capstyle='butt',
+                                  solid_joinstyle='bevel')
     assert plotline.get_fillstyle() == 'full'
+    assert plotline.get_drawstyle() == 'steps-mid'
 
 
 @check_figures_equal(extensions=['png'])

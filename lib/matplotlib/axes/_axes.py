@@ -3365,6 +3365,11 @@ class Axes(_AxesBase):
         base_style.pop('markevery', None)
         base_style.pop('linestyle', None)
         base_style.pop('fillstyle', None)
+        base_style.pop('drawstyle', None)
+        base_style.pop('dash_capstyle', None)
+        base_style.pop('dash_joinstyle', None)
+        base_style.pop('solid_capstyle', None)
+        base_style.pop('solid_joinstyle', None)
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
