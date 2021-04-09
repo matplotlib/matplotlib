@@ -24,8 +24,12 @@ item explicitly.
 
 .. note::
 
-   `~.axes.Axes.set_axisbelow` and :rc:`axes.axisbelow` can further modify the
-   zorder of ticks and grid lines.
+   `~.axes.Axes.set_axisbelow` and :rc:`axes.axisbelow` are convenient helpers
+   for setting the zorder of ticks and grid lines.
+
+Drawing is done per `~.axes.Axes` at a time. If you have overlapping Axes, all
+elements of the second Axes are drawn on top of the first Axes, irrespective of
+their relative zorder.
 """
 
 import matplotlib.pyplot as plt
