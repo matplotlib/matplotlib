@@ -8,8 +8,16 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "numpy/ndarrayobject.h"
+#ifdef _MSC_VER
+/* The Qhull header does not declare this as extern "C", but only MSVC seems to
+ * do name mangling on global variables. We thus need to declare this before
+ * the header so that it treats it correctly, and doesn't mangle the name. */
+extern "C" {
+extern const char qh_version[];
+}
+#endif
 #include "libqhull_r/qhull_ra.h"
-#include <stdio.h>
+#include <cstdio>
 
 
 #ifndef MPL_DEVNULL
@@ -50,17 +58,18 @@ get_facet_neighbours(const facetT* facet, const int* tri_indices,
         *indices++ = (neighbor->upperdelaunay ? -1 : tri_indices[neighbor->id]);
 }
 
-/* Return 1 if the specified points arrays contain at least 3 unique points,
- * or 0 otherwise. */
-static int
+/* Return true if the specified points arrays contain at least 3 unique points,
+ * or false otherwise. */
+static bool
 at_least_3_unique_points(int npoints, const double* x, const double* y)
 {
     int i;
     const int unique1 = 0;  /* First unique point has index 0. */
     int unique2 = 0;        /* Second unique point index is 0 until set. */
 
-    if (npoints < 3)
-        return 0;
+    if (npoints < 3) {
+        return false;
+    }
 
     for (i = 1; i < npoints; ++i) {
         if (unique2 == 0) {
@@ -73,20 +82,21 @@ at_least_3_unique_points(int npoints, const double* x, const double* y)
             if ( (x[i] != x[unique1] || y[i] != y[unique1]) &&
                  (x[i] != x[unique2] || y[i] != y[unique2]) ) {
                 /* 3 unique points found, with indices 0, unique2 and i. */
-                return 1;
+                return true;
             }
         }
     }
 
     /* Run out of points before 3 unique points found. */
-    return 0;
+    return false;
 }
 
-/* Delaunay implementation method.  If hide_qhull_errors is 1 then qhull error
- * messages are discarded; if it is 0 then they are written to stderr. */
+/* Delaunay implementation method.
+ * If hide_qhull_errors is true then qhull error messages are discarded;
+ * if it is false then they are written to stderr. */
 static PyObject*
 delaunay_impl(int npoints, const double* x, const double* y,
-              int hide_qhull_errors)
+              bool hide_qhull_errors)
 {
     qhT qh_qh;                  /* qh variable type and name must be like */
     qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
@@ -151,8 +161,8 @@ delaunay_impl(int npoints, const double* x, const double* y,
 
     /* Perform Delaunay triangulation. */
     qh_zero(qh, error_file);
-    exitcode = qh_new_qhull(qh, ndim, npoints, points, False,
-                            "qhull d Qt Qbb Qc Qz", NULL, error_file);
+    exitcode = qh_new_qhull(qh, ndim, (int)npoints, points, False,
+                            (char*)"qhull d Qt Qbb Qc Qz", NULL, error_file);
     if (exitcode != qh_ERRnone) {
         PyErr_Format(PyExc_RuntimeError,
                      "Error in qhull Delaunay triangulation calculation: %s (exitcode=%d)%s",
