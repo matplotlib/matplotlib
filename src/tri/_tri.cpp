@@ -7,14 +7,11 @@
  */
 #define NO_IMPORT_ARRAY
 
+#include "../mplutils.h"
 #include "_tri.h"
 
 #include <algorithm>
 #include <set>
-
-#define MOVETO 1
-#define LINETO 2
-#define CLOSEPOLY 79
 
 
 TriEdge::TriEdge()
