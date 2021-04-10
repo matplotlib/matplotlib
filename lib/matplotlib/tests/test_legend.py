@@ -508,6 +508,33 @@ def test_shadow_framealpha():
     assert leg.get_frame().get_alpha() == 1
 
 
+@image_comparison(['shadow_color.svg'])
+def test_shadow_color():
+    # Test whether a shadow of the appropriate color
+    # is generated when shadow's value is colorlike
+    fig, ax = plt.subplots()
+    ax.plot(range(100), label="test")
+    legends = {
+        'true': plt.legend(loc="upper left", shadow=True),
+        'false': plt.legend(loc="center left", shadow=False),
+        'default': plt.legend(loc="lower left"),
+        'colorstring': plt.legend(loc="upper right", shadow='red'),
+        'colortuple': plt.legend(loc="center right", shadow=(0.1, 0.2, 0.5)),
+        'colortab': plt.legend(loc="lower right", shadow='tab:cyan')
+    }
+    for x in legends:
+        plt.gca().add_artist(legends[x])
+
+
+def test_shadow_bad_type():
+    # Ensure an error is thrown if the value of shadow
+    # is neither colorlike nor bool
+    fig, ax = plt.subplots()
+    ax.plot(range(100), label="test")
+    with pytest.raises(ValueError, match="color or bool"):
+        ax.legend(loc="upper left", shadow="aardvark")
+
+
 def test_legend_title_empty():
     # test that if we don't set the legend title, that
     # it comes back as an empty string, and that it is not

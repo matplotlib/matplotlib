@@ -146,6 +146,18 @@ def validate_bool(b):
         raise ValueError('Could not convert "%s" to bool' % b)
 
 
+def validate_color_or_bool(c):
+    """Convert c to color (preferentially) or bool"""
+    try:
+        return validate_color(c)
+    except ValueError:
+        pass
+    try:
+        return validate_bool(c)
+    except ValueError:
+        raise ValueError(f'Could not convert {c} to color or bool.')
+
+
 @_api.deprecated("3.3")
 def validate_bool_maybe_none(b):
     """Convert b to ``bool`` or raise, passing through *None*."""
@@ -1210,7 +1222,7 @@ _validators = {
     "legend.title_fontsize": validate_fontsize_None,
      # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
-    "legend.shadow":         validate_bool,
+    "legend.shadow":         validate_color_or_bool,
      # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,
      # alpha value of the legend frame

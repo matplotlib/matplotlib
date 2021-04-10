@@ -31,6 +31,7 @@ import matplotlib as mpl
 from matplotlib import _api, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
+from matplotlib.colors import is_color_like
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
@@ -208,8 +209,9 @@ fancybox : bool, default: :rc:`legend.fancybox`
     Whether round edges should be enabled around the `~.FancyBboxPatch` which
     makes up the legend's background.
 
-shadow : bool, default: :rc:`legend.shadow`
+shadow : bool or color, default: :rc:`legend.shadow`
     Whether to draw a shadow behind the legend.
+    If value is a color, a shadow of that color will be applied.
 
 framealpha : float, default: :rc:`legend.framealpha`
     The alpha transparency of the legend's background.
@@ -514,7 +516,6 @@ class Legend(Artist):
         self._draggable = None
 
         # set the text color
-
         color_getters = {  # getter function depends on line or patch
             'linecolor':       ['get_color',           'get_facecolor'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
@@ -607,8 +608,14 @@ class Legend(Artist):
         self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
         self.legendPatch.set_mutation_scale(fontsize)
 
-        if self.shadow:
+        if is_color_like(self.shadow):
+            Shadow(self.legendPatch, 2, -2, color=self.shadow).draw(renderer)
+        elif self.shadow is True:
             Shadow(self.legendPatch, 2, -2).draw(renderer)
+        elif self.shadow is False:
+            pass
+        else:
+            raise ValueError('Shadow must be a valid color or bool.')
 
         self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)
