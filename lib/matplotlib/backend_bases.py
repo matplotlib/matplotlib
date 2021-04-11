@@ -2776,8 +2776,6 @@ class FigureManagerBase:
                 figure.canvas.manager.button_press_handler_id)
     """
 
-    statusbar = _api.deprecated("3.3")(property(lambda self: None))
-
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
@@ -2943,14 +2941,6 @@ class NavigationToolbar2:
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
 
-        init = _api.deprecate_method_override(
-            __class__._init_toolbar, self, allow_empty=True, since="3.3",
-            addendum="Please fully initialize the toolbar in your subclass' "
-            "__init__; a fully empty _init_toolbar implementation may be kept "
-            "for compatibility with earlier versions of Matplotlib.")
-        if init:
-            init()
-
         self._id_press = self.canvas.mpl_connect(
             'button_press_event', self._zoom_pan_handler)
         self._id_release = self.canvas.mpl_connect(
@@ -3011,29 +3001,6 @@ class NavigationToolbar2:
         self._nav_stack.forward()
         self.set_history_buttons()
         self._update_view()
-
-    @_api.deprecated("3.3", alternative="__init__")
-    def _init_toolbar(self):
-        """
-        This is where you actually build the GUI widgets (called by
-        __init__).  The icons ``home.xpm``, ``back.xpm``, ``forward.xpm``,
-        ``hand.xpm``, ``zoom_to_rect.xpm`` and ``filesave.xpm`` are standard
-        across backends (there are ppm versions in CVS also).
-
-        You just need to set the callbacks
-
-        home         : self.home
-        back         : self.back
-        forward      : self.forward
-        hand         : self.pan
-        zoom_to_rect : self.zoom
-        filesave     : self.save_figure
-
-        You only need to define the last one - the others are in the base
-        class implementation.
-
-        """
-        raise NotImplementedError
 
     def _update_cursor(self, event):
         """
@@ -3116,14 +3083,6 @@ class NavigationToolbar2:
             elif event.name == "button_release_event":
                 self.release_zoom(event)
 
-    @_api.deprecated("3.3")
-    def press(self, event):
-        """Called whenever a mouse button is pressed."""
-
-    @_api.deprecated("3.3")
-    def release(self, event):
-        """Callback for mouse button release."""
-
     def pan(self, *args):
         """
         Toggle the pan/zoom tool.
@@ -3159,12 +3118,6 @@ class NavigationToolbar2:
         id_drag = self.canvas.mpl_connect("motion_notify_event", self.drag_pan)
         self._pan_info = self._PanInfo(
             button=event.button, axes=axes, cid=id_drag)
-        press = _api.deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
-            "overridden press() at pan start is deprecated since %(since)s "
-            "and will be removed %(removal)s; override press_pan() instead.")
-        if press is not None:
-            press(event)
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
@@ -3183,12 +3136,6 @@ class NavigationToolbar2:
             'motion_notify_event', self.mouse_move)
         for ax in self._pan_info.axes:
             ax.end_pan()
-        release = _api.deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
-            "overridden release() at pan stop is deprecated since %(since)s "
-            "and will be removed %(removal)s; override release_pan() instead.")
-        if release is not None:
-            release(event)
         self._draw()
         self._pan_info = None
         self.push_current()
@@ -3223,12 +3170,6 @@ class NavigationToolbar2:
         self._zoom_info = self._ZoomInfo(
             direction="in" if event.button == 1 else "out",
             start_xy=(event.x, event.y), axes=axes, cid=id_zoom)
-        press = _api.deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
-            "overridden press() at zoom start is deprecated since %(since)s "
-            "and will be removed %(removal)s; override press_zoom() instead.")
-        if press is not None:
-            press(event)
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
@@ -3259,13 +3200,6 @@ class NavigationToolbar2:
                 or (abs(event.y - start_y) < 5 and event.key != "x")):
             self._draw()
             self._zoom_info = None
-            release = _api.deprecate_method_override(
-                __class__.press, self, since="3.3", message="Calling an "
-                "overridden release() at zoom stop is deprecated since "
-                "%(since)s and will be removed %(removal)s; override "
-                "release_zoom() instead.")
-            if release is not None:
-                release(event)
             return
 
         for i, ax in enumerate(self._zoom_info.axes):
@@ -3282,14 +3216,6 @@ class NavigationToolbar2:
         self._draw()
         self._zoom_info = None
         self.push_current()
-
-        release = _api.deprecate_method_override(
-            __class__.release, self, since="3.3", message="Calling an "
-            "overridden release() at zoom stop is deprecated since %(since)s "
-            "and will be removed %(removal)s; override release_zoom() "
-            "instead.")
-        if release is not None:
-            release(event)
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
@@ -3522,29 +3448,6 @@ class ToolContainerBase:
             Message text.
         """
         raise NotImplementedError
-
-
-@_api.deprecated("3.3")
-class StatusbarBase:
-    """Base class for the statusbar."""
-    def __init__(self, toolmanager):
-        self.toolmanager = toolmanager
-        self.toolmanager.toolmanager_connect('tool_message_event',
-                                             self._message_cbk)
-
-    def _message_cbk(self, event):
-        """Capture the 'tool_message_event' and set the message."""
-        self.set_message(event.message)
-
-    def set_message(self, s):
-        """
-        Display a message on toolbar or in status bar.
-
-        Parameters
-        ----------
-        s : str
-            Message text.
-        """
 
 
 class _Backend:

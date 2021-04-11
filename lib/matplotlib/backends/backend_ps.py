@@ -225,8 +225,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
     mathtext_parser = _api.deprecated("3.4")(property(
         lambda self: MathTextParser("PS")))
-    used_characters = _api.deprecated("3.3")(property(
-        lambda self: self._character_tracker.used_characters))
 
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
@@ -253,15 +251,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._path_collection_id = 0
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
-
-    @_api.deprecated("3.3")
-    def track_characters(self, *args, **kwargs):
-        """Keep track of which characters are required from each font."""
-        self._character_tracker.track(*args, **kwargs)
-
-    @_api.deprecated("3.3")
-    def merge_used_characters(self, *args, **kwargs):
-        self._character_tracker.merge(*args, **kwargs)
 
     def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:

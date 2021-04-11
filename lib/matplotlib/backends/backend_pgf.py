@@ -320,10 +320,6 @@ class LatexManager:
         self._expect("*pgf_backend_query_start")
         self._expect_prompt()
 
-    @_api.deprecated("3.3")
-    def latex_stdin_utf8(self):
-        return self.latex.stdin
-
     def get_width_height_descent(self, text, prop):
         """
         Get the width, total height and descent for a text typeset by the
@@ -387,8 +383,7 @@ def _get_image_inclusion_command():
 
 class RendererPgf(RendererBase):
 
-    @_api.delete_parameter("3.3", "dummy")
-    def __init__(self, figure, fh, dummy=False):
+    def __init__(self, figure, fh):
         """
         Create a new PGF renderer that translates any drawing instruction
         into text commands to be interpreted in a latex pgfpicture environment.
@@ -406,12 +401,6 @@ class RendererPgf(RendererBase):
         self.fh = fh
         self.figure = figure
         self.image_counter = 0
-
-        if dummy:
-            # dummy==True deactivate all methods
-            for m in RendererPgf.__dict__:
-                if m.startswith("draw_"):
-                    self.__dict__[m] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
@@ -750,11 +739,6 @@ class RendererPgf(RendererBase):
         return points * mpl_pt_to_in * self.dpi
 
 
-@_api.deprecated("3.3", alternative="GraphicsContextBase")
-class GraphicsContextPgf(GraphicsContextBase):
-    pass
-
-
 @_api.deprecated("3.4")
 class TmpDirCleaner:
     _remaining_tmpdirs = set()
@@ -940,7 +924,6 @@ class PdfPages:
         '_info_dict',
         '_metadata',
     )
-    metadata = _api.deprecated('3.3')(property(lambda self: self._metadata))
 
     def __init__(self, filename, *, keep_empty=True, metadata=None):
         """
@@ -970,19 +953,6 @@ class PdfPages:
         self._n_figures = 0
         self.keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
-        if metadata:
-            for key in metadata:
-                canonical = {
-                    'creationdate': 'CreationDate',
-                    'moddate': 'ModDate',
-                }.get(key.lower(), key.lower().title())
-                if canonical != key:
-                    _api.warn_deprecated(
-                        '3.3', message='Support for setting PDF metadata keys '
-                        'case-insensitively is deprecated since %(since)s and '
-                        'will be removed %(removal)s; '
-                        f'set {canonical} instead of {key}.')
-                    self._metadata[canonical] = self._metadata.pop(key)
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
 

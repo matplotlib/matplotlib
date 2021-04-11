@@ -717,11 +717,6 @@ class PdfFile:
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
 
-    @_api.deprecated("3.3")
-    @property
-    def used_characters(self):
-        return self.file._character_tracker.used_characters
-
     def newPage(self, width, height):
         self.endStream()
 
@@ -1879,15 +1874,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # Restore gc to avoid unwanted side effects
         gc._fillcolor = orig_fill
         gc._effective_alphas = orig_alphas
-
-    @_api.deprecated("3.3")
-    def track_characters(self, *args, **kwargs):
-        """Keep track of which characters are required from each font."""
-        self.file._character_tracker.track(*args, **kwargs)
-
-    @_api.deprecated("3.3")
-    def merge_used_characters(self, *args, **kwargs):
-        self.file._character_tracker.merge(*args, **kwargs)
 
     def get_image_magnification(self):
         return self.image_dpi/72.0
