@@ -1111,12 +1111,6 @@ class Axes3D(Axes):
             """Roll arrays to match the different vertical axis."""
             return np.roll(arr, _vertical_axis - 2)
 
-        # elev stores the elevation angle in the z plane
-        # azim stores the azimuth angle in the x,y plane
-        degrees_to_radians = np.pi / 180
-        elev_rad = self.elev * degrees_to_radians
-        azim_rad = self.azim * degrees_to_radians
-
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
         box_aspect = _roll_to_vertical(self._box_aspect, self._vertical_axis)
         worldM = proj3d.world_transformation(
@@ -1128,6 +1122,11 @@ class Axes3D(Axes):
 
         # Look into the middle of the new coordinates:
         R = box_aspect / 2
+
+        # elev stores the elevation angle in the z plane
+        # azim stores the azimuth angle in the x,y plane
+        elev_rad = np.deg2rad(self.elev)
+        azim_rad = np.deg2rad(self.azim)
 
         # Coordinates for a point that rotates around the box of data.
         # p0, p1 corresponds to rotating the box only around the
@@ -1145,13 +1144,15 @@ class Axes3D(Axes):
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
         eye = R + self.dist * ps
-        self.eye = eye
 
-        # TODO: Is this being used somewhere?
+        # TODO: Is this being used somewhere? Can it be removed?
+        self.eye = eye
         self.vvec = R - eye
         self.vvec = self.vvec / np.linalg.norm(self.vvec)
 
-        # Something
+        # Define which axis should be vertical. A negative value
+        # indicates the plot is upside down and therefore the values
+        # have been reversed:
         V = np.zeros(3)
         V[self._vertical_axis] = -1 if abs(elev_rad) > np.pi / 2 else 1
 
