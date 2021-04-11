@@ -7,7 +7,6 @@ This example shows a how to create a grouped bar chart and how to annotate
 bars with labels.
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -39,15 +38,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.axes.Axes.bar_label
-matplotlib.pyplot.bar_label
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.axes.Axes.bar_label` / `matplotlib.pyplot.bar_label`

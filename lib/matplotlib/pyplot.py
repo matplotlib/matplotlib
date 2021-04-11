@@ -307,6 +307,14 @@ def new_figure_manager(*args, **kwargs):
 
 # This function's signature is rewritten upon backend-load by switch_backend.
 def draw_if_interactive(*args, **kwargs):
+    """
+    Redraw the current figure if in interactive mode.
+
+    .. warning::
+
+        End users will typically not have to call this function because the
+        the interactive mode takes care of this.
+    """
     return _backend_mod.draw_if_interactive(*args, **kwargs)
 
 
@@ -315,29 +323,45 @@ def show(*args, **kwargs):
     """
     Display all open figures.
 
-    In non-interactive mode, *block* defaults to True.  All figures
-    will display and show will not return until all windows are closed.
-    If there are no figures, return immediately.
-
-    In interactive mode *block* defaults to False.  This will ensure
-    that all of the figures are shown and this function immediately returns.
-
     Parameters
     ----------
     block : bool, optional
+        Whether to wait for all figures to be closed before returning.
 
-        If `True` block and run the GUI main loop until all windows
+        If `True` block and run the GUI main loop until all figure windows
         are closed.
 
-        If `False` ensure that all windows are displayed and return
+        If `False` ensure that all figure windows are displayed and return
         immediately.  In this case, you are responsible for ensuring
         that the event loop is running to have responsive figures.
 
+        Defaults to True in non-interactive mode and to False in interactive
+        mode (see `.pyplot.isinteractive`).
+
     See Also
     --------
-    ion : enable interactive mode
-    ioff : disable interactive mode
+    ion : Enable interactive mode, which shows / updates the figure after
+          every plotting command, so that calling ``show()`` is not necessary.
+    ioff : Disable interactive mode.
+    savefig : Save the figure to an image file instead of showing it on screen.
 
+    Notes
+    -----
+    **Saving figures to file and showing a window at the same time**
+
+    If you want an image file as well as a user interface window, use
+    `.pyplot.savefig` before `.pyplot.show`. At the end of (a blocking)
+    ``show()`` the figure is closed and thus unregistered from pyplot. Calling
+    `.pyplot.savefig` afterwards would save a new and thus empty figure. This
+    limitation of command order does not apply if the show is non-blocking or
+    if you keep a reference to the figure and use `.Figure.savefig`.
+
+    **Auto-show in jupyter notebooks**
+
+    The jupyter backends (activated via ``%matplotlib inline``,
+    ``%matplotlib notebook``, or ``%matplotlib widget``), call ``show()`` at
+    the end of every cell by default. Thus, you usually don't have to call it
+    explicitly there.
     """
     _warn_if_gui_out_of_main_thread()
     return _backend_mod.show(*args, **kwargs)
@@ -345,15 +369,19 @@ def show(*args, **kwargs):
 
 def isinteractive():
     """
-    Return if pyplot is in "interactive mode" or not.
+    Return whether plots are updated after every plotting command.
 
-    If in interactive mode then:
+    The interactive mode is mainly useful if you build plots from the command
+    line and want to see the effect of each command while you are building the
+    figure.
+
+    In interactive mode:
 
     - newly created figures will be shown immediately;
     - figures will automatically redraw on change;
     - `.pyplot.show` will not block by default.
 
-    If not in interactive mode then:
+    In non-interactive mode:
 
     - newly created figures and changes to figures will not be reflected until
       explicitly asked to be;
@@ -361,11 +389,10 @@ def isinteractive():
 
     See Also
     --------
-    ion : enable interactive mode
-    ioff : disable interactive mode
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ion : Enable interactive mode.
+    ioff : Disable interactive mode.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
     """
     return matplotlib.is_interactive()
 
@@ -424,15 +451,16 @@ class _IonContext:
 
 def ioff():
     """
-    Turn interactive mode off.
+    Disable interactive mode.
+
+    See `.pyplot.isinteractive` for more details.
 
     See Also
     --------
-    ion : enable interactive mode
-    isinteractive : query current state
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ion : Enable interactive mode.
+    isinteractive : Whether interactive mode is enabled.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
 
     Notes
     -----
@@ -459,15 +487,16 @@ def ioff():
 
 def ion():
     """
-    Turn interactive mode on.
+    Enable interactive mode.
+
+    See `.pyplot.isinteractive` for more details.
 
     See Also
     --------
-    ioff : disable interactive mode
-    isinteractive : query current state
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ioff : Disable interactive mode.
+    isinteractive : Whether interactive mode is enabled.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
 
     Notes
     -----
@@ -506,8 +535,8 @@ def pause(interval):
 
     See Also
     --------
-    matplotlib.animation : Complex animation
-    show : show figures and optional block forever
+    matplotlib.animation : Proper animations
+    show : Show all figures and optional block until all figures are closed.
     """
     manager = _pylab_helpers.Gcf.get_active()
     if manager is not None:

@@ -151,9 +151,9 @@ intersphinx_mapping = {
 
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
-    'examples_dirs': ['../examples', '../tutorials'],
+    'examples_dirs': ['../examples', '../tutorials', '../plot_types'],
     'filename_pattern': '^((?!sgskip).)*$',
-    'gallery_dirs': ['gallery', 'tutorials'],
+    'gallery_dirs': ['gallery', 'tutorials', 'plot_types'],
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'reference_url': {
         'matplotlib': None,

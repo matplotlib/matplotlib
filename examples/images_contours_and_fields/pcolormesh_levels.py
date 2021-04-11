@@ -8,7 +8,6 @@ is faster than the similar `~.axes.Axes.pcolor`.
 
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
@@ -121,18 +120,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown in this example:
-
-matplotlib.axes.Axes.pcolormesh
-matplotlib.pyplot.pcolormesh
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colors.BoundaryNorm
-matplotlib.ticker.MaxNLocator
+#    - `matplotlib.axes.Axes.pcolormesh` / `matplotlib.pyplot.pcolormesh`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colors.BoundaryNorm`
+#    - `matplotlib.ticker.MaxNLocator`

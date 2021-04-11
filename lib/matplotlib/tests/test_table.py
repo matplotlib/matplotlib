@@ -149,7 +149,7 @@ def test_auto_column():
     tb2.set_fontsize(12)
     tb2.auto_set_column_width((-1, 0, 1))
 
-    #3 single inputs
+    # 3 single inputs
     ax3 = fig.add_subplot(4, 1, 3)
     ax3.axis('off')
     tb3 = ax3.table(
@@ -164,7 +164,7 @@ def test_auto_column():
     tb3.auto_set_column_width(0)
     tb3.auto_set_column_width(1)
 
-    #4 non integer iterable input
+    # 4 non integer iterable input
     ax4 = fig.add_subplot(4, 1, 4)
     ax4.axis('off')
     tb4 = ax4.table(

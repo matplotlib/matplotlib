@@ -135,10 +135,3 @@ Python.org Python, or check your homebrew or macports setup.  Remember that
 the disk image installer only works for Python.org Python, and will not get
 picked up by other Pythons.  If all these fail, please :ref:`let us know
 <reporting-problems>`.
-
-.. _install-from-git:
-
-Install from source
-===================
-
-See :ref:`install_from_source`.

@@ -354,9 +354,7 @@ The definition of the pylab text function is a simple pass-through to
 
   # in pylab.py
   def text(*args, **kwargs):
-      ret = gca().text(*args, **kwargs)
-      draw_if_interactive()
-      return ret
+      return gca().text(*args, **kwargs)
 
 `~matplotlib.axes.Axes.text` in simplified form looks like this, i.e., it just
 passes all ``args`` and ``kwargs`` on to ``matplotlib.text.Text.__init__``::
