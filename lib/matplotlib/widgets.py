@@ -2185,6 +2185,8 @@ class RectangleSelector(_SelectorWidget):
 
     _shape_klass = Rectangle
 
+    @_api.delete_parameter("3.5", "drawtype")
+    @_api.delete_parameter("3.5", "lineprops")
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=0, minspany=0, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
@@ -2270,6 +2272,11 @@ class RectangleSelector(_SelectorWidget):
         self.interactive = interactive
 
         if drawtype == 'none':  # draw a line but make it invisible
+            _api.warn_deprecated(
+                "3.5", message="Support for drawtype='none' is deprecated "
+                               "since %(since)s and will be removed "
+                               "%(removal)s."
+                               "Use rectprops=dict(visible=False) instead.")
             drawtype = 'line'
             self.visible = False
 
@@ -2279,10 +2286,15 @@ class RectangleSelector(_SelectorWidget):
                                  alpha=0.2, fill=True)
             rectprops['animated'] = self.useblit
             self.rectprops = rectprops
+            self.visible = self.rectprops.pop('visible', self.visible)
             self.to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
                                              **self.rectprops)
             self.ax.add_patch(self.to_draw)
         if drawtype == 'line':
+            _api.warn_deprecated(
+                "3.5", message="Support for drawtype='line' is deprecated "
+                               "since %(since)s and will be removed "
+                               "%(removal)s.")
             if lineprops is None:
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
@@ -2609,7 +2621,7 @@ class EllipseSelector(RectangleSelector):
         fig, ax = plt.subplots()
         ax.plot(x, y)
 
-        toggle_selector.ES = EllipseSelector(ax, onselect, drawtype='line')
+        toggle_selector.ES = EllipseSelector(ax, onselect)
         fig.canvas.mpl_connect('key_press_event', toggle_selector)
         plt.show()
     """
