@@ -1523,3 +1523,58 @@ def test_scatter_spiral():
 
     # force at least 1 draw!
     fig.canvas.draw()
+
+@pytest.mark.parametrize(
+    "vertical_axis, proj_expected",
+    [
+        (
+            "z",
+            np.array(
+                [
+                    [0.0, 1.142857, 0.0, -0.571429],
+                    [0.0, 0.0, 0.857143, -0.428571],
+                    [0.0, 0.0, 0.0, -10.0],
+                    [-1.142857, 0.0, 0.0, 10.571429],
+                ]
+            ),
+        ),
+        (
+            "y",
+            np.array(
+                [
+                    [1.142857, 0.0, 0.0, -0.571429],
+                    [0.0, 0.857143, 0.0, -0.428571],
+                    [0.0, 0.0, 0.0, -10.0],
+                    [0.0, 0.0, -1.142857, 10.571429],
+                ]
+            ),
+        ),
+        (
+            "x",
+            np.array(
+                [
+                    [0.0, 0.0, 1.142857, -0.571429],
+                    [0.857143, 0.0, 0.0, -0.428571],
+                    [0.0, 0.0, 0.0, -10.0],
+                    [0.0, -1.142857, 0.0, 10.571429],
+                ]
+            ),
+        ),
+    ],
+)
+def test_view_init_vertical_axis(vertical_axis, proj_expected):
+    """
+    Test that the actual projection matches the expected.
+
+    Parameters
+    ----------
+    vertical_axis : str
+        axis to align vertically.
+    proj_expected : ndarray
+        Expected values from ax.get_proj().
+    """
+    ax = plt.subplot(1, 1, 1, projection="3d")
+    ax.view_init(azim=0, elev=0, vertical_axis=vertical_axis)
+    proj_actual = ax.get_proj()
+
+    np.testing.assert_allclose(proj_actual, proj_expected, rtol=2e-06)
