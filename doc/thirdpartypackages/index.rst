@@ -318,6 +318,16 @@ existing table. See the `blume github repository
 
 .. image:: /_static/blume_table_example.png
 
+highlight-text
+==============
+
+`highlight-text <https://pypi.org/project/highlight-text/>`_ is a small library
+that provides an easy way to effectively annotate plots by highlighting
+substrings with the font properties of your choice.
+See the `highlight-text github repository
+<https://github.com/znstrider/highlight_text>`_ for more details and examples.
+
+.. image:: /_static/highlight_text_examples.png
 
 DNA Features Viewer
 ===================
