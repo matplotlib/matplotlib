@@ -11,9 +11,11 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
+from typing import Optional
 import functools
 import itertools
 import math
+import time
 from numbers import Integral
 import textwrap
 
@@ -149,6 +151,8 @@ class Axes3D(Axes):
         # mplot3d currently manages its own spines and needs these turned off
         # for bounding box calculations
         self.spines[:].set_visible(False)
+
+        self.display_animation: Optional[str] = None
 
         if auto_add_to_figure:
             _api.warn_deprecated(
@@ -1218,6 +1222,47 @@ class Axes3D(Axes):
         self.set(xlim=xlim, ylim=ylim, zlim=zlim)
         self.elev = elev
         self.azim = azim
+
+    def animate_washing_machine(self):
+        """Washing machine animation"""
+
+        timestep = 0.01
+        elev_perturbation_angle = 3
+        azim_perturbation_angle = 6
+        elev_perturbation_rate = 0.4
+        azim_perturbation_rate = 0.4
+
+        elev_orig = self.elev
+        azim_orig = self.azim
+        counter = 0
+
+        while self.display_animation == "washing_machine":
+            self.elev = elev_orig + elev_perturbation_angle * math.cos(counter * elev_perturbation_rate)
+            self.azim = azim_orig + azim_perturbation_angle * math.sin(counter * azim_perturbation_rate)
+            self.get_proj()
+            self.stale = True
+            self.figure.canvas.draw_idle()
+            self.figure.canvas.flush_events()
+            counter += 1
+            time.sleep(timestep)
+
+    def animate_azimuthal_rotation(self):
+        """Azimuthal rotation animation"""
+
+        timestep = 0.01
+        azim_rotation_rate = 1
+
+        azim_orig = self.azim
+        counter = 0
+
+        while self.display_animation == "azimuthal_rotation":
+            self.azim = azim_orig + counter * azim_rotation_rate
+            self.get_proj()
+            self.stale = True
+            self.figure.canvas.draw_idle()
+            self.figure.canvas.flush_events()
+            counter += 1
+            time.sleep(timestep)
 
     def format_zdata(self, z):
         """

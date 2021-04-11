@@ -33,6 +33,7 @@ import importlib
 import inspect
 import io
 import logging
+import math
 import os
 import re
 import sys
@@ -52,7 +53,6 @@ from matplotlib.cbook import _setattr_cm
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib._enums import JoinStyle, CapStyle
-
 
 _log = logging.getLogger(__name__)
 _default_filetypes = {
@@ -2581,6 +2581,28 @@ def key_press_handler(event, canvas=None, toolbar=None):
         except AttributeError:
             pass
 
+    if event.key in ["z"]:
+        axes = [a for a in canvas.figure.get_axes() if a.name == "3d"]
+        if len(axes) != 1:
+            return
+        axes = axes[0]
+        if axes.display_animation == "washing_machine":
+            axes.display_animation = None
+        else:
+            axes.display_animation = "washing_machine"
+            axes.animate_washing_machine()
+
+    if event.key in ["x"]:
+        axes = [a for a in canvas.figure.get_axes() if a.name == "3d"]
+        if len(axes) != 1:
+            return
+        axes = axes[0]
+        if axes.display_animation == "azimuthal_rotation":
+            axes.display_animation = None
+        else:
+            axes.display_animation = "azimuthal_rotation"
+            axes.animate_azimuthal_rotation()
+
     # quit the figure (default key 'ctrl+w')
     if event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
@@ -2959,6 +2981,7 @@ class NavigationToolbar2:
             'motion_notify_event', self.mouse_move)
         self._pan_info = None
         self._zoom_info = None
+        self._dishwashering = False
 
         self.mode = _Mode.NONE  # a mode string for the status bar
         self.set_history_buttons()
