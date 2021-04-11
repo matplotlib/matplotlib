@@ -1524,6 +1524,7 @@ def test_scatter_spiral():
     # force at least 1 draw!
     fig.canvas.draw()
 
+
 @pytest.mark.parametrize(
     "vertical_axis, proj_expected",
     [
