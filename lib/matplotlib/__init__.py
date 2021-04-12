@@ -752,7 +752,8 @@ def _open_file_or_url(fname):
 
 
 def _strip_comment(line):
-    """Strip line and remove comment line
+    """
+    Strip line and remove comment line.
     Only removes comments at the start of a line (may have leading whitespace)
     """
     line = line.strip()
@@ -762,9 +763,10 @@ def _strip_comment(line):
 
 
 def _parse_keyval(key, val):
-    """Parse a key-value pair.
-    We are only passing key in case we want to
-    conditionally allow quoted strings"""
+    """
+    Parse a key-value pair.
+    We are only passing key in case we want to conditionally allow quoted strings
+    """
     # remove whitespace
     val = val.strip()
     # regex
