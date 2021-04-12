@@ -752,21 +752,42 @@ def _open_file_or_url(fname):
 
 
 def strip_comment(line):
-    """Strips comments at the end of the line.
-    Comments start with '#' but can be escaped ('\#').
+    """Strip line and remove comment line
+    Only removes comments at the start of a line (may have leading whitespace)
     """
-    splitline = line.split('#')
-    escaped_line = []
-    for i, segment in enumerate(splitline):
-        escape_at_end = segment.endswith('\\')
-        if escape_at_end and len(splitline) > i:
-            # this segment ended with \#
-            segment = segment[:-1]+'#'
-        escaped_line.append(segment)
-        if not escape_at_end:
-            break
-    parsed = ''.join(escaped_line).strip()
-    return parsed
+    line = line.strip()
+    if re.match('^#', line):  # line starts with a comment
+        line = ''
+    return line
+
+
+def parse_keyval(key, val):
+    """Parse a key-value pair.
+    We are only passing key in case we want to
+    conditionally allow quoted strings"""
+    # remove whitespace
+    val = val.strip()
+    # regex
+    quoted = re.compile(r"""
+                        ^                # beginning of line
+                        (?P<quote>['"])  # $1: opening quote (cannot make this non-capturing)
+                        (. *?)           # $2: non-greedy anything, the quoted text
+                        (?P=quote)       # closing quote, not stored
+                        (. *?)           # $3: non-greedy anything, the rest
+                        $                # end of line
+                        """, re.VERBOSE)
+    match = quoted.match(val)
+    if match: # a quoted string
+        val2 = match.group(2)
+        # ensure the rest is just a comment
+        rest = match.group(3).strip()
+        if rest and not re.match('^#', rest):
+            return None  # let it fail
+    else: # treat as a regular value
+        val2 = val.split('#', 1)[0]  # remove optional comments at the end
+    val2 = val2.strip()
+
+    return val2
 
 
 def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
@@ -802,6 +823,11 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 key, val = tup
                 key = key.strip()
                 val = val.strip()
+                val = parse_keyval(key, val)
+                if val is None:
+                    _log.warning('Cannot parse key value in file %r, line %d (%r)',
+                                fname, line_no, line.rstrip('\n'))
+                    continue
                 if key in rc_temp:
                     _log.warning('Duplicate key in file %r, line %d (%r)',
                                  fname, line_no, line.rstrip('\n'))
