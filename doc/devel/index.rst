@@ -36,7 +36,6 @@ process or how to fix something feel free to ask on `gitter
    development_setup.rst
    testing.rst
    documenting_mpl.rst
-   add_new_projection.rst
    gitwash/index.rst
    coding_guide.rst
    release_guide.rst
