@@ -751,7 +751,7 @@ def _open_file_or_url(fname):
             yield f
 
 
-def strip_comment(line):
+def _strip_comment(line):
     """Strip line and remove comment line
     Only removes comments at the start of a line (may have leading whitespace)
     """
@@ -761,7 +761,7 @@ def strip_comment(line):
     return line
 
 
-def parse_keyval(key, val):
+def _parse_keyval(key, val):
     """Parse a key-value pair.
     We are only passing key in case we want to
     conditionally allow quoted strings"""
@@ -812,7 +812,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
         try:
             for line_no, line in enumerate(fd, 1):
                 line = transform(line)
-                strippedline = strip_comment(line).strip()
+                strippedline = _strip_comment(line).strip()
                 if not strippedline:
                     continue
                 tup = strippedline.split(':', 1)
@@ -823,7 +823,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 key, val = tup
                 key = key.strip()
                 val = val.strip()
-                val = parse_keyval(key, val)
+                val = _parse_keyval(key, val)
                 if val is None:
                     _log.warning('Cannot parse key value in file %r, line %d (%r)',
                                 fname, line_no, line.rstrip('\n'))
