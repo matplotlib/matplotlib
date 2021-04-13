@@ -30,6 +30,13 @@
 ## All lines start with an additional '#', so that removing all leading '#'s
 ## yields a valid style file.
 ##
+## Strings can be specified without qoutes, in which case they are interpreted
+## literally, e.g.
+##     text.latex.preamble: \newcommand{\foo}{bar}
+##
+## If enclosed in double quotes, the string content is unescaped, e.g.
+##     date.autoformatter.hour: "%b %d\n%H:%M"  # includes a newline
+##
 ## Colors: for the color values below, you can either use
 ##     - a Matplotlib color string, such as r, k, or b
 ##     - an RGB tuple, such as (1.0, 0.5, 0.0)

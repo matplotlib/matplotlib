@@ -81,6 +81,7 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 
+import ast
 import atexit
 from collections import namedtuple
 from collections.abc import MutableMapping
@@ -753,6 +754,8 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 key, val = tup
                 key = key.strip()
                 val = val.strip()
+                if len(val) >= 2 and val[0] == val[-1] == '"':
+                    val = ast.literal_eval(val)
                 if key in rc_temp:
                     _log.warning('Duplicate key in file %r, line %d (%r)',
                                  fname, line_no, line.rstrip('\n'))

@@ -38,7 +38,12 @@ def test_rcparams(tmpdir):
     linewidth = mpl.rcParams['lines.linewidth']
 
     rcpath = Path(tmpdir) / 'test_rcparams.rc'
-    rcpath.write_text('lines.linewidth: 33')
+    rcpath.write_text(r"""
+lines.linewidth: 33
+text.latex.preamble: \newcommand{\foo}{\bar}  # unquoted: no unescaping
+date.autoformatter.hour: "%b %d\n%H:%M"  # quoted: unescape to newline
+date.autoformatter.year: "## %Y ##"  # '#' in string
+""")
 
     # test context given dictionary
     with mpl.rc_context(rc={'text.usetex': not usetex}):
@@ -66,6 +71,9 @@ def test_rcparams(tmpdir):
     # test rc_file
     mpl.rc_file(rcpath)
     assert mpl.rcParams['lines.linewidth'] == 33
+    assert mpl.rcParams['text.latex.preamble'] == r"\newcommand{\foo}{\bar}"
+    assert mpl.rcParams['date.autoformatter.hour'] == "%b %d\n%H:%M"
+    assert mpl.rcParams['date.autoformatter.year'] == "## %Y ##"
 
 
 def test_RcParams_class():
