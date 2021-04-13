@@ -18,6 +18,7 @@ extern const char qh_version[];
 #endif
 #include "libqhull_r/qhull_ra.h"
 #include <cstdio>
+#include <vector>
 
 
 #ifndef MPL_DEVNULL
@@ -51,7 +52,7 @@ get_facet_vertices(qhT* qh, const facetT* facet, int indices[3])
 /* Return the indices of the 3 triangles that are neighbors of the specified
  * facet (triangle). */
 static void
-get_facet_neighbours(const facetT* facet, const int* tri_indices,
+get_facet_neighbours(const facetT* facet, std::vector<int>& tri_indices,
                      int indices[3])
 {
     facetT *neighbor, **neighborp;
@@ -103,12 +104,12 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
 {
     qhT qh_qh;                  /* qh variable type and name must be like */
     qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
-    coordT* points = NULL;
+    std::vector<coordT> points;
     facetT* facet;
     int i, ntri, max_facet_id;
     FILE* error_file = NULL;    /* qhull expects a FILE* to write errors to. */
     int exitcode;               /* Value returned from qh_new_qhull(). */
-    int* tri_indices = NULL;    /* Maps qhull facet id to triangle index. */
+    std::vector<int> tri_indices;  /* Maps qhull facet id to triangle index. */
     int indices[3];
     int curlong, totlong;       /* Memory remaining after qh_memfreeshort. */
     PyObject* tuple;            /* Return tuple (triangles, neighbors). */
@@ -124,12 +125,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     QHULL_LIB_CHECK
 
     /* Allocate points. */
-    points = (coordT*)malloc(npoints*ndim*sizeof(coordT));
-    if (points == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate points array in qhull.delaunay");
-        goto error_before_qhull;
-    }
+    points.resize(npoints * ndim);
 
     /* Determine mean x, y coordinates. */
     for (i = 0; i < npoints; ++i) {
@@ -152,9 +148,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
          * setupext.py and passed in via the macro MPL_DEVNULL. */
         error_file = fopen(STRINGIFY(MPL_DEVNULL), "w");
         if (error_file == NULL) {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "Could not open devnull in qhull.delaunay");
-            goto error_before_qhull;
+            throw std::runtime_error("Could not open devnull");
         }
     }
     else {
@@ -164,7 +158,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
 
     /* Perform Delaunay triangulation. */
     qh_zero(qh, error_file);
-    exitcode = qh_new_qhull(qh, ndim, (int)npoints, points, False,
+    exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
                             (char*)"qhull d Qt Qbb Qc Qz", NULL, error_file);
     if (exitcode != qh_ERRnone) {
         PyErr_Format(PyExc_RuntimeError,
@@ -189,12 +183,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     max_facet_id = qh->facet_id - 1;
 
     /* Create array to map facet id to triangle index. */
-    tri_indices = (int*)malloc((max_facet_id+1)*sizeof(int));
-    if (tri_indices == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate triangle map in qhull.delaunay");
-        goto error;
-    }
+    tri_indices.resize(max_facet_id+1);
 
     /* Allocate Python arrays to return. */
     dims[0] = ntri;
@@ -251,8 +240,6 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     if (hide_qhull_errors) {
         fclose(error_file);
     }
-    free(tri_indices);
-    free(points);
 
     tuple = PyTuple_New(2);
     PyTuple_SetItem(tuple, 0, (PyObject*)triangles);
@@ -269,10 +256,6 @@ error:
     if (hide_qhull_errors) {
         fclose(error_file);
     }
-    free(tri_indices);
-
-error_before_qhull:
-    free(points);
 
     return NULL;
 }
