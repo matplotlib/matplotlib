@@ -95,6 +95,33 @@ at_least_3_unique_points(npy_intp npoints, const double* x, const double* y)
     return false;
 }
 
+/* Holds on to info from Qhull so that it can be destructed automatically. */
+class QhullInfo {
+public:
+    QhullInfo(FILE *error_file, qhT* qh) {
+        this->error_file = error_file;
+        this->qh = qh;
+    }
+
+    ~QhullInfo() {
+        qh_freeqhull(this->qh, !qh_ALL);
+        int curlong, totlong;  /* Memory remaining. */
+        qh_memfreeshort(this->qh, &curlong, &totlong);
+        if (curlong || totlong) {
+            PyErr_WarnEx(PyExc_RuntimeWarning,
+                         "Qhull could not free all allocated memory", 1);
+        }
+
+        if (this->error_file != stderr) {
+            fclose(error_file);
+        }
+    }
+
+private:
+    FILE* error_file;
+    qhT* qh;
+};
+
 /* Delaunay implementation method.
  * If hide_qhull_errors is true then qhull error messages are discarded;
  * if it is false then they are written to stderr. */
@@ -111,7 +138,6 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     int exitcode;               /* Value returned from qh_new_qhull(). */
     std::vector<int> tri_indices;  /* Maps qhull facet id to triangle index. */
     int indices[3];
-    int curlong, totlong;       /* Memory remaining after qh_memfreeshort. */
     PyObject* tuple;            /* Return tuple (triangles, neighbors). */
     const int ndim = 2;
     npy_intp dims[2];
@@ -157,6 +183,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     }
 
     /* Perform Delaunay triangulation. */
+    QhullInfo info(error_file, qh);
     qh_zero(qh, error_file);
     exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
                             (char*)"qhull d Qt Qbb Qc Qz", NULL, error_file);
@@ -165,7 +192,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
                      "Error in qhull Delaunay triangulation calculation: %s (exitcode=%d)%s",
                      qhull_error_msg[exitcode], exitcode,
                      hide_qhull_errors ? "; use python verbose option (-v) to see original qhull error." : "");
-        goto error;
+        return NULL;
     }
 
     /* Split facets so that they only have 3 points each. */
@@ -230,17 +257,6 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
         }
     }
 
-    /* Clean up. */
-    qh_freeqhull(qh, !qh_ALL);
-    qh_memfreeshort(qh, &curlong, &totlong);
-    if (curlong || totlong) {
-        PyErr_WarnEx(PyExc_RuntimeWarning,
-                     "Qhull could not free all allocated memory", 1);
-    }
-    if (hide_qhull_errors) {
-        fclose(error_file);
-    }
-
     tuple = PyTuple_New(2);
     PyTuple_SetItem(tuple, 0, (PyObject*)triangles);
     PyTuple_SetItem(tuple, 1, (PyObject*)neighbors);
@@ -250,12 +266,6 @@ error:
     /* Clean up. */
     Py_XDECREF(triangles);
     Py_XDECREF(neighbors);
-    qh_freeqhull(qh, !qh_ALL);
-    qh_memfreeshort(qh, &curlong, &totlong);
-    /* Don't bother checking curlong and totlong as raising error anyway. */
-    if (hide_qhull_errors) {
-        fclose(error_file);
-    }
 
     return NULL;
 }
