@@ -3382,7 +3382,7 @@ class Axes(_AxesBase):
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
 
-        if elinewidth:
+        if elinewidth is not None:
             eb_lines_style['linewidth'] = elinewidth
         elif 'linewidth' in kwargs:
             eb_lines_style['linewidth'] = kwargs['linewidth']
