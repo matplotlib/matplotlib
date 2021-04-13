@@ -1336,8 +1336,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
     /* If we are generating a Type 3 font, we will need to */
     /* have the 'loca' and 'glyf' tables arround while */
     /* we are generating the CharStrings. */
-    if (font.target_type == PS_TYPE_3 || font.target_type == PDF_TYPE_3 ||
-            font.target_type == PS_TYPE_42_3_HYBRID)
+    if (font.target_type == PS_TYPE_3 || font.target_type == PS_TYPE_42_3_HYBRID)
     {
         BYTE *ptr;                      /* We need only one value */
         ptr = GetTable(&font, "hhea");
@@ -1400,38 +1399,6 @@ void insert_ttfont(const char *filename, TTStreamWriter& stream,
     ttfont_trailer(stream, &font);
 
 } /* end of insert_ttfont() */
-
-class StringStreamWriter : public TTStreamWriter
-{
-    std::ostringstream oss;
-
-public:
-    void write(const char* a)
-    {
-        oss << a;
-    }
-
-    std::string str()
-    {
-        return oss.str();
-    }
-};
-
-void get_pdf_charprocs(const char *filename, std::vector<int>& glyph_ids, TTDictionaryCallback& dict)
-{
-    struct TTFONT font;
-
-    read_font(filename, PDF_TYPE_3, glyph_ids, font);
-
-    for (std::vector<int>::const_iterator i = glyph_ids.begin();
-            i != glyph_ids.end(); ++i)
-    {
-        StringStreamWriter writer;
-        tt_type3_charproc(writer, &font, *i);
-        const char* name = ttfont_CharStrings_getname(&font, *i);
-        dict.add_pair(name, writer.str().c_str());
-    }
-}
 
 TTFONT::TTFONT() :
     file(NULL),
