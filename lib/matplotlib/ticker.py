@@ -739,7 +739,8 @@ class ScalarFormatter(Formatter):
                 delta = abs(neighbor_values - value).max()
             else:
                 # Rough approximation: no more than 1e4 divisions.
-                delta = np.diff(self.axis.get_view_interval()) / 1e4
+                a, b = self.axis.get_view_interval()
+                delta = (b - a) / 1e4
             # If e.g. value = 45.67 and delta = 0.02, then we want to round to
             # 2 digits after the decimal point (floor(log10(0.02)) = -2);
             # 45.67 contributes 2 digits before the decimal point
