@@ -131,13 +131,9 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
 {
     qhT qh_qh;                  /* qh variable type and name must be like */
     qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
-    std::vector<coordT> points;
     facetT* facet;
     int i, ntri, max_facet_id;
-    FILE* error_file = NULL;    /* qhull expects a FILE* to write errors to. */
     int exitcode;               /* Value returned from qh_new_qhull(). */
-    std::vector<int> tri_indices;  /* Maps qhull facet id to triangle index. */
-    int indices[3];
     const int ndim = 2;
     double x_mean = 0.0;
     double y_mean = 0.0;
@@ -145,7 +141,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     QHULL_LIB_CHECK
 
     /* Allocate points. */
-    points.resize(npoints * ndim);
+    std::vector<coordT> points(npoints * ndim);
 
     /* Determine mean x, y coordinates. */
     for (i = 0; i < npoints; ++i) {
@@ -162,6 +158,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     }
 
     /* qhull expects a FILE* to write errors to. */
+    FILE* error_file = NULL;
     if (hide_qhull_errors) {
         /* qhull errors are ignored by writing to OS-equivalent of /dev/null.
          * Rather than have OS-specific code here, instead it is determined by
@@ -204,7 +201,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     max_facet_id = qh->facet_id - 1;
 
     /* Create array to map facet id to triangle index. */
-    tri_indices.resize(max_facet_id+1);
+    std::vector<int> tri_indices(max_facet_id+1);
 
     /* Allocate Python arrays to return. */
     npy_intp dims[2] = {ntri, 3};
@@ -218,6 +215,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     i = 0;
     FORALLfacets {
         if (!facet->upperdelaunay) {
+            int indices[3];
             tri_indices[facet->id] = i++;
             get_facet_vertices(qh, facet, indices);
             *triangles_ptr++ = (facet->toporient ? indices[0] : indices[2]);
@@ -232,6 +230,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     /* Determine neighbors array. */
     FORALLfacets {
         if (!facet->upperdelaunay) {
+            int indices[3];
             get_facet_neighbours(facet, tri_indices, indices);
             *neighbors_ptr++ = (facet->toporient ? indices[2] : indices[0]);
             *neighbors_ptr++ = (facet->toporient ? indices[0] : indices[2]);
