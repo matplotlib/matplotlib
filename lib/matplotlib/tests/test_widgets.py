@@ -1,7 +1,8 @@
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing.widgets import do_event, get_ax, mock_event
 
 from numpy.testing import assert_allclose
@@ -37,9 +38,19 @@ def check_rectangle(**kwargs):
 
 def test_rectangle_selector():
     check_rectangle()
-    check_rectangle(drawtype='line', useblit=False)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='line' is deprecated"):
+        check_rectangle(drawtype='line', useblit=False)
+
     check_rectangle(useblit=True, button=1)
-    check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='none' is deprecated"):
+        check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
     check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
     check_rectangle(rectprops=dict(fill=True))
 
@@ -500,3 +511,17 @@ def test_MultiCursor(horizOn, vertOn):
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+
+
+@check_figures_equal()
+def test_rect_visibility(fig_test, fig_ref):
+    # Check that requesting an invisible selector makes it invisible
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    def onselect(verts):
+        pass
+
+    tool = widgets.RectangleSelector(ax_test, onselect,
+                                     rectprops={'visible': False})
+    tool.extents = (0.2, 0.8, 0.3, 0.7)
