@@ -138,13 +138,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     int exitcode;               /* Value returned from qh_new_qhull(). */
     std::vector<int> tri_indices;  /* Maps qhull facet id to triangle index. */
     int indices[3];
-    PyObject* tuple;            /* Return tuple (triangles, neighbors). */
     const int ndim = 2;
-    npy_intp dims[2];
-    PyArrayObject* triangles = NULL;
-    PyArrayObject* neighbors = NULL;
-    int* triangles_ptr;
-    int* neighbors_ptr;
     double x_mean = 0.0;
     double y_mean = 0.0;
 
@@ -213,24 +207,12 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     tri_indices.resize(max_facet_id+1);
 
     /* Allocate Python arrays to return. */
-    dims[0] = ntri;
-    dims[1] = 3;
-    triangles = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, NPY_INT);
-    if (triangles == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate triangles array in qhull.delaunay");
-        goto error;
-    }
+    npy_intp dims[2] = {ntri, 3};
+    numpy::array_view<int, ndim> triangles(dims);
+    int* triangles_ptr = triangles.data();
 
-    neighbors = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, NPY_INT);
-    if (neighbors == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate neighbors array in qhull.delaunay");
-        goto error;
-    }
-
-    triangles_ptr = (int*)PyArray_DATA(triangles);
-    neighbors_ptr = (int*)PyArray_DATA(neighbors);
+    numpy::array_view<int, ndim> neighbors(dims);
+    int* neighbors_ptr = neighbors.data();
 
     /* Determine triangles array and set tri_indices array. */
     i = 0;
@@ -257,17 +239,14 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
         }
     }
 
-    tuple = PyTuple_New(2);
-    PyTuple_SetItem(tuple, 0, (PyObject*)triangles);
-    PyTuple_SetItem(tuple, 1, (PyObject*)neighbors);
+    PyObject* tuple = PyTuple_New(2);
+    if (tuple == 0) {
+        throw std::runtime_error("Failed to create Python tuple");
+    }
+
+    PyTuple_SET_ITEM(tuple, 0, triangles.pyobj());
+    PyTuple_SET_ITEM(tuple, 1, neighbors.pyobj());
     return tuple;
-
-error:
-    /* Clean up. */
-    Py_XDECREF(triangles);
-    Py_XDECREF(neighbors);
-
-    return NULL;
 }
 
 /* Process Python arguments and call Delaunay implementation method. */
