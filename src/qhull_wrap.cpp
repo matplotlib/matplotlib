@@ -7,7 +7,7 @@
  */
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
-#include "numpy/ndarrayobject.h"
+#include "numpy_cpp.h"
 #ifdef _MSC_VER
 /* The Qhull header does not declare this as extern "C", but only MSVC seems to
  * do name mangling on global variables. We thus need to declare this before
@@ -63,7 +63,7 @@ get_facet_neighbours(const facetT* facet, const int* tri_indices,
 /* Return true if the specified points arrays contain at least 3 unique points,
  * or false otherwise. */
 static bool
-at_least_3_unique_points(int npoints, const double* x, const double* y)
+at_least_3_unique_points(npy_intp npoints, const double* x, const double* y)
 {
     int i;
     const int unique1 = 0;  /* First unique point has index 0. */
@@ -98,7 +98,7 @@ at_least_3_unique_points(int npoints, const double* x, const double* y)
  * If hide_qhull_errors is true then qhull error messages are discarded;
  * if it is false then they are written to stderr. */
 static PyObject*
-delaunay_impl(int npoints, const double* x, const double* y,
+delaunay_impl(npy_intp npoints, const double* x, const double* y,
               bool hide_qhull_errors)
 {
     qhT qh_qh;                  /* qh variable type and name must be like */
@@ -281,58 +281,44 @@ error_before_qhull:
 static PyObject*
 delaunay(PyObject *self, PyObject *args)
 {
-    PyObject* xarg;
-    PyObject* yarg;
-    PyArrayObject* xarray;
-    PyArrayObject* yarray;
+    numpy::array_view<double, 1> xarray;
+    numpy::array_view<double, 1> yarray;
     PyObject* ret;
-    int npoints;
+    npy_intp npoints;
     const double* x;
     const double* y;
 
-    if (!PyArg_ParseTuple(args, "OO", &xarg, &yarg)) {
-        PyErr_SetString(PyExc_ValueError, "expecting x and y arrays");
+    if (!PyArg_ParseTuple(args, "O&O&",
+                          &xarray.converter_contiguous, &xarray,
+                          &yarray.converter_contiguous, &yarray)) {
         return NULL;
     }
 
-    xarray = (PyArrayObject*)PyArray_ContiguousFromObject(xarg, NPY_DOUBLE,
-                                                          1, 1);
-    yarray = (PyArrayObject*)PyArray_ContiguousFromObject(yarg, NPY_DOUBLE,
-                                                          1, 1);
-    if (xarray == 0 || yarray == 0 ||
-        PyArray_DIM(xarray,0) != PyArray_DIM(yarray, 0)) {
-        Py_XDECREF(xarray);
-        Py_XDECREF(yarray);
+    npoints = xarray.dim(0);
+    if (npoints != yarray.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
                         "x and y must be 1D arrays of the same length");
         return NULL;
     }
 
-    npoints = PyArray_DIM(xarray, 0);
-
     if (npoints < 3) {
-        Py_XDECREF(xarray);
-        Py_XDECREF(yarray);
         PyErr_SetString(PyExc_ValueError,
                         "x and y arrays must have a length of at least 3");
         return NULL;
     }
 
-    x = (const double*)PyArray_DATA(xarray);
-    y = (const double*)PyArray_DATA(yarray);
+    x = xarray.data();
+    y = yarray.data();
 
     if (!at_least_3_unique_points(npoints, x, y)) {
-        Py_XDECREF(xarray);
-        Py_XDECREF(yarray);
         PyErr_SetString(PyExc_ValueError,
                         "x and y arrays must consist of at least 3 unique points");
         return NULL;
     }
 
-    ret = delaunay_impl(npoints, x, y, Py_VerboseFlag == 0);
+    CALL_CPP("qhull.delaunay",
+             (ret = delaunay_impl(npoints, x, y, Py_VerboseFlag == 0)));
 
-    Py_XDECREF(xarray);
-    Py_XDECREF(yarray);
     return ret;
 }
 
