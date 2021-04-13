@@ -43,8 +43,9 @@ static void
 get_facet_vertices(qhT* qh, const facetT* facet, int indices[3])
 {
     vertexT *vertex, **vertexp;
-    FOREACHvertex_(facet->vertices)
+    FOREACHvertex_(facet->vertices) {
         *indices++ = qh_pointid(qh, vertex->point);
+    }
 }
 
 /* Return the indices of the 3 triangles that are neighbors of the specified
@@ -54,8 +55,9 @@ get_facet_neighbours(const facetT* facet, const int* tri_indices,
                      int indices[3])
 {
     facetT *neighbor, **neighborp;
-    FOREACHneighbor_(facet)
+    FOREACHneighbor_(facet) {
         *indices++ = (neighbor->upperdelaunay ? -1 : tri_indices[neighbor->id]);
+    }
 }
 
 /* Return true if the specified points arrays contain at least 3 unique points,
@@ -74,8 +76,9 @@ at_least_3_unique_points(int npoints, const double* x, const double* y)
     for (i = 1; i < npoints; ++i) {
         if (unique2 == 0) {
             /* Looking for second unique point. */
-            if (x[i] != x[unique1] || y[i] != y[unique1])
+            if (x[i] != x[unique1] || y[i] != y[unique1]) {
                 unique2 = i;
+            }
         }
         else {
             /* Looking for third unique point. */
@@ -178,8 +181,9 @@ delaunay_impl(int npoints, const double* x, const double* y,
        Note that libqhull uses macros to iterate through collections. */
     ntri = 0;
     FORALLfacets {
-        if (!facet->upperdelaunay)
+        if (!facet->upperdelaunay) {
             ++ntri;
+        }
     }
 
     max_facet_id = qh->facet_id - 1;
@@ -222,8 +226,9 @@ delaunay_impl(int npoints, const double* x, const double* y,
             *triangles_ptr++ = indices[1];
             *triangles_ptr++ = (facet->toporient ? indices[2] : indices[0]);
         }
-        else
+        else {
             tri_indices[facet->id] = -1;
+        }
     }
 
     /* Determine neighbors array. */
@@ -239,11 +244,13 @@ delaunay_impl(int npoints, const double* x, const double* y,
     /* Clean up. */
     qh_freeqhull(qh, !qh_ALL);
     qh_memfreeshort(qh, &curlong, &totlong);
-    if (curlong || totlong)
+    if (curlong || totlong) {
         PyErr_WarnEx(PyExc_RuntimeWarning,
                      "Qhull could not free all allocated memory", 1);
-    if (hide_qhull_errors)
+    }
+    if (hide_qhull_errors) {
         fclose(error_file);
+    }
     free(tri_indices);
     free(points);
 
@@ -259,8 +266,9 @@ error:
     qh_freeqhull(qh, !qh_ALL);
     qh_memfreeshort(qh, &curlong, &totlong);
     /* Don't bother checking curlong and totlong as raising error anyway. */
-    if (hide_qhull_errors)
+    if (hide_qhull_errors) {
         fclose(error_file);
+    }
     free(tri_indices);
 
 error_before_qhull:
