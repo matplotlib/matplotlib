@@ -1,6 +1,6 @@
-``drawtype`` argument to RectangleSelector
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``drawtype`` keyword argument to
+*drawtype* argument to RectangleSelector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *drawtype* keyword argument to
 `~matplotlib.widgets.RectangleSelector` is deprecated. In the future the
 behaviour will be the default behaviour of ``drawtype='box'``.
 
