@@ -461,7 +461,8 @@ class FigureManagerTk(FigureManagerBase):
             if self._owns_mainloop and not Gcf.get_num_fig_managers():
                 self.window.quit()
 
-        self.window.after_idle(delayed_destroy)
+        # "after idle after 0" avoids Tcl error/race (GH #19940)
+        self.window.after_idle(self.window.after, 0, delayed_destroy)
 
     def get_window_title(self):
         return self.window.wm_title()
