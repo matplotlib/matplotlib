@@ -3198,14 +3198,13 @@ pivot='tail', normalize=False, **kwargs)
         if ecolor is None:
             ecolor = base_style['color']
 
-        # Eject any marker information from line format string, as it's not
+        # Eject any line-specific information from format string, as it's not
         # needed for bars or caps.
-        base_style.pop('marker', None)
-        base_style.pop('markersize', None)
-        base_style.pop('markerfacecolor', None)
-        base_style.pop('markeredgewidth', None)
-        base_style.pop('markeredgecolor', None)
-        base_style.pop('linestyle', None)
+        for key in ['marker', 'markersize', 'markerfacecolor',
+                    'markeredgewidth', 'markeredgecolor', 'markevery',
+                    'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
+                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle']:
+            base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
