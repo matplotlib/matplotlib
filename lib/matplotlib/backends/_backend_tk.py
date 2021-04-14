@@ -358,8 +358,11 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
-        if timeout > 0:
-            self._master.after(int(1000*timeout), self.stop_event_loop)
+        milliseconds = int(1000 * timeout)
+        if milliseconds > 0:
+            self._master.after(milliseconds, self.stop_event_loop)
+        elif milliseconds == 0:
+            self._master.after_idle(self.stop_event_loop)
         self._master.mainloop()
 
     def stop_event_loop(self):
