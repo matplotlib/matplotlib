@@ -306,7 +306,11 @@ class PathClipper : public EmbeddedQueue<3>
         : m_source(&source),
           m_do_clipping(do_clipping),
           m_cliprect(-1.0, -1.0, width + 1.0, height + 1.0),
+          m_lastX(nan("")),
+          m_lastY(nan("")),
           m_moveto(true),
+          m_initX(nan("")),
+          m_initY(nan("")),
           m_has_init(false)
     {
         // empty
@@ -316,7 +320,11 @@ class PathClipper : public EmbeddedQueue<3>
         : m_source(&source),
           m_do_clipping(do_clipping),
           m_cliprect(rect),
+          m_lastX(nan("")),
+          m_lastY(nan("")),
           m_moveto(true),
+          m_initX(nan("")),
+          m_initY(nan("")),
           m_has_init(false)
     {
         m_cliprect.x1 -= 1.0;
@@ -432,7 +440,7 @@ class PathClipper : public EmbeddedQueue<3>
                 return code;
             }
 
-            if (m_moveto &&
+            if (m_moveto && m_has_init &&
                 m_lastX >= m_cliprect.x1 &&
                 m_lastX <= m_cliprect.x2 &&
                 m_lastY >= m_cliprect.y1 &&
