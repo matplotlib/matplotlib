@@ -26,7 +26,7 @@ and activated with one of the following::
    <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
 
 Whenever you plan to work on Matplotlib, remember to activate the development
-environment in your shell. 
+environment in your shell.
 
 Retrieving the latest version of the code
 =========================================
@@ -65,7 +65,7 @@ also happen if you change branches) you will have to re-run
 Additional dependencies for testing
 ===================================
 This section lists the additional software required for
-:ref:`running the tests <testing>`. 
+:ref:`running the tests <testing>`.
 
 Required:
 
@@ -133,11 +133,9 @@ Optional, but recommended:
   built without Inkscape and optipng, but the build process will raise various
   warnings. If the build process warns that you are missing fonts, make sure
   your LaTeX distribution bundles cm-super or install it separately.
-  
-  .. _troubleshooting:
-  
-  Troubleshooting
-  ===============
-  * pytest - If the test runner is failing, verify that the pytest you are using 
-  is installed in your environment using the ``which pytest`` and ``which python`` 
-  commands. If the paths are not the same, install pytest in your environment. 
+
+Troubleshooting
+===============
+*  pytest - If the test runner is failing, verify that the pytest you are using
+is installed in your environment using the ``which pytest`` and ``which python``
+commands. If the paths are not the same, install pytest in your environment. 

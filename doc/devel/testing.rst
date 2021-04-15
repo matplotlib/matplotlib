@@ -37,7 +37,7 @@ Running the tests
 
 In the root directory of your development repository run::
 
-   pytest
+   python -m pytest
 
 
 pytest can be configured via a lot of `command-line parameters`_. Some
