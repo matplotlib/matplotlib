@@ -1785,11 +1785,12 @@ default: %(va)s
 
             Returns
             -------
-            unique_ids : set
+            unique_ids : tuple
                 The unique non-sub layout entries in this layout
             nested : dict[tuple[int, int]], 2D object array
             """
-            unique_ids = set()
+            # make sure we preserve the user supplied order
+            unique_ids = cbook._OrderedSet()
             nested = {}
             for j, row in enumerate(layout):
                 for k, v in enumerate(row):
@@ -1800,7 +1801,7 @@ default: %(va)s
                     else:
                         unique_ids.add(v)
 
-            return unique_ids, nested
+            return tuple(unique_ids), nested
 
         def _do_layout(gs, layout, unique_ids, nested):
             """
@@ -1811,7 +1812,7 @@ default: %(va)s
             gs : GridSpec
             layout : 2D object array
                 The input converted to a 2D numpy array for this level.
-            unique_ids : set
+            unique_ids : tuple
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array
                 The identified nested layouts, if any.
@@ -1823,6 +1824,8 @@ default: %(va)s
             """
             rows, cols = layout.shape
             output = dict()
+
+            this_level = dict()
 
             # create the Axes at this level of nesting
             for name in unique_ids:
@@ -1836,26 +1839,39 @@ default: %(va)s
                         f"While trying to layout\n{layout!r}\n"
                         f"we found that the label {name!r} specifies a "
                         "non-rectangular or non-contiguous area.")
+                this_level[(start_row, start_col)] = (name, slc, 'axes')
 
-                ax = self.add_subplot(
-                    gs[slc], **{'label': str(name), **subplot_kw}
-                )
-                output[name] = ax
-
-            # do any sub-layouts
             for (j, k), nested_layout in nested.items():
-                rows, cols = nested_layout.shape
-                nested_output = _do_layout(
-                    gs[j, k].subgridspec(rows, cols, **gridspec_kw),
-                    nested_layout,
-                    *_identify_keys_and_nested(nested_layout)
-                )
-                overlap = set(output) & set(nested_output)
-                if overlap:
-                    raise ValueError(f"There are duplicate keys {overlap} "
-                                     f"between the outer layout\n{layout!r}\n"
-                                     f"and the nested layout\n{nested_layout}")
-                output.update(nested_output)
+                this_level[(j, k)] = (None, nested_layout, 'nested')
+
+            for key in sorted(this_level):
+                name, arg, method = this_level[key]
+                if method == 'axes':
+                    slc = arg
+                    if name in output:
+                        raise ValueError(f"There are duplicate keys {name} "
+                                         f"in the layout\n{layout!r}")
+                    ax = self.add_subplot(
+                        gs[slc], **{'label': str(name), **subplot_kw}
+                    )
+                    output[name] = ax
+                elif method == 'nested':
+                    nested_layout = arg
+                    j, k = key
+                    rows, cols = nested_layout.shape
+                    nested_output = _do_layout(
+                        gs[j, k].subgridspec(rows, cols, **gridspec_kw),
+                        nested_layout,
+                        *_identify_keys_and_nested(nested_layout)
+                    )
+                    overlap = set(output) & set(nested_output)
+                    if overlap:
+                        raise ValueError(
+                            f"There are duplicate keys {overlap} "
+                            f"between the outer layout\n{layout!r}\n"
+                            f"and the nested layout\n{nested_layout}"
+                        )
+                    output.update(nested_output)
             return output
 
         layout = _make_array(layout)
