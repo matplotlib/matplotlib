@@ -26,7 +26,7 @@ import matplotlib.artist as martist
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton)
+    FigureCanvasBase, NonGuiException, MouseButton, _no_output_draw)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -2738,6 +2738,13 @@ class Figure(FigureBase):
             self.stale = False
 
         self.canvas.draw_event(renderer)
+
+    def draw_no_output(self):
+        """
+        Draw the figure with no output.  Useful to get the final size of
+        artists that require a draw before their size is known (e.g. text).
+        """
+        _no_output_draw(self)
 
     def draw_artist(self, a):
         """
