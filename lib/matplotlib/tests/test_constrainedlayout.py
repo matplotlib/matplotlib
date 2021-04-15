@@ -134,8 +134,7 @@ def test_constrained_layout7():
         for gs in gsl:
             fig.add_subplot(gs)
         # need to trigger a draw to get warning
-        fig.draw(fig.canvas.get_renderer())
-
+        fig.draw_no_output()
 
 @image_comparison(['constrained_layout8.png'])
 def test_constrained_layout8():
@@ -327,7 +326,7 @@ def test_constrained_layout18():
     ax2 = ax.twinx()
     example_plot(ax)
     example_plot(ax2, fontsize=24)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert all(ax.get_position().extents == ax2.get_position().extents)
 
 
