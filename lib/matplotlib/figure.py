@@ -1650,7 +1650,11 @@ default: %(va)s
                   and (b.width != 0 or b.height != 0))]
 
         if len(bb) == 0:
-            return self.bbox_inches
+            if hasattr(self, 'bbox_inches'):
+                return self.bbox_inches
+            else:
+                # subfigures do not have bbox_inches, but do have a bbox
+                bb = [self.bbox]
 
         _bbox = Bbox.union(bb)
 
