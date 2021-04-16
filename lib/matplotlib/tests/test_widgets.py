@@ -308,10 +308,14 @@ def test_range_slider(orientation):
     fig, ax = plt.subplots()
 
     slider = widgets.RangeSlider(
-        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation
+        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation,
+        valinit=[0.1, 0.34]
     )
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.25, 0, 0.75, 1])
+    assert_allclose(box.get_points().flatten()[idx], [0.1, 0, 0.34, 1])
+
+    # Check initial value is set correctly
+    assert_allclose(slider.val, (0.1, 0.34))
 
     slider.set_val((0.2, 0.6))
     assert_allclose(slider.val, (0.2, 0.6))

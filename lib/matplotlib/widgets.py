@@ -608,12 +608,13 @@ class RangeSlider(SliderBase):
         super().__init__(ax, orientation, closedmin, closedmax,
                          valmin, valmax, valfmt, dragging, valstep)
 
+        # Set a value to allow _value_in_bounds() to work.
+        self.val = [valmin, valmax]
         if valinit is None:
             # Place at the 25th and 75th percentiles
             extent = valmax - valmin
-            valinit = np.array(
-                [valmin + extent * 0.25, valmin + extent * 0.75]
-            )
+            valinit = np.array([valmin + extent * 0.25,
+                                valmin + extent * 0.75])
         else:
             valinit = self._value_in_bounds(valinit)
         self.val = valinit
@@ -684,8 +685,9 @@ class RangeSlider(SliderBase):
             max = self.val[0]
         return self._stepped_value(max)
 
-    def _value_in_bounds(self, val):
-        return (self._min_in_bounds(val[0]), self._max_in_bounds(val[1]))
+    def _value_in_bounds(self, vals):
+        """Clip min, max values to the bounds."""
+        return (self._min_in_bounds(vals[0]), self._max_in_bounds(vals[1]))
 
     def _update_val_from_pos(self, pos):
         """Update the slider value based on a given position."""
