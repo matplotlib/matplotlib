@@ -1,7 +1,7 @@
 Add ``Annulus`` patch
 ---------------------
 
-A new class for drawing elliptical annuli.
+`.Annulus` is a new class for drawing elliptical annuli.
 
 .. plot::
 

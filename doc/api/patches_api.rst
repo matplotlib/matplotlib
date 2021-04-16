@@ -17,6 +17,7 @@ Classes
    :toctree: _as_gen/
    :template: autosummary.rst
 
+   Annulus
    Arc
    Arrow
    ArrowStyle
