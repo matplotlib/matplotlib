@@ -230,6 +230,7 @@ class ThetaLocator(mticker.Locator):
     view spans the entire circle. In such cases, the previously used default
     locations of every 45 degrees are returned.
     """
+
     def __init__(self, base):
         self.base = base
         self.axis = self.base.axis = _AxisWrapper(self.base.axis)
@@ -408,10 +409,9 @@ class RadialLocator(mticker.Locator):
     """
     Used to locate radius ticks.
 
-    Ensures that all ticks are strictly positive.  For all other
-    tasks, it delegates to the base
-    :class:`~matplotlib.ticker.Locator` (which may be different
-    depending on the scale of the *r*-axis.
+    Ensures that all ticks are strictly positive.  For all other tasks, it
+    delegates to the base `.Locator` (which may be different depending on the
+    scale of the *r*-axis).
     """
 
     def __init__(self, base, axes=None):
