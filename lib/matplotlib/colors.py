@@ -1359,6 +1359,8 @@ class CenteredNorm(Normalize):
             array([0.25, 0.5 , 1.  ])
         """
         self._vcenter = vcenter
+        self.vmin = None
+        self.vmax = None
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
         self.clip = clip
