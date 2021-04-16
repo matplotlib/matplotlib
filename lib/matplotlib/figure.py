@@ -1825,29 +1825,47 @@ default: %(va)s
             rows, cols = layout.shape
             output = dict()
 
+            # we need to merge together the Axes at this level and the axes
+            # in the (recursively) nested sub-layouts so that we can add
+            # them to the figure in the "natural" order if you were to
+            # ravel in c-order all of the Axes that will be created
+            #
+            # This will stash the upper left index of each object (axes or
+            # nested layout) at this level
             this_level = dict()
 
-            # create the Axes at this level of nesting
+            # go through the unique keys,
             for name in unique_ids:
+                # sort out where each axes starts/ends
                 indx = np.argwhere(layout == name)
                 start_row, start_col = np.min(indx, axis=0)
                 end_row, end_col = np.max(indx, axis=0) + 1
+                # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
-
+                # some light error checking
                 if (layout[slc] != name).any():
                     raise ValueError(
                         f"While trying to layout\n{layout!r}\n"
                         f"we found that the label {name!r} specifies a "
                         "non-rectangular or non-contiguous area.")
+                # and stash this slice for later
                 this_level[(start_row, start_col)] = (name, slc, 'axes')
 
+            # do the same thing for the nested layouts (simpler because these
+            # can not be spans yet!)
             for (j, k), nested_layout in nested.items():
                 this_level[(j, k)] = (None, nested_layout, 'nested')
 
+            # now go through the things in this level and add them
+            # in order left-to-right top-to-bottom
             for key in sorted(this_level):
                 name, arg, method = this_level[key]
+                # we are doing some hokey function dispatch here based
+                # on the 'method' string stashed above to sort out if this
+                # element is an axes or a nested layout.
                 if method == 'axes':
                     slc = arg
+                    # add a single axes
                     if name in output:
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{layout!r}")
@@ -1858,6 +1876,7 @@ default: %(va)s
                 elif method == 'nested':
                     nested_layout = arg
                     j, k = key
+                    # recursively add the nested layout
                     rows, cols = nested_layout.shape
                     nested_output = _do_layout(
                         gs[j, k].subgridspec(rows, cols, **gridspec_kw),
@@ -1872,6 +1891,8 @@ default: %(va)s
                             f"and the nested layout\n{nested_layout}"
                         )
                     output.update(nested_output)
+                else:
+                    raise RuntimeError("This should never happen")
             return output
 
         layout = _make_array(layout)
