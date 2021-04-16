@@ -343,8 +343,17 @@ def test_thetalim_valid_invalid():
     ax = plt.subplot(projection='polar')
     ax.set_thetalim(0, 2 * np.pi)  # doesn't raise.
     ax.set_thetalim(thetamin=800, thetamax=440)  # doesn't raise.
-    with pytest.raises(ValueError, match='The angle range must be <= 2 pi'):
+    with pytest.raises(ValueError,
+                       match='angle range must be less than a full circle'):
         ax.set_thetalim(0, 3 * np.pi)
     with pytest.raises(ValueError,
-                       match='The angle range must be <= 360 degrees'):
+                       match='angle range must be less than a full circle'):
         ax.set_thetalim(thetamin=800, thetamax=400)
+
+
+def test_thetalim_args():
+    ax = plt.subplot(projection='polar')
+    ax.set_thetalim(0, 1)
+    assert tuple(np.radians((ax.get_thetamin(), ax.get_thetamax()))) == (0, 1)
+    ax.set_thetalim((2, 3))
+    assert tuple(np.radians((ax.get_thetamin(), ax.get_thetamax()))) == (2, 3)
