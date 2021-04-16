@@ -180,12 +180,12 @@ end readonly def
  2 copy known not {pop /.notdef} if
  true 3 1 roll get exec
  end
-} d
+} _d
 
 /BuildChar {
  1 index /Encoding get exch get
  1 index /BuildGlyph get exec
-} d
+} _d
 
 FontName currentdict end definefont pop
 """
@@ -208,7 +208,7 @@ FontName currentdict end definefont pop
                 # decomposer always explicitly moving to the closing point
                 # first).
                 [b"m", b"l", b"", b"c", b""], True).decode("ascii")
-            + "ce} d"
+            + "ce} _d"
         )
 
     return preamble + "\n".join(entries) + postamble
@@ -1356,20 +1356,23 @@ FigureManagerPS = FigureManagerBase
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
 psDefs = [
-    # name proc  *d*  -
-    "/d { bind def } bind def",
+    # name proc  *_d*  -
+    # Note that this cannot be bound to /d, because when embedding a Type3 font
+    # we may want to define a "d" glyph using "/d{...} d" which would locally
+    # overwrite the definition.
+    "/_d { bind def } bind def",
     # x y  *m*  -
-    "/m { moveto } d",
+    "/m { moveto } _d",
     # x y  *l*  -
-    "/l { lineto } d",
+    "/l { lineto } _d",
     # x y  *r*  -
-    "/r { rlineto } d",
+    "/r { rlineto } _d",
     # x1 y1 x2 y2 x y *c*  -
-    "/c { curveto } d",
+    "/c { curveto } _d",
     # *cl*  -
-    "/cl { closepath } d",
+    "/cl { closepath } _d",
     # *ce*  -
-    "/ce { closepath eofill } d",
+    "/ce { closepath eofill } _d",
     # w h x y  *box*  -
     """/box {
       m
@@ -1377,15 +1380,15 @@ psDefs = [
       0 exch r
       neg 0 r
       cl
-    } d""",
+    } _d""",
     # w h x y  *clipbox*  -
     """/clipbox {
       box
       clip
       newpath
-    } d""",
+    } _d""",
     # wx wy llx lly urx ury  *setcachedevice*  -
-    "/sc { setcachedevice } d",
+    "/sc { setcachedevice } _d",
 ]
 
 
