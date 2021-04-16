@@ -47,14 +47,14 @@ class SubplotBase:
                 self.__getstate__())
 
     @_api.deprecated(
-        "3.4", alternative="get_subplotspec",
-        addendum="(get_subplotspec returns a SubplotSpec instance.)")
+        "3.4", alternative="ax.get_subplotspec()",
+        addendum="(ax.get_subplotspec() returns a SubplotSpec instance.)")
     def get_geometry(self):
         """Get the subplot geometry, e.g., (2, 2, 3)."""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1 + 1  # for compatibility
 
-    @_api.deprecated("3.4", alternative="set_subplotspec")
+    @_api.deprecated("3.4", alternative="ax.set_subplotspec()")
     def change_geometry(self, numrows, numcols, num):
         """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols,
@@ -76,17 +76,17 @@ class SubplotBase:
         return self._subplotspec.get_gridspec()
 
     @_api.deprecated(
-        "3.4", alternative="get_subplotspec().get_position(self.figure)")
+        "3.4", alternative="ax.get_subplotspec().get_position(ax.figure)")
     @property
     def figbox(self):
         return self.get_subplotspec().get_position(self.figure)
 
-    @_api.deprecated("3.4", alternative="get_gridspec().nrows")
+    @_api.deprecated("3.4", alternative="ax.get_gridspec().nrows")
     @property
     def numRows(self):
         return self.get_gridspec().nrows
 
-    @_api.deprecated("3.4", alternative="get_gridspec().ncols")
+    @_api.deprecated("3.4", alternative="ax.get_gridspec().ncols")
     @property
     def numCols(self):
         return self.get_gridspec().ncols
