@@ -1577,24 +1577,27 @@ class Annulus(Patch):
     @docstring.dedent_interpd
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
         """
+        Parameters
+        ----------
         xy : (float, float)
             xy coordinates of annulus centre.
         r : float or (float, float)
-            The radius, or semi-axes.
-                - If float: radius of the outer circle.
-                - If two floats: semi-major and -minor axes of outer ellipse.
+            The radius, or semi-axes:
+
+            - If float: radius of the outer circle.
+            - If two floats: semi-major and -minor axes of outer ellipse.
         width : float
             Width (thickness) of the annular ring. The width is measured inward
             from the outer ellipse so that for the inner ellipse the semi-axes
-            are given by `r - width`. `width` must be less than or equal to the
-            semi-minor axis.
-        angle : float, default=0
+            are given by ``r - width``. *width* must be less than or equal to
+            the semi-minor axis.
+        angle : float, default: 0
             Rotation angle in degrees (anti-clockwise from the positive
-            x-axis). Ignored for circular annuli (ie. if *r* is a scalar).
+            x-axis). Ignored for circular annuli (i.e., if *r* is a scalar).
+        **kwargs
+            Keyword arguments control the `Patch` properties:
 
-        Valid kwargs are:
-
-        %(Patch_kwdoc)s
+            %(Patch_kwdoc)s
         """
         super().__init__(**kwargs)
 
@@ -1633,8 +1636,9 @@ class Annulus(Patch):
 
     def set_width(self, width):
         """
-        Set the width (thickness) of the annulus ring. The width is measured
-        inwards from the outer ellipse.
+        Set the width (thickness) of the annulus ring.
+
+        The width is measured inwards from the outer ellipse.
 
         Parameters
         ----------
@@ -1649,9 +1653,7 @@ class Annulus(Patch):
         self.stale = True
 
     def get_width(self):
-        """
-        Return the width (thickness) of the annulus ring.
-        """
+        """Return the width (thickness) of the annulus ring."""
         return self._width
 
     width = property(get_width, set_width)
@@ -1700,12 +1702,15 @@ class Annulus(Patch):
 
     def set_radii(self, r):
         """
-        Set the both the semi-major (*a*) and -minor radii (*b*) of the
-        annulus.
+        Set the semi-major (*a*) and semi-minor radii (*b*) of the annulus.
 
         Parameters
         ----------
-        r : (float, float)
+        r : float or (float, float)
+            The radius, or semi-axes:
+
+            - If float: radius of the outer circle.
+            - If two floats: semi-major and -minor axes of outer ellipse.
         """
         if np.shape(r) == (2,):
             self.a, self.b = r
@@ -1718,6 +1723,7 @@ class Annulus(Patch):
         self.stale = True
 
     def get_radii(self):
+        """Return the semi-major and semi-minor radii of the annulus."""
         return self.a, self.b
 
     radii = property(get_radii, set_radii)
