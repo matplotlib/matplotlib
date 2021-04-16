@@ -19,7 +19,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase, _no_output_draw
+    GraphicsContextBase, RendererBase
 )
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
@@ -889,7 +889,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         return RendererPgf(self.figure, None)
 
     def draw(self):
-        _no_output_draw(self.figure)
+        self.figure.draw_no_output()
         return super().draw()
 
 

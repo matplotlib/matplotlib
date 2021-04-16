@@ -29,7 +29,7 @@ from matplotlib import _api, _text_layout, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase, _no_output_draw)
+    GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
@@ -2718,7 +2718,7 @@ class FigureCanvasPdf(FigureCanvasBase):
                 file.close()
 
     def draw(self):
-        _no_output_draw(self.figure)
+        self.figure.draw_no_output()
         return super().draw()
 
 

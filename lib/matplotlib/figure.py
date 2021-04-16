@@ -26,7 +26,7 @@ import matplotlib.artist as martist
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton)
+    FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -2776,6 +2776,15 @@ class Figure(FigureBase):
 
         self.canvas.draw_event(renderer)
 
+    def draw_no_output(self):
+        """
+        Draw the figure with no output.  Useful to get the final size of
+        artists that require a draw before their size is known (e.g. text).
+        """
+        renderer = _get_renderer(self)
+        with renderer._draw_disabled():
+            self.draw(renderer)
+
     def draw_artist(self, a):
         """
         Draw `.Artist` *a* only.
@@ -3052,7 +3061,6 @@ class Figure(FigureBase):
         """
 
         from matplotlib._constrained_layout import do_constrained_layout
-        from matplotlib.tight_layout import get_renderer
 
         _log.debug('Executing constrainedlayout')
         if self._layoutgrid is None:
@@ -3070,7 +3078,7 @@ class Figure(FigureBase):
         w_pad = w_pad / width
         h_pad = h_pad / height
         if renderer is None:
-            renderer = get_renderer(fig)
+            renderer = _get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
@@ -3100,7 +3108,7 @@ class Figure(FigureBase):
         """
 
         from .tight_layout import (
-            get_renderer, get_subplotspec_list, get_tight_layout_figure)
+            get_subplotspec_list, get_tight_layout_figure)
         from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
@@ -3108,7 +3116,7 @@ class Figure(FigureBase):
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
 
-        renderer = get_renderer(self)
+        renderer = _get_renderer(self)
         ctx = (renderer._draw_disabled()
                if hasattr(renderer, '_draw_disabled')
                else suppress())

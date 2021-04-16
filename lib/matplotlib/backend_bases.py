@@ -1584,9 +1584,9 @@ def _get_renderer(figure, print_method=None):
 
 
 def _no_output_draw(figure):
-    renderer = _get_renderer(figure)
-    with renderer._draw_disabled():
-        figure.draw(renderer)
+    # _no_output_draw was promoted to the figure level, but
+    # keep this here in case someone was calling it...
+    figure.draw_no_output()
 
 
 def _is_non_interactive_terminal_ipython(ip):

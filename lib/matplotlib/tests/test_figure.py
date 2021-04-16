@@ -415,11 +415,11 @@ def test_autofmt_xdate(which):
 @pytest.mark.style('default')
 def test_change_dpi():
     fig = plt.figure(figsize=(4, 4))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert fig.canvas.renderer.height == 400
     assert fig.canvas.renderer.width == 400
     fig.dpi = 50
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert fig.canvas.renderer.height == 200
     assert fig.canvas.renderer.width == 200
 
