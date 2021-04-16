@@ -2191,7 +2191,8 @@ class RectangleSelector(_SelectorWidget):
                  minspanx=0, minspany=0, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
-                 interactive=False, state_modifier_keys=None):
+                 interactive=False, state_modifier_keys=None,
+                 drag_from_anywhere=False):
         r"""
         Parameters
         ----------
@@ -2263,6 +2264,10 @@ class RectangleSelector(_SelectorWidget):
               default: "ctrl".
 
             "square" and "center" can be combined.
+
+        drag_from_anywhere : bool, optional
+            If `True`, the widget can be moved by clicking anywhere within
+            its bounds.
         """
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys)
@@ -2270,6 +2275,7 @@ class RectangleSelector(_SelectorWidget):
         self.to_draw = None
         self.visible = True
         self.interactive = interactive
+        self.drag_from_anywhere = drag_from_anywhere
 
         if drawtype == 'none':  # draw a line but make it invisible
             _api.warn_deprecated(
@@ -2419,8 +2425,9 @@ class RectangleSelector(_SelectorWidget):
                 y1 = event.ydata
 
         # move existing shape
-        elif (('move' in self.state or self.active_handle == 'C')
-              and self._extents_on_press is not None):
+        elif (('move' in self.state or self.active_handle == 'C' or
+               (self.drag_from_anywhere and self._contains(event))) and
+              self._extents_on_press is not None):
             x0, x1, y0, y1 = self._extents_on_press
             dx = event.xdata - self.eventpress.xdata
             dy = event.ydata - self.eventpress.ydata
@@ -2551,16 +2558,24 @@ class RectangleSelector(_SelectorWidget):
         if 'move' in self.state:
             self.active_handle = 'C'
             self._extents_on_press = self.extents
-
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.maxdist * 2:
+            # Prioritise center handle over other handles
             self.active_handle = 'C'
         elif c_dist > self.maxdist and e_dist > self.maxdist:
-            self.active_handle = None
-            return
+            # Not close to any handles
+            if self.drag_from_anywhere and self._contains(event):
+                # Check if we've clicked inside the region
+                self.active_handle = 'C'
+                self._extents_on_press = self.extents
+            else:
+                self.active_handle = None
+                return
         elif c_dist < e_dist:
+            # Closest to a corner handle
             self.active_handle = self._corner_order[c_idx]
         else:
+            # Closest to an edge handle
             self.active_handle = self._edge_order[e_idx]
 
         # Save coordinates of rectangle at the start of handle movement.
@@ -2571,6 +2586,10 @@ class RectangleSelector(_SelectorWidget):
         if self.active_handle in ['N', 'NW', 'NE']:
             y0, y1 = y1, event.ydata
         self._extents_on_press = x0, x1, y0, y1
+
+    def _contains(self, event):
+        """Return True if event is within the patch."""
+        return self.to_draw.contains(event, radius=0)[0]
 
     @property
     def geometry(self):
