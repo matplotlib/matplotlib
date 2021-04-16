@@ -13,8 +13,8 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      min-numpy-version: "1.16.0"
-      min-numpy-hash: "04/b6/d7faa70a3e3eac39f943cc6a6a64ce378259677de516bd899dd9eb8f9b32"
+      min-numpy-version: "1.17.0"
+      min-numpy-hash: "da/32/1b8f2bb5fb50e4db68543eb85ce37b9fa6660cd05b58bddfafafa7ed62da"
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-latest, macos-latest]
