@@ -1291,7 +1291,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Parameters
         ----------
-        x, y: float
+        x, y : float
             The reference point.
         indices : list of int or None, default: None
             Indices of contour levels to consider.  If None (the default), all

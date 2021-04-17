@@ -187,10 +187,6 @@ def detrend_linear(y):
     y : 0-D or 1-D array or sequence
         Array or sequence containing the data
 
-    axis : int
-        The axis along which to take the mean.  See numpy.mean for a
-        description of this argument.
-
     See Also
     --------
     detrend_mean : Another detrend algorithm.
