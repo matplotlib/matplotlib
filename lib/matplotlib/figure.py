@@ -1791,11 +1791,12 @@ default: %(va)s
 
             Returns
             -------
-            unique_ids : set
+            unique_ids : tuple
                 The unique non-sub layout entries in this layout
             nested : dict[tuple[int, int]], 2D object array
             """
-            unique_ids = set()
+            # make sure we preserve the user supplied order
+            unique_ids = cbook._OrderedSet()
             nested = {}
             for j, row in enumerate(layout):
                 for k, v in enumerate(row):
@@ -1806,7 +1807,7 @@ default: %(va)s
                     else:
                         unique_ids.add(v)
 
-            return unique_ids, nested
+            return tuple(unique_ids), nested
 
         def _do_layout(gs, layout, unique_ids, nested):
             """
@@ -1817,7 +1818,7 @@ default: %(va)s
             gs : GridSpec
             layout : 2D object array
                 The input converted to a 2D numpy array for this level.
-            unique_ids : set
+            unique_ids : tuple
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array
                 The identified nested layouts, if any.
@@ -1830,38 +1831,74 @@ default: %(va)s
             rows, cols = layout.shape
             output = dict()
 
-            # create the Axes at this level of nesting
+            # we need to merge together the Axes at this level and the axes
+            # in the (recursively) nested sub-layouts so that we can add
+            # them to the figure in the "natural" order if you were to
+            # ravel in c-order all of the Axes that will be created
+            #
+            # This will stash the upper left index of each object (axes or
+            # nested layout) at this level
+            this_level = dict()
+
+            # go through the unique keys,
             for name in unique_ids:
+                # sort out where each axes starts/ends
                 indx = np.argwhere(layout == name)
                 start_row, start_col = np.min(indx, axis=0)
                 end_row, end_col = np.max(indx, axis=0) + 1
+                # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
-
+                # some light error checking
                 if (layout[slc] != name).any():
                     raise ValueError(
                         f"While trying to layout\n{layout!r}\n"
                         f"we found that the label {name!r} specifies a "
                         "non-rectangular or non-contiguous area.")
+                # and stash this slice for later
+                this_level[(start_row, start_col)] = (name, slc, 'axes')
 
-                ax = self.add_subplot(
-                    gs[slc], **{'label': str(name), **subplot_kw}
-                )
-                output[name] = ax
-
-            # do any sub-layouts
+            # do the same thing for the nested layouts (simpler because these
+            # can not be spans yet!)
             for (j, k), nested_layout in nested.items():
-                rows, cols = nested_layout.shape
-                nested_output = _do_layout(
-                    gs[j, k].subgridspec(rows, cols, **gridspec_kw),
-                    nested_layout,
-                    *_identify_keys_and_nested(nested_layout)
-                )
-                overlap = set(output) & set(nested_output)
-                if overlap:
-                    raise ValueError(f"There are duplicate keys {overlap} "
-                                     f"between the outer layout\n{layout!r}\n"
-                                     f"and the nested layout\n{nested_layout}")
-                output.update(nested_output)
+                this_level[(j, k)] = (None, nested_layout, 'nested')
+
+            # now go through the things in this level and add them
+            # in order left-to-right top-to-bottom
+            for key in sorted(this_level):
+                name, arg, method = this_level[key]
+                # we are doing some hokey function dispatch here based
+                # on the 'method' string stashed above to sort out if this
+                # element is an axes or a nested layout.
+                if method == 'axes':
+                    slc = arg
+                    # add a single axes
+                    if name in output:
+                        raise ValueError(f"There are duplicate keys {name} "
+                                         f"in the layout\n{layout!r}")
+                    ax = self.add_subplot(
+                        gs[slc], **{'label': str(name), **subplot_kw}
+                    )
+                    output[name] = ax
+                elif method == 'nested':
+                    nested_layout = arg
+                    j, k = key
+                    # recursively add the nested layout
+                    rows, cols = nested_layout.shape
+                    nested_output = _do_layout(
+                        gs[j, k].subgridspec(rows, cols, **gridspec_kw),
+                        nested_layout,
+                        *_identify_keys_and_nested(nested_layout)
+                    )
+                    overlap = set(output) & set(nested_output)
+                    if overlap:
+                        raise ValueError(
+                            f"There are duplicate keys {overlap} "
+                            f"between the outer layout\n{layout!r}\n"
+                            f"and the nested layout\n{nested_layout}"
+                        )
+                    output.update(nested_output)
+                else:
+                    raise RuntimeError("This should never happen")
             return output
 
         layout = _make_array(layout)
