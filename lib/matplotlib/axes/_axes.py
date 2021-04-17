@@ -6077,7 +6077,7 @@ default: :rc:`scatter.edgecolors`
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
 
-        rasterized: bool, optional
+        rasterized : bool, optional
             Rasterize the pcolormesh when drawing vector graphics.  This can
             speed up rendering and produce smaller files for large data sets.
             See also :doc:`/gallery/misc/rasterization_demo`.

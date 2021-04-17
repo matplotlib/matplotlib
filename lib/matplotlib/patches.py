@@ -320,7 +320,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        b : bool or None
+        aa : bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']

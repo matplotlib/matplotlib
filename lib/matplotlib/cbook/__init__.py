@@ -345,7 +345,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
     kwargs : dict
         Dictionary of keyword arguments; modified in place.
 
-    keys : str(s)
+    *keys : str(s)
         Name(s) of keyword arguments to process, in descending order of
         priority.
 
