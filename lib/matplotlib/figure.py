@@ -1740,7 +1740,9 @@ default: %(va)s
         Returns
         -------
         dict[label, Axes]
-           A dictionary mapping the labels to the Axes objects.
+           A dictionary mapping the labels to the Axes objects.  The order of
+           the axes is left-to-right and top-to-bottom of their position in the
+           total layout.
 
         """
         subplot_kw = subplot_kw or {}

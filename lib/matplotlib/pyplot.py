@@ -1511,7 +1511,9 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
        The new figure
 
     dict[label, Axes]
-       A dictionary mapping the labels to the Axes objects.
+       A dictionary mapping the labels to the Axes objects.  The order of
+       the axes is left-to-right and top-to-bottom of their position in the
+       total layout.
 
     """
     fig = figure(**fig_kw)
