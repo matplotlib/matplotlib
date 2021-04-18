@@ -63,9 +63,6 @@ class TextCursor(Cursor):
         The `matplotlib.axes.Axes` argument is mandatory! The parameter
         *useblit* can be set to *True* in order to achieve faster rendering.
 
-    Examples
-    --------
-    See :doc:`/gallery/widgets/text_cursor`.
     """
 
     def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=[5, 5],
@@ -254,7 +251,7 @@ class TextCursor(Cursor):
 
         Passes call to base class if blitting is activated, only.
         In other cases, one draw_idle call is enough, which is placed
-        explicitly in this class (see `~matplotlib.widgets.TextCursor.onmove`.
+        explicitly in this class (see *onmove()*).
         In that case, `~matplotlib.widgets.Cursor` is not supposed to draw
         something using this method.
         """
