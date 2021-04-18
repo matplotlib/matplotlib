@@ -389,6 +389,9 @@ class ThetaAxis(maxis.XAxis):
         self.clear()
 
     def _set_scale(self, value, **kwargs):
+        if value != 'linear':
+            raise NotImplementedError(
+                "The xscale cannot be set on a polar plot")
         super()._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
@@ -1390,11 +1393,6 @@ class PolarAxes(Axes):
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
-
-    def set_xscale(self, scale, *args, **kwargs):
-        if scale != 'linear':
-            raise NotImplementedError(
-                "You can not set the xscale on a polar plot.")
 
     def format_coord(self, theta, r):
         # docstring inherited
