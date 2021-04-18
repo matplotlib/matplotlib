@@ -264,7 +264,7 @@ class Axis(maxis.XAxis):
         # create the line:
         pep = proj3d.proj_trans_points([edgep1, edgep2], self.axes.M)
         pep = np.asarray(pep)
-        self.line.set_data(*pep)
+        self.line.set_data(pep[0], pep[1])
         self.line.draw(renderer)
 
         # Grid points where the planes meet
