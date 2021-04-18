@@ -24,7 +24,6 @@
 ** Last revised 19 December 1995.
 */
 
-#include "global_defines.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -130,7 +129,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
     /* We must search the table directory. */
     ptr = font->offset_table + 12;
     x=0;
-    while (TRUE)
+    while (true)
     {
         if ( strncmp((const char*)ptr,name,4) == 0 )
         {
@@ -559,7 +558,7 @@ void ttfont_FontInfo(TTStreamWriter& stream, struct TTFONT *font)
 -------------------------------------------------------------------*/
 int string_len;
 int line_len;
-int in_string;
+bool in_string;
 
 /*
 ** This is called once at the start.
@@ -567,7 +566,7 @@ int in_string;
 void sfnts_start(TTStreamWriter& stream)
 {
     stream.puts("/sfnts[<");
-    in_string=TRUE;
+    in_string=true;
     string_len=0;
     line_len=8;
 } /* end of sfnts_start() */
@@ -584,7 +583,7 @@ void sfnts_pputBYTE(TTStreamWriter& stream, BYTE n)
         stream.put_char('<');
         string_len=0;
         line_len++;
-        in_string=TRUE;
+        in_string=true;
     }
 
     stream.put_char( hexdigits[ n / 16 ] );
@@ -650,7 +649,7 @@ void sfnts_end_string(TTStreamWriter& stream)
         stream.put_char('>');
         line_len++;
     }
-    in_string=FALSE;
+    in_string=false;
 } /* end of sfnts_end_string() */
 
 /*
@@ -1337,8 +1336,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
     /* If we are generating a Type 3 font, we will need to */
     /* have the 'loca' and 'glyf' tables arround while */
     /* we are generating the CharStrings. */
-    if (font.target_type == PS_TYPE_3 || font.target_type == PDF_TYPE_3 ||
-            font.target_type == PS_TYPE_42_3_HYBRID)
+    if (font.target_type == PS_TYPE_3 || font.target_type == PS_TYPE_42_3_HYBRID)
     {
         BYTE *ptr;                      /* We need only one value */
         ptr = GetTable(&font, "hhea");
@@ -1401,38 +1399,6 @@ void insert_ttfont(const char *filename, TTStreamWriter& stream,
     ttfont_trailer(stream, &font);
 
 } /* end of insert_ttfont() */
-
-class StringStreamWriter : public TTStreamWriter
-{
-    std::ostringstream oss;
-
-public:
-    void write(const char* a)
-    {
-        oss << a;
-    }
-
-    std::string str()
-    {
-        return oss.str();
-    }
-};
-
-void get_pdf_charprocs(const char *filename, std::vector<int>& glyph_ids, TTDictionaryCallback& dict)
-{
-    struct TTFONT font;
-
-    read_font(filename, PDF_TYPE_3, glyph_ids, font);
-
-    for (std::vector<int>::const_iterator i = glyph_ids.begin();
-            i != glyph_ids.end(); ++i)
-    {
-        StringStreamWriter writer;
-        tt_type3_charproc(writer, &font, *i);
-        const char* name = ttfont_CharStrings_getname(&font, *i);
-        dict.add_pair(name, writer.str().c_str());
-    }
-}
 
 TTFONT::TTFONT() :
     file(NULL),

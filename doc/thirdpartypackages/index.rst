@@ -5,35 +5,60 @@ Third party packages
 ********************
 
 Several external packages that extend or build on Matplotlib functionality are
-listed below.  They are maintained and distributed separately from Matplotlib
-and thus need to be installed individually.
+listed below. You can find more packages at `PyPI <https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Matplotlib>`_. 
+They are maintained and distributed separately from Matplotlib, 
+and thus need to be installed individually. 
 
-Please submit an issue or pull request on Github if you have created
-a package that you would like to have included.  We are also happy to
-host third party packages within the `Matplotlib Github Organization
+If you have a created a package that extends or builds on Matplotlib 
+and would like to have your package listed on this page, please submit 
+an issue or pull request on GitHub. The pull request should include a short 
+description of the library and an image demonstrating the functionality. 
+To be included in the PyPI listing, please include ``Framework :: Matplotlib`` 
+in the classifier list in the ``setup.py`` file for your package. We are also 
+happy to host third party packages within the `Matplotlib GitHub Organization
 <https://github.com/matplotlib>`_.
+
 
 Mapping toolkits
 ****************
 
 Basemap
 =======
-`Basemap <http://matplotlib.org/basemap>`_ plots data on map projections, with
-continental and political boundaries.
+`Basemap <https://matplotlib.org/basemap/>`_ plots data on map projections,
+with continental and political boundaries.
 
 .. image:: /_static/basemap_contour1.png
     :height: 400px
 
 Cartopy
 =======
-`Cartopy <http://scitools.org.uk/cartopy/docs/latest>`_ builds on top
+`Cartopy <https://scitools.org.uk/cartopy/docs/latest/>`_ builds on top
 of Matplotlib to provide object oriented map projection definitions
 and close integration with Shapely for powerful yet easy-to-use vector
 data processing tools. An example plot from the `Cartopy gallery
-<http://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
+<https://scitools.org.uk/cartopy/docs/latest/gallery/index.html>`_:
 
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
+
+Geoplot
+=======
+`Geoplot <https://residentmario.github.io/geoplot/index.html>`_ builds on top
+of Matplotlib and Cartopy to provide a "standard library" of simple, powerful,
+and customizable plot types. An example plot from the `Geoplot gallery
+<https://residentmario.github.io/geoplot/index.html>`_:
+
+.. image:: /_static/geoplot_nyc_traffic_tickets.png
+    :height: 400px
+
+Ridge Map
+=========
+`ridge_map <https://github.com/ColCarroll/ridge_map>`_ uses Matplotlib,
+SRTM.py, NumPy, and scikit-image to make ridge plots of your favorite
+ridges.
+
+.. image:: /_static/ridge_map_white_mountains.png
+    :height: 364px
 
 Declarative libraries
 *********************
@@ -49,7 +74,7 @@ to python based on Matplotlib.
 holoviews
 =========
 `holoviews <http://holoviews.org>`_ makes it easier to visualize data
-interactively, especially in a `Jupyter notebook <http://jupyter.org>`_, by
+interactively, especially in a `Jupyter notebook <https://jupyter.org>`_, by
 providing a set of declarative plotting objects that store your data and
 associated metadata.  Your data is then immediately visualizable alongside or
 overlaid with other data, either statically or with automatically provided
@@ -81,9 +106,17 @@ class that can have a visual break to indicate a discontinuous range.
 DeCiDa
 ======
 
-`DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a library of functions
+`DeCiDa <https://pypi.org/project/DeCiDa/>`_ is a library of functions
 and classes for electron device characterization, electronic circuit design and
 general data visualization and analysis.
+
+matplotlib-scalebar
+===================
+
+`matplotlib-scalebar <https://github.com/ppinard/matplotlib-scalebar>`_ provides a new artist to display a scale bar, aka micron bar.
+It is particularly useful when displaying calibrated images plotted using ``plt.imshow(...)``.
+
+.. image:: /_static/gold_on_carbon.jpg
 
 Matplotlib-Venn
 ===============
@@ -93,8 +126,8 @@ diagrams.
 
 mpl-probscale
 =============
-`mpl-probscale <http://matplotlib.org/mpl-probscale/>`_ is a small extension
-that allows Matplotlib users to specify probabilty scales. Simply importing the
+`mpl-probscale <https://matplotlib.org/mpl-probscale/>`_ is a small extension
+that allows Matplotlib users to specify probability scales. Simply importing the
 ``probscale`` module registers the scale with Matplotlib, making it accessible
 via e.g., ``ax.set_xscale('prob')`` or ``plt.yscale('prob')``.
 
@@ -160,6 +193,43 @@ Windrose
 Numpy library to manage wind data, draw windroses (also known as polar rose
 plots), draw probability density functions and fit Weibull distributions.
 
+Yellowbrick
+===========
+`Yellowbrick <https://www.scikit-yb.org/>`_ is a suite of visual diagnostic tools for machine learning that enables human steering of the model selection process. Yellowbrick combines scikit-learn with matplotlib using an estimator-based API called the ``Visualizer``, which wraps both sklearn models and matplotlib Axes. ``Visualizer`` objects fit neatly into the machine learning workflow allowing data scientists to integrate visual diagnostic and model interpretation tools into experimentation without extra steps.
+
+.. image:: /_static/yellowbrick.png
+    :height: 400px
+
+Animations
+**********
+
+animatplot
+==========
+`animatplot <https://animatplot.readthedocs.io/>`_ is a library for
+producing interactive animated plots with the goal of making production of
+animated plots almost as easy as static ones.
+
+.. image:: /_static/animatplot.png
+
+For an animated version of the above picture and more examples, see the
+`animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
+
+gif
+===
+`gif <https://github.com/maxhumber/gif/>`_ is an ultra lightweight animated gif API.
+
+.. image:: /_static/gif_attachment_example.png
+
+numpngw
+=======
+
+`numpngw <https://pypi.org/project/numpngw/>`_  provides functions for writing
+NumPy arrays to PNG and animated PNG files.  It also includes the class
+``AnimatedPNGWriter`` that can be used to save a Matplotlib animation as an
+animated PNG file.  See the example on the PyPI page or at the ``numpngw``
+`github repository <https://github.com/WarrenWeckesser/numpngw>`_.
+
+.. image:: /_static/numpngw_animated_example.png
 
 Interactivity
 *************
@@ -175,16 +245,38 @@ MplDataCursor
 written by Joe Kington to provide interactive "data cursors" (clickable
 annotation boxes) for Matplotlib.
 
-animatplot
-==========
-`animatplot <https://animatplot.readthedocs.io/>`_ is a library for
-producing interactive animated plots with the goal of making production of
-animated plots almost as easy as static ones.
+mpl_interactions
+================
+`mpl_interactions <https://mpl-interactions.readthedocs.io/en/latest/>`_
+makes it easy to create interactive plots controlled by sliders and other
+widgets. It also provides several handy capabilities such as manual
+image segmentation, comparing cross-sections of arrays, and using the
+scroll wheel to zoom.
 
-.. image:: /_static/animatplot.png
+.. image:: /_static/mpl-interactions-slider-animated.png
 
-For an animated version of the above picture and more examples, see the
-`animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
+Rendering backends
+******************
+
+mplcairo
+========
+`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
+Matplotlib, with faster and more accurate marker drawing, support for a wider
+selection of font formats and complex text layout, and various other features.
+
+gr
+==
+`gr <http://gr-framework.org/>`_ is a framework for cross-platform
+visualisation applications, which can be used as a high-performance Matplotlib
+backend.
+
+GUI integration
+***************
+
+wxmplot
+=======
+`WXMPlot <https://pypi.org/project/wxmplot/>`_ provides advanced wxPython
+widgets for plotting and image display of numerical data based on Matplotlib.
 
 Miscellaneous
 *************
@@ -205,12 +297,6 @@ feature.
 
 .. image:: /_static/matplotlib_iterm2_demo.png
 
-mplcairo
-========
-`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
-Matplotlib, with faster and more accurate marker drawing, support for a wider
-selection of font formats and complex text layout, and various other features.
-
 mpl-template
 ============
 `mpl-template <https://austinorr.github.io/mpl-template/index.html>`_ provides
@@ -219,3 +305,59 @@ border, and logo.
 
 .. image:: /_static/mpl_template_example.png
     :height: 330px
+
+figpager
+========
+`figpager <https://pypi.org/project/figpager/>`_ provides customizable figure
+elements such as text, lines and images and subplot layout control for single
+or multi page output.
+
+ .. image:: /_static/figpager.png
+
+blume
+=====
+
+`blume <https://pypi.org/project/blume/>`_ provides a replacement for
+the Matplotlib ``table`` module.  It fixes a number of issues with the
+existing table. See the `blume github repository
+<https://github.com/swfiua/blume>`_ for more details.
+
+.. image:: /_static/blume_table_example.png
+
+highlight-text
+==============
+
+`highlight-text <https://pypi.org/project/highlight-text/>`_ is a small library
+that provides an easy way to effectively annotate plots by highlighting
+substrings with the font properties of your choice.
+See the `highlight-text github repository
+<https://github.com/znstrider/highlight_text>`_ for more details and examples.
+
+.. image:: /_static/highlight_text_examples.png
+
+DNA Features Viewer
+===================
+
+`DNA Features Viewer <https://github.com/Edinburgh-Genome-Foundry/DnaFeaturesViewer>`_
+provides methods to plot annotated DNA sequence maps (possibly along other Matplotlib
+plots) for Bioinformatics and Synthetic Biology applications.
+
+.. image:: /_static/dna_features_viewer_screenshot.png
+
+GUI applications
+****************
+
+sviewgui
+========
+
+`sviewgui <https://pypi.org/project/sviewgui/>`_ is a PyQt-based GUI for
+visualisation of data from csv files or `pandas.DataFrame`\s. Main features:
+
+- Scatter, line, density, histogram, and box plot types
+- Settings for the marker size, line width, number of bins of histogram,
+  colormap (from cmocean)
+- Save figure as editable PDF
+- Code of the plotted graph is available so that it can be reused and modified
+  outside of sviewgui
+
+.. image:: /_static/sviewgui_sample.png

@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from matplotlib import cbook
 import matplotlib.units as units
 import matplotlib.projections.polar as polar
 
@@ -27,8 +28,8 @@ def rad_fn(x, pos=None):
 
 
 class UnitDblConverter(units.ConversionInterface):
-    """: A matplotlib converter class.  Provides matplotlib conversion
-          functionality for the Monte UnitDbl class.
+    """
+    Provides Matplotlib conversion functionality for the Monte UnitDbl class.
     """
     # default for plotting
     defaults = {
@@ -39,16 +40,8 @@ class UnitDblConverter(units.ConversionInterface):
 
     @staticmethod
     def axisinfo(unit, axis):
-        """: Returns information on how to handle an axis that has Epoch data.
+        # docstring inherited
 
-        = INPUT VARIABLES
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns a matplotlib AxisInfo data structure that contains
-          minor/major formatters, major/minor locators, and default
-          label information.
-        """
         # Delay-load due to circular dependencies.
         import matplotlib.testing.jpl_units as U
 
@@ -70,65 +63,29 @@ class UnitDblConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(value, unit, axis):
-        """: Convert value using unit to a float.  If value is a sequence, return
-        the converted sequence.
-
-        = INPUT VARIABLES
-        - value    The value or list of values that need to be converted.
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns the value parameter converted to floats.
-        """
-        # Delay-load due to circular dependencies.
-        import matplotlib.testing.jpl_units as U
-
-        isNotUnitDbl = True
-
-        if np.iterable(value) and not isinstance(value, str):
-            if len(value) == 0:
-                return []
-            else:
-                return [UnitDblConverter.convert(x, unit, axis) for x in value]
-
-        # We need to check to see if the incoming value is actually a
-        # UnitDbl and set a flag.  If we get an empty list, then just
-        # return an empty list.
-        if isinstance(value, U.UnitDbl):
-            isNotUnitDbl = False
-
-        # If the incoming value behaves like a number, but is not a UnitDbl,
+        # docstring inherited
+        if not cbook.is_scalar_or_string(value):
+            return [UnitDblConverter.convert(x, unit, axis) for x in value]
+        # If the incoming value behaves like a number,
         # then just return it because we don't know how to convert it
         # (or it is already converted)
-        if isNotUnitDbl and units.ConversionInterface.is_numlike(value):
+        if units.ConversionInterface.is_numlike(value):
             return value
-
         # If no units were specified, then get the default units to use.
         if unit is None:
             unit = UnitDblConverter.default_units(value, axis)
-
         # Convert the incoming UnitDbl value/values to float/floats
         if isinstance(axis.axes, polar.PolarAxes) and value.type() == "angle":
             # Guarantee that units are radians for polar plots.
             return value.convert("rad")
-
         return value.convert(unit)
 
     @staticmethod
     def default_units(value, axis):
-        """: Return the default unit for value, or None.
-
-        = INPUT VARIABLES
-        - value    The value or list of values that need units.
-
-        = RETURN VALUE
-        - Returns the default units to use for value.
-        Return the default unit for value, or None.
-        """
-
+        # docstring inherited
         # Determine the default units based on the user preferences set for
         # default units when printing a UnitDbl.
-        if np.iterable(value) and not isinstance(value, str):
-            return UnitDblConverter.default_units(value[0], axis)
-        else:
+        if cbook.is_scalar_or_string(value):
             return UnitDblConverter.defaults[value.type()]
+        else:
+            return UnitDblConverter.default_units(value[0], axis)

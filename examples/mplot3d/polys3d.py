@@ -10,7 +10,6 @@ of 'jagged stained glass' effect.
 
 from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
-from matplotlib import colors as mcolors
 import numpy as np
 
 # Fixing random state for reproducibility
@@ -25,10 +24,10 @@ def polygon_under_graph(xlist, ylist):
     return [(xlist[0], 0.), *zip(xlist, ylist), (xlist[-1], 0.)]
 
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
-# Make verts a list, verts[i] will be a list of (x,y) pairs defining polygon i
+# Make verts a list such that verts[i] is a list of (x, y) pairs defining
+# polygon i.
 verts = []
 
 # Set up the x sequence

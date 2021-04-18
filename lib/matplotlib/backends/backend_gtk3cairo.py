@@ -1,7 +1,7 @@
+from contextlib import nullcontext
+
 from . import backend_cairo, backend_gtk3
 from .backend_gtk3 import Gtk, _BackendGTK3
-from matplotlib import cbook
-from matplotlib.backend_bases import cursors
 
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
@@ -12,33 +12,23 @@ class RendererGTK3Cairo(backend_cairo.RendererCairo):
 class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
                             backend_cairo.FigureCanvasCairo):
 
-    def _renderer_init(self):
-        """Use cairo renderer."""
+    def __init__(self, figure):
+        super().__init__(figure)
         self._renderer = RendererGTK3Cairo(self.figure.dpi)
-
-    def _render_figure(self, width, height):
-        self._renderer.set_width_height(width, height)
-        self.figure.draw(self._renderer)
 
     def on_draw_event(self, widget, ctx):
         """GtkDrawable draw event."""
-        # toolbar = self.toolbar
-        # if toolbar:
-        #     toolbar.set_cursor(cursors.WAIT)
-        self._renderer.set_context(ctx)
-        allocation = self.get_allocation()
-        Gtk.render_background(
-            self.get_style_context(), ctx,
-            allocation.x, allocation.y, allocation.width, allocation.height)
-        self._render_figure(allocation.width, allocation.height)
-        # if toolbar:
-        #     toolbar.set_cursor(toolbar._lastCursor)
-        return False  # finish event propagation?
-
-
-@cbook.deprecated("3.1", alternative="backend_gtk3.FigureManagerGTK3")
-class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
-    pass
+        with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
+              else nullcontext()):
+            self._renderer.set_context(ctx)
+            allocation = self.get_allocation()
+            Gtk.render_background(
+                self.get_style_context(), ctx,
+                allocation.x, allocation.y,
+                allocation.width, allocation.height)
+            self._renderer.set_width_height(
+                allocation.width, allocation.height)
+            self.figure.draw(self._renderer)
 
 
 @_BackendGTK3.export

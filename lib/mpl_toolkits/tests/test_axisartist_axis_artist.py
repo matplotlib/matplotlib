@@ -6,8 +6,7 @@ from mpl_toolkits.axisartist.axis_artist import (AxisArtist, AxisLabel,
                                                  LabelBase, Ticks, TickLabels)
 
 
-@image_comparison(baseline_images=['axis_artist_ticks'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist_ticks.png'], style='default')
 def test_ticks():
     fig, ax = plt.subplots()
 
@@ -25,9 +24,11 @@ def test_ticks():
     ax.add_artist(ticks_out)
 
 
-@image_comparison(baseline_images=['axis_artist_labelbase'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist_labelbase.png'], style='default')
 def test_labelbase():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, ax = plt.subplots()
 
     ax.plot([0.5], [0.5], "o")
@@ -40,9 +41,11 @@ def test_labelbase():
     ax.add_artist(label)
 
 
-@image_comparison(baseline_images=['axis_artist_ticklabels'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist_ticklabels.png'], style='default')
 def test_ticklabels():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, ax = plt.subplots()
 
     ax.xaxis.set_visible(False)
@@ -73,9 +76,11 @@ def test_ticklabels():
     ax.set_ylim(0, 1)
 
 
-@image_comparison(baseline_images=['axis_artist'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist.png'], style='default')
 def test_axis_artist():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, ax = plt.subplots()
 
     ax.xaxis.set_visible(False)

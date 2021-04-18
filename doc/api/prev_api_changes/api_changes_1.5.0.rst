@@ -5,14 +5,14 @@ Changes in 1.5.0
 Code Changes
 ------------
 
-Reversed `matplotlib.cbook.ls_mapper`, added `ls_mapper_r`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reversed `matplotlib.cbook.ls_mapper`, added `.ls_mapper_r`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Formerly, `matplotlib.cbook.ls_mapper` was a dictionary with
-the long-form line-style names (`"solid"`) as keys and the short
-forms (`"-"`) as values.  This long-to-short mapping is now done
-by `ls_mapper_r`, and the short-to-long mapping is done by the
-`ls_mapper`.
+the long-form line-style names (``"solid"``) as keys and the short
+forms (``"-"``) as values.  This long-to-short mapping is now done
+by `.ls_mapper_r`, and the short-to-long mapping is done by the
+`.ls_mapper`.
 
 Prevent moving artists between Axes, Property-ify Artist.axes, deprecate Artist.{get,set}_axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,48 +34,48 @@ before that gets overhauled).
 Tightened input validation on 'pivot' kwarg to quiver
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Tightened validation so that only {'tip', 'tail', 'mid', and 'middle'}
-(but any capitalization) are valid values for the 'pivot' kwarg in
-the `Quiver.__init__` (and hence `Axes.quiver` and
-`plt.quiver` which both fully delegate to `Quiver`).  Previously any
-input matching 'mid.*' would be interpreted as 'middle', 'tip.*' as
-'tip' and any string not matching one of those patterns as 'tail'.
+Tightened validation so that only {'tip', 'tail', 'mid', and 'middle'} (but any
+capitalization) are valid values for the *pivot* keyword argument in the
+`.Quiver` class (and hence `.axes.Axes.quiver` and `.pyplot.quiver` which both
+fully delegate to `.Quiver`).  Previously any input matching 'mid.*' would be
+interpreted as 'middle', 'tip.*' as 'tip' and any string not matching one of
+those patterns as 'tail'.
 
-The value of `Quiver.pivot` is normalized to be in the set {'tip',
-'tail', 'middle'} in `Quiver.__init__`.
+The value of `.Quiver.pivot` is normalized to be in the set {'tip', 'tail',
+'middle'} in `.Quiver`.
 
-Reordered `Axes.get_children`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reordered ``Axes.get_children``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The artist order returned by `Axes.get_children` did not
-match the one used by `Axes.draw`.  They now use the same
-order, as `Axes.draw` now calls `Axes.get_children`.
+The artist order returned by `.axes.Axes.get_children` did not
+match the one used by `.axes.Axes.draw`.  They now use the same
+order, as `.axes.Axes.draw` now calls `.axes.Axes.get_children`.
 
 Changed behaviour of contour plots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The default behaviour of :func:`~matplotlib.pyplot.contour` and
 :func:`~matplotlib.pyplot.contourf` when using a masked array is now determined
-by the new keyword argument `corner_mask`, or if this is not specified then
-the new rcParam `contour.corner_mask` instead.  The new default behaviour is
-equivalent to using `corner_mask=True`; the previous behaviour can be obtained
-using `corner_mask=False` or by changing the rcParam.  The example
+by the new keyword argument *corner_mask*, or if this is not specified then
+the new :rc:`contour.corner_mask` instead.  The new default behaviour is
+equivalent to using ``corner_mask=True``; the previous behaviour can be obtained
+using ``corner_mask=False`` or by changing the rcParam.  The example
 http://matplotlib.org/examples/pylab_examples/contour_corner_mask.html
 demonstrates the difference.  Use of the old contouring algorithm, which is
-obtained with `corner_mask='legacy'`, is now deprecated.
+obtained with ``corner_mask='legacy'``, is now deprecated.
 
 Contour labels may now appear in different places than in earlier versions of
 Matplotlib.
 
-In addition, the keyword argument `nchunk` now applies to
+In addition, the keyword argument *nchunk* now applies to
 :func:`~matplotlib.pyplot.contour` as well as
 :func:`~matplotlib.pyplot.contourf`, and it subdivides the domain into
-subdomains of exactly `nchunk` by `nchunk` quads, whereas previously it was
-only roughly `nchunk` by `nchunk` quads.
+subdomains of exactly *nchunk* by *nchunk* quads, whereas previously it was
+only roughly *nchunk* by *nchunk* quads.
 
 The C/C++ object that performs contour calculations used to be stored in the
-public attribute QuadContourSet.Cntr, but is now stored in a private attribute
-and should not be accessed by end users.
+public attribute ``QuadContourSet.Cntr``, but is now stored in a private
+attribute and should not be accessed by end users.
 
 Added set_params function to all Locator types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,24 +103,24 @@ Disallow ``None`` as x or y value in ax.plot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Do not allow ``None`` as a valid input for the ``x`` or ``y`` args in
-`ax.plot`.  This may break some user code, but this was never officially
-supported (ex documented) and allowing ``None`` objects through can lead
-to confusing exceptions downstream.
+`.axes.Axes.plot`.  This may break some user code, but this was never
+officially supported (ex documented) and allowing ``None`` objects through can
+lead to confusing exceptions downstream.
 
 To create an empty line use ::
 
   ln1, = ax.plot([], [], ...)
   ln2, = ax.plot([], ...)
 
-In either case to update the data in the `Line2D` object you must update
+In either case to update the data in the `.Line2D` object you must update
 both the ``x`` and ``y`` data.
 
 
-Removed `args` and `kwargs` from `MicrosecondLocator.__call__`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Removed *args* and *kwargs* from `.MicrosecondLocator.__call__`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The call signature of :meth:`~matplotlib.dates.MicrosecondLocator.__call__`
-has changed from `__call__(self, *args, **kwargs)` to `__call__(self)`.
+has changed from ``__call__(self, *args, **kwargs)`` to ``__call__(self)``.
 This is consistent with the superclass :class:`~matplotlib.ticker.Locator`
 and also all the other Locators derived from this superclass.
 
@@ -137,13 +137,13 @@ the Date Locators.
 'OffsetBox.DrawingArea' respects the 'clip' keyword argument
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The call signature was `OffsetBox.DrawingArea(..., clip=True)` but nothing
-was done with the `clip` argument. The object did not do any clipping
+The call signature was ``OffsetBox.DrawingArea(..., clip=True)`` but nothing
+was done with the *clip* argument. The object did not do any clipping
 regardless of that parameter. Now the object can and does clip the
-child `Artists` if they are set to be clipped.
+child `.Artist`\ s if they are set to be clipped.
 
 You can turn off the clipping on a per-child basis using
-`child.set_clip_on(False)`.
+``child.set_clip_on(False)``.
 
 Add salt to clipPath id
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,9 +186,9 @@ New API for custom Axes view changes
 
 Interactive pan and zoom were previously implemented using a Cartesian-specific
 algorithm that was not necessarily applicable to custom Axes. Three new private
-methods, :meth:`~matplotlib.axes._base._AxesBase._get_view`,
-:meth:`~matplotlib.axes._base._AxesBase._set_view`, and
-:meth:`~matplotlib.axes._base._AxesBase._set_view_from_bbox`, allow for custom
+methods, ``matplotlib.axes._base._AxesBase._get_view``,
+``matplotlib.axes._base._AxesBase._set_view``, and
+``matplotlib.axes._base._AxesBase._set_view_from_bbox``, allow for custom
 *Axes* classes to override the pan and zoom algorithms. Implementors of
 custom *Axes* who override these methods may provide suitable behaviour for
 both pan and zoom as well as the view navigation buttons on the interactive
@@ -220,35 +220,35 @@ as it was in 1.4.0-1.4.2, no wrapping for any type of coordinate.
 Deprecation
 -----------
 
-Deprecated `GraphicsContextBase.set_graylevel`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecated ``GraphicsContextBase.set_graylevel``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `GraphicsContextBase.set_graylevel` function has been deprecated in 1.5 and
-will be removed in 1.6.  It has been unused.  The
-`GraphicsContextBase.set_foreground` could be used instead.
+The ``GraphicsContextBase.set_graylevel`` function has been deprecated in 1.5
+and will be removed in 1.6.  It has been unused.  The
+`.GraphicsContextBase.set_foreground` could be used instead.
 
 deprecated idle_event
 ~~~~~~~~~~~~~~~~~~~~~
 
-The `idle_event` was broken or missing in most backends and causes spurious
+The ``idle_event`` was broken or missing in most backends and causes spurious
 warnings in some cases, and its use in creating animations is now obsolete due
 to the animations module. Therefore code involving it has been removed from all
 but the wx backend (where it partially works), and its use is deprecated.  The
-animations module may be used instead to create animations.
+`.animation` module may be used instead to create animations.
 
-`color_cycle` deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~
+``color_cycle`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In light of the new property cycling feature,
-the Axes method *set_color_cycle* is now deprecated.
+the Axes method ``set_color_cycle`` is now deprecated.
 Calling this method will replace the current property cycle with
 one that cycles just the given colors.
 
 Similarly, the rc parameter *axes.color_cycle* is also deprecated in
-lieu of the new *axes.prop_cycle* parameter. Having both parameters in
+lieu of the new :rc:`axes.prop_cycle` parameter. Having both parameters in
 the same rc file is not recommended as the result cannot be
 predicted. For compatibility, setting *axes.color_cycle* will
-replace the cycler in *axes.prop_cycle* with a color cycle.
+replace the cycler in :rc:`axes.prop_cycle` with a color cycle.
 Accessing *axes.color_cycle* will return just the color portion
 of the property cycle, if it exists.
 
@@ -271,20 +271,19 @@ with webagg you will need to update your html files as such
 Code Removed
 ------------
 
-Removed `Image` from main namespace
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Removed ``Image`` from main namespace
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`Image` was imported from PIL/pillow to test if PIL is available, but
-there is no reason to keep `Image` in the namespace once the availability
+``Image`` was imported from PIL/pillow to test if PIL is available, but
+there is no reason to keep ``Image`` in the namespace once the availability
 has been determined.
 
-Removed `lod` from Artist
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Removed ``lod`` from Artist
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Removed the method *set_lod* and all references to
-the attribute *_lod* as the are not used anywhere else in the
-code base.  It appears to be a feature stub that was never built
-out.
+Removed the method ``set_lod`` and all references to the attribute ``_lod`` as
+they are not used anywhere else in the code base.  It appears to be a feature
+stub that was never built out.
 
 Removed threading related classes from cbook
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -292,19 +291,19 @@ The classes ``Scheduler``, ``Timeout``, and ``Idle`` were in cbook, but
 are not used internally.  They appear to be a prototype for the idle event
 system which was not working and has recently been pulled out.
 
-Removed `Lena` images from sample_data
+Removed *Lena* images from sample_data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``lena.png`` and ``lena.jpg`` images have been removed from
 Matplotlib's sample_data directory. The images are also no longer
 available from `matplotlib.cbook.get_sample_data`. We suggest using
-`matplotlib.cbook.get_sample_data('grace_hopper.png')` or
-`matplotlib.cbook.get_sample_data('grace_hopper.jpg')` instead.
+``matplotlib.cbook.get_sample_data('grace_hopper.png')`` or
+``matplotlib.cbook.get_sample_data('grace_hopper.jpg')`` instead.
 
 
 Legend
 ~~~~~~
-Removed handling of `loc` as a positional argument to `Legend`
+Removed handling of *loc* as a positional argument to `.Legend`
 
 
 Legend handlers
@@ -332,16 +331,16 @@ Annotation
 Removed ``textcoords`` and ``xytext`` proprieties from Annotation objects.
 
 
-spinxext.ipython_*.py
-~~~~~~~~~~~~~~~~~~~~~
+sphinxext.ipython_*.py
+~~~~~~~~~~~~~~~~~~~~~~
 
 Both ``ipython_console_highlighting`` and ``ipython_directive`` have been
-moved to `IPython`.
+moved to IPython.
 
-Change your import from 'matplotlib.sphinxext.ipython_directive' to
-'IPython.sphinxext.ipython_directive' and from
-'matplotlib.sphinxext.ipython_directive' to
-'IPython.sphinxext.ipython_directive'
+Change your import from ``matplotlib.sphinxext.ipython_directive`` to
+``IPython.sphinxext.ipython_directive`` and from
+``matplotlib.sphinxext.ipython_directive`` to
+``IPython.sphinxext.ipython_directive``
 
 
 LineCollection.color
@@ -350,11 +349,11 @@ LineCollection.color
 Deprecated in 2005, use ``set_color``
 
 
-remove ``'faceted'`` as a valid value for `shading` in ``tri.tripcolor``
+remove ``'faceted'`` as a valid value for *shading* in ``tri.tripcolor``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use `edgecolor` instead.  Added validation on ``shading`` to
-only be valid values.
+Use *edgecolor* instead.  Added validation on *shading* to only be valid
+values.
 
 
 Remove ``faceted`` kwarg from scatter
@@ -368,7 +367,8 @@ d48b34288e9651ff95c3b8a071ef5ac5cf50bae7 (2008-04-18!) and replaced by
 Remove ``set_colorbar`` method from ``ScalarMappable``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Remove ``set_colorbar`` method, use `colorbar` attribute directly.
+Remove ``set_colorbar`` method, use `~.cm.ScalarMappable.colorbar` attribute
+directly.
 
 
 patheffects.svg
@@ -402,5 +402,5 @@ Added no functionality over the base ``NavigationToolbar2Qt``
 mpl.py
 ~~~~~~
 
-Remove the module `matplotlib.mpl`.  Deprecated in 1.3 by
+Remove the module ``matplotlib.mpl``.  Deprecated in 1.3 by
 PR #1670 and commit 78ce67d161625833cacff23cfe5d74920248c5b2

@@ -4,10 +4,10 @@ Grayscale style sheet
 =====================
 
 This example demonstrates the "grayscale" style sheet, which changes all colors
-that are defined as rc parameters to grayscale. Note, however, that not all
-plot elements default to colors defined by an rc parameter.
-
+that are defined as `.rcParams` to grayscale. Note, however, that not all
+plot elements respect `.rcParams`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 

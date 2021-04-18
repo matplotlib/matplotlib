@@ -1,10 +1,13 @@
+import math
+
+import numpy as np
+
 from matplotlib.patches import _Style, FancyArrowPatch
 from matplotlib.transforms import IdentityTransform
 from matplotlib.path import Path
-import numpy as np
 
 
-class _FancyAxislineStyle(object):
+class _FancyAxislineStyle:
     class SimpleArrow(FancyArrowPatch):
         """
         The artist class that will be returned for SimpleArrow style.
@@ -21,7 +24,6 @@ class _FancyAxislineStyle(object):
             FancyArrowPatch.__init__(self,
                                      path=self._line_path,
                                      arrowstyle=self._ARROW_STYLE,
-                                     arrow_transmuter=None,
                                      patchA=None,
                                      patchB=None,
                                      shrinkA=0.,
@@ -38,22 +40,15 @@ class _FancyAxislineStyle(object):
             """
             Extend the path to make a room for drawing arrow.
             """
-            from matplotlib.bezier import get_cos_sin
-
-            x0, y0 = path.vertices[-2]
-            x1, y1 = path.vertices[-1]
-            cost, sint = get_cos_sin(x0, y0, x1, y1)
-
-            d = mutation_size * 1.
-            x2, y2 = x1 + cost*d, y1+sint*d
-
+            (x0, y0), (x1, y1) = path.vertices[-2:]
+            theta = math.atan2(y1 - y0, x1 - x0)
+            x2 = x1 + math.cos(theta) * mutation_size
+            y2 = y1 + math.sin(theta) * mutation_size
             if path.codes is None:
-                _path = Path(np.concatenate([path.vertices, [[x2, y2]]]))
+                return Path(np.concatenate([path.vertices, [[x2, y2]]]))
             else:
-                _path = Path(np.concatenate([path.vertices, [[x2, y2]]]),
-                             np.concatenate([path.codes, [Path.LINETO]]))
-
-            return _path
+                return Path(np.concatenate([path.vertices, [[x2, y2]]]),
+                            np.concatenate([path.codes, [Path.LINETO]]))
 
         def set_path(self, path):
             self._line_path = path
@@ -82,16 +77,14 @@ class _FancyAxislineStyle(object):
 
 class AxislineStyle(_Style):
     """
-    :class:`AxislineStyle` is a container class which defines style classes
-    for AxisArtists.
+    A container class which defines style classes for AxisArtists.
 
     An instance of any axisline style class is an callable object,
     whose call signature is ::
 
        __call__(self, axis_artist, path, transform)
 
-    When called, this should return a mpl artist with following
-    methods implemented. ::
+    When called, this should return an `.Artist` with the following methods::
 
       def set_path(self, path):
           # set the path for axisline.
@@ -101,13 +94,11 @@ class AxislineStyle(_Style):
 
       def draw(self, renderer):
           # draw
-
-
     """
 
     _style_list = {}
 
-    class _Base(object):
+    class _Base:
         # The derived classes are required to be able to be initialized
         # w/o arguments, i.e., all its argument (except self) must have
         # the default values.
@@ -120,10 +111,9 @@ class AxislineStyle(_Style):
 
         def __call__(self, axis_artist, transform):
             """
-            Given the AxisArtist instance, and transform for the path
-            (set_path method), return the mpl artist for drawing the axis line.
+            Given the AxisArtist instance, and transform for the path (set_path
+            method), return the Matplotlib artist for drawing the axis line.
             """
-
             return self.new_line(axis_artist, transform)
 
     class SimpleArrow(_Base):
@@ -135,8 +125,10 @@ class AxislineStyle(_Style):
 
         def __init__(self, size=1):
             """
-             *size*
-                size of the arrow as a fraction of the ticklabel size.
+            Parameters
+            ----------
+            size : float
+                Size of the arrow as a fraction of the ticklabel size.
             """
 
             self.size = size

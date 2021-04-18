@@ -30,40 +30,34 @@ fig = Figure(figsize=(5, 4), dpi=100)
 canvas = FigureCanvasAgg(fig)
 
 # Do some plotting.
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 ax.plot([1, 2, 3])
 
 # Option 1: Save the figure to a file; can also be a file-like object (BytesIO,
 # etc.).
 fig.savefig("test.png")
 
-# Option 2: Save the figure to a string.
+# Option 2: Retrieve a view on the renderer buffer...
 canvas.draw()
-s, (width, height) = canvas.print_to_buffer()
-
-# Option 2a: Convert to a NumPy array.
-X = np.frombuffer(s, np.uint8).reshape((height, width, 4))
-
-# Option 2b: Pass off to PIL.
+buf = canvas.buffer_rgba()
+# ... convert to a NumPy array ...
+X = np.asarray(buf)
+# ... and pass it to PIL.
 from PIL import Image
-im = Image.frombytes("RGBA", (width, height), s)
+im = Image.fromarray(X)
 
 # Uncomment this line to display the image using ImageMagick's `display` tool.
 # im.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.backends.backend_agg.FigureCanvasAgg
-matplotlib.figure.Figure
-matplotlib.figure.Figure.add_subplot
-matplotlib.figure.Figure.savefig
-matplotlib.axes.Axes.plot
+#    - `matplotlib.backends.backend_agg.FigureCanvasAgg`
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.figure.Figure.savefig` / `matplotlib.pyplot.savefig`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`

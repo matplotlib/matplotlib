@@ -1,10 +1,9 @@
-import wx
+import wx.lib.wxcairo as wxcairo
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
-import wx.lib.wxcairo as wxcairo
 
 
 class FigureFrameWxCairo(FigureFrameWx):
@@ -39,7 +38,7 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
         self.figure.draw(self._renderer)
         self.bitmap = wxcairo.BitmapFromImageSurface(surface)
         self._isDrawn = True
-        self.gui_repaint(drawDC=drawDC, origin='WXCairo')
+        self.gui_repaint(drawDC=drawDC)
 
 
 @_BackendWx.export

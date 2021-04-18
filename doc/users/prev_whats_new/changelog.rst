@@ -28,13 +28,13 @@ the `API changes <../../api/api_changes.html>`_.
 2015-01-23 Text bounding boxes are now computed with advance width rather than
            ink area.  This may result in slightly different placement of text.
 
-2014-10-27 Allowed selection of the backend using the `MPLBACKEND` environment
+2014-10-27 Allowed selection of the backend using the :envvar:`MPLBACKEND` environment
            variable. Added documentation on backend selection methods.
 
-2014-09-27 Overhauled `colors.LightSource`.  Added `LightSource.hillshade` to
+2014-09-27 Overhauled `.colors.LightSource`.  Added `.LightSource.hillshade` to
            allow the independent generation of illumination maps. Added new
            types of blending for creating more visually appealing shaded relief
-           plots (e.g.  `blend_mode="overlay"`, etc, in addition to the legacy
+           plots (e.g.  ``blend_mode="overlay"``, etc, in addition to the legacy
            "hsv" mode).
 
 2014-06-10 Added Colorbar.remove()
@@ -78,10 +78,10 @@ the `API changes <../../api/api_changes.html>`_.
 
 2014-04-22 Added an example showing the difference between
            interpolation = 'none' and interpolation = 'nearest' in
-           `imshow()` when saving vector graphics files.
+           `~.Axes.imshow` when saving vector graphics files.
 
-2014-04-22 Added violin plotting functions. See `Axes.violinplot`,
-           `Axes.violin`, `cbook.violin_stats` and `mlab.GaussianKDE` for
+2014-04-22 Added violin plotting functions. See `.Axes.violinplot`,
+           `.Axes.violin`, `.cbook.violin_stats` and `.mlab.GaussianKDE` for
            details.
 
 2014-04-10 Fixed the triangular marker rendering error. The "Up" triangle was
@@ -90,12 +90,12 @@ the `API changes <../../api/api_changes.html>`_.
 2014-04-08 Fixed a bug in parasite_axes.py by making a list out
            of a generator at line 263.
 
-2014-04-02 Added `clipon=False` to patch creation of wedges and shadows
-           in `pie`.
+2014-04-02 Added ``clipon=False`` to patch creation of wedges and shadows
+           in `~.Axes.pie`.
 
 2014-02-25 In backend_qt4agg changed from using update -> repaint under
-           windows.  See comment in source near `self._priv_update` for
-           longer explaination.
+           windows.  See comment in source near ``self._priv_update`` for
+           longer explanation.
 
 2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
            from tests for pie linewidth parameter.
@@ -123,7 +123,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2014-03-13 Add parameter 'clockwise' to function pie, True by default.
 
-2014-02-28 Added 'origin' kwarg to `spy`
+2014-02-28 Added 'origin' kwarg to `~.Axes.spy`
 
 2014-02-27 Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
@@ -134,10 +134,10 @@ the `API changes <../../api/api_changes.html>`_.
            along the line.
 
 2014-02-25 In backend_qt4agg changed from using update -> repaint under
-           windows.  See comment in source near `self._priv_update` for
-           longer explaination.
+           windows.  See comment in source near ``self._priv_update`` for
+           longer explanation.
 
-2014-01-02 `triplot` now returns the artist it adds and support of line and
+2014-01-02 `~.Axes.triplot` now returns the artist it adds and support of line and
            marker kwargs has been improved. GBY
 
 2013-12-30 Made streamplot grid size consistent for different types of density
@@ -146,7 +146,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2013-12-03 Added a pure boxplot-drawing method that allow a more complete
            customization of boxplots. It takes a list of dicts contains stats.
-           Also created a function (`cbook.boxplot_stats`) that generates the
+           Also created a function (`.cbook.boxplot_stats`) that generates the
            stats needed.
 
 2013-11-28 Added qhull extension module to perform Delaunay triangulation more
@@ -228,8 +228,8 @@ the `API changes <../../api/api_changes.html>`_.
 2013-03-31 Added support for arbitrary unstructured user-specified
            triangulations to Axes3D.tricontour[f] - Damon McDougall
 
-2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
-           kwargs are passed to the underlying `plot` call.  -TAC
+2013-03-19 Added support for passing *linestyle* kwarg to `~.Axes.step` so all `~.Axes.plot`
+           kwargs are passed to the underlying `~.Axes.plot` call.  -TAC
 
 2013-02-25 Added classes CubicTriInterpolator, UniformTriRefiner, TriAnalyzer
            to matplotlib.tri module. - GBy
@@ -268,7 +268,7 @@ the `API changes <../../api/api_changes.html>`_.
            the alignment of text elements. - pwuertz
 
 2012-11-26 deprecate matplotlib/mpl.py, which was used only in pylab.py and is
-           now replaced by the more suitable `import matplotlib as mpl`. - PI
+           now replaced by the more suitable ``import matplotlib as mpl``. - PI
 
 2012-11-25 Make rc_context available via pyplot interface - PI
 
@@ -614,7 +614,7 @@ the `API changes <../../api/api_changes.html>`_.
            in sf bug 2949906 and 2123566.  Note that volume is not adjusted
            because the Yahoo CSV does not distinguish between share
            split and dividend adjustments making it near impossible to
-           get volume adjustement right (unless we want to guess based
+           get volume adjustment right (unless we want to guess based
            on the size of the adjustment or scrape the html tables,
            which we don't) - JDH
 
@@ -652,7 +652,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2010-04-06 rebase axes_grid using axes_grid1 and axisartist modules. -JJL
 
-2010-04-06 axes_grid toolkit is splitted into two separate modules,
+2010-04-06 axes_grid toolkit is split into two separate modules,
            axes_grid1 and axisartist. -JJL
 
 2010-04-05 Speed up import: import pytz only if and when it is
@@ -864,7 +864,7 @@ the `API changes <../../api/api_changes.html>`_.
 2009-09-07 AxesGrid : implemented axisline style.
            Added a demo examples/axes_grid/demo_axisline_style.py- JJL
 
-2009-09-04 Make the textpath class as a separate moduel
+2009-09-04 Make the textpath class as a separate module
            (textpath.py). Add support for mathtext and tex.- JJL
 
 2009-09-01 Added support for Gouraud interpolated triangles.
@@ -978,7 +978,7 @@ the `API changes <../../api/api_changes.html>`_.
            and np.load for binary numpy arrays. - JDH
 
 2009-07-31 Added cbook.get_sample_data for urllib enabled fetching and
-           cacheing of data needed for examples.  See
+           caching of data needed for examples.  See
            examples/misc/sample_data_demo.py - JDH
 
 2009-07-31 Tagging 0.99.0.rc1 at 7314 - MGD
@@ -1002,7 +1002,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2009-07-19 Fixed the docstring of Axes.step to reflect the correct
            meaning of the kwargs "pre" and "post" - See SF bug
-           https://sourceforge.net/tracker/index.php?func=detail&aid=2823304&group_id=80706&atid=560720
+           \https://sourceforge.net/tracker/index.php?func=detail&aid=2823304&group_id=80706&atid=560720
            - JDH
 
 2009-07-18 Fix support for hatches without color fills to pdf and svg
@@ -1114,7 +1114,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2009-05-13 psfrag in backend_ps now uses baseline-alignment
            when preview.sty is used ((default is
-           bottom-alignment). Also, a small api imporvement
+           bottom-alignment). Also, a small API improvement
            in OffsetBox-JJL
 
 2009-05-13 When the x-coordinate of a line is monotonically
@@ -1355,8 +1355,8 @@ the `API changes <../../api/api_changes.html>`_.
 2008-12-19 Add axes_locator attribute in Axes. Two examples are added.
            - JJL
 
-2008-12-19 Update Axes.legend documnetation. /api/api_changes.rst is also
-           updated to describe chages in keyword parameters.
+2008-12-19 Update Axes.legend documentation. /api/api_changes.rst is also
+           updated to describe changes in keyword parameters.
            Issue a warning if old keyword parameters are used. - JJL
 
 2008-12-18 add new arrow style, a line + filled triangles. -JJL
@@ -1380,7 +1380,7 @@ the `API changes <../../api/api_changes.html>`_.
             -JJL
 
 2008-12-17 Add group id support in artist. Two examples which
-           demostrate svg filter are added. -JJL
+           demonstrate svg filter are added. -JJL
 
 2008-12-16 Another attempt to fix dpi-dependent behavior of Legend. -JJL
 
@@ -1390,7 +1390,7 @@ the `API changes <../../api/api_changes.html>`_.
            of markers - JDH
 2008-12-15 Removed mpl_data symlink in docs.  On platforms that do not
            support symlinks, these become copies, and the font files
-           are large, so the distro becomes unneccessarily bloaded.
+           are large, so the distro becomes unnecessarily bloated.
            Keeping the mpl_examples dir because relative links are
            harder for the plot directive and the \*.py files are not so
            large. - JDH
@@ -1422,7 +1422,7 @@ the `API changes <../../api/api_changes.html>`_.
 
            http://www.voidspace.org.uk/python/configobj.html
 
-2008-12-12 Added support to asign labels to histograms of multiple
+2008-12-12 Added support to assign labels to histograms of multiple
            data. - MM
 
 -------------------------
@@ -1449,8 +1449,8 @@ the `API changes <../../api/api_changes.html>`_.
            difficult to use some of the interactive doc helpers, e.g.,
            setp and getp.  Having all the rest markup in the ipython
            shell also confused the docstrings.  I added a new rc param
-           docstring.harcopy, to format the docstrings differently for
-           hardcopy and other use.  Ther ArtistInspector could use a
+           docstring.hardcopy, to format the docstrings differently for
+           hard copy and other use.  The ArtistInspector could use a
            little refactoring now since there is duplication of effort
            between the rest out put and the non-rest output - JDH
 
@@ -1482,19 +1482,19 @@ the `API changes <../../api/api_changes.html>`_.
            styles are added. -JJL
 
 2008-12-02 Fixed a bug in the new legend class that didn't allowed
-           a tuple of coordinate vlaues as loc. -JJL
+           a tuple of coordinate values as loc. -JJL
 
 2008-12-02 Improve checks for external dependencies, using subprocess
            (instead of deprecated popen*) and distutils (for version
            checking) - DSD
 
-2008-11-30 Reimplementation of the legend which supports baseline alignement,
+2008-11-30 Reimplementation of the legend which supports baseline alignment,
            multi-column, and expand mode. - JJL
 
 2008-12-01 Fixed histogram autoscaling bug when bins or range are given
            explicitly (fixes Debian bug 503148) - MM
 
-2008-11-25 Added rcParam axes.unicode_minus which allows plain hypen
+2008-11-25 Added rcParam axes.unicode_minus which allows plain hyphen
            for minus when False - JDH
 
 2008-11-25 Added scatterpoints support in Legend. patch by Erik
@@ -1797,7 +1797,7 @@ the `API changes <../../api/api_changes.html>`_.
 2008-06-10 Bar now applies the label only to the first patch only, and
            sets '_nolegend_' for the other patch labels.  This lets
            autolegend work as expected for hist and bar - see
-           https://sourceforge.net/tracker/index.php?func=detail&aid=1986597&group_id=80706&atid=560720
+           \https://sourceforge.net/tracker/index.php?func=detail&aid=1986597&group_id=80706&atid=560720
            JDH
 
 2008-06-10 Fix text baseline alignment bug.  [ 1985420 ] Repair of
@@ -1860,11 +1860,11 @@ the `API changes <../../api/api_changes.html>`_.
 
 2008-05-28 Allow keyword args to configure widget properties as
            requested in
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1866207&group_id=80706&atid=560722
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1866207&group_id=80706&atid=560722
            - JDH
 
 2008-05-28 Replaced '-' with u'\u2212' for minus sign as requested in
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720
 
 2008-05-28 zero width/height Rectangles no longer influence the
            autoscaler.  Useful for log histograms with empty bins -
@@ -1980,7 +1980,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2008-04-20 Fix double-zoom bug. - MM
 
-2008-04-15 Speed up color mapping. - EF
+2008-04-15 Speed up colormapping. - EF
 
 2008-04-12 Speed up zooming and panning of dense images. - EF
 
@@ -2203,7 +2203,7 @@ the `API changes <../../api/api_changes.html>`_.
 2007-11-08 Made pylab use straight numpy instead of oldnumeric
            by default - EF
 
-2007-11-08 Added additional record array utilites to mlab (rec2excel,
+2007-11-08 Added additional record array utilities to mlab (rec2excel,
            rec2gtk, rec_join, rec_append_field, rec_drop_field) - JDH
 
 2007-11-08 Updated pytz to version 2007g - DSD
@@ -2223,10 +2223,10 @@ the `API changes <../../api/api_changes.html>`_.
 2007-11-05 Added easy access to minor tick properties; slight mod
            of patch by Pierre G-M - EF
 
-2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg
+2007-11-02 Committed Phil Thompson's patch 1599876, fixes to Qt4Agg
            backend and qt4 blitting demo - DSD
 
-2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg
+2007-11-02 Committed Phil Thompson's patch 1599876, fixes to Qt4Agg
            backend and qt4 blitting demo - DSD
 
 2007-10-31 Made log color scale easier to use with contourf;
@@ -2555,11 +2555,11 @@ the `API changes <../../api/api_changes.html>`_.
            writable HOME/.matplotlib already exists - JDH
 
 2007-06-27 Fixed locale bug reported at
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1744154&group_id=80706&atid=560720
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1744154&group_id=80706&atid=560720
            by adding a cbook.unicode_safe function - JDH
 
 2007-06-27 Applied Micheal's tk savefig bugfix described at
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1716732&group_id=80706&atid=560720
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1716732&group_id=80706&atid=560720
            Thanks Michael!
 
 
@@ -2627,7 +2627,7 @@ the `API changes <../../api/api_changes.html>`_.
            inputenc LaTeX packages. - ADS
 
 2007-04-23 Fixed some problems with polar -- added general polygon
-           clipping to clip the lines a nd grids to the polar axes.
+           clipping to clip the lines and grids to the polar axes.
            Added support for set_rmax to easily change the maximum
            radial grid.  Added support for polar legend - JDH
 
@@ -2827,7 +2827,7 @@ the `API changes <../../api/api_changes.html>`_.
            now looks correct - SC
 
 2007-01-11 Added Axes.xcorr and Axes.acorr to plot the cross
-           correlation of x vs y or the autocorrelation of x.  pylab
+           correlation of x vs. y or the autocorrelation of x.  pylab
            wrappers also provided.  See examples/xcorr_demo.py - JDH
 
 2007-01-10 Added "Subplot.label_outer" method.  It will set the
@@ -2954,7 +2954,7 @@ the `API changes <../../api/api_changes.html>`_.
            subplots_adjust - JDH
 
 2006-10-31 Applied axes3d patch 1587359
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1587359&group_id=80706&atid=560722
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1587359&group_id=80706&atid=560722
            JDH
 
 -------------------------
@@ -3171,7 +3171,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2006-06-29 Added a Qt4Agg backend. Thank you James Amundson - DSD
 
-2006-06-26 Fixed a usetex bug. On windows, usetex will prcess
+2006-06-26 Fixed a usetex bug. On Windows, usetex will process
            postscript output in the current directory rather than
            in a temp directory. This is due to the use of spaces
            and tildes in windows paths, which cause problems with
@@ -3197,7 +3197,7 @@ the `API changes <../../api/api_changes.html>`_.
            a sequence of (x,y) tuples for specifying paths in
            collections, quiver, contour, pcolor, transforms.
            Fixed contour bug involving setting limits for
-           color mapping.  Added numpy-style all() to numerix. - EF
+           colormapping.  Added numpy-style all() to numerix. - EF
 
 2006-06-20 Added custom FigureClass hook to pylab interface - see
            examples/custom_figure_class.py
@@ -3333,7 +3333,7 @@ the `API changes <../../api/api_changes.html>`_.
            directory, rather than in the user's current working
            directory - DSD
 
-2006-04-05 Apllied Ken's wx deprecation warning patch closing sf patch
+2006-04-05 Applied Ken's wx deprecation warning patch closing sf patch
            #1465371 - JDH
 
 2006-04-05 Added support for the new API in the postscript backend.
@@ -3611,7 +3611,7 @@ the `API changes <../../api/api_changes.html>`_.
 2006-01-24 Released 0.86.2
 
 2006-01-20 Added a converters dict to pylab load to convert selected
-           coloumns to float -- especially useful for files with date
+           columns to float -- especially useful for files with date
            strings, uses a datestr2num converter - JDH
 
 2006-01-20 Added datestr2num to matplotlib dates to convert a string
@@ -3945,7 +3945,7 @@ the `API changes <../../api/api_changes.html>`_.
            non-writable dirs.
 
 2005-07-05 Fixed bug #1231611 in subplots adjust layout.  The problem
-           was that the text cacheing mechanism was not using the
+           was that the text caching mechanism was not using the
            transformation affine in the key. - JDH
 
 2005-07-05 Fixed default backend import problem when using API (SF bug
@@ -4098,7 +4098,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2005-05-27 Got win32 build system working again, using a more recent
            version of gtk and pygtk in the win32 build, gtk 2.6 from
-           http://www.gimp.org/~tml/gimp/win32/downloads.html (you
+           https://web.archive.org/web/20050527002647/https://www.gimp.org/~tml/gimp/win32/downloads.html (you
            will also need libpng12.dll to use these).  I haven't
            tested whether this binary build of mpl for win32 will work
            with older gtk runtimes, so you may need to upgrade.
@@ -4275,12 +4275,12 @@ the `API changes <../../api/api_changes.html>`_.
 
 2005-03-16 Fixed tick on horiz colorbar - JDH
 
-2005-03-16 Added Japanses winreg patch - JDH
+2005-03-16 Added Japanese winreg patch - JDH
 
 2005-03-15 backend_gtkagg.py: changed to use double buffering, this fixes
            the problem reported Joachim Berdal Haga - "Parts of plot lagging
            from previous frame in animation". Tested with anim.py and it makes
-           no noticable difference to performance (23.7 before, 23.6 after)
+           no noticeable difference to performance (23.7 before, 23.6 after)
            - SC
 
 2005-03-14 add src/_backend_gdk.c extension to provide a substitute function
@@ -4418,7 +4418,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2005-02-02 Incorporated Fernando's matshow - JDH
 
-2005-02-01 Added Fernando's figure num patch, including experemental
+2005-02-01 Added Fernando's figure num patch, including experimental
            support for pylab backend switching, LineCOllection.color
            warns, savefig now a figure method, fixed a close(fig) bug
            - JDH
@@ -5120,7 +5120,7 @@ the `API changes <../../api/api_changes.html>`_.
 2004-05-28 added colorbar - JDH
 
 2004-05-28 Made some changes to the matplotlib.colors.Colormap to
-           propertly support clim - JDH
+           properly support clim - JDH
 
 -----------------------------------------------------------------
 
@@ -5136,7 +5136,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2004-05-25 Tweaked TkAgg backend so that canvas.draw() works
        more like the other backends.  Fixed a bug resulting
-       in 2 draws per figure mangager show().      - JTM
+       in 2 draws per figure manager show().      - JTM
 
 ------------------------------------------------------------
 
@@ -5155,7 +5155,7 @@ the `API changes <../../api/api_changes.html>`_.
            in numerix which maps type names onto typecodes
            the same way for both numarray and Numeric.  This
            undoes my previous change immediately below. To get a
-           typename for Int16 useable in a Numeric extension:
+           typename for Int16 usable in a Numeric extension:
            say nx.Int16. - JTM
 
 2004-05-15 Rewrote transformation class in extension code, simplified
@@ -5244,7 +5244,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2004-04-08 Fixed viewlim set problem on axes and axis. - JDH
 
-2004-04-07 Added validate_comma_sep_str and font properties paramaters to
+2004-04-07 Added validate_comma_sep_str and font properties parameters to
            __init__.  Removed font families and added rcParams to
            FontProperties __init__ arguments in font_manager.  Added
            default font property parameters to .matplotlibrc file with
@@ -5292,7 +5292,7 @@ This is the Old, stale, never used changelog
 2002-12-11 - Added a measurement dialog to the figure window to
              measure axes position and the delta x delta y with a left
              mouse drag.  These defaults can be overridden by deriving
-             from Figure and overrriding button_press_event,
+             from Figure and overriding button_press_event,
              button_release_event, and motion_notify_event,
              and _dialog_measure_tool.
 
@@ -5356,7 +5356,7 @@ This is the Old, stale, never used changelog
    Fixed bugs i figure text with font override dictionairies and fig
    text that was placed outside the window bounding box
 
-2003-09-1 thru 2003-09-15
+2003-09-1 through 2003-09-15
 
    Added a postscript and a GD module backend
 
@@ -5415,7 +5415,7 @@ This is the Old, stale, never used changelog
 
 2003-11-14 Fixed legend positioning bug and added new position args
 
-2003-11-16 Finsihed porting GD to new axes API
+2003-11-16 Finished porting GD to new axes API
 
 
 2003-11-20 - add TM for matlab on website and in docs

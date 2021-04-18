@@ -1,7 +1,0 @@
-Changes in handling of degenerate bounds passed to `set_xlim`
-`````````````````````````````````````````````````````````````
-
-When bounds passed to `set_xlim` (`set_xlim`, etc.) are degenerate (i.e. the
-lower and upper value are equal), the method used to "expand" the bounds now
-matches the expansion behavior of autoscaling when the plot contains a single
-x-value, and should in particular produce nicer limits for non-linear scales.

@@ -3,15 +3,12 @@
 Plotting categorical variables
 ==============================
 
-How to use categorical variables in Matplotlib.
-
-Many times you want to create a plot that uses categorical variables
-in Matplotlib. Matplotlib allows you to pass categorical variables directly to
-many plotting functions, which we demonstrate below.
+You can pass categorical values (i.e. strings) directly as x- or y-values to
+many plotting functions:
 """
 import matplotlib.pyplot as plt
 
-data = {'apples': 10, 'oranges': 15, 'lemons': 5, 'limes': 20}
+data = {'apple': 10, 'orange': 15, 'lemon': 5, 'lime': 20}
 names = list(data.keys())
 values = list(data.values())
 

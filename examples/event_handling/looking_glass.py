@@ -24,15 +24,15 @@ line, = ax.plot(x, y, alpha=1.0, clip_path=circ)
 ax.set_title("Left click and drag to move looking glass")
 
 
-class EventHandler(object):
+class EventHandler:
     def __init__(self):
-        fig.canvas.mpl_connect('button_press_event', self.onpress)
-        fig.canvas.mpl_connect('button_release_event', self.onrelease)
-        fig.canvas.mpl_connect('motion_notify_event', self.onmove)
+        fig.canvas.mpl_connect('button_press_event', self.on_press)
+        fig.canvas.mpl_connect('button_release_event', self.on_release)
+        fig.canvas.mpl_connect('motion_notify_event', self.on_move)
         self.x0, self.y0 = circ.center
         self.pressevent = None
 
-    def onpress(self, event):
+    def on_press(self, event):
         if event.inaxes != ax:
             return
 
@@ -41,11 +41,11 @@ class EventHandler(object):
 
         self.pressevent = event
 
-    def onrelease(self, event):
+    def on_release(self, event):
         self.pressevent = None
         self.x0, self.y0 = circ.center
 
-    def onmove(self, event):
+    def on_move(self, event):
         if self.pressevent is None or event.inaxes != self.pressevent.inaxes:
             return
 

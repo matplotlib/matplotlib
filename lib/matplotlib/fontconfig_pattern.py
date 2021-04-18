@@ -5,16 +5,13 @@ A module for parsing and generating `fontconfig patterns`_.
    https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
 """
 
-# This class is defined here because it must be available in:
-#   - The old-style config framework (:file:`rcsetup.py`)
-#   - The font manager (:file:`font_manager.py`)
-
-# It probably logically belongs in :file:`font_manager.py`, but placing it
-# there would have created cyclical dependency problems.
+# This class logically belongs in `matplotlib.font_manager`, but placing it
+# there would have created cyclical dependency problems, because it also needs
+# to be available from `matplotlib.rcsetup` (for parsing matplotlibrc files).
 
 from functools import lru_cache
 import re
-
+import numpy as np
 from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
                        ParseException, Suppress)
 
@@ -27,7 +24,7 @@ value_unescape = re.compile(r'\\([%s])' % value_punc).sub
 value_escape = re.compile(r'([%s])' % value_punc).sub
 
 
-class FontconfigPatternParser(object):
+class FontconfigPatternParser:
     """
     A simple pyparsing-based parser for `fontconfig patterns`_.
 
@@ -36,76 +33,85 @@ class FontconfigPatternParser(object):
     """
 
     _constants = {
-        'thin'           : ('weight', 'light'),
-        'extralight'     : ('weight', 'light'),
-        'ultralight'     : ('weight', 'light'),
-        'light'          : ('weight', 'light'),
-        'book'           : ('weight', 'book'),
-        'regular'        : ('weight', 'regular'),
-        'normal'         : ('weight', 'normal'),
-        'medium'         : ('weight', 'medium'),
-        'demibold'       : ('weight', 'demibold'),
-        'semibold'       : ('weight', 'semibold'),
-        'bold'           : ('weight', 'bold'),
-        'extrabold'      : ('weight', 'extra bold'),
-        'black'          : ('weight', 'black'),
-        'heavy'          : ('weight', 'heavy'),
-        'roman'          : ('slant', 'normal'),
-        'italic'         : ('slant', 'italic'),
-        'oblique'        : ('slant', 'oblique'),
-        'ultracondensed' : ('width', 'ultra-condensed'),
-        'extracondensed' : ('width', 'extra-condensed'),
-        'condensed'      : ('width', 'condensed'),
-        'semicondensed'  : ('width', 'semi-condensed'),
-        'expanded'       : ('width', 'expanded'),
-        'extraexpanded'  : ('width', 'extra-expanded'),
-        'ultraexpanded'  : ('width', 'ultra-expanded')
+        'thin':           ('weight', 'light'),
+        'extralight':     ('weight', 'light'),
+        'ultralight':     ('weight', 'light'),
+        'light':          ('weight', 'light'),
+        'book':           ('weight', 'book'),
+        'regular':        ('weight', 'regular'),
+        'normal':         ('weight', 'normal'),
+        'medium':         ('weight', 'medium'),
+        'demibold':       ('weight', 'demibold'),
+        'semibold':       ('weight', 'semibold'),
+        'bold':           ('weight', 'bold'),
+        'extrabold':      ('weight', 'extra bold'),
+        'black':          ('weight', 'black'),
+        'heavy':          ('weight', 'heavy'),
+        'roman':          ('slant', 'normal'),
+        'italic':         ('slant', 'italic'),
+        'oblique':        ('slant', 'oblique'),
+        'ultracondensed': ('width', 'ultra-condensed'),
+        'extracondensed': ('width', 'extra-condensed'),
+        'condensed':      ('width', 'condensed'),
+        'semicondensed':  ('width', 'semi-condensed'),
+        'expanded':       ('width', 'expanded'),
+        'extraexpanded':  ('width', 'extra-expanded'),
+        'ultraexpanded':  ('width', 'ultra-expanded')
         }
 
     def __init__(self):
-        family      = Regex(r'([^%s]|(\\[%s]))*' %
-                            (family_punc, family_punc)) \
-                      .setParseAction(self._family)
-        size        = Regex(r"([0-9]+\.?[0-9]*|\.[0-9]+)") \
-                      .setParseAction(self._size)
-        name        = Regex(r'[a-z]+') \
-                      .setParseAction(self._name)
-        value       = Regex(r'([^%s]|(\\[%s]))*' %
-                            (value_punc, value_punc)) \
-                      .setParseAction(self._value)
 
-        families    =(family
-                    + ZeroOrMore(
-                        Literal(',')
-                      + family)
-                    ).setParseAction(self._families)
+        family = Regex(
+            r'([^%s]|(\\[%s]))*' % (family_punc, family_punc)
+        ).setParseAction(self._family)
 
-        point_sizes =(size
-                    + ZeroOrMore(
-                        Literal(',')
-                      + size)
-                    ).setParseAction(self._point_sizes)
+        size = Regex(
+            r"([0-9]+\.?[0-9]*|\.[0-9]+)"
+        ).setParseAction(self._size)
 
-        property    =( (name
-                      + Suppress(Literal('='))
-                      + value
-                      + ZeroOrMore(
-                          Suppress(Literal(','))
-                        + value)
-                      )
-                     |  name
-                    ).setParseAction(self._property)
+        name = Regex(
+            r'[a-z]+'
+        ).setParseAction(self._name)
 
-        pattern     =(Optional(
-                        families)
-                    + Optional(
-                        Literal('-')
-                      + point_sizes)
-                    + ZeroOrMore(
-                        Literal(':')
-                      + property)
-                    + StringEnd()
-                    )
+        value = Regex(
+            r'([^%s]|(\\[%s]))*' % (value_punc, value_punc)
+        ).setParseAction(self._value)
+
+        families = (
+            family
+            + ZeroOrMore(
+                Literal(',')
+                + family)
+        ).setParseAction(self._families)
+
+        point_sizes = (
+            size
+            + ZeroOrMore(
+                Literal(',')
+                + size)
+        ).setParseAction(self._point_sizes)
+
+        property = (
+            (name
+             + Suppress(Literal('='))
+             + value
+             + ZeroOrMore(
+                 Suppress(Literal(','))
+                 + value))
+            | name
+        ).setParseAction(self._property)
+
+        pattern = (
+            Optional(
+                families)
+            + Optional(
+                Literal('-')
+                + point_sizes)
+            + ZeroOrMore(
+                Literal(':')
+                + property)
+            + StringEnd()
+        )
 
         self._parser = pattern
         self.ParseException = ParseException
@@ -114,14 +120,14 @@ class FontconfigPatternParser(object):
         """
         Parse the given fontconfig *pattern* and return a dictionary
         of key/value pairs useful for initializing a
-        :class:`font_manager.FontProperties` object.
+        `.font_manager.FontProperties` object.
         """
         props = self._properties = {}
         try:
             self._parser.parseString(pattern)
         except self.ParseException as e:
             raise ValueError(
-                "Could not parse font string: '%s'\n%s" % (pattern, e))
+                "Could not parse font string: '%s'\n%s" % (pattern, e)) from e
 
         self._properties = None
 
@@ -168,19 +174,36 @@ class FontconfigPatternParser(object):
 parse_fontconfig_pattern = lru_cache()(FontconfigPatternParser().parse)
 
 
+def _escape_val(val, escape_func):
+    """
+    Given a string value or a list of string values, run each value through
+    the input escape function to make the values into legal font config
+    strings.  The result is returned as a string.
+    """
+    if not np.iterable(val) or isinstance(val, str):
+        val = [val]
+
+    return ','.join(escape_func(r'\\\1', str(x)) for x in val
+                    if x is not None)
+
+
 def generate_fontconfig_pattern(d):
     """
     Given a dictionary of key/value pairs, generates a fontconfig
     pattern string.
     """
     props = []
-    for key in 'family style variant weight stretch file size'.split():
+
+    # Family is added first w/o a keyword
+    family = d.get_family()
+    if family is not None and family != []:
+        props.append(_escape_val(family, family_escape))
+
+    # The other keys are added as key=value
+    for key in ['style', 'variant', 'weight', 'stretch', 'file', 'size']:
         val = getattr(d, 'get_' + key)()
+        # Don't use 'if not val' because 0 is a valid input.
         if val is not None and val != []:
-            if type(val) == list:
-                val = [value_escape(r'\\\1', str(x)) for x in val
-                       if x is not None]
-                if val != []:
-                    val = ','.join(val)
-            props.append(":%s=%s" % (key, val))
+            props.append(":%s=%s" % (key, _escape_val(val, value_escape)))
+
     return ''.join(props)

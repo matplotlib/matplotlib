@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 np.random.seed(19680801)
 
 fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(111, facecolor='#FFFFCC')
+ax = fig.add_subplot(facecolor='#FFFFCC')
 
 x, y = 4*(np.random.rand(2, 100) - .5)
 ax.plot(x, y, 'o')
@@ -24,3 +24,12 @@ ax.set_ylim(-2, 2)
 cursor = Cursor(ax, useblit=True, color='red', linewidth=2)
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.Cursor`

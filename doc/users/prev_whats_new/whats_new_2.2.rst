@@ -17,9 +17,9 @@ A new method to automatically decide spacing between subplots and their
 organizing ``GridSpec`` instances has been added.  It is meant to
 replace the venerable ``tight_layout`` method.  It is invoked via
 a new ``constrained_layout=True`` kwarg to
-`~.figure.Figure` or `~.figure.subplots`.
+`~.figure.Figure` or `~.Figure.subplots`.
 
-There are new ``rcParams`` for this package, and spacing can be
+There are new `.rcParams` for this package, and spacing can be
 more finely tuned with the new `~.set_constrained_layout_pads`.
 
 Features include:
@@ -27,7 +27,7 @@ Features include:
   - Automatic spacing for subplots with a fixed-size padding in inches around
     subplots and all their decorators, and space between as a fraction
     of subplot size between subplots.
-  - Spacing for `~.figure.suptitle`, and colorbars that are attached to
+  - Spacing for `~.Figure.suptitle`, and colorbars that are attached to
     more than one axes.
   - Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
 
@@ -37,16 +37,16 @@ Features include:
 Note the new API to access this:
 
 New ``plt.figure`` and ``plt.subplots`` kwarg: ``constrained_layout``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :meth:`~matplotlib.pyplot.figure` and :meth:`~matplotlib.pyplot.subplots`
 can now be called with ``constrained_layout=True`` kwarg to enable
 constrained_layout.
 
 New ``ax.set_position`` behaviour
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:meth:`~matplotlib.axes.set_position` now makes the specified axis no
+`.Axes.set_position` now makes the specified axis no
 longer responsive to ``constrained_layout``, consistent with the idea that the
 user wants to place an axis manually.
 
@@ -70,7 +70,7 @@ xlabels and ylabels can now be automatically aligned
 Subplot axes ``ylabels`` can be misaligned horizontally if the tick labels
 are very different widths.  The same can happen to ``xlabels`` if the
 ticklabels are rotated on one subplot (for instance).  The new methods
-on the `Figure` class: `Figure.align_xlabels` and `Figure.align_ylabels`
+on the `.Figure` class: `.Figure.align_xlabels` and `.Figure.align_ylabels`
 will now align these labels horizontally or vertically.  If the user only
 wants to align some axes, a list of axes can be passed.  If no list is
 passed, the algorithm looks at all the labels on the figure.
@@ -79,9 +79,9 @@ Only labels that have the same subplot locations are aligned.  i.e. the
 ylabels are aligned only if the subplots are in the same column of the
 subplot layout.
 
-Alignemnt is persistent and automatic after these are called.
+Alignment is persistent and automatic after these are called.
 
-A convenience wrapper `Figure.align_labels` calls both functions at once.
+A convenience wrapper `.Figure.align_labels` calls both functions at once.
 
 .. plot::
 
@@ -155,7 +155,7 @@ Support for numpy.datetime64
 Matplotlib has supported `datetime.datetime` dates for a long time in
 `matplotlib.dates`.  We
 now support `numpy.datetime64` dates as well.  Anywhere that
-`dateime.datetime` could be used, `numpy.datetime64` can be used.  eg::
+`datetime.datetime` could be used, `numpy.datetime64` can be used.  eg::
 
   time = np.arange('2005-02-01', '2005-02-02', dtype='datetime64[h]')
   plt.plot(time)
@@ -195,10 +195,10 @@ If *closedmax==True*, then the slider will snap to *valmax* as well.
 
 
 
-``capstyle`` and ``joinstyle`` attributes added to `Collection`
----------------------------------------------------------------
+``capstyle`` and ``joinstyle`` attributes added to `.Collection`
+----------------------------------------------------------------
 
-The `Collection` class now has customizable ``capstyle`` and ``joinstyle``
+The `.Collection` class now has customizable ``capstyle`` and ``joinstyle``
 attributes. This allows the user for example to set the ``capstyle`` of
 errorbars.
 
@@ -206,10 +206,10 @@ errorbars.
 *pad* kwarg added to ax.set_title
 ---------------------------------
 
-The method `axes.set_title` now has a *pad* kwarg, that specifies the
+The method `.Axes.set_title` now has a *pad* kwarg, that specifies the
 distance from the top of an axes to where the title is drawn.  The units
 of *pad* is points, and the default is the value of the (already-existing)
-``rcParams['axes.titlepad']``.
+:rc:`axes.titlepad`.
 
 
 Comparison of 2 colors in Matplotlib
@@ -227,7 +227,7 @@ Setting the limits automatically in a polar plot now snaps the radial limit
 to zero if the automatic limit is nearby. This means plotting from zero doesn't
 automatically scale to include small negative values on the radial axis.
 
-The limits can still be set manually in the usual way using `set_ylim`.
+The limits can still be set manually in the usual way using `~.Axes.set_ylim`.
 
 
 PathLike support
@@ -238,32 +238,32 @@ On Python 3.6+, `~matplotlib.pyplot.savefig`, `~matplotlib.pyplot.imsave`,
 as input.
 
 
-`Axes.tick_params` can set gridline properties
-----------------------------------------------
+`.Axes.tick_params` can set gridline properties
+-----------------------------------------------
 
-`Tick` objects hold gridlines as well as the tick mark and its label.
-`Axis.set_tick_params`, `Axes.tick_params` and `pyplot.tick_params`
+`.Tick` objects hold gridlines as well as the tick mark and its label.
+`.Axis.set_tick_params`, `.Axes.tick_params` and `.pyplot.tick_params`
 now have keyword arguments 'grid_color', 'grid_alpha', 'grid_linewidth',
-and 'grid_linestyle' for overriding the defaults in `rcParams`:
+and 'grid_linestyle' for overriding the defaults in `.rcParams`:
 'grid.color', etc.
 
 
-`Axes.imshow` clips RGB values to the valid range
--------------------------------------------------
+`.Axes.imshow` clips RGB values to the valid range
+--------------------------------------------------
 
-When `Axes.imshow` is passed an RGB or RGBA value with out-of-range
+When `.Axes.imshow` is passed an RGB or RGBA value with out-of-range
 values, it now logs a warning and clips them to the valid range.
 The old behaviour, wrapping back in to the range, often hid outliers
 and made interpreting RGB images unreliable.
 
 
-Properties in `matplotlibrc` to place xaxis and yaxis tick labels
------------------------------------------------------------------
+Properties in :file:`matplotlibrc` to place xaxis and yaxis tick labels
+-----------------------------------------------------------------------
 
-Introducing four new boolean properties in `.matplotlibrc` for default
+Introducing four new boolean properties in :file:`matplotlibrc` for default
 positions of xaxis and yaxis tick labels, namely,
-`xtick.labeltop`, `xtick.labelbottom`, `ytick.labelright` and
-`ytick.labelleft`. These can also be changed in rcParams.
+:rc:`xtick.labeltop`, :rc:`xtick.labelbottom`, :rc:`ytick.labelright` and
+:rc:`ytick.labelleft`. These can also be changed in rcParams.
 
 
 PGI bindings for gtk3
@@ -284,7 +284,7 @@ The binding selection rules are as follows:
 Thus, to force usage of PGI when both bindings are installed, import it first.
 
 .. _PGI: https://pgi.readthedocs.io/en/latest/
-.. _PyGObject: http://pygobject.readthedocs.io/en/latest/#
+.. _PyGObject: https://pygobject.readthedocs.io/en/latest/
 
 
 
@@ -314,7 +314,7 @@ For example
 
 Treat the new Tool classes experimental for now, the API will likely change and perhaps the rcParam as well
 
-The main example `examples/user_interfaces/toolmanager_sgskip.py` shows more
+The main example :doc:`/gallery/user_interfaces/toolmanager_sgskip` shows more
 details, just adjust the header to use QT instead of GTK3
 
 
@@ -336,7 +336,7 @@ Matplotlib has in the past (sporadically) used an internal
 verbose-output reporter.  This version converts those calls to using the
 standard python `logging` library.
 
-Support for the old ``rcParams`` ``verbose.level`` and ``verbose.fileo`` is
+Support for the old `.rcParams` ``verbose.level`` and ``verbose.fileo`` is
 dropped.
 
 The command-line options ``--verbose-helpful`` and ``--verbose-debug`` are
@@ -354,10 +354,10 @@ developers in :ref:`contributing`.
 
 .. _logging: https://docs.python.org/3/library/logging.html
 
-Improved `repr` for `Transform`\s
----------------------------------
+Improved `repr` for `.Transform`\s
+----------------------------------
 
-`Transform`\s now indent their `repr`\s in a more legible manner:
+`.Transform`\s now indent their `repr`\s in a more legible manner:
 
 .. code-block:: ipython
 

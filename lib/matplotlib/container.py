@@ -1,5 +1,5 @@
+from matplotlib.artist import Artist
 import matplotlib.cbook as cbook
-import matplotlib.artist as martist
 
 
 class Container(tuple):
@@ -18,87 +18,26 @@ class Container(tuple):
         return tuple.__new__(cls, args[0])
 
     def __init__(self, kl, label=None):
-
-        self.eventson = False  # fire events only if eventson
-        self._oid = 0  # an observer id
-        self._propobservers = {}  # a dict from oids to funcs
-
+        self._callbacks = cbook.CallbackRegistry()
         self._remove_method = None
-
         self.set_label(label)
-
-    @cbook.deprecated("3.0")
-    def set_remove_method(self, f):
-        self._remove_method = f
 
     def remove(self):
         for c in cbook.flatten(
-                self, scalarp=lambda x: isinstance(x, martist.Artist)):
+                self, scalarp=lambda x: isinstance(x, Artist)):
             if c is not None:
                 c.remove()
-
         if self._remove_method:
             self._remove_method(self)
 
-    def get_label(self):
-        """
-        Get the label used for this artist in the legend.
-        """
-        return self._label
-
-    def set_label(self, s):
-        """
-        Set the label to *s* for auto legend.
-
-        Parameters
-        ----------
-        s : object
-            Any object other than None gets converted to its `str`.
-        """
-        if s is not None:
-            self._label = str(s)
-        else:
-            self._label = None
-        self.pchanged()
-
-    def add_callback(self, func):
-        """
-        Adds a callback function that will be called whenever one of
-        the :class:`Artist`'s properties changes.
-
-        Returns an *id* that is useful for removing the callback with
-        :meth:`remove_callback` later.
-        """
-        oid = self._oid
-        self._propobservers[oid] = func
-        self._oid += 1
-        return oid
-
-    def remove_callback(self, oid):
-        """
-        Remove a callback based on its *id*.
-
-        .. seealso::
-
-            :meth:`add_callback`
-               For adding callbacks
-
-        """
-        try:
-            del self._propobservers[oid]
-        except KeyError:
-            pass
-
-    def pchanged(self):
-        """
-        Fire an event when property changed, calling all of the
-        registered callbacks.
-        """
-        for oid, func in list(self._propobservers.items()):
-            func(self)
-
     def get_children(self):
         return [child for child in cbook.flatten(self) if child is not None]
+
+    get_label = Artist.get_label
+    set_label = Artist.set_label
+    add_callback = Artist.add_callback
+    remove_callback = Artist.remove_callback
+    pchanged = Artist.pchanged
 
 
 class BarContainer(Container):
@@ -118,12 +57,22 @@ class BarContainer(Container):
         A container for the error bar artists if error bars are present.
         *None* otherwise.
 
+    datavalues : None or array-like
+        The underlying data values corresponding to the bars.
+
+    orientation : {'vertical', 'horizontal'}, default: None
+        If 'vertical', the bars are assumed to be vertical.
+        If 'horizontal', the bars are assumed to be horizontal.
+
     """
 
-    def __init__(self, patches, errorbar=None, **kwargs):
+    def __init__(self, patches, errorbar=None, *, datavalues=None,
+                 orientation=None, **kwargs):
         self.patches = patches
         self.errorbar = errorbar
-        Container.__init__(self, patches, **kwargs)
+        self.datavalues = datavalues
+        self.orientation = orientation
+        super().__init__(patches, **kwargs)
 
 
 class ErrorbarContainer(Container):
@@ -155,7 +104,7 @@ class ErrorbarContainer(Container):
         self.lines = lines
         self.has_xerr = has_xerr
         self.has_yerr = has_yerr
-        Container.__init__(self, lines, **kwargs)
+        super().__init__(lines, **kwargs)
 
 
 class StemContainer(Container):
@@ -182,12 +131,12 @@ class StemContainer(Container):
         ----------
         markerline_stemlines_baseline : tuple
             Tuple of ``(markerline, stemlines, baseline)``.
-            ``markerline`` contains the `LineCollection` of the markers,
-            ``stemlines`` is a `LineCollection` of the main lines,
-            ``baseline`` is the `Line2D` of the baseline.
+            ``markerline`` contains the `.LineCollection` of the markers,
+            ``stemlines`` is a `.LineCollection` of the main lines,
+            ``baseline`` is the `.Line2D` of the baseline.
         """
         markerline, stemlines, baseline = markerline_stemlines_baseline
         self.markerline = markerline
         self.stemlines = stemlines
         self.baseline = baseline
-        Container.__init__(self, markerline_stemlines_baseline, **kwargs)
+        super().__init__(markerline_stemlines_baseline, **kwargs)

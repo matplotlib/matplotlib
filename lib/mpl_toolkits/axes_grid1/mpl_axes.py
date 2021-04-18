@@ -3,7 +3,7 @@ from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
 
 
-class SimpleChainedObjects(object):
+class SimpleChainedObjects:
     def __init__(self, objects):
         self._objects = objects
 
@@ -26,8 +26,8 @@ class Axes(maxes.Axes):
         def __getitem__(self, k):
             if isinstance(k, tuple):
                 r = SimpleChainedObjects(
+                    # super() within a list comprehension needs explicit args.
                     [super(Axes.AxisDict, self).__getitem__(k1) for k1 in k])
-                    # super() within a list comprehension needs explicit args
                 return r
             elif isinstance(k, slice):
                 if k.start is None and k.stop is None and k.step is None:
@@ -72,7 +72,7 @@ class SimpleAxisArtist(Artist):
         else:
             raise ValueError(
                 f"axis must be instance of XAxis or YAxis, but got {axis}")
-        Artist.__init__(self)
+        super().__init__()
 
     @property
     def major_ticks(self):
@@ -94,7 +94,7 @@ class SimpleAxisArtist(Artist):
         self.toggle(all=b)
         self.line.set_visible(b)
         self._axis.set_visible(True)
-        Artist.set_visible(self, b)
+        super().set_visible(b)
 
     def set_label(self, txt):
         self._axis.set_label_text(txt)

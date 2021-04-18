@@ -1,9 +1,8 @@
-import os
+from pathlib import Path
 
 
 # Check that the test directories exist
-if not os.path.exists(os.path.join(
-        os.path.dirname(__file__), 'baseline_images')):
+if not (Path(__file__).parent / "baseline_images").exists():
     raise IOError(
         'The baseline image directory does not exist. '
         'This is most likely because the test data is not installed. '

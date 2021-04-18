@@ -3,7 +3,7 @@
 Contourf Demo
 =============
 
-How to use the :meth:`.axes.Axes.contourf` method to create filled contour plots.
+How to use the `.axes.Axes.contourf` method to create filled contour plots.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -80,15 +80,14 @@ CS4 = ax2.contour(X, Y, Z, levels,
 ax2.set_title('Listed colors (3 masked regions)')
 ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
-# Notice that the colorbar command gets all the information it
+# Notice that the colorbar gets all the information it
 # needs from the ContourSet object, CS3.
 fig2.colorbar(CS3)
 
 # Illustrate all 4 possible "extend" settings:
 extends = ["neither", "both", "min", "max"]
 cmap = plt.cm.get_cmap("winter")
-cmap.set_under("magenta")
-cmap.set_over("yellow")
+cmap = cmap.with_extremes(under="magenta", over="yellow")
 # Note: contouring simply excludes masked or nan regions, so
 # instead of using the "bad" colormap value for them, it draws
 # nothing at all in them.  Therefore the following would have
@@ -107,24 +106,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.axes.Axes.clabel
-matplotlib.pyplot.clabel
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colors.Colormap
-matplotlib.colors.Colormap.set_bad
-matplotlib.colors.Colormap.set_under
-matplotlib.colors.Colormap.set_over
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.axes.Axes.clabel` / `matplotlib.pyplot.clabel`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colors.Colormap`
+#    - `matplotlib.colors.Colormap.set_bad`
+#    - `matplotlib.colors.Colormap.set_under`
+#    - `matplotlib.colors.Colormap.set_over`

@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-``path.get_paths_extents`` is deprecated; use
-`~.path.get_path_collection_extents` instead.

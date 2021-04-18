@@ -3,10 +3,9 @@
 Set default x-axis tick labels on the top
 ==========================================
 
-We can use :rc:`xtick.labeltop` (default False) and :rc:`xtick.top`
-(default False) and :rc:`xtick.labelbottom` (default True) and
-:rc:`xtick.bottom` (default True) to control where on the axes ticks and
-their labels appear.
+We can use :rc:`xtick.labeltop` and :rc:`xtick.top` and :rc:`xtick.labelbottom`
+and :rc:`xtick.bottom` to control where on the axes ticks and their labels
+appear.
 
 These properties can also be set in ``.matplotlib/matplotlibrc``.
 """

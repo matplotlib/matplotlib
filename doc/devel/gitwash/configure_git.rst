@@ -36,8 +36,8 @@ Here is an example ``.gitconfig`` file:
   [merge]
           summary = true
 
-You can edit this file directly or you can use the ``git config --global``
-command::
+You can check what is already in your config file using the ``git config --list`` command.  You can edit the ``.gitconfig`` file directly or you can use the ``git config --global``
+command.::
 
   git config --global user.name "Your Name"
   git config --global user.email you@yourdomain.example.com
@@ -75,7 +75,7 @@ should now contain a user section with your name and email:
         name = Your Name
         email = you@yourdomain.example.com
 
-Of course you'll need to replace ``Your Name`` and ``you@yourdomain.example.com``
+You'll need to replace ``Your Name`` and ``you@yourdomain.example.com``
 with your actual name and email address.
 
 Aliases
@@ -156,7 +156,7 @@ and it gives graph / text output something like this (but with color!):
     | * 4aff2a8 - fixed bug 35, and added a test in test_bugfixes (2 weeks ago) [Hugo]
     |/  
     * a7ff2e5 - Added notes on discussion/proposal made during Data Array Summit. (2 weeks ago) [Corran Webster]
-    * 68f6752 - Initial implimentation of AxisIndexer - uses 'index_by' which needs to be changed to a call on an Axes object - this is all very sketchy right now. (2 weeks ago) [Corr
+    * 68f6752 - Initial implementation of AxisIndexer - uses 'index_by' which needs to be changed to a call on an Axes object - this is all very sketchy right now. (2 weeks ago) [Corr
     *   376adbd - Merge pull request #46 from terhorst/master (2 weeks ago) [Jonathan Terhorst]
     |\  
     | * b605216 - updated joshu example to current api (3 weeks ago) [Jonathan Terhorst]

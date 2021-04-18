@@ -7,7 +7,7 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D, Transform
 from matplotlib.testing.decorators import image_comparison
 
-from mpl_toolkits.axes_grid1.parasite_axes import ParasiteAxesAuxTrans
+from mpl_toolkits.axes_grid1.parasite_axes import ParasiteAxes
 from mpl_toolkits.axisartist import SubplotHost
 from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
 from mpl_toolkits.axisartist import angle_helper
@@ -16,13 +16,11 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
     GridHelperCurveLinear
 
 
-@image_comparison(baseline_images=['custom_transform'],
-                  extensions=['png'], style='default', tol=0.03)
+@image_comparison(['custom_transform.png'], style='default',
+                  tol=0.03 if platform.machine() == 'x86_64' else 0.04)
 def test_custom_transform():
     class MyTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             """
@@ -39,7 +37,6 @@ def test_custom_transform():
         transform_non_affine = transform
 
         def transform_path(self, path):
-            vertices = path.vertices
             ipath = path.interpolated(self._resolution)
             return Path(self.transform(ipath.vertices), ipath.codes)
 
@@ -49,9 +46,7 @@ def test_custom_transform():
             return MyTransformInv(self._resolution)
 
     class MyTransformInv(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             Transform.__init__(self)
@@ -73,7 +68,7 @@ def test_custom_transform():
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
     fig.add_subplot(ax1)
 
-    ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
+    ax2 = ParasiteAxes(ax1, tr, viewlim_mode="equal")
     ax1.parasites.append(ax2)
     ax2.plot([3, 6], [5.0, 10.])
 
@@ -84,10 +79,12 @@ def test_custom_transform():
     ax1.grid(True)
 
 
-@image_comparison(baseline_images=['polar_box'],
-                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03),
-                  extensions=['png'], style='default')
+@image_comparison(['polar_box.png'], style='default',
+                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03))
 def test_polar_box():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure(figsize=(5, 5))
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
@@ -126,14 +123,14 @@ def test_polar_box():
     ax1.axis["lat"] = axis = grid_helper.new_floating_axis(0, 45, axes=ax1)
     axis.label.set_text("Test")
     axis.label.set_visible(True)
-    axis.get_helper()._extremes = 2, 12
+    axis.get_helper().set_extremes(2, 12)
 
     ax1.axis["lon"] = axis = grid_helper.new_floating_axis(1, 6, axes=ax1)
     axis.label.set_text("Test 2")
-    axis.get_helper()._extremes = -180, 90
+    axis.get_helper().set_extremes(-180, 90)
 
     # A parasite axes with given transform
-    ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
+    ax2 = ParasiteAxes(ax1, tr, viewlim_mode="equal")
     assert ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
@@ -146,9 +143,11 @@ def test_polar_box():
     ax1.grid(True)
 
 
-@image_comparison(baseline_images=['axis_direction'],
-                  extensions=['png'], style='default', tol=0.03)
+@image_comparison(['axis_direction.png'], style='default', tol=0.03)
 def test_axis_direction():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure(figsize=(5, 5))
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
@@ -187,25 +186,25 @@ def test_axis_direction():
         axes=ax1, axis_direction="left")
     axis.label.set_text("Test")
     axis.label.set_visible(True)
-    axis.get_helper()._extremes = 0.001, 10
+    axis.get_helper().set_extremes(0.001, 10)
 
     ax1.axis["lat2"] = axis = grid_helper.new_floating_axis(
         0, 50,
         axes=ax1, axis_direction="right")
     axis.label.set_text("Test")
     axis.label.set_visible(True)
-    axis.get_helper()._extremes = 0.001, 10
+    axis.get_helper().set_extremes(0.001, 10)
 
     ax1.axis["lon"] = axis = grid_helper.new_floating_axis(
         1, 10,
         axes=ax1, axis_direction="bottom")
     axis.label.set_text("Test 2")
-    axis.get_helper()._extremes = 50, 130
+    axis.get_helper().set_extremes(50, 130)
     axis.major_ticklabels.set_axis_direction("top")
     axis.label.set_axis_direction("top")
 
-    grid_helper.grid_finder.grid_locator1.den = 5
-    grid_helper.grid_finder.grid_locator2._nbins = 5
+    grid_helper.grid_finder.grid_locator1.set_params(nbins=5)
+    grid_helper.grid_finder.grid_locator2.set_params(nbins=5)
 
     ax1.set_aspect(1.)
     ax1.set_xlim(-8, 8)

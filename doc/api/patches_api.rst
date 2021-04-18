@@ -2,7 +2,9 @@
 ``matplotlib.patches``
 **********************
 
-.. currentmodule:: matplotlib.patches
+
+.. inheritance-diagram:: matplotlib.patches
+   :parts: 1
 
 .. automodule:: matplotlib.patches
    :no-members:
@@ -15,6 +17,7 @@ Classes
    :toctree: _as_gen/
    :template: autosummary.rst
 
+   Annulus
    Arc
    Arrow
    ArrowStyle
@@ -29,12 +32,12 @@ Classes
    FancyBboxPatch
    Patch
    PathPatch
+   StepPatch
    Polygon
    Rectangle
    RegularPolygon
    Shadow
    Wedge
-   YAArrow
 
 Functions
 ---------

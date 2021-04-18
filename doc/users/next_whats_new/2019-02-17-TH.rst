@@ -1,9 +1,0 @@
-Support for forward/backward mouse buttons
-``````````````````````````````````````````
-
-Figure managers now support a ``button_press`` event for mouse buttons, similar
-to the ``key_press`` events. This allows binding actions to mouse buttons (see
-`.MouseButton`).
-
-The first application of this mechanism is support of forward/backward mouse
-buttons in figures created with the Qt5 backend.

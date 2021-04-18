@@ -1,7 +1,6 @@
 """
 Configuration for the order of gallery sections and examples.
 Paths are relative to the conf.py file.
-
 """
 
 from sphinx_gallery.sorting import ExplicitOrder
@@ -24,11 +23,16 @@ explicit_order_folders = [
                           '../examples/showcase',
                           '../tutorials/introductory',
                           '../tutorials/intermediate',
-                          '../tutorials/advanced']
+                          '../tutorials/advanced',
+                          '../plot_types/basic',
+                          '../plot_types/arrays',
+                          '../plot_types/stats',
+                          '../plot_types/unstructured',
+                          ]
 
 
 class MplExplicitOrder(ExplicitOrder):
-    """ for use within the 'subsection_order' key"""
+    """For use within the 'subsection_order' key."""
     def __call__(self, item):
         """Return a string determining the sort order."""
         if item in self.ordered_list:
@@ -61,12 +65,23 @@ list_all = [
     "color_demo",
     #  pies
     "pie_features", "pie_demo2",
+
+    # **Plot Types
+    # Basic
+    "plot", "scatter_plot", "bar", "stem", "step", "pie", "fill_between",
+    # Arrays
+    "imshow", "pcolormesh", "contourf", "quiver", "streamplot",
+    # Stats
+    "hist_plot", "boxplot_plot", "errorbar_plot", "violin",
+    "barbs", "eventplot", "hist2d", "hexbin",
+    # Unstructured
+    "tricontour", "tripcolor", "triplot",
     ]
 explicit_subsection_order = [item + ".py" for item in list_all]
 
 
-class MplExplicitSubOrder(object):
-    """ for use within the 'within_subsection_order' key """
+class MplExplicitSubOrder:
+    """For use within the 'within_subsection_order' key."""
     def __init__(self, src_dir):
         self.src_dir = src_dir  # src_dir is unused here
         self.ordered_list = explicit_subsection_order

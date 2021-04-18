@@ -12,9 +12,7 @@ def test_non_square():
     plt.table(cellColours=cellcolors)
 
 
-@image_comparison(baseline_images=['table_zorder'],
-                  extensions=['png'],
-                  remove_text=True)
+@image_comparison(['table_zorder.png'], remove_text=True)
 def test_zorder():
     data = [[66386, 174296],
             [58230, 381139]]
@@ -47,8 +45,7 @@ def test_zorder():
     plt.yticks([])
 
 
-@image_comparison(baseline_images=['table_labels'],
-                  extensions=['png'])
+@image_comparison(['table_labels.png'])
 def test_label_colours():
     dim = 3
 
@@ -85,15 +82,14 @@ def test_label_colours():
               loc='best')
 
 
-@image_comparison(baseline_images=['table_cell_manipulation'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['table_cell_manipulation.png'], remove_text=True)
 def test_diff_cell_table():
     cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
     cellText = [['1'] * len(cells)] * 2
     colWidths = [0.1] * len(cells)
 
-    _, axes = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
-    for ax, cell in zip(axes, cells):
+    _, axs = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
+    for ax, cell in zip(axs, cells):
         ax.table(
                 colWidths=colWidths,
                 cellText=cellText,
@@ -123,19 +119,19 @@ def test_customcell():
         assert c == code
 
 
-@image_comparison(baseline_images=['table_auto_column'],
-                  extensions=['png'])
+@image_comparison(['table_auto_column.png'])
 def test_auto_column():
     fig = plt.figure()
 
     # iterable list input
     ax1 = fig.add_subplot(4, 1, 1)
     ax1.axis('off')
-    tb1 = ax1.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb1 = ax1.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb1.auto_set_font_size(False)
     tb1.set_fontsize(12)
     tb1.auto_set_column_width([-1, 0, 1])
@@ -143,37 +139,40 @@ def test_auto_column():
     # iterable tuple input
     ax2 = fig.add_subplot(4, 1, 2)
     ax2.axis('off')
-    tb2 = ax2.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb2 = ax2.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb2.auto_set_font_size(False)
     tb2.set_fontsize(12)
     tb2.auto_set_column_width((-1, 0, 1))
 
-    #3 single inputs
+    # 3 single inputs
     ax3 = fig.add_subplot(4, 1, 3)
     ax3.axis('off')
-    tb3 = ax3.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb3 = ax3.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb3.auto_set_font_size(False)
     tb3.set_fontsize(12)
     tb3.auto_set_column_width(-1)
     tb3.auto_set_column_width(0)
     tb3.auto_set_column_width(1)
 
-    #4 non integer iterable input
+    # 4 non integer iterable input
     ax4 = fig.add_subplot(4, 1, 4)
     ax4.axis('off')
-    tb4 = ax4.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb4 = ax4.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
     tb4.auto_set_column_width("-101")
@@ -191,7 +190,7 @@ def test_table_cells():
     table[2, 1] = cell2
     assert table[2, 1] is cell2
 
-    # make sure gettitem support has not broken
+    # make sure getitem support has not broken
     # properties and setp
     table.properties()
     plt.setp(table)

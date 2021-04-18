@@ -81,12 +81,12 @@ Testing
 New plotting features
 ---------------------
 
-`xkcd`-style sketch plotting
-````````````````````````````
+`~.xkcd`-style sketch plotting
+``````````````````````````````
 To give your plots a sense of authority that they may be missing,
 Michael Droettboom (inspired by the work of many others in
-:ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`__ sketch
-plotting mode.  To use it, simply call :func:`matplotlib.pyplot.xkcd`
+:ghpull:`1329`) has added an `xkcd-style <https://xkcd.com/>`__ sketch
+plotting mode.  To use it, simply call `matplotlib.pyplot.xkcd`
 before creating your plot. For really fine control, it is also possible
 to modify each artist's sketch parameters individually with
 :meth:`matplotlib.artist.Artist.set_sketch_params`.
@@ -176,7 +176,7 @@ oddly distributed data sets.
 Calling subplot() without arguments
 ```````````````````````````````````
 A call to :func:`~matplotlib.pyplot.subplot` without any arguments now
-acts the same as `subplot(111)` or `subplot(1,1,1)` -- it creates one
+acts the same as ``subplot(111)`` or ``subplot(1, 1, 1)`` -- it creates one
 axes for the whole figure. This was already the behavior for both
 :func:`~matplotlib.pyplot.axes` and
 :func:`~matplotlib.pyplot.subplots`, and now this consistency is
@@ -212,17 +212,17 @@ Phil Elson added the :func:`matplotlib.colors.from_levels_and_colors`
 function to easily create a colormap and normalizer for representation
 of discrete colors for plot types such as
 :func:`matplotlib.pyplot.pcolormesh`, with a similar interface to that
-of :func:`contourf`.
+of `matplotlib.pyplot.contourf`.
 
 Full control of the background color
 ````````````````````````````````````
 Wes Campaigne and Phil Elson fixed the Agg backend such that PNGs are
 now saved with the correct background color when
-:meth:`fig.patch.get_alpha` is not 1.
+``fig.patch.get_alpha()`` is not 1.
 
 Improved ``bbox_inches="tight"`` functionality
 ``````````````````````````````````````````````
-Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes
+Passing ``bbox_inches="tight"`` through to `.pyplot.savefig` now takes
 into account *all* artists on a figure - this was previously not the
 case and led to several corner cases which did not function as
 expected.
@@ -230,7 +230,7 @@ expected.
 Initialize a rotated rectangle
 ``````````````````````````````
 Damon McDougall extended the :class:`~matplotlib.patches.Rectangle`
-constructor to accept an `angle` kwarg, specifying the rotation of a
+constructor to accept an *angle* kwarg, specifying the rotation of a
 rectangle in degrees.
 
 Text
@@ -238,10 +238,10 @@ Text
 
 Anchored text support
 `````````````````````
-The `svg` and `pgf` backends are now able to save text alignment
+The SVG and pgf backends are now able to save text alignment
 information to their output formats. This allows to edit text elements
 in saved figures, using Inkscape for example, while preserving their
-intended position. For `svg` please note that you'll have to disable
+intended position. For SVG please note that you'll have to disable
 the default text-to-path conversion (``mpl.rc('svg',
 fonttype='none')``).
 
@@ -251,7 +251,7 @@ The vertical alignment of text is now consistent across backends.  You
 may see small differences in text placement, particularly with rotated
 text.
 
-If you are using a custom backend, note that the `draw_text` renderer
+If you are using a custom backend, note that the `~.RendererBase.draw_text` renderer
 method is now passed the location of the baseline, not the location of
 the bottom of the text bounding box.
 
@@ -262,7 +262,7 @@ Left and right side axes titles
 ```````````````````````````````
 Andrew Dawson added the ability to add axes titles flush with the left
 and right sides of the top of the axes using a new keyword argument
-`loc` to :func:`~matplotlib.pyplot.title`.
+*loc* to :func:`~matplotlib.pyplot.title`.
 
 Improved manual contour plot label positioning
 ``````````````````````````````````````````````
@@ -293,7 +293,7 @@ representation so that search results are printed prettily:
 
 ``axes.xmargin`` and ``axes.ymargin`` added to rcParams
 ```````````````````````````````````````````````````````
-``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added
+:rc:`axes.xmargin` and :rc:`axes.ymargin` were added
 to configure the default margins used.  Previously they were
 hard-coded to default to 0, default value of both rcParam values is 0.
 
@@ -304,9 +304,9 @@ rcParam has been set, and will not retroactively affect already
 existing text objects.  This brings their behavior in line with most
 other rcParams.
 
-``savefig.jpeg_quality`` added to rcParams
-``````````````````````````````````````````
-rcParam value ``savefig.jpeg_quality`` was added so that the user can
+Added :rc:`savefig.jpeg_quality`
+````````````````````````````````
+rcParam value :rc:`savefig.jpeg_quality` was added so that the user can
 configure the default quality used when a figure is written as a JPEG.
 The default quality is 95; previously, the default quality was 75.
 This change minimizes the artifacting inherent in JPEG images,
@@ -330,8 +330,8 @@ IPython notebook for a fully web browser based plotting frontend.
 Remember save directory
 ```````````````````````
 Martin Spacek made the save figure dialog remember the last directory
-saved to. The default is configurable with the new `savefig.directory`
-rcParam in `matplotlibrc`.
+saved to. The default is configurable with the new :rc:`savefig.directory`
+rcParam in :file:`matplotlibrc`.
 
 Documentation and examples
 --------------------------
@@ -373,25 +373,31 @@ New setup script
 ````````````````
 matplotlib 1.3 includes an entirely rewritten setup script.  We now
 ship fewer dependencies with the tarballs and installers themselves.
-Notably, `pytz`, `dateutil`, `pyparsing` and `six` are no longer
+Notably, pytz_, dateutil_, pyparsing_ and six_ are no longer
 included with matplotlib.  You can either install them manually first,
-or let `pip` install them as dependencies along with matplotlib.  It
+or let pip_ install them as dependencies along with matplotlib.  It
 is now possible to not include certain subcomponents, such as the unit
-test data, in the install.  See `setup.cfg.template` for more
+test data, in the install.  See :file:`setup.cfg.template` for more
 information.
+
+.. _dateutil: https://pypi.org/project/python-dateutil/
+.. _pip: https://pypi.org/project/pip/
+.. _pyparsing: https://pypi.org/project/pyparsing/
+.. _pytz: https://pypi.org/project/pytz/
+.. _six: https://pypi.org/project/six/
 
 XDG base directory support
 ``````````````````````````
 On Linux, matplotlib now uses the `XDG base directory specification
-<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`
-to find the `matplotlibrc` configuration file.  `matplotlibrc` should
-now be kept in `~/.config/matplotlib`, rather than `~/.matplotlib`.
-If your configuration is found in the old location, it will still be
-used, but a warning will be displayed.
+<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_ to
+find the :file:`matplotlibrc` configuration file. :file:`matplotlibrc` should
+now be kept in :file:`~/.config/matplotlib`, rather than :file:`~/.matplotlib`.
+If your configuration is found in the old location, it will still be used, but
+a warning will be displayed.
 
 Catch opening too many figures using pyplot
 ```````````````````````````````````````````
-Figures created through `pyplot.figure` are retained until they are
+Figures created through `.pyplot.figure` are retained until they are
 explicitly closed.  It is therefore common for new users of matplotlib
 to run out of memory when creating a large series of figures in a loop
 without closing them.

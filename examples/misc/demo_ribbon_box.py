@@ -8,8 +8,9 @@ Ribbon Box
 import numpy as np
 
 from matplotlib import cbook, colors as mcolors
-from matplotlib.image import BboxImage
+from matplotlib.image import AxesImage
 import matplotlib.pyplot as plt
+from matplotlib.transforms import Bbox, TransformedBbox, BboxTransformTo
 
 
 class RibbonBox:
@@ -38,16 +39,17 @@ class RibbonBox:
              self.im[self.cut_location:]])
 
 
-class RibbonBoxImage(BboxImage):
+class RibbonBoxImage(AxesImage):
     zorder = 1
 
-    def __init__(self, bbox, color, **kwargs):
-        super().__init__(bbox, **kwargs)
+    def __init__(self, ax, bbox, color, *, extent=(0, 1, 0, 1), **kwargs):
+        super().__init__(ax, extent=extent, **kwargs)
+        self._bbox = bbox
         self._ribbonbox = RibbonBox(color)
+        self.set_transform(BboxTransformTo(bbox))
 
     def draw(self, renderer, *args, **kwargs):
-        bbox = self.get_window_extent(renderer)
-        stretch_factor = bbox.height / bbox.width
+        stretch_factor = self._bbox.height / self._bbox.width
 
         ny = int(stretch_factor*self._ribbonbox.nx)
         if self.get_array() is None or self.get_array().shape[0] != ny:
@@ -57,45 +59,35 @@ class RibbonBoxImage(BboxImage):
         super().draw(renderer, *args, **kwargs)
 
 
-if True:
-    from matplotlib.transforms import Bbox, TransformedBbox
-    from matplotlib.ticker import ScalarFormatter
-
-    # Fixing random state for reproducibility
-    np.random.seed(19680801)
-
+def main():
     fig, ax = plt.subplots()
 
     years = np.arange(2004, 2009)
-    box_colors = [(0.8, 0.2, 0.2),
-                  (0.2, 0.8, 0.2),
-                  (0.2, 0.2, 0.8),
-                  (0.7, 0.5, 0.8),
-                  (0.3, 0.8, 0.7),
-                  ]
-    heights = np.random.random(years.shape) * 7000 + 3000
-
-    fmt = ScalarFormatter(useOffset=False)
-    ax.xaxis.set_major_formatter(fmt)
+    heights = [7900, 8100, 7900, 6900, 2800]
+    box_colors = [
+        (0.8, 0.2, 0.2),
+        (0.2, 0.8, 0.2),
+        (0.2, 0.2, 0.8),
+        (0.7, 0.5, 0.8),
+        (0.3, 0.8, 0.7),
+    ]
 
     for year, h, bc in zip(years, heights, box_colors):
         bbox0 = Bbox.from_extents(year - 0.4, 0., year + 0.4, h)
         bbox = TransformedBbox(bbox0, ax.transData)
-        rb_patch = RibbonBoxImage(bbox, bc, interpolation="bicubic")
-
-        ax.add_artist(rb_patch)
-
-        ax.annotate(r"%d" % (int(h/100.)*100),
-                    (year, h), va="bottom", ha="center")
-
-    patch_gradient = BboxImage(ax.bbox, interpolation="bicubic", zorder=0.1)
-    gradient = np.zeros((2, 2, 4))
-    gradient[:, :, :3] = [1, 1, 0.]
-    gradient[:, :, 3] = [[0.1, 0.3], [0.3, 0.5]]  # alpha channel
-    patch_gradient.set_array(gradient)
-    ax.add_artist(patch_gradient)
+        ax.add_artist(RibbonBoxImage(ax, bbox, bc, interpolation="bicubic"))
+        ax.annotate(str(h), (year, h), va="bottom", ha="center")
 
     ax.set_xlim(years[0] - 0.5, years[-1] + 0.5)
     ax.set_ylim(0, 10000)
 
+    background_gradient = np.zeros((2, 2, 4))
+    background_gradient[:, :, :3] = [1, 1, 0]
+    background_gradient[:, :, 3] = [[0.1, 0.3], [0.3, 0.5]]  # alpha channel
+    ax.imshow(background_gradient, interpolation="bicubic", zorder=0.1,
+              extent=(0, 1, 0, 1), transform=ax.transAxes, aspect="auto")
+
     plt.show()
+
+
+main()

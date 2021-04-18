@@ -58,8 +58,8 @@ yerr[[3, 6]] = 0.3
 # mock up some limits by modifying previous data
 xlolims = lolims
 xuplims = uplims
-lolims = np.zeros(x.shape)
-uplims = np.zeros(x.shape)
+lolims = np.zeros_like(x)
+uplims = np.zeros_like(x)
 lolims[[6]] = True  # only limited at this index
 uplims[[3]] = True  # only limited at this index
 
@@ -74,3 +74,12 @@ ax.errorbar(x, y + 2.1, xerr=xerr, yerr=yerr,
 ax.set_xlim((0, 5.5))
 ax.set_title('Errorbar upper and lower limits')
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.errorbar` / `matplotlib.pyplot.errorbar`

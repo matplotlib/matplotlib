@@ -1,7 +1,0 @@
-`FigureCanvasAgg.buffer_rgba` and `RendererAgg.buffer_rgba` now return a memoryview
-```````````````````````````````````````````````````````````````````````````````````
-
-The ``buffer_rgba`` method now allows direct access to the renderer's
-underlying buffer (as a ``(m, n, 4)``-shape memoryview) rather than copying the
-data to a new bytestring.  This is consistent with the behavior on Py2, where a
-buffer object was returned.

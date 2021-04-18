@@ -28,7 +28,9 @@ PyObject *convert_polygon_vector(std::vector<Polygon> &polygons)
     return pyresult;
 }
 
-const char *Py_point_in_path__doc__ = "point_in_path(x, y, radius, path, trans)";
+const char *Py_point_in_path__doc__ =
+    "point_in_path(x, y, radius, path, trans)\n"
+    "--\n\n";
 
 static PyObject *Py_point_in_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -58,7 +60,9 @@ static PyObject *Py_point_in_path(PyObject *self, PyObject *args, PyObject *kwds
     }
 }
 
-const char *Py_points_in_path__doc__ = "points_in_path(points, radius, path, trans)";
+const char *Py_points_in_path__doc__ =
+    "points_in_path(points, radius, path, trans)\n"
+    "--\n\n";
 
 static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -87,7 +91,9 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
     return results.pyobj();
 }
 
-const char *Py_point_on_path__doc__ = "point_on_path(x, y, radius, path, trans)";
+const char *Py_point_on_path__doc__ =
+    "point_on_path(x, y, radius, path, trans)\n"
+    "--\n\n";
 
 static PyObject *Py_point_on_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -117,7 +123,9 @@ static PyObject *Py_point_on_path(PyObject *self, PyObject *args, PyObject *kwds
     }
 }
 
-const char *Py_points_on_path__doc__ = "points_on_path(points, radius, path, trans)";
+const char *Py_points_on_path__doc__ =
+    "points_on_path(points, radius, path, trans)\n"
+    "--\n\n";
 
 static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -146,7 +154,9 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
     return results.pyobj();
 }
 
-const char *Py_get_path_extents__doc__ = "get_path_extents(path, trans)";
+const char *Py_get_path_extents__doc__ =
+    "get_path_extents(path, trans)\n"
+    "--\n\n";
 
 static PyObject *Py_get_path_extents(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -174,7 +184,8 @@ static PyObject *Py_get_path_extents(PyObject *self, PyObject *args, PyObject *k
 }
 
 const char *Py_update_path_extents__doc__ =
-    "update_path_extents(path, trans, rect, minpos, ignore)";
+    "update_path_extents(path, trans, rect, minpos, ignore)\n"
+    "--\n\n";
 
 static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -250,7 +261,10 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
         "NNi", outextents.pyobj(), outminpos.pyobj(), changed);
 }
 
-const char *Py_get_path_collection_extents__doc__ = "get_path_collection_extents(";
+const char *Py_get_path_collection_extents__doc__ =
+    "get_path_collection_extents("
+    "master_transform, paths, transforms, offsets, offset_transform)\n"
+    "--\n\n";
 
 static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -295,12 +309,19 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
     extents(1, 0) = e.x1;
     extents(1, 1) = e.y1;
 
-    return extents.pyobj();
+    npy_intp minposdims[] = { 2 };
+    numpy::array_view<double, 1> minpos(minposdims);
+    minpos(0) = e.xm;
+    minpos(1) = e.ym;
+
+    return Py_BuildValue("NN", extents.pyobj(), minpos.pyobj());
 }
 
 const char *Py_point_in_path_collection__doc__ =
-    "point_in_path_collection(x, y, radius, master_transform, paths, transforms, offsets, "
-    "offset_trans, filled, offset_position)";
+    "point_in_path_collection("
+    "x, y, radius, master_transform, paths, transforms, offsets, "
+    "offset_trans, filled, offset_position)\n"
+    "--\n\n";
 
 static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -365,7 +386,9 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
     return pyresult.pyobj();
 }
 
-const char *Py_path_in_path__doc__ = "path_in_path(path_a, trans_a, path_b, trans_b)";
+const char *Py_path_in_path__doc__ =
+    "path_in_path(path_a, trans_a, path_b, trans_b)\n"
+    "--\n\n";
 
 static PyObject *Py_path_in_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -397,7 +420,9 @@ static PyObject *Py_path_in_path(PyObject *self, PyObject *args, PyObject *kwds)
     }
 }
 
-const char *Py_clip_path_to_rect__doc__ = "clip_path_to_rect(path, rect, inside)";
+const char *Py_clip_path_to_rect__doc__ =
+    "clip_path_to_rect(path, rect, inside)\n"
+    "--\n\n";
 
 static PyObject *Py_clip_path_to_rect(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -422,7 +447,9 @@ static PyObject *Py_clip_path_to_rect(PyObject *self, PyObject *args, PyObject *
     return convert_polygon_vector(result);
 }
 
-const char *Py_affine_transform__doc__ = "affine_transform(points, trans)";
+const char *Py_affine_transform__doc__ =
+    "affine_transform(points, trans)\n"
+    "--\n\n";
 
 static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -459,7 +486,9 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
     }
 }
 
-const char *Py_count_bboxes_overlapping_bbox__doc__ = "count_bboxes_overlapping_bbox(bbox, bboxes)";
+const char *Py_count_bboxes_overlapping_bbox__doc__ =
+    "count_bboxes_overlapping_bbox(bbox, bboxes)\n"
+    "--\n\n";
 
 static PyObject *Py_count_bboxes_overlapping_bbox(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -482,7 +511,9 @@ static PyObject *Py_count_bboxes_overlapping_bbox(PyObject *self, PyObject *args
     return PyLong_FromLong(result);
 }
 
-const char *Py_path_intersects_path__doc__ = "path_intersects_path(path1, path2, filled=False)";
+const char *Py_path_intersects_path__doc__ =
+    "path_intersects_path(path1, path2, filled=False)\n"
+    "--\n\n";
 
 static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -525,7 +556,10 @@ static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObjec
     }
 }
 
-const char *Py_path_intersects_rectangle__doc__ = "path_intersects_rectangle(path, rect_x1, rect_y1, rect_x2, rect_y2, filled=False)";
+const char *Py_path_intersects_rectangle__doc__ =
+    "path_intersects_rectangle("
+    "path, rect_x1, rect_y1, rect_x2, rect_y2, filled=False)\n"
+    "--\n\n";
 
 static PyObject *Py_path_intersects_rectangle(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -560,7 +594,8 @@ static PyObject *Py_path_intersects_rectangle(PyObject *self, PyObject *args, Py
 }
 
 const char *Py_convert_path_to_polygons__doc__ =
-    "convert_path_to_polygons(path, trans, width=0, height=0)";
+    "convert_path_to_polygons(path, trans, width=0, height=0)\n"
+    "--\n\n";
 
 static PyObject *Py_convert_path_to_polygons(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -592,8 +627,10 @@ static PyObject *Py_convert_path_to_polygons(PyObject *self, PyObject *args, PyO
 }
 
 const char *Py_cleanup_path__doc__ =
-    "cleanup_path(path, trans, remove_nans, clip_rect, snap_mode, stroke_width, simplify, "
-    "return_curves, sketch)";
+    "cleanup_path("
+    "path, trans, remove_nans, clip_rect, snap_mode, stroke_width, simplify, "
+    "return_curves, sketch)\n"
+    "--\n\n";
 
 static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -631,8 +668,12 @@ static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (simplifyobj == Py_None) {
         simplify = path.should_simplify();
-    } else if (PyObject_IsTrue(simplifyobj)) {
-        simplify = true;
+    } else {
+        switch (PyObject_IsTrue(simplifyobj)) {
+            case 0: simplify = false; break;
+            case 1: simplify = true; break;
+            default: return NULL;  // errored.
+        }
     }
 
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
@@ -668,8 +709,35 @@ static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
     return Py_BuildValue("NN", pyvertices.pyobj(), pycodes.pyobj());
 }
 
-const char *Py_convert_to_string__doc__ = "convert_to_string(path, trans, "
-    "clip_rect, simplify, sketch, precision, codes, postfix)";
+const char *Py_convert_to_string__doc__ =
+    "convert_to_string("
+    "path, trans, clip_rect, simplify, sketch, precision, codes, postfix)\n"
+    "--\n\n"
+    "Convert *path* to a bytestring.\n"
+    "\n"
+    "The first five parameters (up to *sketch*) are interpreted as in \n"
+    "`.cleanup_path`.  The following ones are detailed below.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "path : Path\n"
+    "trans : Transform or None\n"
+    "clip_rect : sequence of 4 floats, or None\n"
+    "simplify : bool\n"
+    "sketch : tuple of 3 floats, or None\n"
+    "precision : int\n"
+    "    The precision used to \"%.*f\"-format the values.  Trailing zeros\n"
+    "    and decimal points are always removed.  (precision=-1 is a special \n"
+    "    case used to implement ttconv-back-compatible conversion.)\n"
+    "codes : sequence of 5 bytestrings\n"
+    "    The bytes representation of each opcode (MOVETO, LINETO, CURVE3,\n"
+    "    CURVE4, CLOSEPOLY), in that order.  If the bytes for CURVE3 is\n"
+    "    empty, quad segments are automatically converted to cubic ones\n"
+    "    (this is used by backends such as pdf and ps, which do not support\n"
+    "    quads).\n"
+    "postfix : bool\n"
+    "    Whether the opcode comes after the values (True) or before (False).\n"
+    ;
 
 static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -709,8 +777,12 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
 
     if (simplifyobj == Py_None) {
         simplify = path.should_simplify();
-    } else if (PyObject_IsTrue(simplifyobj)) {
-        simplify = true;
+    } else {
+        switch (PyObject_IsTrue(simplifyobj)) {
+            case 0: simplify = false; break;
+            case 1: simplify = true; break;
+            default: return NULL;  // errored.
+        }
     }
 
     CALL_CPP("convert_to_string",
@@ -727,8 +799,10 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
 }
 
 
-const char *Py_is_sorted__doc__ = "is_sorted(array)\n\n"
-    "Returns True if 1-D array is monotonically increasing, ignoring NaNs\n";
+const char *Py_is_sorted__doc__ =
+    "is_sorted(array)\n"
+    "--\n\n"
+    "Return whether the 1D *array* is monotonically increasing, ignoring NaNs.\n";
 
 static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
 {
@@ -811,53 +885,54 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
 }
 
 
-extern "C" {
+static PyMethodDef module_functions[] = {
+    {"point_in_path", (PyCFunction)Py_point_in_path, METH_VARARGS, Py_point_in_path__doc__},
+    {"points_in_path", (PyCFunction)Py_points_in_path, METH_VARARGS, Py_points_in_path__doc__},
+    {"point_on_path", (PyCFunction)Py_point_on_path, METH_VARARGS, Py_point_on_path__doc__},
+    {"points_on_path", (PyCFunction)Py_points_on_path, METH_VARARGS, Py_points_on_path__doc__},
+    {"get_path_extents", (PyCFunction)Py_get_path_extents, METH_VARARGS, Py_get_path_extents__doc__},
+    {"update_path_extents", (PyCFunction)Py_update_path_extents, METH_VARARGS, Py_update_path_extents__doc__},
+    {"get_path_collection_extents", (PyCFunction)Py_get_path_collection_extents, METH_VARARGS, Py_get_path_collection_extents__doc__},
+    {"point_in_path_collection", (PyCFunction)Py_point_in_path_collection, METH_VARARGS, Py_point_in_path_collection__doc__},
+    {"path_in_path", (PyCFunction)Py_path_in_path, METH_VARARGS, Py_path_in_path__doc__},
+    {"clip_path_to_rect", (PyCFunction)Py_clip_path_to_rect, METH_VARARGS, Py_clip_path_to_rect__doc__},
+    {"affine_transform", (PyCFunction)Py_affine_transform, METH_VARARGS, Py_affine_transform__doc__},
+    {"count_bboxes_overlapping_bbox", (PyCFunction)Py_count_bboxes_overlapping_bbox, METH_VARARGS, Py_count_bboxes_overlapping_bbox__doc__},
+    {"path_intersects_path", (PyCFunction)Py_path_intersects_path, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_path__doc__},
+    {"path_intersects_rectangle", (PyCFunction)Py_path_intersects_rectangle, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_rectangle__doc__},
+    {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS|METH_KEYWORDS, Py_convert_path_to_polygons__doc__},
+    {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
+    {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
+    {"is_sorted", (PyCFunction)Py_is_sorted, METH_O, Py_is_sorted__doc__},
+    {NULL}
+};
 
-    static PyMethodDef module_functions[] = {
-        {"point_in_path", (PyCFunction)Py_point_in_path, METH_VARARGS, Py_point_in_path__doc__},
-        {"points_in_path", (PyCFunction)Py_points_in_path, METH_VARARGS, Py_points_in_path__doc__},
-        {"point_on_path", (PyCFunction)Py_point_on_path, METH_VARARGS, Py_point_on_path__doc__},
-        {"points_on_path", (PyCFunction)Py_points_on_path, METH_VARARGS, Py_points_on_path__doc__},
-        {"get_path_extents", (PyCFunction)Py_get_path_extents, METH_VARARGS, Py_get_path_extents__doc__},
-        {"update_path_extents", (PyCFunction)Py_update_path_extents, METH_VARARGS, Py_update_path_extents__doc__},
-        {"get_path_collection_extents", (PyCFunction)Py_get_path_collection_extents, METH_VARARGS, Py_get_path_collection_extents__doc__},
-        {"point_in_path_collection", (PyCFunction)Py_point_in_path_collection, METH_VARARGS, Py_point_in_path_collection__doc__},
-        {"path_in_path", (PyCFunction)Py_path_in_path, METH_VARARGS, Py_path_in_path__doc__},
-        {"clip_path_to_rect", (PyCFunction)Py_clip_path_to_rect, METH_VARARGS, Py_clip_path_to_rect__doc__},
-        {"affine_transform", (PyCFunction)Py_affine_transform, METH_VARARGS, Py_affine_transform__doc__},
-        {"count_bboxes_overlapping_bbox", (PyCFunction)Py_count_bboxes_overlapping_bbox, METH_VARARGS, Py_count_bboxes_overlapping_bbox__doc__},
-        {"path_intersects_path", (PyCFunction)Py_path_intersects_path, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_path__doc__},
-        {"path_intersects_rectangle", (PyCFunction)Py_path_intersects_rectangle, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_rectangle__doc__},
-        {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS|METH_KEYWORDS, Py_convert_path_to_polygons__doc__},
-        {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
-        {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
-        {"is_sorted", (PyCFunction)Py_is_sorted, METH_O, Py_is_sorted__doc__},
-        {NULL}
-    };
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_path",
+    NULL,
+    0,
+    module_functions,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
 
-    static struct PyModuleDef moduledef = {
-        PyModuleDef_HEAD_INIT,
-        "_path",
-        NULL,
-        0,
-        module_functions,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    };
+#pragma GCC visibility push(default)
 
-    PyMODINIT_FUNC PyInit__path(void)
-    {
-        PyObject *m;
-        m = PyModule_Create(&moduledef);
+PyMODINIT_FUNC PyInit__path(void)
+{
+    PyObject *m;
+    m = PyModule_Create(&moduledef);
 
-        if (m == NULL) {
-            return NULL;
-        }
-
-        import_array();
-
-        return m;
+    if (m == NULL) {
+        return NULL;
     }
+
+    import_array();
+
+    return m;
 }
+
+#pragma GCC visibility pop

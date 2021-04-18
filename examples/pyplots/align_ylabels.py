@@ -55,8 +55,8 @@ plt.show()
 #
 #
 # Or we can manually align the axis labels between subplots manually using the
-# `set_label_coords` method of the y-axis object.  Note this requires we know
-# a good offset value which is hardcoded.
+# `~.Axis.set_label_coords` method of the y-axis object.  Note this requires
+# we know a good offset value which is hardcoded.
 
 fig, axs = plt.subplots(2, 2)
 fig.subplots_adjust(left=0.2, wspace=0.6)
@@ -72,19 +72,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.figure.Figure.align_ylabels
-matplotlib.axis.Axis.set_label_coords
-matplotlib.axes.Axes.plot
-matplotlib.pyplot.plot
-matplotlib.axes.Axes.set_title
-matplotlib.axes.Axes.set_ylabel
-matplotlib.axes.Axes.set_ylim
+#    - `matplotlib.figure.Figure.align_ylabels`
+#    - `matplotlib.axis.Axis.set_label_coords`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#    - `matplotlib.axes.Axes.set_title`
+#    - `matplotlib.axes.Axes.set_ylabel`
+#    - `matplotlib.axes.Axes.set_ylim`

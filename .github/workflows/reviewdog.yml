@@ -1,0 +1,48 @@
+name: Linting
+on: [pull_request]
+
+jobs:
+  flake8:
+    name: flake8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install flake8
+        run: pip3 install -r requirements/testing/flake8.txt
+
+      - name: Set up reviewdog
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -sfL \
+            https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
+              sh -s -- -b "$HOME/bin"
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Run flake8
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -o pipefail
+          flake8 --docstring-convention=all | \
+            reviewdog -f=pep8 -name=flake8 \
+              -tee -reporter=github-check -filter-mode nofilter
+
+  eslint:
+    name: eslint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: eslint
+        uses: reviewdog/action-eslint@v1
+        with:
+          filter_mode: nofilter
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-check
+          workdir: 'lib/matplotlib/backends/web_backend/'

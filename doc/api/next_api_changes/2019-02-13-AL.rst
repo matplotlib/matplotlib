@@ -1,9 +1,0 @@
-Deprecations
-````````````
-``ticker.decade_up`` and ``ticker.decade_down`` are deprecated.
-
-Autoscaling changes
-```````````````````
-On log-axes where a single value is plotted at a "full" decade (1, 10, 100,
-etc.), the autoscaling now expands the axis symmetrically around that point,
-instead of adding a decade only to the right.

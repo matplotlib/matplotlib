@@ -1,59 +1,34 @@
-# Rename this file to setup.cfg to modify Matplotlib's
-# build options.
+# Rename this file to setup.cfg to modify Matplotlib's build options.
+
+[metadata]
+license_files = LICENSE/*
 
 [egg_info]
 
-[test]
-# If you plan to develop Matplotlib and run or add to the test suite,
-# set this to True.  It will download and build a specific version of
-# FreeType, and then use that to build the ft2font extension.  This
-# ensures that test images are exactly reproducible.
-#local_freetype = False
-
-[status]
-# To suppress display of the dependencies and their versions
-# at the top of the build log, uncomment the following line:
-#suppress = True
+[libs]
+# By default, Matplotlib builds with LTO, which may be slow if you re-compile
+# often, and don't need the space saving/speedup.
+#enable_lto = True
+# By default, Matplotlib downloads and builds its own copies of FreeType and of
+# Qhull.  You may set the following to True to instead link against a system
+# FreeType/Qhull.  As an exception, Matplotlib defaults to the system version
+# of FreeType on AIX.
+#system_freetype = False
+#system_qhull = False
 
 [packages]
-# There are a number of subpackages of Matplotlib that are considered
-# optional. All except tests are installed by default, but that can
-# be changed here.
-#
+# There are a number of data subpackages from Matplotlib that are
+# considered optional. All except 'tests' data (meaning the baseline
+# image files) are installed by default, but that can be changed here.
 #tests = False
-#sample_data = True
 
 [gui_support]
-# Matplotlib supports multiple GUI toolkits, including
-# GTK3, MacOSX, Qt4, Qt5, Tk, and WX. Support for many of
-# these toolkits requires AGG, the Anti-Grain Geometry library,
-# which is provided by Matplotlib and built by default.
+# Matplotlib supports multiple GUI toolkits, known as backends.
+# The MacOSX backend requires the Cocoa headers included with XCode.
+# You can select whether to build it by uncommenting the following line.
+# It is never built on Linux or Windows, regardless of the config value.
 #
-# Some backends are written in pure Python, and others require
-# extension code to be compiled. By default, Matplotlib checks for
-# these GUI toolkits during installation and, if present, compiles the
-# required extensions to support the toolkit.
-#
-# - Tk support requires Tk development headers and Tkinter.
-# - Mac OSX backend requires the Cocoa headers included with XCode.
-#
-# The other GUI toolkits do not require any extension code, and can be
-# used as long as the libraries are installed on your system --
-# therefore they are installed unconditionally.
-#
-# You can uncomment any the following lines to change this
-# behavior. Acceptable values are:
-#
-#     True: build the extension. Exits with a warning if the
-#           required dependencies are not available
-#     False: do not build the extension
-#     auto: build if the required dependencies are available,
-#           otherwise skip silently. This is the default
-#           behavior
-#
-#agg = auto
-#macosx = auto
-#tkagg = auto
+#macosx = True
 
 [rc_options]
 # User-configurable options
@@ -61,14 +36,8 @@
 # Default backend, one of: Agg, Cairo, GTK3Agg, GTK3Cairo, MacOSX, Pdf, Ps,
 # Qt4Agg, Qt5Agg, SVG, TkAgg, WX, WXAgg.
 #
-# The Agg, Ps, Pdf and SVG backends do not require external dependencies. Do
-# not choose MacOSX, or TkAgg if you have disabled the relevant extension
-# modules.  The default is determined by fallback.
+# The Agg, Ps, Pdf and SVG backends do not require external dependencies.  Do
+# not choose MacOSX if you have disabled the relevant extension modules.  The
+# default is determined by fallback.
 #
 #backend = Agg
-
-[package_data]
-# Package additional files found in the lib/matplotlib directories.
-#
-# On Windows, package DLL files.
-#dlls = True

@@ -8,8 +8,8 @@ __all__ = ['StrConverter']
 
 
 class StrConverter(units.ConversionInterface):
-    """: A matplotlib converter class.  Provides matplotlib conversion
-          functionality for string data values.
+    """
+    A Matplotlib converter class for string data values.
 
     Valid units for string are:
     - 'indexed' : Values are indexed as they are specified for plotting.
@@ -20,33 +20,12 @@ class StrConverter(units.ConversionInterface):
 
     @staticmethod
     def axisinfo(unit, axis):
-        """: Returns information on how to handle an axis that has string data.
-
-        = INPUT VARIABLES
-        - axis     The axis using this converter.
-        - unit     The units to use for a axis with string data.
-
-        = RETURN VALUE
-        - Returns a matplotlib AxisInfo data structure that contains
-          minor/major formatters, major/minor locators, and default
-          label information.
-        """
-
+        # docstring inherited
         return None
 
     @staticmethod
     def convert(value, unit, axis):
-        """: Convert value using unit to a float.  If value is a sequence, return
-        the converted sequence.
-
-        = INPUT VARIABLES
-        - axis     The axis using this converter.
-        - value    The value or list of values that need to be converted.
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns the value parameter converted to floats.
-        """
+        # docstring inherited
 
         if units.ConversionInterface.is_numlike(value):
             return value
@@ -56,7 +35,7 @@ class StrConverter(units.ConversionInterface):
 
         # we delay loading to make matplotlib happy
         ax = axis.axes
-        if axis is ax.get_xaxis():
+        if axis is ax.xaxis:
             isXAxis = True
         else:
             isXAxis = False
@@ -79,11 +58,7 @@ class StrConverter(units.ConversionInterface):
             if v not in labels and v not in newValues:
                 newValues.append(v)
 
-        for v in newValues:
-            if labels:
-                labels.append(v)
-            else:
-                labels = [v]
+        labels.extend(newValues)
 
         # DISABLED: This is disabled because matplotlib bar plots do not
         # DISABLED: recalculate the unit conversion of the data values
@@ -113,30 +88,13 @@ class StrConverter(units.ConversionInterface):
         else:
             ax.set_ylim(ticks[0], ticks[-1])
 
-        result = []
-        for v in value:
-            # If v is not in labels then something went wrong with adding new
-            # labels to the list of old labels.
-            errmsg = "This is due to a logic error in the StrConverter class."
-            errmsg += " Please report this error and its message in bugzilla."
-            assert v in labels, errmsg
-            result.append(ticks[labels.index(v)])
+        result = [ticks[labels.index(v)] for v in value]
 
         ax.viewLim.ignore(-1)
         return result
 
     @staticmethod
     def default_units(value, axis):
-        """: Return the default unit for value, or None.
-
-        = INPUT VARIABLES
-        - axis     The axis using this converter.
-        - value    The value or list of values that need units.
-
-        = RETURN VALUE
-        - Returns the default units to use for value.
-        Return the default unit for value, or None.
-        """
-
+        # docstring inherited
         # The default behavior for string indexing.
         return "indexed"

@@ -4,29 +4,29 @@ Tools for triangular grids.
 
 import numpy as np
 
+from matplotlib import _api
 from matplotlib.tri import Triangulation
 
 
-class TriAnalyzer(object):
+class TriAnalyzer:
     """
     Define basic tools for triangular mesh analysis and improvement.
 
-    A TriAnalyzer encapsulates a :class:`~matplotlib.tri.Triangulation`
-    object and provides basic tools for mesh analysis and mesh improvement.
-
-    Parameters
-    ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation` object
-        The encapsulated triangulation to analyze.
+    A TriAnalyzer encapsulates a `.Triangulation` object and provides basic
+    tools for mesh analysis and mesh improvement.
 
     Attributes
     ----------
-    `scale_factors`
+    scale_factors
 
+    Parameters
+    ----------
+    triangulation : `~matplotlib.tri.Triangulation`
+        The encapsulated triangulation to analyze.
     """
+
     def __init__(self, triangulation):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
     @property
@@ -34,15 +34,12 @@ class TriAnalyzer(object):
         """
         Factors to rescale the triangulation into a unit square.
 
-        Returns *k*, tuple of 2 scale factors.
-
         Returns
         -------
-        k : tuple of 2 floats (kx, ky)
-            Tuple of floats that would rescale the triangulation :
+        (float, float)
+            Scaling factors (kx, ky) so that the triangulation
             ``[triangulation.x * kx, triangulation.y * ky]``
             fits exactly inside a unit square.
-
         """
         compressed_triangles = self._triangulation.get_masked_triangles()
         node_used = (np.bincount(np.ravel(compressed_triangles),
@@ -52,7 +49,7 @@ class TriAnalyzer(object):
 
     def circle_ratios(self, rescale=True):
         """
-        Returns a measure of the triangulation triangles flatness.
+        Return a measure of the triangulation triangles flatness.
 
         The ratio of the incircle radius over the circumcircle radius is a
         widely used indicator of a triangle flatness.
@@ -61,22 +58,20 @@ class TriAnalyzer(object):
 
         To avoid unduly low values due to a difference of scale between the 2
         axis, the triangular mesh can first be rescaled to fit inside a unit
-        square with :attr:`scale_factors` (Only if *rescale* is True, which is
+        square with `scale_factors` (Only if *rescale* is True, which is
         its default value).
 
         Parameters
         ----------
-        rescale : boolean, optional
-            If True, a rescaling will be internally performed (based on
-            :attr:`scale_factors`, so that the (unmasked) triangles fit
-            exactly inside a unit square mesh. Default is True.
+        rescale : bool, default: True
+            If True, internally rescale (based on `scale_factors`), so that the
+            (unmasked) triangles fit exactly inside a unit square mesh.
 
         Returns
         -------
-        circle_ratios : masked array
-            Ratio of the incircle radius over the
-            circumcircle radius, for each 'rescaled' triangle of the
-            encapsulated triangulation.
+        masked array
+            Ratio of the incircle radius over the circumcircle radius, for
+            each 'rescaled' triangle of the encapsulated triangulation.
             Values corresponding to masked triangles are masked out.
 
         """
@@ -121,13 +116,13 @@ class TriAnalyzer(object):
 
     def get_flat_tri_mask(self, min_circle_ratio=0.01, rescale=True):
         """
-        Eliminates excessively flat border triangles from the triangulation.
+        Eliminate excessively flat border triangles from the triangulation.
 
         Returns a mask *new_mask* which allows to clean the encapsulated
         triangulation from its border-located flat triangles
         (according to their :meth:`circle_ratios`).
         This mask is meant to be subsequently applied to the triangulation
-        using :func:`matplotlib.tri.Triangulation.set_mask`.
+        using `.Triangulation.set_mask`.
         *new_mask* is an extension of the initial triangulation mask
         in the sense that an initially masked triangle will remain masked.
 
@@ -137,19 +132,18 @@ class TriAnalyzer(object):
 
         Parameters
         ----------
-        min_circle_ratio : float, optional
+        min_circle_ratio : float, default: 0.01
             Border triangles with incircle/circumcircle radii ratio r/R will
-            be removed if r/R < *min_circle_ratio*. Default value: 0.01
-        rescale : boolean, optional
-            If True, a rescaling will first be internally performed (based on
-            :attr:`scale_factors` ), so that the (unmasked) triangles fit
-            exactly inside a unit square mesh. This rescaling accounts for the
-            difference of scale which might exist between the 2 axis. Default
-            (and recommended) value is True.
+            be removed if r/R < *min_circle_ratio*.
+        rescale : bool, default: True
+            If True, first, internally rescale (based on `scale_factors`) so
+            that the (unmasked) triangles fit exactly inside a unit square
+            mesh.  This rescaling accounts for the difference of scale which
+            might exist between the 2 axis.
 
         Returns
         -------
-        new_mask : array-like of booleans
+        array of bool
             Mask to apply to encapsulated triangulation.
             All the initially masked triangles remain masked in the
             *new_mask*.
@@ -195,25 +189,13 @@ class TriAnalyzer(object):
 
         return np.ma.filled(current_mask, True)
 
-    def _get_compressed_triangulation(self, return_tri_renum=False,
-                                      return_node_renum=False):
+    def _get_compressed_triangulation(self):
         """
         Compress (if masked) the encapsulated triangulation.
 
         Returns minimal-length triangles array (*compressed_triangles*) and
         coordinates arrays (*compressed_x*, *compressed_y*) that can still
         describe the unmasked triangles of the encapsulated triangulation.
-
-        Parameters
-        ----------
-        return_tri_renum : boolean, optional
-            Indicates whether a renumbering table to translate the triangle
-            numbers from the encapsulated triangulation numbering into the
-            new (compressed) renumbering will be returned.
-        return_node_renum : boolean, optional
-            Indicates whether a renumbering table to translate the nodes
-            numbers from the encapsulated triangulation numbering into the
-            new (compressed) renumbering will be returned.
 
         Returns
         -------
@@ -223,77 +205,59 @@ class TriAnalyzer(object):
             the returned compressed triangulation 1st coordinate
         compressed_y : array-like
             the returned compressed triangulation 2nd coordinate
-        tri_renum : array-like of integers
+        tri_renum : int array
             renumbering table to translate the triangle numbers from the
             encapsulated triangulation into the new (compressed) renumbering.
             -1 for masked triangles (deleted from *compressed_triangles*).
-            Returned only if *return_tri_renum* is True.
-        node_renum : array-like of integers
+        node_renum : int array
             renumbering table to translate the point numbers from the
             encapsulated triangulation into the new (compressed) renumbering.
             -1 for unused points (i.e. those deleted from *compressed_x* and
-            *compressed_y*). Returned only if *return_node_renum* is True.
+            *compressed_y*).
 
         """
         # Valid triangles and renumbering
         tri_mask = self._triangulation.mask
         compressed_triangles = self._triangulation.get_masked_triangles()
         ntri = self._triangulation.triangles.shape[0]
-        tri_renum = self._total_to_compress_renum(tri_mask, ntri)
+        if tri_mask is not None:
+            tri_renum = self._total_to_compress_renum(~tri_mask)
+        else:
+            tri_renum = np.arange(ntri, dtype=np.int32)
 
         # Valid nodes and renumbering
-        node_mask = (np.bincount(np.ravel(compressed_triangles),
-                                 minlength=self._triangulation.x.size) == 0)
-        compressed_x = self._triangulation.x[~node_mask]
-        compressed_y = self._triangulation.y[~node_mask]
-        node_renum = self._total_to_compress_renum(node_mask)
+        valid_node = (np.bincount(np.ravel(compressed_triangles),
+                                  minlength=self._triangulation.x.size) != 0)
+        compressed_x = self._triangulation.x[valid_node]
+        compressed_y = self._triangulation.y[valid_node]
+        node_renum = self._total_to_compress_renum(valid_node)
 
         # Now renumbering the valid triangles nodes
         compressed_triangles = node_renum[compressed_triangles]
 
-        # 4 cases possible for return
-        if not return_tri_renum:
-            if not return_node_renum:
-                return compressed_triangles, compressed_x, compressed_y
-            else:
-                return (compressed_triangles, compressed_x, compressed_y,
-                        node_renum)
-        else:
-            if not return_node_renum:
-                return (compressed_triangles, compressed_x, compressed_y,
-                        tri_renum)
-            else:
-                return (compressed_triangles, compressed_x, compressed_y,
-                        tri_renum, node_renum)
+        return (compressed_triangles, compressed_x, compressed_y, tri_renum,
+                node_renum)
 
     @staticmethod
-    def _total_to_compress_renum(mask, n=None):
+    def _total_to_compress_renum(valid):
         """
         Parameters
         ----------
-        mask : 1d boolean array or None
-            mask
-        n : integer
-            length of the mask. Useful only id mask can be None
+        valid : 1D bool array
+            Validity mask.
 
         Returns
         -------
-        renum : integer array
-            array so that (`valid_array` being a compressed array
-            based on a `masked_array` with mask *mask*) :
+        int array
+            Array so that (`valid_array` being a compressed array
+            based on a `masked_array` with mask ~*valid*):
 
-                  - For all i such as mask[i] = False:
-                    valid_array[renum[i]] = masked_array[i]
-                  - For all i such as mask[i] = True:
-                    renum[i] = -1 (invalid value)
-
+            - For all i with valid[i] = True:
+              valid_array[renum[i]] = masked_array[i]
+            - For all i with valid[i] = False:
+              renum[i] = -1 (invalid value)
         """
-        if n is None:
-            n = np.size(mask)
-        if mask is not None:
-            renum = np.full(n, -1, dtype=np.int32)  # Default num is -1
-            valid = np.arange(n, dtype=np.int32)[~mask]
-            renum[valid] = np.arange(np.size(valid, 0), dtype=np.int32)
-            return renum
-        else:
-            return np.arange(n, dtype=np.int32)
+        renum = np.full(np.size(valid), -1, dtype=np.int32)
+        n_valid = np.sum(valid)
+        renum[valid] = np.arange(n_valid, dtype=np.int32)
+        return renum

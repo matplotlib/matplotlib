@@ -1,78 +1,59 @@
+from itertools import product
+import platform
+
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import (
-    image_comparison, remove_ticks_and_titles)
-
-from mpl_toolkits.axes_grid1 import host_subplot
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from mpl_toolkits.axes_grid1 import AxesGrid
-from mpl_toolkits.axes_grid1 import ImageGrid
-from mpl_toolkits.axes_grid1.inset_locator import (
-    zoomed_inset_axes,
-    mark_inset,
-    inset_axes,
-    BboxConnectorPatch
-)
-from mpl_toolkits.axes_grid1.anchored_artists import (
-    AnchoredSizeBar,
-    AnchoredDirectionArrows)
-
+from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox
-from itertools import product
+from matplotlib.testing.decorators import (
+    image_comparison, remove_ticks_and_titles)
+
+from mpl_toolkits.axes_grid1 import (
+    axes_size as Size, host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+from mpl_toolkits.axes_grid1.anchored_artists import (
+    AnchoredSizeBar, AnchoredDirectionArrows)
+from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
+from mpl_toolkits.axes_grid1.inset_locator import (
+    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+import mpl_toolkits.axes_grid1.mpl_axes
 
 import pytest
-import platform
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
-@image_comparison(baseline_images=['divider_append_axes'])
 def test_divider_append_axes():
-
-    # the random data
-    np.random.seed(0)
-    x = np.random.randn(1000)
-    y = np.random.randn(1000)
-
-    fig, axScatter = plt.subplots()
-
-    # the scatter plot:
-    axScatter.scatter(x, y)
-
-    # create new axes on the right and on the top of the current axes
-    # The first argument of the new_vertical(new_horizontal) method is
-    # the height (width) of the axes to be created in inches.
-    divider = make_axes_locatable(axScatter)
-    axHistbot = divider.append_axes("bottom", 1.2, pad=0.1, sharex=axScatter)
-    axHistright = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
-    axHistleft = divider.append_axes("left", 1.2, pad=0.1, sharey=axScatter)
-    axHisttop = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
-
-    # now determine nice limits by hand:
-    binwidth = 0.25
-    xymax = max(np.max(np.abs(x)), np.max(np.abs(y)))
-    lim = (int(xymax/binwidth) + 1) * binwidth
-
-    bins = np.arange(-lim, lim + binwidth, binwidth)
-    axHisttop.hist(x, bins=bins)
-    axHistbot.hist(x, bins=bins)
-    axHistleft.hist(y, bins=bins, orientation='horizontal')
-    axHistright.hist(y, bins=bins, orientation='horizontal')
-
-    axHistbot.invert_yaxis()
-    axHistleft.invert_xaxis()
-
-    axHisttop.xaxis.set_ticklabels(())
-    axHistbot.xaxis.set_ticklabels(())
-    axHistleft.yaxis.set_ticklabels(())
-    axHistright.yaxis.set_ticklabels(())
+    fig, ax = plt.subplots()
+    divider = make_axes_locatable(ax)
+    axs = {
+        "main": ax,
+        "top": divider.append_axes("top", 1.2, pad=0.1, sharex=ax),
+        "bottom": divider.append_axes("bottom", 1.2, pad=0.1, sharex=ax),
+        "left": divider.append_axes("left", 1.2, pad=0.1, sharey=ax),
+        "right": divider.append_axes("right", 1.2, pad=0.1, sharey=ax),
+    }
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    bboxes = {k: axs[k].get_window_extent() for k in axs}
+    dpi = fig.dpi
+    assert bboxes["top"].height == pytest.approx(1.2 * dpi)
+    assert bboxes["bottom"].height == pytest.approx(1.2 * dpi)
+    assert bboxes["left"].width == pytest.approx(1.2 * dpi)
+    assert bboxes["right"].width == pytest.approx(1.2 * dpi)
+    assert bboxes["top"].y0 - bboxes["main"].y1 == pytest.approx(0.1 * dpi)
+    assert bboxes["main"].y0 - bboxes["bottom"].y1 == pytest.approx(0.1 * dpi)
+    assert bboxes["main"].x0 - bboxes["left"].x1 == pytest.approx(0.1 * dpi)
+    assert bboxes["right"].x0 - bboxes["main"].x1 == pytest.approx(0.1 * dpi)
+    assert bboxes["left"].y0 == bboxes["main"].y0 == bboxes["right"].y0
+    assert bboxes["left"].y1 == bboxes["main"].y1 == bboxes["right"].y1
+    assert bboxes["top"].x0 == bboxes["main"].x0 == bboxes["bottom"].x0
+    assert bboxes["top"].x1 == bboxes["main"].x1 == bboxes["bottom"].x1
 
 
-@image_comparison(baseline_images=['twin_axes_empty_and_removed'],
-                  extensions=["png"], tol=1)
+@image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1)
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
     matplotlib.rcParams.update({"font.size": 8})
@@ -83,11 +64,11 @@ def test_twin_axes_empty_and_removed():
                  "twin removed\nhost invisible"]
     # Unmodified host subplot at the beginning for reference
     h = host_subplot(len(modifiers)+1, len(generators), 2)
-    h.text(0.5, 0.5, "host_subplot", horizontalalignment="center",
-        verticalalignment="center")
+    h.text(0.5, 0.5, "host_subplot",
+           horizontalalignment="center", verticalalignment="center")
     # Host subplots with various modifications (twin*, visibility) applied
     for i, (mod, gen) in enumerate(product(modifiers, generators),
-        len(generators)+1):
+                                   len(generators) + 1):
         h = host_subplot(len(modifiers)+1, len(generators), i)
         t = getattr(h, gen)()
         if "twin invisible" in mod:
@@ -97,7 +78,7 @@ def test_twin_axes_empty_and_removed():
         if "host invisible" in mod:
             h.axis[:].set_visible(False)
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
-            horizontalalignment="center", verticalalignment="center")
+               horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
@@ -105,6 +86,7 @@ def test_axesgrid_colorbar_log_smoketest():
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
                     nrows_ncols=(1, 1),
+                    ngrids=1,
                     label_mode="L",
                     cbar_location="top",
                     cbar_mode="single",
@@ -116,25 +98,17 @@ def test_axesgrid_colorbar_log_smoketest():
     grid.cbar_axes[0].colorbar(im)
 
 
-@image_comparison(
-    baseline_images=['inset_locator'], style='default', extensions=['png'],
-    remove_text=True)
+@image_comparison(['inset_locator.png'], style='default', remove_text=True)
 def test_inset_locator():
-    def get_demo_image():
-        from matplotlib.cbook import get_sample_data
-        import numpy as np
-        f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-        z = np.load(f)
-        # z is a numpy array of 15x15
-        return z, (-3, 4, -4, 3)
-
     fig, ax = plt.subplots(figsize=[5, 4])
 
     # prepare the demo image
-    Z, extent = get_demo_image()
-    Z2 = np.zeros([150, 150], dtype="d")
+    # Z is a 15x15 array
+    Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
+    extent = (-3, 4, -4, 3)
+    Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30:30 + ny, 30:30 + nx] = Z
+    Z2[30:30+ny, 30:30+nx] = Z
 
     # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
@@ -166,25 +140,17 @@ def test_inset_locator():
     ax.add_artist(asb)
 
 
-@image_comparison(
-    baseline_images=['inset_axes'], style='default', extensions=['png'],
-    remove_text=True)
+@image_comparison(['inset_axes.png'], style='default', remove_text=True)
 def test_inset_axes():
-    def get_demo_image():
-        from matplotlib.cbook import get_sample_data
-        import numpy as np
-        f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-        z = np.load(f)
-        # z is a numpy array of 15x15
-        return z, (-3, 4, -4, 3)
-
     fig, ax = plt.subplots(figsize=[5, 4])
 
     # prepare the demo image
-    Z, extent = get_demo_image()
-    Z2 = np.zeros([150, 150], dtype="d")
+    # Z is a 15x15 array
+    Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
+    extent = (-3, 4, -4, 3)
+    Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30:30 + ny, 30:30 + nx] = Z
+    Z2[30:30+ny, 30:30+nx] = Z
 
     # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
@@ -263,9 +229,7 @@ def test_inset_axes_complete():
                          bbox_transform=ax.transAxes)
 
 
-@image_comparison(
-    baseline_images=['fill_facecolor'], extensions=['png'],
-    remove_text=True, style='mpl20')
+@image_comparison(['fill_facecolor.png'], remove_text=True, style='mpl20')
 def test_fill_facecolor():
     fig, ax = plt.subplots(1, 5)
     fig.set_size_inches(5, 5)
@@ -287,8 +251,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[0], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[0], axins, loc1=2, loc2=4, fc="b", ec="0.5")
 
     # fill with yellow by setting 'facecolor' field
@@ -304,8 +268,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[1], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[1], axins, loc1=2, loc2=4, facecolor="y", ec="0.5")
 
     # fill with green by setting 'color' field
@@ -321,8 +285,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[2], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[2], axins, loc1=2, loc2=4, color="g", ec="0.5")
 
     # fill with green but color won't show if set fill to False
@@ -338,14 +302,12 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[3], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    axins.get_xaxis().set_ticks([])
-    axins.get_yaxis().set_ticks([])
+    axins.xaxis.set_ticks([])
+    axins.yaxis.set_ticks([])
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 
-@image_comparison(baseline_images=['zoomed_axes',
-                                   'inverted_zoomed_axes'],
-                  extensions=['png'])
+@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'])
 def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -360,19 +322,17 @@ def test_zooming_with_inverted_axes():
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
 
 
-@image_comparison(baseline_images=['anchored_direction_arrows'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'])
+@image_comparison(['anchored_direction_arrows.png'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
-    ax.imshow(np.zeros((10, 10)))
+    ax.imshow(np.zeros((10, 10)), interpolation='nearest')
 
     simple_arrow = AnchoredDirectionArrows(ax.transAxes, 'X', 'Y')
     ax.add_artist(simple_arrow)
 
 
-@image_comparison(baseline_images=['anchored_direction_arrows_many_args'],
-                  extensions=['png'])
+@image_comparison(['anchored_direction_arrows_many_args.png'])
 def test_anchored_direction_arrows_many_args():
     fig, ax = plt.subplots()
     ax.imshow(np.ones((10, 10)))
@@ -394,7 +354,7 @@ def test_axes_locatable_position():
                       0.03621495327102808)
 
 
-@image_comparison(baseline_images=['image_grid'], extensions=['png'],
+@image_comparison(['image_grid.png'],
                   remove_text=True, style='mpl20',
                   savefig_kwarg={'bbox_inches': 'tight'})
 def test_image_grid():
@@ -405,7 +365,7 @@ def test_image_grid():
     grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
 
     for i in range(4):
-        grid[i].imshow(im)
+        grid[i].imshow(im, interpolation='nearest')
         grid[i].set_title('test {0}{0}'.format(i))
 
 
@@ -481,3 +441,32 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     assert big in event_rects
     if click_on == "small":
         assert small in event_rects
+
+
+def test_hbox_divider():
+    arr1 = np.arange(20).reshape((4, 5))
+    arr2 = np.arange(20).reshape((5, 4))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    ax1.imshow(arr1)
+    ax2.imshow(arr2)
+
+    pad = 0.5  # inches.
+    divider = HBoxDivider(
+        fig, 111,  # Position of combined axes.
+        horizontal=[Size.AxesX(ax1), Size.Fixed(pad), Size.AxesX(ax2)],
+        vertical=[Size.AxesY(ax1), Size.Scaled(1), Size.AxesY(ax2)])
+    ax1.set_axes_locator(divider.new_locator(0))
+    ax2.set_axes_locator(divider.new_locator(2))
+
+    fig.canvas.draw()
+    p1 = ax1.get_position()
+    p2 = ax2.get_position()
+    assert p1.height == p2.height
+    assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)
+
+
+def test_axes_class_tuple():
+    fig = plt.figure()
+    axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
+    gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)

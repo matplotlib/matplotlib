@@ -1,6 +1,0 @@
-Log-scaled axes avoid having zero or only one tick
-``````````````````````````````````````````````````
-
-When the default `LogLocator` would generate no ticks for an axis (e.g., an
-axis with limits from 0.31 to 0.39) or only a single tick, it now instead falls
-back on the linear `AutoLocator` to pick reasonable tick positions.

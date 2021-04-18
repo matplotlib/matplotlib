@@ -3,13 +3,16 @@
 Pick Event Demo2
 ================
 
-compute the mean and standard deviation (stddev) of 100 data sets and plot
-mean vs stddev.  When you click on one of the mu, sigma points, plot the raw
-data from the dataset that generated the mean and stddev.
+Compute the mean (mu) and standard deviation (sigma) of 100 data sets and plot
+mu vs. sigma.  When you click on one of the (mu, sigma) points, plot the raw
+data from the dataset that generated this point.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 X = np.random.rand(100, 1000)
 xs = np.mean(X, axis=1)
@@ -17,7 +20,7 @@ ys = np.std(X, axis=1)
 
 fig, ax = plt.subplots()
 ax.set_title('click on point to plot time series')
-line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
+line, = ax.plot(xs, ys, 'o', picker=True, pickradius=5)
 
 
 def onpick(event):

@@ -107,7 +107,7 @@ Three-dimensional plotting
 ==========================
 
 The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
-:ref:`mplot3d-examples-index`) has support for simple 3d graphs
+:ref:`mplot3d-examples-index`) has support for simple 3D graphs
 including surface, wireframe, scatter, and bar charts.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_surface3d_001.png
@@ -118,7 +118,7 @@ including surface, wireframe, scatter, and bar charts.
    Surface3d
 
 Thanks to John Porter, Jonathon Taylor, Reinier Heeres, and Ben Root for
-the `mplot3d` toolkit. This toolkit is included with all standard Matplotlib
+the `.mplot3d` toolkit. This toolkit is included with all standard Matplotlib
 installs.
 
 .. _screenshots_ellipse_demo:
@@ -243,7 +243,7 @@ GUI widgets
 Matplotlib has basic GUI widgets that are independent of the graphical
 user interface you are using, allowing you to write cross GUI figures
 and widgets.  See :mod:`matplotlib.widgets` and the
-`widget examples <../../gallery/index.html>`_.
+`widget examples <../../gallery/index.html#widgets>`_.
 
 .. figure:: ../../gallery/widgets/images/sphx_glr_slider_demo_001.png
    :target: ../../gallery/widgets/slider_demo.html
@@ -385,7 +385,7 @@ rendering of strings with the *usetex* option.
 EEG GUI
 =======
 
-You can embed Matplotlib into pygtk, wx, Tk, or Qt applications.
+You can embed Matplotlib into Qt, GTK, Tk, or wxWidgets applications.
 Here is a screenshot of an EEG viewer called `pbrain
 <https://github.com/nipy/pbrain>`__.
 
@@ -406,7 +406,7 @@ XKCD-style sketch plots
 =======================
 
 Just for fun, Matplotlib supports plotting in the style of `xkcd
-<http://www.xkcd.com/>`.
+<https://www.xkcd.com/>`_.
 
 .. figure:: ../../gallery/showcase/images/sphx_glr_xkcd_001.png
    :target: ../../gallery/showcase/xkcd.html

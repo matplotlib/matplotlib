@@ -1,4 +1,0 @@
-MouseEvents now include the event name in their ``str()``
-`````````````````````````````````````````````````````````
-
-... instead of the prefix "MPL MouseEvent".

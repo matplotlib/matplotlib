@@ -16,10 +16,42 @@ def _cached_get_afm_from_fname(fname):
         return AFM(fh)
 
 
+class CharacterTracker:
+    """
+    Helper for font subsetting by the pdf and ps backends.
+
+    Maintains a mapping of font paths to the set of character codepoints that
+    are being used from that font.
+    """
+
+    def __init__(self):
+        self.used = {}
+
+    def track(self, font, s):
+        """Record that string *s* is being typeset using font *font*."""
+        if isinstance(font, str):
+            # Unused, can be removed after removal of track_characters.
+            fname = font
+        else:
+            fname = font.fname
+        self.used.setdefault(fname, set()).update(map(ord, s))
+
+    # Not public, can be removed when pdf/ps merge_used_characters is removed.
+    def merge(self, other):
+        """Update self with a font path to character codepoints."""
+        for fname, charset in other.items():
+            self.used.setdefault(fname, set()).update(charset)
+
+
 class RendererPDFPSBase(RendererBase):
     # The following attributes must be defined by the subclasses:
     # - _afm_font_dir
     # - _use_afm_rc_name
+
+    def __init__(self, width, height):
+        super().__init__()
+        self.width = width
+        self.height = height
 
     def flipy(self):
         # docstring inherited
@@ -40,14 +72,19 @@ class RendererPDFPSBase(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
-        if mpl.rcParams["text.usetex"]:
+        if ismath == "TeX":
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
                 s, fontsize, renderer=self)
             return w, h, d
         elif ismath:
-            parse = self.mathtext_parser.parse(s, 72, prop)
+            # Circular import.
+            from matplotlib.backends.backend_ps import RendererPS
+            parse = self._text2path.mathtext_parser.parse(
+                s, 72, prop,
+                _force_standard_ps_fonts=(isinstance(self, RendererPS)
+                                          and mpl.rcParams["ps.useafm"]))
             return parse.width, parse.height, parse.depth
         elif mpl.rcParams[self._use_afm_rc_name]:
             font = self._get_font_afm(prop)
@@ -69,11 +106,8 @@ class RendererPDFPSBase(RendererBase):
             return w, h, d
 
     def _get_font_afm(self, prop):
-        fname = (
-            font_manager.findfont(
-                prop, fontext="afm", directory=self._afm_font_dir)
-            or font_manager.findfont(
-                "Helvetica", fontext="afm", directory=self._afm_font_dir))
+        fname = font_manager.findfont(
+            prop, fontext="afm", directory=self._afm_font_dir)
         return _cached_get_afm_from_fname(fname)
 
     def _get_font_ttf(self, prop):

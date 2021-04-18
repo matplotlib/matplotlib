@@ -1,15 +1,13 @@
-"""
-Contains a classes for generating hatch patterns.
-"""
+"""Contains classes for generating hatch patterns."""
 
 import numpy as np
+
+from matplotlib import _api
 from matplotlib.path import Path
 
 
-class HatchPatternBase(object):
-    """
-    The base class for a hatch pattern.
-    """
+class HatchPatternBase:
+    """The base class for a hatch pattern."""
     pass
 
 
@@ -49,15 +47,15 @@ class VerticalHatch(HatchPatternBase):
 
 class NorthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = int((hatch.count('/') + hatch.count('x') +
-                          hatch.count('X')) * density)
+        self.num_lines = int(
+            (hatch.count('/') + hatch.count('x') + hatch.count('X')) * density)
         if self.num_lines:
             self.num_vertices = (self.num_lines + 1) * 2
         else:
             self.num_vertices = 0
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
+        steps = np.linspace(-0.5, 0.5, self.num_lines + 1)
         vertices[0::2, 0] = 0.0 + steps
         vertices[0::2, 1] = 0.0 - steps
         vertices[1::2, 0] = 1.0 + steps
@@ -68,16 +66,16 @@ class NorthEastHatch(HatchPatternBase):
 
 class SouthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = int((hatch.count('\\') + hatch.count('x') +
-                          hatch.count('X')) * density)
-        self.num_vertices = (self.num_lines + 1) * 2
+        self.num_lines = int(
+            (hatch.count('\\') + hatch.count('x') + hatch.count('X'))
+            * density)
         if self.num_lines:
             self.num_vertices = (self.num_lines + 1) * 2
         else:
             self.num_vertices = 0
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
+        steps = np.linspace(-0.5, 0.5, self.num_lines + 1)
         vertices[0::2, 0] = 0.0 + steps
         vertices[0::2, 1] = 1.0 + steps
         vertices[1::2, 0] = 1.0 + steps
@@ -95,10 +93,10 @@ class Shapes(HatchPatternBase):
             self.num_vertices = 0
         else:
             self.num_shapes = ((self.num_rows // 2 + 1) * (self.num_rows + 1) +
-                               (self.num_rows // 2) * (self.num_rows))
+                               (self.num_rows // 2) * self.num_rows)
             self.num_vertices = (self.num_shapes *
                                  len(self.shape_vertices) *
-                                 (self.filled and 1 or 2))
+                                 (1 if self.filled else 2))
 
     def set_vertices_and_codes(self, vertices, codes):
         offset = 1.0 / self.num_rows
@@ -111,10 +109,9 @@ class Shapes(HatchPatternBase):
         cursor = 0
         for row in range(self.num_rows + 1):
             if row % 2 == 0:
-                cols = np.linspace(0.0, 1.0, self.num_rows + 1, True)
+                cols = np.linspace(0, 1, self.num_rows + 1)
             else:
-                cols = np.linspace(offset / 2.0, 1.0 - offset / 2.0,
-                                   self.num_rows, True)
+                cols = np.linspace(offset / 2, 1 - offset / 2, self.num_rows)
             row_pos = row * offset
             for col_pos in cols:
                 vertices[cursor:cursor + shape_size] = (shape_vertices +
@@ -133,7 +130,7 @@ class Circles(Shapes):
         path = Path.unit_circle()
         self.shape_vertices = path.vertices
         self.shape_codes = path.codes
-        Shapes.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
 class SmallCircles(Circles):
@@ -141,7 +138,7 @@ class SmallCircles(Circles):
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('o')) * density
-        Circles.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
 class LargeCircles(Circles):
@@ -149,15 +146,18 @@ class LargeCircles(Circles):
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('O')) * density
-        Circles.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 
+# TODO: __init__ and class attributes override all attributes set by
+# SmallCircles. Should this class derive from Circles instead?
 class SmallFilledCircles(SmallCircles):
     size = 0.1
     filled = True
 
     def __init__(self, hatch, density):
         self.num_rows = (hatch.count('.')) * density
+        # Not super().__init__!
         Circles.__init__(self, hatch, density)
 
 
@@ -172,7 +172,7 @@ class Stars(Shapes):
         self.shape_codes = np.full(len(self.shape_vertices), Path.LINETO,
                                    dtype=Path.code_type)
         self.shape_codes[0] = Path.MOVETO
-        Shapes.__init__(self, hatch, density)
+        super().__init__(hatch, density)
 
 _hatch_types = [
     HorizontalHatch,
@@ -184,6 +184,22 @@ _hatch_types = [
     SmallFilledCircles,
     Stars
     ]
+
+
+def _validate_hatch_pattern(hatch):
+    valid_hatch_patterns = set(r'-+|/\xXoO.*')
+    if hatch is not None:
+        invalids = set(hatch).difference(valid_hatch_patterns)
+        if invalids:
+            valid = ''.join(sorted(valid_hatch_patterns))
+            invalids = ''.join(sorted(invalids))
+            _api.warn_deprecated(
+                '3.4',
+                message=f'hatch must consist of a string of "{valid}" or '
+                        'None, but found the following invalid values '
+                        f'"{invalids}". Passing invalid values is deprecated '
+                        'since %(since)s and will become an error %(removal)s.'
+            )
 
 
 def get_path(hatchpattern, density=6):

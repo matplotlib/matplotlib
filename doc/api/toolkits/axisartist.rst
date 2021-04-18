@@ -1,4 +1,4 @@
-.. _toolkit_axisartist-index:
+.. module:: mpl_toolkits.axisartist
 
 Matplotlib axisartist Toolkit
 =============================

@@ -26,7 +26,7 @@
   Applications
 
 * `Ten Simple Rules for Better Figures
-  <http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
+  <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
   by Nicolas P. Rougier, Michael Droettboom and Philip E. Bourne
 
 * `Learning Scientific Programming with Python chapter 7

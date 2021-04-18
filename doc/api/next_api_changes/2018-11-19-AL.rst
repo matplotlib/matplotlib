@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-The `TextPath` constructor used to silently drop ignored arguments; this
-behavior is deprecated.

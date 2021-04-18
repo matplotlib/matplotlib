@@ -1,5 +1,0 @@
-Remove support for ghostscript 8.60
-```````````````````````````````````
-
-Support for ghostscript 8.60 (released in 2007) has been removed.  The oldest
-supported version of ghostscript is now 9.0 (released in 2010).

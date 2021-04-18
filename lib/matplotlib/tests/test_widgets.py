@@ -1,74 +1,13 @@
-from unittest.mock import Mock
-
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing.widgets import do_event, get_ax, mock_event
 
 from numpy.testing import assert_allclose
 
 import pytest
-
-
-def get_ax():
-    fig, ax = plt.subplots(1, 1)
-    ax.plot([0, 200], [0, 200])
-    ax.set_aspect(1.0)
-    ax.figure.canvas.draw()
-    return ax
-
-
-def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
-    """
-     *name*
-        the event name
-
-    *canvas*
-        the FigureCanvas instance generating the event
-
-    *guiEvent*
-        the GUI event that triggered the matplotlib event
-
-    *x*
-        x position - pixels from left of canvas
-
-    *y*
-        y position - pixels from bottom of canvas
-
-    *inaxes*
-        the :class:`~matplotlib.axes.Axes` instance if mouse is over axes
-
-    *xdata*
-        x coord of mouse in data coords
-
-    *ydata*
-        y coord of mouse in data coords
-
-     *button*
-        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
-        for scroll events)
-
-    *key*
-        the key depressed when the mouse event triggered (see
-        :class:`KeyEvent`)
-
-    *step*
-        number of scroll steps (positive for 'up', negative for 'down')
-    """
-    event = Mock()
-    event.button = button
-    ax = tool.ax
-    event.x, event.y = ax.transData.transform([(xdata, ydata),
-                                               (xdata, ydata)])[00]
-    event.xdata, event.ydata = xdata, ydata
-    event.inaxes = ax
-    event.canvas = ax.figure.canvas
-    event.key = key
-    event.step = step
-    event.guiEvent = None
-    event.name = 'Custom'
-
-    func = getattr(tool, etype)
-    func(event)
 
 
 def check_rectangle(**kwargs):
@@ -99,11 +38,56 @@ def check_rectangle(**kwargs):
 
 def test_rectangle_selector():
     check_rectangle()
-    check_rectangle(drawtype='line', useblit=False)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='line' is deprecated"):
+        check_rectangle(drawtype='line', useblit=False)
+
     check_rectangle(useblit=True, button=1)
-    check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='none' is deprecated"):
+        check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
     check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
     check_rectangle(rectprops=dict(fill=True))
+
+
+@pytest.mark.parametrize('drag_from_anywhere, new_center',
+                         [[True, (60, 75)],
+                          [False, (30, 20)]])
+def test_rectangle_drag(drag_from_anywhere, new_center):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True,
+                                     drag_from_anywhere=drag_from_anywhere)
+    # Create rectangle
+    do_event(tool, 'press', xdata=0, ydata=10, button=1)
+    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
+    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    assert tool.center == (50, 65)
+    # Drag inside rectangle, but away from centre handle
+    #
+    # If drag_from_anywhere == True, this will move the rectangle by (10, 10),
+    # giving it a new center of (60, 75)
+    #
+    # If drag_from_anywhere == False, this will create a new rectangle with
+    # center (30, 20)
+    do_event(tool, 'press', xdata=25, ydata=15, button=1)
+    do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
+    do_event(tool, 'release', xdata=35, ydata=25, button=1)
+    assert tool.center == new_center
+    # Check that in both cases, dragging outside the rectangle draws a new
+    # rectangle
+    do_event(tool, 'press', xdata=175, ydata=185, button=1)
+    do_event(tool, 'onmove', xdata=185, ydata=195, button=1)
+    do_event(tool, 'release', xdata=185, ydata=195, button=1)
+    assert tool.center == (180, 190)
 
 
 def test_ellipse():
@@ -168,7 +152,9 @@ def test_rectangle_handles():
         pass
 
     tool = widgets.RectangleSelector(ax, onselect=onselect,
-                                     maxdist=10, interactive=True)
+                                     maxdist=10, interactive=True,
+                                     marker_props={'markerfacecolor': 'r',
+                                                   'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
 
     assert tool.corners == (
@@ -195,6 +181,12 @@ def test_rectangle_handles():
     do_event(tool, 'onmove', xdata=100, ydata=100)
     do_event(tool, 'release', xdata=100, ydata=100)
     assert tool.extents == (10, 100, 10, 100)
+
+    # Check that marker_props worked.
+    assert mcolors.same_color(
+        tool._corner_handles.artist.get_markerfacecolor(), 'r')
+    assert mcolors.same_color(
+        tool._corner_handles.artist.get_markeredgecolor(), 'b')
 
 
 def check_span(*args, **kwargs):
@@ -262,9 +254,11 @@ def test_CheckButtons():
     check.disconnect(cid)
 
 
-@image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     get_ax()
     plt.subplots_adjust(left=0.3)
     rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])
@@ -274,8 +268,8 @@ def test_check_radio_buttons_image():
                          (False, True, True))
 
 
-@image_comparison(baseline_images=['check_bunch_of_radio_buttons'],
-                  style='mpl20', extensions=['png'], remove_text=True)
+@image_comparison(['check_bunch_of_radio_buttons.png'],
+                  style='mpl20', remove_text=True)
 def test_check_bunch_of_radio_buttons():
     rax = plt.axes([0.05, 0.1, 0.15, 0.7])
     widgets.RadioButtons(rax, ('B1', 'B2', 'B3', 'B4', 'B5', 'B6',
@@ -319,6 +313,17 @@ def test_slider_valmin_valmax():
     assert slider.val == slider.valmax
 
 
+def test_slider_valstep_snapping():
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=11.4, valstep=1)
+    assert slider.val == 11
+
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=11.4, valstep=[0, 1, 5.5, 19.7])
+    assert slider.val == 5.5
+
+
 def test_slider_horizontal_vertical():
     fig, ax = plt.subplots()
     slider = widgets.Slider(ax=ax, label='', valmin=0, valmax=24,
@@ -339,8 +344,40 @@ def test_slider_horizontal_vertical():
     assert_allclose(box.bounds, [0, 0, 1, 10/24])
 
 
+@pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
+def test_range_slider(orientation):
+    if orientation == "vertical":
+        idx = [1, 0, 3, 2]
+    else:
+        idx = [0, 1, 2, 3]
+
+    fig, ax = plt.subplots()
+
+    slider = widgets.RangeSlider(
+        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation,
+        valinit=[0.1, 0.34]
+    )
+    box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
+    assert_allclose(box.get_points().flatten()[idx], [0.1, 0, 0.34, 1])
+
+    # Check initial value is set correctly
+    assert_allclose(slider.val, (0.1, 0.34))
+
+    slider.set_val((0.2, 0.6))
+    assert_allclose(slider.val, (0.2, 0.6))
+    box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
+    assert_allclose(box.get_points().flatten()[idx], [0.2, 0, 0.6, 1])
+
+    slider.set_val((0.2, 0.1))
+    assert_allclose(slider.val, (0.1, 0.2))
+
+    slider.set_val((-1, 10))
+    assert_allclose(slider.val, (0, 1))
+
+
 def check_polygon_selector(event_sequence, expected_result, selections_count):
-    """Helper function to test Polygon Selector
+    """
+    Helper function to test Polygon Selector.
 
     Parameters
     ----------
@@ -473,3 +510,57 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
     check_polygon_selector(event_sequence, expected_result, 1)
+
+
+@pytest.mark.parametrize(
+    "horizOn, vertOn",
+    [(True, True), (True, False), (False, True)],
+)
+def test_MultiCursor(horizOn, vertOn):
+    fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+
+    # useblit=false to avoid having to draw the figure to cache the renderer
+    multi = widgets.MultiCursor(
+        fig.canvas, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+    )
+
+    # Only two of the axes should have a line drawn on them.
+    if vertOn:
+        assert len(multi.vlines) == 2
+    if horizOn:
+        assert len(multi.hlines) == 2
+
+    # mock a motion_notify_event
+    # Can't use `do_event` as that helper requires the widget
+    # to have a single .ax attribute.
+    event = mock_event(ax1, xdata=.5, ydata=.25)
+    multi.onmove(event)
+
+    # the lines in the first two ax should both move
+    for l in multi.vlines:
+        assert l.get_xdata() == (.5, .5)
+    for l in multi.hlines:
+        assert l.get_ydata() == (.25, .25)
+
+    # test a move event in an axes not part of the MultiCursor
+    # the lines in ax1 and ax2 should not have moved.
+    event = mock_event(ax3, xdata=.75, ydata=.75)
+    multi.onmove(event)
+    for l in multi.vlines:
+        assert l.get_xdata() == (.5, .5)
+    for l in multi.hlines:
+        assert l.get_ydata() == (.25, .25)
+
+
+@check_figures_equal()
+def test_rect_visibility(fig_test, fig_ref):
+    # Check that requesting an invisible selector makes it invisible
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    def onselect(verts):
+        pass
+
+    tool = widgets.RectangleSelector(ax_test, onselect,
+                                     rectprops={'visible': False})
+    tool.extents = (0.2, 0.8, 0.3, 0.7)

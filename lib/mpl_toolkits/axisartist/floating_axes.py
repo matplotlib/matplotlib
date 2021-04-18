@@ -2,19 +2,26 @@
 An experimental support for curvilinear grid.
 """
 
-import functools
-
 # TODO :
 # see if tick_iterator method can be simplified by reusing the parent method.
 
+import functools
+
 import numpy as np
 
-from matplotlib.transforms import IdentityTransform
-from . import grid_helper_curvelinear
+import matplotlib.patches as mpatches
+from matplotlib.path import Path
+import matplotlib.axes as maxes
+
+from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
+
+from . import axislines, grid_helper_curvelinear
 from .axis_artist import AxisArtist
+from .grid_finder import ExtremeFinderSimple
 
 
-class FloatingAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
+class FloatingAxisArtistHelper(
+        grid_helper_curvelinear.FloatingAxisArtistHelper):
     pass
 
 
@@ -25,8 +32,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         nth_coord = along which coordinate value varies.
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
-
-        value, nth_coord = grid_helper.get_data_boundary(side)  # return v= 0 , nth=1, extremes of the other coordinate.
+        value, nth_coord = grid_helper.get_data_boundary(side)
         super().__init__(grid_helper, nth_coord, value, axis_direction=side)
         if nth_coord_ticks is None:
             nth_coord_ticks = nth_coord
@@ -63,26 +69,19 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx0 = lon_levs
             dx = 0.001
 
-        _extremes = self.grid_helper._extremes
-        xmin, xmax = sorted(_extremes[:2])
-        ymin, ymax = sorted(_extremes[2:])
-        if self.nth_coord == 0:
-            mask = (ymin <= yy0) & (yy0 <= ymax)
-            yy0 = yy0[mask]
-        elif self.nth_coord == 1:
-            mask = (xmin <= xx0) & (xx0 <= xmax)
-            xx0 = xx0[mask]
+        extremes = self.grid_helper._extremes
+        xmin, xmax = sorted(extremes[:2])
+        ymin, ymax = sorted(extremes[2:])
 
         def transform_xy(x, y):
             x1, y1 = grid_finder.transform_xy(x, y)
-            x2y2 = axes.transData.transform(np.array([x1, y1]).transpose())
-            x2, y2 = x2y2.transpose()
+            x2, y2 = axes.transData.transform(np.array([x1, y1]).T).T
             return x2, y2
 
-        # find angles
         if self.nth_coord == 0:
+            mask = (ymin <= yy0) & (yy0 <= ymax)
+            yy0 = yy0[mask]
             xx0 = np.full_like(yy0, self.value)
-
             xx1, yy1 = transform_xy(xx0, yy0)
 
             xx00 = xx0.astype(float, copy=True)
@@ -99,8 +98,9 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
+            mask = (xmin <= xx0) & (xx0 <= xmax)
+            xx0 = xx0[mask]
             yy0 = np.full_like(xx0, self.value)
-
             xx1, yy1 = transform_xy(xx0, yy0)
 
             yy00 = yy0.astype(float, copy=True)
@@ -117,15 +117,14 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             labels = [l for l, m in zip(labels, mask) if m]
 
         def f1():
-            dd = np.arctan2(yy1b-yy1a, xx1b-xx1a)  # angle normal
-            dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a)  # angle tangent
-            mm = ((yy1b-yy1a)==0.) & ((xx1b-xx1a)==0.)  # mask where dd1 is not defined
+            dd = np.arctan2(yy1b - yy1a, xx1b - xx1a)  # angle normal
+            dd2 = np.arctan2(yy2b - yy2a, xx2b - xx2a)  # angle tangent
+            mm = (yy1b - yy1a == 0) & (xx1b - xx1a == 0)  # mask not defined dd
             dd[mm] = dd2[mm] + np.pi / 2
 
-            trans_tick = self.get_tick_transform(axes)
-            tr2ax = trans_tick + axes.transAxes.inverted()
+            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
-                c2 = tr2ax.transform_point((x, y))
+                c2 = tick_to_axes.transform((x, y))
                 delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])
@@ -134,33 +133,31 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         return f1(), iter([])
 
     def get_line(self, axes):
-
         self.update_lim(axes)
-        from matplotlib.path import Path
         k, v = dict(left=("lon_lines0", 0),
                     right=("lon_lines0", 1),
                     bottom=("lat_lines0", 0),
                     top=("lat_lines0", 1))[self._side]
-
         xx, yy = self.grid_info[k][v]
         return Path(np.column_stack([xx, yy]))
 
 
-from .grid_finder import ExtremeFinderSimple
-
-
 class ExtremeFinderFixed(ExtremeFinderSimple):
+    # docstring inherited
+
     def __init__(self, extremes):
+        """
+        This subclass always returns the same bounding box.
+
+        Parameters
+        ----------
+        extremes : (float, float, float, float)
+            The bounding box that this helper always returns.
+        """
         self._extremes = extremes
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
-        """
-        get extreme values.
-
-        x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of division in each axis
-        """
-        #lon_min, lon_max, lat_min, lat_max = self._extremes
+        # docstring inherited
         return self._extremes
 
 
@@ -183,7 +180,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
     def get_data_boundary(self, side):
         """
-        return v= 0 , nth=1
+        Return v=0, nth=1.
         """
         lon1, lon2, lat1, lat2 = self._extremes
         return dict(left=(lon1, 0),
@@ -244,9 +241,9 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         lon_min, lon_max = sorted(extremes[:2])
         lat_min, lat_max = sorted(extremes[2:])
         lon_levs, lon_n, lon_factor = \
-                  grid_finder.grid_locator1(lon_min, lon_max)
+            grid_finder.grid_locator1(lon_min, lon_max)
         lat_levs, lat_n, lat_factor = \
-                  grid_finder.grid_locator2(lat_min, lat_max)
+            grid_finder.grid_locator2(lat_min, lat_max)
         grid_info["extremes"] = lon_min, lon_max, lat_min, lat_max  # extremes
 
         grid_info["lon_info"] = lon_levs, lon_n, lon_factor
@@ -269,20 +266,17 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         else:
             lat_values = np.asarray(lat_levs[:lat_n]/lat_factor)
 
-        lon_values0 = lon_values[(lon_min<lon_values) & (lon_values<lon_max)]
-        lat_values0 = lat_values[(lat_min<lat_values) & (lat_values<lat_max)]
-        lon_lines, lat_lines = grid_finder._get_raw_grid_lines(lon_values0,
-                                                               lat_values0,
-                                                               lon_min, lon_max,
-                                                               lat_min, lat_max)
+        lon_lines, lat_lines = grid_finder._get_raw_grid_lines(
+            lon_values[(lon_min < lon_values) & (lon_values < lon_max)],
+            lat_values[(lat_min < lat_values) & (lat_values < lat_max)],
+            lon_min, lon_max, lat_min, lat_max)
 
         grid_info["lon_lines"] = lon_lines
         grid_info["lat_lines"] = lat_lines
 
-        lon_lines, lat_lines = grid_finder._get_raw_grid_lines(extremes[:2],
-                                                               extremes[2:],
-                                                               *extremes)
-        # lon_min, lon_max, lat_min, lat_max)
+        lon_lines, lat_lines = grid_finder._get_raw_grid_lines(
+            # lon_min, lon_max, lat_min, lat_max)
+            extremes[:2], extremes[2:], *extremes)
 
         grid_info["lon_lines0"] = lon_lines
         grid_info["lat_lines0"] = lat_lines
@@ -290,16 +284,14 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
         if axis in ["both", "x"]:
-            for gl in self.grid_info["lon_lines"]:
-                grid_lines.extend([gl])
+            grid_lines.extend(self.grid_info["lon_lines"])
         if axis in ["both", "y"]:
-            for gl in self.grid_info["lat_lines"]:
-                grid_lines.extend([gl])
+            grid_lines.extend(self.grid_info["lat_lines"])
         return grid_lines
 
     def get_boundary(self):
         """
-        return Nx2 array of x,y coordinate of the boundary
+        Return (N, 2) array of (x, y) coordinate of the boundary.
         """
         x0, x1, y0, y1 = self._extremes
         tr = self._aux_trans
@@ -318,7 +310,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         return t
 
 
-class FloatingAxesBase(object):
+class FloatingAxesBase:
 
     def __init__(self, *args, **kwargs):
         grid_helper = kwargs.get("grid_helper", None)
@@ -333,18 +325,7 @@ class FloatingAxesBase(object):
         self.adjust_axes_lim()
 
     def _gen_axes_patch(self):
-        """
-        Returns the patch used to draw the background of the axes.  It
-        is also used as the clipping path for any data elements on the
-        axes.
-
-        In the standard axes, this is a rectangle, but in other
-        projections it may not be.
-
-        .. note::
-            Intended to be overridden by new projection types.
-        """
-        import matplotlib.patches as mpatches
+        # docstring inherited
         grid_helper = self.get_grid_helper()
         t = grid_helper.get_boundary()
         return mpatches.Polygon(t)
@@ -386,11 +367,6 @@ def floatingaxes_class_factory(axes_class):
                 {'_axes_class_floating': axes_class})
 
 
-from .axislines import Axes
-from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
-
-FloatingAxes = floatingaxes_class_factory(host_axes_class_factory(Axes))
-
-
-import matplotlib.axes as maxes
+FloatingAxes = floatingaxes_class_factory(
+    host_axes_class_factory(axislines.Axes))
 FloatingSubplot = maxes.subplot_class_factory(FloatingAxes)

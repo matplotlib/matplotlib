@@ -1,51 +1,46 @@
 import io
-import os
 from pathlib import Path
 import re
 import tempfile
-import warnings
 
 import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook, patheffects
-from matplotlib.testing.decorators import image_comparison
-from matplotlib.testing.determinism import (_determinism_source_date_epoch,
-                                            _determinism_check)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_ghostscript = pytest.mark.skipif(
-        "eps" not in mpl.testing.compare.converter,
-        reason="This test needs a ghostscript installation")
-    needs_usetex = pytest.mark.skipif(
-        not mpl.checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_ghostscript = pytest.mark.skipif(
+    "eps" not in mpl.testing.compare.converter,
+    reason="This test needs a ghostscript installation")
+needs_usetex = pytest.mark.skipif(
+    not mpl.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
 @pytest.mark.flaky(reruns=3)
+@pytest.mark.parametrize('orientation', ['portrait', 'landscape'])
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
-    pytest.param('ps', False, {'ps.usedistiller': 'ghostscript'},
-                 marks=needs_ghostscript),
-    pytest.param('ps', False, {'text.usetex': True},
-                 marks=[needs_ghostscript, needs_usetex]),
+    ('ps', False, {'ps.usedistiller': 'ghostscript'}),
+    ('ps', False, {'ps.usedistiller': 'xpdf'}),
+    ('ps', False, {'text.usetex': True}),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
-    pytest.param('eps', False, {'text.usetex': True},
-                 marks=[needs_ghostscript, needs_usetex]),
+    ('eps', False, {'text.usetex': True}),
 ], ids=[
     'ps',
-    'ps with distiller',
+    'ps with distiller=ghostscript',
+    'ps with distiller=xpdf',
     'ps with usetex',
     'eps',
     'eps afm',
     'eps with usetex'
 ])
-def test_savefig_to_stringio(format, use_log, rcParams):
+def test_savefig_to_stringio(format, use_log, rcParams, orientation):
     mpl.rcParams.update(rcParams)
 
     fig, ax = plt.subplots()
@@ -56,28 +51,42 @@ def test_savefig_to_stringio(format, use_log, rcParams):
             ax.set_yscale('log')
 
         ax.plot([1, 2], [1, 2])
-        ax.set_title("Déjà vu")
-        fig.savefig(s_buf, format=format)
-        fig.savefig(b_buf, format=format)
+        title = "Déjà vu"
+        if not mpl.rcParams["text.usetex"]:
+            title += " \N{MINUS SIGN}\N{EURO SIGN}"
+        ax.set_title(title)
+        allowable_exceptions = []
+        if rcParams.get("ps.usedistiller"):
+            allowable_exceptions.append(mpl.ExecutableNotFoundError)
+        if rcParams.get("text.usetex"):
+            allowable_exceptions.append(RuntimeError)
+        if rcParams.get("ps.useafm"):
+            allowable_exceptions.append(MatplotlibDeprecationWarning)
+        try:
+            fig.savefig(s_buf, format=format, orientation=orientation)
+            fig.savefig(b_buf, format=format, orientation=orientation)
+        except tuple(allowable_exceptions) as exc:
+            pytest.skip(str(exc))
 
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
 
-        # Remove comments from the output.  This includes things that could
-        # change from run to run, such as the time.
-        s_val, b_val = [re.sub(b'%%.*?\n', b'', x) for x in [s_val, b_val]]
+        # Strip out CreationDate: ghostscript and cairo don't obey
+        # SOURCE_DATE_EPOCH, and that environment variable is already tested in
+        # test_determinism.
+        s_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", s_val)
+        b_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", b_val)
 
         assert s_val == b_val.replace(b'\r\n', b'\n')
 
 
 def test_patheffects():
-    with mpl.rc_context():
-        mpl.rcParams['path.effects'] = [
-            patheffects.withStroke(linewidth=4, foreground='w')]
-        fig, ax = plt.subplots()
-        ax.plot([1, 2, 3])
-        with io.BytesIO() as ps:
-            fig.savefig(ps, format='ps')
+    mpl.rcParams['path.effects'] = [
+        patheffects.withStroke(linewidth=4, foreground='w')]
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3])
+    with io.BytesIO() as ps:
+        fig.savefig(ps, format='ps')
 
 
 @needs_usetex
@@ -86,43 +95,20 @@ def test_tilde_in_tempfilename(tmpdir):
     # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP or TEMP on windows
     # when the username is very long and windows uses a short name) breaks
     # latex before https://github.com/matplotlib/matplotlib/pull/5928
-    base_tempdir = Path(str(tmpdir), "short-1")
+    base_tempdir = Path(tmpdir, "short-1")
     base_tempdir.mkdir()
     # Change the path for new tempdirs, which is used internally by the ps
     # backend to write a file.
     with cbook._setattr_cm(tempfile, tempdir=str(base_tempdir)):
         # usetex results in the latex call, which does not like the ~
-        plt.rc('text', usetex=True)
+        mpl.rcParams['text.usetex'] = True
         plt.plot([1, 2, 3, 4])
         plt.xlabel(r'\textbf{time} (s)')
-        output_eps = os.path.join(str(base_tempdir), 'tex_demo.eps')
         # use the PS backend to write the file...
-        plt.savefig(output_eps, format="ps")
+        plt.savefig(base_tempdir / 'tex_demo.eps', format="ps")
 
 
-def test_source_date_epoch():
-    """Test SOURCE_DATE_EPOCH support for PS output"""
-    # SOURCE_DATE_EPOCH support is not tested with text.usetex,
-    # because the produced timestamp comes from ghostscript:
-    # %%CreationDate: D:20000101000000Z00\'00\', and this could change
-    # with another ghostscript version.
-    _determinism_source_date_epoch(
-        "ps", b"%%CreationDate: Sat Jan 01 00:00:00 2000")
-
-
-def test_determinism_all():
-    """Test for reproducible PS output"""
-    _determinism_check(format="ps")
-
-
-@needs_usetex
-@needs_ghostscript
-def test_determinism_all_tex():
-    """Test for reproducible PS/tex output"""
-    _determinism_check(format="ps", usetex=True)
-
-
-@image_comparison(baseline_images=["empty"], extensions=["eps"])
+@image_comparison(["empty.eps"])
 def test_transparency():
     fig, ax = plt.subplots()
     ax.set_axis_off()
@@ -130,14 +116,71 @@ def test_transparency():
     ax.text(.5, .5, "foo", color="r", alpha=0)
 
 
+def test_bbox():
+    fig, ax = plt.subplots()
+    with io.BytesIO() as buf:
+        fig.savefig(buf, format='eps')
+        buf = buf.getvalue()
+
+    bb = re.search(b'^%%BoundingBox: (.+) (.+) (.+) (.+)$', buf, re.MULTILINE)
+    assert bb
+    hibb = re.search(b'^%%HiResBoundingBox: (.+) (.+) (.+) (.+)$', buf,
+                     re.MULTILINE)
+    assert hibb
+
+    for i in range(1, 5):
+        # BoundingBox must use integers, and be ceil/floor of the hi res.
+        assert b'.' not in bb.group(i)
+        assert int(bb.group(i)) == pytest.approx(float(hibb.group(i)), 1)
+
+
 @needs_usetex
-def test_failing_latex(tmpdir):
+def test_failing_latex():
     """Test failing latex subprocess call"""
-    path = str(tmpdir.join("tmpoutput.ps"))
-
     mpl.rcParams['text.usetex'] = True
-
     # This fails with "Double subscript"
     plt.xlabel("$22_2_2$")
     with pytest.raises(RuntimeError):
-        plt.savefig(path)
+        plt.savefig(io.BytesIO(), format="ps")
+
+
+@needs_usetex
+def test_partial_usetex(caplog):
+    caplog.set_level("WARNING")
+    plt.figtext(.5, .5, "foo", usetex=True)
+    plt.savefig(io.BytesIO(), format="ps")
+    assert caplog.records and all("as if usetex=False" in record.getMessage()
+                                  for record in caplog.records)
+
+
+@image_comparison(["useafm.eps"])
+def test_useafm():
+    mpl.rcParams["ps.useafm"] = True
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+    ax.axhline(.5)
+    ax.text(.5, .5, "qk")
+
+
+@image_comparison(["type3.eps"])
+def test_type3_font():
+    plt.figtext(.5, .5, "I/J")
+
+
+@check_figures_equal(extensions=["eps"])
+def test_text_clip(fig_test, fig_ref):
+    ax = fig_test.add_subplot()
+    # Fully clipped-out text should not appear.
+    ax.text(0, 0, "hello", transform=fig_test.transFigure, clip_on=True)
+    fig_ref.add_subplot()
+
+
+@needs_ghostscript
+def test_d_glyph(tmp_path):
+    # Ensure that we don't have a procedure defined as /d, which would be
+    # overwritten by the glyph definition for "d".
+    fig = plt.figure()
+    fig.text(.5, .5, "def")
+    out = tmp_path / "test.eps"
+    fig.savefig(out)
+    mpl.testing.compare.convert(out, cache=False)  # Should not raise.

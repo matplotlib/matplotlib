@@ -56,7 +56,7 @@ mathext_demos = {
 
 
 def doall():
-    # Colors used in mpl online documentation.
+    # Colors used in Matplotlib online documentation.
     mpl_blue_rvb = (191. / 255., 209. / 256., 212. / 255.)
     mpl_orange_rvb = (202. / 255., 121. / 256., 0. / 255.)
     mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)
@@ -72,7 +72,7 @@ def doall():
     plt.gca().set_yticklabels("", visible=False)
 
     # Gap between lines in axes coords
-    line_axesfrac = (1. / (n_lines))
+    line_axesfrac = 1 / n_lines
 
     # Plotting header demonstration formula
     full_demo = mathext_demos[0]
@@ -82,7 +82,7 @@ def doall():
 
     # Plotting features demonstration formulae
     for i_line in range(1, n_lines):
-        baseline = 1 - (i_line) * line_axesfrac
+        baseline = 1 - i_line * line_axesfrac
         baseline_next = baseline - line_axesfrac
         title = mathtext_titles[i_line] + ":"
         fill_color = ['white', mpl_blue_rvb][i_line % 2]

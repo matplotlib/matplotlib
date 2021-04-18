@@ -17,12 +17,11 @@ Credits
 *******
 
 
-Matplotlib was written by John D. Hunter, with contributions from
-an ever-increasing number of users and developers.
-The current co-lead developers are Michael Droettboom
-and Thomas A. Caswell; they are assisted by many
-`active
-<https://www.openhub.net/p/matplotlib/contributors>`_ developers.
+Matplotlib was written by John D. Hunter, with contributions from an
+ever-increasing number of users and developers.  The current lead developer is
+Thomas A. Caswell, who is assisted by many `active developers
+<https://www.openhub.net/p/matplotlib/contributors>`_.
+Please also see our instructions on :doc:`/citing`.
 
 The following is a list of contributors extracted from the
 git revision control history of the project:
@@ -52,10 +51,13 @@ Paul Kienzle,
 John Porter,
 and Jonathon Taylor.
 
+Thanks to Tony Yu for the original logo design.
+
 We also thank all who have reported bugs, commented on
 proposed changes, or otherwise contributed to Matplotlib's
 development and usefulness.
 """
+
 
 def check_duplicates():
     text = subprocess.check_output(['git', 'shortlog', '--summary', '--email'])
@@ -69,7 +71,8 @@ def check_duplicates():
               'more than one name.\nConsider adding them to .mailmap.\n')
         for email, count in email_counter.items():
             if count > 1:
-                print('%s\n%s' % (email, '\n'.join(l for l in lines if email in l)))
+                print('{}\n{}'.format(
+                    email, '\n'.join(l for l in lines if email in l)))
 
 
 def generate_credits():

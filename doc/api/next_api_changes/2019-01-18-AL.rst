@@ -1,6 +1,0 @@
-Deprecations
-````````````
-
-Support for passing (n, 1)-shaped error arrays to errorbar(), which was not
-documented and did not work for ``n = 2``, is deprecated (pass a 1D array
-instead).

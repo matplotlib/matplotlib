@@ -22,7 +22,7 @@ development environment such as :program:`IDLE` which add additional
 complexities. Open up a UNIX shell or a DOS command prompt and run, for
 example::
 
-   python -c "from pylab import *; plot(); show()" --verbose-helpful
+   python -c "from pylab import *; set_loglevel('debug'); plot(); show()"
 
 This will give you additional information about which backends Matplotlib is
 loading, version information, and more. At this point you might want to make
@@ -46,20 +46,6 @@ installation of the package.  In order to fully remove an installed Matplotlib:
 2. Delete any Matplotlib directories or eggs from your :ref:`installation
    directory <locating-matplotlib-install>`.
 
-Linux Notes
-===========
-
-To install Matplotlib at the system-level, we recommend that you use your
-distribution's package manager.  This will guarantee that Matplotlib's
-dependencies will be installed as well.
-
-If, for some reason, you cannot use the package manager, you may use the wheels
-available on PyPI::
-
-   python -mpip install matplotlib
-
-or :ref:`build Matplotlib from source <install-from-git>`.
-
 OSX Notes
 =========
 
@@ -74,25 +60,15 @@ of NumPy, Scipy and Matplotlib means that these packages are difficult to
 upgrade (see `system python packages`_).  For that reason we strongly suggest
 that you install a fresh version of Python and use that as the basis for
 installing libraries such as NumPy and Matplotlib.  One convenient way to
-install Matplotlib with other useful Python software is to use one of the
-excellent Python scientific software collections that are now available:
+install Matplotlib with other useful Python software is to use the Anaconda_
+Python scientific software collection, which includes Python itself and a
+wide range of libraries; if you need a library that is not available from the
+collection, you can install it yourself using standard methods such as *pip*.
+See the Ananconda web page for installation support.
 
 .. _system python packages:
     https://github.com/MacPython/wiki/wiki/Which-Python#system-python-and-extra-python-packages
-
-- Anaconda_ from `Continuum Analytics`_
-- Canopy_ from Enthought_
-
-.. _Canopy: https://www.enthought.com/products/canopy/
 .. _Anaconda: https://www.anaconda.com/
-.. _Enthought: https://www.enthought.com
-.. _Continuum Analytics: https://www.continuum.io
-
-These collections include Python itself and a wide range of libraries; if you
-need a library that is not available from the collection, you can install it
-yourself using standard methods such as *pip*.  Continuum and Enthought offer
-their own installation support for these collections; see the Ananconda and
-Canopy web pages for more information.
 
 Other options for a fresh Python install are the standard installer from
 `python.org <https://www.python.org/downloads/mac-osx/>`_, or installing
@@ -100,7 +76,7 @@ Python using a general OSX package management system such as `homebrew
 <http://brew.sh>`_ or `macports <https://www.macports.org>`_.  Power users on
 OSX will likely want one of homebrew or macports on their system to install
 open source software packages, but it is perfectly possible to use these
-systems with another source for your Python binary, such as Anaconda, Canopy
+systems with another source for your Python binary, such as Anaconda
 or Python.org Python.
 
 .. _install_osx_binaries:
@@ -115,7 +91,7 @@ the form of wheels.
 pip is installed by default with python.org and Homebrew Python, but needs to
 be manually installed on Macports with ::
 
-   sudo port install py36-pip
+   sudo port install py38-pip
 
 Once pip is installed, you can install Matplotlib and all its dependencies with
 from the Terminal.app command line::
@@ -126,15 +102,6 @@ from the Terminal.app command line::
 
 You might also want to install IPython or the Jupyter notebook (``python3 -mpip
 install ipython notebook``).
-
-pip problems
-^^^^^^^^^^^^
-
-If you get errors with pip trying to run a compiler like ``gcc`` or ``clang``,
-then the first thing to try is to `install xcode
-<https://guide.macports.org/chunked/installing.html#installing.xcode>`_ and
-retry the install.  If that does not work, then check
-:ref:`reporting-problems`.
 
 Checking your installation
 --------------------------
@@ -168,60 +135,3 @@ Python.org Python, or check your homebrew or macports setup.  Remember that
 the disk image installer only works for Python.org Python, and will not get
 picked up by other Pythons.  If all these fail, please :ref:`let us know
 <reporting-problems>`.
-
-.. _install-from-git:
-
-Install from source
-===================
-
-Clone the main source using one of::
-
-   git clone git@github.com:matplotlib/matplotlib.git
-
-or::
-
-   git clone git://github.com/matplotlib/matplotlib.git
-
-and build and install as usual with::
-
-   cd matplotlib
-   python -mpip install .
-
-.. note::
-
-   If you are on Debian/Ubuntu, you can get all the dependencies required to
-   build Matplotlib with::
-
-      sudo apt-get build-dep python-matplotlib
-
-   If you are on Fedora/RedHat, you can get all the dependencies required to
-   build Matplotlib by first installing ``yum-builddep`` and then running::
-
-      su -c 'yum-builddep python-matplotlib'
-
-   This does not build Matplotlib, but it does get all of the build
-   dependencies, which will make building from source easier.
-
-If you want to be able to follow the development branch as it changes
-just replace the last step with::
-
-   python -mpip install -e .
-
-This creates links and installs the command line script in the appropriate
-places.
-
-.. note::
-   OSX users please see the :ref:`build_osx` guide.
-
-   Windows users please see the :ref:`build_windows` guide.
-
-Then, if you want to update your Matplotlib at any time, just do::
-
-   git pull
-
-When you run ``git pull``, if the output shows that only Python files have
-been updated, you are all set. If C files have changed, you need to run ``pip
-install -e .`` again to compile them.
-
-There is more information on :ref:`using git <using-git>` in the developer
-docs.

@@ -7,11 +7,11 @@ from types import SimpleNamespace
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
 from matplotlib import docstring
-from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ UP = 1
 DOWN = 3
 
 
-class Sankey(object):
+class Sankey:
     """
     Sankey diagram.
 
@@ -45,49 +45,8 @@ class Sankey(object):
         """
         Create a new Sankey instance.
 
-        Optional keyword arguments:
-
-          ===============   ===================================================
-          Field             Description
-          ===============   ===================================================
-          *ax*              axes onto which the data should be plotted
-                            If *ax* isn't provided, new axes will be created.
-          *scale*           scaling factor for the flows
-                            *scale* sizes the width of the paths in order to
-                            maintain proper layout.  The same scale is applied
-                            to all subdiagrams.  The value should be chosen
-                            such that the product of the scale and the sum of
-                            the inputs is approximately 1.0 (and the product of
-                            the scale and the sum of the outputs is
-                            approximately -1.0).
-          *unit*            string representing the physical unit associated
-                            with the flow quantities
-                            If *unit* is None, then none of the quantities are
-                            labeled.
-          *format*          a Python number formatting string to be used in
-                            labeling the flow as a quantity (i.e., a number
-                            times a unit, where the unit is given)
-          *gap*             space between paths that break in/break away
-                            to/from the top or bottom
-          *radius*          inner radius of the vertical paths
-          *shoulder*        size of the shoulders of output arrowS
-          *offset*          text offset (from the dip or tip of the arrow)
-          *head_angle*      angle of the arrow heads (and negative of the angle
-                            of the tails) [deg]
-          *margin*          minimum space between Sankey outlines and the edge
-                            of the plot area
-          *tolerance*       acceptable maximum of the magnitude of the sum of
-                            flows
-                            The magnitude of the sum of connected flows cannot
-                            be greater than *tolerance*.
-          ===============   ===================================================
-
-        The optional arguments listed above are applied to all subdiagrams so
+        The optional arguments listed below are applied to all subdiagrams so
         that there is consistent alignment and formatting.
-
-        If :class:`Sankey` is instantiated with any keyword arguments other
-        than those explicitly listed above (``**kwargs``), they will be passed
-        to :meth:`add`, which will create the first subdiagram.
 
         In order to draw a complex Sankey diagram, create an instance of
         :class:`Sankey` by calling it without any kwargs::
@@ -109,6 +68,50 @@ class Sankey(object):
 
             Sankey().add().add...  .add().finish()
 
+        Other Parameters
+        ----------------
+        ax : `~.axes.Axes`
+            Axes onto which the data should be plotted.  If *ax* isn't
+            provided, new Axes will be created.
+        scale : float
+            Scaling factor for the flows.  *scale* sizes the width of the paths
+            in order to maintain proper layout.  The same scale is applied to
+            all subdiagrams.  The value should be chosen such that the product
+            of the scale and the sum of the inputs is approximately 1.0 (and
+            the product of the scale and the sum of the outputs is
+            approximately -1.0).
+        unit : str
+            The physical unit associated with the flow quantities.  If *unit*
+            is None, then none of the quantities are labeled.
+        format : str or callable
+            A Python number formatting string or callable used to label the
+            flows with their quantities (i.e., a number times a unit, where the
+            unit is given). If a format string is given, the label will be
+            ``format % quantity``. If a callable is given, it will be called
+            with ``quantity`` as an argument.
+        gap : float
+            Space between paths that break in/break away to/from the top or
+            bottom.
+        radius : float
+            Inner radius of the vertical paths.
+        shoulder : float
+            Size of the shoulders of output arrows.
+        offset : float
+            Text offset (from the dip or tip of the arrow).
+        head_angle : float
+            Angle, in degrees, of the arrow heads (and negative of the angle of
+            the tails).
+        margin : float
+            Minimum space between Sankey outlines and the edge of the plot
+            area.
+        tolerance : float
+            Acceptable maximum of the magnitude of the sum of flows.  The
+            magnitude of the sum of connected flows cannot be greater than
+            *tolerance*.
+        **kwargs
+            Any additional keyword arguments will be passed to :meth:`add`,
+            which will create the first subdiagram.
+
         See Also
         --------
         Sankey.add
@@ -116,7 +119,6 @@ class Sankey(object):
 
         Examples
         --------
-
         .. plot:: gallery/specialty_plots/sankey_basics.py
         """
         # Check the arguments.
@@ -169,15 +171,17 @@ class Sankey(object):
         Return the codes and vertices for a rotated, scaled, and translated
         90 degree arc.
 
-        Optional keyword arguments:
-
-          ===============   ==========================================
-          Keyword           Description
-          ===============   ==========================================
-          *quadrant*        uses 0-based indexing (0, 1, 2, or 3)
-          *cw*              if True, clockwise
-          *center*          (x, y) tuple of the arc's center
-          ===============   ==========================================
+        Other Parameters
+        ----------------
+        quadrant : {0, 1, 2, 3}, default: 0
+            Uses 0-based indexing (0, 1, 2, or 3).
+        cw : bool, default: True
+            If True, the arc vertices are produced clockwise; counter-clockwise
+            otherwise.
+        radius : float, default: 1
+            The radius of the arc.
+        center : (float, float), default: (0, 0)
+            (x, y) tuple of the arc's center.
         """
         # Note:  It would be possible to use matplotlib's transforms to rotate,
         # scale, and translate the arc, but since the angles are discrete,
@@ -190,7 +194,7 @@ class Sankey(object):
                      Path.CURVE4,
                      Path.CURVE4]
         # Vertices of a cubic Bezier curve approximating a 90 deg arc
-        # These can be determined by Path.arc(0,90).
+        # These can be determined by Path.arc(0, 90).
         ARC_VERTICES = np.array([[1.00000000e+00, 0.00000000e+00],
                                  [1.00000000e+00, 2.65114773e-01],
                                  [8.94571235e-01, 5.19642327e-01],
@@ -427,7 +431,7 @@ class Sankey(object):
            properties, listed below.  For example, one may want to use
            ``fill=False`` or ``label="A legend entry"``.
 
-        %(Patch)s
+        %(Patch_kwdoc)s
 
         See Also
         --------
@@ -464,7 +468,7 @@ class Sankey(object):
             raise ValueError(
                 "'trunklength' is negative, which is not allowed because it "
                 "would cause poor layout")
-        if np.abs(np.sum(flows)) > self.tolerance:
+        if abs(np.sum(flows)) > self.tolerance:
             _log.info("The sum of the flows is nonzero (%f; patchlabel=%r); "
                       "is the system not at steady state?",
                       np.sum(flows), patchlabel)
@@ -719,7 +723,7 @@ class Sankey(object):
             vertices = translate(rotate(vertices))
             kwds = dict(s=patchlabel, ha='center', va='center')
             text = self.ax.text(*offset, **kwds)
-        if rcParams['_internal.classic_mode']:
+        if mpl.rcParams['_internal.classic_mode']:
             fc = kwargs.pop('fc', kwargs.pop('facecolor', '#bfd1d4'))
             lw = kwargs.pop('lw', kwargs.pop('linewidth', 0.5))
         else:
@@ -737,7 +741,13 @@ class Sankey(object):
             if label is None or angle is None:
                 label = ''
             elif self.unit is not None:
-                quantity = self.format % abs(number) + self.unit
+                if isinstance(self.format, str):
+                    quantity = self.format % abs(number) + self.unit
+                elif callable(self.format):
+                    quantity = self.format(number)
+                else:
+                    raise TypeError(
+                        'format must be callable or a format string')
                 if label != '':
                     label += "\n"
                 label += quantity

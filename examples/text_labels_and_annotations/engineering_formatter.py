@@ -1,10 +1,10 @@
-'''
+"""
 =========================================
 Labeling ticks using engineering notation
 =========================================
 
 Use of the engineering Formatter.
-'''
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np

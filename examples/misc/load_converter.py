@@ -8,7 +8,7 @@ extract dates from a CSV file.
 """
 
 import dateutil.parser
-from matplotlib import cbook, dates
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 import numpy as np
 

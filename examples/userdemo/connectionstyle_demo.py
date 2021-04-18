@@ -1,7 +1,7 @@
 """
-====================
-Connectionstyle Demo
-====================
+=================================
+Connection styles for annotations
+=================================
 
 When creating an annotation using `~.Axes.annotate`, the arrow shape can be
 controlled via the *connectionstyle* parameter of *arrowprops*. For further
@@ -54,14 +54,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.annotate
-matplotlib.patches.FancyArrowPatch
+#    - `matplotlib.axes.Axes.annotate`
+#    - `matplotlib.patches.FancyArrowPatch`

@@ -3,7 +3,7 @@
 ========================================
 
 :meth:`~.Axes.imshow` allows you to render an image (either a 2D array
-which will be color-mapped (based on *norm* and *cmap*) or and 3D RGB(A)
+which will be color-mapped (based on *norm* and *cmap*) or a 3D RGB(A)
 array which will be used as-is) to a rectangular region in dataspace.
 The orientation of the image in the final rendering is controlled by
 the *origin* and *extent* kwargs (and attributes on the resulting
@@ -148,21 +148,15 @@ def generate_imshow_demo_grid(extents, xlim=None, ylim=None):
         for ax, extent in zip(columns[origin], extents):
             plot_imshow_with_labels(ax, data, extent, origin, xlim, ylim)
 
+    columns['label'][0].set_title('extent=')
     for ax, extent in zip(columns['label'], extents):
-        text_kwargs = {'ha': 'right',
-                       'va': 'center',
-                       'xycoords': 'axes fraction',
-                       'xy': (1, .5)}
         if extent is None:
-            ax.annotate('None', **text_kwargs)
-            ax.set_title('extent=')
+            text = 'None'
         else:
             left, right, bottom, top = extent
-            text = ('left: {left:0.1f}\nright: {right:0.1f}\n' +
-                    'bottom: {bottom:0.1f}\ntop: {top:0.1f}\n').format(
-                        left=left, right=right, bottom=bottom, top=top)
-
-            ax.annotate(text, **text_kwargs)
+            text = (f'left: {left:0.1f}\nright: {right:0.1f}\n'
+                    f'bottom: {bottom:0.1f}\ntop: {top:0.1f}\n')
+        ax.text(1., .5, text, transform=ax.transAxes, ha='right', va='center')
         ax.axis('off')
     return columns
 
@@ -172,7 +166,7 @@ def generate_imshow_demo_grid(extents, xlim=None, ylim=None):
 # Default extent
 # --------------
 #
-# First, let's have a look at the default `extent=None`
+# First, let's have a look at the default ``extent=None``
 
 generate_imshow_demo_grid(extents=[None])
 
@@ -240,8 +234,8 @@ set_extent_None_text(columns['lower'][0])
 # Explicit extent and axes limits
 # -------------------------------
 #
-# If we fix the axes limits by explicitly setting `set_xlim` / `set_ylim`, we
-# force a certain size and orientation of the axes.
+# If we fix the axes limits by explicitly setting `~.axes.Axes.set_xlim` /
+# `~.axes.Axes.set_ylim`, we force a certain size and orientation of the axes.
 # This can decouple the 'left-right' and 'top-bottom' sense of the image from
 # the orientation on the screen.
 #
@@ -263,3 +257,5 @@ set_extent_None_text(columns['lower'][0])
 
 generate_imshow_demo_grid(extents=[None] + extents,
                           xlim=(-2, 8), ylim=(-1, 6))
+
+plt.show()

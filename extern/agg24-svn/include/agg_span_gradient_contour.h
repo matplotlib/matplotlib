@@ -2,7 +2,7 @@
 // AGG Contribution Pack - Gradients 1 (AGG CP - Gradients 1)
 // http://milan.marusinec.sk/aggcp
 //
-// For Anti-Grain Geometry - Version 2.4 
+// For Anti-Grain Geometry - Version 2.4
 // http://www.antigrain.org
 //
 // Contribution Created By:
@@ -49,7 +49,7 @@ namespace agg
 		int    m_frame;
 
 		double m_d1;
-		double m_d2; 
+		double m_d2;
 
 	public:
 		gradient_contour() :
@@ -90,7 +90,7 @@ namespace agg
 
 		void   frame(int f ) { m_frame = f; }
 		int    frame() { return m_frame; }
-		
+
 		int calculate(int x, int y, int d) const
 		{
 			if (m_buffer)
@@ -193,7 +193,7 @@ namespace agg
 				   // Setup VG Engine & Render
 					agg::rendering_buffer rb;
 					rb.attach(buffer ,width ,height ,width );
-					
+
 					agg::pixfmt_gray8 pf(rb);
 					agg::renderer_base<agg::pixfmt_gray8> renb(pf );
 
@@ -209,14 +209,14 @@ namespace agg
 					ras.add_path(trans );
 
 				   // II. Distance Transform
-				   // Create Float Buffer + 0 vs infinity (1e20) assignment
+				   // Create Float Buffer + 0 vs. infinity (1e20) assignment
 					float* image = new float[width * height];
 
 					if (image)
 					{
-						for (int y = 0, l = 0; y < height; y++ ) 
+						for (int y = 0, l = 0; y < height; y++ )
 						{
-							for (int x = 0; x < width; x++, l++ ) 
+							for (int x = 0; x < width; x++, l++ )
 							{
 								if (buffer[l ] == 0)
 								{
@@ -227,7 +227,7 @@ namespace agg
 									image[l ] = float(infinity );
 								}
 							}
-													
+
 						}
 
 					   // DT of 2d
@@ -247,9 +247,9 @@ namespace agg
 						if ((spanf) && (spang) && (spanr) && (spann))
 						{
 						   // Transform along columns
-							for (int x = 0; x < width; x++ ) 
+							for (int x = 0; x < width; x++ )
 							{
-								for (int y = 0; y < height; y++ ) 
+								for (int y = 0; y < height; y++ )
 								{
 									spanf[y] = image[y * width + x];
 								}
@@ -257,16 +257,16 @@ namespace agg
 							   // DT of 1d
 								dt(spanf ,spang ,spanr ,spann ,height );
 
-								for (int y = 0; y < height; y++ ) 
+								for (int y = 0; y < height; y++ )
 								{
 									image[y * width + x] = spanr[y];
 								}
 							}
 
 						   // Transform along rows
-							for (int y = 0; y < height; y++ ) 
+							for (int y = 0; y < height; y++ )
 							{
-								for (int x = 0; x < width; x++ ) 
+								for (int x = 0; x < width; x++ )
 								{
 									spanf[x] = image[y * width + x];
 								}
@@ -274,7 +274,7 @@ namespace agg
 							   // DT of 1d
 								dt(spanf ,spang ,spanr ,spann ,width );
 
-								for (int x = 0; x < width; x++ ) 
+								for (int x = 0; x < width; x++ )
 								{
 									image[y * width + x] = spanr[x];
 								}
@@ -284,9 +284,9 @@ namespace agg
 							float min = sqrt(image[0] );
 							float max = min;
 
-							for (int y = 0, l = 0; y < height; y++ ) 
+							for (int y = 0, l = 0; y < height; y++ )
 							{
-								for (int x = 0; x < width; x++, l++ ) 
+								for (int x = 0; x < width; x++, l++ )
 								{
 									image[l] = sqrt(image[l]);
 
@@ -312,9 +312,9 @@ namespace agg
 							{
 								float scale = 255 / (max - min );
 
-								for (int y = 0, l = 0; y < height; y++ ) 
+								for (int y = 0, l = 0; y < height; y++ )
 								{
-									for (int x = 0; x < width; x++ ,l++ ) 
+									for (int x = 0; x < width; x++ ,l++ )
 									{
 										buffer[l] = int8u(int((image[l] - min ) * scale ));
 									}
@@ -335,7 +335,7 @@ namespace agg
 							result = m_buffer;
 
 						}
-	
+
 						if (spanf) { delete [] spanf; }
 						if (spang) { delete [] spang; }
 						if (spanr) { delete [] spanr; }

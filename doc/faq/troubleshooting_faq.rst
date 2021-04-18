@@ -84,7 +84,7 @@ There is a good chance your question has already been asked:
 
 - The `mailing list archive <http://matplotlib.1069221.n5.nabble.com/>`_.
 
-- `Github issues <https://github.com/matplotlib/matplotlib/issues>`_.
+- `GitHub issues <https://github.com/matplotlib/matplotlib/issues>`_.
 
 - Stackoverflow questions tagged `matplotlib
   <http://stackoverflow.com/questions/tagged/matplotlib>`_.
@@ -97,11 +97,10 @@ provide the following information in your e-mail to the `mailing list
 
 * Matplotlib version::
 
-     python -c "import matplotlib; print matplotlib.__version__"
+     python -c "import matplotlib; print(matplotlib.__version__)"
 
 * Where you obtained Matplotlib (e.g., your Linux distribution's packages,
-  Github, PyPi, or `Anaconda <https://www.anaconda.com/>`_ or
-  `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
+  GitHub, PyPI, or `Anaconda <https://www.anaconda.com/>`_).
 
 * Any customizations to your ``matplotlibrc`` file (see
   :doc:`/tutorials/introductory/customizing`).
@@ -162,8 +161,8 @@ mode::
     rm -rf /path/to/site-packages/matplotlib*
     git clean -xdf
     git pull
-    python -mpip install -v . > build.out
-    python examples/pylab_examples/simple_plot.py --verbose-debug > run.out
+    python -m pip install -v . > build.out
+    python -c "from pylab import *; set_loglevel('debug'); plot(); show()" > run.out
 
 and post :file:`build.out` and :file:`run.out` to the `matplotlib-devel
 <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_

@@ -1,5 +1,5 @@
 """
-This module is to support *bbox_inches* option in savefig command.
+Helper module for the *bbox_inches* parameter in `.Figure.savefig`.
 """
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
@@ -15,7 +15,6 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     changes, the scale of the original figure is conserved.  A
     function which restores the original values are returned.
     """
-
     origBbox = fig.bbox
     origBboxInches = fig.bbox_inches
     orig_tight_layout = fig.get_tight_layout()
@@ -23,22 +22,28 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
     fig.set_tight_layout(False)
 
-    asp_list = []
+    old_aspect = []
     locator_list = []
+    sentinel = object()
     for ax in fig.axes:
-        pos = ax.get_position(original=False).frozen()
         locator_list.append(ax.get_axes_locator())
-        asp_list.append(ax.get_aspect())
-
-        def _l(a, r, pos=pos):
-            return pos
-        ax.set_axes_locator(_l)
-        ax.set_aspect("auto")
+        current_pos = ax.get_position(original=False).frozen()
+        ax.set_axes_locator(lambda a, r, _pos=current_pos: _pos)
+        # override the method that enforces the aspect ratio on the Axes
+        if 'apply_aspect' in ax.__dict__:
+            old_aspect.append(ax.apply_aspect)
+        else:
+            old_aspect.append(sentinel)
+        ax.apply_aspect = lambda pos=None: None
 
     def restore_bbox():
-        for ax, asp, loc in zip(fig.axes, asp_list, locator_list):
-            ax.set_aspect(asp)
+        for ax, loc, aspect in zip(fig.axes, locator_list, old_aspect):
             ax.set_axes_locator(loc)
+            if aspect is sentinel:
+                # delete our no-op function which un-hides the original method
+                del ax.apply_aspect
+            else:
+                ax.apply_aspect = aspect
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
@@ -47,12 +52,10 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
         fig.transFigure.invalidate()
         fig.patch.set_bounds(0, 0, 1, 1)
 
-    if fixed_dpi is not None:
-        tr = Affine2D().scale(fixed_dpi)
-        dpi_scale = fixed_dpi / fig.dpi
-    else:
-        tr = Affine2D().scale(fig.dpi)
-        dpi_scale = 1.
+    if fixed_dpi is None:
+        fixed_dpi = fig.dpi
+    tr = Affine2D().scale(fixed_dpi)
+    dpi_scale = fixed_dpi / fig.dpi
 
     _bbox = TransformedBbox(bbox_inches, tr)
 
@@ -73,8 +76,8 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
 def process_figure_for_rasterizing(fig, bbox_inches_restore, fixed_dpi=None):
     """
-    This need to be called when figure dpi changes during the drawing
-    (e.g., rasterizing). It recovers the bbox and re-adjust it with
+    A function that needs to be called when figure dpi changes during the
+    drawing (e.g., rasterizing).  It recovers the bbox and re-adjust it with
     the new dpi.
     """
 

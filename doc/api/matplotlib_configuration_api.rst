@@ -4,32 +4,55 @@
 
 .. py:currentmodule:: matplotlib
 
+Backend management
+==================
+
 .. autofunction:: use
 
 .. autofunction:: get_backend
 
+.. autofunction:: interactive
+
+.. autofunction:: is_interactive
+
+Default values and styling
+==========================
+
 .. py:data:: rcParams
 
-    An instance of :class:`RcParams` for handling default matplotlib values.
+   An instance of `RcParams` for handling default Matplotlib values.
+
+.. autoclass:: RcParams
+   :no-members:
+
+   .. automethod:: find_all
 
 .. autofunction:: rc_context
 
 .. autofunction:: rc
 
-.. autofunction:: rc_file
-
 .. autofunction:: rcdefaults
 
 .. autofunction:: rc_file_defaults
 
-.. autoclass:: RcParams
+.. autofunction:: rc_file
 
 .. autofunction:: rc_params
 
 .. autofunction:: rc_params_from_file
 
+.. autofunction:: get_configdir
+
 .. autofunction:: matplotlib_fname
 
-.. autofunction:: interactive
+.. autofunction:: get_data_path
 
-.. autofunction:: is_interactive
+Logging
+=======
+
+.. autofunction:: set_loglevel
+
+Miscellaneous
+=============
+
+.. autofunction:: get_cachedir

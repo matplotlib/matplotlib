@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-The ``text.TextWithDash`` class and the ``withdash`` keyword argument to
-``text()`` is deprecated.  Consider using ``annotate()`` instead.

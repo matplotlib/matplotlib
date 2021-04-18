@@ -9,11 +9,11 @@ properties for multi-line plots.
 .. note::
 
     More complete documentation of the ``cycler`` API can be found
-    `here <http://matplotlib.org/cycler/>`_.
+    `here <https://matplotlib.org/cycler/>`_.
 
 This example demonstrates two different APIs:
 
-1. Setting the default rc parameter specifying the property cycle.
+1. Setting the rc parameter specifying the default property cycle.
    This affects all subsequent axes (but not axes already created).
 2. Setting the property cycle for a single pair of axes.
 
@@ -35,10 +35,10 @@ print(yy.shape)
 
 ###############################################################################
 # So ``yy[:, i]`` will give you the ``i``-th offset sine curve. Let's set the
-# default prop_cycle using :func:`matplotlib.pyplot.rc`. We'll combine a color
-# cycler and a linestyle cycler by adding (``+``) two ``cycler``'s together.
-# See the bottom of this tutorial for more information about combining
-# different cyclers.
+# default ``prop_cycle`` using :func:`matplotlib.pyplot.rc`.  We'll combine a
+# color cycler and a linestyle cycler by adding (``+``) two ``cycler``'s
+# together.  See the bottom of this tutorial for more information about
+# combining different cyclers.
 default_cycler = (cycler(color=['r', 'g', 'b', 'y']) +
                   cycler(linestyle=['-', '--', ':', '-.']))
 
@@ -48,7 +48,7 @@ plt.rc('axes', prop_cycle=default_cycler)
 ###############################################################################
 # Now we'll generate a figure with two axes, one on top of the other. On the
 # first axis, we'll plot with the default cycler. On the second axis, we'll
-# set the prop_cycler using :func:`matplotlib.axes.Axes.set_prop_cycle`
+# set the ``prop_cycle`` using :func:`matplotlib.axes.Axes.set_prop_cycle`,
 # which will only set the ``prop_cycle`` for this :mod:`matplotlib.axes.Axes`
 # instance. We'll use a second ``cycler`` that combines a color cycler and a
 # linewidth cycler.
@@ -67,16 +67,15 @@ fig.subplots_adjust(hspace=0.3)
 plt.show()
 
 ###############################################################################
-# Setting ``prop_cycler`` in the ``matplotlibrc`` file or style files
-# -------------------------------------------------------------------
+# Setting ``prop_cycle`` in the :file:`matplotlibrc` file or style files
+# ----------------------------------------------------------------------
 #
-# Remember, if you want to set a custom ``prop_cycler`` in your
-# ``.matplotlibrc`` file or a style file (``style.mplstyle``), you can set the
-# ``axes.prop_cycle`` property:
+# Remember, a custom cycler can be set in your :file:`matplotlibrc`
+# file or a style file (:file:`style.mplstyle`) under ``axes.prop_cycle``:
 #
 # .. code-block:: python
 #
-#    axes.prop_cycle    : cycler(color='bgrcmyk')
+#    axes.prop_cycle : cycler(color='bgrcmyk')
 #
 # Cycling through multiple properties
 # -----------------------------------

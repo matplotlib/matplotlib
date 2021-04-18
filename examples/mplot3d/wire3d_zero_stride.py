@@ -1,17 +1,18 @@
-'''
+"""
 ===================================
 3D wireframe plots in one direction
 ===================================
 
 Demonstrates that setting rstride or cstride to 0 causes wires to not be
 generated in the corresponding direction.
-'''
+"""
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 
 
-fig, [ax1, ax2] = plt.subplots(2, 1, figsize=(8, 12), subplot_kw={'projection': '3d'})
+fig, (ax1, ax2) = plt.subplots(
+    2, 1, figsize=(8, 12), subplot_kw={'projection': '3d'})
 
 # Get the test data
 X, Y, Z = axes3d.get_test_data(0.05)

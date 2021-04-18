@@ -14,21 +14,17 @@ y2 = 5*x*x + x
 
 fig, ax = plt.subplots()
 ax.plot(x, y1, x, y2, color='black')
-ax.fill_between(x, y1, y2, where=y2 >y1, facecolor='yellow', alpha=0.5)
-ax.fill_between(x, y1, y2, where=y2 <=y1, facecolor='red', alpha=0.5)
+ax.fill_between(x, y1, y2, where=(y2 > y1), facecolor='yellow', alpha=0.5)
+ax.fill_between(x, y1, y2, where=(y2 <= y1), facecolor='red', alpha=0.5)
 ax.set_title('Fill Between')
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill_between
+#    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`

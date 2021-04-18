@@ -1,20 +1,18 @@
 """
-===========================================
-Blend transparency with color in 2-D images
-===========================================
+==========================================
+Blend transparency with color in 2D images
+==========================================
 
 Blend transparency with color to highlight parts of data with imshow.
 
-A common use for :func:`matplotlib.pyplot.imshow` is to plot a 2-D statistical
-map. While ``imshow`` makes it easy to visualize a 2-D matrix as an image,
-it doesn't easily let you add transparency to the output. For example, one can
-plot a statistic (such as a t-statistic) and color the transparency of
-each pixel according to its p-value. This example demonstrates how you can
-achieve this effect using :class:`matplotlib.colors.Normalize`. Note that it is
-not possible to directly pass alpha values to :func:`matplotlib.pyplot.imshow`.
+A common use for `matplotlib.pyplot.imshow` is to plot a 2D statistical
+map. The function makes it easy to visualize a 2D matrix as an image and add
+transparency to the output. For example, one can plot a statistic (such as a
+t-statistic) and color the transparency of each pixel according to its p-value.
+This example demonstrates how you can achieve this effect.
 
-First we will generate some data, in this case, we'll create two 2-D "blobs"
-in a 2-D grid. One blob will be positive, and the other negative.
+First we will generate some data, in this case, we'll create two 2D "blobs"
+in a 2D grid. One blob will be positive, and the other negative.
 """
 
 # sphinx_gallery_thumbnail_number = 3
@@ -50,14 +48,18 @@ weights = (np.outer(gauss_y_high, gauss_x_high)
 # We'll also create a grey background into which the pixels will fade
 greys = np.full((*weights.shape, 3), 70, dtype=np.uint8)
 
-# First we'll plot these blobs using only ``imshow``.
+# First we'll plot these blobs using ``imshow`` without transparency.
 vmax = np.abs(weights).max()
-vmin = -vmax
-cmap = plt.cm.RdYlBu
+imshow_kwargs = {
+    'vmax': vmax,
+    'vmin': -vmax,
+    'cmap': 'RdYlBu',
+    'extent': (xmin, xmax, ymin, ymax),
+}
 
 fig, ax = plt.subplots()
 ax.imshow(greys)
-ax.imshow(weights, extent=(xmin, xmax, ymin, ymax), cmap=cmap)
+ax.imshow(weights, **imshow_kwargs)
 ax.set_axis_off()
 
 ###############################################################################
@@ -65,27 +67,19 @@ ax.set_axis_off()
 # ========================
 #
 # The simplest way to include transparency when plotting data with
-# :func:`matplotlib.pyplot.imshow` is to convert the 2-D data array to a
-# 3-D image array of rgba values. This can be done with
-# :class:`matplotlib.colors.Normalize`. For example, we'll create a gradient
+# `matplotlib.pyplot.imshow` is to pass an array matching the shape of
+# the data to the ``alpha`` argument. For example, we'll create a gradient
 # moving from left to right below.
 
 # Create an alpha channel of linearly increasing values moving to the right.
 alphas = np.ones(weights.shape)
 alphas[:, 30:] = np.linspace(1, 0, 70)
 
-# Normalize the colors b/w 0 and 1, we'll then pass an MxNx4 array to imshow
-colors = Normalize(vmin, vmax, clip=True)(weights)
-colors = cmap(colors)
-
-# Now set the alpha channel to the one we created above
-colors[..., -1] = alphas
-
 # Create the figure and image
 # Note that the absolute values may be slightly different
 fig, ax = plt.subplots()
 ax.imshow(greys)
-ax.imshow(colors, extent=(xmin, xmax, ymin, ymax))
+ax.imshow(weights, alpha=alphas, **imshow_kwargs)
 ax.set_axis_off()
 
 ###############################################################################
@@ -102,18 +96,11 @@ ax.set_axis_off()
 alphas = Normalize(0, .3, clip=True)(np.abs(weights))
 alphas = np.clip(alphas, .4, 1)  # alpha value clipped at the bottom at .4
 
-# Normalize the colors b/w 0 and 1, we'll then pass an MxNx4 array to imshow
-colors = Normalize(vmin, vmax)(weights)
-colors = cmap(colors)
-
-# Now set the alpha channel to the one we created above
-colors[..., -1] = alphas
-
 # Create the figure and image
 # Note that the absolute values may be slightly different
 fig, ax = plt.subplots()
 ax.imshow(greys)
-ax.imshow(colors, extent=(xmin, xmax, ymin, ymax))
+ax.imshow(weights, alpha=alphas, **imshow_kwargs)
 
 # Add contour lines to further highlight different levels.
 ax.contour(weights[::-1], levels=[-.1, .1], colors='k', linestyles='-')
@@ -126,18 +113,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.colors.Normalize
-matplotlib.axes.Axes.set_axis_off
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.colors.Normalize`
+#    - `matplotlib.axes.Axes.set_axis_off`

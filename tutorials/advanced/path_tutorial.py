@@ -5,13 +5,13 @@ Path Tutorial
 
 Defining paths in your Matplotlib visualization.
 
-The object underlying all of the :mod:`matplotlib.patch` objects is
+The object underlying all of the :mod:`matplotlib.patches` objects is
 the :class:`~matplotlib.path.Path`, which supports the standard set of
 moveto, lineto, curveto commands to draw simple and compound outlines
 consisting of line segments and splines.  The ``Path`` is instantiated
-with a (N,2) array of (x,y) vertices, and a N-length array of path
-codes.  For example to draw the unit rectangle from (0,0) to (1,1), we
-could use this code
+with a (N, 2) array of (x, y) vertices, and a N-length array of path
+codes.  For example to draw the unit rectangle from (0, 0) to (1, 1), we
+could use this code:
 """
 
 import matplotlib.pyplot as plt
@@ -47,16 +47,26 @@ plt.show()
 ###############################################################################
 # The following path codes are recognized
 #
-# ============== =================================  ====================================================================================================================
-# Code           Vertices                           Description
-# ============== =================================  ====================================================================================================================
-# ``STOP``       1 (ignored)                        A marker for the end of the entire path (currently not required and ignored)
-# ``MOVETO``     1                                  Pick up the pen and move to the given vertex.
-# ``LINETO``     1                                  Draw a line from the current position to the given vertex.
-# ``CURVE3``     2 (1 control point, 1 endpoint)    Draw a quadratic Bézier curve from the current position, with the given control point, to the given end point.
-# ``CURVE4``     3 (2 control points, 1 endpoint)   Draw a cubic Bézier curve from the current position, with the given control points, to the given end point.
-# ``CLOSEPOLY``  1 (point itself is ignored)        Draw a line segment to the start point of the current polyline.
-# ============== =================================  ====================================================================================================================
+# ============= ======================== ======================================
+# Code          Vertices                 Description
+# ============= ======================== ======================================
+# ``STOP``      1 (ignored)              A marker for the end of the entire
+#                                        path (currently not required and
+#                                        ignored).
+# ``MOVETO``    1                        Pick up the pen and move to the given
+#                                        vertex.
+# ``LINETO``    1                        Draw a line from the current position
+#                                        to the given vertex.
+# ``CURVE3``    2:                       Draw a quadratic Bézier curve from the
+#               1 control point,         current position, with the given
+#               1 end point              control point, to the given end point.
+# ``CURVE4``    3:                       Draw a cubic Bézier curve from the
+#               2 control points,        current position, with the given
+#               1 end point              control points, to the given end
+#                                        point.
+# ``CLOSEPOLY`` 1 (the point is ignored) Draw a line segment to the start point
+#                                        of the current polyline.
+# ============= ======================== ======================================
 #
 #
 # .. path-curves:
@@ -159,17 +169,17 @@ plt.show()
 #     codes = np.ones(nverts, int) * path.Path.LINETO
 #     codes[0::5] = path.Path.MOVETO
 #     codes[4::5] = path.Path.CLOSEPOLY
-#     verts[0::5,0] = left
-#     verts[0::5,1] = bottom
-#     verts[1::5,0] = left
-#     verts[1::5,1] = top
-#     verts[2::5,0] = right
-#     verts[2::5,1] = top
-#     verts[3::5,0] = right
-#     verts[3::5,1] = bottom
+#     verts[0::5, 0] = left
+#     verts[0::5, 1] = bottom
+#     verts[1::5, 0] = left
+#     verts[1::5, 1] = top
+#     verts[2::5, 0] = right
+#     verts[2::5, 1] = top
+#     verts[3::5, 0] = right
+#     verts[3::5, 1] = bottom
 #
 # All that remains is to create the path, attach it to a
-# :class:`~matplotlib.patch.PathPatch`, and add it to our axes::
+# :class:`~matplotlib.patches.PathPatch`, and add it to our axes::
 #
 #     barpath = path.Path(verts, codes)
 #     patch = patches.PathPatch(barpath, facecolor='green',

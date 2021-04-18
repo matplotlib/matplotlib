@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-``Spine.is_frame_like`` is deprecated.  It has never been used in the codebase
-since its addition in 2009.

@@ -11,24 +11,20 @@ values are used.
 
 from numbers import Number
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.axes import Axes
 
 
-class _Base(object):
-    "Base class"
+class _Base:
 
     def __rmul__(self, other):
-        float(other)  # just to check if number if given
         return Fraction(other, self)
 
     def __add__(self, other):
         if isinstance(other, _Base):
             return Add(self, other)
         else:
-            float(other)
-            other = Fixed(other)
-            return Add(self, other)
+            return Add(self, Fixed(other))
 
 
 class Add(_Base):
@@ -56,7 +52,9 @@ class Fixed(_Base):
     """
     Simple fixed size with absolute part = *fixed_size* and relative part = 0.
     """
+
     def __init__(self, fixed_size):
+        _api.check_isinstance(Number, fixed_size=fixed_size)
         self.fixed_size = fixed_size
 
     def get_size(self, renderer):
@@ -84,14 +82,8 @@ Scalable = Scaled
 
 def _get_axes_aspect(ax):
     aspect = ax.get_aspect()
-    # when aspec is "auto", consider it as 1.
-    if aspect in ('normal', 'auto'):
+    if aspect == "auto":
         aspect = 1.
-    elif aspect == "equal":
-        aspect = 1
-    else:
-        aspect = float(aspect)
-
     return aspect
 
 
@@ -100,6 +92,7 @@ class AxesX(_Base):
     Scaled size whose relative part corresponds to the data width
     of the *axes* multiplied by the *aspect*.
     """
+
     def __init__(self, axes, aspect=1., ref_ax=None):
         self._axes = axes
         self._aspect = aspect
@@ -111,7 +104,7 @@ class AxesX(_Base):
         l1, l2 = self._axes.get_xlim()
         if self._aspect == "axes":
             ref_aspect = _get_axes_aspect(self._ref_ax)
-            aspect = ref_aspect/_get_axes_aspect(self._axes)
+            aspect = ref_aspect / _get_axes_aspect(self._axes)
         else:
             aspect = self._aspect
 
@@ -125,6 +118,7 @@ class AxesY(_Base):
     Scaled size whose relative part corresponds to the data height
     of the *axes* multiplied by the *aspect*.
     """
+
     def __init__(self, axes, aspect=1., ref_ax=None):
         self._axes = axes
         self._aspect = aspect
@@ -148,15 +142,13 @@ class AxesY(_Base):
 
 class MaxExtent(_Base):
     """
-    Size whose absolute part is the largest width (or height) of
-    the given *artist_list*.
+    Size whose absolute part is either the largest width or the largest height
+    of the given *artist_list*.
     """
+
     def __init__(self, artist_list, w_or_h):
         self._artist_list = artist_list
-
-        if w_or_h not in ["width", "height"]:
-            raise ValueError()
-
+        _api.check_in_list(["width", "height"], w_or_h=w_or_h)
         self._w_or_h = w_or_h
 
     def add_artist(self, a):
@@ -164,75 +156,40 @@ class MaxExtent(_Base):
 
     def get_size(self, renderer):
         rel_size = 0.
-        w_list, h_list = [], []
-        for a in self._artist_list:
-            bb = a.get_window_extent(renderer)
-            w_list.append(bb.width)
-            h_list.append(bb.height)
-        dpi = a.get_figure().get_dpi()
-        if self._w_or_h == "width":
-            abs_size = max(w_list)/dpi
-        elif self._w_or_h == "height":
-            abs_size = max(h_list)/dpi
-
+        extent_list = [
+            getattr(a.get_window_extent(renderer), self._w_or_h) / a.figure.dpi
+            for a in self._artist_list]
+        abs_size = max(extent_list, default=0)
         return rel_size, abs_size
 
 
-class MaxWidth(_Base):
+class MaxWidth(MaxExtent):
     """
-    Size whose absolute part is the largest width of
-    the given *artist_list*.
+    Size whose absolute part is the largest width of the given *artist_list*.
     """
+
     def __init__(self, artist_list):
-        self._artist_list = artist_list
-
-    def add_artist(self, a):
-        self._artist_list.append(a)
-
-    def get_size(self, renderer):
-        rel_size = 0.
-        w_list = []
-        for a in self._artist_list:
-            bb = a.get_window_extent(renderer)
-            w_list.append(bb.width)
-        dpi = a.get_figure().get_dpi()
-        abs_size = max(w_list)/dpi
-
-        return rel_size, abs_size
+        super().__init__(artist_list, "width")
 
 
-class MaxHeight(_Base):
+class MaxHeight(MaxExtent):
     """
-    Size whose absolute part is the largest height of
-    the given *artist_list*.
+    Size whose absolute part is the largest height of the given *artist_list*.
     """
+
     def __init__(self, artist_list):
-        self._artist_list = artist_list
-
-    def add_artist(self, a):
-        self._artist_list.append(a)
-
-    def get_size(self, renderer):
-        rel_size = 0.
-        h_list = []
-        for a in self._artist_list:
-            bb = a.get_window_extent(renderer)
-            h_list.append(bb.height)
-        dpi = a.get_figure().get_dpi()
-        abs_size = max(h_list)/dpi
-
-        return rel_size, abs_size
+        super().__init__(artist_list, "height")
 
 
 class Fraction(_Base):
     """
     An instance whose size is a *fraction* of the *ref_size*.
-    ::
 
-      >>> s = Fraction(0.3, AxesX(ax))
-
+    >>> s = Fraction(0.3, AxesX(ax))
     """
+
     def __init__(self, fraction, ref_size):
+        _api.check_isinstance(Number, fraction=fraction)
         self._fraction_ref = ref_size
         self._fraction = fraction
 
@@ -251,6 +208,7 @@ class Padded(_Base):
     Return a instance where the absolute part of *size* is
     increase by the amount of *pad*.
     """
+
     def __init__(self, size, pad):
         self._size = size
         self._pad = pad
@@ -264,20 +222,18 @@ class Padded(_Base):
 
 def from_any(size, fraction_ref=None):
     """
-    Creates Fixed unit when the first argument is a float, or a
+    Create a Fixed unit when the first argument is a float, or a
     Fraction unit if that is a string that ends with %. The second
-    argument is only meaningful when Fraction unit is created.::
+    argument is only meaningful when Fraction unit is created.
 
-      >>> a = Size.from_any(1.2) # => Size.Fixed(1.2)
-      >>> Size.from_any("50%", a) # => Size.Fraction(0.5, a)
-
+    >>> a = Size.from_any(1.2) # => Size.Fixed(1.2)
+    >>> Size.from_any("50%", a) # => Size.Fraction(0.5, a)
     """
     if isinstance(size, Number):
         return Fixed(size)
     elif isinstance(size, str):
         if size[-1] == "%":
             return Fraction(float(size[:-1]) / 100, fraction_ref)
-
     raise ValueError("Unknown format")
 
 
@@ -295,7 +251,7 @@ class SizeFromFunc(_Base):
         return rel_size, abs_size
 
 
-class GetExtentHelper(object):
+class GetExtentHelper:
     _get_func_map = {
         "left":   lambda self, axes_bbox: axes_bbox.xmin - self.xmin,
         "right":  lambda self, axes_bbox: self.xmax - axes_bbox.xmax,
@@ -304,7 +260,7 @@ class GetExtentHelper(object):
     }
 
     def __init__(self, ax, direction):
-        cbook._check_in_list(self._get_func_map, direction=direction)
+        _api.check_in_list(self._get_func_map, direction=direction)
         self._ax_list = [ax] if isinstance(ax, Axes) else ax
         self._direction = direction
 

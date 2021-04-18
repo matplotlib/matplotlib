@@ -70,3 +70,12 @@ ax.set_xlabel('Annual rainfall (mm)')
 ax.set_ylabel('Likelihood of occurrence')
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.hist` / `matplotlib.pyplot.hist`

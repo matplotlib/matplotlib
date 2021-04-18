@@ -1,4 +1,5 @@
-"""===================
+"""
+===================
 Demo Annotation Box
 ===================
 
@@ -25,7 +26,7 @@ xy = (0.5, 0.7)
 ax.plot(xy[0], xy[1], ".r")
 
 # Annotate the 1st position with a text box ('Test 1')
-offsetbox = TextArea("Test 1", minimumdescent=False)
+offsetbox = TextArea("Test 1")
 
 ab = AnnotationBbox(offsetbox, xy,
                     xybox=(-20, 40),
@@ -35,7 +36,7 @@ ab = AnnotationBbox(offsetbox, xy,
 ax.add_artist(ab)
 
 # Annotate the 1st position with another text box ('Test')
-offsetbox = TextArea("Test", minimumdescent=False)
+offsetbox = TextArea("Test")
 
 ab = AnnotationBbox(offsetbox, xy,
                     xybox=(1.02, xy[1]),
@@ -77,8 +78,8 @@ ab = AnnotationBbox(im, xy,
 ax.add_artist(ab)
 
 # Annotate the 2nd position with another image (a Grace Hopper portrait)
-with get_sample_data("grace_hopper.png") as file:
-    arr_img = plt.imread(file, format='png')
+with get_sample_data("grace_hopper.jpg") as file:
+    arr_img = plt.imread(file)
 
 imagebox = OffsetImage(arr_img, zoom=0.2)
 imagebox.image.axes = ax
@@ -103,20 +104,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown in this
-# example:
-
-Circle
-TextArea
-DrawingArea
-OffsetImage
-AnnotationBbox
-get_sample_data
-plt.subplots
-plt.imread
-plt.show
+#    - `matplotlib.patches.Circle`
+#    - `matplotlib.offsetbox.TextArea`
+#    - `matplotlib.offsetbox.DrawingArea`
+#    - `matplotlib.offsetbox.OffsetImage`
+#    - `matplotlib.offsetbox.AnnotationBbox`
+#    - `matplotlib.cbook.get_sample_data`
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.pyplot.imread`

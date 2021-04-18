@@ -39,7 +39,7 @@ def dist_point_to_segment(p, s0, s1):
     return dist(p, pb)
 
 
-class PolygonInteractor(object):
+class PolygonInteractor:
     """
     A polygon editor.
 
@@ -75,14 +75,14 @@ class PolygonInteractor(object):
         self.cid = self.poly.add_callback(self.poly_changed)
         self._ind = None  # the active vert
 
-        canvas.mpl_connect('draw_event', self.draw_callback)
-        canvas.mpl_connect('button_press_event', self.button_press_callback)
-        canvas.mpl_connect('key_press_event', self.key_press_callback)
-        canvas.mpl_connect('button_release_event', self.button_release_callback)
-        canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
+        canvas.mpl_connect('draw_event', self.on_draw)
+        canvas.mpl_connect('button_press_event', self.on_button_press)
+        canvas.mpl_connect('key_press_event', self.on_key_press)
+        canvas.mpl_connect('button_release_event', self.on_button_release)
+        canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
         self.canvas = canvas
 
-    def draw_callback(self, event):
+    def on_draw(self, event):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.poly)
         self.ax.draw_artist(self.line)
@@ -90,15 +90,17 @@ class PolygonInteractor(object):
         # updated
 
     def poly_changed(self, poly):
-        'this method is called whenever the polygon object is called'
+        """This method is called whenever the pathpatch object is called."""
         # only copy the artist props to the line (except visibility)
         vis = self.line.get_visible()
         Artist.update_from(self.line, poly)
         self.line.set_visible(vis)  # don't use the poly visibility state
 
     def get_ind_under_point(self, event):
-        'get the index of the vertex under point if within epsilon tolerance'
-
+        """
+        Return the index of the point closest to the event position or *None*
+        if no point is within ``self.epsilon`` to the event position.
+        """
         # display coords
         xy = np.asarray(self.poly.xy)
         xyt = self.poly.get_transform().transform(xy)
@@ -112,8 +114,8 @@ class PolygonInteractor(object):
 
         return ind
 
-    def button_press_callback(self, event):
-        'whenever a mouse button is pressed'
+    def on_button_press(self, event):
+        """Callback for mouse button presses."""
         if not self.showverts:
             return
         if event.inaxes is None:
@@ -122,16 +124,16 @@ class PolygonInteractor(object):
             return
         self._ind = self.get_ind_under_point(event)
 
-    def button_release_callback(self, event):
-        'whenever a mouse button is released'
+    def on_button_release(self, event):
+        """Callback for mouse button releases."""
         if not self.showverts:
             return
         if event.button != 1:
             return
         self._ind = None
 
-    def key_press_callback(self, event):
-        'whenever a key is pressed'
+    def on_key_press(self, event):
+        """Callback for key presses."""
         if not event.inaxes:
             return
         if event.key == 't':
@@ -162,8 +164,8 @@ class PolygonInteractor(object):
         if self.line.stale:
             self.canvas.draw_idle()
 
-    def motion_notify_callback(self, event):
-        'on mouse movement'
+    def on_mouse_move(self, event):
+        """Callback for mouse movements."""
         if not self.showverts:
             return
         if self._ind is None:

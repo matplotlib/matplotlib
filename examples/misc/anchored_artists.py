@@ -4,7 +4,7 @@ Anchored Artists
 ================
 
 This example illustrates the use of the anchored objects without the
-helper classes found in the :ref:`toolkit_axesgrid1-index`. This version
+helper classes found in :mod:`mpl_toolkits.axes_grid1`. This version
 of the figure is similar to the one found in
 :doc:`/gallery/axes_grid1/simple_anchored_artists`, but it is
 implemented using only the matplotlib namespace, without the help
@@ -12,7 +12,8 @@ of additional toolkits.
 """
 
 from matplotlib import pyplot as plt
-from matplotlib.patches import Rectangle, Ellipse
+from matplotlib.lines import Line2D
+from matplotlib.patches import Ellipse
 from matplotlib.offsetbox import (
     AnchoredOffsetbox, AuxTransformBox, DrawingArea, TextArea, VPacker)
 
@@ -20,7 +21,7 @@ from matplotlib.offsetbox import (
 class AnchoredText(AnchoredOffsetbox):
     def __init__(self, s, loc, pad=0.4, borderpad=0.5,
                  prop=None, frameon=True):
-        self.txt = TextArea(s, minimumdescent=False)
+        self.txt = TextArea(s)
         super().__init__(loc, pad=pad, borderpad=borderpad,
                          child=self.txt, prop=prop, frameon=frameon)
 
@@ -91,14 +92,11 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         sep in points.
         """
         self.size_bar = AuxTransformBox(transform)
-        self.size_bar.add_artist(Rectangle((0, 0), size, 0, ec="black", lw=1.0))
-
-        self.txt_label = TextArea(label, minimumdescent=False)
-
+        self.size_bar.add_artist(Line2D([0, size], [0, 0], color="black"))
+        self.txt_label = TextArea(label)
         self._box = VPacker(children=[self.size_bar, self.txt_label],
                             align="center",
                             pad=0, sep=sep)
-
         super().__init__(loc, pad=pad, borderpad=borderpad,
                          child=self._box, prop=prop, frameon=frameon)
 

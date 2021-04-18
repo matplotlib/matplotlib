@@ -1,22 +1,15 @@
 # Copyright © 2009 Pierre Raybaut
 # Licensed under the terms of the MIT License
-# see the mpl licenses directory for a copy of the license
+# see the Matplotlib licenses directory for a copy of the license
 
 
-"""Module that provides a GUI-based editor for matplotlib's figure options."""
+"""Module that provides a GUI-based editor for Matplotlib's figure options."""
 
-import os.path
 import re
 
-import matplotlib
-from matplotlib import cm, colors as mcolors, markers, image as mimage
+from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
-
-
-def get_icon(name):
-    basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
-    return QtGui.QIcon(os.path.join(basedir, name))
 
 
 LINESTYLES = {'-': 'Solid',
@@ -48,12 +41,14 @@ def figure_edit(axes, parent=None):
                (None, "<b>X-Axis</b>"),
                ('Left', xmin), ('Right', xmax),
                ('Label', axes.get_xlabel()),
-               ('Scale', [axes.get_xscale(), 'linear', 'log', 'logit']),
+               ('Scale', [axes.get_xscale(),
+                          'linear', 'log', 'symlog', 'logit']),
                sep,
                (None, "<b>Y-Axis</b>"),
                ('Bottom', ymin), ('Top', ymax),
                ('Label', axes.get_ylabel()),
-               ('Scale', [axes.get_yscale(), 'linear', 'log', 'logit']),
+               ('Scale', [axes.get_yscale(),
+                          'linear', 'log', 'symlog', 'logit']),
                sep,
                ('(Re-)Generate automatic legend', False),
                ]
@@ -66,27 +61,32 @@ def figure_edit(axes, parent=None):
 
     # Sorting for default labels (_lineXXX, _imageXXX).
     def cmp_key(label):
-        match = re.match(r"(_line|_image)(\d+)", label)
+        """
+        Label should be a tuple consisting of the string label,
+        and the object being sorted by label.
+        """
+        match = re.match(r"(_line|_image)(\d+)", label[0])
         if match:
             return match.group(1), int(match.group(2))
         else:
-            return label, 0
+            return label[0], 0
 
     # Get / Curves
-    linedict = {}
+    labeled_lines = []
     for line in axes.get_lines():
         label = line.get_label()
         if label == '_nolegend_':
             continue
-        linedict[label] = line
+        labeled_lines.append((label, line))
     curves = []
 
     def prepare_data(d, init):
-        """Prepare entry for FormLayout.
+        """
+        Prepare entry for FormLayout.
 
-        `d` is a mapping of shorthands to style names (a single style may
+        *d* is a mapping of shorthands to style names (a single style may
         have multiple shorthands, in particular the shorthands `None`,
-        `"None"`, `"none"` and `""` are synonyms); `init` is one shorthand
+        `"None"`, `"none"` and `""` are synonyms); *init* is one shorthand
         of the initial style.
 
         This function returns an list suitable for initializing a
@@ -107,9 +107,7 @@ def figure_edit(axes, parent=None):
                 sorted(short2name.items(),
                        key=lambda short_and_name: short_and_name[1]))
 
-    curvelabels = sorted(linedict, key=cmp_key)
-    for label in curvelabels:
-        line = linedict[label]
+    for label, line in sorted(labeled_lines, key=cmp_key):
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
             keep_alpha=True)
@@ -138,19 +136,17 @@ def figure_edit(axes, parent=None):
     has_curve = bool(curves)
 
     # Get ScalarMappables.
-    mappabledict = {}
+    labeled_mappables = []
     for mappable in [*axes.images, *axes.collections]:
         label = mappable.get_label()
         if label == '_nolegend_' or mappable.get_array() is None:
             continue
-        mappabledict[label] = mappable
-    mappablelabels = sorted(mappabledict, key=cmp_key)
+        labeled_mappables.append((label, mappable))
     mappables = []
-    cmaps = [(cmap, name) for name, cmap in sorted(cm.cmap_d.items())]
-    for label in mappablelabels:
-        mappable = mappabledict[label]
+    cmaps = [(cmap, name) for name, cmap in sorted(cm._cmap_registry.items())]
+    for label, mappable in sorted(labeled_mappables, key=cmp_key):
         cmap = mappable.get_cmap()
-        if cmap not in cm.cmap_d.values():
+        if cmap not in cm._cmap_registry.values():
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [
@@ -176,7 +172,7 @@ def figure_edit(axes, parent=None):
         datalist.append((mappables, "Images, etc.", ""))
 
     def apply_callback(data):
-        """This function will be called to apply changes"""
+        """A callback to apply changes."""
         orig_xlim = axes.get_xlim()
         orig_ylim = axes.get_ylim()
 
@@ -211,7 +207,7 @@ def figure_edit(axes, parent=None):
 
         # Set / Curves
         for index, curve in enumerate(curves):
-            line = linedict[curvelabels[index]]
+            line = labeled_lines[index][1]
             (label, linestyle, drawstyle, linewidth, color, marker, markersize,
              markerfacecolor, markeredgecolor) = curve
             line.set_label(label)
@@ -229,7 +225,7 @@ def figure_edit(axes, parent=None):
 
         # Set ScalarMappables.
         for index, mappable_settings in enumerate(mappables):
-            mappable = mappabledict[mappablelabels[index]]
+            mappable = labeled_mappables[index][1]
             if len(mappable_settings) == 5:
                 label, cmap, low, high, interpolation = mappable_settings
                 mappable.set_interpolation(interpolation)
@@ -257,8 +253,10 @@ def figure_edit(axes, parent=None):
         if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
             figure.canvas.toolbar.push_current()
 
-    data = _formlayout.fedit(datalist, title="Figure options", parent=parent,
-                             icon=get_icon('qt4_editor_options.svg'),
-                             apply=apply_callback)
+    data = _formlayout.fedit(
+        datalist, title="Figure options", parent=parent,
+        icon=QtGui.QIcon(
+            str(cbook._get_data_path('images', 'qt4_editor_options.svg'))),
+        apply=apply_callback)
     if data is not None:
         apply_callback(data)

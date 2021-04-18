@@ -4,7 +4,7 @@ Controlling the position and size of colorbars with Inset Axes
 ==============================================================
 
 This example shows how to control the position, height, and width of
-colorbars using `~mpl_toolkits.axes_grid1.inset_axes`.
+colorbars using `~mpl_toolkits.axes_grid1.inset_locator.inset_axes`.
 
 Controlling the placement of the inset axes is done similarly as that of the
 legend: either by providing a location option ("upper right", "best", ...), or

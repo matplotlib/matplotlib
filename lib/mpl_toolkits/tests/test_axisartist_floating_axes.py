@@ -18,8 +18,7 @@ def test_subplot():
     fig.add_subplot(ax)
 
 
-@image_comparison(baseline_images=['curvelinear3'],
-                  extensions=['png'], style='default', tol=0.01)
+@image_comparison(['curvelinear3.png'], style='default', tol=0.01)
 def test_curvelinear3():
     fig = plt.figure(figsize=(5, 5))
 
@@ -73,9 +72,11 @@ def test_curvelinear3():
     l.set_clip_path(ax1.patch)
 
 
-@image_comparison(baseline_images=['curvelinear4'],
-                  extensions=['png'], style='default', tol=0.015)
+@image_comparison(['curvelinear4.png'], style='default', tol=0.015)
 def test_curvelinear4():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure(figsize=(5, 5))
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +
@@ -117,3 +118,13 @@ def test_curvelinear4():
     ax2.scatter(xx, yy)
     l, = ax2.plot(xx, yy, "k-")
     l.set_clip_path(ax1.patch)
+
+
+def test_axis_direction():
+    # Check that axis direction is propagated on a floating axis
+    fig = plt.figure()
+    ax = Subplot(fig, 111)
+    fig.add_subplot(ax)
+    ax.axis['y'] = ax.new_floating_axis(nth_coord=1, value=0,
+                                        axis_direction='left')
+    assert ax.axis['y']._axis_direction == 'left'

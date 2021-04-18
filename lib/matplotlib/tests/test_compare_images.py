@@ -1,14 +1,11 @@
-import os
+from pathlib import Path
 import shutil
 
 import pytest
 from pytest import approx
 
-from matplotlib.testing.compare import compare_images
+from matplotlib.testing.compare import compare_images, make_test_filename
 from matplotlib.testing.decorators import _image_directories
-
-
-baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
 
 # Tests of the image comparison algorithm.
@@ -46,7 +43,8 @@ baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
         ('all128.png', 'all127.png', 0, 1),
     ])
 def test_image_comparison_expect_rms(im1, im2, tol, expect_rms):
-    """Compare two images, expecting a particular RMS error.
+    """
+    Compare two images, expecting a particular RMS error.
 
     im1 and im2 are filenames relative to the baseline_dir directory.
 
@@ -56,14 +54,16 @@ def test_image_comparison_expect_rms(im1, im2, tol, expect_rms):
     succeed if compare_images succeeds. Otherwise, the test will succeed if
     compare_images fails and returns an RMS error almost equal to this value.
     """
-    im1 = os.path.join(baseline_dir, im1)
-    im2_src = os.path.join(baseline_dir, im2)
-    im2 = os.path.join(result_dir, im2)
-    # Move im2 from baseline_dir to result_dir. This will ensure that
-    # compare_images writes the diff file to result_dir, instead of trying to
-    # write to the (possibly read-only) baseline_dir.
-    shutil.copyfile(im2_src, im2)
-    results = compare_images(im1, im2, tol=tol, in_decorator=True)
+    baseline_dir, result_dir = map(Path, _image_directories(lambda: "dummy"))
+    # Copy both "baseline" and "test" image to result_dir, so that 1)
+    # compare_images writes the diff to result_dir, rather than to the source
+    # tree and 2) the baseline image doesn't appear missing to triage_tests.py.
+    result_im1 = make_test_filename(result_dir / im1, "expected")
+    shutil.copyfile(baseline_dir / im1, result_im1)
+    result_im2 = result_dir / im1
+    shutil.copyfile(baseline_dir / im2, result_im2)
+    results = compare_images(
+        result_im1, result_im2, tol=tol, in_decorator=True)
 
     if expect_rms is None:
         assert results is None

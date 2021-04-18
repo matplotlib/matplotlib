@@ -1,7 +1,7 @@
 r"""
-=======================
-Demo Text Rotation Mode
-=======================
+==================
+Text Rotation Mode
+==================
 
 This example illustrates the effect of ``rotation_mode`` on the positioning
 of rotated text.
@@ -13,9 +13,9 @@ The actual positioning depends on the additional parameters
 ``horizontalalignment``, ``verticalalignment`` and ``rotation_mode``.
 ``rotation_mode`` determines the order of rotation and alignment:
 
-- ``roation_mode='default'`` (or None) first rotates the text and then aligns
+- ``rotation_mode='default'`` (or None) first rotates the text and then aligns
   the bounding box of the rotated text.
-- ``roation_mode='anchor'`` aligns the unrotated text and then rotates the
+- ``rotation_mode='anchor'`` aligns the unrotated text and then rotates the
   text around the point of alignment.
 
 """
@@ -49,7 +49,6 @@ def test_rotation_mode(fig, mode, subplot_location):
         # prepare axes layout
         for axis in ax.axis.values():
             axis.toggle(ticks=False, ticklabels=False)
-        ax.axis([0, 1, 0, 1])
         ax.axvline(0.5, color="skyblue", zorder=0)
         ax.axhline(0.5, color="skyblue", zorder=0)
         ax.plot(0.5, 0.5, color="C0", marker="o", zorder=1)
@@ -65,7 +64,7 @@ def test_rotation_mode(fig, mode, subplot_location):
         # highlight bbox
         fig.canvas.draw()
         for ax, tx in zip(grid, texts):
-            bb = tx.get_window_extent().inverse_transformed(ax.transData)
+            bb = tx.get_window_extent().transformed(ax.transData.inverted())
             rect = plt.Rectangle((bb.x0, bb.y0), bb.width, bb.height,
                                  facecolor="C1", alpha=0.3, zorder=2)
             ax.add_patch(rect)
@@ -79,12 +78,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following method is shown in this example:
-
-import matplotlib
-matplotlib.axes.Axes.text
+#    - `matplotlib.axes.Axes.text` / `matplotlib.pyplot.text`

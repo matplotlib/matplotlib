@@ -1,3 +1,0 @@
-# Extra pip requirements for the travis flake8 build
-
-flake8>=3.7

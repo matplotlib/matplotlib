@@ -36,7 +36,7 @@ toolitem.show()
 toolitem.set_tooltip_text('Click me for fun and profit')
 toolitem.add(button)
 
-pos = 8  # where to insert this in the mpl toolbar
+pos = 8  # where to insert this in the toolbar
 toolbar.insert(toolitem, pos)
 
 # now let's add a widget to the vbox

@@ -112,17 +112,20 @@ text.usetex         : False  # use latex for all text handling. The following fo
                              # LaTeX \usepackage command, please inquire at the
                              # matplotlib mailing list
 text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
-                           # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
-                           # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
-                           # preamble is a comma separated list of LaTeX statements
-                           # that are included in the LaTeX document preamble.
-                           # An example:
-                           # text.latex.preamble : \usepackage{bm},\usepackage{euler}
-                           # The following packages are always loaded with usetex, so
-                           # beware of package collisions: color, geometry, graphicx,
-                           # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
-                           # may also be loaded, depending on your font settings
-text.latex.preview : False
+                       # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
+                       # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
+                       # text.latex.preamble is a single line of LaTeX code that
+                       # will be passed on to the LaTeX system. It may contain
+                       # any code that is valid for the LaTeX "preamble", i.e.
+                       # between the "\documentclass" and "\begin{document}"
+                       # statements.
+                       # Note that it has to be put on a single line, which may
+                       # become quite long.
+                       # The following packages are always loaded with usetex, so
+                       # beware of package collisions: color, geometry, graphicx,
+                       # type1cm, textcomp.
+                       # Adobe Postscript (PSSNFS) font packages may also be
+                       # loaded, depending on your font settings.
 
 text.hinting : auto   # May be one of the following:
                       #   'none': Perform no hinting
@@ -154,9 +157,10 @@ mathtext.bf  : serif:bold
 mathtext.sf  : sans\-serif
 mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                       # 'stixsans' or 'custom'
-mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
-                                # fonts when a symbol can not be found in one of
-                                # the custom math fonts.
+mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
+                       # 'stixsans'] when a symbol can not be found in one of the
+                       # custom math fonts. Select 'None' to not perform fallback
+                       # and replace the missing character by a dummy.
 
 mathtext.default : it # The default font to use for math.
                       # Can be any of the LaTeX font names, including
@@ -174,6 +178,7 @@ axes.grid           : False   # display grid or not
 axes.grid.which     : major
 axes.grid.axis      : both
 axes.titlesize      : large   # fontsize of the axes title
+axes.titley         : 1.0     # at the top, no autopositioning.
 axes.titlepad       : 5.0     # pad between axes and title in points
 axes.titleweight    : normal  # font weight for axes title
 axes.labelsize      : medium  # fontsize of the x any y labels
@@ -227,6 +232,7 @@ date.autoformatter.hour   : %H:%M:%S
 date.autoformatter.minute : %H:%M:%S.%f
 date.autoformatter.second : %H:%M:%S.%f
 date.autoformatter.microsecond : %H:%M:%S.%f
+date.converter:                  auto  # 'auto', 'concise'
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
@@ -415,11 +421,9 @@ savefig.edgecolor   : w        # figure edgecolor when saving
 savefig.format      : png      # png, ps, pdf, svg
 savefig.bbox        : standard # 'tight' or 'standard'.
                                # 'tight' is incompatible with pipe-based animation
-                               # backends but will workd with temporary file based ones:
-                               # e.g. setting animation.writer to ffmpeg will not work,
-                               # use ffmpeg_file instead
+                               # backends (e.g. 'ffmpeg') but will work with those
+                               # based on temporary files (e.g. 'ffmpeg_file')
 savefig.pad_inches  : 0.1      # Padding to be used when bbox is set to 'tight'
-savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
 savefig.transparent : False    # setting that controls whether figures are saved with a
                                # transparent background by default
 savefig.orientation : portrait
@@ -467,7 +471,6 @@ keymap.quit : ctrl+w, cmd+w         # close the current figure
 keymap.grid : g                     # switching on/off a grid in current axes
 keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
 keymap.xscale : k, L                # toggle scaling of x-axes ('log'/'linear')
-keymap.all_axes : a                 # enable all axes
 
 ###ANIMATION settings
 animation.writer : ffmpeg         # MovieWriter 'backend' to use
@@ -478,9 +481,6 @@ animation.frame_format: png       # Controls frame format used by temp files
 animation.ffmpeg_path: ffmpeg     # Path to ffmpeg binary. Without full path
                                   # $PATH is searched
 animation.ffmpeg_args:            # Additional arguments to pass to ffmpeg
-animation.avconv_path: avconv     # Path to avconv binary. Without full path
-                                  # $PATH is searched
-animation.avconv_args:            # Additional arguments to pass to avconv
 animation.convert_path: convert   # Path to ImageMagick's convert binary.
                                   # On Windows use the full path since convert
                                   # is also the name of a system tool.

@@ -7,7 +7,8 @@ It is often desirable to show data which depends on two independent
 variables as a color coded image plot. This is often referred to as a
 heatmap. If the data is categorical, this would be called a categorical
 heatmap.
-Matplotlib's :meth:`imshow <matplotlib.axes.Axes.imshow>` function makes
+
+Matplotlib's `~matplotlib.axes.Axes.imshow` function makes
 production of such plots particularly easy.
 
 The following examples show how to create a heatmap with annotations.
@@ -25,16 +26,15 @@ universal function.
 # which defines the data to color code. We then also need two lists or arrays
 # of categories; of course the number of elements in those lists
 # need to match the data along the respective axes.
-# The heatmap itself is an :meth:`imshow <matplotlib.axes.Axes.imshow>` plot
+# The heatmap itself is an `~matplotlib.axes.Axes.imshow` plot
 # with the labels set to the categories we have.
 # Note that it is important to set both, the tick locations
-# (:meth:`set_xticks<matplotlib.axes.Axes.set_xticks>`) as well as the
-# tick labels (:meth:`set_xticklabels<matplotlib.axes.Axes.set_xticklabels>`),
+# (`~matplotlib.axes.Axes.set_xticks`) as well as the
+# tick labels (`~matplotlib.axes.Axes.set_xticklabels`),
 # otherwise they would become out of sync. The locations are just
 # the ascending integer numbers, while the ticklabels are the labels to show.
-# Finally we can label the data itself by creating a
-# :class:`~matplotlib.text.Text` within each cell showing the value of
-# that cell.
+# Finally we can label the data itself by creating a `~matplotlib.text.Text`
+# within each cell showing the value of that cell.
 
 
 import numpy as np
@@ -149,8 +149,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
              rotation_mode="anchor")
 
     # Turn spines off and create white grid.
-    for edge, spine in ax.spines.items():
-        spine.set_visible(False)
+    ax.spines[:].set_visible(False)
 
     ax.set_xticks(np.arange(data.shape[1]+1)-.5, minor=True)
     ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
@@ -161,7 +160,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
 
 
 def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
-                     textcolors=["black", "white"],
+                     textcolors=("black", "white"),
                      threshold=None, **textkw):
     """
     A function to annotate a heatmap.
@@ -177,8 +176,8 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
         use the string format method, e.g. "$ {x:.2f}", or be a
         `matplotlib.ticker.Formatter`.  Optional.
     textcolors
-        A list or array of two color specifications.  The first is used for
-        values below a threshold, the second for those above.  Optional.
+        A pair of colors.  The first is used for values below a threshold,
+        the second for those above.  Optional.
     threshold
         Value in data units according to which the colors from textcolors are
         applied.  If None (the default) uses the middle of the colormap as
@@ -260,10 +259,10 @@ x = ["Store {}".format(i) for i in list("ABCDEFG")]
 im, _ = heatmap(data, y, x, ax=ax2, vmin=0,
                 cmap="magma_r", cbarlabel="weekly sold copies")
 annotate_heatmap(im, valfmt="{x:d}", size=7, threshold=20,
-                 textcolors=["red", "white"])
+                 textcolors=("red", "white"))
 
 # Sometimes even the data itself is categorical. Here we use a
-# :class:`matplotlib.colors.BoundaryNorm` to get the data into classes
+# `matplotlib.colors.BoundaryNorm` to get the data into classes
 # and use this to colorize the plot, but also to obtain the class
 # labels from an array of classes.
 
@@ -271,7 +270,7 @@ data = np.random.randn(6, 6)
 y = ["Prod. {}".format(i) for i in range(10, 70, 10)]
 x = ["Cycle {}".format(i) for i in range(1, 7)]
 
-qrates = np.array(list("ABCDEFG"))
+qrates = list("ABCDEFG")
 norm = matplotlib.colors.BoundaryNorm(np.linspace(-3.5, 3.5, 8), 7)
 fmt = matplotlib.ticker.FuncFormatter(lambda x, pos: qrates[::-1][norm(x)])
 
@@ -281,14 +280,14 @@ im, _ = heatmap(data, y, x, ax=ax3,
                 cbarlabel="Quality Rating")
 
 annotate_heatmap(im, valfmt=fmt, size=9, fontweight="bold", threshold=-1,
-                 textcolors=["red", "black"])
+                 textcolors=("red", "black"))
 
 # We can nicely plot a correlation matrix. Since this is bound by -1 and 1,
 # we use those as vmin and vmax. We may also remove leading zeros and hide
 # the diagonal elements (which are all 1) by using a
-# :class:`matplotlib.ticker.FuncFormatter`.
+# `matplotlib.ticker.FuncFormatter`.
 
-corr_matrix = np.corrcoef(np.random.rand(6, 5))
+corr_matrix = np.corrcoef(harvest)
 im, _ = heatmap(corr_matrix, vegetables, vegetables, ax=ax4,
                 cmap="PuOr", vmin=-1, vmax=1,
                 cbarlabel="correlation coeff.")
@@ -306,15 +305,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The usage of the following functions and methods is shown in this example:
-
-
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`

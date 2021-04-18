@@ -28,7 +28,6 @@ def tellme(s):
 
 
 plt.clf()
-plt.axis([-1., 1., -1., 1.])
 plt.setp(plt.gca(), autoscale_on=False)
 
 tellme('You will define a triangle, click to begin')
@@ -84,13 +83,14 @@ plt.waitforbuttonpress()
 
 while True:
     tellme('Select two corners of zoom, middle mouse button to finish')
-    pts = np.asarray(plt.ginput(2, timeout=-1))
-
+    pts = plt.ginput(2, timeout=-1)
     if len(pts) < 2:
         break
-
-    pts = np.sort(pts, axis=0)
-    plt.axis(pts.T.ravel())
+    (x0, y0), (x1, y1) = pts
+    xmin, xmax = sorted([x0, x1])
+    ymin, ymax = sorted([y0, y1])
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
 
 tellme('All Done!')
 plt.show()

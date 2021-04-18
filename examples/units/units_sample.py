@@ -4,9 +4,9 @@ Inches and Centimeters
 ======================
 
 The example illustrates the ability to override default x and y units (ax1) to
-inches and centimeters using the `xunits` and `yunits` parameters for the
-`plot` function. Note that conversions are applied to get numbers to correct
-units.
+inches and centimeters using the *xunits* and *yunits* parameters for the
+`~.axes.Axes.plot` function. Note that conversions are applied to get numbers
+to correct units.
 
 .. only:: builder_html
 

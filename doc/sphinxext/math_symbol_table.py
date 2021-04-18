@@ -1,3 +1,5 @@
+from docutils.parsers.rst import Directive
+
 from matplotlib import mathtext
 
 
@@ -93,59 +95,57 @@ symbols = [
      \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
      \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
-     \iiint \iint \iint \oiiint"""]
+     \iiint \iint \oiiint"""]
 ]
 
+
 def run(state_machine):
-    def get_n(n, l):
-        part = []
-        for x in l:
-            part.append(x)
-            if len(part) == n:
-                yield part
-                part = []
-        yield part
+    def render_symbol(sym):
+        if sym.startswith("\\"):
+            sym = sym[1:]
+            if sym not in {*mathtext.Parser._overunder_functions,
+                           *mathtext.Parser._function_names}:
+                sym = chr(mathtext.tex2uni[sym])
+        return f'\\{sym}' if sym in ('\\', '|') else sym
 
     lines = []
     for category, columns, syms in symbols:
         syms = sorted(syms.split())
+        columns = min(columns, len(syms))
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, syms)) * 2 + 16
         header = "    " + (('=' * max_width) + ' ') * columns
         lines.append(header)
-        for part in get_n(columns, syms):
-            line = (
-                "    " +
-                " ".join(
-                    "{} ``{}``".format(
-                        sym
-                        if not sym.startswith("\\")
-                        else sym[1:]
-                        if (sym[1:] in mathtext.Parser._overunder_functions
-                            or sym[1:] in mathtext.Parser._function_names)
-                        else chr(mathtext.tex2uni[sym[1:]]),
-                        sym)
-                    .rjust(max_width)
-                    for sym in part))
-            lines.append(line)
+        for part in range(0, len(syms), columns):
+            row = " ".join(
+                f"{render_symbol(sym)} ``{sym}``".rjust(max_width)
+                for sym in syms[part:part + columns])
+            lines.append(f"    {row}")
         lines.append(header)
         lines.append('')
 
     state_machine.insert_input(lines, "Symbol table")
     return []
 
-def math_symbol_table_directive(name, arguments, options, content, lineno,
-                                content_offset, block_text, state, state_machine):
-    return run(state_machine)
+
+class MathSymbolTableDirective(Directive):
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {}
+
+    def run(self):
+        return run(self.state_machine)
+
 
 def setup(app):
-    app.add_directive(
-        'math_symbol_table', math_symbol_table_directive,
-        False, (0, 1, 0))
+    app.add_directive("math_symbol_table", MathSymbolTableDirective)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
+
 
 if __name__ == "__main__":
     # Do some verification of the tables

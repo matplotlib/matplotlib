@@ -1,7 +1,9 @@
 """
-===============
-Fancyarrow Demo
-===============
+================================
+Annotation arrow style reference
+================================
+
+Overview of the arrow styles available in `~.Axes.annotate`.
 
 """
 import matplotlib.patches as mpatches
@@ -52,3 +54,15 @@ ax.xaxis.set_visible(False)
 ax.yaxis.set_visible(False)
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.ArrowStyle`
+#    - ``matplotlib.patches.ArrowStyle.get_styles``
+#    - `matplotlib.axes.Axes.annotate`

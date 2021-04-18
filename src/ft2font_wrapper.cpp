@@ -1,6 +1,5 @@
 #include "mplutils.h"
 #include "ft2font.h"
-#include "file_compat.h"
 #include "py_converters.h"
 #include "py_exceptions.h"
 #include "numpy_cpp.h"
@@ -64,9 +63,8 @@ static void PyFT2Image_dealloc(PyFT2Image *self)
 
 const char *PyFT2Image_draw_rect__doc__ =
     "draw_rect(x0, y0, x1, y1)\n"
-    "\n"
-    "Draw a rect to the image.\n"
-    "\n";
+    "--\n\n"
+    "Draw an empty rectangle to the image.\n";
 
 static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
@@ -83,9 +81,8 @@ static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args, PyObject
 
 const char *PyFT2Image_draw_rect_filled__doc__ =
     "draw_rect_filled(x0, y0, x1, y1)\n"
-    "\n"
-    "Draw a filled rect to the image.\n"
-    "\n";
+    "--\n\n"
+    "Draw a filled rectangle to the image.\n";
 
 static PyObject *PyFT2Image_draw_rect_filled(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
@@ -98,66 +95,6 @@ static PyObject *PyFT2Image_draw_rect_filled(PyFT2Image *self, PyObject *args, P
     CALL_CPP("draw_rect_filled", (self->x->draw_rect_filled(x0, y0, x1, y1)));
 
     Py_RETURN_NONE;
-}
-
-const char *PyFT2Image_as_str__doc__ =
-    "s = image.as_str()\n"
-    "\n"
-    "Return the image buffer as a string\n"
-    "\n";
-
-static PyObject *PyFT2Image_as_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    // TODO: Use a buffer to avoid the copy
-    return PyBytes_FromStringAndSize((const char *)self->x->get_buffer(),
-                                     self->x->get_width() * self->x->get_height());
-}
-
-const char *PyFT2Image_as_rgba_str__doc__ =
-    "s = image.as_rgba_str()\n"
-    "\n"
-    "Return the image buffer as a RGBA string\n"
-    "\n";
-
-static PyObject *PyFT2Image_as_rgba_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    npy_intp dims[] = {(npy_intp)self->x->get_height(), (npy_intp)self->x->get_width(), 4 };
-    numpy::array_view<unsigned char, 3> result(dims);
-
-    unsigned char *src = self->x->get_buffer();
-    unsigned char *end = src + (self->x->get_width() * self->x->get_height());
-    unsigned char *dst = result.data();
-
-    while (src != end) {
-        *dst++ = 0;
-        *dst++ = 0;
-        *dst++ = 0;
-        *dst++ = *src++;
-    }
-
-    return result.pyobj();
-}
-
-const char *PyFT2Image_as_array__doc__ =
-    "x = image.as_array()\n"
-    "\n"
-    "Return the image buffer as a width x height numpy array of ubyte \n"
-    "\n";
-
-static PyObject *PyFT2Image_as_array(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    npy_intp dims[] = {(npy_intp)self->x->get_height(), (npy_intp)self->x->get_width() };
-    return PyArray_SimpleNewFromData(2, dims, NPY_UBYTE, self->x->get_buffer());
-}
-
-static PyObject *PyFT2Image_get_width(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    return PyLong_FromLong(self->x->get_width());
-}
-
-static PyObject *PyFT2Image_get_height(PyFT2Image *self, PyObject *args, PyObject *kwds)
-{
-    return PyLong_FromLong(self->x->get_height());
 }
 
 static int PyFT2Image_get_buffer(PyFT2Image *self, Py_buffer *buf, int flags)
@@ -191,11 +128,6 @@ static PyTypeObject *PyFT2Image_init_type(PyObject *m, PyTypeObject *type)
     static PyMethodDef methods[] = {
         {"draw_rect", (PyCFunction)PyFT2Image_draw_rect, METH_VARARGS, PyFT2Image_draw_rect__doc__},
         {"draw_rect_filled", (PyCFunction)PyFT2Image_draw_rect_filled, METH_VARARGS, PyFT2Image_draw_rect_filled__doc__},
-        {"as_str", (PyCFunction)PyFT2Image_as_str, METH_NOARGS, PyFT2Image_as_str__doc__},
-        {"as_rgba_str", (PyCFunction)PyFT2Image_as_rgba_str, METH_NOARGS, PyFT2Image_as_rgba_str__doc__},
-        {"as_array", (PyCFunction)PyFT2Image_as_array, METH_NOARGS, PyFT2Image_as_array__doc__},
-        {"get_width", (PyCFunction)PyFT2Image_get_width, METH_NOARGS, NULL},
-        {"get_height", (PyCFunction)PyFT2Image_get_height, METH_NOARGS, NULL},
         {NULL}
     };
 
@@ -328,12 +260,7 @@ typedef struct
     FT2Font *x;
     PyObject *fname;
     PyObject *py_file;
-    FILE *fp;
-    int close_file;
-    mpl_off_t offset;
     FT_StreamRec stream;
-    FT_Byte *mem;
-    size_t mem_size;
     Py_ssize_t shape[2];
     Py_ssize_t strides[2];
     Py_ssize_t suboffsets[2];
@@ -344,118 +271,43 @@ static unsigned long read_from_file_callback(FT_Stream stream,
                                              unsigned char *buffer,
                                              unsigned long count)
 {
-
-    PyFT2Font *def = (PyFT2Font *)stream->descriptor.pointer;
-
-    if (fseek(def->fp, offset, SEEK_SET) == -1) {
-        return 0;
+    PyObject *py_file = ((PyFT2Font *)stream->descriptor.pointer)->py_file;
+    PyObject *seek_result = NULL, *read_result = NULL;
+    Py_ssize_t n_read = 0;
+    if (!(seek_result = PyObject_CallMethod(py_file, "seek", "k", offset))
+        || !(read_result = PyObject_CallMethod(py_file, "read", "k", count))) {
+        goto exit;
     }
-
-    if (count > 0) {
-        return fread(buffer, 1, count, def->fp);
+    char *tmpbuf;
+    if (PyBytes_AsStringAndSize(read_result, &tmpbuf, &n_read) == -1) {
+        goto exit;
     }
-
-    return 0;
+    memcpy(buffer, tmpbuf, n_read);
+exit:
+    Py_XDECREF(seek_result);
+    Py_XDECREF(read_result);
+    if (PyErr_Occurred()) {
+        PyErr_WriteUnraisable(py_file);
+        if (!count) {
+            return 1;  // Non-zero signals error, when count == 0.
+        }
+    }
+    return n_read;
 }
 
 static void close_file_callback(FT_Stream stream)
 {
-    PyFT2Font *def = (PyFT2Font *)stream->descriptor.pointer;
-
-    if (mpl_PyFile_DupClose(def->py_file, def->fp, def->offset)) {
-        throw std::runtime_error("Couldn't close file");
+    PyFT2Font *self = (PyFT2Font *)stream->descriptor.pointer;
+    PyObject *close_result = NULL;
+    if (!(close_result = PyObject_CallMethod(self->py_file, "close", ""))) {
+        goto exit;
     }
-
-    if (def->close_file) {
-        mpl_PyFile_CloseFile(def->py_file);
-    }
-
-    Py_DECREF(def->py_file);
-    def->py_file = NULL;
-}
-
-static int convert_open_args(PyFT2Font *self, PyObject *py_file_arg, FT_Open_Args *open_args)
-{
-    PyObject *py_file = NULL;
-    int close_file = 0;
-    FILE *fp;
-    PyObject *data = NULL;
-    char *data_ptr;
-    Py_ssize_t data_len;
-    long file_size;
-    FT_Byte *new_memory;
-    mpl_off_t offset = 0;
-
-    int result = 0;
-
-    memset((void *)open_args, 0, sizeof(FT_Open_Args));
-
-    if (PyBytes_Check(py_file_arg) || PyUnicode_Check(py_file_arg)) {
-        if ((py_file = mpl_PyFile_OpenFile(py_file_arg, (char *)"rb")) == NULL) {
-            goto exit;
-        }
-        close_file = 1;
-    } else {
-        Py_INCREF(py_file_arg);
-        py_file = py_file_arg;
-    }
-
-    if ((fp = mpl_PyFile_Dup(py_file, (char *)"rb", &offset))) {
-        Py_INCREF(py_file);
-        self->py_file = py_file;
-        self->close_file = close_file;
-        self->fp = fp;
-        self->offset = offset;
-        fseek(fp, 0, SEEK_END);
-        file_size = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-
-        self->stream.base = NULL;
-        self->stream.size = (unsigned long)file_size;
-        self->stream.pos = 0;
-        self->stream.descriptor.pointer = self;
-        self->stream.read = &read_from_file_callback;
-        self->stream.close = &close_file_callback;
-
-        open_args->flags = FT_OPEN_STREAM;
-        open_args->stream = &self->stream;
-    } else {
-        if (PyObject_HasAttrString(py_file_arg, "read") &&
-            (data = PyObject_CallMethod(py_file_arg, (char *)"read", (char *)""))) {
-            if (PyBytes_AsStringAndSize(data, &data_ptr, &data_len)) {
-                goto exit;
-            }
-
-            if (self->mem) {
-                free(self->mem);
-            }
-            self->mem = (FT_Byte *)malloc((self->mem_size + data_len) * sizeof(FT_Byte));
-            if (self->mem == NULL) {
-                goto exit;
-            }
-            new_memory = self->mem + self->mem_size;
-            self->mem_size += data_len;
-
-            memcpy(new_memory, data_ptr, data_len);
-            open_args->flags = FT_OPEN_MEMORY;
-            open_args->memory_base = new_memory;
-            open_args->memory_size = data_len;
-            open_args->stream = NULL;
-        } else {
-            PyErr_SetString(PyExc_TypeError,
-                            "First argument must be a path or file object reading bytes");
-            goto exit;
-        }
-    }
-
-    result = 1;
-
 exit:
-
-    Py_XDECREF(py_file);
-    Py_XDECREF(data);
-
-    return result;
+    Py_XDECREF(close_result);
+    Py_CLEAR(self->py_file);
+    if (PyErr_Occurred()) {
+        PyErr_WriteUnraisable((PyObject*)self);
+    }
 }
 
 static PyTypeObject PyFT2FontType;
@@ -467,79 +319,105 @@ static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwd
     self->x = NULL;
     self->fname = NULL;
     self->py_file = NULL;
-    self->fp = NULL;
-    self->close_file = 0;
-    self->offset = 0;
     memset(&self->stream, 0, sizeof(FT_StreamRec));
-    self->mem = 0;
-    self->mem_size = 0;
     return (PyObject *)self;
 }
 
 const char *PyFT2Font_init__doc__ =
     "FT2Font(ttffile)\n"
+    "--\n\n"
+    "Create a new FT2Font object.\n"
     "\n"
-    "Create a new FT2Font object\n"
-    "The following global font attributes are defined:\n"
-    "  num_faces              number of faces in file\n"
-    "  face_flags             face flags  (int type); see the ft2font constants\n"
-    "  style_flags            style flags  (int type); see the ft2font constants\n"
-    "  num_glyphs             number of glyphs in the face\n"
-    "  family_name            face family name\n"
-    "  style_name             face style name\n"
-    "  num_fixed_sizes        number of bitmap in the face\n"
-    "  scalable               face is scalable\n"
-    "\n"
-    "The following are available, if scalable is true:\n"
-    "  bbox                   face global bounding box (xmin, ymin, xmax, ymax)\n"
-    "  units_per_EM           number of font units covered by the EM\n"
-    "  ascender               ascender in 26.6 units\n"
-    "  descender              descender in 26.6 units\n"
-    "  height                 height in 26.6 units; used to compute a default\n"
-    "                         line spacing (baseline-to-baseline distance)\n"
-    "  max_advance_width      maximum horizontal cursor advance for all glyphs\n"
-    "  max_advance_height     same for vertical layout\n"
-    "  underline_position     vertical position of the underline bar\n"
-    "  underline_thickness    vertical thickness of the underline\n"
-    "  postscript_name        PostScript name of the font\n";
-
-static void PyFT2Font_fail(PyFT2Font *self)
-{
-    free(self->mem);
-    self->mem = NULL;
-    Py_XDECREF(self->py_file);
-    self->py_file = NULL;
-}
+    "Attributes\n"
+    "----------\n"
+    "num_faces\n"
+    "    Number of faces in file.\n"
+    "face_flags, style_flags : int\n"
+    "    Face and style flags; see the ft2font constants.\n"
+    "num_glyphs\n"
+    "    Number of glyphs in the face.\n"
+    "family_name, style_name\n"
+    "    Face family and style name.\n"
+    "num_fixed_sizes\n"
+    "    Number of bitmap in the face.\n"
+    "scalable\n"
+    "    Whether face is scalable; attributes after this one are only\n"
+    "    defined for scalable faces.\n"
+    "bbox\n"
+    "    Face global bounding box (xmin, ymin, xmax, ymax).\n"
+    "units_per_EM\n"
+    "    Number of font units covered by the EM.\n"
+    "ascender, descender\n"
+    "    Ascender and descender in 26.6 units.\n"
+    "height\n"
+    "    Height in 26.6 units; used to compute a default line spacing\n"
+    "    (baseline-to-baseline distance).\n"
+    "max_advance_width, max_advance_height\n"
+    "    Maximum horizontal and vertical cursor advance for all glyphs.\n"
+    "underline_position, underline_thickness\n"
+    "    Vertical position and thickness of the underline bar.\n"
+    "postscript_name\n"
+    "    PostScript name of the font.\n";
 
 static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *fname;
+    PyObject *filename = NULL, *open = NULL, *data = NULL;
     FT_Open_Args open_args;
     long hinting_factor = 8;
-    const char *names[] = { "filename", "hinting_factor", NULL };
+    int kerning_factor = 0;
+    const char *names[] = { "filename", "hinting_factor", "_kerning_factor", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "O|l:FT2Font", (char **)names, &fname, &hinting_factor)) {
+             args, kwds, "O|l$i:FT2Font", (char **)names, &filename,
+             &hinting_factor, &kerning_factor)) {
         return -1;
     }
 
-    if (!convert_open_args(self, fname, &open_args)) {
-        return -1;
+    self->stream.base = NULL;
+    self->stream.size = 0x7fffffff;  // Unknown size.
+    self->stream.pos = 0;
+    self->stream.descriptor.pointer = self;
+    self->stream.read = &read_from_file_callback;
+    memset((void *)&open_args, 0, sizeof(FT_Open_Args));
+    open_args.flags = FT_OPEN_STREAM;
+    open_args.stream = &self->stream;
+
+    if (PyBytes_Check(filename) || PyUnicode_Check(filename)) {
+        if (!(open = PyDict_GetItemString(PyEval_GetBuiltins(), "open"))  // Borrowed reference.
+            || !(self->py_file = PyObject_CallFunction(open, "Os", filename, "rb"))) {
+            goto exit;
+        }
+        self->stream.close = &close_file_callback;
+    } else if (!PyObject_HasAttrString(filename, "read")
+               || !(data = PyObject_CallMethod(filename, "read", "i", 0))
+               || !PyBytes_Check(data)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "First argument must be a path or binary-mode file object");
+        Py_CLEAR(data);
+        goto exit;
+    } else {
+        self->py_file = filename;
+        self->stream.close = NULL;
+        Py_INCREF(filename);
     }
+    Py_CLEAR(data);
 
     CALL_CPP_FULL(
-        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)), PyFT2Font_fail(self), -1);
+        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)),
+        Py_CLEAR(self->py_file), -1);
 
-    Py_INCREF(fname);
-    self->fname = fname;
+    CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
 
-    return 0;
+    Py_INCREF(filename);
+    self->fname = filename;
+
+exit:
+    return PyErr_Occurred() ? -1 : 0;
 }
 
 static void PyFT2Font_dealloc(PyFT2Font *self)
 {
     delete self->x;
-    free(self->mem);
     Py_XDECREF(self->py_file);
     Py_XDECREF(self->fname);
     Py_TYPE(self)->tp_free((PyObject *)self);
@@ -547,8 +425,8 @@ static void PyFT2Font_dealloc(PyFT2Font *self)
 
 const char *PyFT2Font_clear__doc__ =
     "clear()\n"
-    "\n"
-    "Clear all the glyphs, reset for a new set_text";
+    "--\n\n"
+    "Clear all the glyphs, reset for a new call to `.set_text`.\n";
 
 static PyObject *PyFT2Font_clear(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -559,7 +437,7 @@ static PyObject *PyFT2Font_clear(PyFT2Font *self, PyObject *args, PyObject *kwds
 
 const char *PyFT2Font_set_size__doc__ =
     "set_size(ptsize, dpi)\n"
-    "\n"
+    "--\n\n"
     "Set the point size and dpi of the text.\n";
 
 static PyObject *PyFT2Font_set_size(PyFT2Font *self, PyObject *args, PyObject *kwds)
@@ -578,8 +456,8 @@ static PyObject *PyFT2Font_set_size(PyFT2Font *self, PyObject *args, PyObject *k
 
 const char *PyFT2Font_set_charmap__doc__ =
     "set_charmap(i)\n"
-    "\n"
-    "Make the i-th charmap current\n";
+    "--\n\n"
+    "Make the i-th charmap current.\n";
 
 static PyObject *PyFT2Font_set_charmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -596,8 +474,8 @@ static PyObject *PyFT2Font_set_charmap(PyFT2Font *self, PyObject *args, PyObject
 
 const char *PyFT2Font_select_charmap__doc__ =
     "select_charmap(i)\n"
-    "\n"
-    "select charmap i where i is one of the FT_Encoding number\n";
+    "--\n\n"
+    "Select a charmap by its FT_Encoding number.\n";
 
 static PyObject *PyFT2Font_select_charmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -613,10 +491,10 @@ static PyObject *PyFT2Font_select_charmap(PyFT2Font *self, PyObject *args, PyObj
 }
 
 const char *PyFT2Font_get_kerning__doc__ =
-    "dx = get_kerning(left, right, mode)\n"
-    "\n"
-    "Get the kerning between left char and right glyph indices\n"
-    "mode is a kerning mode constant\n"
+    "get_kerning(left, right, mode)\n"
+    "--\n\n"
+    "Get the kerning between *left* and *right* glyph indices.\n"
+    "*mode* is a kerning mode constant:\n"
     "  KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
     "  KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
     "  KERNING_UNSCALED - Return the kerning vector in original font units\n";
@@ -636,11 +514,13 @@ static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args, PyObject
 }
 
 const char *PyFT2Font_set_text__doc__ =
-    "set_text(s, angle)\n"
-    "\n"
-    "Set the text string and angle.\n"
-    "You must call this before draw_glyphs_to_bitmap\n"
-    "A sequence of x,y positions is returned";
+    "set_text(string, angle, flags=32)\n"
+    "--\n\n"
+    "Set the text *string* and *angle*.\n"
+    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
+    "the default value is LOAD_FORCE_AUTOHINT.\n"
+    "You must call this before `.draw_glyphs_to_bitmap`.\n"
+    "A sequence of x,y positions is returned.\n";
 
 static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -662,13 +542,26 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
     size_t size;
 
     if (PyUnicode_Check(textobj)) {
-        size = PyUnicode_GET_SIZE(textobj);
+        size = PyUnicode_GET_LENGTH(textobj);
         codepoints.resize(size);
+#if defined(PYPY_VERSION) && (PYPY_VERSION_NUM  < 0x07030200)
         Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
         for (size_t i = 0; i < size; ++i) {
             codepoints[i] = unistr[i];
         }
+#else
+        for (size_t i = 0; i < size; ++i) {
+            codepoints[i] = PyUnicode_ReadChar(textobj, i);
+        }
+#endif
     } else if (PyBytes_Check(textobj)) {
+        if (PyErr_WarnEx(
+            PyExc_FutureWarning,
+            "Passing bytes to FTFont.set_text is deprecated since Matplotlib "
+            "3.4 and support will be removed in Matplotlib 3.6; pass str instead",
+            1)) {
+            return NULL;
+        }
         size = PyBytes_Size(textobj);
         codepoints.resize(size);
         char *bytestr = PyBytes_AsString(textobj);
@@ -676,7 +569,7 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
             codepoints[i] = bytestr[i];
         }
     } else {
-        PyErr_SetString(PyExc_TypeError, "String must be unicode or bytes");
+        PyErr_SetString(PyExc_TypeError, "String must be str or bytes");
         return NULL;
     }
 
@@ -691,8 +584,8 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
 
 const char *PyFT2Font_get_num_glyphs__doc__ =
     "get_num_glyphs()\n"
-    "\n"
-    "Return the number of loaded glyphs\n";
+    "--\n\n"
+    "Return the number of loaded glyphs.\n";
 
 static PyObject *PyFT2Font_get_num_glyphs(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -700,10 +593,11 @@ static PyObject *PyFT2Font_get_num_glyphs(PyFT2Font *self, PyObject *args, PyObj
 }
 
 const char *PyFT2Font_load_char__doc__ =
-    "load_char(charcode, flags=LOAD_FORCE_AUTOHINT)\n"
-    "\n"
-    "Load character with charcode in current fontfile and set glyph.\n"
-    "The flags argument can be a bitwise-or of the LOAD_XXX constants.\n"
+    "load_char(charcode, flags=32)\n"
+    "--\n\n"
+    "Load character with *charcode* in current fontfile and set glyph.\n"
+    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
+    "the default value is LOAD_FORCE_AUTOHINT.\n"
     "Return value is a Glyph object, with attributes\n"
     "  width          # glyph width\n"
     "  height         # glyph height\n"
@@ -738,10 +632,11 @@ static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *
 }
 
 const char *PyFT2Font_load_glyph__doc__ =
-    "load_glyph(glyphindex, flags=LOAD_FORCE_AUTOHINT)\n"
-    "\n"
-    "Load character with glyphindex in current fontfile and set glyph.\n"
-    "The flags argument can be a bitwise-or of the LOAD_XXX constants.\n"
+    "load_glyph(glyphindex, flags=32)\n"
+    "--\n\n"
+    "Load character with *glyphindex* in current fontfile and set glyph.\n"
+    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
+    "the default value is LOAD_FORCE_AUTOHINT.\n"
     "Return value is a Glyph object, with attributes\n"
     "  width          # glyph width\n"
     "  height         # glyph height\n"
@@ -776,11 +671,11 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
 }
 
 const char *PyFT2Font_get_width_height__doc__ =
-    "w, h = get_width_height()\n"
-    "\n"
-    "Get the width and height in 26.6 subpixels of the current string set by set_text\n"
+    "get_width_height()\n"
+    "--\n\n"
+    "Get the width and height in 26.6 subpixels of the current string set by `.set_text`.\n"
     "The rotation of the string is accounted for.  To get width and height\n"
-    "in pixels, divide these values by 64\n";
+    "in pixels, divide these values by 64.\n";
 
 static PyObject *PyFT2Font_get_width_height(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -792,10 +687,10 @@ static PyObject *PyFT2Font_get_width_height(PyFT2Font *self, PyObject *args, PyO
 }
 
 const char *PyFT2Font_get_bitmap_offset__doc__ =
-    "x, y = get_bitmap_offset()\n"
-    "\n"
-    "Get the offset in 26.6 subpixels for the bitmap if ink hangs left or below (0, 0).\n"
-    "Since matplotlib only supports left-to-right text, y is always 0.\n";
+    "get_bitmap_offset()\n"
+    "--\n\n"
+    "Get the (x, y) offset in 26.6 subpixels for the bitmap if ink hangs left or below (0, 0).\n"
+    "Since Matplotlib only supports left-to-right text, y is always 0.\n";
 
 static PyObject *PyFT2Font_get_bitmap_offset(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -807,9 +702,9 @@ static PyObject *PyFT2Font_get_bitmap_offset(PyFT2Font *self, PyObject *args, Py
 }
 
 const char *PyFT2Font_get_descent__doc__ =
-    "d = get_descent()\n"
-    "\n"
-    "Get the descent of the current string set by set_text in 26.6 subpixels.\n"
+    "get_descent()\n"
+    "--\n\n"
+    "Get the descent in 26.6 subpixels of the current string set by `.set_text`.\n"
     "The rotation of the string is accounted for.  To get the descent\n"
     "in pixels, divide this value by 64.\n";
 
@@ -824,9 +719,9 @@ static PyObject *PyFT2Font_get_descent(PyFT2Font *self, PyObject *args, PyObject
 
 const char *PyFT2Font_draw_glyphs_to_bitmap__doc__ =
     "draw_glyphs_to_bitmap()\n"
-    "\n"
-    "Draw the glyphs that were loaded by set_text to the bitmap\n"
-    "The bitmap size will be automatically set to include the glyphs\n";
+    "--\n\n"
+    "Draw the glyphs that were loaded by `.set_text` to the bitmap.\n"
+    "The bitmap size will be automatically set to include the glyphs.\n";
 
 static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -845,8 +740,8 @@ static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args
 
 const char *PyFT2Font_get_xys__doc__ =
     "get_xys()\n"
-    "\n"
-    "Get the xy locations of the current glyphs\n";
+    "--\n\n"
+    "Get the xy locations of the current glyphs.\n";
 
 static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -866,15 +761,15 @@ static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kw
 
 const char *PyFT2Font_draw_glyph_to_bitmap__doc__ =
     "draw_glyph_to_bitmap(bitmap, x, y, glyph)\n"
-    "\n"
-    "Draw a single glyph to the bitmap at pixel locations x,y\n"
+    "--\n\n"
+    "Draw a single glyph to the bitmap at pixel locations x, y\n"
     "Note it is your responsibility to set up the bitmap manually\n"
-    "with set_bitmap_size(w,h) before this call is made.\n"
+    "with ``set_bitmap_size(w, h)`` before this call is made.\n"
     "\n"
-    "If you want automatic layout, use set_text in combinations with\n"
-    "draw_glyphs_to_bitmap.  This function is intended for people who\n"
-    "want to render individual glyphs at precise locations, eg, a\n"
-    "a glyph returned by load_char\n";
+    "If you want automatic layout, use `.set_text` in combinations with\n"
+    "`.draw_glyphs_to_bitmap`.  This function is instead intended for people\n"
+    "who want to render individual glyphs (e.g., returned by `.load_char`)\n"
+    "at precise locations.\n";
 
 static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -907,78 +802,59 @@ static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args,
 
 const char *PyFT2Font_get_glyph_name__doc__ =
     "get_glyph_name(index)\n"
+    "--\n\n"
+    "Retrieve the ASCII name of a given glyph *index* in a face.\n"
     "\n"
-    "Retrieves the ASCII name of a given glyph in a face.\n";
+    "Due to Matplotlib's internal design, for fonts that do not contain glyph\n"
+    "names (per FT_FACE_FLAG_GLYPH_NAMES), this returns a made-up name which\n"
+    "does *not* roundtrip through `.get_name_index`.\n";
 
 static PyObject *PyFT2Font_get_glyph_name(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     unsigned int glyph_number;
     char buffer[128];
-
     if (!PyArg_ParseTuple(args, "I:get_glyph_name", &glyph_number)) {
         return NULL;
     }
-
     CALL_CPP("get_glyph_name", (self->x->get_glyph_name(glyph_number, buffer)));
-
     return PyUnicode_FromString(buffer);
 }
 
 const char *PyFT2Font_get_charmap__doc__ =
     "get_charmap()\n"
-    "\n"
-    "Returns a dictionary that maps the character codes of the selected charmap\n"
+    "--\n\n"
+    "Return a dict that maps the character codes of the selected charmap\n"
     "(Unicode by default) to their corresponding glyph indices.\n";
 
 static PyObject *PyFT2Font_get_charmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     PyObject *charmap;
-
-    charmap = PyDict_New();
-    if (charmap == NULL) {
+    if (!(charmap = PyDict_New())) {
         return NULL;
     }
-
     FT_UInt index;
     FT_ULong code = FT_Get_First_Char(self->x->get_face(), &index);
     while (index != 0) {
-        PyObject *key;
-        PyObject *val;
-
-        key = PyLong_FromLong(code);
-        if (key == NULL) {
+        PyObject *key = NULL, *val = NULL;
+        bool error = (!(key = PyLong_FromLong(code))
+                      || !(val = PyLong_FromLong(index))
+                      || (PyDict_SetItem(charmap, key, val) == -1));
+        Py_XDECREF(key);
+        Py_XDECREF(val);
+        if (error) {
             Py_DECREF(charmap);
             return NULL;
         }
-
-        val = PyLong_FromLong(index);
-        if (val == NULL) {
-            Py_DECREF(key);
-            Py_DECREF(charmap);
-            return NULL;
-        }
-
-        if (PyDict_SetItem(charmap, key, val)) {
-            Py_DECREF(key);
-            Py_DECREF(val);
-            Py_DECREF(charmap);
-            return NULL;
-        }
-
-        Py_DECREF(key);
-        Py_DECREF(val);
-
         code = FT_Get_Next_Char(self->x->get_face(), code, &index);
     }
-
     return charmap;
 }
 
 
 const char *PyFT2Font_get_char_index__doc__ =
-    "get_char_index()\n"
-    "\n"
-    "Given a character code, returns a glyph index.\n";
+    "get_char_index(codepoint)\n"
+    "--\n\n"
+    "Return the glyph index corresponding to a character *codepoint*.\n";
 
 static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -996,11 +872,11 @@ static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObj
 
 
 const char *PyFT2Font_get_sfnt__doc__ =
-    "get_sfnt(name)\n"
-    "\n"
-    "Get all values from the SFNT names table.  Result is a dictionary whose "
-    "key is the platform-ID, ISO-encoding-scheme, language-code, and "
-    "description.\n";
+    "get_sfnt()\n"
+    "--\n\n"
+    "Load the entire SFNT names table, as a dict whose keys are\n"
+    "(platform-ID, ISO-encoding-scheme, language-code, and description)\n"
+    "tuples.\n";
 
 static PyObject *PyFT2Font_get_sfnt(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -1058,29 +934,24 @@ static PyObject *PyFT2Font_get_sfnt(PyFT2Font *self, PyObject *args, PyObject *k
 
 const char *PyFT2Font_get_name_index__doc__ =
     "get_name_index(name)\n"
-    "\n"
-    "Returns the glyph index of a given glyph name.\n"
-    "The glyph index 0 means `undefined character code'.\n";
+    "--\n\n"
+    "Return the glyph index of a given glyph *name*.\n"
+    "The glyph index 0 means 'undefined character code'.\n";
 
 static PyObject *PyFT2Font_get_name_index(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     char *glyphname;
     long name_index;
-
-    if (!PyArg_ParseTuple(args, "es:get_name_index", "ascii", &glyphname)) {
+    if (!PyArg_ParseTuple(args, "s:get_name_index", &glyphname)) {
         return NULL;
     }
-
     CALL_CPP("get_name_index", name_index = self->x->get_name_index(glyphname));
-
-    PyMem_Free(glyphname);
-
     return PyLong_FromLong(name_index);
 }
 
 const char *PyFT2Font_get_ps_font_info__doc__ =
     "get_ps_font_info()\n"
-    "\n"
+    "--\n\n"
     "Return the information in the PS Font Info structure.\n";
 
 static PyObject *PyFT2Font_get_ps_font_info(PyFT2Font *self, PyObject *args, PyObject *kwds)
@@ -1107,15 +978,14 @@ static PyObject *PyFT2Font_get_ps_font_info(PyFT2Font *self, PyObject *args, PyO
 
 const char *PyFT2Font_get_sfnt_table__doc__ =
     "get_sfnt_table(name)\n"
-    "\n"
+    "--\n\n"
     "Return one of the following SFNT tables: head, maxp, OS/2, hhea, "
     "vhea, post, or pclt.\n";
 
 static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     char *tagname;
-
-    if (!PyArg_ParseTuple(args, "es:get_sfnt_table", "ascii", &tagname)) {
+    if (!PyArg_ParseTuple(args, "s:get_sfnt_table", &tagname)) {
         return NULL;
     }
 
@@ -1127,8 +997,6 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
             break;
         }
     }
-
-    PyMem_Free(tagname);
 
     void *table = FT_Get_Sfnt_Table(self->x->get_face(), (FT_Sfnt_Tag)tag);
     if (!table) {
@@ -1412,31 +1280,19 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
 
 const char *PyFT2Font_get_path__doc__ =
     "get_path()\n"
-    "\n"
+    "--\n\n"
     "Get the path data from the currently loaded glyph as a tuple of vertices, "
     "codes.\n";
 
 static PyObject *PyFT2Font_get_path(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    int count;
-
-    CALL_CPP("get_path", (count = self->x->get_path_count()));
-
-    npy_intp vertices_dims[2] = { count, 2 };
-    numpy::array_view<double, 2> vertices(vertices_dims);
-
-    npy_intp codes_dims[1] = { count };
-    numpy::array_view<unsigned char, 1> codes(codes_dims);
-
-    self->x->get_path(vertices.data(), codes.data());
-
-    return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
+    CALL_CPP("get_path", return self->x->get_path());
 }
 
 const char *PyFT2Font_get_image__doc__ =
     "get_image()\n"
-    "\n"
-    "Returns the underlying image buffer for this font object.\n";
+    "--\n\n"
+    "Return the underlying image buffer for this font object.\n";
 
 static PyObject *PyFT2Font_get_image(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -1643,7 +1499,7 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
         {"get_ps_font_info", (PyCFunction)PyFT2Font_get_ps_font_info, METH_NOARGS, PyFT2Font_get_ps_font_info__doc__},
         {"get_sfnt_table", (PyCFunction)PyFT2Font_get_sfnt_table, METH_VARARGS, PyFT2Font_get_sfnt_table__doc__},
         {"get_path", (PyCFunction)PyFT2Font_get_path, METH_NOARGS, PyFT2Font_get_path__doc__},
-        {"get_image", (PyCFunction)PyFT2Font_get_image, METH_NOARGS, PyFT2Font_get_path__doc__},
+        {"get_image", (PyCFunction)PyFT2Font_get_image, METH_NOARGS, PyFT2Font_get_image__doc__},
         {NULL}
     };
 
@@ -1674,8 +1530,6 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
     return type;
 }
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "ft2font",
@@ -1687,6 +1541,8 @@ static struct PyModuleDef moduledef = {
     NULL,
     NULL
 };
+
+#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit_ft2font(void)
 {
@@ -1779,4 +1635,4 @@ PyMODINIT_FUNC PyInit_ft2font(void)
     return m;
 }
 
-} // extern "C"
+#pragma GCC visibility pop

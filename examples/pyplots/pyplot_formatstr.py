@@ -1,26 +1,21 @@
 """
-================
-Pyplot Formatstr
-================
+====================
+plot() format string
+====================
 
-Use a format string to colorize a `~matplotlib.axes.Axes.plot` and set its
-markers.
+Use a format string (here, 'ro') to set the color and markers of a
+`~matplotlib.axes.Axes.plot`.
 """
+
 import matplotlib.pyplot as plt
-plt.plot([1,2,3,4], [1,4,9,16], 'ro')
-plt.axis([0, 6, 0, 20])
+plt.plot([1, 2, 3, 4], [1, 4, 9, 16], 'ro')
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.plot
-matplotlib.axes.Axes.plot
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`

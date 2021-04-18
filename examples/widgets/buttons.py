@@ -22,7 +22,7 @@ s = np.sin(2*np.pi*freqs[0]*t)
 l, = plt.plot(t, s, lw=2)
 
 
-class Index(object):
+class Index:
     ind = 0
 
     def next(self, event):
@@ -48,3 +48,12 @@ bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.Button`

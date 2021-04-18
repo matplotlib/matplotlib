@@ -21,24 +21,21 @@ plt.xlabel('Smarts')
 plt.ylabel('Probability')
 plt.title('Histogram of IQ')
 plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
-plt.axis([40, 160, 0, 0.03])
+plt.xlim(40, 160)
+plt.ylim(0, 0.03)
 plt.grid(True)
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.hist
-matplotlib.pyplot.xlabel
-matplotlib.pyplot.ylabel
-matplotlib.pyplot.text
-matplotlib.pyplot.grid
-matplotlib.pyplot.show
+#    - `matplotlib.pyplot.hist`
+#    - `matplotlib.pyplot.xlabel`
+#    - `matplotlib.pyplot.ylabel`
+#    - `matplotlib.pyplot.text`
+#    - `matplotlib.pyplot.grid`
+#    - `matplotlib.pyplot.show`

@@ -1,6 +1,0 @@
-Axes methods now raise TypeError instead of RuntimeError on mismatched calls
-````````````````````````````````````````````````````````````````````````````
-
-In certain cases, Axes methods (and pyplot functions) used to raise a
-RuntimeError if they were called with a ``data`` kwarg and otherwise mismatched
-arguments.  They now raise a ``TypeError`` instead.

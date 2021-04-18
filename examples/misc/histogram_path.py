@@ -31,8 +31,8 @@ data = np.random.randn(1000)
 n, bins = np.histogram(data, 50)
 
 # get the corners of the rectangles for the histogram
-left = np.array(bins[:-1])
-right = np.array(bins[1:])
+left = bins[:-1]
+right = bins[1:]
 bottom = np.zeros(len(left))
 top = bottom + n
 
@@ -78,23 +78,20 @@ barpath = path.Path(verts, codes)
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.PathPatch
-matplotlib.path
-matplotlib.path.Path
-matplotlib.path.Path.make_compound_path_from_polys
-matplotlib.axes.Axes.add_patch
-matplotlib.collections.PathCollection
-
-# This example shows an alternative to
-matplotlib.collections.PolyCollection
-matplotlib.axes.Axes.hist
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.path.Path.make_compound_path_from_polys`
+#    - `matplotlib.axes.Axes.add_patch`
+#    - `matplotlib.collections.PathCollection`
+#
+#    This example shows an alternative to
+#
+#    - `matplotlib.collections.PolyCollection`
+#    - `matplotlib.axes.Axes.hist`

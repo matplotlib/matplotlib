@@ -38,11 +38,11 @@ im.set_clip_path(circle)
 plt.plot(x, y, 'o', color=(0.9, 0.9, 1.0), alpha=0.8)
 
 # Dolphin from OpenClipart library by Andy Fitzsimon
-#       <cc:License rdf:about="http://web.resource.org/cc/PublicDomain">
-#         <cc:permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
-#         <cc:permits rdf:resource="http://web.resource.org/cc/Distribution"/>
-#         <cc:permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/>
-#       </cc:License>
+#   <cc:License rdf:about="http://web.resource.org/cc/PublicDomain">
+#     <cc:permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+#     <cc:permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+#     <cc:permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/>
+#   </cc:License>
 
 dolphin = """
 M -0.59739425,160.18173 C -0.62740401,160.18885 -0.57867129,160.11183
@@ -75,18 +75,19 @@ codes = []
 parts = dolphin.split()
 i = 0
 code_map = {
-    'M': (Path.MOVETO, 1),
-    'C': (Path.CURVE4, 3),
-    'L': (Path.LINETO, 1)}
+    'M': Path.MOVETO,
+    'C': Path.CURVE4,
+    'L': Path.LINETO,
+}
 
 while i < len(parts):
-    code = parts[i]
-    path_code, npoints = code_map[code]
+    path_code = code_map[parts[i]]
+    npoints = Path.NUM_VERTICES_FOR_CODE[path_code]
     codes.extend([path_code] * npoints)
-    vertices.extend([[float(x) for x in y.split(',')] for y in
-                     parts[i + 1:i + npoints + 1]])
+    vertices.extend([[*map(float, y.split(','))]
+                     for y in parts[i + 1:][:npoints]])
     i += npoints + 1
-vertices = np.array(vertices, float)
+vertices = np.array(vertices)
 vertices[:, 1] -= 160
 
 dolphin_path = Path(vertices, codes)
@@ -104,21 +105,17 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.patches
-matplotlib.patches.PathPatch
-matplotlib.patches.Circle
-matplotlib.axes.Axes.add_patch
-matplotlib.transforms
-matplotlib.transforms.Affine2D
-matplotlib.transforms.Affine2D.rotate_deg
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.patches.Circle`
+#    - `matplotlib.axes.Axes.add_patch`
+#    - `matplotlib.transforms`
+#    - `matplotlib.transforms.Affine2D`
+#    - `matplotlib.transforms.Affine2D.rotate_deg`

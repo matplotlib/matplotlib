@@ -6,8 +6,7 @@ from matplotlib.transforms import Bbox
 from mpl_toolkits.axisartist.clip_path import clip_line_to_rect
 
 
-@image_comparison(baseline_images=['clip_path'],
-                  extensions=['png'], style='default')
+@image_comparison(['clip_path.png'], style='default')
 def test_clip_path():
     x = np.array([-3, -2, -1, 0., 1, 2, 3, 2, 1, 0, -1, -2, -3, 5])
     y = np.arange(len(x))

@@ -1,5 +1,0 @@
-Deprecations
-````````````
-￼
-``TextToPath.glyph_to_path`` is deprecated (call ``font.get_path()`` and
-manually transform the path instead).

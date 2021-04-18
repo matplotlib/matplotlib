@@ -4,14 +4,14 @@ Subplots Adjust
 ===============
 
 Adjusting the spacing of margins and subplots using
-:func:`~matplotlib.pyplot.subplots_adjust`.
+`~matplotlib.pyplot.subplots_adjust`.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
-
 
 plt.subplot(211)
 plt.imshow(np.random.random((100, 100)), cmap=plt.cm.BuPu_r)

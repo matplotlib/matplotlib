@@ -1,7 +1,6 @@
 """EpochConverter module containing class EpochConverter."""
 
-import numpy as np
-
+from matplotlib import cbook
 import matplotlib.units as units
 import matplotlib.dates as date_ticker
 
@@ -9,39 +8,30 @@ __all__ = ['EpochConverter']
 
 
 class EpochConverter(units.ConversionInterface):
-    """: A matplotlib converter class.  Provides matplotlib conversion
-          functionality for Monte Epoch and Duration classes.
+    """
+    Provides Matplotlib conversion functionality for Monte Epoch and Duration
+    classes.
     """
 
     # julian date reference for "Jan 1, 0001" minus 1 day because
-    # matplotlib really wants "Jan 0, 0001"
+    # Matplotlib really wants "Jan 0, 0001"
     jdRef = 1721425.5 - 1
 
     @staticmethod
     def axisinfo(unit, axis):
-        """: Returns information on how to handle an axis that has Epoch data.
-
-        = INPUT VARIABLES
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns a matplotlib AxisInfo data structure that contains
-          minor/major formatters, major/minor locators, and default
-          label information.
-        """
-
+        # docstring inherited
         majloc = date_ticker.AutoDateLocator()
         majfmt = date_ticker.AutoDateFormatter(majloc)
-
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label=unit)
 
     @staticmethod
     def float2epoch(value, unit):
-        """: Convert a matplotlib floating-point date into an Epoch of the
-              specified units.
+        """
+        Convert a Matplotlib floating-point date into an Epoch of the specified
+        units.
 
         = INPUT VARIABLES
-        - value     The matplotlib floating-point date.
+        - value     The Matplotlib floating-point date.
         - unit      The unit system to use for the Epoch.
 
         = RETURN VALUE
@@ -55,8 +45,9 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def epoch2float(value, unit):
-        """: Convert an Epoch value to a float suitable for plotting as a
-              python datetime object.
+        """
+        Convert an Epoch value to a float suitable for plotting as a python
+        datetime object.
 
         = INPUT VARIABLES
         - value    An Epoch or list of Epochs that need to be converted.
@@ -69,8 +60,9 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def duration2float(value):
-        """: Convert a Duration value to a float suitable for plotting as a
-              python datetime object.
+        """
+        Convert a Duration value to a float suitable for plotting as a python
+        datetime object.
 
         = INPUT VARIABLES
         - value    A Duration or list of Durations that need to be converted.
@@ -82,59 +74,26 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(value, unit, axis):
-        """: Convert value using unit to a float.  If value is a sequence, return
-        the converted sequence.
+        # docstring inherited
 
-        = INPUT VARIABLES
-        - value    The value or list of values that need to be converted.
-        - unit     The units to use for an axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns the value parameter converted to floats.
-        """
         # Delay-load due to circular dependencies.
         import matplotlib.testing.jpl_units as U
 
-        isNotEpoch = True
-        isDuration = False
-
-        if np.iterable(value) and not isinstance(value, str):
-            if len(value) == 0:
-                return []
-            else:
-                return [EpochConverter.convert(x, unit, axis) for x in value]
-
-        if isinstance(value, U.Epoch):
-            isNotEpoch = False
-        elif isinstance(value, U.Duration):
-            isDuration = True
-
-        if (isNotEpoch and not isDuration and
-           units.ConversionInterface.is_numlike(value)):
+        if not cbook.is_scalar_or_string(value):
+            return [EpochConverter.convert(x, unit, axis) for x in value]
+        if units.ConversionInterface.is_numlike(value):
             return value
-
         if unit is None:
             unit = EpochConverter.default_units(value, axis)
-
-        if isDuration:
+        if isinstance(value, U.Duration):
             return EpochConverter.duration2float(value)
         else:
             return EpochConverter.epoch2float(value, unit)
 
     @staticmethod
     def default_units(value, axis):
-        """: Return the default unit for value, or None.
-
-        = INPUT VARIABLES
-        - value    The value or list of values that need units.
-
-        = RETURN VALUE
-        - Returns the default units to use for value.
-        """
-        frame = None
-        if np.iterable(value) and not isinstance(value, str):
-            return EpochConverter.default_units(value[0], axis)
+        # docstring inherited
+        if cbook.is_scalar_or_string(value):
+            return value.frame()
         else:
-            frame = value.frame()
-
-        return frame
+            return EpochConverter.default_units(value[0], axis)

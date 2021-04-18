@@ -1,4 +1,6 @@
 from io import BytesIO
+import pytest
+import logging
 
 from matplotlib import afm
 from matplotlib import font_manager as fm
@@ -88,3 +90,48 @@ def test_font_manager_weight_normalization():
     font = afm.AFM(BytesIO(
         AFM_TEST_DATA.replace(b"Weight Bold\n", b"Weight Custom\n")))
     assert fm.afmFontProperty("", font).weight == "normal"
+
+
+@pytest.mark.parametrize(
+    "afm_data",
+    [
+        b"""nope
+really nope""",
+        b"""StartFontMetrics 2.0
+Comment Comments are ignored.
+Comment Creation Date:Mon Nov 13 12:34:11 GMT 2017
+FontName MyFont-Bold
+EncodingScheme FontSpecific""",
+    ],
+)
+def test_bad_afm(afm_data):
+    fh = BytesIO(afm_data)
+    with pytest.raises(RuntimeError):
+        afm._parse_header(fh)
+
+
+@pytest.mark.parametrize(
+    "afm_data",
+    [
+        b"""StartFontMetrics 2.0
+Comment Comments are ignored.
+Comment Creation Date:Mon Nov 13 12:34:11 GMT 2017
+Aardvark bob
+FontName MyFont-Bold
+EncodingScheme FontSpecific
+StartCharMetrics 3""",
+        b"""StartFontMetrics 2.0
+Comment Comments are ignored.
+Comment Creation Date:Mon Nov 13 12:34:11 GMT 2017
+ItalicAngle zero degrees
+FontName MyFont-Bold
+EncodingScheme FontSpecific
+StartCharMetrics 3""",
+    ],
+)
+def test_malformed_header(afm_data, caplog):
+    fh = BytesIO(afm_data)
+    with caplog.at_level(logging.ERROR):
+        afm._parse_header(fh)
+
+    assert len(caplog.records) == 1

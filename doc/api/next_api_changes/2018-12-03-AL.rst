@@ -1,3 +1,0 @@
-``OldScalarFormatter.pprint_val``, ``ScalarFormatter.pprint_val``, and ``LogFormatter.pprint_val`` are deprecated
-`````````````````````````````````````````````````````````````````````````````````````````````````````````````````
-They are helper methods that do not even have a consistent signatures across formatter classes.

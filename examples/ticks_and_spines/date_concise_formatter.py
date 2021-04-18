@@ -24,8 +24,7 @@ import numpy as np
 # First, the default formatter.
 
 base = datetime.datetime(2005, 2, 1)
-dates = np.array([base + datetime.timedelta(hours=(2 * i))
-                  for i in range(732)])
+dates = [base + datetime.timedelta(hours=(2 * i)) for i in range(732)]
 N = len(dates)
 np.random.seed(19680801)
 y = np.cumsum(np.random.randn(N))
@@ -45,7 +44,7 @@ axs[0].set_title('Default Date Formatter')
 plt.show()
 
 #############################################################################
-# The default date formater is quite verbose, so we have the option of
+# The default date formatter is quite verbose, so we have the option of
 # using `~.dates.ConciseDateFormatter`, as shown below.  Note that
 # for this example the labels do not need to be rotated as they do for the
 # default formatter because the labels are as small as possible.
@@ -166,9 +165,8 @@ offset_formats = ['',
                   '%d %b %Y',
                   '%d %b %Y %H:%M', ]
 
-converter = mdates.ConciseDateConverter(formats=formats,
-                                 zero_formats=zero_formats,
-                                 offset_formats=offset_formats)
+converter = mdates.ConciseDateConverter(
+    formats=formats, zero_formats=zero_formats, offset_formats=offset_formats)
 
 munits.registry[np.datetime64] = converter
 munits.registry[datetime.date] = converter

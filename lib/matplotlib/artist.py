@@ -8,8 +8,8 @@ import warnings
 
 import numpy as np
 
-import matplotlib
-from . import cbook, docstring, rcParams
+import matplotlib as mpl
+from . import _api, cbook, docstring
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -26,12 +26,25 @@ def allow_rasterization(draw):
     renderer.
     """
 
-    # the axes class has a second argument inframe for its draw method.
+    # Axes has a second (deprecated) argument inframe for its draw method.
+    # args and kwargs are deprecated, but we don't wrap this in
+    # _api.delete_parameter for performance; the relevant deprecation
+    # warning will be emitted by the inner draw() call.
     @wraps(draw)
     def draw_wrapper(artist, renderer, *args, **kwargs):
         try:
             if artist.get_rasterized():
-                renderer.start_rasterizing()
+                if renderer._raster_depth == 0 and not renderer._rasterizing:
+                    renderer.start_rasterizing()
+                    renderer._rasterizing = True
+                renderer._raster_depth += 1
+            else:
+                if renderer._raster_depth == 0 and renderer._rasterizing:
+                    # Only stop when we are not in a rasterized parent
+                    # and something has be rasterized since last stop
+                    renderer.stop_rasterizing()
+                    renderer._rasterizing = False
+
             if artist.get_agg_filter() is not None:
                 renderer.start_filter()
 
@@ -40,9 +53,29 @@ def allow_rasterization(draw):
             if artist.get_agg_filter() is not None:
                 renderer.stop_filter(artist.get_agg_filter())
             if artist.get_rasterized():
+                renderer._raster_depth -= 1
+            if (renderer._rasterizing and artist.figure and
+                    artist.figure.suppressComposite):
+                # restart rasterizing to prevent merging
                 renderer.stop_rasterizing()
+                renderer.start_rasterizing()
 
     draw_wrapper._supports_rasterization = True
+    return draw_wrapper
+
+
+def _finalize_rasterization(draw):
+    """
+    Decorator for Artist.draw method. Needed on the outermost artist, i.e.
+    Figure, to finish up if the render is still in rasterized mode.
+    """
+    @wraps(draw)
+    def draw_wrapper(artist, renderer, *args, **kwargs):
+        result = draw(artist, renderer, *args, **kwargs)
+        if renderer._rasterizing:
+            renderer.stop_rasterizing()
+            renderer._rasterizing = False
+        return result
     return draw_wrapper
 
 
@@ -54,22 +87,14 @@ def _stale_axes_callback(self, val):
 _XYPair = namedtuple("_XYPair", "x y")
 
 
-class Artist(object):
+class Artist:
     """
     Abstract base class for objects that render into a FigureCanvas.
 
     Typically, all visible elements in a figure are subclasses of Artist.
     """
-    @cbook.deprecated("3.1")
-    @property
-    def aname(self):
-        return 'Artist'
 
     zorder = 0
-    # order of precedence when bulk setting/updating properties
-    # via update.  The keys should be property names and the values
-    # integers
-    _prop_order = dict(color=-1)
 
     def __init__(self):
         self._stale = True
@@ -88,12 +113,12 @@ class Artist(object):
         self._label = ''
         self._picker = None
         self._contains = None
-        self._rasterized = None
+        self._rasterized = False
         self._agg_filter = None
-        self._mouseover = False
-        self.eventson = False  # fire events only if eventson
-        self._oid = 0  # an observer id
-        self._propobservers = {}  # a dict from oids to funcs
+        # Normally, artist classes need to be queried for mouseover info if and
+        # only if they override get_cursor_data.
+        self._mouseover = type(self).get_cursor_data != Artist.get_cursor_data
+        self._callbacks = cbook.CallbackRegistry()
         try:
             self.axes = None
         except AttributeError:
@@ -103,8 +128,8 @@ class Artist(object):
         self._url = None
         self._gid = None
         self._snap = None
-        self._sketch = rcParams['path.sketch']
-        self._path_effects = rcParams['path.effects']
+        self._sketch = mpl.rcParams['path.sketch']
+        self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
 
@@ -161,11 +186,9 @@ class Artist(object):
         # TODO: add legend support
 
     def have_units(self):
-        """Return *True* if units are set on the *x* or *y* axes."""
+        """Return whether units are set on any axis."""
         ax = self.axes
-        if ax is None or ax.xaxis is None:
-            return False
-        return ax.xaxis.have_units() or ax.yaxis.have_units()
+        return ax and any(axis.have_units() for axis in ax._get_axis_list())
 
     def convert_xunits(self, x):
         """
@@ -206,7 +229,6 @@ class Artist(object):
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
-        return new_axes
 
     @property
     def stale(self):
@@ -249,20 +271,37 @@ class Artist(object):
         """
         return Bbox([[0, 0], [0, 0]])
 
+    def _get_clipping_extent_bbox(self):
+        """
+        Return a bbox with the extents of the intersection of the clip_path
+        and clip_box for this artist, or None if both of these are
+        None, or ``get_clip_on`` is False.
+        """
+        bbox = None
+        if self.get_clip_on():
+            clip_box = self.get_clip_box()
+            if clip_box is not None:
+                bbox = clip_box
+            clip_path = self.get_clip_path()
+            if clip_path is not None and bbox is not None:
+                clip_path = clip_path.get_fully_transformed_path()
+                bbox = Bbox.intersection(bbox, clip_path.get_extents())
+        return bbox
+
     def get_tightbbox(self, renderer):
         """
-        Like `Artist.get_window_extent`, but includes any clipping.
+        Like `.Artist.get_window_extent`, but includes any clipping.
 
         Parameters
         ----------
-        renderer : `.RendererBase` instance
+        renderer : `.RendererBase` subclass
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 
         Returns
         -------
-        bbox : `.BBox`
-            The enclosing bounding box (in figure pixel co-ordinates).
+        `.Bbox`
+            The enclosing bounding box (in figure pixel coordinates).
         """
         bbox = self.get_window_extent(renderer)
         if self.get_clip_on():
@@ -292,7 +331,7 @@ class Artist(object):
 
         Returns
         -------
-        oid : int
+        int
             The observer id associated with the callback. This id can be
             used for removing the callback with `.remove_callback` later.
 
@@ -300,10 +339,9 @@ class Artist(object):
         --------
         remove_callback
         """
-        oid = self._oid
-        self._propobservers[oid] = func
-        self._oid += 1
-        return oid
+        # Wrapping func in a lambda ensures it can be connected multiple times
+        # and never gets weakref-gc'ed.
+        return self._callbacks.connect("pchanged", lambda: func(self))
 
     def remove_callback(self, oid):
         """
@@ -313,10 +351,7 @@ class Artist(object):
         --------
         add_callback
         """
-        try:
-            del self._propobservers[oid]
-        except KeyError:
-            pass
+        self._callbacks.disconnect(oid)
 
     def pchanged(self):
         """
@@ -329,8 +364,7 @@ class Artist(object):
         add_callback
         remove_callback
         """
-        for oid, func in self._propobservers.items():
-            func(self)
+        self._callbacks.process("pchanged")
 
     def is_transform_set(self):
         """
@@ -366,8 +400,35 @@ class Artist(object):
         r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
+    def _default_contains(self, mouseevent, figure=None):
+        """
+        Base impl. for checking whether a mouseevent happened in an artist.
+
+        1. If the artist defines a custom checker, use it (deprecated).
+        2. If the artist figure is known and the event did not occur in that
+           figure (by checking its ``canvas`` attribute), reject it.
+        3. Otherwise, return `None, {}`, indicating that the subclass'
+           implementation should be used.
+
+        Subclasses should start their definition of `contains` as follows:
+
+            inside, info = self._default_contains(mouseevent)
+            if inside is not None:
+                return inside, info
+            # subclass-specific implementation follows
+
+        The *figure* kwarg is provided for the implementation of
+        `.Figure.contains`.
+        """
+        if callable(self._contains):
+            return self._contains(self, mouseevent)
+        if figure is not None and mouseevent.canvas is not figure.canvas:
+            return False, {}
+        return None, {}
+
     def contains(self, mouseevent):
-        """Test whether the artist contains the mouse event.
+        """
+        Test whether the artist contains the mouse event.
 
         Parameters
         ----------
@@ -381,16 +442,14 @@ class Artist(object):
             An artist-specific dictionary of details of the event context,
             such as which points are contained in the pick radius. See the
             individual Artist subclasses for details.
-
-        See Also
-        --------
-        set_contains, get_contains
         """
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
+    @_api.deprecated("3.3", alternative="set_picker")
     def set_contains(self, picker):
         """
         Define a custom contains test for the artist.
@@ -418,6 +477,7 @@ class Artist(object):
             raise TypeError("picker is not a callable")
         self._contains = picker
 
+    @_api.deprecated("3.3", alternative="get_picker")
     def get_contains(self):
         """
         Return the custom contains function of the artist if set, or *None*.
@@ -490,7 +550,7 @@ class Artist(object):
 
             - A float: If picker is a number it is interpreted as an
               epsilon tolerance in points and the artist will fire
-              off an event if it's data is within epsilon of the mouse
+              off an event if its data is within epsilon of the mouse
               event.  For some artists like lines and patch collections,
               the artist may provide additional data to the pick event
               that is generated, e.g., the indices of the data within
@@ -505,7 +565,6 @@ class Artist(object):
               to determine the hit test.  if the mouse event is over the
               artist, return *hit=True* and props is a dictionary of
               properties you want added to the PickEvent attributes.
-
         """
         self._picker = picker
 
@@ -551,11 +610,11 @@ class Artist(object):
 
     def get_snap(self):
         """
-        Returns the snap setting.
+        Return the snap setting.
 
         See `.set_snap` for details.
         """
-        if rcParams['path.snap']:
+        if mpl.rcParams['path.snap']:
             return self._snap
         else:
             return False
@@ -590,11 +649,11 @@ class Artist(object):
 
     def get_sketch_params(self):
         """
-        Returns the sketch parameters for the artist.
+        Return the sketch parameters for the artist.
 
         Returns
         -------
-        sketch_params : tuple or None
+        tuple or None
 
             A 3-tuple with the following elements:
 
@@ -610,20 +669,17 @@ class Artist(object):
 
     def set_sketch_params(self, scale=None, length=None, randomness=None):
         """
-        Sets the sketch parameters.
+        Set the sketch parameters.
 
         Parameters
         ----------
-
         scale : float, optional
             The amplitude of the wiggle perpendicular to the source
             line, in pixels.  If scale is `None`, or not provided, no
             sketch filter will be provided.
-
         length : float, optional
              The length of the wiggle along the line, in pixels
              (default 128.0)
-
         randomness : float, optional
             The scale factor by which the length is shrunken or
             expanded (default 16.0)
@@ -637,7 +693,8 @@ class Artist(object):
         self.stale = True
 
     def set_path_effects(self, path_effects):
-        """Set the path effects.
+        """
+        Set the path effects.
 
         Parameters
         ----------
@@ -665,7 +722,7 @@ class Artist(object):
         if self.figure is fig:
             return
         # if we currently have a figure (the case of both `self.figure`
-        # and `fig` being none is taken care of above) we then user is
+        # and *fig* being none is taken care of above) we then user is
         # trying to change the figure an artist is associated with which
         # is not allowed for the same reason as adding the same instance
         # to more than one Axes
@@ -691,20 +748,28 @@ class Artist(object):
 
     def set_clip_path(self, path, transform=None):
         """
-        Set the artist's clip path, which may be:
+        Set the artist's clip path.
 
-        - a :class:`~matplotlib.patches.Patch` (or subclass) instance; or
-        - a :class:`~matplotlib.path.Path` instance, in which case a
-          :class:`~matplotlib.transforms.Transform` instance, which will be
-          applied to the path before using it for clipping, must be provided;
-          or
-        - ``None``, to remove a previously set clipping path.
+        Parameters
+        ----------
+        path : `.Patch` or `.Path` or `.TransformedPath` or None
+            The clip path. If given a `.Path`, *transform* must be provided as
+            well. If *None*, a previously set clip path is removed.
+        transform : `~matplotlib.transforms.Transform`, optional
+            Only used if *path* is a `.Path`, in which case the given `.Path`
+            is converted to a `.TransformedPath` using *transform*.
 
-        For efficiency, if the path happens to be an axis-aligned rectangle,
-        this method will set the clipping box to the corresponding rectangle
-        and set the clipping path to ``None``.
+        Notes
+        -----
+        For efficiency, if *path* is a `.Rectangle` this method will set the
+        clipping box to the corresponding rectangle and set the clipping path
+        to ``None``.
 
-        ACCEPTS: [(`~matplotlib.path.Path`, `.Transform`) | `.Patch` | None]
+        For technical reasons (support of `~.Artist.set`), a tuple
+        (*path*, *transform*) is also accepted as a single positional
+        parameter.
+
+        .. ACCEPTS: Patch or (Path, Transform) or None
         """
         from matplotlib.patches import Patch, Rectangle
 
@@ -746,7 +811,7 @@ class Artist(object):
     def get_alpha(self):
         """
         Return the alpha value used for blending - not supported on all
-        backends
+        backends.
         """
         return self._alpha
 
@@ -755,7 +820,7 @@ class Artist(object):
         return self._visible
 
     def get_animated(self):
-        """Return the animated state."""
+        """Return whether the artist is animated."""
         return self._animated
 
     def get_in_layout(self):
@@ -782,11 +847,11 @@ class Artist(object):
         return self._clippath
 
     def get_transformed_clip_path_and_affine(self):
-        '''
+        """
         Return the clip path with the non-affine part of its
         transformation applied, and the remaining affine part of its
         transformation.
-        '''
+        """
         if self._clippath is not None:
             return self._clippath.get_transformed_path_and_affine()
         return None, None
@@ -795,7 +860,7 @@ class Artist(object):
         """
         Set whether the artist uses clipping.
 
-        When False artists will be visible out side of the axes which
+        When False artists will be visible outside of the axes which
         can lead to unexpected results.
 
         Parameters
@@ -809,7 +874,7 @@ class Artist(object):
         self.stale = True
 
     def _set_gc_clip(self, gc):
-        'Set the clip properly for the gc'
+        """Set the clip properly for the gc."""
         if self._clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
@@ -824,17 +889,22 @@ class Artist(object):
 
     def set_rasterized(self, rasterized):
         """
-        Force rasterized (bitmap) drawing in vector backend output.
+        Force rasterized (bitmap) drawing for vector graphics output.
 
-        Defaults to None, which implies the backend's default behavior.
+        Rasterized drawing is not supported by all artists. If you try to
+        enable this on an artist that does not support it, the command has no
+        effect and a warning will be issued.
+
+        This setting is ignored for pixel-based output.
+
+        See also :doc:`/gallery/misc/rasterization_demo`.
 
         Parameters
         ----------
-        rasterized : bool or None
+        rasterized : bool
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            cbook._warn_external(
-                "Rasterization of '%s' will be ignored" % self)
+            _api.warn_external(f"Rasterization of '{self}' will be ignored")
 
         self._rasterized = rasterized
 
@@ -843,7 +913,8 @@ class Artist(object):
         return self._agg_filter
 
     def set_agg_filter(self, filter_func):
-        """Set the agg filter.
+        """
+        Set the agg filter.
 
         Parameters
         ----------
@@ -857,17 +928,22 @@ class Artist(object):
         self._agg_filter = filter_func
         self.stale = True
 
+    @_api.delete_parameter("3.3", "args")
+    @_api.delete_parameter("3.3", "kwargs")
     def draw(self, renderer, *args, **kwargs):
         """
-        Draw the Artist using the given renderer.
+        Draw the Artist (and its children) using the given renderer.
 
-        This method will be overridden in the Artist subclasses. Typically,
-        it is implemented to not have any effect if the Artist is not visible
-        (`.Artist.get_visible` is *False*).
+        This has no effect if the artist is not visible (`.Artist.get_visible`
+        returns False).
 
         Parameters
         ----------
         renderer : `.RendererBase` subclass.
+
+        Notes
+        -----
+        This method is overridden in the Artist subclasses.
         """
         if not self.get_visible():
             return
@@ -879,10 +955,37 @@ class Artist(object):
 
         Parameters
         ----------
-        alpha : float or None
+        alpha : scalar or None
+            *alpha* must be within the 0-1 range, inclusive.
         """
         if alpha is not None and not isinstance(alpha, Number):
-            raise TypeError('alpha must be a float or None')
+            raise TypeError(
+                f'alpha must be numeric or None, not {type(alpha)}')
+        if alpha is not None and not (0 <= alpha <= 1):
+            raise ValueError(f'alpha ({alpha}) is outside 0-1 range')
+        self._alpha = alpha
+        self.pchanged()
+        self.stale = True
+
+    def _set_alpha_for_array(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on all backends.
+
+        Parameters
+        ----------
+        alpha : array-like or scalar or None
+            All values must be within the 0-1 range, inclusive.
+            Masked values and nans are not supported.
+        """
+        if isinstance(alpha, str):
+            raise TypeError("alpha must be numeric or None, not a string")
+        if not np.iterable(alpha):
+            Artist.set_alpha(self, alpha)
+            return
+        alpha = np.asarray(alpha)
+        if not (0 <= alpha.min() and alpha.max() <= 1):
+            raise ValueError('alpha must be between 0 and 1, inclusive, '
+                             f'but min is {alpha.min()}, max is {alpha.max()}')
         self._alpha = alpha
         self.pchanged()
         self.stale = True
@@ -901,7 +1004,15 @@ class Artist(object):
 
     def set_animated(self, b):
         """
-        Set the artist's animation state.
+        Set whether the artist is intended to be used in an animation.
+
+        If True, the artist is excluded from regular drawing of the figure.
+        You have to call `.Figure.draw_artist` / `.Axes.draw_artist`
+        explicitly on the artist. This appoach is used to speed up animations
+        using blitting.
+
+        See also `matplotlib.animation` and
+        :doc:`/tutorials/advanced/blitting`.
 
         Parameters
         ----------
@@ -926,39 +1037,32 @@ class Artist(object):
 
     def update(self, props):
         """
-        Update this artist's properties from the dictionary *props*.
+        Update this artist's properties from the dict *props*.
+
+        Parameters
+        ----------
+        props : dict
         """
-        def _update_property(self, k, v):
-            """Sorting out how to update property (setter or setattr).
-
-            Parameters
-            ----------
-            k : str
-                The name of property to update
-            v : obj
-                The value to assign to the property
-
-            Returns
-            -------
-            ret : obj or None
-                If using a `set_*` method return it's return, else None.
-            """
-            k = k.lower()
-            # white list attributes we want to be able to update through
-            # art.update, art.set, setp
-            if k in {'axes'}:
-                return setattr(self, k, v)
-            else:
-                func = getattr(self, 'set_' + k, None)
-                if not callable(func):
-                    raise AttributeError('{!r} object has no property {!r}'
-                                         .format(type(self).__name__, k))
-                return func(v)
-
+        ret = []
         with cbook._setattr_cm(self, eventson=False):
-            ret = [_update_property(self, k, v) for k, v in props.items()]
-
-        if len(ret):
+            for k, v in props.items():
+                if k != k.lower():
+                    _api.warn_deprecated(
+                        "3.3", message="Case-insensitive properties were "
+                        "deprecated in %(since)s and support will be removed "
+                        "%(removal)s")
+                    k = k.lower()
+                # White list attributes we want to be able to update through
+                # art.update, art.set, setp.
+                if k == "axes":
+                    ret.append(setattr(self, k, v))
+                else:
+                    func = getattr(self, f"set_{k}", None)
+                    if not callable(func):
+                        raise AttributeError(f"{type(self).__name__!r} object "
+                                             f"has no property {k!r}")
+                    ret.append(func(v))
+        if ret:
             self.pchanged()
             self.stale = True
         return ret
@@ -1018,7 +1122,6 @@ class Artist(object):
 
         Examples
         --------
-
         >>> artist.sticky_edges.x[:] = (xmin, xmax)
         >>> artist.sticky_edges.y[:] = (ymin, ymax)
 
@@ -1026,7 +1129,7 @@ class Artist(object):
         return self._sticky_edges
 
     def update_from(self, other):
-        'Copy properties from *other* to *self*.'
+        """Copy properties from *other* to *self*."""
         self._transform = other._transform
         self._transformSet = other._transformSet
         self._visible = other._visible
@@ -1037,8 +1140,8 @@ class Artist(object):
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
-        self.sticky_edges.x[:] = other.sticky_edges.x[:]
-        self.sticky_edges.y[:] = other.sticky_edges.y[:]
+        self.sticky_edges.x[:] = other.sticky_edges.x.copy()
+        self.sticky_edges.y[:] = other.sticky_edges.y.copy()
         self.pchanged()
         self.stale = True
 
@@ -1048,12 +1151,32 @@ class Artist(object):
 
     def set(self, **kwargs):
         """A property batch setter.  Pass *kwargs* to set properties."""
-        kwargs = cbook.normalize_kwargs(
-            kwargs, getattr(type(self), "_alias_map", {}))
-        props = OrderedDict(
-            sorted(kwargs.items(), reverse=True,
-                   key=lambda x: (self._prop_order.get(x[0], 0), x[0])))
-        return self.update(props)
+        kwargs = cbook.normalize_kwargs(kwargs, self)
+        move_color_to_start = False
+        if "color" in kwargs:
+            keys = [*kwargs]
+            i_color = keys.index("color")
+            props = ["edgecolor", "facecolor"]
+            if any(tp.__module__ == "matplotlib.collections"
+                   and tp.__name__ == "Collection"
+                   for tp in type(self).__mro__):
+                props.append("alpha")
+            for other in props:
+                if other not in keys:
+                    continue
+                i_other = keys.index(other)
+                if i_other < i_color:
+                    move_color_to_start = True
+                    _api.warn_deprecated(
+                        "3.3", message=f"You have passed the {other!r} kwarg "
+                        "before the 'color' kwarg.  Artist.set() currently "
+                        "reorders the properties to apply 'color' first, but "
+                        "this is deprecated since %(since)s and will be "
+                        "removed %(removal)s; please pass 'color' first "
+                        "instead.")
+        if move_color_to_start:
+            kwargs = {"color": kwargs.pop("color"), **kwargs}
+        return self.update(kwargs)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1078,7 +1201,7 @@ class Artist(object):
 
         Returns
         -------
-        artists : list of `.Artist`
+        list of `.Artist`
 
         """
         if match is None:  # always return True
@@ -1155,6 +1278,13 @@ class Artist(object):
 
     @property
     def mouseover(self):
+        """
+        If this property is set to *True*, the artist will be queried for
+        custom context information when the mouse cursor moves over it.
+
+        See also :meth:`get_cursor_data`, :class:`.ToolCursorPosition` and
+        :class:`.NavigationToolbar2`.
+        """
         return self._mouseover
 
     @mouseover.setter
@@ -1169,7 +1299,7 @@ class Artist(object):
                 ax._mouseover_set.discard(self)
 
 
-class ArtistInspector(object):
+class ArtistInspector:
     """
     A helper class to inspect an `~matplotlib.artist.Artist` and return
     information about its settable properties and their current values.
@@ -1179,7 +1309,7 @@ class ArtistInspector(object):
         r"""
         Initialize the artist inspector with an `Artist` or an iterable of
         `Artist`\s.  If an iterable is used, we assume it is a homogeneous
-        sequence (all `Artists` are of the same type) and it is your
+        sequence (all `Artist`\s are of the same type) and it is your
         responsibility to make sure this is so.
         """
         if not isinstance(o, Artist):
@@ -1259,30 +1389,6 @@ class ArtistInspector(object):
 
         return 'unknown'
 
-    def _get_setters_and_targets(self):
-        """
-        Get the attribute strings and a full path to where the setter
-        is defined for all setters in an object.
-        """
-        setters = []
-        for name in dir(self.o):
-            if not name.startswith('set_'):
-                continue
-            func = getattr(self.o, name)
-            if not callable(func):
-                continue
-            nargs = len(inspect.getfullargspec(func).args)
-            if nargs < 2 or self.is_alias(func):
-                continue
-            source_class = self.o.__module__ + "." + self.o.__name__
-            for cls in self.o.mro():
-                if name in cls.__dict__:
-                    source_class = cls.__module__ + "." + cls.__name__
-                    break
-            source_class = self._replace_path(source_class)
-            setters.append((name[4:], source_class + "." + name))
-        return setters
-
     def _replace_path(self, source_class):
         """
         Changes the full path to the public API path that is used
@@ -1296,10 +1402,22 @@ class ArtistInspector(object):
 
     def get_setters(self):
         """
-        Get the attribute strings with setters for object.  e.g., for a line,
-        return ``['markerfacecolor', 'linewidth', ....]``.
+        Get the attribute strings with setters for object.
+
+        For example, for a line, return ``['markerfacecolor', 'linewidth',
+        ....]``.
         """
-        return [prop for prop, target in self._get_setters_and_targets()]
+        setters = []
+        for name in dir(self.o):
+            if not name.startswith('set_'):
+                continue
+            func = getattr(self.o, name)
+            if (not callable(func)
+                    or len(inspect.signature(func).parameters) < 2
+                    or self.is_alias(func)):
+                continue
+            setters.append(name[4:])
+        return setters
 
     def is_alias(self, o):
         """Return whether method object *o* is an alias for another method."""
@@ -1322,7 +1440,7 @@ class ArtistInspector(object):
     def aliased_name_rest(self, s, target):
         """
         Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME',
-        formatted for ReST.
+        formatted for reST.
 
         e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
@@ -1348,24 +1466,20 @@ class ArtistInspector(object):
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' % (pad, prop, accepts)
 
-        attrs = self._get_setters_and_targets()
-        attrs.sort()
         lines = []
-
-        for prop, path in attrs:
+        for prop in sorted(self.get_setters()):
             accepts = self.get_valid_values(prop)
             name = self.aliased_name(prop)
-
             lines.append('%s%s: %s' % (pad, name, accepts))
         return lines
 
     def pprint_setters_rest(self, prop=None, leadingspace=4):
         """
-        If *prop* is *None*, return a list of strings of all settable
-        properties and their valid values.  Format the output for ReST
+        If *prop* is *None*, return a list of reST-formatted strings of all
+        settable properties and their valid values.
 
         If *prop* is not *None*, it is a valid property name and that
-        property will be returned as a string of property : valid
+        property will be returned as a string of "property : valid"
         values.
         """
         if leadingspace:
@@ -1376,11 +1490,24 @@ class ArtistInspector(object):
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' % (pad, prop, accepts)
 
-        attrs = sorted(self._get_setters_and_targets())
+        prop_and_qualnames = []
+        for prop in sorted(self.get_setters()):
+            # Find the parent method which actually provides the docstring.
+            for cls in self.o.__mro__:
+                method = getattr(cls, f"set_{prop}", None)
+                if method and method.__doc__ is not None:
+                    break
+            else:  # No docstring available.
+                method = getattr(self.o, f"set_{prop}")
+            prop_and_qualnames.append(
+                (prop, f"{method.__module__}.{method.__qualname__}"))
 
         names = [self.aliased_name_rest(prop, target)
-                 for prop, target in attrs]
-        accepts = [self.get_valid_values(prop) for prop, target in attrs]
+                 .replace('_base._AxesBase', 'Axes')
+                 .replace('_axes.Axes', 'Axes')
+                 for prop, target in prop_and_qualnames]
+        accepts = [self.get_valid_values(prop)
+                   for prop, _ in prop_and_qualnames]
 
         col0_len = max(len(n) for n in names)
         col1_len = max(len(a) for a in accepts)
@@ -1440,93 +1567,100 @@ class ArtistInspector(object):
 
 def getp(obj, property=None):
     """
-    Return the value of object's property.  *property* is an optional string
-    for the property you want to return
+    Return the value of an `.Artist`'s *property*, or print all of them.
 
-    Example usage::
+    Parameters
+    ----------
+    obj : `.Artist`
+        The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
-        getp(obj)  # get all the object properties
-        getp(obj, 'linestyle')  # get the linestyle property
+    property : str or None, default: None
+        If *property* is 'somename', this function returns
+        ``obj.get_somename()``.
 
-    *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotlib.lines.Line2D` or an instance of a
-    :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
-    If the *property* is 'somename', this function returns
+        If is is None (or unset), it *prints* all gettable properties from
+        *obj*.  Many properties have aliases for shorter typing, e.g. 'lw' is
+        an alias for 'linewidth'.  In the output, aliases and full property
+        names will be listed as:
 
-      obj.get_somename()
+          property or alias = value
 
-    :func:`getp` can be used to query all the gettable properties with
-    ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
-    'lw' is an alias for 'linewidth'.  In the output, aliases and full
-    property names will be listed as:
+        e.g.:
 
-      property or alias = value
+          linewidth or lw = 2
 
-    e.g.:
-
-      linewidth or lw = 2
+    See Also
+    --------
+    setp
     """
     if property is None:
         insp = ArtistInspector(obj)
         ret = insp.pprint_getters()
         print('\n'.join(ret))
         return
-
-    func = getattr(obj, 'get_' + property)
-    return func()
+    return getattr(obj, 'get_' + property)()
 
 # alias
 get = getp
 
 
-def setp(obj, *args, **kwargs):
+def setp(obj, *args, file=None, **kwargs):
     """
-    Set a property on an artist object.
+    Set one or more properties on an `.Artist`, or list allowed values.
 
-    matplotlib supports the use of :func:`setp` ("set property") and
-    :func:`getp` to set and get object properties, as well as to do
-    introspection on the object.  For example, to set the linestyle of a
-    line to be dashed, you can do::
+    Parameters
+    ----------
+    obj : `.Artist` or list of `.Artist`
+        The artist(s) whose properties are being set or queried.  When setting
+        properties, all artists are affected; when querying the allowed values,
+        only the first instance in the sequence is queried.
 
-      >>> line, = plot([1,2,3])
-      >>> setp(line, linestyle='--')
+        For example, two lines can be made thicker and red with a single call:
 
-    If you want to know the valid types of arguments, you can provide
-    the name of the property you want to set without a value::
+        >>> x = arange(0, 1, 0.01)
+        >>> lines = plot(x, sin(2*pi*x), x, sin(4*pi*x))
+        >>> setp(lines, linewidth=2, color='r')
 
-      >>> setp(line, 'linestyle')
-          linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+    file : file-like, default: `sys.stdout`
+        Where `setp` writes its output when asked to list allowed values.
 
-    If you want to see all the properties that can be set, and their
-    possible values, you can do::
+        >>> with open('output.log') as file:
+        ...     setp(line, file=file)
 
-      >>> setp(line)
-          ... long output listing omitted
+        The default, ``None``, means `sys.stdout`.
 
-    You may specify another output file to `setp` if `sys.stdout` is not
-    acceptable for some reason using the `file` keyword-only argument::
+    *args, **kwargs
+        The properties to set.  The following combinations are supported:
 
-      >>> with fopen('output.log') as f:
-      >>>     setp(line, file=f)
+        - Set the linestyle of a line to be dashed:
 
-    :func:`setp` operates on a single instance or a iterable of
-    instances. If you are in query mode introspecting the possible
-    values, only the first instance in the sequence is used. When
-    actually setting values, all the instances will be set.  e.g.,
-    suppose you have a list of two lines, the following will make both
-    lines thicker and red::
+          >>> line, = plot([1, 2, 3])
+          >>> setp(line, linestyle='--')
 
-      >>> x = arange(0,1.0,0.01)
-      >>> y1 = sin(2*pi*x)
-      >>> y2 = sin(4*pi*x)
-      >>> lines = plot(x, y1, x, y2)
-      >>> setp(lines, linewidth=2, color='r')
+        - Set multiple properties at once:
 
-    :func:`setp` works with the MATLAB style string/value pairs or
-    with python kwargs.  For example, the following are equivalent::
+          >>> setp(line, linewidth=2, color='r')
 
-      >>> setp(lines, 'linewidth', 2, 'color', 'r')  # MATLAB style
-      >>> setp(lines, linewidth=2, color='r')        # python style
+        - List allowed values for a line's linestyle:
+
+          >>> setp(line, 'linestyle')
+          linestyle: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+
+        - List all properties that can be set, and their allowed values:
+
+          >>> setp(line)
+          agg_filter: a filter function, ...
+          [long output listing omitted]
+
+        `setp` also supports MATLAB style string/value pairs.  For example, the
+        following are equivalent:
+
+        >>> setp(lines, 'linewidth', 2, 'color', 'r')  # MATLAB style
+        >>> setp(lines, linewidth=2, color='r')        # Python style
+
+    See Also
+    --------
+    getp
     """
 
     if isinstance(obj, Artist):
@@ -1539,16 +1673,11 @@ def setp(obj, *args, **kwargs):
 
     insp = ArtistInspector(objs[0])
 
-    # file has to be popped before checking if kwargs is empty
-    printArgs = {}
-    if 'file' in kwargs:
-        printArgs['file'] = kwargs.pop('file')
-
     if not kwargs and len(args) < 2:
         if args:
-            print(insp.pprint_setters(prop=args[0]), **printArgs)
+            print(insp.pprint_setters(prop=args[0]), file=file)
         else:
-            print('\n'.join(insp.pprint_setters()), **printArgs)
+            print('\n'.join(insp.pprint_setters()), file=file)
         return
 
     if len(args) % 2:
@@ -1562,10 +1691,8 @@ def setp(obj, *args, **kwargs):
 
 def kwdoc(artist):
     r"""
-    Inspect an `~matplotlib.artist.Artist` class and return
-    information about its settable properties and their current values.
-
-    It use the class `.ArtistInspector`.
+    Inspect an `~matplotlib.artist.Artist` class (using `.ArtistInspector`) and
+    return information about its settable properties and their current values.
 
     Parameters
     ----------
@@ -1573,19 +1700,15 @@ def kwdoc(artist):
 
     Returns
     -------
-    string
-        Returns a string with a list or rst table with the settable properties
-        of the *artist*. The formatting depends on the value of
-        :rc:`docstring.hardcopy`. False result in a list that is intended for
-        easy reading as a docstring and True result in a rst table intended
-        for rendering the documentation with sphinx.
+    str
+        The settable properties of *artist*, as plain text if
+        :rc:`docstring.hardcopy` is False and as a rst table (intended for
+        use in Sphinx) if it is True.
     """
-    hardcopy = matplotlib.rcParams['docstring.hardcopy']
-    if hardcopy:
-        return '\n'.join(ArtistInspector(artist).pprint_setters_rest(
-                         leadingspace=4))
-    else:
-        return '\n'.join(ArtistInspector(artist).pprint_setters(
-                         leadingspace=2))
+    ai = ArtistInspector(artist)
+    return ('\n'.join(ai.pprint_setters_rest(leadingspace=4))
+            if mpl.rcParams['docstring.hardcopy'] else
+            'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
 
-docstring.interpd.update(Artist=kwdoc(Artist))
+
+docstring.interpd.update(Artist_kwdoc=kwdoc(Artist))

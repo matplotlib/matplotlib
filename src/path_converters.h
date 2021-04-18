@@ -163,6 +163,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
     VertexSource *m_source;
     bool m_remove_nans;
     bool m_has_curves;
+    bool valid_segment_exists;
 
   public:
     /* has_curves should be true if the path contains bezier curve
@@ -172,7 +173,9 @@ class PathNanRemover : protected EmbeddedQueue<4>
     PathNanRemover(VertexSource &source, bool remove_nans, bool has_curves)
         : m_source(&source), m_remove_nans(remove_nans), m_has_curves(has_curves)
     {
-        // empty
+        // ignore all close/end_poly commands until after the first valid
+        // (nan-free) command is encountered
+        valid_segment_exists = false;
     }
 
     inline void rewind(unsigned path_id)
@@ -202,8 +205,13 @@ class PathNanRemover : protected EmbeddedQueue<4>
                    are found along the way, the queue is emptied, and
                    the next curve segment is handled. */
                 code = m_source->vertex(x, y);
+                /* The vertices attached to STOP and CLOSEPOLY left are never
+                   used, so we leave them as-is even if NaN. However, CLOSEPOLY
+                   only makes sense if a valid MOVETO command has already been
+                   emitted. */
                 if (code == agg::path_cmd_stop ||
-                    code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                    (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
+                     valid_segment_exists)) {
                     return code;
                 }
 
@@ -224,6 +232,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 }
 
                 if (!has_nan) {
+                    valid_segment_exists = true;
                     break;
                 }
 
@@ -251,7 +260,8 @@ class PathNanRemover : protected EmbeddedQueue<4>
             code = m_source->vertex(x, y);
 
             if (code == agg::path_cmd_stop ||
-                code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
+                 valid_segment_exists)) {
                 return code;
             }
 
@@ -259,13 +269,14 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 do {
                     code = m_source->vertex(x, y);
                     if (code == agg::path_cmd_stop ||
-                        code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                        (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
+                         valid_segment_exists)) {
                         return code;
                     }
                 } while (!(std::isfinite(*x) && std::isfinite(*y)));
                 return agg::path_cmd_move_to;
             }
-
+            valid_segment_exists = true;
             return code;
         }
     }
@@ -295,7 +306,11 @@ class PathClipper : public EmbeddedQueue<3>
         : m_source(&source),
           m_do_clipping(do_clipping),
           m_cliprect(-1.0, -1.0, width + 1.0, height + 1.0),
+          m_lastX(nan("")),
+          m_lastY(nan("")),
           m_moveto(true),
+          m_initX(nan("")),
+          m_initY(nan("")),
           m_has_init(false)
     {
         // empty
@@ -305,7 +320,11 @@ class PathClipper : public EmbeddedQueue<3>
         : m_source(&source),
           m_do_clipping(do_clipping),
           m_cliprect(rect),
+          m_lastX(nan("")),
+          m_lastY(nan("")),
           m_moveto(true),
+          m_initX(nan("")),
+          m_initY(nan("")),
           m_has_init(false)
     {
         m_cliprect.x1 -= 1.0;
@@ -421,7 +440,7 @@ class PathClipper : public EmbeddedQueue<3>
                 return code;
             }
 
-            if (m_moveto &&
+            if (m_moveto && m_has_init &&
                 m_lastX >= m_cliprect.x1 &&
                 m_lastX <= m_cliprect.x2 &&
                 m_lastY >= m_cliprect.y1 &&

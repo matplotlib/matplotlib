@@ -29,20 +29,28 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
                     head_starts_at_zero=True,
                     rate_labels=lettered_bases_to_rates,
                     **kwargs):
-    """Makes an arrow plot.
+    """
+    Makes an arrow plot.
 
-    Parameters:
-
-    data: dict with probabilities for the bases and pair transitions.
-    size: size of the graph in inches.
-    display: 'length', 'width', or 'alpha' for arrow property to change.
-    shape: 'full', 'left', or 'right' for full or half arrows.
-    max_arrow_width: maximum width of an arrow, data coordinates.
-    arrow_sep: separation between arrows in a pair, data coordinates.
-    alpha: maximum opacity of arrows, default 0.8.
-
-    **kwargs can be anything allowed by a Arrow object, e.g.
-    linewidth and edgecolor.
+    Parameters
+    ----------
+    data
+        Dict with probabilities for the bases and pair transitions.
+    size
+        Size of the graph in inches.
+    display : {'length', 'width', 'alpha'}
+        The arrow property to change.
+    shape : {'full', 'left', 'right'}
+        For full or half arrows.
+    max_arrow_width : float
+        Maximum width of an arrow, data coordinates.
+    arrow_sep : float
+        Separation between arrows in a pair, data coordinates.
+    alpha : float
+        Maximum opacity of arrows.
+    **kwargs
+        Can be anything allowed by a Arrow object, e.g. *linewidth* or
+        *edgecolor*.
     """
 
     plt.xlim(-0.5, 1.5)
@@ -103,14 +111,10 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         return float(np.clip(max_text_size * np.sqrt(data[k]),
                              min_text_size, max_text_size))
 
-    A = plt.text(0, 1, '$A_3$', color='r', size=do_fontsize('A'),
-                 **text_params)
-    T = plt.text(1, 1, '$T_3$', color='k', size=do_fontsize('T'),
-                 **text_params)
-    G = plt.text(0, 0, '$G_3$', color='g', size=do_fontsize('G'),
-                 **text_params)
-    C = plt.text(1, 0, '$C_3$', color='b', size=do_fontsize('C'),
-                 **text_params)
+    plt.text(0, 1, '$A_3$', color='r', size=do_fontsize('A'), **text_params)
+    plt.text(1, 1, '$T_3$', color='k', size=do_fontsize('T'), **text_params)
+    plt.text(0, 0, '$G_3$', color='g', size=do_fontsize('G'), **text_params)
+    plt.text(1, 0, '$C_3$', color='b', size=do_fontsize('C'), **text_params)
 
     arrow_h_offset = 0.25  # data coordinates, empirically determined
     max_arrow_length = 1 - 2 * arrow_h_offset

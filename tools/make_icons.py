@@ -1,61 +1,53 @@
 #!/usr/bin/env python
 """
-Generates the toolbar icon images from the FontAwesome font.
+Generates the Matplotlib icon, and the toolbar icon images from the FontAwesome
+font.
 
-First download and extract FontAwesome from http://fontawesome.io/.
-Place the FontAwesome.otf file in the tools directory (same directory
-as this script).
-
-Generates SVG, PDF in one size (size they are vectors) and PNG, PPM and GIF in
-24x24 and 48x48.
+Generates SVG, PDF in one size (since they are vectors), and PNG in 24x24 and
+48x48.
 """
 
-import matplotlib
-matplotlib.use('agg')  # noqa
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from io import BytesIO
+from pathlib import Path
+import tarfile
+import urllib.request
 
-import os
-
-from PIL import Image
-
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
-from matplotlib import cm
-from matplotlib import patheffects
-matplotlib.rcdefaults()
 
-matplotlib.rcParams['svg.fonttype'] = 'path'
-matplotlib.rcParams['pdf.fonttype'] = 3
-matplotlib.rcParams['pdf.compression'] = 9
+plt.rcdefaults()
+plt.rcParams['svg.fonttype'] = 'path'
+plt.rcParams['pdf.fonttype'] = 3
+plt.rcParams['pdf.compression'] = 9
 
 
-IMAGES_ROOT = os.path.join(
-    os.path.dirname(__file__), '..', 'lib', 'matplotlib', 'mpl-data', 'images')
-FONT_PATH = os.path.join(
-    os.path.dirname(__file__), 'FontAwesome.otf')
+def get_fontawesome():
+    cached_path = Path(mpl.get_cachedir(), "FontAwesome.otf")
+    if not cached_path.exists():
+        with urllib.request.urlopen(
+                "https://github.com/FortAwesome/Font-Awesome"
+                "/archive/v4.7.0.tar.gz") as req, \
+             tarfile.open(fileobj=BytesIO(req.read()), mode="r:gz") as tf:
+            cached_path.write_bytes(tf.extractfile(tf.getmember(
+                "Font-Awesome-4.7.0/fonts/FontAwesome.otf")).read())
+    return cached_path
 
 
-def save_icon(fig, name):
-    fig.savefig(os.path.join(IMAGES_ROOT, name + '.svg'))
-    fig.savefig(os.path.join(IMAGES_ROOT, name + '.pdf'))
-
+def save_icon(fig, dest_dir, name):
+    fig.savefig(dest_dir / (name + '.svg'))
+    fig.savefig(dest_dir / (name + '.pdf'))
     for dpi, suffix in [(24, ''), (48, '_large')]:
-        fig.savefig(os.path.join(IMAGES_ROOT, name + suffix + '.png'), dpi=dpi)
-
-        img = Image.open(os.path.join(IMAGES_ROOT, name + suffix + '.png'))
-        img.save(os.path.join(IMAGES_ROOT, name + suffix + '.ppm'))
+        fig.savefig(dest_dir / (name + suffix + '.png'), dpi=dpi)
 
 
-def make_icon(fontfile, ccode):
-    prop = FontProperties(fname=fontfile, size=68)
-
+def make_icon(font_path, ccode):
     fig = plt.figure(figsize=(1, 1))
     fig.patch.set_alpha(0.0)
     text = fig.text(0.5, 0.48, chr(ccode), ha='center', va='center',
-                    fontproperties=prop)
-    text.set_path_effects([patheffects.Normal()])
-
+                    font=font_path, fontsize=68)
     return fig
 
 
@@ -74,7 +66,7 @@ def make_matplotlib_icon():
                   edgecolor='k')
 
     for r, bar in zip(radii, bars):
-        bar.set_facecolor(cm.jet(r/10.))
+        bar.set_facecolor(mpl.cm.jet(r / 10))
 
     ax.tick_params(labelleft=False, labelright=False,
                    labelbottom=False, labeltop=False)
@@ -95,19 +87,25 @@ icon_defs = [
     ('filesave', 0xf0c7),
     ('subplots', 0xf1de),
     ('qt4_editor_options', 0xf201),
-    ('help', 0xf128)]
+    ('help', 0xf128),
+]
 
 
 def make_icons():
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "-d", "--dest-dir",
+        type=Path,
+        default=Path(__file__).parent / "../lib/matplotlib/mpl-data/images",
+        help="Directory where to store the images.")
+    args = parser.parse_args()
+    font_path = get_fontawesome()
     for name, ccode in icon_defs:
-        fig = make_icon(FONT_PATH, ccode)
-        save_icon(fig, name)
+        fig = make_icon(font_path, ccode)
+        save_icon(fig, args.dest_dir, name)
     fig = make_matplotlib_icon()
-    save_icon(fig, 'matplotlib')
+    save_icon(fig, args.dest_dir, 'matplotlib')
 
 
-if __name__ == '__main__':
-    if not os.path.exists(FONT_PATH):
-        print("Download the FontAwesome.otf file and place it in the tools "
-              "directory")
+if __name__ == "__main__":
     make_icons()

@@ -1,3 +1,4 @@
+from datetime import datetime
 import io
 import warnings
 
@@ -5,27 +6,27 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-import matplotlib
+import matplotlib as mpl
+from matplotlib.backend_bases import MouseEvent
+from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+import matplotlib.transforms as mtransforms
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.text import Text
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_usetex = pytest.mark.skipif(
-        not matplotlib.checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_usetex = pytest.mark.skipif(
+    not mpl.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
-@image_comparison(baseline_images=['font_styles'])
+@image_comparison(['font_styles'])
 def test_font_styles():
-    from matplotlib import _get_data_path
-    data_path = _get_data_path()
 
     def find_matplotlib_font(**kw):
         prop = FontProperties(**kw)
-        path = findfont(prop, directory=data_path)
+        path = findfont(prop, directory=mpl.get_data_path())
         return FontProperties(fname=path)
 
     from matplotlib.font_manager import FontProperties, findfont
@@ -35,10 +36,9 @@ def test_font_styles():
         UserWarning,
         module='matplotlib.font_manager')
 
-    plt.figure()
-    ax = plt.subplot(1, 1, 1)
+    fig, ax = plt.subplots()
 
-    normalFont = find_matplotlib_font(
+    normal_font = find_matplotlib_font(
         family="sans-serif",
         style="normal",
         variant="normal",
@@ -47,9 +47,9 @@ def test_font_styles():
         "Normal Font",
         (0.1, 0.1),
         xycoords='axes fraction',
-        fontproperties=normalFont)
+        fontproperties=normal_font)
 
-    boldFont = find_matplotlib_font(
+    bold_font = find_matplotlib_font(
         family="Foo",
         style="normal",
         variant="normal",
@@ -60,9 +60,9 @@ def test_font_styles():
         "Bold Font",
         (0.1, 0.2),
         xycoords='axes fraction',
-        fontproperties=boldFont)
+        fontproperties=bold_font)
 
-    boldItemFont = find_matplotlib_font(
+    bold_italic_font = find_matplotlib_font(
         family="sans serif",
         style="italic",
         variant="normal",
@@ -73,9 +73,9 @@ def test_font_styles():
         "Bold Italic Font",
         (0.1, 0.3),
         xycoords='axes fraction',
-        fontproperties=boldItemFont)
+        fontproperties=bold_italic_font)
 
-    lightFont = find_matplotlib_font(
+    light_font = find_matplotlib_font(
         family="sans-serif",
         style="normal",
         variant="normal",
@@ -86,9 +86,9 @@ def test_font_styles():
         "Light Font",
         (0.1, 0.4),
         xycoords='axes fraction',
-        fontproperties=lightFont)
+        fontproperties=light_font)
 
-    condensedFont = find_matplotlib_font(
+    condensed_font = find_matplotlib_font(
         family="sans-serif",
         style="normal",
         variant="normal",
@@ -99,13 +99,13 @@ def test_font_styles():
         "Condensed Font",
         (0.1, 0.5),
         xycoords='axes fraction',
-        fontproperties=condensedFont)
+        fontproperties=condensed_font)
 
     ax.set_xticks([])
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['multiline'])
+@image_comparison(['multiline'])
 def test_multiline():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -129,8 +129,11 @@ def test_multiline():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['multiline2'], style='mpl20')
+@image_comparison(['multiline2'], style='mpl20')
 def test_multiline2():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, ax = plt.subplots()
 
     ax.set_xlim([0, 1.4])
@@ -141,45 +144,46 @@ def test_multiline2():
     renderer = fig.canvas.get_renderer()
 
     def draw_box(ax, tt):
-        bb = tt.get_window_extent(renderer)
-        bbt = bb.inverse_transformed(ax.transAxes)
         r = mpatches.Rectangle((0, 0), 1, 1, clip_on=False,
                                transform=ax.transAxes)
-        r.set_bounds(bbt.bounds)
+        r.set_bounds(
+            tt.get_window_extent(renderer)
+            .transformed(ax.transAxes.inverted())
+            .bounds)
         ax.add_patch(r)
 
     horal = 'left'
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 0.5, st, horizontalalignment=horal,
-            verticalalignment='bottom')
+                     verticalalignment='bottom')
         draw_box(ax, tt)
     ax.text(1.2, 0.5, 'Bottom align', color='C2')
 
     ax.axhline(1.3, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 1.3, st, horizontalalignment=horal,
-            verticalalignment='top')
+                     verticalalignment='top')
         draw_box(ax, tt)
     ax.text(1.2, 1.3, 'Top align', color='C2')
 
     ax.axhline(1.8, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 1.8, st, horizontalalignment=horal,
-            verticalalignment='baseline')
+                     verticalalignment='baseline')
         draw_box(ax, tt)
     ax.text(1.2, 1.8, 'Baseline align', color='C2')
 
     ax.axhline(0.1, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 0.1, st, horizontalalignment=horal,
-            verticalalignment='bottom', rotation=20)
+                     verticalalignment='bottom', rotation=20)
         draw_box(ax, tt)
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 
 
-@image_comparison(baseline_images=['antialiased'], extensions=['png'])
+@image_comparison(['antialiased.png'])
 def test_antialiasing():
-    matplotlib.rcParams['text.antialiased'] = True
+    mpl.rcParams['text.antialiased'] = True
 
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.75, "antialiased", horizontalalignment='center',
@@ -193,24 +197,18 @@ def test_antialiasing():
 
 
 def test_afm_kerning():
-    from matplotlib.afm import AFM
-    from matplotlib.font_manager import findfont
-
-    fn = findfont("Helvetica", fontext="afm")
+    fn = mpl.font_manager.findfont("Helvetica", fontext="afm")
     with open(fn, 'rb') as fh:
-        afm = AFM(fh)
+        afm = mpl.afm.AFM(fh)
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
 
 
-@image_comparison(baseline_images=['text_contains'], extensions=['png'])
+@image_comparison(['text_contains.png'])
 def test_contains():
-    import matplotlib.backend_bases as mbackend
-
     fig = plt.figure()
     ax = plt.axes()
 
-    mevent = mbackend.MouseEvent(
-        'button_press_event', fig.canvas, 0.5, 0.5, 1, None)
+    mevent = MouseEvent('button_press_event', fig.canvas, 0.5, 0.5, 1, None)
 
     xs = np.linspace(0.25, 0.75, 30)
     ys = np.linspace(0.25, 0.75, 30)
@@ -226,7 +224,7 @@ def test_contains():
     fig.canvas.draw()
 
     for x, y in zip(xs.flat, ys.flat):
-        mevent.x, mevent.y = plt.gca().transAxes.transform_point([x, y])
+        mevent.x, mevent.y = plt.gca().transAxes.transform([x, y])
         contains, _ = txt.contains(mevent)
         color = 'yellow' if contains else 'red'
 
@@ -236,7 +234,19 @@ def test_contains():
         ax.viewLim.set(vl)
 
 
-@image_comparison(baseline_images=['titles'])
+def test_annotation_contains():
+    # Check that Annotation.contains looks at the bboxes of the text and the
+    # arrow separately, not at the joint bbox.
+    fig, ax = plt.subplots()
+    ann = ax.annotate(
+        "hello", xy=(.4, .4), xytext=(.6, .6), arrowprops={"arrowstyle": "->"})
+    fig.canvas.draw()   # Needed for the same reason as in test_contains.
+    event = MouseEvent(
+        "button_press_event", fig.canvas, *ax.transData.transform((.5, .6)))
+    assert ann.contains(event) == (False, {})
+
+
+@image_comparison(['titles'])
 def test_titles():
     # left and right side titles
     plt.figure()
@@ -247,7 +257,7 @@ def test_titles():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['text_alignment'], style='mpl20')
+@image_comparison(['text_alignment'], style='mpl20')
 def test_alignment():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -271,7 +281,7 @@ def test_alignment():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['axes_titles'], extensions=['png'])
+@image_comparison(['axes_titles.png'])
 def test_axes_titles():
     # Related to issue #3327
     plt.figure()
@@ -313,40 +323,50 @@ def test_set_position():
         assert a + shift_val == b
 
 
+@pytest.mark.parametrize('text', ['', 'O'], ids=['empty', 'non-empty'])
+def test_non_default_dpi(text):
+    fig, ax = plt.subplots()
+
+    t1 = ax.text(0.5, 0.5, text, ha='left', va='bottom')
+    fig.canvas.draw()
+    dpi = fig.dpi
+
+    bbox1 = t1.get_window_extent()
+    bbox2 = t1.get_window_extent(dpi=dpi * 10)
+    np.testing.assert_allclose(bbox2.get_points(), bbox1.get_points() * 10,
+                               rtol=5e-2)
+    # Text.get_window_extent should not permanently change dpi.
+    assert fig.dpi == dpi
+
+
 def test_get_rotation_string():
-    from matplotlib import text
-    assert text.get_rotation('horizontal') == 0.
-    assert text.get_rotation('vertical') == 90.
-    assert text.get_rotation('15.') == 15.
+    assert mpl.text.get_rotation('horizontal') == 0.
+    assert mpl.text.get_rotation('vertical') == 90.
+    assert mpl.text.get_rotation('15.') == 15.
 
 
 def test_get_rotation_float():
-    from matplotlib import text
     for i in [15., 16.70, 77.4]:
-        assert text.get_rotation(i) == i
+        assert mpl.text.get_rotation(i) == i
 
 
 def test_get_rotation_int():
-    from matplotlib import text
     for i in [67, 16, 41]:
-        assert text.get_rotation(i) == float(i)
+        assert mpl.text.get_rotation(i) == float(i)
 
 
 def test_get_rotation_raises():
-    from matplotlib import text
     with pytest.raises(ValueError):
-        text.get_rotation('hozirontal')
+        mpl.text.get_rotation('hozirontal')
 
 
 def test_get_rotation_none():
-    from matplotlib import text
-    assert text.get_rotation(None) == 0.0
+    assert mpl.text.get_rotation(None) == 0.0
 
 
 def test_get_rotation_mod360():
-    from matplotlib import text
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
-        assert_almost_equal(text.get_rotation(i), j)
+        assert_almost_equal(mpl.text.get_rotation(i), j)
 
 
 @pytest.mark.parametrize("ha", ["center", "right", "left"])
@@ -362,15 +382,14 @@ def test_null_rotation_with_rotation_mode(ha, va):
                         t1.get_window_extent(fig.canvas.renderer).get_points())
 
 
-@image_comparison(baseline_images=['text_bboxclip'])
+@image_comparison(['text_bboxclip'])
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
 
 
-@image_comparison(baseline_images=['annotation_negative_ax_coords'],
-                  extensions=['png'])
+@image_comparison(['annotation_negative_ax_coords.png'])
 def test_annotation_negative_ax_coords():
     fig, ax = plt.subplots()
 
@@ -398,8 +417,7 @@ def test_annotation_negative_ax_coords():
                 va='top')
 
 
-@image_comparison(baseline_images=['annotation_negative_fig_coords'],
-                  extensions=['png'])
+@image_comparison(['annotation_negative_fig_coords.png'])
 def test_annotation_negative_fig_coords():
     fig, ax = plt.subplots()
 
@@ -450,8 +468,7 @@ def test_text_stale():
     assert not fig.stale
 
 
-@image_comparison(baseline_images=['agg_text_clip'],
-                  extensions=['png'])
+@image_comparison(['agg_text_clip.png'])
 def test_agg_text_clip():
     np.random.seed(1)
     fig, (ax1, ax2) = plt.subplots(2)
@@ -461,20 +478,17 @@ def test_agg_text_clip():
 
 
 def test_text_size_binding():
-    from matplotlib.font_manager import FontProperties
-
-    matplotlib.rcParams['font.size'] = 10
-    fp = FontProperties(size='large')
+    mpl.rcParams['font.size'] = 10
+    fp = mpl.font_manager.FontProperties(size='large')
     sz1 = fp.get_size_in_points()
-    matplotlib.rcParams['font.size'] = 100
+    mpl.rcParams['font.size'] = 100
 
     assert sz1 == fp.get_size_in_points()
 
 
-@image_comparison(baseline_images=['font_scaling'],
-                  extensions=['pdf'])
+@image_comparison(['font_scaling.pdf'])
 def test_font_scaling():
-    matplotlib.rcParams['pdf.fonttype'] = 42
+    mpl.rcParams['pdf.fonttype'] = 42
     fig, ax = plt.subplots(figsize=(6.4, 12.4))
     ax.xaxis.set_major_locator(plt.NullLocator())
     ax.yaxis.set_major_locator(plt.NullLocator())
@@ -527,17 +541,43 @@ def test_hinting_factor_backends():
 
 
 @needs_usetex
+def test_usetex_is_copied():
+    # Indirectly tests that update_from (which is used to copy tick label
+    # properties) copies usetex state.
+    fig = plt.figure()
+    plt.rcParams["text.usetex"] = False
+    ax1 = fig.add_subplot(121)
+    plt.rcParams["text.usetex"] = True
+    ax2 = fig.add_subplot(122)
+    fig.canvas.draw()
+    for ax, usetex in [(ax1, False), (ax2, True)]:
+        for t in ax.xaxis.majorTicks:
+            assert t.label1.get_usetex() == usetex
+
+
+@needs_usetex
 def test_single_artist_usetex():
     # Check that a single artist marked with usetex does not get passed through
     # the mathtext parser at all (for the Agg backend) (the mathtext parser
     # currently fails to parse \frac12, requiring \frac{1}{2} instead).
-    fig, ax = plt.subplots()
-    ax.text(.5, .5, r"$\frac12$", usetex=True)
+    fig = plt.figure()
+    fig.text(.5, .5, r"$\frac12$", usetex=True)
     fig.canvas.draw()
 
 
-@image_comparison(baseline_images=['text_as_path_opacity'],
-                  extensions=['svg'])
+@pytest.mark.parametrize("fmt", ["png", "pdf", "svg"])
+def test_single_artist_usenotex(fmt):
+    # Check that a single artist can be marked as not-usetex even though the
+    # rcParam is on ("2_2_2" fails if passed to TeX).  This currently skips
+    # postscript output as the ps renderer doesn't support mixing usetex and
+    # non-usetex.
+    plt.rcParams["text.usetex"] = True
+    fig = plt.figure()
+    fig.text(.5, .5, "2_2_2", usetex=False)
+    fig.savefig(io.BytesIO(), format=fmt)
+
+
+@image_comparison(['text_as_path_opacity.svg'])
 def test_text_as_path_opacity():
     plt.figure()
     plt.gca().set_axis_off()
@@ -546,10 +586,9 @@ def test_text_as_path_opacity():
     plt.text(0.25, 0.75, 'x', alpha=0.5, color=(0, 0, 0, 1))
 
 
-@image_comparison(baseline_images=['text_as_text_opacity'],
-                  extensions=['svg'])
+@image_comparison(['text_as_text_opacity.svg'])
 def test_text_as_text_opacity():
-    matplotlib.rcParams['svg.fonttype'] = 'none'
+    mpl.rcParams['svg.fonttype'] = 'none'
     plt.figure()
     plt.gca().set_axis_off()
     plt.text(0.25, 0.25, '50% using `color`', color=(0, 0, 0, 0.5))
@@ -561,8 +600,7 @@ def test_text_as_text_opacity():
 def test_text_repr():
     # smoketest to make sure text repr doesn't error for category
     plt.plot(['A', 'B'], [1, 2])
-    txt = plt.text(['A'], 0.5, 'Boo')
-    print(txt)
+    repr(plt.text(['A'], 0.5, 'Boo'))
 
 
 def test_annotation_update():
@@ -576,9 +614,24 @@ def test_annotation_update():
                            rtol=1e-6)
 
 
-@image_comparison(baseline_images=['large_subscript_title'],
-                  extensions=['png'], style='mpl20')
+@check_figures_equal(extensions=["png"])
+def test_annotation_units(fig_test, fig_ref):
+    ax = fig_test.add_subplot()
+    ax.plot(datetime.now(), 1, "o")  # Implicitly set axes extents.
+    ax.annotate("x", (datetime.now(), 0.5), xycoords=("data", "axes fraction"),
+                # This used to crash before.
+                xytext=(0, 0), textcoords="offset points")
+    ax = fig_ref.add_subplot()
+    ax.plot(datetime.now(), 1, "o")
+    ax.annotate("x", (datetime.now(), 0.5), xycoords=("data", "axes fraction"))
+
+
+@image_comparison(['large_subscript_title.png'], style='mpl20')
 def test_large_subscript_title():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+    plt.rcParams['axes.titley'] = None
+
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
     ax = axs[0]
     ax.set_title(r'$\sum_{i} x_i$')
@@ -586,8 +639,84 @@ def test_large_subscript_title():
     ax.set_xticklabels('')
 
     ax = axs[1]
-    tt = ax.set_title(r'$\sum_{i} x_i$')
-    x, y = tt.get_position()
-    tt.set_position((x, 1.01))
+    ax.set_title(r'$\sum_{i} x_i$', y=1.01)
     ax.set_title('Old Way', loc='left')
     ax.set_xticklabels('')
+
+
+def test_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    s = 'This is a very long text that should be wrapped multiple times.'
+    text = fig.text(0.7, 0.5, s, wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == ('This is a very long\n'
+                                        'text that should be\n'
+                                        'wrapped multiple\n'
+                                        'times.')
+
+
+def test_long_word_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(9.5, 8, 'Alonglineoftexttowrap', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'Alonglineoftexttowrap'
+
+
+def test_wrap_no_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(0, 0, 'non wrapped text', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'non wrapped text'
+
+
+@check_figures_equal(extensions=["png"])
+def test_buffer_size(fig_test, fig_ref):
+    # On old versions of the Agg renderer, large non-ascii single-character
+    # strings (here, "€") would be rendered clipped because the rendering
+    # buffer would be set by the physical size of the smaller "a" character.
+    ax = fig_test.add_subplot()
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["€", "a"])
+    ax.yaxis.majorTicks[1].label1.set_color("w")
+    ax = fig_ref.add_subplot()
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["€", ""])
+
+
+def test_fontproperties_kwarg_precedence():
+    """Test that kwargs take precedence over fontproperties defaults."""
+    plt.figure()
+    text1 = plt.xlabel("value", fontproperties='Times New Roman', size=40.0)
+    text2 = plt.ylabel("counts", size=40.0, fontproperties='Times New Roman')
+    assert text1.get_size() == 40.0
+    assert text2.get_size() == 40.0
+
+
+def test_transform_rotates_text():
+    ax = plt.gca()
+    transform = mtransforms.Affine2D().rotate_deg(30)
+    text = ax.text(0, 0, 'test', transform=transform,
+                   transform_rotates_text=True)
+    result = text.get_rotation()
+    assert_almost_equal(result, 30)
+
+
+def test_update_mutate_input():
+    inp = dict(fontproperties=FontProperties(weight="bold"),
+               bbox=None)
+    cache = dict(inp)
+    t = Text()
+    t.update(inp)
+    assert inp['fontproperties'] == cache['fontproperties']
+    assert inp['bbox'] == cache['bbox']
+
+
+def test_invalid_color():
+    with pytest.raises(ValueError):
+        plt.figtext(.5, .5, "foo", c="foobar")
+
+
+@image_comparison(['text_pdf_kerning.pdf'], style='mpl20')
+def test_pdf_kerning():
+    plt.figure()
+    plt.figtext(0.1, 0.5, "ATATATATATATATATATA", size=30)
