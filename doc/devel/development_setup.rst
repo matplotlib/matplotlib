@@ -133,9 +133,3 @@ Optional, but recommended:
   built without Inkscape and optipng, but the build process will raise various
   warnings. If the build process warns that you are missing fonts, make sure
   your LaTeX distribution bundles cm-super or install it separately.
-
-Troubleshooting
-===============
-*  pytest - If the test runner is failing, verify that the pytest you are using
-is installed in your environment using the ``which pytest`` and ``which python``
-commands. If the paths are not the same, install pytest in your environment. 
