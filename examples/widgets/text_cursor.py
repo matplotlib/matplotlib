@@ -3,6 +3,12 @@
 Textcursor
 ==========
 
+Display a data cursor including a text box, which shows the plot point, which
+is close to the mouse pointer.
+
+The new cursor inherits from `~matplotlib.widgets.Cursor` and demonstrates the
+creation of new widgets and their event callbacks.
+
 """
 from matplotlib.widgets import Cursor
 import numpy as np
@@ -149,7 +155,7 @@ class TextCursor(Cursor):
             self.text.set_text(self.numberformat.format(*plotpoint))
             self.text.set_visible(self.visible)
 
-            # Tell base class, that we drawed something.
+            # Tell base class, that we have drawn something.
             # Baseclass needs to know, that it needs to restore a clean
             # backround, if the cursor leaves our figure context.
             self.needclear = True
