@@ -178,68 +178,93 @@ class Axis(maxis.XAxis):
             return len(text) > 4
 
     def _get_coord_info(self, renderer):
-        mins, maxs = np.array([
-            self.axes.get_xbound(),
-            self.axes.get_ybound(),
-            self.axes.get_zbound(),
-        ]).T
-        centers = (maxs + mins) / 2.
-        deltas = (maxs - mins) / 12.
-        mins = mins - deltas / 4.
-        maxs = maxs + deltas / 4.
+        mins, maxs = np.array(
+            [
+                self.axes.get_xbound(),
+                self.axes.get_ybound(),
+                self.axes.get_zbound(),
+            ]
+        ).T
 
-        vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        tc = self.axes.tunit_cube(vals, self.axes.M)
-        avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2]
-                for p1, p2, p3, p4 in self._PLANES]
-        highs = np.array([avgz[2*i] < avgz[2*i+1] for i in range(3)])
+        # Get the mean value for each bound:
+        centers = 0.5 * (maxs + mins)
 
-        return mins, maxs, centers, deltas, tc, highs
+        # Add a small offset between min/max point and the edge of the
+        # plot:
+        deltas = (maxs - mins) / 12.0
+        mins -= 0.25 * deltas
+        maxs += 0.25 * deltas
+
+        # Project the bounds along the current position of the cube:
+        bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
+        bounds_proj = self.axes.tunit_cube(bounds, self.axes.M)
+
+        # Determine which one of the parallell planes are higher up:
+        highs = np.zeros(3, dtype=bool)
+        for i in range(3):
+            mean_z0 = np.mean(bounds_proj[self._PLANES[2 * i], 2])
+            mean_z1 = np.mean(bounds_proj[self._PLANES[2 * i + 1], 2])
+            highs[i] = mean_z0 < mean_z1
+
+        return mins, maxs, centers, deltas, bounds_proj, highs
 
     def draw_pane(self, renderer):
-        renderer.open_group('pane3d', gid=self.get_gid())
+        renderer.open_group("pane3d", gid=self.get_gid())
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
         info = self._axinfo
-        index = info['i']
+        index = info["i"]
+
+        # Choose the lowest of the parallel planes:
         if not highs[index]:
             plane = self._PLANES[2 * index]
         else:
             plane = self._PLANES[2 * index + 1]
+
+        # Get the projected bounds this plane has and draw it in the
+        # plot:
         xys = [tc[p] for p in plane]
         self.set_pane_pos(xys)
         self.pane.draw(renderer)
 
-        renderer.close_group('pane3d')
+        renderer.close_group("pane3d")
 
     @artist.allow_rasterization
     def draw(self, renderer):
         self.label._transform = self.axes.transData
-        renderer.open_group('axis3d', gid=self.get_gid())
+        renderer.open_group("axis3d", gid=self.get_gid())
 
         ticks = self._update_ticks()
 
+        # Get general axis informat:
         info = self._axinfo
-        index = info['i']
+        index = info["i"]
+        juggled = info["juggled"]
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
-        # Determine grid lines
         minmax = np.where(highs, maxs, mins)
-        maxmin = np.where(highs, mins, maxs)
+        maxmin = np.where(~highs, maxs, mins)
 
-        # Draw main axis line
-        juggled = info['juggled']
-        edgep1 = minmax.copy()
-        edgep1[juggled[0]] = maxmin[juggled[0]]
+        # When changing vertical axis some of the axes has to be
+        # moved to the other plane so it looks the same as if the z-axis
+        # was the vertical axis:
+        mb = [minmax, maxmin]
+        mm = [[mb, mb[::-1], mb[::-1]], [mb[::-1], mb[::-1], mb], [mb, mb, mb]]
+        mm = mm[self.axes._vertical_axis][index]
 
+        # Create edge points for the black bolded axis line:
+        edgep1 = mm[0].copy()
+        edgep1[juggled[0]] = mm[1][juggled[0]]
         edgep2 = edgep1.copy()
-        edgep2[juggled[1]] = maxmin[juggled[1]]
-        pep = np.asarray(
-            proj3d.proj_trans_points([edgep1, edgep2], self.axes.M))
-        centpt = proj3d.proj_transform(*centers, self.axes.M)
-        self.line.set_data(pep[0], pep[1])
+        edgep2[juggled[1]] = mm[1][juggled[1]]
+
+        # Project the edge points along the current position and
+        # create the line:
+        pep = proj3d.proj_trans_points([edgep1, edgep2], self.axes.M)
+        pep = np.asarray(pep)
+        self.line.set_data(*pep)
         self.line.draw(renderer)
 
         # Grid points where the planes meet
@@ -315,6 +340,7 @@ class Axis(maxis.XAxis):
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
+        centpt = proj3d.proj_transform(*centers, self.axes.M)
         if centpt[info['tickdir']] > pep[info['tickdir'], outerindex]:
             # if FT and if highs has an even number of Trues
             if (centpt[index] <= pep[index, outerindex]
