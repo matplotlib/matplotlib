@@ -415,11 +415,11 @@ def test_autofmt_xdate(which):
 @pytest.mark.style('default')
 def test_change_dpi():
     fig = plt.figure(figsize=(4, 4))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert fig.canvas.renderer.height == 400
     assert fig.canvas.renderer.width == 400
     fig.dpi = 50
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert fig.canvas.renderer.height == 200
     assert fig.canvas.renderer.width == 200
 
@@ -861,6 +861,28 @@ class TestSubplotMosaic:
         fig_test.subplot_mosaic([[object(), object()]])
         fig_ref.subplot_mosaic([["A", "B"]])
 
+    @pytest.mark.parametrize('str_pattern',
+                             ['abc', 'cab', 'bca', 'cba', 'acb', 'bac'])
+    def test_user_order(self, str_pattern):
+        fig = plt.figure()
+        ax_dict = fig.subplot_mosaic(str_pattern)
+        assert list(str_pattern) == list(ax_dict)
+        assert list(fig.axes) == list(ax_dict.values())
+
+    def test_nested_user_order(self):
+        layout = [
+            ["A", [["B", "C"],
+                   ["D", "E"]]],
+            ["F", "G"],
+            [".", [["H", [["I"],
+                          ["."]]]]]
+        ]
+
+        fig = plt.figure()
+        ax_dict = fig.subplot_mosaic(layout)
+        assert list(ax_dict) == list("ABCDEFGHI")
+        assert list(fig.axes) == list(ax_dict.values())
+
 
 def test_reused_gridspec():
     """Test that these all use the same gridspec"""
@@ -898,6 +920,15 @@ def test_subfigure():
     sub[1].suptitle('Right Side')
 
     fig.suptitle('Figure suptitle', fontsize='xx-large')
+
+
+def test_subfigure_tightbbox():
+    # test that we can get the tightbbox with a subfigure...
+    fig = plt.figure(constrained_layout=True)
+    sub = fig.subfigures(1, 2)
+
+    np.testing.assert_allclose(
+            fig.get_tightbbox(fig.canvas.get_renderer()).width, 0.1)
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',

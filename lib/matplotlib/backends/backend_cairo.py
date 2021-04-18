@@ -123,8 +123,6 @@ _f_angles = {
 
 
 class RendererCairo(RendererBase):
-    fontweights = _api.deprecated("3.3")(property(lambda self: {*_f_weights}))
-    fontangles = _api.deprecated("3.3")(property(lambda self: {*_f_angles}))
     mathtext_parser = _api.deprecated("3.4")(
         property(lambda self: MathTextParser('Cairo')))
 

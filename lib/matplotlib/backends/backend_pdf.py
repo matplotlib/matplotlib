@@ -29,7 +29,7 @@ from matplotlib import _api, _text_layout, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase, _no_output_draw)
+    GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
@@ -717,11 +717,6 @@ class PdfFile:
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
 
-    @_api.deprecated("3.3")
-    @property
-    def used_characters(self):
-        return self.file._character_tracker.used_characters
-
     def newPage(self, width, height):
         self.endStream()
 
@@ -733,9 +728,6 @@ class PdfFile:
                    'Resources': self.resourceObject,
                    'MediaBox': [0, 0, 72 * width, 72 * height],
                    'Contents': contentObject,
-                   'Group': {'Type': Name('Group'),
-                             'S': Name('Transparency'),
-                             'CS': Name('DeviceRGB')},
                    'Annots': annotsObject,
                    }
         pageObject = self.reserveObject('page')
@@ -745,8 +737,10 @@ class PdfFile:
 
         self.beginStream(contentObject.id,
                          self.reserveObject('length of content stream'))
-        # Initialize the pdf graphics state to match the default mpl
-        # graphics context: currently only the join style needs to be set
+        # Initialize the pdf graphics state to match the default Matplotlib
+        # graphics context (colorspace and joinstyle).
+        self.output(Name('DeviceRGB'), Op.setcolorspace_stroke)
+        self.output(Name('DeviceRGB'), Op.setcolorspace_nonstroke)
         self.output(GraphicsContextPdf.joinstyles['round'], Op.setlinejoin)
 
         # Clear the list of annotations for the next page
@@ -1880,15 +1874,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         gc._fillcolor = orig_fill
         gc._effective_alphas = orig_alphas
 
-    @_api.deprecated("3.3")
-    def track_characters(self, *args, **kwargs):
-        """Keep track of which characters are required from each font."""
-        self.file._character_tracker.track(*args, **kwargs)
-
-    @_api.deprecated("3.3")
-    def merge_used_characters(self, *args, **kwargs):
-        self.file._character_tracker.merge(*args, **kwargs)
-
     def get_image_magnification(self):
         return self.image_dpi/72.0
 
@@ -2156,8 +2141,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    @_api.delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
@@ -2734,7 +2718,7 @@ class FigureCanvasPdf(FigureCanvasBase):
                 file.close()
 
     def draw(self):
-        _no_output_draw(self.figure)
+        self.figure.draw_no_output()
         return super().draw()
 
 

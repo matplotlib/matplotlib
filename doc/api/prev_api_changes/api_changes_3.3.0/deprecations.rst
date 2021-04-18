@@ -238,7 +238,7 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_axes_titlelocation``, ``validate_toolbar``,
 ``validate_ps_papersize``, ``validate_legend_loc``,
 ``validate_bool_maybe_none``, ``validate_hinting``,
-``validate_movie_writers``, ``validate_webagg_address``,
+``validate_movie_writer``, ``validate_webagg_address``,
 ``validate_nseq_float``, ``validate_nseq_int``.
 To test whether an rcParam value would be acceptable, one can test e.g. ``rc =
 RcParams(); rc[k] = v`` raises an exception.
@@ -351,7 +351,7 @@ PGF backend cleanups
 ~~~~~~~~~~~~~~~~~~~~
 The *dummy* parameter of `.RendererPgf` is deprecated.
 
-`.GraphicsContextPgf` is deprecated (use `.GraphicsContextBase` instead).
+``GraphicsContextPgf`` is deprecated (use `.GraphicsContextBase` instead).
 
 ``set_factor`` method of :mod:`mpl_toolkits.axisartist` locators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -575,7 +575,7 @@ This is deprecated; pass keys as a list of strings instead.
 
 Statusbar classes and attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``statusbar`` attribute of `.FigureManagerBase`, `.StatusbarBase` and all
+The ``statusbar`` attribute of `.FigureManagerBase`, ``StatusbarBase`` and all
 its subclasses, and ``StatusBarWx``, are deprecated, as messages are now
 displayed in the toolbar instead.
 

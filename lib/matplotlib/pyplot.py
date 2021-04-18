@@ -1500,7 +1500,9 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
        The new figure
 
     dict[label, Axes]
-       A dictionary mapping the labels to the Axes objects.
+       A dictionary mapping the labels to the Axes objects.  The order of
+       the axes is left-to-right and top-to-bottom of their position in the
+       total layout.
 
     """
     fig = figure(**fig_kw)
@@ -1797,10 +1799,10 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     if labels is None:
         labels = ax.get_xticklabels()
+        for l in labels:
+            l.update(kwargs)
     else:
         labels = ax.set_xticklabels(labels, **kwargs)
-    for l in labels:
-        l.update(kwargs)
 
     return locs, labels
 
@@ -1857,10 +1859,10 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     if labels is None:
         labels = ax.get_yticklabels()
+        for l in labels:
+            l.update(kwargs)
     else:
         labels = ax.set_yticklabels(labels, **kwargs)
-    for l in labels:
-        l.update(kwargs)
 
     return locs, labels
 

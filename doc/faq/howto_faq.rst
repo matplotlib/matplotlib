@@ -7,21 +7,6 @@ How-to
 .. contents::
    :backlinks: none
 
-.. _howto-datetime64:
-
-Plot `numpy.datetime64` values
-------------------------------
-
-As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
-as `datetime.datetime` objects.
-
-If you prefer the pandas converters and locators, you can register them.  This
-is done automatically when calling a pandas plot function and may be
-unnecessary when using pandas instead of Matplotlib directly. ::
-
-  from pandas.plotting import register_matplotlib_converters
-  register_matplotlib_converters()
-
 .. _howto-figure-empty:
 
 Check whether a figure is empty
@@ -276,25 +261,12 @@ setting in the right subplots.
 
 .. _howto-set-zorder:
 
-Control the depth of plot elements
-----------------------------------
+Control the draw order of plot elements
+---------------------------------------
 
-Within an axes, the order that the various lines, markers, text,
-collections, etc appear is determined by the
-:meth:`~matplotlib.artist.Artist.set_zorder` property.  The default
-order is patches, lines, text, with collections of lines and
-collections of patches appearing at the same level as regular lines
-and patches, respectively::
-
-    line, = ax.plot(x, y, zorder=10)
-
-.. only:: html
-
-    See :doc:`/gallery/misc/zorder_demo` for a complete example.
-
-You can also use the Axes property
-:meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid
-lines are placed above or below your other plot elements.
+The draw order of plot elements, and thus which elements will be on top, is
+determined by the `~.Artist.set_zorder` property.
+See :doc:`/gallery/misc/zorder_demo` for a detailed description.
 
 .. _howto-axis-equal:
 

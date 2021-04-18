@@ -26,7 +26,7 @@ import matplotlib.artist as martist
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton)
+    FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -1650,7 +1650,11 @@ default: %(va)s
                   and (b.width != 0 or b.height != 0))]
 
         if len(bb) == 0:
-            return self.bbox_inches
+            if hasattr(self, 'bbox_inches'):
+                return self.bbox_inches
+            else:
+                # subfigures do not have bbox_inches, but do have a bbox
+                bb = [self.bbox]
 
         _bbox = Bbox.union(bb)
 
@@ -1734,7 +1738,9 @@ default: %(va)s
         Returns
         -------
         dict[label, Axes]
-           A dictionary mapping the labels to the Axes objects.
+           A dictionary mapping the labels to the Axes objects.  The order of
+           the axes is left-to-right and top-to-bottom of their position in the
+           total layout.
 
         """
         subplot_kw = subplot_kw or {}
@@ -1785,11 +1791,12 @@ default: %(va)s
 
             Returns
             -------
-            unique_ids : set
+            unique_ids : tuple
                 The unique non-sub layout entries in this layout
             nested : dict[tuple[int, int]], 2D object array
             """
-            unique_ids = set()
+            # make sure we preserve the user supplied order
+            unique_ids = cbook._OrderedSet()
             nested = {}
             for j, row in enumerate(layout):
                 for k, v in enumerate(row):
@@ -1800,7 +1807,7 @@ default: %(va)s
                     else:
                         unique_ids.add(v)
 
-            return unique_ids, nested
+            return tuple(unique_ids), nested
 
         def _do_layout(gs, layout, unique_ids, nested):
             """
@@ -1811,7 +1818,7 @@ default: %(va)s
             gs : GridSpec
             layout : 2D object array
                 The input converted to a 2D numpy array for this level.
-            unique_ids : set
+            unique_ids : tuple
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array
                 The identified nested layouts, if any.
@@ -1824,38 +1831,74 @@ default: %(va)s
             rows, cols = layout.shape
             output = dict()
 
-            # create the Axes at this level of nesting
+            # we need to merge together the Axes at this level and the axes
+            # in the (recursively) nested sub-layouts so that we can add
+            # them to the figure in the "natural" order if you were to
+            # ravel in c-order all of the Axes that will be created
+            #
+            # This will stash the upper left index of each object (axes or
+            # nested layout) at this level
+            this_level = dict()
+
+            # go through the unique keys,
             for name in unique_ids:
+                # sort out where each axes starts/ends
                 indx = np.argwhere(layout == name)
                 start_row, start_col = np.min(indx, axis=0)
                 end_row, end_col = np.max(indx, axis=0) + 1
+                # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
-
+                # some light error checking
                 if (layout[slc] != name).any():
                     raise ValueError(
                         f"While trying to layout\n{layout!r}\n"
                         f"we found that the label {name!r} specifies a "
                         "non-rectangular or non-contiguous area.")
+                # and stash this slice for later
+                this_level[(start_row, start_col)] = (name, slc, 'axes')
 
-                ax = self.add_subplot(
-                    gs[slc], **{'label': str(name), **subplot_kw}
-                )
-                output[name] = ax
-
-            # do any sub-layouts
+            # do the same thing for the nested layouts (simpler because these
+            # can not be spans yet!)
             for (j, k), nested_layout in nested.items():
-                rows, cols = nested_layout.shape
-                nested_output = _do_layout(
-                    gs[j, k].subgridspec(rows, cols, **gridspec_kw),
-                    nested_layout,
-                    *_identify_keys_and_nested(nested_layout)
-                )
-                overlap = set(output) & set(nested_output)
-                if overlap:
-                    raise ValueError(f"There are duplicate keys {overlap} "
-                                     f"between the outer layout\n{layout!r}\n"
-                                     f"and the nested layout\n{nested_layout}")
-                output.update(nested_output)
+                this_level[(j, k)] = (None, nested_layout, 'nested')
+
+            # now go through the things in this level and add them
+            # in order left-to-right top-to-bottom
+            for key in sorted(this_level):
+                name, arg, method = this_level[key]
+                # we are doing some hokey function dispatch here based
+                # on the 'method' string stashed above to sort out if this
+                # element is an axes or a nested layout.
+                if method == 'axes':
+                    slc = arg
+                    # add a single axes
+                    if name in output:
+                        raise ValueError(f"There are duplicate keys {name} "
+                                         f"in the layout\n{layout!r}")
+                    ax = self.add_subplot(
+                        gs[slc], **{'label': str(name), **subplot_kw}
+                    )
+                    output[name] = ax
+                elif method == 'nested':
+                    nested_layout = arg
+                    j, k = key
+                    # recursively add the nested layout
+                    rows, cols = nested_layout.shape
+                    nested_output = _do_layout(
+                        gs[j, k].subgridspec(rows, cols, **gridspec_kw),
+                        nested_layout,
+                        *_identify_keys_and_nested(nested_layout)
+                    )
+                    overlap = set(output) & set(nested_output)
+                    if overlap:
+                        raise ValueError(
+                            f"There are duplicate keys {overlap} "
+                            f"between the outer layout\n{layout!r}\n"
+                            f"and the nested layout\n{nested_layout}"
+                        )
+                    output.update(nested_output)
+                else:
+                    raise RuntimeError("This should never happen")
             return output
 
         layout = _make_array(layout)
@@ -2735,6 +2778,15 @@ class Figure(FigureBase):
 
         self.canvas.draw_event(renderer)
 
+    def draw_no_output(self):
+        """
+        Draw the figure with no output.  Useful to get the final size of
+        artists that require a draw before their size is known (e.g. text).
+        """
+        renderer = _get_renderer(self)
+        with renderer._draw_disabled():
+            self.draw(renderer)
+
     def draw_artist(self, a):
         """
         Draw `.Artist` *a* only.
@@ -3011,7 +3063,6 @@ class Figure(FigureBase):
         """
 
         from matplotlib._constrained_layout import do_constrained_layout
-        from matplotlib.tight_layout import get_renderer
 
         _log.debug('Executing constrainedlayout')
         if self._layoutgrid is None:
@@ -3029,7 +3080,7 @@ class Figure(FigureBase):
         w_pad = w_pad / width
         h_pad = h_pad / height
         if renderer is None:
-            renderer = get_renderer(fig)
+            renderer = _get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
@@ -3059,7 +3110,7 @@ class Figure(FigureBase):
         """
 
         from .tight_layout import (
-            get_renderer, get_subplotspec_list, get_tight_layout_figure)
+            get_subplotspec_list, get_tight_layout_figure)
         from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
@@ -3067,7 +3118,7 @@ class Figure(FigureBase):
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
 
-        renderer = get_renderer(self)
+        renderer = _get_renderer(self)
         ctx = (renderer._draw_disabled()
                if hasattr(renderer, '_draw_disabled')
                else suppress())

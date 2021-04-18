@@ -3355,21 +3355,18 @@ class Axes(_AxesBase):
         if ecolor is None:
             ecolor = base_style['color']
 
-        # Eject any marker information from line format string, as it's not
+        # Eject any line-specific information from format string, as it's not
         # needed for bars or caps.
-        base_style.pop('marker', None)
-        base_style.pop('markersize', None)
-        base_style.pop('markerfacecolor', None)
-        base_style.pop('markeredgewidth', None)
-        base_style.pop('markeredgecolor', None)
-        base_style.pop('markevery', None)
-        base_style.pop('linestyle', None)
-        base_style.pop('fillstyle', None)
+        for key in ['marker', 'markersize', 'markerfacecolor',
+                    'markeredgewidth', 'markeredgecolor', 'markevery',
+                    'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
+                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle']:
+            base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
 
-        if elinewidth:
+        if elinewidth is not None:
             eb_lines_style['linewidth'] = elinewidth
         elif 'linewidth' in kwargs:
             eb_lines_style['linewidth'] = kwargs['linewidth']
@@ -3531,26 +3528,38 @@ class Axes(_AxesBase):
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None):
         """
-        Make a box and whisker plot.
+        Draw a box and whisker plot.
 
-        Make a box and whisker plot for each column of *x* or each
-        vector in sequence *x*.  The box extends from the lower to
-        upper quartile values of the data, with a line at the median.
-        The whiskers extend from the box to show the range of the
-        data.  Flier points are those past the end of the whiskers.
+        The box extends from the first quartile (Q1) to the third
+        quartile (Q3) of the data, with a line at the median.  The
+        whiskers extend from the box by 1.5x the inter-quartile range
+        (IQR).  Flier points are those past the end of the whiskers.
+        See https://en.wikipedia.org/wiki/Box_plot for reference.
+
+        .. code-block:: none
+
+                  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
+                               |-----:-----|
+               o      |--------|     :     |--------|    o  o
+                               |-----:-----|
+             flier             <----------->            fliers
+                                    IQR
+
 
         Parameters
         ----------
         x : Array or a sequence of vectors.
-            The input data.
+            The input data.  If a 2D array, a boxplot is drawn for each column
+            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
+            array in *x*.
 
         notch : bool, default: False
-            Whether to draw a notched box plot (`True`), or a rectangular box
-            plot (`False`).  The notches represent the confidence interval (CI)
-            around the median.  The documentation for *bootstrap* describes how
-            the locations of the notches are computed by default, but their
-            locations may also be overridden by setting the *conf_intervals*
-            parameter.
+            Whether to draw a notched boxplot (`True`), or a rectangular
+            boxplot (`False`).  The notches represent the confidence interval
+            (CI) around the median.  The documentation for *bootstrap*
+            describes how the locations of the notches are computed by
+            default, but their locations may also be overridden by setting the
+            *conf_intervals* parameter.
 
             .. note::
 
@@ -3695,28 +3704,9 @@ class Axes(_AxesBase):
         meanprops : dict, default: None
             The style of the mean.
 
-        Notes
-        -----
-        Box plots provide insight into distribution properties of the data.
-        However, they can be challenging to interpret for the unfamiliar
-        reader. The figure below illustrates the different visual features of
-        a box plot.
-
-        .. image:: /_static/boxplot_explanation.png
-           :alt: Illustration of box plot features
-           :scale: 50 %
-
-        The whiskers mark the range of the non-outlier data. The most common
-        definition of non-outlier is ``[Q1 - 1.5xIQR, Q3 + 1.5xIQR]``, which
-        is also the default in this function. Other whisker meanings can be
-        applied via the *whis* parameter.
-
-        See `Box plot <https://en.wikipedia.org/wiki/Box_plot>`_ on Wikipedia
-        for further information.
-
-        Violin plots (`~.Axes.violinplot`) add even more detail about the
-        statistical distribution by plotting the kernel density estimation
-        (KDE) as an estimation of the probability density function.
+        See Also
+        --------
+        violinplot : Draw an estimate of the probability density function.
         """
 
         # Missing arguments default to rcParams.
@@ -6087,7 +6077,7 @@ default: :rc:`scatter.edgecolors`
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
 
-        rasterized: bool, optional
+        rasterized : bool, optional
             Rasterize the pcolormesh when drawing vector graphics.  This can
             speed up rendering and produce smaller files for large data sets.
             See also :doc:`/gallery/misc/rasterization_demo`.

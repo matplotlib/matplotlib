@@ -80,7 +80,7 @@ def major_formatter(x, pos):
     return f'[{x:.2f}]'
 
 
-setup(axs1[2], title='FuncFormatter("[{:.2f}]".format')
+setup(axs1[2], title='FuncFormatter("[{:.2f}]".format)')
 axs1[2].xaxis.set_major_formatter(major_formatter)
 
 # Fixed formatter

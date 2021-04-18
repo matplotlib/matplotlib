@@ -17,7 +17,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
      _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-     RendererBase, _no_output_draw)
+     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
@@ -1217,8 +1217,7 @@ class RendererSVG(RendererBase):
 
             writer.end('g')
 
-    @_api.delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
@@ -1344,7 +1343,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         return 'svg'
 
     def draw(self):
-        _no_output_draw(self.figure)
+        self.figure.draw_no_output()
         return super().draw()
 
 

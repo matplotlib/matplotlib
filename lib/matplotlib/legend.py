@@ -237,9 +237,17 @@ bbox_transform : None or `matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
+title_fontproperties : None or `matplotlib.font_manager.FontProperties` or dict
+    The font properties of the legend's title. If None (default), the
+    *title_fontsize* argument will be used if present; if *title_fontsize* is
+    also None, the current :rc:`legend.title_fontsize` will be used.
+
 title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
     The font size of the legend's title.
+    Note: This cannot be combined with *title_fontproperties*. If you want
+    to set the fontsize alongside other font properties, use the *size*
+    parameter in *title_fontproperties*.
 
 borderpad : float, default: :rc:`legend.borderpad`
     The fractional whitespace inside the legend border, in font-size units.
@@ -332,6 +340,7 @@ class Legend(Artist):
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
                  handler_map=None,
+                 title_fontproperties=None,  # properties for the legend title
                  ):
         """
         Parameters
@@ -506,11 +515,23 @@ class Legend(Artist):
         self._set_loc(loc)
         self._loc_used_default = tmp  # ignore changes done by _set_loc
 
-        # figure out title fontsize:
-        if title_fontsize is None:
-            title_fontsize = mpl.rcParams['legend.title_fontsize']
-        tprop = FontProperties(size=title_fontsize)
-        self.set_title(title, prop=tprop)
+        # figure out title font properties:
+        if title_fontsize is not None and title_fontproperties is not None:
+            raise ValueError(
+                "title_fontsize and title_fontproperties can't be specified "
+                "at the same time. Only use one of them. ")
+        title_prop_fp = FontProperties._from_any(title_fontproperties)
+        if isinstance(title_fontproperties, dict):
+            if "size" not in title_fontproperties:
+                title_fontsize = mpl.rcParams["legend.title_fontsize"]
+                title_prop_fp.set_size(title_fontsize)
+        elif title_fontsize is not None:
+            title_prop_fp.set_size(title_fontsize)
+        elif not isinstance(title_fontproperties, FontProperties):
+            title_fontsize = mpl.rcParams["legend.title_fontsize"]
+            title_prop_fp.set_size(title_fontsize)
+
+        self.set_title(title, prop=title_prop_fp)
         self._draggable = None
 
         # set the text color
@@ -714,7 +735,7 @@ class Legend(Artist):
         # legend items. Each legend item is HPacker packed with
         # legend handleBox and labelBox. handleBox is an instance of
         # offsetbox.DrawingArea which contains legend handle. labelBox
-        # is an instance of offsetbox. TextArea which contains legend
+        # is an instance of offsetbox.TextArea which contains legend
         # text.
 
         text_list = []  # the list of text instances

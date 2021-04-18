@@ -3443,14 +3443,21 @@ def test_errobar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
-def test_errorbar_fillstyle():
-    # Check that passing 'fillstyle' keyword will not result in errors
+def test_errorbar_line_specific_kwargs():
+    # Check that passing line-specific keyword arguments will not result in
+    # errors.
     x = np.arange(5)
     y = np.arange(5)
 
     plotline, _, _ = plt.errorbar(x, y, xerr=1, yerr=1, ls='None',
-                                  marker='s', fillstyle='full')
+                                  marker='s', fillstyle='full',
+                                  drawstyle='steps-mid',
+                                  dash_capstyle='round',
+                                  dash_joinstyle='miter',
+                                  solid_capstyle='butt',
+                                  solid_joinstyle='bevel')
     assert plotline.get_fillstyle() == 'full'
+    assert plotline.get_drawstyle() == 'steps-mid'
 
 
 @check_figures_equal(extensions=['png'])
@@ -3533,6 +3540,13 @@ def test_errorbar_every(fig_test, fig_ref):
     ax_ref.plot(x[1::3], y[1::3] + 0.2, 'o', c='C1', zorder=2.1)
     ax_ref.errorbar(x[1::3], y[1::3] + 0.2, yerr[1::3],
                     capsize=4, c='C1', fmt='none')
+
+
+@pytest.mark.parametrize('elinewidth', [[1, 2, 3],
+                                        np.array([1, 2, 3]),
+                                        1])
+def test_errorbar_linewidth_type(elinewidth):
+    plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinewidth=elinewidth)
 
 
 @image_comparison(['hist_stacked_stepfilled', 'hist_stacked_stepfilled'])
@@ -7104,3 +7118,7 @@ def test_artist_sublists():
                       match='modification of the Axes.lines property'):
         ax.lines[1:1] = lines[1:-2]
     assert list(ax.lines) == lines
+
+    # Adding to other lists should produce a regular list.
+    assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
+    assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]

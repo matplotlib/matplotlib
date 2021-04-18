@@ -652,7 +652,7 @@ class _AxesBase(martist.Artist):
         for name, axis in self._get_axis_map().items():
             axis.callbacks._pickled_cids.add(
                 axis.callbacks.connect(
-                    'units finalize', self._unit_change_handler(name)))
+                    'units', self._unit_change_handler(name)))
 
         rcParams = mpl.rcParams
         self.tick_params(
@@ -1347,7 +1347,7 @@ class _AxesBase(martist.Artist):
             )
 
         def __repr__(self):
-            return f'<Axes.ArtistList of {self._prop_name}>'
+            return f'<Axes.ArtistList of {len(self)} {self._prop_name}>'
 
         def __len__(self):
             return sum(self._type_check(artist)
@@ -1362,6 +1362,16 @@ class _AxesBase(martist.Artist):
             return [artist
                     for artist in self._axes._children
                     if self._type_check(artist)][key]
+
+        def __add__(self, other):
+            if isinstance(other, (list, _AxesBase.ArtistList)):
+                return [*self, *other]
+            return NotImplemented
+
+        def __radd__(self, other):
+            if isinstance(other, list):
+                return other + list(self)
+            return NotImplemented
 
         def insert(self, index, item):
             _api.warn_deprecated(
@@ -1569,24 +1579,20 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        aspect : {'auto'} or num
+        aspect : {'auto', 'equal'} or float
             Possible values:
 
-            ========   =================================================
-            value      description
-            ========   =================================================
-            'auto'     automatic; fill the position rectangle with data.
-            num        a circle will be stretched such that the height
-                       is *num* times the width.  'equal' is a synonym
-                       for ``aspect=1``, i.e. same scaling for x and y.
-            ========   =================================================
+            - 'auto': fill the position rectangle with data.
+            - 'equal': same as ``aspect=1``, i.e. same scaling for x and y.
+            - *float*: A circle will be stretched such that the height
+              is *float* times the width.
 
         adjustable : None or {'box', 'datalim'}, optional
             If not ``None``, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
 
-        anchor : None or str or 2-tuple of float, optional
+        anchor : None or str or (float, float), optional
             If not ``None``, this defines where the Axes will be drawn if there
             is extra space due to aspect constraints. The most common way to
             to specify the anchor are abbreviations of cardinal directions:
@@ -2402,6 +2408,8 @@ class _AxesBase(martist.Artist):
             return functools.partial(
                 self._unit_change_handler, axis_name, event=object())
         _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
+        for line in self.lines:
+            line.recache_always()
         self.relim()
         self._request_autoscale_view(scalex=(axis_name == "x"),
                                      scaley=(axis_name == "y"))

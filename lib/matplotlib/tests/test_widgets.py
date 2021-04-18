@@ -1,7 +1,8 @@
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing.widgets import do_event, get_ax, mock_event
 
 from numpy.testing import assert_allclose
@@ -37,11 +38,56 @@ def check_rectangle(**kwargs):
 
 def test_rectangle_selector():
     check_rectangle()
-    check_rectangle(drawtype='line', useblit=False)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='line' is deprecated"):
+        check_rectangle(drawtype='line', useblit=False)
+
     check_rectangle(useblit=True, button=1)
-    check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='none' is deprecated"):
+        check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
     check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
     check_rectangle(rectprops=dict(fill=True))
+
+
+@pytest.mark.parametrize('drag_from_anywhere, new_center',
+                         [[True, (60, 75)],
+                          [False, (30, 20)]])
+def test_rectangle_drag(drag_from_anywhere, new_center):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True,
+                                     drag_from_anywhere=drag_from_anywhere)
+    # Create rectangle
+    do_event(tool, 'press', xdata=0, ydata=10, button=1)
+    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
+    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    assert tool.center == (50, 65)
+    # Drag inside rectangle, but away from centre handle
+    #
+    # If drag_from_anywhere == True, this will move the rectangle by (10, 10),
+    # giving it a new center of (60, 75)
+    #
+    # If drag_from_anywhere == False, this will create a new rectangle with
+    # center (30, 20)
+    do_event(tool, 'press', xdata=25, ydata=15, button=1)
+    do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
+    do_event(tool, 'release', xdata=35, ydata=25, button=1)
+    assert tool.center == new_center
+    # Check that in both cases, dragging outside the rectangle draws a new
+    # rectangle
+    do_event(tool, 'press', xdata=175, ydata=185, button=1)
+    do_event(tool, 'onmove', xdata=185, ydata=195, button=1)
+    do_event(tool, 'release', xdata=185, ydata=195, button=1)
+    assert tool.center == (180, 190)
 
 
 def test_ellipse():
@@ -308,10 +354,14 @@ def test_range_slider(orientation):
     fig, ax = plt.subplots()
 
     slider = widgets.RangeSlider(
-        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation
+        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation,
+        valinit=[0.1, 0.34]
     )
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.25, 0, 0.75, 1])
+    assert_allclose(box.get_points().flatten()[idx], [0.1, 0, 0.34, 1])
+
+    # Check initial value is set correctly
+    assert_allclose(slider.val, (0.1, 0.34))
 
     slider.set_val((0.2, 0.6))
     assert_allclose(slider.val, (0.2, 0.6))
@@ -500,3 +550,17 @@ def test_MultiCursor(horizOn, vertOn):
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+
+
+@check_figures_equal()
+def test_rect_visibility(fig_test, fig_ref):
+    # Check that requesting an invisible selector makes it invisible
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    def onselect(verts):
+        pass
+
+    tool = widgets.RectangleSelector(ax_test, onselect,
+                                     rectprops={'visible': False})
+    tool.extents = (0.2, 0.8, 0.3, 0.7)
