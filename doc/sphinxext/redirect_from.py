@@ -3,7 +3,7 @@ Redirecting old docs to new location
 ====================================
 
 If an rst file is moved or its content subsumed in a different file, it
-is desireable to redirect the old file to the new or existing file. This
+is desirable to redirect the old file to the new or existing file. This
 extension enables this with a simple html refresh.
 
 For example suppose ``doc/topic/old-page.rst`` is removed and its content
