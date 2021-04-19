@@ -3,8 +3,8 @@
 Textcursor
 ==========
 
-Display a data cursor including a text box, which shows the plot point, which
-is close to the mouse pointer.
+Display a data cursor including a text box, which shows the plot point close
+to the mouse pointer.
 
 The new cursor inherits from `~matplotlib.widgets.Cursor` and demonstrates the
 creation of new widgets and their event callbacks.
