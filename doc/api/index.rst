@@ -10,7 +10,7 @@ For recent changes, see :doc:`api_changes`.
 
 When using the library you will typically create
 :doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and 
-call their methods to add content and modify the apprearance.
+call their methods to add content and modify the appearance.
 
   - :doc:`figure_api`: axes creation, figure-level content
   - :doc:`axes_api`: most plotting methods, Axes labels, access to 
