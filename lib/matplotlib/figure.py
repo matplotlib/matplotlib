@@ -2449,6 +2449,10 @@ class Figure(FigureBase):
             Height padding between subplots, expressed as a fraction of the
             subplot width. The total padding ends up being h_pad + hspace.
 
+        compress : boolean
+            Try to compress axes in constrained layout.  Useful when
+            axes aspect ratios make it so that there is substantial
+            white space between them.
         """
 
         todo = ['w_pad', 'h_pad', 'wspace', 'hspace']
@@ -2458,6 +2462,8 @@ class Figure(FigureBase):
             else:
                 self._constrained_layout_pads[td] = (
                     mpl.rcParams['figure.constrained_layout.' + td])
+        self._constrained_layout_pads['compress'] = (
+            kwargs.get('compress', False))
 
     def get_constrained_layout_pads(self, relative=False):
         """
@@ -2477,6 +2483,7 @@ class Figure(FigureBase):
         h_pad = self._constrained_layout_pads['h_pad']
         wspace = self._constrained_layout_pads['wspace']
         hspace = self._constrained_layout_pads['hspace']
+        compress = self._constrained_layout_pads['compress']
 
         if relative and (w_pad is not None or h_pad is not None):
             renderer0 = layoutgrid.get_renderer(self)
@@ -2484,7 +2491,7 @@ class Figure(FigureBase):
             w_pad = w_pad * dpi / renderer0.width
             h_pad = h_pad * dpi / renderer0.height
 
-        return w_pad, h_pad, wspace, hspace
+        return w_pad, h_pad, wspace, hspace, compress
 
     def set_canvas(self, canvas):
         """
@@ -3073,7 +3080,7 @@ class Figure(FigureBase):
                                "or you need to call figure or subplots "
                                "with the constrained_layout=True kwarg.")
             return
-        w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
+        w_pad, h_pad, wspace, hspace, comp = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
         fig = self
         width, height = fig.get_size_inches()
@@ -3081,7 +3088,8 @@ class Figure(FigureBase):
         h_pad = h_pad / height
         if renderer is None:
             renderer = _get_renderer(fig)
-        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
+        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace,
+                              compress=comp)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """

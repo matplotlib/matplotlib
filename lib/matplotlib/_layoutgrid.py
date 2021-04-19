@@ -120,7 +120,9 @@ class LayoutGrid:
                        f'innerW{self.inner_widths[j].value():1.3f}, ' \
                        f'innerH{self.inner_heights[i].value():1.3f}, ' \
                        f'ML{self.margins["left"][j].value():1.3f}, ' \
-                       f'MR{self.margins["right"][j].value():1.3f}, \n'
+                       f'MR{self.margins["right"][j].value():1.3f}, ' \
+                       f'MB{self.margins["bottom"][j].value():1.3f}, ' \
+                       f'MT{self.margins["top"][j].value():1.3f}, \n'
         return str
 
     def reset_margins(self):

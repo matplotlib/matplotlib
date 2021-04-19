@@ -61,7 +61,7 @@ for more discussion of the algorithm with examples.
 
 ######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
-                          hspace=None, wspace=None):
+                          hspace=None, wspace=None, compress=False):
     """
     Do the constrained_layout.  Called at draw time in
      ``figure.constrained_layout()``
@@ -83,6 +83,11 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
        A value of 0.2 for a three-column layout would have a space
        of 0.1 of the figure width between each column.
        If h/wspace < h/w_pad, then the pads are used instead.
+
+    compress : boolean, False
+        Whether to try and push axes together if their aspect ratios
+        make it so that the they will have lots of extra white space
+        between them.  Useful for grids of images or maps.
     """
 
     # list of unique gridspecs that contain child axes:
@@ -98,7 +103,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                            'Possibly did not call parent GridSpec with the'
                            ' "figure" keyword')
 
-    for _ in range(2):
+    for nn in range(2):
         # do the algorithm twice.  This has to be done because decorations
         # change size after the first re-position (i.e. x/yticklabels get
         # larger/smaller).  This second reposition tends to be much milder,
@@ -118,14 +123,54 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         # update all the variables in the layout.
         fig._layoutgrid.update_variables()
 
+        warn_collapsed = ('constrained_layout not applied because '
+                          'axes sizes collapsed to zero.  Try making '
+                          'figure larger or axes decorations smaller.')
         if _check_no_collapsed_axes(fig):
             _reposition_axes(fig, renderer, h_pad=h_pad, w_pad=w_pad,
                              hspace=hspace, wspace=wspace)
+            if compress:
+                _compress_fixed_aspect(fig)
+                # update all the variables in the layout.
+                fig._layoutgrid.update_variables()
+                if _check_no_collapsed_axes(fig):
+                    _reposition_axes(fig, renderer, h_pad=h_pad, w_pad=w_pad,
+                                     hspace=hspace, wspace=wspace)
+                else:
+                    _api.warn_external(warn_collapsed)
         else:
-            _api.warn_external('constrained_layout not applied because '
-                               'axes sizes collapsed to zero.  Try making '
-                               'figure larger or axes decorations smaller.')
+            _api.warn_external(warn_collapsed)
         _reset_margins(fig)
+
+
+def _compress_fixed_aspect(fig):
+    extraw = dict()
+    extrah = dict()
+    for ax in fig.axes:
+        if hasattr(ax, 'get_subplotspec'):
+            actual = ax.get_position(original=False)
+            ax.apply_aspect()
+            sub = ax.get_subplotspec()
+            gs = sub.get_gridspec()
+            if gs not in extraw.keys():
+                extraw[gs] = np.zeros(gs.ncols)
+                extrah[gs] = np.zeros(gs.nrows)
+            orig = ax.get_position(original=True)
+            actual = ax.get_position(original=False)
+            dw = orig.width - actual.width
+            if dw > 0:
+                for i in sub.colspan:
+                    extraw[gs][i] = max(extraw[gs][i], dw)
+            dh = orig.height - actual.height
+            if dh > 0:
+                for i in sub.rowspan:
+                    extrah[gs][i] = max(extrah[gs][i], dh)
+
+    fig._layoutgrid.edit_margin_min('left', np.sum(extraw[gs]) / 2)
+    fig._layoutgrid.edit_margin_min('right', np.sum(extraw[gs]) / 2)
+
+    fig._layoutgrid.edit_margin_min('top', np.sum(extrah[gs]) / 2)
+    fig._layoutgrid.edit_margin_min('bottom', np.sum(extrah[gs]) / 2)
 
 
 def _check_no_collapsed_axes(fig):
