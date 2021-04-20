@@ -112,19 +112,19 @@ Additional external dependencies
 --------------------------------
 Required:
 
-*  a minimal working LaTeX distribution
-*  `Graphviz <http://www.graphviz.org/download>`_
-*  the LaTeX packages *cm-super* and *dvipng*. If your OS bundles ``TexLive``,
-   then often the "complete" version of the installer will automatically include
-   these packages (e.g. "texlive-full" or "texlive-all").
+* a minimal working LaTeX distribution
+* `Graphviz <http://www.graphviz.org/download>`_
+* the LaTeX packages *cm-super* and *dvipng* (if your OS bundles TeXLive, the
+  "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
+  will often automatically include these packages)
 
 Optional, but recommended:
 
-*  `Inkscape <https://inkscape.org>`_
-*  `optipng <http://optipng.sourceforge.net>`_
-*  the font "Humor Sans" (aka the "XKCD" font), or the free alternative
-   `Comic Neue <http://comicneue.com/>`_.
-*  the font "Times New Roman"
+* `Inkscape <https://inkscape.org>`_
+* `optipng <http://optipng.sourceforge.net>`_
+* the font "Humor Sans" (aka the "XKCD" font), or the free alternative
+  `Comic Neue <http://comicneue.com/>`_
+* the font "Times New Roman"
 
 .. note::
 
