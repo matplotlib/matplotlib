@@ -1,0 +1,3 @@
+``axvspan`` now plots full wedges in polar plots
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... rather than triangles.
