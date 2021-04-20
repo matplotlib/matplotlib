@@ -102,13 +102,13 @@ Possible hangups
 
 * On Ubuntu and Gentoo, the base texlive install does not ship with
   the type1cm package. You may need to install some of the extra
-  packages to get all the goodies that come bundled with other latex
+  packages to get all the goodies that come bundled with other LaTeX
   distributions.
 
-* Some progress has been made so matplotlib uses the dvi files
-  directly for text layout. This allows latex to be used for text
+* Some progress has been made so Matplotlib uses the dvi files
+  directly for text layout. This allows LaTeX to be used for text
   layout with the pdf and svg backends, as well as the \*Agg and PS
-  backends. In the future, a latex installation may be the only
+  backends. In the future, a LaTeX installation may be the only
   external dependency.
 
 .. _usetex-troubleshooting:
