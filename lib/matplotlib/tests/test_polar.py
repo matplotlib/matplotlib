@@ -249,6 +249,8 @@ def test_polar_theta_limits():
                            direction=DIRECTIONS[i % len(DIRECTIONS)],
                            rotation='auto')
             ax.yaxis.set_tick_params(label2On=True, rotation='auto')
+            ax.xaxis.get_major_locator().base.set_params(  # backcompat
+                steps=[1, 2, 2.5, 5, 10])
 
 
 @check_figures_equal(extensions=["png"])
@@ -357,3 +359,17 @@ def test_thetalim_args():
     assert tuple(np.radians((ax.get_thetamin(), ax.get_thetamax()))) == (0, 1)
     ax.set_thetalim((2, 3))
     assert tuple(np.radians((ax.get_thetamin(), ax.get_thetamax()))) == (2, 3)
+
+
+def test_default_thetalocator():
+    # Ideally we would check AAAABBC, but the smallest axes currently puts a
+    # single tick at 150° because MaxNLocator doesn't have a way to accept 15°
+    # while rejecting 150°.
+    fig, axs = plt.subplot_mosaic(
+        "AAAABB.", subplot_kw={"projection": "polar"})
+    for ax in axs.values():
+        ax.set_thetalim(0, np.pi)
+    for ax in axs.values():
+        ticklocs = np.degrees(ax.xaxis.get_majorticklocs()).tolist()
+        assert pytest.approx(90) in ticklocs
+        assert pytest.approx(100) not in ticklocs
