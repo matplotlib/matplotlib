@@ -2035,11 +2035,11 @@ class SubFigure(FigureBase):
 
         x0 = 0
         if not self._subplotspec.is_first_col():
-            x0 += np.sum(wr[self._subplotspec.colspan.start - 1]) / np.sum(wr)
+            x0 += np.sum(wr[:self._subplotspec.colspan.start]) / np.sum(wr)
 
         y0 = 0
         if not self._subplotspec.is_last_row():
-            y0 += 1 - (np.sum(hr[self._subplotspec.rowspan.stop - 1]) /
+            y0 += 1 - (np.sum(hr[:self._subplotspec.rowspan.stop]) /
                        np.sum(hr))
 
         if self.bbox_relative is None:

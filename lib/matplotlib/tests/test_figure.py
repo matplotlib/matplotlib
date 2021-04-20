@@ -998,6 +998,28 @@ def test_subfigure_double():
     axsRight = subfigs[1].subplots(2, 2)
 
 
+def test_subfigure_spanning():
+    # test that subfigures get laid out properly...
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(3, 3)
+    sub_figs = [
+        fig.add_subfigure(gs[0, 0]),
+        fig.add_subfigure(gs[0:2, 1]),
+        fig.add_subfigure(gs[2, 1:3]),
+    ]
+
+    w = 640
+    h = 480
+    np.testing.assert_allclose(sub_figs[0].bbox.min, [0., h * 2/3])
+    np.testing.assert_allclose(sub_figs[0].bbox.max, [w / 3, h])
+
+    np.testing.assert_allclose(sub_figs[1].bbox.min, [w / 3, h / 3])
+    np.testing.assert_allclose(sub_figs[1].bbox.max, [w * 2/3, h])
+
+    np.testing.assert_allclose(sub_figs[2].bbox.min, [w / 3, 0])
+    np.testing.assert_allclose(sub_figs[2].bbox.max, [w, h / 3])
+
+
 def test_add_subplot_kwargs():
     # fig.add_subplot() always creates new axes, even if axes kwargs differ.
     fig = plt.figure()
