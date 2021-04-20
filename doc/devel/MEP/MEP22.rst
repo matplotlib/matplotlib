@@ -144,7 +144,7 @@ Defines the following attributes
  * messagelock: Lock to know if the message is available to write
 
 Public methods for **User use**:
- * nav_connect(self, s, func): Connect to to navigation for events
+ * nav_connect(self, s, func): Connect to navigation for events
  * nav_disconnect(self, cid): Disconnect from navigation event
  * message_event(self, message, sender=None): Emit a
    tool_message_event event

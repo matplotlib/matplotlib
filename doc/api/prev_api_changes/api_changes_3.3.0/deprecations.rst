@@ -72,7 +72,7 @@ Revert deprecation \*min, \*max keyword arguments to ``set_x/y/zlim_3d()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These keyword arguments  were deprecated in 3.0, alongside with the respective
 parameters in ``set_xlim()`` / ``set_ylim()``. The deprecations of the 2D
-versions were already reverted in in 3.1.
+versions were already reverted in 3.1.
 
 ``cbook.local_over_kwdict``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
