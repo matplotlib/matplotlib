@@ -974,6 +974,7 @@ class Axes(_AxesBase):
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(self.get_xaxis_transform(which="grid"))
+        p.get_path()._interpolation_steps = 100
         self.add_patch(p)
         self._request_autoscale_view(scaley=False)
         return p
