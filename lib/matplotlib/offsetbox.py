@@ -404,7 +404,7 @@ default: 'baseline'
         Notes
         -----
         *pad* and *sep* are in points and will be scaled with the renderer
-        dpi, while *width* and *height* are in in pixels.
+        dpi, while *width* and *height* are in pixels.
         """
         super().__init__()
         self.height = height

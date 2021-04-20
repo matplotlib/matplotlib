@@ -724,7 +724,7 @@ class Rectangle(Patch):
       :               (xy)---- width -----+
 
     One may picture *xy* as the bottom left corner, but which corner *xy* is
-    actually depends on the the direction of the axis and the sign of *width*
+    actually depends on the direction of the axis and the sign of *width*
     and *height*; e.g. *xy* would be the bottom right corner if the x-axis
     was inverted or if *width* was negative.
     """

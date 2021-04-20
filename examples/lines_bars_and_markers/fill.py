@@ -62,7 +62,7 @@ plt.fill(x, y)
 plt.show()
 
 ###############################################################################
-# Use keyword arguments *facecolor* and *edgecolor* to modify the the colors
+# Use keyword arguments *facecolor* and *edgecolor* to modify the colors
 # of the polygon. Since the *linewidth* of the edge is 0 in the default
 # Matplotlib style, we have to set it as well for the edge to become visible.
 
