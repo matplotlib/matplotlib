@@ -18,7 +18,7 @@ Overview
    faq/index.rst
    api/index.rst
    resources/index.rst
-   thirdpartypackages/index.rst
+   Third-party packages <https://matplotlib.org/mpl-third-party/>
    devel/index.rst
 
 .. only:: html
