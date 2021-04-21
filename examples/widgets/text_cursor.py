@@ -265,8 +265,7 @@ class TextCursor(Cursor):
             super()._update()
 
 
-fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(111, facecolor='#FFFFCC')
+fig, ax = plt.subplots(figsize=(8, 6))
 
 # A linearly growing x vector.
 x = np.linspace(-5, 5, 1000)
