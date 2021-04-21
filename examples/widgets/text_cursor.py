@@ -9,6 +9,11 @@ to the mouse pointer.
 The new cursor inherits from `~matplotlib.widgets.Cursor` and demonstrates the
 creation of new widgets and their event callbacks.
 
+See also the :doc:`cross hair cursor
+</gallery/misc/cursor_demo>`, which implements a cursor tracking the plotted
+data, but without using inheritance and without displaying the currently
+tracked coordinates.
+
 .. note::
     The figure related to this example does not show the cursor, because that
     figure is automatically created in a build queue, where the first mouse
