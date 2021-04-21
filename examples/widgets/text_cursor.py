@@ -292,18 +292,30 @@ cursor = TextCursor(
     color='red',
     linewidth=2)
 
-# A call demonstrating problems with the dataaxis=y parameter.
+plt.show()
+
+###############################################################################
+# Trouble with non-biunique functions
+# -----------------------------------
+# A call demonstrating problems with the *dataaxis=y* parameter.
 # The text now looks up the matching x value for the current cursor y position
 # instead of vice versa. Hover you cursor to y=4. There are two x values
 # producing this y value: -2 and 2. The function is only unique,
 # but not biunique. Only one value is shown in the text.
-# cursor = TextCursor(
-#     line=lin,
-#     numberformat="{0:.2f}\n{1:.2f}",
-#     dataaxis='y', offset=[10, 10],
-#     textprops={'color': 'blue', 'fontweight': 'bold'},
-#     ax=ax,
-#     useblit=True,
-#     color='red', linewidth=2)
+
+fig, ax = plt.subplots(figsize=(8, 6))
+
+line, = ax.plot(x, y)
+ax.set_xlim(-5, 5)
+ax.set_ylim(0, 25)
+
+cursor = TextCursor(
+    line=line,
+    numberformat="{0:.2f}\n{1:.2f}",
+    dataaxis='y', offset=[10, 10],
+    textprops={'color': 'blue', 'fontweight': 'bold'},
+    ax=ax,
+    useblit=True,
+    color='red', linewidth=2)
 
 plt.show()
