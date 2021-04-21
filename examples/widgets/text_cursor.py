@@ -270,7 +270,7 @@ fig, ax = plt.subplots(figsize=(8, 6))
 x = np.linspace(-5, 5, 1000)
 y = x**2
 
-lin = ax.plot(x, y)
+line = ax.plot(x, y)
 ax.set_xlim(-5, 5)
 ax.set_ylim(0, 25)
 
@@ -283,7 +283,7 @@ ax.set_ylim(0, 25)
 # See the color if you are confused which parameter is passed where.
 # The dataaxis parameter is still the default.
 cursor = TextCursor(
-    line=lin[0],
+    line=line[0],
     numberformat="{0:.2f}\n{1:.2f}",
     dataaxis='x', offset=[10, 10],
     textprops={'color': 'blue', 'fontweight': 'bold'},
