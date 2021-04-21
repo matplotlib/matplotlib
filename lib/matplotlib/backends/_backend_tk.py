@@ -5,9 +5,10 @@ import math
 import os.path
 import sys
 import tkinter as tk
-from tkinter.simpledialog import SimpleDialog
 import tkinter.filedialog
+import tkinter.font
 import tkinter.messagebox
+from tkinter.simpledialog import SimpleDialog
 
 import numpy as np
 from PIL import Image, ImageTk
@@ -525,16 +526,19 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                 if tooltip_text is not None:
                     ToolTip.createToolTip(button, tooltip_text)
 
+        self._label_font = tkinter.font.Font(size=10)
+
         # This filler item ensures the toolbar is always at least two text
         # lines high. Otherwise the canvas gets redrawn as the mouse hovers
         # over images because those use two-line messages which resize the
         # toolbar.
-        label = tk.Label(master=self,
+        label = tk.Label(master=self, font=self._label_font,
                          text='\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}')
         label.pack(side=tk.RIGHT)
 
         self.message = tk.StringVar(master=self)
-        self._message_label = tk.Label(master=self, textvariable=self.message)
+        self._message_label = tk.Label(master=self, font=self._label_font,
+                                       textvariable=self.message)
         self._message_label.pack(side=tk.RIGHT)
 
         NavigationToolbar2.__init__(self, canvas)
@@ -602,8 +606,10 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                             if size > 24 else image_file) as im:
                 image = ImageTk.PhotoImage(im.resize((size, size)),
                                            master=self)
-            b.config(image=image, height='18p', width='18p')
+            b.configure(image=image, height='18p', width='18p')
             b._ntimage = image  # Prevent garbage collection.
+        else:
+            b.configure(font=self._label_font)
         b.pack(side=tk.LEFT)
         return b
 
@@ -745,8 +751,10 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
                           borderwidth=2)
+        self._label_font = tkinter.font.Font(size=10)
         self._message = tk.StringVar(master=self)
-        self._message_label = tk.Label(master=self, textvariable=self._message)
+        self._message_label = tk.Label(master=self, font=self._label_font,
+                                       textvariable=self._message)
         self._message_label.pack(side=tk.RIGHT)
         self._toolitems = {}
         self.pack(side=tk.TOP, fill=tk.X)
