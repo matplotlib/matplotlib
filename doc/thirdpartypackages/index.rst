@@ -344,6 +344,16 @@ plots) for Bioinformatics and Synthetic Biology applications.
 
 .. image:: /_static/dna_features_viewer_screenshot.png
 
+mplsoccer
+==============
+
+`mplsoccer <https://pypi.org/project/mplsoccer/>`_ is a Python library for 
+plotting soccer/football charts in Matplotlib and loading StatsBomb open-data.
+Visit the `mplsoccer official docs
+<https://mplsoccer.readthedocs.io/en/latest/>`_ for more details and examples.
+
+.. image:: /_static/mplsoccer.png
+
 GUI applications
 ****************
 
