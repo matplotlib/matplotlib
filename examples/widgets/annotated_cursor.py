@@ -102,6 +102,8 @@ class AnnotatedCursor(Cursor):
             "0, 0",
             animated=bool(self.useblit),
             visible=False, **textprops)
+        # The position at which the cursor was last drawn
+        self.lastdrawnplotpoint = None
 
     def onmove(self, event):
         """Overwritten draw callback for cursor. \
@@ -109,14 +111,17 @@ class AnnotatedCursor(Cursor):
 
         # Leave method under the same conditions as in overwritten method
         if self.ignore(event):
+            self.lastdrawnplotpoint = None
             return
         if not self.canvas.widgetlock.available(self):
+            self.lastdrawnplotpoint = None
             return
 
         # If the mouse left drawable area, we now make the text invisible.
         # Baseclass will redraw complete canvas after, which makes both text
         # and cursor disappear.
         if event.inaxes != self.ax:
+            self.lastdrawnplotpoint = None
             self.text.set_visible(False)
             super().onmove(event)
             return
@@ -134,6 +139,15 @@ class AnnotatedCursor(Cursor):
             if plotpoint is not None:
                 event.xdata = plotpoint[0]
                 event.ydata = plotpoint[1]
+
+        # If the plotpoint is given, compare to last drawn plotpoint and
+        # return if they are the same.
+        # Skip even the call of the base class, because this would restore the
+        # background, draw the cursor lines and would leave us the job to
+        # re-draw the text.
+        if plotpoint is not None:
+            if plotpoint == self.lastdrawnplotpoint:
+                return
 
         # Baseclass redraws canvas and cursor. Due to blitting,
         # the added text is removed in this call, because the
@@ -166,6 +180,11 @@ class AnnotatedCursor(Cursor):
             # Baseclass needs to know, that it needs to restore a clean
             # backround, if the cursor leaves our figure context.
             self.needclear = True
+
+            # Remember the recently drawn cursor position, so events for the
+            # same position (mouse moves slightly between two plot points)
+            # can be skipped
+            self.lastdrawnplotpoint = plotpoint
         # otherwise, make text invisible
         else:
             self.text.set_visible(False)
