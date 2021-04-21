@@ -267,11 +267,8 @@ class TextCursor(Cursor):
 
 fig, ax = plt.subplots(figsize=(8, 6))
 
-# A linearly growing x vector.
 x = np.linspace(-5, 5, 1000)
-
-# A non biunique function. dataaxis='y' will cause trouble.
-y = (x ** 2)
+y = x**2
 
 lin = ax.plot(x, y)
 ax.set_xlim(-5, 5)
