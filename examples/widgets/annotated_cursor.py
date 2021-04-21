@@ -1,7 +1,7 @@
 """
-==========
-Textcursor
-==========
+================
+Annotated Cursor
+================
 
 Display a data cursor including a text box, which shows the plot point close
 to the mouse pointer.
@@ -25,7 +25,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class TextCursor(Cursor):
+class AnnotatedCursor(Cursor):
     """
     A crosshair cursor like `~matplotlib.widgets.Cursor` with a text showing \
     the current coordinates.
@@ -282,12 +282,12 @@ ax.set_ylim(0, 25)
 # A minimum call
 # Set useblit=True on most backends for enhanced performance
 # and pass the ax parameter to the Cursor base class.
-# cursor = TextCursor(line=lin[0], ax=ax, useblit=True)
+# cursor = AnnotatedCursor(line=lin[0], ax=ax, useblit=True)
 
 # A more advanced call. Properties for text and lines are passed.
 # See the color if you are confused which parameter is passed where.
 # The dataaxis parameter is still the default.
-cursor = TextCursor(
+cursor = AnnotatedCursor(
     line=line,
     numberformat="{0:.2f}\n{1:.2f}",
     dataaxis='x', offset=[10, 10],
@@ -314,7 +314,7 @@ line, = ax.plot(x, y)
 ax.set_xlim(-5, 5)
 ax.set_ylim(0, 25)
 
-cursor = TextCursor(
+cursor = AnnotatedCursor(
     line=line,
     numberformat="{0:.2f}\n{1:.2f}",
     dataaxis='y', offset=[10, 10],
