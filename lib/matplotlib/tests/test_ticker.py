@@ -558,7 +558,7 @@ class TestScalarFormatter:
             assert tmp_form.get_useLocale()
 
             tmp_form.create_dummy_axis()
-            tmp_form.set_bounds(0, 10)
+            tmp_form.axis.set_data_interval(0, 10)
             tmp_form.set_locs([1, 2, 3])
             assert sep in tmp_form(1e9)
 
@@ -589,7 +589,7 @@ class TestScalarFormatter:
         # Issue #17624
         sf = mticker.ScalarFormatter()
         sf.create_dummy_axis()
-        sf.set_bounds(0, 10)
+        sf.axis.set_view_interval(0, 10)
         fmt = sf.format_data_short
         assert fmt(data) == expected
 

@@ -222,8 +222,7 @@ class MaxNLocator(mticker.MaxNLocator):
         self._factor = 1
 
     def __call__(self, v1, v2):
-        self.set_bounds(v1 * self._factor, v2 * self._factor)
-        locs = super().__call__()
+        locs = super().tick_values(v1 * self._factor, v2 * self._factor)
         return np.array(locs), len(locs), self._factor
 
     @_api.deprecated("3.3")
