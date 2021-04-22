@@ -52,6 +52,7 @@ clipped.
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
+from matplotlib.tests.test_constrainedlayout import example_pcolor
 import numpy as np
 
 plt.rcParams['savefig.facecolor'] = "0.8"
@@ -230,8 +231,67 @@ fig.savefig('../../doc/_static/constrained_layout_2b.png',
 #    :align: center
 #
 
+##############################################################################
+# Grids of fixed-aspect axes
+# ==========================
+#
+# Often we want to layout axes with fixed-aspect ratios. This adds an extra
+# constraint to the layout problem, which by default is solved by leaving
+# one dimension with large white space between axes:
+
+fig, axs = plt.subplots(2, 2, constrained_layout=True, figsize=(6, 3))
+for ax in axs.flat:
+    pc = example_pcolor(ax, hide_labels=True)
+    ax.set_aspect(1)
+fig.colorbar(pc, ax=axs)
+fig.suptitle('Fixed-aspect axes')
+
+##################################
+# Now, we could change the size of the figure manually to improve the
+# whitespace, but that requires manual intervention.
+# To address this, we can set ``constrained_layout`` to "compress" the
+# axes:
+fig, axs = plt.subplots(2, 2, constrained_layout={'compress': True},
+                        figsize=(6, 3), sharex=True, sharey=True)
+for ax in axs.flat:
+    pc = example_pcolor(ax, hide_labels=True)
+    ax.set_aspect(1)
+fig.colorbar(pc, ax=axs)
+fig.suptitle('Fixed-aspect axes')
+
+###################################
+# Note this works in the vertical direction as well, though the
+# suptitle stays at the top of the plot:
+fig, axs = plt.subplots(2, 2, constrained_layout={'compress': True},
+                        figsize=(3, 5), sharex=True, sharey=True)
+for ax in axs.flat:
+    pc = example_pcolor(ax, hide_labels=True)
+    ax.set_aspect(1)
+fig.colorbar(pc, ax=axs)
+fig.suptitle('Fixed-aspect axes')
+
+###################################
+# Note if only one row of axes have a fixed aspect, there can still be
+# the need for manually adjusting the figure size, however, in this case
+# widening the figure will make the layout look good again (not shown here)
+
+fig, axs = plt.subplots(2, 2, constrained_layout={'compress': True},
+                        figsize=(4, 6), sharex=True, sharey=True)
+for i in range(2):
+    for j in range(2):
+        ax = axs[i, j]
+        pc = example_pcolor(ax, hide_labels=True)
+        if i == 0:
+            ax.set_title('asp=1')
+            ax.set_aspect(1)
+        else:
+            ax.set_title('asp="auto"')
+fig.colorbar(pc, ax=axs)
+fig.suptitle('Fixed-aspect axes')
+plt.show()
+
 ###############################################################################
-# Padding and Spacing
+# Padding and spacing
 # ===================
 #
 # Padding between axes is controlled in the horizontal by *w_pad* and

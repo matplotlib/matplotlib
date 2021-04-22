@@ -20,16 +20,17 @@ def example_plot(ax, fontsize=12, nodec=False):
         ax.set_yticklabels('')
 
 
-def example_pcolor(ax, fontsize=12):
+def example_pcolor(ax, fontsize=12, hide_labels=False):
     dx, dy = 0.6, 0.6
     y, x = np.mgrid[slice(-3, 3 + dy, dy),
                     slice(-3, 3 + dx, dx)]
     z = (1 - x / 2. + x ** 5 + y ** 3) * np.exp(-x ** 2 - y ** 2)
     pcm = ax.pcolormesh(x, y, z[:-1, :-1], cmap='RdBu_r', vmin=-1., vmax=1.,
                         rasterized=True)
-    ax.set_xlabel('x-label', fontsize=fontsize)
-    ax.set_ylabel('y-label', fontsize=fontsize)
-    ax.set_title('Title', fontsize=fontsize)
+    if not hide_labels:
+        ax.set_xlabel('x-label', fontsize=fontsize)
+        ax.set_ylabel('y-label', fontsize=fontsize)
+        ax.set_title('Title', fontsize=fontsize)
     return pcm
 
 
@@ -555,3 +556,34 @@ def test_align_labels():
                                after_align[1].x0, rtol=0, atol=1e-05)
     # ensure labels do not go off the edge
     assert after_align[0].x0 >= 1
+
+
+def test_compressed1():
+    fig, axs = plt.subplots(3, 2, constrained_layout={'compress': True},
+                            sharex=True, sharey=True)
+    for ax in axs.flat:
+        pc = ax.imshow(np.random.randn(20, 20))
+
+    fig.colorbar(pc, ax=axs)
+    fig.draw_no_output()
+
+    pos = axs[0, 0].get_position()
+    np.testing.assert_allclose(pos.x0, 0.2244, atol=1e-3)
+    pos = axs[0, 1].get_position()
+    np.testing.assert_allclose(pos.x1, 0.6925, atol=1e-3)
+
+    # wider than tall
+    fig, axs = plt.subplots(2, 3, constrained_layout={'compress': True},
+                            sharex=True, sharey=True, figsize=(5, 4))
+    for ax in axs.flat:
+        pc = ax.imshow(np.random.randn(20, 20))
+
+    fig.colorbar(pc, ax=axs)
+    fig.draw_no_output()
+
+    pos = axs[0, 0].get_position()
+    np.testing.assert_allclose(pos.x0, 0.06195, atol=1e-3)
+    np.testing.assert_allclose(pos.y1, 0.8413, atol=1e-3)
+    pos = axs[1, 2].get_position()
+    np.testing.assert_allclose(pos.x1, 0.832587, atol=1e-3)
+    np.testing.assert_allclose(pos.y0, 0.205377, atol=1e-3)
