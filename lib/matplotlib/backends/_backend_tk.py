@@ -866,7 +866,7 @@ class _BackendTk(_Backend):
         with _restore_foreground_window_at_end():
             if cbook._get_running_interactive_framework() is None:
                 cbook._setup_new_guiapp()
-                _c_internal_utils.Win32_SetDpiAwareness()
+                _c_internal_utils.Win32_SetProcessDpiAwareness_max()
             window = tk.Tk(className="matplotlib")
             window.withdraw()
 
