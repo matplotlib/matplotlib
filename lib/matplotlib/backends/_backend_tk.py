@@ -419,6 +419,16 @@ class FigureManagerTk(FigureManagerBase):
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
 
+        # If the window has per-monitor DPI awareness, then setup a Tk variable
+        # to store the DPI, which will be updated by the C code, and the trace
+        # will handle it on the Python side.
+        window_frame = int(window.wm_frame(), 16)
+        window_dpi = tk.IntVar(master=window, value=96,
+                               name=f'window_dpi{window_frame}')
+        if _tkagg.enable_dpi_awareness(window_frame, window.tk.interpaddr()):
+            self._window_dpi = window_dpi  # Prevent garbage collection.
+            window_dpi.trace_add('write', self._update_window_dpi)
+
         self._shown = False
 
     def _get_toolbar(self):
@@ -429,6 +439,13 @@ class FigureManagerTk(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
+
+    def _update_window_dpi(self, *args):
+        newdpi = self._window_dpi.get()
+        self.window.call('tk', 'scaling', newdpi / 72)
+        if self.toolbar and hasattr(self.toolbar, '_rescale'):
+            self.toolbar._rescale()
+        self.canvas._update_device_pixel_ratio()
 
     def resize(self, width, height):
         max_size = 1_400_000  # the measured max on xorg 1.20.8 was 1_409_023
@@ -545,6 +562,33 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if pack_toolbar:
             self.pack(side=tk.BOTTOM, fill=tk.X)
 
+    def _rescale(self):
+        """
+        Scale all children of the toolbar to current DPI setting.
+
+        Before this is called, the Tk scaling setting will have been updated to
+        match the new DPI. Tk widgets do not update for changes to scaling, but
+        all measurements made after the change will match the new scaling. Thus
+        this function re-applies all the same sizes in points, which Tk will
+        scale correctly to pixels.
+        """
+        for widget in self.winfo_children():
+            if isinstance(widget, (tk.Button, tk.Checkbutton)):
+                if hasattr(widget, '_image_file'):
+                    # Explicit class because ToolbarTk calls _rescale.
+                    NavigationToolbar2Tk._set_image_for_button(self, widget)
+                else:
+                    # Text-only button is handled by the font setting instead.
+                    pass
+            elif isinstance(widget, tk.Frame):
+                widget.configure(height='22p', pady='1p')
+                widget.pack_configure(padx='4p')
+            elif isinstance(widget, tk.Label):
+                pass  # Text is handled by the font setting instead.
+            else:
+                _log.warning('Unknown child class %s', widget.winfo_class)
+        self._label_font.configure(size=10)
+
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
         for text, mode in [('Zoom', _Mode.ZOOM), ('Pan', _Mode.PAN)]:
@@ -586,6 +630,22 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         except tkinter.TclError:
             pass
 
+    def _set_image_for_button(self, button):
+        """
+        Set the image for a button based on its pixel size.
+
+        The pixel size is determined by the DPI scaling of the window.
+        """
+        if button._image_file is None:
+            return
+
+        size = button.winfo_pixels('18p')
+        with Image.open(button._image_file.replace('.png', '_large.png')
+                        if size > 24 else button._image_file) as im:
+            image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
+        button.configure(image=image, height='18p', width='18p')
+        button._ntimage = image  # Prevent garbage collection.
+
     def _Button(self, text, image_file, toggle, command):
         if not toggle:
             b = tk.Button(master=self, text=text, command=command)
@@ -600,14 +660,10 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                 master=self, text=text, command=command,
                 indicatoron=False, variable=var)
             b.var = var
+        b._image_file = image_file
         if image_file is not None:
-            size = b.winfo_pixels('18p')
-            with Image.open(image_file.replace('.png', '_large.png')
-                            if size > 24 else image_file) as im:
-                image = ImageTk.PhotoImage(im.resize((size, size)),
-                                           master=self)
-            b.configure(image=image, height='18p', width='18p')
-            b._ntimage = image  # Prevent garbage collection.
+            # Explicit class because ToolbarTk calls _Button.
+            NavigationToolbar2Tk._set_image_for_button(self, b)
         else:
             b.configure(font=self._label_font)
         b.pack(side=tk.LEFT)
@@ -759,6 +815,9 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         self._toolitems = {}
         self.pack(side=tk.TOP, fill=tk.X)
         self._groups = {}
+
+    def _rescale(self):
+        return NavigationToolbar2Tk._rescale(self)
 
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):

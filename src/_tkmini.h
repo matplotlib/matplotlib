@@ -95,6 +95,12 @@ typedef void (*Tk_PhotoPutBlock_NoComposite_t) (Tk_PhotoHandle handle,
         Tk_PhotoImageBlock *blockPtr, int x, int y,
         int width, int height);
 
+#ifdef WIN32_DLL
+/* Typedefs derived from function signatures in Tcl header */
+typedef const char *(*Tcl_SetVar_t)(Tcl_Interp *interp, const char *varName,
+                                    const char *newValue, int flags);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
