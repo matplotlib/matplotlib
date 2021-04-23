@@ -674,6 +674,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             titles = [
                 ax.get_label() or
                 ax.get_title() or
+                ax.get_title("left") or
+                ax.get_title("right") or
                 " - ".join(filter(None, [ax.get_xlabel(), ax.get_ylabel()])) or
                 f"<anonymous {type(ax).__name__}>"
                 for ax in axes]
