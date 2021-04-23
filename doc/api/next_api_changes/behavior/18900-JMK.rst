@@ -2,14 +2,14 @@ Axes used to make colorbar now wrapped
 ======================================
 
 The axes used to place a colorbar is now wrapped by a new parent class
-when the colorbar is instnatiated ``ColorbarAxes``::
+(``ColorbarAxes``) when the colorbar is created::
 
     cb = fig.colorbar(im, cax=cax)
 
-So now ``cb.ax`` returns the parent ``ColorbarAxes`` and to get
+Now ``cb.ax`` returns the parent ``ColorbarAxes``, and to get
 ``cax`` back, you can do::
 
-    assert cb.ax.parent_axes == cax
+    cb.ax.parent_axes
 
 The parent axes (``cb.ax.parent_axes``) handles the
 placement of the colorbar axes object, and its aspect ratio, but the child
