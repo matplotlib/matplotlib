@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import _api, ticker as mticker
+from matplotlib import ticker as mticker
 from matplotlib.transforms import Bbox, Transform
 from .clip_path import clip_line_to_rect
 
@@ -219,30 +219,20 @@ class MaxNLocator(mticker.MaxNLocator):
         super().__init__(nbins, steps=steps, integer=integer,
                          symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
-        self._factor = 1
 
     def __call__(self, v1, v2):
-        locs = super().tick_values(v1 * self._factor, v2 * self._factor)
-        return np.array(locs), len(locs), self._factor
-
-    @_api.deprecated("3.3")
-    def set_factor(self, f):
-        self._factor = f
+        locs = super().tick_values(v1, v2)
+        return np.array(locs), len(locs), 1  # 1: factor (see angle_helper)
 
 
 class FixedLocator:
     def __init__(self, locs):
         self._locs = locs
-        self._factor = 1
 
     def __call__(self, v1, v2):
-        v1, v2 = sorted([v1 * self._factor, v2 * self._factor])
+        v1, v2 = sorted([v1, v2])
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
-        return locs, len(locs), self._factor
-
-    @_api.deprecated("3.3")
-    def set_factor(self, f):
-        self._factor = f
+        return locs, len(locs), 1  # 1: factor (see angle_helper)
 
 
 # Tick Formatter
