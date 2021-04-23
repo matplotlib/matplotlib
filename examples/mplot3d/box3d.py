@@ -7,7 +7,7 @@ Given data on a gridded volume ``X``, ``Y``, ``Z``, this example plots the
 data values on the volume surfaces.
 
 The strategy is to select the data from each surface and plot
-contours separately using `.Axes3D.contourf` with appropriate
+contours separately using `.axes3d.Axes3D.contourf` with appropriate
 parameters *zdir* and *offset*.
 """
 
