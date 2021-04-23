@@ -1272,7 +1272,7 @@ class TwoSlopeNorm(Normalize):
             Defaults to the min value of the dataset.
         vmax : float, optional
             The data value that defines ``1.0`` in the normalization.
-            Defaults to the the max value of the dataset.
+            Defaults to the max value of the dataset.
 
         Examples
         --------
@@ -1739,7 +1739,7 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         # this gives us the bins in the lookup table in the range
-        # [0, _n_regions - 1]  (the offset is baked in in the init)
+        # [0, _n_regions - 1]  (the offset is baked in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         # if we have more colors than regions, stretch the region
         # index computed above to full range of the color bins.  This

@@ -1591,7 +1591,7 @@ def _no_output_draw(figure):
 
 def _is_non_interactive_terminal_ipython(ip):
     """
-    Return whether we are in a a terminal IPython, but non interactive.
+    Return whether we are in a terminal IPython, but non interactive.
 
     When in _terminal_ IPython, ip.parent will have and `interact` attribute,
     if this attribute is False we do not setup eventloop integration as the

@@ -244,9 +244,9 @@ Pull Requests (772):
 * :ghpull:`19611`: Fix double picks.
 * :ghpull:`19640`: Backport PR #19639 on branch v3.4.x (FIX: do not allow single element list of str in subplot_mosaic)
 * :ghpull:`19639`: FIX: do not allow single element list of str in subplot_mosaic
-* :ghpull:`19638`: Backport PR #19632 on branch v3.4.x (Fix handling of warn keyword in in Figure.show.)
+* :ghpull:`19638`: Backport PR #19632 on branch v3.4.x (Fix handling of warn keyword in Figure.show.)
 * :ghpull:`19637`: Backport PR #19582 on branch v3.4.x (Add kerning to single-byte strings in PDFs)
-* :ghpull:`19632`: Fix handling of warn keyword in in Figure.show.
+* :ghpull:`19632`: Fix handling of warn keyword in Figure.show.
 * :ghpull:`19582`: Add kerning to single-byte strings in PDFs
 * :ghpull:`19629`: Backport PR #19548 on branch v3.4.x (Increase tolerances for other arches.)
 * :ghpull:`19630`: Backport PR #19596 on branch v3.4.x (Fix for issue 17769: wx interactive figure close cause crash)
@@ -1016,7 +1016,7 @@ Issues (204):
 * :ghissue:`18648`: Drop support for directly imread()ing urls.
 * :ghissue:`19366`: Current CI doc builds fail
 * :ghissue:`19372`: matplotlib.axes.Axes.indicate_inset default label value is incompatible with LaTeX
-* :ghissue:`17100`: Is it a better solution to acess one of the spines by class atrribute?
+* :ghissue:`17100`: Is it a better solution to access one of the spines by class attribute?
 * :ghissue:`17375`: Proposal: add_subfigs....
 * :ghissue:`19339`: constrained_layout + fixed-aspect axes + bbox_inches="tight"
 * :ghissue:`19308`: Reduce whitespace in Choosing Colormaps tutorial plots
