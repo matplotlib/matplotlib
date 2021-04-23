@@ -95,15 +95,7 @@ class ParasiteAxesBase:
 
 
 @functools.lru_cache(None)
-def parasite_axes_class_factory(axes_class=None):
-    if axes_class is None:
-        _api.warn_deprecated(
-            "3.3", message="Support for passing None to "
-            "parasite_axes_class_factory is deprecated since %(since)s and "
-            "will be removed %(removal)s; explicitly pass the default Axes "
-            "class instead.")
-        axes_class = Axes
-
+def parasite_axes_class_factory(axes_class):
     return type("%sParasite" % axes_class.__name__,
                 (ParasiteAxesBase, axes_class), {})
 
@@ -158,15 +150,8 @@ class ParasiteAxesAuxTransBase:
 
 @_api.deprecated("3.4", alternative="parasite_axes_class_factory")
 @functools.lru_cache(None)
-def parasite_axes_auxtrans_class_factory(axes_class=None):
-    if axes_class is None:
-        _api.warn_deprecated(
-            "3.3", message="Support for passing None to "
-            "parasite_axes_auxtrans_class_factory is deprecated since "
-            "%(since)s and will be removed %(removal)s; explicitly pass the "
-            "default ParasiteAxes class instead.")
-        parasite_axes_class = ParasiteAxes
-    elif not issubclass(axes_class, ParasiteAxesBase):
+def parasite_axes_auxtrans_class_factory(axes_class):
+    if not issubclass(axes_class, ParasiteAxesBase):
         parasite_axes_class = parasite_axes_class_factory(axes_class)
     else:
         parasite_axes_class = axes_class
@@ -326,20 +311,10 @@ class HostAxesBase:
 
 
 @functools.lru_cache(None)
-def host_axes_class_factory(axes_class=None):
-    if axes_class is None:
-        _api.warn_deprecated(
-            "3.3", message="Support for passing None to host_axes_class is "
-            "deprecated since %(since)s and will be removed %(removed)s; "
-            "explicitly pass the default Axes class instead.")
-        axes_class = Axes
-
-    def _get_base_axes(self):
-        return axes_class
-
+def host_axes_class_factory(axes_class):
     return type("%sHostAxes" % axes_class.__name__,
                 (HostAxesBase, axes_class),
-                {'_get_base_axes': _get_base_axes})
+                {'_get_base_axes': lambda self: axes_class})
 
 
 def host_subplot_class_factory(axes_class):
