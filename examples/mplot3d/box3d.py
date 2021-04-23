@@ -61,9 +61,9 @@ ax.plot([xmax, xmax], [ymin, ymin], [zmin, zmax], **edges_kw)
 
 # Set labels and zticks
 ax.set(
-    xlabel='\n X [km]',
-    ylabel='\n Y [km]',
-    zlabel='\n Z [m]',
+    xlabel='X [km]',
+    ylabel='Y [km]',
+    zlabel='Z [m]',
     zticks=[0, -150, -300, -450],
 )
 
