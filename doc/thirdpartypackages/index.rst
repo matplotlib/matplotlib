@@ -2,7 +2,7 @@
 
 .. note:: 
 
-    This page has been moved to <https://matplotlib.org/mpl-third-party> 
+    This page has been moved to <https://matplotlib.org/mpl-third-party>, 
     where you will find an up-to-date list of packages.  
 
 

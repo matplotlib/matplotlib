@@ -291,7 +291,7 @@ Including figures and files
 
 Image files can directly included in pages with the ``image::`` directive.
 e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays 
-a couple of images as static images::
+a couple of static images::
 
   # .. image:: /_static/constrained_layout_1b.png
   #    :align: center
