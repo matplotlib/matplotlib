@@ -587,7 +587,6 @@ class HBoxDivider(SubplotDivider):
     def _determine_karray(equivalent_sizes, appended_sizes,
                           max_equivalent_size,
                           total_appended_size):
-
         n = len(equivalent_sizes)
         eq_rs, eq_as = np.asarray(equivalent_sizes).T
         ap_rs, ap_as = np.asarray(appended_sizes).T
@@ -598,12 +597,14 @@ class HBoxDivider(SubplotDivider):
         A[-1, :-1] = ap_rs
         B[:n] = -eq_as
         B[-1] = total_appended_size - sum(ap_as)
-
-        karray_H = np.linalg.solve(A, B)  # A @ K = B
+        # A @ K = B: This solves for {k_0, ..., k_{N-1}, H} so that
+        #   eq_r_i * k_i + eq_a_i = H for all i: all axes have the same height
+        #   sum(ap_r_i * k_i + ap_a_i) = total_appended_size: fixed total width
+        # (foo_r_i * k_i + foo_a_i will end up being the size of foo.)
+        karray_H = np.linalg.solve(A, B)
         karray = karray_H[:-1]
         H = karray_H[-1]
-
-        if H > max_equivalent_size:
+        if H > max_equivalent_size:  # Additionally, upper-bound the height.
             karray = (max_equivalent_size - eq_as) / eq_rs
         return karray
 
@@ -625,8 +626,6 @@ class HBoxDivider(SubplotDivider):
             cell. When *nx1* is None, a single *nx*-th column is
             specified. Otherwise location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
-        ny, ny1 : int
-            Same as *nx* and *nx1*, but for row positions.
         """
         return AxesLocator(self, nx, 0, nx1, None)
 
@@ -655,21 +654,7 @@ class HBoxDivider(SubplotDivider):
         return x0, y0, ox, hh
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
-        """
-        Parameters
-        ----------
-        axes_divider : AxesDivider
-        nx, nx1 : int
-            Integers specifying the column-position of the
-            cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
-            to *nx1* (but excluding *nx1*-th column) is specified.
-        ny, ny1 : int
-            Same as *nx* and *nx1*, but for row positions.
-        axes
-        renderer
-        """
-
+        # docstring inherited
         figW, figH = self._fig.get_size_inches()
         x, y, w, h = self.get_position_runtime(axes, renderer)
 
@@ -707,27 +692,12 @@ class VBoxDivider(HBoxDivider):
         return AxesLocator(self, 0, ny, None, ny1)
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
-        """
-        Parameters
-        ----------
-        axes_divider : AxesDivider
-        nx, nx1 : int
-            Integers specifying the column-position of the
-            cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
-            to *nx1* (but excluding *nx1*-th column) is specified.
-        ny, ny1 : int
-            Same as *nx* and *nx1*, but for row positions.
-        axes
-        renderer
-        """
-
+        # docstring inherited
         figW, figH = self._fig.get_size_inches()
         x, y, w, h = self.get_position_runtime(axes, renderer)
 
         x_equivalent_sizes = self.get_horizontal_sizes(renderer)
         y_appended_sizes = self.get_vertical_sizes(renderer)
-
         y0, x0, oy, ww = self._locate(y, x, h, w,
                                       x_equivalent_sizes, y_appended_sizes,
                                       figH, figW)
