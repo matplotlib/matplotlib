@@ -237,7 +237,7 @@ class Axis(maxis.XAxis):
 
         ticks = self._update_ticks()
 
-        # Get general axis informat:
+        # Get general axis information:
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
@@ -251,6 +251,7 @@ class Axis(maxis.XAxis):
         # moved to the other plane so it looks the same as if the z-axis
         # was the vertical axis:
         mb = [minmax, maxmin]
+        # TODO: Avoid hardcoding like this:
         mm = [[mb, mb[::-1], mb[::-1]], [mb[::-1], mb[::-1], mb], [mb, mb, mb]]
         mm = mm[self.axes._vertical_axis][index]
 
@@ -386,8 +387,12 @@ class Axis(maxis.XAxis):
             self.gridlines.do_3d_projection()
             self.gridlines.draw(renderer)
 
-        # Draw ticks
-        tickdir = info['tickdir']
+        # Draw ticks:
+        tickdirs_base = [v["tickdir"] for v in self._AXINFO.values()]
+        # TODO: Avoid hardcoding like this:
+        tickdirs = [[1, 2, 1], [2, 2, 0], tickdirs_base]
+        # tickdirs = [[1, 2, 1], [2, 2, 0], [1, 0, 0]]
+        tickdir = tickdirs[self.axes._vertical_axis][info["i"]]
         tickdelta = deltas[tickdir]
         if highs[tickdir]:
             ticksign = 1
