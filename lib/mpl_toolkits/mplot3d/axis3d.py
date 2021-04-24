@@ -208,6 +208,40 @@ class Axis(maxis.XAxis):
 
         return mins, maxs, centers, deltas, bounds_proj, highs
 
+    def _get_mm(self, minmax, maxmin):
+        # When changing vertical axis some of the axes has to be
+        # moved to the other plane so it looks the same as if the z-axis
+        # was the vertical axis.
+        mb = [minmax, maxmin]
+        mm = [[mb, mb[::-1], mb[::-1]], [mb[::-1], mb[::-1], mb], [mb, mb, mb]]
+        mm = mm[self.axes._vertical_axis][self._axinfo["i"]]
+        return mm
+
+    def _get_tickdir(self):
+        """
+        Get the direction of the tick.
+
+        Parameters
+        ----------
+        i : integer
+            The axis index.
+
+        Returns
+        -------
+        tickdir : integer
+            Index which indicates which coordinate the tick line will
+            align with.
+        """
+        # TODO: Move somewhere else where it's triggered less:
+        tickdirs_base = [v["tickdir"] for v in self._AXINFO.values()]
+        info_i = [v["i"] for v in self._AXINFO.values()]
+
+        i = self._axinfo["i"]
+        j = self.axes._vertical_axis - 2
+        # tickdir = [[1, 2, 1], [2, 2, 0], [1, 0, 0]][i]
+        tickdir = np.roll(info_i, -j)[np.roll(tickdirs_base, j)][i]
+        return tickdir
+
     def draw_pane(self, renderer):
         renderer.open_group('pane3d', gid=self.get_gid())
 
@@ -242,15 +276,8 @@ class Axis(maxis.XAxis):
         minmax = np.where(highs, maxs, mins)
         maxmin = np.where(~highs, maxs, mins)
 
-        # When changing vertical axis some of the axes has to be
-        # moved to the other plane so it looks the same as if the z-axis
-        # was the vertical axis:
-        mb = [minmax, maxmin]
-        # TODO: Avoid hardcoding like this:
-        mm = [[mb, mb[::-1], mb[::-1]], [mb[::-1], mb[::-1], mb], [mb, mb, mb]]
-        mm = mm[self.axes._vertical_axis][index]
-
         # Create edge points for the black bolded axis line:
+        mm = self._get_mm(minmax, maxmin)
         edgep1 = mm[0].copy()
         edgep1[juggled[0]] = mm[1][juggled[0]]
         edgep2 = edgep1.copy()
@@ -383,11 +410,7 @@ class Axis(maxis.XAxis):
             self.gridlines.draw(renderer)
 
         # Draw ticks:
-        tickdirs_base = [v["tickdir"] for v in self._AXINFO.values()]
-        # TODO: Avoid hardcoding like this:
-        tickdirs = [[1, 2, 1], [2, 2, 0], tickdirs_base]
-        # tickdirs = [[1, 2, 1], [2, 2, 0], [1, 0, 0]]
-        tickdir = tickdirs[self.axes._vertical_axis][info["i"]]
+        tickdir = self._get_tickdir()
         tickdelta = deltas[tickdir]
         if highs[tickdir]:
             ticksign = 1
