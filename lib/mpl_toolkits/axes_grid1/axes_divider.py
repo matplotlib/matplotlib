@@ -525,6 +525,7 @@ class AxesDivider(Divider):
         ax.set_axes_locator(locator)
         return ax
 
+    @_api.delete_parameter("3.5", "add_to_figure", alternative="ax.remove()")
     def append_axes(self, position, size, pad=None, add_to_figure=True,
                     **kwargs):
         """
