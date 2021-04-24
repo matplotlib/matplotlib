@@ -1480,10 +1480,6 @@ class AutoDateLocator(DateLocator):
                     'epoch.')
 
         locator.set_axis(self.axis)
-
-        if self.axis is not None:
-            locator.set_view_interval(*self.axis.get_view_interval())
-            locator.set_data_interval(*self.axis.get_data_interval())
         return locator
 
 
@@ -1727,10 +1723,12 @@ class MicrosecondLocator(DateLocator):
         self._wrapped_locator.set_axis(axis)
         return super().set_axis(axis)
 
+    @_api.deprecated("3.5", alternative=".axis.set_view_interval")
     def set_view_interval(self, vmin, vmax):
         self._wrapped_locator.set_view_interval(vmin, vmax)
         return super().set_view_interval(vmin, vmax)
 
+    @_api.deprecated("3.5", alternative=".axis.set_data_interval")
     def set_data_interval(self, vmin, vmax):
         self._wrapped_locator.set_data_interval(vmin, vmax)
         return super().set_data_interval(vmin, vmax)

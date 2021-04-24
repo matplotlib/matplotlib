@@ -1578,7 +1578,7 @@ def getp(obj, property=None):
         If *property* is 'somename', this function returns
         ``obj.get_somename()``.
 
-        If is is None (or unset), it *prints* all gettable properties from
+        If it's None (or unset), it *prints* all gettable properties from
         *obj*.  Many properties have aliases for shorter typing, e.g. 'lw' is
         an alias for 'linewidth'.  In the output, aliases and full property
         names will be listed as:

@@ -457,7 +457,7 @@ def _get_config_or_cache_dir(xdg_base):
 @_logged_cached('CONFIGDIR=%s')
 def get_configdir():
     """
-    Return the string path of the the configuration directory.
+    Return the string path of the configuration directory.
 
     The directory is chosen as follows:
 

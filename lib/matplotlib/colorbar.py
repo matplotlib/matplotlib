@@ -869,11 +869,9 @@ class ColorbarBase:
         else:
             intv = self.vmin, self.vmax
         locator.create_dummy_axis(minpos=intv[0])
-        formatter.create_dummy_axis(minpos=intv[0])
-        locator.set_view_interval(*intv)
-        locator.set_data_interval(*intv)
-        formatter.set_view_interval(*intv)
-        formatter.set_data_interval(*intv)
+        locator.axis.set_view_interval(*intv)
+        locator.axis.set_data_interval(*intv)
+        formatter.set_axis(locator.axis)
 
         b = np.array(locator())
         if isinstance(locator, ticker.LogLocator):

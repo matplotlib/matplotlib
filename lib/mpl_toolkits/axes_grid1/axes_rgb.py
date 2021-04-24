@@ -1,12 +1,10 @@
 import numpy as np
 
-from matplotlib import _api
 from .axes_divider import make_axes_locatable, Size
 from .mpl_axes import Axes
 
 
-@_api.delete_parameter("3.3", "add_all")
-def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True, **kwargs):
+def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
     """
     Parameters
     ----------
@@ -48,17 +46,11 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True, **kwargs):
 
         ax_rgb.append(ax1)
 
-    if add_all:
-        fig = ax.get_figure()
-        for ax1 in ax_rgb:
-            fig.add_axes(ax1)
+    fig = ax.get_figure()
+    for ax1 in ax_rgb:
+        fig.add_axes(ax1)
 
     return ax_rgb
-
-
-@_api.deprecated("3.3", alternative="ax.imshow(np.dstack([r, g, b]))")
-def imshow_rgb(ax, r, g, b, **kwargs):
-    return ax.imshow(np.dstack([r, g, b]), **kwargs)
 
 
 class RGBAxes:
@@ -91,16 +83,12 @@ class RGBAxes:
 
     _defaultAxesClass = Axes
 
-    @_api.delete_parameter("3.3", "add_all")
-    def __init__(self, *args, pad=0, add_all=True, **kwargs):
+    def __init__(self, *args, pad=0, **kwargs):
         """
         Parameters
         ----------
         pad : float, default: 0
             fraction of the axes height to put as padding.
-        add_all : bool, default: True
-            Whether to add the {rgb, r, g, b} axes to the figure.
-            This parameter is deprecated.
         axes_class : matplotlib.axes.Axes
 
         *args
@@ -110,23 +98,13 @@ class RGBAxes:
         """
         axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
         self.RGB = ax = axes_class(*args, **kwargs)
-        if add_all:
-            ax.get_figure().add_axes(ax)
-        else:
-            kwargs["add_all"] = add_all  # only show deprecation in that case
+        ax.get_figure().add_axes(ax)
         self.R, self.G, self.B = make_rgb_axes(
             ax, pad=pad, axes_class=axes_class, **kwargs)
         # Set the line color and ticks for the axes.
         for ax1 in [self.RGB, self.R, self.G, self.B]:
             ax1.axis[:].line.set_color("w")
             ax1.axis[:].major_ticks.set_markeredgecolor("w")
-
-    @_api.deprecated("3.3")
-    def add_RGB_to_figure(self):
-        """Add red, green and blue axes to the RGB composite's axes figure."""
-        self.RGB.get_figure().add_axes(self.R)
-        self.RGB.get_figure().add_axes(self.G)
-        self.RGB.get_figure().add_axes(self.B)
 
     def imshow_rgb(self, r, g, b, **kwargs):
         """
@@ -161,8 +139,3 @@ class RGBAxes:
         im_g = self.G.imshow(G, **kwargs)
         im_b = self.B.imshow(B, **kwargs)
         return im_rgb, im_r, im_g, im_b
-
-
-@_api.deprecated("3.3", alternative="RGBAxes")
-class RGBAxesBase(RGBAxes):
-    pass

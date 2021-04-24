@@ -219,7 +219,7 @@ class ToolManager:
         tool = self.get_tool(name)
         tool.destroy()
 
-        # If is a toggle tool and toggled, untoggle
+        # If it's a toggle tool and toggled, untoggle
         if getattr(tool, 'toggled', False):
             self.trigger_tool(tool, 'toolmanager')
 

@@ -976,7 +976,7 @@ class Axis(martist.Artist):
         # interface provides a hook for custom types to register
         # default limits through the AxisInfo.default_limits
         # attribute, and the derived code below will check for that
-        # and use it if is available (else just use 0..1)
+        # and use it if it's available (else just use 0..1)
 
     def _set_artist_props(self, a):
         if a is None:

@@ -389,7 +389,14 @@ class ThetaAxis(maxis.XAxis):
         self.clear()
 
     def _set_scale(self, value, **kwargs):
+        if value != 'linear':
+            raise NotImplementedError(
+                "The xscale cannot be set on a polar plot")
         super()._set_scale(value, **kwargs)
+        # LinearScale.set_default_locators_and_formatters just set the major
+        # locator to be an AutoLocator, so we customize it here to have ticks
+        # at sensible degree multiples.
+        self.get_major_locator().set_params(steps=[1, 1.5, 3, 4.5, 9, 10])
         self._wrap_locator_formatter()
 
     def _copy_tick_props(self, src, dest):
@@ -1390,11 +1397,6 @@ class PolarAxes(Axes):
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
-
-    def set_xscale(self, scale, *args, **kwargs):
-        if scale != 'linear':
-            raise NotImplementedError(
-                "You can not set the xscale on a polar plot.")
 
     def format_coord(self, theta, r):
         # docstring inherited

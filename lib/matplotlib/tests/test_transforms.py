@@ -508,14 +508,8 @@ CompositeGenericTransform(
                     IdentityTransform(),
                     IdentityTransform())),
             CompositeAffine2D(
-                Affine2D(
-                    [[1. 0. 0.]
-                     [0. 1. 0.]
-                     [0. 0. 1.]]),
-                Affine2D(
-                    [[1. 0. 0.]
-                     [0. 1. 0.]
-                     [0. 0. 1.]]))),
+                Affine2D().scale(1.0),
+                Affine2D().scale(1.0))),
         PolarTransform(
             PolarAxesSubplot(0.125,0.1;0.775x0.8),
             use_rmin=True,
@@ -537,14 +531,8 @@ CompositeGenericTransform(
                     TransformedBbox(
                         Bbox(x0=0.0, y0=0.0, x1=6.283185307179586, y1=1.0),
                         CompositeAffine2D(
-                            Affine2D(
-                                [[1. 0. 0.]
-                                 [0. 1. 0.]
-                                 [0. 0. 1.]]),
-                            Affine2D(
-                                [[1. 0. 0.]
-                                 [0. 1. 0.]
-                                 [0. 0. 1.]]))),
+                            Affine2D().scale(1.0),
+                            Affine2D().scale(1.0))),
                     LockableBbox(
                         Bbox(x0=0.0, y0=0.0, x1=6.283185307179586, y1=1.0),
                         [[-- --]
@@ -555,10 +543,7 @@ CompositeGenericTransform(
                 BboxTransformTo(
                     TransformedBbox(
                         Bbox(x0=0.0, y0=0.0, x1=8.0, y1=6.0),
-                        Affine2D(
-                            [[80.  0.  0.]
-                             [ 0. 80.  0.]
-                             [ 0.  0.  1.]])))))))"""
+                        Affine2D().scale(80.0)))))))"""
 
 
 def test_transform_single_point():
