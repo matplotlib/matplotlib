@@ -58,6 +58,7 @@ class Divider:
     def get_vertical_sizes(self, renderer):
         return [s.get_size(renderer) for s in self.get_vertical()]
 
+    @_api.deprecated("3.5")
     def get_vsize_hsize(self):
         vsize = Size.AddList(self.get_vertical())
         hsize = Size.AddList(self.get_horizontal())
