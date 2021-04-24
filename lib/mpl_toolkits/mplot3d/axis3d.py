@@ -209,26 +209,21 @@ class Axis(maxis.XAxis):
         return mins, maxs, centers, deltas, bounds_proj, highs
 
     def draw_pane(self, renderer):
-        renderer.open_group("pane3d", gid=self.get_gid())
+        renderer.open_group('pane3d', gid=self.get_gid())
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
         info = self._axinfo
-        index = info["i"]
-
-        # Choose the lowest of the parallel planes:
+        index = info['i']
         if not highs[index]:
             plane = self._PLANES[2 * index]
         else:
             plane = self._PLANES[2 * index + 1]
-
-        # Get the projected bounds this plane has and draw it in the
-        # plot:
         xys = [tc[p] for p in plane]
         self.set_pane_pos(xys)
         self.pane.draw(renderer)
 
-        renderer.close_group("pane3d")
+        renderer.close_group('pane3d')
 
     @artist.allow_rasterization
     def draw(self, renderer):
