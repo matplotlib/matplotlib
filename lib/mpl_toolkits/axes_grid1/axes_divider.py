@@ -4,6 +4,7 @@ Helper classes to adjust the positions of multiple axes at drawing time.
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api
 from matplotlib.axes import SubplotBase
 from matplotlib.gridspec import SubplotSpec, GridSpec
@@ -434,11 +435,12 @@ class AxesDivider(Divider):
         Parameters
         ----------
         size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            A width of the axes. If float or string is given, *from_any*
-            function is used to create the size, with *ref_size* set to AxesX
-            instance of the current axes.
+            The axes width.  float or str arguments are interpreted as
+            ``axes_size.from_any(size, AxesX(<main_axes>))``.
         pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            Pad between the axes. It takes same argument as *size*.
+            Padding between the axes.  float or str arguments are interpreted
+            as ``axes_size.from_any(size, AxesX(<main_axes>))``.  Defaults to
+            :rc:`figure.subplot.wspace` times the main axes width.
         pack_start : bool
             If False, the new axes is appended at the end
             of the list, i.e., it became the right-most axes. If True, it is
@@ -450,10 +452,7 @@ class AxesDivider(Divider):
             main axes will be used.
         """
         if pad is None:
-            _api.warn_deprecated(
-                "3.2", message="In a future version, 'pad' will default to "
-                "rcParams['figure.subplot.wspace'].  Set pad=0 to keep the "
-                "old behavior.")
+            pad = mpl.rcParams["figure.subplot.wspace"] * self._xref
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._xref)
@@ -483,11 +482,12 @@ class AxesDivider(Divider):
         Parameters
         ----------
         size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            A height of the axes. If float or string is given, *from_any*
-            function is used to create the size, with *ref_size* set to AxesX
-            instance of the current axes.
+            The axes height.  float or str arguments are interpreted as
+            ``axes_size.from_any(size, AxesY(<main_axes>))``.
         pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            Pad between the axes. It takes same argument as *size*.
+            Padding between the axes.  float or str arguments are interpreted
+            as ``axes_size.from_any(size, AxesY(<main_axes>))``.  Defaults to
+            :rc:`figure.subplot.hspace` times the main axes height.
         pack_start : bool
             If False, the new axes is appended at the end
             of the list, i.e., it became the right-most axes. If True, it is
@@ -499,10 +499,7 @@ class AxesDivider(Divider):
             main axes will be used.
         """
         if pad is None:
-            _api.warn_deprecated(
-                "3.2", message="In a future version, 'pad' will default to "
-                "rcParams['figure.subplot.hspace'].  Set pad=0 to keep the "
-                "old behavior.")
+            pad = mpl.rcParams["figure.subplot.hspace"] * self._yref
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._yref)
