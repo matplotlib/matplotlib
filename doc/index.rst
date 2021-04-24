@@ -2,6 +2,8 @@
 
 .. title:: Matplotlib: Python plotting
 
+.. module:: matplotlib
+
 Matplotlib: Visualization with Python
 -------------------------------------
 
