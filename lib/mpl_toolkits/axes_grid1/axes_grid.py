@@ -309,6 +309,7 @@ class Grid:
     def get_axes_locator(self):
         return self._divider.get_locator()
 
+    @_api.deprecated("3.5")
     def get_vsize_hsize(self):
         return self._divider.get_vsize_hsize()
 
