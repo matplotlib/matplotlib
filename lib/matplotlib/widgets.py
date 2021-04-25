@@ -1933,11 +1933,22 @@ class SpanSelector(_SelectorWidget):
     rectprops : dict, default: None
         Dictionary of `matplotlib.patches.Patch` properties.
 
+    maxdist : float, default: 10
+        Distance in pixels within which the interactive tool handles can be
+        activated.
+
+    marker_props : dict
+        Properties with which the interactive handles are drawn.
+
     onmove_callback : func(min, max), min/max are floats, default: None
         Called on mouse move while the span is being selected.
 
     span_stays : bool, default: False
         If True, the span stays visible after the mouse is released.
+
+    interactive : bool, default: False
+        Whether to draw a set of handles that allow interaction with the
+        widget after it is drawn.
 
     button : `.MouseButton` or list of `.MouseButton`
         The mouse buttons which activate the span selector.
@@ -1959,7 +1970,8 @@ class SpanSelector(_SelectorWidget):
     """
 
     def __init__(self, ax, onselect, direction, minspan=None, useblit=False,
-                 rectprops=None, onmove_callback=None, span_stays=False,
+                 rectprops=None, maxdist=10, marker_props=None,
+                 onmove_callback=None, span_stays=False, interactive=False,
                  button=None):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
@@ -1973,12 +1985,19 @@ class SpanSelector(_SelectorWidget):
         self.direction = direction
 
         self.rect = None
+        self.visible = True
         self.pressv = None
 
         self.rectprops = rectprops
         self.onmove_callback = onmove_callback
         self.minspan = minspan
-        self.span_stays = span_stays
+
+        self.maxdist = maxdist
+        # Deprecate `span_stays` in favour of interactive to be consistent
+        # with Rectangle, etc.
+        if span_stays:
+            interactive = True
+        self.interactive = interactive
 
         # Needed when dragging out of axes
         self.prev = (0, 0)
@@ -1986,6 +2005,30 @@ class SpanSelector(_SelectorWidget):
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
         self.new_axes(ax)
+
+        # Setup handles
+        if rectprops is None:
+            props = dict(markeredgecolor='r')
+        else:
+            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
+        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map))
+
+        self._edge_order = ['min', 'max']
+        xe, ye = self.edge_centers
+        self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
+                                         marker_props=props,
+                                         useblit=self.useblit)
+
+        xc, yc = self.center
+        self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
+                                          marker_props=props,
+                                          useblit=self.useblit)
+
+        self.active_handle = None
+
+        if self.interactive:
+            self.artists.extend([self._center_handle.artist,
+                                  self._edge_handles.artist])
 
     def new_axes(self, ax):
         """Set SpanSelector to operate on a new Axes."""
@@ -2007,13 +2050,6 @@ class SpanSelector(_SelectorWidget):
                               transform=trans,
                               visible=False,
                               **self.rectprops)
-        if self.span_stays:
-            self.stay_rect = Rectangle((0, 0), w, h,
-                                       transform=trans,
-                                       visible=False,
-                                       **self.rectprops)
-            self.stay_rect.set_animated(False)
-            self.ax.add_patch(self.stay_rect)
 
         self.ax.add_patch(self.rect)
         self.artists = [self.rect]
@@ -2024,20 +2060,26 @@ class SpanSelector(_SelectorWidget):
 
     def _press(self, event):
         """Button press event handler."""
-        self.rect.set_visible(self.visible)
-        if self.span_stays:
-            self.stay_rect.set_visible(False)
-            # really force a draw so that the stay rect is not in
-            # the blit background
-            if self.useblit:
-                self.canvas.draw()
+        if self.interactive and self.rect.get_visible():
+            self._set_active_handle(event)
+        else:
+            self.active_handle = None
+
         xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
             self.pressv = xdata
         else:
             self.pressv = ydata
+        self._extents_on_press = self.extents
 
         self._set_span_xy(event)
+
+        if self.active_handle is None or not self.interactive:
+            # Clear previous rectangle before drawing new rectangle.
+            self.update()
+
+        self.set_visible(self.visible)
+
         return False
 
     def _release(self, event):
@@ -2045,16 +2087,9 @@ class SpanSelector(_SelectorWidget):
         if self.pressv is None:
             return
 
-        self.rect.set_visible(False)
+        if not self.interactive:
+            self.rect.set_visible(False)
 
-        if self.span_stays:
-            self.stay_rect.set_x(self.rect.get_x())
-            self.stay_rect.set_y(self.rect.get_y())
-            self.stay_rect.set_width(self.rect.get_width())
-            self.stay_rect.set_height(self.rect.get_height())
-            self.stay_rect.set_visible(True)
-
-        self.canvas.draw_idle()
         vmin = self.pressv
         xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
@@ -2068,6 +2103,8 @@ class SpanSelector(_SelectorWidget):
         if self.minspan is not None and span < self.minspan:
             return
         self.onselect(vmin, vmax)
+        self.update()
+
         self.pressv = None
         return False
 
@@ -2076,9 +2113,29 @@ class SpanSelector(_SelectorWidget):
         if self.pressv is None:
             return
 
-        self._set_span_xy(event)
+        vmin, vmax = self._extents_on_press
+        # move existing span
+        if self.active_handle == 'C' and self._extents_on_press is not None:
+            if self.direction == 'horizontal':
+                dv = event.xdata - self.eventpress.xdata
+            else:
+                dv = event.ydata - self.eventpress.ydata
+            vmin += dv
+            vmax += dv
 
-        if self.onmove_callback is not None:
+        # resize an existing shape
+        elif self.active_handle and self.active_handle != 'C':
+            if self.direction == 'horizontal':
+                v = event.xdata
+            else:
+                v = event.ydata
+            if self.active_handle == 'min':
+                vmin = v
+            else:
+                vmax = v
+        else:
+            self._set_span_xy(event)
+
             vmin = self.pressv
             xdata, ydata = self._get_data(event)
             if self.direction == 'horizontal':
@@ -2088,9 +2145,13 @@ class SpanSelector(_SelectorWidget):
 
             if vmin > vmax:
                 vmin, vmax = vmax, vmin
+
+        if self.onmove_callback is not None:
             self.onmove_callback(vmin, vmax)
 
+        self.extents = vmin, vmax
         self.update()
+
         return False
 
     def _set_span_xy(self, event):
@@ -2105,15 +2166,93 @@ class SpanSelector(_SelectorWidget):
         else:
             v = y
 
-        minv, maxv = v, self.pressv
-        if minv > maxv:
-            minv, maxv = maxv, minv
+        values = v, self.pressv
+        self.draw_shape(*values)
+
+    def draw_shape(self, vmin, vmax):
+        if vmin > vmax:
+            vmin, vmax = vmax, vmin
         if self.direction == 'horizontal':
-            self.rect.set_x(minv)
-            self.rect.set_width(maxv - minv)
+            self.rect.set_x(vmin)
+            self.rect.set_width(vmax - vmin)
         else:
-            self.rect.set_y(minv)
-            self.rect.set_height(maxv - minv)
+            self.rect.set_y(vmin)
+            self.rect.set_height(vmax - vmin)
+
+    def _set_active_handle(self, event):
+        """Set active handle based on the location of the mouse event."""
+        # Note: event.xdata/ydata in data coordinates, event.x/y in pixels
+        e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
+        m_idx, m_dist = self._center_handle.closest(event.x, event.y)
+
+        # Prioritise center handle over other handles
+        if 'move' in self.state or m_dist < self.maxdist * 2:
+            self.active_handle = 'C'
+        elif e_dist > self.maxdist:
+            # Not close to any handles
+            self.active_handle = None
+            return
+        else:
+            # Closest to an edge handle
+            self.active_handle = self._edge_order[e_idx]
+
+        # Save coordinates of rectangle at the start of handle movement.
+        self._extents_on_press = self.extents
+
+    @property
+    def vmin(self):
+        """ Get the start span coordinate."""
+        if self.direction == 'horizontal':
+            vmin = self.rect.get_x()
+        else:
+            vmin = self.rect.get_y()
+        return vmin
+
+    @property
+    def vmax(self):
+        """ Get the end span coordinate."""
+        if self.direction == 'horizontal':
+            vmax = self.vmin + self.rect.get_width()
+        else:
+            vmax = self.vmin + self.rect.get_height()
+        return vmax
+
+    @property
+    def _mid_position_orthogonal(self):
+        if self.direction == 'horizontal':
+            axis_limits = self.ax.get_ylim()
+            # p = self.rect.get_height() / 2
+        else:
+            axis_limits = self.ax.get_ylim()
+            # p = self.rect.get_width() / 2
+        return (axis_limits[1] - axis_limits[0]) / 2
+
+    @property
+    def edge_centers(self):
+        """Midpoint of rectangle edges."""
+        p = self._mid_position_orthogonal
+        return (self.vmin, self.vmax), (p, p)
+
+    @property
+    def center(self):
+        """Center of rectangle."""
+        p = self._mid_position_orthogonal
+        return (self.vmin + (self.vmax - self.vmin) / 2, ), (p, )
+
+    @property
+    def extents(self):
+        """Return (vmin, vmax)."""
+        return self.vmin, self.vmax
+
+    @extents.setter
+    def extents(self, extents):
+        # Update displayed shape
+        self.draw_shape(*extents)
+        # Update displayed handles
+        self._edge_handles.set_data(*self.edge_centers)
+        self._center_handle.set_data(*self.center)
+        self.set_visible(self.visible)
+        self.update()
 
 
 class ToolHandles:
