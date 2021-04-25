@@ -1,4 +1,4 @@
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from functools import wraps
 import inspect
 import logging
@@ -1683,8 +1683,7 @@ def setp(obj, *args, file=None, **kwargs):
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
 
-    # put args into ordereddict to maintain order
-    funcvals = OrderedDict((k, v) for k, v in zip(args[::2], args[1::2]))
+    funcvals = dict(zip(args[::2], args[1::2]))
     ret = [o.update(funcvals) for o in objs] + [o.set(**kwargs) for o in objs]
     return list(cbook.flatten(ret))
 
