@@ -105,23 +105,14 @@ class Divider:
         """
         Parameters
         ----------
-        anchor : {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W'}
-            anchor position
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', ...}
+            Either an (*x*, *y*) pair of relative coordinates (0 is left or
+            bottom, 1 is right or top), 'C' (center), or a cardinal direction
+            ('SW', southwest, is bottom left, etc.).
 
-          =====  ============
-          value  description
-          =====  ============
-          'C'    Center
-          'SW'   bottom left
-          'S'    bottom
-          'SE'   bottom right
-          'E'    right
-          'NE'   top right
-          'N'    top
-          'NW'   top left
-          'W'    left
-          =====  ============
-
+        See Also
+        --------
+        .Axes.set_anchor
         """
         if len(anchor) != 2:
             _api.check_in_list(mtransforms.Bbox.coefs, anchor=anchor)
