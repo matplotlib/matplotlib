@@ -1,0 +1,10 @@
+Support for ``nx1 = None`` or ``ny1 = None`` in ``AxesLocator`` and ``Divider.locate``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In :mod:`.axes_grid1.axes_divider`, various internal APIs will stop supporting
+passing ``nx1 = None`` or ``ny1 = None`` to mean ``nx + 1`` or ``ny + 1``, in
+preparation for a possible future API which allows indexing and slicing of
+dividers (possibly ``divider[a:b] == divider.new_locator(a, b)``, but also
+``divider[a:] == divider.new_locator(a, <end>)``).  The user-facing
+`.Divider.new_locator` API is unaffected -- it correctly normalizes ``nx1 = None``
+and ``ny1 = None`` as needed.

@@ -222,8 +222,16 @@ class Divider:
             x0, y0 = x, y
 
         if nx1 is None:
+            _api.warn_deprecated(
+                "3.5", message="Support for passing nx1=None to mean nx+1 is "
+                "deprecated since %(since)s; in a future version, nx1=None "
+                "will mean 'up to the last cell'.")
             nx1 = nx + 1
         if ny1 is None:
+            _api.warn_deprecated(
+                "3.5", message="Support for passing ny1=None to mean ny+1 is "
+                "deprecated since %(since)s; in a future version, ny1=None "
+                "will mean 'up to the last cell'.")
             ny1 = ny + 1
 
         x1, w1 = x0 + ox[nx] / figW, (ox[nx1] - ox[nx]) / figW
@@ -245,7 +253,10 @@ class Divider:
         ny, ny1 : int
             Same as *nx* and *nx1*, but for row positions.
         """
-        return AxesLocator(self, nx, ny, nx1, ny1)
+        return AxesLocator(
+            self, nx, ny,
+            nx1 if nx1 is not None else nx + 1,
+            ny1 if ny1 is not None else ny + 1)
 
     def append_size(self, position, size):
         if position == "left":
@@ -275,9 +286,10 @@ class Divider:
 
 class AxesLocator:
     """
-    A simple callable object, initialized with AxesDivider class,
-    returns the position and size of the given cell.
+    A callable object which returns the position and size of a given
+    AxesDivider cell.
     """
+
     def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
         """
         Parameters
@@ -299,8 +311,16 @@ class AxesLocator:
         self._nx, self._ny = nx - _xrefindex, ny - _yrefindex
 
         if nx1 is None:
+            _api.warn_deprecated(
+                "3.5", message="Support for passing nx1=None to mean nx+1 is "
+                "deprecated since %(since)s; in a future version, nx1=None "
+                "will mean 'up to the last cell'.")
             nx1 = nx + 1
         if ny1 is None:
+            _api.warn_deprecated(
+                "3.5", message="Support for passing ny1=None to mean ny+1 is "
+                "deprecated since %(since)s; in a future version, ny1=None "
+                "will mean 'up to the last cell'.")
             ny1 = ny + 1
 
         self._nx1 = nx1 - _xrefindex
@@ -629,7 +649,7 @@ class HBoxDivider(SubplotDivider):
             specified. Otherwise location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
         """
-        return AxesLocator(self, nx, 0, nx1, None)
+        return AxesLocator(self, nx, 0, nx1 if nx1 is not None else nx + 1, 1)
 
     def _locate(self, x, y, w, h,
                 y_equivalent_sizes, x_appended_sizes,
@@ -666,6 +686,10 @@ class HBoxDivider(SubplotDivider):
                                       y_equivalent_sizes, x_appended_sizes,
                                       figW, figH)
         if nx1 is None:
+            _api.warn_deprecated(
+                "3.5", message="Support for passing nx1=None to mean nx+1 is "
+                "deprecated since %(since)s; in a future version, nx1=None "
+                "will mean 'up to the last cell'.")
             nx1 = nx + 1
 
         x1, w1 = x0 + ox[nx] / figW, (ox[nx1] - ox[nx]) / figW
@@ -691,7 +715,7 @@ class VBoxDivider(HBoxDivider):
             specified. Otherwise location of rows spanning between *ny*
             to *ny1* (but excluding *ny1*-th row) is specified.
         """
-        return AxesLocator(self, 0, ny, None, ny1)
+        return AxesLocator(self, 0, ny, 1, ny1 if ny1 is not None else ny + 1)
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         # docstring inherited
@@ -704,6 +728,10 @@ class VBoxDivider(HBoxDivider):
                                       x_equivalent_sizes, y_appended_sizes,
                                       figH, figW)
         if ny1 is None:
+            _api.warn_deprecated(
+                "3.5", message="Support for passing ny1=None to mean ny+1 is "
+                "deprecated since %(since)s; in a future version, ny1=None "
+                "will mean 'up to the last cell'.")
             ny1 = ny + 1
 
         x1, w1 = x0, ww
