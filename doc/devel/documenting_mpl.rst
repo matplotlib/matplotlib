@@ -707,7 +707,7 @@ Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
       """
 
 Note there is a problem for `~matplotlib.artist.Artist` ``__init__`` methods,
-e.g., `matplotlib.patches.Patch.__init__`, which supports ``Patch`` ``kwargs``,
+e.g., `matplotlib.patches.Patch`, which supports ``Patch`` ``kwargs``,
 since the artist inspector cannot work until the class is fully defined and
 we can't modify the ``Patch.__init__.__doc__`` docstring outside the class
 definition.  There are some some manual hacks in this case, violating the
