@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import base64
 import datetime
 import gzip
@@ -287,10 +286,10 @@ class RendererSVG(RendererBase):
         self._groupd = {}
         self.basename = basename
         self._image_counter = itertools.count()
-        self._clipd = OrderedDict()
+        self._clipd = {}
         self._markers = {}
         self._path_collection_id = 0
-        self._hatchd = OrderedDict()
+        self._hatchd = {}
         self._has_gouraud = False
         self._n_gradients = 0
 
@@ -1174,7 +1173,7 @@ class RendererSVG(RendererBase):
             writer.start('text')
 
             # Sort the characters by font, and output one tspan for each.
-            spans = OrderedDict()
+            spans = {}
             for font, fontsize, thetext, new_x, new_y in glyphs:
                 style = generate_css({
                     'font-size': short_float_fmt(fontsize) + 'px',
