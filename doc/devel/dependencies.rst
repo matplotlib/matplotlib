@@ -4,8 +4,11 @@
 Dependencies
 ============
 
+Runtime dependencies
+====================
+
 Mandatory dependencies
-======================
+----------------------
 
 When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
@@ -24,13 +27,13 @@ reference.
 .. _optional_dependencies:
 
 Optional dependencies
-=====================
+---------------------
 
 The following packages and tools are not required but extend the capabilities
 of Matplotlib.
 
 Backends
---------
+~~~~~~~~
 
 Matplotlib figures can be rendered to various user interfaces. See
 :ref:`what-is-a-backend` for more details on the optional Matplotlib backends
@@ -65,14 +68,14 @@ and the capabilities they provide.
        downloaded from https://wxpython.org/pages/downloads/.
 
 Animations
-----------
+~~~~~~~~~~
 
 * `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs.
 
 Font handling and rendering
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
   <https://ctan.org/pkg/cm-super>`__ ) and `GhostScript (>=9.0)
@@ -81,7 +84,7 @@ Font handling and rendering
   fonts on Linux.
 
 C libraries
-===========
+-----------
 
 Matplotlib brings its own copies of the following libraries:
 
@@ -161,3 +164,83 @@ If you go this route but need to reset and rebuild to change your settings,
 remember to clear your artifacts before re-building::
 
   git clean -xfd
+
+
+.. _development-dependencies:
+
+Additional dependencies for development
+=======================================
+
+.. _test-dependencies:
+
+Additional dependencies for testing
+===================================
+This section lists the additional software required for
+:ref:`running the tests <testing>`.
+
+Required:
+
+- pytest_ (>=3.6)
+- Ghostscript_ (>= 9.0, to render PDF files)
+- Inkscape_ (to render SVG files)
+
+Optional:
+
+- pytest-cov_ (>=2.3.1) to collect coverage information
+- pytest-flake8_ to test coding standards using flake8_
+- pytest-timeout_ to limit runtime in case of stuck tests
+- pytest-xdist_ to run tests in parallel
+
+.. _pytest: http://doc.pytest.org/en/latest/
+.. _Ghostscript: https://www.ghostscript.com/
+.. _Inkscape: https://inkscape.org
+.. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
+.. _pytest-flake8: https://pypi.org/project/pytest-flake8/
+.. _pytest-xdist: https://pypi.org/project/pytest-xdist/
+.. _pytest-timeout: https://pypi.org/project/pytest-timeout/
+.. _flake8: https://pypi.org/project/flake8/
+
+
+.. _doc-dependencies:
+
+Additional dependencies for building documentation
+==================================================
+
+Python packages
+---------------
+The additional Python packages required to build the
+:ref:`documentation <documenting-matplotlib>` are listed in
+:file:`doc-requirements.txt` and can be installed using ::
+
+    pip install -r requirements/doc/doc-requirements.txt
+
+The content of :file:`doc-requirements.txt` is also shown below:
+
+   .. include:: ../../requirements/doc/doc-requirements.txt
+      :literal:
+
+Additional external dependencies
+--------------------------------
+Required:
+
+* a minimal working LaTeX distribution
+* `Graphviz <http://www.graphviz.org/download>`_
+* the LaTeX packages *cm-super* and *dvipng* (if your OS bundles TeXLive, the
+  "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
+  will often automatically include these packages)
+
+Optional, but recommended:
+
+* `Inkscape <https://inkscape.org>`_
+* `optipng <http://optipng.sourceforge.net>`_
+* the font "Humor Sans" (aka the "XKCD" font), or the free alternative
+  `Comic Neue <http://comicneue.com/>`_
+* the font "Times New Roman"
+
+.. note::
+
+  The documentation will not build without LaTeX and Graphviz.  These are not
+  Python packages and must be installed separately. The documentation can be
+  built without Inkscape and optipng, but the build process will raise various
+  warnings. If the build process warns that you are missing fonts, make sure
+  your LaTeX distribution bundles cm-super or install it separately.
