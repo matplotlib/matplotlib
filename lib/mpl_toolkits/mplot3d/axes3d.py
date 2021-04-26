@@ -1077,19 +1077,8 @@ class Axes3D(Axes):
         else:
             self.azim = azim
 
-        if vertical_axis == "z":
-            self._vertical_axis = 2
-        elif vertical_axis == "y":
-            self._vertical_axis = 1
-        elif vertical_axis == "x":
-            self._vertical_axis = 0
-        else:
-            raise ValueError(
-                (
-                    "vertical_axis accepts only ('x', 'y', 'z'), "
-                    f"got {vertical_axis}."
-                )
-            )
+        _api.check_in_list(['x', 'y', 'z'], vertical_axis=vertical_axis)
+        self._vertical_axis = {'x': 0, 'y': 1, 'z': 2}[vertical_axis]
 
     def set_proj_type(self, proj_type):
         """
