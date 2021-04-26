@@ -73,3 +73,6 @@ ax.dist = 11
 
 # Colorbar
 fig.colorbar(C, ax=ax, fraction=0.02, pad=0.1, label='Name [units]')
+
+# Show Figure
+plt.show()
