@@ -584,48 +584,48 @@ class AxesDivider(Divider):
 
 
 # Helper for HBoxDivider/VBoxDivider.
-def _determine_karray(equivalent_sizes, appended_sizes,
-                      max_equivalent_size, total_appended_size):
-    n = len(equivalent_sizes)
-    eq_rs, eq_as = np.asarray(equivalent_sizes).T
-    ap_rs, ap_as = np.asarray(appended_sizes).T
+# The variable names are written for a horizontal layout, but the calculations
+# work identically for vertical layouts (and likewise for the helpers below).
+def _determine_karray(summed_widths, equal_heights, total_width, max_height):
+    n = len(equal_heights)
+    eq_rs, eq_as = np.asarray(equal_heights).T
+    sm_rs, sm_as = np.asarray(summed_widths).T
     A = np.zeros((n + 1, n + 1))
     B = np.zeros(n + 1)
     np.fill_diagonal(A[:n, :n], eq_rs)
     A[:n, -1] = -1
-    A[-1, :-1] = ap_rs
+    A[-1, :-1] = sm_rs
     B[:n] = -eq_as
-    B[-1] = total_appended_size - sum(ap_as)
+    B[-1] = total_width - sum(sm_as)
     # A @ K = B: This solves for {k_0, ..., k_{N-1}, H} so that
     #   eq_r_i * k_i + eq_a_i = H for all i: all axes have the same height
-    #   sum(ap_r_i * k_i + ap_a_i) = total_summed_width: fixed total width
+    #   sum(sm_r_i * k_i + sm_a_i) = total_summed_width: fixed total width
     # (foo_r_i * k_i + foo_a_i will end up being the size of foo.)
-    karray_H = np.linalg.solve(A, B)
-    karray = karray_H[:-1]
-    H = karray_H[-1]
-    if H > max_equivalent_size:  # Additionally, upper-bound the height.
-        karray = (max_equivalent_size - eq_as) / eq_rs
+    karray_and_height = np.linalg.solve(A, B)
+    karray = karray_and_height[:-1]
+    height = karray_and_height[-1]
+    if height > max_height:  # Additionally, upper-bound the height.
+        karray = (max_height - eq_as) / eq_rs
     return karray
 
 
-# Helper for HBoxDivider/VBoxDivider.
-def _calc_offsets(appended_sizes, karray):
+# Helper for HBoxDivider/VBoxDivider (see above re: variable naming).
+def _calc_offsets(summed_sizes, karray):
     offsets = [0.]
-    for (r, a), k in zip(appended_sizes, karray):
+    for (r, a), k in zip(summed_sizes, karray):
         offsets.append(offsets[-1] + r*k + a)
     return offsets
 
 
-# Helper for HBoxDivider/VBoxDivider.
-def _locate(
-        x, y, w, h, equivalent_sizes, appended_sizes, fig_w, fig_h, anchor):
+# Helper for HBoxDivider/VBoxDivider (see above re: variable naming).
+def _locate(x, y, w, h, summed_widths, equal_heights, fig_w, fig_h, anchor):
     karray = _determine_karray(
-        equivalent_sizes, appended_sizes,
-        max_equivalent_size=fig_h * h, total_appended_size=fig_w * w)
-    ox = _calc_offsets(appended_sizes, karray)
+        summed_widths, equal_heights,
+        total_width=fig_w * w, max_height=fig_h * h)
+    ox = _calc_offsets(summed_widths, karray)
 
     ww = (ox[-1] - ox[0]) / fig_w
-    h0_r, h0_a = equivalent_sizes[0]
+    h0_r, h0_a = equal_heights[0]
     hh = (karray[0]*h0_r + h0_a) / fig_h
     pb = mtransforms.Bbox.from_bounds(x, y, w, h)
     pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
@@ -661,16 +661,15 @@ class HBoxDivider(SubplotDivider):
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         # docstring inherited
-        figW, figH = self._fig.get_size_inches()
+        fig_w, fig_h = self._fig.get_size_inches()
         x, y, w, h = self.get_position_runtime(axes, renderer)
-        y_equivalent_sizes = self.get_vertical_sizes(renderer)
-        x_appended_sizes = self.get_horizontal_sizes(renderer)
-        x0, y0, ox, hh = _locate(x, y, w, h,
-                                 y_equivalent_sizes, x_appended_sizes,
-                                 figW, figH, self.get_anchor())
+        summed_ws = self.get_horizontal_sizes(renderer)
+        equal_hs = self.get_vertical_sizes(renderer)
+        x0, y0, ox, hh = _locate(
+            x, y, w, h, summed_ws, equal_hs, fig_w, fig_h, self.get_anchor())
         if nx1 is None:
             nx1 = nx + 1
-        x1, w1 = x0 + ox[nx] / figW, (ox[nx1] - ox[nx]) / figW
+        x1, w1 = x0 + ox[nx] / fig_w, (ox[nx1] - ox[nx]) / fig_w
         y1, h1 = y0, hh
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
@@ -697,17 +696,16 @@ class VBoxDivider(SubplotDivider):
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         # docstring inherited
-        figW, figH = self._fig.get_size_inches()
+        fig_w, fig_h = self._fig.get_size_inches()
         x, y, w, h = self.get_position_runtime(axes, renderer)
-        x_equivalent_sizes = self.get_horizontal_sizes(renderer)
-        y_appended_sizes = self.get_vertical_sizes(renderer)
-        y0, x0, oy, ww = _locate(y, x, h, w,
-                                 x_equivalent_sizes, y_appended_sizes,
-                                 figH, figW, self.get_anchor())
+        summed_hs = self.get_vertical_sizes(renderer)
+        equal_ws = self.get_horizontal_sizes(renderer)
+        y0, x0, oy, ww = _locate(
+            y, x, h, w, summed_hs, equal_ws, fig_h, fig_w, self.get_anchor())
         if ny1 is None:
             ny1 = ny + 1
         x1, w1 = x0, ww
-        y1, h1 = y0 + oy[ny] / figH, (oy[ny1] - oy[ny]) / figH
+        y1, h1 = y0 + oy[ny] / fig_h, (oy[ny1] - oy[ny]) / fig_h
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
 
