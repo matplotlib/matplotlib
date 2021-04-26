@@ -17,6 +17,7 @@ from matplotlib.rcsetup import (
     validate_bool,
     validate_color,
     validate_colorlist,
+    _validate_color_or_linecolor,
     validate_cycler,
     validate_float,
     validate_fontweight,
@@ -328,6 +329,17 @@ def generate_validator_testcases(valid):
                   ('(0, 1, none)', ValueError),  # cannot cast none to float
                   ('(0, 1, "0.5")', ValueError),  # last one not a float
                   ),
+         },
+        {'validator': _validate_color_or_linecolor,
+         'success': (('linecolor', 'linecolor'),
+                     ('markerfacecolor', 'markerfacecolor'),
+                     ('mfc', 'markerfacecolor'),
+                     ('markeredgecolor', 'markeredgecolor'),
+                     ('mec', 'markeredgecolor')
+                     ),
+         'fail': (('line', ValueError),
+                  ('marker', ValueError)
+                  )
          },
         {'validator': validate_hist_bins,
          'success': (('auto', 'auto'),
