@@ -208,14 +208,24 @@ class Axis(maxis.XAxis):
 
         return mins, maxs, centers, deltas, bounds_proj, highs
 
-    def _get_mm(self, minmax, maxmin):
+    def _get_axis_line_edge_points(self, minmax, maxmin):
+        """Get the edge points for the black bolded axis line."""
         # When changing vertical axis some of the axes has to be
         # moved to the other plane so it looks the same as if the z-axis
         # was the vertical axis.
         mb = [minmax, maxmin]
-        mm = [[mb, mb[::-1], mb[::-1]], [mb[::-1], mb[::-1], mb], [mb, mb, mb]]
+        mb_rev = mb[::-1]
+        mm = [[mb, mb_rev, mb_rev], [mb_rev, mb_rev, mb], [mb, mb, mb]]
         mm = mm[self.axes._vertical_axis][self._axinfo["i"]]
-        return mm
+
+        juggled = self._axinfo["juggled"]
+        edge_point_0 = mm[0].copy()
+        edge_point_0[juggled[0]] = mm[1][juggled[0]]
+
+        edge_point_1 = edge_point_0.copy()
+        edge_point_1[juggled[1]] = mm[1][juggled[1]]
+
+        return edge_point_0, edge_point_1
 
     def _get_tickdir(self):
         """
@@ -277,11 +287,7 @@ class Axis(maxis.XAxis):
         maxmin = np.where(~highs, maxs, mins)
 
         # Create edge points for the black bolded axis line:
-        mm = self._get_mm(minmax, maxmin)
-        edgep1 = mm[0].copy()
-        edgep1[juggled[0]] = mm[1][juggled[0]]
-        edgep2 = edgep1.copy()
-        edgep2[juggled[1]] = mm[1][juggled[1]]
+        edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
 
         # Project the edge points along the current position and
         # create the line:
