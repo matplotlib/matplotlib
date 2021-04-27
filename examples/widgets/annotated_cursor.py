@@ -270,7 +270,7 @@ class AnnotatedCursor(Cursor):
 
     def _update(self):
         """
-        Overwritten method for eather blitting or drawing the widget canvas.
+        Overridden method for either blitting or drawing the widget canvas.
 
         Passes call to base class if blitting is activated, only.
         In other cases, one draw_idle call is enough, which is placed
