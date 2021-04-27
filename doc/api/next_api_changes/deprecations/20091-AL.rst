@@ -1,0 +1,3 @@
+``tight_layout.auto_adjust_subplotpars``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.

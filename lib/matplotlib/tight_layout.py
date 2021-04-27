@@ -11,12 +11,12 @@ for some cases (for example, left or right margin is affected by xlabel).
 
 import numpy as np
 
-from matplotlib import _api, rcParams
+from matplotlib import _api, docstring, rcParams
 from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import TransformedBbox, Bbox
 
 
-def auto_adjust_subplotpars(
+def _auto_adjust_subplotpars(
         fig, renderer, nrows_ncols, num1num2_list, subplot_list,
         ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
@@ -90,8 +90,6 @@ def auto_adjust_subplotpars(
                                      fig.transFigure.inverted())
 
         row1, col1 = divmod(num1, cols)
-        if num2 is None:
-            num2 = num1
         row2, col2 = divmod(num2, cols)
 
         for row_i in range(row1, row2 + 1):
@@ -172,6 +170,18 @@ def auto_adjust_subplotpars(
             kwargs["hspace"] = vspace / v_axes
 
     return kwargs
+
+
+@_api.deprecated("3.5")
+@docstring.copy(_auto_adjust_subplotpars)
+def auto_adjust_subplotpars(
+        fig, renderer, nrows_ncols, num1num2_list, subplot_list,
+        ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
+    num1num2_list = [
+        (n1, n1 if n2 is None else n2) for n1, n2 in num1num2_list]
+    return _auto_adjust_subplotpars(
+        fig, renderer, nrows_ncols, num1num2_list, subplot_list,
+        ax_bbox_list, pad, h_pad, w_pad, rect)
 
 
 def get_renderer(fig):
@@ -298,23 +308,19 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                'multiples of one another.')
             return {}
 
-        rowNum1, colNum1 = divmod(num1, cols)
-        if num2 is None:
-            rowNum2, colNum2 = rowNum1, colNum1
-        else:
-            rowNum2, colNum2 = divmod(num2, cols)
+        row1, col1 = divmod(num1, cols)
+        row2, col2 = divmod(num2, cols)
 
-        num1num2_list.append((rowNum1 * div_row * max_ncols +
-                              colNum1 * div_col,
-                              ((rowNum2 + 1) * div_row - 1) * max_ncols +
-                              (colNum2 + 1) * div_col - 1))
+        num1num2_list.append((row1 * div_row * max_ncols + col1 * div_col,
+                              ((row2 + 1) * div_row - 1) * max_ncols +
+                              (col2 + 1) * div_col - 1))
 
-    kwargs = auto_adjust_subplotpars(fig, renderer,
-                                     nrows_ncols=(max_nrows, max_ncols),
-                                     num1num2_list=num1num2_list,
-                                     subplot_list=subplot_list,
-                                     ax_bbox_list=ax_bbox_list,
-                                     pad=pad, h_pad=h_pad, w_pad=w_pad)
+    kwargs = _auto_adjust_subplotpars(fig, renderer,
+                                      nrows_ncols=(max_nrows, max_ncols),
+                                      num1num2_list=num1num2_list,
+                                      subplot_list=subplot_list,
+                                      ax_bbox_list=ax_bbox_list,
+                                      pad=pad, h_pad=h_pad, w_pad=w_pad)
 
     # kwargs can be none if tight_layout fails...
     if rect is not None and kwargs is not None:
@@ -336,12 +342,12 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         if top is not None:
             top -= (1 - kwargs["top"])
 
-        kwargs = auto_adjust_subplotpars(fig, renderer,
-                                         nrows_ncols=(max_nrows, max_ncols),
-                                         num1num2_list=num1num2_list,
-                                         subplot_list=subplot_list,
-                                         ax_bbox_list=ax_bbox_list,
-                                         pad=pad, h_pad=h_pad, w_pad=w_pad,
-                                         rect=(left, bottom, right, top))
+        kwargs = _auto_adjust_subplotpars(fig, renderer,
+                                          nrows_ncols=(max_nrows, max_ncols),
+                                          num1num2_list=num1num2_list,
+                                          subplot_list=subplot_list,
+                                          ax_bbox_list=ax_bbox_list,
+                                          pad=pad, h_pad=h_pad, w_pad=w_pad,
+                                          rect=(left, bottom, right, top))
 
     return kwargs
