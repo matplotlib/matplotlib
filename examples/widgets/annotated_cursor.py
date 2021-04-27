@@ -298,7 +298,8 @@ ax.set_ylim(0, 25)
 # cursor = AnnotatedCursor(line=lin[0], ax=ax, useblit=True)
 
 # A more advanced call. Properties for text and lines are passed.
-# See the color if you are confused which parameter is passed where.
+# Watch the passed color names and the color of cursor line and text, to
+# relate the passed options to graphical elements.
 # The dataaxis parameter is still the default.
 cursor = AnnotatedCursor(
     line=line,
