@@ -2353,6 +2353,7 @@ class Axes(_AxesBase):
             bottom = y
 
         patches = []
+        colors = []
         args = zip(left, bottom, width, height, color, edgecolor, linewidth,
                    hatch)
         for l, b, w, h, c, e, lw, htch in args:
@@ -2364,6 +2365,7 @@ class Axes(_AxesBase):
                 label='_nolegend_',
                 hatch=htch,
                 )
+            colors.append(c)
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
             if orientation == 'vertical':
@@ -2372,7 +2374,10 @@ class Axes(_AxesBase):
                 r.sticky_edges.x.append(l)
             patches.append(r)
 
-        self.add_collection(PatchCollection(patches))
+        collection = PatchCollection(patches)
+        collection.set_facecolor(colors)
+
+        self.add_collection(collection)
 
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
