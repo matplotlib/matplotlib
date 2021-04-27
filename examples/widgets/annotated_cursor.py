@@ -128,7 +128,7 @@ class AnnotatedCursor(Cursor):
             return
 
         # Get the coordinates, which should be displayed as text,
-        # if the event cooridnates are valid
+        # if the event coordinates are valid.
         plotpoint = None
         if event.xdata is not None and event.ydata is not None:
             # Get plot point related to current x position.
