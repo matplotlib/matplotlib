@@ -87,7 +87,7 @@ class AnnotatedCursor(Cursor):
         self.dataaxis = dataaxis
 
         # First call baseclass constructor.
-        # Draws cursor and remembers backround for blitting.
+        # Draws cursor and remembers background for blitting.
         # Saves ax as class attribute.
         super().__init__(**cursorargs)
 
@@ -150,7 +150,7 @@ class AnnotatedCursor(Cursor):
 
         # Baseclass redraws canvas and cursor. Due to blitting,
         # the added text is removed in this call, because the
-        # backround is redrawn.
+        # background is redrawn.
         super().onmove(event)
 
         # Check if the display of text is still necessary.
@@ -177,7 +177,7 @@ class AnnotatedCursor(Cursor):
 
             # Tell base class, that we have drawn something.
             # Baseclass needs to know, that it needs to restore a clean
-            # backround, if the cursor leaves our figure context.
+            # background, if the cursor leaves our figure context.
             self.needclear = True
 
             # Remember the recently drawn cursor position, so events for the
@@ -189,7 +189,7 @@ class AnnotatedCursor(Cursor):
             self.text.set_visible(False)
 
         # Draw changes. Canot use _update method of baseclass,
-        # because it would first restore the backround, which
+        # because it would first restore the background, which
         # is done already and is not necessary.
         if self.useblit:
             self.ax.draw_artist(self.text)
