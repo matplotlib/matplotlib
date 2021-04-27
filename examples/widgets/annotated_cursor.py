@@ -250,7 +250,7 @@ class AnnotatedCursor(Cursor):
             if index < 0 or index >= len(data):
                 return None
             # Return plot point as tuple.
-            return (xdata[index][0], ydata[index][0])
+            return (xdata[index], ydata[index])
 
         # Return none if there is no good related point for this x position.
         return None
