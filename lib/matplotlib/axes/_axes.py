@@ -2625,14 +2625,15 @@ class Axes(_AxesBase):
             if label_type == "center":
                 ha, va = "center", "center"
             elif label_type == "edge":
-                if orientation == "vertical" and dat >= 0:
-                    ha, va = "center", "bottom"
-                elif orientation == "vertical" and dat < 0:
-                    ha, va = "center", "top"
-                elif orientation == "horizontal" and dat >= 0:
-                    ha, va = "left", "center"
-                elif orientation == "horizontal" and dat < 0:
-                    ha, va = "right", "center"
+                if orientation == "vertical":
+                    ha = 'center'
+                    va = 'top' if dat < 0 else 'bottom'  # also handles NaN
+                elif orientation == "horizontal":
+                    ha = 'right' if dat < 0 else 'left'  # also handles NaN
+                    va = 'center'
+
+            if np.isnan(dat):
+                lbl = ''
 
             annotation = self.annotate(fmt % value if lbl is None else lbl,
                                        xy, xytext, textcoords="offset points",

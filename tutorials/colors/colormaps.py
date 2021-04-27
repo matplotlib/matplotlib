@@ -78,9 +78,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from colorspacious import cspace_converter
-from collections import OrderedDict
 
-cmaps = OrderedDict()
+
+cmaps = {}
 
 ###############################################################################
 # Sequential

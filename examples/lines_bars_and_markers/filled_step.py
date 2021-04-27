@@ -7,7 +7,6 @@ Hatching capabilities for plotting histograms.
 """
 
 import itertools
-from collections import OrderedDict
 from functools import partial
 
 import numpy as np
@@ -188,7 +187,7 @@ hatch_cycle = cycler(hatch=['/', '*', '+', '|'])
 np.random.seed(19680801)
 
 stack_data = np.random.randn(4, 12250)
-dict_data = OrderedDict(zip((c['label'] for c in label_cycle), stack_data))
+dict_data = dict(zip((c['label'] for c in label_cycle), stack_data))
 
 ###############################################################################
 # Work with plain arrays

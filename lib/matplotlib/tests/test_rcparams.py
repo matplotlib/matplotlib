@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import copy
 import os
 from pathlib import Path
@@ -460,8 +459,7 @@ def test_rcparams_reset_after_fail():
     with mpl.rc_context(rc={'text.usetex': False}):
         assert mpl.rcParams['text.usetex'] is False
         with pytest.raises(KeyError):
-            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),
-                                                ('test.blah', True)])):
+            with mpl.rc_context(rc={'text.usetex': True, 'test.blah': True}):
                 pass
         assert mpl.rcParams['text.usetex'] is False
 

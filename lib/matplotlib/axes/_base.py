@@ -1780,28 +1780,21 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        anchor : 2-tuple of floats or {'C', 'SW', 'S', 'SE', ...}
-            The anchor position may be either:
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', ...}
+            Either an (*x*, *y*) pair of relative coordinates (0 is left or
+            bottom, 1 is right or top), 'C' (center), or a cardinal direction
+            ('SW', southwest, is bottom left, etc.).  str inputs are shorthands
+            for (*x*, *y*) coordinates, as shown in the following table::
 
-            - a sequence (*cx*, *cy*). *cx* and *cy* may range from 0
-              to 1, where 0 is left or bottom and 1 is right or top.
+            .. code-block:: none
 
-            - a string using cardinal directions as abbreviation:
-
-              - 'C' for centered
-              - 'S' (south) for bottom-center
-              - 'SW' (south west) for bottom-left
-              - etc.
-
-              Here is an overview of the possible positions:
-
-              +------+------+------+
-              | 'NW' | 'N'  | 'NE' |
-              +------+------+------+
-              | 'W'  | 'C'  | 'E'  |
-              +------+------+------+
-              | 'SW' | 'S'  | 'SE' |
-              +------+------+------+
+               +-----------------+-----------------+-----------------+
+               | 'NW' (0.0, 1.0) | 'N' (0.5, 1.0)  | 'NE' (1.0, 1.0) |
+               +-----------------+-----------------+-----------------+
+               | 'W'  (0.0, 0.5) | 'C' (0.5, 0.5)  | 'E'  (1.0, 0.5) |
+               +-----------------+-----------------+-----------------+
+               | 'SW' (0.0, 0.0) | 'S' (0.5, 0.0)  | 'SE' (1.0, 0.0) |
+               +-----------------+-----------------+-----------------+
 
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
