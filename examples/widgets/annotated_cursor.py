@@ -94,7 +94,7 @@ class AnnotatedCursor(Cursor):
         # The numbers displayed next to cursor. Default value.
         self.textdata = [0, 0]
         # Default value for position of text.
-        self.setpos(self.line.get_xdata()[0], self.line.get_ydata()[0])
+        self.set_position(self.line.get_xdata()[0], self.line.get_ydata()[0])
         # Create invisible animated text
         self.text = self.ax.text(
             self.ax.get_xbound()[0],
@@ -132,7 +132,7 @@ class AnnotatedCursor(Cursor):
         if event.xdata is not None and event.ydata is not None:
             # Get plot point related to current x position.
             # These coordinates are displayed in text.
-            plotpoint = self.setpos(event.xdata, event.ydata)
+            plotpoint = self.set_position(event.xdata, event.ydata)
             # Modify event, such that the cursor is displayed on the
             # plotted line, not at the mouse pointer,
             # if the returned plot point is valid
@@ -164,7 +164,7 @@ class AnnotatedCursor(Cursor):
         if plotpoint is not None:
             # Update position and displayed text.
             # Position: Where the event occured.
-            # Text: Determined by setpos() method earlier
+            # Text: Determined by set_position() method earlier
             # Position is transformed to pixel coordinates,
             # an offset is added there and this is transformed back.
             temp = [event.xdata, event.ydata]
@@ -200,7 +200,7 @@ class AnnotatedCursor(Cursor):
             # We still have to draw the changes.
             self.canvas.draw_idle()
 
-    def setpos(self, xpos, ypos):
+    def set_position(self, xpos, ypos):
         """
         Finds the coordinates, which have to be shown in text.
 
