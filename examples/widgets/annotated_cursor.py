@@ -255,8 +255,9 @@ class AnnotatedCursor(Cursor):
         return None
 
     def clear(self, event):
-        """Overwirtten clear callback for cursor. Called right before \
-        displaying the figure."""
+        """
+        Overridden clear callback for cursor, called before drawing the figure.
+        """
 
         # The base class saves the clean background for blitting.
         # Text and cursor are invisible,
