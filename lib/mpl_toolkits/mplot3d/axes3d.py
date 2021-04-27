@@ -1093,15 +1093,15 @@ class Axes3D(Axes):
             'ortho': proj3d.ortho_transformation,
         }, proj_type=proj_type)
 
+    def _roll_to_vertical(self, arr):
+        """Roll arrays to match the different vertical axis."""
+        return np.roll(arr, self._vertical_axis - 2)
+
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
 
-        def _roll_to_vertical(arr, _vertical_axis):
-            """Roll arrays to match the different vertical axis."""
-            return np.roll(arr, _vertical_axis - 2)
-
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
-        box_aspect = _roll_to_vertical(self._box_aspect, self._vertical_axis)
+        box_aspect = self._roll_to_vertical(self._box_aspect)
         worldM = proj3d.world_transformation(
             *self.get_xlim3d(),
             *self.get_ylim3d(),
@@ -1110,7 +1110,7 @@ class Axes3D(Axes):
         )
 
         # Look into the middle of the new coordinates:
-        R = box_aspect / 2
+        R = 0.5 * box_aspect
 
         # elev stores the elevation angle in the z plane
         # azim stores the azimuth angle in the x,y plane
@@ -1128,7 +1128,7 @@ class Axes3D(Axes):
 
         # When changing vertical axis the coordinates changes as well.
         # Roll the values to get the same behaviour as the default:
-        ps = _roll_to_vertical([p0, p1, p2], self._vertical_axis)
+        ps = self._roll_to_vertical([p0, p1, p2])
 
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
@@ -1143,7 +1143,7 @@ class Axes3D(Axes):
         # indicates the plot is upside down and therefore the values
         # have been reversed:
         V = np.zeros(3)
-        V[self._vertical_axis] = -1 if abs(elev_rad) > np.pi / 2 else 1
+        V[self._vertical_axis] = -1 if abs(elev_rad) > 0.5 * np.pi else 1
 
         viewM = proj3d.view_transformation(eye, R, V)
         projM = self._projection(-self.dist, self.dist)
