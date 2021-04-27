@@ -240,22 +240,16 @@ class AnnotatedCursor(Cursor):
             raise ValueError(f"The data axis specifier {self.dataaxis} should "
                              f"be 'x' or 'y'")
 
-        # If position is valid
-        if pos is not None:
-            # And in valid plot data range
-            if pos >= lim[0] and pos <= lim[-1]:
-                # Convert given positon to numpy array,
-                # so numpy function can be used.
-                findme = np.array([pos])
-                # Find closest x value in sorted x vector.
-                # This is the code line,
-                # which requires the plotted data to be sorted.
-                index = np.searchsorted(data, findme)
-                # Return none, if this index is out of range.
-                if (index < 0) or (index >= len(data)):
-                    return None
-                # Return plot point as tuple.
-                return (xdata[index][0], ydata[index][0])
+        # If position is valid and in valid plot data range.
+        if pos is not None and lim[0] <= pos <= lim[-1]:
+            # Find closest x value in sorted x vector.
+            # This requires the plotted data to be sorted.
+            index = np.searchsorted(data, pos)
+            # Return none, if this index is out of range.
+            if index < 0 or index >= len(data):
+                return None
+            # Return plot point as tuple.
+            return (xdata[index][0], ydata[index][0])
 
         # Return none if there is no good related point for this x position.
         return None
