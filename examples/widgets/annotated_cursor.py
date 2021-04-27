@@ -237,9 +237,8 @@ class AnnotatedCursor(Cursor):
             data = ydata
             lim = self.ax.get_ylim()
         else:
-            raise ValueError(
-                "The data axis specifier {} should be 'x' or 'y'"
-                .format(self.dataaxis))
+            raise ValueError(f"The data axis specifier {self.dataaxis} should "
+                             f"be 'x' or 'y'")
 
         # If position is valid
         if pos is not None:
