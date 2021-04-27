@@ -1077,8 +1077,8 @@ class Axes3D(Axes):
         else:
             self.azim = azim
 
-        _api.check_in_list(['x', 'y', 'z'], vertical_axis=vertical_axis)
-        self._vertical_axis = {'x': 0, 'y': 1, 'z': 2}[vertical_axis]
+        _api.check_in_list(["x", "y", "z"], vertical_axis=vertical_axis)
+        self._vertical_axis = {"x": 0, "y": 1, "z": 2}[vertical_axis]
 
     def set_proj_type(self, proj_type):
         """
