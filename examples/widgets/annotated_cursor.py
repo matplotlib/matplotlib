@@ -145,9 +145,8 @@ class AnnotatedCursor(Cursor):
         # Skip even the call of the base class, because this would restore the
         # background, draw the cursor lines and would leave us the job to
         # re-draw the text.
-        if plotpoint is not None:
-            if plotpoint == self.lastdrawnplotpoint:
-                return
+        if plotpoint is not None and plotpoint == self.lastdrawnplotpoint:
+            return
 
         # Baseclass redraws canvas and cursor. Due to blitting,
         # the added text is removed in this call, because the
