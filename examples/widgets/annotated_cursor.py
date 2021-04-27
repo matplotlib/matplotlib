@@ -195,7 +195,7 @@ class AnnotatedCursor(Cursor):
             self.ax.draw_artist(self.text)
             self.canvas.blit(self.ax.bbox)
         else:
-            # If blitting is deactivated, the overwritten _update call made
+            # If blitting is deactivated, the overridden _update call made
             # by the base class immedeately returned.
             # We still have to draw the changes.
             self.canvas.draw_idle()
