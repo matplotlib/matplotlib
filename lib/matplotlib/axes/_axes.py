@@ -35,6 +35,7 @@ from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.collections import PatchCollection
 
 _log = logging.getLogger(__name__)
 
@@ -2369,8 +2370,9 @@ class Axes(_AxesBase):
                 r.sticky_edges.y.append(b)
             elif orientation == 'horizontal':
                 r.sticky_edges.x.append(l)
-            self.add_patch(r)
             patches.append(r)
+
+        self.add_collection(PatchCollection(patches))
 
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
